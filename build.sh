@@ -1,6 +1,6 @@
 #!/bin/bash
 PLUGIN_NAME=searchguard-kibana-alpha
-PLUGIN_VERSION=5.1.1
+PLUGIN_VERSION=4.6.0
 echo "Building $PLUGIN_NAME-$PLUGIN_VERSION.zip"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR/..
@@ -22,11 +22,11 @@ cp -a lib $COPYPATH
 cp -a node_modules $COPYPATH
 cp -a public $COPYPATH
 #cp -a server $COPYPATH
-cd build
-zip --quiet -r $PLUGIN_NAME-$PLUGIN_VERSION.zip kibana
+cd build/kibana
+zip --quiet -r $PLUGIN_NAME-$PLUGIN_VERSION.zip $PLUGIN_NAME
 ls -lah $PLUGIN_NAME-$PLUGIN_VERSION.zip
 cd $DIR
 mkdir -p releases/$PLUGIN_VERSION/
-cp build/$PLUGIN_NAME-$PLUGIN_VERSION.zip releases/$PLUGIN_VERSION/
+cp build/kibana/$PLUGIN_NAME-$PLUGIN_VERSION.zip releases/$PLUGIN_VERSION/
 echo "Created releases/$PLUGIN_VERSION/$PLUGIN_NAME-$PLUGIN_VERSION.zip"
-md5sum build/$PLUGIN_NAME-$PLUGIN_VERSION.zip
+md5sum build/kibana/$PLUGIN_NAME-$PLUGIN_VERSION.zip

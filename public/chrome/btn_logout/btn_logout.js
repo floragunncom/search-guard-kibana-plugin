@@ -13,7 +13,6 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
 import uiModules from 'ui/modules';
 import navRegistry from 'ui/registry/chrome_nav_controls';
 
