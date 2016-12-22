@@ -1,0 +1,69 @@
+@import "~ui/styles/variables/colors.less";
+@import "~ui/styles/variables/bootstrap-mods.less";
+
+.content {
+  background: @gray14;
+}
+
+.app-wrapper {
+  left: 0;
+}
+
+.global-nav.is-global-nav-open + .app-wrapper {
+  left: 0;
+}
+
+.btn-default {
+  background-color: #73b626;
+  border-bottom-color: #73b626;
+  border-left-color: #73b626;
+  border-right-color: #73b626;
+  border-top-color: #73b626;
+  color: #ffffff;
+}
+
+.btn-default:hover {
+  background-color: #5e9b24;
+  border-bottom-color: #5e9b24;
+  border-left-color: #5e9b24;
+  border-right-color: #5e9b24;
+  border-top-color: #5e9b24;
+  color: #ffffff;
+}
+
+.login-wrapper {
+  position: absolute;
+  width: 320px;
+  top: 35%;
+  left: 50%;
+  margin-left: -160px;
+
+  background: white;
+  border-radius: @border-radius-base;
+  padding: 1em;
+
+  .login-title {
+    font-size: 1.4em;
+    text-align: center;
+  }
+
+  .login-form {
+    .input-group {
+      margin-bottom: 1em;
+    }
+
+    .btn-login {
+      width: 100%;
+    }
+  }
+
+  .error-message {
+    color: @state-danger-bg;
+    text-align: center;
+
+    margin-top: @form-group-margin-bottom;
+    margin-bottom: 0;
+  }
+
+}
+

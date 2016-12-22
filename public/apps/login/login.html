@@ -1,0 +1,21 @@
+<div class="container login-wrapper">
+
+  <p class="login-title">Login to Kibana</p>
+
+  <form class="login-form" ng-submit="ui.submit()" method="post">
+    <div class="input-group">
+      <div class="input-group-addon"><i class="fa fa-user"></i></div>
+      <input type="text" class="form-control" id="username" name="username" placeholder="Username"
+             ng-model="ui.credentials.username" required/>
+    </div>
+    <div class="input-group">
+      <div class="input-group-addon"><i class="fa fa-lock"></i></div>
+      <input type="password" class="form-control" id="password" name="password" placeholder="Password"
+             ng-model="ui.credentials.password" required/>
+    </div>
+    <button type="submit" class="btn btn-default btn-login">Log in</button>
+  </form>
+
+  <p class="error-message" ng-if="ui.errorMessage">{{ ui.errorMessage }}</p>
+
+</div>
