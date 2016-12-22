@@ -6,8 +6,8 @@
 ![Logo](https://raw.githubusercontent.com/floragunncom/sg-assets/master/logo/sg_dlic_small.png) 
 
 
-## About this module
-This module for [Search Guard](https://github.com/floragunncom/search-guard) enables login- and logout functionality for Kibana.
+## About this plugin
+This plugin for Kibana adds login and logout capabilities to a [Search Guard](https://github.com/floragunncom/search-guard) secured cluster.
 
 ## Download
 All releases can be found under the [release section](https://github.com/floragunncom/search-guard-kibana-plugin/releases)
