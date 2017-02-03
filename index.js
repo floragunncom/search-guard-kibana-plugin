@@ -56,7 +56,6 @@ export default function (kibana) {
 
             APP_ROOT = '/searchguard';
             API_ROOT = `${APP_ROOT}/api`;
-            console.log("Calling");
             const config = server.config();
             // validate config, only mandatory field is password
             if(config.get('searchguard.cookie.password') == null) {
