@@ -16,10 +16,10 @@ export default function (kibana) {
             var obj = Joi.object({
                 enabled: Joi.boolean().default(true),
                 cookie: Joi.object().keys({
-                    secure: Joi.boolean().default(true),
+                    secure: Joi.boolean().default(false),
                     name: Joi.string().default('searchguard_authentication'),
-                    password: Joi.string().min(32).required(),
-                    ttl: Joi.number().integer().min(0).allow(null)
+                    password: Joi.string().min(32).default('searchguard_cookie_default_password'),
+                    ttl: Joi.number().integer().min(1).default(60 * 60 * 1000),
                 }).default(),
                 session: Joi.object().keys({
                     ttl: Joi.number().integer().min(1).default(60 * 60 * 1000),
@@ -29,7 +29,7 @@ export default function (kibana) {
                     enabled: Joi.boolean().default(true)
                 }).default(),
                 multitenancy: Joi.object().keys({
-                    bla: Joi.string().default('blub')
+                    enabled: Joi.boolean().default(false)
                 }).default()
             }).default();
             return obj;
@@ -57,11 +57,6 @@ export default function (kibana) {
             APP_ROOT = '/searchguard';
             API_ROOT = `${APP_ROOT}/api`;
             const config = server.config();
-            // validate config, only mandatory field is password
-            if(config.get('searchguard.cookie.password') == null) {
-                this.status.red('searchguard.cookie.password not set in kibana.yml, please specify this value (min. 32 characters)');
-                throw new Error('+++ Search Guard authentication not available +++');
-            }
 
             if(config.get('searchguard.basicauth.enabled')) {
                 server.register([
@@ -69,6 +64,7 @@ export default function (kibana) {
                     require('hapi-auth-cookie'),
                     require('hapi-authorization')
                 ], (error) => {
+
                     if (error) {
                         server.log(['error', 'searchguard'], `An error occurred registering server plugins: ${error}`);
                         this.status.red('An error occurred during initialisation, please check the logs.');
@@ -76,6 +72,14 @@ export default function (kibana) {
                     }
 
                     this.status.yellow('Initialising Search Guard authentication plugin.');
+
+                    if(config.get("searchguard.cookie.password") == 'searchguard_cookie_default_password') {
+                        this.status.yellow("Default cookie password detected, please set a password in kibana.yml by setting 'searchguard.cookie.password' (min. 32 characters).");
+                    }
+
+                    if(!config.get("searchguard.cookie.secure")) {
+                        this.status.yellow("'searchguard.cookie.secure' is set to false, cookies are transmitted over unsecure HTTP connection. Consider using HTTPS and set this key to 'true'");
+                    }
 
                     // provides authentication methods against Search Guard
                     const BackendClass = pluginRoot(`lib/backend/searchguard`);
