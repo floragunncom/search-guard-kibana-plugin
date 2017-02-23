@@ -1,0 +1,46 @@
+<div class="container">
+  <div class="row">
+    <div class="col-12-sm">
+      <h1 class="text-center">Available tenants</h1>
+      <p class="error-message" ng-if="ctrl.errorMessage">{{ ctrl.errorMessage }}</p>
+      <h3 class="text-center">Currently selected tenant: {{ ctrl.tenantLabel }}</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th class="col-xs-4 col-sm-4">Name</th>
+            <th class="col-xs-4 col-sm-4">Permissions</th>
+            <th class="col-xs-4 col-sm-4">Comment</th>
+            <th class="col-xs-4 col-sm-4">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>
+            {{ctrl.GLOBAL_USER_LABEL}}
+          </td>
+          <td>
+            <div>read/write</div>
+          </td>
+          <td>Shared with all users</td>
+          <td class="actions">
+            <button class="btn-primary" ng-click="ctrl.selectTenant(ctrl.GLOBAL_USER_LABEL, ctrl.GLOBAL_USER_VALUE)">Choose</button>
+          </td>
+        </tr>
+          <tr ng-repeat="(tenant, rw)  in ctrl.tenants">
+            <td>
+              {{tenant}}
+            </td>
+            <td>
+              <div ng-if="rw">read/write</div>
+              <div ng-if="!rw">read only</div>
+            </td>
+            <td></td>
+            <td class="actions">
+              <button class="btn-primary" ng-click="ctrl.selectTenant(tenant, tenant)">Choose</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

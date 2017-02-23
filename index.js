@@ -40,13 +40,23 @@ export default function (kibana) {
                 'plugins/searchguard/chrome/logout_button',
                 'plugins/searchguard/services/access_control'
             ],
-            apps: [{
-                id: 'searchguard-login',
-                title: 'Login',
-                main: 'plugins/searchguard/apps/login',
-                hidden: true,
-                auth: false
-            }],
+            apps: [
+                {
+                    id: 'searchguard-login',
+                    title: 'Login',
+                    main: 'plugins/searchguard/apps/login',
+                    hidden: true,
+                    auth: false
+                }
+                ,
+                {
+                    id: 'searchguard-multitenancy',
+                    title: 'Multitenancy',
+                    main: 'plugins/searchguard/apps/multitenancy',
+                    hidden: false,
+                    auth: true
+                }
+            ],
             chromeNavControls: [
                 'plugins/searchguard/chrome/btn_logout/btn_logout.js'
             ]
@@ -57,6 +67,15 @@ export default function (kibana) {
             APP_ROOT = '/searchguard';
             API_ROOT = `${APP_ROOT}/api`;
             const config = server.config();
+
+            // all your routes are belong to us
+            require('./lib/auth/routes_authinfo')(pluginRoot, server, this, APP_ROOT, API_ROOT);
+
+
+            // provides authentication methods against Search Guard
+            const BackendClass = pluginRoot(`lib/backend/searchguard`);
+            const searchguardBackend = new BackendClass(server, server.config);
+            server.expose('getSearchGuardBackend', () => searchguardBackend);
 
             if(config.get('searchguard.basicauth.enabled')) {
                 server.register([
@@ -81,18 +100,11 @@ export default function (kibana) {
                         this.status.yellow("'searchguard.cookie.secure' is set to false, cookies are transmitted over unsecure HTTP connection. Consider using HTTPS and set this key to 'true'");
                     }
 
-                    // provides authentication methods against Search Guard
-                    const BackendClass = pluginRoot(`lib/backend/searchguard`);
-                    const authenticationBackend = new BackendClass(server, server.config);
-
                     // we use the cookie strategy
                     require('./lib/hapi/auth')(pluginRoot, server, APP_ROOT, API_ROOT);
 
                     // all your routes are belong to us
-                    require('./lib/routes/routes')(pluginRoot, server, this, APP_ROOT, API_ROOT);
-
-                    // make auth backend available
-                    server.expose('getAuthenticationBackend', () => authenticationBackend);
+                    require('./lib/auth/routes')(pluginRoot, server, this, APP_ROOT, API_ROOT);
 
                     this.status.yellow('Search Guard HTTP Basic Authentication enabled.');
 
@@ -102,6 +114,24 @@ export default function (kibana) {
                 this.status.yellow('Search Guard HTTP Basic Authentication is disabled.');
             }
 
+
+            if(config.get('searchguard.multitenancy.enabled')) {
+                require('./lib/multitenancy/routes')(pluginRoot, server, this, APP_ROOT, API_ROOT);
+                require('./lib/multitenancy/headers')(pluginRoot, server, this, APP_ROOT, API_ROOT);
+
+                server.state('searchguard_tenant', {
+                    ttl: null,
+                    path: '/',
+                    isSecure: false,
+                    isHttpOnly: false,
+                    clearInvalid: true, // remove invalid cookies
+                    strictHeader: true // don't allow violations of RFC 6265
+                });
+
+                this.status.yellow("Search Guard multitenancy enabled");
+            } else {
+                this.status.yellow("Search Guard multitenancy disabled");
+            }
             this.status.green('Search Guard plugin initialised.');
 
         }
