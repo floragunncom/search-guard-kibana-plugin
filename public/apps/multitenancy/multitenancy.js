@@ -60,6 +60,7 @@ uiModules
      this.selectTenant = function (tenantLabel, tenant) {
       this.tenantLabel =  tenantLabel;
       $http.post(`${API_ROOT}/tenant`, {tenant: tenant});
+      sessionStorage.clear();
      };
 
     });
