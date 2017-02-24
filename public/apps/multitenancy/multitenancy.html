@@ -3,7 +3,7 @@
     <div class="col-12-sm">
       <h1 class="text-center">Available tenants</h1>
       <p class="error-message" ng-if="ctrl.errorMessage">{{ ctrl.errorMessage }}</p>
-      <h3 class="text-center">Currently selected tenant: {{ ctrl.tenantLabel }}</h3>
+      <h3 class="text-center" ng-bind="ctrl.tenantLabel"></h3>
       <table class="table">
         <thead>
           <tr>
@@ -26,6 +26,19 @@
             <button class="btn-primary" ng-click="ctrl.selectTenant(ctrl.GLOBAL_USER_LABEL, ctrl.GLOBAL_USER_VALUE)">Choose</button>
           </td>
         </tr>
+        <tr>
+            <td>
+                {{ctrl.PRIVATE_USER_LABEL}}
+            </td>
+            <td>
+                <div>read/write</div>
+            </td>
+            <td>Your private space, shared with no one</td>
+            <td class="actions">
+                <button class="btn-primary" ng-click="ctrl.selectTenant(ctrl.PRIVATE_USER_LABEL, ctrl.PRIVATE_USER_VALUE)">Choose</button>
+            </td>
+        </tr>
+
           <tr ng-repeat="(tenant, rw)  in ctrl.tenants">
             <td>
               {{tenant}}

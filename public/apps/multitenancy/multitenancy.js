@@ -40,27 +40,52 @@ uiModules
 
      this.GLOBAL_USER_LABEL = "Global";
      this.GLOBAL_USER_VALUE = null;
+     this.PRIVATE_USER_LABEL = "Private";
+     this.PRIVATE_USER_VALUE = "__user__";
 
      $http.get(`${API_ROOT}/auth/authinfo`)
          .then(
          (response) => {
-          this.tenants = response.data.sg_tenants;
+          // remove users own tenant, will be replaced with __user__
+          // since we want to display tenant name with "Private"
+          this.username = response.data.user_name;
+          var allTenants = response.data.sg_tenants;
+          delete allTenants[this.username];
+          this.tenants = allTenants;
+          $http.get(`${API_ROOT}/tenant`)
+              .then(
+              (response) => {
+               this.tenantLabel = "Current tenant: " + resolveTenantName(response.data, this.username);
+              },
+              (error) => notify.error(error)
+          );
          },
          (error) => notify.error(error)
      );
 
-     $http.get(`${API_ROOT}/tenant`)
-         .then(
-         (response) => {
-          this.tenantLabel =  response.payload;
-         },
-         (error) => notify.error(error)
-     );
 
      this.selectTenant = function (tenantLabel, tenant) {
       this.tenantLabel =  tenantLabel;
-      $http.post(`${API_ROOT}/tenant`, {tenant: tenant});
-      sessionStorage.clear();
+      $http.post(`${API_ROOT}/tenant`, {tenant: tenant})
+          .then(
+          (response) => {
+           this.tenantLabel =  "Tenant switched to: " + resolveTenantName(response.data, this.username);
+           sessionStorage.clear();
+           localStorage.clear();
+          },
+          (error) => notify.error(error)
+      );
      };
+
+     function resolveTenantName(tenant, username) {
+      if (!tenant || tenant == "undefined") {
+       return "Global";
+      }
+      if (tenant == username || tenant == '__user__') {
+       return "Private";
+      } else {
+       return tenant;
+      }
+     }
 
     });
