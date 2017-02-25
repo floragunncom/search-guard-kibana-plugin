@@ -70,8 +70,12 @@ uiModules
           .then(
           (response) => {
            this.tenantLabel =  "Tenant switched to: " + resolveTenantName(response.data, this.username);
+           // clear lastUrls from nav links to avoid not found errors
+           chrome.getNavLinkById("kibana:visualize").lastSubUrl = chrome.getNavLinkById("kibana:visualize").url;
+           chrome.getNavLinkById("kibana:dashboard").lastSubUrl = chrome.getNavLinkById("kibana:dashboard").url;
+           chrome.getNavLinkById("kibana:discover").lastSubUrl = chrome.getNavLinkById("kibana:discover").url;
+           chrome.getNavLinkById("timelion").lastSubUrl = chrome.getNavLinkById("timelion").url;
            sessionStorage.clear();
-           localStorage.clear();
           },
           (error) => notify.error(error)
       );

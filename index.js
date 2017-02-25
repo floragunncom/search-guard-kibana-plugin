@@ -51,7 +51,7 @@ export default function (kibana) {
                 ,
                 {
                     id: 'searchguard-multitenancy',
-                    title: 'Multitenancy',
+                    title: 'Tenants',
                     main: 'plugins/searchguard/apps/multitenancy',
                     hidden: false,
                     auth: true
