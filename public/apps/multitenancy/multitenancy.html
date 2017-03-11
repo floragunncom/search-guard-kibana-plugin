@@ -14,7 +14,7 @@
           </tr>
         </thead>
         <tbody>
-        <tr>
+        <tr ng-class="{'active': ctrl.currentTenant == ''}">
           <td>
             {{ctrl.GLOBAL_USER_LABEL}}
           </td>
@@ -26,7 +26,7 @@
             <button class="btn-primary" ng-click="ctrl.selectTenant(ctrl.GLOBAL_USER_LABEL, ctrl.GLOBAL_USER_VALUE)">Choose</button>
           </td>
         </tr>
-        <tr>
+        <tr ng-class="{'active': ctrl.currentTenant == ctrl.PRIVATE_USER_VALUE}">
             <td>
                 {{ctrl.PRIVATE_USER_LABEL}}
             </td>
@@ -39,7 +39,7 @@
             </td>
         </tr>
 
-          <tr ng-repeat="(tenant, rw)  in ctrl.tenants">
+          <tr ng-repeat="(tenant, rw)  in ctrl.tenants" ng-class="{'active': tenant == ctrl.currentTenant}">
             <td>
               {{tenant}}
             </td>

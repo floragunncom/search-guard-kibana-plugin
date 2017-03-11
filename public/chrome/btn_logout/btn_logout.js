@@ -15,9 +15,12 @@
  */
 
 import uiModules from 'ui/modules';
+import chrome from 'ui/chrome';
 import navRegistry from 'ui/registry/chrome_nav_controls';
 
-navRegistry.register(() => ({
+if(chrome.getInjected('basicauth_enabled')) {
+ navRegistry.register(() => ({
   name: 'btn-logout',
   template: require('plugins/searchguard/chrome/btn_logout/btn_logout.html')
-}));
+ }));
+}

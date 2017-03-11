@@ -65,6 +65,7 @@ export default function (kibana) {
             ,
             injectDefaultVars(server, options) {
                 options.multitenancy_enabled = server.config().get('searchguard.multitenancy.enabled');
+                options.basicauth_enabled = server.config().get('searchguard.basicauth.enabled');
                 return options;
             }
 
