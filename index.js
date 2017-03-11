@@ -8,6 +8,7 @@ export default function (kibana) {
     let authenticationBackend;
     let searchGuardConfiguration;
 
+
     return new kibana.Plugin({
         name: 'searchguard',
         require: ['kibana', 'elasticsearch'],
@@ -37,6 +38,7 @@ export default function (kibana) {
 
         uiExports: {
             hacks: [
+                'plugins/searchguard/chrome/multitenancy/enable_multitenancy',
                 'plugins/searchguard/chrome/logout_button',
                 'plugins/searchguard/services/access_control'
             ],
@@ -60,6 +62,12 @@ export default function (kibana) {
             chromeNavControls: [
                 'plugins/searchguard/chrome/btn_logout/btn_logout.js'
             ]
+            ,
+            injectDefaultVars(server, options) {
+                options.multitenancy_enabled = server.config().get('searchguard.multitenancy.enabled');
+                return options;
+            }
+
         },
 
         init(server, options) {
@@ -71,6 +79,7 @@ export default function (kibana) {
             // all your routes are belong to us
             require('./lib/auth/routes_authinfo')(pluginRoot, server, this, APP_ROOT, API_ROOT);
 
+            this.apps.byId['searchguard-multitenancy'].hidden = false;
 
             // provides authentication methods against Search Guard
             const BackendClass = pluginRoot(`lib/backend/searchguard`);
