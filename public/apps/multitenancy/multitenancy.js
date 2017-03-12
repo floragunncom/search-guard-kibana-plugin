@@ -67,7 +67,6 @@ uiModules
 
 
         this.selectTenant = function (tenantLabel, tenant) {
-            this.errorMessage = tenant;
             $http.post(`${API_ROOT}/tenant`, {tenant: tenant})
                 .then(
                 (response) => {
