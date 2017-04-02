@@ -52,7 +52,21 @@ uiModules
                 this.username = response.data.user_name;
                 var allTenants = response.data.sg_tenants;
                 delete allTenants[this.username];
+
+                // sort tenants by putting the keys in an array first
+                var tenantkeys = [];
+                var k;
+
+                for (k in allTenants) {
+                    if (allTenants.hasOwnProperty(k)) {
+                        tenantkeys.push(k);
+                    }
+                }
+                tenantkeys.sort();
+
                 this.tenants = allTenants;
+                this.tenantkeys = tenantkeys;
+
                 $http.get(`${API_ROOT}/tenant`)
                     .then(
                     (response) => {

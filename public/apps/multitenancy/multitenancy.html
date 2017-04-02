@@ -39,17 +39,17 @@
             </td>
         </tr>
 
-          <tr ng-repeat="(tenant, rw)  in ctrl.tenants" ng-class="{'active': tenant == ctrl.currentTenant}">
+          <tr ng-repeat="tenantkey in ctrl.tenantkeys" ng-class="{'active': tenantkey == ctrl.currentTenant}">
             <td>
-              {{tenant}}
+              {{tenantkey}}
             </td>
             <td>
-              <div ng-if="rw">read/write</div>
-              <div ng-if="!rw">read only</div>
+              <div ng-if="ctrl.alltenants[tenantkey] == 'rw'">read/write</div>
+              <div ng-if="ctrl.alltenants[tenantkey] == 'ro'">read only</div>
             </td>
             <td></td>
             <td class="actions">
-              <button class="btn-primary" ng-disabled="ctrl.currentTenant == tenant" ng-click="ctrl.selectTenant(tenant, tenant)">Choose</button>
+              <button class="btn-primary" ng-disabled="ctrl.currentTenant == tenantkey" ng-click="ctrl.selectTenant(tenantkey, tenantkey)">Choose</button>
             </td>
           </tr>
         </tbody>
