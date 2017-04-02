@@ -1,6 +1,12 @@
-<div class="container login-wrapper">
+<div class="container login-wrapper" style='{{ui.showbrandimage? "" : "top:30%"}}'>
 
-  <p class="login-title">Login to Kibana</p>
+  <div class="text-center brand-image-container" ng-show="ui.showbrandimage">
+    <img class="brand-image" src="{{ui.brandimage}}" width="300">
+  </div>
+
+  <p class="login-title" ng-show="ui.logintitle != ''">{{ui.logintitle}}</p>
+
+  <p class="login-subtitle" ng-show="ui.loginsubtitle != ''">{{ui.loginsubtitle}}</p>
 
   <form class="login-form" ng-submit="ui.submit()" method="post">
     <div class="input-group">

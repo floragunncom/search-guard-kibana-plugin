@@ -20,14 +20,20 @@ export default function (kibana) {
                     secure: Joi.boolean().default(false),
                     name: Joi.string().default('searchguard_authentication'),
                     password: Joi.string().min(32).default('searchguard_cookie_default_password'),
-                    ttl: Joi.number().integer().min(1).default(60 * 60 * 1000),
+                    ttl: Joi.number().integer().min(0).default(60 * 60 * 1000),
                 }).default(),
                 session: Joi.object().keys({
                     ttl: Joi.number().integer().min(1).default(60 * 60 * 1000),
                     keepalive: Joi.boolean().default(true),
                 }).default(),
                 basicauth: Joi.object().keys({
-                    enabled: Joi.boolean().default(true)
+                    enabled: Joi.boolean().default(true),
+                    login: Joi.object().keys({
+                        title: Joi.string().allow('').default('Please login to Kibana'),
+                        subtitle: Joi.string().allow('').default('If you have forgotten your username or password, please ask your system administrator'),
+                        showbrandimage: Joi.boolean().default(true),
+                        brandimage: Joi.string().default("/plugins/searchguard/assets/searchguard_logo.svg")
+                    }).default(),
                 }).default(),
                 multitenancy: Joi.object().keys({
                     enabled: Joi.boolean().default(false)

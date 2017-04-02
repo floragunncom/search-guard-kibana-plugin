@@ -21,8 +21,25 @@ export default function LoginController($scope, $http, $window) {
     const ROOT = chrome.getBasePath();
     const APP_ROOT = `${ROOT}/searchguard`;
     const API_ROOT = `${APP_ROOT}/api/v1/auth`;
+    const BRANDIMAGE = chrome.getInjected("basicauth.login.brandimage");
+
+    // if session was not terminated by logout, clear any remaining
+    // stored paths etc. from previous users, to avoid issues
+    // like a non-working default index pattern
+    localStorage.clear();
+    sessionStorage.clear();
 
     this.errorMessage = false;
+    this.logintitle = chrome.getInjected("basicauth.login.title");
+    this.loginsubtitle = chrome.getInjected("basicauth.login.subtitle");
+    this.showbrandimage = chrome.getInjected("basicauth.login.showbrandimage");
+    this.brandimage = chrome.getInjected("basicauth.login.brandimage");
+
+    if (BRANDIMAGE.startsWith("/plugins")) {
+        this.brandimage = ROOT + BRANDIMAGE;
+    } else {
+        this.brandimage = BRANDIMAGE;
+    }
 
     this.submit = () => {
         $http.post(`${API_ROOT}/login`, this.credentials)
