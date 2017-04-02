@@ -45,7 +45,30 @@ export default function LoginController($scope, $http, $window) {
         $http.post(`${API_ROOT}/login`, this.credentials)
             .then(
             (response) => {
-                $window.location.href = `${ROOT}/`;
+                // validate the tenant settings if multi tenancy is enabled
+
+                // if MT is disabled, or the GLOBAL tenant is enabled,
+                // no further checks are necessary. In the first case MT does not
+                // matter, in the latter case we always have a tenant as fallback if
+                // user has no tenants configured and PRIVATE is disabled
+                if (!chrome.getInjected("multitenancy.enabled") || chrome.getInjected("multitenancy.tenants.enable_global")) {
+                    $window.location.href = `${ROOT}/`;
+                } else {
+                    // GLOBAL is disabled, check if we have at least one tenant to choose from
+                    var allTenants = response.data.tenants;
+                    // if private tenant is disabled, remove it
+                    if(allTenants != null && !chrome.getInjected("multitenancy.tenants.enable_private")) {
+                        delete allTenants[response.data.username];
+                    }
+                    // check that we have at least one tenant to fall back to
+                    if (allTenants == null || allTenants.length == 0 || _.isEmpty(allTenants)) {
+                        this.errorMessage = 'No tenant available for this user, please contact your system administrator.';
+                    } else {
+                        // todo: choose default tenant based on user preferences and available tenants
+                        $window.location.href = `${ROOT}/`;
+                    }
+                }
+
             },
             (error) => {
                 if (error.status && error.status === 401) {

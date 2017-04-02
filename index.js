@@ -36,7 +36,11 @@ export default function (kibana) {
                     }).default(),
                 }).default(),
                 multitenancy: Joi.object().keys({
-                    enabled: Joi.boolean().default(false)
+                    enabled: Joi.boolean().default(false),
+                    tenants: Joi.object().keys({
+                        enable_private: Joi.boolean().default(true),
+                        enable_global: Joi.boolean().default(true),
+                    }).default(),
                 }).default()
             }).default();
             return obj;

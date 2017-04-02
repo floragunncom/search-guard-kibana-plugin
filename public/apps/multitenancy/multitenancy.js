@@ -38,6 +38,9 @@ uiModules
         var APP_ROOT = `${chrome.getBasePath()}/searchguard`;
         var API_ROOT = `${APP_ROOT}/api/v1`;
 
+        this.privateEnabled = chrome.getInjected("multitenancy.tenants.enable_private");
+        this.globalEnabled = chrome.getInjected("multitenancy.tenants.enable_global");
+
         this.GLOBAL_USER_LABEL = "Global";
         this.GLOBAL_USER_VALUE = null;
         this.PRIVATE_USER_LABEL = "Private";
