@@ -74,7 +74,7 @@ uiModules
                     .then(
                     (response) => {
                         this.currentTenant = response.data;
-                        this.tenantLabel = "Current tenant: " + resolveTenantName(this.currentTenant, this.username);
+                        this.tenantLabel = "Selected tenant: " + resolveTenantName(this.currentTenant, this.username);
                     },
                     (error) => notify.error(error)
                 );
@@ -84,10 +84,10 @@ uiModules
 
 
         this.selectTenant = function (tenantLabel, tenant) {
-            $http.post(`${API_ROOT}/tenant`, {tenant: tenant})
+            $http.post(`${API_ROOT}/tenant`, {tenant: tenant, username: this.username})
                 .then(
                 (response) => {
-                    this.tenantLabel = "Tenant switched to: " + resolveTenantName(response.data, this.username);
+                    this.tenantLabel = "Selected tenant: " + resolveTenantName(response.data, this.username);
                     this.currentTenant = response.data;
                     // clear lastUrls from nav links to avoid not found errors
                     chrome.getNavLinkById("kibana:visualize").lastSubUrl = chrome.getNavLinkById("kibana:visualize").url;
@@ -99,13 +99,6 @@ uiModules
                 (error) => notify.error(error)
             );
         };
-
-        this.getClass = function(tenant) {
-            if (tenant == this.currentTenant)     {
-                return "active";
-            }
-            return "";
-        }
 
         function resolveTenantName(tenant, username) {
             if (!tenant || tenant == "undefined") {
