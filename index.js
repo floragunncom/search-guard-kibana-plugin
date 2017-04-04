@@ -23,8 +23,8 @@ export default function (kibana) {
                     ttl: Joi.number().integer().min(0).default(60 * 60 * 1000),
                 }).default(),
                 session: Joi.object().keys({
-                    ttl: Joi.number().integer().min(1).default(60 * 60 * 1000),
-                    keepalive: Joi.boolean().default(true),
+                    ttl: Joi.number().integer().min(0).default(60 * 60 * 1000),
+                    keepalive: Joi.boolean().default(false),
                 }).default(),
                 basicauth: Joi.object().keys({
                     enabled: Joi.boolean().default(true),
@@ -32,7 +32,8 @@ export default function (kibana) {
                         title: Joi.string().allow('').default('Please login to Kibana'),
                         subtitle: Joi.string().allow('').default('If you have forgotten your username or password, please ask your system administrator'),
                         showbrandimage: Joi.boolean().default(true),
-                        brandimage: Joi.string().default("/plugins/searchguard/assets/searchguard_logo.svg")
+                        brandimage: Joi.string().default("/plugins/searchguard/assets/searchguard_logo.svg"),
+                        buttonstyle: Joi.string().allow('').default("")
                     }).default(),
                 }).default(),
                 multitenancy: Joi.object().keys({

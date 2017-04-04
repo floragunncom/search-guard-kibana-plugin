@@ -34,6 +34,7 @@ export default function LoginController($scope, $http, $window) {
     this.loginsubtitle = chrome.getInjected("basicauth.login.subtitle");
     this.showbrandimage = chrome.getInjected("basicauth.login.showbrandimage");
     this.brandimage = chrome.getInjected("basicauth.login.brandimage");
+    this.buttonstyle = chrome.getInjected("basicauth.login.buttonstyle");
 
     if (BRANDIMAGE.startsWith("/plugins")) {
         this.brandimage = ROOT + BRANDIMAGE;

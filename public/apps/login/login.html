@@ -19,7 +19,7 @@
       <input type="password" class="form-control" id="password" name="password" placeholder="Password"
              ng-model="ui.credentials.password" required/>
     </div>
-    <button type="submit" class="btn btn-default btn-login">Log in</button>
+    <button type="submit" class="btn btn-default btn-login" style="{{ui.buttonstyle}}">Log in</button>
   </form>
 
   <p class="error-message" ng-if="ui.errorMessage">{{ ui.errorMessage }}</p>
