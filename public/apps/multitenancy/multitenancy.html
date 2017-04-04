@@ -1,66 +1,83 @@
-<div class="container">
-    <div class="row">
-        <div class="col-xs-12">
-            <h3 class="text-center">Available tenants</h3>
-            <p class="error-message" ng-if="ctrl.errorMessage">{{ ctrl.errorMessage }}</p>
-            <h4 class="text-center" ng-bind="ctrl.tenantLabel" style="margin-bottom:30px;"></h4>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-10 col-xs-offset-1">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Permissions</th>
-                    <th style="text-align: right">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr ng-class="{'selected': ctrl.currentTenant == ''}" ng-show="ctrl.globalEnabled">
-                    <td>
-                        {{ctrl.GLOBAL_USER_LABEL}}
-                    </td>
-                    <td>
-                        <div>read/write</div>
-                    </td>
-                    <td class="actions" style="text-align: right">
-                        <button class="btn-primary" ng-disabled="ctrl.currentTenant == ''"
-                                ng-show="ctrl.currentTenant != ctrl.GLOBAL_USER_VALUE"
-                                ng-click="ctrl.selectTenant(ctrl.GLOBAL_USER_LABEL, ctrl.GLOBAL_USER_VALUE)">Select
-                        </button>
-                    </td>
-                </tr>
-                <tr ng-class="{'selected': ctrl.currentTenant == ctrl.PRIVATE_USER_VALUE}" ng-show="ctrl.privateEnabled">
-                    <td>
-                        {{ctrl.PRIVATE_USER_LABEL}}
-                    </td>
-                    <td>
-                        <div>read/write</div>
-                    </td>
-                    <td class="actions" style="text-align: right">
-                        <button class="btn-primary" ng-disabled="ctrl.currentTenant == ctrl.PRIVATE_USER_VALUE"
-                                ng-click="ctrl.selectTenant(ctrl.PRIVATE_USER_LABEL, ctrl.PRIVATE_USER_VALUE)">Select
-                        </button>
-                    </td>
-                </tr>
+<div class="searchguard app-container ng-scope">
 
-                <tr ng-repeat="tenantkey in ctrl.tenantkeys" ng-class="{'selected': tenantkey == ctrl.currentTenant}">
-                    <td>
-                        {{tenantkey}}
-                    </td>
-                    <td>
-                        <div ng-if="ctrl.allTenants[tenantkey] == 'rw'">read/write</div>
-                        <div ng-if="ctrl.allTenants[tenantkey] == 'ro'">read only</div>
-                    </td>
-                    <td class="actions" style="text-align: right">
-                        <button class="btn-primary" ng-disabled="ctrl.currentTenant == tenantkey"
-                                ng-click="ctrl.selectTenant(tenantkey, tenantkey)">Select
-                        </button>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+    <kbn-top-nav name="searchguard" config="topNavMenu">
+        <div class="kuiLocalNav">
+            <div class="kuiLocalNavRow"></div>
+            <div class="kuiLocalNavRow kuiLocalNavRow--secondary">
+                <div data-transclude-slot="bottomRow" class="kuiLocalTabs">
+                    <span class="kuiLocalTab">
+                        Tenants
+                    </span>
+                </div>
+            </div>
+        </div>
+    </kbn-top-nav>
+
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <h3 class="text-center">Available tenants</h3>
+                <p class="error-message" ng-if="ctrl.errorMessage">{{ ctrl.errorMessage }}</p>
+                <h4 class="text-center" ng-bind="ctrl.tenantLabel" style="margin-bottom:30px;"></h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-10 col-xs-offset-1">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Permissions</th>
+                        <th style="text-align: right">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-class="{'selected': ctrl.currentTenant == ''}" ng-show="ctrl.globalEnabled">
+                        <td>
+                            {{ctrl.GLOBAL_USER_LABEL}}
+                        </td>
+                        <td>
+                            <div>read/write</div>
+                        </td>
+                        <td class="actions" style="text-align: right">
+                            <button class="btn-primary" ng-disabled="ctrl.currentTenant == ''"
+                                    ng-show="ctrl.currentTenant != ctrl.GLOBAL_USER_VALUE"
+                                    ng-click="ctrl.selectTenant(ctrl.GLOBAL_USER_LABEL, ctrl.GLOBAL_USER_VALUE)">Select
+                            </button>
+                        </td>
+                    </tr>
+                    <tr ng-class="{'selected': ctrl.currentTenant == ctrl.PRIVATE_USER_VALUE}" ng-show="ctrl.privateEnabled">
+                        <td>
+                            {{ctrl.PRIVATE_USER_LABEL}}
+                        </td>
+                        <td>
+                            <div>read/write</div>
+                        </td>
+                        <td class="actions" style="text-align: right">
+                            <button class="btn-primary" ng-disabled="ctrl.currentTenant == ctrl.PRIVATE_USER_VALUE"
+                                    ng-click="ctrl.selectTenant(ctrl.PRIVATE_USER_LABEL, ctrl.PRIVATE_USER_VALUE)">Select
+                            </button>
+                        </td>
+                    </tr>
+
+                    <tr ng-repeat="tenantkey in ctrl.tenantkeys" ng-class="{'selected': tenantkey == ctrl.currentTenant}">
+                        <td>
+                            {{tenantkey}}
+                        </td>
+                        <td>
+                            <div ng-if="ctrl.allTenants[tenantkey] == 'rw'">read/write</div>
+                            <div ng-if="ctrl.allTenants[tenantkey] == 'ro'">read only</div>
+                        </td>
+                        <td class="actions" style="text-align: right">
+                            <button class="btn-primary" ng-disabled="ctrl.currentTenant == tenantkey"
+                                    ng-click="ctrl.selectTenant(tenantkey, tenantkey)">Select
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

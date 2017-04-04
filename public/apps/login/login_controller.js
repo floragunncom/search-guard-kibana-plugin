@@ -64,7 +64,6 @@ export default function LoginController($scope, $http, $window) {
                     if (allTenants == null || allTenants.length == 0 || _.isEmpty(allTenants)) {
                         this.errorMessage = 'No tenant available for this user, please contact your system administrator.';
                     } else {
-                        // todo: choose default tenant based on user preferences and available tenants
                         $window.location.href = `${ROOT}/`;
                     }
                 }

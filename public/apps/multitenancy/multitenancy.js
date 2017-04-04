@@ -17,6 +17,7 @@
 import chrome from 'ui/chrome';
 import uiRoutes from 'ui/routes';
 import uiModules from 'ui/modules';
+import Notifier from 'ui/notify/notifier';
 import 'ui/autoload/styles';
 import 'plugins/searchguard/apps/multitenancy/multitenancy.less';
 
@@ -37,6 +38,7 @@ uiModules
 
         var APP_ROOT = `${chrome.getBasePath()}/searchguard`;
         var API_ROOT = `${APP_ROOT}/api/v1`;
+        let notify = new Notifier({});
 
         this.privateEnabled = chrome.getInjected("multitenancy.tenants.enable_private");
         this.globalEnabled = chrome.getInjected("multitenancy.tenants.enable_global");
@@ -95,6 +97,7 @@ uiModules
                     chrome.getNavLinkById("kibana:discover").lastSubUrl = chrome.getNavLinkById("kibana:discover").url;
                     chrome.getNavLinkById("timelion").lastSubUrl = chrome.getNavLinkById("timelion").url;
                     sessionStorage.clear();
+                    notify.info("Tenant changed");
                 },
                 (error) => notify.error(error)
             );

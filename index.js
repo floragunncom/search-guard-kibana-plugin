@@ -66,7 +66,9 @@ export default function (kibana) {
                     title: 'Tenants',
                     main: 'plugins/searchguard/apps/multitenancy',
                     hidden: false,
-                    auth: true
+                    auth: true,
+                    order: 9010,
+                    icon: 'plugins/searchguard/assets/networking.svg',
                 }
             ],
             chromeNavControls: [
@@ -139,14 +141,29 @@ export default function (kibana) {
                 require('./lib/multitenancy/routes')(pluginRoot, server, this, APP_ROOT, API_ROOT);
                 require('./lib/multitenancy/headers')(pluginRoot, server, this, APP_ROOT, API_ROOT);
 
+                server.state('searchguard_preferences', {
+                    ttl: 2217100485000,
+                    path: '/',
+                    isSecure: false,
+                    isHttpOnly: false,
+                    clearInvalid: true, // remove invalid cookies
+                    strictHeader: true, // don't allow violations of RFC 6265
+                    encoding: 'iron',
+                    password: config.get("searchguard.cookie.password")
+                });
+
                 server.state('searchguard_tenant', {
                     ttl: null,
                     path: '/',
                     isSecure: false,
                     isHttpOnly: false,
                     clearInvalid: true, // remove invalid cookies
-                    strictHeader: true // don't allow violations of RFC 6265
+                    strictHeader: true, // don't allow violations of RFC 6265
+                    encoding: 'iron',
+                    password: config.get("searchguard.cookie.password")
                 });
+
+
 
                 this.status.yellow("Search Guard multitenancy enabled");
             } else {
