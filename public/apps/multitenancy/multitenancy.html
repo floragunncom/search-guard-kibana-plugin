@@ -1,76 +1,77 @@
 <div class="searchguard app-container ng-scope">
 
-    <kbn-top-nav name="searchguard" config="topNavMenu">
-        <div class="kuiLocalNav">
-            <div class="kuiLocalNavRow"></div>
-            <div class="kuiLocalNavRow kuiLocalNavRow--secondary">
-                <div data-transclude-slot="bottomRow" class="kuiLocalTabs">
-                    <span class="kuiLocalTab">
-                        Tenants
-                    </span>
-                </div>
+    <div class="kuiLocalNav">
+        <div class="kuiLocalNavRow">
+        </div>
+        <div class="kuiLocalNavRow kuiLocalNavRow--secondary">
+            <div data-transclude-slot="bottomRow" class="kuiLocalTabs">
+                <span class="kuiLocalTab">
+                    Select Tenant
+                </span>
             </div>
         </div>
-    </kbn-top-nav>
+    </div>
 
 
     <div class="container">
         <div class="row">
             <div class="col-xs-12">
-                <h3 class="text-center">Available tenants</h3>
-                <p class="error-message" ng-if="ctrl.errorMessage">{{ ctrl.errorMessage }}</p>
-                <h4 class="text-center" ng-bind="ctrl.tenantLabel" style="margin-bottom:30px;"></h4>
+                <div class="page-header">
+                    <h2 class="text-center">Available tenants</h2>
+                    <h4 class="text-center" ng-bind="ctrl.tenantLabel"></h4>
+                    <p class="error-message" ng-if="ctrl.errorMessage" ng-bind="ctrl.errorMessage"></p>
+                </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-10 col-xs-offset-1">
-                <table class="table">
+            <div class="col-xs-12">
+                <table class="kuiTable">
                     <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Permissions</th>
-                        <th style="text-align: right">Action</th>
+                        <th class="kuiTableHeaderCell">Name</th>
+                        <th class="kuiTableHeaderCell">Permissions</th>
+                        <th class="kuiTableHeaderCell actions">Action</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-class="{'selected': ctrl.currentTenant == ''}" ng-show="ctrl.globalEnabled">
-                        <td>
+                    <tr class="kuiTableRow" ng-class="{'selected': ctrl.currentTenant == ''}" ng-show="ctrl.globalEnabled">
+                        <td class="kuiTableRowCell">
                             {{ctrl.GLOBAL_USER_LABEL}}
                         </td>
-                        <td>
+                        <td class="kuiTableRowCell">
                             <div>read/write</div>
                         </td>
-                        <td class="actions" style="text-align: right">
-                            <button class="btn-primary" ng-disabled="ctrl.currentTenant == ''"
+                        <td class="actions kuiTableRowCell">
+                            <button class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == ''"
                                     ng-show="ctrl.currentTenant != ctrl.GLOBAL_USER_VALUE"
                                     ng-click="ctrl.selectTenant(ctrl.GLOBAL_USER_LABEL, ctrl.GLOBAL_USER_VALUE)">Select
                             </button>
                         </td>
                     </tr>
-                    <tr ng-class="{'selected': ctrl.currentTenant == ctrl.PRIVATE_USER_VALUE}" ng-show="ctrl.privateEnabled">
-                        <td>
+                    <tr class="kuiTableRow" ng-class="{'selected': ctrl.currentTenant == ctrl.PRIVATE_USER_VALUE}" ng-show="ctrl.privateEnabled">
+                        <td class="kuiTableRowCell">
                             {{ctrl.PRIVATE_USER_LABEL}}
                         </td>
-                        <td>
+                        <td class="kuiTableRowCell">
                             <div>read/write</div>
                         </td>
-                        <td class="actions" style="text-align: right">
-                            <button class="btn-primary" ng-disabled="ctrl.currentTenant == ctrl.PRIVATE_USER_VALUE"
+                        <td class="actions kuiTableRowCell">
+                            <button class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == ctrl.PRIVATE_USER_VALUE"
                                     ng-click="ctrl.selectTenant(ctrl.PRIVATE_USER_LABEL, ctrl.PRIVATE_USER_VALUE)">Select
                             </button>
                         </td>
                     </tr>
 
-                    <tr ng-repeat="tenantkey in ctrl.tenantkeys" ng-class="{'selected': tenantkey == ctrl.currentTenant}">
-                        <td>
+                    <tr class="kuiTableRow" ng-repeat="tenantkey in ctrl.tenantkeys" ng-class="{'selected': tenantkey == ctrl.currentTenant}">
+                        <td class="kuiTableRowCell">
                             {{tenantkey}}
                         </td>
-                        <td>
-                            <div ng-if="ctrl.allTenants[tenantkey] == 'rw'">read/write</div>
-                            <div ng-if="ctrl.allTenants[tenantkey] == 'ro'">read only</div>
+                        <td class="kuiTableRowCell">
+                            <div ng-if="ctrl.tenants[tenantkey]">read/write</div>
+                            <div ng-if="!ctrl.tenants[tenantkey]">read only</div>
                         </td>
-                        <td class="actions" style="text-align: right">
-                            <button class="btn-primary" ng-disabled="ctrl.currentTenant == tenantkey"
+                        <td class="actions kuiTableRowCell">
+                            <button class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
                                     ng-click="ctrl.selectTenant(tenantkey, tenantkey)">Select
                             </button>
                         </td>

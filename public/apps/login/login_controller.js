@@ -15,8 +15,9 @@
  */
 
 import chrome from 'ui/chrome';
+import {parse} from 'url';
 
-export default function LoginController($scope, $http, $window) {
+export default function LoginController(kbnUrl, $scope, $http, $window) {
 
     const ROOT = chrome.getBasePath();
     const APP_ROOT = `${ROOT}/searchguard`;
@@ -42,6 +43,17 @@ export default function LoginController($scope, $http, $window) {
         this.brandimage = BRANDIMAGE;
     }
 
+    const {query, hash} = parse($window.location.href, true);
+    let nextUrl;
+
+    if (query.next) {
+        nextUrl = query.next + (hash || '')
+    } else {
+        nextUrl = "/";
+    }
+
+    this.logintitle = hash;
+
     this.submit = () => {
         $http.post(`${API_ROOT}/login`, this.credentials)
             .then(
@@ -53,7 +65,7 @@ export default function LoginController($scope, $http, $window) {
                 // matter, in the latter case we always have a tenant as fallback if
                 // user has no tenants configured and PRIVATE is disabled
                 if (!chrome.getInjected("multitenancy.enabled") || chrome.getInjected("multitenancy.tenants.enable_global")) {
-                    $window.location.href = `${ROOT}/`;
+                    $window.location.href = `/`;
                 } else {
                     // GLOBAL is disabled, check if we have at least one tenant to choose from
                     var allTenants = response.data.tenants;
@@ -65,7 +77,7 @@ export default function LoginController($scope, $http, $window) {
                     if (allTenants == null || allTenants.length == 0 || _.isEmpty(allTenants)) {
                         this.errorMessage = 'No tenant available for this user, please contact your system administrator.';
                     } else {
-                        $window.location.href = `${ROOT}/`;
+                        $window.location.href = `/`;
                     }
                 }
 
@@ -74,7 +86,7 @@ export default function LoginController($scope, $http, $window) {
                 if (error.status && error.status === 401) {
                     this.errorMessage = 'Invalid username or password, please try again';
                 } else {
-                    this.errorMessage = 'An error occurred while checking your credentials, make sure your have a running Elasticsearch cluster secured by Search Guard running.';
+                    this.errorMessage = 'An error occurred while checking your credentials, make sure your have an  Elasticsearch cluster secured by Search Guard running.';
                 }
             }
         );
