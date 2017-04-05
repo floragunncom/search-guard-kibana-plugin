@@ -46,13 +46,11 @@ export default function LoginController(kbnUrl, $scope, $http, $window) {
     const {query, hash} = parse($window.location.href, true);
     let nextUrl;
 
-    if (query.next) {
-        nextUrl = query.next + (hash || '')
+    if (query.nextUrl) {
+        nextUrl = ROOT + query.nextUrl + (hash || '')
     } else {
         nextUrl = "/";
     }
-
-    this.logintitle = hash;
 
     this.submit = () => {
         $http.post(`${API_ROOT}/login`, this.credentials)
@@ -65,7 +63,7 @@ export default function LoginController(kbnUrl, $scope, $http, $window) {
                 // matter, in the latter case we always have a tenant as fallback if
                 // user has no tenants configured and PRIVATE is disabled
                 if (!chrome.getInjected("multitenancy.enabled") || chrome.getInjected("multitenancy.tenants.enable_global")) {
-                    $window.location.href = `/`;
+                    $window.location.href = `${nextUrl}`;
                 } else {
                     // GLOBAL is disabled, check if we have at least one tenant to choose from
                     var allTenants = response.data.tenants;
@@ -77,7 +75,7 @@ export default function LoginController(kbnUrl, $scope, $http, $window) {
                     if (allTenants == null || allTenants.length == 0 || _.isEmpty(allTenants)) {
                         this.errorMessage = 'No tenant available for this user, please contact your system administrator.';
                     } else {
-                        $window.location.href = `/`;
+                        $window.location.href = `${nextUrl}`;
                     }
                 }
 
