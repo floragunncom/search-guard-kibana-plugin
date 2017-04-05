@@ -139,6 +139,14 @@ export default function (kibana) {
 
 
             if(config.get('searchguard.multitenancy.enabled')) {
+
+                // sanity check - header whitelisted?
+                var headersWhitelist = config.get('elasticsearch.requestHeadersWhitelist');
+                if (headersWhitelist.indexOf('sg_tenant') == -1) {
+                    this.status.red('No tenant header found in whitelist. Please add sg_tenant to elasticsearch.requestHeadersWhitelist in kibana.yml');
+                    return;
+                }
+
                 require('./lib/multitenancy/routes')(pluginRoot, server, this, APP_ROOT, API_ROOT);
                 require('./lib/multitenancy/headers')(pluginRoot, server, this, APP_ROOT, API_ROOT);
 
