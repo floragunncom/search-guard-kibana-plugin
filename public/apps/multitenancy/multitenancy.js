@@ -131,7 +131,7 @@ uiModules
                     chrome.getNavLinkById("kibana:discover").lastSubUrl = chrome.getNavLinkById("kibana:discover").url;
                     chrome.getNavLinkById("timelion").lastSubUrl = chrome.getNavLinkById("timelion").url;
                     sessionStorage.clear();
-                    // notify.info("Tenant changed");
+                    notify.info("Tenant changed");
                 },
                 (error) => notify.error(error)
             );
