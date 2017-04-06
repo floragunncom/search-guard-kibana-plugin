@@ -79,6 +79,9 @@ export default function (kibana) {
             injectDefaultVars(server, options) {
                 options.multitenancy_enabled = server.config().get('searchguard.multitenancy.enabled');
                 options.basicauth_enabled = server.config().get('searchguard.basicauth.enabled');
+                options.kibana_index = server.config().get('kibana.index');
+                options.kibana_server_user = server.config().get('elasticsearch.username');
+
                 return options;
             }
 

@@ -40,14 +40,48 @@ uiModules
         var API_ROOT = `${APP_ROOT}/api/v1`;
         let notify = new Notifier({});
 
+        const kibana_server_user = chrome.getInjected("kibana_server_user");
+        const kibana_index = chrome.getInjected("kibana_index");
+
+
         this.privateEnabled = chrome.getInjected("multitenancy.tenants.enable_private");
         this.globalEnabled = chrome.getInjected("multitenancy.tenants.enable_global");
 
         this.GLOBAL_USER_LABEL = "Global";
         this.GLOBAL_USER_VALUE = null;
+        this.GLOBAL_USER_WRITEABLE = true;
         this.PRIVATE_USER_LABEL = "Private";
         this.PRIVATE_USER_VALUE = "__user__";
         this.currentTenant = null;
+
+        $http.get(`${API_ROOT}/multitenancy/info`)
+            .then(
+            (response) => {
+                // sanity checks, check that configuration is correct on
+                // both ES and KI side
+                var mtinfo = response.data;
+
+                this.GLOBAL_USER_WRITEABLE = !mtinfo.kibana_index_readonly;
+
+                if(!mtinfo.kibana_mt_enabled) {
+                    this.errorMessage = "It seems that the Multitenancy module is not installed on your Elasticsearch cluster. Multitenancy will not work, please check your installation.";
+                    return;
+                }
+
+                if(mtinfo.kibana_server_user != kibana_server_user) {
+                    this.errorMessage = "Mismatch between the configured Kibana server usernames on Elasticsearch and Kibana, multitenancy will not work! " +
+                        "Configured username on Kibana: '"+kibana_server_user+"', configured username on Elasticsearch: '"+mtinfo.kibana_server_user+"'";
+                    return;
+                }
+
+                if(mtinfo.kibana_index != kibana_index) {
+                    this.errorMessage = "Mismatch between the configured Kibana index names on Elasticsearch and Kibana, multitenancy will not work! " +
+                        "Configured index name on Kibana: '"+kibana_index+"', configured index name on Elasticsearch: '"+mtinfo.kibana_index+"'";
+                    return;
+                }
+            },
+            (error) => notify.error(error)
+        );
 
         $http.get(`${API_ROOT}/auth/authinfo`)
             .then(
@@ -72,11 +106,11 @@ uiModules
                 this.tenants = allTenants;
                 this.tenantkeys = tenantkeys;
 
-                $http.get(`${API_ROOT}/tenant`)
+                $http.get(`${API_ROOT}/multitenancy/tenant`)
                     .then(
                     (response) => {
                         this.currentTenant = response.data;
-                        this.tenantLabel = "Selected tenant: " + resolveTenantName(this.currentTenant, this.username);
+                        this.tenantLabel = "Active tenant: " + resolveTenantName(this.currentTenant, this.username);
                     },
                     (error) => notify.error(error)
                 );
@@ -86,10 +120,10 @@ uiModules
 
 
         this.selectTenant = function (tenantLabel, tenant) {
-            $http.post(`${API_ROOT}/tenant`, {tenant: tenant, username: this.username})
+            $http.post(`${API_ROOT}/multitenancy/tenant`, {tenant: tenant, username: this.username})
                 .then(
                 (response) => {
-                    this.tenantLabel = "Selected tenant: " + resolveTenantName(response.data, this.username);
+                    this.tenantLabel = "Active tenant: " + resolveTenantName(response.data, this.username);
                     this.currentTenant = response.data;
                     // clear lastUrls from nav links to avoid not found errors
                     chrome.getNavLinkById("kibana:visualize").lastSubUrl = chrome.getNavLinkById("kibana:visualize").url;
@@ -97,7 +131,7 @@ uiModules
                     chrome.getNavLinkById("kibana:discover").lastSubUrl = chrome.getNavLinkById("kibana:discover").url;
                     chrome.getNavLinkById("timelion").lastSubUrl = chrome.getNavLinkById("timelion").url;
                     sessionStorage.clear();
-                    notify.info("Tenant changed");
+                    // notify.info("Tenant changed");
                 },
                 (error) => notify.error(error)
             );

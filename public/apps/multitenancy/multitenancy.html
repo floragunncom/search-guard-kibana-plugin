@@ -12,70 +12,70 @@
         </div>
     </div>
 
-
     <div class="container">
         <div class="row">
             <div class="col-xs-12">
                 <div class="page-header">
                     <h2 class="text-center">Available tenants</h2>
                     <h4 class="text-center" ng-bind="ctrl.tenantLabel"></h4>
-                    <p class="error-message" ng-if="ctrl.errorMessage" ng-bind="ctrl.errorMessage"></p>
+                    <h5 class="error-message" ng-if="ctrl.errorMessage" ng-bind="ctrl.errorMessage"></h5>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col-xs-12">
-                <table class="kuiTable">
+                <table class="table">
                     <thead>
-                    <tr>
-                        <th class="kuiTableHeaderCell">Name</th>
-                        <th class="kuiTableHeaderCell">Permissions</th>
-                        <th class="kuiTableHeaderCell actions">Action</th>
-                    </tr>
+                        <tr>
+                            <th class="kuiTableHeaderCell">Name</th>
+                            <th class="kuiTableHeaderCell">Permissions</th>
+                            <th class="kuiTableHeaderCell kuiTableHeaderCell--alignRight">Action</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <tr class="kuiTableRow" ng-class="{'selected': ctrl.currentTenant == ''}" ng-show="ctrl.globalEnabled">
-                        <td class="kuiTableRowCell">
-                            {{ctrl.GLOBAL_USER_LABEL}}
-                        </td>
-                        <td class="kuiTableRowCell">
-                            <div>read/write</div>
-                        </td>
-                        <td class="actions kuiTableRowCell">
-                            <button class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == ''"
-                                    ng-show="ctrl.currentTenant != ctrl.GLOBAL_USER_VALUE"
-                                    ng-click="ctrl.selectTenant(ctrl.GLOBAL_USER_LABEL, ctrl.GLOBAL_USER_VALUE)">Select
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="kuiTableRow" ng-class="{'selected': ctrl.currentTenant == ctrl.PRIVATE_USER_VALUE}" ng-show="ctrl.privateEnabled">
-                        <td class="kuiTableRowCell">
-                            {{ctrl.PRIVATE_USER_LABEL}}
-                        </td>
-                        <td class="kuiTableRowCell">
-                            <div>read/write</div>
-                        </td>
-                        <td class="actions kuiTableRowCell">
-                            <button class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == ctrl.PRIVATE_USER_VALUE"
-                                    ng-click="ctrl.selectTenant(ctrl.PRIVATE_USER_LABEL, ctrl.PRIVATE_USER_VALUE)">Select
-                            </button>
-                        </td>
-                    </tr>
+                        <tr class="kuiTableRow" ng-class="{'selected': ctrl.currentTenant == ''}" ng-show="ctrl.globalEnabled">
+                            <td class="kuiTableRowCell">
+                                {{ctrl.GLOBAL_USER_LABEL}}
+                            </td>
+                            <td class="kuiTableRowCell">
+                                <div ng-if="ctrl.GLOBAL_USER_WRITEABLE">read/write</div>
+                                <div ng-if="!ctrl.GLOBAL_USER_WRITEABLE">read only</div>
+                            </td>
+                            <td class="actions kuiTableRowCell">
+                                <button class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == ''"
+                                        ng-show="ctrl.currentTenant != ctrl.GLOBAL_USER_VALUE"
+                                        ng-click="ctrl.selectTenant(ctrl.GLOBAL_USER_LABEL, ctrl.GLOBAL_USER_VALUE)">Select
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="kuiTableRow" ng-class="{'selected': ctrl.currentTenant == ctrl.PRIVATE_USER_VALUE}" ng-show="ctrl.privateEnabled">
+                            <td class="kuiTableRowCell">
+                                {{ctrl.PRIVATE_USER_LABEL}}
+                            </td>
+                            <td class="kuiTableRowCell">
+                                <div>read/write</div>
+                            </td>
+                            <td class="actions kuiTableRowCell">
+                                <button class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == ctrl.PRIVATE_USER_VALUE"
+                                        ng-click="ctrl.selectTenant(ctrl.PRIVATE_USER_LABEL, ctrl.PRIVATE_USER_VALUE)">Select
+                                </button>
+                            </td>
+                        </tr>
 
-                    <tr class="kuiTableRow" ng-repeat="tenantkey in ctrl.tenantkeys" ng-class="{'selected': tenantkey == ctrl.currentTenant}">
-                        <td class="kuiTableRowCell">
-                            {{tenantkey}}
-                        </td>
-                        <td class="kuiTableRowCell">
-                            <div ng-if="ctrl.tenants[tenantkey]">read/write</div>
-                            <div ng-if="!ctrl.tenants[tenantkey]">read only</div>
-                        </td>
-                        <td class="actions kuiTableRowCell">
-                            <button class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
-                                    ng-click="ctrl.selectTenant(tenantkey, tenantkey)">Select
-                            </button>
-                        </td>
-                    </tr>
+                        <tr class="kuiTableRow" ng-repeat="tenantkey in ctrl.tenantkeys" ng-class="{'selected': tenantkey == ctrl.currentTenant}">
+                            <td class="kuiTableRowCell">
+                                {{tenantkey}}
+                            </td>
+                            <td class="kuiTableRowCell">
+                                <div ng-if="ctrl.tenants[tenantkey]">read/write</div>
+                                <div ng-if="!ctrl.tenants[tenantkey]">read only</div>
+                            </td>
+                            <td class="actions kuiTableRowCell">
+                                <button class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
+                                        ng-click="ctrl.selectTenant(tenantkey, tenantkey)">Select
+                                </button>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
