@@ -64,7 +64,7 @@ uiModules
                 this.GLOBAL_USER_WRITEABLE = !mtinfo.kibana_index_readonly;
 
                 if(!mtinfo.kibana_mt_enabled) {
-                    this.errorMessage = "It seems that the Multitenancy module is not installed on your Elasticsearch cluster. Multitenancy will not work, please check your installation.";
+                    this.errorMessage = "It seems that the Multitenancy module is not installed on your Elasticsearch cluster, or it is disabled. Multitenancy will not work, please check your installation.";
                     return;
                 }
 
