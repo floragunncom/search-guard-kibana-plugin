@@ -38,6 +38,8 @@ export default function (kibana) {
                 }).default(),
                 multitenancy: Joi.object().keys({
                     enabled: Joi.boolean().default(false),
+                    show_roles: Joi.boolean().default(false),
+                    enable_filter: Joi.boolean().default(false),
                     tenants: Joi.object().keys({
                         enable_private: Joi.boolean().default(true),
                         enable_global: Joi.boolean().default(true),

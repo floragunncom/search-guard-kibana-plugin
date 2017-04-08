@@ -16,6 +16,7 @@
 
 import chrome from 'ui/chrome';
 import {parse} from 'url';
+import _ from 'lodash';
 
 export default function LoginController(kbnUrl, $scope, $http, $window) {
 
@@ -81,11 +82,7 @@ export default function LoginController(kbnUrl, $scope, $http, $window) {
 
             },
             (error) => {
-                if (error.status && error.status === 401) {
-                    this.errorMessage = 'Invalid username or password, please try again';
-                } else {
-                    this.errorMessage = 'An error occurred while checking your credentials, make sure your have an  Elasticsearch cluster secured by Search Guard running.';
-                }
+                this.errorMessage = "Invalid username or password.";
             }
         );
     };

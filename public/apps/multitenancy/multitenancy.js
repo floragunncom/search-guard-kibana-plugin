@@ -34,7 +34,7 @@ uiRoutes
 
 uiModules
     .get('app/searchguard-multitenancy')
-    .controller('searchguardMultitenancyController', function ($http) {
+    .controller('searchguardMultitenancyController', function ($http, $window) {
 
         var APP_ROOT = `${chrome.getBasePath()}/searchguard`;
         var API_ROOT = `${APP_ROOT}/api/v1`;
@@ -46,6 +46,8 @@ uiModules
 
         this.privateEnabled = chrome.getInjected("multitenancy.tenants.enable_private");
         this.globalEnabled = chrome.getInjected("multitenancy.tenants.enable_global");
+        this.showfilter = chrome.getInjected("multitenancy.enable_filter");
+        this.showroles = chrome.getInjected("multitenancy.show_roles");
 
         this.GLOBAL_USER_LABEL = "Global";
         this.GLOBAL_USER_VALUE = null;
@@ -53,6 +55,8 @@ uiModules
         this.PRIVATE_USER_LABEL = "Private";
         this.PRIVATE_USER_VALUE = "__user__";
         this.currentTenant = null;
+        this.tenantSearch = "";
+        this.roles = "";
 
         $http.get(`${API_ROOT}/multitenancy/info`)
             .then(
@@ -105,6 +109,7 @@ uiModules
 
                 this.tenants = allTenants;
                 this.tenantkeys = tenantkeys;
+                this.roles = response.data.sg_roles.join(", ");
 
                 $http.get(`${API_ROOT}/multitenancy/tenant`)
                     .then(
@@ -119,7 +124,7 @@ uiModules
         );
 
 
-        this.selectTenant = function (tenantLabel, tenant) {
+        this.selectTenant = function (tenantLabel, tenant, redirect) {
             $http.post(`${API_ROOT}/multitenancy/tenant`, {tenant: tenant, username: this.username})
                 .then(
                 (response) => {
@@ -131,7 +136,16 @@ uiModules
                     chrome.getNavLinkById("kibana:discover").lastSubUrl = chrome.getNavLinkById("kibana:discover").url;
                     chrome.getNavLinkById("timelion").lastSubUrl = chrome.getNavLinkById("timelion").url;
                     sessionStorage.clear();
-                    notify.info("Tenant changed");
+                    if(redirect) {
+                        if (redirect == 'vis') {
+                            $window.location.href = chrome.getNavLinkById("kibana:visualize").url;
+                        }
+                        if (redirect == 'dash') {
+                            $window.location.href = chrome.getNavLinkById("kibana:dashboard").url;
+                        }
+                    } else {
+                        notify.info("Tenant changed");
+                    }
                 },
                 (error) => notify.error(error)
             );
