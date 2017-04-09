@@ -57,6 +57,8 @@ uiModules
         this.currentTenant = null;
         this.tenantSearch = "";
         this.roles = "";
+        this.rolesArray = {};
+        this.showSubmenu = false;
 
         $http.get(`${API_ROOT}/multitenancy/info`)
             .then(
@@ -110,6 +112,7 @@ uiModules
                 this.tenants = allTenants;
                 this.tenantkeys = tenantkeys;
                 this.roles = response.data.sg_roles.join(", ");
+                this.rolesArray = response.data.sg_roles;
 
                 $http.get(`${API_ROOT}/multitenancy/tenant`)
                     .then(

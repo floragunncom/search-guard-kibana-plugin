@@ -1,6 +1,7 @@
 <div class="searchguard app-container ng-scope">
 
     <div class="kuiLocalNav">
+
         <div class="kuiLocalNavRow">
             <div class="kuiLocalNavRow__section">
                 <div class="kuiLocalTitle">
@@ -11,18 +12,51 @@
 
             <div class="kuiLocalNavRow__section">
                 <div class="kuiLocalMenu">
-                    <div class="kuiLocalMenuItem">
+
+                    <div class="kuiLocalMenuItem"
+                         ng-class="{'kuiLocalMenuItem-isSelected': kbnTopNav.isCurrent(menuItem.key), 'kuiLocalMenuItem-isDisabled': menuItem.disableButton()}"
+                         ng-click="ctrl.showSubmenu = !ctrl.showSubmenu"
+                         tooltip="Show more"
+                         tooltip-placement="bottom"
+                         tooltip-popup-delay="400"
+                         tooltip-append-to-body="1"
+                         ng-show="ctrl.showroles">
                         <div class="kuiLocalMenuItem__icon kuiIcon fa-user"></div>
-                        Logged in as: {{ctrl.username}}
-                    </div>
-                    <div class="kuiLocalMenuItem" ng-show="ctrl.showroles">
-                        <div class="kuiLocalMenuItem__icon kuiIcon fa-group"></div>
-                        Roles: {{ctrl.roles}}
+                        {{ctrl.username}}
                     </div>
 
+                    <div class="kuiLocalMenuItem kuiLocalMenuItem-isDisabled" ng-show="!ctrl.showroles">
+                        <div>
+                            <div class="kuiLocalMenuItem__icon kuiIcon fa-user"></div>
+                            {{ctrl.username}}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
+
+        <div class="kuiLocalDropdown" ng-show="ctrl.showSubmenu">
+            <button class="kuiLocalDropdownCloseButton" ng-click="ctrl.showSubmenu = false">
+                <span class="fa fa-chevron-circle-up"></span>
+            </button>
+            <div id="template_wrapper">
+                <div class="kuiLocalDropdownPanels">
+                    <div class="kuiLocalDropdownPanel">
+                        <!-- Title -->
+                        <div data-test-subj="shareUiTitle" class="kuiLocalDropdownTitle ng-binding">
+                            Roles for user {{ctrl.username}}
+                        </div>
+                        <div class="kuiLocalDropdownWarning ng-scope">
+                            <ul>
+                                <li ng-repeat="role in ctrl.rolesArray" ng-bind="role"></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="kuiLocalNavRow kuiLocalNavRow--secondary" ng-show="ctrl.showfilter">
             <div class="kuiLocalSearch">
                 <input
