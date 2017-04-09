@@ -24,7 +24,7 @@ export default function (kibana) {
                 }).default(),
                 session: Joi.object().keys({
                     ttl: Joi.number().integer().min(0).default(60 * 60 * 1000),
-                    keepalive: Joi.boolean().default(false),
+                    keepalive: Joi.boolean().default(true),
                 }).default(),
                 basicauth: Joi.object().keys({
                     enabled: Joi.boolean().default(true),
