@@ -1,5 +1,5 @@
 /**
- *    Copyright 2016 floragunn GmbH
+ *    Copyright 2017 floragunn GmbH
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -14,13 +14,15 @@
  limitations under the License.
  */
 
-import uiModules from 'ui/modules';
-import chrome from 'ui/chrome';
-import navRegistry from 'ui/registry/chrome_nav_controls';
 
-if(chrome.getInjected('basicauth_enabled')) {
- navRegistry.register(() => ({
-  name: 'btn-logout',
-  template: require('plugins/searchguard/chrome/btn_logout/btn_logout.html')
- }));
+import chrome from 'ui/chrome';
+import modules from 'ui/modules';
+
+export function toggleNavLink(Private) {
+    var enabled = chrome.getInjected('multitenancy_enabled');
+    chrome.getNavLinkById("searchguard-multitenancy").hidden = !enabled;
+
 }
+
+modules.get('searchguard').run(toggleNavLink);
+
