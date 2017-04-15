@@ -82,7 +82,11 @@ export default function LoginController(kbnUrl, $scope, $http, $window) {
 
             },
             (error) => {
-                this.errorMessage = "Invalid username or password.";
+                if (error.status && error.status === 401) {
+                    this.errorMessage = 'Invalid username or password, please try again';
+                } else {
+                    this.errorMessage = 'An error occurred while checking your credentials, make sure your have a running Elasticsearch cluster secured by Search Guard running.';
+                }
             }
         );
     };
