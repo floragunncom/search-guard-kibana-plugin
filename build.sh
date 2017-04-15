@@ -1,12 +1,13 @@
 #!/bin/bash
 PLUGIN_NAME=searchguard-kibana
-PLUGIN_VERSION=5.2.0-1
+PLUGIN_VERSION=5.2.2-GA
+KIBANA_VERSION=5.2.2
 echo "Building $PLUGIN_NAME-$PLUGIN_VERSION.zip"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR/..
 git clone https://github.com/elastic/kibana.git
 cd "kibana"
-git checkout tags/v$PLUGIN_VERSION
+git checkout tags/v$KIBANA_VERSION
 hash nvm 2>/dev/null || export NVM_DIR=~/.nvm; mkdir -p $NVM_DIR; . $(brew --prefix nvm)/nvm.sh
 nvm install "$(cat .node-version)"
 cd "$DIR"

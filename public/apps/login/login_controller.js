@@ -15,27 +15,74 @@
  */
 
 import chrome from 'ui/chrome';
+import {parse} from 'url';
+import _ from 'lodash';
 
-export default function LoginController($scope, $http, $window) {
+export default function LoginController(kbnUrl, $scope, $http, $window) {
 
     const ROOT = chrome.getBasePath();
     const APP_ROOT = `${ROOT}/searchguard`;
     const API_ROOT = `${APP_ROOT}/api/v1/auth`;
+    const BRANDIMAGE = chrome.getInjected("basicauth.login.brandimage");
+
+    // if session was not terminated by logout, clear any remaining
+    // stored paths etc. from previous users, to avoid issues
+    // like a non-working default index pattern
+    localStorage.clear();
+    sessionStorage.clear();
 
     this.errorMessage = false;
+    this.logintitle = chrome.getInjected("basicauth.login.title");
+    this.loginsubtitle = chrome.getInjected("basicauth.login.subtitle");
+    this.showbrandimage = chrome.getInjected("basicauth.login.showbrandimage");
+    this.brandimage = chrome.getInjected("basicauth.login.brandimage");
+    this.buttonstyle = chrome.getInjected("basicauth.login.buttonstyle");
+
+    if (BRANDIMAGE.startsWith("/plugins")) {
+        this.brandimage = ROOT + BRANDIMAGE;
+    } else {
+        this.brandimage = BRANDIMAGE;
+    }
+
+    const {query, hash} = parse($window.location.href, true);
+    let nextUrl;
+
+    if (query.nextUrl) {
+        nextUrl = ROOT + query.nextUrl + (hash || '')
+    } else {
+        nextUrl = "/";
+    }
 
     this.submit = () => {
         $http.post(`${API_ROOT}/login`, this.credentials)
             .then(
             (response) => {
-                $window.location.href = `${ROOT}/`;
+                // validate the tenant settings if multi tenancy is enabled
+
+                // if MT is disabled, or the GLOBAL tenant is enabled,
+                // no further checks are necessary. In the first case MT does not
+                // matter, in the latter case we always have a tenant as fallback if
+                // user has no tenants configured and PRIVATE is disabled
+                if (!chrome.getInjected("multitenancy.enabled") || chrome.getInjected("multitenancy.tenants.enable_global")) {
+                    $window.location.href = `${nextUrl}`;
+                } else {
+                    // GLOBAL is disabled, check if we have at least one tenant to choose from
+                    var allTenants = response.data.tenants;
+                    // if private tenant is disabled, remove it
+                    if(allTenants != null && !chrome.getInjected("multitenancy.tenants.enable_private")) {
+                        delete allTenants[response.data.username];
+                    }
+                    // check that we have at least one tenant to fall back to
+                    if (allTenants == null || allTenants.length == 0 || _.isEmpty(allTenants)) {
+                        this.errorMessage = 'No tenant available for this user, please contact your system administrator.';
+                    } else {
+                        $window.location.href = `${nextUrl}`;
+                    }
+                }
+
             },
             (error) => {
-                if (error.status && error.status === 401) {
-                    this.errorMessage = 'Invalid username or password, please try again';
-                } else {
-                    this.errorMessage = 'An error occurred while checking your credentials, make sure your have a running Elasticsearch cluster secured by Search Guard running.';
-                }
+                this.errorMessage = "Invalid username or password.";
             }
         );
     };
