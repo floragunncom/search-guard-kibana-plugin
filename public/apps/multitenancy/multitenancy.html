@@ -1,0 +1,176 @@
+<div class="searchguard app-container ng-scope">
+
+    <div class="kuiLocalNav">
+
+        <div class="kuiLocalNavRow">
+            <div class="kuiLocalNavRow__section">
+                <div class="kuiLocalTitle">
+                    Select Tenant
+                    <br />
+                </div>
+            </div>
+
+            <div class="kuiLocalNavRow__section">
+                <div class="kuiLocalMenu">
+
+                    <div class="kuiLocalMenuItem"
+                         ng-class="{'kuiLocalMenuItem-isSelected': kbnTopNav.isCurrent(menuItem.key), 'kuiLocalMenuItem-isDisabled': menuItem.disableButton()}"
+                         ng-click="ctrl.showSubmenu = !ctrl.showSubmenu"
+                         tooltip="Show more"
+                         tooltip-placement="bottom"
+                         tooltip-popup-delay="400"
+                         tooltip-append-to-body="1"
+                         ng-show="ctrl.showroles">
+                        <div class="kuiLocalMenuItem__icon kuiIcon fa-user"></div>
+                        {{ctrl.username}}
+                    </div>
+
+                    <div class="kuiLocalMenuItem kuiLocalMenuItem-isDisabled" ng-show="!ctrl.showroles">
+                        <div>
+                            <div class="kuiLocalMenuItem__icon kuiIcon fa-user"></div>
+                            {{ctrl.username}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="kuiLocalDropdown" ng-show="ctrl.showSubmenu">
+            <button class="kuiLocalDropdownCloseButton" ng-click="ctrl.showSubmenu = false">
+                <span class="fa fa-chevron-circle-up"></span>
+            </button>
+            <div id="template_wrapper">
+                <div class="kuiLocalDropdownPanels">
+                    <div class="kuiLocalDropdownPanel">
+                        <!-- Title -->
+                        <div data-test-subj="shareUiTitle" class="kuiLocalDropdownTitle ng-binding">
+                            Roles for user {{ctrl.username}}
+                        </div>
+                        <div class="kuiLocalDropdownWarning ng-scope">
+                            <ul>
+                                <li ng-repeat="role in ctrl.rolesArray" ng-bind="role"></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="kuiLocalNavRow kuiLocalNavRow--secondary" ng-show="ctrl.showfilter">
+            <div class="kuiLocalSearch">
+                <input
+                        class="kuiLocalSearchInput"
+                        type="text"
+                        placeholder="Filter..."
+                        autocomplete="off"
+                        ng-model="ctrl.tenantSearch"
+                        >
+                <button class="kuiLocalSearchButton">
+                    <span class="kuiIcon fa-search"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="page-header">
+                    <h2 class="text-center" ng-bind="ctrl.tenantLabel"></h2>
+                    <h5 class="error-message" ng-if="ctrl.errorMessage" ng-bind="ctrl.errorMessage"></h5>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="kuiTableHeaderCell">Name</th>
+                            <th class="kuiTableHeaderCell">Permissions</th>
+                            <th class="kuiTableHeaderCell"></th>
+                            <th class="kuiTableHeaderCell"></th>
+                            <th class="kuiTableHeaderCell"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="kuiTableRow" ng-class="{'selected': ctrl.currentTenant == ''}" ng-show="ctrl.globalEnabled && (ctrl.tenantSearch == '' || 'global'.startsWith(ctrl.tenantSearch.toLowerCase()))">
+                            <td class="kuiTableRowCell">
+                                {{ctrl.GLOBAL_USER_LABEL}}
+                            </td>
+                            <td class="kuiTableRowCell">
+                                <div ng-if="ctrl.GLOBAL_USER_WRITEABLE">read/write</div>
+                                <div ng-if="!ctrl.GLOBAL_USER_WRITEABLE">read only</div>
+                            </td>
+                            <td class="actions kuiTableRowCell">
+                                <button class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
+                                        ng-click="ctrl.selectTenant(ctrl.GLOBAL_USER_LABEL, ctrl.GLOBAL_USER_VALUE, 'dash')">Show Dashboards
+                                </button>
+                            </td>
+                            <td class="actions kuiTableRowCell">
+                                <button class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
+                                        ng-click="ctrl.selectTenant(ctrl.GLOBAL_USER_LABEL, ctrl.GLOBAL_USER_VALUE, 'vis')">Show Visualizations
+                                </button>
+                            </td>
+                            <td class="actions kuiTableRowCell">
+                                <button class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == ''"
+                                        ng-show="ctrl.currentTenant != ctrl.GLOBAL_USER_VALUE"
+                                        ng-click="ctrl.selectTenant(ctrl.GLOBAL_USER_LABEL, ctrl.GLOBAL_USER_VALUE)">Select
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="kuiTableRow" ng-class="{'selected': ctrl.currentTenant == ctrl.PRIVATE_USER_VALUE}" ng-show="ctrl.privateEnabled && (ctrl.tenantSearch == '' || 'private'.startsWith(ctrl.tenantSearch.toLowerCase()))">
+                            <td class="kuiTableRowCell">
+                                {{ctrl.PRIVATE_USER_LABEL}}
+                            </td>
+                            <td class="kuiTableRowCell">
+                                <div>read/write</div>
+                            </td>
+                            <td class="actions kuiTableRowCell">
+                                <button class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
+                                        ng-click="ctrl.selectTenant(ctrl.PRIVATE_USER_LABEL, ctrl.PRIVATE_USER_VALUE, 'dash')">Show Dashboards
+                                </button>
+                            </td>
+                            <td class="actions kuiTableRowCell">
+                                <button class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
+                                        ng-click="ctrl.selectTenant(ctrl.PRIVATE_USER_LABEL, ctrl.PRIVATE_USER_VALUE, 'vis')">Show Visualizations
+                                </button>
+                            </td>
+                            <td class="actions kuiTableRowCell">
+                                <button class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == ctrl.PRIVATE_USER_VALUE"
+                                        ng-click="ctrl.selectTenant(ctrl.PRIVATE_USER_LABEL, ctrl.PRIVATE_USER_VALUE)">Select
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="kuiTableRow" ng-show="ctrl.tenantSearch == '' || tenantkey.toLowerCase().startsWith(ctrl.tenantSearch.toLowerCase())" ng-repeat="tenantkey in ctrl.tenantkeys" ng-class="{'selected': tenantkey == ctrl.currentTenant}">
+                            <td class="kuiTableRowCell">
+                                {{tenantkey}}
+                            </td>
+                            <td class="kuiTableRowCell">
+                                <div ng-if="ctrl.tenants[tenantkey]">read/write</div>
+                                <div ng-if="!ctrl.tenants[tenantkey]">read only</div>
+                            </td>
+                            <td class="actions kuiTableRowCell">
+                                <button class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
+                                        ng-click="ctrl.selectTenant(tenantkey, tenantkey, 'dash')">Show Dashboards
+                                </button>
+                            </td>
+                            <td class="actions kuiTableRowCell">
+                                <button class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
+                                        ng-click="ctrl.selectTenant(tenantkey, tenantkey, 'vis')">Show Visualizations
+                                </button>
+                            </td>
+                            <td class="actions kuiTableRowCell">
+                                <button class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
+                                        ng-click="ctrl.selectTenant(tenantkey, tenantkey)">Select
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
