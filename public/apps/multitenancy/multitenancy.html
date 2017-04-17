@@ -1,77 +1,20 @@
 <div class="searchguard app-container ng-scope">
 
-    <div class="localNav">
-
-        <div class="localNavRow">
-            <div class="localNavRow__section">
-                <div class="localTitle">
-                    Select Tenant
-                    <br />
+    <kbn-top-nav name="discover" config="topNavMenu">
+        <navbar class="kibana-nav-options" data-test-subj="top-nav">
+            <div ng-transclude="">
+                <div class="kibana-nav-info ng-scope">
+                    <strong class="discover-info-hits ng-binding">Select tenant</strong>
                 </div>
             </div>
-
-            <div class="localNavRow__section">
-                <div class="localMenu">
-
-                    <div class="localMenuItem"
-                         ng-class="{'localMenuItem-isSelected': kbnTopNav.isCurrent(menuItem.key), 'localMenuItem-isDisabled': menuItem.disableButton()}"
-                         ng-click="ctrl.showSubmenu = !ctrl.showSubmenu"
-                         tooltip="Show more"
-                         tooltip-placement="bottom"
-                         tooltip-popup-delay="400"
-                         tooltip-append-to-body="1"
-                         ng-show="ctrl.showroles">
-                        <div class="localMenuItem__icon fa fa-user"></div>
-                        {{ctrl.username}}
-                    </div>
-
-                    <div class="localMenuItem localMenuItem-isDisabled" ng-show="!ctrl.showroles">
-                        <div>
-                            <div class="localMenuItem__icon fa fa-user"></div>
-                            {{ctrl.username}}
-                        </div>
-                    </div>
+            <div class="button-group kibana-nav-actions" role="toolbar">
+                <div>
+                    <div class="fa fa-user"></div>
+                    &nbsp;{{ctrl.username}}&nbsp;
                 </div>
             </div>
-        </div>
-
-
-        <div class="localDropdown" ng-show="ctrl.showSubmenu">
-            <button class="localDropdownCloseButton" ng-click="ctrl.showSubmenu = false">
-                <span class="fa fa-chevron-circle-up"></span>
-            </button>
-            <div id="template_wrapper">
-                <div class="localDropdownPanels">
-                    <div class="localDropdownPanel">
-                        <!-- Title -->
-                        <div data-test-subj="shareUiTitle" class="localDropdownTitle ng-binding">
-                            Roles for user {{ctrl.username}}
-                        </div>
-                        <div class="localDropdownWarning ng-scope">
-                            <ul>
-                                <li ng-repeat="role in ctrl.rolesArray" ng-bind="role"></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="localNavRow localNavRow--secondary" ng-show="ctrl.showfilter">
-            <div class="localSearch">
-                <input
-                        class="localSearchInput"
-                        type="text"
-                        placeholder="Filter..."
-                        autocomplete="off"
-                        ng-model="ctrl.tenantSearch"
-                        >
-                <button class="localSearchButton">
-                    <span class="fa fa-search"></span>
-                </button>
-            </div>
-        </div>
-    </div>
+        </navbar>
+    </kbn-top-nav>
 
 
     <div class="container">
