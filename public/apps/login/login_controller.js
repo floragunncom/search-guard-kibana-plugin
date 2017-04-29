@@ -1,4 +1,5 @@
 import chrome from 'ui/chrome';
+import {parse} from 'url';
 
 export default function LoginController($scope, $http, $window) {
 
@@ -8,11 +9,20 @@ export default function LoginController($scope, $http, $window) {
 
     this.errorMessage = false;
 
+    const {query, hash} = parse($window.location.href, true);
+    let nextUrl;
+
+    if (query.nextUrl) {
+        nextUrl = ROOT + query.nextUrl + (hash || '')
+    } else {
+        nextUrl = "/";
+    }
+
     this.submit = () => {
         $http.post(`${API_ROOT}/login`, this.credentials)
             .then(
             (response) => {
-                $window.location.href = `${ROOT}/`;
+                $window.location.href = `${nextUrl}`;
             },
             (error) => {
                 if (error.status && error.status === 401) {
