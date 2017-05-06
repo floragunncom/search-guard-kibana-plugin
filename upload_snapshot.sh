@@ -10,3 +10,5 @@ if ! [[ $response == "200" ]] ; then
   echo "Upload failed with status $response"
   exit 1
 fi
+
+echo "Upload response: $response"
