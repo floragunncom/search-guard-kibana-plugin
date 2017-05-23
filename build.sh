@@ -1,6 +1,6 @@
 #!/bin/bash
 PLUGIN_NAME=searchguard-kibana
-PLUGIN_VERSION=5.3.2-3-SNAPSHOT
+PLUGIN_VERSION=5.3.2-3-RC1
 KIBANA_VERSION=5.3.2
 echo "Building $PLUGIN_NAME-$PLUGIN_VERSION.zip"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
