@@ -43,6 +43,7 @@ export default function (kibana) {
                     tenants: Joi.object().keys({
                         enable_private: Joi.boolean().default(true),
                         enable_global: Joi.boolean().default(true),
+                        preferred: Joi.array(),
                     }).default(),
                 }).default(),
                 jwt: Joi.object().keys({
