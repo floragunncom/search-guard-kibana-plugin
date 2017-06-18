@@ -43,7 +43,13 @@ export default function (kibana) {
                     tenants: Joi.object().keys({
                         enable_private: Joi.boolean().default(true),
                         enable_global: Joi.boolean().default(true),
+                        preferred: Joi.array(),
                     }).default(),
+                }).default(),
+                jwt: Joi.object().keys({
+                    enabled: Joi.boolean().default(false),
+                    url_param: Joi.string().default('authorization'),
+                    header: Joi.string().default('Authorization')
                 }).default()
             }).default();
             return obj;
@@ -177,12 +183,31 @@ export default function (kibana) {
                     password: config.get("searchguard.cookie.password")
                 });
 
-
-
                 this.status.yellow("Search Guard multitenancy enabled");
             } else {
                 this.status.yellow("Search Guard multitenancy disabled");
             }
+
+            if(config.get('searchguard.jwt.enabled')) {
+
+                require('./lib/jwt/headers')(pluginRoot, server, this, APP_ROOT, API_ROOT);
+
+                server.state('searchguard_jwt', {
+                    ttl: null,
+                    path: '/',
+                    isSecure: false,
+                    isHttpOnly: false,
+                    clearInvalid: true, // remove invalid cookies
+                    strictHeader: true, // don't allow violations of RFC 6265
+                    encoding: 'iron',
+                    password: config.get("searchguard.cookie.password")
+                });
+
+                this.status.yellow("Search Guard copy JWT params enabled");
+            } else {
+                this.status.yellow("Search Guard copy JWT params disabled");
+            }
+
             this.status.green('Search Guard plugin initialised.');
 
         }
