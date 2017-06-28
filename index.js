@@ -97,7 +97,7 @@ export default function (kibana) {
 
         init(server, options) {
 
-            APP_ROOT = '/searchguard';
+            APP_ROOT = '';
             API_ROOT = `${APP_ROOT}/api`;
             const config = server.config();
 
