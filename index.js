@@ -28,6 +28,7 @@ export default function (kibana) {
                 }).default(),
                 basicauth: Joi.object().keys({
                     enabled: Joi.boolean().default(true),
+                    unauthenticated_routes: Joi.array().default(["/api/status"]),
                     login: Joi.object().keys({
                         title: Joi.string().allow('').default('Please login to Kibana'),
                         subtitle: Joi.string().allow('').default('If you have forgotten your username or password, please ask your system administrator'),
@@ -97,7 +98,7 @@ export default function (kibana) {
 
         init(server, options) {
 
-            APP_ROOT = '/searchguard';
+            APP_ROOT = '';
             API_ROOT = `${APP_ROOT}/api`;
             const config = server.config();
 

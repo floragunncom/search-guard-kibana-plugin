@@ -36,7 +36,7 @@ uiModules
     .get('app/searchguard-multitenancy')
     .controller('searchguardMultitenancyController', function ($http, $window) {
 
-        var APP_ROOT = `${chrome.getBasePath()}/searchguard`;
+        var APP_ROOT = `${chrome.getBasePath()}`;
         var API_ROOT = `${APP_ROOT}/api/v1`;
         let notify = new Notifier({});
 
