@@ -16,8 +16,8 @@
 
 import chrome from 'ui/chrome';
 import uiRoutes from 'ui/routes';
-import uiModules from 'ui/modules';
-import Notifier from 'ui/notify/notifier';
+import { uiModules } from 'ui/modules';
+import { Notifier } from 'ui/notify/notifier';
 import 'ui/autoload/styles';
 import 'plugins/searchguard/apps/multitenancy/multitenancy.less';
 

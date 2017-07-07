@@ -14,12 +14,12 @@
  limitations under the License.
  */
 
-import uiModules from 'ui/modules';
+import { chromeNavControlsRegistry } from 'ui/registry/chrome_nav_controls';
+import { uiModules } from 'ui/modules';
 import chrome from 'ui/chrome';
-import navRegistry from 'ui/registry/chrome_nav_controls';
 
 if(chrome.getInjected('basicauth_enabled')) {
- navRegistry.register(() => ({
+ chromeNavControlsRegistry.register(() => ({
   name: 'btn-logout',
   template: require('plugins/searchguard/chrome/btn_logout/btn_logout.html')
  }));

@@ -15,7 +15,7 @@
  */
 
 import chrome from 'ui/chrome';
-import uiModules from 'ui/modules';
+import { uiModules } from 'ui/modules';
 import 'ui/notify';
 
 uiModules

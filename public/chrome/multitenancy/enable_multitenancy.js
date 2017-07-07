@@ -16,7 +16,7 @@
 
 
 import chrome from 'ui/chrome';
-import modules from 'ui/modules';
+import { uiModules } from 'ui/modules';
 
 export function toggleNavLink(Private) {
     var enabled = chrome.getInjected('multitenancy_enabled');
@@ -24,5 +24,5 @@ export function toggleNavLink(Private) {
 
 }
 
-modules.get('searchguard').run(toggleNavLink);
+uiModules.get('searchguard').run(toggleNavLink);
 

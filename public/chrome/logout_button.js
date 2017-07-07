@@ -14,8 +14,7 @@
  limitations under the License.
  */
 
-import uiModules from 'ui/modules';
-import navRegistry from 'ui/registry/chrome_nav_controls';
+import { uiModules } from 'ui/modules';
 
 uiModules
 .get('kibana')
