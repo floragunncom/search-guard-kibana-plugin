@@ -21,7 +21,7 @@ import _ from 'lodash';
 export default function LoginController(kbnUrl, $scope, $http, $window) {
 
     const ROOT = chrome.getBasePath();
-    const APP_ROOT = `${ROOT}/searchguard`;
+    const APP_ROOT = `${ROOT}`;
     const API_ROOT = `${APP_ROOT}/api/v1/auth`;
     const BRANDIMAGE = chrome.getInjected("basicauth.login.brandimage");
 
@@ -85,7 +85,7 @@ export default function LoginController(kbnUrl, $scope, $http, $window) {
                 if (error.status && error.status === 401) {
                     this.errorMessage = 'Invalid username or password, please try again';
                 } else {
-                    this.errorMessage = 'An error occurred while checking your credentials, make sure your have a running Elasticsearch cluster secured by Search Guard running.';
+                    this.errorMessage = 'An error occurred while checking your credentials, make sure your have an  Elasticsearch cluster secured by Search Guard running.';
                 }
             }
         );
