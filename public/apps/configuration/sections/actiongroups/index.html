@@ -1,0 +1,82 @@
+<div class="searchguard app-container ng-scope" id="section-editor" ng-controller="sgActionGroupsController">
+
+    <search-guard-configuration-list-header></search-guard-configuration-list-header>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="kuiControlledTable">
+
+                    <search-guard-configuration-filter></search-guard-configuration-filter>
+
+                    <!-- Table -->
+                    <table class="kuiTable" ng-show="(resourcenames | filter:query).length">
+                        <thead>
+                            <tr>
+
+                                <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
+                                    Action Group Name
+                                    <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'username'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                </th>
+
+                                <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
+                                    Permissions
+                                    <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'roles'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                </th>
+
+                                <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
+                                    Action Groups
+                                    <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'roles'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                </th>
+
+                                <th class="kuiTableHeaderCell kuiTableHeaderCell">
+                                </th>
+
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr ng-repeat="actiongroupname in resourcenames | filter:query" data-test-subj="userRow" class="kuiTableRow">
+
+                                <td class="kuiTableRowCell cellAlignTop">
+                                    <div class="kuiTableRowCell__liner">
+                                        <a class="kuiLink" ng-click="edit(actiongroupname)">
+                                            {{actiongroupname}}
+                                        </a>
+                                    </div>
+                                </td>
+
+                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                    <div class="kuiTableRowCell__liner">
+                                        <div ng-repeat="permission in resources[actiongroupname].permissions">{{permission}}<br/></div>
+                                    </div>
+                                </td>
+
+                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                    <div class="kuiTableRowCell__liner">
+                                        <div ng-repeat="actiongroup in resources[actiongroupname].actiongroups">{{actiongroup}}<br/></div>
+                                    </div>
+                                </td>
+
+                                <td class="kuiTableRowCell actions cellAlignTop" data-test-subj="userRowActions">
+                                    <div class="kuiTableRowCell__liner">
+                                        <a ng-click="edit(actiongroupname)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-edit"></span>
+                                        </a>
+                                        <a ng-click="clone(actiongroupname)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-copy"></span>
+                                        </a>
+                                        <a ng-click="delete(actiongroupname)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                        </a>
+                                    </div>
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,67 @@
+<div class="searchguard app-container ng-scope" id="section-editor" ng-controller="sgEditInternalUsersController">
+
+    <search-guard-configuration-edit-header></search-guard-configuration-edit-header>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="">
+                    <p class="error-message" ng-show="errorMessage">{{ errorMessage }}</p>
+                    <form name="objectForm" id="object-form" method="post" ng-submit="saveObject($event)" novalidate>
+                        <div class="form-group">
+                            <label for="object-form-id">Username</label>
+                            <input
+                                    ng-show="isNew"
+                                    id="object-form-id"
+                                    name="id"
+                                    type="text"
+                                    ng-model="resourcename"
+                                    class="form-control"
+                                    required/>
+                            <div ng-show="!isNew">{{resourcename}}</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="object-form-password">Password</label>
+                            <input
+                                    id="object-form-password"
+                                    type="password"
+                                    ng-model="resource.password"
+                                    class="form-control"
+                                    ng-required="isNew">
+                        </div>
+                        <div class="form-group">
+                            <label for="object-form-password-confirmation">Confirm password</label>
+                            <span ng-if="objectForm.passwordConfirmation.$error.match" class="fieldError">Passwords must match.</span>
+                            <input
+                                    id="object-form-password-confirmation"
+                                    name="passwordConfirmation"
+                                    type="password"
+                                    ng-model="resource.passwordConfirmation"
+                                    class="form-control"
+                                    match="resource.password"
+                                    ng-required="isNew"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="object-form-backendroles">Backend Roles</label>
+                            <fieldset class="marginbottom--small" id="object-form-backendroles" data-ng-repeat="role in resource.roles track by $index">
+                                <input type="text" class="kuiTextInput sevenwidth" ng-model="resource.roles[$index]" name="">
+                                <a ng-click="removeRole(role)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                    <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                </a>
+                            </fieldset>
+                            <br/>
+                            <button ng-click="addRole()" ng-disabled="lastRoleEmpty()" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                <span class="kuiButton__icon kuiIcon fa-plus"></span>
+                                Add Backend Role
+                            </button>
+                        </div>
+
+                        <hr />
+
+                        <button class="kuiButton kuiButton--primary kuiButton--text" type="submit">Submit</button>
+                        <button class="kuiButton kuiButton--secondary kuiButton--text" type="submit" ng-click="cancel()">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -47,6 +47,13 @@ export default function (kibana) {
                         preferred: Joi.array(),
                     }).default(),
                 }).default(),
+                configuration: Joi.object().keys({
+                    enabled: Joi.boolean().default(true),
+                    ssl: Joi.object().keys({
+                        cert: Joi.string(),
+                        key: Joi.string()
+                    })
+                }),
                 jwt: Joi.object().keys({
                     enabled: Joi.boolean().default(false),
                     url_param: Joi.string().default('authorization'),
@@ -79,6 +86,14 @@ export default function (kibana) {
                     auth: true,
                     order: 9010,
                     icon: 'plugins/searchguard/assets/networking.svg',
+                },
+                {
+                    id: 'searchguard-configuration',
+                    title: 'Search Guard',
+                    main: 'plugins/searchguard/apps/configuration',
+                    order: 9009,
+                    auth: true,
+                    icon: 'plugins/searchguard/assets/searchguard_logo_nav.svg',
                 }
             ],
             chromeNavControls: [
@@ -99,7 +114,7 @@ export default function (kibana) {
         init(server, options) {
 
             APP_ROOT = '';
-            API_ROOT = `${APP_ROOT}/api`;
+            API_ROOT = `${APP_ROOT}/api/v1`;
             const config = server.config();
 
             // all your routes are belong to us
@@ -111,6 +126,12 @@ export default function (kibana) {
             const BackendClass = pluginRoot(`lib/backend/searchguard`);
             const searchguardBackend = new BackendClass(server, server.config);
             server.expose('getSearchGuardBackend', () => searchguardBackend);
+
+            // provides configuration methods against Search Guard
+            const ConfigurationBackendClass = pluginRoot(`lib/configuration/backend/searchguard_configuration_backend`);
+            const searchguardConfigurationBackend = new ConfigurationBackendClass(server, server.config);
+            server.expose('getSearchGuardConfigurationBackend', () => searchguardConfigurationBackend);
+
 
             if(config.get('searchguard.basicauth.enabled')) {
                 server.register([
@@ -208,6 +229,13 @@ export default function (kibana) {
             } else {
                 this.status.yellow("Search Guard copy JWT params disabled");
             }
+
+            // todo: config stuff from here
+            // todo: check if enabled
+            require('./lib/configuration/routes/routes')(pluginRoot, server, APP_ROOT, API_ROOT);
+
+            // todo: end config stuff
+
 
             this.status.green('Search Guard plugin initialised.');
 

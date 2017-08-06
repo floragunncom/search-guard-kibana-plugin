@@ -1,0 +1,66 @@
+import { uiModules } from 'ui/modules';
+import './client';
+import { merge } from 'lodash';
+import { uniq } from 'lodash';
+/**
+ * Internal users API client service.
+ */
+uiModules.get('apps/searchguard/configuration', [])
+    .service('backendInternalUsers', function (backendAPI, Promise, $http, createNotifier) {
+
+        const RESOURCE = 'internalusers';
+
+        const notify = createNotifier({
+            location: 'Internal users'
+        });
+
+        this.title = {
+            singular: 'Internal user',
+            plural: 'Internal users'
+        };
+
+        this.list = () => {
+            return backendAPI.list(RESOURCE);
+        };
+
+        this.get = (username) => {
+            return backendAPI.get(RESOURCE, username);
+        };
+
+        this.save = (username, data) => {
+            data = this.preSave(data);
+            return backendAPI.save(RESOURCE, username, data);
+        };
+
+        this.delete = (username) => {
+            return backendAPI.delete(RESOURCE, username);
+        };
+
+        this.emptyModel = () => {
+            var user = {};
+            user["password"] = "";
+            user["passwordConfirmation"] = "";
+            user.roles = [];
+            return user;
+        };
+
+        this.preSave = (user) => {
+            delete user["passwordConfirmation"];
+            // remove emptye roles
+            user.roles = user.roles.filter(e => String(e).trim());
+            // remove duplicate roles
+            user.roles = uniq(user.roles);
+            return user;
+        };
+
+        this.postFetch = (user) => {
+            delete user["hash"];
+            user["password"] = "";
+            user["passwordConfirmation"] = "";
+            if (!user.roles) {
+                user.roles = [];
+            }
+            return user;
+        };
+
+    });
