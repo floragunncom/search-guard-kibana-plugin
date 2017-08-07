@@ -1,104 +1,93 @@
-<kac-authentication-section
-    section="rolemappings"
-    show-editing-buttons="true"
-    create-button-label="Create role mapping"
-    create-button-class="fa fa-plus"
-    update-button-label="Save role mapping"
-    open-button-label="Edit role mapping"
-    delete-button-label="Delete role mapping">
-  <div class="container" id="section-editor" ng-controller="kacRoleMappingsController">
+<div class="searchguard app-container ng-scope" id="section-editor" ng-controller="sgRoleMappingsController">
 
-    <div ng-show="showObjectFinder">
-      <h2 class="title">Role mappings</h2>
-      <finder
-        service="service"
-        type="role mappings"
-        make-url="makeFinderUrl"
-      />
-    </div>
+    <search-guard-configuration-list-header></search-guard-configuration-list-header>
 
-    <div ng-hide="showObjectFinder">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="kuiControlledTable">
 
-      <div class="header" ng-if="isNew">
-        <h2 class="title">Create role mapping</h2>
-      </div>
-      <div class="header" ng-if="!isNew">
-        <h2 class="title"><i class="fa fa-group"></i> {{ rolemapping.id }}</h2>
-      </div>
+                    <search-guard-configuration-filter></search-guard-configuration-filter>
 
-      <p ng-if="isNew">
-        Role mappings specify the association between roles and internal users, hosts or roles set by an external backend
-        (e.g. LDAP or Active Directory).
-        <br/>
-        For further information please refer to the
-        <i class="fa fa-globe"></i>
-        <a target="_blank" href="https://github.com/floragunncom/search-guard-docs/blob/master/configuration.md#map-users-backend-roles-and-hosts-to-search-guard-roles">
-          Search Guard documentation
-        </a>.
-      </p>
-      <p ng-if="!isNew">
-        Click on the Save button to apply changes.
-      </p>
+                    <!-- Table -->
+                    <table class="kuiTable" ng-show="(resourcenames | filter:query).length">
+                        <thead>
+                            <tr>
 
-      <p class="formError" ng-show="errorMessage">{{ errorMessage }}</p>
-      <form name="objectForm" id="object-form" method="post" ng-submit="saveObject($event)" novalidate>
-        <div class="form-group" ng-show="isNew">
-          <label for="object-form-id">Role</label>
-          <select
-            id="object-form-id"
-            name="role"
-            class="form-control"
-            ng-required="isNew"
-            ng-model="rolemapping.id">
-            <option ng-repeat="role in roles" value="{{ role.id }}">{{ role.id }}</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Internal users</label>
-          <div>
-            <isteven-multi-select
-              input-model="internalUsers.available"
-              output-model="internalUsers.selected"
-              button-label="icon id"
-              item-label="icon id"
-              tick-property="selected">
-            </isteven-multi-select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Backend roles</label>
-          <div ng-repeat="role in backendroles" class="form-group">
-            <div class="input-group">
-              <input type="text" ng-model="role.text" class="form-control" placeholder="Role name">
-              <div class="input-group-btn">
-                <kibi-array-param-remove index="{{ $index }}" model="backendroles"></kibi-array-param-remove>
-              </div>
+                                <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
+                                    Action Group Name
+                                    <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'username'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                </th>
+
+                                <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
+                                    Users
+                                    <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'roles'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                </th>
+
+                                <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
+                                    Backend Roles
+                                    <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'roles'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                </th>
+
+                                <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
+                                    Hosts
+                                    <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'roles'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                </th>
+
+                                <th class="kuiTableHeaderCell kuiTableHeaderCell">
+                                </th>
+
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr ng-repeat="rolemappingname in resourcenames | filter:query" data-test-subj="userRow" class="kuiTableRow">
+
+                                <td class="kuiTableRowCell cellAlignTop">
+                                    <div class="kuiTableRowCell__liner">
+                                        <a class="kuiLink" ng-click="edit(rolemappingname)">
+                                            {{rolemappingname}}
+                                        </a>
+                                    </div>
+                                </td>
+
+                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                    <div class="kuiTableRowCell__liner">
+                                        <div ng-repeat="user in resources[rolemappingname].users">{{user}}<br/></div>
+                                    </div>
+                                </td>
+
+                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                    <div class="kuiTableRowCell__liner">
+                                        <div ng-repeat="backendrole in resources[rolemappingname].backendroles">{{backendrole}}<br/></div>
+                                    </div>
+                                </td>
+
+                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                    <div class="kuiTableRowCell__liner">
+                                        <div ng-repeat="host in resources[rolemappingname].hosts">{{host}}<br/></div>
+                                    </div>
+                                </td>
+
+                                <td class="kuiTableRowCell actions cellAlignTop" data-test-subj="userRowActions">
+                                    <div class="kuiTableRowCell__liner">
+                                        <a ng-click="edit(rolemappingname)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-edit"></span>
+                                        </a>
+                                        <a ng-click="clone(rolemappingname)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-copy"></span>
+                                        </a>
+                                        <a ng-click="delete(rolemappingname)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                        </a>
+                                    </div>
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-          </div>
-          <p>
-            <kibi-array-param-add label="backend role" model="backendroles"></kibi-array-param-add>
-          </p>
         </div>
-        <div class="form-group">
-          <label>Hosts</label>
-          <div ng-repeat="host in hosts" class="form-group">
-            <div class="input-group">
-              <input type="text" ng-model="host.text" class="form-control" placeholder="Host address or FQDN">
-              <div class="input-group-btn">
-                <kibi-array-param-remove index="{{ $index }}" model="hosts"></kibi-array-param-remove>
-              </div>
-            </div>
-          </div>
-          <p>
-            <kibi-array-param-add label="host" model="hosts"></kibi-array-param-add>
-          </p>
-        </div>
-
-        <button type="submit"></button>
-      </form>
-
     </div>
-
-  </div>
-
-</kac-authentication-section>
+</div>

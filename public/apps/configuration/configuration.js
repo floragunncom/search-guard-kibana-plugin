@@ -21,6 +21,7 @@ import { Notifier } from 'ui/notify/notifier';
 
 import internalusers from './sections/internalusers';
 import actiongroups from './sections/actiongroups';
+import rolemappings from './sections/rolemappings';
 
 import 'ui/autoload/styles';
 import 'plugins/searchguard/apps/configuration/configuration.less';

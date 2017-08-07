@@ -1,0 +1,76 @@
+<div class="searchguard app-container ng-scope" id="section-editor" ng-controller="sgEditRoleMappingsController">
+
+    <search-guard-configuration-edit-header></search-guard-configuration-edit-header>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="">
+                    <p class="error-message" ng-show="errorMessage">{{ errorMessage }}</p>
+                    <form name="objectForm" id="object-form" method="post" ng-submit="saveObject($event)" novalidate style="width:70%">
+                        <div class="form-group">
+                            <label for="object-form-id">Role Mapping Name</label>
+                            <input
+                                    ng-show="isNew"
+                                    id="object-form-id"
+                                    name="id"
+                                    type="text"
+                                    ng-model="resourcename"
+                                    class="form-control"
+                                    required/>
+                            <div ng-show="!isNew">{{resourcename}}</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="object-form-actiongroups">Users</label>
+                            <fieldset class="marginbottom--small" id="object-form-actiongroups" data-ng-repeat="user in resource.users track by $index">
+                                <input type="text" class="kuiTextInput sevenwidth" ng-model="resource.users[$index]" name="">
+                                <a ng-click="removeUser(user)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                    <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                </a>
+                            </fieldset>
+                            <br/>
+                            <button ng-click="addUser()" ng-disabled="lastUserEmpty()" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                <span class="kuiButton__icon kuiIcon fa-plus"></span>
+                                Add User
+                            </button>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="object-form-permissions">Backend Roles</label>
+                            <fieldset class="marginbottom--small" id="object-form-permissions" data-ng-repeat="backendrole in resource.backendroles track by $index">
+                                <input type="text" class="kuiTextInput sevenwidth" ng-model="resource.backendroles[$index]" name="">
+                                <button ng-click="removeBackendRole(backendrole)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                    <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                </button>
+                            </fieldset>
+                            <br/>
+                            <button ng-click="addBackendRole()" ng-disabled="lastBackendRoleEmpty()" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                <span class="kuiButton__icon kuiIcon fa-plus"></span>
+                                Add Backend Role
+                            </button>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="object-form-permissions">Hosts</label>
+                            <fieldset class="marginbottom--small" id="object-form-permissions" data-ng-repeat="host in resource.hosts track by $index">
+                                <input type="text" class="kuiTextInput sevenwidth" ng-model="resource.hosts[$index]" name="">
+                                <a ng-click="removeHost(host)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                    <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                </a>
+                            </fieldset>
+                            <br/>
+                            <button ng-click="addHost()" ng-disabled="lastHostEmpty()" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                <span class="kuiButton__icon kuiIcon fa-plus"></span>
+                                Add Host
+                            </button>
+                        </div>
+
+                        <hr />
+
+                        <button class="kuiButton kuiButton--primary kuiButton--text" type="submit">Submit</button>
+                        <button class="kuiButton kuiButton--secondary kuiButton--text" type="submit" ng-click="cancel()">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

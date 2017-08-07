@@ -1,52 +1,23 @@
 import angular from 'angular';
 import uiRoutes from 'ui/routes';
 import sectionTemplate from './index.html';
+import editTemplate from './edit.html';
 import './controller';
+import '../../directives/configuration_directives';
+
+import 'ui/autoload/styles';
+import 'plugins/searchguard/apps/configuration/configuration.less';
 
 uiRoutes
-.when('/authentication/rolemappings', {
-  template: sectionTemplate,
-  resolve: {
-    internalUsers: ($route, kbnUrl, backendInternalUsers) => {
-      return backendInternalUsers.find();
-    },
-    roles: ($route, kbnUrl, backendRoles) => {
-      return backendRoles.find();
-    }
-  }
-})
-.when('/authentication/rolemappings/:id', {
-  template: sectionTemplate,
-  resolve: {
-    internalUsers: ($route, kbnUrl, backendInternalUsers) => {
-      return backendInternalUsers.find();
-    },
-    roles: ($route, kbnUrl, backendRoles) => {
-      return backendRoles.find();
-    },
-    rolemapping: ($route, kbnUrl, backendRoleMappings) => {
-      return backendRoleMappings.get($route.current.params.id);
-    }
-  }
-});
-
-export default (kbnUrl) => ({
-  key: 'rolemappings',
-  description: 'Role mappings',
-  run: (event) => {
-    event.preventDefault();
-    kbnUrl.change('/authentication/rolemappings');
-  },
-  openObjectFinder: () => {
-    angular.element('#section-editor').scope().openObjectFinder();
-  },
-  editObject: () => {
-    angular.element('#section-editor').scope().editObject();
-  },
-  saveObject: () => {
-    angular.element('#object-form').scope().saveObject();
-  },
-  deleteObject: () => {
-    angular.element('#section-editor').scope().deleteObject();
-  }
-});
+    .when('/rolemappings', {
+      template: sectionTemplate
+    })
+    .when('/rolemappings/edit/:resourcename', {
+      template: editTemplate
+    })
+    .when('/rolemappings/clone/:resourcename', {
+        template: editTemplate
+    })
+    .when('/rolemappings/new', {
+      template: editTemplate
+    });

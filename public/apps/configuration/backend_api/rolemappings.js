@@ -1,58 +1,78 @@
 import { uiModules } from 'ui/modules';
 import { merge } from 'lodash';
 import { uniq } from 'lodash';
-
+import client from './client';
 
 /**
  * Role mappings API client service.
  */
-uiModules.get('apps/kibi_access_control/configuration', [])
-.service('backendRoleMappings', function (backendAPI, Promise, $http, createNotifier) {
+uiModules.get('apps/searchguard/configuration', [])
+    .service('backendRoleMappings', function (backendAPI, Promise, $http, createNotifier) {
 
-  const RESOURCE = 'rolemappings';
+        const RESOURCE = 'rolemappings';
 
-  const notify = createNotifier({
-    location: 'Role mappings'
-  });
+        const notify = createNotifier({
+            location: 'Role mappings'
+        });
 
-  this.title = {
-    singular: 'Role mapping',
-    plural: 'Role mappings'
-  };
+        this.title = {
+            singular: 'Role mapping',
+            plural: 'Role mappings'
+        };
 
-  this.get = (id) => {
-    return backendAPI.get(RESOURCE, id);
-  };
+        this.list = () => {
+            return backendAPI.list(RESOURCE);
+        };
 
-  this.create = (data) => {
-    return backendAPI.create(RESOURCE, data);
-  };
+        this.get = (id) => {
+            return backendAPI.get(RESOURCE, id);
+        };
 
-  this.update = (id, data) => {
-    return backendAPI.update(RESOURCE, id, data);
-  };
+        this.save = (actiongroupname, data) => {
+            var data = this.preSave(data);
+            return backendAPI.save(RESOURCE, actiongroupname, data);
+        };
 
-  this.delete = (id) => {
-    return backendAPI.delete(RESOURCE, id);
-  };
+        this.delete = (id) => {
+            return backendAPI.delete(RESOURCE, id);
+        };
 
-  this.find = (searchString) => {
-    return backendAPI.list(RESOURCE)
-    .then((response) => {
-      return response.data.hits.hits
-      .map((hit) => (merge(hit, {
-        description: hit.id,
-        icon: 'fa-group'
-      })))
-      .filter((hit) => {
-        return searchString ? hit.id.match(searchString) : true;
-      });
-    })
-    .catch((error) => {
-      notify.error(error);
-      throw error;
+        this.emptyModel = () => {
+            var rolemapping = {};
+            rolemapping.users = [];
+            rolemapping.hosts = [];
+            rolemapping.backendroles = [];
+            return rolemapping;
+        };
+
+        this.preSave = (rolemapping) => {
+            rolemapping.users = this.cleanArray(rolemapping.users);
+            rolemapping.backendroles = this.cleanArray(rolemapping.backendroles);
+            rolemapping.hosts = this.cleanArray(rolemapping.hosts);
+            return rolemapping;
+        };
+
+        this.postFetch = (rolemapping) => {
+            console.log(rolemapping);
+            if (!rolemapping.users) {
+                rolemapping.users = [];
+            }
+            if (!rolemapping.backendroles) {
+                rolemapping.backendroles = [];
+            }
+            if (!rolemapping.hosts) {
+                rolemapping.hosts = [];
+            }
+
+            return rolemapping;
+        };
+
+        this.cleanArray = (thearray) => {
+            // remove empty entries
+            thearray = thearray.filter(e => String(e).trim());
+            // remove duplicate entries
+            thearray = uniq(thearray);
+            return thearray;
+        };
+
     });
-  };
-
-});
-

@@ -1,7 +1,7 @@
 import { uiModules } from 'ui/modules';
 import { merge } from 'lodash';
 import { uniq } from 'lodash';
-
+import client from './client';
 
 /**
  * Roles API client service.

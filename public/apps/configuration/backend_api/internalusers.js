@@ -1,7 +1,8 @@
 import { uiModules } from 'ui/modules';
-import './client';
 import { merge } from 'lodash';
 import { uniq } from 'lodash';
+import client from './client';
+
 /**
  * Internal users API client service.
  */

@@ -1,104 +1,173 @@
-import uiModules from 'ui/modules';
-import { get, merge, each  } from 'lodash';
-import flatten from '../flatten';
-const app = uiModules.get('apps/kibi_access_control/configuration', []);
+import { uiModules } from 'ui/modules';
+import { get } from 'lodash';
+import '../../backend_api/rolemappings';
 
-app
-.controller('kacRoleMappingsController', function ($scope, $element, $route, createNotifier, backendRoleMappings, kbnUrl) {
+const app = uiModules.get('apps/searchguard/configuration', []);
 
-  $scope.notify = createNotifier({
-    location: 'Role mappings'
-  });
+app.controller('sgRoleMappingsController', function ($scope, $element, $route, createNotifier, backendRoleMappings, kbnUrl) {
 
-  $scope.service = backendRoleMappings;
-  $scope.rolemapping = $route.current.locals.rolemapping;
-  $scope.isNew = !Boolean($scope.rolemapping);
-  $scope.roles = $route.current.locals.roles;
+    $scope.service = backendRoleMappings;
 
-  $scope.internalUsers = {
-    available: $route.current.locals.internalUsers.map((user) => merge(user, {
-      icon: `<i class="fa ${user.icon}"></i>`
-    })),
-    selected: []
-  };
-  $scope.backendroles = [];
-  $scope.hosts = [];
+    $scope.numresources = "0";
+    $scope.resources = {};
 
-  if (!$scope.isNew) {
-    const users = get($scope.rolemapping, 'users', []);
-    for (let user of $scope.internalUsers.available) {
-      if (users.indexOf(user.id) >= 0) {
-        user.selected = true;
-      }
-    }
-    const backendroles = get($scope.rolemapping, 'backendroles', []);
-    $scope.backendroles = backendroles.map((backendrole) => ({ text: backendrole }));
+    $scope.title = "Manage Roles Mapping Groups";
 
-    const hosts = get($scope.rolemapping, 'hosts', []);
-    $scope.hosts = hosts.map((host) => ({ text: host }));
-  }
-
-  $scope.showObjectFinder = false;
-  $scope.errorMessage = null;
-
-  $scope.openObjectFinder = () => {
-    $scope.showObjectFinder = true;
-  };
-
-  $scope.makeFinderUrl = (hit) => kbnUrl.eval(`#/authentication/rolemappings/${hit.id}`);
-
-  $scope.editObject = () => {
-    kbnUrl.change('/authentication/rolemappings');
-  };
-
-  $scope.deleteObject = () => {
-    if ($scope.isNew) {
-      return;
-    }
-    if ($scope.rolemapping && $scope.rolemapping.id) {
-      if (confirm(`Are you sure you want to delete role mapping ${$scope.rolemapping.id}?`)) {
-        $scope.service.delete($scope.rolemapping.id)
-        .then(() => kbnUrl.change('/authentication/rolemappings'));
-      }
-    }
-  };
-
-  $scope.saveObject = (event) => {
-    if (event) {
-      event.preventDefault();
+    $scope.edit = function(actiongroup) {
+        kbnUrl.change('/rolemappings/edit/' + actiongroup );
     }
 
-    const form = $element.find('form[name="objectForm"]');
-
-    if (form.hasClass('ng-invalid-required')) {
-      $scope.errorMessage = 'Please fill in all the required parameters.';
-      return;
+    $scope.new = function(actiongroup) {
+        kbnUrl.change('/rolemappings/new/');
     }
 
-    if (!form.hasClass('ng-valid')) {
-      $scope.errorMessage = 'Please correct all errors and try again.';
-      return;
+    $scope.delete = function(actiongroup) {
+
+        if ($scope.resourcenames.indexOf(actiongroup) != -1) {
+            if (confirm(`Are you sure you want to delete Action Group ${actiongroup}?`)) {
+                $scope.service.delete(actiongroup)
+                    .then(() => kbnUrl.change('/actiongroups'));
+            }
+        }
     }
 
-    $scope.errorMessage = null;
+    $scope.clone = function(actiongroupname) {
+        kbnUrl.change('/rolemappings/clone/' + actiongroupname);
+    }
 
-    $scope.rolemapping.users = $scope.internalUsers.selected.map((user) => {
-      return user.id;
+
+    $scope.service.list().success(function (response) {
+        $scope.resourcenames = Object.keys(response.data).sort();
+
+        //$scope.resourcenames.forEach(function (entry) {
+        //    $scope.resources[entry] = $scope.service.postFetch(response.data[entry]);
+        //});
+        $scope.resources = response.data;
+        $scope.numresources = response.total;
     });
-    $scope.rolemapping.hosts = flatten($scope.hosts, 'text');
-    $scope.rolemapping.backendroles = flatten($scope.backendroles, 'text');
 
-    if ($scope.isNew) {
-      $scope.service.create($scope.rolemapping)
-      .then(() => kbnUrl.change(`/authentication/rolemappings/${$scope.rolemapping.id}`));
-    } else {
-      $scope.service.update($scope.rolemapping.id, {
-        users: $scope.rolemapping.users,
-        hosts: $scope.rolemapping.hosts,
-        backendroles: $scope.rolemapping.backendroles
-      })
-      .then(() => kbnUrl.change(`/authentication/rolemappings/${$scope.rolemapping.id}`));
+});
+
+app.controller('sgEditRoleMappingsController', function ($scope, $element, $route, $location, $routeParams, createNotifier, backendRoleMappings, kbnUrl) {
+
+    $scope.service = backendRoleMappings;
+
+    $scope.resource = {};
+    $scope.resourcename = "";
+    $scope.resourcenames = [];
+    $scope.isNew = false;
+    $scope.query = "";
+
+    $scope.title = function () {
+        return $scope.isNew? "New Action Groups" : "Edit Action Group '" + $scope.resourcename+"'";
     }
-  };
 
+    // get all usernames and load pre-existing user, if any
+    $scope.service.list().then((response) => {
+        $scope.resourcenames = Object.keys(response.data.data);
+
+        var actiongroupname = $routeParams.resourcename;
+        if (actiongroupname) {
+            $scope.service.get(actiongroupname)
+                .then((response) => {
+                    $scope.resource = $scope.service.postFetch(response);
+                    $scope.resourcename = actiongroupname;
+                    if($location.path().indexOf("clone") == -1) {
+                        $scope.isNew = false;
+                    } else {
+                        $scope.resourcename = $scope.resourcename + " (COPY)";
+                        $scope.isNew = true;
+                    }
+                });
+        } else {
+            $scope.resource = $scope.service.emptyModel();
+            $scope.isNew = true;
+        }
+    });
+
+    $scope.addUser = function () {
+        $scope.resource.users.push("");
+    }
+
+    $scope.removeUser = function (user) {
+        $scope.removeArrayEntry($scope.resource.users, user);
+    }
+
+    $scope.lastUserEmpty = function () {
+        return $scope.lastArrayEntryEmpty($scope.resource.users);
+    }
+
+    $scope.addBackendRole = function () {
+        $scope.resource.backendroles.push("");
+    }
+
+    $scope.removeBackendRole = function (backendrole) {
+        $scope.removeArrayEntry($scope.resource.backendroles, backendrole);
+    }
+
+    $scope.lastBackendRoleEmpty = function () {
+        return $scope.lastArrayEntryEmpty($scope.resource.backendroles);
+    }
+
+    $scope.addHost = function () {
+        $scope.resource.hosts.push("");
+    }
+
+    $scope.removeHost = function (host) {
+        $scope.removeArrayEntry($scope.resource.hosts, host);
+    }
+
+    $scope.lastHostEmpty = function () {
+        return $scope.lastArrayEntryEmpty($scope.resource.hosts);
+    }
+
+    $scope.removeArrayEntry = function (array, item) {
+        if (confirm(`Are you sure you want to delete '${item}'?`)) {
+            var index = array.indexOf(item);
+            array.splice(index, 1);
+        }
+    }
+
+    $scope.lastArrayEntryEmpty = function (array) {
+        return (array &&
+        array.length > 0 &&
+        array[array.length - 1].trim().length == 0);
+    }
+
+    $scope.cancel = function () {
+        kbnUrl.change('/rolemappings');
+    }
+
+    $scope.saveObject = (event) => {
+        if (event) {
+            event.preventDefault();
+        }
+
+        const form = $element.find('form[name="objectForm"]');
+
+        if (form.hasClass('ng-invalid-required')) {
+            $scope.errorMessage = 'Please fill in all the required parameters.';
+            return;
+        }
+
+        if (!form.hasClass('ng-valid')) {
+            $scope.errorMessage = 'Please correct all errors and try again.';
+            return;
+        }
+
+        if ($scope.isNew && $scope.resourcenames.indexOf($scope.resourcename) != -1) {
+            $scope.errorMessage = 'Username already exists, please choose another one.';
+            return;
+        }
+
+        if ($scope.resource.password !== $scope.resource.passwordConfirmation) {
+            $scope.errorMessage = 'Passwords do not match.';
+            return;
+        }
+
+        $scope.service.save($scope.resourcename, $scope.resource).then(() => kbnUrl.change(`/rolemappings/`));
+
+        $scope.errorMessage = null;
+
+    };
 });
