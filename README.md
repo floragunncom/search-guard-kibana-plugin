@@ -9,7 +9,7 @@ This plugin for Kibana adds login and logout capabilities to a [Search Guard](ht
 ## Download
 All releases can be found under the [release section](https://github.com/floragunncom/search-guard-kibana-plugin/releases)
 
-## (Preliminary) Documentation
+## Documentation
 
 * Download the release matching your Kibana installation
 * Kibana >= 5
