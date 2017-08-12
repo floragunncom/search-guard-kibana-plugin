@@ -14,8 +14,8 @@ app.controller('sgRolesController', function ($scope, $element, $route, createNo
 
     $scope.title = "Manage Roles";
 
-    $scope.edit = function(actiongroup) {
-        kbnUrl.change('/roles/edit/' + actiongroup );
+    $scope.edit = function(rolename) {
+        kbnUrl.change('/roles/edit/' + rolename );
     }
 
     $scope.new = function(actiongroup) {
@@ -59,13 +59,13 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     $scope.resource = {};
     $scope.resourcename = "";
     $scope.resourcenames = [];
-    $scope.isNew = false;
+    $scope.isNew = true;
     $scope.query = "";
     $scope.actiongroupsAutoComplete = "";
     $scope.indexname = "";
 
-    $scope.shownewdocumenttypename = false;
-    $scope.newdocumenttypename = "";
+    $scope.shownewresourcename = false;
+    $scope.newresourcename = "";
 
     $scope.title = function () {
         return $scope.isNew? "New Role " : "Edit Role '" + $scope.resourcename+"'";
@@ -109,10 +109,13 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     }
 
     $scope.addArrayEntry = function (resource, fieldname, value) {
+        console.log($scope.resource.indices);
+
         if(!resource[fieldname] || !Array.isArray(resource[fieldname])) {
             resource[fieldname] = [];
         }
         resource[fieldname].push(value);
+
     }
 
     $scope.removeArrayEntry = function (array, item) {
@@ -145,18 +148,19 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         }
     }
 
-
-    $scope.cancelAddDocumentType = function () {
-        $scope.shownewdocumenttypename = false;
-        $scope.newdocumenttypename = "";
-    }
-
     $scope.submitAddDocumentType = function () {
-        $scope.resource.indices[$scope.indexname][$scope.newdocumenttypename] = {};
-        $scope.shownewdocumenttypename = false;
-        $scope.newdocumenttypename = "";
+        $scope.resource.indices[$scope.indexname][$scope.newresourcename] = {};
+        $scope.shownewresource = false;
+        $scope.newresourcename = "";
     }
 
+    $scope.submitAddIndex = function (newresourcename) {
+        // not $scope.newresourcename, this element is inside accordeon
+        // with its own scope
+        $scope.resource.indices[newresourcename] = {};
+        $scope.resource.indices[newresourcename]["*"] = {};
+        $scope.service.save($scope.resourcename, $scope.resource).then(() => kbnUrl.change("/roles/edit/"+$scope.resourcename));
+    }
 
     $scope.cancel = function () {
         kbnUrl.change('/roles');
@@ -166,26 +170,10 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         if (event) {
             event.preventDefault();
         }
-
         const form = $element.find('form[name="objectForm"]');
 
         if (form.hasClass('ng-invalid-required')) {
             $scope.errorMessage = 'Please fill in all the required parameters.';
-            return;
-        }
-
-        if (!form.hasClass('ng-valid')) {
-            $scope.errorMessage = 'Please correct all errors and try again.';
-            return;
-        }
-
-        if ($scope.isNew && $scope.resourcenames.indexOf($scope.resourcename) != -1) {
-            $scope.errorMessage = 'Username already exists, please choose another one.';
-            return;
-        }
-
-        if ($scope.resource.password !== $scope.resource.passwordConfirmation) {
-            $scope.errorMessage = 'Passwords do not match.';
             return;
         }
 

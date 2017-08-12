@@ -48,13 +48,19 @@
 
                                 <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
                                     <div class="kuiTableRowCell__liner">
-                                        <div ng-repeat="clusterpermission in resources[rolename].cluster.sort()">{{clusterpermission}}<br/></div>
+                                        <div ng-repeat="clusterpermission in resources[rolename].cluster.actiongroups.sort()">{{clusterpermission}}<br/></div>
+                                        <div ng-repeat="clusterpermission in resources[rolename].cluster.permissions.sort()">{{clusterpermission}}<br/></div>
                                     </div>
                                 </td>
 
                                 <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
                                     <div class="kuiTableRowCell__liner">
-                                        <div ng-repeat="indexname in resources[rolename].indexnames.sort()">{{indexname}}<br/></div>
+                                        <div ng-repeat="indexname in resources[rolename].indexnames.sort()">
+                                            <a class="kuiLink" ng-href="#/roles/editindex/{{rolename}}/{{indexname | escape}}" >
+                                                {{indexname}}
+                                            </a>
+                                            <br/>
+                                        </div>
                                     </div>
                                 </td>
 

@@ -19,6 +19,8 @@ import uiRoutes from 'ui/routes';
 import { uiModules } from 'ui/modules';
 import { Notifier } from 'ui/notify/notifier';
 
+import './controller';
+
 import internalusers from './sections/internalusers';
 import actiongroups from './sections/actiongroups';
 import rolemappings from './sections/rolemappings';
@@ -27,20 +29,11 @@ import roles from './sections/roles';
 import 'ui/autoload/styles';
 import 'plugins/searchguard/apps/configuration/configuration.less';
 
-import tenantTemplate from './configuration.html';
+import template from './configuration.html';
 
 uiRoutes.enable();
 
 uiRoutes
     .when('/', {
-      template: tenantTemplate,
-      controller: 'searchguardConfigurationMainController',
-      controllerAs: 'ctrl'
-    });
-
-uiModules
-    .get('app/searchguard-configuration')
-    .controller('searchguardConfigurationMainController', function ($http, $window, kbnUrl) {
-
-
+      template: template
     });

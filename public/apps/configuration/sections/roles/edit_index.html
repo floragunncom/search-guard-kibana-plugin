@@ -13,21 +13,48 @@
 
                         <sgc-form-resource-name></sgc-form-resource-name>
 
-                        <h4>Index Name: {{indexname}}</h4>
-                        <button type="button" class="kuiButton kuiButton--primary kuiButton--iconText" ng-click="shownewdocumenttypename = true">
-                            <span class="kuiButton__icon kuiIcon fa-plus"></span>
-                            Add Document Type
-                        </button>
-                        <div ng-show="shownewdocumenttypename">
-                            <label for="object-form-actiongroups">Document Type</label>
-                            <fieldset class="marginbottom--small" id="object-form-actiongroups">
-                                <input type="text" class="kuiTextInput sevenwidth" ng-model="newdocumenttypename" name="">
-                            </fieldset>
-                            <button type="button" class="kuiButton kuiButton--primary kuiButton--text" type="submit" ng-click="submitAddDocumentType()">Submit</button>
-                            <button type="button" class="kuiButton kuiButton--secondary kuiButton--text" type="submit" ng-click="cancelAddDocumentType()">Cancel</button>
-                        </div>
-                        <br />
-                        <accordeon title="Document Type: '{{doctypename}}'" is-collapsed="true" class="marginbottom--small" data-ng-repeat="doctypename in keys(resource.indices[indexname])">
+                        <!-- Add document type -->
+                        <table class="tableIndexGroups fullwidth">
+                            <tr>
+                                <td>
+                                    <h4>Index Name: {{indexname}}</h4>
+                                </td>
+                                <td class="actions">
+                                    <button type="button" class="kuiButton kuiButton--primary kuiButton--iconText" ng-click="shownewresource = true">
+                                        <span class="kuiButton__icon kuiIcon fa-plus"></span>
+                                        Add Document Type
+                                    </button>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Add document type form -->
+                        <table class="kuiTable tableIndexGroups" ng-show="shownewresource">
+                            <thead>
+                            <tr>
+                                <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
+                                    Document Type Name
+                                </th>
+                                <th class="kuiTableHeaderCell">
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <tr data-test-subj="userRow" class="kuiTableRow">
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <fieldset class="marginbottom--small" id="object-form-actiongroups">
+                                            <input type="text" class="kuiTextInput fullwidth" ng-model="newresourcename" name="">
+                                        </fieldset>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop actions">
+                                        <button type="button" class="kuiButton kuiButton--primary kuiButton--text" ng-click="submitAddDocumentType()">Add</button>
+                                        <button type="button" class="kuiButton kuiButton--secondary kuiButton--text" ng-click="shownewresource = false;newresourcename=''">Cancel</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <accordeon title="Permissions for document type: '{{doctypename}}'" is-collapsed="true" class="marginbottom--small" data-ng-repeat="doctypename in keys(resource.indices[indexname])">
 
                             <!-- Delete document type -->
                             <table class="tableIndexGroups fullwidth">
@@ -45,14 +72,12 @@
                             <table class="kuiTable tableIndexGroups">
                                 <thead>
                                 <tr>
-
                                     <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
                                         Action Groups
                                     </th>
 
                                     <th class="kuiTableHeaderCell">
                                     </th>
-
                                 </tr>
                                 </thead>
                                 <tbody >
@@ -105,7 +130,7 @@
                                     <tr data-test-subj="userRow" class="kuiTableRow" data-ng-repeat="permission in resource.indices[indexname][doctypename].permissions track by $index">
                                         <td class="kuiTableRowCell cellAlignTop">
                                             <fieldset class="marginbottom--small" id="object-form-actiongroups">
-                                                <input type="text" class="kuiTextInput fullwidth" pattern="^(cluster:.*|index:.*)" title="Permissions need to start with cluster: or index:" ng-model="resource.indices[indexname][doctypename].permissions[$index]" placeholder="Start with cluster: or index:">
+                                                <input type="text" class="kuiTextInput fullwidth" pattern="^(cluster:.*|indices:.*)" title="Permissions need to start with cluster: or indices:" ng-model="resource.indices[indexname][doctypename].permissions[$index]" placeholder="Start with cluster: or index:">
                                             </fieldset>
                                         </td>
                                         <td class="kuiTableRowCell cellAlignTop actions">
@@ -125,34 +150,36 @@
                                     </tr>
                                 </tbody>
                             </table>
+                        </accordeon>
 
+                        <accordeon title="Document- and Field-Level-Security" is-collapsed="true" class="marginbottom--small">
                             <!-- DLS Table -->
                             <table class="kuiTable tableIndexGroups">
                                 <thead>
-                                    <tr>
+                                <tr>
 
-                                        <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
-                                            Document Level Security
-                                        </th>
+                                    <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
+                                        Document Level Security
+                                    </th>
 
-                                        <th class="kuiTableHeaderCell">
-                                        </th>
+                                    <th class="kuiTableHeaderCell">
+                                    </th>
 
-                                    </tr>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    <tr class="kuiTableRow">
-                                        <td class="kuiTableRowCell cellAlignTop">
-                                            <fieldset class="marginbottom--small" id="object-form-actiongroups">
-                                                <input type="text" class="kuiTextInput fullwidth" ng-model="resource.dlsfls[indexname]['_dls_']" name="">
-                                            </fieldset>
-                                        </td>
-                                        <td class="kuiTableRowCell cellAlignTop actions">
-                                            <a ng-click="resource.dlsfls[indexname]['_dls_']=''" class="kuiButton kuiButton--danger kuiButton--iconText">
-                                                <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
-                                            </a>
-                                        </td>
-                                    </tr>
+                                <tr class="kuiTableRow">
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <fieldset class="marginbottom--small" id="object-form-actiongroups">
+                                            <input type="text" class="kuiTextInput fullwidth" ng-model="resource.dlsfls[indexname]['_dls_']" name="">
+                                        </fieldset>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop actions">
+                                        <a ng-click="resource.dlsfls[indexname]['_dls_']=''" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                        </a>
+                                    </td>
+                                </tr>
                                 </tbody>
                             </table>
 
@@ -194,9 +221,7 @@
                                 </tr>
                                 </tbody>
                             </table>
-
                         </accordeon>
-
                         <button class="kuiButton kuiButton--primary kuiButton--text" type="submit">Submit</button>
                         <button class="kuiButton kuiButton--secondary kuiButton--text" type="submit" ng-click="cancel()">Cancel</button>
                     </form>

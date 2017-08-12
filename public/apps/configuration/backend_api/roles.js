@@ -9,19 +9,6 @@ import client from './client';
 uiModules.get('apps/searchguard/configuration', [])
     .service('backendRoles', function (backendAPI, Promise, $http, createNotifier) {
 
-//      #<sg_role_name>:
-//      #  cluster:
-//          #    - '<permission>'
-//#  indices:
-//          #    '<indexname or alias>':
-//      #      '<type>':
-//      #        - '<permission>'
-//#      _dls_: '<querydsl query>'
-//#      _fls_:
-//          #        - '<field>'
-//#        - '<field>'
-
-
         const RESOURCE = 'roles';
 
         const notify = createNotifier({
@@ -51,46 +38,61 @@ uiModules.get('apps/searchguard/configuration', [])
         };
 
         this.emptyModel = () => {
-            var rolemapping = {};
-            rolemapping.users = [];
-            rolemapping.hosts = [];
-            rolemapping.backendroles = [];
-            return rolemapping;
+            var role = {};
+            role["cluster"] = [];
+            role["indices"] = {};
+            return role;
         };
 
         this.preSave = (role) => {
+
+//            console.log(JSON.stringify(role));
             delete role["indexnames"];
             // merge cluster permissions
-            role.cluster = this.mergeCleanArray(role.cluster.actiongroups, role.cluster.permissions);
+            var clusterpermissions = this.mergeCleanArray(role.cluster.actiongroups, role.cluster.permissions);
             // delete tmp permissions
-            delete role.cluster[clusteractiongroups];
-            delete role.cluster[clusterpermissions];
+            delete role.cluster["actiongroups"];
+            delete role.cluster["permissions"];
+            role.cluster = clusterpermissions;
 
             // same for each index and each doctype
             for (var indexname in role.indices) {
                 var index = role.indices[indexname];
-                // caution! honor dls fls here
+
                 for (var doctypename in index) {
                     var doctype = index[doctypename];
-                    doctype = this.mergeCleanArray(doctype.actiongroups, doctype.permissions);
-                    delete doctype[clusteractiongroups];
-                    delete doctype[clusterpermissions];
+                    var doctypepermissions = this.mergeCleanArray(doctype.actiongroups, doctype.permissions);
+                    delete doctype["actiongroups"];
+                    delete doctype["permissions"];
+                    index[doctypename] = doctypepermissions;
+                }
 
+                // move back dls and fls
+                var dlsfls = role.dlsfls[indexname];
+                if(dlsfls) {
+                    index["_dls_"] = dlsfls["_dls_"];
+                    index["_fls_"] = dlsfls["_fls_"];
                 }
             }
+
+            delete role["dlsfls"];
 
             return role;
         };
 
         this.postFetch = (role) => {
+            console.log(JSON.stringify(role));
+            // separate action groups and single permissions on cluster level
+
+            var clusterpermissions = this.sortPermissions(role.cluster);
+            role["cluster"] = {};
+            role.cluster["actiongroups"] = clusterpermissions.actiongroups;
+            role.cluster["permissions"] = clusterpermissions.permissions;
+
             if (role.indices) {
+
                 // flat list of indexnames, can't be done in view
                 role["indexnames"] = Object.keys(role.indices).sort();
-                // separate action groups and single permissions on cluster level
-                var clusterpermissions = this.sortPermissions(role.cluster);
-                role.cluster.actiongroups = clusterpermissions.actiongroups;
-                role.cluster.permissions = clusterpermissions.permissions;
-                // same for each index and each doctype
 
                 // move dls and fls to separate section on top level
                 // otherwise its on the same level as the document types
@@ -100,40 +102,43 @@ uiModules.get('apps/searchguard/configuration', [])
                 role.dlsfls = {};
 
                 for (var indexname in role.indices) {
-                    role.dlsfls[indexname] = {
+
+                    var index = role.indices[indexname];
+
+                    var dlsfls = {
                         _dls_: "",
                         _fls_: []
+                    };
+
+                    if (index["_dls_"]) {
+                        dlsfls._dls_ = index["_dls_"];
                     }
-                    var index = role.indices[indexname];
+                    if (index["_fls_"]) {
+                        dlsfls._fls_ = index["_fls_"];
+                    }
+                    delete role.indices[indexname]["_fls_"];
+                    delete role.indices[indexname]["_dls_"];
+                    role.dlsfls[indexname] = dlsfls;
                     for (var doctypename in index) {
                         var doctype = index[doctypename];
-                        // dlsfls
-                        if (doctypename === "_dls_") {
-                            role.dlsfls[indexname]._dls_ = doctype;
+                        var doctypepermissions = this.sortPermissions(doctype);
+                        doctype = {
+                            actiongroups: doctypepermissions.actiongroups,
+                            permissions: doctypepermissions.permissions
                         }
-                        if (doctypename === "_fls_") {
-                            role.dlsfls[indexname]._fls_ = doctype;
-                        }
-                        if (Array.isArray(doctype)) {
-                            var doctypepermissions = this.sortPermissions(doctype);
-                            doctype.actiongroups = doctypepermissions.actiongroups;
-                            doctype.permissions = doctypepermissions.permissions;
-                        }
+                        index[doctypename] = doctype;
                     }
-                    // we moved dls/fls, delete them from index
-                    delete index["_dls_"];
-                    delete index["_fls_"];
                 }
             }
-            console.log(role);
+            console.log(JSON.stringify(role));
             return role;
         };
 
-        this.mergeCleanArray = (array1, array) => {
+        this.mergeCleanArray = (array1, array2) => {
             var merged = [];
-            merged.concat(role.cluster.clusteractiongroups);
-            merged.concat(role.cluster.clusterpermissions);
-            merged = cleanArray(merged);
+            merged = merged.concat(array1);
+            merged = merged.concat(array2);
+            merged = this.cleanArray(merged);
             return merged;
         };
 
