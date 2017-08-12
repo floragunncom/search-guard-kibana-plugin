@@ -37,6 +37,16 @@ uiModules.get('apps/searchguard/configuration', [])
             return backendAPI.delete(RESOURCE, id);
         };
 
+        this.listAutocomplete = (names) => {
+            var completeList = [];
+            names.sort().forEach( function(name) {
+                var autocomplete = {};
+                autocomplete["name"] = name;
+                completeList.push(autocomplete);
+            } );
+            return completeList;
+        };
+
         this.emptyModel = () => {
             var actiongroup = {};
             actiongroup.permissions = [];

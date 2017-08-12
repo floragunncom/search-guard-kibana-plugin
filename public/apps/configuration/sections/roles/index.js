@@ -1,38 +1,26 @@
 import angular from 'angular';
 import uiRoutes from 'ui/routes';
 import sectionTemplate from './index.html';
+import editTemplate from './edit.html';
+import editIndexTemplate from './edit_index.html';
 import './controller';
+import '../../directives/directives';
+import 'ui/autoload/styles';
+import 'plugins/searchguard/apps/configuration/configuration.less';
 
 uiRoutes
-.when('/authentication/roles', {
-  template: sectionTemplate
-})
-.when('/authentication/roles/:id', {
-  template: sectionTemplate,
-  resolve: {
-    role: ($route, kbnUrl, backendRoles) => {
-      return backendRoles.get($route.current.params.id);
-    }
-  }
-});
-
-export default (kbnUrl) => ({
-  key: 'roles',
-  description: 'Roles',
-  run: (event) => {
-    event.preventDefault();
-    kbnUrl.change('/authentication/roles');
-  },
-  openObjectFinder: () => {
-    angular.element('#section-editor').scope().openObjectFinder();
-  },
-  editObject: () => {
-    angular.element('#section-editor').scope().editObject();
-  },
-  saveObject: () => {
-    angular.element('#object-form').scope().saveObject();
-  },
-  deleteObject: () => {
-    angular.element('#section-editor').scope().deleteObject();
-  }
-});
+    .when('/roles', {
+      template: sectionTemplate
+    })
+    .when('/roles/edit/:resourcename', {
+      template: editTemplate
+    })
+    .when('/roles/clone/:resourcename', {
+        template: editTemplate
+    })
+    .when('/roles/new', {
+      template: editTemplate
+    })
+    .when('/roles/editindex/:resourcename/:indexname', {
+        template: editIndexTemplate
+    });

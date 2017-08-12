@@ -1,13 +1,13 @@
 <div class="searchguard app-container ng-scope" id="section-editor" ng-controller="sgRoleMappingsController">
 
-    <search-guard-configuration-list-header></search-guard-configuration-list-header>
+    <sgc-list-header></sgc-list-header>
 
     <div class="container">
         <div class="row">
             <div class="col-xs-12">
                 <div class="kuiControlledTable">
 
-                    <search-guard-configuration-filter></search-guard-configuration-filter>
+                    <sgc-filter-bar></sgc-filter-bar>
 
                     <!-- Table -->
                     <table class="kuiTable" ng-show="(resourcenames | filter:query).length">

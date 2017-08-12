@@ -3,7 +3,7 @@ import uiRoutes from 'ui/routes';
 import sectionTemplate from './index.html';
 import editTemplate from './edit.html';
 import './controller';
-import '../../directives/configuration_directives';
+import '../../directives/directives';
 
 import 'ui/autoload/styles';
 import 'plugins/searchguard/apps/configuration/configuration.less';

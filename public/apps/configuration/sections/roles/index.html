@@ -1,71 +1,82 @@
-<kac-authentication-section
-    section="roles"
-    show-editing-buttons="true"
-    create-button-label="Create role"
-    create-button-class="fa fa-plus"
-    update-button-label="Save role"
-    open-button-label="Edit role"
-    delete-button-label="Delete role">
-  <div class="container" id="section-editor" ng-controller="kacRolesController">
+<div class="searchguard app-container ng-scope" id="section-editor" ng-controller="sgRolesController">
 
-    <div ng-show="showObjectFinder">
-      <h2 class="title">Roles</h2>
-      <finder
-        service="service"
-        type="roles"
-        make-url="makeFinderUrl"
-      />
-    </div>
+    <sgc-list-header></sgc-list-header>
 
-    <div ng-hide="showObjectFinder">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="kuiControlledTable">
 
-      <div class="header" ng-if="isNew">
-        <h2 class="title">Create role</h2>
-      </div>
-      <div class="header" ng-if="!isNew">
-        <h2 class="title"><i class="fa fa-list"></i> {{ role.id }}</h2>
-      </div>
+                    <sgc-filter-bar></sgc-filter-bar>
 
-      <p ng-if="isNew">
-        Fill in the form, then click on the Save button to create the role.
-      </p>
-      <p ng-if="!isNew">
-        Click on the Save button to apply changes.
-      </p>
+                    <!-- Table -->
+                    <table class="kuiTable" ng-show="(resourcenames | filter:query).length">
+                        <thead>
+                            <tr>
 
-      <p class="formError" ng-show="errorMessage">{{ errorMessage }}</p>
-      <form name="objectForm" id="object-form" method="post" ng-submit="saveObject($event)" novalidate>
-        <div class="form-group" ng-show="isNew">
-          <label for="object-form-id">Role ID</label>
-          <input
-            id="object-form-id"
-            name="id"
-            type="text"
-            ng-model="role.id"
-            class="form-control"
-            required/>
+                                <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
+                                    Role name
+                                    <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'username'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                </th>
+
+                                <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
+                                    Cluster permissions
+                                    <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'roles'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                </th>
+
+                                <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
+                                    Indices
+                                    <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'roles'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                </th>
+
+                                <th class="kuiTableHeaderCell kuiTableHeaderCell">
+                                </th>
+
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr ng-repeat="rolename in resourcenames | filter:query" data-test-subj="userRow" class="kuiTableRow">
+
+                                <td class="kuiTableRowCell cellAlignTop">
+                                    <div class="kuiTableRowCell__liner">
+                                        <a class="kuiLink" ng-click="edit(rolename)">
+                                            {{rolename}}
+                                        </a>
+                                    </div>
+                                </td>
+
+                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                    <div class="kuiTableRowCell__liner">
+                                        <div ng-repeat="clusterpermission in resources[rolename].cluster.sort()">{{clusterpermission}}<br/></div>
+                                    </div>
+                                </td>
+
+                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                    <div class="kuiTableRowCell__liner">
+                                        <div ng-repeat="indexname in resources[rolename].indexnames.sort()">{{indexname}}<br/></div>
+                                    </div>
+                                </td>
+
+                                <td class="kuiTableRowCell actions cellAlignTop" data-test-subj="userRowActions">
+                                    <div class="kuiTableRowCell__liner">
+                                        <a ng-click="edit(rolename)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-edit"></span>
+                                        </a>
+                                        <a ng-click="clone(rolename)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-copy"></span>
+                                        </a>
+                                        <a ng-click="delete(rolename)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                        </a>
+                                    </div>
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-          <label for="object-form-permissions">Permissions</label>
-          <a class="reference"
-             href="https://github.com/floragunncom/search-guard-docs/blob/master/configuration.md#define-roles-and-the-associated-permissions"
-             target="_blank">
-            <i class="fa fa-globe"></i> Reference
-          </a>
-          <div
-            id="object-form-permissions"
-            name="permissionsRaw"
-            ui-ace="{ onLoad: aceLoaded, mode: 'yaml' }"
-            ng-model="permissions.raw"
-            ng-class="{ 'red-border': objectForm.permissionsRaw.$invalid }"
-            required></div>
-        </div>
-
-        <button type="submit"></button>
-      </form>
-
     </div>
-
-  </div>
-
-</kac-authentication-section>
+</div>

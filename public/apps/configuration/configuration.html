@@ -1,25 +1,6 @@
-<div class="searchguard app-container ng-scope">
+<div class="searchguard app-container ng-scope" id="section-editor">
 
-    <div class="kuiLocalNav">
-
-        <div class="kuiLocalNavRow">
-            <div class="kuiLocalNavRow__section">
-                <div class="kuiLocalTitle">
-                    Search Guard Configuration
-                    <br />
-                </div>
-            </div>
-
-            <div class="kuiLocalNavRow__section">
-
-            </div>
-        </div>
-
-
-        <div class="kuiLocalDropdown" ng-show="ctrl.showSubmenu">
-        </div>
-
-    </div>
+    <sgc-list-header></sgc-list-header>
 
 
     <div class="container-fluid">
@@ -35,7 +16,7 @@
                 <div class="kuiGallery kuiVerticalRhythm">
                     <a class="kuiGalleryButton ng-scope" ng-href="#/visualize/new/configure?type=area" tooltip=" Emphasize the quantity beneath a line chart" tooltip-placement="bottom" href="#/visualize/new/configure?type=area">
                         <div class="kuiGalleryButton__image">
-                            <img aria-hidden="true" ng-src="/bundles/ccd9193f3b8af43575b17f6b00df04ae.svg" class="ng-scope" src="/bundles/ccd9193f3b8af43575b17f6b00df04ae.svg"><!-- end ngIf: type.image -->
+                            <span class="fa fa-lock fa-5x"></span>
                         </div>
                         <div lass="kuiGalleryButton__label" data-test-subj="sg_config" class="ng-binding">
                             Authentication
@@ -44,7 +25,7 @@
 
                     <a class="kuiGalleryButton ng-scope" ng-href="#/internalusers" tooltip="Configure Internal Users" tooltip-placement="bottom" href="#/internalusers">
                         <div class="kuiGalleryButton__image">
-                            <img aria-hidden="true" ng-src="/bundles/ccd9193f3b8af43575b17f6b00df04ae.svg" class="ng-scope" src="/bundles/ccd9193f3b8af43575b17f6b00df04ae.svg"><!-- end ngIf: type.image -->
+                            <span class="fa fa-user fa-5x"></span>
                         </div>
                         <div lass="kuiGalleryButton__label" data-test-subj="sg_internal_users" class="ng-binding">
                             Internal users
@@ -53,7 +34,7 @@
 
                     <a class="kuiGalleryButton ng-scope" ng-href="#/actiongroups" tooltip="Configure Internal Users" tooltip-placement="bottom" href="#/actiongroups">
                         <div class="kuiGalleryButton__image">
-                            <img aria-hidden="true" ng-src="/bundles/ccd9193f3b8af43575b17f6b00df04ae.svg" class="ng-scope" src="/bundles/ccd9193f3b8af43575b17f6b00df04ae.svg"><!-- end ngIf: type.image -->
+                            <span class="fa fa-sitemap fa-5x"></span>
                         </div>
                         <div lass="kuiGalleryButton__label" data-test-subj="sg_actiongroups" class="ng-binding">
                             Action Groups
@@ -62,10 +43,19 @@
 
                     <a class="kuiGalleryButton ng-scope" ng-href="#/rolemappings" tooltip="Configure Internal Users" tooltip-placement="bottom" href="#/rolemappings">
                         <div class="kuiGalleryButton__image">
-                            <img aria-hidden="true" ng-src="/bundles/ccd9193f3b8af43575b17f6b00df04ae.svg" class="ng-scope" src="/bundles/ccd9193f3b8af43575b17f6b00df04ae.svg"><!-- end ngIf: type.image -->
+                            <span class="fa fa-exchange fa-5x"></span>
                         </div>
                         <div lass="kuiGalleryButton__label" data-test-subj="sg_actiongroups" class="ng-binding">
                             Role Mappings
+                        </div>
+                    </a>
+
+                    <a class="kuiGalleryButton ng-scope" ng-href="#/roles" tooltip="Configure Internal Users" tooltip-placement="bottom" href="#/roles">
+                        <div class="kuiGalleryButton__image">
+                            <span class="fa fa-users fa-5x"></span>
+                        </div>
+                        <div lass="kuiGalleryButton__label" data-test-subj="sg_roles" class="ng-binding">
+                            Roles
                         </div>
                     </a>
 

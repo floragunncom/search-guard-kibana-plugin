@@ -1,0 +1,131 @@
+<div class="searchguard app-container ng-scope" id="section-editor" ng-controller="sgEditRolesController">
+
+    <sgc-edit-header></sgc-edit-header>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="">
+                    <p class="error-message" ng-show="errorMessage">{{ errorMessage }}</p>
+
+                    <form name="objectForm" id="object-form" method="post" ng-submit="saveObject($event)" novalidate style="width:70%">
+
+                        <sgc-form-resource-name></sgc-form-resource-name>
+
+                        <accordeon title="Cluster permissions" is-collapsed="true">
+                            <div class="form-group">
+                                <label for="object-form-actiongroups">Action groups</label>
+                                <fieldset class="marginbottom--small" id="object-form-actiongroups" data-ng-repeat="actiongroup in resource.cluster.actiongroups track by $index">
+
+                                    <angucomplete id="clusteractiongroup-{{index}}"
+                                                  placeholder="Add Action Group"
+                                                  pause="10"
+                                                  selectedobject="resource.cluster.actiongroups[$index]"
+                                                  localdata="actiongroups"
+                                                  minlength="1"
+                                                  datafield="name"
+                                                  titlefield="name"
+                                                  searchfields="name"
+                                                  inputclass="sevenwidth"/>
+
+
+                                    <button style="display:inline-block" type="button" ng-click="removeArrayEntry(resource.cluster.actiongroups, actiongroup)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                        <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                    </button>
+
+                                </fieldset>
+                                <br/>
+
+                                <a ng-click="addArrayEntry(resource.cluster, 'actiongroups', '')" ng-disabled="lastArrayEntryEmpty(resource.cluster.actiongroups)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                    <span class="kuiButton__icon kuiIcon fa-plus"></span>
+                                    Add Action Group
+                                </a>
+                            </div>
+                            <div class="form-group">
+                                <label for="object-form-actiongroups">Permissions</label>
+                                <fieldset class="marginbottom--small" id="object-form-actiongroups" data-ng-repeat="permission in resource.cluster.permissions track by $index">
+                                    <input type="text" class="kuiTextInput sevenwidth" ng-model="resource.cluster.permissions[$index]" name="">
+                                    <a ng-click="removeArrayEntry(resource.cluster.permissions, permission)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                        <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                    </a>
+                                </fieldset>
+                                <br/>
+                                <button ng-click="addArrayEntry(resource.cluster, 'permissions', '')" ng-disabled="lastArrayEntryEmpty(resource.cluster.permissions)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                    <span class="kuiButton__icon kuiIcon fa-plus"></span>
+                                    Add Permission
+                                </button>
+                            </div>
+                        </accordeon>
+
+                        <accordeon title="Index: {{indexname}}" is-collapsed="true" data-ng-repeat="indexname in keys(resource.indices).sort()">
+                            <div class="marginbottom--small" >
+                                <div class="marginbottom--small" data-ng-repeat="doctypename in keys(resource.indices[indexname])">
+                                    <h4>Document Type: {{doctypename}}</h4>
+                                    <div class="form-group">
+                                        <label for="object-form-actiongroups">Action groups</label>
+                                        <fieldset class="marginbottom--small" id="object-form-actiongroups" data-ng-repeat="actiongroup in resource.indices[indexname][doctypename].actiongroups track by $index">
+                                            <angucomplete id="indexactiongroup-{{indexname}}-{{doctypename}}"
+                                                          placeholder="Add Action Group"
+                                                          pause="10"
+                                                          selectedobject="resource.indices[indexname][doctypename].actiongroups[$index]"
+                                                          localdata="actiongroups"
+                                                          minlength="1"
+                                                          datafield="name"
+                                                          titlefield="name"
+                                                          searchfields="name"
+                                                          inputclass="sevenwidth"/>
+
+                                            <button style="display:inline-block" type="button" ng-click="removeArrayEntry(resource.indices[indexname][doctypename].actiongroups, actiongroup)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                                <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                            </button>
+
+                                        </fieldset>
+                                        <br />
+                                        <button type="button" ng-click="addArrayEntry(resource.indices[indexname][doctypename], 'actiongroups', '')" ng-disabled="lastArrayEntryEmpty(resource.indices[indexname][doctypename].actiongroups)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-plus"></span>
+                                            Add Action Group
+                                        </button>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="object-form-actiongroups">Permissions</label>
+                                        <fieldset class="marginbottom--small" id="object-form-actiongroups" data-ng-repeat="permission in resource.indices[indexname][doctypename].permissions track by $index">
+                                            <input type="text" class="kuiTextInput sevenwidth" ng-model="resource.indices[indexname][doctypename].permissions[$index]" name="">
+                                            <a ng-click="removeArrayEntry(resource.indices[indexname][doctypename].permissions, permission)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                                <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                            </a>
+                                        </fieldset>
+                                        <br/>
+                                        <button type="button" ng-click="addArrayEntry(resource.indices[indexname][doctypename], 'permissions', '')" ng-disabled="lastArrayEntryEmpty(resource.indices[indexname][doctypename].permissions)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-plus"></span>
+                                            Add Permissions
+                                        </button>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="object-form-actiongroups">DLS Query</label>
+                                        <input type="text" class="kuiTextInput sevenwidth" ng-model="resource.dlsfls[indexname]['_dls_']" name="">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="object-form-actiongroups">FLS fields</label>
+                                        <fieldset class="marginbottom--small" id="object-form-actiongroups" data-ng-repeat="actiongroup in resource.dlsfls[indexname]['_fls_'] track by $index">
+                                            <input type="text" class="kuiTextInput sevenwidth" ng-model="resource.dlsfls[indexname]['_fls_'][$index]" name="">
+                                            <a ng-click="removeArrayEntry(resource.dlsfls[indexname]['_fls_'], actiongroup)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                                <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                            </a>
+                                        </fieldset>
+                                        <br/>
+                                        <button type="button" ng-click="addArrayEntry(resource.dlsfls[indexname], '_fls_', '')" ng-disabled="lastArrayEntryEmpty(resource.dlsfls[indexname]['_fls_'])" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-plus"></span>
+                                            Add Field
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </accordeon>
+                        <button class="kuiButton kuiButton--primary kuiButton--text" type="submit">Submit</button>
+                        <button class="kuiButton kuiButton--secondary kuiButton--text" type="submit" ng-click="cancel()">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

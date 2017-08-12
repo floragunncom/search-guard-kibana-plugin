@@ -53,26 +53,17 @@ uiModules.get('apps/searchguard/configuration', [])
         };
 
         this.postFetch = (rolemapping) => {
-            console.log(rolemapping);
-            if (!rolemapping.users) {
-                rolemapping.users = [];
-            }
-            if (!rolemapping.backendroles) {
-                rolemapping.backendroles = [];
-            }
-            if (!rolemapping.hosts) {
-                rolemapping.hosts = [];
-            }
-
             return rolemapping;
         };
 
         this.cleanArray = (thearray) => {
-            // remove empty entries
-            thearray = thearray.filter(e => String(e).trim());
-            // remove duplicate entries
-            thearray = uniq(thearray);
-            return thearray;
+            if (thearray && Array.isArray(thearray)) {
+                // remove empty entries
+                thearray = thearray.filter(e => String(e).trim());
+                // remove duplicate entries
+                thearray = uniq(thearray);
+                return thearray;
+            }
         };
 
     });

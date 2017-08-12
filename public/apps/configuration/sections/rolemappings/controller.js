@@ -13,26 +13,26 @@ app.controller('sgRoleMappingsController', function ($scope, $element, $route, c
 
     $scope.title = "Manage Roles Mapping Groups";
 
-    $scope.edit = function(actiongroup) {
-        kbnUrl.change('/rolemappings/edit/' + actiongroup );
+    $scope.edit = function(rolemapping) {
+        kbnUrl.change('/rolemappings/edit/' + rolemapping );
     }
 
-    $scope.new = function(actiongroup) {
+    $scope.new = function(rolemapping) {
         kbnUrl.change('/rolemappings/new/');
     }
 
-    $scope.delete = function(actiongroup) {
+    $scope.delete = function(rolemapping) {
 
-        if ($scope.resourcenames.indexOf(actiongroup) != -1) {
-            if (confirm(`Are you sure you want to delete Action Group ${actiongroup}?`)) {
-                $scope.service.delete(actiongroup)
-                    .then(() => kbnUrl.change('/actiongroups'));
+        if ($scope.resourcenames.indexOf(rolemapping) != -1) {
+            if (confirm(`Are you sure you want to delete Role Mapping ${rolemapping}?`)) {
+                $scope.service.delete(rolemapping)
+                    .then(() => kbnUrl.change('/rolemappings'));
             }
         }
     }
 
-    $scope.clone = function(actiongroupname) {
-        kbnUrl.change('/rolemappings/clone/' + actiongroupname);
+    $scope.clone = function(rolemapping) {
+        kbnUrl.change('/rolemappings/clone/' + rolemapping);
     }
 
 
@@ -59,19 +59,19 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
     $scope.query = "";
 
     $scope.title = function () {
-        return $scope.isNew? "New Action Groups" : "Edit Action Group '" + $scope.resourcename+"'";
+        return $scope.isNew? "New Role Mapping" : "Edit Role Mapping '" + $scope.resourcename+"'";
     }
 
     // get all usernames and load pre-existing user, if any
     $scope.service.list().then((response) => {
         $scope.resourcenames = Object.keys(response.data.data);
 
-        var actiongroupname = $routeParams.resourcename;
-        if (actiongroupname) {
-            $scope.service.get(actiongroupname)
+        var rolemapping = $routeParams.resourcename;
+        if (rolemapping) {
+            $scope.service.get(rolemapping)
                 .then((response) => {
                     $scope.resource = $scope.service.postFetch(response);
-                    $scope.resourcename = actiongroupname;
+                    $scope.resourcename = rolemapping;
                     if($location.path().indexOf("clone") == -1) {
                         $scope.isNew = false;
                     } else {
@@ -86,6 +86,9 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
     });
 
     $scope.addUser = function () {
+        if (!$scope.resource.users) {
+            $scope.resource.users = [];
+        }
         $scope.resource.users.push("");
     }
 
@@ -98,6 +101,9 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
     }
 
     $scope.addBackendRole = function () {
+        if (!$scope.resource.backendroles) {
+            $scope.resource.backendroles = [];
+        }
         $scope.resource.backendroles.push("");
     }
 
@@ -110,6 +116,9 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
     }
 
     $scope.addHost = function () {
+        if (!$scope.resource.hosts) {
+            $scope.resource.hosts = [];
+        }
         $scope.resource.hosts.push("");
     }
 

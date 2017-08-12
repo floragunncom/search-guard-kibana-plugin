@@ -1,0 +1,14 @@
+<div class="form-group">
+    <h3 ng-show="!isNew">{{resourcelabel}}: {{resourcename}}</h3>
+
+    <h3 for="object-form-id" ng-show="isNew">{{resourcelabel}}:</h3>
+    <input
+            ng-show="isNew"
+            id="object-form-id"
+            name="id"
+            type="text"
+            ng-model="resourcename"
+            class="form-control"
+            required/>
+
+</div>

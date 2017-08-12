@@ -1,0 +1,6 @@
+<button type="button" class="kuiToggleButton" ng-click="accordeonHeader.onClick()">
+  <h4>
+    <span ng-class="{'fa-caret-square-o-down': !accordeonHeader.isCollapsed, 'fa-caret-square-o-right': accordeonHeader.isCollapsed}" class="fa"></span>
+    {{ accordeonHeader.title }}
+  </h4>
+</button>
