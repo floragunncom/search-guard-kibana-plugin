@@ -4,5 +4,5 @@ import './form_resourcename';
 import './list_header';
 import './accordeon';
 import './angucomplete';
-
+import './permissions';
 

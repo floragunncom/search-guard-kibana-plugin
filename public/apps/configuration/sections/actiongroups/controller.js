@@ -35,7 +35,6 @@ app.controller('sgActionGroupsController', function ($scope, $element, $route, c
         kbnUrl.change('/actiongroups/clone/' + actiongroupname);
     }
 
-
     $scope.service.list().success(function (response) {
         $scope.resourcenames = Object.keys(response.data).sort();
 

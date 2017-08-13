@@ -1,8 +1,9 @@
 import angular from 'angular';
 import uiRoutes from 'ui/routes';
-import sectionTemplate from './index.html';
-import editTemplate from './edit.html';
+import sectionTemplate from './views/index.html';
+import editTemplate from './views/edit.html';
 import './controller';
+import '../basecontroller';
 import '../../directives/directives';
 
 import 'ui/autoload/styles';

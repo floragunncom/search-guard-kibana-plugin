@@ -38,10 +38,6 @@ app.controller('sgRoleMappingsController', function ($scope, $element, $route, c
 
     $scope.service.list().success(function (response) {
         $scope.resourcenames = Object.keys(response.data).sort();
-
-        //$scope.resourcenames.forEach(function (entry) {
-        //    $scope.resources[entry] = $scope.service.postFetch(response.data[entry]);
-        //});
         $scope.resources = response.data;
         $scope.numresources = response.total;
     });
@@ -51,6 +47,8 @@ app.controller('sgRoleMappingsController', function ($scope, $element, $route, c
 app.controller('sgEditRoleMappingsController', function ($scope, $element, $route, $location, $routeParams, createNotifier, backendRoleMappings, kbnUrl) {
 
     $scope.service = backendRoleMappings;
+
+    $scope.resourcelabel = "Role mapping";
 
     $scope.resource = {};
     $scope.resourcename = "";
@@ -84,64 +82,6 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
             $scope.isNew = true;
         }
     });
-
-    $scope.addUser = function () {
-        if (!$scope.resource.users) {
-            $scope.resource.users = [];
-        }
-        $scope.resource.users.push("");
-    }
-
-    $scope.removeUser = function (user) {
-        $scope.removeArrayEntry($scope.resource.users, user);
-    }
-
-    $scope.lastUserEmpty = function () {
-        return $scope.lastArrayEntryEmpty($scope.resource.users);
-    }
-
-    $scope.addBackendRole = function () {
-        if (!$scope.resource.backendroles) {
-            $scope.resource.backendroles = [];
-        }
-        $scope.resource.backendroles.push("");
-    }
-
-    $scope.removeBackendRole = function (backendrole) {
-        $scope.removeArrayEntry($scope.resource.backendroles, backendrole);
-    }
-
-    $scope.lastBackendRoleEmpty = function () {
-        return $scope.lastArrayEntryEmpty($scope.resource.backendroles);
-    }
-
-    $scope.addHost = function () {
-        if (!$scope.resource.hosts) {
-            $scope.resource.hosts = [];
-        }
-        $scope.resource.hosts.push("");
-    }
-
-    $scope.removeHost = function (host) {
-        $scope.removeArrayEntry($scope.resource.hosts, host);
-    }
-
-    $scope.lastHostEmpty = function () {
-        return $scope.lastArrayEntryEmpty($scope.resource.hosts);
-    }
-
-    $scope.removeArrayEntry = function (array, item) {
-        if (confirm(`Are you sure you want to delete '${item}'?`)) {
-            var index = array.indexOf(item);
-            array.splice(index, 1);
-        }
-    }
-
-    $scope.lastArrayEntryEmpty = function (array) {
-        return (array &&
-        array.length > 0 &&
-        array[array.length - 1].trim().length == 0);
-    }
 
     $scope.cancel = function () {
         kbnUrl.change('/rolemappings');

@@ -1,10 +1,13 @@
 import angular from 'angular';
 import uiRoutes from 'ui/routes';
-import sectionTemplate from './index.html';
-import editTemplate from './edit.html';
-import editIndexTemplate from './edit_index.html';
+import sectionTemplate from './views/index.html';
+import editRoleTemplate from './views/edit_role.html';
+import editIndexTemplate from './views/edit_index.html';
+
+import '../basecontroller';
 import './controller';
 import '../../directives/directives';
+
 import 'ui/autoload/styles';
 import 'plugins/searchguard/apps/configuration/configuration.less';
 
@@ -13,13 +16,13 @@ uiRoutes
       template: sectionTemplate
     })
     .when('/roles/edit/:resourcename', {
-      template: editTemplate
+      template: editRoleTemplate
     })
     .when('/roles/clone/:resourcename', {
-        template: editTemplate
+        template: editRoleTemplate
     })
     .when('/roles/new', {
-      template: editTemplate
+      template: editRoleTemplate
     })
     .when('/roles/editindex/:resourcename/:indexname', {
         template: editIndexTemplate

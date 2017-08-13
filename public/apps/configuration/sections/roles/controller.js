@@ -47,10 +47,9 @@ app.controller('sgRolesController', function ($scope, $element, $route, createNo
         $scope.resources = response.data;
         $scope.numresources = response.total;
     });
-
 });
 
-app.controller('sgEditRolesController', function ($rootScope, $scope, $element, $route, $location, $routeParams, createNotifier, backendRoles, backendActionGroups, kbnUrl) {
+app.controller('sgEditRolesController', function ($rootScope, $scope, $element, $route, $location, $routeParams, createNotifier, backendRoles, kbnUrl) {
 
     $scope.service = backendRoles;
 
@@ -61,20 +60,15 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     $scope.resourcenames = [];
     $scope.isNew = true;
     $scope.query = "";
-    $scope.actiongroupsAutoComplete = "";
     $scope.indexname = "";
 
     $scope.shownewresourcename = false;
     $scope.newresourcename = "";
+    $scope.newresourcevalue = "";
 
     $scope.title = function () {
         return $scope.isNew? "New Role " : "Edit Role '" + $scope.resourcename+"'";
     }
-
-    // get actiongroups for autocomplete
-    backendActionGroups.list().then((response) => {
-        $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete(Object.keys(response.data.data));
-    });
 
     // get all usernames and load pre-existing user, if any
     $scope.service.list().then((response) => {
@@ -100,53 +94,6 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         }
     });
 
-    // helper function to use Object.keys in templates
-    // todo: move to root?
-    $scope.keys = function (object) {
-        if (object) {
-            return Object.keys(object).sort();
-        }
-    }
-
-    $scope.addArrayEntry = function (resource, fieldname, value) {
-        console.log($scope.resource.indices);
-
-        if(!resource[fieldname] || !Array.isArray(resource[fieldname])) {
-            resource[fieldname] = [];
-        }
-        resource[fieldname].push(value);
-
-    }
-
-    $scope.removeArrayEntry = function (array, item) {
-        if(!Array.isArray(array)) {
-            return;
-        }
-        if (item && item.length > 0) {
-            if (!confirm(`Are you sure you want to delete '${item}'?`)) {
-                return;
-            }
-        }
-        var index = array.indexOf(item);
-        array.splice(index, 1);
-    }
-
-    $scope.lastArrayEntryEmpty = function (array) {
-        if (array && array == 'undefined') {
-            return true;
-        }
-        return (array &&
-        array.length > 0 &&
-        array[array.length - 1].trim().length == 0);
-    }
-
-    $scope.removeObjectKey = function (theobject, key) {
-        if (theobject[key]) {
-            if (confirm(`Are you sure you want to delete '${key}'?`)) {
-                delete theobject[key];
-            }
-        }
-    }
 
     $scope.submitAddDocumentType = function () {
         $scope.resource.indices[$scope.indexname][$scope.newresourcename] = {};
@@ -183,8 +130,4 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
 
     };
 
-});
-
-app.filter('escape', function() {
-    return window.encodeURIComponent;
 });

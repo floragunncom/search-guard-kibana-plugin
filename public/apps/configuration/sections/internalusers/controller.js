@@ -46,11 +46,12 @@ app.controller('sgEditInternalUsersController', function ($scope, $element, $rou
 
     $scope.service = backendInternalUsers;
 
+    $scope.resourcelabel = "Username";
+
     $scope.resource = {};
     $scope.resourcename = "";
     $scope.resourcenames = [];
     $scope.isNew = false;
-    $scope.query = "";
 
     $scope.title = function () {
         return $scope.isNew? "New Internal User" : "Edit Internal User '" + $scope.resourcename+"'";
@@ -81,24 +82,6 @@ app.controller('sgEditInternalUsersController', function ($scope, $element, $rou
             $scope.isNew = true;
         }
     });
-
-    $scope.addRole = function () {
-        $scope.resource.roles.push("");
-    }
-
-    $scope.removeRole = function (rolename) {
-        if (confirm(`Are you sure you want to delete role '${rolename}' from user?`)) {
-            var index = $scope.resource.roles.indexOf(rolename);
-            $scope.resource.roles.splice(index, 1);
-
-        }
-    }
-
-    $scope.lastRoleEmpty = function () {
-        return ($scope.resource.roles &&
-        $scope.resource.roles.length > 0 &&
-        $scope.resource.roles[$scope.resource.roles.length - 1].trim().length == 0);
-    }
 
     $scope.cancel = function () {
         kbnUrl.change('/internalusers');

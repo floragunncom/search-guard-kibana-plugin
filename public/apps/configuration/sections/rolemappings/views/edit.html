@@ -1,0 +1,137 @@
+<div ng-controller="sgBaseController">
+    <div class="searchguard app-container ng-scope" id="section-editor" ng-controller="sgEditRoleMappingsController">
+
+        <sgc-edit-header></sgc-edit-header>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="">
+                        <p class="error-message" ng-show="errorMessage">{{ errorMessage }}</p>
+                        <form name="objectForm" id="object-form" method="post" ng-submit="saveObject($event)" novalidate style="width:70%">
+
+                            <sgc-form-resource-name></sgc-form-resource-name>
+
+
+                            <!-- User mapping -->
+                            <table class="kuiTable tableIndexGroups">
+                                <thead>
+                                <tr>
+                                    <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
+                                        Users
+                                    </th>
+
+                                    <th class="kuiTableHeaderCell">
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr data-test-subj="userRow" class="kuiTableRow" data-ng-repeat="user in resource.users track by $index">
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <fieldset class="marginbottom--small" id="object-form-backendroles">
+                                            <input type="text" class="kuiTextInput fullwidth" ng-model="resource.users[$index]" name="">
+                                        </fieldset>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop actions">
+                                        <a ng-click="removeArrayEntry(resource.users, user)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr class="kuiTableRow">
+                                    <td class="kuiTableRowCell cellAlignTop actions"></td>
+                                    <td class="kuiTableRowCell cellAlignTop actions">
+                                        <button ng-click="addArrayEntry(resource, 'users', '')" ng-disabled="lastArrayEntryEmpty(resource.users)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-plus"></span>
+                                            Add User
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Backend roles -->
+                            <table class="kuiTable tableIndexGroups">
+                                <thead>
+                                <tr>
+                                    <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
+                                        Backend roles
+                                    </th>
+
+                                    <th class="kuiTableHeaderCell">
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr data-test-subj="userRow" class="kuiTableRow" data-ng-repeat="backendrole in resource.backendroles track by $index">
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <fieldset class="marginbottom--small" id="object-form-backendroles">
+                                            <input type="text" class="kuiTextInput fullwidth" ng-model="resource.backendroles[$index]" name="">
+                                        </fieldset>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop actions">
+                                        <a ng-click="removeArrayEntry(resource.backendroles, backendrole)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr class="kuiTableRow">
+                                    <td class="kuiTableRowCell cellAlignTop actions"></td>
+                                    <td class="kuiTableRowCell cellAlignTop actions">
+                                        <button ng-click="addArrayEntry(resource, 'backendroles', '')" ng-disabled="lastArrayEntryEmpty(resource.backendroles)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-plus"></span>
+                                            Add Backend Role
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Hosts -->
+                            <table class="kuiTable tableIndexGroups">
+                                <thead>
+                                <tr>
+                                    <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
+                                        Hosts
+                                    </th>
+
+                                    <th class="kuiTableHeaderCell">
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr data-test-subj="userRow" class="kuiTableRow" data-ng-repeat="host in resource.hosts track by $index">
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <fieldset class="marginbottom--small" id="object-form-hosts">
+                                            <input type="text" class="kuiTextInput fullwidth" ng-model="resource.hosts[$index]" name="">
+                                        </fieldset>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop actions">
+                                        <a ng-click="removeArrayEntry(resource.hosts, host)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr class="kuiTableRow">
+                                    <td class="kuiTableRowCell cellAlignTop actions"></td>
+                                    <td class="kuiTableRowCell cellAlignTop actions">
+                                        <button ng-click="addArrayEntry(resource, 'hosts', '')" ng-disabled="lastArrayEntryEmpty(resource.hosts)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-plus"></span>
+                                            Add Host
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <hr />
+
+                            <button class="kuiButton kuiButton--primary kuiButton--text" type="submit">Submit</button>
+                            <button class="kuiButton kuiButton--secondary kuiButton--text" type="submit" ng-click="cancel()">Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

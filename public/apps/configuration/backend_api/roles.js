@@ -1,6 +1,4 @@
 import { uiModules } from 'ui/modules';
-import { merge } from 'lodash';
-import { uniq } from 'lodash';
 import client from './client';
 
 /**
@@ -46,10 +44,9 @@ uiModules.get('apps/searchguard/configuration', [])
 
         this.preSave = (role) => {
 
-//            console.log(JSON.stringify(role));
             delete role["indexnames"];
             // merge cluster permissions
-            var clusterpermissions = this.mergeCleanArray(role.cluster.actiongroups, role.cluster.permissions);
+            var clusterpermissions = backendAPI.mergeCleanArray(role.cluster.actiongroups, role.cluster.permissions);
             // delete tmp permissions
             delete role.cluster["actiongroups"];
             delete role.cluster["permissions"];
@@ -61,7 +58,7 @@ uiModules.get('apps/searchguard/configuration', [])
 
                 for (var doctypename in index) {
                     var doctype = index[doctypename];
-                    var doctypepermissions = this.mergeCleanArray(doctype.actiongroups, doctype.permissions);
+                    var doctypepermissions = backendAPI.mergeCleanArray(doctype.actiongroups, doctype.permissions);
                     delete doctype["actiongroups"];
                     delete doctype["permissions"];
                     index[doctypename] = doctypepermissions;
@@ -81,10 +78,9 @@ uiModules.get('apps/searchguard/configuration', [])
         };
 
         this.postFetch = (role) => {
-            console.log(JSON.stringify(role));
-            // separate action groups and single permissions on cluster level
 
-            var clusterpermissions = this.sortPermissions(role.cluster);
+            // separate action groups and single permissions on cluster level
+            var clusterpermissions = backendAPI.sortPermissions(role.cluster);
             role["cluster"] = {};
             role.cluster["actiongroups"] = clusterpermissions.actiongroups;
             role.cluster["permissions"] = clusterpermissions.permissions;
@@ -121,7 +117,7 @@ uiModules.get('apps/searchguard/configuration', [])
                     role.dlsfls[indexname] = dlsfls;
                     for (var doctypename in index) {
                         var doctype = index[doctypename];
-                        var doctypepermissions = this.sortPermissions(doctype);
+                        var doctypepermissions = backendAPI.sortPermissions(doctype);
                         doctype = {
                             actiongroups: doctypepermissions.actiongroups,
                             permissions: doctypepermissions.permissions
@@ -130,43 +126,6 @@ uiModules.get('apps/searchguard/configuration', [])
                     }
                 }
             }
-            console.log(JSON.stringify(role));
             return role;
         };
-
-        this.mergeCleanArray = (array1, array2) => {
-            var merged = [];
-            merged = merged.concat(array1);
-            merged = merged.concat(array2);
-            merged = this.cleanArray(merged);
-            return merged;
-        };
-
-
-        this.cleanArray = (thearray) => {
-            // remove empty entries
-            thearray = thearray.filter(e => String(e).trim());
-            // remove duplicate entries
-            thearray = uniq(thearray);
-            return thearray;
-        };
-
-        this.sortPermissions = (permissionsArray) => {
-            var actiongroups = [];
-            var permissions = [];
-            if (permissionsArray && Array.isArray(permissionsArray)) {
-                permissionsArray.forEach(function (entry) {
-                    if (entry.startsWith("cluster:") || entry.startsWith("indices:")) {
-                        permissions.push(entry);
-                    } else {
-                        actiongroups.push(entry);
-                    }
-                });
-            }
-            return {
-                actiongroups: actiongroups,
-                permissions: permissions
-            }
-        };
-
     });

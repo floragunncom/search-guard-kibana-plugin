@@ -1,0 +1,73 @@
+<div ng-controller="sgBaseController">
+    <div class="searchguard app-container ng-scope" id="section-editor" ng-controller="sgInternalUsersController">
+
+        <sgc-list-header></sgc-list-header>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="kuiControlledTable">
+
+                        <sgc-filter-bar></sgc-filter-bar>
+
+                        <!-- Table -->
+                        <table class="kuiTable" ng-show="(resourcenames | filter:query).length">
+                            <thead>
+                                <tr>
+
+                                    <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
+                                        Username
+                                        <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'username'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                    </th>
+
+                                    <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable" ng-click="toggleSort(sort, 'roles')">
+                                        Backend Roles
+                                        <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'roles'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                    </th>
+
+                                    <th class="kuiTableHeaderCell kuiTableHeaderCell">
+                                    </th>
+
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr ng-repeat="username in resourcenames | filter:query" data-test-subj="userRow" class="kuiTableRow">
+
+                                    <td class="kuiTableRowCell">
+                                        <div class="kuiTableRowCell__liner">
+                                            <a class="kuiLink" ng-click="edit(username)">
+                                                {{username}}
+                                            </a>
+                                        </div>
+                                    </td>
+
+                                    <td class="kuiTableRowCell" data-test-subj="userRowRoles">
+                                        <div class="kuiTableRowCell__liner">
+                                            <div ng-repeat="role in resources[username].roles">{{role}}<br/></div>
+                                        </div>
+                                    </td>
+
+                                    <td class="kuiTableRowCell actions" data-test-subj="userRowActions">
+                                        <div class="kuiTableRowCell__liner">
+                                            <a ng-click="edit(username)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                                <span class="kuiButton__icon kuiIcon fa-edit"></span>
+                                            </a>
+                                            <a ng-click="clone(username)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                                <span class="kuiButton__icon kuiIcon fa-copy"></span>
+                                            </a>
+                                            <a ng-click="delete(username)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                                <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                            </a>
+                                        </div>
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
