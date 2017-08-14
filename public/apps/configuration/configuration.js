@@ -29,6 +29,8 @@ import roles from './sections/roles';
 import 'ui/autoload/styles';
 import 'plugins/searchguard/apps/configuration/configuration.less';
 
+import 'ace';
+
 import template from './configuration.html';
 
 uiRoutes.enable();

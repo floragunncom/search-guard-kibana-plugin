@@ -48,7 +48,9 @@ app.controller('sgActionGroupsController', function ($scope, $element, $route, c
 
 app.controller('sgEditActionGroupsController', function ($scope, $element, $route, $location, $routeParams, createNotifier, backendActionGroups, kbnUrl) {
 
-    $scope.service = backendActionGroups;
+    $scope.service = backendActionGroups
+    $scope.$parent.service = backendActionGroups;
+    $scope.resourcelabel = "Action Group";
 
     $scope.resource = {};
     $scope.resourcename = "";

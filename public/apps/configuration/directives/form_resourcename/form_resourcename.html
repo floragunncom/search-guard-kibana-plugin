@@ -1,7 +1,38 @@
 <div class="form-group">
-    <h3 ng-show="!isNew">{{resourcelabel}}: {{resourcename}}</h3>
 
-    <h3 for="object-form-id" ng-show="isNew">{{resourcelabel}}:</h3>
+    <table class="tableIndexGroups fullwidth" ng-show="!isNew">
+        <tr>
+            <td>
+                <h3>{{resourcelabel}}: {{resourcename}}</h3>
+            </td>
+            <td class="actions">
+                <button ng-if="showEditor" type="button" class="kuiButton kuiButton--secondaryy kuiButton--iconText" ng-click="loadJSON(resource)">
+                    <span class="kuiButton__icon kuiIcon fa-refresh" ng-bind></span>
+                    Refresh
+                </button>
+                <button type="button" class="kuiButton kuiButton--secondaryy kuiButton--iconText" ng-click="toggleEditor(resource)">
+                    <span class="kuiButton__icon kuiIcon fa-code" ng-bind></span>
+                    {{toggleEditorLabel}}
+                </button>
+            </td>
+        </tr>
+    </table>
+
+    <div
+            id="object-form-json-raw"
+            name="jsonRaw"
+            ui-ace="{ onLoad: aceLoaded, mode: 'json' }"
+            readonly
+            ng-model="resourceAsJson"
+            ng-class="{ 'red-border': objectForm.permissionsRaw.$invalid }"
+            required
+            ng-if="showEditor"
+            >
+
+    </div>
+
+
+
     <input
             ng-show="isNew"
             id="object-form-id"

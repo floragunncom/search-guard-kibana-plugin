@@ -52,7 +52,7 @@ app.controller('sgRolesController', function ($scope, $element, $route, createNo
 app.controller('sgEditRolesController', function ($rootScope, $scope, $element, $route, $location, $routeParams, createNotifier, backendRoles, kbnUrl) {
 
     $scope.service = backendRoles;
-
+    $scope.$parent.service = backendRoles;
     $scope.resourcelabel = "Role name";
 
     $scope.resource = {};

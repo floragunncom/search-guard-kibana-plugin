@@ -86,6 +86,8 @@ export default function (kibana) {
                     auth: true,
                     order: 9010,
                     icon: 'plugins/searchguard/assets/networking.svg',
+                    linkToLastSubUrl: false,
+                    url: '/app/searchguard-multitenancy#/'
                 },
                 {
                     id: 'searchguard-configuration',
@@ -94,6 +96,8 @@ export default function (kibana) {
                     order: 9009,
                     auth: true,
                     icon: 'plugins/searchguard/assets/searchguard_logo_nav.svg',
+                    linkToLastSubUrl: false,
+                    url: '/app/searchguard-configuration#/'
                 }
             ],
             chromeNavControls: [

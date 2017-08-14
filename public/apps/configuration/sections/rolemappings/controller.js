@@ -47,7 +47,7 @@ app.controller('sgRoleMappingsController', function ($scope, $element, $route, c
 app.controller('sgEditRoleMappingsController', function ($scope, $element, $route, $location, $routeParams, createNotifier, backendRoleMappings, kbnUrl) {
 
     $scope.service = backendRoleMappings;
-
+    $scope.$parent.service = backendRoleMappings;
     $scope.resourcelabel = "Role mapping";
 
     $scope.resource = {};

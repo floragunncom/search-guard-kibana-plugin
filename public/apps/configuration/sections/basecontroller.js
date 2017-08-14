@@ -6,16 +6,41 @@ const app = uiModules.get('apps/searchguard/configuration', []);
 app.controller('sgBaseController', function ($scope, $element, $route, backendActionGroups, createNotifier, kbnUrl) {
 
     $scope.title = "Search Guard Base Controller";
-
     $scope.actiongroupsAutoComplete = "";
-
     $scope.query = "";
+    $scope.resource = {};
+    $scope.showEditor = false;
+    $scope.toggleEditorLabel = "Show JSON";
+    $scope.resourceAsJson = null;
 
     // get actiongroups for autocomplete
     // todo: check lazy loading
     backendActionGroups.list().then((response) => {
         $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete(Object.keys(response.data.data));
     });
+
+    $scope.aceLoaded = (editor) => {
+        editor.session.setOptions({
+            tabSize: 2,
+            useSoftTabs: false
+        });
+        editor.$blockScrolling = Infinity;
+        editor.setShowPrintMargin(false);
+    };
+
+    $scope.toggleEditor = (resource) => {
+        if ($scope.resourceAsJson == null) {
+            $scope.loadJSON(resource)
+        }
+        $scope.showEditor = !$scope.showEditor;
+        $scope.toggleEditorLabel = $scope.showEditor? "Hide JSON" : "Show JSON";
+    };
+
+    $scope.loadJSON = function(resource) {
+        // copy resource, we don't want to modify current edit session
+        var resourceCopy = JSON.parse(JSON.stringify(resource));
+        $scope.resourceAsJson = JSON.stringify($scope.service.preSave(resourceCopy), null, 2);
+    }
 
     $scope.addArrayEntry = function (resource, fieldname, value) {
         if(!resource[fieldname] || !Array.isArray(resource[fieldname])) {

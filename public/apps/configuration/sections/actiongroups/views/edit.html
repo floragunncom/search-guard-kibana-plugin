@@ -9,18 +9,8 @@
                     <div class="">
                         <p class="error-message" ng-show="errorMessage">{{ errorMessage }}</p>
                         <form name="objectForm" id="object-form" method="post" ng-submit="saveObject($event)" novalidate style="width:70%">
-                            <div class="form-group">
-                                <label for="object-form-id">Action Group Name</label>
-                                <input
-                                        ng-show="isNew"
-                                        id="object-form-id"
-                                        name="id"
-                                        type="text"
-                                        ng-model="resourcename"
-                                        class="form-control"
-                                        required/>
-                                <div ng-show="!isNew">{{resourcename}}</div>
-                            </div>
+
+                            <sgc-form-resource-name></sgc-form-resource-name>
 
                             <sgc-permissions permissionsResource="resource"></sgc-permissions>
 

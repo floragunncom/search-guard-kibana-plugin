@@ -45,7 +45,7 @@ app.controller('sgInternalUsersController', function ($scope, $element, $route, 
 app.controller('sgEditInternalUsersController', function ($scope, $element, $route, $location, $routeParams, createNotifier, backendInternalUsers, kbnUrl) {
 
     $scope.service = backendInternalUsers;
-
+    $scope.$parent.service = backendInternalUsers;
     $scope.resourcelabel = "Username";
 
     $scope.resource = {};

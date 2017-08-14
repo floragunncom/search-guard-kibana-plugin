@@ -16,45 +16,9 @@
 
 
                             <accordeon title="Cluster permissions" is-collapsed="true" ng-if="!isNew">
-                                <div class="form-group">
-                                    <label for="object-form-actiongroups">Action groups</label>
-                                    <fieldset class="marginbottom--small" id="object-form-actiongroups" data-ng-repeat="actiongroup in resource.cluster.actiongroups track by $index">
-                                        <angucomplete id="clusteractiongroup-{{index}}"
-                                                      placeholder="Add Action Group"
-                                                      pause="10"
-                                                      selectedobject="resource.cluster.actiongroups[$index]"
-                                                      localdata="actiongroupsAutoComplete"
-                                                      minlength="1"
-                                                      datafield="name"
-                                                      titlefield="name"
-                                                      searchfields="name"
-                                                      inputclass="kuiTextInput sevenwidth"/>
-                                        <button style="display:inline-block" type="button" ng-click="removeArrayEntry(resource.cluster.actiongroups, actiongroup)" class="kuiButton kuiButton--danger kuiButton--iconText">
-                                            <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
-                                        </button>
-                                    </fieldset>
-                                    <br/>
-
-                                    <a ng-click="addArrayEntry(resource.cluster, 'actiongroups', '')" ng-disabled="lastArrayEntryEmpty(resource.cluster.actiongroups)" class="kuiButton kuiButton--primary kuiButton--iconText">
-                                        <span class="kuiButton__icon kuiIcon fa-plus"></span>
-                                        Add Action Group
-                                    </a>
-                                </div>
-                                <div class="form-group">
-                                    <label for="object-form-actiongroups">Permissions</label>
-                                    <fieldset class="marginbottom--small" id="object-form-actiongroups" data-ng-repeat="permission in resource.cluster.permissions track by $index">
-                                        <input type="text" class="kuiTextInput sevenwidth" ng-model="resource.cluster.permissions[$index]" name="">
-                                        <a ng-click="removeArrayEntry(resource.cluster.permissions, permission)" class="kuiButton kuiButton--danger kuiButton--iconText">
-                                            <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
-                                        </a>
-                                    </fieldset>
-                                    <br/>
-                                    <button type="button" ng-click="addArrayEntry(resource.cluster, 'permissions', '')" ng-disabled="lastArrayEntryEmpty(resource.cluster.permissions)" class="kuiButton kuiButton--primary kuiButton--iconText">
-                                        <span class="kuiButton__icon kuiIcon fa-plus"></span>
-                                        Add Permission
-                                    </button>
-                                </div>
+                                <sgc-permissions permissionsResource="resource.cluster"></sgc-permissions>
                             </accordeon>
+
                             <accordeon title="Index permissions" is-collapsed="true" ng-if="!isNew">
 
                                 <!-- Add index button -->

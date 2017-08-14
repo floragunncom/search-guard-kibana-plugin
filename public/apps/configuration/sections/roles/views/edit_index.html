@@ -70,88 +70,8 @@
                                     </tr>
                                 </table>
 
-                                <!-- Action Groups Table -->
-                                <table class="kuiTable tableIndexGroups">
-                                    <thead>
-                                    <tr>
-                                        <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
-                                            Action Groups
-                                        </th>
+                                <sgc-permissions permissionsResource="resource.indices[indexname][doctypename]"></sgc-permissions>
 
-                                        <th class="kuiTableHeaderCell">
-                                        </th>
-                                    </tr>
-                                    </thead>
-                                    <tbody >
-                                        <tr data-test-subj="userRow" class="kuiTableRow" data-ng-repeat="actiongroup in resource.indices[indexname][doctypename].actiongroups track by $index" >
-                                            <td class="kuiTableRowCell cellAlignTop">
-                                                <fieldset class="marginbottom--small" id="object-form-actiongroups">
-                                                    <angucomplete id="indexactiongroup-{{indexname}}-{{doctypename}}"
-                                                                  placeholder="Add Action Group"
-                                                                  pause="10"
-                                                                  selectedobject="resource.indices[indexname][doctypename].actiongroups[$index]"
-                                                                  localdata="actiongroupsAutoComplete"
-                                                                  minlength="1"
-                                                                  datafield="name"
-                                                                  titlefield="name"
-                                                                  searchfields="name"
-                                                                  inputclass="kuiTextInput fullwidth"/>
-                                                </fieldset>
-                                            </td>
-                                            <td class="kuiTableRowCell cellAlignTop actions">
-                                                <button style="display:inline-block" type="button" ng-click="removeArrayEntry(resource.indices[indexname][doctypename].actiongroups, actiongroup)" class="kuiButton kuiButton--danger kuiButton--iconText">
-                                                    <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr class="kuiTableRow">
-                                            <td class="kuiTableRowCell cellAlignTop actions"></td>
-                                            <td class="kuiTableRowCell cellAlignTop actions">
-                                                <button type="button" ng-click="addArrayEntry(resource.indices[indexname][doctypename], 'actiongroups', '')" ng-disabled="lastArrayEntryEmpty(resource.indices[indexname][doctypename].actiongroups)" class="kuiButton kuiButton--primary kuiButton--iconText">
-                                                    <span class="kuiButton__icon kuiIcon fa-plus"></span>
-                                                    Add Action Group
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                                <!-- Permissions Table -->
-                                <table class="kuiTable tableIndexGroups">
-                                    <thead>
-                                    <tr>
-                                        <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
-                                            Permissions
-                                        </th>
-
-                                        <th class="kuiTableHeaderCell">
-                                        </th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr data-test-subj="userRow" class="kuiTableRow" data-ng-repeat="permission in resource.indices[indexname][doctypename].permissions track by $index">
-                                            <td class="kuiTableRowCell cellAlignTop">
-                                                <fieldset class="marginbottom--small" id="object-form-actiongroups">
-                                                    <input type="text" class="kuiTextInput fullwidth" pattern="^(cluster:.*|indices:.*)" title="Permissions need to start with cluster: or indices:" ng-model="resource.indices[indexname][doctypename].permissions[$index]" placeholder="Start with cluster: or index:">
-                                                </fieldset>
-                                            </td>
-                                            <td class="kuiTableRowCell cellAlignTop actions">
-                                                <a ng-click="removeArrayEntry(resource.indices[indexname][doctypename].permissions, permission)" class="kuiButton kuiButton--danger kuiButton--iconText">
-                                                    <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        <tr class="kuiTableRow">
-                                            <td class="kuiTableRowCell cellAlignTop actions"></td>
-                                            <td class="kuiTableRowCell cellAlignTop actions">
-                                                <button type="button" ng-click="addArrayEntry(resource.indices[indexname][doctypename], 'permissions', '')" ng-disabled="lastArrayEntryEmpty(resource.indices[indexname][doctypename].permissions)" class="kuiButton kuiButton--primary kuiButton--iconText">
-                                                    <span class="kuiButton__icon kuiIcon fa-plus"></span>
-                                                    Add Permissions
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
                             </accordeon>
 
                             <accordeon title="Document- and Field-Level-Security" is-collapsed="true" class="marginbottom--small">
