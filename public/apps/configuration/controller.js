@@ -1,12 +1,14 @@
 import { uiModules } from 'ui/modules';
 import { get } from 'lodash';
-
+import client from './backend_api/client';
 
 const app = uiModules.get('apps/searchguard/configuration', ['ui.ace']);
 
-app.controller('searchguardConfigurationMainController', function ($scope, $element, $route, createNotifier, backendActionGroups, kbnUrl) {
+app.controller('searchguardConfigurationMainController', function ($scope, $element, $route, createNotifier, backendAPI, kbnUrl) {
 
     $scope.title = "Search Guard Configuration";
 
-    console.log("In Main Controller");
+    $scope.clearCache = function() {
+        backendAPI.clearCache();
+    }
 });

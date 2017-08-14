@@ -8,8 +8,8 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-12" style="text-align: center;">
-                <div class="kuiGallery " style="text-align: center;">
+            <div class="kuiViewContent kuiViewContent--constrainedWidth ng-scope" style="text-align: center;">
+                <div class="kuiGallery kuiViewContentItem" style="text-align: center;">
                     <a class="kuiGalleryButton ng-scope" ng-href="#/visualize/new/configure?type=area" tooltip=" Emphasize the quantity beneath a line chart" tooltip-placement="bottom" href="#/visualize/new/configure?type=area">
                         <div class="kuiGalleryButton__image">
                             <span class="fa fa-lock fa-5x"></span>
@@ -52,6 +52,15 @@
                         </div>
                         <div lass="kuiGalleryButton__label" data-test-subj="sg_roles" class="ng-binding">
                             Roles
+                        </div>
+                    </a>
+
+                    <a class="kuiGalleryButton ng-scope" ng-click="clearCache()" tooltip="Configure Internal Users" tooltip-placement="bottom">
+                        <div class="kuiGalleryButton__image">
+                            <span class="fa fa-refresh fa-5x"></span>
+                        </div>
+                        <div lass="kuiGalleryButton__label" data-test-subj="sg_roles" class="ng-binding">
+                            Clear Cache
                         </div>
                     </a>
 

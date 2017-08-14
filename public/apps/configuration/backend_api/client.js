@@ -48,6 +48,17 @@ uiModules.get('apps/searchguard/configuration', [])
                 });
         };
 
+        this.clearCache = () => {
+            return $http.delete(`${AUTH_BACKEND_API_ROOT}/clearcache`)
+                .then((response) => {
+                    notify.info(response.data.message);
+                })
+                .catch((error) => {
+                    notify.error(error);
+                    throw error;
+                });
+        };
+
         this.list = (resourceName) => {
             return $http.get(`${AUTH_BACKEND_API_ROOT}/${resourceName}`);
         };
