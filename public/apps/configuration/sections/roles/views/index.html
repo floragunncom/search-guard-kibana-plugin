@@ -71,7 +71,7 @@
 
                                     <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowTenants">
                                         <div class="kuiTableRowCell__liner">
-                                            <div ng-repeat="tenantname in keys(resources[rolename].tenants)">
+                                            <div ng-repeat="tenantname in flatten(resources[rolename].tenantsArray, 'name').sort()">
                                                 {{tenantname}}
                                                 <br/>
                                             </div>

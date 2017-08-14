@@ -67,12 +67,27 @@ uiModules.get('apps/searchguard/configuration', [])
                 // move back dls and fls
                 var dlsfls = role.dlsfls[indexname];
                 if(dlsfls) {
-                    index["_dls_"] = dlsfls["_dls_"];
-                    index["_fls_"] = dlsfls["_fls_"];
+                    if (dlsfls["_dls_"].length > 0) {
+                        index["_dls_"] = dlsfls["_dls_"];
+                    }
+                    if (dlsfls["_fls_"].length > 0) {
+                        index["_fls_"] = dlsfls["_fls_"];
+                    }
                 }
             }
 
             delete role["dlsfls"];
+
+            // tenants
+            role["tenants"] = {};
+            role.tenantsArray.forEach(function(tenant){
+                if (tenant && tenant.name != "") {
+                    role.tenants[tenant.name] = tenant.permissions;
+                }
+            });
+
+
+            delete role["tenantsArray"];
 
             return role;
         };
@@ -126,6 +141,22 @@ uiModules.get('apps/searchguard/configuration', [])
                     }
                 }
             }
+
+            // transform tenants to map
+            role["tenantsArray"] = [];
+            if (role.tenants) {
+                var tenantNames = Object.keys(role.tenants).sort();
+                tenantNames.forEach(function(tenantName){
+
+                    role.tenantsArray.push(
+                        {
+                            name: tenantName,
+                            permissions: role.tenants[tenantName]
+                        }
+                    );
+                });
+            }
+            delete role["tenants"];
             return role;
         };
     });

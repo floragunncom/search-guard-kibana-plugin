@@ -97,7 +97,7 @@
                                 <table class="kuiTable">
                                     <thead>
                                     <tr>
-                                        <th class="kuiTableHeaderCell">
+                                        <th class="kuiTableHeaderCell" style="width: 50%;">
                                             Tenant
                                         </th>
                                         <th class="kuiTableHeaderCell">
@@ -109,24 +109,41 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr class="kuiTableRow" data-ng-repeat="tenantname in keys(resource.tenants).sort() track by $index">
+                                    <tr class="kuiTableRow" data-ng-repeat="tenant in sortObjectArray(resource.tenantsArray,'name') track by $index">
                                         <td class="kuiTableRowCell">
-                                            {{tenantname}}
+                                            <fieldset class="marginbottom--small" id="object-form-actiongroups">
+                                                <input type="text" class="kuiTextInput fullwidth" ng-model="resource.tenantsArray[$index].name">
+                                            </fieldset>
                                         </td>
                                         <td class="kuiTableRowCell cellAlignTop">
-                                            {{resource.tenants[tenantname]}}
+                                            <select name="permissionsSelect" ng-model="resource.tenantsArray[$index].permissions">
+                                                <option value="RW">Read / Write</option>
+                                                <option value="RO">Read Only</option>
+                                            </select>
                                         </td>
                                         <td class="kuiTableRowCell actions">
                                             <a ng-href="#/roles/editindex/{{resourcename}}/{{indexname | escape}}" class="kuiButton kuiButton--primary kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-edit"></span>
                                             </a>
-                                            <a ng-click="removeObjectKey(resource.indices, indexname)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <a ng-click="removeFromObjectArray(resource.tenantsArray, $index, resource.tenantsArray[$index].name)" class="kuiButton kuiButton--danger kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                             </a>
                                         </td>
                                     </tr>
+                                    <tr class="kuiTableRow">
+                                        <td class="kuiTableRowCell cellAlignTop actions"></td>
+                                        <td class="kuiTableRowCell cellAlignTop actions"></td>
+                                        <td class="kuiTableRowCell cellAlignTop actions">
+                                            <button type="button" ng-click="addToObjectArray(resource.tenantsArray, {name: '', permissions: 'RW'})" ng-disabled="lastArrayEntryEmpty(permissionsResource.permissions)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                                <span class="kuiButton__icon kuiIcon fa-plus"></span>
+                                                Add Tenant
+                                            </button>
+                                        </td>
+                                    </tr>
+
                                     </tbody>
                                 </table>
+
                             </accordeon>
 
                             <br />

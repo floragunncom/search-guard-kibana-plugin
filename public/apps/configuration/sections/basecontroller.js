@@ -1,5 +1,8 @@
 import { uiModules } from 'ui/modules'
 import { get } from 'lodash';
+import { uniq } from 'lodash';
+import { orderBy } from 'lodash';
+
 import '../backend_api/actiongroups';
 const app = uiModules.get('apps/searchguard/configuration', []);
 
@@ -80,11 +83,40 @@ app.controller('sgBaseController', function ($scope, $element, $route, backendAc
         }
     }
 
+    $scope.addObjectKey = function (theobject, key, value) {
+        theobject[key] = value;
+    }
+
+    $scope.sortObjectArray = function (objectArray, sortProperty) {
+        //return orderBy(objectArray, [sortProperty], ["asc"]);
+        return objectArray;
+    }
+
+    $scope.removeFromObjectArray = function (thearray, index, value) {
+        if (confirm(`Are you sure you want to delete '${value}'?`)) {
+            thearray.splice(index, 1);
+        }
+    }
+
+    $scope.addToObjectArray = function (thearray, value) {
+        return thearray.push(value);
+    }
+
     // helper function to use Object.keys in templates
     $scope.keys = function (object) {
         if (object) {
             return Object.keys(object).sort();
         }
+    }
+
+    $scope.flatten = function (list, textAttribute) {
+        return uniq(list.reduce((result, item) => {
+            const text = item[textAttribute];
+            if (text) {
+                result.push(text);
+            }
+            return result;
+        }, [])).sort();
     }
 });
 

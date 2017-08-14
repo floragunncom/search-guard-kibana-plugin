@@ -15,6 +15,6 @@ export default function flatten(list, textAttribute) {
       result.push(text);
     }
     return result;
-  }, []));
+  }, [])).sort();
 };
 
