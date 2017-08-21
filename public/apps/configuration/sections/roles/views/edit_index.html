@@ -7,13 +7,13 @@
         <div class="container">
             <div class="row">
                 <div class="col-xs-12">
-                    <div class="">
-
-                        <p class="error-message" ng-show="errorMessage">{{ errorMessage }}</p>
+                    <div>
 
                         <form name="objectForm" id="object-form" method="post" ng-submit="saveObject($event)" style="width:80%">
 
                             <sgc-form-resource-name></sgc-form-resource-name>
+
+                            <p class="error-message" ng-show="errorMessage">{{ errorMessage }}</p>
 
                             <!-- Add document type -->
                             <table class="tableIndexGroups fullwidth">
@@ -144,8 +144,10 @@
                                     </tbody>
                                 </table>
                             </accordeon>
-                            <button class="kuiButton kuiButton--primary kuiButton--text" type="submit">Submit</button>
-                            <button class="kuiButton kuiButton--secondary kuiButton--text" type="submit" ng-click="cancel()">Cancel</button>
+                            <div class="formsubmit">
+                                <button class="kuiButton kuiButton--primary kuiButton--text" type="submit">Submit</button>
+                                <button class="kuiButton kuiButton--secondary kuiButton--text" type="submit" ng-click="cancel()">Cancel</button>
+                            </div>
                         </form>
                     </div>
                 </div>

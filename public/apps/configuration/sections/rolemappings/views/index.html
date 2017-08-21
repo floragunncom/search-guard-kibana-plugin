@@ -1,91 +1,93 @@
-<div class="searchguard app-container ng-scope" id="section-editor" ng-controller="sgRoleMappingsController">
+<div ng-controller="sgBaseController">
+    <div class="searchguard app-container ng-scope" id="section-editor" ng-controller="sgRoleMappingsController">
 
-    <sgc-list-header></sgc-list-header>
+        <sgc-list-header></sgc-list-header>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="kuiControlledTable">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="kuiControlledTable">
 
-                    <sgc-filter-bar></sgc-filter-bar>
+                        <sgc-filter-bar></sgc-filter-bar>
 
-                    <!-- Table -->
-                    <table class="kuiTable" ng-show="(resourcenames | filter:query).length">
-                        <thead>
-                            <tr>
+                        <!-- Table -->
+                        <table class="kuiTable" ng-show="(resourcenames | filter:query).length">
+                            <thead>
+                                <tr>
 
-                                <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
-                                    Action Group Name
-                                    <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'username'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
-                                </th>
+                                    <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
+                                        Action Group Name
+                                        <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'username'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                    </th>
 
-                                <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
-                                    Users
-                                    <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'roles'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
-                                </th>
+                                    <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
+                                        Users
+                                        <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'roles'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                    </th>
 
-                                <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
-                                    Backend Roles
-                                    <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'roles'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
-                                </th>
+                                    <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
+                                        Backend Roles
+                                        <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'roles'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                    </th>
 
-                                <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
-                                    Hosts
-                                    <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'roles'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
-                                </th>
+                                    <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
+                                        Hosts
+                                        <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'roles'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                    </th>
 
-                                <th class="kuiTableHeaderCell kuiTableHeaderCell">
-                                </th>
+                                    <th class="kuiTableHeaderCell kuiTableHeaderCell">
+                                    </th>
 
-                            </tr>
-                        </thead>
+                                </tr>
+                            </thead>
 
-                        <tbody>
-                            <tr ng-repeat="rolemappingname in resourcenames | filter:query" data-test-subj="userRow" class="kuiTableRow">
+                            <tbody>
+                                <tr ng-repeat="rolemappingname in resourcenames | filter:query" data-test-subj="userRow" class="kuiTableRow">
 
-                                <td class="kuiTableRowCell cellAlignTop">
-                                    <div class="kuiTableRowCell__liner">
-                                        <a class="kuiLink" ng-click="edit(rolemappingname)">
-                                            {{rolemappingname}}
-                                        </a>
-                                    </div>
-                                </td>
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <div class="kuiTableRowCell__liner">
+                                            <a class="kuiLink" ng-click="edit(rolemappingname)">
+                                                {{rolemappingname}}
+                                            </a>
+                                        </div>
+                                    </td>
 
-                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
-                                    <div class="kuiTableRowCell__liner">
-                                        <div ng-repeat="user in resources[rolemappingname].users">{{user}}<br/></div>
-                                    </div>
-                                </td>
+                                    <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                        <div class="kuiTableRowCell__liner">
+                                            <div ng-repeat="user in resources[rolemappingname].users">{{user}}<br/></div>
+                                        </div>
+                                    </td>
 
-                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
-                                    <div class="kuiTableRowCell__liner">
-                                        <div ng-repeat="backendrole in resources[rolemappingname].backendroles">{{backendrole}}<br/></div>
-                                    </div>
-                                </td>
+                                    <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                        <div class="kuiTableRowCell__liner">
+                                            <div ng-repeat="backendrole in resources[rolemappingname].backendroles">{{backendrole}}<br/></div>
+                                        </div>
+                                    </td>
 
-                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
-                                    <div class="kuiTableRowCell__liner">
-                                        <div ng-repeat="host in resources[rolemappingname].hosts">{{host}}<br/></div>
-                                    </div>
-                                </td>
+                                    <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                        <div class="kuiTableRowCell__liner">
+                                            <div ng-repeat="host in resources[rolemappingname].hosts">{{host}}<br/></div>
+                                        </div>
+                                    </td>
 
-                                <td class="kuiTableRowCell actions cellAlignTop" data-test-subj="userRowActions">
-                                    <div class="kuiTableRowCell__liner">
-                                        <a ng-click="edit(rolemappingname)" class="kuiButton kuiButton--primary kuiButton--iconText">
-                                            <span class="kuiButton__icon kuiIcon fa-edit"></span>
-                                        </a>
-                                        <a ng-click="clone(rolemappingname)" class="kuiButton kuiButton--primary kuiButton--iconText">
-                                            <span class="kuiButton__icon kuiIcon fa-copy"></span>
-                                        </a>
-                                        <a ng-click="delete(rolemappingname)" class="kuiButton kuiButton--danger kuiButton--iconText">
-                                            <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
-                                        </a>
-                                    </div>
-                                </td>
+                                    <td class="kuiTableRowCell actions cellAlignTop" data-test-subj="userRowActions">
+                                        <div class="kuiTableRowCell__liner">
+                                            <a ng-click="edit(rolemappingname)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                                <span class="kuiButton__icon kuiIcon fa-edit"></span>
+                                            </a>
+                                            <a ng-click="clone(rolemappingname)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                                <span class="kuiButton__icon kuiIcon fa-copy"></span>
+                                            </a>
+                                            <a ng-click="delete(rolemappingname)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                                <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                            </a>
+                                        </div>
+                                    </td>
 
-                            </tr>
-                        </tbody>
-                    </table>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

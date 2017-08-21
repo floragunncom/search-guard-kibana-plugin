@@ -85,43 +85,6 @@ app.controller('sgEditActionGroupsController', function ($scope, $element, $rout
         }
     });
 
-    $scope.addActionGroup = function () {
-        $scope.resource.actiongroups.push("");
-    }
-
-    $scope.removeActionGroup = function (actiongroupname) {
-        $scope.removeArrayEntry($scope.resource.actiongroups, actiongroupname);
-    }
-
-    $scope.lastActionGroupEmpty = function () {
-        return $scope.lastArrayEntryEmpty($scope.resource.actiongroups);
-    }
-
-    $scope.addPermission = function () {
-        $scope.resource.permissions.push("");
-    }
-
-    $scope.removePermission = function (actiongroupname) {
-        $scope.removeArrayEntry($scope.resource.permissions, actiongroupname);
-    }
-
-    $scope.lastPermissionEmpty = function () {
-        return $scope.lastArrayEntryEmpty($scope.resource.permissions);
-    }
-
-    $scope.removeArrayEntry = function (array, item) {
-        if (confirm(`Are you sure you want to delete '${item}'?`)) {
-            var index = array.indexOf(item);
-            array.splice(index, 1);
-        }
-    }
-
-    $scope.lastArrayEntryEmpty = function (array) {
-        return (array &&
-        array.length > 0 &&
-        array[array.length - 1].trim().length == 0);
-    }
-
     $scope.cancel = function () {
         kbnUrl.change('/actiongroups');
     }
@@ -140,16 +103,6 @@ app.controller('sgEditActionGroupsController', function ($scope, $element, $rout
 
         if (!form.hasClass('ng-valid')) {
             $scope.errorMessage = 'Please correct all errors and try again.';
-            return;
-        }
-
-        if ($scope.isNew && $scope.resourcenames.indexOf($scope.resourcename) != -1) {
-            $scope.errorMessage = 'Username already exists, please choose another one.';
-            return;
-        }
-
-        if ($scope.resource.password !== $scope.resource.passwordConfirmation) {
-            $scope.errorMessage = 'Passwords do not match.';
             return;
         }
 

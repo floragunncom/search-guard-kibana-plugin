@@ -1,6 +1,6 @@
 <div class="form-group">
 
-    <table class="tableIndexGroups fullwidth" ng-show="!isNew">
+    <table class="fullwidth" ng-show="!isNew">
         <tr>
             <td>
                 <h3>{{resourcelabel}}: {{resourcename}}</h3>
@@ -41,6 +41,7 @@
             ng-model="resourcename"
             class="form-control"
             autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            required/>
+            required
+            ng-required="isNew"/>
 
 </div>

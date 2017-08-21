@@ -1,0 +1,21 @@
+<div ng-controller="sgBaseController">
+    <div class="searchguard app-container ng-scope" id="section-editor" ng-controller="sgConfigController">
+
+        <sgc-list-header></sgc-list-header>
+
+        <sgc-form-resource-name></sgc-form-resource-name>
+
+        <div class="kuiViewContent kuiViewContent--constrainedWidth ng-scope">
+            <div class="kuiViewContentItem">
+            <div class="container">
+                    <div class="row" data-ng-repeat="authcname in authcnames">
+                        <div class="col-xs-12">
+                            {{authcname}}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

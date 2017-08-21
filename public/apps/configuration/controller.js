@@ -8,6 +8,18 @@ app.controller('searchguardConfigurationMainController', function ($scope, $elem
 
     $scope.title = "Search Guard Configuration";
 
+    $scope.certificate = "";
+    $scope.key = "";
+    $scope.keyPassword = "";
+
+    $scope.authenticated = true;
+
+    $scope.authenticate = (event) => {
+        if (event) {
+            event.preventDefault();
+        }
+    };
+
     $scope.clearCache = function() {
         backendAPI.clearCache();
     }

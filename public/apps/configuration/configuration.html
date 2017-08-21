@@ -7,15 +7,54 @@
                 <img class="brand-image" src="/plugins/searchguard/assets/searchguard_logo.svg" width="300">
             </div>
         </div>
-        <div class="row">
+        <div class="row" ng-if="!authenticated">
+            <div class="kuiViewContent kuiViewContent--constrainedWidth ng-scope">
+                <div class="kuiGallery kuiViewContentItem">
+                    <form name="objectForm" class="sevenwidth" id="object-form" method="post" ng-submit="authenticate($event)">
+                        <div class="form-group">
+                            <label for="form-certificate">Admin certificate</label>
+                            <input
+                                    id="form-certificate"
+                                    type="file"
+                                    ng-model="certificate"
+                                    class="form-control fullwidth"
+                                    ng-required="true"
+                                    >
+                        </div>
+                        <div class="form-group">
+                            <label for="form-key">Admin key</label>
+                            <input
+                                    id="form-key"
+                                    type="file"
+                                    ng-model="key"
+                                    class="form-control"
+                                    >
+                        </div>
+                        <div class="form-group">
+                            <label for="form-key-password">Admin key password (optional)</label>
+                            <input
+                                    id="form-key-password"
+                                    type="password"
+                                    ng-model="keyPassword"
+                                    class="form-control"
+                                    ng-required="false">
+                        </div>
+
+                        <button class="kuiButton kuiButton--primary kuiButton--text" type="submit">Authenticate</button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="row" ng-if="authenticated">
             <div class="kuiViewContent kuiViewContent--constrainedWidth ng-scope" style="text-align: center;">
                 <div class="kuiGallery kuiViewContentItem" style="text-align: center;">
-                    <a class="kuiGalleryButton ng-scope" ng-href="#/visualize/new/configure?type=area" tooltip=" Emphasize the quantity beneath a line chart" tooltip-placement="bottom" href="#/visualize/new/configure?type=area">
+                    <a class="kuiGalleryButton ng-scope" ng-href="#/sgconfiguration"  href="#/sgconfiguration">
                         <div class="kuiGalleryButton__image">
                             <span class="fa fa-lock fa-5x"></span>
                         </div>
                         <div lass="kuiGalleryButton__label" data-test-subj="sg_config" class="ng-binding">
-                            Authentication
+                            Authentication / Authorisation
                         </div>
                     </a>
 
