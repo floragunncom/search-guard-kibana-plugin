@@ -7,7 +7,7 @@ import client from './client';
  * Action groups API client service.
  */
 uiModules.get('apps/searchguard/configuration', [])
-    .service('backendActionGroups', function (backendAPI, Promise, $http, createNotifier) {
+    .service('backendActionGroups', function (backendAPI, Promise, $http, createNotifier, kbnUrl) {
 
         const RESOURCE = 'actiongroups';
 
@@ -68,7 +68,6 @@ uiModules.get('apps/searchguard/configuration', [])
         };
 
         this.postFetch = (actiongroup) => {
-            console.log(actiongroup);
             // we want to have two arrays, one with other action groups, one with single permissions
             var actiongroups = [];
             var permissions = [];

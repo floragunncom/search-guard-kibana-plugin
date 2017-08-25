@@ -19,24 +19,22 @@ import uiRoutes from 'ui/routes';
 import { uiModules } from 'ui/modules';
 import { Notifier } from 'ui/notify/notifier';
 
-import './controller';
-
 import internalusers from './sections/internalusers';
 import actiongroups from './sections/actiongroups';
 import rolemappings from './sections/rolemappings';
 import roles from './sections/roles';
-import sgconfig from './sections/sgconfiguration';
 
 import 'ui/autoload/styles';
 import 'plugins/searchguard/apps/configuration/configuration.less';
 
 import 'ace';
 
+import searchguardConfigurationMainController from './controller';
 import template from './configuration.html';
 
 uiRoutes.enable();
 
 uiRoutes
     .when('/', {
-      template: template
+        template: template
     });

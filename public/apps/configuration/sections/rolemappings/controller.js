@@ -36,7 +36,7 @@ app.controller('sgRoleMappingsController', function ($scope, $element, $route, c
     }
 
 
-    $scope.service.list().success(function (response) {
+    $scope.service.list().then(function (response) {
         $scope.resourcenames = Object.keys(response.data).sort();
         $scope.resources = response.data;
         $scope.numresources = response.total;
@@ -62,7 +62,7 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
 
     // get all usernames and load pre-existing user, if any
     $scope.service.list().then((response) => {
-        $scope.resourcenames = Object.keys(response.data.data);
+        $scope.resourcenames = Object.keys(response.data);
 
         var rolemapping = $routeParams.resourcename;
         if (rolemapping) {

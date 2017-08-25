@@ -6,6 +6,10 @@ const app = uiModules.get('apps/searchguard/configuration', []);
 
 app.controller('sgActionGroupsController', function ($scope, $element, $route, createNotifier, backendActionGroups, kbnUrl) {
 
+    const notify = createNotifier({
+        location: 'Action groups'
+    });
+
     $scope.service = backendActionGroups;
 
     $scope.numresources = "0";
@@ -35,15 +39,15 @@ app.controller('sgActionGroupsController', function ($scope, $element, $route, c
         kbnUrl.change('/actiongroups/clone/' + actiongroupname);
     }
 
-    $scope.service.list().success(function (response) {
-        $scope.resourcenames = Object.keys(response.data).sort();
+    $scope.service.list()
+        .then((response) => {
+            $scope.resourcenames = Object.keys(response.data).sort();
 
-        $scope.resourcenames.forEach(function (entry) {
-            $scope.resources[entry] = $scope.service.postFetch(response.data[entry]);
+            $scope.resourcenames.forEach(function (entry) {
+                $scope.resources[entry] = $scope.service.postFetch(response.data[entry]);
+            });
+            $scope.numresources = response.total;
         });
-        $scope.numresources = response.total;
-    });
-
 });
 
 app.controller('sgEditActionGroupsController', function ($scope, $element, $route, $location, $routeParams, createNotifier, backendActionGroups, kbnUrl) {
@@ -64,7 +68,7 @@ app.controller('sgEditActionGroupsController', function ($scope, $element, $rout
 
     // get all usernames and load pre-existing user, if any
     $scope.service.list().then((response) => {
-        $scope.resourcenames = Object.keys(response.data.data);
+        $scope.resourcenames = Object.keys(response.data);
 
         var actiongroupname = $routeParams.resourcename;
         if (actiongroupname) {

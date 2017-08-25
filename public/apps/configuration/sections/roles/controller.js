@@ -37,7 +37,7 @@ app.controller('sgRolesController', function ($scope, $element, $route, createNo
     }
 
 
-    $scope.service.list().success(function (response) {
+    $scope.service.list().then(function (response) {
         $scope.resourcenames = Object.keys(response.data).sort();
 
         $scope.resourcenames.forEach(function (entry) {
@@ -72,7 +72,7 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
 
     // get all usernames and load pre-existing user, if any
     $scope.service.list().then((response) => {
-        $scope.resourcenames = Object.keys(response.data.data);
+        $scope.resourcenames = Object.keys(response.data);
 
         var rolename = $routeParams.resourcename;
         if (rolename) {

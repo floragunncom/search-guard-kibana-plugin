@@ -1,24 +1,26 @@
-<div class="searchguard app-container ng-scope" ng-controller="searchguardConfigurationMainController">
+<div class="searchguard app-container" ng-controller="searchguardConfigurationMainController">
 
-    <sgc-list-header></sgc-list-header>
+        <sgc-edit-header ng-if="authenticated"></sgc-edit-header>
 
         <div class="row">
             <div class="col-xs-12" style="text-align: center;">
                 <img class="brand-image" src="/plugins/searchguard/assets/searchguard_logo.svg" width="300">
+                <h3 ng-if="!authenticated" style="margin-top:0px;">Please authenticate</h3>
+                <p class="error-message" ng-show="errorMessage">{{ errorMessage }}</p>
             </div>
         </div>
         <div class="row" ng-if="!authenticated">
             <div class="kuiViewContent kuiViewContent--constrainedWidth ng-scope">
                 <div class="kuiGallery kuiViewContentItem">
-                    <form name="objectForm" class="sevenwidth" id="object-form" method="post" ng-submit="authenticate($event)">
+                    <form name="objectForm" class="sevenwidth" id="object-form" method="post" ng-submit="authenticateAdmin($event)">
                         <div class="form-group">
                             <label for="form-certificate">Admin certificate</label>
                             <input
                                     id="form-certificate"
                                     type="file"
-                                    ng-model="certificate"
+                                    file-model="authenticationForm.certificate"
                                     class="form-control fullwidth"
-                                    ng-required="true"
+
                                     >
                         </div>
                         <div class="form-group">
@@ -26,7 +28,7 @@
                             <input
                                     id="form-key"
                                     type="file"
-                                    ng-model="key"
+                                    file-model="authenticationForm.key"
                                     class="form-control"
                                     >
                         </div>
@@ -34,12 +36,11 @@
                             <label for="form-key-password">Admin key password (optional)</label>
                             <input
                                     id="form-key-password"
-                                    type="password"
-                                    ng-model="keyPassword"
+                                    type="text"
+                                    data-ng-model="authenticationForm.keyPassword"
                                     class="form-control"
                                     ng-required="false">
                         </div>
-
                         <button class="kuiButton kuiButton--primary kuiButton--text" type="submit">Authenticate</button>
 
                     </form>
@@ -100,6 +101,15 @@
                         </div>
                         <div lass="kuiGalleryButton__label" data-test-subj="sg_roles" class="ng-binding">
                             Clear Cache
+                        </div>
+                    </a>
+
+                    <a class="kuiGalleryButton ng-scope" ng-click="logoutAdmin()" tooltip="End Admin Session and clear stored certificates" tooltip-placement="bottom">
+                        <div class="kuiGalleryButton__image">
+                            <span class="fa fa-sign-out fa-5x"></span>
+                        </div>
+                        <div lass="kuiGalleryButton__label" data-test-subj="sg_roles" class="ng-binding">
+                            End Admin Session
                         </div>
                     </a>
 

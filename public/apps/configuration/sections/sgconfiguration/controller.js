@@ -6,18 +6,19 @@ const app = uiModules.get('apps/searchguard/configuration', []);
 
 app.controller('sgConfigController', function ($scope, $element, $route, createNotifier, sgConfiguration, kbnUrl) {
 
+    console.log("sgConfigController");
+
     $scope.service = sgConfiguration;
     $scope.authcnames = [];
     $scope.resource = {};
 
     $scope.title = "Manage Search Guard configuration";
 
-    $scope.service.list().success(function (response) {
+    $scope.service.list().then(function (response) {
+
         $scope.resource = response.data;
 
         var sortedAuthcNames = [];
-
-        console.log(response.data.searchguard.dynamic.authc);
 
         for (var authc in response.data.searchguard.dynamic.authc) {
             sortedAuthcNames.push(authc);

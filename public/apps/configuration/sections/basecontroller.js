@@ -19,7 +19,7 @@ app.controller('sgBaseController', function ($scope, $element, $route, backendAc
     // get actiongroups for autocomplete
     // todo: check lazy loading
     backendActionGroups.list().then((response) => {
-        $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete(Object.keys(response.data.data));
+        $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete(Object.keys(response.data));
     });
 
     $scope.aceLoaded = (editor) => {
@@ -67,12 +67,18 @@ app.controller('sgBaseController', function ($scope, $element, $route, backendAc
     }
 
     $scope.lastArrayEntryEmpty = function (array) {
-        if (array && array == 'undefined') {
+
+        if (!array || typeof array == 'undefined' || array.length == 0) {
+            return false;
+        }
+
+        var entry = array[array.length - 1];
+
+        if (typeof entry === 'undefined' || entry.length == 0) {
             return true;
         }
-        return (array &&
-        array.length > 0 &&
-        array[array.length - 1].trim().length == 0);
+
+        return false;
     }
 
     $scope.removeObjectKey = function (theobject, key) {
