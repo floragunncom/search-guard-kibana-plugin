@@ -114,7 +114,12 @@
                                             Field Level Security
                                         </th>
 
-                                        <th class="kuiTableHeaderCell">
+                                        <th class="kuiTableHeaderCell tableHeaderCellIndexGroups actions">
+                                            <select name="flsModeSelect" ng-model="resource.dlsfls[indexname]['_flsmode_']" required="required" >
+                                                <option value="whitelist">Whitelist fields</option>
+                                                <option value="blacklist">Blacklist fields</option>
+                                            </select>
+
                                         </th>
 
                                     </tr>

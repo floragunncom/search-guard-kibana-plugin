@@ -23,7 +23,7 @@ app.controller('searchguardConfigurationMainController', function ($scope, $elem
         } else {
             backendAPI.testConnection()
                 .then((response) => {
-                    console.log(response);
+
                     if (response == 200) {
                         $scope.authenticated = true;
                         $scope.errorMessage = "";

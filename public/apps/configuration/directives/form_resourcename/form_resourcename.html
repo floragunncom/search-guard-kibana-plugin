@@ -31,17 +31,18 @@
 
     </div>
 
-
-
-    <input
-            ng-show="isNew"
-            id="object-form-id"
-            name="id"
-            type="text"
-            ng-model="resourcename"
-            class="form-control"
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            required
-            ng-required="isNew"/>
+    <div>
+        <label for="object-form-id-new">New {{service.title.singular}} Name:</label>
+        <input
+                ng-show="isNew"
+                id="object-form-id-new"
+                name="id"
+                type="text"
+                ng-model="resourcename"
+                class="form-control"
+                autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                required
+                ng-required="isNew"/>
+    </div>
 
 </div>

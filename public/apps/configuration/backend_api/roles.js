@@ -1,4 +1,5 @@
 import { uiModules } from 'ui/modules';
+import { isEmpty } from 'lodash';
 import client from './client';
 
 /**
@@ -64,6 +65,9 @@ uiModules.get('apps/searchguard/configuration', [])
                     index[doctypename] = doctypepermissions;
                 }
 
+                // set field prefixes according to FLS mode
+                this.setFlsModeToFields(role.dlsfls[indexname]);
+
                 // move back dls and fls
                 var dlsfls = role.dlsfls[indexname];
                 if(dlsfls) {
@@ -85,7 +89,6 @@ uiModules.get('apps/searchguard/configuration', [])
                     role.tenants[tenant.name] = tenant.permissions;
                 }
             });
-
 
             delete role["tenantsArray"];
 
@@ -118,7 +121,8 @@ uiModules.get('apps/searchguard/configuration', [])
 
                     var dlsfls = {
                         _dls_: "",
-                        _fls_: []
+                        _fls_: [],
+                        _flsmode_: "whitelist"
                     };
 
                     if (index["_dls_"]) {
@@ -130,6 +134,11 @@ uiModules.get('apps/searchguard/configuration', [])
                     delete role.indices[indexname]["_fls_"];
                     delete role.indices[indexname]["_dls_"];
                     role.dlsfls[indexname] = dlsfls;
+
+                    // determine the fls mode and strip any prefixes
+                    this.determineFlsMode(role.dlsfls[indexname]);
+
+                    // sort permissions into actiongroups and single permissions
                     for (var doctypename in index) {
                         var doctype = index[doctypename];
                         var doctypepermissions = backendAPI.sortPermissions(doctype);
@@ -142,7 +151,7 @@ uiModules.get('apps/searchguard/configuration', [])
                 }
             }
 
-            // transform tenants to map
+            // transform tenants to object
             role["tenantsArray"] = [];
             if (role.tenants) {
                 var tenantNames = Object.keys(role.tenants).sort();
@@ -159,4 +168,57 @@ uiModules.get('apps/searchguard/configuration', [])
             delete role["tenants"];
             return role;
         };
+
+        /**
+         * Determine the FLS mode (exclude/include) and
+         * strip the prefixes from the fields for
+         * display purposes. Rule here is that if one field
+         * is excluded, i.e. prefixed with a tilde, we
+         * assume exclude (blacklist) mode.
+         * @param dlsfls
+         */
+        this.determineFlsMode = function (dlsfls) {
+            // default is whitelisting
+            dlsfls["_flsmode_"] = "whitelist";
+            // any fields to set?
+            var flsFields = dlsfls["_fls_"];
+            if (isEmpty(flsFields) || !Array.isArray(flsFields)) {
+                return;
+            }
+            for (var index = 0; index < flsFields.length; ++index) {
+                var field = flsFields[index];
+                if (field.startsWith("~")) {
+                    // clean multiple tildes at the beginning, just in case
+                    flsFields[index] = field.replace(/^\~+/, '');
+                    dlsfls["_flsmode_"] = "blacklist";
+                }
+            }
+        }
+
+        /**
+         * Ensure that all fields are either prefixed with
+         * a tilde, or no field is prefixed with a tilde, based
+         * on the exclude/include mode of FLS.
+         * @param dlsfls
+         */
+        this.setFlsModeToFields = function(dlsfls) {
+
+
+            // any fields to set?
+            var flsFields = dlsfls["_fls_"];
+            if (isEmpty(flsFields) || !Array.isArray(flsFields)) {
+                return;
+            }
+
+            for (var index = 0; index < flsFields.length; ++index) {
+                var field = flsFields[index];
+                // remove any tilde from beginning of string, in case
+                // the user has added it in addition to setting mode to blacklist
+                // We need just a single tilde here.
+                field = field.replace(/^\~+/, '');
+                if (!field.startsWith("~") && dlsfls["_flsmode_"] == "blacklist") {
+                    flsFields[index] = "~" + field;
+                }
+            }
+        }
     });
