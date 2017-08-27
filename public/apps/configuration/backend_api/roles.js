@@ -97,6 +97,8 @@ uiModules.get('apps/searchguard/configuration', [])
 
         this.postFetch = (role) => {
 
+            role = backendAPI.cleanArraysFromDuplicates(role);
+
             // separate action groups and single permissions on cluster level
             var clusterpermissions = backendAPI.sortPermissions(role.cluster);
             role["cluster"] = {};
@@ -202,8 +204,6 @@ uiModules.get('apps/searchguard/configuration', [])
          * @param dlsfls
          */
         this.setFlsModeToFields = function(dlsfls) {
-
-
             // any fields to set?
             var flsFields = dlsfls["_fls_"];
             if (isEmpty(flsFields) || !Array.isArray(flsFields)) {

@@ -53,6 +53,7 @@ uiModules.get('apps/searchguard/configuration', [])
         };
 
         this.postFetch = (rolemapping) => {
+            rolemapping = backendAPI.cleanArraysFromDuplicates(rolemapping);
             return rolemapping;
         };
 

@@ -68,6 +68,7 @@ uiModules.get('apps/searchguard/configuration', [])
         };
 
         this.postFetch = (actiongroup) => {
+            actiongroup = backendAPI.cleanArraysFromDuplicates(actiongroup);
             // we want to have two arrays, one with other action groups, one with single permissions
             var actiongroups = [];
             var permissions = [];

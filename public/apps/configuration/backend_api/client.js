@@ -1,6 +1,8 @@
 import { uiModules } from 'ui/modules';
 import { merge } from 'lodash';
 import { uniq } from 'lodash';
+import { isPlainObject } from 'lodash';
+import { isEmpty } from 'lodash';
 
 /**
  * Backend API client service.
@@ -14,7 +16,7 @@ uiModules.get('apps/searchguard/configuration', [])
 
         const AUTH_BACKEND_API_ROOT = "/api/v1/configuration";
 
-        this.testConnection = () => {
+        this.testConnection =  () => {
 
             return $http.post(`${AUTH_BACKEND_API_ROOT}/get/config`, this.getPayloadDataWithCertificates(null))
                 .then((response) => {
@@ -29,13 +31,13 @@ uiModules.get('apps/searchguard/configuration', [])
                 });
         };
 
-        this.get = (resourceName, id) => {
+        this.get = function(resourceName, id) {
             return $http.post(`${AUTH_BACKEND_API_ROOT}/get/${resourceName}/${id}`, this.getPayloadDataWithCertificates(null))
                 .then((response) => {
                     return response.data;
                 })
                 .catch((error) => {
-                    if(error.status == 403) {
+                    if (error.status == 403) {
                         kbnUrl.change('/');
                         notify.error("Authentication failed");
                     } else {
@@ -52,7 +54,7 @@ uiModules.get('apps/searchguard/configuration', [])
                     notify.info(response.data.message);
                 })
                 .catch((error) => {
-                    if(error.status == 403) {
+                    if (error.status == 403) {
                         kbnUrl.change('/');
                         notify.error("Authentication failed");
                     } else {
@@ -68,7 +70,7 @@ uiModules.get('apps/searchguard/configuration', [])
                     notify.info(response.data.message);
                 })
                 .catch((error) => {
-                    if(error.status == 403) {
+                    if (error.status == 403) {
                         kbnUrl.change('/');
                         notify.error("Authentication failed");
                     } else {
@@ -78,13 +80,13 @@ uiModules.get('apps/searchguard/configuration', [])
                 });
         };
 
-        this.list = (resourceName) => {
+        this.list = (resourceName)  => {
             return $http.post(`${AUTH_BACKEND_API_ROOT}/get/${resourceName}`, this.getPayloadDataWithCertificates(null))
                 .then((response) => {
                     return response.data;
                 })
                 .catch((error) => {
-                    if(error.status == 403) {
+                    if (error.status == 403) {
                         kbnUrl.change('/');
                         notify.error("Authentication failed");
                     } else {
@@ -100,7 +102,7 @@ uiModules.get('apps/searchguard/configuration', [])
                     notify.info(response.data.message);
                 })
                 .catch((error) => {
-                    if(error.status == 403) {
+                    if (error.status == 403) {
                         kbnUrl.change('/');
                         notify.error("Authentication failed");
                     } else {
@@ -128,6 +130,38 @@ uiModules.get('apps/searchguard/configuration', [])
             }
         }
 
+        this.cleanArraysFromDuplicates = function(theobject) {
+
+
+
+            // We assume we don't have any mixed arrays,
+            // i.e. only arrays of one type
+            if (Array.isArray(theobject) && !isEmpty(theobject)) {
+
+                var firstEntry = theobject[0];
+
+                // string arrays, clean it
+                if (isString(firstEntry)) {
+                    return this.cleanArray(theobject);
+                }
+
+                // object array, traverse down
+                if (isPlainObject(firstEntry)) {
+                    for(var i = 0; i<theobject.length; i++)
+                    return this.cleanArraysFromDuplicates(theobject[i]);
+                }
+            }
+
+            // Object, traverse keys
+            if (isPlainObject(theobject)) {
+                var keys = Object.keys(theobject);
+                for (var i = 0; i < keys.length; i++) {
+                    theobject[keys[i]] = this.cleanArraysFromDuplicates(theobject[keys[i]])
+                }
+            }
+            return theobject;
+        }
+
         this.mergeCleanArray = (array1, array2) => {
             var merged = [];
             merged = merged.concat(array1);
@@ -138,6 +172,9 @@ uiModules.get('apps/searchguard/configuration', [])
 
 
         this.cleanArray = (thearray) => {
+            if (!Array.isArray(thearray)) {
+                return;
+            }
             // remove empty entries
             thearray = thearray.filter(e => String(e).trim());
             // remove duplicate entries
@@ -163,4 +200,8 @@ uiModules.get('apps/searchguard/configuration', [])
             }
         };
 
+        // taken from lodas, not provided by Kibana
+        var isString = function(val) {
+            return typeof val === 'string' || ((!!val && typeof val === 'object') && Object.prototype.toString.call(val) === '[object String]');
+        }
     });

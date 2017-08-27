@@ -55,6 +55,7 @@ uiModules.get('apps/searchguard/configuration', [])
         };
 
         this.postFetch = (user) => {
+            user = backendAPI.cleanArraysFromDuplicates(user);
             delete user["hash"];
             user["password"] = "";
             user["passwordConfirmation"] = "";
