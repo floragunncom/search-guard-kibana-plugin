@@ -23,6 +23,7 @@ import internalusers from './sections/internalusers';
 import actiongroups from './sections/actiongroups';
 import rolemappings from './sections/rolemappings';
 import roles from './sections/roles';
+import sgconfiguration from './sections/sgconfiguration';
 
 import 'ui/autoload/styles';
 import 'plugins/searchguard/apps/configuration/configuration.less';

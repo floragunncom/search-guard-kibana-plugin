@@ -22,4 +22,12 @@ uiModules.get('apps/searchguard/configuration', [])
             return backendAPI.list(RESOURCE);
         };
 
+
+        this.postFetch = (sgconfig) => {
+
+
+
+            return rolemapping;
+        };
+
     });

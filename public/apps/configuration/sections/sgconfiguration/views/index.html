@@ -8,9 +8,10 @@
         <div class="kuiViewContent kuiViewContent--constrainedWidth ng-scope">
             <div class="kuiViewContentItem">
             <div class="container">
-                    <div class="row" data-ng-repeat="authcname in authcnames">
+                    <div class="row" data-ng-repeat="authc in sortedAuthc">
                         <div class="col-xs-12">
-                            {{authcname}}
+                            <accordeon title="{{authc.name}}" is-collapsed="true">
+                            </accordeon>
                         </div>
                     </div>
                 </div>

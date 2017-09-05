@@ -18,9 +18,9 @@ app.controller('sgBaseController', function ($scope, $element, $route, backendAc
 
     // get actiongroups for autocomplete
     // todo: check lazy loading
-    //backendActionGroups.list().then((response) => {
-    //    $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete(Object.keys(response.data));
-    //});
+    backendActionGroups.list().then((response) => {
+        $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete(Object.keys(response.data));
+    });
 
     $scope.aceLoaded = (editor) => {
         editor.session.setOptions({
