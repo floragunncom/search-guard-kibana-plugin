@@ -236,18 +236,9 @@ export default function (kibana) {
 
             // todo: config stuff from here
             // todo: check if enabled
-            require('./lib/configuration/routes/routes')(pluginRoot, server, APP_ROOT, API_ROOT);
 
-            server.state('searchguard_certificates', {
-                ttl: null,
-                path: '/',
-                isSecure: false,
-                isHttpOnly: false,
-                clearInvalid: true, // remove invalid cookies
-                strictHeader: true, // don't allow violations of RFC 6265
-                encoding: 'iron',
-                password: config.get("searchguard.cookie.password")
-            });
+            require('./lib/configuration/routes/routes')(pluginRoot, server, APP_ROOT, API_ROOT);
+            require('./lib/system/routes')(pluginRoot, server, APP_ROOT, API_ROOT);
 
             // todo: end config stuff
 

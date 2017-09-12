@@ -112,16 +112,6 @@ uiModules.get('apps/searchguard/configuration', [])
                 });
         };
 
-        //this.setCertificates = (certificates) => {
-        //    return $http.post(`${AUTH_BACKEND_API_ROOT}/certificates`, certificates)
-        //        .catch((error) => {
-        //            notify.error(error);
-        //            throw error;
-        //        });
-        //};
-
-        // ----
-
         this.getPayloadDataWithCertificates = (data) => {
             var certificates = sessionStorage.getItem('searchguard_certificates');
             return {
@@ -131,8 +121,6 @@ uiModules.get('apps/searchguard/configuration', [])
         }
 
         this.cleanArraysFromDuplicates = function(theobject) {
-
-
 
             // We assume we don't have any mixed arrays,
             // i.e. only arrays of one type
@@ -164,9 +152,14 @@ uiModules.get('apps/searchguard/configuration', [])
 
         this.mergeCleanArray = (array1, array2) => {
             var merged = [];
-            merged = merged.concat(array1);
-            merged = merged.concat(array2);
+            if (array1){
+                merged = merged.concat(array1);
+            }
+            if (array2) {
+                merged = merged.concat(array2);
+            }
             merged = this.cleanArray(merged);
+            console.log(merged);
             return merged;
         };
 

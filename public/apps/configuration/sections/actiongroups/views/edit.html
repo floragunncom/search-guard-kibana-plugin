@@ -9,9 +9,9 @@
                     <div class="">
                         <form name="objectForm" id="object-form" method="post" ng-submit="saveObject($event)" novalidate style="width:70%">
 
-                            <sgc-form-resource-name></sgc-form-resource-name>
-
                             <p class="error-message" ng-show="errorMessage">{{ errorMessage }}</p>
+
+                            <sgc-form-resource-name></sgc-form-resource-name>
 
                             <sgc-permissions permissionsResource="resource"></sgc-permissions>
 

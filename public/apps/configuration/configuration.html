@@ -9,6 +9,7 @@
                 <p class="error-message" ng-show="errorMessage">{{ errorMessage }}</p>
             </div>
         </div>
+
         <div class="row" ng-if="!authenticated">
             <div class="kuiViewContent kuiViewContent--constrainedWidth ng-scope">
                 <div class="kuiGallery kuiViewContentItem">
@@ -94,6 +95,16 @@
                             Roles
                         </div>
                     </a>
+
+                    <a class="kuiGalleryButton ng-scope" ng-href="#/system" tooltip="Search Guard System Info" tooltip-placement="bottom">
+                        <div class="kuiGalleryButton__image">
+                            <span class="fa fa-info fa-5x"></span>
+                        </div>
+                        <div lass="kuiGalleryButton__label" data-test-subj="sg_system" class="ng-binding">
+                            System Info
+                        </div>
+                    </a>
+
 
                     <a class="kuiGalleryButton ng-scope" ng-click="clearCache()" tooltip="Configure Internal Users" tooltip-placement="bottom">
                         <div class="kuiGalleryButton__image">

@@ -1,0 +1,191 @@
+<div ng-controller="sgBaseController">
+
+    <div class="searchguard app-container ng-scope" id="section-editor" ng-controller="sgSystemController">
+
+        <sgc-header></sgc-header>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12">
+                    <a ng-href="#/" class="kuiButton kuiButton--basic kuiButton--iconText">
+                        <span class="kuiButton__icon kuiIcon fa-chevron-left"></span>
+                        Back
+                    </a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div>
+                        <h3>Cluster</h3>
+                        <table class="kuiTable">
+                            <thead>
+                                <tr>
+                                    <th class="kuiTableHeaderCell kuiTableHeaderCell">
+                                        Name
+                                    </th>
+                                    <th class="kuiTableHeaderCell kuiTableHeaderCell">
+                                        Value
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr data-test-subj="userRow" class="kuiTableRow">
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <div class="kuiTableRowCell__liner">
+                                            Clustername
+                                        </div>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                        <div ng-bind="systeminfo.cluster_name" class="kuiTableRowCell__liner"></div>
+                                    </td>
+                                </tr>
+                                <tr data-test-subj="userRow" class="kuiTableRow">
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <div class="kuiTableRowCell__liner">
+                                            Nodes
+                                        </div>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                        <div ng-bind="systeminfo._nodes.total" class="kuiTableRowCell__liner"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h3>License</h3>
+
+                        <div ng-if="!systeminfo.sg_license.is_valid">
+                            <p class="error-message">
+                                {{systeminfo.sg_license.is_valid}}
+                                You're running Search Guard without a valid license.
+                                <br><br>
+                                Required action:
+                                <br>
+                                <div ng-bind="systeminfo.sg_license.action"></div>
+                            </p>
+                        </div>
+
+                        <table class="kuiTable">
+                            <thead>
+                            <tr>
+                                <th class="kuiTableHeaderCell kuiTableHeaderCell">
+                                    Name
+                                </th>
+                                <th class="kuiTableHeaderCell kuiTableHeaderCell">
+                                    Value
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr data-test-subj="userRow" class="kuiTableRow">
+                                <td class="kuiTableRowCell cellAlignTop">
+                                    <div class="kuiTableRowCell__liner">
+                                        Type
+                                    </div>
+                                </td>
+                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                    <div ng-bind="systeminfo.sg_license.type" class="kuiTableRowCell__liner"></div>
+                                </td>
+                            </tr>
+                            <tr data-test-subj="userRow" class="kuiTableRow">
+                                <td class="kuiTableRowCell cellAlignTop">
+                                    <div class="kuiTableRowCell__liner">
+                                        Nodes
+                                    </div>
+                                </td>
+                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                    <div class="kuiTableRowCell__liner">{{getLicenseNodeCount()}}</div>
+                                </td>
+                            </tr>
+                            <tr data-test-subj="userRow" class="kuiTableRow">
+                                <td class="kuiTableRowCell cellAlignTop">
+                                    <div class="kuiTableRowCell__liner">
+                                        Issued to
+                                    </div>
+                                </td>
+                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                    <div ng-bind="systeminfo.sg_license.issued_to" class="kuiTableRowCell__liner"></div>
+                                </td>
+                            </tr>
+
+                            <tr data-test-subj="userRow" class="kuiTableRow">
+                                <td class="kuiTableRowCell cellAlignTop">
+                                    <div class="kuiTableRowCell__liner">
+                                        UID
+                                    </div>
+                                </td>
+                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                    <div ng-bind="systeminfo.sg_license.uid" class="kuiTableRowCell__liner"></div>
+                                </td>
+                            </tr>
+
+                            <tr data-test-subj="userRow" class="kuiTableRow">
+                                <td class="kuiTableRowCell cellAlignTop">
+                                    <div class="kuiTableRowCell__liner">
+                                        Start Date
+                                    </div>
+                                </td>
+                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                    <div ng-bind="systeminfo.sg_license.start_date" class="kuiTableRowCell__liner"></div>
+                                </td>
+                            </tr>
+                            <tr data-test-subj="userRow" class="kuiTableRow">
+                                <td class="kuiTableRowCell cellAlignTop">
+                                    <div class="kuiTableRowCell__liner">
+                                        End Date
+                                    </div>
+                                </td>
+                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                    <div ng-bind="systeminfo.sg_license.expiry_date" class="kuiTableRowCell__liner"></div>
+                                </td>
+                            </tr>
+                            <tr data-test-subj="userRow" class="kuiTableRow">
+                                <td class="kuiTableRowCell cellAlignTop">
+                                    <div class="kuiTableRowCell__liner">
+                                        Days left
+                                    </div>
+                                </td>
+                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                    <div ng-bind="systeminfo.sg_license.expiry_in_days" class="kuiTableRowCell__liner"></div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <h3>Active Enterprise Modules</h3>
+                        <table class="kuiTable">
+                            <thead>
+                            <tr>
+                                <th class="kuiTableHeaderCell kuiTableHeaderCell">
+                                    Name
+                                </th>
+                                <th class="kuiTableHeaderCell kuiTableHeaderCell">
+                                    Version
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr data-test-subj="userRow" class="kuiTableRow" data-ng-repeat="modulename in keys(modules).sort()">
+                                <td class="kuiTableRowCell cellAlignTop">
+                                    <div class="kuiTableRowCell__liner" ng-bind="modulename"></div>
+                                </td>
+                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                    <div ng-bind="modules[modulename].version" class="kuiTableRowCell__liner"></div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12" style="margin-bottom: 20px; margin-top: 20px;">
+                    <a ng-href="#/" class="kuiButton kuiButton--basic kuiButton--iconText">
+                        <span class="kuiButton__icon kuiIcon fa-chevron-left"></span>
+                        Back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

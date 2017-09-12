@@ -1,11 +1,5 @@
 <div class="angucomplete-holder">
-    <input id="{{id}}_value" ng-model="selectedObject" type="text" placeholder="{{placeholder}}" class="{{inputClass}}" onmouseup="this.select();" ng-focus="resetHideResults()" ng-blur="hideResults()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
-
-    <!--
-    <button style="display:inline-block" type="button" ng-click="remove()" class="kuiButton kuiButton--danger kuiButton--iconText">
-        <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
-    </button>
-    -->
+    <input id="{{id}}_value" required ng-model="selectedObject" type="text" placeholder="{{placeholder}}" class="{{inputClass}}" onmouseup="this.select();" ng-focus="resetHideResults()" ng-blur="hideResults()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
     <div id="{{id}}_dropdown" class="angucomplete-dropdown" ng-if="showDropdown">
         <div class="angucomplete-searching" ng-show="searching">Searching...</div>
         <div class="angucomplete-searching" ng-show="!searching && (!results || results.length == 0)">No results found

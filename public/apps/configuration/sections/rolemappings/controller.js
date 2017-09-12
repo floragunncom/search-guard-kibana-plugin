@@ -7,11 +7,11 @@ const app = uiModules.get('apps/searchguard/configuration', []);
 app.controller('sgRoleMappingsController', function ($scope, $element, $route, createNotifier, backendRoleMappings, kbnUrl) {
 
     $scope.service = backendRoleMappings;
-
+    $scope.loaded = false;
     $scope.numresources = "0";
     $scope.resources = {};
 
-    $scope.title = "Manage Roles Mapping Groups";
+    $scope.title = "Manage Role Mappings";
 
     $scope.edit = function(rolemapping) {
         kbnUrl.change('/rolemappings/edit/' + rolemapping );
@@ -40,16 +40,17 @@ app.controller('sgRoleMappingsController', function ($scope, $element, $route, c
         $scope.resourcenames = Object.keys(response.data).sort();
         $scope.resources = response.data;
         $scope.numresources = response.total;
+        $scope.loaded = true;
     });
 
 });
 
-app.controller('sgEditRoleMappingsController', function ($scope, $element, $route, $location, $routeParams, createNotifier, backendRoleMappings, kbnUrl) {
+app.controller('sgEditRoleMappingsController', function ($scope, $element, $route, $location, $routeParams, createNotifier, backendRoleMappings, backendAPI, kbnUrl) {
 
     $scope.service = backendRoleMappings;
     $scope.$parent.service = backendRoleMappings;
-    $scope.resourcelabel = "Role mapping";
-
+    $scope.resourcelabel = "Search Guard role";
+    $scope.loaded = false;
     $scope.resource = {};
     $scope.resourcename = "";
     $scope.resourcenames = [];
@@ -81,6 +82,7 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
             $scope.resource = $scope.service.emptyModel();
             $scope.isNew = true;
         }
+        $scope.loaded = true;
     });
 
     $scope.cancel = function () {
@@ -105,12 +107,17 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
         }
 
         if ($scope.isNew && $scope.resourcenames.indexOf($scope.resourcename) != -1) {
-            $scope.errorMessage = 'Username already exists, please choose another one.';
+            $scope.errorMessage = 'Role mapping for Search Guard group "'+$scope.resourcename+'"already exists, please choose another one.';
             return;
         }
 
-        if ($scope.resource.password !== $scope.resource.passwordConfirmation) {
-            $scope.errorMessage = 'Passwords do not match.';
+        // check for empty arrays
+        $scope.resource.users = backendAPI.cleanArray($scope.resource.users);
+        $scope.resource.backendroles = backendAPI.cleanArray($scope.resource.backendroles);
+        $scope.resource.hosts = backendAPI.cleanArray($scope.resource.hosts);
+
+        if ($scope.resource.users.length == 0 && $scope.resource.backendroles.length == 0 && $scope.resource.hosts.length == 0) {
+            $scope.errorMessage = 'Please configure at least one of users, backend roles or hosts.';
             return;
         }
 

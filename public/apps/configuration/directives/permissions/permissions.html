@@ -6,11 +6,18 @@
                 Action Groups
             </th>
 
-            <th class="kuiTableHeaderCell">
+            <th class="kuiTableHeaderCell tableHeaderCellIndexGroups actions">
+                <input type="checkbox" data-ng-model="showAdvanced"> Show Advanced</td>
             </th>
+
         </tr>
         </thead>
-        <tbody >
+        <tbody>
+        <tr class="kuiTableRow" ng-show="!permissionsResource.actiongroups.length">
+            <td class="kuiTableRowCell cellAlignTop kuiNoItems sgNoItems" colspan="2">
+                    No Action Groups found.
+            </td>
+        </tr>
         <tr data-test-subj="userRow" class="kuiTableRow" data-ng-repeat="actiongroup in permissionsResource.actiongroups track by $index" >
             <td class="kuiTableRowCell cellAlignTop">
                 <fieldset class="marginbottom--small" id="object-form-actiongroups">
@@ -33,7 +40,9 @@
             </td>
         </tr>
         <tr class="kuiTableRow">
-            <td class="kuiTableRowCell cellAlignTop actions"></td>
+            <td class="kuiTableRowCell cellAlignTop ">
+
+            </td>
             <td class="kuiTableRowCell cellAlignTop actions">
                 <button type="button" ng-click="addArrayEntry(permissionsResource, 'actiongroups', '')" ng-disabled="lastArrayEntryEmpty(permissionsResource.actiongroups)" class="kuiButton kuiButton--primary kuiButton--iconText">
                     <span class="kuiButton__icon kuiIcon fa-plus"></span>
@@ -45,11 +54,11 @@
     </table>
 
     <!-- Permissions Table -->
-    <table class="kuiTable tableIndexGroups">
+    <table class="kuiTable tableIndexGroups" ng-if="showAdvanced">
         <thead>
         <tr>
             <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
-                Permissions
+                Single Permissions
             </th>
 
             <th class="kuiTableHeaderCell">
@@ -57,10 +66,15 @@
         </tr>
         </thead>
         <tbody>
+        <tr class="kuiTableRow" ng-show="!permissionsResource.permissions.length">
+            <td class="kuiTableRowCell cellAlignTop kuiNoItems sgNoItems" colspan="2">
+                No Single Permissions found.
+            </td>
+        </tr>
         <tr data-test-subj="userRow" class="kuiTableRow" data-ng-repeat="permission in permissionsResource.permissions track by $index">
             <td class="kuiTableRowCell cellAlignTop">
                 <fieldset class="marginbottom--small" id="object-form-actiongroups">
-                    <input type="text" class="kuiTextInput fullwidth" pattern="^(cluster:.*|indices:.*)" title="Permissions need to start with cluster: or indices:" ng-model="permissionsResource.permissions[$index]" placeholder="Start with cluster: or indices:">
+                    <input type="text" class="kuiTextInput fullwidth" required pattern="^(cluster:.*|indices:.*)" title="Permissions need to start with cluster: or indices:" ng-model="permissionsResource.permissions[$index]" placeholder="Start with cluster: or indices:">
                 </fieldset>
             </td>
             <td class="kuiTableRowCell cellAlignTop actions">
@@ -74,7 +88,7 @@
             <td class="kuiTableRowCell cellAlignTop actions">
                 <button type="button" ng-click="addArrayEntry(permissionsResource, 'permissions', '')" ng-disabled="lastArrayEntryEmpty(permissionsResource.permissions)" class="kuiButton kuiButton--primary kuiButton--iconText">
                     <span class="kuiButton__icon kuiIcon fa-plus"></span>
-                    Add Permissions
+                    Add Single Permission
                 </button>
             </td>
         </tr>

@@ -20,6 +20,8 @@ uiModules.get('apps/searchguard/configuration', [])
             plural: 'Action groups'
         };
 
+        this.newLabel = "Action Group name";
+
         this.list = () => {
             return backendAPI.list(RESOURCE);
         };

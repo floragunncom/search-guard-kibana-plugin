@@ -9,9 +9,9 @@
                     <div class="">
                         <form name="objectForm" id="object-form" method="post" ng-submit="saveObject($event)" novalidate style="width:70%">
 
-                            <sgc-form-resource-name></sgc-form-resource-name>
-
                             <p class="error-message" ng-show="errorMessage">{{ errorMessage }}</p>
+
+                            <sgc-form-resource-name></sgc-form-resource-name>
 
                             <!-- User mapping -->
                             <table class="kuiTable tableIndexGroups">
@@ -29,7 +29,7 @@
                                 <tr data-test-subj="userRow" class="kuiTableRow" data-ng-repeat="user in resource.users track by $index">
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <fieldset class="marginbottom--small" id="object-form-backendroles">
-                                            <input type="text" class="kuiTextInput fullwidth" ng-model="resource.users[$index]" name="">
+                                            <input type="text" required class="kuiTextInput fullwidth" ng-model="resource.users[$index]" name="">
                                         </fieldset>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop actions">
@@ -66,7 +66,7 @@
                                 <tr data-test-subj="userRow" class="kuiTableRow" data-ng-repeat="backendrole in resource.backendroles track by $index">
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <fieldset class="marginbottom--small" id="object-form-backendroles">
-                                            <input type="text" class="kuiTextInput fullwidth" ng-model="resource.backendroles[$index]" name="">
+                                            <input required type="text" class="kuiTextInput fullwidth" ng-model="resource.backendroles[$index]" name="">
                                         </fieldset>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop actions">
@@ -103,7 +103,7 @@
                                 <tr data-test-subj="userRow" class="kuiTableRow" data-ng-repeat="host in resource.hosts track by $index">
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <fieldset class="marginbottom--small" id="object-form-hosts">
-                                            <input type="text" class="kuiTextInput fullwidth" ng-model="resource.hosts[$index]" name="">
+                                            <input required type="text" class="kuiTextInput fullwidth" ng-model="resource.hosts[$index]" name="">
                                         </fieldset>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop actions">

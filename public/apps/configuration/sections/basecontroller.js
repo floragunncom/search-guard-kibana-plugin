@@ -1,26 +1,53 @@
+import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules'
 import { get } from 'lodash';
 import { uniq } from 'lodash';
 import { orderBy } from 'lodash';
+import { Notifier } from 'ui/notify/notifier';
 
 import '../backend_api/actiongroups';
 const app = uiModules.get('apps/searchguard/configuration', []);
 
-app.controller('sgBaseController', function ($scope, $element, $route, backendActionGroups, createNotifier, kbnUrl) {
+app.controller('sgBaseController', function ($scope, $element, $route, backendActionGroups, $http, createNotifier, kbnUrl) {
+
+    var APP_ROOT = `${chrome.getBasePath()}`;
+    var API_ROOT = `${APP_ROOT}/api/v1`;
+    let notify = new Notifier({});
 
     $scope.title = "Search Guard Base Controller";
     $scope.actiongroupsAutoComplete = "";
+    $scope.licensevalid = "";
     $scope.query = "";
     $scope.resource = {};
     $scope.showEditor = false;
     $scope.toggleEditorLabel = "Show JSON";
     $scope.resourceAsJson = null;
 
-    // get actiongroups for autocomplete
-    // todo: check lazy loading
-    backendActionGroups.list().then((response) => {
-        $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete(Object.keys(response.data));
-    });
+
+    $scope.loadActionGroups = () => {
+        backendActionGroups.list().then((response) => {
+            $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete(Object.keys(response.data));
+        });
+    }
+
+    $scope.getActionGroupsAutoComplete = () => {
+        backendActionGroups.list().then((response) => {
+            return backendActionGroups.listAutocomplete(Object.keys(response.data));
+        });
+    }
+
+    $scope.checkValidLicense = () => {
+        $http.get(`${API_ROOT}/systeminfo`)
+            .then(
+            (response) => {
+                $scope.licensevalid = response.data.sg_license.is_valid;
+            },
+            (error) => notify.error(error)
+        );
+    }
+
+    $scope.loadActionGroups();
+    $scope.checkValidLicense();
 
     $scope.aceLoaded = (editor) => {
         editor.session.setOptions({

@@ -1,156 +1,47 @@
 <div ng-controller="sgBaseController">
 
-    <div class="searchguard app-container ng-scope" id="section-editor" ng-controller="sgEditRolesController">
+    <div class="searchguard app-container" ng-controller="sgEditRolesController">
 
         <sgc-edit-header></sgc-edit-header>
 
         <div class="container">
             <div class="row">
                 <div class="col-xs-12">
-                    <div class="">
+                    <sgc-form-resource-name></sgc-form-resource-name>
+                </div>
+            </div>
+            <div class="row">
 
-                        <form name="objectForm" id="object-form" method="post" ng-submit="saveObject($event)" novalidate style="width:70%">
-
-                            <sgc-form-resource-name></sgc-form-resource-name>
-
-                            <p class="error-message" ng-show="errorMessage">{{ errorMessage }}</p>
-
-                            <accordeon title="Cluster permissions" is-collapsed="true" ng-if="!isNew">
-                                <sgc-permissions permissionsResource="resource.cluster"></sgc-permissions>
-                            </accordeon>
-
-                            <accordeon title="Index permissions" is-collapsed="true" ng-if="!isNew">
-
-                                <!-- Add index button -->
-                                <table class="tableIndexGroups fullwidth">
-                                    <tr>
-                                        <td>
-                                        </td>
-                                        <td class="actions">
-                                            <button type="button" class="kuiButton kuiButton--primary kuiButton--iconText" ng-click="shownewresource = true">
-                                                <span class="kuiButton__icon kuiIcon fa-plus"></span>
-                                                Add Index
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </table>
-
-                                <!-- Add index form -->
-                                <table class="kuiTable tableIndexGroups" ng-show="shownewresource">
-                                    <thead>
-                                    <tr>
-                                        <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
-                                            Index Name
-                                        </th>
-                                        <th class="kuiTableHeaderCell">
-                                        </th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr data-test-subj="userRow" class="kuiTableRow">
-                                        <td class="kuiTableRowCell cellAlignTop">
-                                            <fieldset class="marginbottom--small" id="object-form-actiongroups">
-                                                <input type="text" class="kuiTextInput fullwidth" ng-model="newresourcename" name="">
-                                                {{newresourcename}}
-                                            </fieldset>
-                                        </td>
-                                        <td class="kuiTableRowCell cellAlignTop actions">
-                                            <button type="button" class="kuiButton kuiButton--primary kuiButton--text" ng-click="submitAddIndex(newresourcename)">Add</button>
-                                            <button type="button" class="kuiButton kuiButton--secondary kuiButton--text" ng-click="shownewresource = false;newresourcename=''">Cancel</button>
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-
-                                <table class="kuiTable">
-                                    <thead>
-                                        <tr>
-                                            <th class="kuiTableHeaderCell">
-                                                Index name
-                                            </th>
-                                            <th class="kuiTableHeaderCell">
-
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr class="kuiTableRow" data-ng-repeat="indexname in keys(resource.indices).sort() track by $index">
-                                            <td class="kuiTableRowCell sevenwidth">
-                                                <a ng-href="#/roles/editindex/{{resourcename}}/{{indexname | escape}}">
-                                                    {{indexname}}
-                                                </a>
-                                            </td>
-                                            <td class="kuiTableRowCell actions">
-                                                <a ng-href="#/roles/editindex/{{resourcename}}/{{indexname | escape}}" class="kuiButton kuiButton--primary kuiButton--iconText">
-                                                    <span class="kuiButton__icon kuiIcon fa-edit"></span>
-                                                </a>
-                                                <a ng-click="removeObjectKey(resource.indices, indexname)" class="kuiButton kuiButton--danger kuiButton--iconText">
-                                                    <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </accordeon>
-
-                            <accordeon title="Tenants" is-collapsed="true" ng-if="!isNew">
-                                <table class="kuiTable">
-                                    <thead>
-                                    <tr>
-                                        <th class="kuiTableHeaderCell" style="width: 50%;">
-                                            Tenant
-                                        </th>
-                                        <th class="kuiTableHeaderCell">
-                                            Permissions
-                                        </th>
-                                        <th class="kuiTableHeaderCell">
-
-                                        </th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr class="kuiTableRow" data-ng-repeat="tenant in sortObjectArray(resource.tenantsArray,'name') track by $index">
-                                        <td class="kuiTableRowCell">
-                                            <fieldset class="marginbottom--small" id="object-form-actiongroups">
-                                                <input type="text" class="kuiTextInput fullwidth" ng-model="resource.tenantsArray[$index].name">
-                                            </fieldset>
-                                        </td>
-                                        <td class="kuiTableRowCell cellAlignTop">
-                                            <select name="permissionsSelect" ng-model="resource.tenantsArray[$index].permissions">
-                                                <option value="RW">Read / Write</option>
-                                                <option value="RO">Read Only</option>
-                                            </select>
-                                        </td>
-                                        <td class="kuiTableRowCell actions">
-                                            <a ng-href="#/roles/editindex/{{resourcename}}/{{indexname | escape}}" class="kuiButton kuiButton--primary kuiButton--iconText">
-                                                <span class="kuiButton__icon kuiIcon fa-edit"></span>
-                                            </a>
-                                            <a ng-click="removeFromObjectArray(resource.tenantsArray, $index, resource.tenantsArray[$index].name)" class="kuiButton kuiButton--danger kuiButton--iconText">
-                                                <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    <tr class="kuiTableRow">
-                                        <td class="kuiTableRowCell cellAlignTop actions"></td>
-                                        <td class="kuiTableRowCell cellAlignTop actions"></td>
-                                        <td class="kuiTableRowCell cellAlignTop actions">
-                                            <button type="button" ng-click="addToObjectArray(resource.tenantsArray, {name: '', permissions: 'RW'})" ng-disabled="lastArrayEntryEmpty(permissionsResource.permissions)" class="kuiButton kuiButton--primary kuiButton--iconText">
-                                                <span class="kuiButton__icon kuiIcon fa-plus"></span>
-                                                Add Tenant
-                                            </button>
-                                        </td>
-                                    </tr>
-
-                                    </tbody>
-                                </table>
-
-                            </accordeon>
-
-                            <div class="formsubmit">
-                                <button class="kuiButton kuiButton--primary kuiButton--text" type="submit">Submit</button>
-                                <button class="kuiButton kuiButton--secondary kuiButton--text" type="submit" ng-click="cancel()">Cancel</button>
+                <div class="kuiViewContent kuiViewContent--constrainedWidth ng-scope" style="text-align: center;">
+                    <div class="kuiGallery kuiViewContentItem" style="text-align: center;">
+                        <a class="kuiGalleryButton ng-scope" ng-click="editClusterPermissions()">
+                            <div class="kuiGalleryButton__image">
+                                <span class="fa fa-lock fa-5x"></span>
                             </div>
-                        </form>
+                            <div lass="kuiGalleryButton__label" data-test-subj="sg_config" class="ng-binding">
+                                Manage Cluster Permissions
+                            </div>
+                        </a>
+
+                        <a class="kuiGalleryButton ng-scope" ng-click="editIndexPermissions()"
+                           tooltip="Configure Internal Users" tooltip-placement="bottom">
+                            <div class="kuiGalleryButton__image">
+                                <span class="fa fa-user fa-5x"></span>
+                            </div>
+                            <div lass="kuiGalleryButton__label" data-test-subj="sg_internal_users" class="ng-binding">
+                                Manage Index Permissions
+                            </div>
+                        </a>
+
+                        <a class="kuiGalleryButton ng-scope" ng-click="editTenants()" tooltip="Configure Internal Users"
+                           tooltip-placement="bottom" >
+                            <div class="kuiGalleryButton__image">
+                                <span class="fa fa-sitemap fa-5x"></span>
+                            </div>
+                            <div lass="kuiGalleryButton__label" data-test-subj="sg_actiongroups" class="ng-binding">
+                                Manage Tenants
+                            </div>
+                        </a>
                     </div>
                 </div>
             </div>

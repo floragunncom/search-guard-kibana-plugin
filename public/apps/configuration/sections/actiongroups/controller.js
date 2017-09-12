@@ -14,6 +14,7 @@ app.controller('sgActionGroupsController', function ($scope, $element, $route, c
 
     $scope.numresources = "0";
     $scope.resources = {};
+    $scope.loaded = false;
 
     $scope.title = "Manage Action Groups";
 
@@ -47,15 +48,17 @@ app.controller('sgActionGroupsController', function ($scope, $element, $route, c
                 $scope.resources[entry] = $scope.service.postFetch(response.data[entry]);
             });
             $scope.numresources = response.total;
+            $scope.loaded = true;
         });
 });
 
-app.controller('sgEditActionGroupsController', function ($scope, $element, $route, $location, $routeParams, createNotifier, backendActionGroups, kbnUrl) {
+app.controller('sgEditActionGroupsController', function ($scope, $element, $route, $location, $routeParams, createNotifier, backendActionGroups, backendAPI,  kbnUrl) {
 
     $scope.service = backendActionGroups
     $scope.$parent.service = backendActionGroups;
     $scope.resourcelabel = "Action Group";
 
+    $scope.loaded = false;
     $scope.resource = {};
     $scope.resourcename = "";
     $scope.resourcenames = [];
@@ -87,6 +90,7 @@ app.controller('sgEditActionGroupsController', function ($scope, $element, $rout
             $scope.resource = $scope.service.emptyModel();
             $scope.isNew = true;
         }
+        $scope.loaded = true;
     });
 
     $scope.cancel = function () {
@@ -107,6 +111,25 @@ app.controller('sgEditActionGroupsController', function ($scope, $element, $rout
 
         if (!form.hasClass('ng-valid')) {
             $scope.errorMessage = 'Please correct all errors and try again.';
+            return;
+        }
+
+        if ($scope.isNew && $scope.resourcenames.indexOf($scope.resourcename) != -1) {
+            $scope.errorMessage = 'Action Group name already exists, please choose another one.';
+            return;
+        }
+
+        if ($scope.resource.actiongroups.indexOf($scope.resourcename) != -1) {
+            $scope.errorMessage = 'An Action Group can not reference itself, please remove entry with name "'+$scope.resourcename+'".';
+            return;
+        }
+
+        // check for empty arrays
+        $scope.resource.actiongroups = backendAPI.cleanArray($scope.resource.actiongroups);
+        $scope.resource.permissions = backendAPI.cleanArray($scope.resource.permissions);
+
+        if ($scope.resource.actiongroups.length == 0 && $scope.resource.permissions.length == 0) {
+            $scope.errorMessage = 'Please configure at least one Action Group or Permission';
             return;
         }
 

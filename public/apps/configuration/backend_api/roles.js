@@ -19,6 +19,8 @@ uiModules.get('apps/searchguard/configuration', [])
             plural: 'Roles'
         };
 
+        this.newLabel = "Role name";
+
         this.list = () => {
             return backendAPI.list(RESOURCE);
         };
@@ -27,9 +29,10 @@ uiModules.get('apps/searchguard/configuration', [])
             return backendAPI.get(RESOURCE, id);
         };
 
-        this.save = (actiongroupname, data) => {
+        this.save = (rolename, data) => {
             var data = this.preSave(data);
-            return backendAPI.save(RESOURCE, actiongroupname, data);
+            console.log(data)
+            return backendAPI.save(RESOURCE, rolename, data);
         };
 
         this.delete = (id) => {
@@ -40,11 +43,12 @@ uiModules.get('apps/searchguard/configuration', [])
             var role = {};
             role["cluster"] = [];
             role["indices"] = {};
+            role["tenantsArray"] = [];
+            role["dlsfls"] = {};
             return role;
         };
 
         this.preSave = (role) => {
-
             delete role["indexnames"];
             // merge cluster permissions
             var clusterpermissions = backendAPI.mergeCleanArray(role.cluster.actiongroups, role.cluster.permissions);
@@ -91,7 +95,7 @@ uiModules.get('apps/searchguard/configuration', [])
             });
 
             delete role["tenantsArray"];
-
+            console.log(role);
             return role;
         };
 
@@ -105,17 +109,17 @@ uiModules.get('apps/searchguard/configuration', [])
             role.cluster["actiongroups"] = clusterpermissions.actiongroups;
             role.cluster["permissions"] = clusterpermissions.permissions;
 
+            // move dls and fls to separate section on top level
+            // otherwise its on the same level as the document types
+            // and it is hard to separate them in the views. We
+            // should think about restructuring the config here, but
+            // for the moment we're fiddling with the model directly
+            role.dlsfls = {};
+
             if (role.indices) {
 
                 // flat list of indexnames, can't be done in view
                 role["indexnames"] = Object.keys(role.indices).sort();
-
-                // move dls and fls to separate section on top level
-                // otherwise its on the same level as the document types
-                // and it is hard to separate them in the views. We
-                // should think about restructuring the config here, but
-                // for the moment we're fiddling with the model directly
-                role.dlsfls = {};
 
                 for (var indexname in role.indices) {
 
@@ -204,6 +208,9 @@ uiModules.get('apps/searchguard/configuration', [])
          * @param dlsfls
          */
         this.setFlsModeToFields = function(dlsfls) {
+            if (!dlsfls) {
+                return;
+            }
             // any fields to set?
             var flsFields = dlsfls["_fls_"];
             if (isEmpty(flsFields) || !Array.isArray(flsFields)) {

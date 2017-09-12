@@ -24,22 +24,20 @@
             ui-ace="{ onLoad: aceLoaded, mode: 'json' }"
             readonly
             ng-model="resourceAsJson"
-            ng-class="{ 'red-border': objectForm.permissionsRaw.$invalid }"
             required
             ng-if="showEditor"
             >
 
     </div>
 
-    <div>
-        <label for="object-form-id-new">New {{service.title.singular}} Name:</label>
+    <div ng-show="isNew">
+        <label for="object-form-id-new">{{service.newLabel}}:</label>
         <input
-                ng-show="isNew"
                 id="object-form-id-new"
                 name="id"
                 type="text"
                 ng-model="resourcename"
-                class="form-control"
+                class="form-control kuiTextInput"
                 autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                 required
                 ng-required="isNew"/>

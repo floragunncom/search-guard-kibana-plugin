@@ -20,6 +20,8 @@ uiModules.get('apps/searchguard/configuration', [])
             plural: 'Internal users'
         };
 
+        this.newLabel = "Username";
+
         this.list = () => {
             return backendAPI.list(RESOURCE);
         };

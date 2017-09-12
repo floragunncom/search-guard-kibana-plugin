@@ -6,3 +6,4 @@ import './accordeon';
 import './angucomplete';
 import './permissions';
 import './fileupload';
+import './header';

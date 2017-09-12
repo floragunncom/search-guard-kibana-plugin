@@ -7,8 +7,8 @@ const app = uiModules.get('apps/searchguard/configuration', []);
 app.controller('sgInternalUsersController', function ($scope, $element, $route, createNotifier, backendInternalUsers, kbnUrl) {
 
     $scope.service = backendInternalUsers;
-
     $scope.numresources = "0";
+    $scope.loaded = false;
 
     $scope.title = "Manage Internal User";
 
@@ -38,6 +38,7 @@ app.controller('sgInternalUsersController', function ($scope, $element, $route, 
         $scope.resourcenames = Object.keys(response.data).sort();
         $scope.resources = response.data;
         $scope.numresources = response.total;
+        $scope.loaded = true;
     });
 
 });
@@ -48,6 +49,7 @@ app.controller('sgEditInternalUsersController', function ($scope, $element, $rou
     $scope.$parent.service = backendInternalUsers;
     $scope.resourcelabel = "Username";
 
+    $scope.loaded = false;
     $scope.resource = {};
     $scope.resourcename = "";
     $scope.resourcenames = [];
@@ -81,6 +83,7 @@ app.controller('sgEditInternalUsersController', function ($scope, $element, $rou
             $scope.resource = $scope.service.emptyModel();
             $scope.isNew = true;
         }
+        $scope.loaded = true;
     });
 
     $scope.cancel = function () {
@@ -94,6 +97,11 @@ app.controller('sgEditInternalUsersController', function ($scope, $element, $rou
 
         const form = $element.find('form[name="objectForm"]');
 
+        if ($scope.isNew && $scope.resourcenames.indexOf($scope.resourcename) != -1) {
+            $scope.errorMessage = 'Username already exists, please choose another one.';
+            return;
+        }
+
         if (form.hasClass('ng-invalid-required')) {
             $scope.errorMessage = 'Please fill in all the required parameters.';
             return;
@@ -101,11 +109,6 @@ app.controller('sgEditInternalUsersController', function ($scope, $element, $rou
 
         if (!form.hasClass('ng-valid')) {
             $scope.errorMessage = 'Please correct all errors and try again.';
-            return;
-        }
-
-        if ($scope.isNew && $scope.resourcenames.indexOf($scope.resourcename) != -1) {
-            $scope.errorMessage = 'Username already exists, please choose another one.';
             return;
         }
 

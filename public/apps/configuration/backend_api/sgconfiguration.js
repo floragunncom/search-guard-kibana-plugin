@@ -24,9 +24,6 @@ uiModules.get('apps/searchguard/configuration', [])
 
 
         this.postFetch = (sgconfig) => {
-
-
-
             return rolemapping;
         };
 
