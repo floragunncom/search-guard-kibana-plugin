@@ -41,12 +41,29 @@ uiModules.get('apps/searchguard/configuration', [])
 
         this.emptyModel = () => {
             var role = {};
-            role["cluster"] = [];
+            role["cluster"] = [""];
             role["indices"] = {};
-            role["tenantsArray"] = [];
-            role["dlsfls"] = {};
+            role["tenants"] = {};
             return role;
         };
+
+        this.addEmptyIndex = (role, indexname, doctypename) => {
+            if (!role.indices) {
+                role["indices"] = {};
+            }
+            if (!role.indices[indexname]) {
+                role.indices[indexname] = {};
+                role.indices[indexname][doctypename] = [];
+                role.dlsfls[indexname] = {
+                    _dls_: "",
+                    _fls_: [],
+                    _flsmode_: "whitelist"
+                };
+            } else {
+                role.indices[indexname][doctypename] = [];
+
+            }
+        }
 
         this.preSave = (role) => {
             delete role["indexnames"];
@@ -95,7 +112,6 @@ uiModules.get('apps/searchguard/configuration', [])
             });
 
             delete role["tenantsArray"];
-            console.log(role);
             return role;
         };
 

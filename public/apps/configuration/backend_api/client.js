@@ -31,7 +31,8 @@ uiModules.get('apps/searchguard/configuration', [])
                 });
         };
 
-        this.get = function(resourceName, id) {
+        this.get = function(resourceName, id, showError) {
+            showError = typeof showError !== 'undefined' ? showError : true;
             return $http.post(`${AUTH_BACKEND_API_ROOT}/get/${resourceName}/${id}`, this.getPayloadDataWithCertificates(null))
                 .then((response) => {
                     return response.data;
@@ -39,11 +40,16 @@ uiModules.get('apps/searchguard/configuration', [])
                 .catch((error) => {
                     if (error.status == 403) {
                         kbnUrl.change('/');
-                        notify.error("Authentication failed");
+                        if (showError) {
+                            notify.error("Authentication failed");
+                            throw error;
+                        }
                     } else {
-                        notify.error(error);
+                        if (showError) {
+                            notify.error(error);
+                            throw error;
+                        }
                     }
-                    throw error;
                 });
         };
 

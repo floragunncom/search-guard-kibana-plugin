@@ -49,7 +49,7 @@ app.controller('sgRolesController', function ($scope, $element, $route, createNo
     });
 });
 
-app.controller('sgEditRolesController', function ($rootScope, $scope, $element, $route, $location, $routeParams, createNotifier, backendRoles, kbnUrl) {
+app.controller('sgEditRolesController', function ($rootScope, $scope, $element, $route, $location, $routeParams, createNotifier, backendRoles, backendRoleMappings, kbnUrl) {
 
     $scope.service = backendRoles;
     $scope.$parent.service = backendRoles;
@@ -58,19 +58,72 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     $scope.resource = {};
     $scope.resourcename = "";
     $scope.resourcenames = [];
+    $scope.rolemapping = {};
     $scope.isNew = true;
-    $scope.query = "";
-    $scope.indexname = "";
-    $scope.newindexname = "";
+
+    $scope.selectedTab = "";
+    $scope.selectedIndex = "";
+    $scope.selectedDocumentType = "";
+
+    $scope.newIndexName = "";
+    $scope.newDocumentTypeName = "";
+
+    $scope.addingIndex = false;
 
     $scope.title = function () {
         return $scope.isNew? "New Role " : "Edit Role '" + $scope.resourcename+"'";
     }
 
+    $scope.getTabCss = function(tabId) {
+        if ($scope.selectedTab == tabId) {
+            return "kuiLocalTab kuiLocalTab-isSelected";
+        } else {
+            return "kuiLocalTab";
+        }
+    }
+
+    $scope.selectTab = function(tabId) {
+        $scope.selectedTab = tabId;
+    }
+
+    $scope.selectIndex = function(indexName) {
+        $scope.selectedIndex = indexName;
+    }
+
+    $scope.selectDocumentType = function(doctype) {
+        $scope.selectedDocumentType = doctype;
+    }
+
+    $scope.addIndex = function() {
+        $scope.addingIndex = true;
+    }
+
+    $scope.deleteDocumentType = function(index, doctype) {
+        $scope.addingIndex = true;
+    }
+
+    $scope.submitAddIndex = function() {
+        $scope.service.addEmptyIndex($scope.resource, $scope.newIndexName, $scope.newDocumentTypeName);
+        $scope.selectedIndex = $scope.newIndexName;
+        $scope.selectedDocumentType = $scope.newDocumentTypeName;
+        $scope.newIndexName = "";
+        $scope.newDocumentTypeName = "";
+        $scope.addingIndex = false;
+    }
+
+    $scope.cancelAddIndex = function() {
+        $scope.newIndexName = "";
+        $scope.newDocumentTypeName = "";
+        $scope.addingIndex = false;
+    }
+
     $scope.service.list().then((response) => {
+        // exisiting role names for form validation
         $scope.resourcenames = Object.keys(response.data);
 
         var rolename = $routeParams.resourcename;
+        var indexname = $routeParams.indexname;
+
         if (rolename) {
             $scope.service.get(rolename)
                 .then((response) => {
@@ -83,41 +136,38 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
                         $scope.isNew = true;
                     }
                     $scope.indexname = $routeParams.indexname;
+                    $scope.loadRoleMapping();
+                    if(indexname) {
+                        $scope.selectedIndex = indexname
+                        $scope.selectedTab = "indexpermissions";
+
+                    } else {
+                        if($scope.resource.indices) {
+                            $scope.selectedIndex = Object.keys($scope.resource.indices).sort()[0];
+                        }
+                        $scope.selectedTab = "overview";
+                    }
+                    if($scope.resource.indices && $scope.resource.indices[$scope.selectedIndex]) {
+                        $scope.selectedDocumentType = Object.keys($scope.resource.indices[$scope.selectedIndex]).sort()[0];
+                    }
                 });
         } else {
-            $scope.resource = $scope.service.emptyModel();
+            $scope.selectedTab = "overview";
+            $scope.resource = $scope.service.postFetch($scope.service.emptyModel());
             $scope.isNew = true;
         }
         $scope.loaded = true;
     });
 
-    $scope.editClusterPermissions = function () {
-        kbnUrl.change('/roles/edit/clusterpermissions/'+$scope.resourcename);
-    }
-
-    $scope.editIndexPermissions = function () {
-        kbnUrl.change('/roles/edit/indexpermissions/'+$scope.resourcename);
-    }
-
-    $scope.editTenants = function () {
-        kbnUrl.change('/roles/edit/tenants/'+$scope.resourcename);
-    }
-
-    $scope.addIndex = function () {
-        $scope.newindexname = "";
-        kbnUrl.change('/roles/index/add/'+$scope.resourcename);
+    $scope.loadRoleMapping = function() {
+        backendRoleMappings.get($scope.resourcename, false)
+            .then((response) => {
+                $scope.rolemapping = response;
+            });
     }
 
     $scope.cancel = function () {
         kbnUrl.change('/roles');
-    }
-
-    $scope.cancelEditRoleSection = function () {
-        kbnUrl.change('/roles/edit/'+$scope.resourcename);
-    }
-
-    $scope.cancelAddIndex = function () {
-        kbnUrl.change('/roles/edit/indexpermissions/'+$scope.resourcename);
     }
 
     $scope.saveObject = (event) => {
@@ -131,41 +181,7 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
             return;
         }
 
-        $scope.service.save($scope.resourcename, $scope.resource).then(() => kbnUrl.change('/roles/edit/'+$scope.resourcename));
-
-        $scope.errorMessage = null;
-
-    };
-
-    $scope.saveNewIndex = (event) => {
-        if (event) {
-            event.preventDefault();
-        }
-        const form = $element.find('form[name="objectForm"]');
-
-        if (form.hasClass('ng-invalid-required')) {
-            $scope.errorMessage = 'Please fill in all the required parameters.';
-            return;
-        }
-
-        if(!$scope.resource.indices) {
-            $scope.resource.indices = {};
-        }
-
-        // todo: check for duplicate names
-        //console.log($scope.resource);
-
-        //$scope.resource.indices[$scope.newindexname] = {
-        //    "*": {
-        //        actiongroups: [],
-        //        permissions: ["therole"]
-        //    }
-        //}
-
-
-
-
-        $scope.service.save($scope.resourcename, $scope.resource).then(() => kbnUrl.change('/roles/edit/indexpermissions/'+$scope.resourcename));
+        $scope.service.save($scope.resourcename, $scope.resource);
 
         $scope.errorMessage = null;
 

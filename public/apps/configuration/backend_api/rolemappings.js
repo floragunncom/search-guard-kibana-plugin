@@ -26,8 +26,9 @@ uiModules.get('apps/searchguard/configuration', [])
             return backendAPI.list(RESOURCE);
         };
 
-        this.get = (id) => {
-            return backendAPI.get(RESOURCE, id);
+        this.get = (id, showError) => {
+            showError = typeof showError !== 'undefined' ? showError : true;
+            return backendAPI.get(RESOURCE, id, showError);
         };
 
         this.save = (actiongroupname, data) => {
