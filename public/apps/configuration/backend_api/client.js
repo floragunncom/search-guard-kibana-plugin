@@ -165,7 +165,6 @@ uiModules.get('apps/searchguard/configuration', [])
                 merged = merged.concat(array2);
             }
             merged = this.cleanArray(merged);
-            console.log(merged);
             return merged;
         };
 
@@ -199,7 +198,7 @@ uiModules.get('apps/searchguard/configuration', [])
             }
         };
 
-        // taken from lodas, not provided by Kibana
+        // taken from lodash, not provided by Kibana
         var isString = function(val) {
             return typeof val === 'string' || ((!!val && typeof val === 'object') && Object.prototype.toString.call(val) === '[object String]');
         }

@@ -94,12 +94,43 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         $scope.selectedDocumentType = doctype;
     }
 
+    $scope.onIndexChange = function() {
+        if($scope.resource.indices && $scope.resource.indices[$scope.selectedIndex]) {
+            $scope.selectedDocumentType = Object.keys($scope.resource.indices[$scope.selectedIndex]).sort()[0];
+        }
+    }
+
     $scope.addIndex = function() {
         $scope.addingIndex = true;
     }
 
-    $scope.deleteDocumentType = function(index, doctype) {
-        $scope.addingIndex = true;
+    $scope.indicesEmpty = function() {
+        if ($scope.resource.indices) {
+            // flat list of indexnames
+            return Object.keys($scope.resource.indices).length == 0;
+        }
+        return true;
+    }
+
+    $scope.deleteDocumentType = function() {
+        if (!confirm("Are you sure you want to delete document type '"+$scope.selectedDocumentType+"' in index '"+$scope.selectedIndex+"'")) {
+            return;
+        }
+        var index = $scope.selectedIndex;
+        var doctype = $scope.selectedDocumentType;
+        if ($scope.resource.indices && $scope.resource.indices[index] && $scope.resource.indices[index][doctype]) {
+            delete $scope.resource.indices[index][doctype];
+            // if last doctype, remove role as well
+            var remainingDocTypes = Object.keys($scope.resource.indices[index]);
+            if (remainingDocTypes.length == 0) {
+                delete $scope.resource.indices[index];
+                delete $scope.resource.dlsfls[index];
+                $scope.selectedDocumentType = "";
+                $scope.selectedIndex = "";
+            } else {
+                $scope.selectedDocumentType = remainingDocTypes[0];
+            }
+        }
     }
 
     $scope.submitAddIndex = function() {
@@ -109,12 +140,14 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         $scope.newIndexName = "";
         $scope.newDocumentTypeName = "";
         $scope.addingIndex = false;
+        $scope.errorMessage = null;
     }
 
     $scope.cancelAddIndex = function() {
         $scope.newIndexName = "";
         $scope.newDocumentTypeName = "";
         $scope.addingIndex = false;
+        $scope.errorMessage = null;
     }
 
     $scope.service.list().then((response) => {
@@ -176,17 +209,44 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         }
         const form = $element.find('form[name="objectForm"]');
 
+        // role name is required
+        if ($scope.objectForm.objectId.$error.required) {
+            $scope.displayErrorOnTab("Please provide a role name.", "overview");
+            return;
+        }
+
+        // duplicate role name
+        if ($scope.isNew && $scope.resourcenames.indexOf($scope.resourcename) != -1) {
+            $scope.displayErrorOnTab("Role with same name already exists, please choose another one.", "overview");
+            return;
+        }
+
+        // we need at least cluster permissions, index permissions, or tenants, empty roles
+        // are not supported.
+        if ($scope.service.isRoleEmpty($scope.resource)) {
+            $scope.displayErrorOnTab("Please define at least cluster permissions, index permissions or tenants", "overview");
+            return;
+        }
+
+
         if (form.hasClass('ng-invalid-required')) {
             $scope.errorMessage = 'Please fill in all the required parameters.';
             return;
         }
 
-        $scope.service.save($scope.resourcename, $scope.resource);
+        // we need to preserve the original resource,
+        // because we stay on the same page after save
+        $scope.service.save($scope.resourcename, JSON.parse(JSON.stringify($scope.resource)));
 
         $scope.errorMessage = null;
 
     };
 
+    $scope.displayErrorOnTab = function(error, tab) {
+        $scope.errorMessage = error;
+        $scope.selectedTab = tab;
+
+    }
 });
 
 

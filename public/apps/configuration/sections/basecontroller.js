@@ -4,6 +4,8 @@ import { get } from 'lodash';
 import { uniq } from 'lodash';
 import { orderBy } from 'lodash';
 import { Notifier } from 'ui/notify/notifier';
+import clusterpermissions  from '../permissions/clusterpermissions';
+import indexpermissions  from '../permissions/indexpermissions';
 
 import '../backend_api/actiongroups';
 const app = uiModules.get('apps/searchguard/configuration', []);
@@ -16,6 +18,9 @@ app.controller('sgBaseController', function ($scope, $element, $route, backendAc
 
     $scope.title = "Search Guard Base Controller";
     $scope.actiongroupsAutoComplete = "";
+    $scope.clusterpermissionsAutoComplete = clusterpermissions;
+    $scope.indexpermissionsAutoComplete = indexpermissions;
+    $scope.allpermissionsAutoComplete = indexpermissions.concat(clusterpermissions);
     $scope.licensevalid = "";
     $scope.query = "";
     $scope.resource = {};

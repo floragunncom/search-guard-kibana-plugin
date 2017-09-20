@@ -74,7 +74,21 @@
         <tr data-test-subj="userRow" class="kuiTableRow" data-ng-repeat="permission in permissionsResource.permissions track by $index">
             <td class="kuiTableRowCell cellAlignTop">
                 <fieldset class="marginbottom--small" id="object-form-actiongroups">
-                    <input type="text" class="kuiTextInput fullwidth" required pattern="^(cluster:.*|indices:.*)" title="Permissions need to start with cluster: or indices:" ng-model="permissionsResource.permissions[$index]" placeholder="Start with cluster: or indices:">
+
+                    <angucomplete id="indexpermissions-{{indexname}}-{{doctypename}}"
+                                  placeholder="Start with cluster: or indices:"
+                                  pause="10"
+                                  selectedobject="permissionsResource.permissions[$index]"
+                                  localdata="allpermissionsAutoComplete"
+                                  minlength="1"
+                                  datafield="name"
+                                  titlefield="name"
+                                  searchfields="name"
+                                  inputclass="kuiTextInput fullwidth"
+                                  pattern="^(cluster:.*|indices:.*)"
+                            />
+
+
                 </fieldset>
             </td>
             <td class="kuiTableRowCell cellAlignTop actions">

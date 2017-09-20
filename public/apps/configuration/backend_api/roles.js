@@ -31,7 +31,6 @@ uiModules.get('apps/searchguard/configuration', [])
 
         this.save = (rolename, data) => {
             var data = this.preSave(data);
-            console.log(data)
             return backendAPI.save(RESOURCE, rolename, data);
         };
 
@@ -53,16 +52,16 @@ uiModules.get('apps/searchguard/configuration', [])
             }
             if (!role.indices[indexname]) {
                 role.indices[indexname] = {};
-                role.indices[indexname][doctypename] = [];
                 role.dlsfls[indexname] = {
                     _dls_: "",
                     _fls_: [],
                     _flsmode_: "whitelist"
                 };
-            } else {
-                role.indices[indexname][doctypename] = [];
-
             }
+            role.indices[indexname][doctypename] = {
+                "actiongroups": [],
+                "permissions": []
+            };
         }
 
         this.preSave = (role) => {
@@ -105,11 +104,11 @@ uiModules.get('apps/searchguard/configuration', [])
 
             // tenants
             role["tenants"] = {};
-            role.tenantsArray.forEach(function(tenant){
+            for (var tenant in role.tenantsArray) {
                 if (tenant && tenant.name != "") {
                     role.tenants[tenant.name] = tenant.permissions;
                 }
-            });
+            }
 
             delete role["tenantsArray"];
             return role;
@@ -244,4 +243,61 @@ uiModules.get('apps/searchguard/configuration', [])
                 }
             }
         }
+
+        /**
+         * Checks whether a role definition is empty. Empty
+         * roles are not supported and cannot be saved. We need
+         * at least some index or clusterpermissions, DLSFLS or tenants
+         * @param role
+         */
+        this.isRoleEmpty = function (role) {
+
+            // clean duplicates and remove empty arrays
+            role = backendAPI.cleanArraysFromDuplicates(role);
+            // tenants and clusterpermissions
+            var tenantsEmpty = role.tenantsArray.length == 0;
+            var clusterPermsEmpty = role.cluster.actiongroups.length == 0 && role.cluster.permissions.length == 0;
+            var dlsFlsEmpty = true;
+
+            if (role.dlsfls && Object.keys(role.dlsfls).length > 0) {
+                dlsFlsEmpty = false;
+            }
+
+            var indicesEmpty = this.indicesEmpty(role);
+
+            console.log(role.dlsfls);
+
+
+            return tenantsEmpty && clusterPermsEmpty && dlsFlsEmpty && indicesEmpty;
+        }
+
+        this.indicesEmpty = function (role) {
+            // index, we need at least one index with one document type with one role
+            var indicesEmpty = true;
+            if (role.indices) {
+                // flat list of indexnames
+                var indexNames = Object.keys(role.indices);
+                for (var indexName in indexNames) {
+                    // get index definition
+                    var index = role.indices[indexName];
+                    // check all document types
+                    for (var doctype in index) {
+                        if (doctype) {
+                            // we just need one permissions to satisfy non-emptiness
+                            if (doctype.actiongroups && doctype.actiongroups.length > 0) {
+                                indicesEmpty = true;
+                                break;
+                            }
+                            if (doctype.permissions && doctype.permissions.length > 0) {
+                                indicesEmpty = true;
+                                break;
+                            }
+                        }
+                    }
+
+                }
+            }
+            return indicesEmpty;
+        }
+
     });

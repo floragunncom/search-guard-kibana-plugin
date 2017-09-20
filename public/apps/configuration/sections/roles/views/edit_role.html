@@ -83,14 +83,14 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr class="kuiTableRow" ng-show="permissionsResource.permissions.length" style="border: none;">
+                                <tr class="kuiTableRow" ng-show="indicesEmpty()" style="border: none;">
                                     <td class="kuiTableRowCell cellAlignTop kuiNoItems sgNoItems" colspan="2" style="border: none;">
-                                        No permissions found.
+                                        <i>No permissions found.</i>
                                     </td>
                                 </tr>
-                                <tr data-test-subj="userRow" class="kuiTableRow">
+                                <tr data-test-subj="userRow" class="kuiTableRow" ng-show="!indicesEmpty()">
                                     <td class="kuiTableRowCell cellAlignTop" style="border: none;">
-                                        <select ng-model="selectedIndex" ng-options="str for str in keys(resource.indices).sort() track by str"></select>
+                                        <select ng-model="selectedIndex" ng-change="onIndexChange()" ng-options="str for str in keys(resource.indices).sort() track by str"></select>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop " style="border: none;">
                                         <select ng-model="selectedDocumentType" ng-options="str for str in keys(resource.indices[selectedIndex]).sort() track by str"></select>
@@ -101,8 +101,10 @@
                                     <td class="kuiTableRowCell cellAlignTop actions" style="border: none;">
                                         <button type="button" ng-click="addIndex()" class="kuiButton kuiButton--primary kuiButton--iconText">
                                             <span class="kuiButton__icon kuiIcon fa-plus"></span>
-                                            Add Index
                                         </button>
+                                        <a ng-show="!indicesEmpty()" ng-click="deleteDocumentType()" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                        </a>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -130,6 +132,7 @@
                                     <td class="kuiTableRowCell cellAlignTop " style="border: none;">
                                         <fieldset class="marginbottom--small" id="object-form-actiongroups">
                                             <input type="text" class="kuiTextInput fullwidth"  ng-model="newDocumentTypeName" placeholder="Document Type">
+                                            {{newDocumentTypeName}}
                                         </fieldset>
                                     </td>
                                 </tr>
@@ -143,7 +146,7 @@
                                 </tbody>
                             </table>
 
-                            <sgc-permissions permissionsResource="resource.indices[selectedIndex][selectedDocumentType]" ng-show="!addingIndex"></sgc-permissions>
+                            <sgc-permissions permissionsResource="resource.indices[selectedIndex][selectedDocumentType]" ng-show="selectedIndex != '' && !addingIndex"></sgc-permissions>
 
                         </div>
 
@@ -156,7 +159,7 @@
                             </div>
 
                             <!-- Index Table, display mode -->
-                            <table class="kuiTable tableIndexGroups" style="border: none;" ng-show="!addingIndex">
+                            <table class="kuiTable tableIndexGroups" style="border: none;">
                                 <thead>
                                 <tr>
                                     <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
@@ -165,12 +168,12 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    <tr class="kuiTableRow" ng-show="permissionsResource.permissions.length" style="border: none;">
+                                    <tr class="kuiTableRow" ng-show="indicesEmpty()" style="border: none;">
                                         <td class="kuiTableRowCell cellAlignTop kuiNoItems sgNoItems" style="border: none;">
-                                            No index defined.
+                                            <i>No index defined.</i>
                                         </td>
                                     </tr>
-                                    <tr data-test-subj="userRow" class="kuiTableRow">
+                                    <tr data-test-subj="userRow" ng-show="!indicesEmpty()" class="kuiTableRow">
                                         <td class="kuiTableRowCell cellAlignTop" style="border: none;">
                                             <select ng-model="selectedIndex" ng-options="str for str in keys(resource.indices).sort() track by str"></select>
                                         </td>
@@ -179,7 +182,7 @@
                             </table>
 
                             <!-- DLS Table -->
-                            <table class="kuiTable tableIndexGroups">
+                            <table class="kuiTable tableIndexGroups" ng-show="!indicesEmpty()">
                                 <thead>
                                 <tr>
                                     <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
@@ -207,7 +210,7 @@
                             </table>
 
                             <!-- FLS Table -->
-                            <table class="kuiTable tableIndexGroups">
+                            <table class="kuiTable tableIndexGroups" ng-show="!indicesEmpty()">
                                 <thead>
                                 <tr>
                                     <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
