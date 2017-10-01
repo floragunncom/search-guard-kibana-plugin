@@ -6,8 +6,9 @@ import { orderBy } from 'lodash';
 import { Notifier } from 'ui/notify/notifier';
 import clusterpermissions  from '../permissions/clusterpermissions';
 import indexpermissions  from '../permissions/indexpermissions';
-
 import '../backend_api/actiongroups';
+import '../../../directives/licensewarning'
+
 const app = uiModules.get('apps/searchguard/configuration', []);
 
 app.controller('sgBaseController', function ($scope, $element, $route, backendActionGroups, $http, createNotifier, kbnUrl) {
@@ -27,7 +28,7 @@ app.controller('sgBaseController', function ($scope, $element, $route, backendAc
     $scope.showEditor = false;
     $scope.toggleEditorLabel = "Show JSON";
     $scope.resourceAsJson = null;
-
+    $scope.licensevalid = true;
 
     $scope.loadActionGroups = () => {
         backendActionGroups.list().then((response) => {
@@ -41,18 +42,19 @@ app.controller('sgBaseController', function ($scope, $element, $route, backendAc
         });
     }
 
-    $scope.checkValidLicense = () => {
+    $scope.loadLicense = () => {
         $http.get(`${API_ROOT}/systeminfo`)
             .then(
             (response) => {
-                $scope.licensevalid = response.data.sg_license.is_valid;
+                $scope.systeminfo = response.data;
+                $scope.licensevalid = response.data.sg_license.is_valid
             },
             (error) => notify.error(error)
         );
     }
 
     $scope.loadActionGroups();
-    $scope.checkValidLicense();
+    $scope.loadLicense();
 
     $scope.aceLoaded = (editor) => {
         editor.session.setOptions({

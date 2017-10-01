@@ -1,7 +1,6 @@
 <div class="searchguard app-container ng-scope">
 
     <div class="kuiLocalNav">
-
         <div class="kuiLocalNavRow">
             <div class="kuiLocalNavRow__section">
                 <div class="kuiLocalTitle">
@@ -9,7 +8,6 @@
                     <br />
                 </div>
             </div>
-
             <div class="kuiLocalNavRow__section">
                 <div class="kuiLocalMenu">
 
@@ -80,6 +78,9 @@
                 <div class="page-header">
                     <h2 class="text-center" ng-bind="ctrl.tenantLabel" id="tenantLabel"></h2>
                     <h5 class="error-message" ng-if="ctrl.errorMessage" ng-bind="ctrl.errorMessage" id="tenantErrorMessage"></h5>
+                    <h5 class="error-message" id="licenseErrorMessage">
+                        <sg-license-warning></sg-license-warning>
+                    </h5>
                 </div>
             </div>
         </div>

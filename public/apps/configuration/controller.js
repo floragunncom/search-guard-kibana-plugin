@@ -3,7 +3,7 @@ import { get } from 'lodash';
 import client from './backend_api/client';
 import './directives/directives';
 import { readFileSync } from 'fs';
-
+import '../../directives/licensewarning'
 const app = uiModules.get('apps/searchguard/configuration', ['ui.ace']);
 
 app.controller('searchguardConfigurationMainController', function ($scope, $element, $route, $window, $http, createNotifier, backendAPI) {
@@ -14,6 +14,8 @@ app.controller('searchguardConfigurationMainController', function ($scope, $elem
     $scope.authenticated = true;
 
     $scope.errorMessage = "";
+
+    $scope.title = "Search Guard Configuration";
 
     $scope.testConnection = () => {
 
@@ -36,9 +38,6 @@ app.controller('searchguardConfigurationMainController', function ($scope, $elem
         }
     };
 
-    $scope.title = function () {
-        return $scope.authenticated? "Search Guard Configuration" : "Please authenticate.";
-    }
 
     $scope.authenticateAdmin = (event) => {
 

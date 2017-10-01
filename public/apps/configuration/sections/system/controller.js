@@ -17,8 +17,6 @@ app.controller('sgSystemController', function ($scope, $http, $route, $element, 
     $http.get(`${API_ROOT}/systeminfo`)
         .then(
         (response) => {
-            // sanity checks, check that configuration is correct on
-            // both ES and KI side
             $scope.systeminfo = response.data;
             var moduleKey = Object.keys(response.data.modules)[0];
             $scope.modules = response.data.modules[moduleKey];

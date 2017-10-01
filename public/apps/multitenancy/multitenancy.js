@@ -21,6 +21,8 @@ import { Notifier } from 'ui/notify/notifier';
 import 'ui/autoload/styles';
 import 'plugins/searchguard/apps/multitenancy/multitenancy.less';
 
+import '../../directives/licensewarning';
+
 import tenantTemplate from './multitenancy.html';
 
 uiRoutes.enable();
@@ -125,7 +127,6 @@ uiModules
             },
             (error) => notify.error(error)
         );
-
 
         this.selectTenant = function (tenantLabel, tenant, redirect) {
             $http.post(`${API_ROOT}/multitenancy/tenant`, {tenant: tenant, username: this.username})

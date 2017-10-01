@@ -1,12 +1,13 @@
 <div class="searchguard app-container" ng-controller="searchguardConfigurationMainController">
 
-        <sgc-edit-header ng-if="authenticated"></sgc-edit-header>
+        <sgc-header ng-if="authenticated"></sgc-header>
 
         <div class="row">
             <div class="col-xs-12" style="text-align: center;">
                 <img class="brand-image" src="/plugins/searchguard/assets/searchguard_logo.svg" width="300">
                 <h3 ng-if="!authenticated" style="margin-top:0px;">Please authenticate</h3>
                 <p class="error-message" ng-show="errorMessage">{{ errorMessage }}</p>
+                <sg-license-warning ng-if="!authenticated"></sg-license-warning>
             </div>
         </div>
 
