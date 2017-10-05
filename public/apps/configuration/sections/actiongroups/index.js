@@ -3,7 +3,7 @@ import uiRoutes from 'ui/routes';
 import sectionTemplate from './views/index.html';
 import editTemplate from './views/edit.html';
 import './controller';
-import '../basecontroller';
+import '../../base_controller';
 import '../../directives/directives';
 
 import 'ui/autoload/styles';

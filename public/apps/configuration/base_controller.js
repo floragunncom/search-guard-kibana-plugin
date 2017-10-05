@@ -1,44 +1,60 @@
+import { uiModules } from 'ui/modules';
 import chrome from 'ui/chrome';
-import { uiModules } from 'ui/modules'
+
 import { get } from 'lodash';
+import './directives/directives';
+import '../../directives/licensewarning'
+import client from './backend_api/client';
 import { uniq } from 'lodash';
 import { orderBy } from 'lodash';
-import { Notifier } from 'ui/notify/notifier';
-import clusterpermissions  from '../permissions/clusterpermissions';
-import indexpermissions  from '../permissions/indexpermissions';
-import '../backend_api/actiongroups';
-import '../../../directives/licensewarning'
 
-const app = uiModules.get('apps/searchguard/configuration', []);
+import clusterpermissions  from './permissions/clusterpermissions';
+import indexpermissions  from './permissions/indexpermissions';
+import './backend_api/actiongroups';
+import '../../directives/licensewarning'
 
-app.controller('sgBaseController', function ($scope, $element, $route, backendActionGroups, $http, createNotifier, kbnUrl) {
+const app = uiModules.get('apps/searchguard/configuration', ['ui.ace']);
+
+app.controller('sgBaseController', function ($scope, $element, $route, $window, $http, createNotifier, backendAPI, backendActionGroups) {
 
     var APP_ROOT = `${chrome.getBasePath()}`;
     var API_ROOT = `${APP_ROOT}/api/v1`;
-    let notify = new Notifier({});
+
+    const notify = createNotifier({
+        location: 'Authentication Configuration'
+    });
+
 
     $scope.title = "Search Guard Base Controller";
+    $scope.errorMessage = "";
     $scope.actiongroupsAutoComplete = "";
     $scope.clusterpermissionsAutoComplete = clusterpermissions;
     $scope.indexpermissionsAutoComplete = indexpermissions;
     $scope.allpermissionsAutoComplete = indexpermissions.concat(clusterpermissions);
-    $scope.licensevalid = "";
     $scope.query = "";
     $scope.resource = {};
     $scope.showEditor = false;
     $scope.toggleEditorLabel = "Show JSON";
     $scope.resourceAsJson = null;
     $scope.licensevalid = true;
+    $scope.restapiinfo = {};
+    $scope.systeminfo = {};
+    $scope.accessState = "pending";
 
+    $scope.title = "Search Guard Configuration";
+
+    $scope.clearCache = function() {
+        backendAPI.clearCache();
+    }
+
+    // todo: extra testConnection method
     $scope.loadActionGroups = () => {
         backendActionGroups.list().then((response) => {
             $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete(Object.keys(response.data));
-        });
-    }
-
-    $scope.getActionGroupsAutoComplete = () => {
-        backendActionGroups.list().then((response) => {
-            return backendActionGroups.listAutocomplete(Object.keys(response.data));
+            $scope.accessState = "ok";
+        }, (error) => {
+            notify.error(error);
+            $scope.accessState = "forbidden";
         });
     }
 
@@ -53,8 +69,23 @@ app.controller('sgBaseController', function ($scope, $element, $route, backendAc
         );
     }
 
-    $scope.loadActionGroups();
-    $scope.loadLicense();
+    $scope.loadAdminPermissions = () => {
+        $http.get(`${API_ROOT}/restapiinfo`)
+            .then(
+            (response) => {
+                $scope.restapiinfo = response.data;
+            },
+            (error) => notify.error(error)
+        );
+    }
+
+    $scope.endpointEnabled = (endpoint) => {
+        if ($scope.restapiinfo.disabled_endpoints) {
+            return $scope.restapiinfo.disabled_endpoints.indexOf(endpoint) == -1;
+        }
+        return false;
+    }
+
 
     $scope.aceLoaded = (editor) => {
         editor.session.setOptions({
@@ -158,6 +189,13 @@ app.controller('sgBaseController', function ($scope, $element, $route, backendAc
             return result;
         }, [])).sort();
     }
+
+
+    // --- init ---
+    $scope.loadActionGroups();
+    $scope.loadLicense();
+    $scope.loadAdminPermissions();
+
 });
 
 app.filter('escape', function() {

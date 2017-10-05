@@ -23,7 +23,7 @@ export default function LoginController(kbnUrl, $scope, $http, $window) {
 
     const ROOT = chrome.getBasePath();
     const APP_ROOT = `${ROOT}`;
-    const API_ROOT = `${APP_ROOT}/api/v1/auth`;
+    const API_ROOT = `${APP_ROOT}/api/v1`;
     const BRANDIMAGE = chrome.getInjected("basicauth.login.brandimage");
 
     // if session was not terminated by logout, clear any remaining
@@ -55,7 +55,7 @@ export default function LoginController(kbnUrl, $scope, $http, $window) {
     }
 
     this.submit = () => {
-        $http.post(`${API_ROOT}/login`, this.credentials)
+        $http.post(`${API_ROOT}/auth/login`, this.credentials)
             .then(
             (response) => {
                 // validate the tenant settings if multi tenancy is enabled
@@ -64,6 +64,8 @@ export default function LoginController(kbnUrl, $scope, $http, $window) {
                 // no further checks are necessary. In the first case MT does not
                 // matter, in the latter case we always have a tenant as fallback if
                 // user has no tenants configured and PRIVATE is disabled
+
+                // TODO: This should be determined dynamically, based on the info returned by the mtinfo endpoint
                 if (!chrome.getInjected("multitenancy.enabled") || chrome.getInjected("multitenancy.tenants.enable_global")) {
                     $window.location.href = `${nextUrl}`;
                 } else {
@@ -79,6 +81,17 @@ export default function LoginController(kbnUrl, $scope, $http, $window) {
                     } else {
                         $window.location.href = `${nextUrl}`;
                     }
+
+                    // check the status of the REST API, and enable or disable nav entry
+                    // based on the info returned by systeminfo
+                    // todo: where to put?
+                    $http.get(`${API_ROOT}/restapiinfo`)
+                        .then(
+                        (response) => {
+                        }),
+                        (error) => {
+                            console.log(error);
+                        }
                 }
 
             },

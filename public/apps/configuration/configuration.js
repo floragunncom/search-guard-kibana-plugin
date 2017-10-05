@@ -32,7 +32,7 @@ import 'plugins/searchguard/apps/configuration/configuration.less';
 
 import 'ace';
 
-import searchguardConfigurationMainController from './controller';
+import searchguardConfigurationController from './configuration_controller';
 import template from './configuration.html';
 
 uiRoutes.enable();

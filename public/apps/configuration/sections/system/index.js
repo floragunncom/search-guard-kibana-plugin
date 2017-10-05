@@ -2,7 +2,7 @@ import angular from 'angular';
 import uiRoutes from 'ui/routes';
 import sectionTemplate from './views/index.html';
 
-import '../basecontroller';
+import '../../base_controller';
 import './controller';
 import '../../directives/directives';
 

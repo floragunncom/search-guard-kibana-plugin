@@ -3,7 +3,7 @@ import uiRoutes from 'ui/routes';
 import sectionTemplate from './views/index.html';
 import editRoleTemplate from './views/edit_role.html';
 
-import '../basecontroller';
+import '../../base_controller';
 import './controller';
 import '../../directives/directives';
 

@@ -265,9 +265,6 @@ uiModules.get('apps/searchguard/configuration', [])
 
             var indicesEmpty = this.indicesEmpty(role);
 
-            console.log(role.dlsfls);
-
-
             return tenantsEmpty && clusterPermsEmpty && dlsFlsEmpty && indicesEmpty;
         }
 

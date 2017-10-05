@@ -7,8 +7,6 @@ const app = uiModules.get('apps/searchguard/configuration', []);
 
 app.controller('sgConfigController', function ($scope, $element, $route, createNotifier, sgConfiguration, kbnUrl) {
 
-    console.log("controller");
-
     $scope.service = sgConfiguration;
     $scope.sortedAuthc = [];
     $scope.resource = {};

@@ -14,11 +14,11 @@ uiModules.get('apps/searchguard/configuration', [])
             location: 'Authentication backend'
         });
 
-        const AUTH_BACKEND_API_ROOT = "/api/v1/configuration";
+        const AUTH_BACKEND_API_ROOT = "/api/v1";
 
         this.testConnection =  () => {
 
-            return $http.post(`${AUTH_BACKEND_API_ROOT}/get/config`, this.getPayloadDataWithCertificates(null))
+            return $http.post(`${AUTH_BACKEND_API_ROOT}/get/config`)
                 .then((response) => {
                     return 200;
                 })
@@ -33,7 +33,7 @@ uiModules.get('apps/searchguard/configuration', [])
 
         this.get = function(resourceName, id, showError) {
             showError = typeof showError !== 'undefined' ? showError : true;
-            return $http.post(`${AUTH_BACKEND_API_ROOT}/get/${resourceName}/${id}`, this.getPayloadDataWithCertificates(null))
+            return $http.get(`${AUTH_BACKEND_API_ROOT}/configuration/${resourceName}/${id}`)
                 .then((response) => {
                     return response.data;
                 })
@@ -54,8 +54,8 @@ uiModules.get('apps/searchguard/configuration', [])
         };
 
         this.save = (resourceName, id, data) => {
-            let url = `${AUTH_BACKEND_API_ROOT}/save/${resourceName}/${id}`;
-            return $http.post(url, this.getPayloadDataWithCertificates(data))
+            let url = `${AUTH_BACKEND_API_ROOT}/configuration/${resourceName}/${id}`;
+            return $http.post(url, data)
                 .then((response) => {
                     notify.info(response.data.message);
                 })
@@ -71,7 +71,7 @@ uiModules.get('apps/searchguard/configuration', [])
         };
 
         this.delete = (resourceName, id) => {
-            return $http.post(`${AUTH_BACKEND_API_ROOT}/delete/${resourceName}/${id}`, this.getPayloadDataWithCertificates(null))
+            return $http.delete(`${AUTH_BACKEND_API_ROOT}/configuration/${resourceName}/${id}`)
                 .then((response) => {
                     notify.info(response.data.message);
                 })
@@ -87,13 +87,12 @@ uiModules.get('apps/searchguard/configuration', [])
         };
 
         this.list = (resourceName)  => {
-            return $http.post(`${AUTH_BACKEND_API_ROOT}/get/${resourceName}`, this.getPayloadDataWithCertificates(null))
+            return $http.get(`${AUTH_BACKEND_API_ROOT}/configuration/${resourceName}`)
                 .then((response) => {
                     return response.data;
                 })
                 .catch((error) => {
                     if (error.status == 403) {
-                        kbnUrl.change('/');
                         notify.error("Authentication failed");
                     } else {
                         notify.error(error);
@@ -103,7 +102,7 @@ uiModules.get('apps/searchguard/configuration', [])
         };
 
         this.clearCache = () => {
-            return $http.post(`${AUTH_BACKEND_API_ROOT}/clearcache`, this.getPayloadDataWithCertificates(null))
+            return $http.delete(`${AUTH_BACKEND_API_ROOT}/configuration/cache`)
                 .then((response) => {
                     notify.info(response.data.message);
                 })
@@ -117,14 +116,6 @@ uiModules.get('apps/searchguard/configuration', [])
                     throw error;
                 });
         };
-
-        this.getPayloadDataWithCertificates = (data) => {
-            var certificates = sessionStorage.getItem('searchguard_certificates');
-            return {
-                certificates: certificates,
-                data: data
-            }
-        }
 
         this.cleanArraysFromDuplicates = function(theobject) {
 
