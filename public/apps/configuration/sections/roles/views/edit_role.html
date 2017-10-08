@@ -16,8 +16,8 @@
                     <a ng-click="selectTab('overview')" ng-class="getTabCss('overview')">Overview</a>
                     <a ng-click="selectTab('clusterpermissions')" ng-class="getTabCss('clusterpermissions')">Cluster Permissions</a>
                     <a ng-click="selectTab('indexpermissions')" ng-class="getTabCss('indexpermissions')">Index Permissions</a>
-                    <a ng-click="selectTab('dlsfls')" ng-class="getTabCss('dlsfls')">DLS/FLS</a>
-                    <a ng-click="selectTab('tenants')" ng-class="getTabCss('tenants')">Tenants</a>
+                    <a ng-if="systeminfo.modules.DLSFLS" ng-click="selectTab('dlsfls')" ng-class="getTabCss('dlsfls')">DLS/FLS</a>
+                    <a ng-if="systeminfo.modules.MULTITENANCY" ng-click="selectTab('tenants')" ng-class="getTabCss('tenants')">Tenants</a>
                 </div>
             </div>
         </div>
