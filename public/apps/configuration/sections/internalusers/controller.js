@@ -6,6 +6,8 @@ const app = uiModules.get('apps/searchguard/configuration', []);
 
 app.controller('sgInternalUsersController', function ($scope, $element, $route, createNotifier, backendInternalUsers, kbnUrl) {
 
+    $scope.endpoint = "INTERNALUSERS";
+
     $scope.service = backendInternalUsers;
     $scope.numresources = "0";
     $scope.loaded = false;

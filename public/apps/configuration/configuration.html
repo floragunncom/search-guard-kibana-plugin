@@ -5,6 +5,7 @@
 
         <div class="row">
             <div class="col-xs-12" style="text-align: center;">
+
                 <img class="brand-image" src="/plugins/searchguard/assets/searchguard_logo.svg" width="300">
 
                 <h3 ng-if="accessState=='pending'" style="margin-top:0px;">Please wait ...</h3>
@@ -27,12 +28,14 @@
             </div>
         </div>
 
+        {{restapiinfo}}
+
         <div class="row" ng-if="accessState=='ok'">
             <div class="kuiViewContent kuiViewContent--constrainedWidth ng-scope" style="text-align: center;">
-                {{restapiinfo}}
+
                 <div class="kuiGallery kuiViewContentItem" style="text-align: center;">
 
-                    <a ng-if="endpointEnabled('SGCONFIG')" class="kuiGalleryButton ng-scope" ng-href="#/sgconfiguration" href="#/sgconfiguration">
+                    <a ng-if="endpointAndMethodEnabled('SGCONFIG', 'GET')" class="kuiGalleryButton ng-scope" ng-href="#/sgconfiguration" href="#/sgconfiguration">
                         <div class="kuiGalleryButton__image">
                             <span class="fa fa-lock fa-5x"></span>
                         </div>
@@ -41,7 +44,7 @@
                         </div>
                     </a>
 
-                    <a ng-if="endpointEnabled('INTERNALUSERS')" class="kuiGalleryButton ng-scope" ng-href="#/internalusers" tooltip="Configure Internal Users"
+                    <a ng-if="endpointAndMethodEnabled('INTERNALUSERS', 'GET')" class="kuiGalleryButton ng-scope" ng-href="#/internalusers" tooltip="Configure Internal Users"
                        tooltip-placement="bottom" href="#/internalusers">
                         <div class="kuiGalleryButton__image">
                             <span class="fa fa-user fa-5x"></span>
@@ -51,7 +54,7 @@
                         </div>
                     </a>
 
-                    <a ng-if="endpointEnabled('ACTIONGROUPS')" class="kuiGalleryButton ng-scope" ng-href="#/actiongroups" tooltip="Configure Internal Users"
+                    <a ng-if="endpointAndMethodEnabled('ACTIONGROUPS', 'GET')" class="kuiGalleryButton ng-scope" ng-href="#/actiongroups" tooltip="Configure Internal Users"
                        tooltip-placement="bottom" href="#/actiongroups">
                         <div class="kuiGalleryButton__image">
                             <span class="fa fa-sitemap fa-5x"></span>
@@ -61,7 +64,7 @@
                         </div>
                     </a>
 
-                    <a ng-if="endpointEnabled('ROLEMAPPINGS')" class="kuiGalleryButton ng-scope" ng-href="#/rolemappings" tooltip="Configure Internal Users"
+                    <a ng-if="endpointAndMethodEnabled('ROLEMAPPINGS', 'GET')" class="kuiGalleryButton ng-scope" ng-href="#/rolemappings" tooltip="Configure Internal Users"
                        tooltip-placement="bottom" href="#/rolemappings">
                         <div class="kuiGalleryButton__image">
                             <span class="fa fa-exchange fa-5x"></span>
@@ -71,7 +74,7 @@
                         </div>
                     </a>
 
-                    <a ng-if="endpointEnabled('ROLES')" class="kuiGalleryButton ng-scope" ng-href="#/roles" tooltip="Configure Internal Users"
+                    <a ng-if="endpointAndMethodEnabled('ROLES', 'GET')" class="kuiGalleryButton ng-scope" ng-href="#/roles" tooltip="Configure Internal Users"
                        tooltip-placement="bottom" href="#/roles">
                         <div class="kuiGalleryButton__image">
                             <span class="fa fa-users fa-5x"></span>
@@ -81,18 +84,18 @@
                         </div>
                     </a>
 
-                    <a ng-if="endpointEnabled('LICENSE')" class="kuiGalleryButton ng-scope" ng-href="#/system" tooltip="Search Guard System Info"
+                    <a ng-if="endpointAndMethodEnabled('LICENSE', 'GET')" class="kuiGalleryButton ng-scope" ng-href="#/system" tooltip="Search Guard System Info"
                        tooltip-placement="bottom">
                         <div class="kuiGalleryButton__image">
                             <span class="fa fa-info fa-5x"></span>
                         </div>
                         <div lass="kuiGalleryButton__label" data-test-subj="sg_system" class="ng-binding">
-                            System Info
+                            License & System Info
                         </div>
                     </a>
 
 
-                    <a ng-if="endpointEnabled('CACHE')" class="kuiGalleryButton ng-scope" ng-click="clearCache()" tooltip="Configure Internal Users"
+                    <a ng-if="endpointAndMethodEnabled('CACHE', 'DELETE')" class="kuiGalleryButton ng-scope" ng-click="clearCache()" tooltip="Configure Internal Users"
                        tooltip-placement="bottom">
                         <div class="kuiGalleryButton__image">
                             <span class="fa fa-refresh fa-5x"></span>

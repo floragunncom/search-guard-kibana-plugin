@@ -10,6 +10,8 @@ app.controller('sgActionGroupsController', function ($scope, $element, $route, c
         location: 'Action groups'
     });
 
+    $scope.endpoint = "ACTIONGROUPS";
+
     $scope.service = backendActionGroups;
 
     $scope.numresources = "0";

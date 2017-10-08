@@ -47,7 +47,57 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
         backendAPI.clearCache();
     }
 
-    // todo: extra testConnection method
+    $scope.initialiseState = () => {
+
+        // load license and module information. We use it for displaying
+        // the license + module info, and to check if the REST module
+        // is activated at all
+        $http.get(`${API_ROOT}/systeminfo`)
+            .then(
+            (response) => {
+                $scope.systeminfo = response.data;
+                $scope.licensevalid = response.data.sg_license.is_valid
+
+                // check if module is enabled (sanity check)
+                if (!$scope.systeminfo.modules.REST_MANAGEMENT_API) {
+                    $scope.accessState = "notenabled";
+                    return;
+                }
+
+                // module enabled, check access privileges for current user
+                $http.get(`${API_ROOT}/restapiinfo`)
+                    .then(
+                    (response) => {
+
+                        $scope.restapiinfo = response.data;
+                        if (!$scope.restapiinfo.has_api_access) {
+                            $scope.accessState = "forbidden";
+                            return;
+                        } else {
+                            $scope.accessState = "ok";
+                        }
+
+                        // if user has access to action groups, load them
+                        // for
+                        //$scope.loadActionGroups();
+
+                    },
+                    (error) => {
+                        notify.error(error)
+                    }
+                );
+
+            },
+            (error) => {
+                $scope.licensevalid = false;
+                notify.error(error);
+            }
+        );
+
+        // check if REST module is enabled
+
+    }
+
     $scope.loadActionGroups = () => {
         backendActionGroups.list().then((response) => {
             $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete(Object.keys(response.data));
@@ -58,30 +108,13 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
         });
     }
 
-    $scope.loadLicense = () => {
-        $http.get(`${API_ROOT}/systeminfo`)
-            .then(
-            (response) => {
-                $scope.systeminfo = response.data;
-                $scope.licensevalid = response.data.sg_license.is_valid
-            },
-            (error) => notify.error(error)
-        );
-    }
-
-    $scope.loadAdminPermissions = () => {
-        $http.get(`${API_ROOT}/restapiinfo`)
-            .then(
-            (response) => {
-                $scope.restapiinfo = response.data;
-            },
-            (error) => notify.error(error)
-        );
-    }
-
-    $scope.endpointEnabled = (endpoint) => {
+    $scope.endpointAndMethodEnabled = (endpoint, method) => {
         if ($scope.restapiinfo.disabled_endpoints) {
-            return $scope.restapiinfo.disabled_endpoints.indexOf(endpoint) == -1;
+            if ($scope.restapiinfo.disabled_endpoints[endpoint]) {
+                return $scope.restapiinfo.disabled_endpoints[endpoint].indexOf(method) == -1;
+            } else {
+                return true;
+            }
         }
         return false;
     }
@@ -192,9 +225,7 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
 
 
     // --- init ---
-    $scope.loadActionGroups();
-    $scope.loadLicense();
-    $scope.loadAdminPermissions();
+    $scope.initialiseState();
 
 });
 

@@ -92,7 +92,7 @@
                                     </div>
                                 </td>
                                 <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
-                                    <div class="kuiTableRowCell__liner" ng-bind="systeminfo.allowed_node_count_per_cluster"></div>
+                                    <div class="kuiTableRowCell__liner" ng-bind="systeminfo.sg_license.allowed_node_count_per_cluster"></div>
                                 </td>
                             </tr>
                             <tr data-test-subj="userRow" class="kuiTableRow">
@@ -150,7 +150,7 @@
                             </tbody>
                         </table>
 
-                        <h3>Active Enterprise Modules</h3>
+                        <h3>Active Modules</h3>
                         <table class="kuiTable">
                             <thead>
                             <tr>
@@ -160,15 +160,21 @@
                                 <th class="kuiTableHeaderCell kuiTableHeaderCell">
                                     Version
                                 </th>
+                                <th class="kuiTableHeaderCell kuiTableHeaderCell">
+                                    Is Enterprise Module
+                                </th>
                             </tr>
                             </thead>
                             <tbody>
-                            <tr data-test-subj="userRow" class="kuiTableRow" data-ng-repeat="modulename in keys(modules).sort()">
+                            <tr data-test-subj="userRow" class="kuiTableRow" data-ng-repeat="modulekey in keys(systeminfo.modules).sort()">
                                 <td class="kuiTableRowCell cellAlignTop">
-                                    <div class="kuiTableRowCell__liner" ng-bind="modulename"></div>
+                                    <div class="kuiTableRowCell__liner" ng-bind="systeminfo.modules[modulekey].description"></div>
                                 </td>
-                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
-                                    <div ng-bind="modules[modulename].version" class="kuiTableRowCell__liner"></div>
+                                <td class="kuiTableRowCell cellAlignTop">
+                                    <div class="kuiTableRowCell__liner" ng-bind="systeminfo.modules[modulekey].version"></div>
+                                </td>
+                                <td class="kuiTableRowCell cellAlignTop">
+                                    <div class="kuiTableRowCell__liner" ng-bind="systeminfo.modules[modulekey].is_enterprise"></div>
                                 </td>
                             </tr>
                             </tbody>

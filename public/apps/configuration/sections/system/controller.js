@@ -8,6 +8,8 @@ const app = uiModules.get('apps/searchguard/configuration', []);
 
 app.controller('sgSystemController', function ($scope, $http, $route, $element, createNotifier, kbnUrl) {
 
+    $scope.endpoint = "LICENSE";
+
     var APP_ROOT = `${chrome.getBasePath()}`;
     var API_ROOT = `${APP_ROOT}/api/v1`;
     let notify = new Notifier({});

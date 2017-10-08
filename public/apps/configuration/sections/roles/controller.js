@@ -7,6 +7,8 @@ const app = uiModules.get('apps/searchguard/configuration', []);
 
 app.controller('sgRolesController', function ($scope, $element, $route, createNotifier, backendRoles, kbnUrl) {
 
+    $scope.endpoint = "ROLES";
+
     $scope.service = backendRoles;
     $scope.loaded = false;
     $scope.numresources = "0";

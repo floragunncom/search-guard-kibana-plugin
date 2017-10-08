@@ -67,9 +67,9 @@
                                             <a ng-click="clone(actiongroupname)" class="kuiButton kuiButton--primary kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-copy"></span>
                                             </a>
-                                            <a ng-click="delete(actiongroupname)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <button type="button" ng-disabled="!endpointAndMethodEnabled('ACTIONGROUPS', 'DELETE')" ng-click="delete(actiongroupname)" class="kuiButton kuiButton--danger kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
-                                            </a>
+                                            </button>
                                         </div>
                                     </td>
 
