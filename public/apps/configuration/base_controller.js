@@ -27,7 +27,7 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
 
     $scope.title = "Search Guard Base Controller";
     $scope.errorMessage = "";
-    $scope.actiongroupsAutoComplete = "";
+    $scope.actiongroupsAutoComplete = {};
     $scope.clusterpermissionsAutoComplete = clusterpermissions;
     $scope.indexpermissionsAutoComplete = indexpermissions;
     $scope.allpermissionsAutoComplete = indexpermissions.concat(clusterpermissions);
@@ -77,9 +77,7 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
                             $scope.accessState = "ok";
                         }
 
-                        // if user has access to action groups, load them
-                        // for
-                        //$scope.loadActionGroups();
+                        $scope.loadActionGroups();
 
                     },
                     (error) => {
@@ -99,13 +97,17 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
     }
 
     $scope.loadActionGroups = () => {
-        backendActionGroups.list().then((response) => {
-            $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete(Object.keys(response.data));
-            $scope.accessState = "ok";
-        }, (error) => {
-            notify.error(error);
-            $scope.accessState = "forbidden";
-        });
+        if($scope.endpointAndMethodEnabled("ACTIONGROUPS","GET")) {
+            backendActionGroups.list().then((response) => {
+                $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete(Object.keys(response.data));
+                $scope.accessState = "ok";
+            }, (error) => {
+                notify.error(error);
+                $scope.accessState = "forbidden";
+            });
+        } else {
+            $scope.actiongroupsAutoComplete = {};
+        }
     }
 
     $scope.endpointAndMethodEnabled = (endpoint, method) => {
@@ -118,7 +120,6 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
         }
         return false;
     }
-
 
     $scope.aceLoaded = (editor) => {
         editor.session.setOptions({
