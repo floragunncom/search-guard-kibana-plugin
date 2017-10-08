@@ -7,15 +7,15 @@ import client from './client';
 uiModules.get('apps/searchguard/configuration', [])
     .service('sgConfiguration', function (backendAPI, Promise, $http, createNotifier) {
 
-        const RESOURCE = 'config';
+        const RESOURCE = 'sgconfig';
 
         const notify = createNotifier({
             location: 'Authentication Configuration'
         });
 
         this.title = {
-            singular: 'Authentication',
-            plural: 'Authentication'
+            singular: 'Authentication / Authorization configuration',
+            plural: 'Authentication / Authorization configuration'
         };
 
         this.list = () => {
@@ -24,7 +24,7 @@ uiModules.get('apps/searchguard/configuration', [])
 
 
         this.postFetch = (sgconfig) => {
-            return rolemapping;
+            return sgconfig;
         };
 
     });

@@ -28,21 +28,10 @@
             </div>
         </div>
 
-        {{restapiinfo}}
-
         <div class="row" ng-if="accessState=='ok'">
             <div class="kuiViewContent kuiViewContent--constrainedWidth ng-scope" style="text-align: center;">
 
                 <div class="kuiGallery kuiViewContentItem" style="text-align: center;">
-
-                    <a ng-if="endpointAndMethodEnabled('SGCONFIG', 'GET')" class="kuiGalleryButton ng-scope" ng-href="#/sgconfiguration" href="#/sgconfiguration">
-                        <div class="kuiGalleryButton__image">
-                            <span class="fa fa-lock fa-5x"></span>
-                        </div>
-                        <div lass="kuiGalleryButton__label" data-test-subj="sg_config" class="ng-binding">
-                            Authentication / Authorisation
-                        </div>
-                    </a>
 
                     <a ng-if="endpointAndMethodEnabled('INTERNALUSERS', 'GET')" class="kuiGalleryButton ng-scope" ng-href="#/internalusers" tooltip="Configure Internal Users"
                        tooltip-placement="bottom" href="#/internalusers">
@@ -81,6 +70,15 @@
                         </div>
                         <div lass="kuiGalleryButton__label" data-test-subj="sg_roles" class="ng-binding">
                             Roles
+                        </div>
+                    </a>
+
+                    <a ng-if="endpointAndMethodEnabled('SGCONFIG', 'GET')" class="kuiGalleryButton ng-scope" ng-href="#/sgconfiguration" href="#/sgconfiguration">
+                        <div class="kuiGalleryButton__image">
+                            <span class="fa fa-lock fa-5x"></span>
+                        </div>
+                        <div lass="kuiGalleryButton__label" data-test-subj="sg_config" class="ng-binding">
+                            Authentication / Authorisation
                         </div>
                     </a>
 

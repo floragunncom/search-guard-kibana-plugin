@@ -11,7 +11,8 @@ app.directive('accordeonHeader', function () {
     scope: {
       title: '@',
       isCollapsed: '=',
-      onClick: '='
+      onClick: '=',
+      additionalClass: '@'
     },
     controllerAs: 'accordeonHeader',
     bindToController: true,

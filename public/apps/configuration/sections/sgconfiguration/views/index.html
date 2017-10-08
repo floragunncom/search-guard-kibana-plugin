@@ -1,17 +1,14 @@
 <div ng-controller="sgBaseController">
-    <div class="searchguard app-container ng-scope" id="section-editor" ng-controller="sgConfigController">
+    <div class="searchguard app-container ng-scope" ng-controller="sgConfigController">
 
-        <sgc-list-header></sgc-list-header>
-
-        <sgc-form-resource-name></sgc-form-resource-name>
+        <sgc-header></sgc-header>
 
         <div class="kuiViewContent kuiViewContent--constrainedWidth ng-scope">
             <div class="kuiViewContentItem">
             <div class="container">
                     <div class="row" data-ng-repeat="authc in sortedAuthc">
-                        <div class="col-xs-12">
-                            <accordeon title="{{authc.name}}" is-collapsed="true">
-                            </accordeon>
+                        <div class="col-xs-12" style="color: red">
+                            <accordeon additional-class="{{authcclass(authc)}}" title="{{authctitle(authc)}}" is-collapsed="true"></accordeon>
                         </div>
                     </div>
                 </div>

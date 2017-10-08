@@ -13,7 +13,7 @@ app.controller('sgConfigController', function ($scope, $element, $route, createN
     $scope.sortedAuthc = [];
     $scope.resource = {};
 
-    $scope.title = "Manage Search Guard configuration";
+    $scope.title = "Authentication / Authorization configuration";
 
     $scope.service.list().then(function (response) {
 
@@ -23,9 +23,27 @@ app.controller('sgConfigController', function ($scope, $element, $route, createN
             value["name"] = key;
             $scope.sortedAuthc.push(value);
         });
+
         $scope.sortedAuthc = $scope.sortedAuthc.sort(function(a, b) {
             return a.order - b.order;
         });
 
     });
+
+    $scope.authctitle = function(authc)  {
+        console.log("lu");
+        var title = authc.order + ": " + authc.name;
+        var enabled = authc.http_enabled && authc.http_enabled == "true" && authc.transport_enabled && authc.transport_enabled == "true";
+        if(!enabled) {
+            title += " (disabled)";
+        }
+        return title;
+    }
+    $scope.authcclass = function(authc)  {
+        var enabled = authc.http_enabled && authc.http_enabled == "true" && authc.transport_enabled && authc.transport_enabled == "true";
+        if(!enabled) {
+            return "authc-disabled";
+        }
+    }
+
 });

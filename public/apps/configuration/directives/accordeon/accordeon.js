@@ -14,6 +14,7 @@ app.directive('accordeon', function () {
       accordeonId: '@',
       title: '@',
       isCollapsed: '=',
+      additionalClass: '@'
     },
     controllerAs: 'accordeon',
     bindToController: true,
