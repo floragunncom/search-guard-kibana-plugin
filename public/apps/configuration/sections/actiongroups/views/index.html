@@ -9,6 +9,7 @@
                     <div class="kuiControlledTable">
 
                         <sgc-filter-bar></sgc-filter-bar>
+
                         {{displayModal}}
 
                         <!-- Table -->
@@ -68,7 +69,7 @@
                                             <a ng-click="clone(actiongroupname)" class="kuiButton kuiButton--primary kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-copy"></span>
                                             </a>
-                                            <button type="button" ng-disabled="!endpointAndMethodEnabled('ACTIONGROUPS', 'DELETE')" ng-click="showDeleteModal(actiongroupname)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <button type="button" ng-disabled="!endpointAndMethodEnabled('ACTIONGROUPS', 'DELETE')" ng-click="confirmDelete(actiongroupname)" class="kuiButton kuiButton--danger kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                             </button>
                                         </div>
@@ -81,23 +82,7 @@
             </div>
         </div>
 
-        <div class="kuiModalOverlay" ng-if="displayModal">
-            <div class="kuiModal" style="width: 450px;">
-                <div class="kuiModalHeader">
-                    <div class="kuiModalHeader__title">Confirm Delete</div>
-                </div>
-                <div class="kuiModalBody">
-                    <div class="kuiModalBodyText">Do you really want to delete {{ressourceToDelete}}
-                        example
-                    </div>
-                </div>
-                <div class="kuiModalFooter">
-                    <button type="button" ng-click="closeDeleteModal()" class="kuiButton kuiButton--hollow"><span
-                            class="kuiButton__inner"><span>Cancel</span></span></button>
-                    <button type="button" class="kuiButton kuiButton--primary" data-test-subj="confirmModalConfirmButton"><span
-                            class="kuiButton__inner"><span>Confirm</span></span></button>
-                </div>
-            </div>
-        </div>
+        <sgc-delete-modal></sgc-delete-modal>
+
     </div>
 </div>

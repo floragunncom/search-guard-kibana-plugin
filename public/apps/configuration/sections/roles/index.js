@@ -14,7 +14,7 @@ uiRoutes
     .when('/roles', {
       template: sectionTemplate
     })
-    .when('/roles/add', {
+    .when('/roles/new', {
         template: editRoleTemplate
     })
     .when('/roles/edit/:resourcename', {

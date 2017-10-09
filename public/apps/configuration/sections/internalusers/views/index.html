@@ -57,7 +57,7 @@
                                             <a ng-click="clone(username)" class="kuiButton kuiButton--primary kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-copy"></span>
                                             </a>
-                                            <button type="button" ng-disabled="!endpointAndMethodEnabled('INTERNALUSERS', 'DELETE')" ng-click="delete(username)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <button type="button" ng-disabled="!endpointAndMethodEnabled('INTERNALUSERS', 'DELETE')" ng-click="confirmDelete(username)" class="kuiButton kuiButton--danger kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                             </button>
                                         </div>
@@ -70,5 +70,8 @@
                 </div>
             </div>
         </div>
+
+        <sgc-delete-modal></sgc-delete-modal>
+
     </div>
 </div>

@@ -14,16 +14,6 @@ app.controller('sgInternalUsersController', function ($scope, $element, $route, 
 
     $scope.title = "Manage Internal User";
 
-    $scope.delete = function(username) {
-
-        if ($scope.resourcenames.indexOf(username) != -1) {
-            if (confirm(`Are you sure you want to delete internal user ${username}?`)) {
-                $scope.service.delete(username)
-                    .then(() => kbnUrl.change('/internalusers'));
-            }
-        }
-    }
-
     $scope.service.list().then(function (response) {
         $scope.resourcenames = Object.keys(response.data).sort();
         $scope.resources = response.data;
@@ -78,10 +68,6 @@ app.controller('sgEditInternalUsersController', function ($scope, $element, $rou
         }
         $scope.loaded = true;
     });
-
-    $scope.cancel = function () {
-        kbnUrl.change('/internalusers');
-    }
 
     $scope.saveObject = (event) => {
         if (event) {

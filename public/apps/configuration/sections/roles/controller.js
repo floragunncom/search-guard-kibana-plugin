@@ -17,28 +17,6 @@ app.controller('sgRolesController', function ($scope, $element, $route, createNo
 
     $scope.title = "Manage Roles";
 
-    $scope.edit = function(rolename) {
-        kbnUrl.change('/roles/edit/' + rolename );
-    }
-
-    $scope.new = function(actiongroup) {
-        kbnUrl.change('/roles/add/');
-    }
-
-    $scope.delete = function(actiongroup) {
-
-        if ($scope.resourcenames.indexOf(actiongroup) != -1) {
-            if (confirm(`Are you sure you want to delete Action Group ${actiongroup}?`)) {
-                $scope.service.delete(actiongroup)
-                    .then(() => kbnUrl.change('/roles'));
-            }
-        }
-    }
-
-    $scope.clone = function(actiongroupname) {
-        kbnUrl.change('/roles/clone/' + actiongroupname);
-    }
-
     $scope.service.list().then(function (response) {
         $scope.resourcenames = Object.keys(response.data).sort();
 

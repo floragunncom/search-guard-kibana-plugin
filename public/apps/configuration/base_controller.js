@@ -47,7 +47,10 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
     $scope.restapiinfo = {};
     $scope.systeminfo = {};
     $scope.accessState = "pending";
+
+    // modal delete dialogue
     $scope.displayModal = false;
+    $scope.deleteModalResourceName = "";
 
     $scope.title = "Search Guard Configuration";
 
@@ -148,26 +151,21 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
         kbnUrl.change('/' +$scope.endpoint.toLowerCase() );
     }
 
-    $scope.delete = function(resourcename) {
-
-        //if ($scope.resourcenames.indexOf(actiongroup) != -1) {
-        //    if (confirm(`Are you sure you want to delete Action Group ${actiongroup}?`)) {
-        //        $scope.service.delete(actiongroup)
-        //            .then(() => kbnUrl.change('/actiongroups'));
-        //    }
-        //}
+    $scope.delete = function() {
+        $scope.displayModal = false;
+        var name = $scope.deleteModalResourceName;
+        $scope.deleteModalResourceName = "";
+        $scope.service.delete(name)
+            .then(() => $scope.cancel());
     }
 
     $scope.confirmDelete = function(resourcename) {
-        $scope.service.delete(resourcename)
-            .then(() => kbnUrl.change('/' + $scope.resourceIdentifier));
-    }
-
-    $scope.showDeleteModal = function(resource) {
+        $scope.deleteModalResourceName = resourcename;
         $scope.displayModal = true;
     }
 
     $scope.closeDeleteModal = () => {
+        $scope.deleteModalResourceName = "";
         $scope.displayModal = false;
     };
 

@@ -87,7 +87,7 @@
                                             <a ng-click="clone(rolename)" class="kuiButton kuiButton--primary kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-copy"></span>
                                             </a>
-                                            <button type="button" ng-disabled="!endpointAndMethodEnabled('ROLES', 'DELETE')" ng-click="delete(rolename)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <button type="button" ng-disabled="!endpointAndMethodEnabled('ROLES', 'DELETE')" ng-click="confirmDelete(rolename)" class="kuiButton kuiButton--danger kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                             </button>
                                         </div>
@@ -100,5 +100,8 @@
                 </div>
             </div>
         </div>
+
+        <sgc-delete-modal></sgc-delete-modal>
+
     </div>
 </div>

@@ -78,7 +78,7 @@
                                             <a ng-click="clone(rolemappingname)" class="kuiButton kuiButton--primary kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-copy"></span>
                                             </a>
-                                            <button type="button" ng-disabled="!endpointAndMethodEnabled('ROLESMAPPING', 'DELETE')" ng-click="delete(rolemappingname)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <button type="button" ng-disabled="!endpointAndMethodEnabled('ROLESMAPPING', 'DELETE')" ng-click="confirmDelete(rolemappingname)" class="kuiButton kuiButton--danger kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                             </button>
                                         </div>
@@ -91,5 +91,8 @@
                 </div>
             </div>
         </div>
+
+        <sgc-delete-modal></sgc-delete-modal>
+
     </div>
 </div>

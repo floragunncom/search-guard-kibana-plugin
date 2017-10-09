@@ -8,3 +8,4 @@ import './permissions';
 import './fileupload';
 import './header';
 import './errormessage';
+import './deletemodal';
