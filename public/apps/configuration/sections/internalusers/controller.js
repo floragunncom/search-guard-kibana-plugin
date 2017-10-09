@@ -7,24 +7,12 @@ const app = uiModules.get('apps/searchguard/configuration', []);
 app.controller('sgInternalUsersController', function ($scope, $element, $route, createNotifier, backendInternalUsers, kbnUrl) {
 
     $scope.endpoint = "INTERNALUSERS";
+    $scope.$parent.endpoint = "INTERNALUSERS";
 
     $scope.service = backendInternalUsers;
-    $scope.numresources = "0";
-    $scope.loaded = false;
+    $scope.$parent.service = backendInternalUsers;
 
     $scope.title = "Manage Internal User";
-
-    $scope.edit = function(username) {
-        kbnUrl.change('/internalusers/edit/' + username );
-    }
-
-    $scope.new = function(username) {
-        kbnUrl.change('/internalusers/new/');
-    }
-
-    $scope.clone = function(username) {
-        kbnUrl.change('/internalusers/clone/' + username);
-    }
 
     $scope.delete = function(username) {
 
@@ -47,11 +35,14 @@ app.controller('sgInternalUsersController', function ($scope, $element, $route, 
 
 app.controller('sgEditInternalUsersController', function ($scope, $element, $route, $location, $routeParams, createNotifier, backendInternalUsers, kbnUrl) {
 
+    $scope.endpoint = "INTERNALUSERS";
+    $scope.$parent.endpoint = "INTERNALUSERS";
+
     $scope.service = backendInternalUsers;
     $scope.$parent.service = backendInternalUsers;
+
     $scope.resourcelabel = "Username";
 
-    $scope.loaded = false;
     $scope.resource = {};
     $scope.resourcename = "";
     $scope.resourcenames = [];

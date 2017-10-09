@@ -9,15 +9,15 @@ import 'ui/autoload/styles';
 import 'plugins/searchguard/apps/configuration/configuration.less';
 
 uiRoutes
-    .when('/rolemappings', {
+    .when('/rolesmapping', {
       template: sectionTemplate
     })
-    .when('/rolemappings/edit/:resourcename', {
+    .when('/rolesmapping/edit/:resourcename', {
       template: editTemplate
     })
-    .when('/rolemappings/clone/:resourcename', {
+    .when('/rolesmapping/clone/:resourcename', {
         template: editTemplate
     })
-    .when('/rolemappings/new', {
+    .when('/rolesmapping/new', {
       template: editTemplate
     });

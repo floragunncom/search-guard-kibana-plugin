@@ -8,10 +8,11 @@ const app = uiModules.get('apps/searchguard/configuration', []);
 app.controller('sgRolesController', function ($scope, $element, $route, createNotifier, backendRoles, kbnUrl) {
 
     $scope.endpoint = "ROLES";
+    $scope.$parent.endpoint = "ROLES";
 
     $scope.service = backendRoles;
-    $scope.loaded = false;
-    $scope.numresources = "0";
+    $scope.$parent.service = backendRoles;
+
     $scope.resources = {};
 
     $scope.title = "Manage Roles";
@@ -35,7 +36,7 @@ app.controller('sgRolesController', function ($scope, $element, $route, createNo
     }
 
     $scope.clone = function(actiongroupname) {
-        kbnUrl.change('/rolemappings/clone/' + actiongroupname);
+        kbnUrl.change('/roles/clone/' + actiongroupname);
     }
 
     $scope.service.list().then(function (response) {
@@ -51,10 +52,14 @@ app.controller('sgRolesController', function ($scope, $element, $route, createNo
     });
 });
 
-app.controller('sgEditRolesController', function ($rootScope, $scope, $element, $route, $location, $routeParams, createNotifier, backendRoles, backendRoleMappings, kbnUrl) {
+app.controller('sgEditRolesController', function ($rootScope, $scope, $element, $route, $location, $routeParams, createNotifier, backendRoles, backendrolesmapping, kbnUrl) {
+
+    $scope.endpoint = "ROLES";
+    $scope.$parent.endpoint = "ROLES";
 
     $scope.service = backendRoles;
     $scope.$parent.service = backendRoles;
+
     $scope.resourcelabel = "Role name";
     $scope.loaded = false;
     $scope.resource = {};
@@ -195,14 +200,10 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     });
 
     $scope.loadRoleMapping = function() {
-        backendRoleMappings.get($scope.resourcename, false)
+        backendrolesmapping.get($scope.resourcename, false)
             .then((response) => {
                 $scope.rolemapping = response;
             });
-    }
-
-    $scope.cancel = function () {
-        kbnUrl.change('/roles');
     }
 
     $scope.saveObject = (event) => {

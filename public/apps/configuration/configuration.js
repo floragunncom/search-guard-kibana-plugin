@@ -21,7 +21,7 @@ import { Notifier } from 'ui/notify/notifier';
 
 import internalusers from './sections/internalusers';
 import actiongroups from './sections/actiongroups';
-import rolemappings from './sections/rolemappings';
+import rolesmapping from './sections/rolesmapping';
 import roles from './sections/roles';
 import sgconfiguration from './sections/sgconfiguration';
 import system from './sections/system';

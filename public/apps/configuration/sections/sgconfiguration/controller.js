@@ -11,6 +11,7 @@ app.controller('sgConfigController', function ($scope, $element, $route, createN
 
     $scope.service = sgConfiguration;
     $scope.sortedAuthc = [];
+    $scope.sortedAuthz = [];
     $scope.resource = {};
 
     $scope.title = "Authentication / Authorization configuration";
@@ -22,6 +23,11 @@ app.controller('sgConfigController', function ($scope, $element, $route, createN
         forEach(response.data.searchguard.dynamic.authc, function(value, key) {
             value["name"] = key;
             $scope.sortedAuthc.push(value);
+        });
+
+        forEach(response.data.searchguard.dynamic.authz, function(value, key) {
+            value["name"] = key;
+            $scope.sortedAuthz.push(value);
         });
 
         $scope.sortedAuthc = $scope.sortedAuthc.sort(function(a, b) {

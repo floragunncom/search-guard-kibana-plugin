@@ -15,7 +15,7 @@ import '../../directives/licensewarning'
 
 const app = uiModules.get('apps/searchguard/configuration', ['ui.ace']);
 
-app.controller('sgBaseController', function ($scope, $element, $route, $window, $http, createNotifier, backendAPI, backendActionGroups) {
+app.controller('sgBaseController', function ($scope, $element, $route, $window, $http, createNotifier, backendAPI, backendActionGroups, kbnUrl) {
 
     var APP_ROOT = `${chrome.getBasePath()}`;
     var API_ROOT = `${APP_ROOT}/api/v1`;
@@ -24,6 +24,13 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
         location: 'Authentication Configuration'
     });
 
+    // props of the child controller
+    $scope.service = null;
+    $scope.endpoint = null;
+
+    // loading state and loaded resources
+    $scope.numresources = "0";
+    $scope.loaded = false;
 
     $scope.title = "Search Guard Base Controller";
     $scope.errorMessage = "";
@@ -40,6 +47,7 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
     $scope.restapiinfo = {};
     $scope.systeminfo = {};
     $scope.accessState = "pending";
+    $scope.displayModal = false;
 
     $scope.title = "Search Guard Configuration";
 
@@ -120,6 +128,49 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
         }
         return false;
     }
+
+    // +++ START common functions for all controllers +++
+
+    // --- navigation
+    $scope.edit = function(resourcename) {
+        kbnUrl.change('/' +$scope.endpoint.toLowerCase() + '/edit/' + resourcename );
+    }
+
+    $scope.new = function() {
+        kbnUrl.change('/' +$scope.endpoint.toLowerCase() + '/new/');
+    }
+
+    $scope.clone = function(resourcename) {
+        kbnUrl.change('/' +$scope.endpoint.toLowerCase() + '/clone/' + resourcename);
+    }
+
+    $scope.cancel = function () {
+        kbnUrl.change('/' +$scope.endpoint.toLowerCase() );
+    }
+
+    $scope.delete = function(resourcename) {
+
+        //if ($scope.resourcenames.indexOf(actiongroup) != -1) {
+        //    if (confirm(`Are you sure you want to delete Action Group ${actiongroup}?`)) {
+        //        $scope.service.delete(actiongroup)
+        //            .then(() => kbnUrl.change('/actiongroups'));
+        //    }
+        //}
+    }
+
+    $scope.confirmDelete = function(resourcename) {
+        $scope.service.delete(resourcename)
+            .then(() => kbnUrl.change('/' + $scope.resourceIdentifier));
+    }
+
+    $scope.showDeleteModal = function(resource) {
+        $scope.displayModal = true;
+    }
+
+    $scope.closeDeleteModal = () => {
+        $scope.displayModal = false;
+    };
+
 
     $scope.aceLoaded = (editor) => {
         editor.session.setOptions({

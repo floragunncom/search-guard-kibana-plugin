@@ -11,36 +11,14 @@ app.controller('sgActionGroupsController', function ($scope, $element, $route, c
     });
 
     $scope.endpoint = "ACTIONGROUPS";
+    $scope.$parent.endpoint = "ACTIONGROUPS";
 
     $scope.service = backendActionGroups;
+    $scope.$parent.service = backendActionGroups;
 
-    $scope.numresources = "0";
     $scope.resources = {};
-    $scope.loaded = false;
 
     $scope.title = "Manage Action Groups";
-
-    $scope.edit = function(actiongroup) {
-        kbnUrl.change('/actiongroups/edit/' + actiongroup );
-    }
-
-    $scope.new = function(actiongroup) {
-        kbnUrl.change('/actiongroups/new/');
-    }
-
-    $scope.delete = function(actiongroup) {
-
-        if ($scope.resourcenames.indexOf(actiongroup) != -1) {
-            if (confirm(`Are you sure you want to delete Action Group ${actiongroup}?`)) {
-                $scope.service.delete(actiongroup)
-                    .then(() => kbnUrl.change('/actiongroups'));
-            }
-        }
-    }
-
-    $scope.clone = function(actiongroupname) {
-        kbnUrl.change('/actiongroups/clone/' + actiongroupname);
-    }
 
     $scope.service.list()
         .then((response) => {
@@ -56,8 +34,12 @@ app.controller('sgActionGroupsController', function ($scope, $element, $route, c
 
 app.controller('sgEditActionGroupsController', function ($scope, $element, $route, $location, $routeParams, createNotifier, backendActionGroups, backendAPI,  kbnUrl) {
 
-    $scope.service = backendActionGroups
+    $scope.endpoint = "ACTIONGROUPS";
+    $scope.$parent.endpoint = "ACTIONGROUPS";
+
+    $scope.service = backendActionGroups;
     $scope.$parent.service = backendActionGroups;
+
     $scope.resourcelabel = "Action Group";
 
     $scope.loaded = false;
@@ -94,10 +76,6 @@ app.controller('sgEditActionGroupsController', function ($scope, $element, $rout
         }
         $scope.loaded = true;
     });
-
-    $scope.cancel = function () {
-        kbnUrl.change('/actiongroups');
-    }
 
     $scope.saveObject = (event) => {
         if (event) {

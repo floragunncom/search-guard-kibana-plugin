@@ -1,42 +1,20 @@
 import { uiModules } from 'ui/modules';
 import { get } from 'lodash';
-import '../../backend_api/rolemappings';
+import '../../backend_api/rolesmapping';
 
 const app = uiModules.get('apps/searchguard/configuration', []);
 
-app.controller('sgRoleMappingsController', function ($scope, $element, $route, createNotifier, backendRoleMappings, kbnUrl) {
+app.controller('sgRoleMappingsController', function ($scope, $element, $route, createNotifier, backendrolesmapping, kbnUrl) {
 
-    $scope.endpoint = "ROLESMAPPING";
+    $scope.endpoint = "rolesmapping";
+    $scope.$parent.endpoint = "rolesmapping";
 
-    $scope.service = backendRoleMappings;
-    $scope.loaded = false;
-    $scope.numresources = "0";
+    $scope.service = backendrolesmapping;
+    $scope.$parent.service = backendrolesmapping;
+
     $scope.resources = {};
 
     $scope.title = "Manage Role Mappings";
-
-    $scope.edit = function(rolemapping) {
-        kbnUrl.change('/rolemappings/edit/' + rolemapping );
-    }
-
-    $scope.new = function(rolemapping) {
-        kbnUrl.change('/rolemappings/new/');
-    }
-
-    $scope.delete = function(rolemapping) {
-
-        if ($scope.resourcenames.indexOf(rolemapping) != -1) {
-            if (confirm(`Are you sure you want to delete Role Mapping ${rolemapping}?`)) {
-                $scope.service.delete(rolemapping)
-                    .then(() => kbnUrl.change('/rolemappings'));
-            }
-        }
-    }
-
-    $scope.clone = function(rolemapping) {
-        kbnUrl.change('/rolemappings/clone/' + rolemapping);
-    }
-
 
     $scope.service.list().then(function (response) {
         $scope.resourcenames = Object.keys(response.data).sort();
@@ -47,12 +25,15 @@ app.controller('sgRoleMappingsController', function ($scope, $element, $route, c
 
 });
 
-app.controller('sgEditRoleMappingsController', function ($scope, $element, $route, $location, $routeParams, createNotifier, backendRoleMappings, backendAPI, kbnUrl) {
+app.controller('sgEditRoleMappingsController', function ($scope, $element, $route, $location, $routeParams, createNotifier, backendrolesmapping, backendAPI, kbnUrl) {
 
-    $scope.service = backendRoleMappings;
-    $scope.$parent.service = backendRoleMappings;
+    $scope.endpoint = "rolesmapping";
+    $scope.$parent.endpoint = "rolesmapping";
+
+    $scope.service = backendrolesmapping;
+    $scope.$parent.service = backendrolesmapping;
+
     $scope.resourcelabel = "Search Guard role";
-    $scope.loaded = false;
     $scope.resource = {};
     $scope.resourcename = "";
     $scope.resourcenames = [];
@@ -60,7 +41,7 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
     $scope.query = "";
 
     $scope.title = function () {
-        return $scope.isNew? "New Role Mapping" : "Edit Role Mapping '" + $scope.resourcename+"'";
+        return $scope.isNew? "New Roles Mapping" : "Edit Roles Mapping '" + $scope.resourcename+"'";
     }
 
     // get all usernames and load pre-existing user, if any
@@ -86,10 +67,6 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
         }
         $scope.loaded = true;
     });
-
-    $scope.cancel = function () {
-        kbnUrl.change('/rolemappings');
-    }
 
     $scope.saveObject = (event) => {
         if (event) {
@@ -123,7 +100,7 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
             return;
         }
 
-        $scope.service.save($scope.resourcename, $scope.resource).then(() => kbnUrl.change(`/rolemappings/`));
+        $scope.service.save($scope.resourcename, $scope.resource).then(() => kbnUrl.change(`/rolesmapping/`));
 
         $scope.errorMessage = null;
 
