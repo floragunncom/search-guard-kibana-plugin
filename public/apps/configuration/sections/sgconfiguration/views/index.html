@@ -12,14 +12,159 @@
             </div>
 
             <div class="container">
-                    <div class="row" data-ng-repeat="authc in sortedAuthc">
-                        <div class="col-xs-12" style="color: red">
-                            <accordeon additional-class="{{authcclass(authc)}}" title="{{authctitle(authc)}}" is-collapsed="true"></accordeon>
-                        </div>
+                <div class="row" data-ng-repeat="authc in sortedAuthc">
+                    <div class="col-xs-12" style="color: red">
+
+                        <accordeon additional-class="{{authcclass(authc)}}" title="{{authctitle(authc)}}" is-collapsed="true">
+
+                            <table class="kuiTable">
+                                <tbody>
+                                <tr data-test-subj="userRow" class="kuiTableRow">
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <div class="kuiTableRowCell__liner">
+                                            Enabled on REST?
+                                        </div>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        {{authc.http_enabled}}
+                                    </td>
+                                </tr>
+                                <tr data-test-subj="userRow" class="kuiTableRow">
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <div class="kuiTableRowCell__liner">
+                                            Enabled on Transport?
+                                        </div>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        {{authc.transport_enabled}}
+                                    </td>
+                                </tr>
+
+                                <tr data-test-subj="userRow" class="kuiTableRow">
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <div class="kuiTableRowCell__liner">
+                                            HTTP Authenticator Type
+                                        </div>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        {{authc.http_authenticator.type}}
+                                    </td>
+                                </tr>
+
+                                <tr data-test-subj="userRow" class="kuiTableRow">
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <div class="kuiTableRowCell__liner">
+                                            HTTP Challenge
+                                        </div>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        {{authc.http_authenticator.challenge}}
+                                    </td>
+                                </tr>
+
+                                <tr data-test-subj="userRow" class="kuiTableRow" ng-if="authc.http_authenticator.config">
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <div class="kuiTableRowCell__liner">
+                                            HTTP Authenticator Configuration
+                                        </div>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop"><pre>{{authc.http_authenticator.configAsString}}</pre>
+                                    </td>
+                                </tr>
+
+                                <tr data-test-subj="userRow" class="kuiTableRow">
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <div class="kuiTableRowCell__liner">
+                                            Authentication Backend Type
+                                        </div>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        {{authc.authentication_backend.type}}
+                                    </td>
+                                </tr>
+
+
+                                <tr data-test-subj="userRow" class="kuiTableRow" ng-if="authc.authentication_backend.config">
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <div class="kuiTableRowCell__liner">
+                                            Authentication Backend Configuration
+                                        </div>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop"><pre>{{stringifyJson(authc.authentication_backend.config)}}</pre></td>
+                                </tr>
+
+                                </tbody>
+                            </table>
+
+
+                        </accordeon>
                     </div>
                 </div>
-
             </div>
+
+            <div class="kuiHeaderBar" style="margin-top:25px;">
+                <div class="kuiHeaderBarSection">
+                    <h2 class="kuiSubTitle">Authorization</h2>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="row" data-ng-repeat="authz in sortedAuthz">
+                    <div class="col-xs-12">
+                        <accordeon additional-class="{{authzlass(authz)}}" title="{{authztitle(authz)}}" is-collapsed="true">
+                            <table class="kuiTable">
+                                <tbody>
+                                <tr data-test-subj="userRow" class="kuiTableRow">
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <div class="kuiTableRowCell__liner">
+                                            Enabled on REST?
+                                        </div>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        {{authz.http_enabled}}
+                                    </td>
+                                </tr>
+                                <tr data-test-subj="userRow" class="kuiTableRow">
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <div class="kuiTableRowCell__liner">
+                                            Enabled on Transport?
+                                        </div>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        {{authz.transport_enabled}}
+                                    </td>
+                                </tr>
+
+                                <tr data-test-subj="userRow" class="kuiTableRow">
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <div class="kuiTableRowCell__liner">
+                                            Authorization Backend Type
+                                        </div>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        {{authz.authorization_backend.type}}
+                                    </td>
+                                </tr>
+                                <tr data-test-subj="userRow" class="kuiTableRow" ng-if="authz.authorization_backend.config">
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <div class="kuiTableRowCell__liner">
+                                            Authorization Backend Configuration
+                                        </div>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop"><pre>{{stringifyJson(authz.authorization_backend.config)}}</pre>
+
+                                    </td>
+                                </tr>
+
+                                </tbody>
+                            </table>
+
+
+                        </accordeon>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
