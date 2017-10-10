@@ -11,5 +11,5 @@ import 'plugins/searchguard/apps/configuration/configuration.less';
 
 uiRoutes
     .when('/sgconfiguration', {
-      template: sectionTemplate
+        template: sectionTemplate
     });

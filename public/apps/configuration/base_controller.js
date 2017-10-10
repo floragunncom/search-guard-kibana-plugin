@@ -134,7 +134,7 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
 
     // +++ START common functions for all controllers +++
 
-    // --- navigation
+    // --- Start navigation
     $scope.edit = function(resourcename) {
         kbnUrl.change('/' +$scope.endpoint.toLowerCase() + '/edit/' + resourcename );
     }
@@ -150,6 +150,7 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
     $scope.cancel = function () {
         kbnUrl.change('/' +$scope.endpoint.toLowerCase() );
     }
+    // --- End navigation
 
     $scope.delete = function() {
         $scope.displayModal = false;

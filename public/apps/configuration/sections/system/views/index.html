@@ -25,7 +25,13 @@
             <div class="row">
                 <div class="col-xs-12">
                     <div>
-                        <h3>Cluster</h3>
+
+                        <div class="kuiHeaderBar topBottomMargin">
+                            <div class="kuiHeaderBarSection">
+                                <h2 class="kuiSubTitle">Cluster</h2>
+                            </div>
+                        </div>
+
                         <table class="kuiTable">
                             <thead>
                                 <tr>
@@ -61,7 +67,21 @@
                             </tbody>
                         </table>
 
-                        <h3>License</h3>
+                        <div class="kuiHeaderBar topBottomMargin" >
+                            <div class="kuiHeaderBarSection">
+                                <h2 class="kuiSubTitle">License</h2>
+                            </div>
+                            <div class="kuiHeaderBarSection">
+                                <span class="kuiText">
+                                    <span class="kuiStatusText kuiStatusText--error">
+                                        <button type="button" ng-click="new()" class="kuiButton kuiButton--primary kuiButton--iconText" style="margin-bottom: 5px;">
+                                        <span class="kuiButton__icon kuiIcon fa-plus"></span>
+                                            Upload new license
+                                        </button>
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
 
                         <table class="kuiTable">
                             <thead>
@@ -150,7 +170,12 @@
                             </tbody>
                         </table>
 
-                        <h3>Active Modules</h3>
+                        <div class="kuiHeaderBar topBottomMargin">
+                            <div class="kuiHeaderBarSection">
+                                <h2 class="kuiSubTitle">Active Modules</h2>
+                            </div>
+                        </div>
+
                         <table class="kuiTable">
                             <thead>
                             <tr>
