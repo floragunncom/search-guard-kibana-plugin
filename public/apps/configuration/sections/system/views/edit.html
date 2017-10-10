@@ -1,0 +1,44 @@
+<div ng-controller="sgBaseController">
+    <div class="searchguard app-container ng-scope" id="section-editor" ng-controller="sgLicenseController">
+
+        <sgc-edit-header></sgc-edit-header>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12">
+
+                    <div class="kuiHeaderBar topBottomMargin">
+                        <div class="kuiHeaderBarSection">
+                            <h2 class="kuiSubTitle">Upload new Search Guard license</h2>
+                        </div>
+                    </div>
+
+
+                    <div class="">
+                        <form name="objectForm" id="object-form" method="post" ng-submit="saveObject($event)" novalidate style="width:70%">
+
+                            <sgc-error-message></sgc-error-message>
+
+                            <div class="form-group">
+                                <label for="object-form-license-string">License string</label>
+                                <textarea
+                                        id="object-form-license-string"
+                                        ng-model="resource.licenseString"
+                                        class="form-control"
+                                        ng-required="true"
+                                        rows="10">
+                                </textarea>
+                            </div>
+
+
+                            <div class="formsubmit">
+                                <button class="kuiButton kuiButton--primary kuiButton--text" type="submit">Upload</button>
+                                <button class="kuiButton kuiButton--secondary kuiButton--text" type="submit" ng-click="cancel()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
