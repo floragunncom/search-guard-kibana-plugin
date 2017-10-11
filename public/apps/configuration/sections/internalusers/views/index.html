@@ -40,6 +40,10 @@
                                             <a class="kuiLink" ng-click="edit(username)">
                                                 {{username}}
                                             </a>
+                                            <div class="kuiBadge kuiBadge--default" ng-if="resources[username].readonly">
+                                                <span class="kuiIcon fa-warning"></span>
+                                                readonly
+                                            </div>
                                         </div>
                                     </td>
 

@@ -15,9 +15,8 @@
 
                             <sgc-permissions permissionsResource="resource"></sgc-permissions>
 
-
                             <div class="formsubmit">
-                                <button ng-disabled="!endpointAndMethodEnabled('ACTIONGROUPS', 'PUT')" class="kuiButton kuiButton--primary kuiButton--text" type="submit">Submit</button>
+                                <button ng-disabled="!endpointAndMethodEnabled('ACTIONGROUPS', 'PUT') || resource.readonly" class="kuiButton kuiButton--primary kuiButton--text" type="submit">Submit</button>
                                 <button class="kuiButton kuiButton--secondary kuiButton--text" type="button" ng-click="cancel()">Cancel</button>
                             </div>
                         </form>

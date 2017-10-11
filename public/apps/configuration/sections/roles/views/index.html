@@ -49,6 +49,10 @@
                                                 {{rolename}}
                                             </a>
                                         </div>
+                                        <div class="kuiBadge kuiBadge--default" ng-if="resources[rolename].readonly">
+                                            <span class="kuiIcon fa-warning"></span>
+                                            readonly
+                                        </div>
                                     </td>
 
                                     <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">

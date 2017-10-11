@@ -3,7 +3,13 @@
     <table class="fullwidth" ng-show="!isNew">
         <tr>
             <td>
-                <h3>{{resourcelabel}}: {{resourcename}}</h3>
+                <h3>
+                    {{resourcelabel}}: {{resourcename}}
+                    <div class="kuiBadge kuiBadge--default" ng-if="resource.readonly">
+                        <span class="kuiIcon fa-warning"></span>
+                        readonly
+                    </div>
+                </h3>
             </td>
             <td class="actions">
                 <button ng-if="showEditor" type="button" class="kuiButton kuiButton--secondaryy kuiButton--iconText" ng-click="loadJSON(resource)">

@@ -49,7 +49,7 @@ uiModules.get('apps/searchguard/configuration', [])
 
         this.preSave = (user) => {
             delete user["passwordConfirmation"];
-            // remove emptye roles
+            // remove empty roles
             user.roles = user.roles.filter(e => String(e).trim());
             // remove duplicate roles
             user.roles = uniq(user.roles);

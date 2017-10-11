@@ -49,6 +49,10 @@
                                             <a class="kuiLink" ng-click="edit(rolemappingname)">
                                                 {{rolemappingname}}
                                             </a>
+                                            <div class="kuiBadge kuiBadge--default" ng-if="resources[rolemappingname].readonly">
+                                                <span class="kuiIcon fa-warning"></span>
+                                                readonly
+                                            </div>
                                         </div>
                                     </td>
 

@@ -70,23 +70,26 @@ uiModules.get('apps/searchguard/configuration', [])
         };
 
         this.postFetch = (actiongroup) => {
-            actiongroup = backendAPI.cleanArraysFromDuplicates(actiongroup);
-            // we want to have two arrays, one with other action groups, one with single permissions
-            var actiongroups = [];
-            var permissions = [];
-            actiongroup.forEach(function (entry) {
-                if (entry.startsWith("cluster:") || entry.startsWith("indices:")) {
-                    permissions.push(entry);
-                } else {
-                    actiongroups.push(entry);
-                }
-            });
-            actiongroups.sort();
-            permissions.sort();
-            return {
-                actiongroups: actiongroups,
-                permissions: permissions
+            // we need to support old and new format of actiongroups,
+            // normalize both formats to common representation
+
+            var permissionsArray = actiongroup;
+
+            // new SG6 format, explicit permissions entry
+            if (actiongroup.permissions) {
+                permissionsArray = actiongroup.permissions;
             }
+            // determine which format to use
+            permissionsArray = backendAPI.cleanArraysFromDuplicates(permissionsArray);
+
+            var permissions = backendAPI.sortPermissions(permissionsArray);
+
+            // if readonly flag is set for SG6 format, add as well
+            if (actiongroup.readonly) {
+                permissions["readonly"] = actiongroup.readonly;
+            }
+
+            return permissions;
         };
 
     });

@@ -125,7 +125,7 @@
                             </table>
 
                             <div class="formsubmit">
-                                <button ng-disabled="!endpointAndMethodEnabled('ROLESMAPPING', 'PUT')"  class="kuiButton kuiButton--primary kuiButton--text" type="submit">Submit</button>
+                                <button ng-disabled="!endpointAndMethodEnabled('ROLESMAPPING', 'PUT')  || resource.readonly"  class="kuiButton kuiButton--primary kuiButton--text" type="submit">Submit</button>
                                 <button class="kuiButton kuiButton--secondary kuiButton--text" type="submit" ng-click="cancel()">Cancel</button>
                             </div>
                         </form>

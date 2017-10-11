@@ -10,8 +10,6 @@
 
                         <sgc-filter-bar></sgc-filter-bar>
 
-                        {{displayModal}}
-
                         <!-- Table -->
                         <table class="kuiTable" ng-show="(resourcenames | filter:query).length">
                             <thead>
@@ -46,6 +44,11 @@
                                             <a class="kuiLink" ng-click="edit(actiongroupname)">
                                                 {{actiongroupname}}
                                             </a>
+                                            <div class="kuiBadge kuiBadge--default" ng-if="resources[actiongroupname].readonly">
+                                                <span class="kuiIcon fa-warning"></span>
+                                                readonly
+                                            </div>
+
                                         </div>
                                     </td>
 
