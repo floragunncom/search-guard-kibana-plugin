@@ -19,6 +19,7 @@ import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules';
 
 export function toggleNavLink(Private) {
+    console.log("enter enable mut");
     var enabled = chrome.getInjected('multitenancy_enabled');
     chrome.getNavLinkById("searchguard-multitenancy").hidden = !enabled;
 

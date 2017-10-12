@@ -103,8 +103,6 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
             }
         );
 
-        // check if REST module is enabled
-
     }
 
     $scope.loadActionGroups = () => {

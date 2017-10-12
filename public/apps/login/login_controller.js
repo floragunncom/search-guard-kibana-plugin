@@ -32,6 +32,7 @@ export default function LoginController(kbnUrl, $scope, $http, $window) {
     localStorage.clear();
     sessionStorage.clear();
 
+    // Custom styling
     this.errorMessage = false;
     this.logintitle = chrome.getInjected("basicauth.login.title");
     this.loginsubtitle = chrome.getInjected("basicauth.login.subtitle");
@@ -45,9 +46,9 @@ export default function LoginController(kbnUrl, $scope, $http, $window) {
         this.brandimage = BRANDIMAGE;
     }
 
+    // honor last request URL
     const {query, hash} = parse($window.location.href, true);
     let nextUrl;
-
     if (query.nextUrl) {
         nextUrl = ROOT + query.nextUrl + (hash || '')
     } else {

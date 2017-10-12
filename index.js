@@ -67,6 +67,7 @@ export default function (kibana) {
             hacks: [
                 'plugins/searchguard/chrome/multitenancy/enable_multitenancy',
                 'plugins/searchguard/chrome/logout_button',
+                'plugins/searchguard/chrome/configuration/enable_configuration',
                 'plugins/searchguard/services/access_control'
             ],
             apps: [
