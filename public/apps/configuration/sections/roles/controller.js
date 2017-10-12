@@ -217,7 +217,7 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
 
         // we need to preserve the original resource,
         // because we stay on the same page after save
-        $scope.service.save($scope.resourcename, JSON.parse(JSON.stringify($scope.resource)));
+        $scope.service.save($scope.resourcename, JSON.parse(JSON.stringify($scope.resource))).then(() => kbnUrl.change(`/roles/`));;
 
         $scope.errorMessage = null;
 
