@@ -1,3 +1,4 @@
+import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules'
 import { get } from 'lodash';
 import '../../backend_api/roles';
@@ -30,7 +31,10 @@ app.controller('sgRolesController', function ($scope, $element, $route, createNo
     });
 });
 
-app.controller('sgEditRolesController', function ($rootScope, $scope, $element, $route, $location, $routeParams, createNotifier, backendRoles, backendrolesmapping, kbnUrl) {
+app.controller('sgEditRolesController', function ($rootScope, $scope, $element, $route, $location, $routeParams, $http, createNotifier, backendRoles, backendrolesmapping, backendAPI, kbnUrl) {
+
+    var APP_ROOT = `${chrome.getBasePath()}`;
+    var API_ROOT = `${APP_ROOT}/api/v1`;
 
     $scope.endpoint = "ROLES";
     $scope.$parent.endpoint = "ROLES";
@@ -55,9 +59,56 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
 
     $scope.addingIndex = false;
 
+    // autocomplete
+    $scope.indices = {};
+    $scope.indexAutoComplete = [];
+    $scope.doctypeAutoComplete = [];
+
     $scope.title = function () {
         return $scope.isNew? "New Role " : "Edit Role '" + $scope.resourcename+"'";
     }
+
+    $scope.loadIndices = () => {
+
+        $scope.indices = {};
+        $scope.indexAutoComplete = [];
+        $scope.doctypeAutoComplete = [];
+
+        $http.get(`${API_ROOT}/configuration/indices`)
+            .then(
+            (response) => {
+                console.log(response.data);
+                Object.keys(response.data).sort().forEach(function (indexname) {
+                        var index = {};
+                        index["name"] = indexname;
+                        var doctypesList = [];
+                        Object.keys(response.data[indexname].mappings).sort().forEach(function (doctypename) {
+                            var doctype = {};
+                            doctype["name"] = doctypename;
+                            doctypesList.push(doctype);
+                        });
+                        index["doctypes"] = doctypesList;
+                        $scope.indices[indexname] = index;
+                        $scope.indexAutoComplete.push(index);
+                    }
+                );
+            },
+            (error) => {
+                notify.error(error)
+            }
+        );
+    };
+
+    $scope.$watch('newIndexName', function(newvalue, oldvalue) {
+        if(!newvalue || !$scope.indices[newvalue]) {
+            $scope.doctypeAutoComplete = [];
+        } else {
+            console.log(newvalue);
+            console.log($scope.indices[newvalue]);
+            $scope.doctypeAutoComplete = $scope.indices[newvalue].doctypes;
+        }
+
+    }, true);
 
     $scope.getTabCss = function(tabId) {
         if ($scope.selectedTab == tabId) {
@@ -228,6 +279,10 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         $scope.selectedTab = tab;
 
     }
+
+    // -- init
+    $scope.loadIndices();
+
 });
 
 

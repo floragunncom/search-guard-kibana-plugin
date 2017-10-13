@@ -110,7 +110,7 @@
                                 </tbody>
                             </table>
 
-                            <!-- Index Table, display mode -->
+                            <!-- Index Table, add mode -->
                             <table class="kuiTable tableIndexGroups" style="border: none;" ng-show="addingIndex">
                                 <thead>
                                 <tr>
@@ -125,14 +125,33 @@
                                 <tbody>
                                 <tr data-test-subj="userRow" class="kuiTableRow">
                                     <td class="kuiTableRowCell cellAlignTop" style="border: none;">
-                                        <fieldset class="marginbottom--small" id="object-form-actiongroups">
-                                            <input type="text" class="kuiTextInput fullwidth"  ng-model="newIndexName" placeholder="Index name">
+                                        <fieldset class="marginbottom--small" id="object-form-index">
+
+                                            <angucomplete id="object-form-index"
+                                                          placeholder="Add Index"
+                                                          pause="10"
+                                                          selectedobject="newIndexName"
+                                                          localdata="indexAutoComplete"
+                                                          minlength="1"
+                                                          datafield="name"
+                                                          titlefield="name"
+                                                          searchfields="name"
+                                                          inputclass="kuiTextInput fullwidth"/>
                                         </fieldset>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop " style="border: none;">
                                         <fieldset class="marginbottom--small" id="object-form-actiongroups">
-                                            <input type="text" class="kuiTextInput fullwidth"  ng-model="newDocumentTypeName" placeholder="Document Type">
-                                            {{newDocumentTypeName}}
+
+                                            <angucomplete id="object-form-index"
+                                                          placeholder="Add Document Type"
+                                                          pause="10"
+                                                          selectedobject="newDocumentTypeName"
+                                                          localdata="doctypeAutoComplete"
+                                                          minlength="1"
+                                                          datafield="name"
+                                                          titlefield="name"
+                                                          searchfields="name"
+                                                          inputclass="kuiTextInput fullwidth"/>
                                         </fieldset>
                                     </td>
                                 </tr>

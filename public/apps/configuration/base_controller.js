@@ -1,5 +1,6 @@
 import { uiModules } from 'ui/modules';
 import chrome from 'ui/chrome';
+import { SavedObjectsClientProvider } from 'ui/saved_objects';
 
 import { get } from 'lodash';
 import './directives/directives';
@@ -34,10 +35,6 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
 
     $scope.title = "Search Guard Base Controller";
     $scope.errorMessage = "";
-    $scope.actiongroupsAutoComplete = {};
-    $scope.clusterpermissionsAutoComplete = clusterpermissions;
-    $scope.indexpermissionsAutoComplete = indexpermissions;
-    $scope.allpermissionsAutoComplete = indexpermissions.concat(clusterpermissions);
     $scope.query = "";
     $scope.resource = {};
     $scope.showEditor = false;
@@ -47,6 +44,12 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
     $scope.restapiinfo = {};
     $scope.systeminfo = {};
     $scope.accessState = "pending";
+
+    // objects for autocomplete
+    $scope.actiongroupsAutoComplete = {};
+    $scope.clusterpermissionsAutoComplete = clusterpermissions;
+    $scope.indexpermissionsAutoComplete = indexpermissions;
+    $scope.allpermissionsAutoComplete = indexpermissions.concat(clusterpermissions);
 
     // modal delete dialogue
     $scope.displayModal = false;
@@ -117,6 +120,11 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
         } else {
             $scope.actiongroupsAutoComplete = {};
         }
+    }
+
+    $scope.getDocTypeAutocomplete = () => {
+        $scope.indexAutoComplete = backendAPI.indexAutocomplete();
+        console.log($scope.indexAutoComplete);
     }
 
     $scope.endpointAndMethodEnabled = (endpoint, method) => {
