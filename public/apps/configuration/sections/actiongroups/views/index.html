@@ -37,7 +37,7 @@
                             </thead>
 
                             <tbody>
-                                <tr ng-repeat="actiongroupname in resourcenames | filter:query" data-test-subj="userRow" class="kuiTableRow">
+                                <tr ng-repeat="actiongroupname in resourcenames | filter:query" class="kuiTableRow">
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
@@ -52,19 +52,19 @@
                                         </div>
                                     </td>
 
-                                    <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                    <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
                                             <div ng-repeat="permission in resources[actiongroupname].permissions">{{permission}}<br/></div>
                                         </div>
                                     </td>
 
-                                    <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                    <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
                                             <div ng-repeat="actiongroup in resources[actiongroupname].actiongroups">{{actiongroup}}<br/></div>
                                         </div>
                                     </td>
 
-                                    <td class="kuiTableRowCell actions cellAlignTop" data-test-subj="userRowActions">
+                                    <td class="kuiTableRowCell actions cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
                                             <a ng-click="edit(actiongroupname)" class="kuiButton kuiButton--primary kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-edit"></span>

@@ -44,23 +44,23 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr data-test-subj="userRow" class="kuiTableRow">
+                                <tr  class="kuiTableRow">
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
                                             Clustername
                                         </div>
                                     </td>
-                                    <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                    <td class="kuiTableRowCell cellAlignTop" >
                                         <div ng-bind="systeminfo.cluster_name" class="kuiTableRowCell__liner"></div>
                                     </td>
                                 </tr>
-                                <tr data-test-subj="userRow" class="kuiTableRow">
+                                <tr  class="kuiTableRow">
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
                                             Nodes
                                         </div>
                                     </td>
-                                    <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                    <td class="kuiTableRowCell cellAlignTop" >
                                         <div ng-bind="systeminfo._nodes.total" class="kuiTableRowCell__liner"></div>
                                     </td>
                                 </tr>
@@ -95,75 +95,75 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr data-test-subj="userRow" class="kuiTableRow">
+                            <tr  class="kuiTableRow">
                                 <td class="kuiTableRowCell cellAlignTop">
                                     <div class="kuiTableRowCell__liner">
                                         Type
                                     </div>
                                 </td>
-                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                <td class="kuiTableRowCell cellAlignTop" >
                                     <div ng-bind="systeminfo.sg_license.type" class="kuiTableRowCell__liner"></div>
                                 </td>
                             </tr>
-                            <tr data-test-subj="userRow" class="kuiTableRow">
+                            <tr  class="kuiTableRow">
                                 <td class="kuiTableRowCell cellAlignTop">
                                     <div class="kuiTableRowCell__liner">
                                         Nodes
                                     </div>
                                 </td>
-                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                <td class="kuiTableRowCell cellAlignTop" >
                                     <div class="kuiTableRowCell__liner" ng-bind="systeminfo.sg_license.allowed_node_count_per_cluster"></div>
                                 </td>
                             </tr>
-                            <tr data-test-subj="userRow" class="kuiTableRow">
+                            <tr  class="kuiTableRow">
                                 <td class="kuiTableRowCell cellAlignTop">
                                     <div class="kuiTableRowCell__liner">
                                         Issued to
                                     </div>
                                 </td>
-                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                <td class="kuiTableRowCell cellAlignTop" >
                                     <div ng-bind="systeminfo.sg_license.issued_to" class="kuiTableRowCell__liner"></div>
                                 </td>
                             </tr>
 
-                            <tr data-test-subj="userRow" class="kuiTableRow">
+                            <tr  class="kuiTableRow">
                                 <td class="kuiTableRowCell cellAlignTop">
                                     <div class="kuiTableRowCell__liner">
                                         UID
                                     </div>
                                 </td>
-                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                <td class="kuiTableRowCell cellAlignTop" >
                                     <div ng-bind="systeminfo.sg_license.uid" class="kuiTableRowCell__liner"></div>
                                 </td>
                             </tr>
 
-                            <tr data-test-subj="userRow" class="kuiTableRow">
+                            <tr  class="kuiTableRow">
                                 <td class="kuiTableRowCell cellAlignTop">
                                     <div class="kuiTableRowCell__liner">
                                         Start Date
                                     </div>
                                 </td>
-                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                <td class="kuiTableRowCell cellAlignTop" >
                                     <div ng-bind="systeminfo.sg_license.start_date" class="kuiTableRowCell__liner"></div>
                                 </td>
                             </tr>
-                            <tr data-test-subj="userRow" class="kuiTableRow">
+                            <tr  class="kuiTableRow">
                                 <td class="kuiTableRowCell cellAlignTop">
                                     <div class="kuiTableRowCell__liner">
                                         End Date
                                     </div>
                                 </td>
-                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                <td class="kuiTableRowCell cellAlignTop" >
                                     <div ng-bind="systeminfo.sg_license.expiry_date" class="kuiTableRowCell__liner"></div>
                                 </td>
                             </tr>
-                            <tr data-test-subj="userRow" class="kuiTableRow">
+                            <tr  class="kuiTableRow">
                                 <td class="kuiTableRowCell cellAlignTop">
                                     <div class="kuiTableRowCell__liner">
                                         Days left
                                     </div>
                                 </td>
-                                <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                <td class="kuiTableRowCell cellAlignTop" >
                                     <div ng-bind="systeminfo.sg_license.expiry_in_days" class="kuiTableRowCell__liner"></div>
                                 </td>
                             </tr>
@@ -191,7 +191,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr data-test-subj="userRow" class="kuiTableRow" data-ng-repeat="modulekey in keys(systeminfo.modules).sort()">
+                            <tr  class="kuiTableRow" data-ng-repeat="modulekey in keys(systeminfo.modules).sort()">
                                 <td class="kuiTableRowCell cellAlignTop">
                                     <div class="kuiTableRowCell__liner" ng-bind="systeminfo.modules[modulekey].description"></div>
                                 </td>

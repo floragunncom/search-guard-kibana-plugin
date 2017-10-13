@@ -41,7 +41,7 @@
                             </thead>
 
                             <tbody>
-                                <tr ng-repeat="rolename in resourcenames | filter:query" data-test-subj="userRow" class="kuiTableRow">
+                                <tr ng-repeat="rolename in resourcenames | filter:query" class="kuiTableRow">
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
@@ -55,14 +55,14 @@
                                         </div>
                                     </td>
 
-                                    <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                    <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
                                             <div ng-repeat="clusterpermission in resources[rolename].cluster.actiongroups.sort()">{{clusterpermission}}<br/></div>
                                             <div ng-repeat="clusterpermission in resources[rolename].cluster.permissions.sort()">{{clusterpermission}}<br/></div>
                                         </div>
                                     </td>
 
-                                    <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowRoles">
+                                    <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
                                             <div ng-repeat="indexname in resources[rolename].indexnames.sort()">
                                                 <a class="kuiLink" ng-href="#/roles/edit/{{rolename}}/{{indexname | escape}}" >
@@ -73,7 +73,7 @@
                                         </div>
                                     </td>
 
-                                    <td class="kuiTableRowCell cellAlignTop" data-test-subj="userRowTenants">
+                                    <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
                                             <div ng-repeat="tenantname in flatten(resources[rolename].tenantsArray, 'name').sort()">
                                                 {{tenantname}}
@@ -83,7 +83,7 @@
                                     </td>
 
 
-                                    <td class="kuiTableRowCell actions cellAlignTop" data-test-subj="userRowActions">
+                                    <td class="kuiTableRowCell actions cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
                                             <a ng-click="edit(rolename)" class="kuiButton kuiButton--primary kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-edit"></span>

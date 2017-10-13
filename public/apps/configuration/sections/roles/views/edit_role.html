@@ -88,7 +88,7 @@
                                         <i>No permissions found.</i>
                                     </td>
                                 </tr>
-                                <tr data-test-subj="userRow" class="kuiTableRow" ng-show="!indicesEmpty()">
+                                <tr class="kuiTableRow" ng-show="!indicesEmpty()">
                                     <td class="kuiTableRowCell cellAlignTop" style="border: none;">
                                         <select ng-model="selectedIndex" ng-change="onIndexChange()" ng-options="str for str in keys(resource.indices).sort() track by str"></select>
                                     </td>
@@ -123,7 +123,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr data-test-subj="userRow" class="kuiTableRow">
+                                <tr class="kuiTableRow">
                                     <td class="kuiTableRowCell cellAlignTop" style="border: none;">
                                         <fieldset class="marginbottom--small" id="object-form-index">
 
@@ -192,7 +192,7 @@
                                             <i>No index defined.</i>
                                         </td>
                                     </tr>
-                                    <tr data-test-subj="userRow" ng-show="!indicesEmpty()" class="kuiTableRow">
+                                    <tr ng-show="!indicesEmpty()" class="kuiTableRow">
                                         <td class="kuiTableRowCell cellAlignTop" style="border: none;">
                                             <select ng-model="selectedIndex" ng-options="str for str in keys(resource.indices).sort() track by str"></select>
                                         </td>

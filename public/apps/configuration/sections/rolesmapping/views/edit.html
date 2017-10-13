@@ -26,7 +26,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr data-test-subj="userRow" class="kuiTableRow" data-ng-repeat="user in resource.users track by $index">
+                                <tr class="kuiTableRow" data-ng-repeat="user in resource.users track by $index">
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <fieldset class="marginbottom--small" id="object-form-backendroles">
                                             <input type="text" required class="kuiTextInput fullwidth" ng-model="resource.users[$index]" name="">
@@ -63,7 +63,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr data-test-subj="userRow" class="kuiTableRow" data-ng-repeat="backendrole in resource.backendroles track by $index">
+                                <tr class="kuiTableRow" data-ng-repeat="backendrole in resource.backendroles track by $index">
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <fieldset class="marginbottom--small" id="object-form-backendroles">
                                             <input required type="text" class="kuiTextInput fullwidth" ng-model="resource.backendroles[$index]" name="">
@@ -100,7 +100,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr data-test-subj="userRow" class="kuiTableRow" data-ng-repeat="host in resource.hosts track by $index">
+                                <tr class="kuiTableRow" data-ng-repeat="host in resource.hosts track by $index">
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <fieldset class="marginbottom--small" id="object-form-hosts">
                                             <input required type="text" class="kuiTextInput fullwidth" ng-model="resource.hosts[$index]" name="">
