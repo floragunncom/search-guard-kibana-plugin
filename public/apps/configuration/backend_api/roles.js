@@ -104,7 +104,8 @@ uiModules.get('apps/searchguard/configuration', [])
 
             // tenants
             role["tenants"] = {};
-            for (var tenant in role.tenantsArray) {
+            for (var i = 0, l = role.tenantsArray.length; i < l; i++) {
+                var tenant = role.tenantsArray[i];
                 if (tenant && tenant.name != "") {
                     role.tenants[tenant.name] = tenant.permissions;
                 }

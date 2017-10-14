@@ -124,7 +124,6 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
 
     $scope.getDocTypeAutocomplete = () => {
         $scope.indexAutoComplete = backendAPI.indexAutocomplete();
-        console.log($scope.indexAutoComplete);
     }
 
     $scope.endpointAndMethodEnabled = (endpoint, method) => {

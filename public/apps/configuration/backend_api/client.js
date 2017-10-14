@@ -132,9 +132,12 @@ uiModules.get('apps/searchguard/configuration', [])
 
                 // object array, traverse down
                 if (isPlainObject(firstEntry)) {
-                    for(var i = 0; i<theobject.length; i++)
-                    return this.cleanArraysFromDuplicates(theobject[i]);
+                    for(var i = 0; i<theobject.length; i++) {
+                        theobject[i] = this.cleanArraysFromDuplicates(theobject[i]);
+                    }
                 }
+                // something else ...
+                return theobject;
             }
 
             // Object, traverse keys

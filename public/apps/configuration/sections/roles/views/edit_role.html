@@ -34,7 +34,7 @@
 
                         <div ng-show="selectedTab=='overview'">
                             <sgc-form-resource-name></sgc-form-resource-name>
-                            <div class="kuiHeaderBar">
+                            <div class="kuiHeaderBar" style="margin-bottom: 20px; margin-top:10px;">
                                 <div class="kuiHeaderBarSection">
                                     <h2 class="kuiSubTitle">Mappings</h2>
                                 </div>
@@ -58,31 +58,62 @@
                         </div>
 
                         <div ng-show="selectedTab=='clusterpermissions'">
+                            <table class="fullwidth">
+                                <tr>
+                                    <td>
+                                        <h3 class="resourcename">
+                                            {{resourcelabel}}: {{resourcename}}
+                                            <div class="kuiBadge kuiBadge--default" ng-if="resource.readonly">
+                                                <span class="kuiIcon fa-warning"></span>
+                                                readonly
+                                            </div>
+                                        </h3>
+                                    </td>
+                                </tr>
+                            </table>
+                            <div class="kuiHeaderBar" style="margin-bottom: 20px; margin-top:10px;">
+                                <div class="kuiHeaderBarSection">
+                                    <h2 class="kuiSubTitle">Cluster permissions</h2>
+                                </div>
+                            </div>
                             <sgc-permissions permissionsResource="resource.cluster"></sgc-permissions>
                         </div>
 
                         <div ng-show="selectedTab=='indexpermissions'">
-
-
-                            <div class="kuiHeaderBar">
+                            <table class="fullwidth">
+                                <tr>
+                                    <td>
+                                        <h3 class="resourcename">
+                                            {{resourcelabel}}: {{resourcename}}
+                                            <div class="kuiBadge kuiBadge--default" ng-if="resource.readonly">
+                                                <span class="kuiIcon fa-warning"></span>
+                                                readonly
+                                            </div>
+                                        </h3>
+                                    </td>
+                                </tr>
+                            </table>
+                            <div class="kuiHeaderBar" style="margin-bottom: 20px; margin-top:10px;">
                                 <div class="kuiHeaderBarSection">
-                                    <h2 class="kuiSubTitle">Index permissions for</h2>
+                                    <h2 class="kuiSubTitle">Select Index and Document Type</h2>
                                 </div>
                             </div>
 
                             <!-- Index Table, display mode -->
-                            <table class="kuiTable tableIndexGroups" style="border: none;" ng-show="!addingIndex">
+
+                            <table class="kuiTable" style="border: none;" ng-show="!addingIndex">
                                 <thead>
                                 <tr>
-                                    <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
+                                    <th class="kuiTableHeaderCell tableHeaderBold">
                                         Index
                                     </th>
-                                    <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
+                                    <th class="kuiTableHeaderCell tableHeaderBold">
                                         Document Type
                                     </th>
                                 </tr>
                                 </thead>
                                 <tbody>
+
                                 <tr class="kuiTableRow" ng-show="indicesEmpty()" style="border: none;">
                                     <td class="kuiTableRowCell cellAlignTop kuiNoItems sgNoItems" colspan="2" style="border: none;">
                                         <i>No permissions found.</i>
@@ -90,10 +121,10 @@
                                 </tr>
                                 <tr class="kuiTableRow" ng-show="!indicesEmpty()">
                                     <td class="kuiTableRowCell cellAlignTop" style="border: none;">
-                                        <select ng-model="selectedIndex" ng-change="onIndexChange()" ng-options="str for str in keys(resource.indices).sort() track by str"></select>
+                                        <select class="sevenwidth" ng-model="selectedIndex" ng-change="onIndexChange()" ng-options="str for str in keys(resource.indices).sort() track by str"></select>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop " style="border: none;">
-                                        <select ng-model="selectedDocumentType" ng-options="str for str in keys(resource.indices[selectedIndex]).sort() track by str"></select>
+                                        <select class="sevenwidth" ng-model="selectedDocumentType" ng-options="str for str in keys(resource.indices[selectedIndex]).sort() track by str"></select>
                                     </td>
                                 </tr>
                                 <tr class="kuiTableRow">
@@ -114,10 +145,10 @@
                             <table class="kuiTable tableIndexGroups" style="border: none;" ng-show="addingIndex">
                                 <thead>
                                 <tr>
-                                    <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
+                                    <th class="kuiTableHeaderCell tableHeaderBold">
                                         Index
                                     </th>
-                                    <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
+                                    <th class="kuiTableHeaderCell tableHeaderBold">
                                         Document Type
                                     </th>
                                 </tr>
@@ -164,6 +195,12 @@
                                 </tr>
                                 </tbody>
                             </table>
+
+                            <div class="kuiHeaderBar" style="margin-bottom: 20px; margin-top:10px;" ng-show="selectedIndex != '' && !addingIndex">
+                                <div class="kuiHeaderBarSection">
+                                    <h2 class="kuiSubTitle">Permissions for index '{{selectedIndex}}' and document type '{{selectedDocumentType}}'</h2>
+                                </div>
+                            </div>
 
                             <sgc-permissions permissionsResource="resource.indices[selectedIndex][selectedDocumentType]" ng-show="selectedIndex != '' && !addingIndex"></sgc-permissions>
 
@@ -271,21 +308,44 @@
                         </div>
 
                         <div ng-show="selectedTab=='tenants'">
+                            <table class="fullwidth">
+                                <tr>
+                                    <td>
+                                        <h3 class="resourcename">
+                                            {{resourcelabel}}: {{resourcename}}
+                                            <div class="kuiBadge kuiBadge--default" ng-if="resource.readonly">
+                                                <span class="kuiIcon fa-warning"></span>
+                                                readonly
+                                            </div>
+                                        </h3>
+                                    </td>
+                                </tr>
+                            </table>
+                            <div class="kuiHeaderBar" style="margin-bottom: 20px; margin-top:10px;">
+                                <div class="kuiHeaderBarSection">
+                                    <h2 class="kuiSubTitle">Tenants</h2>
+                                </div>
+                            </div>
                             <table class="kuiTable">
                                 <thead>
                                 <tr>
-                                    <th class="kuiTableHeaderCell" style="width: 50%;">
+                                    <th class="kuiTableHeaderCell tableHeaderBold" style="width: 70%;">
                                         Tenant
                                     </th>
-                                    <th class="kuiTableHeaderCell">
+                                    <th class="kuiTableHeaderCell tableHeaderBold">
                                         Permissions
                                     </th>
-                                    <th class="kuiTableHeaderCell">
+                                    <th class="kuiTableHeaderCell tableHeaderBold">
 
                                     </th>
                                 </tr>
                                 </thead>
                                 <tbody>
+                                <tr class="kuiTableRow" ng-show="!resource.tenantsArray.length">
+                                    <td class="kuiTableRowCell cellAlignTop kuiNoItems sgNoItems" colspan="3">
+                                        No Tenants configured for this role.
+                                    </td>
+                                </tr>
                                 <tr class="kuiTableRow" data-ng-repeat="tenant in sortObjectArray(resource.tenantsArray,'name') track by $index">
                                     <td class="kuiTableRowCell">
                                         <fieldset class="marginbottom--small" id="object-form-actiongroups">
@@ -299,10 +359,6 @@
                                         </select>
                                     </td>
                                     <td class="kuiTableRowCell actions">
-                                        <a ng-href="#/roles/editindex/{{resourcename}}/{{indexname | escape}}"
-                                           class="kuiButton kuiButton--primary kuiButton--iconText">
-                                            <span class="kuiButton__icon kuiIcon fa-edit"></span>
-                                        </a>
                                         <a ng-click="removeFromObjectArray(resource.tenantsArray, $index, resource.tenantsArray[$index].name)"
                                            class="kuiButton kuiButton--danger kuiButton--iconText">
                                             <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
@@ -314,10 +370,10 @@
                                     <td class="kuiTableRowCell cellAlignTop actions"></td>
                                     <td class="kuiTableRowCell cellAlignTop actions">
                                         <button type="button" ng-click="addToObjectArray(resource.tenantsArray, {name: '', permissions: 'RW'})"
-                                                ng-disabled="lastArrayEntryEmpty(permissionsResource.permissions)"
+                                                ng-disabled="lastArrayEntryEmpty(resource.tenantsArray)"
                                                 class="kuiButton kuiButton--primary kuiButton--iconText">
                                             <span class="kuiButton__icon kuiIcon fa-plus"></span>
-                                            Add Tenant
+                                            Add
                                         </button>
                                     </td>
                                 </tr>

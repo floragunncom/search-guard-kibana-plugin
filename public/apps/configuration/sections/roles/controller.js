@@ -77,7 +77,6 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         $http.get(`${API_ROOT}/configuration/indices`)
             .then(
             (response) => {
-                console.log(response.data);
                 Object.keys(response.data).sort().forEach(function (indexname) {
                         var index = {};
                         index["name"] = indexname;
@@ -103,11 +102,8 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         if(!newvalue || !$scope.indices[newvalue]) {
             $scope.doctypeAutoComplete = [];
         } else {
-            console.log(newvalue);
-            console.log($scope.indices[newvalue]);
             $scope.doctypeAutoComplete = $scope.indices[newvalue].doctypes;
         }
-
     }, true);
 
     $scope.getTabCss = function(tabId) {
@@ -170,6 +166,14 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     }
 
     $scope.submitAddIndex = function() {
+        if($scope.newIndexName.trim().length == 0 || $scope.newDocumentTypeName.trim().length == 0 ) {
+            $scope.errorMessage = "Please define both index and document type.";
+            return;
+        }
+        if($scope.resource.indices[$scope.newIndexName] && $scope.resource.indices[$scope.newIndexName][$scope.newDocumentTypeName] ) {
+            $scope.errorMessage = "This index and document type is already defined, please choose another one.";
+            return;
+        }
         $scope.service.addEmptyIndex($scope.resource, $scope.newIndexName, $scope.newDocumentTypeName);
         $scope.selectedIndex = $scope.newIndexName;
         $scope.selectedDocumentType = $scope.newDocumentTypeName;
@@ -266,9 +270,7 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
             return;
         }
 
-        // we need to preserve the original resource,
-        // because we stay on the same page after save
-        $scope.service.save($scope.resourcename, JSON.parse(JSON.stringify($scope.resource))).then(() => kbnUrl.change(`/roles/`));;
+        $scope.service.save($scope.resourcename, $scope.resource).then(() => kbnUrl.change(`/roles/`));;
 
         $scope.errorMessage = null;
 

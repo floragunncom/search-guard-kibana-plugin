@@ -7,7 +7,6 @@ app.directive('sgcPermissions', function () {
     return {
         template: require('./permissions.html'),
         restrict: 'EA',
-        scope: true,
         scope: {
             "permissionsResource": "=permissionsresource",
         },
