@@ -96,7 +96,7 @@ export default function (kibana) {
                     main: 'plugins/searchguard/apps/configuration',
                     order: 9009,
                     auth: true,
-                    icon: 'plugins/searchguard/assets/searchguard_logo.svg',
+                    icon: 'plugins/searchguard/assets/searchguard_logo_nav.svg',
                     linkToLastSubUrl: false,
                     url: '/app/searchguard-configuration#/'
                 }
