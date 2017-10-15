@@ -26,6 +26,10 @@ uiModules.get('apps/searchguard/configuration', [])
             return backendAPI.list(RESOURCE);
         };
 
+        this.listSilent = () => {
+            return backendAPI.listSilent(RESOURCE);
+        };
+
         this.get = (id) => {
             return backendAPI.get(RESOURCE, id);
         };

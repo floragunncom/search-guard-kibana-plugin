@@ -110,7 +110,7 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
 
     $scope.loadActionGroups = () => {
         if($scope.endpointAndMethodEnabled("ACTIONGROUPS","GET")) {
-            backendActionGroups.list().then((response) => {
+            backendActionGroups.listSilent().then((response) => {
                 $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete(Object.keys(response.data));
                 $scope.accessState = "ok";
             }, (error) => {

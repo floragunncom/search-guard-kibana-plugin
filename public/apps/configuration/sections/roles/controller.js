@@ -234,7 +234,7 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     });
 
     $scope.loadRoleMapping = function() {
-        backendrolesmapping.get($scope.resourcename, false)
+        backendrolesmapping.getSilent($scope.resourcename, false)
             .then((response) => {
                 $scope.rolemapping = response;
             });

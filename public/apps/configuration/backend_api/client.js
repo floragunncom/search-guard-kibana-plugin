@@ -8,7 +8,7 @@ import { isEmpty } from 'lodash';
  * Backend API client service.
  */
 uiModules.get('apps/searchguard/configuration', [])
-    .service('backendAPI', function (Promise, $http, $window, createNotifier, kbnUrl) {
+    .service('backendAPI', function (Promise, $http, $window, createNotifier, kbnUrl, searchGuardAccessControl) {
 
         const notify = createNotifier({
             location: 'Authentication backend'
@@ -31,25 +31,29 @@ uiModules.get('apps/searchguard/configuration', [])
                 });
         };
 
-        this.get = function(resourceName, id, showError) {
-            showError = typeof showError !== 'undefined' ? showError : true;
+        this.get = function(resourceName, id) {
             return $http.get(`${AUTH_BACKEND_API_ROOT}/configuration/${resourceName}/${id}`)
                 .then((response) => {
                     return response.data;
                 })
                 .catch((error) => {
                     if (error.status == 403) {
-                        kbnUrl.change('/');
-                        if (showError) {
-                            notify.error("Authentication failed");
-                            throw error;
-                        }
+                        searchGuardAccessControl.logout();
                     } else {
-                        if (showError) {
-                            notify.error(error);
-                            throw error;
-                        }
+                        notify.error(error);
                     }
+                    throw error;
+                });
+        };
+
+        this.getSilent = function(resourceName, id, showError) {
+            showError = typeof showError !== 'undefined' ? showError : true;
+            return $http.get(`${AUTH_BACKEND_API_ROOT}/configuration/${resourceName}/${id}`)
+                .then((response) => {
+                    return response.data;
+                })
+                .catch((error) => {
+                    // nothing
                 });
         };
 
@@ -60,10 +64,8 @@ uiModules.get('apps/searchguard/configuration', [])
                     notify.info(response.data.message);
                 })
                 .catch((error) => {
-                    console.log(error);
                     if (error.status == 403) {
-                        kbnUrl.change('/');
-                        notify.error("Authentication failed");
+                        searchGuardAccessControl.logout();
                     } else {
                         notify.error(error);
                     }
@@ -78,8 +80,7 @@ uiModules.get('apps/searchguard/configuration', [])
                 })
                 .catch((error) => {
                     if (error.status == 403) {
-                        kbnUrl.change('/');
-                        notify.error("Authentication failed");
+                        searchGuardAccessControl.logout();
                     } else {
                         notify.error(error);
                     }
@@ -94,11 +95,21 @@ uiModules.get('apps/searchguard/configuration', [])
                 })
                 .catch((error) => {
                     if (error.status == 403) {
-                        notify.error("Authentication failed");
+                        searchGuardAccessControl.logout();
                     } else {
                         notify.error(error);
                     }
                     throw error;
+                });
+        };
+
+        this.listSilent = (resourceName)  => {
+            return $http.get(`${AUTH_BACKEND_API_ROOT}/configuration/${resourceName}`)
+                .then((response) => {
+                    return response.data;
+                })
+                .catch((error) => {
+                    // nothing
                 });
         };
 
@@ -109,8 +120,7 @@ uiModules.get('apps/searchguard/configuration', [])
                 })
                 .catch((error) => {
                     if (error.status == 403) {
-                        kbnUrl.change('/');
-                        notify.error("Authentication failed");
+                        searchGuardAccessControl.logout();
                     } else {
                         notify.error(error);
                     }
