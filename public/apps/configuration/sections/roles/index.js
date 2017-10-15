@@ -17,6 +17,9 @@ uiRoutes
     .when('/roles/new', {
         template: editRoleTemplate
     })
+    .when('/roles/clone/:resourcename', {
+        template: editRoleTemplate
+    })
     .when('/roles/edit/:resourcename', {
       template: editRoleTemplate
     })
