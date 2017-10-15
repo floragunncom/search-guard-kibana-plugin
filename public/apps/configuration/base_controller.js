@@ -16,7 +16,7 @@ import '../../directives/licensewarning'
 
 const app = uiModules.get('apps/searchguard/configuration', ['ui.ace']);
 
-app.controller('sgBaseController', function ($scope, $element, $route, $window, $http, createNotifier, backendAPI, backendActionGroups, kbnUrl) {
+app.controller('sgBaseController', function ($scope, $element, $route, $window, $http, createNotifier, backendAPI, backendActionGroups, kbnUrl, searchGuardAccessControl) {
 
     var APP_ROOT = `${chrome.getBasePath()}`;
     var API_ROOT = `${APP_ROOT}/api/v1`;
@@ -95,7 +95,11 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
 
                     },
                     (error) => {
-                        notify.error(error)
+                        if (error.status == 403) {
+                            searchGuardAccessControl.logout();
+                        } else {
+                            notify.error(error);
+                        }
                     }
                 );
 
