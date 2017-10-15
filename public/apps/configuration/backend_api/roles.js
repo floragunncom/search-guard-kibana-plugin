@@ -277,11 +277,11 @@ uiModules.get('apps/searchguard/configuration', [])
                     docTypeNames.forEach(function(docTypeName) {
                         var doctype = role.indices[indexName][docTypeName];
                         // doctype with at least one permission
-                        if (doctype.actiongroups && doctype.actiongroups.length > 0 && doctype.permissions && doctype.permissions.length > 0) {
+                        if ((doctype.actiongroups && doctype.actiongroups.length > 0) || (doctype.permissions && doctype.permissions.length > 0)) {
                             indicesStatus.allEmpty = false;
                         } else {
                             // empty doctype
-                            indicesStatus.faultyIndices.push(indexName + " / " + doctype);
+                            indicesStatus.faultyIndices.push(indexName + " / " + docTypeName);
                         }
                     });
                 });
