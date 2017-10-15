@@ -190,49 +190,6 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         $scope.errorMessage = null;
     }
 
-    $scope.service.list().then((response) => {
-        // exisiting role names for form validation
-        $scope.resourcenames = Object.keys(response.data);
-
-        var rolename = $routeParams.resourcename;
-        var indexname = $routeParams.indexname;
-
-        if (rolename) {
-            $scope.service.get(rolename)
-                .then((response) => {
-                    $scope.resource = $scope.service.postFetch(response);
-                    $scope.resourcename = rolename;
-                    if($location.path().indexOf("clone") == -1) {
-                        $scope.isNew = false;
-                    } else {
-                        $scope.resourcename = $scope.resourcename + " (COPY)";
-                        $scope.isNew = true;
-                    }
-                    $scope.indexname = $routeParams.indexname;
-                    $scope.loadRoleMapping();
-                    if(indexname) {
-                        $scope.selectedIndex = indexname;
-                        $scope.selectedTab = "indexpermissions";
-
-                    } else {
-                        if($scope.resource.indices && $scope.resource.indices.length > 0) {
-                            $scope.selectedIndex = Object.keys($scope.resource.indices).sort()[0];
-                        }
-                        $scope.selectedTab = "overview";
-                    }
-                    if($scope.resource.indices && $scope.resource.indices[$scope.selectedIndex]) {
-                        $scope.selectedDocumentType = Object.keys($scope.resource.indices[$scope.selectedIndex]).sort()[0];
-                    }
-                    console.log($scope.selectedIndex);
-                });
-        } else {
-            $scope.selectedTab = "overview";
-            $scope.resource = $scope.service.postFetch($scope.service.emptyModel());
-            $scope.isNew = true;
-        }
-        $scope.loaded = true;
-    });
-
     $scope.loadRoleMapping = function() {
         backendrolesmapping.getSilent($scope.resourcename, false)
             .then((response) => {
@@ -296,6 +253,51 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
 
     // -- init
     $scope.loadIndices();
+
+    $scope.service.list().then((response) => {
+
+        // exisiting role names for form validation
+        $scope.resourcenames = Object.keys(response.data);
+
+        var rolename = $routeParams.resourcename;
+        var indexname = $routeParams.indexname;
+
+        if (rolename) {
+            $scope.service.get(rolename)
+                .then((response) => {
+                    $scope.resource = $scope.service.postFetch(response);
+                    $scope.resourcename = rolename;
+                    if($location.path().indexOf("clone") == -1) {
+                        $scope.isNew = false;
+                    } else {
+                        $scope.resourcename = $scope.resourcename + " (COPY)";
+                        $scope.isNew = true;
+                    }
+                    $scope.indexname = $routeParams.indexname;
+                    $scope.loadRoleMapping();
+                    if(indexname) {
+                        console.log("indexname: " +indexname);
+                        $scope.selectedIndex = indexname;
+                        $scope.selectedTab = "indexpermissions";
+
+                    } else {
+                        if($scope.resource.indices && Object.keys($scope.resource.indices).length > 0) {
+                            $scope.selectedIndex = Object.keys($scope.resource.indices).sort()[0];
+                        }
+                        $scope.selectedTab = "overview";
+                    }
+                    if($scope.resource.indices && $scope.resource.indices[$scope.selectedIndex]) {
+                        $scope.selectedDocumentType = Object.keys($scope.resource.indices[$scope.selectedIndex]).sort()[0];
+                    }
+                    console.log($scope.selectedIndex);
+                });
+        } else {
+            $scope.selectedTab = "overview";
+            $scope.resource = $scope.service.postFetch($scope.service.emptyModel());
+            $scope.isNew = true;
+        }
+        $scope.loaded = true;
+    });
 
 });
 
