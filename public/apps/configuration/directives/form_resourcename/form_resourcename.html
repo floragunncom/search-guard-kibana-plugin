@@ -1,6 +1,6 @@
 <div>
 
-    <table class="fullwidth" ng-show="!isNew">
+    <table class="fullwidth" ng-show="!isNew" style="margin-bottom:10px;">
         <tr>
             <td>
                 <h3 class="resourcename">
@@ -24,7 +24,7 @@
         </tr>
     </table>
 
-    <div
+    <div style="margin-bottom:10px;"
             id="object-form-json-raw"
             name="jsonRaw"
             ui-ace="{ onLoad: aceLoaded, mode: 'json' }"
@@ -36,8 +36,8 @@
 
     </div>
 
-    <div ng-show="isNew">
-        <label for="object-form-id-new">{{service.newLabel}}:</label>
+    <div ng-show="isNew" style="margin-bottom:20px;">
+        <h3 style="margin-top:0px;">{{service.newLabel}}:</h3>
         <input
                 id="object-form-id-new"
                 name="objectId"

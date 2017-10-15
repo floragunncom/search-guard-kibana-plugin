@@ -288,3 +288,7 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
 app.filter('escape', function() {
     return window.encodeURIComponent;
 });
+
+app.filter('unsafe', function($sce) {
+    return $sce.trustAsHtml;
+});

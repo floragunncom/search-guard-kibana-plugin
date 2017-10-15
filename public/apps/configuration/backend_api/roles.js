@@ -30,7 +30,8 @@ uiModules.get('apps/searchguard/configuration', [])
         };
 
         this.save = (rolename, data) => {
-            var data = this.preSave(data);
+            var resourceCopy = JSON.parse(JSON.stringify(data));
+            var data = this.preSave(resourceCopy);
             return backendAPI.save(RESOURCE, rolename, data);
         };
 
@@ -171,6 +172,8 @@ uiModules.get('apps/searchguard/configuration', [])
                         index[doctypename] = doctype;
                     }
                 }
+            } else {
+                role.indices = {};
             }
 
             // transform tenants to object
@@ -248,54 +251,42 @@ uiModules.get('apps/searchguard/configuration', [])
         /**
          * Checks whether a role definition is empty. Empty
          * roles are not supported and cannot be saved. We need
-         * at least some index or clusterpermissions, DLSFLS or tenants
+         * at least some index or clusterpermissions
          * @param role
          */
         this.isRoleEmpty = function (role) {
-
             // clean duplicates and remove empty arrays
-            role = backendAPI.cleanArraysFromDuplicates(role);
-            // tenants and clusterpermissions
-            var tenantsEmpty = role.tenantsArray.length == 0;
+            //role = backendAPI.cleanArraysFromDuplicates(role);
             var clusterPermsEmpty = role.cluster.actiongroups.length == 0 && role.cluster.permissions.length == 0;
-            var dlsFlsEmpty = true;
-
-            if (role.dlsfls && Object.keys(role.dlsfls).length > 0) {
-                dlsFlsEmpty = false;
-            }
-
-            var indicesEmpty = this.indicesEmpty(role);
-
-            return tenantsEmpty && clusterPermsEmpty && dlsFlsEmpty && indicesEmpty;
+            var indicesEmpty = this.checkIndicesStatus(role).allEmpty;
+            return clusterPermsEmpty && indicesEmpty;
         }
 
-        this.indicesEmpty = function (role) {
-            // index, we need at least one index with one document type with one role
-            var indicesEmpty = true;
-            if (role.indices) {
-                // flat list of indexnames
-                var indexNames = Object.keys(role.indices);
-                for (var indexName in indexNames) {
-                    // get index definition
-                    var index = role.indices[indexName];
-                    // check all document types
-                    for (var doctype in index) {
-                        if (doctype) {
-                            // we just need one permissions to satisfy non-emptiness
-                            if (doctype.actiongroups && doctype.actiongroups.length > 0) {
-                                indicesEmpty = true;
-                                break;
-                            }
-                            if (doctype.permissions && doctype.permissions.length > 0) {
-                                indicesEmpty = true;
-                                break;
-                            }
-                        }
-                    }
+        this.checkIndicesStatus = function (role) {
 
-                }
+            // index, we need at least one index with one document type with one permissions
+            var indicesStatus = {
+                allEmpty: true,
+                faultyIndices: []
+            };
+            if (role.indices) {
+
+                var indexNames = Object.keys(role.indices);
+                indexNames.forEach(function(indexName) {
+                    var docTypeNames = Object.keys(role.indices[indexName]);
+                    docTypeNames.forEach(function(docTypeName) {
+                        var doctype = role.indices[indexName][docTypeName];
+                        // doctype with at least one permission
+                        if (doctype.actiongroups && doctype.actiongroups.length > 0 && doctype.permissions && doctype.permissions.length > 0) {
+                            indicesStatus.allEmpty = false;
+                        } else {
+                            // empty doctype
+                            indicesStatus.faultyIndices.push(indexName + " / " + doctype);
+                        }
+                    });
+                });
             }
-            return indicesEmpty;
+            return indicesStatus;
         }
 
     });

@@ -39,6 +39,7 @@
                                     <h2 class="kuiSubTitle">Mappings</h2>
                                 </div>
                             </div>
+                            {{resource}}
                             <h5><b>Users:</b></h5>
                             <ul>
                                 <li data-ng-repeat="user in rolemapping.users" ng-bind="user"></li>
@@ -62,7 +63,7 @@
                                 <tr>
                                     <td>
                                         <h3 class="resourcename">
-                                            {{resourcelabel}}: {{resourcename}}
+                                            {{resourcelabel}}: <span ng-class="{'noresourcename': !resourcename}">{{resourcename || '(no role name defined)'}}</span>
                                             <div class="kuiBadge kuiBadge--default" ng-if="resource.readonly">
                                                 <span class="kuiIcon fa-warning"></span>
                                                 readonly
@@ -84,7 +85,7 @@
                                 <tr>
                                     <td>
                                         <h3 class="resourcename">
-                                            {{resourcelabel}}: {{resourcename}}
+                                            {{resourcelabel}}: <span ng-class="{'noresourcename': !resourcename}">{{resourcename || '(no role name defined)'}}</span>
                                             <div class="kuiBadge kuiBadge--default" ng-if="resource.readonly">
                                                 <span class="kuiIcon fa-warning"></span>
                                                 readonly
@@ -102,7 +103,7 @@
                             <!-- Index Table, display mode -->
 
                             <table class="kuiTable" style="border: none;" ng-show="!addingIndex">
-                                <thead>
+                                <thead ng-show="!indicesEmpty()">
                                 <tr>
                                     <th class="kuiTableHeaderCell tableHeaderBold">
                                         Index
@@ -116,7 +117,7 @@
 
                                 <tr class="kuiTableRow" ng-show="indicesEmpty()" style="border: none;">
                                     <td class="kuiTableRowCell cellAlignTop kuiNoItems sgNoItems" colspan="2" style="border: none;">
-                                        <i>No permissions found.</i>
+                                        <i>No configured indices or document types found.</i>
                                     </td>
                                 </tr>
                                 <tr class="kuiTableRow" ng-show="!indicesEmpty()">
@@ -132,6 +133,7 @@
                                     <td class="kuiTableRowCell cellAlignTop actions" style="border: none;">
                                         <button type="button" ng-click="addIndex()" class="kuiButton kuiButton--primary kuiButton--iconText">
                                             <span class="kuiButton__icon kuiIcon fa-plus"></span>
+                                            Add Index / Document Type
                                         </button>
                                         <a ng-show="!indicesEmpty()" ng-click="deleteDocumentType()" class="kuiButton kuiButton--danger kuiButton--iconText">
                                             <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
@@ -159,7 +161,7 @@
                                         <fieldset class="marginbottom--small" id="object-form-index">
 
                                             <angucomplete id="object-form-index"
-                                                          placeholder="Add Index"
+                                                          placeholder="Index name"
                                                           pause="10"
                                                           selectedobject="newIndexName"
                                                           localdata="indexAutoComplete"
@@ -174,7 +176,7 @@
                                         <fieldset class="marginbottom--small" id="object-form-actiongroups">
 
                                             <angucomplete id="object-form-index"
-                                                          placeholder="Add Document Type"
+                                                          placeholder="Document Type name"
                                                           pause="10"
                                                           selectedobject="newDocumentTypeName"
                                                           localdata="doctypeAutoComplete"
@@ -201,19 +203,29 @@
                                     <h2 class="kuiSubTitle">Permissions for index '{{selectedIndex}}' and document type '{{selectedDocumentType}}'</h2>
                                 </div>
                             </div>
-
                             <sgc-permissions permissionsResource="resource.indices[selectedIndex][selectedDocumentType]" ng-show="selectedIndex != '' && !addingIndex"></sgc-permissions>
 
                         </div>
 
                         <div ng-show="selectedTab=='dlsfls'">
-
-                            <div class="kuiHeaderBar">
+                            <table class="fullwidth">
+                                <tr>
+                                    <td>
+                                        <h3 class="resourcename">
+                                            {{resourcelabel}}: <span ng-class="{'noresourcename': !resourcename}">{{resourcename || '(no role name defined)'}}</span>
+                                            <div class="kuiBadge kuiBadge--default" ng-if="resource.readonly">
+                                                <span class="kuiIcon fa-warning"></span>
+                                                readonly
+                                            </div>
+                                        </h3>
+                                    </td>
+                                </tr>
+                            </table>
+                            <div class="kuiHeaderBar" style="margin-bottom: 20px; margin-top:10px;">
                                 <div class="kuiHeaderBarSection">
                                     <h2 class="kuiSubTitle">Document- and Field-Level-Security</h2>
                                 </div>
                             </div>
-
                             <!-- Index Table, display mode -->
                             <table class="kuiTable tableIndexGroups" style="border: none;">
                                 <thead>
@@ -312,7 +324,7 @@
                                 <tr>
                                     <td>
                                         <h3 class="resourcename">
-                                            {{resourcelabel}}: {{resourcename}}
+                                            {{resourcelabel}}: <span ng-class="{'noresourcename': !resourcename}">{{resourcename || '(no role name defined)'}}</span>
                                             <div class="kuiBadge kuiBadge--default" ng-if="resource.readonly">
                                                 <span class="kuiIcon fa-warning"></span>
                                                 readonly

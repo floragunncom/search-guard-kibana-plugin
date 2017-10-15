@@ -60,6 +60,7 @@ uiModules.get('apps/searchguard/configuration', [])
                     notify.info(response.data.message);
                 })
                 .catch((error) => {
+                    console.log(error);
                     if (error.status == 403) {
                         kbnUrl.change('/');
                         notify.error("Authentication failed");

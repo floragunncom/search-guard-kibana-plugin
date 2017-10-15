@@ -51,7 +51,7 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     $scope.isNew = true;
 
     $scope.selectedTab = "";
-    $scope.selectedIndex = "";
+    $scope.selectedIndex = '';
     $scope.selectedDocumentType = "";
 
     $scope.newIndexName = "";
@@ -211,11 +211,11 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
                     $scope.indexname = $routeParams.indexname;
                     $scope.loadRoleMapping();
                     if(indexname) {
-                        $scope.selectedIndex = indexname
+                        $scope.selectedIndex = indexname;
                         $scope.selectedTab = "indexpermissions";
 
                     } else {
-                        if($scope.resource.indices) {
+                        if($scope.resource.indices && $scope.resource.indices.length > 0) {
                             $scope.selectedIndex = Object.keys($scope.resource.indices).sort()[0];
                         }
                         $scope.selectedTab = "overview";
@@ -223,6 +223,7 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
                     if($scope.resource.indices && $scope.resource.indices[$scope.selectedIndex]) {
                         $scope.selectedDocumentType = Object.keys($scope.resource.indices[$scope.selectedIndex]).sort()[0];
                     }
+                    console.log($scope.selectedIndex);
                 });
         } else {
             $scope.selectedTab = "overview";
@@ -257,19 +258,30 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
             return;
         }
 
-        // we need at least cluster permissions, index permissions, or tenants, empty roles
-        // are not supported.
-        if ($scope.service.isRoleEmpty($scope.resource)) {
-            $scope.displayErrorOnTab("Please define at least cluster permissions, index permissions or tenants", "overview");
+        // faulty index settings
+        var indicesStatus = $scope.service.checkIndicesStatus($scope.resource);
+
+        if(indicesStatus.faultyIndices.length > 0) {
+            var error = "The following indices / document types have empty permissions:<br/>";
+            for ( var faultyIndex in indicesStatus.faultyIndices) {
+                error += faultyIndex + "<br />"
+            }
+            $scope.displayErrorOnTab(error, "indexpermissions");
             return;
         }
 
+        // we need at least cluster permissions, index permissions, or tenants, empty roles
+        // are not supported.
+        if ($scope.service.isRoleEmpty($scope.resource)) {
+            $scope.displayErrorOnTab("Please define at least cluster permissions or index permissions", "indexpermissions");
+            return;
+        }
 
         if (form.hasClass('ng-invalid-required')) {
             $scope.errorMessage = 'Please fill in all the required parameters.';
             return;
         }
-
+        backendAPI.cleanArraysFromDuplicates($scope.resource);
         $scope.service.save($scope.resourcename, $scope.resource).then(() => kbnUrl.change(`/roles/`));;
 
         $scope.errorMessage = null;
