@@ -46,10 +46,12 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
     $scope.accessState = "pending";
 
     // objects for autocomplete
+    // todo: cache in session storage
     $scope.actiongroupsAutoComplete = {};
     $scope.clusterpermissionsAutoComplete = clusterpermissions;
     $scope.indexpermissionsAutoComplete = indexpermissions;
     $scope.allpermissionsAutoComplete = indexpermissions.concat(clusterpermissions);
+    $scope.currentuser = "";
 
     // modal delete dialogue
     $scope.displayModal = false;
@@ -84,6 +86,8 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
                     (response) => {
 
                         $scope.restapiinfo = response.data;
+                        $scope.currentuser = response.data.user_name;
+
                         if (!$scope.restapiinfo.has_api_access) {
                             $scope.accessState = "forbidden";
                             return;

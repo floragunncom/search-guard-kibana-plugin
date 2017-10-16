@@ -46,6 +46,10 @@
                                                 <span class="kuiIcon fa-warning"></span>
                                                 readonly
                                             </div>
+                                            <div class="kuiBadge kuiBadge--default" ng-if="username == currentuser">
+                                                <span class="kuiIcon fa-warning"></span>
+                                                Current user
+                                            </div>
                                         </div>
                                     </td>
 
@@ -63,7 +67,7 @@
                                             <a ng-click="clone(username)" class="kuiButton kuiButton--primary kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-copy"></span>
                                             </a>
-                                            <button type="button" ng-disabled="!endpointAndMethodEnabled('INTERNALUSERS', 'DELETE')" ng-click="confirmDelete(username)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <button type="button" ng-disabled="!endpointAndMethodEnabled('INTERNALUSERS', 'DELETE') || resources[username].readonly || username == currentuser" ng-click="confirmDelete(username)" class="kuiButton kuiButton--danger kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                             </button>
                                         </div>
