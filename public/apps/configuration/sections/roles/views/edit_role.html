@@ -102,21 +102,23 @@
 
                             <!-- Index Table, display mode -->
 
-                            <table class="kuiTable" style="border: none;" ng-show="!addingIndex">
+                            <table class="kuiTable" ng-show="!addingIndex">
                                 <thead ng-show="!indicesEmpty()">
                                 <tr>
-                                    <th class="kuiTableHeaderCell tableHeaderBold">
+                                    <th class="kuiTableHeaderCell tableHeaderBold fourwidth">
                                         Index
                                     </th>
-                                    <th class="kuiTableHeaderCell tableHeaderBold">
+                                    <th class="kuiTableHeaderCell tableHeaderBold fourwidth">
                                         Document Type
+                                    </th>
+                                    <th class="kuiTableHeaderCell tableHeaderBold twowidth">
                                     </th>
                                 </tr>
                                 </thead>
                                 <tbody>
 
-                                <tr class="kuiTableRow" ng-show="indicesEmpty()" style="border: none;">
-                                    <td colspan="2" class="kuiTableRowCell kuiPanel--noborder">
+                                <tr class="kuiTableRow" ng-show="indicesEmpty()">
+                                    <td colspan="3" class="kuiTableRowCell">
                                         <div class="kuiPanel kuiPanel--centered kuiPanel--noborder">
                                             <div class="kuiEmptyTablePrompt kuiEmptyTablePrompt--nopadding">
                                                 <div class="kuiEmptyTablePrompt__message ng-binding">No configured indices or document types found.</div>
@@ -126,30 +128,31 @@
                                 </tr>
 
                                 <tr class="kuiTableRow" ng-show="!indicesEmpty()">
-                                    <td class="kuiTableRowCell cellAlignTop" style="border: none;">
+                                    <td class="kuiTableRowCell cellAlignTop">
                                         <select class="sevenwidth" ng-model="selectedIndex" ng-change="onIndexChange()" ng-options="str for str in keys(resource.indices).sort() track by str"></select>
                                     </td>
-                                    <td class="kuiTableRowCell cellAlignTop " style="border: none;">
+                                    <td class="kuiTableRowCell cellAlignTop">
                                         <select class="sevenwidth" ng-model="selectedDocumentType" ng-options="str for str in keys(resource.indices[selectedIndex]).sort() track by str"></select>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop actions">
+                                        <a ng-show="!indicesEmpty()" ng-click="deleteDocumentType()" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                        </a>
                                     </td>
                                 </tr>
                                 <tr class="kuiTableRow">
-                                    <td class="kuiTableRowCell cellAlignTop actions" style="border: none;"></td>
-                                    <td class="kuiTableRowCell cellAlignTop actions" style="border: none;">
+                                    <td class="kuiTableRowCell cellAlignTop actions" colspan="3">
                                         <button type="button" ng-click="addIndex()" class="kuiButton kuiButton--primary kuiButton--iconText">
                                             <span class="kuiButton__icon kuiIcon fa-plus"></span>
                                             Add Index / Document Type
                                         </button>
-                                        <a ng-show="!indicesEmpty()" ng-click="deleteDocumentType()" class="kuiButton kuiButton--danger kuiButton--iconText">
-                                            <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
-                                        </a>
                                     </td>
                                 </tr>
                                 </tbody>
                             </table>
 
                             <!-- Index Table, add mode -->
-                            <table class="kuiTable tableIndexGroups" style="border: none;" ng-show="addingIndex">
+                            <table class="kuiTable tableIndexGroups" ng-show="addingIndex">
                                 <thead>
                                 <tr>
                                     <th class="kuiTableHeaderCell tableHeaderBold">
@@ -162,7 +165,7 @@
                                 </thead>
                                 <tbody>
                                 <tr class="kuiTableRow">
-                                    <td class="kuiTableRowCell cellAlignTop" style="border: none;">
+                                    <td class="kuiTableRowCell cellAlignTop" >
                                         <fieldset class="marginbottom--small" id="object-form-index">
 
                                             <angucomplete id="object-form-index"
@@ -177,7 +180,7 @@
                                                           inputclass="kuiTextInput fullwidth"/>
                                         </fieldset>
                                     </td>
-                                    <td class="kuiTableRowCell cellAlignTop " style="border: none;">
+                                    <td class="kuiTableRowCell cellAlignTop ">
                                         <fieldset class="marginbottom--small" id="object-form-actiongroups">
 
                                             <angucomplete id="object-form-index"
@@ -232,7 +235,7 @@
                                 </div>
                             </div>
                             <!-- Index Table, display mode -->
-                            <table class="kuiTable tableIndexGroups" style="border: none;">
+                            <table class="kuiTable tableIndexGroups">
                                 <thead ng-show="!indicesEmpty()">
                                 <tr>
                                     <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
@@ -241,7 +244,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    <tr class="kuiTableRow" ng-show="indicesEmpty()" style="border: none;">
+                                    <tr class="kuiTableRow" ng-show="indicesEmpty()" >
                                         <td colspan="2" class="kuiTableRowCell kuiPanel--noborder">
                                             <div class="kuiPanel kuiPanel--centered kuiPanel--noborder">
                                                 <div class="kuiEmptyTablePrompt kuiEmptyTablePrompt--nopadding">
@@ -251,8 +254,8 @@
                                         </td>
                                     </tr>
                                     <tr ng-show="!indicesEmpty()" class="kuiTableRow">
-                                        <td class="kuiTableRowCell cellAlignTop" style="border: none;">
-                                            <select ng-model="selectedIndex" ng-options="str for str in keys(resource.indices).sort() track by str"></select>
+                                        <td class="kuiTableRowCell cellAlignTop">
+                                            <select class="fivewidth" ng-model="selectedIndex" ng-options="str for str in keys(resource.indices).sort() track by str"></select>
                                         </td>
                                     </tr>
                                 </tbody>
