@@ -21,17 +21,16 @@ app.directive('sgLicenseWarning', function ($parse, $http, $sce, $timeout) {
 
             $scope.licensevalid = true;
 
-            if ($scope.errorMessage) {
-                $scope.message = $scope.errorMessage;
-            } else {
-                $scope.message = "The Search Guard license key is not valid for this cluster. Please contact your system administrator";
-            }
-
             $http.get(`${API_ROOT}/systeminfo`)
                 .then(
                 (response) => {
                     $scope.systeminfo = response.data;
                     $scope.licensevalid = response.data.sg_license.is_valid;
+                    if ($scope.errorMessage) {
+                        $scope.message = $scope.errorMessage;
+                    } else {
+                        $scope.message = "The Search Guard license key is not valid for this cluster. Please contact your system administrator";
+                    }
                 },
                 (error) => {
                     $scope.licensevalid = false;
