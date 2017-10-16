@@ -40,8 +40,10 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
     $scope.isNew = false;
     $scope.query = "";
 
+    $scope.resourceloaded = false;
+
     $scope.title = function () {
-        return $scope.isNew? "New Roles Mapping" : "Edit Roles Mapping '" + $scope.resourcename+"'";
+        return $scope.isNew? "New Role Mapping" : "Edit Role Mapping '" + $scope.resourcename+"'";
     }
 
     // get all usernames and load pre-existing user, if any
@@ -54,6 +56,7 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
                 .then((response) => {
                     $scope.resource = $scope.service.postFetch(response);
                     $scope.resourcename = rolemapping;
+                    $scope.resourceloaded = true;
                     if($location.path().indexOf("clone") == -1) {
                         $scope.isNew = false;
                     } else {

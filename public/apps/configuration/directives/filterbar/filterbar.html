@@ -8,10 +8,9 @@
         </div>
 
         <div class="kuiToolBarSection">
-            <a ng-click="new()" class="kuiButton kuiButton--primary kuiButton--iconText">
+            <button type="button" ng-click="new()" class="kuiButton kuiButton--primary kuiButton--iconText">
                 <span class="kuiButton__icon kuiIcon fa-plus"></span>
-               Add
-            </a>
+            </button>
 
             <a ng-href="#/" class="kuiButton kuiButton--basic kuiButton--iconText">
                 <span class="kuiButton__icon kuiIcon fa-chevron-left"></span>
@@ -24,10 +23,21 @@
             <!-- We need an empty section for the buttons to be positioned consistently. -->
         </div>
     </div>
-    <!-- NoResults -->
-    <div class="kuiPanel kuiPanel--centered ng-hide" ng-show="!(resourcenames | filter:query).length">
-        <div class="kuiNoItems">
-            No <span ng-show="query" class="ng-hide">matching</span> entries found.
+
+    <!-- No Results -->
+    <div class="kuiPanel kuiPanel--centered kuiPanel--withToolBar" ng-show="!(resourcenames | filter:query).length">
+        <div class="kuiEmptyTablePrompt">
+            <div class="kuiEmptyTablePrompt__message">No {{service.title.plural}} found. Would you like to add one?</div>
+            <div class="kuiEmptyTablePrompt__actions">
+                <div class="kuiButtonGroup">
+                    <button type="button" ng-click="new()" class="kuiButton kuiButton--primary kuiButton--iconText" aria-label="Add a new {{service.title.singular}}">
+                        <span class="kuiButton__inner">
+                            <span aria-hidden="true" class="kuiButton__icon kuiIcon fa-plus"></span>
+                            <span>Add a new {{service.title.singular}}</span>
+                        </span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -16,8 +16,8 @@ uiModules.get('apps/searchguard/configuration', [])
         });
 
         this.title = {
-            singular: 'Role mapping',
-            plural: 'Role mappings'
+            singular: 'role mapping',
+            plural: 'role mappings'
         };
 
         this.newLabel = "Search Guard role";

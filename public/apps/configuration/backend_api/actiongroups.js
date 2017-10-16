@@ -16,8 +16,8 @@ uiModules.get('apps/searchguard/configuration', [])
         });
 
         this.title = {
-            singular: 'Action group',
-            plural: 'Action groups'
+            singular: 'action group',
+            plural: 'action groups'
         };
 
         this.newLabel = "Action Group name";

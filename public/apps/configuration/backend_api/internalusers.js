@@ -16,8 +16,8 @@ uiModules.get('apps/searchguard/configuration', [])
         });
 
         this.title = {
-            singular: 'Internal user',
-            plural: 'Internal users'
+            singular: 'internal user',
+            plural: 'internal users'
         };
 
         this.newLabel = "Username";

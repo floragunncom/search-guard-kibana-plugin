@@ -15,8 +15,8 @@ uiModules.get('apps/searchguard/configuration', [])
         });
 
         this.title = {
-            singular: 'Role',
-            plural: 'Roles'
+            singular: 'role',
+            plural: 'roles'
         };
 
         this.newLabel = "Role name";

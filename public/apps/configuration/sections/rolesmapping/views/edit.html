@@ -26,6 +26,15 @@
                                 </tr>
                                 </thead>
                                 <tbody>
+                                <tr class="kuiTableRow" ng-show="resourceloaded && (!resource.users || resource.users.length == 0)">
+                                    <td colspan="2" class="kuiTableRowCell">
+                                        <div class="kuiPanel kuiPanel--centered kuiPanel--noborder">
+                                            <div class="kuiEmptyTablePrompt kuiEmptyTablePrompt--nopadding">
+                                                <div class="kuiEmptyTablePrompt__message ng-binding">No user mappings found.</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
                                 <tr class="kuiTableRow" data-ng-repeat="user in resource.users track by $index">
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <fieldset class="marginbottom--small" id="object-form-backendroles">
@@ -63,6 +72,15 @@
                                 </tr>
                                 </thead>
                                 <tbody>
+                                <tr class="kuiTableRow" ng-show="resourceloaded && (!resource.backendroles || resource.backendroles.length == 0)">
+                                    <td colspan="2" class="kuiTableRowCell">
+                                        <div class="kuiPanel kuiPanel--centered kuiPanel--noborder">
+                                            <div class="kuiEmptyTablePrompt kuiEmptyTablePrompt--nopadding">
+                                                <div class="kuiEmptyTablePrompt__message ng-binding">No backend role mappings found.</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
                                 <tr class="kuiTableRow" data-ng-repeat="backendrole in resource.backendroles track by $index">
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <fieldset class="marginbottom--small" id="object-form-backendroles">
@@ -100,6 +118,15 @@
                                 </tr>
                                 </thead>
                                 <tbody>
+                                <tr class="kuiTableRow" ng-show="resourceloaded && (!resource.hosts || resource.hosts.length == 0)">
+                                    <td colspan="2" class="kuiTableRowCell">
+                                        <div class="kuiPanel kuiPanel--centered kuiPanel--noborder">
+                                            <div class="kuiEmptyTablePrompt kuiEmptyTablePrompt--nopadding">
+                                                <div class="kuiEmptyTablePrompt__message ng-binding">No host mappings found.</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
                                 <tr class="kuiTableRow" data-ng-repeat="host in resource.hosts track by $index">
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <fieldset class="marginbottom--small" id="object-form-hosts">

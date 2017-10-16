@@ -116,10 +116,15 @@
                                 <tbody>
 
                                 <tr class="kuiTableRow" ng-show="indicesEmpty()" style="border: none;">
-                                    <td class="kuiTableRowCell cellAlignTop kuiNoItems sgNoItems" colspan="2" style="border: none;">
-                                        <i>No configured indices or document types found.</i>
+                                    <td colspan="2" class="kuiTableRowCell kuiPanel--noborder">
+                                        <div class="kuiPanel kuiPanel--centered kuiPanel--noborder">
+                                            <div class="kuiEmptyTablePrompt kuiEmptyTablePrompt--nopadding">
+                                                <div class="kuiEmptyTablePrompt__message ng-binding">No configured indices or document types found.</div>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
+
                                 <tr class="kuiTableRow" ng-show="!indicesEmpty()">
                                     <td class="kuiTableRowCell cellAlignTop" style="border: none;">
                                         <select class="sevenwidth" ng-model="selectedIndex" ng-change="onIndexChange()" ng-options="str for str in keys(resource.indices).sort() track by str"></select>
@@ -228,7 +233,7 @@
                             </div>
                             <!-- Index Table, display mode -->
                             <table class="kuiTable tableIndexGroups" style="border: none;">
-                                <thead>
+                                <thead ng-show="!indicesEmpty()">
                                 <tr>
                                     <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
                                         Index
@@ -237,8 +242,12 @@
                                 </thead>
                                 <tbody>
                                     <tr class="kuiTableRow" ng-show="indicesEmpty()" style="border: none;">
-                                        <td class="kuiTableRowCell cellAlignTop kuiNoItems sgNoItems" style="border: none;">
-                                            <i>No index defined.</i>
+                                        <td colspan="2" class="kuiTableRowCell kuiPanel--noborder">
+                                            <div class="kuiPanel kuiPanel--centered kuiPanel--noborder">
+                                                <div class="kuiEmptyTablePrompt kuiEmptyTablePrompt--nopadding">
+                                                    <div class="kuiEmptyTablePrompt__message ng-binding">No index found. Please configure index permissions first.</div>
+                                                </div>
+                                            </div>
                                         </td>
                                     </tr>
                                     <tr ng-show="!indicesEmpty()" class="kuiTableRow">
@@ -294,6 +303,16 @@
                                 </tr>
                                 </thead>
                                 <tbody>
+                                <tr class="kuiTableRow" ng-if="!resource.dlsfls[selectedIndex]['_fls_'].length">
+                                    <td colspan="2" class="kuiTableRowCell">
+                                        <div class="kuiPanel kuiPanel--centered kuiPanel--noborder">
+                                            <div class="kuiEmptyTablePrompt kuiEmptyTablePrompt--nopadding">
+                                                <div class="kuiEmptyTablePrompt__message ng-binding">No fields configured.</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+
                                 <tr data-ng-repeat="actiongroup in resource.dlsfls[selectedIndex]['_fls_'] track by $index">
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <fieldset class="marginbottom--small" id="object-form-actiongroups" >
@@ -354,8 +373,12 @@
                                 </thead>
                                 <tbody>
                                 <tr class="kuiTableRow" ng-show="!resource.tenantsArray.length">
-                                    <td class="kuiTableRowCell cellAlignTop kuiNoItems sgNoItems" colspan="3">
-                                        No Tenants configured for this role.
+                                    <td colspan="3" class="kuiTableRowCell">
+                                        <div class="kuiPanel kuiPanel--centered kuiPanel--noborder">
+                                            <div class="kuiEmptyTablePrompt kuiEmptyTablePrompt--nopadding">
+                                                <div class="kuiEmptyTablePrompt__message ng-binding">No Tenants configured for this role.</div>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr class="kuiTableRow" data-ng-repeat="tenant in sortObjectArray(resource.tenantsArray,'name') track by $index">

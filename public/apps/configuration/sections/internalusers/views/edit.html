@@ -40,40 +40,48 @@
                             <!-- Backend Roles -->
                             <table class="kuiTable tableIndexGroups">
                                 <thead>
-                                <tr>
-                                    <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
-                                        Backend Roles
-                                    </th>
+                                    <tr>
+                                        <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
+                                            Backend Roles
+                                        </th>
 
-                                    <th class="kuiTableHeaderCell">
-                                    </th>
-                                </tr>
+                                        <th class="kuiTableHeaderCell">
+                                        </th>
+                                    </tr>
                                 </thead>
                                 <tbody>
-                                <tr class="kuiTableRow" data-ng-repeat="role in resource.roles track by $index">
-                                    <td class="kuiTableRowCell cellAlignTop">
-                                        <fieldset class="marginbottom--small" id="object-form-backendroles">
-                                            <input type="text" class="kuiTextInput fullwidth" ng-model="resource.roles[$index]" name="">
-                                        </fieldset>
-                                    </td>
-                                    <td class="kuiTableRowCell cellAlignTop actions">
-                                        <a ng-click="removeArrayEntry(resource.roles, role)" class="kuiButton kuiButton--danger kuiButton--iconText">
-                                            <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
-                                        </a>
-                                    </td>
-                                </tr>
-                                <tr class="kuiTableRow">
-                                    <td class="kuiTableRowCell cellAlignTop actions"></td>
-                                    <td class="kuiTableRowCell cellAlignTop actions">
-                                        <button ng-click="addArrayEntry(resource, 'roles', '')" ng-disabled="lastArrayEntryEmpty(resource.roles)" class="kuiButton kuiButton--primary kuiButton--iconText">
-                                            <span class="kuiButton__icon kuiIcon fa-plus"></span>
-                                            Add Backend Role
-                                        </button>
-                                    </td>
-                                </tr>
+                                    <tr class="kuiTableRow" ng-if="resource.roles.length == 0">
+                                        <td colspan="2" class="kuiTableRowCell">
+                                            <div class="kuiPanel kuiPanel--centered kuiPanel--noborder">
+                                                <div class="kuiEmptyTablePrompt kuiEmptyTablePrompt--nopadding">
+                                                    <div class="kuiEmptyTablePrompt__message ng-binding">No backend roles found</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="kuiTableRow" data-ng-repeat="role in resource.roles track by $index">
+                                        <td class="kuiTableRowCell cellAlignTop">
+                                            <fieldset class="marginbottom--small" id="object-form-backendroles">
+                                                <input type="text" class="kuiTextInput fullwidth" ng-model="resource.roles[$index]" name="">
+                                            </fieldset>
+                                        </td>
+                                        <td class="kuiTableRowCell cellAlignTop actions">
+                                            <a ng-click="removeArrayEntry(resource.roles, role)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                                <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr class="kuiTableRow">
+                                        <td class="kuiTableRowCell cellAlignTop actions"></td>
+                                        <td class="kuiTableRowCell cellAlignTop actions">
+                                            <button ng-click="addArrayEntry(resource, 'roles', '')" ng-disabled="lastArrayEntryEmpty(resource.roles)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                                <span class="kuiButton__icon kuiIcon fa-plus"></span>
+                                                Add Backend Role
+                                            </button>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
-
                             <div class="formsubmit">
                                 <button ng-disabled="!endpointAndMethodEnabled('INTERNALUSERS', 'PUT') || resource.readonly" class="kuiButton kuiButton--primary kuiButton--text" type="submit">Submit</button>
                                 <button class="kuiButton kuiButton--secondary kuiButton--text" type="submit" ng-click="cancel()">Cancel</button>
