@@ -79,7 +79,7 @@
                                             HTTP Authenticator Configuration
                                         </div>
                                     </td>
-                                    <td class="kuiTableRowCell cellAlignTop"><pre>{{authc.http_authenticator.configAsString}}</pre>
+                                    <td class="kuiTableRowCell cellAlignTop"><pre>{{stringifyJson(authc.http_authenticator.config)}}</pre>
                                     </td>
                                 </tr>
 
@@ -101,7 +101,8 @@
                                             Authentication Backend Configuration
                                         </div>
                                     </td>
-                                    <td class="kuiTableRowCell cellAlignTop"><pre>{{stringifyJson(authc.authentication_backend.config)}}</pre></td>
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <pre>{{stringifyJson(authc.authentication_backend.config)}}</pre></td>
                                 </tr>
 
                                 </tbody>
