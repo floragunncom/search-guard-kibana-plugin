@@ -281,7 +281,10 @@
                                         </fieldset>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop actions">
-                                        <a ng-click="resource.dlsfls[selectedIndex]['_dls_']=''" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                        <a ng-click="testDls()" class="kuiButton kuiButton--secondary kuiButton--iconText" title="Check Syntax">
+                                            <span class="kuiButton__icon kuiIcon fa-check"></span>
+                                        </a>
+                                        <a ng-click="resource.dlsfls[selectedIndex]['_dls_']=''" class="kuiButton kuiButton--danger kuiButton--iconText" title="Delete DLS query">
                                             <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                         </a>
                                     </td>

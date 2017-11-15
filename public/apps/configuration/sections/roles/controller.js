@@ -32,7 +32,7 @@ app.controller('sgRolesController', function ($scope, $element, $route, createNo
     });
 });
 
-app.controller('sgEditRolesController', function ($rootScope, $scope, $element, $route, $location, $routeParams, $http, createNotifier, backendRoles, backendrolesmapping, backendAPI, kbnUrl, systemstate) {
+app.controller('sgEditRolesController', function ($rootScope, $scope, $element, $route, $location, $routeParams, $http, $window, createNotifier, backendRoles, backendrolesmapping, backendAPI, kbnUrl, systemstate) {
 
     var APP_ROOT = `${chrome.getBasePath()}`;
     var API_ROOT = `${APP_ROOT}/api/v1`;
@@ -67,6 +67,9 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     $scope.indices = {};
     $scope.indexAutoComplete = [];
     $scope.doctypeAutoComplete = [];
+
+    const notify = createNotifier();
+
 
     $scope.title = function () {
         return $scope.isNew? "New Role " : "Edit Role '" + $scope.resourcename+"'";
@@ -206,6 +209,27 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
             .then((response) => {
                 $scope.rolemapping = response;
             });
+    }
+
+    $scope.testDls = function() {
+        var encodedIndex = $window.encodeURIComponent($scope.selectedIndex);
+        var query = "{\"query\": " + $scope.resource.dlsfls[$scope.selectedIndex]['_dls_'] + "}";
+        console.log(query);
+        $http.post(`${API_ROOT}/configuration/validatedls/`+encodedIndex, query)
+            .then(
+            (response) => {
+                console.log(response);
+                if (!response.data.valid) {
+                    $scope.errorMessage = response.data.error;
+                } else {
+                    $scope.errorMessage = "";
+                    notify.info("DLS query syntax valid.");
+                }
+            },
+            (error) => {
+                $scope.errorMessage = error.data.message;
+            }
+        );
     }
 
     $scope.saveObject = (event) => {
