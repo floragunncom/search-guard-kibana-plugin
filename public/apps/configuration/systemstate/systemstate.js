@@ -11,12 +11,13 @@ uiModules.get('apps/searchguard/configuration', [])
         const ROOT = chrome.getBasePath();
         const APP_ROOT = `${ROOT}`;
         const API_ROOT = `${APP_ROOT}/api/v1`;
-
-        this.initialise = function() {
-            return Promise.all([this.loadSystemInfo(), this.loadRestInfo()]);
-        };
+        const emptyPromise = new Promise(function(resolve, reject) {});
 
         this.licenseValid = () => {
+            // no license for community edition required
+            if (!get(this.getSystemInfo(), 'sg_license.license_required', true)) {
+                return true;
+            }
             return get(this.getSystemInfo(), 'sg_license.is_valid', false);
         }
 
@@ -57,19 +58,26 @@ uiModules.get('apps/searchguard/configuration', [])
             }
         }
 
-        this.loadSystemInfo = () => {
-            return $http.get(`${API_ROOT}/systeminfo`).then(function(response) {
-                sessionStorage.setItem('systeminfo', JSON.stringify(response.data));
-            }).catch(function(error) {
-                sessionStorage.setItem('systeminfo', '{}');
-            });
+        this.loadSystemInfo = async function()  {
+            // load systeminfo if not found in cache
+            if (!sessionStorage.getItem('systeminfo')) {
+                return $http.get(`${API_ROOT}/systeminfo`).then(function(response) {
+                    sessionStorage.setItem('systeminfo', JSON.stringify(response.data));
+                }).catch(function(error) {
+                    sessionStorage.setItem('systeminfo', '{}');
+                });
+            }
         }
 
-        this.loadRestInfo =  () => {
-            return $http.get(`${API_ROOT}/restapiinfo`).then(function(response) {
-                sessionStorage.setItem('restapiinfo', JSON.stringify(response.data));
-            }).catch(function(error) {
-                sessionStorage.setItem('restapiinfo', '{}');
-            });
+        this.loadRestInfo =  async function()  {
+            // load restinfo if not found in cache
+            if (!sessionStorage.getItem('restapiinfo') && this.restApiEnabled) {
+                return $http.get(`${API_ROOT}/restapiinfo`).then(function(response) {
+                    sessionStorage.setItem('restapiinfo', JSON.stringify(response.data));
+                }).catch(function(error) {
+                    sessionStorage.setItem('restapiinfo', '{}');
+                });
+            }
         }
+
     });

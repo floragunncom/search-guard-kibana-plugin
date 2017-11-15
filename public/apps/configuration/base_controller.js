@@ -58,20 +58,20 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
     $scope.title = "Search Guard Configuration";
 
     $scope.initialiseStates = () => {
-
-        $scope.licensevalid = systemstate.licenseValid();
-
-        // check access to API
-        if (!systemstate.restApiEnabled()) {
-            $scope.accessState = "notenabled";
-        } else {
-            if (!systemstate.hasApiAccess()) {
-                $scope.accessState = "forbidden";
+        systemstate.loadSystemInfo().then(function(){
+            if (!systemstate.restApiEnabled()) {
+                $scope.accessState = "notenabled";
             } else {
-                $scope.accessState = "ok";
+                systemstate.loadRestInfo().then(function(){
+                    if (!systemstate.hasApiAccess()) {
+                        $scope.accessState = "forbidden";
+                    } else {
+                        $scope.accessState = "ok";
+                        $scope.loadActionGroups();
+                    }
+                });
             }
-        }
-        $scope.loadActionGroups();
+        });
     }
 
     $scope.loadActionGroups = () => {

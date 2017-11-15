@@ -19,17 +19,33 @@ import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules';
 import '../../apps/configuration/systemstate'
 
-export function enableConfiguration($http, systemstate) {
+export function enableConfiguration($http, $window, systemstate) {
 
     const ROOT = chrome.getBasePath();
     const APP_ROOT = `${ROOT}`;
     const API_ROOT = `${APP_ROOT}/api/v1`;
-
-    if (systemstate.hasApiAccess()) {
-        chrome.getNavLinkById("searchguard-configuration").hidden = false;
-    } else {
-        chrome.getNavLinkById("searchguard-configuration").hidden = true;
+    const path = chrome.removeBasePath($window.location.pathname);
+    // don't run on login or logout, we don't have any user on these pages
+    if(path === '/login' || path === '/logout') {
+        return;
     }
+    // make sure all infos are loaded since sessionStorage might
+    // get cleared sporadically, especially on mobile
+    systemstate.loadSystemInfo().then(function(){
+        // if no REST module is installed the restinfo endpoint is not available, so fail fast
+        if (!systemstate.restApiEnabled()) {
+            chrome.getNavLinkById("searchguard-configuration").hidden = true;
+            return;
+        }
+        // rest module installed, check if user has access to the API
+        systemstate.loadRestInfo().then(function(){
+            if (systemstate.hasApiAccess()) {
+                chrome.getNavLinkById("searchguard-configuration").hidden = false;
+            } else {
+                chrome.getNavLinkById("searchguard-configuration").hidden = true;
+            }
+        });
+    });
 }
 
 uiModules.get('searchguard').run(enableConfiguration);

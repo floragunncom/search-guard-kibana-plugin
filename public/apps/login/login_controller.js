@@ -65,7 +65,7 @@ export default function LoginController(kbnUrl, $scope, $http, $window, systemst
                 // load and cache systeminfo and rest api info
                 // perform in then callback due to Chrome cancelling the
                 // promises if we navigate away from the page, even if async/await
-                systemstate.initialise().then(function(response) {
+                systemstate.loadSystemInfo().then(function(response) {
 
                     // validate the tenant settings:
                     // if MT is disabled, or the GLOBAL tenant is enabled,

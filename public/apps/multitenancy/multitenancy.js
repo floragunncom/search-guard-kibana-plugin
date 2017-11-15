@@ -139,6 +139,7 @@ uiModules
                     chrome.getNavLinkById("kibana:dashboard").lastSubUrl = chrome.getNavLinkById("kibana:dashboard").url;
                     chrome.getNavLinkById("kibana:discover").lastSubUrl = chrome.getNavLinkById("kibana:discover").url;
                     chrome.getNavLinkById("timelion").lastSubUrl = chrome.getNavLinkById("timelion").url;
+                    localStorage.clear();
                     sessionStorage.clear();
                     if(redirect) {
                         if (redirect == 'vis') {

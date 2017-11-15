@@ -18,13 +18,15 @@ app.directive('sgLicenseWarning', function (systemstate) {
 
             $scope.licensevalid = true;
 
-            $scope.licensevalid = systemstate.licenseValid();
+            systemstate.loadSystemInfo().then(function(){
+                $scope.licensevalid = systemstate.licenseValid();
 
-            if ($scope.errorMessage) {
-                $scope.message = $scope.errorMessage;
-            } else {
-                $scope.message = "The Search Guard license key is not valid for this cluster. Please contact your system administrator";
-            }
+                if ($scope.errorMessage) {
+                    $scope.message = $scope.errorMessage;
+                } else {
+                    $scope.message = "The Search Guard license key is not valid for this cluster. Please contact your system administrator";
+                }
+            });
 
         }
     }
