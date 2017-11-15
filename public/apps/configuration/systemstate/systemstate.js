@@ -21,6 +21,14 @@ uiModules.get('apps/searchguard/configuration', [])
             return get(this.getSystemInfo(), 'sg_license.is_valid', false);
         }
 
+        this.dlsFlsEnabled = () => {
+            return get(this.getSystemInfo(), 'modules.DLSFLS', false);
+        }
+
+        this.multiTenancyEnabled = () => {
+            return get(this.getSystemInfo(), 'modules.MULTITENANCY', false);
+        }
+
         this.restApiEnabled = () => {
             return get(this.getSystemInfo(), 'modules.REST_MANAGEMENT_API', false);
         }

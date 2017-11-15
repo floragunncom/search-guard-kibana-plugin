@@ -3,6 +3,7 @@ import { uiModules } from 'ui/modules'
 import { get } from 'lodash';
 import '../../backend_api/roles';
 import '../../backend_api/actiongroups';
+import '../../systemstate'
 
 const app = uiModules.get('apps/searchguard/configuration', []);
 
@@ -31,7 +32,7 @@ app.controller('sgRolesController', function ($scope, $element, $route, createNo
     });
 });
 
-app.controller('sgEditRolesController', function ($rootScope, $scope, $element, $route, $location, $routeParams, $http, createNotifier, backendRoles, backendrolesmapping, backendAPI, kbnUrl) {
+app.controller('sgEditRolesController', function ($rootScope, $scope, $element, $route, $location, $routeParams, $http, createNotifier, backendRoles, backendrolesmapping, backendAPI, kbnUrl, systemstate) {
 
     var APP_ROOT = `${chrome.getBasePath()}`;
     var API_ROOT = `${APP_ROOT}/api/v1`;
@@ -50,6 +51,9 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     $scope.rolemapping = {};
     $scope.isNew = true;
 
+    $scope.dlsFlsEnabled = false;
+    $scope.multiTenancy = false;
+
     $scope.selectedTab = "";
     $scope.selectedIndex = '';
     $scope.selectedDocumentType = "";
@@ -66,6 +70,13 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
 
     $scope.title = function () {
         return $scope.isNew? "New Role " : "Edit Role '" + $scope.resourcename+"'";
+    }
+
+    $scope.initialiseStates = () => {
+        systemstate.loadSystemInfo().then(function(){
+            $scope.dlsFlsEnabled = systemstate.dlsFlsEnabled();
+            $scope.multiTenancyEnabled = systemstate.multiTenancyEnabled();
+        });
     }
 
     $scope.loadIndices = () => {
@@ -252,6 +263,7 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     }
 
     // -- init
+    $scope.initialiseStates();
     $scope.loadIndices();
 
     $scope.service.list().then((response) => {
