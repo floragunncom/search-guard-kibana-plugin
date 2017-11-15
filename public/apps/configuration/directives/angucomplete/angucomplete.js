@@ -150,7 +150,7 @@ app.directive('angucomplete', function ($parse, $http, $sce, $timeout) {
                                 $scope.processResults((($scope.dataField) ? responseData[$scope.dataField] : responseData ), str);
                             }).
                             error(function(data, status, headers, config) {
-                                console.log("error");
+
                             });
                     }
                 }

@@ -1,11 +1,12 @@
 import { uiModules } from 'ui/modules';
 import chrome from 'ui/chrome';
+import '../apps/configuration/systemstate'
 
 const app = uiModules.get('apps/searchguard/configuration', []);
 
 
 
-app.directive('sgLicenseWarning', function ($parse, $http, $sce, $timeout) {
+app.directive('sgLicenseWarning', function (systemstate) {
     return {
         restrict: 'EA',
         scope: {
@@ -15,28 +16,15 @@ app.directive('sgLicenseWarning', function ($parse, $http, $sce, $timeout) {
 
         link: function($scope, elem, attrs) {
 
-            const ROOT = chrome.getBasePath();
-            const APP_ROOT = `${ROOT}`;
-            const API_ROOT = `${APP_ROOT}/api/v1`;
-
             $scope.licensevalid = true;
 
-            $http.get(`${API_ROOT}/systeminfo`)
-                .then(
-                (response) => {
-                    $scope.systeminfo = response.data;
-                    $scope.licensevalid = response.data.sg_license.is_valid;
-                    if ($scope.errorMessage) {
-                        $scope.message = $scope.errorMessage;
-                    } else {
-                        $scope.message = "The Search Guard license key is not valid for this cluster. Please contact your system administrator";
-                    }
-                },
-                (error) => {
-                    $scope.licensevalid = false;
-                    $scope.message = "Could not fetch Search Guard license information: " + error.data.message +". Please contact your System Administrator.";
-                }
-            );
+            $scope.licensevalid = systemstate.licenseValid();
+
+            if ($scope.errorMessage) {
+                $scope.message = $scope.errorMessage;
+            } else {
+                $scope.message = "The Search Guard license key is not valid for this cluster. Please contact your system administrator";
+            }
 
         }
     }

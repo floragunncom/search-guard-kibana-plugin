@@ -17,42 +17,19 @@
 
 import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules';
+import '../../apps/configuration/systemstate'
 
-export function enableConfiguration($http) {
+export function enableConfiguration($http, systemstate) {
 
     const ROOT = chrome.getBasePath();
     const APP_ROOT = `${ROOT}`;
     const API_ROOT = `${APP_ROOT}/api/v1`;
 
-    // check if REST module is installed and if
-    // current user has access
-    $http.get(`${API_ROOT}/systeminfo`)
-        .then(
-        (response) => {
-            // check if module is enabled at all (sanity check)
-            if (!response.data.modules.REST_MANAGEMENT_API) {
-                chrome.getNavLinkById("searchguard-configuration").hidden = true;
-                return;
-            }
-            // module enabled, check access privileges for current user
-            $http.get(`${API_ROOT}/restapiinfo`)
-                .then(
-                (response) => {
-                    if (response.data.has_api_access) {
-                        chrome.getNavLinkById("searchguard-configuration").hidden = false;
-                        return;
-                    }
-                },
-                (error) => {
-                    // no user or no privileges
-                    chrome.getNavLinkById("searchguard-configuration").hidden = true;
-                }
-            );
-        },
-        (error) => {
-            // nothing to do, modules stays disabled
-        });
+    if (systemstate.hasApiAccess()) {
+        chrome.getNavLinkById("searchguard-configuration").hidden = false;
+    } else {
         chrome.getNavLinkById("searchguard-configuration").hidden = true;
+    }
 }
 
 uiModules.get('searchguard').run(enableConfiguration);

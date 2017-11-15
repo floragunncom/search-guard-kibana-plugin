@@ -35,11 +35,13 @@ uiModules.get('apps/searchguard/configuration', [])
         };
 
         this.save = (actiongroupname, data) => {
+            sessionStorage.removeItem("actiongroupsautocomplete");
             var data = this.preSave(data);
             return backendAPI.save(RESOURCE, actiongroupname, data);
         };
 
         this.delete = (id) => {
+            sessionStorage.removeItem("actiongroupsautocomplete");
             return backendAPI.delete(RESOURCE, id);
         };
 

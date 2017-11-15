@@ -277,7 +277,6 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
                     $scope.indexname = $routeParams.indexname;
                     $scope.loadRoleMapping();
                     if(indexname) {
-                        console.log("indexname: " +indexname);
                         $scope.selectedIndex = indexname;
                         $scope.selectedTab = "indexpermissions";
 
@@ -290,7 +289,6 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
                     if($scope.resource.indices && $scope.resource.indices[$scope.selectedIndex]) {
                         $scope.selectedDocumentType = Object.keys($scope.resource.indices[$scope.selectedIndex]).sort()[0];
                     }
-                    console.log($scope.selectedIndex);
                 });
         } else {
             $scope.selectedTab = "overview";

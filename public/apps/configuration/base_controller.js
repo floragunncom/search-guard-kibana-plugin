@@ -13,10 +13,11 @@ import clusterpermissions  from './permissions/clusterpermissions';
 import indexpermissions  from './permissions/indexpermissions';
 import './backend_api/actiongroups';
 import '../../directives/licensewarning'
+import './systemstate'
 
 const app = uiModules.get('apps/searchguard/configuration', ['ui.ace']);
 
-app.controller('sgBaseController', function ($scope, $element, $route, $window, $http, createNotifier, backendAPI, backendActionGroups, kbnUrl, searchGuardAccessControl) {
+app.controller('sgBaseController', function ($scope, $element, $route, $window, $http, createNotifier, backendAPI, backendActionGroups, kbnUrl, systemstate) {
 
     var APP_ROOT = `${chrome.getBasePath()}`;
     var API_ROOT = `${APP_ROOT}/api/v1`;
@@ -41,12 +42,9 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
     $scope.toggleEditorLabel = "Show JSON";
     $scope.resourceAsJson = null;
     $scope.licensevalid = true;
-    $scope.restapiinfo = {};
-    $scope.systeminfo = {};
     $scope.accessState = "pending";
 
     // objects for autocomplete
-    // todo: cache in session storage
     $scope.actiongroupsAutoComplete = {};
     $scope.clusterpermissionsAutoComplete = clusterpermissions;
     $scope.indexpermissionsAutoComplete = indexpermissions;
@@ -59,75 +57,44 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
 
     $scope.title = "Search Guard Configuration";
 
-    $scope.clearCache = function() {
-        backendAPI.clearCache();
-    }
+    $scope.initialiseStates = () => {
 
-    $scope.initialiseState = () => {
+        $scope.licensevalid = systemstate.licenseValid();
 
-        // load license and module information. We use it for displaying
-        // the license + module info, and to check if the REST module
-        // is activated at all
-        $http.get(`${API_ROOT}/systeminfo`)
-            .then(
-            (response) => {
-                $scope.systeminfo = response.data;
-                $scope.licensevalid = response.data.sg_license.is_valid
-
-                // check if module is enabled (sanity check)
-                if (!$scope.systeminfo.modules.REST_MANAGEMENT_API) {
-                    $scope.accessState = "notenabled";
-                    return;
-                }
-
-                // module enabled, check access privileges for current user
-                $http.get(`${API_ROOT}/restapiinfo`)
-                    .then(
-                    (response) => {
-
-                        $scope.restapiinfo = response.data;
-                        $scope.currentuser = response.data.user_name;
-
-                        if (!$scope.restapiinfo.has_api_access) {
-                            $scope.accessState = "forbidden";
-                            return;
-                        } else {
-                            $scope.accessState = "ok";
-                        }
-
-                        $scope.loadActionGroups();
-
-                    },
-                    (error) => {
-                        if (error.status == 403) {
-                            searchGuardAccessControl.logout();
-                        } else {
-                            notify.error(error);
-                        }
-                    }
-                );
-
-            },
-            (error) => {
-                $scope.licensevalid = false;
-                notify.error(error);
+        // check access to API
+        if (!systemstate.restApiEnabled()) {
+            $scope.accessState = "notenabled";
+        } else {
+            if (!systemstate.hasApiAccess()) {
+                $scope.accessState = "forbidden";
+            } else {
+                $scope.accessState = "ok";
             }
-        );
-
+        }
+        $scope.loadActionGroups();
     }
 
     $scope.loadActionGroups = () => {
-        if($scope.endpointAndMethodEnabled("ACTIONGROUPS","GET")) {
+        var cachedActionGroups = sessionStorage.getItem("actiongroupsautocomplete");
+
+        if (cachedActionGroups) {
+            $scope.actiongroupsAutoComplete = JSON.parse(cachedActionGroups);
+            return;
+        }
+
+        if(systemstate.endpointAndMethodEnabled("ACTIONGROUPS","GET")) {
             backendActionGroups.listSilent().then((response) => {
                 $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete(Object.keys(response.data));
-                $scope.accessState = "ok";
+                sessionStorage.setItem("actiongroupsautocomplete", JSON.stringify($scope.actiongroupsAutoComplete));
             }, (error) => {
                 notify.error(error);
                 $scope.accessState = "forbidden";
             });
-        } else {
-            $scope.actiongroupsAutoComplete = {};
         }
+    }
+
+    $scope.clearCache = function() {
+        backendAPI.clearCache();
     }
 
     $scope.getDocTypeAutocomplete = () => {
@@ -135,14 +102,7 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
     }
 
     $scope.endpointAndMethodEnabled = (endpoint, method) => {
-        if ($scope.restapiinfo.disabled_endpoints) {
-            if ($scope.restapiinfo.disabled_endpoints[endpoint]) {
-                return $scope.restapiinfo.disabled_endpoints[endpoint].indexOf(method) == -1;
-            } else {
-                return true;
-            }
-        }
-        return false;
+        return systemstate.endpointAndMethodEnabled(endpoint, method);
     }
 
     // +++ START common functions for all controllers +++
@@ -289,7 +249,7 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
 
 
     // --- init ---
-    $scope.initialiseState();
+    $scope.initialiseStates();
 
 });
 
