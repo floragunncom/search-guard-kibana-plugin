@@ -21,6 +21,7 @@ import chrome from 'ui/chrome';
 if(chrome.getInjected('basicauth_enabled')) {
  chromeNavControlsRegistry.register(() => ({
   name: 'btn-logout',
-  template: require('plugins/searchguard/chrome/btn_logout/btn_logout.html')
+  template: require('plugins/searchguard/chrome/btn_logout/btn_logout.html'),
+  order: 999
  }));
 }

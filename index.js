@@ -102,6 +102,7 @@ export default function (kibana) {
                 }
             ],
             chromeNavControls: [
+                'plugins/searchguard/apps/userinfo/userinfo_navcontrol.js',
                 'plugins/searchguard/chrome/btn_logout/btn_logout.js'
             ]
             ,

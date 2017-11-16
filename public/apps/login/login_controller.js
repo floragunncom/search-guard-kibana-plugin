@@ -61,7 +61,8 @@ export default function LoginController(kbnUrl, $scope, $http, $window, systemst
         $http.post(`${API_ROOT}/auth/login`, this.credentials)
             .then(
             (response) => {
-
+                // cache the current user information, we need it at several places
+                sessionStorage.setItem("sg_user", JSON.stringify(response.data))
                 // load and cache systeminfo and rest api info
                 // perform in then callback due to Chrome cancelling the
                 // promises if we navigate away from the page, even if async/await

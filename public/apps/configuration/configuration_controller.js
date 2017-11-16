@@ -2,7 +2,6 @@ import { uiModules } from 'ui/modules';
 import { get } from 'lodash';
 import client from './backend_api/client';
 import './directives/directives';
-import { readFileSync } from 'fs';
 import '../../directives/licensewarning'
 
 const app = uiModules.get('apps/searchguard/configuration', ['ui.ace']);
