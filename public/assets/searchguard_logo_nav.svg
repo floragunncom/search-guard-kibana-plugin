@@ -6,42 +6,41 @@
 ]>
 <svg  version="1.1" id="Ebene_1" xmlns="&ns_svg;" xmlns:xlink="&ns_xlink;" width="250" height="250"
 	 viewBox="180.5 270.5 250 250" overflow="visible" enable-background="new 180.5 270.5 250 250" xml:space="preserve">
-<desc  version="4.6" iVinci="yes" codePlatform="0" showGrid="no" snapToGrid="no" gridStep="20"></desc>
+<desc  iVinci="yes" snapToGrid="no" version="4.6" codePlatform="0" showGrid="no" gridStep="20"></desc>
 <g>
 	<g id="Shape1">
 		
-			<desc  type="0" text="" locked="0" mesh="" flag="" blurRadius="4" basicInfo-roundedRectRadius="12" font-underline="0" transform="matrix(1,0,0,1,58.75,34.0056)" shadowBlur="4" shadowOpacity="160" shadowEnabled="0" strokeStyle="0" font-bold="0" pers-start="0,0" blurEnabled="0" markerStart="0" shadowOffsetY="2" shapeID="1" font-alignment="1" pers-end="0,0" markerEnd="0" bounding="rect(-58.75,-34.0056,117.5,68.0112)" pers-center="0,0" shadowOffsetX="0" font-pixelSize="20" pers-size="0,0" basicInfo-basicType="0" basicInfo-polygonSides="6" basicInfo-starPoints="5" font-familyName="">
+			<desc  mesh="" flag="" markerEnd="0" pers-start="0,0" shadowEnabled="0" font-alignment="1" blurEnabled="0" font-underline="0" type="0" text="" basicInfo-basicType="0" pers-center="0,0" strokeStyle="0" blurRadius="4" font-pixelSize="20" shadowBlur="4" pers-size="0,0" basicInfo-roundedRectRadius="12" font-bold="0" pers-end="0,0" bounding="rect(-58.75,-34.0056,117.5,68.0112)" basicInfo-polygonSides="6" locked="0" basicInfo-starPoints="5" font-familyName="" markerStart="0" shadowOffsetY="2" shapeID="1" shadowOpacity="160" shadowOffsetX="0" transform="matrix(1,0,0,1,58.75,34.0056)">
 			</desc>
-		<path id="shapePath1" fill="#FFFFFF" d="M410.14,305.472c-51.628-42.17-188.052-42.053-210.64,52.713
-			c0,0,24.021-2.694,37.825-19.094c20.256-24.248,80.852-42.288,127.996-20.266c5.917-8.434,19.005-14.407,34.061-14.407
-			C403.146,304.419,406.732,304.888,410.14,305.472z"/>
+		<path id="shapePath1" fill="#FFFFFF" d="M396.516,299.536c-46.573-45.399-169.639-45.272-190.016,56.749
+			c0,0,21.669-2.9,34.122-20.556c18.271-26.104,72.935-45.525,115.463-21.817c5.338-9.08,17.144-15.51,30.726-15.51
+			C390.207,298.402,393.442,298.907,396.516,299.536z"/>
 	</g>
 	<g id="Shape2">
 		
-			<desc  type="0" text="" locked="0" mesh="" flag="" blurRadius="4" basicInfo-roundedRectRadius="12" font-underline="0" transform="matrix(1,0,0,1,62.1,39.2605)" shadowBlur="4" shadowOpacity="160" shadowEnabled="0" strokeStyle="0" font-bold="0" pers-start="0,0" blurEnabled="0" markerStart="0" shadowOffsetY="2" shapeID="2" font-alignment="1" pers-end="0,0" markerEnd="0" bounding="rect(-29.4,-10.1507,58.8,20.3014)" pers-center="0,0" shadowOffsetX="0" font-pixelSize="20" pers-size="0,0" basicInfo-basicType="0" basicInfo-polygonSides="6" basicInfo-starPoints="5" font-familyName="">
+			<desc  mesh="" flag="" markerEnd="0" pers-start="0,0" shadowEnabled="0" font-alignment="1" blurEnabled="0" font-underline="0" type="0" text="" basicInfo-basicType="0" pers-center="0,0" strokeStyle="0" blurRadius="4" font-pixelSize="20" shadowBlur="4" pers-size="0,0" basicInfo-roundedRectRadius="12" font-bold="0" pers-end="0,0" bounding="rect(-29.4,-10.1507,58.8,20.3014)" basicInfo-polygonSides="6" locked="0" basicInfo-starPoints="5" font-familyName="" markerStart="0" shadowOffsetY="2" shapeID="2" shadowOpacity="160" shadowOffsetX="0" transform="matrix(1,0,0,1,62.1,39.2605)">
 			</desc>
-		<path id="shapePath2" fill="#FFFFFF" d="M363.169,322.224c-51.983-24.132-104.87,4.803-104.87,4.803
-			c0,3.982-0.179,8.083-0.179,8.083c8.605-4.217,34.6-11.48,64.895-6.443c-0.182-2.343,0-7.497,0-7.497s20.438,3.632,40.514,15.228
-			c-1.072-2.343-1.791-4.92-1.791-7.498C361.737,326.674,362.273,324.449,363.169,322.224z"/>
+		<path id="shapePath2" fill="#FFFFFF" d="M354.143,317.571c-46.892-25.98-94.601,5.17-94.601,5.17c0,4.286-0.162,8.702-0.162,8.702
+			c7.763-4.54,31.213-12.359,58.541-6.937c-0.164-2.522,0-8.071,0-8.071s18.437,3.91,36.547,16.394
+			c-0.967-2.522-1.614-5.296-1.614-8.072C352.852,322.361,353.336,319.966,354.143,317.571z"/>
 	</g>
 	<g id="Shape3">
 		
-			<desc  type="0" text="" locked="0" mesh="" flag="" blurRadius="4" basicInfo-roundedRectRadius="12" font-underline="0" transform="matrix(1,0,0,1,38.7473,95.6145)" shadowBlur="4" shadowOpacity="160" shadowEnabled="0" strokeStyle="0" font-bold="0" pers-start="0,0" blurEnabled="0" markerStart="0" shadowOffsetY="2" shapeID="3" font-alignment="1" pers-end="0,0" markerEnd="0" bounding="rect(-31.2473,-51.1967,62.4946,102.393)" pers-center="0,0" shadowOffsetX="0" font-pixelSize="20" pers-size="0,0" basicInfo-basicType="0" basicInfo-polygonSides="6" basicInfo-starPoints="5" font-familyName="">
+			<desc  mesh="" flag="" markerEnd="0" pers-start="0,0" shadowEnabled="0" font-alignment="1" blurEnabled="0" font-underline="0" type="0" text="" basicInfo-basicType="0" pers-center="0,0" strokeStyle="0" blurRadius="4" font-pixelSize="20" shadowBlur="4" pers-size="0,0" basicInfo-roundedRectRadius="12" font-bold="0" pers-end="0,0" bounding="rect(-31.2473,-51.1967,62.4946,102.393)" basicInfo-polygonSides="6" locked="0" basicInfo-starPoints="5" font-familyName="" markerStart="0" shadowOffsetY="2" shapeID="3" shadowOpacity="160" shadowOffsetX="0" transform="matrix(1,0,0,1,38.7473,95.6145)">
 			</desc>
-		<path id="shapePath3" fill="#FFFFFF" d="M290.21,395.319c0,0,36.032-22.843,32.623-62.904
-			c-33.342-6.677-94.83,3.982-90.885,41.349c5.199,50.722-19.004,57.398-19.004,57.398c27.968,12.302,58.083-4.567,110.431,19.33
-			C333.771,418.981,290.21,395.319,290.21,395.319z"/>
+		<path id="shapePath3" fill="#FFFFFF" d="M288.328,396.262c0,0,32.504-24.592,29.429-67.72
+			c-30.077-7.189-85.544,4.287-81.985,44.514c4.689,54.606-17.144,61.793-17.144,61.793c25.23,13.243,52.396-4.918,99.619,20.81
+			C327.625,421.735,288.328,396.262,288.328,396.262z"/>
 	</g>
 	<g id="Shape4">
 		
-			<desc  type="0" text="" locked="0" mesh="" flag="" blurRadius="4" basicInfo-roundedRectRadius="12" font-underline="0" transform="matrix(1,0,0,1,80.2336,120.261)" shadowBlur="4" shadowOpacity="160" shadowEnabled="0" strokeStyle="0" font-bold="0" pers-start="0,0" blurEnabled="0" markerStart="0" shadowOffsetY="2" shapeID="4" font-alignment="1" pers-end="0,0" markerEnd="0" bounding="rect(-26.3336,-79.15,52.6672,158.3)" pers-center="0,0" shadowOffsetX="0" font-pixelSize="20" pers-size="0,0" basicInfo-basicType="0" basicInfo-polygonSides="6" basicInfo-starPoints="5" font-familyName="">
+			<desc  mesh="" flag="" markerEnd="0" pers-start="0,0" shadowEnabled="0" font-alignment="1" blurEnabled="0" font-underline="0" type="0" text="" basicInfo-basicType="0" pers-center="0,0" strokeStyle="0" blurRadius="4" font-pixelSize="20" shadowBlur="4" pers-size="0,0" basicInfo-roundedRectRadius="12" font-bold="0" pers-end="0,0" bounding="rect(-26.3336,-79.15,52.6672,158.3)" basicInfo-polygonSides="6" locked="0" basicInfo-starPoints="5" font-familyName="" markerStart="0" shadowOffsetY="2" shapeID="4" shadowOpacity="160" shadowOffsetX="0" transform="matrix(1,0,0,1,80.2336,120.261)">
 			</desc>
-		<path id="shapePath4" fill="#FFFFFF" d="M330.545,326.674c3.226,44.63-34.421,68.292-34.421,68.292s50.197,27.412,28.863,64.662
-			c11.83,2.226,33.524,52.477,33.524,52.477c0.534-0.467-3.23-47.324,8.067-61.731c0,0-4.306-3.747-4.664-4.333
-			c8.784-20.734,5.738-33.034,2.869-36.901c-3.228-4.216-3.583-4.099-8.607-4.335c-5.016-0.232-9.32-0.583-13.265-1.288
-			c-10.396-1.755-12.548-3.396-13.266-7.261c-0.895-4.334,4.844-6.325,15.956-5.271c12.729,1.289,26.53,5.036,31.374,9.838
-			c0.355,1.057-5.199,23.194-4.662,23.778c1.972,1.993,5.378,5.977,5.378,5.977C391.314,389.229,412.112,351.391,330.545,326.674z"
-			/>
+		<path id="shapePath4" fill="#FFFFFF" d="M324.714,322.361c2.911,48.048-31.051,73.521-31.051,73.521s45.282,29.51,26.038,69.613
+			c10.671,2.396,30.239,56.494,30.239,56.494c0.483-0.503-2.912-50.947,7.278-66.457c0,0-3.884-4.034-4.207-4.665
+			c7.923-22.321,5.177-35.563,2.588-39.728c-2.913-4.538-3.232-4.412-7.764-4.666c-4.526-0.249-8.406-0.627-11.967-1.387
+			c-9.378-1.89-11.318-3.655-11.969-7.816c-0.806-4.666,4.372-6.809,14.396-5.675c11.481,1.389,23.931,5.422,28.302,10.592
+			c0.32,1.137-4.689,24.969-4.205,25.598c1.778,2.146,4.851,6.436,4.851,6.436C379.533,389.706,398.294,348.971,324.714,322.361z"/>
 	</g>
 </g>
 </svg>
