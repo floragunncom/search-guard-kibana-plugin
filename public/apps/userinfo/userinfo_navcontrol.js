@@ -42,26 +42,13 @@ uiModules
             }
         }
 
-        $scope.init();
-
         $scope.route = `${kbnBaseUrl}#/userinfo`;
 
 
-        $scope.tooltip = (name) => {
-            return $scope.formatTooltip(name);
-        };
-
-        $scope.onClick = function (event, disabled) {
+        $scope.onClick = function (event) {
             if (disabled) {
                 event.preventDefault();
             }
-        };
-
-        $scope.formatTooltip = (tooltip) => {
-            if (globalNavState.isOpen()) {
-                return;
-            }
-            return tooltip;
         };
 
         // helper function to use Object.keys in templates
@@ -71,6 +58,7 @@ uiModules
             }
         }
 
+        $scope.init();
     })
     .filter('cut', function () {
         return function (value, wordwise, max, tail) {
