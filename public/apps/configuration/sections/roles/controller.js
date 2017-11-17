@@ -220,14 +220,14 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
             (response) => {
                 console.log(response);
                 if (!response.data.valid) {
-                    $scope.errorMessage = response.data.error;
+                    notify.error(response.data.error);
                 } else {
                     $scope.errorMessage = "";
                     notify.info("DLS query syntax valid.");
                 }
             },
             (error) => {
-                $scope.errorMessage = error.data.message;
+                notify.error(error);
             }
         );
     }
