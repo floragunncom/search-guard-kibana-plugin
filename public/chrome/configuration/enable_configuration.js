@@ -21,10 +21,13 @@ import '../../apps/configuration/systemstate'
 
 export function enableConfiguration($http, $window, systemstate) {
 
+    chrome.getNavLinkById("searchguard-configuration").hidden = true;
+
     const ROOT = chrome.getBasePath();
     const APP_ROOT = `${ROOT}`;
     const API_ROOT = `${APP_ROOT}/api/v1`;
     const path = chrome.removeBasePath($window.location.pathname);
+
     // don't run on login or logout, we don't have any user on these pages
     if(path === '/login' || path === '/logout') {
         return;
