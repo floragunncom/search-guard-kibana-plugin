@@ -52,9 +52,11 @@
                                                 {{rolename}}
                                             </a>
                                         </div>
-                                        <div class="kuiBadge kuiBadge--default" ng-if="resources[rolename].readonly">
-                                            <span class="kuiIcon fa-warning"></span>
-                                            readonly
+                                        <div ng-if="resources[rolename].readonly">
+                                            <div class="kuiBadge kuiBadge--default" >
+                                                <span class="kuiIcon fa-warning"></span>
+                                                readonly
+                                            </div>
                                         </div>
                                     </td>
 

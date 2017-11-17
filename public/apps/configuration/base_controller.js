@@ -72,6 +72,10 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
                 });
             }
         });
+        systemstate.loadRestInfo().then(function(){
+            $scope.currentuser = systemstate.getRestApiInfo().user_name;
+        });
+
     }
 
     $scope.loadActionGroups = () => {
