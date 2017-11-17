@@ -111,6 +111,16 @@ uiModules.get('apps/searchguard/configuration', [])
                 });
         };
 
+        this.listAutocomplete = (names) => {
+            var completeList = [];
+            names.sort().forEach( function(name) {
+                var autocomplete = {};
+                autocomplete["name"] = name;
+                completeList.push(autocomplete);
+            } );
+            return completeList;
+        };
+
         this.clearCache = () => {
             return $http.delete(`${AUTH_BACKEND_API_ROOT}/configuration/cache`)
                 .then((response) => {

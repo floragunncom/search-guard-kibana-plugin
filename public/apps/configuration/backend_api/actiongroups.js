@@ -44,13 +44,7 @@ uiModules.get('apps/searchguard/configuration', [])
         };
 
         this.listAutocomplete = (names) => {
-            var completeList = [];
-            names.sort().forEach( function(name) {
-                var autocomplete = {};
-                autocomplete["name"] = name;
-                completeList.push(autocomplete);
-            } );
-            return completeList;
+            return backendAPI.listAutocomplete(names);
         };
 
         this.emptyModel = () => {

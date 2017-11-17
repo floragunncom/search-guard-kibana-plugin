@@ -27,7 +27,8 @@ app.directive('angucomplete', function ($parse, $http, $sce, $timeout) {
             "localData": "=localdata",
             "searchFields": "@searchfields",
             "minLengthUser": "@minlength",
-            "matchClass": "@matchclass"
+            "matchClass": "@matchclass",
+            "isrequired": "@isrequired"
         },
         template: require('./angucomplete.html'),
 

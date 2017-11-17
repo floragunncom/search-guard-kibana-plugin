@@ -23,6 +23,14 @@ uiModules.get('apps/searchguard/configuration', [])
             return backendAPI.list(RESOURCE);
         };
 
+        this.listSilent = () => {
+            return backendAPI.listSilent(RESOURCE);
+        };
+
+        this.listAutocomplete = (names) => {
+            return backendAPI.listAutocomplete(names);
+        };
+
         this.get = (id) => {
             return backendAPI.get(RESOURCE, id);
         };

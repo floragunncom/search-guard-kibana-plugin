@@ -17,7 +17,7 @@ import './systemstate'
 
 const app = uiModules.get('apps/searchguard/configuration', ['ui.ace']);
 
-app.controller('sgBaseController', function ($scope, $element, $route, $window, $http, createNotifier, backendAPI, backendActionGroups, kbnUrl, systemstate) {
+app.controller('sgBaseController', function ($scope, $element, $route, $window, $http, createNotifier, backendAPI, backendActionGroups, backendRoles, kbnUrl, systemstate) {
 
     var APP_ROOT = `${chrome.getBasePath()}`;
     var API_ROOT = `${APP_ROOT}/api/v1`;
@@ -44,6 +44,7 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
 
     // objects for autocomplete
     $scope.actiongroupsAutoComplete = {};
+    $scope.rolesAutoComplete = {};
     $scope.clusterpermissionsAutoComplete = clusterpermissions;
     $scope.indexpermissionsAutoComplete = indexpermissions;
     $scope.allpermissionsAutoComplete = indexpermissions.concat(clusterpermissions);
@@ -66,6 +67,7 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
                     } else {
                         $scope.accessState = "ok";
                         $scope.loadActionGroups();
+                        $scope.loadRoles();
                     }
                 });
             }
@@ -84,6 +86,25 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
             backendActionGroups.listSilent().then((response) => {
                 $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete(Object.keys(response.data));
                 sessionStorage.setItem("actiongroupsautocomplete", JSON.stringify($scope.actiongroupsAutoComplete));
+            }, (error) => {
+                notify.error(error);
+                $scope.accessState = "forbidden";
+            });
+        }
+    }
+
+    $scope.loadRoles = () => {
+        var cachedRoles = sessionStorage.getItem("rolesautocomplete");
+
+        if (cachedRoles) {
+            $scope.rolesAutoComplete = JSON.parse(cachedRoles);
+            return;
+        }
+
+        if(systemstate.endpointAndMethodEnabled("ROLES","GET")) {
+            backendRoles.listSilent().then((response) => {
+                $scope.rolesAutoComplete = backendRoles.listAutocomplete(Object.keys(response.data));
+                sessionStorage.setItem("rolesautocomplete", JSON.stringify($scope.rolesAutoComplete));
             }, (error) => {
                 notify.error(error);
                 $scope.accessState = "forbidden";

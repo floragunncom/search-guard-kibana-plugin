@@ -13,6 +13,26 @@
 
                             <sgc-form-resource-name></sgc-form-resource-name>
 
+                            <div>
+                                <div ng-show="isNew" style="margin-bottom:20px;">
+                                    <h3 style="margin-top:0px;">{{service.newLabel}}:</h3>
+
+                                    <angucomplete id="object-form-id-new"
+                                                  name="objectId"
+                                                  placeholder=""
+                                                  pause="10"
+                                                  selectedobject="resourcename"
+                                                  localdata="rolesAutoComplete"
+                                                  minlength="1"
+                                                  datafield="name"
+                                                  titlefield="name"
+                                                  searchfields="name"
+                                                  isrequired="true"
+                                                  inputclass="form-control kuiTextInput fullwidth"/>
+                                </div>
+
+                            </div>
+
                             <!-- User mapping -->
                             <table class="kuiTable tableIndexGroups">
                                 <thead>
