@@ -10,9 +10,7 @@ import { isEmpty } from 'lodash';
 uiModules.get('apps/searchguard/configuration', [])
     .service('backendAPI', function (Promise, $http, $window, createNotifier, kbnUrl, searchGuardAccessControl) {
 
-        const notify = createNotifier({
-            location: 'Authentication backend'
-        });
+        const notify = createNotifier({});
 
         const AUTH_BACKEND_API_ROOT = "/api/v1";
 

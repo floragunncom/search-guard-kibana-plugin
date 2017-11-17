@@ -13,12 +13,13 @@
                     </a>
                 </div>
             </div>
-            <div class="row" ng-if="!licensevalid">
+            <div class="row" ng-if="!systeminfo.sg_license.is_valid" style="margin-top: 20px;">
                 <div class="col-xs-12">
                     <p class="error-message">
-                    This version of Search Guard is not licensed. Reason:
-                    <p class="error-message" ng-bind="msg" data-ng-repeat="msg in systeminfo.sg_license.msgs"></p>
-
+                        The Search Guard license key is not valid for this cluster. Reason:
+                        <ul>
+                            <li class="error-message" data-ng-repeat="msg in systeminfo.sg_license.msgs" ng-bind="msg" ></li>
+                        </ul>
                     </p>
                 </div>
             </div>
@@ -167,6 +168,27 @@
                                     <div ng-bind="systeminfo.sg_license.expiry_in_days" class="kuiTableRowCell__liner"></div>
                                 </td>
                             </tr>
+                            <tr  class="kuiTableRow">
+                                <td class="kuiTableRowCell cellAlignTop">
+                                    <div class="kuiTableRowCell__liner">
+                                        Is valid?
+                                    </div>
+                                </td>
+                                <td class="kuiTableRowCell cellAlignTop" >
+                                    <div ng-bind="systeminfo.sg_license.is_valid" class="kuiTableRowCell__liner"></div>
+                                </td>
+                            </tr>
+                            <tr  class="kuiTableRow">
+                                <td class="kuiTableRowCell cellAlignTop">
+                                    <div class="kuiTableRowCell__liner">
+                                        Is expired?
+                                    </div>
+                                </td>
+                                <td class="kuiTableRowCell cellAlignTop" >
+                                    <div ng-bind="systeminfo.sg_license.is_expired" class="kuiTableRowCell__liner"></div>
+                                </td>
+                            </tr>
+
                             </tbody>
                         </table>
 

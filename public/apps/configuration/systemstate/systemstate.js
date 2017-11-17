@@ -18,7 +18,7 @@ uiModules.get('apps/searchguard/configuration', [])
             if (!get(this.getSystemInfo(), 'sg_license.license_required', true)) {
                 return true;
             }
-            return get(this.getSystemInfo(), 'sg_license.is_valid', false);
+            return get(this.getSystemInfo(), 'sg_license.is_valid', true);
         }
 
         this.dlsFlsEnabled = () => {
@@ -39,7 +39,7 @@ uiModules.get('apps/searchguard/configuration', [])
 
         this.endpointAndMethodEnabled = (endpoint, method) => {
             var restInfo = this.getRestApiInfo();
-            if (restInfo.disabled_endpoints) {
+            if (restInfo && restInfo.disabled_endpoints) {
                 if (restInfo.disabled_endpoints[endpoint]) {
                     return restInfo.disabled_endpoints[endpoint].indexOf(method) == -1;
                 } else {

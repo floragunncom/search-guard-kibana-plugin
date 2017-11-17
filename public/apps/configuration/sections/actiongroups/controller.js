@@ -6,9 +6,7 @@ const app = uiModules.get('apps/searchguard/configuration', []);
 
 app.controller('sgActionGroupsController', function ($scope, $element, $route, createNotifier, backendActionGroups, kbnUrl) {
 
-    const notify = createNotifier({
-        location: 'Action groups'
-    });
+    const notify = createNotifier({});
 
     $scope.endpoint = "ACTIONGROUPS";
     $scope.$parent.endpoint = "ACTIONGROUPS";

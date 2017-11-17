@@ -11,9 +11,7 @@ uiModules.get('apps/searchguard/configuration', [])
 
         const RESOURCE = 'internalusers';
 
-        const notify = createNotifier({
-            location: 'Internal users'
-        });
+        const notify = createNotifier({});
 
         this.title = {
             singular: 'internal user',

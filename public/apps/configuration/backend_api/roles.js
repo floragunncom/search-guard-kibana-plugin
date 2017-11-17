@@ -10,9 +10,7 @@ uiModules.get('apps/searchguard/configuration', [])
 
         const RESOURCE = 'roles';
 
-        const notify = createNotifier({
-            location: 'Roles'
-        });
+        const notify = createNotifier({});
 
         this.title = {
             singular: 'role',

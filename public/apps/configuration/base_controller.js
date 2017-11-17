@@ -22,9 +22,7 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
     var APP_ROOT = `${chrome.getBasePath()}`;
     var API_ROOT = `${APP_ROOT}/api/v1`;
 
-    const notify = createNotifier({
-        location: 'Authentication Configuration'
-    });
+    const notify = createNotifier({});
 
     // props of the child controller
     $scope.service = null;

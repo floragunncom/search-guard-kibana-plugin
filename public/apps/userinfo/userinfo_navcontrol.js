@@ -21,13 +21,14 @@ uiRoutes
 
 uiModules
     .get('app/searchguard-userinfo')
-    .controller('userinfoNavController', ($scope, globalNavState, kbnBaseUrl, Private) => {
+    .controller('userinfoNavController', ($scope, globalNavState, kbnBaseUrl, searchGuardAccessControl) => {
+
+        $scope.sg_user = {};
+        $scope.route = `${kbnBaseUrl}#/userinfo`;
 
         $scope.title = function () {
             return "Account information";;
         }
-
-        $scope.sg_user = {};
 
         $scope.init = function () {
             var cachedUser = sessionStorage.getItem("sg_user");
@@ -41,15 +42,6 @@ uiModules
                 }
             }
         }
-
-        $scope.route = `${kbnBaseUrl}#/userinfo`;
-
-
-        $scope.onClick = function (event) {
-            if (disabled) {
-                event.preventDefault();
-            }
-        };
 
         // helper function to use Object.keys in templates
         $scope.keys = function (object) {

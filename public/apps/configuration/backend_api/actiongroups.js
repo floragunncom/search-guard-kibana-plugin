@@ -11,9 +11,7 @@ uiModules.get('apps/searchguard/configuration', [])
 
         const RESOURCE = 'actiongroups';
 
-        const notify = createNotifier({
-            location: 'Action groups'
-        });
+        const notify = createNotifier({});
 
         this.title = {
             singular: 'action group',

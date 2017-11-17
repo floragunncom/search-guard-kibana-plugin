@@ -9,9 +9,7 @@ uiModules.get('apps/searchguard/configuration', [])
 
         const RESOURCE = 'sgconfig';
 
-        const notify = createNotifier({
-            location: 'Authentication Configuration'
-        });
+        const notify = createNotifier({});
 
         this.title = {
             singular: 'Authentication / Authorization configuration',
