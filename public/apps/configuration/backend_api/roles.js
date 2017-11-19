@@ -66,7 +66,7 @@ uiModules.get('apps/searchguard/configuration', [])
                 };
             }
             role.indices[indexname][doctypename] = {
-                "actiongroups": [],
+                "actiongroups": [""],
                 "permissions": []
             };
         }

@@ -39,7 +39,7 @@
 
                             <div class="kuiHeaderBar" style="margin-bottom: 20px; margin-top:10px;">
                                 <div class="kuiHeaderBarSection">
-                                    <h2 class="kuiSubTitle">Mappings</h2>
+                                    <h2 class="kuiSubTitle">Members</h2>
                                 </div>
                             </div>
 
@@ -77,7 +77,7 @@
                             </table>
                             <div class="kuiHeaderBar" style="margin-bottom: 20px; margin-top:10px;">
                                 <div class="kuiHeaderBarSection">
-                                    <h2 class="kuiSubTitle">Cluster permissions</h2>
+                                    <h2 class="kuiSubTitle">Cluster-wide permissions</h2>
                                 </div>
                             </div>
                             <sgc-permissions permissionsResource="resource.cluster"></sgc-permissions>
@@ -132,10 +132,10 @@
 
                                 <tr class="kuiTableRow" ng-show="!indicesEmpty()">
                                     <td class="kuiTableRowCell cellAlignTop">
-                                        <select class="sevenwidth" ng-model="selectedIndex" ng-change="onIndexChange()" ng-options="str for str in keys(resource.indices).sort() track by str"></select>
+                                        <select class="sevenwidth kuiSelect" ng-model="selectedIndex" ng-change="onIndexChange()" ng-options="str for str in keys(resource.indices).sort() track by str"></select>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop">
-                                        <select class="sevenwidth" ng-model="selectedDocumentType" ng-options="str for str in keys(resource.indices[selectedIndex]).sort() track by str"></select>
+                                        <select class="sevenwidth kuiSelect" ng-model="selectedDocumentType" ng-options="str for str in keys(resource.indices[selectedIndex]).sort() track by str"></select>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop actions">
                                         <a ng-show="!indicesEmpty()" ng-click="deleteDocumentType()" class="kuiButton kuiButton--danger kuiButton--iconText">
@@ -147,7 +147,7 @@
                                     <td class="kuiTableRowCell cellAlignTop actions" colspan="3">
                                         <button type="button" ng-click="addIndex()" class="kuiButton kuiButton--primary kuiButton--iconText">
                                             <span class="kuiButton__icon kuiIcon fa-plus"></span>
-                                            Add Index / Document Type
+                                            Add new index and document Type
                                         </button>
                                     </td>
                                 </tr>
@@ -202,16 +202,16 @@
                                 <tr class="kuiTableRow">
                                     <td class="kuiTableRowCell cellAlignTop actions" style="border: none;"></td>
                                     <td class="kuiTableRowCell cellAlignTop actions" style="border: none;">
-                                        <button class="kuiButton kuiButton--primary kuiButton--text" type="button" ng-click="submitAddIndex()">Add</button>
+                                        <button class="kuiButton kuiButton--primary kuiButton--text" type="button" ng-click="submitAddIndex()">Save</button>
                                         <button class="kuiButton kuiButton--secondary kuiButton--text" type="button" ng-click="cancelAddIndex()">Cancel</button>
                                     </td>
                                 </tr>
                                 </tbody>
                             </table>
 
-                            <div class="kuiHeaderBar" style="margin-bottom: 20px; margin-top:10px;" ng-show="selectedIndex != '' && !addingIndex">
+                            <div class="kuiHeaderBar" style="margin-bottom: 20px; margin-top:40px;" ng-show="selectedIndex != '' && !addingIndex">
                                 <div class="kuiHeaderBarSection">
-                                    <h2 class="kuiSubTitle">Permissions for index '{{selectedIndex}}' and document type '{{selectedDocumentType}}'</h2>
+                                    <h2 class="kuiSubTitle">Configure permissions for index <b>'{{selectedIndex}}'</b> and document type <b>'{{selectedDocumentType}}'</b></h2>
                                 </div>
                             </div>
                             <sgc-permissions permissionsResource="resource.indices[selectedIndex][selectedDocumentType]" ng-show="selectedIndex != '' && !addingIndex"></sgc-permissions>
@@ -258,7 +258,7 @@
                                     </tr>
                                     <tr ng-show="!indicesEmpty()" class="kuiTableRow">
                                         <td class="kuiTableRowCell cellAlignTop">
-                                            <select class="fivewidth" ng-model="selectedIndex" ng-options="str for str in keys(resource.indices).sort() track by str"></select>
+                                            <select class="fivewidth kuiSelect" ng-model="selectedIndex" ng-options="str for str in keys(resource.indices).sort() track by str"></select>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -269,7 +269,15 @@
                                 <thead>
                                 <tr>
                                     <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
-                                        Document Level Security
+
+                                        <div>
+                                            Document Level Security Query
+                                            <div style="display: inline;">
+                                                <button class="kuiInfoButton" tooltip='Use Elasticsearch’s full Query DSL for configuring the query used for Document Level Security. The query must be a valid JSON string, e.g. {"match": {"category": "event"}}'>
+                                                    <span class="kuiIcon fa-info-circle"></span>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </th>
 
                                     <th class="kuiTableHeaderCell">
@@ -284,10 +292,10 @@
                                         </fieldset>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop actions">
-                                        <a ng-click="testDls()" class="kuiButton kuiButton--secondary kuiButton--iconText" title="Check Syntax">
+                                        <a tooltip="Test DLS query syntax" ng-click="testDls()" class="kuiButton kuiButton--secondary kuiButton--iconText" title="Check Syntax">
                                             <span class="kuiButton__icon kuiIcon fa-check"></span>
                                         </a>
-                                        <a ng-click="resource.dlsfls[selectedIndex]['_dls_']=''" class="kuiButton kuiButton--danger kuiButton--iconText" title="Delete DLS query">
+                                        <a tooltip="Delete DLS query" ng-click="resource.dlsfls[selectedIndex]['_dls_']=''" class="kuiButton kuiButton--danger kuiButton--iconText" title="Delete DLS query">
                                             <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                         </a>
                                     </td>
@@ -300,12 +308,19 @@
                                 <thead>
                                 <tr>
                                     <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
-                                        Field Level Security
+                                        <div>
+                                            Include or exclude fields
+                                            <div style="display: inline;">
+                                                <button class="kuiInfoButton" tooltip='Include or exclude fields from documents returned by Elasticsearch.'>
+                                                    <span class="kuiIcon fa-info-circle"></span>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </th>
                                     <th class="kuiTableHeaderCell tableHeaderCellIndexGroups actions">
-                                        <select name="flsModeSelect" ng-model="resource.dlsfls[selectedIndex]['_flsmode_']">
-                                            <option value="whitelist">Whitelist fields</option>
-                                            <option value="blacklist">Blacklist fields</option>
+                                        <select class="kuiSelect" name="flsModeSelect" ng-model="resource.dlsfls[selectedIndex]['_flsmode_']">
+                                            <option value="whitelist">Include fields</option>
+                                            <option value="blacklist">Exclude fields</option>
                                         </select>
 
                                     </th>
@@ -329,7 +344,7 @@
                                         </fieldset>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop actions">
-                                        <a ng-click="removeArrayEntry(resource.dlsfls[selectedIndex]['_fls_'], actiongroup)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                        <a tooltip="Delete field {{resource.dlsfls[selectedIndex]['_fls_'][$index]}}" ng-click="removeArrayEntry(resource.dlsfls[selectedIndex]['_fls_'], actiongroup)" class="kuiButton kuiButton--danger kuiButton--iconText">
                                             <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                         </a>
                                     </td>
@@ -397,7 +412,7 @@
                                         </fieldset>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop">
-                                        <select name="permissionsSelect" ng-model="resource.tenantsArray[$index].permissions">
+                                        <select class="kuiSelect" name="permissionsSelect" ng-model="resource.tenantsArray[$index].permissions">
                                             <option value="RW">Read / Write</option>
                                             <option value="RO">Read Only</option>
                                         </select>
@@ -427,8 +442,8 @@
 
 
                         <div class="formsubmit">
-                            <button ng-disabled="!endpointAndMethodEnabled('ROLES', 'PUT') || resource.readonly"  class="kuiButton kuiButton--primary kuiButton--text" type="submit">Save Role Definition</button>
-                            <button class="kuiButton kuiButton--basic kuiButton--text" type="submit" ng-click="cancel()">Cancel</button>
+                            <button ng-if="!addingIndex" ng-disabled="!endpointAndMethodEnabled('ROLES', 'PUT') || resource.readonly"  class="kuiButton kuiButton--primary kuiButton--text" type="submit">Save Role Definition</button>
+                            <button ng-if="!addingIndex" class="kuiButton kuiButton--basic kuiButton--text" type="submit" ng-click="cancel()">Cancel</button>
                         </div>
                     </div>
                 </form>
