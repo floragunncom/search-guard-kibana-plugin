@@ -81,6 +81,11 @@ app.controller('sgEditInternalUsersController', function ($scope, $element, $rou
             return;
         }
 
+        if ($scope.resourcename.indexOf(".") != -1 || $scope.resourcename.indexOf("*") != -1) {
+            $scope.errorMessage = "Username must not contain '.' or '*'";
+            return;
+        }
+
         if (form.hasClass('ng-invalid-required')) {
             $scope.errorMessage = 'Please fill in all the required parameters.';
             return;
@@ -88,6 +93,11 @@ app.controller('sgEditInternalUsersController', function ($scope, $element, $rou
 
         if (!form.hasClass('ng-valid')) {
             $scope.errorMessage = 'Please correct all errors and try again.';
+            return;
+        }
+
+        if ($scope.resource.password.length < 5) {
+            $scope.errorMessage = 'Passwords must be at least 5 characters.';
             return;
         }
 
