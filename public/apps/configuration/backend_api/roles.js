@@ -262,7 +262,8 @@ uiModules.get('apps/searchguard/configuration', [])
          */
         this.isRoleEmpty = function (role) {
             // clean duplicates and remove empty arrays
-            //role = backendAPI.cleanArraysFromDuplicates(role);
+            role.cluster.actiongroups = backendAPI.cleanArray(role.cluster.actiongroups);
+            role.cluster.permissions = backendAPI.cleanArray(role.cluster.permissions);
             var clusterPermsEmpty = role.cluster.actiongroups.length == 0 && role.cluster.permissions.length == 0;
             var indicesEmpty = this.checkIndicesStatus(role).allEmpty;
             return clusterPermsEmpty && indicesEmpty;
@@ -283,6 +284,8 @@ uiModules.get('apps/searchguard/configuration', [])
                     docTypeNames.forEach(function(docTypeName) {
                         var doctype = role.indices[indexName][docTypeName];
                         // doctype with at least one permission
+                        doctype.actiongroups = backendAPI.cleanArray(doctype.actiongroups);
+                        doctype.permissions = backendAPI.cleanArray(doctype.permissions);
                         if ((doctype.actiongroups && doctype.actiongroups.length > 0) || (doctype.permissions && doctype.permissions.length > 0)) {
                             indicesStatus.allEmpty = false;
                         } else {

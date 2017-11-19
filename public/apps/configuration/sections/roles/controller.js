@@ -254,10 +254,13 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         var indicesStatus = $scope.service.checkIndicesStatus($scope.resource);
 
         if(indicesStatus.faultyIndices.length > 0) {
-            var error = "One or more indices / document types have empty permissions.";
-            //for ( var faultyIndex in indicesStatus.faultyIndices) {
-            //    error += JSON.stringify(indicesStatus) + "<br />"
-            //}
+            var error = "One or more indices / document types have empty permissions:";
+            // todo: format error in view, not here.
+            error += "<ul>";
+            indicesStatus.faultyIndices.forEach(function(faultyIndex) {
+                error += "<li>" + faultyIndex + "</li>"
+            });
+            error += "</ul>";
             $scope.displayErrorOnTab(error, "indexpermissions");
             return;
         }
