@@ -135,8 +135,8 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
         kbnUrl.change('/' +$scope.endpoint.toLowerCase() + '/edit/' + resourcename );
     }
 
-    $scope.new = function() {
-        kbnUrl.change('/' +$scope.endpoint.toLowerCase() + '/new/');
+    $scope.new = function(query) {
+        kbnUrl.change('/' +$scope.endpoint.toLowerCase() + '/new?name='+query);
     }
 
     $scope.clone = function(resourcename) {

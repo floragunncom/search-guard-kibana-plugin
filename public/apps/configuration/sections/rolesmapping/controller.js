@@ -66,6 +66,9 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
                 });
         } else {
             $scope.resource = $scope.service.emptyModel();
+            if ($routeParams.name) {
+                $scope.resourcename = $routeParams.name;
+            }
             $scope.isNew = true;
         }
         $scope.loaded = true;

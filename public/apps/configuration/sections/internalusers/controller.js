@@ -64,6 +64,9 @@ app.controller('sgEditInternalUsersController', function ($scope, $element, $rou
                 });
         } else {
             $scope.resource = $scope.service.emptyModel();
+            if ($routeParams.name) {
+                $scope.resourcename = $routeParams.name;
+            }
             $scope.isNew = true;
         }
         $scope.loaded = true;

@@ -329,6 +329,9 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         } else {
             $scope.selectedTab = "overview";
             $scope.resource = $scope.service.postFetch($scope.service.emptyModel());
+            if ($routeParams.name) {
+                $scope.resourcename = $routeParams.name;
+            }
             $scope.isNew = true;
         }
         $scope.loaded = true;
