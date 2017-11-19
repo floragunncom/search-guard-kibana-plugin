@@ -311,6 +311,7 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
                     } else {
                         $scope.resourcename = $scope.resourcename + " (COPY)";
                         $scope.isNew = true;
+                        delete($scope.resource.readonly);
                         $scope.selectedTab = "overview";
                     }
                     $scope.indexname = $routeParams.indexname;

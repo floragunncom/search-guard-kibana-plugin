@@ -60,6 +60,7 @@ app.controller('sgEditInternalUsersController', function ($scope, $element, $rou
                     } else {
                         $scope.resourcename = $scope.resourcename + " (COPY)";
                         $scope.isNew = true;
+                        delete($scope.resource.readonly);
                     }
                 });
         } else {

@@ -66,6 +66,7 @@ app.controller('sgEditActionGroupsController', function ($scope, $element, $rout
                     } else {
                         $scope.resourcename = $scope.resourcename + " (COPY)";
                         $scope.isNew = true;
+                        delete($scope.resource.readonly);
                     }
                 });
         } else {
