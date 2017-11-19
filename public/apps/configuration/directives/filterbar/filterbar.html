@@ -25,7 +25,7 @@
     </div>
 
     <!-- No Results -->
-    <div class="kuiPanel kuiPanel--centered kuiPanel--withToolBar" ng-show="!(resourcenames | filter:query).length">
+    <div class="kuiPanel kuiPanel--centered kuiPanel--withToolBar" ng-show="!(resourcenames | filter:query).length && loaded">
         <div class="kuiEmptyTablePrompt">
             <div class="kuiEmptyTablePrompt__message">No {{service.title.plural}} found. Would you like to add one?</div>
             <div class="kuiEmptyTablePrompt__actions">
@@ -40,4 +40,12 @@
             </div>
         </div>
     </div>
+
+    <!-- Loading -->
+    <div class="kuiPanel kuiPanel--centered kuiPanel--withToolBar" ng-show="!loaded">
+        <div class="kuiEmptyTablePrompt">
+            <div class="kuiEmptyTablePrompt__message">Loading ...</div>
+        </div>
+    </div>
+
 </div>
