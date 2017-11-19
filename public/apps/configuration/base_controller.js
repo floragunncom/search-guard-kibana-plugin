@@ -42,6 +42,8 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
     $scope.licensevalid = true;
     $scope.accessState = "pending";
 
+    $scope.actiongroupNames = [];
+
     // objects for autocomplete
     $scope.actiongroupsAutoComplete = {};
     $scope.rolesAutoComplete = {};
@@ -80,15 +82,25 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
 
     $scope.loadActionGroups = () => {
         var cachedActionGroups = sessionStorage.getItem("actiongroupsautocomplete");
+        var cachedActionGroupNames = sessionStorage.getItem("actiongroupnames");
 
         if (cachedActionGroups) {
             $scope.actiongroupsAutoComplete = JSON.parse(cachedActionGroups);
+        }
+
+        if (cachedActionGroupNames) {
+            $scope.actiongroupNames = JSON.parse(cachedActionGroupNames);
+        }
+
+        if (cachedActionGroupNames && cachedActionGroups) {
             return;
         }
 
         if(systemstate.endpointAndMethodEnabled("ACTIONGROUPS","GET")) {
             backendActionGroups.listSilent().then((response) => {
-                $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete(Object.keys(response.data));
+                $scope.actiongroupNames = Object.keys(response.data);
+                sessionStorage.setItem("actiongroupnames", JSON.stringify($scope.actiongroupnames));
+                $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete($scope.actiongroupNames);
                 sessionStorage.setItem("actiongroupsautocomplete", JSON.stringify($scope.actiongroupsAutoComplete));
             }, (error) => {
                 notify.error(error);
@@ -188,6 +200,12 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
         // copy resource, we don't want to modify current edit session
         var resourceCopy = JSON.parse(JSON.stringify(resource));
         $scope.resourceAsJson = JSON.stringify($scope.service.preSave(resourceCopy), null, 2);
+    }
+
+    $scope.checkActionGroupExists = function (array, index, item) {
+        if($scope.actiongroupNames.indexOf(item) == -1) {
+            array[index] = "";
+        }
     }
 
     $scope.addArrayEntry = function (resource, fieldname, value) {
