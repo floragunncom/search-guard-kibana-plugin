@@ -16,7 +16,7 @@
                             <sgc-form-new-resource-field></sgc-form-new-resource-field>
 
                             <div class="form-group">
-                                <label for="object-form-password">Password</label>
+                                <label for="object-form-password">Password <span ng-if="!isNew" class="labelhint">(leave empty to keep current password)</span></label>
                                 <input
                                         id="object-form-password"
                                         type="password"
@@ -26,7 +26,7 @@
                                         ng-required="isNew">
                             </div>
                             <div class="form-group">
-                                <label for="object-form-password-confirmation">Confirm password</label>
+                                <label for="object-form-password-confirmation">Repeat password <span ng-if="!isNew" class="labelhint">(leave empty to keep current password)</span></label>
                                 <span ng-if="objectForm.passwordConfirmation.$error.match" class="fieldError">Passwords must match.</span>
                                 <input
                                         id="object-form-password-confirmation"
