@@ -33,7 +33,7 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
     $scope.service = backendrolesmapping;
     $scope.$parent.service = backendrolesmapping;
 
-    $scope.resourcelabel = "Search Guard role";
+    $scope.resourcelabel = "Search Guard Role";
     $scope.resource = {};
     $scope.resourcename = "";
     $scope.resourcenames = [];

@@ -43,7 +43,7 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     $scope.service = backendRoles;
     $scope.$parent.service = backendRoles;
 
-    $scope.resourcelabel = "Role name";
+    $scope.resourcelabel = "Search Guard Role";
     $scope.loaded = false;
     $scope.resource = {};
     $scope.resourcename = "";

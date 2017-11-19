@@ -31,7 +31,7 @@ app.controller('sgEditInternalUsersController', function ($scope, $element, $rou
     $scope.service = backendInternalUsers;
     $scope.$parent.service = backendInternalUsers;
 
-    $scope.resourcelabel = "Username";
+    $scope.resourcelabel = "Internal User";
 
     $scope.resource = {};
     $scope.resourcename = "";
