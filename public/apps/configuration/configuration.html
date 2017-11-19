@@ -6,7 +6,7 @@
         <div class="row">
             <div class="col-xs-12" style="text-align: center;">
 
-                <img class="brand-image" src="/plugins/searchguard/assets/searchguard_logo.svg" width="300">
+                <img class="brand-image" src="/plugins/searchguard/assets/searchguard_logo.svg" width="250">
 
                 <h3 ng-if="accessState=='pending'" style="margin-top:0px;">Please wait ...</h3>
 
@@ -34,21 +34,12 @@
 
 
                 <div class="kuiVerticalRhythm">
-                    <h2 class="kuiSubTitle" style="margin-bottom:10px;">Configuration</h2>
+                    <h2 class="kuiSubTitle" style="margin-bottom:10px;">Permissions and Roles</h2>
                     <div class="kuiGallery">
-
-                        <a ng-if="endpointAndMethodEnabled('INTERNALUSERS', 'GET')" class="kuiGalleryButton" ng-href="#/internalusers" tooltip="Configure Internal Users" tooltip-placement="bottom" href="#/internalusers">
-                            <div class="kuiGalleryButton__image">
-                                <span class="fa fa-user fa-5x"></span>
-                            </div>
-                            <div class="kuiGalleryButton__label">
-                                Internal users
-                            </div>
-                        </a>
 
                         <a ng-if="endpointAndMethodEnabled('ACTIONGROUPS', 'GET')" class="kuiGalleryButton ng-scope" ng-href="#/actiongroups" tooltip="Configure Action Groups" tooltip-placement="bottom" href="#/actiongroups">
                             <div class="kuiGalleryButton__image">
-                                <span class="fa fa-sitemap fa-5x"></span>
+                                <span class="fa fa-sitemap fa-4x"></span>
                             </div>
                             <div class="kuiGalleryButton__label">
                                 Action Groups
@@ -57,7 +48,7 @@
 
                         <a ng-if="endpointAndMethodEnabled('ROLESMAPPING', 'GET')" class="kuiGalleryButton ng-scope" ng-href="#/rolesmapping" tooltip="Configure Role Mappings" tooltip-placement="bottom" href="#/rolesmapping">
                             <div class="kuiGalleryButton__image">
-                                <span class="fa fa-exchange fa-5x"></span>
+                                <span class="fa fa-exchange fa-4x"></span>
                             </div>
                             <div class="kuiGalleryButton__label">
                                 Roles Mapping
@@ -66,7 +57,7 @@
 
                         <a ng-if="endpointAndMethodEnabled('ROLES', 'GET')" class="kuiGalleryButton ng-scope" ng-href="#/roles" tooltip="Configure Roles" tooltip-placement="bottom" href="#/roles">
                             <div class="kuiGalleryButton__image">
-                                <span class="fa fa-users fa-5x"></span>
+                                <span class="fa fa-users fa-4x"></span>
                             </div>
                             <div class="kuiGalleryButton__label">
                                 Roles
@@ -76,13 +67,26 @@
                     </div>
                 </div>
 
+                <div class="kuiVerticalRhythm">
+                    <h2 class="kuiSubTitle" style="margin-bottom:10px;">Authentication Backends</h2>
+                    <div class="kuiGallery">
+
+                        <a ng-if="endpointAndMethodEnabled('INTERNALUSERS', 'GET')" class="kuiGalleryButton" ng-href="#/internalusers" tooltip="Configure Internal Users" tooltip-placement="bottom" href="#/internalusers">
+                            <div class="kuiGalleryButton__image">
+                                <span class="fa fa-user fa-4x"></span>
+                            </div>
+                            <div class="kuiGalleryButton__label">
+                                Internal user database
+                            </div>
+                        </a>
+                </div>
 
                 <div class="kuiVerticalRhythm">
                     <h2 class="kuiSubTitle" style="margin-bottom:10px;">System</h2>
                     <div class="kuiGallery">
                         <a ng-if="endpointAndMethodEnabled('SGCONFIG', 'GET')" class="kuiGalleryButton ng-scope" ng-href="#/sgconfiguration" tooltip="Configurd authentication and authorization modules" tooltip-placement="bottom" href="#/sgconfiguration">
                             <div class="kuiGalleryButton__image">
-                                <span class="fa fa-lock fa-5x"></span>
+                                <span class="fa fa-lock fa-4x"></span>
                             </div>
                             <div class="kuiGalleryButton__label">
                                 Authentication / Authorisation
@@ -91,7 +95,7 @@
 
                         <a ng-if="endpointAndMethodEnabled('LICENSE', 'GET')" class="kuiGalleryButton ng-scope" ng-href="#/system" tooltip="License and installed modules" tooltip-placement="bottom">
                             <div class="kuiGalleryButton__image">
-                                <span class="fa fa-info fa-5x"></span>
+                                <span class="fa fa-info fa-4x"></span>
                             </div>
                             <div class="kuiGalleryButton__label">
                                 License & System Info
@@ -101,7 +105,7 @@
 
                         <a ng-if="endpointAndMethodEnabled('CACHE', 'DELETE')" class="kuiGalleryButton ng-scope" ng-click="clearCache()" tooltip="Delete all Search Guard caches" tooltip-placement="bottom">
                             <div class="kuiGalleryButton__image">
-                                <span class="fa fa-refresh fa-5x"></span>
+                                <span class="fa fa-refresh fa-4x"></span>
                             </div>
                             <div class="kuiGalleryButton__label">
                                 Clear Cache
