@@ -7,7 +7,14 @@
             <div class="row">
                 <div class="col-xs-12">
 
-                    <h3 class="indexheading">Role Mappings</h3>
+                    <div style="margin-bottom: 10px;">
+                        <h3 class="indexheading" style="display: inline;">Role Mappings</h3>
+                        <div style="display: inline;">
+                            <button class="kuiInfoButton" tooltip="Use Role Mappings to configure the members of a Search Guard Role. You can use usernames, backend roles and host names to assign users to a Search Guard Role.">
+                                <span class="kuiIcon fa-info-circle"></span>
+                            </button>
+                        </div>
+                    </div>
 
                     <div class="kuiControlledTable">
 
@@ -81,13 +88,13 @@
 
                                     <td class="kuiTableRowCell actions cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <a ng-click="edit(rolemappingname)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                            <a tooltip="Edit" ng-click="edit(rolemappingname)" class="kuiButton kuiButton--primary kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-edit"></span>
                                             </a>
-                                            <a ng-click="clone(rolemappingname)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                            <a tooltip="Clone" ng-click="clone(rolemappingname)" class="kuiButton kuiButton--primary kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-copy"></span>
                                             </a>
-                                            <button type="button" ng-disabled="!endpointAndMethodEnabled('ROLESMAPPING', 'DELETE') || resources[rolemappingname].readonly" ng-click="confirmDelete(rolemappingname)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <button tooltip="Delete" type="button" ng-disabled="!endpointAndMethodEnabled('ROLESMAPPING', 'DELETE') || resources[rolemappingname].readonly" ng-click="confirmDelete(rolemappingname)" class="kuiButton kuiButton--danger kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                             </button>
                                         </div>

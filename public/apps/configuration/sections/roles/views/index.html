@@ -8,7 +8,14 @@
             <div class="row">
                 <div class="col-xs-12">
 
-                    <h3 class="indexheading">Search Guard Roles</h3>
+                    <div style="margin-bottom: 10px;">
+                        <h3 class="indexheading" style="display: inline;">Search Guard Roles</h3>
+                        <div style="display: inline;">
+                            <button class="kuiInfoButton" tooltip="Search Guard Roles define access privileges to indices and document types, including Document- and Field-Level-Security and Kibana tenants. Use Role Mappings to assign users to Search Guard roles.">
+                                <span class="kuiIcon fa-info-circle"></span>
+                            </button>
+                        </div>
+                    </div>
 
                     <div class="kuiControlledTable">
 
@@ -90,13 +97,13 @@
 
                                     <td class="kuiTableRowCell actions cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <a ng-click="edit(rolename)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                            <a tooltip="Edit" ng-click="edit(rolename)" class="kuiButton kuiButton--primary kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-edit"></span>
                                             </a>
-                                            <a ng-click="clone(rolename)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                            <a tooltip="Clone" ng-click="clone(rolename)" class="kuiButton kuiButton--primary kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-copy"></span>
                                             </a>
-                                            <button type="button" ng-disabled="!endpointAndMethodEnabled('ROLES', 'DELETE') || resources[rolename].readonly" ng-click="confirmDelete(rolename)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <button tooltip="Delete" type="button" ng-disabled="!endpointAndMethodEnabled('ROLES', 'DELETE') || resources[rolename].readonly" ng-click="confirmDelete(rolename)" class="kuiButton kuiButton--danger kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                             </button>
                                         </div>

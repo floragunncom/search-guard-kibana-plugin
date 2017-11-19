@@ -5,12 +5,21 @@
         <sgc-header></sgc-header>
 
         <div class="container">
+
             <div class="row">
                 <div class="col-xs-12">
-                    <a ng-href="#/" class="kuiButton kuiButton--basic kuiButton--iconText">
-                        <span class="kuiButton__icon kuiIcon fa-chevron-left"></span>
-                        Back
-                    </a>
+                    <div style="margin-bottom: 10px;">
+                        <h3 class="indexheading" style="display: inline;">Search Guard System Status</h3>
+                        <div style="display: inline;">
+                            <button class="kuiInfoButton" tooltip="Displays information about your cluster, the loaded Search Guard modules and your Search Guard license. You can also upload a new license here.">
+                                <span class="kuiIcon fa-info-circle"></span>
+                            </button>
+                            <a ng-href="#/" class="kuiButton kuiButton--basic kuiButton--iconText" style="display: inline; float: right;">
+                                <span class="kuiButton__icon kuiIcon fa-chevron-left"></span>
+                                Back
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="row" ng-if="!systeminfo.sg_license.is_valid" style="margin-top: 20px;">
@@ -231,10 +240,6 @@
             </div>
             <div class="row">
                 <div class="col-xs-12" style="margin-bottom: 20px; margin-top: 20px;">
-                    <a ng-href="#/" class="kuiButton kuiButton--basic kuiButton--iconText">
-                        <span class="kuiButton__icon kuiIcon fa-chevron-left"></span>
-                        Back
-                    </a>
                 </div>
             </div>
         </div>

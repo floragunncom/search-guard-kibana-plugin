@@ -7,7 +7,14 @@
             <div class="row">
                 <div class="col-xs-12">
 
-                    <h3 class="indexheading">Internal Users</h3>
+                    <div style="margin-bottom: 10px;">
+                        <h3 class="indexheading" style="display: inline;">Internal Users Database</h3>
+                        <div style="display: inline;">
+                            <button class="kuiInfoButton" tooltip="The Internal User Database is an authentication backend that stores users and their backend roles directly in Elasticsearch. You can then map these users and/or their backend roles to Search Guard Roles to assign permissions. Use the Internal User Database if you don't have any external authentication system like LDAP or JWT in place.">
+                                <span class="kuiIcon fa-info-circle"></span>
+                            </button>
+                        </div>
+                    </div>
 
                     <div class="kuiControlledTable">
 
@@ -65,13 +72,13 @@
 
                                     <td class="kuiTableRowCell actions">
                                         <div class="kuiTableRowCell__liner">
-                                            <a ng-click="edit(username)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                            <a tooltip="Edit" ng-click="edit(username)" class="kuiButton kuiButton--primary kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-edit"></span>
                                             </a>
-                                            <a ng-click="clone(username)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                            <a tooltip="Clone" ng-click="clone(username)" class="kuiButton kuiButton--primary kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-copy"></span>
                                             </a>
-                                            <button type="button" ng-disabled="!endpointAndMethodEnabled('INTERNALUSERS', 'DELETE') || resources[username].readonly || username == currentuser" ng-click="confirmDelete(username)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <button tooltip="Delete" type="button" ng-disabled="!endpointAndMethodEnabled('INTERNALUSERS', 'DELETE') || resources[username].readonly || username == currentuser" ng-click="confirmDelete(username)" class="kuiButton kuiButton--danger kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                             </button>
                                         </div>
