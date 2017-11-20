@@ -4,10 +4,11 @@
 
 
 ## About this plugin
-This plugin for Kibana adds session management and true multi-tenancy to a [Search Guard](https://github.com/floragunncom/search-guard) secured cluster. Multi-tenancy is available for Elasticsearch 5.x only.
+This plugin for Kibana adds session management and true multi-tenancy to a [Search Guard](https://github.com/floragunncom/search-guard) secured cluster. Multi-tenancy is available for Elasticsearch 5.x and 6.x only.
 
 ## Downloads
 
+* [Kibana 6.0.0 / Search Guard plugin 6.0.0-beta1](https://oss.sonatype.org/content/repositories/releases/com/floragunn/search-guard-kibana-plugin/6.0.0-beta1/search-guard-kibana-plugin-6.0.0-beta1.zip)
 * [Kibana 5.4.0 / Search Guard plugin 5.4.0-2](https://github.com/floragunncom/search-guard-kibana-plugin/releases/download/v5.4.0/searchguard-kibana-5.4.0-2.zip)
 * [Kibana 5.3.2 / Search Guard plugin 5.3.2-2](https://github.com/floragunncom/search-guard-kibana-plugin/releases/download/v5.3.2-2/searchguard-kibana-5.3.2-2.zip)
 * [Kibana 5.3.1 / Search Guard plugin 5.3.1-2](https://github.com/floragunncom/search-guard-kibana-plugin/releases/download/v5.3.1-2/searchguard-kibana-5.3.1-2.zip)
@@ -32,7 +33,7 @@ Download the release matching your Kibana installation, and install it like any 
 bin/kibana-plugin install file:///path/to/searchguard-kibana-<version>.zip
 ```
 
-**For multi-tenancy, you also need to install the [Search Guard multi-tenancy module](https://github.com/floragunncom/search-guard-module-kibana-multitenancy) in addition to this plugin!**
+**For multi-tenancy, you also need to install the [Search Guard multi-tenancy module](https://github.com/floragunncom/search-guard-module-kibana-multitenancy) in addition to this plugin! (5.x only)**
 
 ## Documentation
 
