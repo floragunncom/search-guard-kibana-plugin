@@ -10,20 +10,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <prerequisites>
-    <maven>3.1.0</maven>
-  </prerequisites>
-
   <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>9</version>
+    <groupId>com.floragunn</groupId>
+    <artifactId>search-guard-parent</artifactId>
+    <version>6.1-beta6</version>
   </parent>
 
   <groupId>com.floragunn</groupId>
   <artifactId>search-guard-kibana-plugin</artifactId>
   <packaging>pom</packaging>
-  <version>6.0.0-beta1-SNAPSHOT</version>
+  <version>6.0.0-beta1</version>
+  <name>Search Guard Kibana Plugin</name>
+  <description>Search Guard Kibana Plugin for Elasticsearch 6</description>
+  <url>https://github.com/floragunncom/search-guard</url>
+  <inceptionYear>2016</inceptionYear>
 
   <licenses>
     <license>
@@ -35,19 +35,7 @@
 
   <properties>
     <plugin.descriptor>${basedir}/plugin.xml</plugin.descriptor>
-    <dependency.locations.enabled>false</dependency.locations.enabled>
   </properties>
-
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh-fg</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-    <repository>
-      <id>ossrh-fg</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-  </distributionManagement>
 
   <scm>
     <url>https://github.com/floragunncom/search-guard-kibana-plugin</url>
@@ -55,13 +43,17 @@
     <developerConnection>scm:git:git@github.com:floragunncom/search-guard-kibana-plugin.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
+  
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/floragunncom/search-guard-kibana-plugin/issues</url>
+  </issueManagement>
 
   <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.6</version>
         <executions>
           <execution>
             <id>plugin</id>
@@ -81,30 +73,4 @@
       </plugin>
     </plugins>
   </build>
-  <profiles>
-    <profile>
-      <id>release</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.6</version>
-            <configuration>
-              <keyname>51EDB2FE</keyname>
-            </configuration>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>
