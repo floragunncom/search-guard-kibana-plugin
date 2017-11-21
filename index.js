@@ -38,7 +38,7 @@ export default function (kibana) {
                     }).default(),
                 }).default(),
                 multitenancy: Joi.object().keys({
-                    enabled: Joi.boolean().default(true),
+                    enabled: Joi.boolean().default(false),
                     show_roles: Joi.boolean().default(false),
                     enable_filter: Joi.boolean().default(false),
                     tenants: Joi.object().keys({
@@ -180,8 +180,8 @@ export default function (kibana) {
 
                 // sanity check - header whitelisted?
                 var headersWhitelist = config.get('elasticsearch.requestHeadersWhitelist');
-                if (headersWhitelist.indexOf('sg_tenant') == -1) {
-                    this.status.red('No tenant header found in whitelist. Please add sg_tenant to elasticsearch.requestHeadersWhitelist in kibana.yml');
+                if (headersWhitelist.indexOf('sgtenant') == -1) {
+                    this.status.red('No tenant header found in whitelist. Please add sgtenant to elasticsearch.requestHeadersWhitelist in kibana.yml');
                     return;
                 }
 
