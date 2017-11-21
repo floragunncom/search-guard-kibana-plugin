@@ -8,7 +8,7 @@ This plugin for Kibana adds session management and true multi-tenancy to a [Sear
 
 ## Downloads
 
-* [Kibana 6.0.0 / Search Guard plugin 6.0.0-beta1](https://oss.sonatype.org/content/repositories/releases/com/floragunn/search-guard-kibana-plugin/6.0.0-beta1/search-guard-kibana-plugin-6.0.0-beta1.zip)
+* [Kibana 6.0.0 / Search Guard plugin 6.0.0-beta1](https://oss.sonatype.org/content/repositories/releases/com/floragunn/search-guard-kibana-plugin/6.0.0-6.beta1/search-guard-kibana-plugin-6.0.0-6.beta1.zip)
 * [Kibana 5.4.0 / Search Guard plugin 5.4.0-2](https://github.com/floragunncom/search-guard-kibana-plugin/releases/download/v5.4.0/searchguard-kibana-5.4.0-2.zip)
 * [Kibana 5.3.2 / Search Guard plugin 5.3.2-2](https://github.com/floragunncom/search-guard-kibana-plugin/releases/download/v5.3.2-2/searchguard-kibana-5.3.2-2.zip)
 * [Kibana 5.3.1 / Search Guard plugin 5.3.1-2](https://github.com/floragunncom/search-guard-kibana-plugin/releases/download/v5.3.1-2/searchguard-kibana-5.3.1-2.zip)
