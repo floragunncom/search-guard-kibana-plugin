@@ -68,7 +68,7 @@ export default function LoginController(kbnUrl, $scope, $http, $window, systemst
                 // promises if we navigate away from the page, even if async/await
                 systemstate.loadSystemInfo().then(function(response) {
 
-                    var user = JSON.parse(sessionStorage.getItem("sg_user));
+                    var user = JSON.parse(sessionStorage.getItem("sg_user"));
 
                     // validate the tenant settings:
                     // if MT is disabled, or the GLOBAL tenant is enabled,
