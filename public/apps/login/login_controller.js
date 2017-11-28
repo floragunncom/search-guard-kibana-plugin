@@ -62,11 +62,13 @@ export default function LoginController(kbnUrl, $scope, $http, $window, systemst
             .then(
             (response) => {
                 // cache the current user information, we need it at several places
-                sessionStorage.setItem("sg_user", JSON.stringify(response.data))
+                sessionStorage.setItem("sg_user", JSON.stringify(response.data));
                 // load and cache systeminfo and rest api info
-                // perform in then callback due to Chrome cancelling the
+                // perform in the callback due to Chrome cancelling the
                 // promises if we navigate away from the page, even if async/await
                 systemstate.loadSystemInfo().then(function(response) {
+
+                    var user = JSON.parse(sessionStorage.getItem("sg_user));
 
                     // validate the tenant settings:
                     // if MT is disabled, or the GLOBAL tenant is enabled,
@@ -79,10 +81,10 @@ export default function LoginController(kbnUrl, $scope, $http, $window, systemst
                         $window.location.href = `${nextUrl}`;
                     } else {
                         // GLOBAL is disabled, check if we have at least one tenant to choose from
-                        var allTenants = response.data.tenants;
+                        var allTenants = user.tenants;
                         // if private tenant is disabled, remove it
                         if(allTenants != null && !chrome.getInjected("multitenancy.tenants.enable_private")) {
-                            delete allTenants[response.data.username];
+                            delete allTenants[user.username];
                         }
                         // check that we have at least one tenant to fall back to
                         if (allTenants == null || allTenants.length == 0 || _.isEmpty(allTenants)) {
