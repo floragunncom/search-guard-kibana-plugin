@@ -1,7 +1,8 @@
 # Search Guard Kibana Plugin
 
-![Logo](http://docs.search-guard.com/latest/search-guard-frontmatter.png) 
-
+<p align="center">
+<img src="http://docs.search-guard.com/latest/search-guard-frontmatter.png" style="width: 60%" class="md_image"/>
+</p>
 
 ## About this plugin
 This plugin for Kibana adds session management and true multi-tenancy to a [Search Guard](https://github.com/floragunncom/search-guard) secured cluster. 
