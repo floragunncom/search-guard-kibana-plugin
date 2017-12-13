@@ -99,7 +99,11 @@
                     <tbody>
                         <tr class="kuiTableRow" ng-class="{'selected': ctrl.currentTenant == ''}" ng-show="ctrl.globalEnabled && (ctrl.tenantSearch == '' || 'global'.startsWith(ctrl.tenantSearch.toLowerCase()))">
                             <td class="kuiTableRowCell">
-                                {{ctrl.GLOBAL_USER_LABEL}}
+                                <div class="kuiTableRowCell__liner">
+                                    <a class="kuiLink" ng-click="ctrl.selectTenant(ctrl.GLOBAL_USER_LABEL, ctrl.GLOBAL_USER_VALUE)" title="Global">
+                                        {{ctrl.GLOBAL_USER_LABEL}}
+                                    </a>
+                                </div>
                             </td>
                             <td class="kuiTableRowCell">
                                 <div ng-if="ctrl.GLOBAL_USER_WRITEABLE">read/write</div>
@@ -124,7 +128,11 @@
                         </tr>
                         <tr class="kuiTableRow" ng-class="{'selected': ctrl.currentTenant == ctrl.PRIVATE_USER_VALUE}" ng-show="ctrl.privateEnabled && (ctrl.tenantSearch == '' || 'private'.startsWith(ctrl.tenantSearch.toLowerCase()))">
                             <td class="kuiTableRowCell">
-                                {{ctrl.PRIVATE_USER_LABEL}}
+                                <div class="kuiTableRowCell__liner">
+                                    <a class="kuiLink" ng-click="ctrl.selectTenant(ctrl.PRIVATE_USER_LABEL, ctrl.PRIVATE_USER_VALUE)" title="Private">
+                                        {{ctrl.PRIVATE_USER_LABEL}}
+                                    </a>
+                                </div>
                             </td>
                             <td class="kuiTableRowCell">
                                 <div>read/write</div>
@@ -147,7 +155,11 @@
                         </tr>
                         <tr class="kuiTableRow" ng-show="ctrl.tenantSearch == '' || tenantkey.toLowerCase().startsWith(ctrl.tenantSearch.toLowerCase())" ng-repeat="tenantkey in ctrl.tenantkeys" ng-class="{'selected': tenantkey == ctrl.currentTenant}">
                             <td class="kuiTableRowCell">
-                                {{tenantkey}}
+                                <div class="kuiTableRowCell__liner">
+                                    <a class="kuiLink" ng-click="ctrl.selectTenant(tenantkey, tenantkey)" title="{{tenantkey}}">
+                                    {{tenantkey}}
+                                    </a>
+                                </div>
                             </td>
                             <td class="kuiTableRowCell">
                                 <div ng-if="ctrl.tenants[tenantkey]">read/write</div>
