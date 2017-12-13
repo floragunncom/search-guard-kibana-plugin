@@ -137,10 +137,10 @@ export default function (kibana) {
             const searchguardConfigurationBackend = new ConfigurationBackendClass(server, server.config);
             server.expose('getSearchGuardConfigurationBackend', () => searchguardConfigurationBackend);
 
+            server.register([require('hapi-async-handler')]);
 
             if(config.get('searchguard.basicauth.enabled')) {
                 server.register([
-                    require('hapi-async-handler'),
                     require('hapi-auth-cookie'),
                     require('hapi-authorization')
                 ], (error) => {
