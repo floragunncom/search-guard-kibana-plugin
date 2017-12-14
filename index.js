@@ -49,7 +49,7 @@ export default function (kibana) {
                 }).default(),
                 configuration: Joi.object().keys({
                     enabled: Joi.boolean().default(true)
-                }),
+                }).default(),
                 jwt: Joi.object().keys({
                     enabled: Joi.boolean().default(false),
                     url_param: Joi.string().default('authorization'),
@@ -230,7 +230,7 @@ export default function (kibana) {
             } else {
                 this.status.yellow("Search Guard copy JWT params disabled");
             }
-
+            console.log(config.get('searchguard.configuration.enabled'));
             if(config.get('searchguard.configuration.enabled')) {
                 require('./lib/configuration/routes/routes')(pluginRoot, server, APP_ROOT, API_ROOT);
                 this.status.yellow("Search Guard configuration GUI enabled");
@@ -239,7 +239,7 @@ export default function (kibana) {
             }
 
             require('./lib/system/routes')(pluginRoot, server, APP_ROOT, API_ROOT);
-            this.status.yellow('Search Guard system routed registered.');
+            this.status.yellow('Search Guard system routes registered.');
 
 
 
