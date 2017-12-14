@@ -99,7 +99,7 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
         if(systemstate.endpointAndMethodEnabled("ACTIONGROUPS","GET")) {
             backendActionGroups.listSilent().then((response) => {
                 $scope.actiongroupNames = Object.keys(response.data);
-                sessionStorage.setItem("actiongroupnames", JSON.stringify($scope.actiongroupnames));
+                sessionStorage.setItem("actiongroupnames", JSON.stringify($scope.actiongroupNames));
                 $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete($scope.actiongroupNames);
                 sessionStorage.setItem("actiongroupsautocomplete", JSON.stringify($scope.actiongroupsAutoComplete));
             }, (error) => {
@@ -186,6 +186,17 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
         });
         editor.$blockScrolling = Infinity;
         editor.setShowPrintMargin(false);
+    };
+
+    $scope.aceRwLoaded = (editor) => {
+        editor.session.setOptions({
+            tabSize: 2,
+            useSoftTabs: false
+        });
+        //editor.$blockScrolling = Infinity;
+        editor.setShowPrintMargin(false);
+        editor.resize();
+        editor.renderer.updateFull();
     };
 
     $scope.toggleEditor = (resource) => {
