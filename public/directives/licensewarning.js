@@ -17,6 +17,7 @@ app.directive('sgLicenseWarning', function (systemstate) {
         link: function($scope, elem, attrs) {
 
             $scope.licensevalid = true;
+            $scope.message = "";
 
             systemstate.loadSystemInfo().then(function(){
                 $scope.licensevalid = systemstate.licenseValid();
