@@ -130,6 +130,21 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
 
     $scope.selectTab = function(tabId) {
         $scope.selectedTab = tabId;
+        if (tabId == 'dlsfls') {
+            // resize editor, see https://github.com/angular-ui/ui-ace/issues/18
+            var editor = ace.edit("object-form-dls-json-raw");
+            editor.session.setMode("ace/mode/json")
+            editor.resize();
+            editor.renderer.updateFull();
+            // try to beautify
+            var code = editor.getSession().getValue();
+            try {
+                var codeAsJson = JSON.parse(code);
+                editor.getSession().setValue(JSON.stringify(codeAsJson, null, 2));
+            } catch(exception) {
+                // no valid json
+            }
+        }
     }
 
     $scope.selectIndex = function(indexName) {
@@ -212,13 +227,21 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     }
 
     $scope.testDls = function() {
+        // try to beautify
+        var editor = ace.edit("object-form-dls-json-raw");
+        var code = editor.getSession().getValue();
+        try {
+            var codeAsJson = JSON.parse(code);
+            editor.getSession().setValue(JSON.stringify(codeAsJson, null, 2));
+        } catch(exception) {
+            // no valid json
+        }
+
         var encodedIndex = $window.encodeURIComponent($scope.selectedIndex);
         var query = "{\"query\": " + $scope.resource.dlsfls[$scope.selectedIndex]['_dls_'] + "}";
-        console.log(query);
         $http.post(`${API_ROOT}/configuration/validatedls/`+encodedIndex, query)
             .then(
             (response) => {
-                console.log(response);
                 if (!response.data.valid) {
                     notify.error(response.data.error);
                 } else {

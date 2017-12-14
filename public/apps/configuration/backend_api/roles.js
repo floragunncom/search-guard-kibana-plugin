@@ -99,7 +99,15 @@ uiModules.get('apps/searchguard/configuration', [])
                 var dlsfls = role.dlsfls[indexname];
                 if(dlsfls) {
                     if (dlsfls["_dls_"].length > 0) {
-                        index["_dls_"] = dlsfls["_dls_"];
+                        // remove any formatting
+                        var dls = dlsfls["_dls_"];
+                        try {
+                            var dlsJsonObject = JSON.parse(dls);
+                            dls = JSON.stringify(dlsJsonObject);
+                        } catch (exception) {
+                            // no valid json, keep as is.
+                        }
+                        index["_dls_"] = dls.replace(/(\r\n|\n|\r|\t)/gm,"");;
                     }
                     if (dlsfls["_fls_"].length > 0) {
                         index["_fls_"] = dlsfls["_fls_"];

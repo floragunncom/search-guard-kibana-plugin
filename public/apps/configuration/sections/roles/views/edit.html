@@ -287,8 +287,15 @@
                                 <tbody>
                                 <tr class="kuiTableRow">
                                     <td class="kuiTableRowCell cellAlignTop">
-                                        <fieldset class="marginbottom--small" id="object-form-actiongroups">
-                                            <input type="text" class="kuiTextInput fullwidth" ng-model="resource.dlsfls[selectedIndex]['_dls_']" name="">
+                                        <fieldset class="marginbottom--small" id="object-form-actiongroups-dls">
+
+                                            <div
+
+                                                 id="object-form-dls-json-raw"
+                                                 name="jsonRaw"
+                                                 ui-ace="{ onLoad: aceRwLoaded, mode: 'json' }"
+                                                 ng-model="resource.dlsfls[selectedIndex]['_dls_']">
+                                            </div
                                         </fieldset>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop actions">

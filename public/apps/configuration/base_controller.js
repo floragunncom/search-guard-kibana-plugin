@@ -193,10 +193,8 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
             tabSize: 2,
             useSoftTabs: false
         });
-        //editor.$blockScrolling = Infinity;
+        editor.$blockScrolling = Infinity;
         editor.setShowPrintMargin(false);
-        editor.resize();
-        editor.renderer.updateFull();
     };
 
     $scope.toggleEditor = (resource) => {
