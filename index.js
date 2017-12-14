@@ -48,11 +48,7 @@ export default function (kibana) {
                     }).default(),
                 }).default(),
                 configuration: Joi.object().keys({
-                    enabled: Joi.boolean().default(true),
-                    ssl: Joi.object().keys({
-                        cert: Joi.string(),
-                        key: Joi.string()
-                    })
+                    enabled: Joi.boolean().default(true)
                 }),
                 jwt: Joi.object().keys({
                     enabled: Joi.boolean().default(false),
@@ -167,12 +163,12 @@ export default function (kibana) {
                     // all your routes are belong to us
                     require('./lib/auth/routes')(pluginRoot, server, this, APP_ROOT, API_ROOT);
 
-                    this.status.yellow('Search Guard HTTP Basic Authentication enabled.');
+                    this.status.yellow('Search Guard session management enabled.');
 
                 });
 
             } else {
-                this.status.yellow('Search Guard HTTP Basic Authentication is disabled.');
+                this.status.yellow('Search Guard session management is disabled.');
             }
 
 
@@ -235,13 +231,16 @@ export default function (kibana) {
                 this.status.yellow("Search Guard copy JWT params disabled");
             }
 
-            // todo: config stuff from here
-            // todo: check if enabled
+            if(config.get('searchguard.configuration.enabled')) {
+                require('./lib/configuration/routes/routes')(pluginRoot, server, APP_ROOT, API_ROOT);
+                this.status.yellow("Search Guard configuration GUI enabled");
+            } else {
+                this.status.yellow("Search Guard configuration GUI disabled");
+            }
 
-            require('./lib/configuration/routes/routes')(pluginRoot, server, APP_ROOT, API_ROOT);
             require('./lib/system/routes')(pluginRoot, server, APP_ROOT, API_ROOT);
+            this.status.yellow('Search Guard system routed registered.');
 
-            // todo: end config stuff
 
 
             this.status.green('Search Guard plugin initialised.');
