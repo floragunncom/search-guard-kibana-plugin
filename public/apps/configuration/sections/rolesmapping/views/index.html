@@ -56,7 +56,7 @@
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <a class="kuiLink" ng-click="edit(rolemappingname)">
+                                            <a class="kuiLink" ng-click="edit(rolemappingname)" title="{{rolemappingname}}">
                                                 {{rolemappingname}}
                                             </a>
                                             <div ng-if="resources[rolemappingname].readonly">
@@ -70,19 +70,19 @@
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <div ng-repeat="user in resources[rolemappingname].users">{{user}}<br/></div>
+                                            <span title="{{user}}" ng-repeat="user in resources[rolemappingname].users">{{user}}<br/></span>
                                         </div>
                                     </td>
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <div ng-repeat="backendrole in resources[rolemappingname].backendroles">{{backendrole}}<br/></div>
+                                            <span title="{{backendrole}}" ng-repeat="backendrole in resources[rolemappingname].backendroles">{{backendrole}}<br/></span>
                                         </div>
                                     </td>
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <div ng-repeat="host in resources[rolemappingname].hosts">{{host}}<br/></div>
+                                            <span title="{{host}}" ng-repeat="host in resources[rolemappingname].hosts">{{host}}<br/></span>
                                         </div>
                                     </td>
 

@@ -46,7 +46,7 @@
 
                                     <td class="kuiTableRowCell">
                                         <div class="kuiTableRowCell__liner">
-                                            <a class="kuiLink" ng-click="edit(username)">
+                                            <a class="kuiLink" ng-click="edit(username)" title="{{username}}">
                                                 {{username}}
                                             </a>
                                             <div ng-if="resources[username].readonly">
@@ -66,7 +66,7 @@
 
                                     <td class="kuiTableRowCell">
                                         <div class="kuiTableRowCell__liner">
-                                            <div ng-repeat="role in resources[username].roles">{{role}}<br/></div>
+                                            <span title="{{role}}" ng-repeat="role in resources[username].roles">{{role}}<br/></span>
                                         </div>
                                     </td>
 

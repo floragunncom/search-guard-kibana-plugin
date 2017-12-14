@@ -50,7 +50,7 @@
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <a class="kuiLink" ng-click="edit(actiongroupname)">
+                                            <a class="kuiLink" ng-click="edit(actiongroupname)" title="{{actiongroupname}}">
                                                 {{actiongroupname}}
                                             </a>
                                             <div ng-if="resources[actiongroupname].readonly">
@@ -64,13 +64,13 @@
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <span ng-repeat="permission in resources[actiongroupname].permissions">{{permission}}<br/></span>
+                                            <span title="{{permission}}" ng-repeat="permission in resources[actiongroupname].permissions">{{permission}}<br/></span>
                                         </div>
                                     </td>
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <span ng-repeat="actiongroup in resources[actiongroupname].actiongroups">{{actiongroup}}<br/></span>
+                                            <span title="{{actiongroup}}" ng-repeat="actiongroup in resources[actiongroupname].actiongroups">{{actiongroup}}<br/></span>
                                         </div>
                                     </td>
 

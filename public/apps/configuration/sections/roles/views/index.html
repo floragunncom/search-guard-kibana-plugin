@@ -55,7 +55,7 @@
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <a class="kuiLink" ng-click="edit(rolename)">
+                                            <a class="kuiLink" ng-click="edit(rolename)" title="{{rolename}}">
                                                 {{rolename}}
                                             </a>
                                         </div>
@@ -69,28 +69,28 @@
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <div ng-repeat="clusterpermission in resources[rolename].cluster.actiongroups.sort()">{{clusterpermission}}<br/></div>
-                                            <div ng-repeat="clusterpermission in resources[rolename].cluster.permissions.sort()">{{clusterpermission}}<br/></div>
+                                            <span title="{{clusterpermission}}" ng-repeat="clusterpermission in resources[rolename].cluster.actiongroups.sort()">{{clusterpermission}}<br/></span>
+                                            <span title="{{clusterpermission}}" ng-repeat="clusterpermission in resources[rolename].cluster.permissions.sort()">{{clusterpermission}}<br/></span>
                                         </div>
                                     </td>
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <div ng-repeat="indexname in resources[rolename].indexnames.sort()">
-                                                <a class="kuiLink" ng-href="#/roles/edit/{{rolename}}/{{indexname | escape}}" >
+                                            <span ng-repeat="indexname in resources[rolename].indexnames.sort()">
+                                                <a title="{{indexname}}" class="kuiLink" ng-href="#/roles/edit/{{rolename}}/{{indexname | escape}}" >
                                                     {{indexname}}
                                                 </a>
                                                 <br/>
-                                            </div>
+                                            </span>
                                         </div>
                                     </td>
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <div ng-repeat="tenantname in flatten(resources[rolename].tenantsArray, 'name').sort()">
+                                            <span title="{{tenantname}}" ng-repeat="tenantname in flatten(resources[rolename].tenantsArray, 'name').sort()">
                                                 {{tenantname}}
                                                 <br/>
-                                            </div>
+                                            </span>
                                         </div>
                                     </td>
 
