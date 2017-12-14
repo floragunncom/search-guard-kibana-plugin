@@ -43,6 +43,7 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
     $scope.accessState = "pending";
 
     $scope.actiongroupNames = [];
+    $scope.roleNames = [];
 
     // objects for autocomplete
     $scope.actiongroupsAutoComplete = {};
@@ -111,16 +112,26 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
 
     $scope.loadRoles = () => {
         var cachedRoles = sessionStorage.getItem("rolesautocomplete");
+        var cachedRoleNames = sessionStorage.getItem("rolenames");
 
         if (cachedRoles) {
             $scope.rolesAutoComplete = JSON.parse(cachedRoles);
+        }
+
+        if (cachedRoleNames) {
+            $scope.roleNames = JSON.parse(cachedRoleNames);
+        }
+
+        if (cachedRoles && cachedRoleNames) {
             return;
         }
 
         if(systemstate.endpointAndMethodEnabled("ROLES","GET")) {
             backendRoles.listSilent().then((response) => {
                 $scope.rolesAutoComplete = backendRoles.listAutocomplete(Object.keys(response.data));
+                $scope.roleNames = Object.keys(response.data);
                 sessionStorage.setItem("rolesautocomplete", JSON.stringify($scope.rolesAutoComplete));
+                sessionStorage.setItem("rolenames", JSON.stringify(Object.keys(response.data)));
             }, (error) => {
                 notify.error(error);
                 $scope.accessState = "forbidden";

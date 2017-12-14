@@ -23,6 +23,12 @@ app.controller('sgRoleMappingsController', function ($scope, $element, $route, c
         $scope.loaded = true;
     });
 
+    $scope.sgRoleMissing = function(mappingname) {
+        if ($scope.roleNames && $scope.roleNames.length > 0) {
+            return $scope.roleNames.indexOf(mappingname) == -1 ? true : false;
+        }
+        return false;
+    }
 });
 
 app.controller('sgEditRoleMappingsController', function ($scope, $element, $route, $location, $routeParams, createNotifier, backendrolesmapping, backendAPI, kbnUrl) {

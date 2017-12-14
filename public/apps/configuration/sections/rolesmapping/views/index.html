@@ -56,12 +56,13 @@
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
+                                            <span class="kuiStatusText__icon kuiStatusText--error kuiIcon fa-warning" ng-if="sgRoleMissing(rolemappingname)" tooltip="No corresponding Search Guard role for mapping '{{rolemappingname}}' found."></span>
                                             <a class="kuiLink" ng-click="edit(rolemappingname)" title="{{rolemappingname}}">
                                                 {{rolemappingname}}
                                             </a>
                                             <div ng-if="resources[rolemappingname].readonly">
                                                 <div class="kuiBadge kuiBadge--default" >
-                                                    <span class="kuiIcon fa-warning"></span>
+                                                    <span class="kuiIcon fa-lock"></span>
                                                     reserved
                                                 </div>
                                             </div>

@@ -36,12 +36,16 @@ uiModules.get('apps/searchguard/configuration', [])
         };
 
         this.save = (rolename, data) => {
+            sessionStorage.removeItem("rolesautocomplete");
+            sessionStorage.removeItem("rolenames");
             var resourceCopy = JSON.parse(JSON.stringify(data));
             var data = this.preSave(resourceCopy);
             return backendAPI.save(RESOURCE, rolename, data);
         };
 
         this.delete = (id) => {
+            sessionStorage.removeItem("rolesautocomplete");
+            sessionStorage.removeItem("rolenames");
             return backendAPI.delete(RESOURCE, id);
         };
 
