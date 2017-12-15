@@ -183,6 +183,9 @@ uiModules.get('apps/searchguard/configuration', [])
 
 
         this.cleanArray = (thearray) => {
+            if (!thearray) {
+                return [];
+            }
             if (!Array.isArray(thearray)) {
                 return;
             }

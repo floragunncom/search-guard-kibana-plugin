@@ -10,9 +10,9 @@
                     <div style="margin-bottom: 10px;">
                         <h3 class="indexheading" style="display: inline;">Role Mappings</h3>
                         <div style="display: inline;">
-                            <button class="kuiInfoButton" tooltip="Use Role Mappings to configure the members of a Search Guard Role. You can use usernames, backend roles and host names to assign users to a Search Guard Role.">
+                            <span class="kuiInfoButton help" tooltip="Use Role Mappings to configure the members of a Search Guard Role. You can use usernames, backend roles and host names to assign users to a Search Guard Role.">
                                 <span class="kuiIcon fa-info-circle"></span>
-                            </button>
+                            </span>
                         </div>
                     </div>
 
@@ -56,7 +56,7 @@
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <span class="kuiStatusText__icon kuiStatusText--error kuiIcon fa-warning" ng-if="sgRoleMissing(rolemappingname)" tooltip="No corresponding Search Guard role for mapping '{{rolemappingname}}' found."></span>
+                                            <span ng-click="newRole(rolemappingname)" class="kuiStatusText__icon kuiStatusText--error kuiIcon fa-warning" ng-if="sgRoleMissing(rolemappingname)" tooltip="No corresponding Search Guard role for mapping '{{rolemappingname}}' found. Click to create it."></span>
                                             <a class="kuiLink" ng-click="edit(rolemappingname)" title="{{rolemappingname}}">
                                                 {{rolemappingname}}
                                             </a>

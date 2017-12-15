@@ -29,6 +29,11 @@ app.controller('sgRoleMappingsController', function ($scope, $element, $route, c
         }
         return false;
     }
+
+    $scope.newRole = function(rolename) {
+        kbnUrl.change(`/roles/new?name=`+rolename);
+    }
+
 });
 
 app.controller('sgEditRoleMappingsController', function ($scope, $element, $route, $location, $routeParams, createNotifier, backendrolesmapping, backendAPI, kbnUrl) {
@@ -103,7 +108,7 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
             return;
         }
 
-        // check for empty arrays
+        // check for empty arrays or undefined objects
         $scope.resource.users = backendAPI.cleanArray($scope.resource.users);
         $scope.resource.backendroles = backendAPI.cleanArray($scope.resource.backendroles);
         $scope.resource.hosts = backendAPI.cleanArray($scope.resource.hosts);
