@@ -100,27 +100,27 @@
                         <tr class="kuiTableRow" ng-class="{'selected': ctrl.currentTenant == ''}" ng-show="ctrl.globalEnabled && (ctrl.tenantSearch == '' || 'global'.startsWith(ctrl.tenantSearch.toLowerCase()))">
                             <td class="kuiTableRowCell">
                                 <div class="kuiTableRowCell__liner">
-                                    <a class="kuiLink" ng-click="ctrl.selectTenant(ctrl.GLOBAL_USER_LABEL, ctrl.GLOBAL_USER_VALUE)" title="Global">
+                                    <a id="sg.link.select.global" class="kuiLink" ng-click="ctrl.selectTenant(ctrl.GLOBAL_USER_LABEL, ctrl.GLOBAL_USER_VALUE)" title="Global">
                                         {{ctrl.GLOBAL_USER_LABEL}}
                                     </a>
                                 </div>
                             </td>
                             <td class="kuiTableRowCell">
-                                <div ng-if="ctrl.GLOBAL_USER_WRITEABLE">read/write</div>
-                                <div ng-if="!ctrl.GLOBAL_USER_WRITEABLE">read only</div>
+                                <div id="sg.permission.global" ng-if="ctrl.GLOBAL_USER_WRITEABLE">read/write</div>
+                                <div id="sg.permission.global" ng-if="!ctrl.GLOBAL_USER_WRITEABLE">read only</div>
                             </td>
                             <td class="actions kuiTableRowCell">
-                                <button id="show_dashboard_global" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
+                                <button id="sg.button.show_dashboard.global" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
                                         ng-click="ctrl.selectTenant(ctrl.GLOBAL_USER_LABEL, ctrl.GLOBAL_USER_VALUE, 'dash')">Show Dashboards
                                 </button>
                             </td>
                             <td class="actions kuiTableRowCell">
-                                <button id="show_visualization_global" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
+                                <button id="sg.button.show_visualization.global" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
                                         ng-click="ctrl.selectTenant(ctrl.GLOBAL_USER_LABEL, ctrl.GLOBAL_USER_VALUE, 'vis')">Show Visualizations
                                 </button>
                             </td>
                             <td class="actions kuiTableRowCell">
-                                <button id="select_global" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == ''"
+                                <button id="sg.button.select.global" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == ''"
                                         ng-show="ctrl.currentTenant != ctrl.GLOBAL_USER_VALUE"
                                         ng-click="ctrl.selectTenant(ctrl.GLOBAL_USER_LABEL, ctrl.GLOBAL_USER_VALUE)">Select
                                 </button>
@@ -129,26 +129,26 @@
                         <tr class="kuiTableRow" ng-class="{'selected': ctrl.currentTenant == ctrl.PRIVATE_USER_VALUE}" ng-show="ctrl.privateEnabled && (ctrl.tenantSearch == '' || 'private'.startsWith(ctrl.tenantSearch.toLowerCase()))">
                             <td class="kuiTableRowCell">
                                 <div class="kuiTableRowCell__liner">
-                                    <a class="kuiLink" ng-click="ctrl.selectTenant(ctrl.PRIVATE_USER_LABEL, ctrl.PRIVATE_USER_VALUE)" title="Private">
+                                    <a id="sg.link.select.private" class="kuiLink" ng-click="ctrl.selectTenant(ctrl.PRIVATE_USER_LABEL, ctrl.PRIVATE_USER_VALUE)" title="Private">
                                         {{ctrl.PRIVATE_USER_LABEL}}
                                     </a>
                                 </div>
                             </td>
                             <td class="kuiTableRowCell">
-                                <div>read/write</div>
+                                <div id="sg.permission.private">read/write</div>
                             </td>
                             <td class="actions kuiTableRowCell">
-                                <button id="show_dashboard_private" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
+                                <button id="sg.button.show_dashboard.private" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
                                         ng-click="ctrl.selectTenant(ctrl.PRIVATE_USER_LABEL, ctrl.PRIVATE_USER_VALUE, 'dash')">Show Dashboards
                                 </button>
                             </td>
                             <td class="actions kuiTableRowCell">
-                                <button id="show_visualization_private" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
+                                <button id="sg.button.show_visualization.private" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
                                         ng-click="ctrl.selectTenant(ctrl.PRIVATE_USER_LABEL, ctrl.PRIVATE_USER_VALUE, 'vis')">Show Visualizations
                                 </button>
                             </td>
                             <td class="actions kuiTableRowCell">
-                                <button id="select_private" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == ctrl.PRIVATE_USER_VALUE"
+                                <button id="sg.button.select.private" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == ctrl.PRIVATE_USER_VALUE"
                                         ng-click="ctrl.selectTenant(ctrl.PRIVATE_USER_LABEL, ctrl.PRIVATE_USER_VALUE)">Select
                                 </button>
                             </td>
@@ -156,27 +156,27 @@
                         <tr class="kuiTableRow" ng-show="ctrl.tenantSearch == '' || tenantkey.toLowerCase().startsWith(ctrl.tenantSearch.toLowerCase())" ng-repeat="tenantkey in ctrl.tenantkeys" ng-class="{'selected': tenantkey == ctrl.currentTenant}">
                             <td class="kuiTableRowCell">
                                 <div class="kuiTableRowCell__liner">
-                                    <a class="kuiLink" ng-click="ctrl.selectTenant(tenantkey, tenantkey)" title="{{tenantkey}}">
+                                    <a id="sg.link.select.{{tenantkey}}" class="kuiLink" ng-click="ctrl.selectTenant(tenantkey, tenantkey)" title="{{tenantkey}}">
                                     {{tenantkey}}
                                     </a>
                                 </div>
                             </td>
                             <td class="kuiTableRowCell">
-                                <div ng-if="ctrl.tenants[tenantkey]">read/write</div>
-                                <div ng-if="!ctrl.tenants[tenantkey]">read only</div>
+                                <div id="sg.permission.{{tenantkey}}" ng-if="ctrl.tenants[tenantkey]">read/write</div>
+                                <div id="sg.permission.{{tenantkey}}" ng-if="!ctrl.tenants[tenantkey]">read only</div>
                             </td>
                             <td class="actions kuiTableRowCell">
-                                <button id="show_dashboard_{{tenantkey}}" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
+                                <button id="sg.button.show_dashboard.{{tenantkey}}" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
                                         ng-click="ctrl.selectTenant(tenantkey, tenantkey, 'dash')">Show Dashboards
                                 </button>
                             </td>
                             <td class="actions kuiTableRowCell">
-                                <button id="show_visualization_{{tenantkey}}" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
+                                <button id="sg.button.show_visualization.{{tenantkey}}" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
                                         ng-click="ctrl.selectTenant(tenantkey, tenantkey, 'vis')">Show Visualizations
                                 </button>
                             </td>
                             <td class="actions kuiTableRowCell">
-                                <button id="select_{{tenantkey}}" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
+                                <button id="sg.button.select.{{tenantkey}}" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
                                         ng-click="ctrl.selectTenant(tenantkey, tenantkey)">Select
                                 </button>
                             </td>
