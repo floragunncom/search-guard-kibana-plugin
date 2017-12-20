@@ -1,6 +1,7 @@
 import { uiModules } from 'ui/modules';
 import chrome from 'ui/chrome';
-import '../apps/configuration/systemstate'
+
+require ('../apps/configuration/systemstate/systemstate');
 
 const app = uiModules.get('apps/searchguard/configuration', []);
 

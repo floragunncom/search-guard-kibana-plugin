@@ -3,7 +3,7 @@ import { uiModules } from 'ui/modules'
 import { get } from 'lodash';
 import '../../backend_api/roles';
 import '../../backend_api/actiongroups';
-import '../../systemstate'
+import '../../systemstate/systemstate'
 
 const app = uiModules.get('apps/searchguard/configuration', []);
 

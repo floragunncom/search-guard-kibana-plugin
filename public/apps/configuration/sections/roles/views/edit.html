@@ -109,10 +109,14 @@
                                 <thead ng-show="!indicesEmpty()">
                                 <tr>
                                     <th class="kuiTableHeaderCell tableHeaderBold fourwidth">
-                                        Index
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Index
+                                        </span>
                                     </th>
                                     <th class="kuiTableHeaderCell tableHeaderBold fourwidth">
-                                        Document Type
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Document Type
+                                        </span>
                                     </th>
                                     <th class="kuiTableHeaderCell tableHeaderBold twowidth">
                                     </th>
@@ -159,10 +163,14 @@
                                 <thead>
                                 <tr>
                                     <th class="kuiTableHeaderCell tableHeaderBold">
-                                        Index
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Index
+                                        </span>
                                     </th>
                                     <th class="kuiTableHeaderCell tableHeaderBold">
-                                        Document Type
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Document Type
+                                        </span>
                                     </th>
                                 </tr>
                                 </thead>
@@ -242,7 +250,9 @@
                                 <thead ng-show="!indicesEmpty()">
                                 <tr>
                                     <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
-                                        Index
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Index
+                                        </span>
                                     </th>
                                 </tr>
                                 </thead>
@@ -270,7 +280,7 @@
                                 <tr>
                                     <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
 
-                                        <div>
+                                        <div class="kuiTableHeaderCell__liner">
                                             Document Level Security Query
                                             <div style="display: inline;">
                                                 <span class="kuiInfoButton help" tooltip='Use Elasticsearch’s full Query DSL for configuring the query used for Document Level Security. The query must be a valid JSON string, e.g. {"match": {"category": "event"}}'>
@@ -315,7 +325,7 @@
                                 <thead>
                                 <tr>
                                     <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
-                                        <div>
+                                        <div class="kuiTableHeaderCell__liner">
                                             Include or exclude fields
                                             <div style="display: inline;">
                                                 <span class="kuiInfoButton help" tooltip='Include or exclude fields from documents returned by Elasticsearch.'>
@@ -325,11 +335,12 @@
                                         </div>
                                     </th>
                                     <th class="kuiTableHeaderCell tableHeaderCellIndexGroups actions">
-                                        <select class="kuiSelect" name="flsModeSelect" ng-model="resource.dlsfls[selectedIndex]['_flsmode_']">
-                                            <option value="whitelist">Include fields</option>
-                                            <option value="blacklist">Exclude fields</option>
-                                        </select>
-
+                                        <div class="kuiTableHeaderCell__liner">
+                                            <select class="kuiSelect" name="flsModeSelect" ng-model="resource.dlsfls[selectedIndex]['_flsmode_']">
+                                                <option value="whitelist">Include fields</option>
+                                                <option value="blacklist">Exclude fields</option>
+                                            </select>
+                                        </div>
                                     </th>
                                 </tr>
                                 </thead>
@@ -392,10 +403,14 @@
                                 <thead>
                                 <tr>
                                     <th class="kuiTableHeaderCell tableHeaderBold" style="width: 70%;">
-                                        Tenant
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Tenant
+                                        </span>
                                     </th>
                                     <th class="kuiTableHeaderCell tableHeaderBold">
-                                        Permissions
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Permissions
+                                        </span>
                                     </th>
                                     <th class="kuiTableHeaderCell tableHeaderBold">
 

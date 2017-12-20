@@ -11,6 +11,7 @@ export default function (kibana) {
 
     return new kibana.Plugin({
         name: 'searchguard',
+        id: 'searchguard',
         require: ['kibana', 'elasticsearch'],
 
         config: function (Joi) {
@@ -70,7 +71,7 @@ export default function (kibana) {
                 {
                     id: 'searchguard-login',
                     title: 'Login',
-                    main: 'plugins/searchguard/apps/login',
+                    main: 'plugins/searchguard/apps/login/login',
                     hidden: true,
                     auth: false
                 }
@@ -78,7 +79,7 @@ export default function (kibana) {
                 {
                     id: 'searchguard-multitenancy',
                     title: 'Tenants',
-                    main: 'plugins/searchguard/apps/multitenancy',
+                    main: 'plugins/searchguard/apps/multitenancy/multitenancy',
                     hidden: false,
                     auth: true,
                     order: 9010,
@@ -89,7 +90,7 @@ export default function (kibana) {
                 {
                     id: 'searchguard-configuration',
                     title: 'Search Guard',
-                    main: 'plugins/searchguard/apps/configuration',
+                    main: 'plugins/searchguard/apps/configuration/configuration',
                     order: 9009,
                     auth: true,
                     icon: 'plugins/searchguard/assets/searchguard_logo_nav.svg',
@@ -121,7 +122,7 @@ export default function (kibana) {
             // all your routes are belong to us
             require('./lib/auth/routes_authinfo')(pluginRoot, server, this, APP_ROOT, API_ROOT);
 
-            this.apps.byId['searchguard-multitenancy'].hidden = false;
+            //this.apps.byId['searchguard-multitenancy'].hidden = false;
 
             // provides authentication methods against Search Guard
             const BackendClass = pluginRoot(`lib/backend/searchguard`);
@@ -230,7 +231,7 @@ export default function (kibana) {
             } else {
                 this.status.yellow("Search Guard copy JWT params disabled");
             }
-            console.log(config.get('searchguard.configuration.enabled'));
+
             if(config.get('searchguard.configuration.enabled')) {
                 require('./lib/configuration/routes/routes')(pluginRoot, server, APP_ROOT, API_ROOT);
                 this.status.yellow("Search Guard configuration GUI enabled");

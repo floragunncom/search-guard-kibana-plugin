@@ -17,8 +17,9 @@
 import chrome from 'ui/chrome';
 import {parse} from 'url';
 import _ from 'lodash';
-import '../../directives/licensewarning';
-import '../configuration/systemstate'
+
+require ('../../directives/licensewarning');
+require ('../configuration/systemstate/systemstate');
 
 export default function LoginController(kbnUrl, $scope, $http, $window, systemstate) {
 

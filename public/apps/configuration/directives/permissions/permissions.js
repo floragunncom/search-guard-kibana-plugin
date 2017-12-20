@@ -1,5 +1,5 @@
 import { uiModules } from 'ui/modules';
-import '../angucomplete';
+import '../angucomplete/angucomplete';
 
 const app = uiModules.get('apps/searchguard/configuration', []);
 

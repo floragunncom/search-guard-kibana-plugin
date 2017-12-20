@@ -1,6 +1,6 @@
 {
   "name": "searchguard",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "description": "Search Guard features for kibana",
   "main": "index.js",
   "homepage": "https://floragunn.com",

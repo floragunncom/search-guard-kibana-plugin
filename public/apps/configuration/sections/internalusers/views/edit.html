@@ -44,7 +44,9 @@
                                 <thead>
                                     <tr>
                                         <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
-                                            Backend Roles
+                                            <span class="kuiTableHeaderCell__liner">
+                                                Backend Roles
+                                            </span>
                                         </th>
 
                                         <th class="kuiTableHeaderCell">
@@ -63,7 +65,7 @@
                                     </tr>
                                     <tr class="kuiTableRow" data-ng-repeat="role in resource.roles track by $index">
                                         <td class="kuiTableRowCell cellAlignTop">
-                                            <fieldset class="marginbottom--small" id="object-form-backendroles">
+                                            <fieldset class="marginbottom--small" id="object-form-backendroles-{{resource.roles[$index]}}">
                                                 <input type="text" class="kuiTextInput fullwidth" ng-model="resource.roles[$index]" name="">
                                             </fieldset>
                                         </td>

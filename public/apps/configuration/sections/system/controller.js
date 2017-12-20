@@ -78,7 +78,6 @@ app.controller('sgLicenseController', function ($scope, $element, $route, $locat
                 kbnUrl.change(`/system/`)
             })
             .catch((error) => {
-                console.log(error);
                 notify.error(error);
             });
     };

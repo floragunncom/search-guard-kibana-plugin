@@ -17,7 +17,8 @@
 
 import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules';
-import '../../apps/configuration/systemstate'
+
+require ('../../apps/configuration/systemstate/systemstate');
 
 export function enableConfiguration($http, $window, systemstate) {
 

@@ -11,9 +11,10 @@ import { orderBy } from 'lodash';
 
 import clusterpermissions  from './permissions/clusterpermissions';
 import indexpermissions  from './permissions/indexpermissions';
-import './backend_api/actiongroups';
-import '../../directives/licensewarning'
-import './systemstate'
+
+require ('./backend_api/actiongroups');
+require ('../../directives/licensewarning');
+require ('./systemstate/systemstate');
 
 const app = uiModules.get('apps/searchguard/configuration', ['ui.ace']);
 
