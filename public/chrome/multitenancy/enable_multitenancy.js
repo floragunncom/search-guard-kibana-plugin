@@ -17,10 +17,24 @@
 
 import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules';
+import { FeatureCatalogueRegistryProvider, FeatureCatalogueCategory } from 'ui/registry/feature_catalogue';
 
 export function toggleNavLink(Private) {
     var enabled = chrome.getInjected('multitenancy_enabled');
     chrome.getNavLinkById("searchguard-multitenancy").hidden = !enabled;
+  if (enabled) {
+      FeatureCatalogueRegistryProvider.register(() => {
+          return {
+              id: 'searchguard-multitenancy',
+              title: 'Search Guard Multi Tenancy',
+              description: 'Separate searches, visualizations and dashboards by tenants.',
+              icon: '/plugins/searchguard/assets/multitenancy_app.svg',
+              path: '/app/searchguard-multitenancy',
+              showOnHomePage: true,
+              category: FeatureCatalogueCategory.DATA
+          };
+      });
+  }
 
 }
 

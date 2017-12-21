@@ -17,7 +17,7 @@
 
 import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules';
-
+import { FeatureCatalogueRegistryProvider, FeatureCatalogueCategory } from 'ui/registry/feature_catalogue';
 require ('../../apps/configuration/systemstate/systemstate');
 
 export function enableConfiguration($http, $window, systemstate) {
@@ -45,6 +45,17 @@ export function enableConfiguration($http, $window, systemstate) {
         systemstate.loadRestInfo().then(function(){
             if (systemstate.hasApiAccess()) {
                 chrome.getNavLinkById("searchguard-configuration").hidden = false;
+                FeatureCatalogueRegistryProvider.register(() => {
+                    return {
+                        id: 'searchguard-configuration',
+                        title: 'Search Guard Configuration',
+                        description: 'Configure users, roles and permissions for Search Guard.',
+                        icon: '/plugins/searchguard/assets/searchguard_logo_app.svg',
+                        path: '/app/searchguard-configuration',
+                        showOnHomePage: true,
+                        category: FeatureCatalogueCategory.ADMIN
+                    };
+                });
             } else {
                 chrome.getNavLinkById("searchguard-configuration").hidden = true;
             }
@@ -53,4 +64,3 @@ export function enableConfiguration($http, $window, systemstate) {
 }
 
 uiModules.get('searchguard').run(enableConfiguration);
-
