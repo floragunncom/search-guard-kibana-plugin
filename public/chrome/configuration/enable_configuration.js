@@ -37,14 +37,12 @@ export function enableConfiguration($http, $window, systemstate) {
     // get cleared sporadically, especially on mobile
     systemstate.loadSystemInfo().then(function(){
         // if no REST module is installed the restinfo endpoint is not available, so fail fast
-        console.log("Rest API enabled:" + systemstate.restApiEnabled());
         if (!systemstate.restApiEnabled()) {
             chrome.getNavLinkById("searchguard-configuration").hidden = true;
             return;
         }
         // rest module installed, check if user has access to the API
         systemstate.loadRestInfo().then(function(){
-            console.log("Has API access:" + systemstate.hasApiAccess());
             if (systemstate.hasApiAccess()) {
                 chrome.getNavLinkById("searchguard-configuration").hidden = false;
             } else {

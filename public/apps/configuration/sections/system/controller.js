@@ -74,6 +74,7 @@ app.controller('sgLicenseController', function ($scope, $element, $route, $locat
         $http.post(`${API_ROOT}/license`, licenseAsJson)
             .then(
             (response) => {
+                sessionStorage.removeItem("systeminfo");
                 notify.info(response.data.message);
                 kbnUrl.change(`/system/`)
             })
