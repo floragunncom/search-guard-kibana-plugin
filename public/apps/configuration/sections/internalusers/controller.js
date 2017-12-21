@@ -100,10 +100,18 @@ app.controller('sgEditInternalUsersController', function ($scope, $element, $rou
             return;
         }
 
-        if ($scope.resource.password.length < 5) {
-            $scope.errorMessage = 'Passwords must be at least 5 characters.';
-            return;
+        if($scope.isNew) {
+            if ($scope.resource.password.length < 5) {
+                $scope.errorMessage = 'Passwords must be at least 5 characters.';
+                return;
+            }
+
+        } else {
+            if ($scope.resource.password.trim().length == 0) {
+                $scope.resource.passwordConfirmation = "";
+            }
         }
+
 
         if ($scope.resource.password !== $scope.resource.passwordConfirmation) {
             $scope.errorMessage = 'Passwords do not match.';
