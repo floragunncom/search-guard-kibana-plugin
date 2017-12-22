@@ -42,18 +42,6 @@
 
                         <div class="kuiGallery">
 
-                            <a id="sg.link.actiongroups" ng-if="endpointAndMethodEnabled('ACTIONGROUPS', 'GET')" class="kuiGalleryItem ng-scope"
-                               ng-href="#/actiongroups"
-                               tooltip="Configure named groups of permissions that can be applied to roles."
-                               tooltip-placement="bottom" href="#/actiongroups">
-                                <div class="kuiGalleryButton__image">
-                                    <span class="fa fa-sitemap fa-4x"></span>
-                                </div>
-                                <div class="kuiGalleryButton__label">
-                                    Action Groups
-                                </div>
-                            </a>
-
                             <a id="sg.link.rolesmapping" ng-if="endpointAndMethodEnabled('ROLESMAPPING', 'GET')" class="kuiGalleryItem ng-scope"
                                ng-href="#/rolesmapping"
                                tooltip="Map users, backend roles and hostnames to Search Guard roles."
@@ -74,6 +62,18 @@
                                 </div>
                                 <div class="kuiGalleryButton__label">
                                     Search Guard <br/> Roles
+                                </div>
+                            </a>
+
+                            <a id="sg.link.actiongroups" ng-if="endpointAndMethodEnabled('ACTIONGROUPS', 'GET')" class="kuiGalleryItem ng-scope"
+                               ng-href="#/actiongroups"
+                               tooltip="Configure named groups of permissions that can be applied to roles."
+                               tooltip-placement="bottom" href="#/actiongroups">
+                                <div class="kuiGalleryButton__image">
+                                    <span class="fa fa-sitemap fa-4x"></span>
+                                </div>
+                                <div class="kuiGalleryButton__label">
+                                    Action Groups
                                 </div>
                             </a>
 
