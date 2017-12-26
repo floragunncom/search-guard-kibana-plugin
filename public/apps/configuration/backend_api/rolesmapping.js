@@ -18,7 +18,7 @@ uiModules.get('apps/searchguard/configuration', [])
             plural: 'role mappings'
         };
 
-        this.newLabel = "Search Guard role";
+        this.newLabel = "Search Guard Role";
 
         this.list = () => {
             return backendAPI.list(RESOURCE);

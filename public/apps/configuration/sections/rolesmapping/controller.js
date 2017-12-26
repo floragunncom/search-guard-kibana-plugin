@@ -91,6 +91,12 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
             event.preventDefault();
         }
 
+        // not dots in keys allowed
+        if ($scope.resourcename.indexOf('.') != -1) {
+            $scope.errorMessage = 'Please do not use dots in the role mapping name.';
+            return;
+        }
+
         const form = $element.find('form[name="objectForm"]');
 
         if (form.hasClass('ng-invalid-required')) {

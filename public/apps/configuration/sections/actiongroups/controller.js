@@ -84,6 +84,12 @@ app.controller('sgEditActionGroupsController', function ($scope, $element, $rout
             event.preventDefault();
         }
 
+        // not dots in keys allowed
+        if ($scope.resourcename.indexOf('.') != -1) {
+            $scope.errorMessage = 'Please do not use dots in the action group name.';
+            return;
+        }
+
         const form = $element.find('form[name="objectForm"]');
 
         if (form.hasClass('ng-invalid-required')) {

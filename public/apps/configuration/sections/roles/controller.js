@@ -195,6 +195,8 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     }
 
     $scope.submitAddIndex = function() {
+        // dots in index names are not supported
+        $scope.newIndexName = $scope.newIndexName.replace(/\./g, '?');
         if($scope.newIndexName.trim().length == 0 || $scope.newDocumentTypeName.trim().length == 0 ) {
             $scope.errorMessage = "Please define both index and document type.";
             return;
@@ -259,6 +261,13 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         if (event) {
             event.preventDefault();
         }
+
+        // not dots in keys allowed
+        if ($scope.resourcename.indexOf('.') != -1) {
+            $scope.errorMessage = 'Please do not use dots in the role name.';
+            return;
+        }
+
         const form = $element.find('form[name="objectForm"]');
 
         // role name is required
@@ -300,6 +309,7 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
             return;
         }
         backendAPI.cleanArraysFromDuplicates($scope.resource);
+
         $scope.service.save($scope.resourcename, $scope.resource).then(() => kbnUrl.change(`/roles/`));;
 
         $scope.errorMessage = null;
