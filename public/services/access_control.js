@@ -31,8 +31,7 @@ uiModules
   class SearchGuardControlService {
 
     logout() {
-      const prevented = $rootScope.$broadcast('searchguard:logout').defaultPrevented;
-      if (!prevented) {
+        console.log("logout");
         $http.post(`${API_ROOT}/logout`)
         .then(
           () => {
@@ -42,7 +41,6 @@ uiModules
           },
           (error) => notify.error(error)
         );
-      }
     }
   }
 
