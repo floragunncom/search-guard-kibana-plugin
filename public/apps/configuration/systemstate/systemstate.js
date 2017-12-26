@@ -21,6 +21,18 @@ uiModules.get('apps/searchguard/configuration', [])
             return get(this.getSystemInfo(), 'sg_license.is_valid', true);
         }
 
+        this.isTrialLicense = () => {
+            if (!get(this.getSystemInfo(), 'sg_license.license_required', true)) {
+                return false;
+            }
+            var licenseType = get(this.getSystemInfo(), 'sg_license.type', "TRIAL")
+            return licenseType.toLowerCase() == "trial";
+        }
+
+        this.expiresIn = () => {
+            return get(this.getSystemInfo(), 'sg_license.expiry_in_days', 0);
+        }
+
         this.dlsFlsEnabled = () => {
             return get(this.getSystemInfo(), 'modules.DLSFLS', false);
         }
