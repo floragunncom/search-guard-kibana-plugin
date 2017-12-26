@@ -121,14 +121,24 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     }, true);
 
     $scope.getTabCss = function(tabId) {
+        var css = "";
+
         if ($scope.selectedTab == tabId) {
-            return "kuiLocalTab kuiLocalTab-isSelected";
+            css = " kuiLocalTab kuiLocalTab-isSelected";
         } else {
-            return "kuiLocalTab";
+            css = " kuiLocalTab";
         }
+        if (tabId != "indexpermissions" && $scope.addingIndex) {
+            css += " tab-inactive";
+        }
+        return css;
     }
 
     $scope.selectTab = function(tabId) {
+        // ITT-1034 disable other tabs when addind a new index
+        if ($scope.addingIndex) {
+            return;
+        }
         $scope.selectedTab = tabId;
         if (tabId == 'dlsfls') {
             // resize editor, see https://github.com/angular-ui/ui-ace/issues/18
