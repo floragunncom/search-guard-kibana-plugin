@@ -2,14 +2,14 @@ import { constant } from 'lodash';
 import uiRoutes from 'ui/routes';
 import { chromeNavControlsRegistry } from 'ui/registry/chrome_nav_controls';
 import { uiModules } from 'ui/modules';
-import navtemplate from 'plugins/searchguard/apps/userinfo/userinfo_navcontrol.html';
-import infotemplate from 'plugins/searchguard/apps/userinfo/userinfo.html';
+import navtemplate from './userinfo_navcontrol.html';
+import infotemplate from './userinfo.html';
 import 'ui/chrome/directives/global_nav/global_nav.js'
 import 'plugins/searchguard/apps/configuration/directives/edit_header/edit_header.js'
 
 chromeNavControlsRegistry.register(constant({
     name: 'searchguard',
-    order: 10000,
+    order: 900,
     template: navtemplate
 }));
 
@@ -27,7 +27,7 @@ uiModules
         $scope.route = `${kbnBaseUrl}#/userinfo`;
 
         $scope.title = function () {
-            return "Account information";;
+            return "Account information";
         }
 
         $scope.init = function () {
