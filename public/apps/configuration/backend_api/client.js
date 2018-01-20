@@ -3,6 +3,7 @@ import { merge } from 'lodash';
 import { uniq } from 'lodash';
 import { isPlainObject } from 'lodash';
 import { isEmpty } from 'lodash';
+import chrome from 'ui/chrome';
 
 /**
  * Backend API client service.
@@ -12,7 +13,9 @@ uiModules.get('apps/searchguard/configuration', [])
 
         const notify = createNotifier({});
 
-        const AUTH_BACKEND_API_ROOT = "/api/v1";
+        // Take the basePath configuration value into account
+        // @url https://www.elastic.co/guide/en/kibana/current/development-basepath.html
+        const AUTH_BACKEND_API_ROOT = chrome.addBasePath("/api/v1");
 
         this.testConnection =  () => {
 
