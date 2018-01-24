@@ -9,6 +9,7 @@ app.directive('sgcPermissions', function () {
         restrict: 'EA',
         scope: {
             "permissionsResource": "=permissionsresource",
+            'onShouldConfirm': '&',
         },
         controller: 'sgBaseController',
         link: function(scope, elem, attr) {
@@ -22,6 +23,19 @@ app.directive('sgcPermissions', function () {
                     }
                 }
             }, true)
+
+            /**
+             * Since we have an isolated scope, we can't modify the parent scope without breaking
+             * the binding. Hence, we pass the parent scope's handler to this directive.
+             *
+             * An alternative could be to encapsulate the delete logic in a service.
+             *
+             * @param {array} source
+             * @param {string} item
+             */
+            scope.confirmDeletePermission = function(source, item) {
+                scope.onShouldConfirm()(source, item);
+            };
 
 
         }

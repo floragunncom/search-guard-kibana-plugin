@@ -183,6 +183,47 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         return true;
     }
 
+    /**
+     * Delete an entry after user confirmation
+     */
+    let deleteDocumentTypeConfirmed = function() {
+        var index = $scope.selectedIndex;
+        var doctype = $scope.selectedDocumentType;
+        if ($scope.resource.indices && $scope.resource.indices[index] && $scope.resource.indices[index][doctype]) {
+            delete $scope.resource.indices[index][doctype];
+            // if last doctype, remove role as well
+            var remainingDocTypes = Object.keys($scope.resource.indices[index]);
+            if (remainingDocTypes.length == 0) {
+                delete $scope.resource.indices[index];
+                delete $scope.resource.dlsfls[index];
+                $scope.selectedDocumentType = "";
+                $scope.selectedIndex = "";
+            } else {
+                $scope.selectedDocumentType = remainingDocTypes[0];
+            }
+        }
+
+        $scope.closeDeleteFromEditModal();
+    };
+
+    /**
+     * Ask for confirmation before deleting
+     */
+    $scope.confirmDeleteDocumentType = function() {
+        // Since we're acting on the parent scope here,
+        // make sure we don't change the deleteFromEditModal
+        // reference directly. Only change single properties.
+        $scope.deleteFromEditModal.displayModal = true;
+        $scope.deleteFromEditModal.header = 'Confirm Delete';
+        $scope.deleteFromEditModal.body = "Are you sure you want to delete document type '"+$scope.selectedDocumentType+"' in index '"+$scope.selectedIndex+"'";
+        $scope.deleteFromEditModal.onConfirm = deleteDocumentTypeConfirmed;
+        $scope.deleteFromEditModal.onClose = $scope.closeDeleteFromEditModal;
+    };
+
+    /**
+     *
+     * @deprecated
+     */
     $scope.deleteDocumentType = function() {
         if (!confirm("Are you sure you want to delete document type '"+$scope.selectedDocumentType+"' in index '"+$scope.selectedIndex+"'")) {
             return;

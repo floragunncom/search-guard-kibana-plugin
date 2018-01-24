@@ -41,7 +41,7 @@
                 </fieldset>
             </td>
             <td class="kuiTableRowCell cellAlignTop actions">
-                <button style="display:inline-block" type="button" ng-click="removeArrayEntry(permissionsResource.actiongroups, actiongroup)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                <button style="display:inline-block" type="button" ng-click="confirmDeletePermission(permissionsResource.actiongroups, actiongroup)" class="kuiButton kuiButton--danger kuiButton--iconText">
                     <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                 </button>
             </td>
@@ -104,7 +104,7 @@
                 </fieldset>
             </td>
             <td class="kuiTableRowCell cellAlignTop actions">
-                <a ng-click="removeArrayEntry(permissionsResource.permissions, permission)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                <a ng-click="confirmDeletePermission(permissionsResource.permissions, permission)" class="kuiButton kuiButton--danger kuiButton--iconText">
                     <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                 </a>
             </td>

@@ -84,7 +84,7 @@
                                     <h2 class="kuiSubTitle">Cluster-wide permissions</h2>
                                 </div>
                             </div>
-                            <sgc-permissions permissionsResource="resource.cluster"></sgc-permissions>
+                            <sgc-permissions on-should-confirm="confirmRemoveArrayEntry" permissionsResource="resource.cluster"></sgc-permissions>
                         </div>
 
                         <div ng-show="selectedTab=='indexpermissions'">
@@ -146,7 +146,7 @@
                                         <select class="sevenwidth kuiSelect" ng-model="selectedDocumentType" ng-options="str for str in keys(resource.indices[selectedIndex]).sort() track by str"></select>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop actions">
-                                        <a ng-show="!indicesEmpty()" ng-click="deleteDocumentType()" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                        <a ng-show="!indicesEmpty()" ng-click="confirmDeleteDocumentType()" class="kuiButton kuiButton--danger kuiButton--iconText">
                                             <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                         </a>
                                     </td>
@@ -226,7 +226,7 @@
                                     <h2 class="kuiSubTitle">Configure permissions for index <b>'{{selectedIndex}}'</b> and document type <b>'{{selectedDocumentType}}'</b></h2>
                                 </div>
                             </div>
-                            <sgc-permissions permissionsResource="resource.indices[selectedIndex][selectedDocumentType]" ng-show="selectedIndex != '' && !addingIndex"></sgc-permissions>
+                            <sgc-permissions on-should-confirm="confirmRemoveArrayEntry" permissionsResource="resource.indices[selectedIndex][selectedDocumentType]" ng-show="selectedIndex != '' && !addingIndex"></sgc-permissions>
 
                         </div>
 
@@ -366,7 +366,7 @@
                                         </fieldset>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop actions">
-                                        <a tooltip="Delete field {{resource.dlsfls[selectedIndex]['_fls_'][$index]}}" ng-click="removeArrayEntry(resource.dlsfls[selectedIndex]['_fls_'], actiongroup)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                        <a tooltip="Delete field {{resource.dlsfls[selectedIndex]['_fls_'][$index]}}" ng-click="confirmRemoveArrayEntry(resource.dlsfls[selectedIndex]['_fls_'], actiongroup)" class="kuiButton kuiButton--danger kuiButton--iconText">
                                             <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                         </a>
                                     </td>
@@ -444,7 +444,7 @@
                                         </select>
                                     </td>
                                     <td class="kuiTableRowCell actions">
-                                        <a ng-click="removeFromObjectArray(resource.tenantsArray, $index, resource.tenantsArray[$index].name)"
+                                        <a ng-click="confirmRemoveFromObjectArray(resource.tenantsArray, $index, resource.tenantsArray[$index].name)"
                                            class="kuiButton kuiButton--danger kuiButton--iconText">
                                             <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                         </a>
@@ -475,5 +475,12 @@
                 </form>
             </div>
         </div>
+        <sgc-confirmation-modal ng-if="deleteFromEditModal.displayModal"
+            header="{{deleteFromEditModal.header}}"
+            body="{{deleteFromEditModal.body}}"
+            params="deleteFromEditModal.params"
+            on-confirm="deleteFromEditModal.onConfirm"
+            on-close="deleteFromEditModal.onClose"
+        ></sgc-confirmation-modal>
     </div>
 </div>

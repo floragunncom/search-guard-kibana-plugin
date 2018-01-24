@@ -15,7 +15,7 @@
 
                             <sgc-form-new-resource-field></sgc-form-new-resource-field>
 
-                            <sgc-permissions permissionsResource="resource"></sgc-permissions>
+                            <sgc-permissions on-should-confirm="confirmRemoveArrayEntry" permissionsResource="resource"></sgc-permissions>
 
                             <div class="formsubmit">
                                 <button ng-disabled="!endpointAndMethodEnabled('ACTIONGROUPS', 'PUT') || resource.readonly" class="kuiButton kuiButton--primary kuiButton--text" type="submit">Submit</button>
@@ -26,5 +26,12 @@
                 </div>
             </div>
         </div>
+        <sgc-confirmation-modal ng-if="deleteFromEditModal.displayModal"
+            header="{{deleteFromEditModal.header}}"
+            body="{{deleteFromEditModal.body}}"
+            params="deleteFromEditModal.params"
+            on-confirm="deleteFromEditModal.onConfirm"
+            on-close="deleteFromEditModal.onClose"
+        ></sgc-confirmation-modal>
     </div>
 </div>

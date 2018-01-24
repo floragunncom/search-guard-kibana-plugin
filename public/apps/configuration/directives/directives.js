@@ -9,4 +9,5 @@ import './permissions/permissions';
 import './fileupload/fileupload';
 import './header/header';
 import './errormessage/errormessage';
-import './deletemodal/deletemodal';
+//import './deletemodal/deletemodal';
+import './confirmationmodal/confirmationmodal';
