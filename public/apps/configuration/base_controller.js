@@ -249,19 +249,15 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
     };
 
     /**
-     * Remove an array entry after user confirmation
+     * Remove an array entry after user confirmation, or when the user removes an empty entry
      * @param {array} array
      * @param {object} item
      */
-    let removeArrayEntryConfirmed = function (confirmation) {
-        let item = confirmation.params.item;
-        let array = confirmation.params.source;
+    let removeArrayEntry = function (array, item) {
         var index = array.indexOf(item);
         if (index > -1) {
             array.splice(index, 1);
         }
-
-        $scope.closeDeleteFromEditModal();
     };
 
 
@@ -271,21 +267,24 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
      * @param {string} item
      */
     $scope.confirmRemoveArrayEntry = function (array, item) {
-        if(!Array.isArray(array) || array.indexOf(item) === -1 || ! item) {
+        if(!Array.isArray(array) || array.indexOf(item) === -1) {
             return;
         }
 
-        $scope.deleteFromEditModal = {
-            displayModal: true,
-            header: 'Confirm Delete',
-            body: `Are you sure you want to delete '${item}'?`,
-            params: {
-                source: array,
-                item: item
-            },
-            onConfirm: removeArrayEntryConfirmed,
-            onClose: $scope.closeDeleteFromEditModal
-        };
+        if (item && item.length > 0) {
+            $scope.deleteFromEditModal = {
+                displayModal: true,
+                header: 'Confirm Delete',
+                body: `Are you sure you want to delete '${item}'?`,
+                onConfirm: function() {
+                    removeArrayEntry(array, item);
+                    $scope.closeDeleteFromEditModal()
+                },
+                onClose: $scope.closeDeleteFromEditModal
+            };
+        } else {
+            removeArrayEntry(array, item);
+        }
     };
 
     /**
@@ -364,12 +363,8 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
             displayModal: true,
             header: 'Confirm Delete',
             body: body,
-            params: {
-                thearray: thearray,
-                index: index
-            },
-            onConfirm: function(confirmation) {
-                confirmation.params.thearray.splice(confirmation.params.index, 1);
+            onConfirm: function() {
+                thearray.splice(index, 1);
                 $scope.closeDeleteFromEditModal()
             },
             onClose: $scope.closeDeleteFromEditModal
