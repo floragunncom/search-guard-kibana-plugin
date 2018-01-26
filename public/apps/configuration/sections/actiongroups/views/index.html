@@ -24,9 +24,13 @@
                             <thead>
                                 <tr>
 
-                                    <th class="kuiTableHeaderCell">
+                                    <th class="kuiTableHeaderCell" ng-click="onSortChange('resourcename')">
                                         <span class="kuiTableHeaderCell__liner">
                                             Action Group Name
+                                        </span>
+                                        <span ng-show="sortTable.byKey === 'resourcename'"
+                                              class="kuiIcon"
+                                              ng-class="{'fa-long-arrow-down': sortTable.descending, 'fa-long-arrow-up': ! sortTable.descending}">
                                         </span>
                                     </th>
 
@@ -49,7 +53,7 @@
                             </thead>
 
                             <tbody>
-                                <tr ng-repeat="actiongroupname in resourcenames | filter:query" class="kuiTableRow">
+                                <tr ng-repeat="actiongroupname in resourcenames | filter:query | orderBy:'toString()':sortTable.descending" class="kuiTableRow">
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">

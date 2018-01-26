@@ -28,6 +28,29 @@ app.controller('sgActionGroupsController', function ($scope, $element, $route, c
             $scope.numresources = response.total;
             $scope.loaded = true;
         });
+
+    /**
+     * Holds table sorting info
+     * @type {{byKey: string, descending: boolean}}
+     */
+    $scope.sortTable = {
+        byKey: 'resourcename',
+        descending: false
+    };
+
+    /**
+     * Handle changed sorting conditions.
+     * Since we only have one column sortable, changing the key doesn't really do anything.
+     * Until we have more sortable columns, only the sort order is changed
+     * @param {string} key
+     */
+    $scope.onSortChange = function(key) {
+        if ($scope.sortTable.byKey === key) {
+            $scope.sortTable.descending = ! $scope.sortTable.descending;
+        } else {
+            $scope.sortTable.byKey = key;
+        }
+    };
 });
 
 app.controller('sgEditActionGroupsController', function ($scope, $element, $route, $location, $routeParams, createNotifier, backendActionGroups, backendAPI,  kbnUrl) {
