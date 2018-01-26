@@ -64,7 +64,7 @@
                                         </fieldset>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop actions">
-                                        <a ng-click="removeArrayEntry(resource.users, user)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                        <a ng-click="confirmRemoveArrayEntry(resource.users, user)" class="kuiButton kuiButton--danger kuiButton--iconText">
                                             <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                         </a>
                                     </td>
@@ -112,7 +112,7 @@
                                         </fieldset>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop actions">
-                                        <a ng-click="removeArrayEntry(resource.backendroles, backendrole)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                        <a ng-click="confirmRemoveArrayEntry(resource.backendroles, backendrole)" class="kuiButton kuiButton--danger kuiButton--iconText">
                                             <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                         </a>
                                     </td>
@@ -160,7 +160,7 @@
                                         </fieldset>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop actions">
-                                        <a ng-click="removeArrayEntry(resource.hosts, host)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                        <a ng-click="confirmRemoveArrayEntry(resource.hosts, host)" class="kuiButton kuiButton--danger kuiButton--iconText">
                                             <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                         </a>
                                     </td>
@@ -186,5 +186,12 @@
                 </div>
             </div>
         </div>
+        <sgc-confirmation-modal ng-if="deleteFromEditModal.displayModal"
+            header="{{deleteFromEditModal.header}}"
+            body="{{deleteFromEditModal.body}}"
+            params="deleteFromEditModal.params"
+            on-confirm="deleteFromEditModal.onConfirm"
+            on-close="deleteFromEditModal.onClose"
+        ></sgc-confirmation-modal>
     </div>
 </div>

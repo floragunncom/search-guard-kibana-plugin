@@ -127,7 +127,12 @@
             </div>
         </div>
 
-        <sgc-delete-modal></sgc-delete-modal>
+        <sgc-confirmation-modal ng-if="displayModal === true"
+            header="Confirm Delete"
+            body="Do you really want to delete '{{deleteModalResourceName}}'"
+            on-close="closeDeleteModal"
+            on-confirm="delete">
+        </sgc-confirmation-modal>
 
     </div>
 </div>

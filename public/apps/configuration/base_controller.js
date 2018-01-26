@@ -58,6 +58,17 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
     $scope.displayModal = false;
     $scope.deleteModalResourceName = "";
 
+    // edit views modal delete dialogue
+    $scope.deleteFromEditModal = {
+        displayModal: false,
+        params: {},
+        header: 'Confirm Delete',
+        body: '',
+        onConfirm: null,
+        onClose: null
+    };
+
+
     $scope.title = "Search Guard Configuration";
 
     $scope.initialiseStates = () => {
@@ -235,7 +246,64 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
         }
         resource[fieldname].push(value);
 
-    }
+    };
+
+    /**
+     * Remove an array entry after user confirmation, or when the user removes an empty entry
+     * @param {array} array
+     * @param {object} item
+     */
+    let removeArrayEntry = function (array, item) {
+        var index = array.indexOf(item);
+        if (index > -1) {
+            array.splice(index, 1);
+        }
+    };
+
+
+    /**
+     * Ask for confirmation before deleting an entry
+     * @param {array} array
+     * @param {string} item
+     */
+    $scope.confirmRemoveArrayEntry = function (array, item) {
+        if(!Array.isArray(array) || array.indexOf(item) === -1) {
+            return;
+        }
+
+        if (item && item.length > 0) {
+            $scope.deleteFromEditModal = {
+                displayModal: true,
+                header: 'Confirm Delete',
+                body: `Are you sure you want to delete '${item}'?`,
+                onConfirm: function() {
+                    removeArrayEntry(array, item);
+                    $scope.closeDeleteFromEditModal()
+                },
+                onClose: $scope.closeDeleteFromEditModal
+            };
+        } else {
+            removeArrayEntry(array, item);
+        }
+    };
+
+    /**
+     * Close the confirmation dialog
+     * @param {string} reason
+     */
+    $scope.closeDeleteFromEditModal = function () {
+        $scope.deleteFromEditModal = {
+            displayModal: false,
+            params: null
+        };
+    };
+
+    /**
+     * @todo Remove when we use the new confirmation dialog everywhere
+     * @deprecated
+     * @param array
+     * @param item
+     */
 
     $scope.removeArrayEntry = function (array, item) {
         if(!Array.isArray(array)) {
@@ -282,6 +350,34 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
         return objectArray;
     }
 
+    /**
+     * Ask for confirmation before deleting an entry
+     * @param {array} thearray
+     * @param {int} index
+     * @param {string} value
+     */
+    $scope.confirmRemoveFromObjectArray = function(thearray, index, value) {
+        // We're not checking the value here, so we may need to adjust the body
+        let body = (value === '') ? 'Are you sure you want to delete this?' : `Are you sure you want to delete '${value}'?`;
+        $scope.deleteFromEditModal = {
+            displayModal: true,
+            header: 'Confirm Delete',
+            body: body,
+            onConfirm: function() {
+                thearray.splice(index, 1);
+                $scope.closeDeleteFromEditModal()
+            },
+            onClose: $scope.closeDeleteFromEditModal
+        }
+    };
+
+    /**
+     * Remove when we've tested all dialogs
+     * @deprecated
+     * @param thearray
+     * @param index
+     * @param value
+     */
     $scope.removeFromObjectArray = function (thearray, index, value) {
         if (confirm(`Are you sure you want to delete '${value}'?`)) {
             thearray.splice(index, 1);
