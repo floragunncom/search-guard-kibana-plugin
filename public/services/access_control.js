@@ -31,7 +31,6 @@ uiModules
   class SearchGuardControlService {
 
     logout() {
-        console.log("logout");
         $http.post(`${API_ROOT}/logout`)
         .then(
           () => {
