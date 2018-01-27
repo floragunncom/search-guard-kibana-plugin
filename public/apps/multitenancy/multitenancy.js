@@ -19,7 +19,9 @@ import uiRoutes from 'ui/routes';
 import { uiModules } from 'ui/modules';
 import { Notifier } from 'ui/notify/notifier';
 import 'ui/autoload/styles';
-import 'plugins/searchguard/apps/multitenancy/multitenancy.less';
+import { IndexPatternsGetProvider } from 'ui/index_patterns/_get';
+
+import 'plugins/searchguard/apps/configuration/configuration.less';
 
 import '../../directives/licensewarning';
 
@@ -36,7 +38,9 @@ uiRoutes
 
 uiModules
     .get('app/searchguard-multitenancy')
-    .controller('searchguardMultitenancyController', function ($http, $window) {
+    .controller('searchguardMultitenancyController', function ($http, $window, Private) {
+
+        var indexPatternsGetProvider = getProvider('id');
 
         var APP_ROOT = `${chrome.getBasePath()}`;
         var API_ROOT = `${APP_ROOT}/api/v1`;
@@ -134,6 +138,7 @@ uiModules
                 (response) => {
                     this.tenantLabel = "Active tenant: " + resolveTenantName(response.data, this.username);
                     this.currentTenant = response.data;
+                    indexPatternsGetProvider.clearCache();
                     // clear lastUrls from nav links to avoid not found errors
                     chrome.getNavLinkById("kibana:visualize").lastSubUrl = chrome.getNavLinkById("kibana:visualize").url;
                     chrome.getNavLinkById("kibana:dashboard").lastSubUrl = chrome.getNavLinkById("kibana:dashboard").url;
