@@ -1,5 +1,6 @@
 const pluginRoot = require('requirefrom')('');
 import { resolve, join, sep } from 'path';
+import indexTemplate from './lib/elasticsearch/setup_index_template';
 
 export default function (kibana) {
 
@@ -242,11 +243,20 @@ export default function (kibana) {
             require('./lib/system/routes')(pluginRoot, server, APP_ROOT, API_ROOT);
             this.status.yellow('Search Guard system routes registered.');
 
+            // create index template for tenant indices
+            if(config.get('searchguard.multitenancy.enabled')) {
+                const { setupIndexTemplate, waitForElasticsearchGreen } = indexTemplate(this, server);
 
+                waitForElasticsearchGreen().then( () => {
+                    this.status.yellow('Setting up index template.');
+                    setupIndexTemplate();
+                    this.status.green('Search Guard plugin initialised.');
+                });
 
-            this.status.green('Search Guard plugin initialised.');
+            } else {
+                this.status.green('Search Guard plugin initialised.');
+            }
 
         }
-
     });
 };
