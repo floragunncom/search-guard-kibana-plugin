@@ -63,6 +63,15 @@
       margin-bottom: 1em;
     }
 
+    /**
+    * Override Kibana UI's styling on fields that have a required attribute.
+    * This prevents input fields to be marked as invalid on page load.
+    * As soon as the field has been edited, Angular's validation takes over.
+    */
+    .kuiTextInput:placeholder-shown:invalid {
+      border-color: #D9D9D9;
+    }
+
     .btn-login {
       width: 100%;
     }
