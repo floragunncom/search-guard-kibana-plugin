@@ -81,6 +81,14 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
         return $scope.isNew? "New Role Mapping" : "Edit Role Mapping '" + $scope.resourcename+"'";
     }
 
+    /**
+     * Handle the selected item from the ui-select instance
+     * @param event
+     */
+    $scope.onSelectedNewResourceName = function(event) {
+        $scope.resourcename = event.item.name;
+    };
+
     // get all usernames and load pre-existing user, if any
     $scope.service.list().then((response) => {
         $scope.resourcenames = Object.keys(response.data);

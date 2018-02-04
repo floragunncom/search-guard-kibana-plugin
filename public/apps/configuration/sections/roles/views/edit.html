@@ -182,32 +182,35 @@
                                 <tr class="kuiTableRow">
                                     <td class="kuiTableRowCell cellAlignTop" >
                                         <fieldset class="marginbottom--small" id="object-form-index">
-
-                                            <angucomplete id="object-form-index"
-                                                          placeholder="Index name"
-                                                          pause="10"
-                                                          selectedobject="newIndexName"
-                                                          localdata="indexAutoComplete"
-                                                          minlength="1"
-                                                          datafield="name"
-                                                          titlefield="name"
-                                                          searchfields="name"
-                                                          inputclass="kuiTextInput fullwidth"/>
+                                            <ui-select ng-model="newIndexName"
+                                                       on-select="onSelectedNewIndexName({item: $item})">
+                                                <ui-select-match placeholder="Index name">
+                                                    {{newIndexName.name}}
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                    refresh="refreshNewIndexName($select)"
+                                                    refresh-delay="0"
+                                                    repeat="item in (indexAutoComplete | filter: $select.search) track by $index">
+                                                    <span ng-bind="item.name"></span>
+                                                </ui-select-choices>
+                                            </ui-select>
                                         </fieldset>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop ">
                                         <fieldset class="marginbottom--small" id="object-form-actiongroups">
-
-                                            <angucomplete id="object-form-index"
-                                                          placeholder="Document Type name"
-                                                          pause="10"
-                                                          selectedobject="newDocumentTypeName"
-                                                          localdata="doctypeAutoComplete"
-                                                          minlength="1"
-                                                          datafield="name"
-                                                          titlefield="name"
-                                                          searchfields="name"
-                                                          inputclass="kuiTextInput fullwidth"/>
+                                            <ui-select ng-model="newDocumentTypeName"
+                                                       on-select="onSelectedNewDocumentTypeName({item: $item})"
+                                                       reset-search-input="false">
+                                                <ui-select-match placeholder="Document Type name">
+                                                    {{newDocumentTypeName.name}}
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                    refresh="refreshNewDocumentTypeNames($select)"
+                                                    refresh-delay="0"
+                                                    repeat="item in (doctypeAutoComplete | filter: $select.search) track by $index">
+                                                    <span ng-bind="item.name"></span>
+                                                </ui-select-choices>
+                                            </ui-select>
                                         </fieldset>
                                     </td>
                                 </tr>

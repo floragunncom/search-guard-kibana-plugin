@@ -20,5 +20,8 @@
     "joi": "^6.6.1",
     "js-yaml": "^3.7.0",
     "requirefrom": "^0.2.0"
+  },
+  "devDependencies": {
+    "ui-select": "^0.19.8"
   }
 }
