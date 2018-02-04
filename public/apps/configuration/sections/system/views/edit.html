@@ -35,8 +35,16 @@
 
 
                             <div class="formsubmit">
-                                <button class="kuiButton kuiButton--primary kuiButton--text" type="submit">Upload</button>
+
+                                <button class="kuiButton kuiButton--disabled kuiButton--text" ng-disabled="!resource.licenseString" ng-class="{'kuiButton--primary' : resource.licenseString}" type="submit">Save</button>
                                 <button class="kuiButton kuiButton--basic kuiButton--text" type="submit" ng-click="cancel()">Cancel</button>
+
+                                <div style="float: right">
+                                    <label for="js-uploadLicenseFile" class="kuiButton kuiButton--secondary">
+                                        Upload license file
+                                    </label>
+                                    <input id="js-uploadLicenseFile" type="file" accept=".txt, .lic" name="licenseFile" style="width: 20px; opacity: 0" />
+                                </div>
                             </div>
                         </form>
                     </div>
