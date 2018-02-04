@@ -123,8 +123,6 @@ export default function (kibana) {
             // all your routes are belong to us
             require('./lib/auth/routes_authinfo')(pluginRoot, server, this, APP_ROOT, API_ROOT);
 
-            //this.apps.byId['searchguard-multitenancy'].hidden = false;
-
             // provides authentication methods against Search Guard
             const BackendClass = pluginRoot(`lib/backend/searchguard`);
             const searchguardBackend = new BackendClass(server, server.config);
