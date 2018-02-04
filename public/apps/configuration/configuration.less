@@ -212,75 +212,28 @@
   color: #ccc;
 }
 
-/* From angucomplete, https://github.com/darylrowland/angucomplete */
-
-.angucomplete-holder {
-  position: relative;
+/**
+ * Angular UI-Select
+ */
+// Since we have Bootstrap classes through the component,
+// we need to remove some styles
+.ui-select-container {
+  .ui-select-toggle.form-control {
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
+}
+// Helps mimic the other fields that we're using
+.ui-select-search,
+.ui-select-toggle {
+  padding-left: 12px;
+  border-radius: 4px;
 }
 
-.angucomplete-dropdown {
-  border-color: #ececec;
-  border-width: 1px;
-  border-style: solid;
-  border-radius: 2px;
-  width: 350px;
-  padding: 6px;
-  cursor: pointer;
-  z-index: 9999;
-  position: absolute;
-  max-height: 250px;
-  overflow-y: scroll;
-  /*top: 32px;
-  left: 0px;
-  */
-  margin-top: -6px;
-  background-color: #ffffff;
-}
-
-.angucomplete-searching {
-  color: #acacac;
-  font-size: 14px;
-}
-
-.angucomplete-description {
-  font-size: 14px;
-}
-
-.angucomplete-row {
-  padding: 5px;
-  color: #000000;
-  margin-bottom: 4px;
-
-}
-
-.angucomplete-selected-row, .angucomplete-row:hover {
-  background-color: lightblue;
-  color: #ffffff;
-}
-
-.angucomplete-image-holder {
-  padding-top: 2px;
-  float: left;
-  margin-right: 10px;
-  margin-left: 5px;
-}
-
-.angucomplete-image {
-  height: 34px;
-  width: 34px;
-  border-radius: 50%;
-  border-color: #ececec;
-  border-style: solid;
-  border-width: 1px;
-}
-
-.angucomplete-image-default {
-  /* Add your own default image here
-   background-image: url('/assets/default.png');
-  */
-  background-position: center;
-  background-size: contain;
-  height: 34px;
-  width: 34px;
+// Neutralize default styles
+.ui-select-match .btn:hover {
+  background-color: #fff;
+  color: #2D2D2D;
+  border: 1px solid #D9D9D9;
 }
 
