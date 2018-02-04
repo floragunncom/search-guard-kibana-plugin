@@ -18,6 +18,7 @@ export default function (kibana) {
         config: function (Joi) {
             var obj = Joi.object({
                 enabled: Joi.boolean().default(true),
+                allow_client_certificates: Joi.boolean().default(false),
                 cookie: Joi.object().keys({
                     secure: Joi.boolean().default(false),
                     name: Joi.string().default('searchguard_authentication'),
@@ -253,6 +254,11 @@ export default function (kibana) {
 
             } else {
                 this.status.green('Search Guard plugin initialised.');
+            }
+
+            // Using an admin certificate may lead to unintended consequences
+            if ((typeof config.get('elasticsearch.ssl.certificate') !== 'undefined' && typeof config.get('elasticsearch.ssl.certificate') !== false) && config.get('searchguard.allow_client_certificates') !== true) {
+                this.status.red("'elasticsearch.ssl.certificate' can not be used without setting 'searchguard.allow_client_certificates' to 'true' in kibana.yml. Please refer to the documentation for more information about the implications of doing so.");
             }
 
         }
