@@ -31,6 +31,7 @@ app.directive('sgLicenseWarning', function (systemstate) {
 
                 if (systemstate.isTrialLicense() && systemstate.licenseValid()) {
                     $scope.hint = "Your trial license expires in " + systemstate.expiresIn() + " days.";
+                    $scope.$apply('hint');
                 }
             });
 

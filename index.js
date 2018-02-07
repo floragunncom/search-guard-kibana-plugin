@@ -1,5 +1,6 @@
 const pluginRoot = require('requirefrom')('');
 import { resolve, join, sep } from 'path';
+import indexTemplate from './lib/elasticsearch/setup_index_template';
 
 export default function (kibana) {
 
@@ -17,6 +18,7 @@ export default function (kibana) {
         config: function (Joi) {
             var obj = Joi.object({
                 enabled: Joi.boolean().default(true),
+                allow_client_certificates: Joi.boolean().default(false),
                 cookie: Joi.object().keys({
                     secure: Joi.boolean().default(false),
                     name: Joi.string().default('searchguard_authentication'),
@@ -121,8 +123,6 @@ export default function (kibana) {
 
             // all your routes are belong to us
             require('./lib/auth/routes_authinfo')(pluginRoot, server, this, APP_ROOT, API_ROOT);
-
-            //this.apps.byId['searchguard-multitenancy'].hidden = false;
 
             // provides authentication methods against Search Guard
             const BackendClass = pluginRoot(`lib/backend/searchguard`);
@@ -242,11 +242,25 @@ export default function (kibana) {
             require('./lib/system/routes')(pluginRoot, server, APP_ROOT, API_ROOT);
             this.status.yellow('Search Guard system routes registered.');
 
+            // create index template for tenant indices
+            if(config.get('searchguard.multitenancy.enabled')) {
+                const { setupIndexTemplate, waitForElasticsearchGreen } = indexTemplate(this, server);
 
+                waitForElasticsearchGreen().then( () => {
+                    this.status.yellow('Setting up index template.');
+                    setupIndexTemplate();
+                    this.status.green('Search Guard plugin initialised.');
+                });
 
-            this.status.green('Search Guard plugin initialised.');
+            } else {
+                this.status.green('Search Guard plugin initialised.');
+            }
+
+            // Using an admin certificate may lead to unintended consequences
+            if ((typeof config.get('elasticsearch.ssl.certificate') !== 'undefined' && typeof config.get('elasticsearch.ssl.certificate') !== false) && config.get('searchguard.allow_client_certificates') !== true) {
+                this.status.red("'elasticsearch.ssl.certificate' can not be used without setting 'searchguard.allow_client_certificates' to 'true' in kibana.yml. Please refer to the documentation for more information about the implications of doing so.");
+            }
 
         }
-
     });
 };

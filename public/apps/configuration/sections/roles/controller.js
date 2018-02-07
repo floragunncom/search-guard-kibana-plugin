@@ -207,6 +207,93 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     }
 
     /**
+     * This is a weird workaround for the autocomplete where
+     * we have can't or don't want to use the model item
+     * directly in the view. Instead, we use the on-select
+     * event to set the target value
+     * @type {{}}
+     */
+    $scope.onSelectedNewIndexName = function(event) {
+        $scope.newIndexName = event.item.name;
+    };
+
+    /**
+     * This is a weird workaround for the autocomplete where
+     * we have can't or don't want to use the model item
+     * directly in the view. Instead, we use the on-select
+     * event to set the target value
+     * @type {{}}
+     */
+    $scope.onSelectedNewDocumentTypeName = function(event) {
+        $scope.newDocumentTypeName = event.item.name;
+
+    };
+
+    /**
+     * Allow custom values for the index autocomplete
+     *
+     * @credit https://medium.com/angularjs-meetup-south-london/angular-extending-ui-select-to-accept-user-input-937bc925267c
+     * @param $select
+     */
+    $scope.refreshNewIndexName = function($select) {
+
+        var search = $select.search,
+            list = angular.copy($select.items),
+            FLAG = -1; // Identifies the custom value
+
+        // Clean up any previous custom input
+        list = list.filter(function(item) {
+            return item.id !== FLAG;
+        });
+
+        if (!search) {
+            $select.items = list;
+        } else {
+            // Add and select the custom value
+            let customItem = {
+                id: FLAG,
+                name: search
+            };
+            $select.items = [customItem].concat(list);
+
+            $select.selected = customItem;
+        }
+    };
+
+
+    /**
+     * Allow custom values for the document types autocomplete
+     *
+     * @credit https://medium.com/angularjs-meetup-south-london/angular-extending-ui-select-to-accept-user-input-937bc925267c
+     * @param $select
+     */
+    $scope.refreshNewDocumentTypeNames = function($select) {
+
+        var search = $select.search,
+            list = angular.copy($select.items),
+            FLAG = -1;
+
+        // Clean up any previous custom input
+        list = list.filter(function(item) {
+            return item.id !== FLAG;
+        });
+
+        if (!search) {
+            $select.items = list;
+        } else {
+            // Add and select the custom value
+            let customItem = {
+                id: FLAG,
+                name: search
+            };
+            $select.items = [customItem].concat(list);
+
+            $select.selected = customItem;
+        }
+    };
+
+
+    /**
      * Delete an entry after user confirmation
      */
     let deleteDocumentTypeConfirmed = function() {

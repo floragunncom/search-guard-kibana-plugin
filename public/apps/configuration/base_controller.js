@@ -12,11 +12,15 @@ import { orderBy } from 'lodash';
 import clusterpermissions  from './permissions/clusterpermissions';
 import indexpermissions  from './permissions/indexpermissions';
 
+import 'ui-select';
+import 'ui-select/dist/select.css';
+
 require ('./backend_api/actiongroups');
 require ('../../directives/licensewarning');
 require ('./systemstate/systemstate');
 
-const app = uiModules.get('apps/searchguard/configuration', ['ui.ace']);
+
+const app = uiModules.get('apps/searchguard/configuration', ['ui.ace', 'ui.select']);
 
 app.controller('sgBaseController', function ($scope, $element, $route, $window, $http, createNotifier, backendAPI, backendActionGroups, backendRoles, kbnUrl, systemstate) {
 

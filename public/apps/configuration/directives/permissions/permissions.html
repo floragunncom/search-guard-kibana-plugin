@@ -28,16 +28,14 @@
         <tr class="kuiTableRow" data-ng-repeat="actiongroup in permissionsResource.actiongroups track by $index" >
             <td class="kuiTableRowCell cellAlignTop">
                 <fieldset class="marginbottom--small" id="object-form-actiongroups">
-                    <angucomplete id="indexactiongroup-{{indexname}}-{{doctypename}}"
-                                  placeholder="Action Group name"
-                                  pause="10"
-                                  selectedobject="permissionsResource.actiongroups[$index]"
-                                  localdata="actiongroupsAutoComplete"
-                                  minlength="1"
-                                  datafield="name"
-                                  titlefield="name"
-                                  searchfields="name"
-                                  inputclass="kuiTextInput fullwidth"/>
+                    <ui-select ng-model="permissionsResource.actiongroups[$index]">
+                        <ui-select-match placeholder="Action Group name">
+                            {{permissionsResource.actiongroups[$index]}}
+                        </ui-select-match>
+                        <ui-select-choices repeat="item in (getActiongroupItems() | filter: $select.search) track by $index">
+                            <span ng-bind="item"></span>
+                        </ui-select-choices>
+                    </ui-select>
                 </fieldset>
             </td>
             <td class="kuiTableRowCell cellAlignTop actions">
@@ -87,20 +85,14 @@
         <tr class="kuiTableRow" data-ng-repeat="permission in permissionsResource.permissions track by $index">
             <td class="kuiTableRowCell cellAlignTop">
                 <fieldset class="marginbottom--small" id="object-form-actiongroups">
-
-                    <angucomplete id="indexpermissions-{{indexname}}-{{doctypename}}"
-                                  placeholder="Start with cluster: or indices:"
-                                  pause="10"
-                                  selectedobject="permissionsResource.permissions[$index]"
-                                  localdata="allpermissionsAutoComplete"
-                                  minlength="1"
-                                  datafield="name"
-                                  titlefield="name"
-                                  searchfields="name"
-                                  inputclass="kuiTextInput fullwidth"
-                                  pattern="^(cluster:.*|indices:.*)"
-                            />
-
+                    <ui-select ng-model="permissionsResource.permissions[$index]">
+                        <ui-select-match placeholder="Start with cluster: or indices:">
+                            {{permission}}
+                        </ui-select-match>
+                        <ui-select-choices repeat="item in (permissionItems | filter: $select.search) track by $index">
+                            <span ng-bind="item"></span>
+                        </ui-select-choices>
+                    </ui-select>
                 </fieldset>
             </td>
             <td class="kuiTableRowCell cellAlignTop actions">
