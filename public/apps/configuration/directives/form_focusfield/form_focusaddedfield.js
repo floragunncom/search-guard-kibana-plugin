@@ -12,13 +12,6 @@ app.directive('sgcFormFocusAddedField', function ($timeout) {
         link: function(scope, el) {
 
             /**
-             * The mutation is called when the container element is first
-             * rendered, which we will want to ignore
-             * @type {boolean}
-             */
-            let isRendered = true;
-
-            /**
              * The MutationObserver
              * @type {null|MutationObserver}
              */
@@ -35,10 +28,6 @@ app.directive('sgcFormFocusAddedField', function ($timeout) {
 
             // Callback function to execute when mutations are observed
             let observerCallback = function(mutationsList) {
-                if (! isRendered) {
-                    isRendered = true;
-                    return;
-                }
 
                 // We only want mutations with added nodes
                 let mutationsWithAdditions = mutationsList.filter((mutation) => {
