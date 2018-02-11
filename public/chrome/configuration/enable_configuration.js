@@ -20,6 +20,39 @@ import { uiModules } from 'ui/modules';
 import { FeatureCatalogueRegistryProvider, FeatureCatalogueCategory } from 'ui/registry/feature_catalogue';
 require ('../../apps/configuration/systemstate/systemstate');
 
+const app = uiModules.get('apps/searchguard/configuration');
+
+
+app.factory('errorInterceptor', function ($q, $window) {
+    const APP_ROOT = `${chrome.getBasePath()}`;
+
+    return {
+        responseError: function (response) {
+
+            // Handles 401s, but only if we've explicitly set the redirect property on the response.
+            if (response.status == 401 && response.data && response.data.redirectTo === 'login') {
+                let nextUrl = $window.location.pathname + $window.location.hash + $window.location.search;
+                if (nextUrl.indexOf(APP_ROOT) === 0) {
+                   nextUrl = nextUrl.replace(APP_ROOT, '');
+                }
+
+                $window.location.href = `${APP_ROOT}/login?nextUrl=${encodeURIComponent(nextUrl)}`;
+            }
+
+            // If unhandled, we just passed the error on to the next handler.
+            return $q.reject(response);
+        }
+    };
+});
+
+/**
+ * Make sure that we add the interceptor to the existing ones.
+ */
+app.config(function($httpProvider) {
+    $httpProvider.interceptors.push('errorInterceptor');
+});
+
+
 export function enableConfiguration($http, $window, systemstate) {
 
     chrome.getNavLinkById("searchguard-configuration").hidden = true;
