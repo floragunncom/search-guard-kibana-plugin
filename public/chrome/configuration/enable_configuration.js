@@ -24,22 +24,27 @@ const app = uiModules.get('apps/searchguard/configuration');
 
 
 app.factory('errorInterceptor', function ($q, $window) {
-    const APP_ROOT = `${chrome.getBasePath()}`;
 
     return {
         responseError: function (response) {
 
             // Handles 401s, but only if we've explicitly set the redirect property on the response.
             if (response.status == 401 && response.data && response.data.redirectTo === 'login') {
-                let nextUrl = $window.location.pathname + $window.location.hash + $window.location.search;
-                if (nextUrl.indexOf(APP_ROOT) === 0) {
-                   nextUrl = nextUrl.replace(APP_ROOT, '');
+                const APP_ROOT = `${chrome.getBasePath()}`;
+                const path = chrome.removeBasePath($window.location.pathname);
+
+                // Don't run on login or logout. We shouldn't have any Ajax requests here,
+                // but if other plugins are active, we would get a redirect loop.
+                if(path === '/login' || path === '/logout') {
+                    return $q.reject(response);
                 }
+
+                let nextUrl = path + $window.location.hash + $window.location.search;
 
                 $window.location.href = `${APP_ROOT}/login?nextUrl=${encodeURIComponent(nextUrl)}`;
             }
 
-            // If unhandled, we just passed the error on to the next handler.
+            // If unhandled, we just pass the error on to the next handler.
             return $q.reject(response);
         }
     };
