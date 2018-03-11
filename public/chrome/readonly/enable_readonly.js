@@ -132,6 +132,11 @@ function handleRoutingForTenantReadOnly($rootScope, $location) {
 
         // We can't reliably hide all the edit- and write controls, so instead we show a read only message.
         if (readOnlyMessageAlreadyShown === false) {
+            let currentPath = chrome.removeBasePath(location.pathname);
+            // Only show the message in the kibana app(?)
+            if (currentPath.indexOf('/app/kibana') !== 0) {
+                return;
+            }
             readOnlyMessageAlreadyShown = true;
             let notify = new Notifier({warningLifetime: 60 * 1000});
             notify.warning('Since this tenant is read only, you will not be able to save any changes you make.', {
