@@ -10,18 +10,20 @@
 
   <p class="login-subtitle" ng-show="ui.loginsubtitle != ''">{{ui.loginsubtitle}}</p>
 
-  <form class="login-form" ng-submit="ui.submit()" method="post">
+  <form class="login-form" ng-submit="ui.submit()" method="post" autocomplete="off">
     <div class="input-group">
       <div class="input-group-addon"><i class="fa fa-user"></i></div>
       <input type="text" class="form-control kuiTextInput" id="sg.username" name="username" placeholder="Username"
              ng-class="{'has-error': ui.errorMessage}"
-             ng-model="ui.credentials.username" required autofocus/>
+             ng-model="ui.credentials.username" required autofocus
+             autocomplete="off"/>
     </div>
     <div class="input-group">
       <div class="input-group-addon"><i class="fa fa-lock"></i></div>
-      <input type="password" class="form-control kuiTextInput" id="sg.password" name="password" placeholder="Password"
+      <input type="password" autocomplete="off" class="form-control kuiTextInput" id="sg.password" name="password" placeholder="Password"
              ng-class="{'has-error': ui.errorMessage}"
-             ng-model="ui.credentials.password" required/>
+             ng-model="ui.credentials.password" required
+             autocomplete="off"/>
     </div>
 
     <button id="sg.login" type="submit" class="btn btn-default btn-login" ng-attr-style="{{ui.buttonstyle}}">Log in</button>
