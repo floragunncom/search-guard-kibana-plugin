@@ -301,13 +301,34 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         var doctype = $scope.selectedDocumentType;
         if ($scope.resource.indices && $scope.resource.indices[index] && $scope.resource.indices[index][doctype]) {
             delete $scope.resource.indices[index][doctype];
-            // if last doctype, remove role as well
+            // if last doctype, remove index as well
             var remainingDocTypes = Object.keys($scope.resource.indices[index]);
             if (remainingDocTypes.length == 0) {
+                // Manually select another index if available to avoid a broken UI state
+                let newIndex = null;
+                let availableIndices = Object.keys($scope.resource.indices).sort();
+
+                if (availableIndices.length > 1) {
+                    const listPosition = availableIndices.indexOf(index);
+                    // Get the next index in the list if available, otherwise the previous one
+                    newIndex = (availableIndices.length -1 > listPosition)
+                        ? availableIndices[listPosition + 1]
+                        : availableIndices[listPosition - 1]
+                    ;
+                }
+
                 delete $scope.resource.indices[index];
                 delete $scope.resource.dlsfls[index];
+
                 $scope.selectedDocumentType = "";
-                $scope.selectedIndex = "";
+                if (newIndex !== null) {
+                    $scope.selectedIndex = newIndex;
+                    // The change handler takes care of the selectedDocumentType
+                    $scope.onIndexChange();
+                } else {
+                    $scope.selectedIndex = "";
+                }
+
             } else {
                 $scope.selectedDocumentType = remainingDocTypes[0];
             }
