@@ -19,6 +19,9 @@ export default function (kibana) {
             var obj = Joi.object({
                 enabled: Joi.boolean().default(true),
                 allow_client_certificates: Joi.boolean().default(false),
+                readOnlyMode: Joi.object().keys({
+                    roles: Joi.array().default(["sg_kibana_readonly"]),
+                }).default(),
                 cookie: Joi.object().keys({
                     secure: Joi.boolean().default(false),
                     name: Joi.string().default('searchguard_authentication'),
@@ -64,6 +67,7 @@ export default function (kibana) {
 
         uiExports: {
             hacks: [
+                'plugins/searchguard/chrome/readonly/enable_readonly',
                 'plugins/searchguard/chrome/multitenancy/enable_multitenancy',
                 'plugins/searchguard/chrome/logout_button',
                 'plugins/searchguard/chrome/configuration/enable_configuration',
