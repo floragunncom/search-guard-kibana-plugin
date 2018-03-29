@@ -207,7 +207,7 @@ export default function (kibana) {
                     password: config.get("searchguard.cookie.password")
                 });
 
-                this.status.yellow("Search Guard multitenancy enabled");
+                this.status.yellow("Search Guard multitenancy registered. This is an Enterprise feature.");
             } else {
                 this.status.yellow("Search Guard multitenancy disabled");
             }
@@ -227,14 +227,14 @@ export default function (kibana) {
                     password: config.get("searchguard.cookie.password")
                 });
 
-                this.status.yellow("Search Guard copy JWT params enabled");
+                this.status.yellow("Search Guard copy JWT params registered. This is an Enterprise feature.");
             } else {
                 this.status.yellow("Search Guard copy JWT params disabled");
             }
 
             if(config.get('searchguard.configuration.enabled')) {
                 require('./lib/configuration/routes/routes')(pluginRoot, server, APP_ROOT, API_ROOT);
-                this.status.yellow("Search Guard configuration GUI enabled");
+                this.status.yellow("Routes for Search Guard configuration GUI registered. This is an Enterprise feature.");
             } else {
                 this.status.yellow("Search Guard configuration GUI disabled");
             }

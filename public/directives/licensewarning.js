@@ -29,9 +29,16 @@ app.directive('sgLicenseWarning', function (systemstate) {
                     $scope.message = "The Search Guard license key is not valid for this cluster. Please contact your system administrator.";
                 }
 
-                if (systemstate.isTrialLicense() && systemstate.licenseValid()) {
-                    $scope.hint = "Your trial license expires in " + systemstate.expiresIn() + " days.";
-                    $scope.$apply('hint');
+                if (systemstate.licenseValid()) {
+                    if (systemstate.isTrialLicense() && systemstate.expiresIn() <= 10) {
+                        $scope.hint = "Your trial license expires in " + systemstate.expiresIn() + " days.";
+                        $scope.$apply('hint');
+                    }
+                    if (!systemstate.isTrialLicense() && systemstate.expiresIn() <= 20) {
+                        $scope.hint = "Your license expires in " + systemstate.expiresIn() + " days.";
+                        $scope.$apply('hint');
+                    }
+
                 }
             });
 
