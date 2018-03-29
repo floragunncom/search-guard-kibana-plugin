@@ -257,7 +257,7 @@ function readOnlyResolver($q, $rootScope, $http, $location, route, dashboardConf
     const GLOBAL_TENANT_VALUE = '';
     const PRIVATE_TENANT_VALUE = '__user__';
 
-    let readOnlyConfig = chrome.getInjected('readOnlyMode');
+    let readOnlyConfig = chrome.getInjected('readonly_mode');
 
     // If we deactivate the entire feature, we should just return quickly here.
     // We could also skip the resolver entirely, but then we need to make sure that we're not relying
