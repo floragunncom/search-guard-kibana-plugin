@@ -472,7 +472,7 @@
 
                         <div class="formsubmit">
                             <button ng-if="!addingIndex" ng-disabled="!endpointAndMethodEnabled('ROLES', 'PUT') || resource.readonly"  class="kuiButton kuiButton--primary kuiButton--text" type="submit">Save Role Definition</button>
-                            <button ng-if="!addingIndex" class="kuiButton kuiButton--basic kuiButton--text" type="submit" ng-click="cancel()">Cancel</button>
+                            <button ng-if="!addingIndex" class="kuiButton kuiButton--basic kuiButton--text" type="button" ng-click="cancel()">Cancel</button>
                         </div>
                     </div>
                 </form>

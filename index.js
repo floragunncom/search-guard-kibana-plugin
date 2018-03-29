@@ -19,6 +19,9 @@ export default function (kibana) {
             var obj = Joi.object({
                 enabled: Joi.boolean().default(true),
                 allow_client_certificates: Joi.boolean().default(false),
+                readonly_mode: Joi.object().keys({
+                    roles: Joi.array().default(["sg_kibana_readonly"]),
+                }).default(),
                 cookie: Joi.object().keys({
                     secure: Joi.boolean().default(false),
                     name: Joi.string().default('searchguard_authentication'),
@@ -32,6 +35,7 @@ export default function (kibana) {
                 basicauth: Joi.object().keys({
                     enabled: Joi.boolean().default(true),
                     unauthenticated_routes: Joi.array().default(["/api/status"]),
+                    forbidden_usernames: Joi.array().default([]),
                     login: Joi.object().keys({
                         title: Joi.string().allow('').default('Please login to Kibana'),
                         subtitle: Joi.string().allow('').default('If you have forgotten your username or password, please ask your system administrator'),
@@ -64,6 +68,7 @@ export default function (kibana) {
 
         uiExports: {
             hacks: [
+                'plugins/searchguard/chrome/readonly/enable_readonly',
                 'plugins/searchguard/chrome/multitenancy/enable_multitenancy',
                 'plugins/searchguard/chrome/logout_button',
                 'plugins/searchguard/chrome/configuration/enable_configuration',
