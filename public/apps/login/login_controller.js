@@ -67,8 +67,8 @@ export default function LoginController(kbnUrl, $scope, $http, $window, systemst
                 // load and cache systeminfo and rest api info
                 // perform in the callback due to Chrome cancelling the
                 // promises if we navigate away from the page, even if async/await
-                systemstate.loadSystemInfo().then(function(response) {
-                    systemstate.loadRestInfo().then(function(response) {
+                systemstate.loadSystemInfo().then((response) => {
+                    systemstate.loadRestInfo().then((response) => {
                         var user = JSON.parse(sessionStorage.getItem("sg_user"));
                         // validate the tenant settings:
                         // if MT is disabled, or the GLOBAL tenant is enabled,
@@ -89,6 +89,7 @@ export default function LoginController(kbnUrl, $scope, $http, $window, systemst
                             // check that we have at least one tenant to fall back to
                             if (allTenants == null || allTenants.length == 0 || _.isEmpty(allTenants)) {
                                 this.errorMessage = 'No tenant available for this user, please contact your system administrator.';
+                                $scope.$apply();
                             } else {
                                 $window.location.href = `${nextUrl}`;
                             }
