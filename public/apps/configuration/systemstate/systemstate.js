@@ -34,15 +34,15 @@ uiModules.get('apps/searchguard/configuration', [])
         }
 
         this.dlsFlsEnabled = () => {
-            return get(this.getSystemInfo(), 'modules.DLSFLS', false);
+            return get(this.getSystemInfo(), 'modules.DLSFLS', null) != null;
         }
 
         this.multiTenancyEnabled = () => {
-            return get(this.getSystemInfo(), 'modules.MULTITENANCY', false);
+            return get(this.getSystemInfo(), 'modules.MULTITENANCY', null) != null;
         }
 
         this.restApiEnabled = () => {
-            return get(this.getSystemInfo(), 'modules.REST_MANAGEMENT_API', false);
+            return get(this.getSystemInfo(), 'modules.REST_MANAGEMENT_API', null) != null;
         }
 
         this.hasApiAccess = () => {
@@ -82,8 +82,10 @@ uiModules.get('apps/searchguard/configuration', [])
             // load systeminfo if not found in cache
             if (!sessionStorage.getItem('systeminfo')) {
                 return $http.get(`${API_ROOT}/systeminfo`).then(function(response) {
+                    console.log("loaded systemingo");
                     sessionStorage.setItem('systeminfo', JSON.stringify(response.data));
                 }).catch(function(error) {
+                    console.log("FAIL");
                     sessionStorage.setItem('systeminfo', '{}');
                 });
             }
@@ -91,7 +93,9 @@ uiModules.get('apps/searchguard/configuration', [])
 
         this.loadRestInfo =  async function()  {
             // load restinfo if not found in cache
-            if (!sessionStorage.getItem('restapiinfo') && this.restApiEnabled) {
+            console.log("->"+this.restApiEnabled());
+            if (!sessionStorage.getItem('restapiinfo') && this.restApiEnabled()) {
+                console.log("loaded restinfo");
                 return $http.get(`${API_ROOT}/restapiinfo`).then(function(response) {
                     sessionStorage.setItem('restapiinfo', JSON.stringify(response.data));
                 }).catch(function(error) {
