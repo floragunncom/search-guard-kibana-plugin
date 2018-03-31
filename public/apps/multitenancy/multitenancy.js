@@ -60,7 +60,7 @@ uiModules
          * @type {boolean}
          */
         this.userHasDashboardOnlyRole = false;
-        
+
         if (sg_readOnly) {
             isReadOnly = (sg_readOnly.isReadOnly === true)
             this.userHasDashboardOnlyRole = (isReadOnly && sg_readOnly.hasDashboardRole === true);
@@ -160,14 +160,26 @@ uiModules
                 (response) => {
                     this.tenantLabel = "Active tenant: " + resolveTenantName(response.data, this.username);
                     this.currentTenant = response.data;
-                    //indexPatternsGetProvider.clearCache();
                     // clear lastUrls from nav links to avoid not found errors
                     chrome.getNavLinkById("kibana:visualize").lastSubUrl = chrome.getNavLinkById("kibana:visualize").url;
                     chrome.getNavLinkById("kibana:dashboard").lastSubUrl = chrome.getNavLinkById("kibana:dashboard").url;
                     chrome.getNavLinkById("kibana:discover").lastSubUrl = chrome.getNavLinkById("kibana:discover").url;
                     chrome.getNavLinkById("timelion").lastSubUrl = chrome.getNavLinkById("timelion").url;
+                    // clear last sub urls, but leave our own items intouched. Take safe mutation approach.
+                    var lastSubUrls = [];
+                    for (var i = 0; i < sessionStorage.length; i++) {
+                        var key = sessionStorage.key(i);
+                        if (key.startsWith("lastSubUrl")) {
+                            lastSubUrls.push(key);
+                        }
+                    }
+                    for (var i = 0; i < lastSubUrls.length; i++) {
+                        sessionStorage.removeItem(lastSubUrls[i]);
+                    }
+                    // to be on the safe side for future changes, clear localStorage as well
                     localStorage.clear();
-                    sessionStorage.clear();
+
+                    // redirect to either Visualize or Dashboard depending on user selection.
                     if(redirect) {
                         if (redirect == 'vis') {
                             $window.location.href = chrome.getNavLinkById("kibana:visualize").url;
