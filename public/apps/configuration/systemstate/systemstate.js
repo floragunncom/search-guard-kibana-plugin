@@ -13,9 +13,14 @@ uiModules.get('apps/searchguard/configuration', [])
         const API_ROOT = `${APP_ROOT}/api/v1`;
         const emptyPromise = new Promise(function(resolve, reject) {});
 
+        this.licenseRequired = () => {
+            // no license for community edition required
+            return get(this.getSystemInfo(), 'sg_license.license_required', true);
+        }
+
         this.licenseValid = () => {
             // no license for community edition required
-            if (!get(this.getSystemInfo(), 'sg_license.license_required', true)) {
+            if (!this.licenseRequired()) {
                 return true;
             }
             return get(this.getSystemInfo(), 'sg_license.is_valid', true);

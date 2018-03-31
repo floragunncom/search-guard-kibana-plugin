@@ -11,6 +11,7 @@
   <p class="login-subtitle" ng-show="ui.loginsubtitle != ''">{{ui.loginsubtitle}}</p>
 
   <form class="login-form" ng-submit="ui.submit()" method="post" autocomplete="off">
+      <input autocomplete="anyrandomstring" name="hidden" type="text" style="display:none;">
     <div class="input-group">
       <div class="input-group-addon"><i class="fa fa-user"></i></div>
       <input type="text" class="form-control kuiTextInput" id="sg.username" name="username" placeholder="Username"

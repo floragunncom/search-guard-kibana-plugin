@@ -21,6 +21,12 @@ app.directive('sgLicenseWarning', function (systemstate) {
             $scope.message = "";
 
             systemstate.loadSystemInfo().then(function(){
+
+                if (!systemstate.licenseRequired()) {
+                    $scope.licensevalid = true;
+                    return;
+                }
+
                 $scope.licensevalid = systemstate.licenseValid();
 
                 if ($scope.errorMessage) {
