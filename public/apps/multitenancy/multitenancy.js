@@ -38,7 +38,7 @@ uiRoutes
 
 uiModules
     .get('app/searchguard-multitenancy')
-    .controller('searchguardMultitenancyController', function ($http, $window, Private, sg_readOnly) {
+    .controller('searchguardMultitenancyController', function ($http, $window, Private, sg_resolvedInfo) {
         const indexPatternsGetProvider = Private(IndexPatternsGetProvider)('id');
 
         var APP_ROOT = `${chrome.getBasePath()}`;
@@ -61,9 +61,9 @@ uiModules
          */
         this.userHasDashboardOnlyRole = false;
 
-        if (sg_readOnly) {
-            isReadOnly = (sg_readOnly.isReadOnly === true)
-            this.userHasDashboardOnlyRole = (isReadOnly && sg_readOnly.hasDashboardRole === true);
+        if (sg_resolvedInfo) {
+            isReadOnly = (sg_resolvedInfo.isReadOnly === true)
+            this.userHasDashboardOnlyRole = (isReadOnly && sg_resolvedInfo.hasDashboardRole === true);
         }
 
         this.privateEnabled = chrome.getInjected("multitenancy.tenants.enable_private");
