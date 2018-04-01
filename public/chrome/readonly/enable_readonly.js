@@ -17,6 +17,7 @@
 import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules';
 import { Notifier } from 'ui/notify/notifier';
+import setupShareObserver from '../../chrome/multitenancy/observe_share_links';
 import './readonly.less';
 
 // Needed to access the dashboardProvider
@@ -125,7 +126,7 @@ function handleRoutingForDashboardOnly($rootScope, $location) {
 function handleRoutingForTenantReadOnly($rootScope, $location) {
 
     $rootScope.$on('$routeChangeSuccess', function (event, next, current) {
-        if (next.$$route.originalPath.indexOf('/management') == 0 && next.locals.sg_readOnly.isReadOnly) {
+        if (next.$$route.originalPath.indexOf('/management') == 0 && next.locals.sg_resolvedInfo.isReadOnly) {
             // @todo For tenantReadOnly we may need to redirect to discover, visualize. Check the path of current?
             $location.path('/dashboards');
         }
@@ -161,7 +162,7 @@ function addReadOnlyCSSHelper() {
  * @param dashboardConfig
  * @returns {Object}
  */
-function resolveWithTenantReadOnly($rootScope, $location, dashboardConfig) {
+function resolveWithTenantReadOnly($rootScope, $location, dashboardConfig, authInfo) {
     dashboardConfig.setHideWriteControls();
     hideNavItemsForTenantReadOnly();
     handleRoutingForTenantReadOnly($rootScope, $location);
@@ -169,7 +170,8 @@ function resolveWithTenantReadOnly($rootScope, $location, dashboardConfig) {
 
     resolvedReadOnly = {
         tenantIsReadOnly: true,
-        isReadOnly: true
+        isReadOnly: true,
+        userRequestedTenant: authInfo.user_requested_tenant
     };
 
     return resolvedReadOnly;
@@ -217,10 +219,23 @@ function resolveWithDashboardRole($q, $rootScope, $location, route, dashboardCon
 
     resolvedReadOnly = {
         hasDashboardRole: true,
-        isReadOnly: true
+        isReadOnly: true,
+        userRequestedTenant: authInfo.user_requested_tenant
     };
     return resolvedReadOnly;
 
+}
+
+function resolveRegular(authInfo) {
+
+    resolvedReadOnly = {
+        hasDashboardRole: false,
+        tenantIsReadOnly: false,
+        isReadOnly: false,
+        userRequestedTenant: authInfo.user_requested_tenant
+    };
+
+    return resolvedReadOnly;
 }
 
 /**
@@ -288,7 +303,9 @@ function readOnlyResolver($q, $rootScope, $http, $location, route, dashboardConf
                         let mtinfo = response.data;
 
                         if (mtinfo.kibana_index_readonly) {
-                            return resolveWithTenantReadOnly($rootScope, $location, dashboardConfig);
+                            return resolveWithTenantReadOnly($rootScope, $location, dashboardConfig, authInfo);
+                        } else {
+                            return resolveRegular(authInfo);
                         }
                     });
 
@@ -299,19 +316,12 @@ function readOnlyResolver($q, $rootScope, $http, $location, route, dashboardConf
                     ||
                     (authInfo.sg_tenants[authInfo.user_requested_tenant] === false)
                 ) {
-                    return resolveWithTenantReadOnly($rootScope, $location, dashboardConfig);
+                    return resolveWithTenantReadOnly($rootScope, $location, dashboardConfig, authInfo);
                 }
 
             }
 
-            // Neither dashboard role nor tenant read only
-            resolvedReadOnly = {
-                hasDashboardRole: false,
-                tenantIsReadOnly: false,
-                isReadOnly: false
-            };
-
-            return resolvedReadOnly;
+            return resolveRegular(authInfo);
         });
 }
 
@@ -354,7 +364,7 @@ export function enableReadOnly($rootScope, $http, $window, $timeout, $q, $locati
                     route.resolve = {};
                 }
 
-                route.resolve['sg_readOnly'] = function() {
+                route.resolve['sg_resolvedInfo'] = function() {
                     return readOnlyResolver($q, $rootScope, $http, $location, route, dashboardConfig);
                 }
             }
@@ -366,6 +376,11 @@ export function enableReadOnly($rootScope, $http, $window, $timeout, $q, $locati
     $rootScope.$on('$routeChangeSuccess', function(event, next, current) {
         if (next.$$route && next.$$route.originalPath) {
             document.body.setAttribute('sg_path', next.$$route.originalPath.replace(':', '').split('/').join('_'));
+
+            if (chrome.getInjected('multitenancy_enabled') && next.locals && next.locals.sg_resolvedInfo) {
+                setupShareObserver($timeout, next.locals.sg_resolvedInfo.userRequestedTenant);
+            }
+
         }
     });
 
