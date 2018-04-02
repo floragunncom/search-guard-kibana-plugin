@@ -20,6 +20,44 @@ import { uiModules } from 'ui/modules';
 import { FeatureCatalogueRegistryProvider, FeatureCatalogueCategory } from 'ui/registry/feature_catalogue';
 require ('../../apps/configuration/systemstate/systemstate');
 
+const app = uiModules.get('apps/searchguard/configuration');
+
+
+app.factory('errorInterceptor', function ($q, $window) {
+
+    return {
+        responseError: function (response) {
+
+            // Handles 401s, but only if we've explicitly set the redirect property on the response.
+            if (response.status == 401 && response.data && response.data.redirectTo === 'login') {
+                const APP_ROOT = `${chrome.getBasePath()}`;
+                const path = chrome.removeBasePath($window.location.pathname);
+
+                // Don't run on login or logout. We shouldn't have any Ajax requests here,
+                // but if other plugins are active, we would get a redirect loop.
+                if(path === '/login' || path === '/logout') {
+                    return $q.reject(response);
+                }
+
+                let nextUrl = path + $window.location.hash + $window.location.search;
+
+                $window.location.href = `${APP_ROOT}/login?nextUrl=${encodeURIComponent(nextUrl)}`;
+            }
+
+            // If unhandled, we just pass the error on to the next handler.
+            return $q.reject(response);
+        }
+    };
+});
+
+/**
+ * Make sure that we add the interceptor to the existing ones.
+ */
+app.config(function($httpProvider) {
+    $httpProvider.interceptors.push('errorInterceptor');
+});
+
+
 export function enableConfiguration($http, $window, systemstate) {
 
     chrome.getNavLinkById("searchguard-configuration").hidden = true;

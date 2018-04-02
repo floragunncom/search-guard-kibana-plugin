@@ -10,18 +10,24 @@
 
   <p class="login-subtitle" ng-show="ui.loginsubtitle != ''">{{ui.loginsubtitle}}</p>
 
-  <form class="login-form" ng-submit="ui.submit()" method="post">
+  <form class="login-form" ng-submit="ui.submit()" method="post" autocomplete="off">
+      <input autocomplete="anyrandomstring" name="hidden" type="text" style="display:none;">
     <div class="input-group">
       <div class="input-group-addon"><i class="fa fa-user"></i></div>
       <input type="text" class="form-control kuiTextInput" id="sg.username" name="username" placeholder="Username"
-             ng-model="ui.credentials.username" ng-required="ui.errorMessage || ! ui.credentials.username" autofocus/>
+             ng-class="{'has-error': ui.errorMessage}"
+             ng-model="ui.credentials.username" required autofocus
+             autocomplete="off"/>
     </div>
     <div class="input-group">
       <div class="input-group-addon"><i class="fa fa-lock"></i></div>
-      <input type="password" class="form-control kuiTextInput" id="sg.password" name="password" placeholder="Password"
-             ng-model="ui.credentials.password" ng-required="ui.errorMessage || ! ui.credentials.password"/>
+      <input type="password" autocomplete="off" class="form-control kuiTextInput" id="sg.password" name="password" placeholder="Password"
+             ng-class="{'has-error': ui.errorMessage}"
+             ng-model="ui.credentials.password" required
+             autocomplete="off"/>
     </div>
-    <button id="sg.login" type="submit" class="btn btn-default btn-login" style="{{ui.buttonstyle}}">Log in</button>
+
+    <button id="sg.login" type="submit" class="btn btn-default btn-login" ng-attr-style="{{ui.buttonstyle}}">Log in</button>
   </form>
 
   <p class="error-message" id="sg.errormessage" ng-if="ui.errorMessage">{{ ui.errorMessage }}</p>

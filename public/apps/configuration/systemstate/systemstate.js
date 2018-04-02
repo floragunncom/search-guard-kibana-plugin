@@ -13,9 +13,14 @@ uiModules.get('apps/searchguard/configuration', [])
         const API_ROOT = `${APP_ROOT}/api/v1`;
         const emptyPromise = new Promise(function(resolve, reject) {});
 
+        this.licenseRequired = () => {
+            // no license for community edition required
+            return get(this.getSystemInfo(), 'sg_license.license_required', true);
+        }
+
         this.licenseValid = () => {
             // no license for community edition required
-            if (!get(this.getSystemInfo(), 'sg_license.license_required', true)) {
+            if (!this.licenseRequired()) {
                 return true;
             }
             return get(this.getSystemInfo(), 'sg_license.is_valid', true);
@@ -34,15 +39,15 @@ uiModules.get('apps/searchguard/configuration', [])
         }
 
         this.dlsFlsEnabled = () => {
-            return get(this.getSystemInfo(), 'modules.DLSFLS', false);
+            return get(this.getSystemInfo(), 'modules.DLSFLS', null) != null;
         }
 
         this.multiTenancyEnabled = () => {
-            return get(this.getSystemInfo(), 'modules.MULTITENANCY', false);
+            return get(this.getSystemInfo(), 'modules.MULTITENANCY', null) != null;
         }
 
         this.restApiEnabled = () => {
-            return get(this.getSystemInfo(), 'modules.REST_MANAGEMENT_API', false);
+            return get(this.getSystemInfo(), 'modules.REST_MANAGEMENT_API', null) != null;
         }
 
         this.hasApiAccess = () => {
@@ -91,7 +96,7 @@ uiModules.get('apps/searchguard/configuration', [])
 
         this.loadRestInfo =  async function()  {
             // load restinfo if not found in cache
-            if (!sessionStorage.getItem('restapiinfo') && this.restApiEnabled) {
+            if (!sessionStorage.getItem('restapiinfo') && this.restApiEnabled()) {
                 return $http.get(`${API_ROOT}/restapiinfo`).then(function(response) {
                     sessionStorage.setItem('restapiinfo', JSON.stringify(response.data));
                 }).catch(function(error) {
