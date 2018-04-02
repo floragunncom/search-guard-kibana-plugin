@@ -54,6 +54,42 @@ uiModules.get('kibana').config((dashboardConfigProvider) => {
 });
 
 /**
+ * Holds the original state of the navigation links "hidden" property
+ * @type {null|Object}
+ */
+let originalNavItemsVisibility = null;
+
+/**
+ * If at least one readonly role is configured, we start by hiding
+ * the navigation links until we have resolved the the readonly
+ * status of the current user
+ */
+function hideNavItems() {
+    originalNavItemsVisibility = {};
+    chrome.getNavLinks().forEach((navLink) => {
+        if (navLink.id !== 'kibana:dashboard') {
+
+            originalNavItemsVisibility[navLink.id] = navLink.hidden;
+            navLink.hidden = true;
+
+            // This is a bit of a hack to make sure that we detect
+            // changes that happen between reading the original
+            // state and resolving our info
+            navLink._sgHidden = navLink.hidden;
+            Object.defineProperty(navLink, 'hidden', {
+                set(value) {
+                    originalNavItemsVisibility[this.id] = value;
+                    this._sgHidden = value;
+                },
+                get() {
+                    return this._sgHidden;
+                }
+            });
+        }
+    });
+}
+
+/**
  * Hide navigation links that aren't needed in tenant read only mode
  */
 function hideNavItemsForTenantReadOnly() {
@@ -63,7 +99,10 @@ function hideNavItemsForTenantReadOnly() {
 
     chrome.getNavLinks().forEach((navLink) => {
         if (hiddenNavLinkIds.indexOf(navLink.id) > -1) {
+            // A bit redundant if all items are hidden from the start
             navLink.hidden = true;
+        } else if (originalNavItemsVisibility !== null) {
+            navLink.hidden = originalNavItemsVisibility[navLink.id];
         }
     });
 }
@@ -83,7 +122,10 @@ function hideNavItemsForDashboardOnly(multitenancyVisible) {
 
     chrome.getNavLinks().forEach((navLink) => {
         if (visibleNavLinkIds.indexOf(navLink.id) === -1) {
+            // A bit redundant if all items are hidden from the start
             navLink.hidden = true;
+        } else if (originalNavItemsVisibility !== null) {
+            navLink.hidden = originalNavItemsVisibility[navLink.id];
         }
     });
 }
@@ -235,6 +277,14 @@ function resolveRegular(authInfo) {
         userRequestedTenant: authInfo.user_requested_tenant
     };
 
+    // If we hid all navigation links before resolving we need to
+    // change them back to their original state
+    if (originalNavItemsVisibility !== null) {
+        chrome.getNavLinks().forEach((navLink) => {
+            navLink.hidden = originalNavItemsVisibility[navLink.id];
+        });
+    }
+
     return resolvedReadOnly;
 }
 
@@ -339,7 +389,7 @@ function readOnlyResolver($q, $rootScope, $http, $location, route, dashboardConf
  * @param dashboardConfig
  */
 export function enableReadOnly($rootScope, $http, $window, $timeout, $q, $location, $injector, dashboardConfig) {
-
+    const readOnlyConfig = chrome.getInjected('readonly_mode');
     const path = chrome.removeBasePath($window.location.pathname);
 
     // don't run on login or logout, we don't have any user on these pages
@@ -353,6 +403,11 @@ export function enableReadOnly($rootScope, $http, $window, $timeout, $q, $locati
 
     let $route = $injector.get('$route');
     if ($route.routes) {
+        // Hide the navigation items by default if we have at leason one readonly role
+        if (readOnlyConfig.roles && readOnlyConfig.roles.length) {
+            hideNavItems();
+        }
+
         // Add the resolver to each of the routes defined in the current app.
         // We do it in all apps so that we know when to hide the navigation links.
         for (let routeUrl in $route.routes) {
