@@ -115,7 +115,7 @@
                                 </button>
                             </td>
                             <td class="actions kuiTableRowCell">
-                                <button id="sg.button.show_visualization.global" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
+                                <button id="sg.button.show_visualization.global" class="kuiButton kuiButton--primary" ng-show="! ctrl.userHasDashboardOnlyRole" ng-disabled="ctrl.currentTenant == tenantkey"
                                         ng-click="ctrl.selectTenant(ctrl.GLOBAL_USER_LABEL, ctrl.GLOBAL_USER_VALUE, 'vis')">Show Visualizations
                                 </button>
                             </td>
@@ -162,8 +162,8 @@
                                 </div>
                             </td>
                             <td class="kuiTableRowCell">
-                                <div id="sg.permission.{{tenantkey}}" ng-if="ctrl.tenants[tenantkey]">read/write</div>
-                                <div id="sg.permission.{{tenantkey}}" ng-if="!ctrl.tenants[tenantkey]">read only</div>
+                                <div id="sg.permission.{{tenantkey}}" ng-if="ctrl.tenants[tenantkey] && ! ctrl.userHasDashboardOnlyRole">read/write</div>
+                                <div id="sg.permission.{{tenantkey}}" ng-if="!ctrl.tenants[tenantkey] || ctrl.userHasDashboardOnlyRole">read only</div>
                             </td>
                             <td class="actions kuiTableRowCell">
                                 <button id="sg.button.show_dashboard.{{tenantkey}}" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
@@ -171,7 +171,7 @@
                                 </button>
                             </td>
                             <td class="actions kuiTableRowCell">
-                                <button id="sg.button.show_visualization.{{tenantkey}}" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
+                                <button id="sg.button.show_visualization.{{tenantkey}}" ng-show="! ctrl.userHasDashboardOnlyRole" class="kuiButton kuiButton--primary" ng-disabled="ctrl.currentTenant == tenantkey"
                                         ng-click="ctrl.selectTenant(tenantkey, tenantkey, 'vis')">Show Visualizations
                                 </button>
                             </td>
