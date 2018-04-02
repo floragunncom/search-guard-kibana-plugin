@@ -17,6 +17,7 @@
 import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules';
 import { Notifier } from 'ui/notify/notifier';
+import setupShareObserver from '../../chrome/multitenancy/observe_share_links';
 import './readonly.less';
 
 // Needed to access the dashboardProvider
@@ -53,6 +54,42 @@ uiModules.get('kibana').config((dashboardConfigProvider) => {
 });
 
 /**
+ * Holds the original state of the navigation links "hidden" property
+ * @type {null|Object}
+ */
+let originalNavItemsVisibility = null;
+
+/**
+ * If at least one readonly role is configured, we start by hiding
+ * the navigation links until we have resolved the the readonly
+ * status of the current user
+ */
+function hideNavItems() {
+    originalNavItemsVisibility = {};
+    chrome.getNavLinks().forEach((navLink) => {
+        if (navLink.id !== 'kibana:dashboard') {
+
+            originalNavItemsVisibility[navLink.id] = navLink.hidden;
+            navLink.hidden = true;
+
+            // This is a bit of a hack to make sure that we detect
+            // changes that happen between reading the original
+            // state and resolving our info
+            navLink._sgHidden = navLink.hidden;
+            Object.defineProperty(navLink, 'hidden', {
+                set(value) {
+                    originalNavItemsVisibility[this.id] = value;
+                    this._sgHidden = value;
+                },
+                get() {
+                    return this._sgHidden;
+                }
+            });
+        }
+    });
+}
+
+/**
  * Hide navigation links that aren't needed in tenant read only mode
  */
 function hideNavItemsForTenantReadOnly() {
@@ -62,7 +99,10 @@ function hideNavItemsForTenantReadOnly() {
 
     chrome.getNavLinks().forEach((navLink) => {
         if (hiddenNavLinkIds.indexOf(navLink.id) > -1) {
+            // A bit redundant if all items are hidden from the start
             navLink.hidden = true;
+        } else if (originalNavItemsVisibility !== null) {
+            navLink.hidden = originalNavItemsVisibility[navLink.id];
         }
     });
 }
@@ -82,7 +122,10 @@ function hideNavItemsForDashboardOnly(multitenancyVisible) {
 
     chrome.getNavLinks().forEach((navLink) => {
         if (visibleNavLinkIds.indexOf(navLink.id) === -1) {
+            // A bit redundant if all items are hidden from the start
             navLink.hidden = true;
+        } else if (originalNavItemsVisibility !== null) {
+            navLink.hidden = originalNavItemsVisibility[navLink.id];
         }
     });
 }
@@ -125,7 +168,7 @@ function handleRoutingForDashboardOnly($rootScope, $location) {
 function handleRoutingForTenantReadOnly($rootScope, $location) {
 
     $rootScope.$on('$routeChangeSuccess', function (event, next, current) {
-        if (next.$$route.originalPath.indexOf('/management') == 0 && next.locals.sg_readOnly.isReadOnly) {
+        if (next.$$route.originalPath.indexOf('/management') == 0 && next.locals.sg_resolvedInfo.isReadOnly) {
             // @todo For tenantReadOnly we may need to redirect to discover, visualize. Check the path of current?
             $location.path('/dashboards');
         }
@@ -161,7 +204,7 @@ function addReadOnlyCSSHelper() {
  * @param dashboardConfig
  * @returns {Object}
  */
-function resolveWithTenantReadOnly($rootScope, $location, dashboardConfig) {
+function resolveWithTenantReadOnly($rootScope, $location, dashboardConfig, authInfo) {
     dashboardConfig.setHideWriteControls();
     hideNavItemsForTenantReadOnly();
     handleRoutingForTenantReadOnly($rootScope, $location);
@@ -169,7 +212,8 @@ function resolveWithTenantReadOnly($rootScope, $location, dashboardConfig) {
 
     resolvedReadOnly = {
         tenantIsReadOnly: true,
-        isReadOnly: true
+        isReadOnly: true,
+        userRequestedTenant: authInfo.user_requested_tenant
     };
 
     return resolvedReadOnly;
@@ -217,10 +261,31 @@ function resolveWithDashboardRole($q, $rootScope, $location, route, dashboardCon
 
     resolvedReadOnly = {
         hasDashboardRole: true,
-        isReadOnly: true
+        isReadOnly: true,
+        userRequestedTenant: authInfo.user_requested_tenant
     };
     return resolvedReadOnly;
 
+}
+
+function resolveRegular(authInfo) {
+
+    resolvedReadOnly = {
+        hasDashboardRole: false,
+        tenantIsReadOnly: false,
+        isReadOnly: false,
+        userRequestedTenant: authInfo.user_requested_tenant
+    };
+
+    // If we hid all navigation links before resolving we need to
+    // change them back to their original state
+    if (originalNavItemsVisibility !== null) {
+        chrome.getNavLinks().forEach((navLink) => {
+            navLink.hidden = originalNavItemsVisibility[navLink.id];
+        });
+    }
+
+    return resolvedReadOnly;
 }
 
 /**
@@ -288,7 +353,9 @@ function readOnlyResolver($q, $rootScope, $http, $location, route, dashboardConf
                         let mtinfo = response.data;
 
                         if (mtinfo.kibana_index_readonly) {
-                            return resolveWithTenantReadOnly($rootScope, $location, dashboardConfig);
+                            return resolveWithTenantReadOnly($rootScope, $location, dashboardConfig, authInfo);
+                        } else {
+                            return resolveRegular(authInfo);
                         }
                     });
 
@@ -299,19 +366,12 @@ function readOnlyResolver($q, $rootScope, $http, $location, route, dashboardConf
                     ||
                     (authInfo.sg_tenants[authInfo.user_requested_tenant] === false)
                 ) {
-                    return resolveWithTenantReadOnly($rootScope, $location, dashboardConfig);
+                    return resolveWithTenantReadOnly($rootScope, $location, dashboardConfig, authInfo);
                 }
 
             }
 
-            // Neither dashboard role nor tenant read only
-            resolvedReadOnly = {
-                hasDashboardRole: false,
-                tenantIsReadOnly: false,
-                isReadOnly: false
-            };
-
-            return resolvedReadOnly;
+            return resolveRegular(authInfo);
         });
 }
 
@@ -329,7 +389,7 @@ function readOnlyResolver($q, $rootScope, $http, $location, route, dashboardConf
  * @param dashboardConfig
  */
 export function enableReadOnly($rootScope, $http, $window, $timeout, $q, $location, $injector, dashboardConfig) {
-
+    const readOnlyConfig = chrome.getInjected('readonly_mode');
     const path = chrome.removeBasePath($window.location.pathname);
 
     // don't run on login or logout, we don't have any user on these pages
@@ -343,6 +403,11 @@ export function enableReadOnly($rootScope, $http, $window, $timeout, $q, $locati
 
     let $route = $injector.get('$route');
     if ($route.routes) {
+        // Hide the navigation items by default if we have at leason one readonly role
+        if (readOnlyConfig.roles && readOnlyConfig.roles.length) {
+            hideNavItems();
+        }
+
         // Add the resolver to each of the routes defined in the current app.
         // We do it in all apps so that we know when to hide the navigation links.
         for (let routeUrl in $route.routes) {
@@ -354,7 +419,7 @@ export function enableReadOnly($rootScope, $http, $window, $timeout, $q, $locati
                     route.resolve = {};
                 }
 
-                route.resolve['sg_readOnly'] = function() {
+                route.resolve['sg_resolvedInfo'] = function() {
                     return readOnlyResolver($q, $rootScope, $http, $location, route, dashboardConfig);
                 }
             }
@@ -366,6 +431,11 @@ export function enableReadOnly($rootScope, $http, $window, $timeout, $q, $locati
     $rootScope.$on('$routeChangeSuccess', function(event, next, current) {
         if (next.$$route && next.$$route.originalPath) {
             document.body.setAttribute('sg_path', next.$$route.originalPath.replace(':', '').split('/').join('_'));
+
+            if (chrome.getInjected('multitenancy_enabled') && next.locals && next.locals.sg_resolvedInfo) {
+                setupShareObserver($timeout, next.locals.sg_resolvedInfo.userRequestedTenant);
+            }
+
         }
     });
 

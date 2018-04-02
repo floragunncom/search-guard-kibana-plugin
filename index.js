@@ -20,7 +20,7 @@ export default function (kibana) {
                 enabled: Joi.boolean().default(true),
                 allow_client_certificates: Joi.boolean().default(false),
                 readonly_mode: Joi.object().keys({
-                    roles: Joi.array().default(["sg_kibana_readonly"]),
+                    roles: Joi.array().default([]),
                 }).default(),
                 cookie: Joi.object().keys({
                     secure: Joi.boolean().default(false),

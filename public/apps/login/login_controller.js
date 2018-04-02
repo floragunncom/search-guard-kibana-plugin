@@ -17,6 +17,7 @@
 import chrome from 'ui/chrome';
 import {parse} from 'url';
 import _ from 'lodash';
+import {getNextUrl} from './get_next_url';
 
 require ('../../directives/licensewarning');
 require ('../configuration/systemstate/systemstate');
@@ -49,63 +50,87 @@ export default function LoginController(kbnUrl, $scope, $http, $window, systemst
     }
 
     // honor last request URL
-    const {query, hash} = parse($window.location.href, true);
-    let nextUrl;
-    if (query.nextUrl) {
-        nextUrl = ROOT + query.nextUrl + (hash || '')
-    } else {
-        nextUrl = "/";
-    }
+    let nextUrl = getNextUrl($window.location.href, ROOT);
 
     this.submit =  () => {
 
-        $http.post(`${API_ROOT}/auth/login`, this.credentials)
-            .then(
-            (response) => {
-                // cache the current user information, we need it at several places
-                sessionStorage.setItem("sg_user", JSON.stringify(response.data));
-                // load and cache systeminfo and rest api info
-                // perform in the callback due to Chrome cancelling the
-                // promises if we navigate away from the page, even if async/await
-                systemstate.loadSystemInfo().then((response) => {
-                    systemstate.loadRestInfo().then((response) => {
-                        var user = JSON.parse(sessionStorage.getItem("sg_user"));
-                        // validate the tenant settings:
-                        // if MT is disabled, or the GLOBAL tenant is enabled,
-                        // no further checks are necessary. In the first case MT does not
-                        // matter, in the latter case we always have a tenant as fallback if
-                        // user has no tenants configured and PRIVATE is disabled
+        try {
+            $http.post(`${API_ROOT}/auth/login`, this.credentials)
+                .then(
+                (response) => {
+                    // cache the current user information, we need it at several places
+                    sessionStorage.setItem("sg_user", JSON.stringify(response.data));
+                    // load and cache systeminfo and rest api info
+                    // perform in the callback due to Chrome cancelling the
+                    // promises if we navigate away from the page, even if async/await
+                    systemstate.loadSystemInfo().then((response) => {
+                        systemstate.loadRestInfo().then((response) => {
+                            var user = JSON.parse(sessionStorage.getItem("sg_user"));
 
-                        // TODO: This should be determined dynamically, based on the info returned by the mtinfo endpoint
-                        if (!chrome.getInjected("multitenancy.enabled") || chrome.getInjected("multitenancy.tenants.enable_global")) {
-                            $window.location.href = `${nextUrl}`;
-                        } else {
-                            // GLOBAL is disabled, check if we have at least one tenant to choose from
-                            var allTenants = user.tenants;
-                            // if private tenant is disabled, remove it
-                            if(allTenants != null && !chrome.getInjected("multitenancy.tenants.enable_private")) {
-                                delete allTenants[user.username];
-                            }
-                            // check that we have at least one tenant to fall back to
-                            if (allTenants == null || allTenants.length == 0 || _.isEmpty(allTenants)) {
-                                this.errorMessage = 'No tenant available for this user, please contact your system administrator.';
-                                $scope.$apply();
-                            } else {
+                            // validate the tenant settings:
+                            // if MT is disabled, or the GLOBAL tenant is enabled,
+                            // no further checks are necessary. In the first case MT does not
+                            // matter, in the latter case we always have a tenant as fallback if
+                            // user has no tenants configured and PRIVATE is disabled
+
+                            if (!chrome.getInjected("multitenancy.enabled") || !systemstate.multiTenancyEnabled() || chrome.getInjected("multitenancy.tenants.enable_global")) {
                                 $window.location.href = `${nextUrl}`;
+                            } else {
+                                // GLOBAL is disabled, check if we have at least one tenant to choose from
+                                var allTenants = user.tenants;
+                                // if private tenant is disabled, remove it
+                                if(allTenants != null && !chrome.getInjected("multitenancy.tenants.enable_private")) {
+                                    delete allTenants[user.username];
+                                }
+                                // check that we have at least one tenant to fall back to
+                                if (allTenants == null || allTenants.length == 0 || _.isEmpty(allTenants)) {
+                                    this.errorMessage = 'No tenant available for this user, please contact your system administrator.';
+                                    $scope.$apply();
+                                } else {
+                                    $window.location.href = `${nextUrl}`;
+                                }
                             }
-                        }
+                        });
                     });
-                });
-            },
-            (error) => {
-                if (error.status && error.status === 401) {
-                    this.errorMessage = 'Invalid username or password, please try again';
-                } else {
-                    this.errorMessage = 'An error occurred while checking your credentials, make sure you have an Elasticsearch cluster secured by Search Guard running.';
+                },
+                (error) => {
+                    if (error.status && error.status === 401) {
+                        this.errorMessage = 'Invalid username or password, please try again';
+                    } else {
+                        this.errorMessage = 'An error occurred while checking your credentials, make sure you have an Elasticsearch cluster secured by Search Guard running.';
+                    }
                 }
-            }
-        );
+            );
+        } catch(error) {
+            this.errorMessage = 'An internal error has occured.';
+        }
+
 
     };
 
+    this.getNextUrl = function() {
+
+        const {query, hash} = parse($window.location.href, true);
+
+        // no nexturl in query, redirect to basepath
+        if (!query.nextUrl) {
+            return `${basePath}/`;
+        }
+
+        // check next url is valid and does not redirect to a malicious site.
+
+        // check forgery of protocol, hostname, port, pathname
+        const { protocol, hostname, port, pathname } = parse(query.next);
+        if (protocol || hostname || port) {
+            return `${basePath}/`;
+        }
+
+        // check we only redirect to our own base path
+        if (!String(pathname).startsWith(basePath)) {
+            return `${basePath}/`;
+        }
+
+        // next url valid, append hash if any
+        return query.next + (hash || '');
+    }
 };
