@@ -38,19 +38,41 @@ uiRoutes
 
 uiModules
     .get('app/searchguard-multitenancy')
-    .controller('searchguardMultitenancyController', function ($http, $window, Private) {
-
+    .controller('searchguardMultitenancyController', function ($http, $window, Private, sg_resolvedInfo) {
         const indexPatternsGetProvider = Private(IndexPatternsGetProvider)('id');
 
         var APP_ROOT = `${chrome.getBasePath()}`;
         var API_ROOT = `${APP_ROOT}/api/v1`;
         let notify = new Notifier({});
 
+        /**
+         * Is the user in a read only mode - either because of a dashboard only role,
+         * or because the current tenant is read only
+         * @type {boolean}
+         */
+        let isReadOnly = false;
+
         const kibana_server_user = chrome.getInjected("kibana_server_user");
         const kibana_index = chrome.getInjected("kibana_index");
 
+        /**
+         * If the user is in read only mode because of a given dashboard only role
+         * @type {boolean}
+         */
+        this.userHasDashboardOnlyRole = false;
+
+        if (sg_resolvedInfo) {
+            isReadOnly = (sg_resolvedInfo.isReadOnly === true)
+            this.userHasDashboardOnlyRole = (isReadOnly && sg_resolvedInfo.hasDashboardRole === true);
+        }
 
         this.privateEnabled = chrome.getInjected("multitenancy.tenants.enable_private");
+
+        // Don't show the private tenant if the user is a dashboard only user.
+        if (this.privateEnabled && this.userHasDashboardOnlyRole) {
+            this.privateEnabled = false;
+        }
+
         this.globalEnabled = chrome.getInjected("multitenancy.tenants.enable_global");
         this.showfilter = chrome.getInjected("multitenancy.enable_filter");
         this.showroles = chrome.getInjected("multitenancy.show_roles");
@@ -73,7 +95,7 @@ uiModules
                 // both ES and KI side
                 var mtinfo = response.data;
 
-                this.GLOBAL_USER_WRITEABLE = !mtinfo.kibana_index_readonly;
+                this.GLOBAL_USER_WRITEABLE = (!mtinfo.kibana_index_readonly && ! this.userHasDashboardOnlyRole);
 
                 if(!mtinfo.kibana_mt_enabled) {
                     this.errorMessage = "It seems that the Multitenancy module is not installed on your Elasticsearch cluster, or it is disabled. Multitenancy will not work, please check your installation.";
@@ -138,14 +160,26 @@ uiModules
                 (response) => {
                     this.tenantLabel = "Active tenant: " + resolveTenantName(response.data, this.username);
                     this.currentTenant = response.data;
-                    //indexPatternsGetProvider.clearCache();
                     // clear lastUrls from nav links to avoid not found errors
                     chrome.getNavLinkById("kibana:visualize").lastSubUrl = chrome.getNavLinkById("kibana:visualize").url;
                     chrome.getNavLinkById("kibana:dashboard").lastSubUrl = chrome.getNavLinkById("kibana:dashboard").url;
                     chrome.getNavLinkById("kibana:discover").lastSubUrl = chrome.getNavLinkById("kibana:discover").url;
                     chrome.getNavLinkById("timelion").lastSubUrl = chrome.getNavLinkById("timelion").url;
+                    // clear last sub urls, but leave our own items intouched. Take safe mutation approach.
+                    var lastSubUrls = [];
+                    for (var i = 0; i < sessionStorage.length; i++) {
+                        var key = sessionStorage.key(i);
+                        if (key.startsWith("lastSubUrl")) {
+                            lastSubUrls.push(key);
+                        }
+                    }
+                    for (var i = 0; i < lastSubUrls.length; i++) {
+                        sessionStorage.removeItem(lastSubUrls[i]);
+                    }
+                    // to be on the safe side for future changes, clear localStorage as well
                     localStorage.clear();
-                    sessionStorage.clear();
+
+                    // redirect to either Visualize or Dashboard depending on user selection.
                     if(redirect) {
                         if (redirect == 'vis') {
                             $window.location.href = chrome.getNavLinkById("kibana:visualize").url;
