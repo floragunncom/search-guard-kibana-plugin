@@ -30,7 +30,7 @@
         <div class="container">
             <div class="row">
 
-                <form name="objectForm" id="object-form" method="post" ng-submit="saveObject($event)" novalidate style="width:70%">
+                <form sgc-form-focus-added-field name="objectForm" id="object-form" method="post" ng-submit="saveObject($event)" novalidate style="width:70%">
 
                     <sgc-error-message></sgc-error-message>
 
@@ -181,7 +181,7 @@
                                 <tbody>
                                 <tr class="kuiTableRow">
                                     <td class="kuiTableRowCell cellAlignTop" >
-                                        <fieldset class="marginbottom--small" id="object-form-index">
+                                        <fieldset class="marginbottom--small" id="object-form-index" sgc-form-focus-field focus-when="addingIndex === true">
                                             <ui-select ng-model="newIndexName"
                                                        on-select="onSelectedNewIndexName({item: $item})">
                                                 <ui-select-match placeholder="Index name">
@@ -472,7 +472,7 @@
 
                         <div class="formsubmit">
                             <button ng-if="!addingIndex" ng-disabled="!endpointAndMethodEnabled('ROLES', 'PUT') || resource.readonly"  class="kuiButton kuiButton--primary kuiButton--text" type="submit">Save Role Definition</button>
-                            <button ng-if="!addingIndex" class="kuiButton kuiButton--basic kuiButton--text" type="submit" ng-click="cancel()">Cancel</button>
+                            <button ng-if="!addingIndex" class="kuiButton kuiButton--basic kuiButton--text" type="button" ng-click="cancel()">Cancel</button>
                         </div>
                     </div>
                 </form>
