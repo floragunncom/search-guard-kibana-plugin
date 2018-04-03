@@ -1,0 +1,48 @@
+.sg-isReadOnly {
+
+  /**
+   * For Dashboard
+   */
+  &[sg_path="_dashboards"] {
+
+    // The add dashboard button
+    // A bit redundant, should be covered through the hideWriteControls
+    [data-test-subj="newDashboardLink"] {
+      display: none;
+    }
+  }
+
+  /**
+   * For Visualize
+   */
+  &[sg_path^="_visualize"] {
+
+    // The navigation links in the top right hand corner
+    [data-test-subj="visualizeSaveButton"],
+    [data-test-subj="topNavReportingLink"],
+    [data-test-subj="visualizeShareButton"],
+    [data-test-subj="visualizeRefreshButton"] {
+      display: none;
+    }
+
+
+  }
+
+  /**
+   * For Discover
+   */
+  &[sg_path^="_discover"] {
+
+    // The navigation links in the top right hand corner
+    [data-test-subj="discoverNewButton"],
+    [data-test-subj="discoverSaveButton"],
+    [data-test-subj="discoverOpenButton"],
+    [data-test-subj="topNavReportingLink"],
+    [data-test-subj="discoverShareButton"] {
+      display: none;
+    }
+
+  }
+
+
+}

@@ -8,5 +8,6 @@ import './permissions/permissions';
 import './fileupload/fileupload';
 import './header/header';
 import './errormessage/errormessage';
-//import './deletemodal/deletemodal';
 import './confirmationmodal/confirmationmodal';
+import './form_focusfield/form_focusaddedfield';
+import './form_focusfield/form_focusfield';
