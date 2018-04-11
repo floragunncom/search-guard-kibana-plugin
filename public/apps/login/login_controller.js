@@ -17,6 +17,7 @@
 import chrome from 'ui/chrome';
 import {parse} from 'url';
 import _ from 'lodash';
+import {getNextUrl} from './get_next_url';
 
 export default function LoginController(kbnUrl, $scope, $http, $window) {
 
@@ -84,30 +85,4 @@ export default function LoginController(kbnUrl, $scope, $http, $window) {
             }
         );
     };
-
-    this.getNextUrl = function() {
-
-        const {query, hash} = parse($window.location.href, true);
-
-        // no nexturl in query, redirect to basepath
-        if (!query.nextUrl) {
-            return `${basePath}/`;
-        }
-
-        // check next url is valid and does not redirect to a malicious site.
-
-        // check forgery of protocol, hostname, port, pathname
-        const { protocol, hostname, port, pathname } = parse(query.next);
-        if (protocol || hostname || port) {
-            return `${basePath}/`;
-        }
-
-        // check we only redirect to our own base path
-        if (!String(pathname).startsWith(basePath)) {
-            return `${basePath}/`;
-        }
-
-        // next url valid, append hash if any
-        return query.next + (hash || '');
-    }
 };
