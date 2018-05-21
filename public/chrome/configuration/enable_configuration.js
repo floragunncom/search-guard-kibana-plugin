@@ -39,9 +39,15 @@ app.factory('errorInterceptor', function ($q, $window) {
                     return $q.reject(response);
                 }
 
-                let nextUrl = path + $window.location.hash + $window.location.search;
-
-                $window.location.href = `${APP_ROOT}/login?nextUrl=${encodeURIComponent(nextUrl)}`;
+                let auth = chrome.getInjected('auth');
+                if (auth && auth.type && auth.type === 'jwt') {
+                    // For JWT, we don't have a login page, so we need to go to the custom error page
+                    $window.location.href = `${APP_ROOT}/customerror?type=sessionExpired`;
+                } else {
+                    let nextUrl = path + $window.location.hash + $window.location.search;
+                    // @todo The url for openId
+                    $window.location.href = `${APP_ROOT}/login?nextUrl=${encodeURIComponent(nextUrl)}`;
+                }
             }
 
             // If unhandled, we just pass the error on to the next handler.

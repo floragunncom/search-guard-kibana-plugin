@@ -91,8 +91,14 @@ export default function (kibana) {
                     main: 'plugins/searchguard/apps/login/login',
                     hidden: true,
                     auth: false
-                }
-                ,
+                },
+                {
+                    id: 'searchguard-customerror',
+                    title: 'CustomError',
+                    main: 'plugins/searchguard/apps/customerror/customerror',
+                    hidden: true,
+                    auth: false
+                },
                 {
                     id: 'searchguard-multitenancy',
                     title: 'Tenants',

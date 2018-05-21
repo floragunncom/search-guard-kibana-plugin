@@ -1,0 +1,10 @@
+<div class="container login-wrapper" style='{{ui.showbrandimage? "" : "top:30%"}}'>
+
+  <div class="text-center brand-image-container" ng-show="ui.showbrandimage">
+    <img class="brand-image" src="{{ui.brandimage}}" width="300">
+  </div>
+
+  <p class="login-title" ng-show="ui.title != ''">{{ui.title}}</p>
+  <p class="login-subtitle" ng-show="ui.ubtitle != ''">{{ui.subtitle}}</p>
+
+</div>
