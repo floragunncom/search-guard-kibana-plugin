@@ -32,6 +32,10 @@ export default function (kibana) {
                     ttl: Joi.number().integer().min(0).default(60 * 60 * 1000),
                     keepalive: Joi.boolean().default(true),
                 }).default(),
+                auth: Joi.object().keys({
+                    type: Joi.string().valid(['', 'basicauth', 'jwt', 'openid']).default(''),
+                    unauthenticated_routes: Joi.array().default(["/api/status"]),
+                }),
                 basicauth: Joi.object().keys({
                     enabled: Joi.boolean().default(true),
                     unauthenticated_routes: Joi.array().default(["/api/status"]),
@@ -56,6 +60,12 @@ export default function (kibana) {
                 }).default(),
                 configuration: Joi.object().keys({
                     enabled: Joi.boolean().default(true)
+                }).default(),
+                openid: Joi.object().keys({
+                    connect_url: Joi.string(),
+                    header: Joi.string().default('Authorization'),
+                    client_id: Joi.string(),
+                    base_redirect_url: Joi.string()
                 }).default(),
                 jwt: Joi.object().keys({
                     enabled: Joi.boolean().default(false),
@@ -141,10 +151,29 @@ export default function (kibana) {
 
             server.register([require('hapi-async-handler')]);
 
-            if(config.get('searchguard.basicauth.enabled')) {
+            let authType = config.get('searchguard.auth.type');
+
+            // For legacy code
+            if (! authType) {
+                if (config.get('searchguard.basicauth.enabled')) {
+                    authType = 'basicauth';
+                } else if(config.get('searchguard.jwt.enabled')) {
+                    authType = 'jwt';
+                }
+            }
+
+            if (authType && authType !== '' && ['basicauth', 'jwt', 'openid'].indexOf(authType) > -1) {
+                server.state('searchguard_storage', {
+                    path: '/',
+                    ttl: null, // Cookie deleted when the browser is closed
+                    password: config.get('searchguard.cookie.password'),
+                    encoding: 'iron',
+                    isSecure: config.get('searchguard.cookie.secure'),
+                    isSameSite: 'Strict', // @todo What is this?
+                });
+
                 server.register([
                     require('hapi-auth-cookie'),
-                    require('hapi-authorization')
                 ], (error) => {
 
                     if (error) {
@@ -155,30 +184,49 @@ export default function (kibana) {
 
                     this.status.yellow('Initialising Search Guard authentication plugin.');
 
-                    if(config.get("searchguard.cookie.password") == 'searchguard_cookie_default_password') {
+                    if (config.get("searchguard.cookie.password") == 'searchguard_cookie_default_password') {
                         this.status.yellow("Default cookie password detected, please set a password in kibana.yml by setting 'searchguard.cookie.password' (min. 32 characters).");
                     }
 
-                    if(!config.get("searchguard.cookie.secure")) {
+                    if (!config.get("searchguard.cookie.secure")) {
                         this.status.yellow("'searchguard.cookie.secure' is set to false, cookies are transmitted over unsecure HTTP connection. Consider using HTTPS and set this key to 'true'");
                     }
 
-                    // we use the cookie strategy
-                    require('./lib/hapi/auth')(pluginRoot, server, APP_ROOT, API_ROOT);
+                    if (authType == 'openid') {
+                        let OpenId = require('./lib/auth/types/openid/OpenId');
+                        const authType = new OpenId(pluginRoot, server, this, APP_ROOT, API_ROOT);
+                        authType.init();
 
-                    // all your routes are belong to us
-                    require('./lib/auth/routes')(pluginRoot, server, this, APP_ROOT, API_ROOT);
+                    } else if (authType == 'basicauth') {
+                        let BasicAuth = require('./lib/auth/types/basicauth/BasicAuth');
+                        const authType = new BasicAuth(pluginRoot, server, this, APP_ROOT, API_ROOT);
+                        authType.init();
+                    } else if (authType == 'jwt') {
+                        let Jwt = require('./lib/auth/types/jwt/Jwt');
+                        const authType = new Jwt(pluginRoot, server, this, APP_ROOT, API_ROOT);
+                        authType.init();
+                        this.status.yellow("Search Guard copy JWT params registered. This is an Enterprise feature.");
+                    }
 
                     this.status.yellow('Search Guard session management enabled.');
 
                 });
 
             } else {
-                this.status.yellow('Search Guard session management is disabled.');
+                // Register the storage plugin for the other auth types
+                server.register({
+                    register: pluginRoot('lib/session/sessionPlugin'),
+                    options: {
+                        authType: null,
+                    }
+                })
             }
 
+            if (authType != 'jwt') {
+                this.status.yellow("Search Guard copy JWT params disabled");
+            }
 
-            if(config.get('searchguard.multitenancy.enabled')) {
+            if (config.get('searchguard.multitenancy.enabled')) {
 
                 // sanity check - header whitelisted?
                 var headersWhitelist = config.get('elasticsearch.requestHeadersWhitelist');
@@ -217,27 +265,8 @@ export default function (kibana) {
                 this.status.yellow("Search Guard multitenancy disabled");
             }
 
-            if(config.get('searchguard.jwt.enabled')) {
 
-                require('./lib/jwt/headers')(pluginRoot, server, this, APP_ROOT, API_ROOT);
-
-                server.state('searchguard_jwt', {
-                    ttl: null,
-                    path: '/',
-                    isSecure: false,
-                    isHttpOnly: false,
-                    clearInvalid: true, // remove invalid cookies
-                    strictHeader: true, // don't allow violations of RFC 6265
-                    encoding: 'iron',
-                    password: config.get("searchguard.cookie.password")
-                });
-
-                this.status.yellow("Search Guard copy JWT params registered. This is an Enterprise feature.");
-            } else {
-                this.status.yellow("Search Guard copy JWT params disabled");
-            }
-
-            if(config.get('searchguard.configuration.enabled')) {
+            if (config.get('searchguard.configuration.enabled')) {
                 require('./lib/configuration/routes/routes')(pluginRoot, server, APP_ROOT, API_ROOT);
                 this.status.yellow("Routes for Search Guard configuration GUI registered. This is an Enterprise feature.");
             } else {
