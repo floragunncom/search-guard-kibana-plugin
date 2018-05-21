@@ -24,6 +24,10 @@ uiModules
   const APP_ROOT = `${chrome.getBasePath()}`;
   const API_ROOT = `${APP_ROOT}/api/v1/auth`;
 
+  const authConfig = chrome.getInjected('auth');
+  const authType = authConfig.type || null;
+
+
   const notify = createNotifier({
     location: 'Search Guard Access Control'
   });
@@ -34,9 +38,14 @@ uiModules
         $http.post(`${API_ROOT}/logout`)
         .then(
           () => {
+              // @todo NEW LOGOUT
             localStorage.clear();
             sessionStorage.clear();
-            $window.location.href = `${APP_ROOT}/login`;
+            if (authType && authType == 'openid') {
+                $window.location.href = `${APP_ROOT}/auth/openid/logout`;
+            } else {
+                $window.location.href = `${APP_ROOT}/login`;
+            }
           },
           (error) => notify.error(error)
         );
