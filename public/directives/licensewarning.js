@@ -22,6 +22,14 @@ app.directive('sgLicenseWarning', function (systemstate) {
 
             systemstate.loadSystemInfo().then(function(){
 
+                if (!systemstate.stateLoaded()) {
+                    $scope.message = "The Search Guard license information could not be loaded. Please contact your system administrator.";
+                    $scope.licensevalid = false;
+                    $scope.$apply('message');
+                    return;
+                }
+
+
                 if (!systemstate.licenseRequired()) {
                     $scope.licensevalid = true;
                     return;
