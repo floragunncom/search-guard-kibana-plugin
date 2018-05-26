@@ -1,6 +1,7 @@
 import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules';
 import { get } from 'lodash';
+import { isEmpty } from 'lodash';
 
 /**
  * Role mappings API client service.
@@ -13,9 +14,14 @@ uiModules.get('apps/searchguard/configuration', [])
         const API_ROOT = `${APP_ROOT}/api/v1`;
         const emptyPromise = new Promise(function(resolve, reject) {});
 
+        this.stateLoaded = () => {
+            return !isEmpty(this.getSystemInfo());
+        }
+
+
         this.licenseRequired = () => {
             // no license for community edition required
-            return get(this.getSystemInfo(), 'sg_license.license_required', true);
+            return get(this.getSystemInfo(), 'sg_license.license_required', false);
         }
 
         this.licenseValid = () => {

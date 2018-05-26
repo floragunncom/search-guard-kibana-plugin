@@ -177,6 +177,25 @@ export default function (kibana) {
                 this.status.yellow('Search Guard session management is disabled.');
             }
 
+            if(config.get('searchguard.jwt.enabled')) {
+
+                require('./lib/jwt/headers')(pluginRoot, server, this, APP_ROOT, API_ROOT);
+
+                server.state('searchguard_jwt', {
+                    ttl: null,
+                    path: '/',
+                    isSecure: false,
+                    isHttpOnly: false,
+                    clearInvalid: true, // remove invalid cookies
+                    strictHeader: true, // don't allow violations of RFC 6265
+                    encoding: 'iron',
+                    password: config.get("searchguard.cookie.password")
+                });
+
+                this.status.yellow("Search Guard copy JWT params registered. This is an Enterprise feature.");
+            } else {
+                this.status.yellow("Search Guard copy JWT params disabled");
+            }
 
             if(config.get('searchguard.multitenancy.enabled')) {
 
@@ -215,26 +234,6 @@ export default function (kibana) {
                 this.status.yellow("Search Guard multitenancy registered. This is an Enterprise feature.");
             } else {
                 this.status.yellow("Search Guard multitenancy disabled");
-            }
-
-            if(config.get('searchguard.jwt.enabled')) {
-
-                require('./lib/jwt/headers')(pluginRoot, server, this, APP_ROOT, API_ROOT);
-
-                server.state('searchguard_jwt', {
-                    ttl: null,
-                    path: '/',
-                    isSecure: false,
-                    isHttpOnly: false,
-                    clearInvalid: true, // remove invalid cookies
-                    strictHeader: true, // don't allow violations of RFC 6265
-                    encoding: 'iron',
-                    password: config.get("searchguard.cookie.password")
-                });
-
-                this.status.yellow("Search Guard copy JWT params registered. This is an Enterprise feature.");
-            } else {
-                this.status.yellow("Search Guard copy JWT params disabled");
             }
 
             if(config.get('searchguard.configuration.enabled')) {
