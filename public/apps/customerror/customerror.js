@@ -19,7 +19,7 @@ import 'ui/autoload/styles';
 /**
  * Reusing the login styles
  */
-import 'plugins/searchguard/apps/login/login.less';
+import 'plugins/searchguard/apps/customerror/customerror.less';
 import PageController from './page_controller';
 
 chrome
