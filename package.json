@@ -21,7 +21,7 @@
     "joi": "^6.6.1",
     "js-yaml": "^3.7.0",
     "requirefrom": "^0.2.0",
-    "wreck": "^14.0.2"
+    "wreck": "10.x.x"
   },
   "devDependencies": {
     "ui-select": "^0.19.8"
