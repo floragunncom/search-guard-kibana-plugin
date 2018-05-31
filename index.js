@@ -66,6 +66,12 @@ export default function (kibana) {
                     header: Joi.string().default('Authorization'),
                     client_id: Joi.string(),
                     base_redirect_url: Joi.string()
+                }).when('auth.type', {
+                    is: 'openid',
+                    then: Joi.object({
+                        client_id: Joi.required(),
+                        connect_url: Joi.required()
+                    })
                 }).default(),
                 jwt: Joi.object().keys({
                     enabled: Joi.boolean().default(false),
