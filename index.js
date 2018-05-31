@@ -35,7 +35,7 @@ export default function (kibana) {
                 auth: Joi.object().keys({
                     type: Joi.string().valid(['', 'basicauth', 'jwt', 'openid']).default(''),
                     unauthenticated_routes: Joi.array().default(["/api/status"]),
-                }),
+                }).default(),
                 basicauth: Joi.object().keys({
                     enabled: Joi.boolean().default(true),
                     unauthenticated_routes: Joi.array().default(["/api/status"]),
