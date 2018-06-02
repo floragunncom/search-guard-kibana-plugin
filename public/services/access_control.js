@@ -41,7 +41,11 @@ uiModules
             localStorage.clear();
             sessionStorage.clear();
             if (authType && authType == 'openid') {
-                $window.location.href = response.data.redirectURL;
+                if (response.data.redirectURL) {
+                    $window.location.href = response.data.redirectURL;
+                } else {
+                    $window.location.href = `${APP_ROOT}/customerror`;
+                }
             } else {
                 $window.location.href = `${APP_ROOT}/login`;
             }

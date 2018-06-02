@@ -67,7 +67,8 @@ export default function (kibana) {
                     client_id: Joi.string(),
                     client_secret: Joi.string().allow('').default(''),
                     scope: Joi.string().default('openid profile email address phone'),
-                    base_redirect_url: Joi.string()
+                    base_redirect_url: Joi.string(),
+                    logout_url: Joi.string().allow('').default('')
                 }).when('auth.type', {
                     is: 'openid',
                     then: Joi.object({
