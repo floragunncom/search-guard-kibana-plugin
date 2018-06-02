@@ -37,12 +37,11 @@ uiModules
     logout() {
         $http.post(`${API_ROOT}/logout`)
         .then(
-          () => {
-              // @todo NEW LOGOUT
+          (response) => {
             localStorage.clear();
             sessionStorage.clear();
             if (authType && authType == 'openid') {
-                $window.location.href = `${APP_ROOT}/auth/openid/logout`;
+                $window.location.href = response.data.redirectURL;
             } else {
                 $window.location.href = `${APP_ROOT}/login`;
             }
