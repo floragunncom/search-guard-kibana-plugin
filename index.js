@@ -65,6 +65,7 @@ export default function (kibana) {
                     connect_url: Joi.string(),
                     header: Joi.string().default('Authorization'),
                     client_id: Joi.string(),
+                    client_secret: Joi.string().allow('').default(''),
                     scope: Joi.string().default('openid profile email address phone'),
                     base_redirect_url: Joi.string()
                 }).when('auth.type', {
