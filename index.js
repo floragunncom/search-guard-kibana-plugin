@@ -175,6 +175,11 @@ export default function (kibana) {
                 } else if(config.get('searchguard.jwt.enabled')) {
                     authType = 'jwt';
                 }
+
+                // Dynamically update the auth.type to make it available to the frontend
+                if (authType) {
+                    config.set('searchguard.auth.type', authType);
+                }
             }
 
             if (authType && authType !== '' && ['basicauth', 'jwt', 'openid'].indexOf(authType) > -1) {
