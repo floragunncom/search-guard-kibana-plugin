@@ -269,17 +269,6 @@ export default function (kibana) {
                     password: config.get("searchguard.cookie.password")
                 });
 
-                server.state('searchguard_tenant', {
-                    ttl: null,
-                    path: '/',
-                    isSecure: false,
-                    isHttpOnly: false,
-                    clearInvalid: true, // remove invalid cookies
-                    strictHeader: true, // don't allow violations of RFC 6265
-                    encoding: 'iron',
-                    password: config.get("searchguard.cookie.password")
-                });
-
                 this.status.yellow("Search Guard multitenancy registered. This is an Enterprise feature.");
             } else {
                 this.status.yellow("Search Guard multitenancy disabled");
