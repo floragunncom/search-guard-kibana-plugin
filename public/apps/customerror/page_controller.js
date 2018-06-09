@@ -21,6 +21,11 @@ export default function PageController() {
 
     const ROOT = chrome.getBasePath();
     const BRANDIMAGE = chrome.getInjected("basicauth.login.brandimage");
+    
+    this.buttonHref = ROOT + '/app/kibana';
+    
+    // Button styles, same as the basic auth login styles
+    this.buttonstyle = chrome.getInjected("basicauth.login.buttonstyle");
 
     // if session was not terminated by logout, clear any remaining
     // stored paths etc. from previous users, to avoid issues
