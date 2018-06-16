@@ -1,3 +1,4 @@
+import { toastNotifications } from 'ui/notify';
 import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules'
 import { get } from 'lodash';
@@ -427,10 +428,15 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
             .then(
             (response) => {
                 if (!response.data.valid) {
-                    notify.error(response.data.error);
+                    toastNotifications.addDanger({
+                        title: "DLS query syntax not valid.",
+                        text: response.data.error
+                    });
                 } else {
                     $scope.errorMessage = "";
-                    notify.info("DLS query syntax valid.");
+                    toastNotifications.addSuccess({
+                        title: "DLS query syntax valid."
+                    });
                 }
             },
             (error) => {

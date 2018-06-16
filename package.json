@@ -1,9 +1,9 @@
 {
   "name": "searchguard",
-  "version": "6.2.4",
+  "version": "6.3.0-13",
   "description": "Search Guard features for kibana",
   "main": "index.js",
-  "homepage": "https://floragunn.com",
+  "homepage": "https://search-guard.com",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
