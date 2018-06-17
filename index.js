@@ -1,5 +1,6 @@
 const pluginRoot = require('requirefrom')('');
 import { resolve, join, sep } from 'path';
+import { has } from 'lodash';
 import indexTemplate from './lib/elasticsearch/setup_index_template';
 
 export default function (kibana) {
@@ -83,6 +84,20 @@ export default function (kibana) {
                 }).default()
             }).default();
             return obj;
+        },
+
+        deprecations: function () {
+            return [
+                (settings, log) => {
+                    if (has(settings, 'basicauth.enabled')) {
+                        log('Config key "searchguard.basicauth.enabled" is deprecated. Please use "searchguard.auth.type" instead.');
+                    }
+
+                    if (has(settings, 'jwt.enabled')) {
+                        log('Config key "searchguard.jwt.enabled" is deprecated. Please use "searchguard.auth.type" instead.');
+                    }
+                }
+            ];
         },
 
         uiExports: {
