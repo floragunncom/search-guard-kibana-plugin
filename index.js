@@ -197,15 +197,17 @@ export default function (kibana) {
                 }
             }
 
+            // Set up the storage cookie
+            server.state('searchguard_storage', {
+                path: '/',
+                ttl: null, // Cookie deleted when the browser is closed
+                password: config.get('searchguard.cookie.password'),
+                encoding: 'iron',
+                isSecure: config.get('searchguard.cookie.secure'),
+                isSameSite: 'Strict',
+            });
+
             if (authType && authType !== '' && ['basicauth', 'jwt', 'openid'].indexOf(authType) > -1) {
-                server.state('searchguard_storage', {
-                    path: '/',
-                    ttl: null, // Cookie deleted when the browser is closed
-                    password: config.get('searchguard.cookie.password'),
-                    encoding: 'iron',
-                    isSecure: config.get('searchguard.cookie.secure'),
-                    isSameSite: 'Strict', // @todo What is this?
-                });
 
                 server.register([
                     require('hapi-auth-cookie'),
