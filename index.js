@@ -70,13 +70,13 @@ export default function (kibana) {
                     scope: Joi.string().default('openid profile email address phone'),
                     base_redirect_url: Joi.string().allow('').default(''),
                     logout_url: Joi.string().allow('').default('')
-                }).when('auth.type', {
+                }).default().when('auth.type', {
                     is: 'openid',
                     then: Joi.object({
                         client_id: Joi.required(),
                         connect_url: Joi.required()
                     })
-                }).default(),
+                }),
                 jwt: Joi.object().keys({
                     enabled: Joi.boolean().default(false),
                     url_param: Joi.string().default('authorization'),
