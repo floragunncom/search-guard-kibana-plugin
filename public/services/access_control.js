@@ -40,7 +40,7 @@ uiModules
           (response) => {
             localStorage.clear();
             sessionStorage.clear();
-            if (authType && authType == 'openid') {
+            if (authType && ['openid', 'saml'].indexOf(authType) > -1) {
                 if (response.data.redirectURL) {
                     $window.location.href = response.data.redirectURL;
                 } else {

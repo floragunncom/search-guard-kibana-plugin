@@ -34,7 +34,7 @@ export default function (kibana) {
                     keepalive: Joi.boolean().default(true),
                 }).default(),
                 auth: Joi.object().keys({
-                    type: Joi.string().valid(['', 'basicauth', 'jwt', 'openid']).default(''),
+                    type: Joi.string().valid(['', 'basicauth', 'jwt', 'openid', 'saml']).default(''),
                     unauthenticated_routes: Joi.array().default(["/api/status"]),
                 }).default(),
                 basicauth: Joi.object().keys({
@@ -207,7 +207,7 @@ export default function (kibana) {
                 isSameSite: 'Strict',
             });
 
-            if (authType && authType !== '' && ['basicauth', 'jwt', 'openid'].indexOf(authType) > -1) {
+            if (authType && authType !== '' && ['basicauth', 'jwt', 'openid', 'saml'].indexOf(authType) > -1) {
 
                 server.register([
                     require('hapi-auth-cookie'),
@@ -243,6 +243,10 @@ export default function (kibana) {
                         const authType = new Jwt(pluginRoot, server, this, APP_ROOT, API_ROOT);
                         authType.init();
                         this.status.yellow("Search Guard copy JWT params registered. This is an Enterprise feature.");
+                    } else if (authType == 'saml') {
+                        let Saml = require('./lib/auth/types/saml/Saml');
+                        const authType = new Saml(pluginRoot, server, this, APP_ROOT, API_ROOT);
+                        authType.init();
                     }
 
                     this.status.yellow('Search Guard session management enabled.');
