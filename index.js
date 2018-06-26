@@ -34,7 +34,7 @@ export default function (kibana) {
                     keepalive: Joi.boolean().default(true),
                 }).default(),
                 auth: Joi.object().keys({
-                    type: Joi.string().valid(['', 'basicauth', 'jwt', 'openid', 'saml']).default(''),
+                    type: Joi.string().valid(['', 'basicauth', 'jwt', 'openid', 'saml', 'proxy', 'kerberos']).default(''),
                     unauthenticated_routes: Joi.array().default(["/api/status"]),
                 }).default(),
                 basicauth: Joi.object().keys({
@@ -230,6 +230,7 @@ export default function (kibana) {
                     }
 
                     if (authType == 'openid') {
+
                         let OpenId = require('./lib/auth/types/openid/OpenId');
                         const authType = new OpenId(pluginRoot, server, this, APP_ROOT, API_ROOT);
                         authType.init();
