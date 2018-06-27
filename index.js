@@ -204,7 +204,6 @@ export default function (kibana) {
                 password: config.get('searchguard.cookie.password'),
                 encoding: 'iron',
                 isSecure: config.get('searchguard.cookie.secure'),
-                isSameSite: 'Strict',
             });
 
             if (authType && authType !== '' && ['basicauth', 'jwt', 'openid', 'saml'].indexOf(authType) > -1) {
