@@ -15,13 +15,14 @@
  */
 
 import chrome from 'ui/chrome';
+import {messageTypes} from "./errormessage_types";
 
 
 export default function PageController() {
 
     const ROOT = chrome.getBasePath();
     const BRANDIMAGE = chrome.getInjected("basicauth.login.brandimage");
-    
+
     this.buttonHref = ROOT + '/app/kibana';
     
     // Button styles, same as the basic auth login styles
@@ -33,29 +34,28 @@ export default function PageController() {
     localStorage.clear();
     sessionStorage.clear();
 
-    this.title = null;
+    let type = null;
 
-    const queryParamString = location.search;
+    // Strip the first ? from the query parameters, if we have any
+    let queryString = location.search.trim().replace(/^(\?)/, '');
 
-    if (queryParamString) {
-        if (queryParamString.indexOf('type=missingTenant') > -1) {
-            this.title = 'Missing Tenant';
-            this.subtitle = 'No tenant available for this user, please contact your system administrator.';
-        } else if (queryParamString.indexOf('type=sessionExpired') > -1) {
-            this.title = 'Session Expired';
-            this.subtitle = 'Please provide a new token.';
-        } else if (queryParamString.indexOf('type=authError') > -1) {
-            this.title = 'Authentication failed';
-            this.subtitle = 'Please provide a new token.';
-        }
+    if (queryString) {
+        queryString.split('&')
+            .map((parameter) => {
+                let parameterParts = parameter.split('=');
+                if (parameterParts[0].toLowerCase() === 'type') {
+                    type = parameterParts[1];
+                }
+            })
+    };
+
+    if (! type || ! messageTypes[type]) {
+        this.title = messageTypes['default'].title;
+        this.subtitle = messageTypes['default'].subtitle;
+    } else {
+        this.title = messageTypes[type].title;
+        this.subtitle = messageTypes[type].subtitle;
     }
-
-    // Default to logged out
-    if (this.title == null) {
-        this.title = 'Logged out';
-        this.subtitle = 'Please login with a new token.'
-    }
-
 
     // Custom styling
     this.showbrandimage = chrome.getInjected("basicauth.login.showbrandimage");
