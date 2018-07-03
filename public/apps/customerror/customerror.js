@@ -1,5 +1,5 @@
 /**
- *    Copyright 2016 floragunn GmbH
+ *    Copyright 2018 floragunn GmbH
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -14,14 +14,15 @@
  limitations under the License.
  */
 
-import { chromeNavControlsRegistry } from 'ui/registry/chrome_nav_controls';
-import { uiModules } from 'ui/modules';
 import chrome from 'ui/chrome';
+import 'ui/autoload/styles';
+/**
+ * Reusing the login styles
+ */
+import 'plugins/searchguard/apps/customerror/customerror.less';
+import PageController from './page_controller';
 
-if (chrome.getInjected('auth.type')) {
- chromeNavControlsRegistry.register(() => ({
-  name: 'btn-logout',
-  template: require('plugins/searchguard/chrome/btn_logout/btn_logout.html'),
-  order: 1000
- }));
-}
+chrome
+.setVisible(false)
+.setRootTemplate(require('plugins/searchguard/apps/customerror/customerror.html'))
+.setRootController('ui', PageController);

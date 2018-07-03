@@ -1,6 +1,6 @@
 {
   "name": "searchguard",
-  "version": "6.1.4",
+  "version": "6.1.4-14-SNAPSHOT",
   "description": "Search Guard features for kibana",
   "main": "index.js",
   "homepage": "https://floragunn.com",
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@elastic/kibana-ui-framework": "0.0.11",
+    "bell": "^8.8.0",
     "boom": "^3.2.2",
     "cookie": "^0.3.1",
     "hapi": "^16.0.1",
@@ -19,7 +20,8 @@
     "hapi-authorization": "^3.0.2",
     "joi": "^6.6.1",
     "js-yaml": "^3.7.0",
-    "requirefrom": "^0.2.0"
+    "requirefrom": "^0.2.0",
+    "wreck": "10.x.x"
   },
   "devDependencies": {
     "ui-select": "^0.19.8"
