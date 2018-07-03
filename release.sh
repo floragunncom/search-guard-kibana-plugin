@@ -6,12 +6,12 @@ cd $DIR
 while read -r line
 do
     if [[ "$line" =~ ^\"version\".* ]]; then
-      if [[ "$line" != "\"version\": \"$1\"," ]]; then
-        echo "Provided version \"version\": \"$1\" does not match Kibana version: $line"
+      if [[ "$line" != "\"version\": \"$1-$2\"," ]]; then
+        echo "Provided version \"version\": \"$1-$2\" does not match Kibana version: $line"
         exit 1;
       fi
     fi
 done < "package.json"
 ./clean.sh
-./build.sh "$1"
-mvn clean deploy -Prelease
+./build.sh "$1" "$2"
+mvn clean release -Prelease
