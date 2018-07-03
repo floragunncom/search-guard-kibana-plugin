@@ -1,7 +1,8 @@
 #!/bin/bash
-PLUGIN_NAME=searchguard-kibana
 KIBANA_VERSION="$1"
-echo "Building $PLUGIN_NAME-$KIBANA_VERSION.zip"
+PLUGIN_VERSION="$1"
+PLUGIN_NAME="searchguard-kibana-$1-$2"
+echo "Building $PLUGIN_NAME.zip"
 set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$DIR"
@@ -25,13 +26,3 @@ cp -a "$DIR/package.json" "$COPYPATH"
 cp -a "$DIR/lib" "$COPYPATH"
 cp -a "$DIR/node_modules" "$COPYPATH"
 cp -a "$DIR/public" "$COPYPATH"
-
-#cd build
-#zip --quiet -r $PLUGIN_NAME-$PLUGIN_VERSION.zip kibana
-#ls -lah $PLUGIN_NAME-$PLUGIN_VERSION.zip
-#cd $DIR
-#mkdir -p releases/$PLUGIN_VERSION/
-#rm -f releases/$PLUGIN_VERSION/$PLUGIN_NAME-$PLUGIN_VERSION.zip
-#cp build/$PLUGIN_NAME-$PLUGIN_VERSION.zip releases/$PLUGIN_VERSION/
-#echo "Created releases/$PLUGIN_VERSION/$PLUGIN_NAME-$PLUGIN_VERSION.zip"
-#md5sum build/$PLUGIN_NAME-$PLUGIN_VERSION.zip

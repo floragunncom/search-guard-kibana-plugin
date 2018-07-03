@@ -19,7 +19,7 @@
   <groupId>com.floragunn</groupId>
   <artifactId>search-guard-kibana-plugin</artifactId>
   <packaging>pom</packaging>
-  <version>6.1.2-12</version>
+  <version>6.1.2-14-SNAPSHOT</version>
   <name>Search Guard Kibana Plugin</name>
   <description>Search Guard Kibana Plugin for Elasticsearch 6</description>
   <url>https://github.com/floragunncom/search-guard</url>
