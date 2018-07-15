@@ -206,7 +206,7 @@ export default function (kibana) {
                 isSecure: config.get('searchguard.cookie.secure'),
             });
 
-            if (authType && authType !== '' && ['basicauth', 'jwt', 'openid', 'saml'].indexOf(authType) > -1) {
+            if (authType && authType !== '' && ['basicauth', 'jwt', 'openid', 'saml', 'kerberos'].indexOf(authType) > -1) {
 
                 server.register([
                     require('hapi-auth-cookie'),
@@ -246,6 +246,10 @@ export default function (kibana) {
                     } else if (authType == 'saml') {
                         let Saml = require('./lib/auth/types/saml/Saml');
                         const authType = new Saml(pluginRoot, server, this, APP_ROOT, API_ROOT);
+                        authType.init();
+                    } else if (authType == 'kerberos') {
+                        let Kerberos = require('./lib/auth/types/kerberos/Kerberos');
+                        const authType = new Kerberos(pluginRoot, server, this, APP_ROOT, API_ROOT);
                         authType.init();
                     }
 
