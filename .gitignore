@@ -1,7 +1,6 @@
 /package-lock.json
 build_stage/
 target/
-/package.json
 /releases
 build/
 test/
