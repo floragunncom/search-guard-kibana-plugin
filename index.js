@@ -228,7 +228,7 @@ export default function (kibana) {
                         this.status.yellow("'searchguard.cookie.secure' is set to false, cookies are transmitted over unsecure HTTP connection. Consider using HTTPS and set this key to 'true'");
                     }
 
-                    if (authType == 'openid') {
+                    if (authType === 'openid') {
 
                         let OpenId = require('./lib/auth/types/openid/OpenId');
                         const authType = new OpenId(pluginRoot, server, this, APP_ROOT, API_ROOT);
