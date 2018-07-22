@@ -166,6 +166,25 @@ export default function (kibana) {
             API_ROOT = `${APP_ROOT}/api/v1`;
             const config = server.config();
 
+            // If X-Pack is installed it needs to be disabled for Search Guard to run.
+            try {
+                let xpackInstalled = false;
+                Object.keys(server.plugins).forEach((plugin) => {
+                    if (plugin.toLowerCase().indexOf('xpack') > -1) {
+                        xpackInstalled = true;
+                    }
+                });
+
+                if (xpackInstalled && config.get('xpack.security.enabled') !== false) {
+                    // It seems like X-Pack is installed and enabled, so we show an error message and then exit.
+                    this.status.red("X-Pack Security needs to be disabled for Search Guard to work properly. Please set 'xpack.security.enabled' to false in your kibana.yml");
+                    return false;
+                }
+            } catch (error) {
+                server.log(['error', 'searchguard'], `An error occurred while making sure that X-Pack isn't enabled`);
+            }
+
+
             // all your routes are belong to us
             require('./lib/auth/routes_authinfo')(pluginRoot, server, this, APP_ROOT, API_ROOT);
 
