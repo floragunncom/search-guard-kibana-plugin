@@ -79,6 +79,7 @@ export default function (kibana) {
                 }),
                 jwt: Joi.object().keys({
                     enabled: Joi.boolean().default(false),
+                    login_endpoint: Joi.string(),
                     url_param: Joi.string().default('authorization'),
                     header: Joi.string().default('Authorization')
                 }).default()
