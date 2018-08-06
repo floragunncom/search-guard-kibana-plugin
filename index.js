@@ -226,7 +226,7 @@ export default function (kibana) {
                 isSecure: config.get('searchguard.cookie.secure'),
             });
 
-            if (authType && authType !== '' && ['basicauth', 'jwt', 'openid', 'saml', 'kerberos'].indexOf(authType) > -1) {
+            if (authType && authType !== '' && ['basicauth', 'jwt', 'openid', 'saml'].indexOf(authType) > -1) {
 
                 server.register([
                     require('hapi-auth-cookie'),
