@@ -397,6 +397,7 @@ export function enableReadOnly($rootScope, $http, $window, $timeout, $q, $locati
         return;
     }
 
+
     if (!$injector.has('$route')) {
         return;
     }
@@ -429,7 +430,7 @@ export function enableReadOnly($rootScope, $http, $window, $timeout, $q, $locati
     // Set the path on the body element to allow us to hide
     // some of the edit- and write controls with CSS.
     $rootScope.$on('$routeChangeSuccess', function(event, next, current) {
-        if (next.$$route && next.$$route.originalPath) {
+        if (next && next.$$route && next.$$route.originalPath) {
             document.body.setAttribute('sg_path', next.$$route.originalPath.replace(':', '').split('/').join('_'));
 
             if (chrome.getInjected('multitenancy_enabled') && next.locals && next.locals.sg_resolvedInfo) {

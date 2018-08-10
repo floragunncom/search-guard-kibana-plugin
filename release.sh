@@ -14,4 +14,4 @@ do
 done < "package.json"
 ./clean.sh
 ./build.sh "$1" "$2"
-mvn clean release -Prelease
+mvn clean install -Prelease
