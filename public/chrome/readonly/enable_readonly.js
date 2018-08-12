@@ -393,7 +393,7 @@ export function enableReadOnly($rootScope, $http, $window, $timeout, $q, $locati
     const path = chrome.removeBasePath($window.location.pathname);
 
     // don't run on login or logout, we don't have any user on these pages
-    if(path === '/login' || path === '/logout') {
+    if(path === '/login' || path === '/logout' || path === '/customerror') {
         return;
     }
 
