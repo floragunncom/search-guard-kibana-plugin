@@ -35,18 +35,19 @@ app.factory('errorInterceptor', function ($q, $window) {
 
                 // Don't run on login or logout. We shouldn't have any Ajax requests here,
                 // but if other plugins are active, we would get a redirect loop.
-                if(path === '/login' || path === '/logout') {
+                if(path === '/login' || path === '/logout' || path === '/customerror') {
                     return $q.reject(response);
                 }
-                
                 let auth = chrome.getInjected('auth');
-                if (auth && auth.type && auth.type === 'basicauth') {
+                if (auth && auth.type && auth.type === 'jwt') {
                     // For JWT we don't have a login page, so we need to go to the custom error page
                     $window.location.href = `${APP_ROOT}/customerror?type=sessionExpired`;
                 } else {
                     let nextUrl = path + $window.location.hash + $window.location.search;
                     if (auth && auth.type === 'openid') {
                         $window.location.href = `${APP_ROOT}/auth/openid/login?nextUrl=${encodeURIComponent(nextUrl)}`;
+                    } else if (auth && auth.type === 'saml') {
+                        $window.location.href = `${APP_ROOT}/auth/saml/login?nextUrl=${encodeURIComponent(nextUrl)}`;
                     } else {
                         $window.location.href = `${APP_ROOT}/login?nextUrl=${encodeURIComponent(nextUrl)}`;
                     }
@@ -77,7 +78,7 @@ export function enableConfiguration($http, $window, systemstate) {
     const path = chrome.removeBasePath($window.location.pathname);
 
     // don't run on login or logout, we don't have any user on these pages
-    if(path === '/login' || path === '/logout') {
+    if(path === '/login' || path === '/logout' || path === '/customerror') {
         return;
     }
     // make sure all infos are loaded since sessionStorage might
