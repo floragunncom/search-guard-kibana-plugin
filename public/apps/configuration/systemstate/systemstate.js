@@ -10,9 +10,12 @@ uiModules.get('apps/searchguard/configuration', [])
     .service('systemstate', function ($http) {
 
         const ROOT = chrome.getBasePath();
-        const APP_ROOT = `${ROOT}`;
-        const API_ROOT = `${APP_ROOT}/api/v1`;
-        const emptyPromise = new Promise(function(resolve, reject) {});
+        const API_ROOT = `${ROOT}/api/v1`;
+
+        this.stateLoaded = () => {
+            return !isEmpty(this.getSystemInfo());
+        }
+
 
         this.stateLoaded = () => {
             return !isEmpty(this.getSystemInfo());
