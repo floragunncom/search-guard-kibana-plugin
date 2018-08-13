@@ -79,7 +79,7 @@ uiModules
         this.showroles = chrome.getInjected("multitenancy.show_roles");
 
         this.GLOBAL_USER_LABEL = "Global";
-        this.GLOBAL_USER_VALUE = null;
+        this.GLOBAL_USER_VALUE = "";
         this.GLOBAL_USER_WRITEABLE = true;
         this.PRIVATE_USER_LABEL = "Private";
         this.PRIVATE_USER_VALUE = "__user__";
