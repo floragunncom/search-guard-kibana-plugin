@@ -67,8 +67,6 @@ export default function setupShareObserver($timeout, userRequestedTenant) {
      * @param mutationsList
      */
     let observerCallback = function (mutationsList) {
-        console.warn('Observing again')
-
         let inputElements = element.querySelectorAll('input[type="text"]');
         if (!inputElements.length) {
             return;
@@ -81,48 +79,90 @@ export default function setupShareObserver($timeout, userRequestedTenant) {
                 continue;
             }
 
-            let fieldValue = inputElements[i].value;
-
-            // We need to figure out where in the value to add the tenant.
-            // Since Kibana sometimes adds values that aren't in the current location/url,
-            // we need to use the actual input values to do a sanity check.
-            try {
-
-                // For the iFrame urls we need to parse out the src
-                if (fieldValue.toLowerCase().indexOf('<iframe') === 0) {
-                    const regex = /<iframe[^>]*src="([^"]*)"/i;
-                    let match = regex.exec(fieldValue);
-                    if (match) {
-                        fieldValue = match[1]; // Contains the matched src, [0] contains the string where the match was found
-                    }
-                }
-
-                let {host, pathname, search} = parse(fieldValue);
-                let queryDelimiter = (!search) ? '?' : '&';
-
-                // The url parser returns null if the search is empty. Change that to an empty
-                // string so that we can use it to build the values later
-                if (search === null) {
-                    search = '';
-                } else if (search.toLowerCase().indexOf(tenantKey) > - 1) {
-                    // If we for some reason already have a tenant in the URL we skip any updates
-                    continue;
-                }
-
-                // A helper for finding the part in the string that we want to extend/replace
-                let valueToReplace = host + pathname + search;
-                let replaceWith = valueToReplace + queryDelimiter + tenantKeyAndValue;
-
-                inputElements[i].value = fieldValue.replace(valueToReplace, replaceWith);
-            } catch (error) {
-                // Probably wasn't an url, so we just ignore this
-            }
+            replaceInputValue(inputElements[i]);
         }
 
-        // We're done here so we can tell the Observer to stop listening for changes
-        observer.disconnect();
+        // Since the values may change, e.g. when generating a short link,
+        // we need to keep observing event after the initial change
+        //observer.disconnect();
     };
 
+    /**
+     * Changes the value of an input to include the sg_tenant
+     * @param inputElement
+     * @param tries
+     */
+    function replaceInputValue(inputElement, tries = 1) {
+        let originalValue = inputElement.value;
+        let fieldValue = originalValue;
+
+        // When converting the url to a short URL for the first time,
+        // the input's value will be empty. In this case we try
+        // a couple of times until we hopefully have a value.
+        if (! originalValue) {
+            tries += 1;
+            if (tries < 5) {
+                $timeout(function() {
+                    replaceInputValue(inputElement, tries++);
+                }, 400);
+            }
+
+            return;
+        }
+
+        // We need to figure out where in the value to add the tenant.
+        // Since Kibana sometimes adds values that aren't in the current location/url,
+        // we need to use the actual input values to do a sanity check.
+        try {
+
+            // For the iFrame urls we need to parse out the src
+            if (originalValue.toLowerCase().indexOf('<iframe') === 0) {
+                const regex = /<iframe[^>]*src="([^"]*)"/i;
+                let match = regex.exec(originalValue);
+                if (match) {
+                    fieldValue = match[1]; // Contains the matched src, [0] contains the string where the match was found
+                }
+            }
+
+            let newValue = addTenantToURL(fieldValue, originalValue);
+
+            if (newValue !== fieldValue) {
+                inputElement.setAttribute('value', newValue);
+            }
+        } catch (error) {
+            // Probably wasn't an url, so we just ignore this
+        }
+    }
+
+    /**
+     * Add the tenant the value. The originalValue may more than just an URL, e.g. for iFrame embeds.
+     * @param url - The url we will append the tenant to
+     * @param originalValue - In the case of iFrame embeds, we can't just replace the url itself
+     * @returns {*}
+     */
+    function addTenantToURL(url, originalValue = null) {
+        if (! originalValue) {
+            originalValue = url;
+        }
+
+        let {host, pathname, search} = parse(url);
+        let queryDelimiter = (!search) ? '?' : '&';
+
+        // The url parser returns null if the search is empty. Change that to an empty
+        // string so that we can use it to build the values later
+        if (search === null) {
+            search = '';
+        } else if (search.toLowerCase().indexOf(tenantKey) > - 1) {
+            // If we for some reason already have a tenant in the URL we skip any updates
+            return originalValue;
+        }
+
+        // A helper for finding the part in the string that we want to extend/replace
+        let valueToReplace = host + pathname + search;
+        let replaceWith = valueToReplace + queryDelimiter + tenantKeyAndValue;
+
+        return originalValue.replace(valueToReplace, replaceWith);
+    }
 
     if ('MutationObserver' in window) {
         // Use a $timeout to avoid to wait for the view to be rendered

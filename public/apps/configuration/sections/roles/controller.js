@@ -41,6 +41,16 @@ app.controller('sgRolesController', function ($scope, $element, $route, createNo
     };
 
     /**
+     * An indexName can start with a / when using regular expressions.
+     * This leads to some issues with the Angular router if we don't encode them properly.
+     * @param indexName
+     * @returns {string}
+     */
+    $scope.encodeIndexName = function(indexName) {
+        return encodeURIComponent(indexName);
+    };
+
+    /**
      * Handle changed sorting conditions.
      * Since we only have one column sortable, changing the key doesn't really do anything.
      * Until we have more sortable columns, only the sort order is changed
@@ -514,7 +524,7 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         $scope.resourcenames = Object.keys(response.data);
 
         var rolename = $routeParams.resourcename;
-        var indexname = $routeParams.indexname;
+        var indexname = decodeURIComponent($routeParams.indexname);
 
         if (rolename) {
             $scope.service.get(rolename)
