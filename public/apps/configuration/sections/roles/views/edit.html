@@ -183,6 +183,7 @@
                                     <td class="kuiTableRowCell cellAlignTop" >
                                         <fieldset class="marginbottom--small" id="object-form-index" sgc-form-focus-field focus-when="addingIndex === true">
                                             <ui-select ng-model="newIndexName"
+                                                       select-on-blur
                                                        on-select="onSelectedNewIndexName({item: $item})">
                                                 <ui-select-match placeholder="Index name">
                                                     {{newIndexName.name}}
@@ -199,6 +200,7 @@
                                     <td class="kuiTableRowCell cellAlignTop ">
                                         <fieldset class="marginbottom--small" id="object-form-actiongroups">
                                             <ui-select ng-model="newDocumentTypeName"
+                                                       select-on-blur
                                                        on-select="onSelectedNewDocumentTypeName({item: $item})"
                                                        reset-search-input="false">
                                                 <ui-select-match placeholder="Document Type name">
