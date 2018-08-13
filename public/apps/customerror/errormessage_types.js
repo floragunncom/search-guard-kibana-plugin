@@ -39,5 +39,10 @@ export const messageTypes = {
     samlAuthError: {
         title: 'SAML authentication error',
         subtitle: 'The SAML authentication failed. Please contact your administrator.'
+    },
+
+    samlLogoutSuccess: {
+        title: 'You have been logged out.',
+        subtitle: ''
     }
 };
