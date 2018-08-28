@@ -7,11 +7,9 @@ import client from './client';
  * Internal users API client service.
  */
 uiModules.get('apps/searchguard/configuration', [])
-    .service('backendInternalUsers', function (backendAPI, Promise, $http, createNotifier) {
+    .service('backendInternalUsers', function (backendAPI, Promise, $http) {
 
         const RESOURCE = 'internalusers';
-
-        const notify = createNotifier({});
 
         this.title = {
             singular: 'internal user',

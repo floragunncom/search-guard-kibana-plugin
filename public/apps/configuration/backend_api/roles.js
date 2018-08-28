@@ -6,11 +6,9 @@ import client from './client';
  * Role mappings API client service.
  */
 uiModules.get('apps/searchguard/configuration', [])
-    .service('backendRoles', function (backendAPI, Promise, $http, createNotifier) {
+    .service('backendRoles', function (backendAPI, Promise, $http) {
 
         const RESOURCE = 'roles';
-
-        const notify = createNotifier({});
 
         this.title = {
             singular: 'role',

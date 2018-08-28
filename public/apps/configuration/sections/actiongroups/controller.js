@@ -4,9 +4,7 @@ import '../../backend_api/actiongroups';
 
 const app = uiModules.get('apps/searchguard/configuration', []);
 
-app.controller('sgActionGroupsController', function ($scope, $element, $route, createNotifier, backendActionGroups, kbnUrl) {
-
-    const notify = createNotifier({});
+app.controller('sgActionGroupsController', function ($scope, $element, $route, backendActionGroups, kbnUrl) {
 
     $scope.endpoint = "ACTIONGROUPS";
     $scope.$parent.endpoint = "ACTIONGROUPS";
