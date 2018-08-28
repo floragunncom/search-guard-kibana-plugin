@@ -3,7 +3,7 @@
   "version": "6.4.0-14-SNAPSHOT",
   "description": "Search Guard features for kibana",
   "main": "index.js",
-  "homepage": "https://floragunn.com",
+  "homepage": "https://search-guard.com",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

@@ -2,6 +2,7 @@ import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules'
 import { get } from 'lodash';
 import { forEach } from 'lodash';
+import { toastNotifications } from 'ui/notify';
 import { Notifier } from 'ui/notify/notifier';
 
 const app = uiModules.get('apps/searchguard/configuration', []);
@@ -24,7 +25,12 @@ app.controller('sgSystemController', function ($scope, $http, $route, $element, 
             var moduleKey = Object.keys(response.data.modules)[0];
             $scope.modules = response.data.modules[moduleKey];
         },
-        (error) => notify.error(error)
+        (error) => {
+            toastNotifications.addDanger({
+                title: "Could not retrieve system info.",
+                text: error.data.message
+            });
+        }
     );
 
     $scope.new = () => {
@@ -137,11 +143,16 @@ app.controller('sgLicenseController', function ($scope, $element, $route, $locat
             .then(
             (response) => {
                 sessionStorage.removeItem("systeminfo");
-                notify.info(response.data.message);
+                toastNotifications.addSuccess({
+                    title: response.data.message
+                });
                 kbnUrl.change(`/system/`)
             })
             .catch((error) => {
-                notify.error(error);
+                toastNotifications.addDanger({
+                    title: "License not valid.",
+                    text: error.data.message
+                });
             });
     };
 
