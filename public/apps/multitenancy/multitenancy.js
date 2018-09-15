@@ -14,6 +14,7 @@
  limitations under the License.
  */
 
+import { toastNotifications } from 'ui/notify';
 import chrome from 'ui/chrome';
 import uiRoutes from 'ui/routes';
 import { uiModules } from 'ui/modules';
@@ -188,7 +189,10 @@ uiModules
                             $window.location.href = chrome.getNavLinkById("kibana:dashboard").url;
                         }
                     } else {
-                        notify.info("Tenant changed");
+                        toastNotifications.addSuccess({
+                            title: 'Tenant changed',
+                            text: "Selected tenant is now " + resolveTenantName(response.data, this.username),
+                        });
                     }
                 },
                 (error) => notify.error(error)

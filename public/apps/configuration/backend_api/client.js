@@ -1,3 +1,4 @@
+import { toastNotifications } from 'ui/notify';
 import { uiModules } from 'ui/modules';
 import { merge } from 'lodash';
 import { uniq } from 'lodash';
@@ -62,7 +63,9 @@ uiModules.get('apps/searchguard/configuration', [])
             let url = `${AUTH_BACKEND_API_ROOT}/configuration/${resourceName}/${id}`;
             return $http.post(url, data)
                 .then((response) => {
-                    notify.info(response.data.message);
+                    toastNotifications.addSuccess({
+                        title: `'${id}' saved.`
+                    });
                 })
                 .catch((error) => {
                     if (error.status == 403) {
@@ -77,7 +80,9 @@ uiModules.get('apps/searchguard/configuration', [])
         this.delete = (resourceName, id) => {
             return $http.delete(`${AUTH_BACKEND_API_ROOT}/configuration/${resourceName}/${id}`)
                 .then((response) => {
-                    notify.info(response.data.message);
+                    toastNotifications.addSuccess({
+                        title: `'${id}' deleted.`
+                    });
                 })
                 .catch((error) => {
                     if (error.status == 403) {
@@ -127,7 +132,9 @@ uiModules.get('apps/searchguard/configuration', [])
         this.clearCache = () => {
             return $http.delete(`${AUTH_BACKEND_API_ROOT}/configuration/cache`)
                 .then((response) => {
-                    notify.info(response.data.message);
+                    toastNotifications.addSuccess({
+                        title: response.data.message
+                    });
                 })
                 .catch((error) => {
                     if (error.status == 403) {
