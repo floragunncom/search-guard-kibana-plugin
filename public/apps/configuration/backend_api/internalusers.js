@@ -40,6 +40,7 @@ uiModules.get('apps/searchguard/configuration', [])
             user["password"] = "";
             user["passwordConfirmation"] = "";
             user.roles = [];
+            user.attributes = [];
             return user;
         };
 
@@ -49,6 +50,16 @@ uiModules.get('apps/searchguard/configuration', [])
             user.roles = user.roles.filter(e => String(e).trim());
             // remove duplicate roles
             user.roles = uniq(user.roles);
+
+            // attribiutes
+            user["attributes"] = {};
+            for (var i = 0, l = user.attributesArray.length; i < l; i++) {
+                var entry = user.attributesArray[i];
+                if (entry && entry.key != "") {
+                    user.attributes[entry.key] = entry.value;
+                }
+            }
+            delete user["attributesArray"];
             return user;
         };
 
@@ -59,6 +70,20 @@ uiModules.get('apps/searchguard/configuration', [])
             user["passwordConfirmation"] = "";
             if (!user.roles) {
                 user.roles = [];
+            }
+            // transform user attributes to object
+            user["attributesArray"] = [];
+            if (user.attributes) {
+                var attributeNames = Object.keys(user.attributes).sort();
+                attributeNames.forEach(function(attributeName){
+
+                    user.attributesArray.push(
+                        {
+                            key: attributeName,
+                            value: user.attributes[attributeName]
+                        }
+                    );
+                });
             }
             return user;
         };
