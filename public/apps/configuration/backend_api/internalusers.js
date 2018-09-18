@@ -40,7 +40,7 @@ uiModules.get('apps/searchguard/configuration', [])
             user["password"] = "";
             user["passwordConfirmation"] = "";
             user.roles = [];
-            user.attributes = [];
+            user.attributesArray = [];
             return user;
         };
 
