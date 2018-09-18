@@ -77,6 +77,7 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
 
     $scope.initialiseStates = () => {
         systemstate.loadSystemInfo().then(function(){
+            $scope.complianceFeaturesEnabled = systemstate.complianceFeaturesEnabled();
             if (!systemstate.restApiEnabled()) {
                 $scope.accessState = "notenabled";
             } else {

@@ -23,6 +23,6 @@ uiRoutes
     .when('/roles/edit/:resourcename', {
       template: editRoleTemplate
     })
-    .when('/roles/edit/:resourcename/:indexname', {
+    .when('/roles/edit/:resourcename/:indexname*', {
         template: editRoleTemplate
     })
