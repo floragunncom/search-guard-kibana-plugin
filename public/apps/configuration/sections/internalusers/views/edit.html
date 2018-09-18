@@ -43,7 +43,7 @@
                             <table class="kuiTable tableIndexGroups" sgc-form-focus-added-field>
                                 <thead>
                                     <tr>
-                                        <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
+                                        <th class="kuiTableHeaderCell tableHeaderCellIndexGroups sevenwidth">
                                             <span class="kuiTableHeaderCell__liner">
                                                 Backend Roles
                                             </span>
@@ -66,11 +66,11 @@
                                     <tr class="kuiTableRow" data-ng-repeat="role in resource.roles track by $index">
                                         <td class="kuiTableRowCell cellAlignTop">
                                             <fieldset class="marginbottom--small" id="object-form-backendroles-{{resource.roles[$index]}}">
-                                                <input type="text" class="kuiTextInput fullwidth" ng-model="resource.roles[$index]" name="">
+                                                <input type="text" class="kuiTextInput fullwidth" ng-model="resource.roles[$index]" name="" id="sg.input.backendroles.{{resource.roles[$index]}}">
                                             </fieldset>
                                         </td>
                                         <td class="kuiTableRowCell cellAlignTop actions">
-                                            <a ng-click="confirmRemoveArrayEntry(resource.roles, role)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <a ng-click="confirmRemoveArrayEntry(resource.roles, role)" class="kuiButton kuiButton--danger kuiButton--iconText" id="sg.button.backendroles.delete.{{resource.roles[$index]}}">
                                                 <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                             </a>
                                         </td>
@@ -78,14 +78,76 @@
                                     <tr class="kuiTableRow">
                                         <td class="kuiTableRowCell cellAlignTop actions"></td>
                                         <td class="kuiTableRowCell cellAlignTop actions">
-                                            <button type="button" ng-click="addArrayEntry(resource, 'roles', '')" ng-disabled="lastArrayEntryEmpty(resource.roles)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                            <button type="button"
+                                                    id="sg.button.backendroles.add"
+                                                    ng-click="addArrayEntry(resource, 'roles', '')"
+                                                    ng-disabled="lastArrayEntryEmpty(resource.roles)"
+                                                    class="kuiButton kuiButton--primary kuiButton--iconText ">
                                                 <span class="kuiButton__icon kuiIcon fa-plus"></span>
-                                                Add Backend Role
+                                                Add backend role
                                             </button>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
+
+                            <!-- User attributes -->
+                            <table class="kuiTable tableIndexGroups" sgc-form-focus-added-field>
+                                <thead>
+                                <tr>
+                                    <th colspan="2" class="kuiTableHeaderCell tableHeaderCellIndexGroups sevenwidth">
+                                            <span class="kuiTableHeaderCell__liner">
+                                                User attributes
+                                            </span>
+                                    </th>
+
+                                    <th class="kuiTableHeaderCell">
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr class="kuiTableRow" ng-show="!resource.attributesArray.length">
+                                    <td colspan="3" class="kuiTableRowCell">
+                                        <div class="kuiPanel kuiPanel--centered kuiPanel--noborder">
+                                            <div class="kuiEmptyTablePrompt kuiEmptyTablePrompt--nopadding">
+                                                <div class="kuiEmptyTablePrompt__message ng-binding">No user attributes found</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="kuiTableRow" data-ng-repeat="attribute in sortObjectArray(resource.attributesArray,'key') track by $index">
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <fieldset class="marginbottom--small" id="object-form-user-attributes-key-{{resource.attributesArray[$index].key}}">
+                                            <input type="text" class="kuiTextInput fullwidth" ng-model="resource.attributesArray[$index].key" name="" id="sg.input.userattributes.key.{{resource.attributesArray[$index].key}}">
+                                        </fieldset>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <fieldset class="marginbottom--small" id="object-form-user-attributes-value-{{resource.attributesArray[$index].value}}">
+                                            <input type="text" class="kuiTextInput fullwidth" ng-model="resource.attributesArray[$index].value" name="" id="sg.input.userattributes.value.{{resource.attributesArray[$index].value}}">
+                                        </fieldset>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop actions">
+                                        <a ng-click="confirmRemoveFromObjectArray(resource.attributesArray, $index, resource.attributesArray[$index].key)" class="kuiButton kuiButton--danger kuiButton--iconText" id="sg.button.userattributes.delete.{{resource.attributesArray[$index].key}}">
+                                            <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr class="kuiTableRow">
+                                    <td class="kuiTableRowCell cellAlignTop actions" colspan="2"></td>
+                                    <td class="kuiTableRowCell cellAlignTop actions">
+                                        <button type="button"
+                                                id="sg.button.userattributes.add"
+                                                ng-click="addToObjectArray(resource.attributesArray, {key: '', value: ''})"
+                                                ng-disabled="lastArrayEntryEmpty(resource.attributesArray)"
+                                                class="kuiButton kuiButton--primary kuiButton--iconText ">
+                                            <span class="kuiButton__icon kuiIcon fa-plus"></span>
+                                            Add attribute
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
                             <div class="formsubmit">
                                 <button ng-disabled="!endpointAndMethodEnabled('INTERNALUSERS', 'PUT') || resource.readonly" class="kuiButton kuiButton--primary kuiButton--text" type="submit">Submit</button>
                                 <button class="kuiButton kuiButton--basic kuiButton--text" type="submit" ng-click="cancel()">Cancel</button>
