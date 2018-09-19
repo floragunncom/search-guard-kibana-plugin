@@ -38,6 +38,14 @@ uiModules.get('apps/searchguard/configuration', [])
             return licenseType.toLowerCase() == "trial";
         }
 
+        this.complianceFeaturesEnabled = () => {
+            const features = get(this.getSystemInfo(), 'sg_license.features', []);
+            if (Array.isArray(features)) {
+                return features.indexOf("COMPLIANCE") != -1;
+            }
+            return false;
+        }
+
         this.expiresIn = () => {
             return get(this.getSystemInfo(), 'sg_license.expiry_in_days', 0);
         }
