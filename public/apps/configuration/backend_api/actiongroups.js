@@ -7,11 +7,9 @@ import client from './client';
  * Action groups API client service.
  */
 uiModules.get('apps/searchguard/configuration', [])
-    .service('backendActionGroups', function (backendAPI, Promise, $http, createNotifier, kbnUrl) {
+    .service('backendActionGroups', function (backendAPI, Promise, $http, kbnUrl) {
 
         const RESOURCE = 'actiongroups';
-
-        const notify = createNotifier({});
 
         this.title = {
             singular: 'action group',

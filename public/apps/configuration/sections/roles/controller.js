@@ -1,3 +1,4 @@
+import { toastNotifications } from 'ui/notify';
 import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules'
 import { get } from 'lodash';
@@ -38,16 +39,6 @@ app.controller('sgRolesController', function ($scope, $element, $route, createNo
     $scope.sortTable = {
         byKey: 'resourcename',
         descending: false
-    };
-
-    /**
-     * An indexName can start with a / when using regular expressions.
-     * This leads to some issues with the Angular router if we don't encode them properly.
-     * @param indexName
-     * @returns {string}
-     */
-    $scope.encodeIndexName = function(indexName) {
-        return encodeURIComponent(indexName);
     };
 
     /**
@@ -93,6 +84,15 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
 
     $scope.newIndexName = "";
     $scope.newDocumentTypeName = "";
+
+    /**
+     * The newIndexName and newDocumentTypeName as used by the autocomplete
+     * @type {{index: null, documentType: null}}
+     */
+    $scope.newIndexValues = {
+        index: null,
+        documentType: null
+    };
 
     $scope.addingIndex = false;
 
@@ -237,6 +237,23 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     $scope.onSelectedNewDocumentTypeName = function(event) {
         $scope.newDocumentTypeName = event.item.name;
 
+    };
+
+    /**
+     * This is a helper for when the autocomplete was closed an item being explicitly selected (mouse, tab or enter).
+     * When you e.g. type a custom value and then click somewhere outside of the autocomplete, it looks like the
+     * custom value was selected, but it is never saved to the model. This function calls the "select" method
+     * every time the autocomplete is closed, no matter how. This may mean that the select function is called
+     * twice, so the select handler should mitigate that if necessary.
+     * @param isOpen
+     * @param $select
+     */
+    $scope.onCloseNewIndexAutocompletes = function(isOpen, $select) {
+        if (isOpen || !$select.select || !$select.selected) {
+            return;
+        }
+
+        $select.select($select.selected);
     };
 
     /**
@@ -404,6 +421,11 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         $scope.newDocumentTypeName = "";
         $scope.addingIndex = false;
         $scope.errorMessage = null;
+
+        $scope.newIndexValues = {
+            index: null,
+            documentType: null
+        };
     }
 
     $scope.cancelAddIndex = function() {
@@ -524,7 +546,7 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         $scope.resourcenames = Object.keys(response.data);
 
         var rolename = $routeParams.resourcename;
-        var indexname = decodeURIComponent($routeParams.indexname);
+        var indexname = $routeParams.indexname;
 
         if (rolename) {
             $scope.service.get(rolename)

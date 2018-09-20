@@ -13,13 +13,13 @@
   <parent>
     <groupId>com.floragunn</groupId>
     <artifactId>search-guard-parent</artifactId>
-    <version>6.1-beta6</version>
+    <version>6.22.0</version>
   </parent>
 
   <groupId>com.floragunn</groupId>
   <artifactId>search-guard-kibana-plugin</artifactId>
   <packaging>pom</packaging>
-  <version>6.2.3-14</version>
+  <version>6.2.3-15</version>
   <name>Search Guard Kibana Plugin</name>
   <description>Search Guard Kibana Plugin for Elasticsearch 6</description>
   <url>https://github.com/floragunncom/search-guard</url>

@@ -1,6 +1,5 @@
 #!/bin/bash
 KIBANA_VERSION="$1"
-PLUGIN_VERSION="$1"
 PLUGIN_NAME="searchguard-kibana-$1-$2"
 echo "Building $PLUGIN_NAME.zip"
 set -e
