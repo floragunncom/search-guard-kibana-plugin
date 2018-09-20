@@ -5,11 +5,9 @@ import client from './client';
  * SG configuration client service.
  */
 uiModules.get('apps/searchguard/configuration', [])
-    .service('sgConfiguration', function (backendAPI, Promise, $http, createNotifier) {
+    .service('sgConfiguration', function (backendAPI, Promise, $http) {
 
         const RESOURCE = 'sgconfig';
-
-        const notify = createNotifier({});
 
         this.title = {
             singular: 'Authentication / Authorization configuration',
