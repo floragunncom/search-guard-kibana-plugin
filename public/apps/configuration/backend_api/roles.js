@@ -64,6 +64,7 @@ uiModules.get('apps/searchguard/configuration', [])
                 role.dlsfls[indexname] = {
                     _dls_: "",
                     _fls_: [],
+                    _masked_fields_: [],
                     _flsmode_: "whitelist"
                 };
             }
@@ -114,6 +115,10 @@ uiModules.get('apps/searchguard/configuration', [])
                     if (dlsfls["_fls_"].length > 0) {
                         index["_fls_"] = dlsfls["_fls_"];
                     }
+                    if (dlsfls["_masked_fields_"].length > 0) {
+                        index["_masked_fields_"] = dlsfls["_masked_fields_"];
+                    }
+
                 }
             }
 
@@ -161,6 +166,7 @@ uiModules.get('apps/searchguard/configuration', [])
                     var dlsfls = {
                         _dls_: "",
                         _fls_: [],
+                        _masked_fields_: [],
                         _flsmode_: "whitelist"
                     };
 
@@ -170,8 +176,13 @@ uiModules.get('apps/searchguard/configuration', [])
                     if (index["_fls_"]) {
                         dlsfls._fls_ = index["_fls_"];
                     }
+                    if (index["_masked_fields_"]) {
+                        dlsfls._masked_fields_ = index["_masked_fields_"];
+                    }
+
                     delete role.indices[indexname]["_fls_"];
                     delete role.indices[indexname]["_dls_"];
+                    delete role.indices[indexname]["_masked_fields_"];
                     role.dlsfls[indexname] = dlsfls;
 
                     // determine the fls mode and strip any prefixes

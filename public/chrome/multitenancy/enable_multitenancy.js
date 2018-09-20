@@ -18,8 +18,10 @@
 import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules';
 import { FeatureCatalogueRegistryProvider, FeatureCatalogueCategory } from 'ui/registry/feature_catalogue';
+import { EuiIcon } from '@elastic/eui';
 
 export function toggleNavLink(Private) {
+    console.log(EuiIcon.prototype);
     var enabled = chrome.getInjected('multitenancy_enabled');
     chrome.getNavLinkById("searchguard-multitenancy").hidden = !enabled;
   if (enabled) {
@@ -28,7 +30,7 @@ export function toggleNavLink(Private) {
               id: 'searchguard-multitenancy',
               title: 'Search Guard Multi Tenancy',
               description: 'Separate searches, visualizations and dashboards by tenants.',
-              icon: '/plugins/searchguard/assets/multitenancy_app.svg',
+              icon: 'usersRolesApp',
               path: '/app/searchguard-multitenancy',
               showOnHomePage: true,
               category: FeatureCatalogueCategory.DATA
