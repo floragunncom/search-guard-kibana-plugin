@@ -74,7 +74,8 @@ export default function LoginController(kbnUrl, $scope, $http, $window, systemst
                     if (error.status && error.status === 401) {
                         this.errorMessage = 'Invalid username or password, please try again';
                     } else if (error.status && error.status === 404) {
-                        this.errorMessage = 'No tenant available for this user, please contact your system administrator.';
+                        // This happens either when the user doesn't have any valid tenants or roles
+                        this.errorMessage = error.data.message;
                     } else {
                         this.errorMessage = 'An error occurred while checking your credentials, make sure you have an Elasticsearch cluster secured by Search Guard running.';
                     }

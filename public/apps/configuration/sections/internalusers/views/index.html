@@ -52,7 +52,7 @@
 
                                     <td class="kuiTableRowCell">
                                         <div class="kuiTableRowCell__liner">
-                                            <a class="kuiLink" ng-click="edit(username)" title="{{username}}">
+                                            <a class="kuiLink" ng-click="edit(username)" title="{{username}}" id="{{username}}">
                                                 {{username}}
                                             </a>
                                             <div ng-if="resources[username].readonly">
@@ -84,7 +84,7 @@
                                             <a tooltip="Clone" ng-click="clone(username)" class="kuiButton kuiButton--primary kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-copy"></span>
                                             </a>
-                                            <button tooltip="Delete" type="button" ng-disabled="!endpointAndMethodEnabled('INTERNALUSERS', 'DELETE') || resources[username].readonly || username == currentuser" ng-click="confirmDelete(username)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <button tooltip="Delete" type="button" ng-disabled="!endpointAndMethodEnabled('INTERNALUSERS', 'DELETE') || resources[username].readonly || username == currentuser" ng-click="confirmDelete(username)" class="kuiButton kuiButton--danger kuiButton--iconText" id="sg.button.internalusers.delete.{{username}}">
                                                 <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                             </button>
                                         </div>
