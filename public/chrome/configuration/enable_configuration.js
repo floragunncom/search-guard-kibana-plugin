@@ -99,7 +99,7 @@ export function enableConfiguration($http, $window, systemstate) {
                         id: 'searchguard-configuration',
                         title: 'Search Guard Configuration',
                         description: 'Configure users, roles and permissions for Search Guard.',
-                        icon: '/plugins/searchguard/assets/searchguard_logo_app.svg',
+                        icon: 'securityApp',
                         path: '/app/searchguard-configuration',
                         showOnHomePage: true,
                         category: FeatureCatalogueCategory.ADMIN

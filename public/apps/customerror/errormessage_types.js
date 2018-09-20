@@ -16,6 +16,14 @@ export const messageTypes = {
     },
 
     /**
+     * User does not have any valid role
+     */
+    missingRole: {
+        title: 'Missing Role',
+        subtitle: 'No roles available for this user, please contact your system administrator.',
+    },
+
+    /**
      * Session expired, most likely shown after an AJAX call from within Kibana
      */
     sessionExpired: {
