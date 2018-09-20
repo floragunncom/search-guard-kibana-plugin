@@ -11,4 +11,3 @@ import './errormessage/errormessage';
 import './confirmationmodal/confirmationmodal';
 import './form_focusfield/form_focusaddedfield';
 import './form_focusfield/form_focusfield';
-import './autocomplete/uiselectcustom';

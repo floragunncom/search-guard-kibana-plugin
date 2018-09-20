@@ -14,5 +14,4 @@ do
 done < "package.json"
 ./clean.sh
 ./build.sh "$1" "$2"
-
 mvn clean deploy -Prelease

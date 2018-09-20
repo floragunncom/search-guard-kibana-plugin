@@ -17,11 +17,6 @@ uiModules.get('apps/searchguard/configuration', [])
         }
 
 
-        this.stateLoaded = () => {
-            return !isEmpty(this.getSystemInfo());
-        }
-
-
         this.licenseRequired = () => {
             // no license for community edition required
             return get(this.getSystemInfo(), 'sg_license.license_required', false);
@@ -41,6 +36,14 @@ uiModules.get('apps/searchguard/configuration', [])
             }
             var licenseType = get(this.getSystemInfo(), 'sg_license.type', "TRIAL")
             return licenseType.toLowerCase() == "trial";
+        }
+
+        this.complianceFeaturesEnabled = () => {
+            const features = get(this.getSystemInfo(), 'sg_license.features', []);
+            if (Array.isArray(features)) {
+                return features.indexOf("COMPLIANCE") != -1;
+            }
+            return false;
         }
 
         this.expiresIn = () => {
