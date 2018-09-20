@@ -17,11 +17,11 @@
 
             <div class="kuiLocalNavRow kuiLocalNavRow--secondary">
                 <div class="kuiLocalTabs">
-                    <a ng-click="selectTab('overview')" ng-class="getTabCss('overview')">Overview</a>
-                    <a ng-click="selectTab('clusterpermissions')" ng-class="getTabCss('clusterpermissions')">Cluster Permissions</a>
-                    <a ng-click="selectTab('indexpermissions')" ng-class="getTabCss('indexpermissions')">Index Permissions</a>
-                    <a ng-if="dlsFlsEnabled" ng-click="selectTab('dlsfls')" ng-class="getTabCss('dlsfls')">DLS/FLS</a>
-                    <a ng-if="multiTenancyEnabled" ng-click="selectTab('tenants')" ng-class="getTabCss('tenants')">Tenants</a>
+                    <a ng-click="selectTab('overview')" ng-class="getTabCss('overview')" id="sg.roles.tab.overview">Overview</a>
+                    <a ng-click="selectTab('clusterpermissions')" ng-class="getTabCss('clusterpermissions')" id="sg.roles.tab.clusterpermissions">Cluster Permissions</a>
+                    <a ng-click="selectTab('indexpermissions')" ng-class="getTabCss('indexpermissions')" id="sg.roles.tab.indexpermissions">Index Permissions</a>
+                    <a ng-if="dlsFlsEnabled" ng-click="selectTab('dlsfls')" ng-class="getTabCss('dlsfls')" id="sg.roles.tab.dlsfls">DLS/FLS</a>
+                    <a ng-if="multiTenancyEnabled" ng-click="selectTab('tenants')" ng-class="getTabCss('tenants')" id="sg.roles.tab.tenants">Tenants</a>
                 </div>
             </div>
         </div>
@@ -182,11 +182,12 @@
                                 <tr class="kuiTableRow">
                                     <td class="kuiTableRowCell cellAlignTop" >
                                         <fieldset class="marginbottom--small" id="object-form-index" sgc-form-focus-field focus-when="addingIndex === true">
-                                            <ui-select ng-model="newIndexName"
-                                                       select-on-blur
+                                            <ui-select ng-model="newIndexValues.index"
+                                                       uis-open-close="onCloseNewIndexAutocompletes(isOpen, $select)"
+                                                       reset-search-input="true"
                                                        on-select="onSelectedNewIndexName({item: $item})">
                                                 <ui-select-match placeholder="Index name">
-                                                    {{newIndexName.name}}
+                                                    {{newIndexValues.index.name}}
                                                 </ui-select-match>
                                                 <ui-select-choices
                                                     refresh="refreshNewIndexName($select)"
@@ -199,12 +200,11 @@
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop ">
                                         <fieldset class="marginbottom--small" id="object-form-actiongroups">
-                                            <ui-select ng-model="newDocumentTypeName"
-                                                       select-on-blur
-                                                       on-select="onSelectedNewDocumentTypeName({item: $item})"
-                                                       reset-search-input="false">
+                                            <ui-select ng-model="newIndexValues.documentType"
+                                                       uis-open-close="onCloseNewIndexAutocompletes(isOpen, $select)"
+                                                       on-select="onSelectedNewDocumentTypeName({item: $item})">
                                                 <ui-select-match placeholder="Document Type name">
-                                                    {{newDocumentTypeName.name}}
+                                                    {{newIndexValues.documentType.name}}
                                                 </ui-select-match>
                                                 <ui-select-choices
                                                     refresh="refreshNewDocumentTypeNames($select)"
@@ -346,8 +346,8 @@
                                     <th class="kuiTableHeaderCell tableHeaderCellIndexGroups actions">
                                         <div class="kuiTableHeaderCell__liner">
                                             <select class="kuiSelect" name="flsModeSelect" ng-model="resource.dlsfls[selectedIndex]['_flsmode_']">
-                                                <option value="whitelist">Include fields</option>
-                                                <option value="blacklist">Exclude fields</option>
+                                                <option value="whitelist" id="sg.option.roles.fls.whitelist">Include fields</option>
+                                                <option value="blacklist" id="sg.option.roles.fls.blacklist">Exclude fields</option>
                                             </select>
                                         </div>
                                     </th>
@@ -367,11 +367,20 @@
                                 <tr data-ng-repeat="actiongroup in resource.dlsfls[selectedIndex]['_fls_'] track by $index">
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <fieldset class="marginbottom--small" id="object-form-actiongroups" >
-                                            <input type="text" class="kuiTextInput fullwidth" ng-model="resource.dlsfls[selectedIndex]['_fls_'][$index]" name="">
+                                            <input
+                                                    type="text"
+                                                    class="kuiTextInput fullwidth"
+                                                    ng-model="resource.dlsfls[selectedIndex]['_fls_'][$index]"
+                                                    name=""
+                                                    id="sg.input.roles.fls.{{resource.dlsfls[selectedIndex]['_fls_'][$index]}}">
                                         </fieldset>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop actions">
-                                        <a tooltip="Delete field {{resource.dlsfls[selectedIndex]['_fls_'][$index]}}" ng-click="confirmRemoveArrayEntry(resource.dlsfls[selectedIndex]['_fls_'], actiongroup)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                        <a
+                                                tooltip="Delete field {{resource.dlsfls[selectedIndex]['_fls_'][$index]}}"
+                                                ng-click="confirmRemoveArrayEntry(resource.dlsfls[selectedIndex]['_fls_'], actiongroup)"
+                                                class="kuiButton kuiButton--danger kuiButton--iconText"
+                                                id="sg.button.roles.fls.delete.{{resource.dlsfls[selectedIndex]['_fls_'][$index]}}">
                                             <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                         </a>
                                     </td>
@@ -379,7 +388,80 @@
                                 <tr class="kuiTableRow">
                                     <td class="kuiTableRowCell cellAlignTop actions"></td>
                                     <td class="kuiTableRowCell cellAlignTop actions">
-                                        <button type="button" ng-click="addArrayEntry(resource.dlsfls[selectedIndex], '_fls_', '')" ng-disabled="lastArrayEntryEmpty(resource.dlsfls[selectedIndex]['_fls_'])" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                        <button
+                                                type="button"
+                                                ng-click="addArrayEntry(resource.dlsfls[selectedIndex], '_fls_', '')"
+                                                ng-disabled="lastArrayEntryEmpty(resource.dlsfls[selectedIndex]['_fls_'])"
+                                                class="kuiButton kuiButton--primary kuiButton--iconText"
+                                                id="sg.button.roles.fls.add">
+                                            <span class="kuiButton__icon kuiIcon fa-plus"></span>
+                                            Add Field
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- FLS Masked Fields Table -->
+                            <table class="kuiTable tableIndexGroups" ng-show="!indicesEmpty() && complianceFeaturesEnabled">
+                                <thead>
+                                <tr>
+                                    <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
+                                        <div class="kuiTableHeaderCell__liner">
+                                            Anonymize fields:
+                                            <div style="display: inline;">
+                                                <span class="kuiInfoButton help" tooltip='Replace the value of these fields with an anonymized hash.'>
+                                                    <span class="kuiIcon fa-info-circle"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th class="kuiTableHeaderCell tableHeaderCellIndexGroups actions">
+                                        <div class="kuiTableHeaderCell__liner">
+                                        </div>
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr class="kuiTableRow" ng-if="!resource.dlsfls[selectedIndex]['_masked_fields_'].length">
+                                    <td class="kuiTableRowCell" colspan="2" >
+                                        <div class="kuiPanel kuiPanel--centered kuiPanel--noborder">
+                                            <div class="kuiEmptyTablePrompt kuiEmptyTablePrompt--nopadding">
+                                                <div class="kuiEmptyTablePrompt__message ng-binding">No anonymized fields configured.</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr data-ng-repeat="maskedfield in resource.dlsfls[selectedIndex]['_masked_fields_'] track by $index">
+                                    <td class="kuiTableRowCell cellAlignTop">
+                                        <fieldset class="marginbottom--small" id="object-form-actiongroups" >
+                                            <input
+                                                    type="text"
+                                                    class="kuiTextInput fullwidth"
+                                                    ng-model="resource.dlsfls[selectedIndex]['_masked_fields_'][$index]"
+                                                    name=""
+                                                    id="sg.input.roles.maskedfields.{{resource.dlsfls[selectedIndex]['_masked_fields_'][$index]}}">
+                                        </fieldset>
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop actions">
+                                        <a
+                                                tooltip="Delete field {{resource.dlsfls[selectedIndex]['_masked_fields_'][$index]}}"
+                                                ng-click="confirmRemoveArrayEntry(resource.dlsfls[selectedIndex]['_masked_fields_'], maskedfield)"
+                                                class="kuiButton kuiButton--danger kuiButton--iconText"
+                                                id="sg.button.roles.maskedfields.delete.{{resource.dlsfls[selectedIndex]['_masked_fields_'][$index]}}">
+                                            <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr class="kuiTableRow">
+                                    <td class="kuiTableRowCell cellAlignTop actions"></td>
+                                    <td class="kuiTableRowCell cellAlignTop actions">
+                                        <button type="button"
+                                                ng-click="addArrayEntry(resource.dlsfls[selectedIndex], '_masked_fields_', '')"
+                                                ng-disabled="lastArrayEntryEmpty(resource.dlsfls[selectedIndex]['_masked_fields_'])"
+                                                class="kuiButton kuiButton--primary kuiButton--iconText"
+                                                id="sg.button.roles.maskedfields.add">
                                             <span class="kuiButton__icon kuiIcon fa-plus"></span>
                                             Add Field
                                         </button>
@@ -439,19 +521,25 @@
                                 <tr class="kuiTableRow" data-ng-repeat="tenant in sortObjectArray(resource.tenantsArray,'name') track by $index">
                                     <td class="kuiTableRowCell">
                                         <fieldset class="marginbottom--small" id="object-form-actiongroups">
-                                            <input type="text" class="kuiTextInput fullwidth" ng-model="resource.tenantsArray[$index].name">
+                                            <input
+                                                    type="text"
+                                                    class="kuiTextInput fullwidth"
+                                                    ng-model="resource.tenantsArray[$index].name"
+                                                    id="sg.input.roles.tenants.{{resource.tenantsArray[$index].name}}">
                                         </fieldset>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <select class="kuiSelect" name="permissionsSelect" ng-model="resource.tenantsArray[$index].permissions">
-                                            <option value="RW">Read / Write</option>
-                                            <option value="RO">Read Only</option>
+                                            <option value="RW" id="sg.option.roles.tenants.{{resource.tenantsArray[$index].name}}.rw">Read / Write</option>
+                                            <option value="RO" id="sg.option.roles.tenants.{{resource.tenantsArray[$index].name}}.ro">Read Only</option>
                                         </select>
                                     </td>
                                     <td class="kuiTableRowCell actions">
-                                        <a ng-click="confirmRemoveFromObjectArray(resource.tenantsArray, $index, resource.tenantsArray[$index].name)"
-                                           class="kuiButton kuiButton--danger kuiButton--iconText">
-                                            <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                        <a
+                                                ng-click="confirmRemoveFromObjectArray(resource.tenantsArray, $index, resource.tenantsArray[$index].name)"
+                                                class="kuiButton kuiButton--danger kuiButton--iconText"
+                                                id="sg.button.roles.tenants.delete.{{resource.tenantsArray[$index].name}}">
+                                        <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                         </a>
                                     </td>
                                 </tr>
@@ -461,6 +549,7 @@
                                     <td class="kuiTableRowCell cellAlignTop actions">
                                         <button type="button" ng-click="addToObjectArray(resource.tenantsArray, {name: '', permissions: 'RW'})"
                                                 ng-disabled="lastArrayEntryEmpty(resource.tenantsArray)"
+                                                id="sg.button.roles.tenants.add"
                                                 class="kuiButton kuiButton--primary kuiButton--iconText">
                                             <span class="kuiButton__icon kuiIcon fa-plus"></span>
                                             Add
@@ -473,8 +562,8 @@
 
 
                         <div class="formsubmit">
-                            <button ng-if="!addingIndex" ng-disabled="!endpointAndMethodEnabled('ROLES', 'PUT') || resource.readonly"  class="kuiButton kuiButton--primary kuiButton--text" type="submit">Save Role Definition</button>
-                            <button ng-if="!addingIndex" class="kuiButton kuiButton--basic kuiButton--text" type="button" ng-click="cancel()">Cancel</button>
+                            <button id="sg.button.submit" ng-if="!addingIndex" ng-disabled="!endpointAndMethodEnabled('ROLES', 'PUT') || resource.readonly"  class="kuiButton kuiButton--primary kuiButton--text" type="submit">Save Role Definition</button>
+                            <button id="sg.button.cancel" ng-if="!addingIndex" class="kuiButton kuiButton--basic kuiButton--text" type="button" ng-click="cancel()">Cancel</button>
                         </div>
                     </div>
                 </form>
