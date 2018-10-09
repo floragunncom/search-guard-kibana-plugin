@@ -18,6 +18,28 @@ uiModules.get('apps/searchguard/configuration', [])
         // @url https://www.elastic.co/guide/en/kibana/current/development-basepath.html
         const AUTH_BACKEND_API_ROOT = chrome.addBasePath("/api/v1");
 
+        /**
+         * Convert an object to a query string
+         * @param {object} queryParameterObject
+         * @returns {string}
+         */
+        function serializeQueryParameterObject(queryParameterObject) {
+            let queryParameterString = '';
+
+            if (queryParameterObject) {
+                let query = [];
+                for (let key in queryParameterObject) {
+                    query.push(`${encodeURIComponent(key)}=${encodeURIComponent(queryParameterObject[key])}`)
+                }
+
+                if (query.length) {
+                    queryParameterString = '?' + query.join('&');
+                }
+            }
+
+            return queryParameterString;
+        }
+
         this.testConnection =  () => {
 
             return $http.post(`${AUTH_BACKEND_API_ROOT}/get/config`)
@@ -109,8 +131,14 @@ uiModules.get('apps/searchguard/configuration', [])
                 });
         };
 
-        this.listSilent = (resourceName)  => {
-            return $http.get(`${AUTH_BACKEND_API_ROOT}/configuration/${resourceName}`)
+        /**
+         *
+         * @param resourceName
+         * @param {object} queryParameters
+         * @returns {*}
+         */
+        this.listSilent = (resourceName, queryParameters)  => {
+            return $http.get(`${AUTH_BACKEND_API_ROOT}/configuration/${resourceName}${serializeQueryParameterObject(queryParameters)}`)
                 .then((response) => {
                     return response.data;
                 })
