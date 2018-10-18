@@ -1,4 +1,5 @@
 const pluginRoot = require('requirefrom')('');
+import frontendBridge from './lib/auth/frontend_bridge';
 import { resolve, join, sep } from 'path';
 import { has } from 'lodash';
 import indexTemplate from './lib/elasticsearch/setup_index_template';
@@ -344,6 +345,7 @@ export default function (kibana) {
                 this.status.red("'elasticsearch.ssl.certificate' can not be used without setting 'searchguard.allow_client_certificates' to 'true' in kibana.yml. Please refer to the documentation for more information about the implications of doing so.");
             }
 
+            server.ext(frontendBridge(server, config, this.kbnServer.uiExports.injectedVarsReplacers));
         }
     });
 };
