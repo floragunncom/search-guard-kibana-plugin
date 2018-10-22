@@ -119,7 +119,6 @@ export default function (kibana) {
                 try {
                     // If the user is authenticated, just get the regular values
                     if(request.auth.sgSessionStorage.isAuthenticated()) {
-                        console.log('Doing things', authType);
                         let sessionCredentials = request.auth.sgSessionStorage.getSessionCredentials();
                         userInfo = {
                             username: sessionCredentials.username,
