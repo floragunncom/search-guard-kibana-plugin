@@ -1,5 +1,4 @@
 const pluginRoot = require('requirefrom')('');
-import frontendBridge from './lib/auth/frontend_bridge';
 import { resolve, join, sep } from 'path';
 import { has } from 'lodash';
 import indexTemplate from './lib/elasticsearch/setup_index_template';
@@ -111,6 +110,46 @@ export default function (kibana) {
                 'plugins/searchguard/chrome/configuration/enable_configuration',
                 'plugins/searchguard/services/access_control'
             ],
+            replaceInjectedVars: async function(originalInjectedVars, request, server) {
+                const authType = server.config().get('searchguard.auth.type');
+                // Make sure sgDynamic is always available to the frontend, no matter what
+                let sgDynamic = {};
+                let userInfo = null;
+
+                try {
+                    // If the user is authenticated, just get the regular values
+                    if(request.auth.sgSessionStorage.isAuthenticated()) {
+                        console.log('Doing things', authType);
+                        let sessionCredentials = request.auth.sgSessionStorage.getSessionCredentials();
+                        userInfo = {
+                            username: sessionCredentials.username,
+                            isAnonymousAuth: sessionCredentials.isAnonymousAuth
+                        };
+                    } else if (['', 'kerberos', 'proxy'].indexOf(authType) > -1) {
+                        // We should be able to use this with kerberos and proxy too
+                        try {
+                            let authInfo = await request.auth.sgSessionStorage.getAuthInfo();
+                            userInfo = {
+                                username: authInfo.user_name
+                            };
+                        } catch(error) {
+                            // Not authenticated, so don't do anything
+                        }
+                    }
+
+                    if (userInfo) {
+                        sgDynamic.user = userInfo;
+                    }
+                } catch (error) {
+                    // Don't to anything here.
+                    // If there's an error, it's probably because x-pack security is enabled.
+                }
+
+                return {
+                    ...originalInjectedVars,
+                    sgDynamic
+                }
+            },
             apps: [
                 {
                     id: 'searchguard-login',
@@ -345,8 +384,6 @@ export default function (kibana) {
             if ((typeof config.get('elasticsearch.ssl.certificate') !== 'undefined' && typeof config.get('elasticsearch.ssl.certificate') !== false) && config.get('searchguard.allow_client_certificates') !== true) {
                 this.status.red("'elasticsearch.ssl.certificate' can not be used without setting 'searchguard.allow_client_certificates' to 'true' in kibana.yml. Please refer to the documentation for more information about the implications of doing so.");
             }
-
-            server.ext(frontendBridge(server, config, this.kbnServer.uiExports.injectedVarsReplacers));
         }
     });
 };
