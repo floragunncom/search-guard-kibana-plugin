@@ -9,9 +9,39 @@ if [ -z "$KIBANA_VERSION" ] || [ -z "$SG_PLUGIN_VERSION" ] || [ -z "$COMMAND" ];
     exit 1;
 fi
 
-if [ "$COMMAND" != "release" ] && [ "$COMMAND" != "install" ]; then
+if [ "$COMMAND" != "deploy" ] && [ "$COMMAND" != "install" ]; then
     echo "Usage: ./build.sh <kibana_version> <sg_plugin_version> <install|deploy>"
     echo "Unknown command: $COMMAND"
+    exit 1;
+fi
+
+# sanity checks for maven
+if [ -z "$MAVEN_HOME" ]; then
+    echo "MAVEN_HOME not set"
+    exit 1;
+fi
+
+echo "+++ Checking Maven version +++"
+$MAVEN_HOME/bin/mvn -version
+if [ $? != 0 ]; then
+    echo "Checking maven version failed";
+    exit 1;
+fi
+
+
+# sanity checks for nvm
+if [ -z "$NVM_HOME" ]; then
+    echo "NVM_HOME not set"
+    exit 1;
+fi
+
+echo "+++ Sourcing nvm +++"
+[ -s "$NVM_HOME/nvm.sh" ] && \. "$NVM_HOME/nvm.sh"
+
+echo "+++ Checking nvm version +++"
+nvm version
+if [ $? != 0 ]; then
+    echo "Checking mvn version failed";
     exit 1;
 fi
 
@@ -30,6 +60,10 @@ done < "package.json"
 
 # cleanup any leftovers
 ./clean.sh
+if [ $? != 0 ]; then
+    echo "Cleaning leftovers failed";
+    exit 1;
+fi
 
 # prepare artefacts
 PLUGIN_NAME="searchguard-kibana-$KIBANA_VERSION-$SG_PLUGIN_VERSION"
@@ -42,23 +76,41 @@ cd build_stage
 
 echo "+++ Cloning https://github.com/elastic/kibana.git +++"
 git clone https://github.com/elastic/kibana.git || true
+if [ $? != 0 ]; then
+    echo "got clone Kibana repository failed";
+    exit 1;
+fi
+
 cd "kibana"
 git fetch
 
 echo "+++ Change to tags/v$KIBANA_VERSION +++"
 git checkout "tags/v$KIBANA_VERSION"
 
-echo "+++ Installting nvm +++"
-curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+if [ $? != 0 ]; then
+    echo "Switching to Kibana tags/v$KIBANA_VERSION failed";
+    exit 1;
+fi
+
+echo "+++ Installing node version $(cat .node-version) +++"
 nvm install "$(cat .node-version)"
+if [ $? != 0 ]; then
+    echo "Installing node $(cat .node-version) failed";
+    exit 1;
+fi
+
+
 cd "$DIR"
 rm -rf build/
 rm -rf node_modules/
 
 echo "+++ Installing node modules +++"
 npm install
+if [ $? != 0 ]; then
+    echo "Installing node modules failed";
+    exit 1;
+fi
+
 
 echo "+++ Copy plugin contents +++"
 COPYPATH="build/kibana/$PLUGIN_NAME"
@@ -71,10 +123,18 @@ cp -a "$DIR/public" "$COPYPATH"
 
 if [ "$COMMAND" = "release" ] ; then
     echo "+++ mvn clean deploy -Prelease +++"
-    mvn clean deploy -Prelease
+    $MAVEN_HOME/bin/mvn clean deploy -Prelease
+    if [ $? != 0 ]; then
+        echo "$MAVEN_HOME/bin/mvn clean deploy -Prelease failed";
+        exit 1;
+    fi
 fi
 
 if [ "$COMMAND" = "install" ] ; then
     echo "+++ mvn clean install +++"
-    mvn clean install
+    $MAVEN_HOME/bin/mvn clean install
+    if [ $? != 0 ]; then
+        echo "$MAVEN_HOME/bin/mvn clean install failed";
+        exit 1;
+    fi
 fi
