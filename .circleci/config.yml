@@ -16,7 +16,7 @@ jobs:
             curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.5/install.sh | bash > /dev/null 2>&1
             export NVM_HOME=~/.nvm
             export MAVEN_HOME=/opt/apache-maven
-            ./build.sh 6.4.0 16-SNAPSHOT install
+            ./build.sh 6.3.1 16-INTEGRATOR-3-SNAPSHOT install
 workflows:
   version: 2
   build:
