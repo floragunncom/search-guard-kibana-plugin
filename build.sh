@@ -28,7 +28,6 @@ if [ $? != 0 ]; then
     exit 1;
 fi
 
-
 # sanity checks for nvm
 if [ -z "$NVM_HOME" ]; then
     echo "NVM_HOME not set"
@@ -75,7 +74,7 @@ mkdir -p build_stage
 cd build_stage
 
 echo "+++ Cloning https://github.com/elastic/kibana.git +++"
-git clone https://github.com/elastic/kibana.git || true
+git clone https://github.com/elastic/kibana.git || true > /dev/null 2>&1
 if [ $? != 0 ]; then
     echo "got clone Kibana repository failed";
     exit 1;
