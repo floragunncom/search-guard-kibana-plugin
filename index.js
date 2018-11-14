@@ -42,6 +42,13 @@ export default function (kibana) {
                     enabled: Joi.boolean().default(true),
                     unauthenticated_routes: Joi.array().default(["/api/status"]),
                     forbidden_usernames: Joi.array().default([]),
+                    alternative_login: Joi.object().keys({
+                        headers: Joi.array().default([]),
+                        show_for_parameter: Joi.string().allow('').default(''),
+                        valid_redirects: Joi.array().default([]),
+                        button_text: Joi.string().default('Login with provider'),
+                        buttonstyle: Joi.string().allow('').default("")
+                    }).default(),
                     login: Joi.object().keys({
                         title: Joi.string().allow('').default('Please login to Kibana'),
                         subtitle: Joi.string().allow('').default('If you have forgotten your username or password, please ask your system administrator'),
