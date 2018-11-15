@@ -32,6 +32,7 @@ app.factory('errorInterceptor', function ($q, $window) {
             if (response.status == 401 && response.data && response.data.redirectTo === 'login') {
                 const APP_ROOT = `${chrome.getBasePath()}`;
                 const path = chrome.removeBasePath($window.location.pathname);
+                const injectedConfig = chrome.getInjected();
 
                 // Don't run on login or logout. We shouldn't have any Ajax requests here,
                 // but if other plugins are active, we would get a redirect loop.
@@ -39,7 +40,7 @@ app.factory('errorInterceptor', function ($q, $window) {
                     return $q.reject(response);
                 }
 
-                let auth = chrome.getInjected('auth');
+                let auth = injectedConfig.auth;
                 if (auth && auth.type && auth.type === 'jwt') {
                     // For JWT we don't have a login page, so we need to go to the custom error page
                     $window.location.href = `${APP_ROOT}/customerror?type=sessionExpired`;
@@ -50,7 +51,12 @@ app.factory('errorInterceptor', function ($q, $window) {
                     } else if (auth && auth.type === 'saml') {
                         $window.location.href = `${APP_ROOT}/auth/saml/login?nextUrl=${encodeURIComponent(nextUrl)}`;
                     } else {
-                        $window.location.href = `${APP_ROOT}/login?nextUrl=${encodeURIComponent(nextUrl)}`;
+                        // Handle differently if we were logged in anonymously
+                        if (auth && auth.type === 'basicauth' && injectedConfig.sgDynamic && injectedConfig.sgDynamic.user && injectedConfig.sgDynamic.user.isAnonymousAuth) {
+                            $window.location.href = `${APP_ROOT}/auth/anonymous?nextUrl=${encodeURIComponent(nextUrl)}`;
+                        } else {
+                            $window.location.href = `${APP_ROOT}/login?nextUrl=${encodeURIComponent(nextUrl)}`;
+                        }
                     }
                 }
             }

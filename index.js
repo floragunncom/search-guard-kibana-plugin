@@ -49,6 +49,7 @@ export default function (kibana) {
                         button_text: Joi.string().default('Login with provider'),
                         buttonstyle: Joi.string().allow('').default("")
                     }).default(),
+                    loadbalancer_url: Joi.string().allow('', null).default(null),
                     login: Joi.object().keys({
                         title: Joi.string().allow('').default('Please login to Kibana'),
                         subtitle: Joi.string().allow('').default('If you have forgotten your username or password, please ask your system administrator'),
