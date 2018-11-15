@@ -52,5 +52,10 @@ export const messageTypes = {
     samlLogoutSuccess: {
         title: 'You have been logged out.',
         subtitle: ''
-    }
+    },
+
+    anonymousAuthError: {
+        title: 'Anonymous authentication error',
+        subtitle: 'Please make sure that anonymous auth is enabled in Search Guard.'
+    },
 };
