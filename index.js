@@ -71,6 +71,9 @@ export default function (kibana) {
                 configuration: Joi.object().keys({
                     enabled: Joi.boolean().default(true)
                 }).default(),
+                accountinfo: Joi.object().keys({
+                    enabled: Joi.boolean().default(false)
+                }).default(),
                 openid: Joi.object().keys({
                     connect_url: Joi.string(),
                     header: Joi.string().default('Authorization'),
@@ -114,6 +117,7 @@ export default function (kibana) {
             hacks: [
                 'plugins/searchguard/chrome/readonly/enable_readonly',
                 'plugins/searchguard/chrome/multitenancy/enable_multitenancy',
+                'plugins/searchguard/chrome/accountinfo/enable_accountinfo',
                 'plugins/searchguard/chrome/logout_button',
                 'plugins/searchguard/chrome/configuration/enable_configuration',
                 'plugins/searchguard/services/access_control'
@@ -184,6 +188,17 @@ export default function (kibana) {
                     url: '/app/searchguard-multitenancy#/'
                 },
                 {
+                    id: 'searchguard-accountinfo',
+                    title: 'Account',
+                    main: 'plugins/searchguard/apps/accountinfo/accountinfo',
+                    hidden: false,
+                    auth: true,
+                    order: 9020,
+                    icon: 'plugins/searchguard/assets/info.svg',
+                    linkToLastSubUrl: false,
+                    url: '/app/searchguard-accountinfo#/'
+                },
+                {
                     id: 'searchguard-configuration',
                     title: 'Search Guard',
                     main: 'plugins/searchguard/apps/configuration/configuration',
@@ -200,6 +215,7 @@ export default function (kibana) {
             ,
             injectDefaultVars(server, options) {
                 options.multitenancy_enabled = server.config().get('searchguard.multitenancy.enabled');
+                options.accountinfo_enabled = server.config().get('searchguard.accountinfo.enabled');
                 options.basicauth_enabled = server.config().get('searchguard.basicauth.enabled');
                 options.kibana_index = server.config().get('kibana.index');
                 options.kibana_server_user = server.config().get('elasticsearch.username');
