@@ -17,8 +17,9 @@
 import { parse } from 'url';
 
 export function getNextUrl(currentUrl, basePath = '') {
+    currentUrl = decodeURIComponent(currentUrl);
 
-    const {query, hash} = parse(currentUrl, true);
+    const {query, hash} = parse(currentUrl, true, true);
 
     // no nexturl in query, redirect to basepath
     if (!query.nextUrl) {
@@ -28,8 +29,9 @@ export function getNextUrl(currentUrl, basePath = '') {
     // check next url is valid and does not redirect to a malicious site.
 
     // check forgery of protocol, hostname, port, pathname
-    const { protocol, hostname, port, pathname } = parse(query.nextUrl);
-    if (protocol || hostname || port) {
+    const { protocol, hostname, port, pathname } = parse(query.nextUrl, false, true);
+
+    if (protocol !== null || hostname !== null || port !== null) {
         return `${basePath}/`;
     }
 

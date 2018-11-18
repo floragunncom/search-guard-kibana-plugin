@@ -14,6 +14,7 @@
  limitations under the License.
  */
 
+import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules';
 
 uiModules
@@ -25,6 +26,21 @@ uiModules
     restrict: 'E',
     link: ($scope) => {
       $scope.logout = () => searchGuardAccessControl.logout();
+
+        let chromeInjected = chrome.getInjected();
+
+        $scope.logoutButtonLabel = 'Logout';
+        $scope.logoutTooltip = 'Logout';
+
+        if (chromeInjected && chromeInjected.sgDynamic && chromeInjected.sgDynamic.user) {
+            if (!chromeInjected.sgDynamic.user.isAnonymousAuth) {
+                $scope.logoutButtonLabel = chromeInjected.sgDynamic.user.username;
+                $scope.logoutTooltip = 'Logout ' + chromeInjected.sgDynamic.user.username;
+            } else {
+                $scope.logoutButtonLabel = 'Login';
+                $scope.logoutTooltip = 'Login';
+            }
+        }
     }
   };
 });
