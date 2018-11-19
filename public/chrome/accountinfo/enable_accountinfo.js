@@ -20,24 +20,10 @@ import { uiModules } from 'ui/modules';
 import { FeatureCatalogueRegistryProvider, FeatureCatalogueCategory } from 'ui/registry/feature_catalogue';
 import { EuiIcon } from '@elastic/eui';
 
-export function toggleNavLink(Private) {
-    var enabled = chrome.getInjected('multitenancy_enabled');
-    chrome.getNavLinkById("searchguard-multitenancy").hidden = !enabled;
-    if (enabled) {
-      FeatureCatalogueRegistryProvider.register(() => {
-          return {
-              id: 'searchguard-multitenancy',
-              title: 'Search Guard Multi Tenancy',
-              description: 'Separate searches, visualizations and dashboards by tenants.',
-              icon: 'usersRolesApp',
-              path: '/app/searchguard-multitenancy',
-              showOnHomePage: true,
-              category: FeatureCatalogueCategory.DATA
-          };
-      });
-  }
-
+export function toggleAccountInfoLink(Private) {
+    var enabled = chrome.getInjected('accountinfo_enabled');
+    chrome.getNavLinkById("searchguard-accountinfo").hidden = !enabled;
 }
 
-uiModules.get('searchguard').run(toggleNavLink);
+uiModules.get('searchguard').run(toggleAccountInfoLink);
 

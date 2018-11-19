@@ -35,12 +35,21 @@ export default function (kibana) {
                 }).default(),
                 auth: Joi.object().keys({
                     type: Joi.string().valid(['', 'basicauth', 'jwt', 'openid', 'saml', 'proxy', 'kerberos']).default(''),
+                    anonymous_auth_enabled: Joi.boolean().default(false),
                     unauthenticated_routes: Joi.array().default(["/api/status"]),
                 }).default(),
                 basicauth: Joi.object().keys({
                     enabled: Joi.boolean().default(true),
                     unauthenticated_routes: Joi.array().default(["/api/status"]),
                     forbidden_usernames: Joi.array().default([]),
+                    alternative_login: Joi.object().keys({
+                        headers: Joi.array().default([]),
+                        show_for_parameter: Joi.string().allow('').default(''),
+                        valid_redirects: Joi.array().default([]),
+                        button_text: Joi.string().default('Login with provider'),
+                        buttonstyle: Joi.string().allow('').default("")
+                    }).default(),
+                    loadbalancer_url: Joi.string().allow('', null).default(null),
                     login: Joi.object().keys({
                         title: Joi.string().allow('').default('Please login to Kibana'),
                         subtitle: Joi.string().allow('').default('If you have forgotten your username or password, please ask your system administrator'),
@@ -61,6 +70,9 @@ export default function (kibana) {
                 }).default(),
                 configuration: Joi.object().keys({
                     enabled: Joi.boolean().default(true)
+                }).default(),
+                accountinfo: Joi.object().keys({
+                    enabled: Joi.boolean().default(false)
                 }).default(),
                 openid: Joi.object().keys({
                     connect_url: Joi.string(),
@@ -105,10 +117,50 @@ export default function (kibana) {
             hacks: [
                 'plugins/searchguard/chrome/readonly/enable_readonly',
                 'plugins/searchguard/chrome/multitenancy/enable_multitenancy',
+                'plugins/searchguard/chrome/accountinfo/enable_accountinfo',
                 'plugins/searchguard/chrome/logout_button',
                 'plugins/searchguard/chrome/configuration/enable_configuration',
                 'plugins/searchguard/services/access_control'
             ],
+            replaceInjectedVars: async function(originalInjectedVars, request, server) {
+                const authType = server.config().get('searchguard.auth.type');
+                // Make sure sgDynamic is always available to the frontend, no matter what
+                let sgDynamic = {};
+                let userInfo = null;
+
+                try {
+                    // If the user is authenticated, just get the regular values
+                    if(request.auth.sgSessionStorage.isAuthenticated()) {
+                        let sessionCredentials = request.auth.sgSessionStorage.getSessionCredentials();
+                        userInfo = {
+                            username: sessionCredentials.username,
+                            isAnonymousAuth: sessionCredentials.isAnonymousAuth
+                        };
+                    } else if (['', 'kerberos', 'proxy'].indexOf(authType) > -1) {
+                        // We should be able to use this with kerberos and proxy too
+                        try {
+                            let authInfo = await request.auth.sgSessionStorage.getAuthInfo();
+                            userInfo = {
+                                username: authInfo.user_name
+                            };
+                        } catch(error) {
+                            // Not authenticated, so don't do anything
+                        }
+                    }
+
+                    if (userInfo) {
+                        sgDynamic.user = userInfo;
+                    }
+                } catch (error) {
+                    // Don't to anything here.
+                    // If there's an error, it's probably because x-pack security is enabled.
+                }
+
+                return {
+                    ...originalInjectedVars,
+                    sgDynamic
+                }
+            },
             apps: [
                 {
                     id: 'searchguard-login',
@@ -136,6 +188,17 @@ export default function (kibana) {
                     url: '/app/searchguard-multitenancy#/'
                 },
                 {
+                    id: 'searchguard-accountinfo',
+                    title: 'Account',
+                    main: 'plugins/searchguard/apps/accountinfo/accountinfo',
+                    hidden: false,
+                    auth: true,
+                    order: 9020,
+                    icon: 'plugins/searchguard/assets/info.svg',
+                    linkToLastSubUrl: false,
+                    url: '/app/searchguard-accountinfo#/'
+                },
+                {
                     id: 'searchguard-configuration',
                     title: 'Search Guard',
                     main: 'plugins/searchguard/apps/configuration/configuration',
@@ -152,6 +215,7 @@ export default function (kibana) {
             ,
             injectDefaultVars(server, options) {
                 options.multitenancy_enabled = server.config().get('searchguard.multitenancy.enabled');
+                options.accountinfo_enabled = server.config().get('searchguard.accountinfo.enabled');
                 options.basicauth_enabled = server.config().get('searchguard.basicauth.enabled');
                 options.kibana_index = server.config().get('kibana.index');
                 options.kibana_server_user = server.config().get('elasticsearch.username');
@@ -343,7 +407,6 @@ export default function (kibana) {
             if ((typeof config.get('elasticsearch.ssl.certificate') !== 'undefined' && typeof config.get('elasticsearch.ssl.certificate') !== false) && config.get('searchguard.allow_client_certificates') !== true) {
                 this.status.red("'elasticsearch.ssl.certificate' can not be used without setting 'searchguard.allow_client_certificates' to 'true' in kibana.yml. Please refer to the documentation for more information about the implications of doing so.");
             }
-
         }
     });
 };

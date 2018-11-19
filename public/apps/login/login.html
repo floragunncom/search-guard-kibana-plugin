@@ -28,6 +28,10 @@
     </div>
 
     <button id="sg.login" type="submit" class="btn btn-default btn-login" ng-attr-style="{{ui.buttonstyle}}">Log in</button>
+
+    <a ng-if="ui.alternativeLogin" ng-href="{{ui.alternativeLogin.url}}" id="sg.alternative_login" class="btn btn-default btn-login" ng-attr-style="margin-top: 20px; {{ui.alternativeLogin.styles}}" style="">
+      {{ui.alternativeLogin.buttonLabel}}
+    </a>
   </form>
 
   <p class="error-message" id="sg.errormessage" ng-if="ui.errorMessage">{{ ui.errorMessage }}</p>
