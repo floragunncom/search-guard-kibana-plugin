@@ -120,7 +120,7 @@ cp -a "$DIR/lib" "$COPYPATH"
 cp -a "$DIR/node_modules" "$COPYPATH"
 cp -a "$DIR/public" "$COPYPATH"
 
-if [ "$COMMAND" = "release" ] ; then
+if [ "$COMMAND" = "deploy" ] ; then
     echo "+++ mvn clean deploy -Prelease +++"
     $MAVEN_HOME/bin/mvn clean deploy -Prelease
     if [ $? != 0 ]; then
