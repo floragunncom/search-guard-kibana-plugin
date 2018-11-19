@@ -43,6 +43,49 @@ export default function LoginController(kbnUrl, $scope, $http, $window, systemst
     this.brandimage = chrome.getInjected("basicauth.login.brandimage");
     this.buttonstyle = chrome.getInjected("basicauth.login.buttonstyle");
 
+    const alternativeLoginConfig = chrome.getInjected("basicauth.alternative_login");
+
+    // Build an object from the query parameters
+    // Strip the first ? from the query parameters, if we have any
+    let queryString = location.search.trim().replace(/^(\?)/, '');
+    let queryObject = {};
+    if (queryString) {
+        queryString.split('&')
+            .map((parameter) => {
+                let parameterParts = parameter.split('=');
+                if (parameterParts[1]) {
+                    queryObject[encodeURIComponent(parameterParts[0])] = parameterParts[1]
+                }
+            })
+    }
+
+    // Prepare alternative login for the view
+    this.alternativeLogin = null;
+
+    if (alternativeLoginConfig && alternativeLoginConfig.show_for_parameter) {
+
+        let alternativeLoginURL = queryObject[alternativeLoginConfig.show_for_parameter];
+        let validRedirect = false;
+
+        try {
+            alternativeLoginConfig.valid_redirects.forEach((redirect) => {
+                if (new RegExp(redirect).test(alternativeLoginURL)) {
+                    validRedirect = true;
+                }
+            });
+        } catch (error) {
+            console.warn(error);
+        }
+
+        if (validRedirect) {
+            this.alternativeLogin = {
+                url: queryObject[alternativeLoginConfig.show_for_parameter],
+                styles: alternativeLoginConfig.buttonstyle,
+                buttonLabel: alternativeLoginConfig.button_text,
+            };
+        }
+    }
+
     if (BRANDIMAGE.startsWith("/plugins")) {
         this.brandimage = ROOT + BRANDIMAGE;
     } else {
