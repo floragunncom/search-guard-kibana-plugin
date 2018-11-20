@@ -5,6 +5,7 @@ import { get } from 'lodash';
 import '../../backend_api/roles';
 import '../../backend_api/actiongroups';
 import '../../systemstate/systemstate'
+import savedobjectspermissions from '../../permissions/savedobjectspermissions';
 
 const app = uiModules.get('apps/searchguard/configuration', []);
 
@@ -131,7 +132,7 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
             if (item.id === -1) {
                 let newTenant = {
                     name: item.name,
-                    permissions: [],
+                    permissions: savedobjectspermissions.filter(permission => (permission.default)).map(item => item.name),
                     actiongroups: []
                 };
 
@@ -179,7 +180,6 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         }
     };
 
-    // @todo Handle config settings for MT
     const setTenantsForApplicationPermissions = function() {
         let tenants = [];
         tenants = tenants.concat($scope.resource.tenantsArray);
