@@ -18,7 +18,6 @@ import { toastNotifications } from 'ui/notify';
 import chrome from 'ui/chrome';
 import uiRoutes from 'ui/routes';
 import { uiModules } from 'ui/modules';
-import { Notifier } from 'ui/notify/notifier';
 import 'ui/autoload/styles';
 import { IndexPatternsGetProvider } from 'ui/index_patterns/_get';
 
@@ -44,7 +43,6 @@ uiModules
 
         var APP_ROOT = `${chrome.getBasePath()}`;
         var API_ROOT = `${APP_ROOT}/api/v1`;
-        let notify = new Notifier({});
 
         /**
          * Is the user in a read only mode - either because of a dashboard only role,
@@ -115,7 +113,13 @@ uiModules
                     return;
                 }
             },
-            (error) => notify.error(error)
+            (error) =>
+            {
+                toastNotifications.addDanger({
+                    title: 'Unable to load multitenancy info.',
+                    text: error.message,
+                });
+            }
         );
 
         $http.get(`${API_ROOT}/auth/authinfo`)
@@ -149,10 +153,20 @@ uiModules
                         this.currentTenant = response.data;
                         this.tenantLabel = "Active tenant: " + resolveTenantName(this.currentTenant, this.username);
                     },
-                    (error) => notify.error(error)
+                    (error) => {
+                        toastNotifications.addDanger({
+                            text: error.message,
+                        });
+                    }
                 );
             },
-            (error) => notify.error(error)
+            (error) =>
+            {
+                toastNotifications.addDanger({
+                    title: 'Unable to load authentication info.',
+                    text: error.message,
+                });
+            }
         );
 
         this.selectTenant = function (tenantLabel, tenant, redirect) {
@@ -195,7 +209,12 @@ uiModules
                         });
                     }
                 },
-                (error) => notify.error(error)
+                (error) =>
+                {
+                    toastNotifications.addDanger({
+                        text: error.message
+                    });
+                }
             );
         };
 

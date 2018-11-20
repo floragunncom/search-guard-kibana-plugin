@@ -1,7 +1,7 @@
 import { uiModules } from 'ui/modules';
 import chrome from 'ui/chrome';
 import { SavedObjectsClientProvider } from 'ui/saved_objects';
-
+import { toastNotifications } from 'ui/notify';
 import { get } from 'lodash';
 import './directives/directives';
 import '../../directives/licensewarning'
@@ -22,12 +22,10 @@ require ('./systemstate/systemstate');
 
 const app = uiModules.get('apps/searchguard/configuration', ['ui.ace', 'ui.select']);
 
-app.controller('sgBaseController', function ($scope, $element, $route, $window, $http, createNotifier, backendAPI, backendActionGroups, backendRoles, kbnUrl, systemstate) {
+app.controller('sgBaseController', function ($scope, $element, $route, $window, $http, backendAPI, backendActionGroups, backendRoles, kbnUrl, systemstate) {
 
     var APP_ROOT = `${chrome.getBasePath()}`;
     var API_ROOT = `${APP_ROOT}/api/v1`;
-
-    const notify = createNotifier({});
 
     // props of the child controller
     $scope.service = null;
@@ -121,7 +119,10 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
                 $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete($scope.actiongroupNames);
                 sessionStorage.setItem("actiongroupsautocomplete", JSON.stringify($scope.actiongroupsAutoComplete));
             }, (error) => {
-                notify.error(error);
+                toastNotifications.addDanger({
+                    title: 'Unable to load action groups',
+                    text: error.message,
+                });
                 $scope.accessState = "forbidden";
             });
         }
@@ -150,7 +151,9 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
                 sessionStorage.setItem("rolesautocomplete", JSON.stringify($scope.rolesAutoComplete));
                 sessionStorage.setItem("rolenames", JSON.stringify(Object.keys(response.data)));
             }, (error) => {
-                notify.error(error);
+                toastNotifications.addDanger({
+                    text: error.message,
+                });
                 $scope.accessState = "forbidden";
             });
         }
