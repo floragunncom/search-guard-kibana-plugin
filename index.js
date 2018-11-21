@@ -120,7 +120,8 @@ export default function (kibana) {
                 'plugins/searchguard/chrome/accountinfo/enable_accountinfo',
                 'plugins/searchguard/chrome/logout_button',
                 'plugins/searchguard/chrome/configuration/enable_configuration',
-                'plugins/searchguard/services/access_control'
+                'plugins/searchguard/services/access_control',
+                'plugins/searchguard/customizations/enable_customizations.js'
             ],
             replaceInjectedVars: async function(originalInjectedVars, request, server) {
                 const authType = server.config().get('searchguard.auth.type');
