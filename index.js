@@ -2,6 +2,7 @@ const pluginRoot = require('requirefrom')('');
 import { resolve, join, sep } from 'path';
 import { has } from 'lodash';
 import indexTemplate from './lib/elasticsearch/setup_index_template';
+import { migrateTenants } from './lib/multitenancy/migrate_tenants';
 
 export default function (kibana) {
 
@@ -392,11 +393,20 @@ export default function (kibana) {
             // create index template for tenant indices
             if(config.get('searchguard.multitenancy.enabled')) {
                 const { setupIndexTemplate, waitForElasticsearchGreen } = indexTemplate(this, server);
+                //const {migrateTenants} = tenantMigrator(this, server);
 
                 waitForElasticsearchGreen().then( () => {
                     this.status.yellow('Setting up index template.');
                     setupIndexTemplate();
-                    this.status.green('Search Guard plugin initialised.');
+
+                    migrateTenants(server)
+                        .then(  () => {
+                            this.status.green('Tenant indices migrated.');
+                        })
+                        .catch((error) => {
+                            this.status.yellow('Tenant indices migration failed');
+                        });
+
                 });
 
             } else {
