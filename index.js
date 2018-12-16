@@ -34,7 +34,7 @@ export default function (kibana) {
                     keepalive: Joi.boolean().default(true),
                 }).default(),
                 auth: Joi.object().keys({
-                    type: Joi.string().valid(['', 'basicauth', 'jwt', 'openid', 'saml', 'proxy', 'kerberos']).default(''),
+                    type: Joi.string().valid(['', 'basicauth', 'jwt', 'openid', 'saml', 'proxy', 'kerberos', 'proxycache']).default(''),
                     anonymous_auth_enabled: Joi.boolean().default(false),
                     unauthenticated_routes: Joi.array().default(["/api/status"]),
                 }).default(),
@@ -91,6 +91,17 @@ export default function (kibana) {
                     then: Joi.object({
                         client_id: Joi.required(),
                         connect_url: Joi.required()
+                    })
+                }),
+                proxycache: Joi.object().keys({
+                    user_header: Joi.string(),
+                    roles_header: Joi.string(),
+                    login_endpoint: Joi.string().allow('', null).default(null),
+                }).default().when('auth.type', {
+                    is: 'proxycache',
+                    then: Joi.object({
+                        user_header: Joi.required(),
+                        roles_header: Joi.required()
                     })
                 }),
                 jwt: Joi.object().keys({
@@ -295,7 +306,7 @@ export default function (kibana) {
                 isSecure: config.get('searchguard.cookie.secure'),
             });
 
-            if (authType && authType !== '' && ['basicauth', 'jwt', 'openid', 'saml'].indexOf(authType) > -1) {
+            if (authType && authType !== '' && ['basicauth', 'jwt', 'openid', 'saml', 'proxycache'].indexOf(authType) > -1) {
 
                 server.register([
                     require('hapi-auth-cookie'),
@@ -335,6 +346,10 @@ export default function (kibana) {
                     } else if (authType == 'saml') {
                         let Saml = require('./lib/auth/types/saml/Saml');
                         const authType = new Saml(pluginRoot, server, this, APP_ROOT, API_ROOT);
+                        authType.init();
+                    } else if (authType == 'proxycache') {
+                        let ProxyCache = require('./lib/auth/types/proxycache/ProxyCache');
+                        const authType = new ProxyCache(pluginRoot, server, this, APP_ROOT, API_ROOT);
                         authType.init();
                     }
 
