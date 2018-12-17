@@ -283,6 +283,7 @@ export default function (kibana) {
             server.register([require('hapi-async-handler')]);
 
             let authType = config.get('searchguard.auth.type');
+            let authClass = null;
 
             // For legacy code
             if (! authType) {
@@ -332,30 +333,27 @@ export default function (kibana) {
                     if (authType === 'openid') {
 
                         let OpenId = require('./lib/auth/types/openid/OpenId');
-                        const authType = new OpenId(pluginRoot, server, this, APP_ROOT, API_ROOT);
-                        authType.init();
-
+                        authClass = new OpenId(pluginRoot, server, this, APP_ROOT, API_ROOT);
                     } else if (authType == 'basicauth') {
                         let BasicAuth = require('./lib/auth/types/basicauth/BasicAuth');
-                        const authType = new BasicAuth(pluginRoot, server, this, APP_ROOT, API_ROOT);
-                        authType.init();
+                        authClass = new BasicAuth(pluginRoot, server, this, APP_ROOT, API_ROOT);
                     } else if (authType == 'jwt') {
                         let Jwt = require('./lib/auth/types/jwt/Jwt');
-                        const authType = new Jwt(pluginRoot, server, this, APP_ROOT, API_ROOT);
-                        authType.init();
+                        authClass = new Jwt(pluginRoot, server, this, APP_ROOT, API_ROOT);
                         this.status.yellow("Search Guard copy JWT params registered. This is an Enterprise feature.");
                     } else if (authType == 'saml') {
                         let Saml = require('./lib/auth/types/saml/Saml');
-                        const authType = new Saml(pluginRoot, server, this, APP_ROOT, API_ROOT);
+                        authClass = new Saml(pluginRoot, server, this, APP_ROOT, API_ROOT);
                         authType.init();
                     } else if (authType == 'proxycache') {
                         let ProxyCache = require('./lib/auth/types/proxycache/ProxyCache');
-                        const authType = new ProxyCache(pluginRoot, server, this, APP_ROOT, API_ROOT);
-                        authType.init();
+                        authClass = new ProxyCache(pluginRoot, server, this, APP_ROOT, API_ROOT);
                     }
 
-                    this.status.yellow('Search Guard session management enabled.');
-
+                    if (authClass) {
+                        authClass.init();
+                        this.status.yellow('Search Guard session management enabled.');
+                    }
                 });
 
             } else {
@@ -382,7 +380,7 @@ export default function (kibana) {
                 }
 
                 require('./lib/multitenancy/routes')(pluginRoot, server, this, APP_ROOT, API_ROOT);
-                require('./lib/multitenancy/headers')(pluginRoot, server, this, APP_ROOT, API_ROOT);
+                require('./lib/multitenancy/headers')(pluginRoot, server, this, APP_ROOT, API_ROOT, authClass);
 
                 server.state('searchguard_preferences', {
                     ttl: 2217100485000,
@@ -398,6 +396,11 @@ export default function (kibana) {
                 this.status.yellow("Search Guard multitenancy registered. This is an Enterprise feature.");
             } else {
                 this.status.yellow("Search Guard multitenancy disabled");
+            }
+
+            // Assign auth header after MT
+            if (authClass) {
+                authClass.registerAssignAuthHeader();
             }
 
             if (config.get('searchguard.configuration.enabled')) {
