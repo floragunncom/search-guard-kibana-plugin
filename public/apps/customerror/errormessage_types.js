@@ -58,4 +58,14 @@ export const messageTypes = {
         title: 'Anonymous authentication error',
         subtitle: 'Please make sure that anonymous auth is enabled in Search Guard.'
     },
+
+    proxycacheAuthError: {
+        title: 'Authentication failed',
+        subtitle: 'Please login again',
+    },
+
+    proxycacheLogout: {
+        title: 'You have been logged out.',
+        subtitle: ''
+    },
 };
