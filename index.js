@@ -344,7 +344,6 @@ export default function (kibana) {
                     } else if (authType == 'saml') {
                         let Saml = require('./lib/auth/types/saml/Saml');
                         authClass = new Saml(pluginRoot, server, this, APP_ROOT, API_ROOT);
-                        authType.init();
                     } else if (authType == 'proxycache') {
                         let ProxyCache = require('./lib/auth/types/proxycache/ProxyCache');
                         authClass = new ProxyCache(pluginRoot, server, this, APP_ROOT, API_ROOT);
