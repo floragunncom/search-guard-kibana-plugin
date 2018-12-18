@@ -378,6 +378,11 @@ export default function (kibana) {
                     return;
                 }
 
+                if (config.has('xpack.spaces.enabled') && config.get('xpack.spaces.enabled')) {
+                    this.status.red('At the moment it is not possible to have both Spaces and multitenancy enabled. Please set xpack.spaces.enabled to false.');
+                    return;
+                }
+
                 require('./lib/multitenancy/routes')(pluginRoot, server, this, APP_ROOT, API_ROOT);
                 require('./lib/multitenancy/headers')(pluginRoot, server, this, APP_ROOT, API_ROOT, authClass);
 
