@@ -6,9 +6,9 @@
 
   <div class="text-center license-error"><sg-license-warning></sg-license-warning></div>
 
-  <p class="login-title" ng-show="ui.logintitle != ''">{{ui.logintitle}}</p>
+  <p class="login-title" ng-show="ui.logintitle != ''" ng-bind-html="ui.logintitle"></p>
 
-  <p class="login-subtitle" ng-show="ui.loginsubtitle != ''">{{ui.loginsubtitle}}</p>
+  <p class="login-subtitle" ng-show="ui.loginsubtitle != ''" ng-bind-html="ui.loginsubtitle"></p>
 
   <form class="login-form" ng-submit="ui.submit()" method="post" autocomplete="off">
       <input autocomplete="anyrandomstring" name="hidden" type="text" style="display:none;">
