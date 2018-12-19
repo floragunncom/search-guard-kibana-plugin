@@ -16,6 +16,7 @@
 
 import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules';
+import { toastNotifications } from 'ui/notify';
 import setupShareObserver from '../../chrome/multitenancy/observe_share_links';
 import './readonly.less';
 
@@ -180,8 +181,9 @@ function handleRoutingForTenantReadOnly($rootScope, $location) {
                 return;
             }
             readOnlyMessageAlreadyShown = true;
+
             toastNotifications.addDanger({
-                title: 'Unable to load data.',
+                title: 'Read Only',
                 text: 'Since this tenant is read only, you will not be able to save any changes you make.'
             });
         }
@@ -191,9 +193,15 @@ function handleRoutingForTenantReadOnly($rootScope, $location) {
 
 /**
  * Add a CSS helper class for the read only mode
+ * @param {boolean} isReadOnlyTenant - Different classes for the different cases
  */
-function addReadOnlyCSSHelper() {
-    document.body.classList.add('sg-isReadOnly');
+function addReadOnlyCSSHelper(isReadOnlyTenant = false) {
+    if (isReadOnlyTenant) {
+        document.body.classList.add('sg-isReadOnlyTenant');
+    } else {
+        document.body.classList.add('sg-isReadOnly');
+    }
+
 }
 
 /**
@@ -204,10 +212,12 @@ function addReadOnlyCSSHelper() {
  * @returns {Object}
  */
 function resolveWithTenantReadOnly($rootScope, $location, dashboardConfig, authInfo) {
-    dashboardConfig.setHideWriteControls();
+    // We can't use the built in function here since it hides too many controls
+    // Instead, this is handled in the CSS
+    //dashboardConfig.setHideWriteControls();
     hideNavItemsForTenantReadOnly();
     handleRoutingForTenantReadOnly($rootScope, $location);
-    addReadOnlyCSSHelper();
+    addReadOnlyCSSHelper(true);
 
     resolvedReadOnly = {
         tenantIsReadOnly: true,
