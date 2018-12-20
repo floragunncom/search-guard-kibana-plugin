@@ -207,6 +207,17 @@ uiModules
                             title: 'Tenant changed',
                             text: "Selected tenant is now " + resolveTenantName(response.data, this.username),
                         });
+
+                        // We may need to redirect the user if they are in a non default space
+                        // before switching tenants
+                        try {
+                            const injected = chrome.getInjected();
+                            if (injected.spacesEnabled && injected.activeSpace && injected.activeSpace.id !== 'default') {
+                                $window.location.href = "/app/searchguard-multitenancy";
+                            }
+                        } catch(error) {
+                            // Ignore
+                        }
                     }
                 },
                 (error) =>

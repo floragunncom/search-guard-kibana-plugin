@@ -35,7 +35,7 @@ export default function (kibana) {
                     keepalive: Joi.boolean().default(true),
                 }).default(),
                 auth: Joi.object().keys({
-                    type: Joi.string().valid(['', 'basicauth', 'jwt', 'openid', 'saml', 'proxy', 'kerberos']).default(''),
+                    type: Joi.string().valid(['', 'basicauth', 'jwt', 'openid', 'saml', 'proxy', 'kerberos', 'proxycache']).default(''),
                     anonymous_auth_enabled: Joi.boolean().default(false),
                     unauthenticated_routes: Joi.array().default(["/api/status"]),
                 }).default(),
@@ -43,6 +43,7 @@ export default function (kibana) {
                     enabled: Joi.boolean().default(true),
                     unauthenticated_routes: Joi.array().default(["/api/status"]),
                     forbidden_usernames: Joi.array().default([]),
+                    header_trumps_session: Joi.boolean().default(false),
                     alternative_login: Joi.object().keys({
                         headers: Joi.array().default([]),
                         show_for_parameter: Joi.string().allow('').default(''),
@@ -63,6 +64,7 @@ export default function (kibana) {
                     enabled: Joi.boolean().default(false),
                     show_roles: Joi.boolean().default(false),
                     enable_filter: Joi.boolean().default(false),
+                    debug: Joi.boolean().default(false),
                     tenants: Joi.object().keys({
                         enable_private: Joi.boolean().default(true),
                         enable_global: Joi.boolean().default(true),
@@ -82,12 +84,25 @@ export default function (kibana) {
                     client_secret: Joi.string().allow('').default(''),
                     scope: Joi.string().default('openid profile email address phone'),
                     base_redirect_url: Joi.string().allow('').default(''),
-                    logout_url: Joi.string().allow('').default('')
+                    logout_url: Joi.string().allow('').default(''),
+                    root_ca: Joi.string().allow('').default(''),
+                    verify_hostnames: Joi.boolean().default(true)
                 }).default().when('auth.type', {
                     is: 'openid',
                     then: Joi.object({
                         client_id: Joi.required(),
                         connect_url: Joi.required()
+                    })
+                }),
+                proxycache: Joi.object().keys({
+                    user_header: Joi.string(),
+                    roles_header: Joi.string(),
+                    login_endpoint: Joi.string().allow('', null).default(null),
+                }).default().when('auth.type', {
+                    is: 'proxycache',
+                    then: Joi.object({
+                        user_header: Joi.required(),
+                        roles_header: Joi.required()
                     })
                 }),
                 jwt: Joi.object().keys({
@@ -121,7 +136,8 @@ export default function (kibana) {
                 'plugins/searchguard/chrome/accountinfo/enable_accountinfo',
                 'plugins/searchguard/chrome/logout_button',
                 'plugins/searchguard/chrome/configuration/enable_configuration',
-                'plugins/searchguard/services/access_control'
+                'plugins/searchguard/services/access_control',
+                'plugins/searchguard/customizations/enable_customizations.js'
             ],
             replaceInjectedVars: async function(originalInjectedVars, request, server) {
                 const authType = server.config().get('searchguard.auth.type');
@@ -267,6 +283,7 @@ export default function (kibana) {
             server.register([require('hapi-async-handler')]);
 
             let authType = config.get('searchguard.auth.type');
+            let authClass = null;
 
             // For legacy code
             if (! authType) {
@@ -291,7 +308,7 @@ export default function (kibana) {
                 isSecure: config.get('searchguard.cookie.secure'),
             });
 
-            if (authType && authType !== '' && ['basicauth', 'jwt', 'openid', 'saml'].indexOf(authType) > -1) {
+            if (authType && authType !== '' && ['basicauth', 'jwt', 'openid', 'saml', 'proxycache'].indexOf(authType) > -1) {
 
                 server.register([
                     require('hapi-auth-cookie'),
@@ -316,26 +333,26 @@ export default function (kibana) {
                     if (authType === 'openid') {
 
                         let OpenId = require('./lib/auth/types/openid/OpenId');
-                        const authType = new OpenId(pluginRoot, server, this, APP_ROOT, API_ROOT);
-                        authType.init();
-
+                        authClass = new OpenId(pluginRoot, server, this, APP_ROOT, API_ROOT);
                     } else if (authType == 'basicauth') {
                         let BasicAuth = require('./lib/auth/types/basicauth/BasicAuth');
-                        const authType = new BasicAuth(pluginRoot, server, this, APP_ROOT, API_ROOT);
-                        authType.init();
+                        authClass = new BasicAuth(pluginRoot, server, this, APP_ROOT, API_ROOT);
                     } else if (authType == 'jwt') {
                         let Jwt = require('./lib/auth/types/jwt/Jwt');
-                        const authType = new Jwt(pluginRoot, server, this, APP_ROOT, API_ROOT);
-                        authType.init();
+                        authClass = new Jwt(pluginRoot, server, this, APP_ROOT, API_ROOT);
                         this.status.yellow("Search Guard copy JWT params registered. This is an Enterprise feature.");
                     } else if (authType == 'saml') {
                         let Saml = require('./lib/auth/types/saml/Saml');
-                        const authType = new Saml(pluginRoot, server, this, APP_ROOT, API_ROOT);
-                        authType.init();
+                        authClass = new Saml(pluginRoot, server, this, APP_ROOT, API_ROOT);
+                    } else if (authType == 'proxycache') {
+                        let ProxyCache = require('./lib/auth/types/proxycache/ProxyCache');
+                        authClass = new ProxyCache(pluginRoot, server, this, APP_ROOT, API_ROOT);
                     }
 
-                    this.status.yellow('Search Guard session management enabled.');
-
+                    if (authClass) {
+                        authClass.init();
+                        this.status.yellow('Search Guard session management enabled.');
+                    }
                 });
 
             } else {
@@ -361,8 +378,13 @@ export default function (kibana) {
                     return;
                 }
 
+                if (config.has('xpack.spaces.enabled') && config.get('xpack.spaces.enabled')) {
+                    this.status.red('At the moment it is not possible to have both Spaces and multitenancy enabled. Please set xpack.spaces.enabled to false.');
+                    return;
+                }
+
                 require('./lib/multitenancy/routes')(pluginRoot, server, this, APP_ROOT, API_ROOT);
-                require('./lib/multitenancy/headers')(pluginRoot, server, this, APP_ROOT, API_ROOT);
+                require('./lib/multitenancy/headers')(pluginRoot, server, this, APP_ROOT, API_ROOT, authClass);
 
                 server.state('searchguard_preferences', {
                     ttl: 2217100485000,
@@ -378,6 +400,11 @@ export default function (kibana) {
                 this.status.yellow("Search Guard multitenancy registered. This is an Enterprise feature.");
             } else {
                 this.status.yellow("Search Guard multitenancy disabled");
+            }
+
+            // Assign auth header after MT
+            if (authClass) {
+                authClass.registerAssignAuthHeader();
             }
 
             if (config.get('searchguard.configuration.enabled')) {
