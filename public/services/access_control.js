@@ -47,7 +47,7 @@ uiModules
                     $window.location.href = `${APP_ROOT}/customerror`;
                 }
             } else {
-                $window.location.href = `${APP_ROOT}/login`;
+                $window.location.href = `${APP_ROOT}/login?type=${authType || ''}Logout`;
             }
           },
           (error) => notify.error(error)

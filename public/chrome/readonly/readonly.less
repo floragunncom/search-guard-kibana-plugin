@@ -46,3 +46,58 @@
 
 
 }
+
+/**
+ * When we are on a read only tenant, we are less
+ * restrictive about what controls are shown.
+ */
+.sg-isReadOnlyTenant {
+
+  /**
+   * For Dashboard
+   */
+  &[sg_path="_dashboards"] {
+
+    // The add dashboard button
+    // A bit redundant, should be covered through the hideWriteControls
+    [data-test-subj="newDashboardLink"] {
+      display: none;
+    }
+  }
+
+  /**
+   * For Dashboard
+   */
+  &[sg_path^="_dashboard_"] {
+
+    // The add dashboard button
+    // A bit redundant, should be covered through the hideWriteControls
+    [data-test-subj="dashboardEditMode"],
+    [data-test-subj="dashboardClone"] {
+      display: none;
+    }
+  }
+
+  /**
+   * For Visualize
+   */
+  &[sg_path^="_visualize"] {
+
+    // The navigation links in the top right hand corner
+    [data-test-subj="visualizeSaveButton"] {
+      display: none;
+    }
+  }
+
+  /**
+   * For Discover
+   */
+  &[sg_path^="_discover"] {
+
+    // The navigation links in the top right hand corner
+    [data-test-subj="discoverNewButton"],
+    [data-test-subj="discoverSaveButton"] {
+      display: none;
+    }
+  }
+}
