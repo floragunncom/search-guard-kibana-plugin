@@ -242,7 +242,7 @@ export default function (kibana) {
 
         },
 
-        init(server, options) {
+        async init(server, options) {
 
             APP_ROOT = '';
             API_ROOT = `${APP_ROOT}/api/v1`;
@@ -280,8 +280,6 @@ export default function (kibana) {
             const searchguardConfigurationBackend = new ConfigurationBackendClass(server, server.config);
             server.expose('getSearchGuardConfigurationBackend', () => searchguardConfigurationBackend);
 
-            server.register([require('hapi-async-handler')]);
-
             let authType = config.get('searchguard.auth.type');
             let authClass = null;
 
@@ -308,18 +306,13 @@ export default function (kibana) {
                 isSecure: config.get('searchguard.cookie.secure'),
             });
 
+
+
             if (authType && authType !== '' && ['basicauth', 'jwt', 'openid', 'saml', 'proxycache'].indexOf(authType) > -1) {
-
-                server.register([
-                    require('hapi-auth-cookie'),
-                ], (error) => {
-
-                    if (error) {
-                        server.log(['error', 'searchguard'], `An error occurred registering server plugins: ${error}`);
-                        this.status.red('An error occurred during initialisation, please check the logs.');
-                        return;
-                    }
-
+                try {
+                    await server.register({
+                        plugin: require('hapi-auth-cookie')
+                    });
                     this.status.yellow('Initialising Search Guard authentication plugin.');
 
                     if (config.get("searchguard.cookie.password") == 'searchguard_cookie_default_password') {
@@ -331,7 +324,6 @@ export default function (kibana) {
                     }
 
                     if (authType === 'openid') {
-
                         let OpenId = require('./lib/auth/types/openid/OpenId');
                         authClass = new OpenId(pluginRoot, server, this, APP_ROOT, API_ROOT);
                     } else if (authType == 'basicauth') {
@@ -350,15 +342,29 @@ export default function (kibana) {
                     }
 
                     if (authClass) {
-                        authClass.init();
+                        try {
+                            // At the moment this is mainly to catch an error where the openid connect_url is wrong
+                            await authClass.init();
+                        } catch (error) {
+                            server.log(['error', 'searchguard'], `An error occurred while enabling session management: ${error}`);
+                            this.status.red('An error occurred during initialisation, please check the logs.');
+                            return;
+                        }
+
                         this.status.yellow('Search Guard session management enabled.');
                     }
-                });
+                } catch (error) {
+                    server.log(['error', 'searchguard'], `An error occurred registering server plugins: ${error}`);
+                    this.status.red('An error occurred during initialisation, please check the logs.');
+                    return;
+                }
+
 
             } else {
+                // @todo await/async
                 // Register the storage plugin for the other auth types
                 server.register({
-                    register: pluginRoot('lib/session/sessionPlugin'),
+                    plugin: pluginRoot('lib/session/sessionPlugin'),
                     options: {
                         authType: null,
                     }
