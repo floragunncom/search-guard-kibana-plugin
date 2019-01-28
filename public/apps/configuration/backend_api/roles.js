@@ -124,12 +124,21 @@ uiModules.get('apps/searchguard/configuration', [])
 
             delete role["dlsfls"];
 
+            // In postFetch, we split up the "applications" into permissions and action groups,
+            // so for saving we need to stitch them back together
+            if (role.applications) {
+                role.applications = backendAPI.mergeCleanArray(role.applications.actiongroups, role.applications.permissions)
+            }
+
             // tenants
             role["tenants"] = {};
             for (var i = 0, l = role.tenantsArray.length; i < l; i++) {
                 var tenant = role.tenantsArray[i];
                 if (tenant && tenant.name != "") {
-                    role.tenants[tenant.name] = tenant.permissions;
+                    //role.tenants[tenant.name] = tenant.permissions;
+                    role.tenants[tenant.name] = {
+                        applications: backendAPI.mergeCleanArray(tenant.actiongroups, tenant.permissions),
+                    };
                 }
             }
 
@@ -137,7 +146,7 @@ uiModules.get('apps/searchguard/configuration', [])
             return role;
         };
 
-        this.postFetch = (role) => {
+        this.postFetch = (role, kibanaApplicationActionGroups = []) => {
 
             role = backendAPI.cleanArraysFromDuplicates(role);
 
@@ -203,18 +212,42 @@ uiModules.get('apps/searchguard/configuration', [])
                 role.indices = {};
             }
 
+            if (role.applications) {
+                role.applications = {
+                    permissions: role.applications.filter(permission => kibanaApplicationActionGroups.indexOf(permission) === -1),
+                    actiongroups: role.applications.filter(permission => kibanaApplicationActionGroups.indexOf(permission) > -1)
+                }
+
+            } else {
+                role.applications = {
+                    permissions: [],
+                    actiongroups: []
+                }
+            }
+
             // transform tenants to object
             role["tenantsArray"] = [];
             if (role.tenants) {
                 var tenantNames = Object.keys(role.tenants).sort();
                 tenantNames.forEach(function(tenantName){
-
+                    // @todo Clean up when we've discussed backward compability
+                    /*
                     role.tenantsArray.push(
                         {
                             name: tenantName,
                             permissions: role.tenants[tenantName]
                         }
                     );
+                   */
+
+                    role.tenantsArray.push(
+                        {
+                            name: tenantName,
+                            permissions: role.tenants[tenantName].applications.filter(permission => kibanaApplicationActionGroups.indexOf(permission) === -1),
+                            actiongroups: role.tenants[tenantName].applications.filter(permission => kibanaApplicationActionGroups.indexOf(permission) > -1)
+                        }
+                    );
+
                 });
             }
             delete role["tenants"];

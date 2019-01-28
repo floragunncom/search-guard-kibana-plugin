@@ -48,6 +48,9 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
     $scope.actiongroupNames = [];
     $scope.roleNames = [];
 
+    // Application Permissions
+    $scope.applicationActionGroups = {};
+
     // objects for autocomplete
     $scope.actiongroupsAutoComplete = {};
     $scope.rolesAutoComplete = {};
@@ -100,6 +103,21 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
         var cachedActionGroups = sessionStorage.getItem("actiongroupsautocomplete");
         var cachedActionGroupNames = sessionStorage.getItem("actiongroupnames");
 
+        let cachedApplicationActionGroups = sessionStorage.getItem('applicationactiongroups');
+
+        // Load all application permissions for Kibana
+        if (cachedApplicationActionGroups) {
+            $scope.applicationActionGroups = JSON.parse(cachedApplicationActionGroups);
+        } else if(systemstate.endpointAndMethodEnabled("ACTIONGROUPS","GET")) {
+            backendActionGroups.listSilent({application: 'kibana'}).then((response) => {
+                $scope.applicationActionGroups['kibana'] = Object.keys(response.data);
+                sessionStorage.setItem("applicationactiongroups", JSON.stringify($scope.applicationActionGroups));
+            }, (error) => {
+                notify.error(error);
+                $scope.accessState = "forbidden";
+            });
+        }
+
         if (cachedActionGroups) {
             $scope.actiongroupsAutoComplete = JSON.parse(cachedActionGroups);
         }
@@ -112,8 +130,9 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
             return;
         }
 
+        // Load all actiongroups except those specific for Kibana
         if(systemstate.endpointAndMethodEnabled("ACTIONGROUPS","GET")) {
-            backendActionGroups.listSilent().then((response) => {
+            backendActionGroups.listSilent({application: '-kibana'}).then((response) => {
                 $scope.actiongroupNames = Object.keys(response.data);
                 sessionStorage.setItem("actiongroupnames", JSON.stringify($scope.actiongroupNames));
                 $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete($scope.actiongroupNames);

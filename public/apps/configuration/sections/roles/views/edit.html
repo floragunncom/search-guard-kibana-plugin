@@ -21,7 +21,8 @@
                     <a ng-click="selectTab('clusterpermissions')" ng-class="getTabCss('clusterpermissions')" id="sg.roles.tab.clusterpermissions">Cluster Permissions</a>
                     <a ng-click="selectTab('indexpermissions')" ng-class="getTabCss('indexpermissions')" id="sg.roles.tab.indexpermissions">Index Permissions</a>
                     <a ng-if="dlsFlsEnabled" ng-click="selectTab('dlsfls')" ng-class="getTabCss('dlsfls')" id="sg.roles.tab.dlsfls">DLS/FLS</a>
-                    <a ng-if="multiTenancyEnabled" ng-click="selectTab('tenants')" ng-class="getTabCss('tenants')" id="sg.roles.tab.tenants">Tenants</a>
+                    <a ng-if="0 && multiTenancyEnabled" ng-click="selectTab('tenants')" ng-class="getTabCss('tenants')" id="sg.roles.tab.tenants">Tenants</a>
+                    <a ng-click="selectTab('applicationpermissions')" ng-class="getTabCss('applicationpermissions')" id="sg.roles.tab.applicationpermissions">{{applicationPermissions.tabTitle}}</a>
                 </div>
             </div>
         </div>
@@ -558,6 +559,86 @@
                                 </tr>
                                 </tbody>
                             </table>
+                        </div>
+
+                        <div ng-show="selectedTab=='applicationpermissions'">
+                            <table class="fullwidth">
+                                <tr>
+                                    <td>
+                                        <h3 class="resourcename">
+                                            {{resourcelabel}}: <span ng-class="{'noresourcename': !resourcename}">{{resourcename || '(no role name defined)'}}</span>
+                                            <div class="kuiBadge kuiBadge--default" ng-if="resource.readonly">
+                                                <span class="kuiIcon fa-lock"></span>
+                                                reserved
+                                            </div>
+                                        </h3>
+                                    </td>
+                                </tr>
+                            </table>
+                            <div ng-if="multiTenancyOptions.enabled" class="kuiHeaderBar" style="margin-bottom: 20px; margin-top:10px;">
+                                <div class="kuiHeaderBarSection">
+                                    <h2 class="kuiSubTitle">Select or add Tenant</h2>
+                                </div>
+                            </div>
+
+
+                            <table class="kuiTable" ng-if="multiTenancyOptions.enabled">
+                                <thead>
+                                    <tr>
+                                        <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
+                                            <span class="kuiTableHeaderCell__liner">
+                                                Tenant
+                                            </span>
+                                        </th>
+                                        <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
+
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                <tr class="kuiTableRow">
+                                    <td class="kuiTableRowCell cellAlignTop" >
+
+                                            <ui-select ng-model="applicationPermissions.selectedTenant"
+                                                       uis-open-close="applicationPermissions.onCloseNewTenantAutocomplete(isOpen, $select)"
+                                                       on-select="applicationPermissions.onSelectedTenant($item)">
+                                                <ui-select-match placeholder="Select or add Tenant">
+                                                    {{(applicationPermissions.selectedTenant) ? applicationPermissions.selectedTenant.name : $select.search}}
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                        refresh="refreshNewTenant($select)"
+                                                        refresh-delay="0"
+                                                        repeat="item in (applicationPermissions.availableTenants | filter: $select.search) track by $index">
+                                                    <span ng-bind="item.name"></span>
+                                                </ui-select-choices>
+                                            </ui-select>
+
+                                    </td>
+                                    <td class="kuiTableRowCell cellAlignTop actions">
+                                        <button style="display:inline-block"
+                                                type="button"
+                                                ng-show="applicationPermissions.selectedTenant && applicationPermissions.selectedTenant.isDeletable !== false"
+                                                ng-click="applicationPermissions.confirmRemoveSelectedTenant()"
+                                                class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+
+                            <div ng-if="applicationPermissions.selectedTenant" class="kuiHeaderBar" style="margin-bottom: 20px; margin-top:40px;">
+                                <div class="kuiHeaderBarSection">
+                                    <h2 class="kuiSubTitle">Configure permissions for tenant {{applicationPermissions.selectedTenant.name}}</b></h2>
+                                </div>
+                            </div>
+
+
+
+                            <sgc-permissions ng-show="applicationPermissions.selectedTenant" application="kibana" on-should-confirm="confirmRemoveArrayEntry" permissionsResource="applicationPermissions.tenant"></sgc-permissions>
+
                         </div>
 
 

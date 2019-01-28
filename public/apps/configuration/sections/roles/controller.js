@@ -5,6 +5,7 @@ import { get } from 'lodash';
 import '../../backend_api/roles';
 import '../../backend_api/actiongroups';
 import '../../systemstate/systemstate'
+import savedobjectspermissions from '../../permissions/savedobjectspermissions';
 
 const app = uiModules.get('apps/searchguard/configuration', []);
 
@@ -100,6 +101,159 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     $scope.indices = {};
     $scope.indexAutoComplete = [];
     $scope.doctypeAutoComplete = [];
+
+    $scope.multiTenancyOptions = chrome.getInjected('multitenancy') || {enabled: false, tenants: {}};
+
+    // Application permissions
+    $scope.applicationPermissions = {
+        tabTitle: ($scope.multiTenancyOptions.enabled) ? 'Tenants' : 'Application Permissions',
+        selectedTenant: null,
+        availableTenants: [],
+        tenant: null,
+        /**
+         * This is a helper for when the autocomplete was closed an item being explicitly selected (mouse, tab or enter).
+         * When you e.g. type a custom value and then click somewhere outside of the autocomplete, it looks like the
+         * custom value was selected, but it is never saved to the model. This function calls the "select" method
+         * every time the autocomplete is closed, no matter how. This may mean that the select function is called
+         * twice, so the select handler should mitigate that if necessary.
+         * @param isOpen
+         * @param $select
+         */
+        onCloseNewTenantAutocomplete: function(isOpen, $select) {
+            if (isOpen || !$select.select || !$select.selected) {
+                return;
+            }
+
+            $select.select($select.selected);
+        },
+        onSelectedTenant: (item) => {
+
+            // If we want to enable adding tenants here...
+            if (item.id === -1) {
+                let newTenant = {
+                    name: item.name,
+                    permissions: savedobjectspermissions.filter(permission => (permission.default)).map(item => item.name),
+                    actiongroups: []
+                };
+
+                $scope.applicationPermissions.availableTenants.push(newTenant);
+                $scope.resource.tenantsArray.push(newTenant);
+                $scope.applicationPermissions.tenant = newTenant;
+
+            } else {
+                $scope.applicationPermissions.tenant = $scope.applicationPermissions.availableTenants.find(tenant => item.name === tenant.name);
+            }
+
+            if (! $scope.applicationPermissions.tenant) {
+                $scope.applicationPermissions.tenant = item;
+            }
+        },
+
+        confirmRemoveSelectedTenant: function() {
+            // We're not checking the value here, so we may need to adjust the body
+            if (! $scope.applicationPermissions.selectedTenant || $scope.applicationPermissions.selectedTenant.isDeletable === false) {
+                return;
+            }
+
+            $scope.deleteFromEditModal = {
+                displayModal: true,
+                header: 'Confirm Delete',
+                body: `Are you sure you want to remove '${$scope.applicationPermissions.selectedTenant.name}'?`,
+                onConfirm: function() {
+                    const selectedTenant = $scope.applicationPermissions.selectedTenant;
+                    $scope.applicationPermissions.availableTenants = $scope.applicationPermissions.availableTenants.filter(tenant => tenant.name !== selectedTenant.name);
+                    $scope.resource.tenantsArray = $scope.resource.tenantsArray.filter(tenant => tenant.name !== selectedTenant.name);
+
+                    $scope.applicationPermissions.selectedTenant = null;
+
+                    if ($scope.applicationPermissions.availableTenants.length) {
+                        $scope.applicationPermissions.tenant = $scope.applicationPermissions.availableTenants[0];
+                        $scope.applicationPermissions.selectedTenant = $scope.applicationPermissions.tenant
+                    }
+
+                    $scope.deleteFromEditModal.displayModal = false;
+                },
+                onClose: function() {
+                    $scope.deleteFromEditModal.displayModal = false;
+                }
+            }
+        }
+    };
+
+    const setTenantsForApplicationPermissions = function() {
+        let tenants = [];
+        tenants = tenants.concat($scope.resource.tenantsArray);
+        tenants.sort();
+
+        // Add the global tenant if multitenacy isn't enabled, or if it is enabled and the global tenant is also enabled.
+        if (!$scope.multiTenancyOptions.enabled || $scope.multiTenancyOptions.tenants.enable_global) {
+            tenants.unshift({
+                isDeletable: false,
+                name: 'global',
+                permissions: $scope.resource.applications.permissions || [],
+                actiongroups: $scope.resource.applications.actiongroups || [],
+            });
+        }
+
+        $scope.applicationPermissions.availableTenants = tenants;
+
+        if ($scope.applicationPermissions.availableTenants.length) {
+            $scope.applicationPermissions.tenant = $scope.applicationPermissions.availableTenants[0];
+            $scope.applicationPermissions.selectedTenant = $scope.applicationPermissions.tenant;
+        }
+
+    };
+
+    /**
+     * Ask for confirmation before deleting an entry
+     * @param {array} thearray
+     * @param {int} index
+     * @param {string} value
+     */
+    $scope.confirmRemoveTenant = function(item) {
+        // We're not checking the value here, so we may need to adjust the body
+        let body = (value === '') ? 'Are you sure you want to delete this?' : `Are you sure you want to delete '${value}'?`;
+        $scope.deleteFromEditModal = {
+            displayModal: true,
+            header: 'Confirm Delete',
+            body: body,
+            onConfirm: function() {
+                thearray.splice(index, 1);
+                $scope.closeDeleteFromEditModal()
+            },
+            onClose: $scope.closeDeleteFromEditModal
+        }
+    };
+
+    /**
+     * Add a new tenant in the Application Permissions tab
+     * @param $select
+     */
+    $scope.refreshNewTenant = function($select) {
+        var search = $select.search,
+            list = angular.copy($select.items),
+            FLAG = -1; // Identifies the custom value
+
+        // Clean up any previous custom input
+        list = list.filter(function(item) {
+            return item.id !== FLAG;
+        });
+
+        if (!search) {
+            $select.items = list;
+        } else {
+            // Add and select the custom value
+            let customItem = {
+                id: FLAG,
+                name: search
+            };
+            $select.items = [customItem].concat(list);
+
+            $select.selected = customItem;
+        }
+    };
+
+    const notify = createNotifier();
 
     $scope.title = function () {
         return $scope.isNew? "New Role " : "Edit Role '" + $scope.resourcename+"'";
@@ -558,7 +712,8 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         if (rolename) {
             $scope.service.get(rolename)
                 .then((response) => {
-                    $scope.resource = $scope.service.postFetch(response);
+                    $scope.resource = $scope.service.postFetch(response, $scope.applicationActionGroups['kibana'] || []);
+                    setTenantsForApplicationPermissions();
                     $scope.resourcename = rolename;
                     if($location.path().indexOf("clone") == -1) {
                         $scope.isNew = false;
@@ -587,6 +742,7 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         } else {
             $scope.selectedTab = "overview";
             $scope.resource = $scope.service.postFetch($scope.service.emptyModel());
+            setTenantsForApplicationPermissions();
             if ($routeParams.name) {
                 $scope.resourcename = $routeParams.name;
             }

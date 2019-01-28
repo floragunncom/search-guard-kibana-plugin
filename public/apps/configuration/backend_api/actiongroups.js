@@ -22,8 +22,8 @@ uiModules.get('apps/searchguard/configuration', [])
             return backendAPI.list(RESOURCE);
         };
 
-        this.listSilent = () => {
-            return backendAPI.listSilent(RESOURCE);
+        this.listSilent = (queryParameterObject) => {
+            return backendAPI.listSilent(RESOURCE, queryParameterObject);
         };
 
         this.get = (id) => {

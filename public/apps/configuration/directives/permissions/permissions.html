@@ -86,7 +86,7 @@
             <td class="kuiTableRowCell cellAlignTop">
                 <fieldset class="marginbottom--small" id="object-form-actiongroups">
                     <ui-select ng-model="permissionsResource.permissions[$index]">
-                        <ui-select-match placeholder="Start with cluster: or indices:">
+                        <ui-select-match placeholder="{{permissionPlaceholder}}">
                             {{permission}}
                         </ui-select-match>
                         <ui-select-choices repeat="item in (permissionItems | filter: $select.search) track by $index">

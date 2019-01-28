@@ -4,6 +4,7 @@ import { has } from 'lodash';
 import indexTemplate from './lib/elasticsearch/setup_index_template';
 import { migrateTenants } from './lib/multitenancy/migrate_tenants';
 
+import SearchguardSavedObjectsClient from './lib/rbac/searchguard_saved_objects_client';
 export default function (kibana) {
 
     let APP_ROOT;
@@ -38,6 +39,9 @@ export default function (kibana) {
                     type: Joi.string().valid(['', 'basicauth', 'jwt', 'openid', 'saml', 'proxy', 'kerberos', 'proxycache']).default(''),
                     anonymous_auth_enabled: Joi.boolean().default(false),
                     unauthenticated_routes: Joi.array().default(["/api/status"]),
+                }).default(),
+                rbac: Joi.object().keys({
+                    enabled: Joi.boolean().default(false)
                 }).default(),
                 basicauth: Joi.object().keys({
                     enabled: Joi.boolean().default(true),
@@ -439,6 +443,34 @@ export default function (kibana) {
             if ((typeof config.get('elasticsearch.ssl.certificate') !== 'undefined' && typeof config.get('elasticsearch.ssl.certificate') !== false) && config.get('searchguard.allow_client_certificates') !== true) {
                 this.status.red("'elasticsearch.ssl.certificate' can not be used without setting 'searchguard.allow_client_certificates' to 'true' in kibana.yml. Please refer to the documentation for more information about the implications of doing so.");
             }
+
+            if (config.get('searchguard.rbac.enabled')) {
+                const { savedObjects } = server;
+
+                savedObjects.setScopedSavedObjectsClientFactory(({request}) => {
+                    const adminCluster = server.plugins.elasticsearch.getCluster('admin');
+                    const {callWithRequest} = adminCluster;
+                    const callCluster = (...args) => callWithRequest(request, ...args);
+                    const callWithRequestRepository = savedObjects.getSavedObjectsRepository(callCluster);
+
+                    return new SearchguardSavedObjectsClient(
+                        request,
+                        searchguardBackend,
+                        {
+                            callWithRequestRepository,
+                            errors: savedObjects.SavedObjectsClient.errors,
+                            savedObjectTypes: savedObjects.types,
+                            checkPrivileges: null,
+                            auditLogger: null,
+                            actions: null
+                        }
+                    );
+                });
+                this.status.green("Search Guard RBAC enabled");
+            } else {
+                this.status.yellow("Search Guard RBAC not enabled");
+            }
+
         }
     });
 };
