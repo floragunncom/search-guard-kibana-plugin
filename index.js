@@ -3,6 +3,7 @@ import { resolve, join, sep } from 'path';
 import { has } from 'lodash';
 import indexTemplate from './lib/elasticsearch/setup_index_template';
 import { migrateTenants } from './lib/multitenancy/migrate_tenants';
+import { version as sgVersion } from './package.json';
 
 export default function (kibana) {
 
@@ -236,6 +237,7 @@ export default function (kibana) {
                 options.basicauth_enabled = server.config().get('searchguard.basicauth.enabled');
                 options.kibana_index = server.config().get('kibana.index');
                 options.kibana_server_user = server.config().get('elasticsearch.username');
+                options.sg_version = sgVersion;
 
                 return options;
             }
@@ -434,7 +436,7 @@ export default function (kibana) {
 
                     migrateTenants(server)
                         .then(  () => {
-                            this.status.green('Tenant indices migrated.');
+                            this.status.green('Search Guard plugin version '+ sgVersion + ' initialised.');
                         })
                         .catch((error) => {
                             this.status.yellow('Tenant indices migration failed');
@@ -443,7 +445,7 @@ export default function (kibana) {
                 });
 
             } else {
-                this.status.green('Search Guard plugin initialised.');
+                this.status.green('Search Guard plugin version '+ sgVersion + ' initialised.');
             }
 
             // Using an admin certificate may lead to unintended consequences
