@@ -236,6 +236,18 @@
                             </tr>
                             </thead>
                             <tbody>
+                            <tr  class="kuiTableRow">
+                                <td class="kuiTableRowCell cellAlignTop">
+                                    <div class="kuiTableRowCell__liner">Kibana Plugin</div>
+                                </td>
+                                <td class="kuiTableRowCell cellAlignTop">
+                                    <div class="kuiTableRowCell__liner" ng-bind="sg_version"></div>
+                                </td>
+                                <td class="kuiTableRowCell cellAlignTop">
+                                    <div class="kuiTableRowCell__liner">false</div>
+                                </td>
+                            </tr>
+
                             <tr  class="kuiTableRow" data-ng-repeat="modulekey in keys(systeminfo.modules).sort()">
                                 <td class="kuiTableRowCell cellAlignTop">
                                     <div class="kuiTableRowCell__liner" ng-bind="systeminfo.modules[modulekey].description"></div>
