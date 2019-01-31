@@ -3,6 +3,7 @@ import { resolve, join, sep } from 'path';
 import { has } from 'lodash';
 import indexTemplate from './lib/elasticsearch/setup_index_template';
 import { migrateTenants } from './lib/multitenancy/migrate_tenants';
+import { version as sgVersion } from './package.json';
 
 export default function (kibana) {
 
@@ -29,6 +30,7 @@ export default function (kibana) {
                     name: Joi.string().default('searchguard_authentication'),
                     password: Joi.string().min(32).default('searchguard_cookie_default_password'),
                     ttl: Joi.number().integer().min(0).default(60 * 60 * 1000),
+                    domain: Joi.string()
                 }).default(),
                 session: Joi.object().keys({
                     ttl: Joi.number().integer().min(0).default(60 * 60 * 1000),
@@ -97,12 +99,15 @@ export default function (kibana) {
                 proxycache: Joi.object().keys({
                     user_header: Joi.string(),
                     roles_header: Joi.string(),
+                    proxy_header: Joi.string().default('x-forwarded-for'),
+                    proxy_header_ip: Joi.string(),
                     login_endpoint: Joi.string().allow('', null).default(null),
                 }).default().when('auth.type', {
                     is: 'proxycache',
                     then: Joi.object({
                         user_header: Joi.required(),
-                        roles_header: Joi.required()
+                        roles_header: Joi.required(),
+                        proxy_header_ip: Joi.required()
                     })
                 }),
                 jwt: Joi.object().keys({
@@ -236,6 +241,7 @@ export default function (kibana) {
                 options.basicauth_enabled = server.config().get('searchguard.basicauth.enabled');
                 options.kibana_index = server.config().get('kibana.index');
                 options.kibana_server_user = server.config().get('elasticsearch.username');
+                options.sg_version = sgVersion;
 
                 return options;
             }
@@ -300,13 +306,19 @@ export default function (kibana) {
             }
 
             // Set up the storage cookie
-            server.state('searchguard_storage', {
+            let storageCookieConf = {
                 path: '/',
                 ttl: null, // Cookie deleted when the browser is closed
                 password: config.get('searchguard.cookie.password'),
                 encoding: 'iron',
                 isSecure: config.get('searchguard.cookie.secure'),
-            });
+            };
+
+            if (config.get('searchguard.cookie.domain')) {
+                storageCookieConf["domain"] = config.get('searchguard.cookie.domain');
+            }
+
+            server.state('searchguard_storage', storageCookieConf);
 
             if (authType && authType !== '' && ['basicauth', 'jwt', 'openid', 'saml', 'proxycache'].indexOf(authType) > -1) {
 
@@ -378,15 +390,10 @@ export default function (kibana) {
                     return;
                 }
 
-                if (config.has('xpack.spaces.enabled') && config.get('xpack.spaces.enabled')) {
-                    this.status.red('At the moment it is not possible to have both Spaces and multitenancy enabled. Please set xpack.spaces.enabled to false.');
-                    return;
-                }
-
                 require('./lib/multitenancy/routes')(pluginRoot, server, this, APP_ROOT, API_ROOT);
                 require('./lib/multitenancy/headers')(pluginRoot, server, this, APP_ROOT, API_ROOT, authClass);
 
-                server.state('searchguard_preferences', {
+                let preferenceCookieConf = {
                     ttl: 2217100485000,
                     path: '/',
                     isSecure: false,
@@ -395,7 +402,13 @@ export default function (kibana) {
                     strictHeader: true, // don't allow violations of RFC 6265
                     encoding: 'iron',
                     password: config.get("searchguard.cookie.password")
-                });
+                };
+
+                if (config.get('searchguard.cookie.domain')) {
+                    preferenceCookieConf["domain"] = config.get('searchguard.cookie.domain');
+                }
+
+                server.state('searchguard_preferences', preferenceCookieConf);
 
                 this.status.yellow("Search Guard multitenancy registered. This is an Enterprise feature.");
             } else {
@@ -428,7 +441,7 @@ export default function (kibana) {
 
                     migrateTenants(server)
                         .then(  () => {
-                            this.status.green('Tenant indices migrated.');
+                            this.status.green('Search Guard plugin version '+ sgVersion + ' initialised.');
                         })
                         .catch((error) => {
                             this.status.yellow('Tenant indices migration failed');
@@ -437,7 +450,7 @@ export default function (kibana) {
                 });
 
             } else {
-                this.status.green('Search Guard plugin initialised.');
+                this.status.green('Search Guard plugin version '+ sgVersion + ' initialised.');
             }
 
             // Using an admin certificate may lead to unintended consequences
