@@ -10,6 +10,7 @@ app.controller('sgSystemController', function ($scope, $http, $route, $element, 
 
     $scope.endpoint = "system";
     $scope.$parent.endpoint = "system";
+    $scope.sg_version = chrome.getInjected("sg_version");
 
     var APP_ROOT = `${chrome.getBasePath()}`;
     var API_ROOT = `${APP_ROOT}/api/v1`;
