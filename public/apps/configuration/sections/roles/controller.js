@@ -8,7 +8,7 @@ import '../../systemstate/systemstate'
 
 const app = uiModules.get('apps/searchguard/configuration', []);
 
-app.controller('sgRolesController', function ($scope, $element, $route, createNotifier, backendRoles, kbnUrl) {
+app.controller('sgRolesController', function ($scope, $element, $route, backendRoles, kbnUrl) {
 
     $scope.endpoint = "ROLES";
     $scope.$parent.endpoint = "ROLES";
@@ -101,9 +101,6 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     $scope.indexAutoComplete = [];
     $scope.doctypeAutoComplete = [];
 
-    const notify = createNotifier();
-
-
     $scope.title = function () {
         return $scope.isNew? "New Role " : "Edit Role '" + $scope.resourcename+"'";
     }
@@ -140,7 +137,10 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
                 );
             },
             (error) => {
-                notify.error(error)
+                toastNotifications.addDanger({
+                    title: 'Unable to load indices.',
+                    text: error.message,
+                });
             }
         );
     };
@@ -471,7 +471,9 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
                 }
             },
             (error) => {
-                notify.error(error);
+                toastNotifications.addDanger({
+                    text: error.message
+                });
             }
         );
     }

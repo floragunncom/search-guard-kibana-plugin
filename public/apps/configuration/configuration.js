@@ -17,7 +17,6 @@
 import chrome from 'ui/chrome';
 import uiRoutes from 'ui/routes';
 import { uiModules } from 'ui/modules';
-import { Notifier } from 'ui/notify/notifier';
 
 import internalusers from './sections/internalusers';
 import actiongroups from './sections/actiongroups';

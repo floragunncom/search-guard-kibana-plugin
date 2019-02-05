@@ -3,7 +3,6 @@ import { uiModules } from 'ui/modules'
 import { get } from 'lodash';
 import { forEach } from 'lodash';
 import { toastNotifications } from 'ui/notify';
-import { Notifier } from 'ui/notify/notifier';
 
 const app = uiModules.get('apps/searchguard/configuration', []);
 
@@ -11,10 +10,10 @@ app.controller('sgSystemController', function ($scope, $http, $route, $element, 
 
     $scope.endpoint = "system";
     $scope.$parent.endpoint = "system";
+    $scope.sg_version = chrome.getInjected("sg_version");
 
     var APP_ROOT = `${chrome.getBasePath()}`;
     var API_ROOT = `${APP_ROOT}/api/v1`;
-    let notify = new Notifier({});
 
     $scope.title = "Search Guard System Status";
 
@@ -28,7 +27,7 @@ app.controller('sgSystemController', function ($scope, $http, $route, $element, 
         (error) => {
             toastNotifications.addDanger({
                 title: "Could not retrieve system info.",
-                text: error.data.message
+                text: error.message
             });
         }
     );
@@ -48,7 +47,7 @@ app.controller('sgLicenseController', function ($scope, $element, $route, $locat
 
     var APP_ROOT = `${chrome.getBasePath()}`;
     var API_ROOT = `${APP_ROOT}/api/v1`;
-    let notify = new Notifier({});
+
     const form = $element.find('form[name="objectForm"]');
     const fileField = $element.find('#js-uploadLicenseFile')[0];
     /**
@@ -80,14 +79,18 @@ app.controller('sgLicenseController', function ($scope, $element, $route, $locat
         let fileExtension = '.' + fileNameParts[fileNameParts.length - 1];
 
         if (allowedFileExtensions.indexOf(fileExtension) === -1) {
-            notify.error('Please select another file. We support the following file extensions: ' + allowedFileExtensions.join(', '));
-
+            toastNotifications.addDanger({
+                title: 'Invalid file extensions.',
+                text: 'Please select another file. We support the following file extensions: ' + allowedFileExtensions.join(', ')
+            });
             return;
         }
 
         if (file.size > licenseFileLimit) {
-            notify.error('The file is larger than a typical license file. Please paste the content of the file into the text field.');
-
+            toastNotifications.addDanger({
+                title: 'File too large.',
+                text: 'The file is larger than a typical license file. Please paste the content of the file into the text field.'
+            });
             return;
         }
 
@@ -106,7 +109,10 @@ app.controller('sgLicenseController', function ($scope, $element, $route, $locat
         };
 
         fileReader.onerror = function (event) {
-            notify.error('Something went wrong with the uploaded file. Please paste the content of the file into the text field.');
+            toastNotifications.addDanger({
+                title: 'An error occured.',
+                text: 'Something went wrong with the uploaded file. Please paste the content of the file into the text field.'
+            });
         };
 
         fileReader.readAsText(file);

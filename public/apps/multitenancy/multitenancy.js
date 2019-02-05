@@ -18,7 +18,6 @@ import { toastNotifications } from 'ui/notify';
 import chrome from 'ui/chrome';
 import uiRoutes from 'ui/routes';
 import { uiModules } from 'ui/modules';
-import { Notifier } from 'ui/notify/notifier';
 import 'ui/autoload/styles';
 import { IndexPatternsGetProvider } from 'ui/index_patterns/_get';
 
@@ -44,7 +43,6 @@ uiModules
 
         var APP_ROOT = `${chrome.getBasePath()}`;
         var API_ROOT = `${APP_ROOT}/api/v1`;
-        let notify = new Notifier({});
 
         /**
          * Is the user in a read only mode - either because of a dashboard only role,
@@ -115,7 +113,13 @@ uiModules
                     return;
                 }
             },
-            (error) => notify.error(error)
+            (error) =>
+            {
+                toastNotifications.addDanger({
+                    title: 'Unable to load multitenancy info.',
+                    text: error.message,
+                });
+            }
         );
 
         $http.get(`${API_ROOT}/auth/authinfo`)
@@ -149,10 +153,20 @@ uiModules
                         this.currentTenant = response.data;
                         this.tenantLabel = "Active tenant: " + resolveTenantName(this.currentTenant, this.username);
                     },
-                    (error) => notify.error(error)
+                    (error) => {
+                        toastNotifications.addDanger({
+                            text: error.message,
+                        });
+                    }
                 );
             },
-            (error) => notify.error(error)
+            (error) =>
+            {
+                toastNotifications.addDanger({
+                    title: 'Unable to load authentication info.',
+                    text: error.message,
+                });
+            }
         );
 
         this.selectTenant = function (tenantLabel, tenant, redirect) {
@@ -193,9 +207,25 @@ uiModules
                             title: 'Tenant changed',
                             text: "Selected tenant is now " + resolveTenantName(response.data, this.username),
                         });
+
+                        // We may need to redirect the user if they are in a non default space
+                        // before switching tenants
+                        try {
+                            const injected = chrome.getInjected();
+                            if (injected.spacesEnabled && injected.activeSpace && injected.activeSpace.id !== 'default') {
+                                $window.location.href = "/app/searchguard-multitenancy";
+                            }
+                        } catch(error) {
+                            // Ignore
+                        }
                     }
                 },
-                (error) => notify.error(error)
+                (error) =>
+                {
+                    toastNotifications.addDanger({
+                        text: error.message
+                    });
+                }
             );
         };
 

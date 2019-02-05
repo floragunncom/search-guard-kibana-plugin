@@ -16,8 +16,7 @@
 
 import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules';
-import { Notifier } from 'ui/notify/notifier';
-//import { toastNotifications } from 'ui/notify';
+import { toastNotifications } from 'ui/notify';
 import setupShareObserver from '../../chrome/multitenancy/observe_share_links';
 import './readonly.less';
 
@@ -183,15 +182,10 @@ function handleRoutingForTenantReadOnly($rootScope, $location) {
             }
             readOnlyMessageAlreadyShown = true;
 
-            try {
-                let notify = new Notifier({warningLifetime: 60 * 1000});
-                notify.warning('Since this tenant is read only, you will not be able to save any changes you make.', {
-                    lifetime: 0
-                });
-            } catch(error) {
-                // We probably need to add the toast notification here
-                //toastNotifications.addWarning('Since this tenant is read only, you will not be able to save any changes you make.');
-            }
+            toastNotifications.addDanger({
+                title: 'Read Only',
+                text: 'Since this tenant is read only, you will not be able to save any changes you make.'
+            });
         }
     });
 

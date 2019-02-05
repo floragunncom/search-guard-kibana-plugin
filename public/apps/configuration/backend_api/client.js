@@ -10,9 +10,7 @@ import chrome from 'ui/chrome';
  * Backend API client service.
  */
 uiModules.get('apps/searchguard/configuration', [])
-    .service('backendAPI', function (Promise, $http, $window, createNotifier, kbnUrl, searchGuardAccessControl) {
-
-        const notify = createNotifier({});
+    .service('backendAPI', function (Promise, $http, $window, kbnUrl, searchGuardAccessControl) {
 
         // Take the basePath configuration value into account
         // @url https://www.elastic.co/guide/en/kibana/current/development-basepath.html
@@ -42,7 +40,10 @@ uiModules.get('apps/searchguard/configuration', [])
                     if (error.status == 403) {
                         searchGuardAccessControl.logout();
                     } else {
-                        notify.error(error);
+                        toastNotifications.addDanger({
+                            title: 'Unable to load data.',
+                            text: error.message,
+                        });
                     }
                     throw error;
                 });
@@ -71,7 +72,9 @@ uiModules.get('apps/searchguard/configuration', [])
                     if (error.status == 403) {
                         searchGuardAccessControl.logout();
                     } else {
-                        notify.error(error);
+                        toastNotifications.addDanger({
+                            text: error.message
+                        });
                     }
                     throw error;
                 });
@@ -88,7 +91,10 @@ uiModules.get('apps/searchguard/configuration', [])
                     if (error.status == 403) {
                         searchGuardAccessControl.logout();
                     } else {
-                        notify.error(error);
+                        toastNotifications.addDanger({
+                            title: 'Unable to delete data.',
+                            text: error.message,
+                        });
                     }
                     throw error;
                 });
@@ -103,9 +109,14 @@ uiModules.get('apps/searchguard/configuration', [])
                     if (error.status == 403) {
                         searchGuardAccessControl.logout();
                     } else {
-                        notify.error(error);
+                        toastNotifications.addDanger({
+                            text: error.message
+                        });
                     }
-                    throw error;
+                    toastNotifications.addDanger({
+                        title: 'Unable to load data.',
+                        text: error.message,
+                    });
                 });
         };
 
@@ -140,7 +151,10 @@ uiModules.get('apps/searchguard/configuration', [])
                     if (error.status == 403) {
                         searchGuardAccessControl.logout();
                     } else {
-                        notify.error(error);
+                        toastNotifications.addDanger({
+                            title: 'Unable to clear cache.',
+                            text: error.message,
+                        });
                     }
                     throw error;
                 });

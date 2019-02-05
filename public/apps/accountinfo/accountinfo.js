@@ -17,7 +17,7 @@
 import chrome from 'ui/chrome';
 import uiRoutes from 'ui/routes';
 import { uiModules } from 'ui/modules';
-import { Notifier } from 'ui/notify/notifier';
+import { toastNotifications } from 'ui/notify';
 import 'ui/autoload/styles';
 import infoTemplate from './accountinfo.html';
 
@@ -36,7 +36,8 @@ uiModules
 
         var APP_ROOT = `${chrome.getBasePath()}`;
         var API_ROOT = `${APP_ROOT}/api/v1`;
-        let notify = new Notifier({});
+
+        this.sg_version = chrome.getInjected("sg_version");
 
         $http.get(`${API_ROOT}/auth/authinfo`)
             .then(
@@ -44,6 +45,10 @@ uiModules
 
                     this.sg_user = response.data;
                 },
-                (error) => notify.error(error)
+                (error) => {
+                    toastNotifications.addDanger({
+                        text: error.message,
+                    });
+                }
             );
     });

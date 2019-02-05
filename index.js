@@ -2,6 +2,8 @@ const pluginRoot = require('requirefrom')('');
 import { resolve, join, sep } from 'path';
 import { has } from 'lodash';
 import indexTemplate from './lib/elasticsearch/setup_index_template';
+import { migrateTenants } from './lib/multitenancy/migrate_tenants';
+import { version as sgVersion } from './package.json';
 
 export default function (kibana) {
 
@@ -239,13 +241,14 @@ export default function (kibana) {
                 options.basicauth_enabled = server.config().get('searchguard.basicauth.enabled');
                 options.kibana_index = server.config().get('kibana.index');
                 options.kibana_server_user = server.config().get('elasticsearch.username');
+                options.sg_version = sgVersion;
 
                 return options;
             }
 
         },
 
-        init(server, options) {
+        async init(server, options) {
 
             APP_ROOT = '';
             API_ROOT = `${APP_ROOT}/api/v1`;
@@ -283,9 +286,8 @@ export default function (kibana) {
             const searchguardConfigurationBackend = new ConfigurationBackendClass(server, server.config);
             server.expose('getSearchGuardConfigurationBackend', () => searchguardConfigurationBackend);
 
-            server.register([require('hapi-async-handler')]);
-
             let authType = config.get('searchguard.auth.type');
+            let authClass = null;
 
             // For legacy code
             if (! authType) {
@@ -316,18 +318,13 @@ export default function (kibana) {
 
             server.state('searchguard_storage', storageCookieConf);
 
+
+
             if (authType && authType !== '' && ['basicauth', 'jwt', 'openid', 'saml', 'proxycache'].indexOf(authType) > -1) {
-
-                server.register([
-                    require('hapi-auth-cookie'),
-                ], (error) => {
-
-                    if (error) {
-                        server.log(['error', 'searchguard'], `An error occurred registering server plugins: ${error}`);
-                        this.status.red('An error occurred during initialisation, please check the logs.');
-                        return;
-                    }
-
+                try {
+                    await server.register({
+                        plugin: require('hapi-auth-cookie')
+                    });
                     this.status.yellow('Initialising Search Guard authentication plugin.');
 
                     if (config.get("searchguard.cookie.password") == 'searchguard_cookie_default_password') {
@@ -339,38 +336,47 @@ export default function (kibana) {
                     }
 
                     if (authType === 'openid') {
-
                         let OpenId = require('./lib/auth/types/openid/OpenId');
-                        const authType = new OpenId(pluginRoot, server, this, APP_ROOT, API_ROOT);
-                        authType.init();
-
+                        authClass = new OpenId(pluginRoot, server, this, APP_ROOT, API_ROOT);
                     } else if (authType == 'basicauth') {
                         let BasicAuth = require('./lib/auth/types/basicauth/BasicAuth');
-                        const authType = new BasicAuth(pluginRoot, server, this, APP_ROOT, API_ROOT);
-                        authType.init();
+                        authClass = new BasicAuth(pluginRoot, server, this, APP_ROOT, API_ROOT);
                     } else if (authType == 'jwt') {
                         let Jwt = require('./lib/auth/types/jwt/Jwt');
-                        const authType = new Jwt(pluginRoot, server, this, APP_ROOT, API_ROOT);
-                        authType.init();
+                        authClass = new Jwt(pluginRoot, server, this, APP_ROOT, API_ROOT);
                         this.status.yellow("Search Guard copy JWT params registered. This is an Enterprise feature.");
                     } else if (authType == 'saml') {
                         let Saml = require('./lib/auth/types/saml/Saml');
-                        const authType = new Saml(pluginRoot, server, this, APP_ROOT, API_ROOT);
-                        authType.init();
+                        authClass = new Saml(pluginRoot, server, this, APP_ROOT, API_ROOT);
                     } else if (authType == 'proxycache') {
                         let ProxyCache = require('./lib/auth/types/proxycache/ProxyCache');
-                        const authType = new ProxyCache(pluginRoot, server, this, APP_ROOT, API_ROOT);
-                        authType.init();
+                        authClass = new ProxyCache(pluginRoot, server, this, APP_ROOT, API_ROOT);
                     }
 
-                    this.status.yellow('Search Guard session management enabled.');
+                    if (authClass) {
+                        try {
+                            // At the moment this is mainly to catch an error where the openid connect_url is wrong
+                            await authClass.init();
+                        } catch (error) {
+                            server.log(['error', 'searchguard'], `An error occurred while enabling session management: ${error}`);
+                            this.status.red('An error occurred during initialisation, please check the logs.');
+                            return;
+                        }
 
-                });
+                        this.status.yellow('Search Guard session management enabled.');
+                    }
+                } catch (error) {
+                    server.log(['error', 'searchguard'], `An error occurred registering server plugins: ${error}`);
+                    this.status.red('An error occurred during initialisation, please check the logs.');
+                    return;
+                }
+
 
             } else {
+                // @todo await/async
                 // Register the storage plugin for the other auth types
                 server.register({
-                    register: pluginRoot('lib/session/sessionPlugin'),
+                    plugin: pluginRoot('lib/session/sessionPlugin'),
                     options: {
                         authType: null,
                     }
@@ -391,7 +397,7 @@ export default function (kibana) {
                 }
 
                 require('./lib/multitenancy/routes')(pluginRoot, server, this, APP_ROOT, API_ROOT);
-                require('./lib/multitenancy/headers')(pluginRoot, server, this, APP_ROOT, API_ROOT);
+                require('./lib/multitenancy/headers')(pluginRoot, server, this, APP_ROOT, API_ROOT, authClass);
 
                 let preferenceCookieConf = {
                     ttl: 2217100485000,
@@ -415,6 +421,11 @@ export default function (kibana) {
                 this.status.yellow("Search Guard multitenancy disabled");
             }
 
+            // Assign auth header after MT
+            if (authClass) {
+                authClass.registerAssignAuthHeader();
+            }
+
             if (config.get('searchguard.configuration.enabled')) {
                 require('./lib/configuration/routes/routes')(pluginRoot, server, APP_ROOT, API_ROOT);
                 this.status.yellow("Routes for Search Guard configuration GUI registered. This is an Enterprise feature.");
@@ -428,15 +439,24 @@ export default function (kibana) {
             // create index template for tenant indices
             if(config.get('searchguard.multitenancy.enabled')) {
                 const { setupIndexTemplate, waitForElasticsearchGreen } = indexTemplate(this, server);
+                //const {migrateTenants} = tenantMigrator(this, server);
 
                 waitForElasticsearchGreen().then( () => {
                     this.status.yellow('Setting up index template.');
                     setupIndexTemplate();
-                    this.status.green('Search Guard plugin initialised.');
+
+                    migrateTenants(server)
+                        .then(  () => {
+                            this.status.green('Search Guard plugin version '+ sgVersion + ' initialised.');
+                        })
+                        .catch((error) => {
+                            this.status.yellow('Tenant indices migration failed');
+                        });
+
                 });
 
             } else {
-                this.status.green('Search Guard plugin initialised.');
+                this.status.green('Search Guard plugin version '+ sgVersion + ' initialised.');
             }
 
             // Using an admin certificate may lead to unintended consequences
