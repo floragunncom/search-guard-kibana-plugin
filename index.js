@@ -30,7 +30,8 @@ export default function (kibana) {
                     name: Joi.string().default('searchguard_authentication'),
                     password: Joi.string().min(32).default('searchguard_cookie_default_password'),
                     ttl: Joi.number().integer().min(0).default(60 * 60 * 1000),
-                    domain: Joi.string()
+                    domain: Joi.string(),
+                    isSameSite: Joi.valid('Strict', 'Lax').allow(false).default(false),
                 }).default(),
                 session: Joi.object().keys({
                     ttl: Joi.number().integer().min(0).default(60 * 60 * 1000),
@@ -310,6 +311,7 @@ export default function (kibana) {
                 password: config.get('searchguard.cookie.password'),
                 encoding: 'iron',
                 isSecure: config.get('searchguard.cookie.secure'),
+                isSameSite: config.get('searchguard.cookie.isSameSite')
             };
 
             if (config.get('searchguard.cookie.domain')) {
@@ -407,7 +409,8 @@ export default function (kibana) {
                     clearInvalid: true, // remove invalid cookies
                     strictHeader: true, // don't allow violations of RFC 6265
                     encoding: 'iron',
-                    password: config.get("searchguard.cookie.password")
+                    password: config.get("searchguard.cookie.password"),
+                    isSameSite: config.get('searchguard.cookie.isSameSite')
                 };
 
                 if (config.get('searchguard.cookie.domain')) {
