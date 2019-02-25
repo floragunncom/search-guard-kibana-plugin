@@ -1,6 +1,8 @@
 import { uiModules } from 'ui/modules';
+import applicationPermissions from '../../permissions/applicationpermissions';
 
 const app = uiModules.get('apps/searchguard/configuration', []);
+
 
 app.directive('sgcPermissions', function () {
     return {
@@ -9,12 +11,15 @@ app.directive('sgcPermissions', function () {
         scope: {
             "permissionsResource": "=permissionsresource",
             'onShouldConfirm': '&',
+            'application': '@'
         },
         controller: 'sgBaseController',
         link: function(scope, elem, attr) {
 
             scope.showAdvanced = null;
             scope.actiongroupItems = [];
+
+            scope.permissionPlaceholder = 'Start with cluster: or indices:';
 
             scope.$watch('permissionsResource', function(newValue, oldValue){
                 if(newValue && (scope.showAdvanced == null)) {
@@ -31,6 +36,41 @@ app.directive('sgcPermissions', function () {
              * @returns {Array|*}
              */
             scope.getActiongroupItems = function() {
+                if (scope.application) {
+                    return getApplicationActionGroups();
+                }
+
+                return getRegularActionGroups();
+            };
+
+            scope.permissionItems = [];
+
+            if (scope.application) {
+                initWithApplication();
+            } else {
+                initWithRegular();
+            }
+
+            // UI-Select seems to work best with a plain array in this case
+            /*
+            scope.permissionItems = scope.allpermissionsAutoComplete.map((item) => {
+                return item.name;
+            });
+            */
+
+            function initWithRegular() {
+                scope.permissionItems = scope.allpermissionsAutoComplete.map((item) => {
+                    return item.name;
+                });
+            }
+
+            function initWithApplication() {
+                scope.permissionPlaceholder = 'Select permission';
+                // UI-Select seems to work best with a plain array in this case
+                scope.permissionItems = applicationPermissions.map(item => item.name);
+            }
+
+            function getRegularActionGroups() {
                 if (scope.actiongroupItems.length) {
                     return scope.actiongroupItems;
                 }
@@ -42,13 +82,19 @@ app.directive('sgcPermissions', function () {
                 }
 
                 return scope.actiongroupItems;
+            }
 
-            };
+            function getApplicationActionGroups() {
+                if (scope.applicationActionGroups && scope.applicationActionGroups[scope.application]) {
+                    let ag = scope.applicationActionGroups[scope.application].map(actionGroup => actionGroup);
 
-            // UI-Select seems to work best with a plain array in this case
-            scope.permissionItems = scope.allpermissionsAutoComplete.map((item) => {
-                return item.name;
-            });
+                    return ag;
+                }
+
+                return [];
+            }
+
+
 
             /**
              * This is a weird workaround for the autocomplete where
