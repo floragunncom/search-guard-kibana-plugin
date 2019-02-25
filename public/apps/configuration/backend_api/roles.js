@@ -1,6 +1,7 @@
 import { uiModules } from 'ui/modules';
 import { isEmpty } from 'lodash';
 import client from './client';
+import chrome from 'ui/chrome';
 
 /**
  * Role mappings API client service.
@@ -9,6 +10,11 @@ uiModules.get('apps/searchguard/configuration', [])
     .service('backendRoles', function (backendAPI, Promise, $http) {
 
         const RESOURCE = 'roles';
+        const injectedDefaultVars = chrome.getInjected();
+
+        const USE_RBAC = (injectedDefaultVars.searchguard.rbac && injectedDefaultVars.searchguard.rbac.enabled);
+        const TENANT_READWRITE_PERMISSION = 'searchguard:tenant/write';
+        const TENANT_READONLY_PERMISSION = 'searchguard:tenant/read';
 
         this.title = {
             singular: 'role',
@@ -126,19 +132,28 @@ uiModules.get('apps/searchguard/configuration', [])
 
             // In postFetch, we split up the "applications" into permissions and action groups,
             // so for saving we need to stitch them back together
-            if (role.applications) {
-                role.applications = backendAPI.mergeCleanArray(role.applications.actiongroups, role.applications.permissions)
+            if (USE_RBAC) {
+                if (role.applications) {
+                    role.applications = backendAPI.mergeCleanArray(role.applications.actiongroups, role.applications.permissions)
+                }
             }
+
 
             // tenants
             role["tenants"] = {};
             for (var i = 0, l = role.tenantsArray.length; i < l; i++) {
                 var tenant = role.tenantsArray[i];
                 if (tenant && tenant.name != "") {
-                    //role.tenants[tenant.name] = tenant.permissions;
-                    role.tenants[tenant.name] = {
-                        applications: backendAPI.mergeCleanArray(tenant.actiongroups, tenant.permissions),
-                    };
+                    if (USE_RBAC) {
+                        const readWritePermission = (tenant.rw === 'RW') ? TENANT_READWRITE_PERMISSION : TENANT_READONLY_PERMISSION;
+                        tenant.permissions.push(readWritePermission);
+                        console.log('SAVING PERMISSIONS', tenant.permissions, tenant)
+                        role.tenants[tenant.name] = {
+                            applications: backendAPI.mergeCleanArray(tenant.actiongroups, tenant.permissions),
+                        };
+                    } else {
+                        role.tenants[tenant.name] = tenant.permissions;
+                    }
                 }
             }
 
@@ -212,42 +227,50 @@ uiModules.get('apps/searchguard/configuration', [])
                 role.indices = {};
             }
 
-            if (role.applications) {
-                role.applications = {
-                    permissions: role.applications.filter(permission => kibanaApplicationActionGroups.indexOf(permission) === -1),
-                    actiongroups: role.applications.filter(permission => kibanaApplicationActionGroups.indexOf(permission) > -1)
-                }
+            if (USE_RBAC) {
+                if (role.applications) {
+                    role.applications = {
+                        permissions: role.applications
+                            .filter(permission => kibanaApplicationActionGroups.indexOf(permission) === -1),
+                        actiongroups: role.applications.filter(permission => kibanaApplicationActionGroups.indexOf(permission) > -1)
+                    }
 
-            } else {
-                role.applications = {
-                    permissions: [],
-                    actiongroups: []
+                } else {
+                    role.applications = {
+                        permissions: [],
+                        actiongroups: []
+                    }
                 }
             }
+
 
             // transform tenants to object
             role["tenantsArray"] = [];
             if (role.tenants) {
                 var tenantNames = Object.keys(role.tenants).sort();
                 tenantNames.forEach(function(tenantName){
-                    // @todo Clean up when we've discussed backward compability
-                    /*
-                    role.tenantsArray.push(
-                        {
-                            name: tenantName,
-                            permissions: role.tenants[tenantName]
-                        }
-                    );
-                   */
-
-                    role.tenantsArray.push(
-                        {
-                            name: tenantName,
-                            permissions: role.tenants[tenantName].applications.filter(permission => kibanaApplicationActionGroups.indexOf(permission) === -1),
-                            actiongroups: role.tenants[tenantName].applications.filter(permission => kibanaApplicationActionGroups.indexOf(permission) > -1)
-                        }
-                    );
-
+                    if (USE_RBAC) {
+                        role.tenantsArray.push(
+                            {
+                                name: tenantName,
+                                rw: (role.tenants[tenantName].applications.find(permission => permission === TENANT_READWRITE_PERMISSION)) ? 'RW' : 'RO',
+                                permissions: role.tenants[tenantName].applications
+                                    .filter(permission => kibanaApplicationActionGroups.indexOf(permission) === -1)
+                                    // We don't show the RW permission in the list
+                                    .filter((permission) => {
+                                        return ([TENANT_READWRITE_PERMISSION, TENANT_READONLY_PERMISSION].indexOf(permission) === -1)
+                                    }),
+                                actiongroups: role.tenants[tenantName].applications.filter(permission => kibanaApplicationActionGroups.indexOf(permission) > -1)
+                            }
+                        );
+                    } else {
+                        role.tenantsArray.push(
+                            {
+                                name: tenantName,
+                                permissions: role.tenants[tenantName]
+                            }
+                        );
+                    }
                 });
             }
             delete role["tenants"];

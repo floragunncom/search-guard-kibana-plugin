@@ -12,6 +12,17 @@ export default function (kibana) {
     let authenticationBackend;
     let searchGuardConfiguration;
 
+    /**
+     * In some cases we need to pass settings that are not defined in the plugin's config object
+     *
+     * Access these with server.plugins.searchguard.getSearchguardSettings([key], [defaultValue = null])
+     * @type {}
+     */
+    let exposedSettings = {
+        rbac: {
+            enabled: false
+        }
+    };
 
     return new kibana.Plugin({
         name: 'searchguard',
@@ -40,9 +51,6 @@ export default function (kibana) {
                     type: Joi.string().valid(['', 'basicauth', 'jwt', 'openid', 'saml', 'proxy', 'kerberos', 'proxycache']).default(''),
                     anonymous_auth_enabled: Joi.boolean().default(false),
                     unauthenticated_routes: Joi.array().default(["/api/status"]),
-                }).default(),
-                rbac: Joi.object().keys({
-                    enabled: Joi.boolean().default(false)
                 }).default(),
                 basicauth: Joi.object().keys({
                     enabled: Joi.boolean().default(true),
@@ -145,12 +153,14 @@ export default function (kibana) {
                 'plugins/searchguard/chrome/logout_button',
                 'plugins/searchguard/chrome/configuration/enable_configuration',
                 'plugins/searchguard/services/access_control',
-                'plugins/searchguard/customizations/enable_customizations.js'
+                'plugins/searchguard/customizations/enable_customizations.js',
+                'plugins/searchguard/features/rbac/enable_rbac.js'
             ],
             replaceInjectedVars: async function(originalInjectedVars, request, server) {
                 const authType = server.config().get('searchguard.auth.type');
+
                 // Make sure sgDynamic is always available to the frontend, no matter what
-                let sgDynamic = {};
+                let sgDynamic = originalInjectedVars.sgDynamic || {};
                 let userInfo = null;
 
                 try {
@@ -244,6 +254,11 @@ export default function (kibana) {
                 options.basicauth_enabled = server.config().get('searchguard.basicauth.enabled');
                 options.kibana_index = server.config().get('kibana.index');
                 options.kibana_server_user = server.config().get('elasticsearch.username');
+                options.searchguard = {
+                    rbac: {
+                        enabled: exposedSettings.rbac.enabled
+                    }
+                }
 
                 return options;
             }
@@ -251,7 +266,6 @@ export default function (kibana) {
         },
 
         init(server, options) {
-
             APP_ROOT = '';
             API_ROOT = `${APP_ROOT}/api/v1`;
             const config = server.config();
@@ -282,6 +296,15 @@ export default function (kibana) {
             const BackendClass = pluginRoot(`lib/backend/searchguard`);
             const searchguardBackend = new BackendClass(server, server.config);
             server.expose('getSearchGuardBackend', () => searchguardBackend);
+
+            // Expose settings that can be accessed by the node backend without using the config object
+            server.expose('getSearchGuardSettings', (key, defaultValue = null) => {
+                if (key) {
+                    return (typeof exposedSettings[key] !== 'undefined') ? exposedSettings[key] : defaultValue
+                }
+
+                return exposedSettings;
+            });
 
             // provides configuration methods against Search Guard
             const ConfigurationBackendClass = pluginRoot(`lib/configuration/backend/searchguard_configuration_backend`);
@@ -460,7 +483,28 @@ export default function (kibana) {
                 this.status.red("'elasticsearch.ssl.certificate' can not be used without setting 'searchguard.allow_client_certificates' to 'true' in kibana.yml. Please refer to the documentation for more information about the implications of doing so.");
             }
 
-            if (config.get('searchguard.rbac.enabled')) {
+            // RBAC Lite
+            const backend = server.plugins.searchguard.getSearchGuardBackend();
+            backend.getKibanaInfo(backend.getServerUserAuthHeader())
+                .then((response) => {
+                    if (response.rbac_enabled) {
+                        exposedSettings.rbac.enabled = response.rbac_enabled;
+
+                        if (response.application_permission_migration_required) {
+                            this.status.yellow('Starting RBAC configuration migration');
+                            backend.upgradeRolesFormat(backend.getServerUserAuthHeader())
+                                .then((response) => {
+                                    this.status.green('RBAC configuration migrated');
+                                });
+                        }
+
+                        const rbacAppPermissionsClass = require('./lib/rbac/RbacAppPermissions');
+                        require('./lib/rbac/rbaclite_extension')(pluginRoot, server, new rbacAppPermissionsClass(server, backend));
+                    }
+                });
+
+            // Not using RBAC for the SavedObjects yet
+            if (0 && config.get('searchguard.rbac.enabled')) {
                 const { savedObjects } = server;
 
                 savedObjects.setScopedSavedObjectsClientFactory(({request}) => {
@@ -484,8 +528,10 @@ export default function (kibana) {
                 });
                 this.status.green("Search Guard RBAC enabled");
             } else {
-                this.status.yellow("Search Guard RBAC not enabled");
+                this.status.green("Search Guard RBAC not enabled");
             }
+
+
 
         }
     });

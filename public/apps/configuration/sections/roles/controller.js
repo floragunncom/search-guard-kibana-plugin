@@ -5,7 +5,7 @@ import { get } from 'lodash';
 import '../../backend_api/roles';
 import '../../backend_api/actiongroups';
 import '../../systemstate/systemstate'
-import savedobjectspermissions from '../../permissions/savedobjectspermissions';
+import availableApplicationPermissions from '../../permissions/applicationpermissions';
 
 const app = uiModules.get('apps/searchguard/configuration', []);
 
@@ -61,9 +61,12 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
 
     var APP_ROOT = `${chrome.getBasePath()}`;
     var API_ROOT = `${APP_ROOT}/api/v1`;
+    const injectedDefaultVars = chrome.getInjected();
 
     $scope.endpoint = "ROLES";
     $scope.$parent.endpoint = "ROLES";
+
+    $scope.useRbac = (injectedDefaultVars.searchguard.rbac && injectedDefaultVars.searchguard.rbac.enabled);
 
     $scope.service = backendRoles;
     $scope.$parent.service = backendRoles;
@@ -123,16 +126,16 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
             if (isOpen || !$select.select || !$select.selected) {
                 return;
             }
-
             $select.select($select.selected);
         },
         onSelectedTenant: (item) => {
 
             // If we want to enable adding tenants here...
-            if (item.id === -1) {
+            if (item.id === -1 && ! $scope.applicationPermissions.availableTenants.find(tenant => item.name === tenant.name)) {
                 let newTenant = {
                     name: item.name,
-                    permissions: savedobjectspermissions.filter(permission => (permission.default)).map(item => item.name),
+                    rw: 'RW',
+                    permissions: availableApplicationPermissions.filter(permission => (permission.default)).map(item => item.name),
                     actiongroups: []
                 };
 
@@ -151,24 +154,23 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
 
         confirmRemoveSelectedTenant: function() {
             // We're not checking the value here, so we may need to adjust the body
-            if (! $scope.applicationPermissions.selectedTenant || $scope.applicationPermissions.selectedTenant.isDeletable === false) {
+            if (! $scope.applicationPermissions.tenant || $scope.applicationPermissions.tenant.isDeletable === false) {
                 return;
             }
 
             $scope.deleteFromEditModal = {
                 displayModal: true,
                 header: 'Confirm Delete',
-                body: `Are you sure you want to remove '${$scope.applicationPermissions.selectedTenant.name}'?`,
+                body: `Are you sure you want to remove '${$scope.applicationPermissions.tenant.name}'?`,
                 onConfirm: function() {
-                    const selectedTenant = $scope.applicationPermissions.selectedTenant;
+                    const selectedTenant = $scope.applicationPermissions.tenant;
                     $scope.applicationPermissions.availableTenants = $scope.applicationPermissions.availableTenants.filter(tenant => tenant.name !== selectedTenant.name);
                     $scope.resource.tenantsArray = $scope.resource.tenantsArray.filter(tenant => tenant.name !== selectedTenant.name);
 
-                    $scope.applicationPermissions.selectedTenant = null;
+                    $scope.applicationPermissions.tenant = null;
 
                     if ($scope.applicationPermissions.availableTenants.length) {
                         $scope.applicationPermissions.tenant = $scope.applicationPermissions.availableTenants[0];
-                        $scope.applicationPermissions.selectedTenant = $scope.applicationPermissions.tenant
                     }
 
                     $scope.deleteFromEditModal.displayModal = false;
@@ -181,14 +183,19 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     };
 
     const setTenantsForApplicationPermissions = function() {
+        if (! $scope.useRbac) {
+            return;
+        }
         let tenants = [];
         tenants = tenants.concat($scope.resource.tenantsArray);
         tenants.sort();
 
-        // Add the global tenant if multitenacy isn't enabled, or if it is enabled and the global tenant is also enabled.
+        // Add the global tenant if multitenancy isn't enabled, or if it is enabled and the global tenant is also enabled.
         if (!$scope.multiTenancyOptions.enabled || $scope.multiTenancyOptions.tenants.enable_global) {
             tenants.unshift({
                 isDeletable: false,
+                canChangeRW: false,
+                rw: 'RW',
                 name: 'global',
                 permissions: $scope.resource.applications.permissions || [],
                 actiongroups: $scope.resource.applications.actiongroups || [],
@@ -199,7 +206,6 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
 
         if ($scope.applicationPermissions.availableTenants.length) {
             $scope.applicationPermissions.tenant = $scope.applicationPermissions.availableTenants[0];
-            $scope.applicationPermissions.selectedTenant = $scope.applicationPermissions.tenant;
         }
 
     };

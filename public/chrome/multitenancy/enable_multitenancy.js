@@ -21,7 +21,17 @@ import { FeatureCatalogueRegistryProvider, FeatureCatalogueCategory } from 'ui/r
 import { EuiIcon } from '@elastic/eui';
 
 export function toggleNavLink(Private) {
-    var enabled = chrome.getInjected('multitenancy_enabled');
+    const injectedConfig = chrome.getInjected();
+    const searchguardRequestConfig = injectedConfig.sgDynamic;
+
+    let appAllowedByRbac = true;
+    if (searchguardRequestConfig && searchguardRequestConfig.rbac) {
+        if (searchguardRequestConfig.rbac.allowedNavLinkIds && searchguardRequestConfig.rbac.allowedNavLinkIds.indexOf('searchguard-multitenancy') === -1) {
+            appAllowedByRbac = false;
+        }
+    }
+
+    var enabled = (chrome.getInjected('multitenancy_enabled') && appAllowedByRbac);
     chrome.getNavLinkById("searchguard-multitenancy").hidden = !enabled;
     if (enabled) {
       FeatureCatalogueRegistryProvider.register(() => {

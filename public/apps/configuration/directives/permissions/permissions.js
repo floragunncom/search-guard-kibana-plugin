@@ -1,5 +1,5 @@
 import { uiModules } from 'ui/modules';
-import savedobjectspermissions from '../../permissions/savedobjectspermissions';
+import applicationPermissions from '../../permissions/applicationpermissions';
 
 const app = uiModules.get('apps/searchguard/configuration', []);
 
@@ -59,7 +59,6 @@ app.directive('sgcPermissions', function () {
             */
 
             function initWithRegular() {
-                console.log('Editing with regular?');
                 scope.permissionItems = scope.allpermissionsAutoComplete.map((item) => {
                     return item.name;
                 });
@@ -68,7 +67,7 @@ app.directive('sgcPermissions', function () {
             function initWithApplication() {
                 scope.permissionPlaceholder = 'Select permission';
                 // UI-Select seems to work best with a plain array in this case
-                scope.permissionItems = savedobjectspermissions.map(item => item.name);
+                scope.permissionItems = applicationPermissions.map(item => item.name);
             }
 
             function getRegularActionGroups() {
