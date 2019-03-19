@@ -149,6 +149,25 @@ export default function (kibana) {
                 this.status.yellow('Search Guard HTTP Basic Authentication is disabled.');
             }
 
+            if(config.get('searchguard.jwt.enabled')) {
+
+                require('./lib/jwt/headers')(pluginRoot, server, this, APP_ROOT, API_ROOT);
+
+                server.state('searchguard_jwt', {
+                    ttl: null,
+                    path: '/',
+                    isSecure: false,
+                    isHttpOnly: false,
+                    clearInvalid: true, // remove invalid cookies
+                    strictHeader: true, // don't allow violations of RFC 6265
+                    encoding: 'iron',
+                    password: config.get("searchguard.cookie.password")
+                });
+
+                this.status.yellow("Search Guard copy JWT params enabled");
+            } else {
+                this.status.yellow("Search Guard copy JWT params disabled");
+            }
 
             if(config.get('searchguard.multitenancy.enabled')) {
 
@@ -189,25 +208,7 @@ export default function (kibana) {
                 this.status.yellow("Search Guard multitenancy disabled");
             }
 
-            if(config.get('searchguard.jwt.enabled')) {
 
-                require('./lib/jwt/headers')(pluginRoot, server, this, APP_ROOT, API_ROOT);
-
-                server.state('searchguard_jwt', {
-                    ttl: null,
-                    path: '/',
-                    isSecure: false,
-                    isHttpOnly: false,
-                    clearInvalid: true, // remove invalid cookies
-                    strictHeader: true, // don't allow violations of RFC 6265
-                    encoding: 'iron',
-                    password: config.get("searchguard.cookie.password")
-                });
-
-                this.status.yellow("Search Guard copy JWT params enabled");
-            } else {
-                this.status.yellow("Search Guard copy JWT params disabled");
-            }
 
             this.status.green('Search Guard plugin initialised.');
 
