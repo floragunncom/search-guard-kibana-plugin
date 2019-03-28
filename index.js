@@ -442,11 +442,10 @@ export default function (kibana) {
             // create index template for tenant indices
             if(config.get('searchguard.multitenancy.enabled')) {
                 const { setupIndexTemplate, waitForElasticsearchGreen } = indexTemplate(this, server);
-                //const {migrateTenants} = tenantMigrator(this, server);
 
                 waitForElasticsearchGreen().then( () => {
                     this.status.yellow('Setting up index template.');
-                    setupIndexTemplate();
+                    //setupIndexTemplate();
 
                     migrateTenants(server)
                         .then(  () => {
