@@ -445,7 +445,7 @@ export default function (kibana) {
 
                 waitForElasticsearchGreen().then( () => {
                     this.status.yellow('Setting up index template.');
-                    //setupIndexTemplate();
+                    setupIndexTemplate();
 
                     migrateTenants(server)
                         .then(  () => {
