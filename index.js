@@ -147,6 +147,7 @@ export default function (kibana) {
             replaceInjectedVars: async function(originalInjectedVars, request, server) {
                 const authType = server.config().get('searchguard.auth.type');
                 // Make sure sgDynamic is always available to the frontend, no matter what
+                // Remember that these values are only updated on page load.
                 let sgDynamic = {};
                 let userInfo = null;
 
@@ -176,6 +177,29 @@ export default function (kibana) {
                 } catch (error) {
                     // Don't to anything here.
                     // If there's an error, it's probably because x-pack security is enabled.
+                }
+
+                if(server.config().get('searchguard.multitenancy.enabled')) {
+                    let currentTenantName = 'global';
+                    let currentTenant = '';
+                    if (typeof request.headers['sgtenant'] !== 'undefined') {
+                        currentTenant = request.headers['sgtenant'];
+                    } else if (request.headers['sg_tenant'] !== 'undefined') {
+                        currentTenant = request.headers['sg_tenant'];
+                    }
+
+                    currentTenantName = currentTenant;
+
+                    if (currentTenant === '') {
+                        currentTenantName = 'global';
+                    } else if (currentTenant === '__user__') {
+                        currentTenantName = 'private';
+                    }
+
+                    sgDynamic.multiTenancy = {
+                        currentTenantName: currentTenantName,
+                        currentTenant: currentTenant
+                    };
                 }
 
                 return {
