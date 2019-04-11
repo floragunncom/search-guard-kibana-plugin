@@ -75,6 +75,17 @@ uiModules.get('apps/searchguard/configuration', [])
         }
 
         this.preSave = (role) => {
+
+            // @todo This can probably be removed again
+            if (role.hidden === false) {
+                delete role.hidden;
+            }
+
+            // @todo This can probably be removed again
+            if (role.readonly === false) {
+                delete role.readonly;
+            }
+
             delete role["indexnames"];
             // merge cluster permissions
             var clusterpermissions = backendAPI.mergeCleanArray(role.cluster.actiongroups, role.cluster.permissions);
