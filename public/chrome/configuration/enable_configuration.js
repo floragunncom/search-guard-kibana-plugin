@@ -17,7 +17,66 @@
 
 import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules';
-import '../../apps/configuration/systemstate'
+// This fixes an issue where the app icons would disappear while having a non-Kibana app open.
+// Should be fixed starting from Kibana 6.6.2
+import 'ui/autoload/modules';
+import { FeatureCatalogueRegistryProvider, FeatureCatalogueCategory } from 'ui/registry/feature_catalogue';
+require ('../../apps/configuration/systemstate/systemstate');
+
+const app = uiModules.get('apps/searchguard/configuration');
+
+
+app.factory('errorInterceptor', function ($q, $window) {
+
+    return {
+        responseError: function (response) {
+
+            // Handles 401s, but only if we've explicitly set the redirect property on the response.
+            if (response.status == 401 && response.data && response.data.redirectTo === 'login') {
+                const APP_ROOT = `${chrome.getBasePath()}`;
+                const path = chrome.removeBasePath($window.location.pathname);
+                const injectedConfig = chrome.getInjected();
+
+                // Don't run on login or logout. We shouldn't have any Ajax requests here,
+                // but if other plugins are active, we would get a redirect loop.
+                if(path === '/login' || path === '/logout' || path === '/customerror') {
+                    return $q.reject(response);
+                }
+
+                let auth = injectedConfig.auth;
+                if (auth && auth.type && auth.type === 'jwt') {
+                    // For JWT we don't have a login page, so we need to go to the custom error page
+                    $window.location.href = `${APP_ROOT}/customerror?type=sessionExpired`;
+                } else {
+                    let nextUrl = path + $window.location.hash + $window.location.search;
+                    if (auth && auth.type === 'openid') {
+                        $window.location.href = `${APP_ROOT}/auth/openid/login?nextUrl=${encodeURIComponent(nextUrl)}`;
+                    } else if (auth && auth.type === 'saml') {
+                        $window.location.href = `${APP_ROOT}/auth/saml/login?nextUrl=${encodeURIComponent(nextUrl)}`;
+                    } else {
+                        // Handle differently if we were logged in anonymously
+                        if (auth && auth.type === 'basicauth' && injectedConfig.sgDynamic && injectedConfig.sgDynamic.user && injectedConfig.sgDynamic.user.isAnonymousAuth) {
+                            $window.location.href = `${APP_ROOT}/auth/anonymous?nextUrl=${encodeURIComponent(nextUrl)}`;
+                        } else {
+                            $window.location.href = `${APP_ROOT}/login?nextUrl=${encodeURIComponent(nextUrl)}`;
+                        }
+                    }
+                }
+            }
+
+            // If unhandled, we just pass the error on to the next handler.
+            return $q.reject(response);
+        }
+    };
+});
+
+/**
+ * Make sure that we add the interceptor to the existing ones.
+ */
+app.config(function($httpProvider) {
+    $httpProvider.interceptors.push('errorInterceptor');
+});
+
 
 export function enableConfiguration($http, $window, systemstate) {
 
@@ -29,7 +88,7 @@ export function enableConfiguration($http, $window, systemstate) {
     const path = chrome.removeBasePath($window.location.pathname);
 
     // don't run on login or logout, we don't have any user on these pages
-    if(path === '/login' || path === '/logout') {
+    if(path === '/login' || path === '/logout' || path === '/customerror') {
         return;
     }
     // make sure all infos are loaded since sessionStorage might
@@ -44,6 +103,17 @@ export function enableConfiguration($http, $window, systemstate) {
         systemstate.loadRestInfo().then(function(){
             if (systemstate.hasApiAccess()) {
                 chrome.getNavLinkById("searchguard-configuration").hidden = false;
+                FeatureCatalogueRegistryProvider.register(() => {
+                    return {
+                        id: 'searchguard-configuration',
+                        title: 'Search Guard Configuration',
+                        description: 'Configure users, roles and permissions for Search Guard.',
+                        icon: 'securityApp',
+                        path: '/app/searchguard-configuration',
+                        showOnHomePage: true,
+                        category: FeatureCatalogueCategory.ADMIN
+                    };
+                });
             } else {
                 chrome.getNavLinkById("searchguard-configuration").hidden = true;
             }
@@ -52,4 +122,3 @@ export function enableConfiguration($http, $window, systemstate) {
 }
 
 uiModules.get('searchguard').run(enableConfiguration);
-

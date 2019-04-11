@@ -11,7 +11,7 @@
                     <div style="margin-bottom: 10px;">
                         <h3 class="indexheading" style="display: inline;">Search Guard Roles</h3>
                         <div style="display: inline;">
-                            <button class="kuiInfoButton" tooltip="Search Guard Roles define access privileges to indices and document types, including Document- and Field-Level-Security and Kibana tenants. Use Role Mappings to assign users to Search Guard roles.">
+                            <span class="kuiInfoButton help" tooltip="Search Guard Roles define access privileges to indices and document types, including Document- and Field-Level-Security and Kibana tenants. Use Role Mappings to assign users to Search Guard roles.">
                                 <span class="kuiIcon fa-info-circle"></span>
                             </button>
                         </div>
@@ -26,42 +26,52 @@
                             <thead>
                                 <tr>
 
-                                    <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
-                                        Search Guard Role
-                                        <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'username'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                    <th class="kuiTableHeaderCell" ng-click="onSortChange('resourcename')">
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Search Guard Role
+                                        </span>
+                                        <span ng-show="sortTable.byKey === 'resourcename'"
+                                              class="kuiIcon"
+                                              ng-class="{'fa-long-arrow-down': sortTable.descending, 'fa-long-arrow-up': ! sortTable.descending}">
+                                        </span>
                                     </th>
 
-                                    <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
-                                        Cluster permissions
-                                        <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'roles'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                    <th class="kuiTableHeaderCell">
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Cluster permissions
+                                        </span>
                                     </th>
 
-                                    <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
-                                        Indices
+                                    <th class="kuiTableHeaderCell">
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Indices
+                                        </span>
                                     </th>
 
-                                    <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
-                                        Tenants
+                                    <th class="kuiTableHeaderCell">
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Tenants
+                                        </span>
                                     </th>
 
-                                    <th class="kuiTableHeaderCell kuiTableHeaderCell">
+                                    <th class="kuiTableHeaderCell">
                                     </th>
 
                                 </tr>
                             </thead>
 
                             <tbody>
-                                <tr ng-repeat="rolename in resourcenames | filter:query" class="kuiTableRow">
+                                <tr ng-repeat="rolename in resourcenames | filter:query | orderBy:'toString()':sortTable.descending" class="kuiTableRow">
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <a class="kuiLink" ng-click="edit(rolename)">
+                                            <a class="kuiLink" ng-click="edit(rolename)" title="{{rolename}}">
                                                 {{rolename}}
                                             </a>
                                         </div>
                                         <div ng-if="resources[rolename].readonly">
                                             <div class="kuiBadge kuiBadge--default" >
-                                                <span class="kuiIcon fa-warning"></span>
+                                                <span class="kuiIcon fa-lock"></span>
                                                 reserved
                                             </div>
                                         </div>
@@ -69,28 +79,28 @@
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <div ng-repeat="clusterpermission in resources[rolename].cluster.actiongroups.sort()">{{clusterpermission}}<br/></div>
-                                            <div ng-repeat="clusterpermission in resources[rolename].cluster.permissions.sort()">{{clusterpermission}}<br/></div>
+                                            <span title="{{clusterpermission}}" ng-repeat="clusterpermission in resources[rolename].cluster.actiongroups.sort()">{{clusterpermission}}<br/></span>
+                                            <span title="{{clusterpermission}}" ng-repeat="clusterpermission in resources[rolename].cluster.permissions.sort()">{{clusterpermission}}<br/></span>
                                         </div>
                                     </td>
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <div ng-repeat="indexname in resources[rolename].indexnames.sort()">
-                                                <a class="kuiLink" ng-href="#/roles/edit/{{rolename}}/{{indexname | escape}}" >
+                                            <span ng-repeat="indexname in resources[rolename].indexnames.sort()">
+                                                <a title="{{indexname}}" class="kuiLink" ng-href="#/roles/edit/{{rolename}}/{{indexname | escape}}" >
                                                     {{indexname}}
                                                 </a>
                                                 <br/>
-                                            </div>
+                                            </span>
                                         </div>
                                     </td>
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <div ng-repeat="tenantname in flatten(resources[rolename].tenantsArray, 'name').sort()">
+                                            <span title="{{tenantname}}" ng-repeat="tenantname in flatten(resources[rolename].tenantsArray, 'name').sort()">
                                                 {{tenantname}}
                                                 <br/>
-                                            </div>
+                                            </span>
                                         </div>
                                     </td>
 
@@ -117,7 +127,12 @@
             </div>
         </div>
 
-        <sgc-delete-modal></sgc-delete-modal>
+        <sgc-confirmation-modal ng-if="displayModal === true"
+            header="Confirm Delete"
+            body="Do you really want to delete '{{deleteModalResourceName}}'"
+            on-close="closeDeleteModal"
+            on-confirm="delete">
+        </sgc-confirmation-modal>
 
     </div>
 </div>

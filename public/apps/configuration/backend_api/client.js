@@ -1,18 +1,20 @@
+import { toastNotifications } from 'ui/notify';
 import { uiModules } from 'ui/modules';
 import { merge } from 'lodash';
 import { uniq } from 'lodash';
 import { isPlainObject } from 'lodash';
 import { isEmpty } from 'lodash';
+import chrome from 'ui/chrome';
 
 /**
  * Backend API client service.
  */
 uiModules.get('apps/searchguard/configuration', [])
-    .service('backendAPI', function (Promise, $http, $window, createNotifier, kbnUrl, searchGuardAccessControl) {
+    .service('backendAPI', function (Promise, $http, $window, kbnUrl, searchGuardAccessControl) {
 
-        const notify = createNotifier({});
-
-        const AUTH_BACKEND_API_ROOT = "/api/v1";
+        // Take the basePath configuration value into account
+        // @url https://www.elastic.co/guide/en/kibana/current/development-basepath.html
+        const AUTH_BACKEND_API_ROOT = chrome.addBasePath("/api/v1");
 
         this.testConnection =  () => {
 
@@ -38,7 +40,10 @@ uiModules.get('apps/searchguard/configuration', [])
                     if (error.status == 403) {
                         searchGuardAccessControl.logout();
                     } else {
-                        notify.error(error);
+                        toastNotifications.addDanger({
+                            title: 'Unable to load data.',
+                            text: error.message,
+                        });
                     }
                     throw error;
                 });
@@ -59,13 +64,17 @@ uiModules.get('apps/searchguard/configuration', [])
             let url = `${AUTH_BACKEND_API_ROOT}/configuration/${resourceName}/${id}`;
             return $http.post(url, data)
                 .then((response) => {
-                    notify.info(response.data.message);
+                    toastNotifications.addSuccess({
+                        title: `'${id}' saved.`
+                    });
                 })
                 .catch((error) => {
                     if (error.status == 403) {
                         searchGuardAccessControl.logout();
                     } else {
-                        notify.error(error);
+                        toastNotifications.addDanger({
+                            text: error.message
+                        });
                     }
                     throw error;
                 });
@@ -74,13 +83,18 @@ uiModules.get('apps/searchguard/configuration', [])
         this.delete = (resourceName, id) => {
             return $http.delete(`${AUTH_BACKEND_API_ROOT}/configuration/${resourceName}/${id}`)
                 .then((response) => {
-                    notify.info(response.data.message);
+                    toastNotifications.addSuccess({
+                        title: `'${id}' deleted.`
+                    });
                 })
                 .catch((error) => {
                     if (error.status == 403) {
                         searchGuardAccessControl.logout();
                     } else {
-                        notify.error(error);
+                        toastNotifications.addDanger({
+                            title: 'Unable to delete data.',
+                            text: error.message,
+                        });
                     }
                     throw error;
                 });
@@ -95,9 +109,14 @@ uiModules.get('apps/searchguard/configuration', [])
                     if (error.status == 403) {
                         searchGuardAccessControl.logout();
                     } else {
-                        notify.error(error);
+                        toastNotifications.addDanger({
+                            text: error.message
+                        });
                     }
-                    throw error;
+                    toastNotifications.addDanger({
+                        title: 'Unable to load data.',
+                        text: error.message,
+                    });
                 });
         };
 
@@ -124,13 +143,18 @@ uiModules.get('apps/searchguard/configuration', [])
         this.clearCache = () => {
             return $http.delete(`${AUTH_BACKEND_API_ROOT}/configuration/cache`)
                 .then((response) => {
-                    notify.info(response.data.message);
+                    toastNotifications.addSuccess({
+                        title: response.data.message
+                    });
                 })
                 .catch((error) => {
                     if (error.status == 403) {
                         searchGuardAccessControl.logout();
                     } else {
-                        notify.error(error);
+                        toastNotifications.addDanger({
+                            title: 'Unable to clear cache.',
+                            text: error.message,
+                        });
                     }
                     throw error;
                 });
@@ -183,6 +207,9 @@ uiModules.get('apps/searchguard/configuration', [])
 
 
         this.cleanArray = (thearray) => {
+            if (!thearray) {
+                return [];
+            }
             if (!Array.isArray(thearray)) {
                 return;
             }

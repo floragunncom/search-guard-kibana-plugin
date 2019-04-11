@@ -10,9 +10,9 @@
                     <div style="margin-bottom: 10px;">
                         <h3 class="indexheading" style="display: inline;">Role Mappings</h3>
                         <div style="display: inline;">
-                            <button class="kuiInfoButton" tooltip="Use Role Mappings to configure the members of a Search Guard Role. You can use usernames, backend roles and host names to assign users to a Search Guard Role.">
+                            <span class="kuiInfoButton help" tooltip="Use Role Mappings to configure the members of a Search Guard Role. You can use usernames, backend roles and host names to assign users to a Search Guard Role.">
                                 <span class="kuiIcon fa-info-circle"></span>
-                            </button>
+                            </span>
                         </div>
                     </div>
 
@@ -25,43 +25,52 @@
                             <thead>
                                 <tr>
 
-                                    <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
-                                        Search Guard Role
-                                        <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'username'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                    <th class="kuiTableHeaderCell" ng-click="onSortChange('resourcename')">
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Search Guard Role
+                                        </span>
+                                        <span ng-show="sortTable.byKey === 'resourcename'"
+                                              class="kuiIcon"
+                                              ng-class="{'fa-long-arrow-down': sortTable.descending, 'fa-long-arrow-up': ! sortTable.descending}">
+                                        </span>
                                     </th>
 
-                                    <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
-                                        Users
-                                        <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'roles'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                    <th class="kuiTableHeaderCell">
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Users
+                                        </span>
                                     </th>
 
-                                    <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
-                                        Backend Roles
-                                        <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'roles'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                    <th class="kuiTableHeaderCell">
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Backend Roles
+                                        </span>
                                     </th>
 
-                                    <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
-                                        Hosts
-                                        <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'roles'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                    <th class="kuiTableHeaderCell">
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Hosts
+                                        </span>
                                     </th>
 
-                                    <th class="kuiTableHeaderCell kuiTableHeaderCell">
+                                    <th class="kuiTableHeaderCell">
                                     </th>
 
                                 </tr>
                             </thead>
 
                             <tbody>
-                                <tr ng-repeat="rolemappingname in resourcenames | filter:query" class="kuiTableRow">
+                                <tr ng-repeat="rolemappingname in resourcenames | filter:query | orderBy:'toString()':sortTable.descending" class="kuiTableRow">
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <a class="kuiLink" ng-click="edit(rolemappingname)">
+                                            <span ng-click="newRole(rolemappingname)" class="kuiStatusText__icon kuiStatusText--error kuiIcon fa-warning" ng-if="sgRoleMissing(rolemappingname)" tooltip="No corresponding Search Guard role for mapping '{{rolemappingname}}' found. Click to create it."></span>
+                                            <a class="kuiLink" ng-click="edit(rolemappingname)" title="{{rolemappingname}}">
                                                 {{rolemappingname}}
                                             </a>
                                             <div ng-if="resources[rolemappingname].readonly">
                                                 <div class="kuiBadge kuiBadge--default" >
-                                                    <span class="kuiIcon fa-warning"></span>
+                                                    <span class="kuiIcon fa-lock"></span>
                                                     reserved
                                                 </div>
                                             </div>
@@ -70,19 +79,19 @@
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <div ng-repeat="user in resources[rolemappingname].users">{{user}}<br/></div>
+                                            <span title="{{user}}" ng-repeat="user in resources[rolemappingname].users">{{user}}<br/></span>
                                         </div>
                                     </td>
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <div ng-repeat="backendrole in resources[rolemappingname].backendroles">{{backendrole}}<br/></div>
+                                            <span title="{{backendrole}}" ng-repeat="backendrole in resources[rolemappingname].backendroles">{{backendrole}}<br/></span>
                                         </div>
                                     </td>
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <div ng-repeat="host in resources[rolemappingname].hosts">{{host}}<br/></div>
+                                            <span title="{{host}}" ng-repeat="host in resources[rolemappingname].hosts">{{host}}<br/></span>
                                         </div>
                                     </td>
 
@@ -94,7 +103,12 @@
                                             <a tooltip="Clone" ng-click="clone(rolemappingname)" class="kuiButton kuiButton--primary kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-copy"></span>
                                             </a>
-                                            <button tooltip="Delete" type="button" ng-disabled="!endpointAndMethodEnabled('ROLESMAPPING', 'DELETE') || resources[rolemappingname].readonly" ng-click="confirmDelete(rolemappingname)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <button tooltip="Delete"
+                                                    type="button"
+                                                    ng-disabled="!endpointAndMethodEnabled('ROLESMAPPING', 'DELETE') || resources[rolemappingname].readonly"
+                                                    ng-click="confirmDelete(rolemappingname)"
+                                                    class="kuiButton kuiButton--danger kuiButton--iconText"
+                                                    id="sg.button.rolesmapping.delete.{{rolemappingname}}">
                                                 <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                             </button>
                                         </div>
@@ -108,7 +122,13 @@
             </div>
         </div>
 
-        <sgc-delete-modal></sgc-delete-modal>
+        <sgc-confirmation-modal ng-if="displayModal === true"
+            header="Confirm Delete"
+            body="Do you really want to delete '{{deleteModalResourceName}}'"
+            on-close="closeDeleteModal"
+            on-confirm="delete">
+        </sgc-confirmation-modal>
+
 
     </div>
 </div>

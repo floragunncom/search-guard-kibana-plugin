@@ -10,9 +10,9 @@
                     <div style="margin-bottom: 10px;">
                         <h3 class="indexheading" style="display: inline;">Internal Users Database</h3>
                         <div style="display: inline;">
-                            <button class="kuiInfoButton" tooltip="The Internal User Database is an authentication backend that stores users and their backend roles directly in Elasticsearch. You can then map these users and/or their backend roles to Search Guard Roles to assign permissions. Use the Internal User Database if you don't have any external authentication system like LDAP or JWT in place.">
+                            <span class="kuiInfoButton help" tooltip="The Internal User Database is an authentication backend that stores users and their backend roles directly in Elasticsearch. You can then map these users and/or their backend roles to Search Guard Roles to assign permissions. Use the Internal User Database if you don't have any external authentication system like LDAP or JWT in place.">
                                 <span class="kuiIcon fa-info-circle"></span>
-                            </button>
+                            </span>
                         </div>
                     </div>
 
@@ -25,14 +25,20 @@
                             <thead>
                                 <tr>
 
-                                    <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
-                                        Username
-                                        <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'username'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                    <th class="kuiTableHeaderCell" ng-click="onSortChange('resourcename')">
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Username
+                                        </span>
+                                        <span ng-show="sortTable.byKey === 'resourcename'"
+                                              class="kuiIcon"
+                                              ng-class="{'fa-long-arrow-down': sortTable.descending, 'fa-long-arrow-up': ! sortTable.descending}">
+                                        </span>
                                     </th>
 
-                                    <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable" ng-click="toggleSort(sort, 'roles')">
-                                        Backend Roles
-                                        <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'roles'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                    <th class="kuiTableHeaderCell">
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Backend Roles
+                                        </span>
                                     </th>
 
                                     <th class="kuiTableHeaderCell kuiTableHeaderCell">
@@ -42,22 +48,22 @@
                             </thead>
 
                             <tbody>
-                                <tr ng-repeat="username in resourcenames | filter:query" class="kuiTableRow">
+                                <tr ng-repeat="username in resourcenames | filter:query | orderBy:'toString()':sortTable.descending" class="kuiTableRow">
 
                                     <td class="kuiTableRowCell">
                                         <div class="kuiTableRowCell__liner">
-                                            <a class="kuiLink" ng-click="edit(username)">
+                                            <a class="kuiLink" ng-click="edit(username)" title="{{username}}" id="{{username}}">
                                                 {{username}}
                                             </a>
                                             <div ng-if="resources[username].readonly">
                                                 <div class="kuiBadge kuiBadge--default" >
-                                                    <span class="kuiIcon fa-warning"></span>
+                                                    <span class="kuiIcon fa-lock"></span>
                                                     reserved
                                                 </div>
                                             </div>
                                             <div ng-if="username == currentuser">
                                                 <div class="kuiBadge kuiBadge--default" >
-                                                    <span class="kuiIcon fa-warning"></span>
+                                                    <span class="kuiIcon fa-lock"></span>
                                                     Current user
                                                 </div>
                                             </div>
@@ -66,7 +72,7 @@
 
                                     <td class="kuiTableRowCell">
                                         <div class="kuiTableRowCell__liner">
-                                            <div ng-repeat="role in resources[username].roles">{{role}}<br/></div>
+                                            <span title="{{role}}" ng-repeat="role in resources[username].roles">{{role}}<br/></span>
                                         </div>
                                     </td>
 
@@ -78,7 +84,7 @@
                                             <a tooltip="Clone" ng-click="clone(username)" class="kuiButton kuiButton--primary kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-copy"></span>
                                             </a>
-                                            <button tooltip="Delete" type="button" ng-disabled="!endpointAndMethodEnabled('INTERNALUSERS', 'DELETE') || resources[username].readonly || username == currentuser" ng-click="confirmDelete(username)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <button tooltip="Delete" type="button" ng-disabled="!endpointAndMethodEnabled('INTERNALUSERS', 'DELETE') || resources[username].readonly || username == currentuser" ng-click="confirmDelete(username)" class="kuiButton kuiButton--danger kuiButton--iconText" id="sg.button.internalusers.delete.{{username}}">
                                                 <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                             </button>
                                         </div>
@@ -91,7 +97,12 @@
             </div>
         </div>
 
-        <sgc-delete-modal></sgc-delete-modal>
+        <sgc-confirmation-modal ng-if="displayModal === true"
+            header="Confirm Delete"
+            body="Do you really want to delete '{{deleteModalResourceName}}'"
+            on-close="closeDeleteModal"
+            on-confirm="delete">
+        </sgc-confirmation-modal>
 
     </div>
 </div>

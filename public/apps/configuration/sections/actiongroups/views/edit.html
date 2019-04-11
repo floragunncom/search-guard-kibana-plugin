@@ -7,7 +7,7 @@
             <div class="row">
                 <div class="col-xs-12">
                     <div class="">
-                        <form name="objectForm" id="object-form" method="post" ng-submit="saveObject($event)" novalidate style="width:70%">
+                        <form sgc-form-focus-added-field name="objectForm" id="object-form" method="post" ng-submit="saveObject($event)" novalidate style="width:70%">
 
                             <sgc-error-message></sgc-error-message>
 
@@ -15,16 +15,23 @@
 
                             <sgc-form-new-resource-field></sgc-form-new-resource-field>
 
-                            <sgc-permissions permissionsResource="resource"></sgc-permissions>
+                            <sgc-permissions on-should-confirm="confirmRemoveArrayEntry" permissionsResource="resource"></sgc-permissions>
 
                             <div class="formsubmit">
-                                <button ng-disabled="!endpointAndMethodEnabled('ACTIONGROUPS', 'PUT') || resource.readonly" class="kuiButton kuiButton--primary kuiButton--text" type="submit">Submit</button>
-                                <button class="kuiButton kuiButton--basic kuiButton--text" type="button" ng-click="cancel()">Cancel</button>
+                                <button id="sg.button.submit" ng-disabled="!endpointAndMethodEnabled('ACTIONGROUPS', 'PUT') || resource.readonly" class="kuiButton kuiButton--primary kuiButton--text" type="submit">Submit</button>
+                                <button id="sg.button.cancel" class="kuiButton kuiButton--basic kuiButton--text" type="button" ng-click="cancel()">Cancel</button>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
+        <sgc-confirmation-modal ng-if="deleteFromEditModal.displayModal"
+            header="{{deleteFromEditModal.header}}"
+            body="{{deleteFromEditModal.body}}"
+            params="deleteFromEditModal.params"
+            on-confirm="deleteFromEditModal.onConfirm"
+            on-close="deleteFromEditModal.onClose"
+        ></sgc-confirmation-modal>
     </div>
 </div>

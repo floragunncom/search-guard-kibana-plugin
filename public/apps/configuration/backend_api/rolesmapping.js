@@ -7,18 +7,16 @@ import client from './client';
  * Role mappings API client service.
  */
 uiModules.get('apps/searchguard/configuration', [])
-    .service('backendrolesmapping', function (backendAPI, Promise, $http, createNotifier) {
+    .service('backendrolesmapping', function (backendAPI, Promise, $http) {
 
         const RESOURCE = 'rolesmapping';
-
-        const notify = createNotifier({});
 
         this.title = {
             singular: 'role mapping',
             plural: 'role mappings'
         };
 
-        this.newLabel = "Search Guard role";
+        this.newLabel = "Search Guard Role";
 
         this.list = () => {
             return backendAPI.list(RESOURCE);

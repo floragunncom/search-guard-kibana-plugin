@@ -16,7 +16,7 @@
 
 import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules';
-import 'ui/notify';
+import { toastNotifications } from 'ui/notify';
 
 uiModules
 .get('kibana')
@@ -24,25 +24,36 @@ uiModules
   const APP_ROOT = `${chrome.getBasePath()}`;
   const API_ROOT = `${APP_ROOT}/api/v1/auth`;
 
-  const notify = createNotifier({
-    location: 'Search Guard Access Control'
-  });
+  const authConfig = chrome.getInjected('auth');
+  const authType = authConfig.type || null;
 
   class SearchGuardControlService {
 
     logout() {
-      const prevented = $rootScope.$broadcast('searchguard:logout').defaultPrevented;
-      if (!prevented) {
         $http.post(`${API_ROOT}/logout`)
         .then(
-          () => {
+          (response) => {
             localStorage.clear();
             sessionStorage.clear();
-            $window.location.href = `${APP_ROOT}/login`;
+            if (authType && ['openid', 'saml'].indexOf(authType) > -1) {
+                if (response.data.redirectURL) {
+                    $window.location.href = response.data.redirectURL;
+                } else {
+                    $window.location.href = `${APP_ROOT}/customerror`;
+                }
+            } else {
+                $window.location.href = `${APP_ROOT}/login?type=${authType || ''}Logout`;
+            }
           },
-          (error) => notify.error(error)
+          (error) =>
+          {
+              toastNotifications.addDanger({
+                  title: 'Unable to log out.',
+                  text: error
+              });
+
+          }
         );
-      }
     }
   }
 

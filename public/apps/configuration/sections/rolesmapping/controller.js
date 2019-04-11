@@ -23,6 +23,41 @@ app.controller('sgRoleMappingsController', function ($scope, $element, $route, c
         $scope.loaded = true;
     });
 
+    $scope.sgRoleMissing = function(mappingname) {
+        if ($scope.roleNames && $scope.roleNames.length > 0) {
+            return $scope.roleNames.indexOf(mappingname) == -1 ? true : false;
+        }
+        return false;
+    }
+
+    $scope.newRole = function(rolename) {
+        kbnUrl.change(`/roles/new?name=`+rolename);
+    }
+
+    /**
+     * Holds table sorting info
+     * @type {{byKey: string, descending: boolean}}
+     */
+    $scope.sortTable = {
+        byKey: 'resourcename',
+        descending: false
+    };
+
+    /**
+     * Handle changed sorting conditions.
+     * Since we only have one column sortable, changing the key doesn't really do anything.
+     * Until we have more sortable columns, only the sort order is changed
+     * @param {string} key
+     */
+    $scope.onSortChange = function(key) {
+        if ($scope.sortTable.byKey === key) {
+            $scope.sortTable.descending = ! $scope.sortTable.descending;
+        } else {
+            $scope.sortTable.byKey = key;
+        }
+    };
+
+
 });
 
 app.controller('sgEditRoleMappingsController', function ($scope, $element, $route, $location, $routeParams, createNotifier, backendrolesmapping, backendAPI, kbnUrl) {
@@ -45,6 +80,14 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
     $scope.title = function () {
         return $scope.isNew? "New Role Mapping" : "Edit Role Mapping '" + $scope.resourcename+"'";
     }
+
+    /**
+     * Handle the selected item from the ui-select instance
+     * @param event
+     */
+    $scope.onSelectedNewResourceName = function(event) {
+        $scope.resourcename = event.item.name;
+    };
 
     // get all usernames and load pre-existing user, if any
     $scope.service.list().then((response) => {
@@ -80,6 +123,12 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
             event.preventDefault();
         }
 
+        // not dots in keys allowed
+        if ($scope.resourcename.indexOf('.') != -1) {
+            $scope.errorMessage = 'Please do not use dots in the role mapping name.';
+            return;
+        }
+
         const form = $element.find('form[name="objectForm"]');
 
         if (form.hasClass('ng-invalid-required')) {
@@ -97,7 +146,7 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
             return;
         }
 
-        // check for empty arrays
+        // check for empty arrays or undefined objects
         $scope.resource.users = backendAPI.cleanArray($scope.resource.users);
         $scope.resource.backendroles = backendAPI.cleanArray($scope.resource.backendroles);
         $scope.resource.hosts = backendAPI.cleanArray($scope.resource.hosts);

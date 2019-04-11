@@ -5,7 +5,7 @@
 </p>
 
 ## About this plugin
-This plugin for Kibana adds session management and true multi-tenancy to a [Search Guard](https://github.com/floragunncom/search-guard) secured cluster. 
+This plugin for Kibana adds session management and true multi-tenancy to a [Search Guard](https://search-guard.com) secured cluster. 
 
 For Kibana 6.x it also provides a configuration GUI for Search Guard.
 
@@ -38,10 +38,10 @@ bin/kibana-plugin install file:///path/to/searchguard-kibana-<version>.zip
 * [Multi Tenancy](http://docs.search-guard.com/v5/kibana-multi-tenancy)
 
 ## Commercial use
-This software is licensed under the Apache2 license and can be used freely also for commercial purposes.
+This software is licensed under the Apache2 license and can be used freely also for commercial purposes. Some features may require the Search Guard Enterprise Edition or above to function.
 
 ## License
-Copyright 2015 floragunn GmbH
+Copyright 2015-2018 floragunn GmbH
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 

@@ -3,13 +3,16 @@
         <thead>
         <tr>
             <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
-                Permissions: Action Groups
+                <span class="kuiTableHeaderCell__liner">
+                    Permissions: Action Groups
+                </span>
             </th>
 
             <th class="kuiTableHeaderCell tableHeaderCellIndexGroups actions">
-                <input type="checkbox" data-ng-model="showAdvanced"> Show Advanced</td>
+                <span class="kuiTableHeaderCell__liner">
+                    <input type="checkbox" data-ng-model="showAdvanced"> Show Advanced</td>
+                </span>
             </th>
-
         </tr>
         </thead>
         <tbody>
@@ -25,20 +28,18 @@
         <tr class="kuiTableRow" data-ng-repeat="actiongroup in permissionsResource.actiongroups track by $index" >
             <td class="kuiTableRowCell cellAlignTop">
                 <fieldset class="marginbottom--small" id="object-form-actiongroups">
-                    <angucomplete id="indexactiongroup-{{indexname}}-{{doctypename}}"
-                                  placeholder="Action Group name"
-                                  pause="10"
-                                  selectedobject="permissionsResource.actiongroups[$index]"
-                                  localdata="actiongroupsAutoComplete"
-                                  minlength="1"
-                                  datafield="name"
-                                  titlefield="name"
-                                  searchfields="name"
-                                  inputclass="kuiTextInput fullwidth"/>
+                    <ui-select ng-model="permissionsResource.actiongroups[$index]">
+                        <ui-select-match placeholder="Action Group name">
+                            {{permissionsResource.actiongroups[$index]}}
+                        </ui-select-match>
+                        <ui-select-choices repeat="item in (getActiongroupItems() | filter: $select.search) track by $index">
+                            <span ng-bind="item"></span>
+                        </ui-select-choices>
+                    </ui-select>
                 </fieldset>
             </td>
             <td class="kuiTableRowCell cellAlignTop actions">
-                <button style="display:inline-block" type="button" ng-click="removeArrayEntry(permissionsResource.actiongroups, actiongroup)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                <button style="display:inline-block" type="button" ng-click="confirmDeletePermission(permissionsResource.actiongroups, actiongroup)" class="kuiButton kuiButton--danger kuiButton--iconText">
                     <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                 </button>
             </td>
@@ -62,7 +63,9 @@
         <thead>
         <tr>
             <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
-                Permissions: Single Permissions
+                <span class="kuiTableHeaderCell__liner">
+                    Permissions: Single Permissions
+                </span>
             </th>
 
             <th class="kuiTableHeaderCell">
@@ -82,24 +85,23 @@
         <tr class="kuiTableRow" data-ng-repeat="permission in permissionsResource.permissions track by $index">
             <td class="kuiTableRowCell cellAlignTop">
                 <fieldset class="marginbottom--small" id="object-form-actiongroups">
-
-                    <angucomplete id="indexpermissions-{{indexname}}-{{doctypename}}"
-                                  placeholder="Start with cluster: or indices:"
-                                  pause="10"
-                                  selectedobject="permissionsResource.permissions[$index]"
-                                  localdata="allpermissionsAutoComplete"
-                                  minlength="1"
-                                  datafield="name"
-                                  titlefield="name"
-                                  searchfields="name"
-                                  inputclass="kuiTextInput fullwidth"
-                                  pattern="^(cluster:.*|indices:.*)"
-                            />
-
+                    <ui-select
+                            uis-open-close="onCloseNewSinglePermission(isOpen, $select)"
+                            ng-model="permissionsResource.permissions[$index]">
+                        <ui-select-match placeholder="Start with cluster: or indices:">
+                            {{permission.name || permission}}
+                        </ui-select-match>
+                        <ui-select-choices
+                            refresh="refreshNewSinglePermission($select)"
+                            refresh-delay="0"
+                            repeat="item in (permissionItems | filter: $select.search) track by $index">
+                            <span ng-bind="item.name"></span>
+                        </ui-select-choices>
+                    </ui-select>
                 </fieldset>
             </td>
             <td class="kuiTableRowCell cellAlignTop actions">
-                <a ng-click="removeArrayEntry(permissionsResource.permissions, permission)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                <a ng-click="confirmDeletePermission(permissionsResource.permissions, permission)" class="kuiButton kuiButton--danger kuiButton--iconText">
                     <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                 </a>
             </td>

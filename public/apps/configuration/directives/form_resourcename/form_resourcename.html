@@ -3,21 +3,20 @@
     <table class="fullwidth" ng-show="!isNew" style="margin-bottom:10px;">
         <tr>
             <td>
-                <h3 class="resourcename">
+                <h3 class="resourcename" id="sg.label.resource.resourcename">
                     {{resourcelabel}}: {{resourcename}}
                     <div class="kuiBadge kuiBadge--default" ng-if="resource.readonly">
-                        <span class="kuiIcon fa-warning"></span>
+                        <span class="kuiIcon fa-lock" id="sg.label.resource.reserved"></span>
                         reserved
                     </div>
                 </h3>
-                <div ng-if="!isNew" class="labelhint">Name is not changeable.</div>
             </td>
             <td class="actions">
-                <button ng-if="showEditor" type="button" class="kuiButton kuiButton--secondary kuiButton--iconText" ng-click="loadJSON(resource)">
+                <button id="sg.button.resource.json.refresh" ng-if="showEditor" type="button" class="kuiButton kuiButton--secondary kuiButton--iconText" ng-click="loadJSON(resource)">
                     <span class="kuiButton__icon kuiIcon fa-refresh" ng-bind></span>
                     Refresh
                 </button>
-                <button type="button" class="kuiButton kuiButton--secondary kuiButton--iconText" ng-click="toggleEditor(resource)">
+                <button id="sg.button.resource.json.toggle" type="button" class="kuiButton kuiButton--secondary kuiButton--iconText" ng-click="toggleEditor(resource)">
                     <span class="kuiButton__icon kuiIcon fa-code" ng-bind></span>
                     {{toggleEditorLabel}}
                 </button>

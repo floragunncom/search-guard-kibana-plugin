@@ -17,8 +17,10 @@
 import chrome from 'ui/chrome';
 import {parse} from 'url';
 import _ from 'lodash';
-import '../../directives/licensewarning';
-import '../configuration/systemstate'
+import {getNextUrl} from './get_next_url';
+
+require ('../../directives/licensewarning');
+require ('../configuration/systemstate/systemstate');
 
 export default function LoginController(kbnUrl, $scope, $http, $window, systemstate) {
 
@@ -41,6 +43,49 @@ export default function LoginController(kbnUrl, $scope, $http, $window, systemst
     this.brandimage = chrome.getInjected("basicauth.login.brandimage");
     this.buttonstyle = chrome.getInjected("basicauth.login.buttonstyle");
 
+    const alternativeLoginConfig = chrome.getInjected("basicauth.alternative_login");
+
+    // Build an object from the query parameters
+    // Strip the first ? from the query parameters, if we have any
+    let queryString = location.search.trim().replace(/^(\?)/, '');
+    let queryObject = {};
+    if (queryString) {
+        queryString.split('&')
+            .map((parameter) => {
+                let parameterParts = parameter.split('=');
+                if (parameterParts[1]) {
+                    queryObject[encodeURIComponent(parameterParts[0])] = parameterParts[1]
+                }
+            })
+    }
+
+    // Prepare alternative login for the view
+    this.alternativeLogin = null;
+
+    if (alternativeLoginConfig && alternativeLoginConfig.show_for_parameter) {
+
+        let alternativeLoginURL = queryObject[alternativeLoginConfig.show_for_parameter];
+        let validRedirect = false;
+
+        try {
+            alternativeLoginConfig.valid_redirects.forEach((redirect) => {
+                if (new RegExp(redirect).test(alternativeLoginURL)) {
+                    validRedirect = true;
+                }
+            });
+        } catch (error) {
+            console.warn(error);
+        }
+
+        if (validRedirect) {
+            this.alternativeLogin = {
+                url: queryObject[alternativeLoginConfig.show_for_parameter],
+                styles: alternativeLoginConfig.buttonstyle,
+                buttonLabel: alternativeLoginConfig.button_text,
+            };
+        }
+    }
+
     if (BRANDIMAGE.startsWith("/plugins")) {
         this.brandimage = ROOT + BRANDIMAGE;
     } else {
@@ -48,62 +93,41 @@ export default function LoginController(kbnUrl, $scope, $http, $window, systemst
     }
 
     // honor last request URL
-    const {query, hash} = parse($window.location.href, true);
-    let nextUrl;
-    if (query.nextUrl) {
-        nextUrl = ROOT + query.nextUrl + (hash || '')
-    } else {
-        nextUrl = "/";
-    }
+    let nextUrl = getNextUrl($window.location.href, ROOT);
 
     this.submit =  () => {
 
-        $http.post(`${API_ROOT}/auth/login`, this.credentials)
-            .then(
-            (response) => {
-                // cache the current user information, we need it at several places
-                sessionStorage.setItem("sg_user", JSON.stringify(response.data));
-                // load and cache systeminfo and rest api info
-                // perform in the callback due to Chrome cancelling the
-                // promises if we navigate away from the page, even if async/await
-                systemstate.loadSystemInfo().then(function(response) {
-
-                    var user = JSON.parse(sessionStorage.getItem("sg_user"));
-
-                    // validate the tenant settings:
-                    // if MT is disabled, or the GLOBAL tenant is enabled,
-                    // no further checks are necessary. In the first case MT does not
-                    // matter, in the latter case we always have a tenant as fallback if
-                    // user has no tenants configured and PRIVATE is disabled
-
-                    // TODO: This should be determined dynamically, based on the info returned by the mtinfo endpoint
-                    if (!chrome.getInjected("multitenancy.enabled") || chrome.getInjected("multitenancy.tenants.enable_global")) {
-                        $window.location.href = `${nextUrl}`;
-                    } else {
-                        // GLOBAL is disabled, check if we have at least one tenant to choose from
-                        var allTenants = user.tenants;
-                        // if private tenant is disabled, remove it
-                        if(allTenants != null && !chrome.getInjected("multitenancy.tenants.enable_private")) {
-                            delete allTenants[user.username];
-                        }
-                        // check that we have at least one tenant to fall back to
-                        if (allTenants == null || allTenants.length == 0 || _.isEmpty(allTenants)) {
-                            this.errorMessage = 'No tenant available for this user, please contact your system administrator.';
+        try {
+            $http.post(`${API_ROOT}/auth/login`, this.credentials)
+                .then(
+                    (response) => {
+                        // cache the current user information, we need it at several places
+                        sessionStorage.setItem("sg_user", JSON.stringify(response.data));
+                        // load and cache systeminfo and rest api info
+                        // perform in the callback due to Chrome cancelling the
+                        // promises if we navigate away from the page, even if async/await
+                        systemstate.loadSystemInfo().then((response) => {
+                            systemstate.loadRestInfo().then((response) => {
+                                var user = JSON.parse(sessionStorage.getItem("sg_user"));
+                                $window.location.href = `${nextUrl}`;
+                            });
+                        });
+                    },
+                    (error) => {
+                        if (error.status && error.status === 401) {
+                            this.errorMessage = 'Invalid username or password, please try again';
+                        } else if (error.status && error.status === 404) {
+                            // This happens either when the user doesn't have any valid tenants or roles
+                            this.errorMessage = error.data.message;
                         } else {
-                            $window.location.href = `${nextUrl}`;
+                            this.errorMessage = 'An error occurred while checking your credentials, make sure you have an Elasticsearch cluster secured by Search Guard running.';
                         }
-
                     }
-                });
-            },
-            (error) => {
-                if (error.status && error.status === 401) {
-                    this.errorMessage = 'Invalid username or password, please try again';
-                } else {
-                    this.errorMessage = 'An error occurred while checking your credentials, make sure you have an Elasticsearch cluster secured by Search Guard running.';
-                }
-            }
-        );
+                );
+        } catch(error) {
+            this.errorMessage = 'An internal error has occured.';
+        }
+
 
     };
 

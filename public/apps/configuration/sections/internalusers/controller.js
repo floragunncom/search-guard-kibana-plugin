@@ -21,6 +21,29 @@ app.controller('sgInternalUsersController', function ($scope, $element, $route, 
         $scope.loaded = true;
     });
 
+    /**
+     * Holds table sorting info
+     * @type {{byKey: string, descending: boolean}}
+     */
+    $scope.sortTable = {
+        byKey: 'resourcename',
+        descending: false
+    };
+
+    /**
+     * Handle changed sorting conditions.
+     * Since we only have one column sortable, changing the key doesn't really do anything.
+     * Until we have more sortable columns, only the sort order is changed
+     * @param {string} key
+     */
+    $scope.onSortChange = function(key) {
+        if ($scope.sortTable.byKey === key) {
+            $scope.sortTable.descending = ! $scope.sortTable.descending;
+        } else {
+            $scope.sortTable.byKey = key;
+        }
+    };
+
 });
 
 app.controller('sgEditInternalUsersController', function ($scope, $element, $route, $location, $routeParams, createNotifier, backendInternalUsers, kbnUrl) {
@@ -100,10 +123,18 @@ app.controller('sgEditInternalUsersController', function ($scope, $element, $rou
             return;
         }
 
-        if ($scope.resource.password.length < 5) {
-            $scope.errorMessage = 'Passwords must be at least 5 characters.';
-            return;
+        if($scope.isNew) {
+            if ($scope.resource.password.length < 5) {
+                $scope.errorMessage = 'Passwords must be at least 5 characters.';
+                return;
+            }
+
+        } else {
+            if ($scope.resource.password.trim().length == 0) {
+                $scope.resource.passwordConfirmation = "";
+            }
         }
+
 
         if ($scope.resource.password !== $scope.resource.passwordConfirmation) {
             $scope.errorMessage = 'Passwords do not match.';

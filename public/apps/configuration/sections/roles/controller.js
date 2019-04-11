@@ -1,13 +1,14 @@
+import { toastNotifications } from 'ui/notify';
 import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules'
 import { get } from 'lodash';
 import '../../backend_api/roles';
 import '../../backend_api/actiongroups';
-import '../../systemstate'
+import '../../systemstate/systemstate'
 
 const app = uiModules.get('apps/searchguard/configuration', []);
 
-app.controller('sgRolesController', function ($scope, $element, $route, createNotifier, backendRoles, kbnUrl) {
+app.controller('sgRolesController', function ($scope, $element, $route, backendRoles, kbnUrl) {
 
     $scope.endpoint = "ROLES";
     $scope.$parent.endpoint = "ROLES";
@@ -30,6 +31,29 @@ app.controller('sgRolesController', function ($scope, $element, $route, createNo
         $scope.numresources = response.total;
         $scope.loaded = true;
     });
+
+    /**
+     * Holds table sorting info
+     * @type {{byKey: string, descending: boolean}}
+     */
+    $scope.sortTable = {
+        byKey: 'resourcename',
+        descending: false
+    };
+
+    /**
+     * Handle changed sorting conditions.
+     * Since we only have one column sortable, changing the key doesn't really do anything.
+     * Until we have more sortable columns, only the sort order is changed
+     * @param {string} key
+     */
+    $scope.onSortChange = function(key) {
+        if ($scope.sortTable.byKey === key) {
+            $scope.sortTable.descending = ! $scope.sortTable.descending;
+        } else {
+            $scope.sortTable.byKey = key;
+        }
+    };
 });
 
 app.controller('sgEditRolesController', function ($rootScope, $scope, $element, $route, $location, $routeParams, $http, $window, createNotifier, backendRoles, backendrolesmapping, backendAPI, kbnUrl, systemstate) {
@@ -61,15 +85,21 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     $scope.newIndexName = "";
     $scope.newDocumentTypeName = "";
 
+    /**
+     * The newIndexName and newDocumentTypeName as used by the autocomplete
+     * @type {{index: null, documentType: null}}
+     */
+    $scope.newIndexValues = {
+        index: null,
+        documentType: null
+    };
+
     $scope.addingIndex = false;
 
     // autocomplete
     $scope.indices = {};
     $scope.indexAutoComplete = [];
     $scope.doctypeAutoComplete = [];
-
-    const notify = createNotifier();
-
 
     $scope.title = function () {
         return $scope.isNew? "New Role " : "Edit Role '" + $scope.resourcename+"'";
@@ -107,7 +137,10 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
                 );
             },
             (error) => {
-                notify.error(error)
+                toastNotifications.addDanger({
+                    title: 'Unable to load indices.',
+                    text: error.message,
+                });
             }
         );
     };
@@ -121,15 +154,40 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     }, true);
 
     $scope.getTabCss = function(tabId) {
+        var css = "";
+
         if ($scope.selectedTab == tabId) {
-            return "kuiLocalTab kuiLocalTab-isSelected";
+            css = " kuiLocalTab kuiLocalTab-isSelected";
         } else {
-            return "kuiLocalTab";
+            css = " kuiLocalTab";
         }
+        if (tabId != "indexpermissions" && $scope.addingIndex) {
+            css += " tab-inactive";
+        }
+        return css;
     }
 
     $scope.selectTab = function(tabId) {
+        // ITT-1034 disable other tabs when addind a new index
+        if ($scope.addingIndex) {
+            return;
+        }
         $scope.selectedTab = tabId;
+        if (tabId == 'dlsfls') {
+            // resize editor, see https://github.com/angular-ui/ui-ace/issues/18
+            var editor = ace.edit("object-form-dls-json-raw");
+            editor.session.setMode("ace/mode/json")
+            editor.resize();
+            editor.renderer.updateFull();
+            // try to beautify
+            var code = editor.getSession().getValue();
+            try {
+                var codeAsJson = JSON.parse(code);
+                editor.getSession().setValue(JSON.stringify(codeAsJson, null, 2));
+            } catch(exception) {
+                // no valid json
+            }
+        }
     }
 
     $scope.selectIndex = function(indexName) {
@@ -158,6 +216,172 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         return true;
     }
 
+    /**
+     * This is a weird workaround for the autocomplete where
+     * we have can't or don't want to use the model item
+     * directly in the view. Instead, we use the on-select
+     * event to set the target value
+     * @type {{}}
+     */
+    $scope.onSelectedNewIndexName = function(event) {
+        $scope.newIndexName = event.item.name;
+    };
+
+    /**
+     * This is a weird workaround for the autocomplete where
+     * we have can't or don't want to use the model item
+     * directly in the view. Instead, we use the on-select
+     * event to set the target value
+     * @type {{}}
+     */
+    $scope.onSelectedNewDocumentTypeName = function(event) {
+        $scope.newDocumentTypeName = event.item.name;
+
+    };
+
+    /**
+     * This is a helper for when the autocomplete was closed an item being explicitly selected (mouse, tab or enter).
+     * When you e.g. type a custom value and then click somewhere outside of the autocomplete, it looks like the
+     * custom value was selected, but it is never saved to the model. This function calls the "select" method
+     * every time the autocomplete is closed, no matter how. This may mean that the select function is called
+     * twice, so the select handler should mitigate that if necessary.
+     * @param isOpen
+     * @param $select
+     */
+    $scope.onCloseNewIndexAutocompletes = function(isOpen, $select) {
+        if (isOpen || !$select.select || !$select.selected) {
+            return;
+        }
+
+        $select.select($select.selected);
+    };
+
+    /**
+     * Allow custom values for the index autocomplete
+     *
+     * @credit https://medium.com/angularjs-meetup-south-london/angular-extending-ui-select-to-accept-user-input-937bc925267c
+     * @param $select
+     */
+    $scope.refreshNewIndexName = function($select) {
+
+        var search = $select.search,
+            list = angular.copy($select.items),
+            FLAG = -1; // Identifies the custom value
+
+        // Clean up any previous custom input
+        list = list.filter(function(item) {
+            return item.id !== FLAG;
+        });
+
+        if (!search) {
+            $select.items = list;
+        } else {
+            // Add and select the custom value
+            let customItem = {
+                id: FLAG,
+                name: search
+            };
+            $select.items = [customItem].concat(list);
+
+            $select.selected = customItem;
+        }
+    };
+
+
+    /**
+     * Allow custom values for the document types autocomplete
+     *
+     * @credit https://medium.com/angularjs-meetup-south-london/angular-extending-ui-select-to-accept-user-input-937bc925267c
+     * @param $select
+     */
+    $scope.refreshNewDocumentTypeNames = function($select) {
+
+        var search = $select.search,
+            list = angular.copy($select.items),
+            FLAG = -1;
+
+        // Clean up any previous custom input
+        list = list.filter(function(item) {
+            return item.id !== FLAG;
+        });
+
+        if (!search) {
+            $select.items = list;
+        } else {
+            // Add and select the custom value
+            let customItem = {
+                id: FLAG,
+                name: search
+            };
+            $select.items = [customItem].concat(list);
+
+            $select.selected = customItem;
+        }
+    };
+
+
+    /**
+     * Delete an entry after user confirmation
+     */
+    let deleteDocumentTypeConfirmed = function() {
+        var index = $scope.selectedIndex;
+        var doctype = $scope.selectedDocumentType;
+        if ($scope.resource.indices && $scope.resource.indices[index] && $scope.resource.indices[index][doctype]) {
+            delete $scope.resource.indices[index][doctype];
+            // if last doctype, remove index as well
+            var remainingDocTypes = Object.keys($scope.resource.indices[index]);
+            if (remainingDocTypes.length == 0) {
+                // Manually select another index if available to avoid a broken UI state
+                let newIndex = null;
+                let availableIndices = Object.keys($scope.resource.indices).sort();
+
+                if (availableIndices.length > 1) {
+                    const listPosition = availableIndices.indexOf(index);
+                    // Get the next index in the list if available, otherwise the previous one
+                    newIndex = (availableIndices.length -1 > listPosition)
+                        ? availableIndices[listPosition + 1]
+                        : availableIndices[listPosition - 1]
+                    ;
+                }
+
+                delete $scope.resource.indices[index];
+                delete $scope.resource.dlsfls[index];
+
+                $scope.selectedDocumentType = "";
+                if (newIndex !== null) {
+                    $scope.selectedIndex = newIndex;
+                    // The change handler takes care of the selectedDocumentType
+                    $scope.onIndexChange();
+                } else {
+                    $scope.selectedIndex = "";
+                }
+
+            } else {
+                $scope.selectedDocumentType = remainingDocTypes[0];
+            }
+        }
+
+        $scope.closeDeleteFromEditModal();
+    };
+
+    /**
+     * Ask for confirmation before deleting
+     */
+    $scope.confirmDeleteDocumentType = function() {
+        // Since we're acting on the parent scope here,
+        // make sure we don't change the deleteFromEditModal
+        // reference directly. Only change single properties.
+        $scope.deleteFromEditModal.displayModal = true;
+        $scope.deleteFromEditModal.header = 'Confirm Delete';
+        $scope.deleteFromEditModal.body = "Are you sure you want to delete document type '"+$scope.selectedDocumentType+"' in index '"+$scope.selectedIndex+"'";
+        $scope.deleteFromEditModal.onConfirm = deleteDocumentTypeConfirmed;
+        $scope.deleteFromEditModal.onClose = $scope.closeDeleteFromEditModal;
+    };
+
+    /**
+     *
+     * @deprecated
+     */
     $scope.deleteDocumentType = function() {
         if (!confirm("Are you sure you want to delete document type '"+$scope.selectedDocumentType+"' in index '"+$scope.selectedIndex+"'")) {
             return;
@@ -180,6 +404,8 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     }
 
     $scope.submitAddIndex = function() {
+        // dots in index names are not supported
+        $scope.newIndexName = $scope.newIndexName.replace(/\./g, '?');
         if($scope.newIndexName.trim().length == 0 || $scope.newDocumentTypeName.trim().length == 0 ) {
             $scope.errorMessage = "Please define both index and document type.";
             return;
@@ -195,6 +421,11 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         $scope.newDocumentTypeName = "";
         $scope.addingIndex = false;
         $scope.errorMessage = null;
+
+        $scope.newIndexValues = {
+            index: null,
+            documentType: null
+        };
     }
 
     $scope.cancelAddIndex = function() {
@@ -212,22 +443,37 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     }
 
     $scope.testDls = function() {
+        // try to beautify
+        var editor = ace.edit("object-form-dls-json-raw");
+        var code = editor.getSession().getValue();
+        try {
+            var codeAsJson = JSON.parse(code);
+            editor.getSession().setValue(JSON.stringify(codeAsJson, null, 2));
+        } catch(exception) {
+            // no valid json
+        }
+
         var encodedIndex = $window.encodeURIComponent($scope.selectedIndex);
         var query = "{\"query\": " + $scope.resource.dlsfls[$scope.selectedIndex]['_dls_'] + "}";
-        console.log(query);
         $http.post(`${API_ROOT}/configuration/validatedls/`+encodedIndex, query)
             .then(
             (response) => {
-                console.log(response);
                 if (!response.data.valid) {
-                    notify.error(response.data.error);
+                    toastNotifications.addDanger({
+                        title: "DLS query syntax not valid.",
+                        text: response.data.error
+                    });
                 } else {
                     $scope.errorMessage = "";
-                    notify.info("DLS query syntax valid.");
+                    toastNotifications.addSuccess({
+                        title: "DLS query syntax valid."
+                    });
                 }
             },
             (error) => {
-                notify.error(error);
+                toastNotifications.addDanger({
+                    text: error.message
+                });
             }
         );
     }
@@ -236,6 +482,13 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         if (event) {
             event.preventDefault();
         }
+
+        // not dots in keys allowed
+        if ($scope.resourcename.indexOf('.') != -1) {
+            $scope.errorMessage = 'Please do not use dots in the role name.';
+            return;
+        }
+
         const form = $element.find('form[name="objectForm"]');
 
         // role name is required
@@ -277,6 +530,7 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
             return;
         }
         backendAPI.cleanArraysFromDuplicates($scope.resource);
+
         $scope.service.save($scope.resourcename, $scope.resource).then(() => kbnUrl.change(`/roles/`));;
 
         $scope.errorMessage = null;

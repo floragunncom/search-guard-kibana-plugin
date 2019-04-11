@@ -1,7 +1,7 @@
 import { uiModules } from 'ui/modules';
 import chrome from 'ui/chrome';
 import { SavedObjectsClientProvider } from 'ui/saved_objects';
-
+import { toastNotifications } from 'ui/notify';
 import { get } from 'lodash';
 import './directives/directives';
 import '../../directives/licensewarning'
@@ -11,18 +11,21 @@ import { orderBy } from 'lodash';
 
 import clusterpermissions  from './permissions/clusterpermissions';
 import indexpermissions  from './permissions/indexpermissions';
-import './backend_api/actiongroups';
-import '../../directives/licensewarning'
-import './systemstate'
 
-const app = uiModules.get('apps/searchguard/configuration', ['ui.ace']);
+import 'ui-select';
+import 'ui-select/dist/select.css';
 
-app.controller('sgBaseController', function ($scope, $element, $route, $window, $http, createNotifier, backendAPI, backendActionGroups, backendRoles, kbnUrl, systemstate) {
+require ('./backend_api/actiongroups');
+require ('../../directives/licensewarning');
+require ('./systemstate/systemstate');
+
+
+const app = uiModules.get('apps/searchguard/configuration', ['ui.ace', 'ui.select']);
+
+app.controller('sgBaseController', function ($scope, $element, $route, $window, $http, backendAPI, backendActionGroups, backendRoles, kbnUrl, systemstate) {
 
     var APP_ROOT = `${chrome.getBasePath()}`;
     var API_ROOT = `${APP_ROOT}/api/v1`;
-
-    const notify = createNotifier({});
 
     // props of the child controller
     $scope.service = null;
@@ -43,6 +46,7 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
     $scope.accessState = "pending";
 
     $scope.actiongroupNames = [];
+    $scope.roleNames = [];
 
     // objects for autocomplete
     $scope.actiongroupsAutoComplete = {};
@@ -56,10 +60,22 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
     $scope.displayModal = false;
     $scope.deleteModalResourceName = "";
 
+    // edit views modal delete dialogue
+    $scope.deleteFromEditModal = {
+        displayModal: false,
+        params: {},
+        header: 'Confirm Delete',
+        body: '',
+        onConfirm: null,
+        onClose: null
+    };
+
+
     $scope.title = "Search Guard Configuration";
 
     $scope.initialiseStates = () => {
         systemstate.loadSystemInfo().then(function(){
+            $scope.complianceFeaturesEnabled = systemstate.complianceFeaturesEnabled();
             if (!systemstate.restApiEnabled()) {
                 $scope.accessState = "notenabled";
             } else {
@@ -99,11 +115,14 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
         if(systemstate.endpointAndMethodEnabled("ACTIONGROUPS","GET")) {
             backendActionGroups.listSilent().then((response) => {
                 $scope.actiongroupNames = Object.keys(response.data);
-                sessionStorage.setItem("actiongroupnames", JSON.stringify($scope.actiongroupnames));
+                sessionStorage.setItem("actiongroupnames", JSON.stringify($scope.actiongroupNames));
                 $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete($scope.actiongroupNames);
                 sessionStorage.setItem("actiongroupsautocomplete", JSON.stringify($scope.actiongroupsAutoComplete));
             }, (error) => {
-                notify.error(error);
+                toastNotifications.addDanger({
+                    title: 'Unable to load action groups',
+                    text: error.message,
+                });
                 $scope.accessState = "forbidden";
             });
         }
@@ -111,18 +130,30 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
 
     $scope.loadRoles = () => {
         var cachedRoles = sessionStorage.getItem("rolesautocomplete");
+        var cachedRoleNames = sessionStorage.getItem("rolenames");
 
         if (cachedRoles) {
             $scope.rolesAutoComplete = JSON.parse(cachedRoles);
+        }
+
+        if (cachedRoleNames) {
+            $scope.roleNames = JSON.parse(cachedRoleNames);
+        }
+
+        if (cachedRoles && cachedRoleNames) {
             return;
         }
 
         if(systemstate.endpointAndMethodEnabled("ROLES","GET")) {
             backendRoles.listSilent().then((response) => {
                 $scope.rolesAutoComplete = backendRoles.listAutocomplete(Object.keys(response.data));
+                $scope.roleNames = Object.keys(response.data);
                 sessionStorage.setItem("rolesautocomplete", JSON.stringify($scope.rolesAutoComplete));
+                sessionStorage.setItem("rolenames", JSON.stringify(Object.keys(response.data)));
             }, (error) => {
-                notify.error(error);
+                toastNotifications.addDanger({
+                    text: error.message,
+                });
                 $scope.accessState = "forbidden";
             });
         }
@@ -188,6 +219,15 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
         editor.setShowPrintMargin(false);
     };
 
+    $scope.aceRwLoaded = (editor) => {
+        editor.session.setOptions({
+            tabSize: 2,
+            useSoftTabs: false
+        });
+        editor.$blockScrolling = Infinity;
+        editor.setShowPrintMargin(false);
+    };
+
     $scope.toggleEditor = (resource) => {
         if ($scope.resourceAsJson == null) {
             $scope.loadJSON(resource)
@@ -214,7 +254,64 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
         }
         resource[fieldname].push(value);
 
-    }
+    };
+
+    /**
+     * Remove an array entry after user confirmation, or when the user removes an empty entry
+     * @param {array} array
+     * @param {object} item
+     */
+    let removeArrayEntry = function (array, item) {
+        var index = array.indexOf(item);
+        if (index > -1) {
+            array.splice(index, 1);
+        }
+    };
+
+
+    /**
+     * Ask for confirmation before deleting an entry
+     * @param {array} array
+     * @param {string} item
+     */
+    $scope.confirmRemoveArrayEntry = function (array, item) {
+        if(!Array.isArray(array) || array.indexOf(item) === -1) {
+            return;
+        }
+
+        if (item && item.length > 0) {
+            $scope.deleteFromEditModal = {
+                displayModal: true,
+                header: 'Confirm Delete',
+                body: `Are you sure you want to delete '${item}'?`,
+                onConfirm: function() {
+                    removeArrayEntry(array, item);
+                    $scope.closeDeleteFromEditModal()
+                },
+                onClose: $scope.closeDeleteFromEditModal
+            };
+        } else {
+            removeArrayEntry(array, item);
+        }
+    };
+
+    /**
+     * Close the confirmation dialog
+     * @param {string} reason
+     */
+    $scope.closeDeleteFromEditModal = function () {
+        $scope.deleteFromEditModal = {
+            displayModal: false,
+            params: null
+        };
+    };
+
+    /**
+     * @todo Remove when we use the new confirmation dialog everywhere
+     * @deprecated
+     * @param array
+     * @param item
+     */
 
     $scope.removeArrayEntry = function (array, item) {
         if(!Array.isArray(array)) {
@@ -261,6 +358,34 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
         return objectArray;
     }
 
+    /**
+     * Ask for confirmation before deleting an entry
+     * @param {array} thearray
+     * @param {int} index
+     * @param {string} value
+     */
+    $scope.confirmRemoveFromObjectArray = function(thearray, index, value) {
+        // We're not checking the value here, so we may need to adjust the body
+        let body = (value === '') ? 'Are you sure you want to delete this?' : `Are you sure you want to delete '${value}'?`;
+        $scope.deleteFromEditModal = {
+            displayModal: true,
+            header: 'Confirm Delete',
+            body: body,
+            onConfirm: function() {
+                thearray.splice(index, 1);
+                $scope.closeDeleteFromEditModal()
+            },
+            onClose: $scope.closeDeleteFromEditModal
+        }
+    };
+
+    /**
+     * Remove when we've tested all dialogs
+     * @deprecated
+     * @param thearray
+     * @param index
+     * @param value
+     */
     $scope.removeFromObjectArray = function (thearray, index, value) {
         if (confirm(`Are you sure you want to delete '${value}'?`)) {
             thearray.splice(index, 1);

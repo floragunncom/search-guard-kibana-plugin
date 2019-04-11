@@ -6,11 +6,9 @@ import client from './client';
  * Role mappings API client service.
  */
 uiModules.get('apps/searchguard/configuration', [])
-    .service('backendRoles', function (backendAPI, Promise, $http, createNotifier) {
+    .service('backendRoles', function (backendAPI, Promise, $http) {
 
         const RESOURCE = 'roles';
-
-        const notify = createNotifier({});
 
         this.title = {
             singular: 'role',
@@ -36,12 +34,16 @@ uiModules.get('apps/searchguard/configuration', [])
         };
 
         this.save = (rolename, data) => {
+            sessionStorage.removeItem("rolesautocomplete");
+            sessionStorage.removeItem("rolenames");
             var resourceCopy = JSON.parse(JSON.stringify(data));
             var data = this.preSave(resourceCopy);
             return backendAPI.save(RESOURCE, rolename, data);
         };
 
         this.delete = (id) => {
+            sessionStorage.removeItem("rolesautocomplete");
+            sessionStorage.removeItem("rolenames");
             return backendAPI.delete(RESOURCE, id);
         };
 
@@ -62,6 +64,7 @@ uiModules.get('apps/searchguard/configuration', [])
                 role.dlsfls[indexname] = {
                     _dls_: "",
                     _fls_: [],
+                    _masked_fields_: [],
                     _flsmode_: "whitelist"
                 };
             }
@@ -99,11 +102,23 @@ uiModules.get('apps/searchguard/configuration', [])
                 var dlsfls = role.dlsfls[indexname];
                 if(dlsfls) {
                     if (dlsfls["_dls_"].length > 0) {
-                        index["_dls_"] = dlsfls["_dls_"];
+                        // remove any formatting
+                        var dls = dlsfls["_dls_"];
+                        try {
+                            var dlsJsonObject = JSON.parse(dls);
+                            dls = JSON.stringify(dlsJsonObject);
+                        } catch (exception) {
+                            // no valid json, keep as is.
+                        }
+                        index["_dls_"] = dls.replace(/(\r\n|\n|\r|\t)/gm,"");;
                     }
                     if (dlsfls["_fls_"].length > 0) {
                         index["_fls_"] = dlsfls["_fls_"];
                     }
+                    if (dlsfls["_masked_fields_"].length > 0) {
+                        index["_masked_fields_"] = dlsfls["_masked_fields_"];
+                    }
+
                 }
             }
 
@@ -151,6 +166,7 @@ uiModules.get('apps/searchguard/configuration', [])
                     var dlsfls = {
                         _dls_: "",
                         _fls_: [],
+                        _masked_fields_: [],
                         _flsmode_: "whitelist"
                     };
 
@@ -160,8 +176,13 @@ uiModules.get('apps/searchguard/configuration', [])
                     if (index["_fls_"]) {
                         dlsfls._fls_ = index["_fls_"];
                     }
+                    if (index["_masked_fields_"]) {
+                        dlsfls._masked_fields_ = index["_masked_fields_"];
+                    }
+
                     delete role.indices[indexname]["_fls_"];
                     delete role.indices[indexname]["_dls_"];
+                    delete role.indices[indexname]["_masked_fields_"];
                     role.dlsfls[indexname] = dlsfls;
 
                     // determine the fls mode and strip any prefixes

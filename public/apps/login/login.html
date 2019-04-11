@@ -4,25 +4,35 @@
     <img class="brand-image" src="{{ui.brandimage}}" width="300">
   </div>
 
-  <p class="login-title" ng-show="ui.logintitle != ''">{{ui.logintitle}}</p>
+  <div class="text-center license-error"><sg-license-warning></sg-license-warning></div>
 
-  <p class="login-subtitle" ng-show="ui.loginsubtitle != ''">{{ui.loginsubtitle}}</p>
+  <p class="login-title" ng-show="ui.logintitle != ''" ng-bind-html="ui.logintitle"></p>
 
-  <form class="login-form" ng-submit="ui.submit()" method="post">
+  <p class="login-subtitle" ng-show="ui.loginsubtitle != ''" ng-bind-html="ui.loginsubtitle"></p>
+
+  <form class="login-form" ng-submit="ui.submit()" method="post" autocomplete="off">
+      <input autocomplete="anyrandomstring" name="hidden" type="text" style="display:none;">
     <div class="input-group">
       <div class="input-group-addon"><i class="fa fa-user"></i></div>
       <input type="text" class="form-control kuiTextInput" id="sg.username" name="username" placeholder="Username"
-             ng-model="ui.credentials.username" required/>
+             ng-class="{'has-error': ui.errorMessage}"
+             ng-model="ui.credentials.username" required autofocus
+             autocomplete="off"/>
     </div>
     <div class="input-group">
       <div class="input-group-addon"><i class="fa fa-lock"></i></div>
-      <input type="password" class="form-control kuiTextInput" id="sg.password" name="password" placeholder="Password"
-             ng-model="ui.credentials.password" required/>
+      <input type="password" autocomplete="off" class="form-control kuiTextInput" id="sg.password" name="password" placeholder="Password"
+             ng-class="{'has-error': ui.errorMessage}"
+             ng-model="ui.credentials.password" required
+             autocomplete="off"/>
     </div>
-    <button id="sg.login" type="submit" class="btn btn-default btn-login" style="{{ui.buttonstyle}}">Log in</button>
-  </form>
 
-  <sg-license-warning></sg-license-warning>
+    <button id="sg.login" type="submit" class="btn btn-default btn-login" ng-attr-style="{{ui.buttonstyle}}">Log in</button>
+
+    <a ng-if="ui.alternativeLogin" ng-href="{{ui.alternativeLogin.url}}" id="sg.alternative_login" class="btn btn-default btn-login" ng-attr-style="margin-top: 20px; {{ui.alternativeLogin.styles}}" style="">
+      {{ui.alternativeLogin.buttonLabel}}
+    </a>
+  </form>
 
   <p class="error-message" id="sg.errormessage" ng-if="ui.errorMessage">{{ ui.errorMessage }}</p>
 

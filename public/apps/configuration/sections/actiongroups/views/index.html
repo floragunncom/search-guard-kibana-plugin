@@ -9,9 +9,9 @@
                     <div style="margin-bottom: 10px;">
                         <h3 class="indexheading" style="display: inline;">Action Groups</h3>
                         <div style="display: inline;">
-                            <button class="kuiInfoButton" tooltip="Action Groups are named groups of permissions. You can assign Action Groups to Search Guard Roles to configure their access permissions to indices and document types.">
+                            <span class="kuiInfoButton help" tooltip="Action Groups are named groups of permissions. You can assign Action Groups to Search Guard Roles to configure their access permissions to indices and document types.">
                                 <span class="kuiIcon fa-info-circle"></span>
-                            </button>
+                            </span>
                         </div>
                     </div>
 
@@ -24,19 +24,26 @@
                             <thead>
                                 <tr>
 
-                                    <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
-                                        Action Group Name
-                                        <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'username'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                    <th class="kuiTableHeaderCell" ng-click="onSortChange('resourcename')">
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Action Group Name
+                                        </span>
+                                        <span ng-show="sortTable.byKey === 'resourcename'"
+                                              class="kuiIcon"
+                                              ng-class="{'fa-long-arrow-down': sortTable.descending, 'fa-long-arrow-up': ! sortTable.descending}">
+                                        </span>
                                     </th>
 
-                                    <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
-                                        Permissions
-                                        <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'roles'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                    <th class="kuiTableHeaderCell">
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Permissions
+                                        </span>
                                     </th>
 
-                                    <th class="kuiTableHeaderCell kuiTableHeaderCell--sortable">
-                                        Action Groups
-                                        <span aria-hidden="true" class="kuiTableSortIcon kuiIcon fa-long-arrow-up ng-hide" ng-show="sort.orderBy == 'roles'" ng-class="{'fa-long-arrow-down': sort.reverse, 'fa-long-arrow-up': !sort.reverse}"></span>
+                                    <th class="kuiTableHeaderCell">
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Action Groups
+                                        </span>
                                     </th>
 
                                     <th class="kuiTableHeaderCell kuiTableHeaderCell">
@@ -46,16 +53,16 @@
                             </thead>
 
                             <tbody>
-                                <tr ng-repeat="actiongroupname in resourcenames | filter:query" class="kuiTableRow">
+                                <tr ng-repeat="actiongroupname in resourcenames | filter:query | orderBy:'toString()':sortTable.descending" class="kuiTableRow">
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <a class="kuiLink" ng-click="edit(actiongroupname)">
+                                            <a class="kuiLink" ng-click="edit(actiongroupname)" title="{{actiongroupname}}">
                                                 {{actiongroupname}}
                                             </a>
                                             <div ng-if="resources[actiongroupname].readonly">
                                                 <div class="kuiBadge kuiBadge--default" >
-                                                    <span class="kuiIcon fa-warning"></span>
+                                                    <span class="kuiIcon fa-lock"></span>
                                                     reserved
                                                 </div>
                                             </div>
@@ -64,13 +71,13 @@
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <span ng-repeat="permission in resources[actiongroupname].permissions">{{permission}}<br/></span>
+                                            <span title="{{permission}}" ng-repeat="permission in resources[actiongroupname].permissions">{{permission}}<br/></span>
                                         </div>
                                     </td>
 
                                     <td class="kuiTableRowCell cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <span ng-repeat="actiongroup in resources[actiongroupname].actiongroups">{{actiongroup}}<br/></span>
+                                            <span title="{{actiongroup}}" ng-repeat="actiongroup in resources[actiongroupname].actiongroups">{{actiongroup}}<br/></span>
                                         </div>
                                     </td>
 
@@ -95,7 +102,12 @@
             </div>
         </div>
 
-        <sgc-delete-modal></sgc-delete-modal>
+        <sgc-confirmation-modal ng-if="displayModal === true"
+            header="Confirm Delete"
+            body="Do you really want to delete '{{deleteModalResourceName}}'"
+            on-close="closeDeleteModal"
+            on-confirm="delete">
+        </sgc-confirmation-modal>
 
     </div>
 </div>

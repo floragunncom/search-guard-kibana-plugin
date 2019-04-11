@@ -1,6 +1,7 @@
 import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules';
 import { get } from 'lodash';
+import { isEmpty } from 'lodash';
 
 /**
  * Role mappings API client service.
@@ -9,28 +10,56 @@ uiModules.get('apps/searchguard/configuration', [])
     .service('systemstate', function ($http) {
 
         const ROOT = chrome.getBasePath();
-        const APP_ROOT = `${ROOT}`;
-        const API_ROOT = `${APP_ROOT}/api/v1`;
-        const emptyPromise = new Promise(function(resolve, reject) {});
+        const API_ROOT = `${ROOT}/api/v1`;
+
+        this.stateLoaded = () => {
+            return !isEmpty(this.getSystemInfo());
+        }
+
+
+        this.licenseRequired = () => {
+            // no license for community edition required
+            return get(this.getSystemInfo(), 'sg_license.license_required', false);
+        }
 
         this.licenseValid = () => {
             // no license for community edition required
-            if (!get(this.getSystemInfo(), 'sg_license.license_required', true)) {
+            if (!this.licenseRequired()) {
                 return true;
             }
             return get(this.getSystemInfo(), 'sg_license.is_valid', true);
         }
 
+        this.isTrialLicense = () => {
+            if (!get(this.getSystemInfo(), 'sg_license.license_required', true)) {
+                return false;
+            }
+            var licenseType = get(this.getSystemInfo(), 'sg_license.type', "TRIAL")
+            return licenseType.toLowerCase() == "trial";
+        }
+
+        this.complianceFeaturesEnabled = () => {
+            const features = get(this.getSystemInfo(), 'sg_license.features', []);
+            if (Array.isArray(features)) {
+                return features.indexOf("COMPLIANCE") != -1;
+            }
+            return false;
+        }
+
+        this.expiresIn = () => {
+            return get(this.getSystemInfo(), 'sg_license.expiry_in_days', 0);
+        }
+
         this.dlsFlsEnabled = () => {
-            return get(this.getSystemInfo(), 'modules.DLSFLS', false);
+            return get(this.getSystemInfo(), 'modules.DLSFLS', null) != null;
         }
 
         this.multiTenancyEnabled = () => {
-            return get(this.getSystemInfo(), 'modules.MULTITENANCY', false);
+            return get(this.getSystemInfo(), 'modules.MULTITENANCY', null) != null;
         }
 
         this.restApiEnabled = () => {
-            return get(this.getSystemInfo(), 'modules.REST_MANAGEMENT_API', false);
+            return get(this.getSystemInfo(), 'modules.REST_MANAGEMENT_API', null) != null;
         }
 
         this.hasApiAccess = () => {
@@ -79,7 +108,7 @@ uiModules.get('apps/searchguard/configuration', [])
 
         this.loadRestInfo =  async function()  {
             // load restinfo if not found in cache
-            if (!sessionStorage.getItem('restapiinfo') && this.restApiEnabled) {
+            if (!sessionStorage.getItem('restapiinfo') && this.restApiEnabled()) {
                 return $http.get(`${API_ROOT}/restapiinfo`).then(function(response) {
                     sessionStorage.setItem('restapiinfo', JSON.stringify(response.data));
                 }).catch(function(error) {

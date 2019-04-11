@@ -1,6 +1,7 @@
 import { uiModules } from 'ui/modules';
 import chrome from 'ui/chrome';
-import '../apps/configuration/systemstate'
+
+require ('../apps/configuration/systemstate/systemstate');
 
 const app = uiModules.get('apps/searchguard/configuration', []);
 
@@ -17,14 +18,41 @@ app.directive('sgLicenseWarning', function (systemstate) {
         link: function($scope, elem, attrs) {
 
             $scope.licensevalid = true;
+            $scope.message = "";
 
             systemstate.loadSystemInfo().then(function(){
+
+                if (!systemstate.stateLoaded()) {
+                    $scope.message = "The Search Guard license information could not be loaded. Please contact your system administrator.";
+                    $scope.licensevalid = false;
+                    $scope.$apply('message');
+                    return;
+                }
+
+
+                if (!systemstate.licenseRequired()) {
+                    $scope.licensevalid = true;
+                    return;
+                }
+
                 $scope.licensevalid = systemstate.licenseValid();
 
                 if ($scope.errorMessage) {
                     $scope.message = $scope.errorMessage;
                 } else {
-                    $scope.message = "The Search Guard license key is not valid for this cluster. Please contact your system administrator";
+                    $scope.message = "The Search Guard license key is not valid for this cluster. Please contact your system administrator.";
+                }
+
+                if (systemstate.licenseValid()) {
+                    if (systemstate.isTrialLicense() && systemstate.expiresIn() <= 10) {
+                        $scope.hint = "Your trial license expires in " + systemstate.expiresIn() + " days.";
+                        $scope.$apply('hint');
+                    }
+                    if (!systemstate.isTrialLicense() && systemstate.expiresIn() <= 20) {
+                        $scope.hint = "Your license expires in " + systemstate.expiresIn() + " days.";
+                        $scope.$apply('hint');
+                    }
+
                 }
             });
 

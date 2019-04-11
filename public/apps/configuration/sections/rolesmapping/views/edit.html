@@ -7,7 +7,7 @@
             <div class="row">
                 <div class="col-xs-12">
                     <div class="">
-                        <form name="objectForm" id="object-form" method="post" ng-submit="saveObject($event)" novalidate style="width:70%">
+                        <form sgc-form-focus-added-field name="objectForm" id="object-form" method="post" ng-submit="saveObject($event)" novalidate style="width:70%">
 
                             <sgc-error-message></sgc-error-message>
 
@@ -16,19 +16,17 @@
                             <div>
                                 <div ng-show="isNew" style="margin-bottom:20px;">
                                     <h3 style="margin-top:0px;">{{service.newLabel}}:</h3>
-
-                                    <angucomplete id="object-form-id-new"
-                                                  name="objectId"
-                                                  placeholder=""
-                                                  pause="10"
-                                                  selectedobject="resourcename"
-                                                  localdata="rolesAutoComplete"
-                                                  minlength="1"
-                                                  datafield="name"
-                                                  titlefield="name"
-                                                  searchfields="name"
-                                                  isrequired="true"
-                                                  inputclass="form-control kuiTextInput fullwidth"/>
+                                    <ui-select ng-if="rolesAutoComplete.length && loaded"
+                                               ng-model="newResourceName"
+                                               on-select="onSelectedNewResourceName({item: $item})">
+                                        <ui-select-match placeholder="Search Guard Role">
+                                            {{newResourceName.name}}
+                                        </ui-select-match>
+                                        <ui-select-choices repeat="item in rolesAutoComplete | filter: $select.search track by $index"
+                                                           ui-disable-choice="resourcenames.indexOf(item.name) > -1">
+                                            <span ng-bind="item.name"></span>
+                                        </ui-select-choices>
+                                    </ui-select>
                                 </div>
 
                             </div>
@@ -38,7 +36,9 @@
                                 <thead>
                                 <tr>
                                     <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
-                                        Users
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Users
+                                        </span>
                                     </th>
 
                                     <th class="kuiTableHeaderCell">
@@ -62,7 +62,7 @@
                                         </fieldset>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop actions">
-                                        <a ng-click="removeArrayEntry(resource.users, user)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                        <a ng-click="confirmRemoveArrayEntry(resource.users, user)" class="kuiButton kuiButton--danger kuiButton--iconText">
                                             <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                         </a>
                                     </td>
@@ -84,7 +84,9 @@
                                 <thead>
                                 <tr>
                                     <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
-                                        Backend roles
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Backend roles
+                                        </span>
                                     </th>
 
                                     <th class="kuiTableHeaderCell">
@@ -108,7 +110,7 @@
                                         </fieldset>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop actions">
-                                        <a ng-click="removeArrayEntry(resource.backendroles, backendrole)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                        <a ng-click="confirmRemoveArrayEntry(resource.backendroles, backendrole)" class="kuiButton kuiButton--danger kuiButton--iconText">
                                             <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                         </a>
                                     </td>
@@ -130,7 +132,9 @@
                                 <thead>
                                 <tr>
                                     <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
-                                        Hosts
+                                        <span class="kuiTableHeaderCell__liner">
+                                            Hosts
+                                        </span>
                                     </th>
 
                                     <th class="kuiTableHeaderCell">
@@ -154,7 +158,7 @@
                                         </fieldset>
                                     </td>
                                     <td class="kuiTableRowCell cellAlignTop actions">
-                                        <a ng-click="removeArrayEntry(resource.hosts, host)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                        <a ng-click="confirmRemoveArrayEntry(resource.hosts, host)" class="kuiButton kuiButton--danger kuiButton--iconText">
                                             <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                         </a>
                                     </td>
@@ -172,13 +176,20 @@
                             </table>
 
                             <div class="formsubmit">
-                                <button ng-disabled="!endpointAndMethodEnabled('ROLESMAPPING', 'PUT')  || resource.readonly"  class="kuiButton kuiButton--primary kuiButton--text" type="submit">Submit</button>
-                                <button class="kuiButton kuiButton--basic kuiButton--text" type="submit" ng-click="cancel()">Cancel</button>
+                                <button id="sg.button.submit" ng-disabled="!endpointAndMethodEnabled('ROLESMAPPING', 'PUT')  || resource.readonly"  class="kuiButton kuiButton--primary kuiButton--text" type="submit">Submit</button>
+                                <button id="sg.button.cancel" class="kuiButton kuiButton--basic kuiButton--text" type="submit" ng-click="cancel()">Cancel</button>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
+        <sgc-confirmation-modal ng-if="deleteFromEditModal.displayModal"
+            header="{{deleteFromEditModal.header}}"
+            body="{{deleteFromEditModal.body}}"
+            params="deleteFromEditModal.params"
+            on-confirm="deleteFromEditModal.onConfirm"
+            on-close="deleteFromEditModal.onClose"
+        ></sgc-confirmation-modal>
     </div>
 </div>
