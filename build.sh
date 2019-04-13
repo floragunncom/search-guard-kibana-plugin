@@ -121,7 +121,11 @@ cp -a "$DIR/node_modules" "$COPYPATH"
 cp -a "$DIR/public" "$COPYPATH"
 
 # Replace pom version
-sed -i '' "s/RPLC_PLUGIN_VERSION/$KIBANA_VERSION-$SG_PLUGIN_VERSION/" pom.xml
+sed -i'' "s/RPLC_PLUGIN_VERSION/$KIBANA_VERSION-$SG_PLUGIN_VERSION/" pom.xml
+if [ $? != 0 ]; then
+    echo "sed failed";
+    exit 1;
+fi
 
 if [ "$COMMAND" = "deploy" ] ; then
     echo "+++ mvn clean deploy -Prelease +++"
