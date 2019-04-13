@@ -120,6 +120,9 @@ cp -a "$DIR/lib" "$COPYPATH"
 cp -a "$DIR/node_modules" "$COPYPATH"
 cp -a "$DIR/public" "$COPYPATH"
 
+# Replace pom version
+sed -i '' "s/RPLC_PLUGIN_VERSION/$KIBANA_VERSION-$SG_PLUGIN_VERSION/" pom.xml
+
 if [ "$COMMAND" = "deploy" ] ; then
     echo "+++ mvn clean deploy -Prelease +++"
     $MAVEN_HOME/bin/mvn clean deploy -Prelease
