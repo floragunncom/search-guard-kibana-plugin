@@ -11,12 +11,26 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Build plugin
+          name: Build and deploy plugin
           command: |
-            curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.5/install.sh | bash > /dev/null 2>&1
+            curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash > /dev/null 2>&1
             export NVM_HOME=~/.nvm
             export MAVEN_HOME=/opt/apache-maven
-            ./build.sh 6.4.0 16-SNAPSHOT install
+            PACKAGE_VERSION=$(cat package.json | jq --raw-output '.version')
+            ES_VERSION=$(echo $PACKAGE_VERSION | cut -d'-' -f1)
+            PLUGIN_VERSION=$(echo $PACKAGE_VERSION | cut -d'-' -f2)
+            SNAPSHOT=$(echo $PACKAGE_VERSION | cut -d'-' -f3)
+            echo "PACKAGE_VERSION: $PACKAGE_VERSION"
+            echo "ES_VERSION: $ES_VERSION"
+            echo "PLUGIN_VERSION: $PLUGIN_VERSION"
+            echo "SNAPSHOT: $SNAPSHOT"
+
+            if [ "$SNAPSHOT" != "SNAPSHOT" ]; then
+              echo "Can only deploy SNAPSHOT versions"
+              exit -1
+            fi
+
+            ./build.sh $ES_VERSION $PLUGIN_VERSION-$SNAPSHOT deploy
 workflows:
   version: 2
   build:
