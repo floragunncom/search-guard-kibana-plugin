@@ -30,7 +30,7 @@ jobs:
               exit -1
             fi
 
-            ./build.sh $ES_VERSION $PLUGIN_VERSION-$SNAPSHOT deploy
+            ./build.sh $ES_VERSION $PLUGIN_VERSION-$SNAPSHOT deploy-snapshot
 workflows:
   version: 2
   build:

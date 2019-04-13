@@ -9,7 +9,7 @@ if [ -z "$KIBANA_VERSION" ] || [ -z "$SG_PLUGIN_VERSION" ] || [ -z "$COMMAND" ];
     exit 1;
 fi
 
-if [ "$COMMAND" != "deploy" ] && [ "$COMMAND" != "install" ]; then
+if [ "$COMMAND" != "deploy" ] && [ "$COMMAND" != "deploy-snapshot" ] && [ "$COMMAND" != "install" ]; then
     echo "Usage: ./build.sh <kibana_version> <sg_plugin_version> <install|deploy>"
     echo "Unknown command: $COMMAND"
     exit 1;
@@ -125,6 +125,15 @@ if [ "$COMMAND" = "deploy" ] ; then
     $MAVEN_HOME/bin/mvn clean deploy -Prelease
     if [ $? != 0 ]; then
         echo "$MAVEN_HOME/bin/mvn clean deploy -Prelease failed";
+        exit 1;
+    fi
+fi
+
+if [ "$COMMAND" = "deploy-snapshot" ] ; then
+    echo "+++ mvn clean deploy +++"
+    $MAVEN_HOME/bin/mvn clean deploy
+    if [ $? != 0 ]; then
+        echo "$MAVEN_HOME/bin/mvn clean deploy failed";
         exit 1;
     fi
 fi
