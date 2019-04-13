@@ -45,6 +45,15 @@ uiModules.get('apps/searchguard/configuration', [])
         };
 
         this.preSave = (user) => {
+
+            if (user.hidden === false) {
+                delete user.hidden;
+            }
+
+            if (user.readonly === false) {
+                delete user.readonly;
+            }
+
             delete user["passwordConfirmation"];
             // remove empty roles
             user.roles = user.roles.filter(e => String(e).trim());

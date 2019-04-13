@@ -51,6 +51,19 @@ uiModules.get('apps/searchguard/configuration', [])
             rolemapping.users = this.cleanArray(rolemapping.users);
             rolemapping.backendroles = this.cleanArray(rolemapping.backendroles);
             rolemapping.hosts = this.cleanArray(rolemapping.hosts);
+
+            if (rolemapping.hidden === false) {
+                delete rolemapping.hidden;
+            }
+
+            if (rolemapping.readonly === false) {
+                delete rolemapping.readonly;
+            }
+
+            if (typeof rolemapping.and_backendroles !== 'undefined') {
+                delete rolemapping.and_backendroles;
+            }
+
             return rolemapping;
         };
 
