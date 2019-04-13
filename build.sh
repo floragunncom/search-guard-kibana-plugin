@@ -129,11 +129,12 @@ if [ "$COMMAND" = "deploy" ] ; then
     fi
 fi
 
+#-s settings.xml is needed on circleci only
 if [ "$COMMAND" = "deploy-snapshot" ] ; then
     echo "+++ mvn clean deploy +++"
-    $MAVEN_HOME/bin/mvn clean deploy
+    $MAVEN_HOME/bin/mvn clean deploy -s settings.xml
     if [ $? != 0 ]; then
-        echo "$MAVEN_HOME/bin/mvn clean deploy failed";
+        echo "$MAVEN_HOME/bin/mvn clean deploy -s settings.xml failed";
         exit 1;
     fi
 fi
