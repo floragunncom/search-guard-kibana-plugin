@@ -9,7 +9,7 @@ if [ -z "$KIBANA_VERSION" ] || [ -z "$SG_PLUGIN_VERSION" ] || [ -z "$COMMAND" ];
     exit 1;
 fi
 
-if [ "$COMMAND" != "deploy" ] && [ "$COMMAND" != "install" ]; then
+if [ "$COMMAND" != "deploy" ] && [ "$COMMAND" != "deploy-snapshot" ] && [ "$COMMAND" != "install" ]; then
     echo "Usage: ./build.sh <kibana_version> <sg_plugin_version> <install|deploy>"
     echo "Unknown command: $COMMAND"
     exit 1;
@@ -120,11 +120,28 @@ cp -a "$DIR/lib" "$COPYPATH"
 cp -a "$DIR/node_modules" "$COPYPATH"
 cp -a "$DIR/public" "$COPYPATH"
 
+# Replace pom version
+sed -i'' "s/RPLC_PLUGIN_VERSION/$KIBANA_VERSION-$SG_PLUGIN_VERSION/" pom.xml
+if [ $? != 0 ]; then
+    echo "sed failed";
+    exit 1;
+fi
+
 if [ "$COMMAND" = "deploy" ] ; then
     echo "+++ mvn clean deploy -Prelease +++"
     $MAVEN_HOME/bin/mvn clean deploy -Prelease
     if [ $? != 0 ]; then
         echo "$MAVEN_HOME/bin/mvn clean deploy -Prelease failed";
+        exit 1;
+    fi
+fi
+
+#-s settings.xml is needed on circleci only
+if [ "$COMMAND" = "deploy-snapshot" ] ; then
+    echo "+++ mvn clean deploy +++"
+    $MAVEN_HOME/bin/mvn clean deploy -s settings.xml
+    if [ $? != 0 ]; then
+        echo "$MAVEN_HOME/bin/mvn clean deploy -s settings.xml failed";
         exit 1;
     fi
 fi
