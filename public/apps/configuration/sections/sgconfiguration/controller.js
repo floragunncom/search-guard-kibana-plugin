@@ -73,13 +73,13 @@ app.controller('sgConfigController', function ($scope, $element, $route, createN
     }
 
     $scope.authczEnabled = function(authcz)  {
-        if (authcz.enabled && authcz.enabled == 'true') {
+        if (authcz.enabled && authcz.enabled === true) {
             return true;
         }
-        if (authcz.http_enabled && authcz.http_enabled == "true") {
+        if (authcz.http_enabled && authcz.http_enabled === true) {
             return true;
         }
-        if (authcz.transport_enabled && authcz.transport_enabled == "true") {
+        if (authcz.transport_enabled && authcz.transport_enabled === true) {
             return true;
         }
 
