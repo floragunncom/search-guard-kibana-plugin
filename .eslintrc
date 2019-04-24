@@ -3,5 +3,7 @@ extends: "@elastic/kibana"
 
 settings:
   import/resolver:
-    '@elastic/eslint-import-resolver-kibana':
-      rootPackageName: 'empty_kibana_plugin'
+    'node':
+      paths: ["public", "node_modules", "../../kibana/node_modules"]
+    '@kbn/eslint-import-resolver-kibana':
+      rootPackageName: 'search-guard-kibana-plugin'
