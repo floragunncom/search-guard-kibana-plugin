@@ -2,7 +2,13 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { flatten } from 'lodash';
 import queryString from 'query-string';
-import { EuiBreadcrumbs, EuiI18n } from '@elastic/eui';
+import { EuiBreadcrumbs } from '@elastic/eui';
+import {
+  i18nHomeText,
+  i18nInternalUsersText,
+  i18nCreateInternalUserText,
+  i18nUpdateInternalUserText
+} from '../../utils/i18n_nodes';
 import { APP_PATH, INTERNAL_USERS_ACTIONS } from '../../utils/constants';
 
 export const createBreadcrumb = (breadcrumb, history) => {
@@ -28,28 +34,23 @@ export const getBreadcrumb = route => {
       case INTERNAL_USERS_ACTIONS.UPDATE_USER:
         // TODO: query API to get user doc, retrieve the user name and put it in breadcrumbs
         const userName = base;
-        const updateInternalUserText = (<EuiI18n token="sgUpdateInternalUser.text" default="Update User" />);
         return [
           { text: userName, href: `${APP_PATH.INTERNAL_USERS}/${base}` },
-          { text: updateInternalUserText, href: APP_PATH.CREATE_INTERNAL_USER }
+          { text: i18nUpdateInternalUserText, href: APP_PATH.CREATE_INTERNAL_USER }
         ];
     }
   }
 
-  const homeText = (<EuiI18n token="sgHome.text" default="Home" />);
-  const internalUsersText = (<EuiI18n token="sgInternalUsers.text" default="Internal Users" />);
-  const createInternalUserText = (<EuiI18n token="sgCreateInternalUser.text" default="Create User" />);
-
   const removePrefixSlash = path => path.slice(1);
   return {
-    '#': { text: homeText, href: APP_PATH.HOME },
+    '#': { text: i18nHomeText, href: APP_PATH.HOME },
     [removePrefixSlash(APP_PATH.INTERNAL_USERS)]: {
-      text: internalUsersText,
+      text: i18nInternalUsersText,
       href: APP_PATH.INTERNAL_USERS
     },
     [removePrefixSlash(APP_PATH.CREATE_INTERNAL_USER)]: [
-      { text: internalUsersText, href: APP_PATH.INTERNAL_USERS },
-      { text: createInternalUserText, href: APP_PATH.CREATE_INTERNAL_USER }
+      { text: i18nInternalUsersText, href: APP_PATH.INTERNAL_USERS },
+      { text: i18nCreateInternalUserText, href: APP_PATH.CREATE_INTERNAL_USER }
     ]
   }[base];
 };

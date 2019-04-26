@@ -1,17 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ContentPanel } from '../../../../components';
-import { EuiI18n, EuiButton } from '@elastic/eui';
+import { EuiButton } from '@elastic/eui';
 import { APP_PATH } from '../../../../utils/constants';
+import {
+  i18nSaveText,
+  i18nCancelText,
+  i18nCreateInternalUserText
+} from '../../../../utils/i18n_nodes';
 
 const renderSaveButton = history => (
   <EuiButton
     onClick={() => history.push(APP_PATH.INTERNAL_USERS)}
   >
-    <EuiI18n
-      token="sgSave.text"
-      default="Save"
-    />
+    {i18nSaveText}
   </EuiButton>
 );
 
@@ -19,21 +21,13 @@ const renderCancelButton = history => (
   <EuiButton
     onClick={() => history.push(APP_PATH.INTERNAL_USERS)}
   >
-    <EuiI18n
-      token="sgCancel.text"
-      default="Cancel"
-    />
+    {i18nCancelText}
   </EuiButton>
 );
 
 const CreateInternalUser = ({ history }) => (
   <ContentPanel
-    title={(
-      <EuiI18n
-        token="sgCreateInternalUser.text"
-        default="Create User"
-      />
-    )}
+    title={i18nCreateInternalUserText}
     actions={[
       renderCancelButton(history),
       renderSaveButton(history)
