@@ -87,7 +87,7 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     $scope.doctypeAutoComplete = [];
 
     // todo: must be replaced wiith action groups from backend when RBAC is rolled out
-    $scope.applicationActionGroups = ["KIBANA_ALL_READ", "KIBANA_ALL_WRITE"];
+    $scope.applicationActionGroups = ["SG_KIBANA_ALL_READ", "SG_KIBANA_ALL_WRITE"];
 
     $scope.title = function () {
         return $scope.isNew? "New Role " : "Edit Role '" + $scope.resourcename+"'";
@@ -132,14 +132,6 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
             }
         );
     };
-
-    // $scope.$watch('newIndexName', function(newvalue, oldvalue) {
-    //     if(!newvalue || !$scope.indices[newvalue]) {
-    //         $scope.doctypeAutoComplete = [];
-    //     } else {
-    //         $scope.doctypeAutoComplete = $scope.indices[newvalue].doctypes;
-    //     }
-    // }, true);
 
     $scope.getTabCss = function(tabId) {
         var css = "";
@@ -210,29 +202,6 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
         return patternsArray.join(', ');
     }
 
-
-    /**
-     * This is a weird workaround for the autocomplete where
-     * we have can't or don't want to use the model item
-     * directly in the view. Instead, we use the on-select
-     * event to set the target value
-     * @type {{}}
-     */
-    $scope.onSelectedNewIndexName = function(event) {
-        $scope.newIndexName = event.item.name;
-    };
-
-    // /**
-    //  * This is a weird workaround for the autocomplete where
-    //  * we have can't or don't want to use the model item
-    //  * directly in the view. Instead, we use the on-select
-    //  * event to set the target value
-    //  * @type {{}}
-    //  */
-    // $scope.onSelectedNewDocumentTypeName = function(event) {
-    //     $scope.newDocumentTypeName = event.item.name;
-    //
-    // };
 
     /**
      * This is a helper for when the autocomplete was closed an item being explicitly selected (mouse, tab or enter).
