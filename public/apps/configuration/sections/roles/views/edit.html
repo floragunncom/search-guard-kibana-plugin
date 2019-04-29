@@ -22,7 +22,7 @@
                     <a ng-click="selectTab('overview')" ng-class="getTabCss('overview')" id="sg.roles.tab.overview">Overview</a>
                     <a ng-click="selectTab('clusterpermissions')" ng-class="getTabCss('clusterpermissions')" id="sg.roles.tab.clusterpermissions">Cluster Permissions</a>
                     <a ng-click="selectTab('indexpermissions')" ng-class="getTabCss('indexpermissions')" id="sg.roles.tab.indexpermissions">Index Permissions</a>
-                    <a ng-if="multiTenancyEnabled" ng-click="selectTab('applicationpermissions')" ng-class="getTabCss('applicationpermissions')" id="sg.roles.tab.applicationpermissions">Tenant Permissions</a>
+                    <a ng-click="selectTab('applicationpermissions')" ng-class="getTabCss('applicationpermissions')" id="sg.roles.tab.applicationpermissions">Tenant Permissions</a>
                 </div>
             </div>
         </div>
@@ -426,14 +426,14 @@
                             </table>
 
                             <!-- Global application permissions -->
-                            <div class="euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--directionRow euiFlexGroup--responsive">
+                            <div class="euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--directionRow euiFlexGroup--responsive" ng-if="globalEnabled">
                                 <div class="euiFlexItem">
                                     <h3 class="euiTitle euiTitle--small">Global permissions</h3>
                                 </div>
                             </div>
 
                             <!-- Application permissions -->
-                            <table class="kuiTable tableIndexGroups">
+                            <table class="kuiTable tableIndexGroups" ng-if="globalEnabled">
                                 <thead>
                                 <tr>
                                     <th class="kuiTableHeaderCell tableHeaderCellIndexGroups">
@@ -506,7 +506,7 @@
 
                             <hr class="euiHorizontalRule euiHorizontalRule--full euiHorizontalRule--marginLarge" ng-if="multiTenancyEnabled">
 
-                            <div class="euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--directionRow euiFlexGroup--responsive">
+                            <div class="euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--directionRow euiFlexGroup--responsive" ng-if="multiTenancyEnabled">
                                 <div class="euiFlexItem">
                                     <h3 class="euiTitle euiTitle--small">Tenant permissions</h3>
                                 </div>

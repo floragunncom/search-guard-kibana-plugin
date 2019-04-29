@@ -86,8 +86,10 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
     $scope.indexAutoComplete = [];
     $scope.doctypeAutoComplete = [];
 
+    $scope.globalEnabled = chrome.getInjected("multitenancy.tenants.enable_global");
+
     // todo: must be replaced wiith action groups from backend when RBAC is rolled out
-    $scope.applicationActionGroups = ["SG_KIBANA_ALL_READ", "SG_KIBANA_ALL_WRITE"];
+    $scope.applicationActionGroups = ["SGS_KIBANA_ALL_READ", "SGS_KIBANA_ALL_WRITE"];
 
     $scope.title = function () {
         return $scope.isNew? "New Role " : "Edit Role '" + $scope.resourcename+"'";
