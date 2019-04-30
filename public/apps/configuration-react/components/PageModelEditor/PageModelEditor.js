@@ -47,7 +47,7 @@ PageModelEditor.propTypes = {
   onChange: PropTypes.func,
   ariaLabel: PropTypes.string,
   isReadOnly: PropTypes.bool,
-  showJson: PropTypes.bool
+  showJson: PropTypes.bool.isRequired
 };
 
 export default PageModelEditor;
