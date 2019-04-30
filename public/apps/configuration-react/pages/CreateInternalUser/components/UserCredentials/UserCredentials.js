@@ -55,7 +55,7 @@ const UserCredentials = () => (
       elementProps={{
         isInvalid
       }}
-      name="password_repeat"
+      name="passwordRepeat"
     />
   </Fragment>
 );
