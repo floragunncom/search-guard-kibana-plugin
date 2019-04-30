@@ -13,6 +13,7 @@ export const i18nAddText = (<EuiI18n token="sgAdd.text" default="Add" />);
 export const i18nRemoveText = (<EuiI18n token="sgRemove.text" default="Remove" />);
 export const i18nNoItemsFoundText = (<EuiI18n token="sgNoItemsFound.text" default="No items found" />);
 export const i18nRequiredText = (<EuiI18n token="sgRequired.text" default="Required" />);
+export const i18nErrorText = (<EuiI18n token="sgError.text" default="Error" />);
 
 // Internal Users
 export const i18nInternalUsersText = (<EuiI18n token="sgInternalUsers.text" default="Internal Users" />);
@@ -27,6 +28,5 @@ export const i18nUserAttributesText = (<EuiI18n token="sgUserAttributes.text" de
 export const i18nUsernameText = (<EuiI18n token="sgUsername.text" default="Username" />);
 export const i18nPasswordText = (<EuiI18n token="sgPassword.text" default="Password" />);
 export const i18nRepeatPasswordText = (<EuiI18n token="sgRepeatPassword.text" default="Repeat Password" />);
-export const i18nLeaveEmptyToKeepCurrentPassword = (
-  <EuiI18n token="sgLeaveEmptyToKeepCurrentPassword.text" default="Leave empty to keep current password" />
-);
+export const i18nChangePasswordText = (<EuiI18n token="sgChangePassword.text" default="Change Password" />);
+export const i18nPasswordsDontMatchText = (<EuiI18n token="sgPasswordsDontMatch.text" default="Passwords don't match" />);

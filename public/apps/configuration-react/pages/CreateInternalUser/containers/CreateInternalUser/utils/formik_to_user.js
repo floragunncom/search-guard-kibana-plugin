@@ -1,7 +1,7 @@
 import { omit } from 'lodash';
 
 const formikToUser = userFormik => ({
-  ...omit(userFormik, ['showJson', 'passwordRepeat']),
+  ...omit(userFormik, ['showJson', 'passwordRepeat', 'changePassword']),
   roles: userFormik.roles.map(({ value }) => value),
   attributes: userFormik.attributes.reduce((result, { key, value }) => {
     result[key] = value;
