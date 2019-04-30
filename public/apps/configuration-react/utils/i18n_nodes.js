@@ -12,6 +12,7 @@ export const i18nCancelText = (<EuiI18n token="sgCancel.text" default="Cancel" /
 export const i18nAddText = (<EuiI18n token="sgAdd.text" default="Add" />);
 export const i18nRemoveText = (<EuiI18n token="sgRemove.text" default="Remove" />);
 export const i18nNoItemsFoundText = (<EuiI18n token="sgNoItemsFound.text" default="No items found" />);
+export const i18nRequiredText = (<EuiI18n token="sgRequired.text" default="Required" />);
 
 // Internal Users
 export const i18nInternalUsersText = (<EuiI18n token="sgInternalUsers.text" default="Internal Users" />);

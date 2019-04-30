@@ -1,7 +1,8 @@
 import { get } from 'lodash';
+import { i18nRequiredText } from './i18n_nodes';
 
 export const validateTextField = value => {
-  if (!value) throw 'Required';
+  if (!value) throw i18nRequiredText;
 };
 
 export const isInvalid = (name, form) => {
