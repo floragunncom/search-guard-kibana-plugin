@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Formik, Form } from 'formik';
 import PropTypes from 'prop-types';
-import { EuiButton, EuiFlexGroup, EuiFlexItem, EuiCallOut } from '@elastic/eui';
+import { EuiButton, EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 import { isEqual } from 'lodash';
 import queryString from 'query-string';
 import {
@@ -28,6 +28,7 @@ class CreateInternalUser extends Component {
       isEdit: !!id,
       initialValues: userToFormik(DEFAULT_USER),
       userText: stringifyPretty(DEFAULT_USER),
+      allRoles: [], // TODO: fetch roles from API
       passwordsMatch: true
     };
   }
@@ -60,7 +61,7 @@ class CreateInternalUser extends Component {
 
   render() {
     const { history } = this.props;
-    const { initialValues, userText, isEdit, passwordsMatch } = this.state;
+    const { initialValues, userText, isEdit, passwordsMatch, allRoles } = this.state;
 
     return (
       <Formik
@@ -85,17 +86,23 @@ class CreateInternalUser extends Component {
                 ]}
               >
                 {!passwordsMatch && <ErrorCallOut text={i18nPasswordsDontMatchText} />}
+
                 <EuiFlexGroup>
                   <EuiFlexItem>
                     <UserCredentials isEdit={isEdit} values={values} />
-                    <BackendRoles roles={values.roles} />
-                    <UserAttributes attributes={values.attributes} />
                   </EuiFlexItem>
-
                   <EuiFlexItem>
                     <PageModelEditor value={userText} showJson={values.showJson} />
                   </EuiFlexItem>
                 </EuiFlexGroup>
+
+                <EuiFlexGroup>
+                  <EuiFlexItem>
+                    <BackendRoles allRoles={allRoles} />
+                  </EuiFlexItem>
+                </EuiFlexGroup>
+
+                <UserAttributes attributes={values.attributes} />
               </ContentPanel>
             </Form>
           );

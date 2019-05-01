@@ -8,16 +8,16 @@ import { EuiCodeEditor } from '@elastic/eui';
 import FormikSwitch from '../FormControls/FormikSwitch';
 import { i18nShowJson } from '../../utils/i18n_nodes';
 
-const renderEditor = ({ setOptions, value, onChange, ariaLabel, isReadOnly }) => (
+const renderEditor = ({ setOptions, value, onChange, isReadOnly }) => (
   <EuiCodeEditor
     isReadOnly={isReadOnly}
     mode="javascript"
     theme="github"
-    width="100%"
     value={value}
+    width="100%"
+    height="50%"
     onChange={onChange}
     setOptions={setOptions}
-    aria-label={ariaLabel}
   />
 );
 
@@ -25,7 +25,6 @@ const PageModelEditor = ({
   setOptions = { fontSize: '14px' },
   value = '',
   onChange,
-  ariaLabel = 'Model Preview',
   isReadOnly = true,
   showJson = false
 }) => (
@@ -37,7 +36,7 @@ const PageModelEditor = ({
       }}
       name="showJson"
     />
-    {showJson ? renderEditor({ setOptions, value, onChange, ariaLabel, isReadOnly }) : null}
+    {showJson ? renderEditor({ setOptions, value, onChange, isReadOnly }) : null}
   </Fragment>
 );
 
@@ -45,7 +44,6 @@ PageModelEditor.propTypes = {
   setOptions: PropTypes.object,
   value: PropTypes.string.isRequired,
   onChange: PropTypes.func,
-  ariaLabel: PropTypes.string,
   isReadOnly: PropTypes.bool,
   showJson: PropTypes.bool.isRequired
 };
