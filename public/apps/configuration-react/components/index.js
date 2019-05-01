@@ -10,6 +10,7 @@ export { default as FormikFieldText } from './FormControls/FormikFieldText';
 export { default as FormikFieldPassword } from './FormControls/FormikFieldPassword';
 export { default as FormikEffect } from './FormControls/FormikEffect';
 export { default as FormikSwitch } from './FormControls/FormikSwitch';
+export { default as FormikComboBox } from './FormControls/FormikComboBox';
 
 // CallOuts
 export { default as ErrorCallOut } from './CallOuts/ErrorCallOut';

@@ -1,41 +1,35 @@
 import React from 'react';
-import { FieldArray } from 'formik';
-import { FormikFieldText, DynamicValuesForm } from '../../../../components';
-import { hasError, isInvalid, validateTextField } from '../../../../utils/validation';
+import PropTypes from 'prop-types';
+import { FormikComboBox } from '../../../../components';
 import { i18nBackendRolesText } from '../../../../utils/i18n_nodes';
 
-const handleRenderValueField = fieldName => (
-  <FormikFieldText
+const BackendRoles = ({ allRoles }) => (
+  <FormikComboBox
+    name="roles"
     formRow
-    formikFieldProps={{
-      validate: validateTextField
-    }}
     rowProps={{
-      isInvalid,
-      error: hasError
+      label: i18nBackendRolesText,
     }}
     elementProps={{
-      isInvalid
+      options: allRoles,
+      isClearable: true,
+      onBlur: (e, field, form) => {
+        form.setFieldTouched('roles', true);
+      },
+      onChange: (options, field, form) => {
+        form.setFieldValue('roles', options);
+      },
+      onCreateOption: (label, field, form) => {
+        const normalizedSearchValue = label.trim().toLowerCase();
+        if (!normalizedSearchValue) return;
+        form.setFieldValue('roles', field.value.concat({ label }));
+      },
     }}
-    name={fieldName}
   />
 );
 
-const BackendRoles = ({ roles }) => (
-  <FieldArray
-    name="roles"
-    validateOnChange={false}
-    render={arrayHelpers => (
-      <DynamicValuesForm
-        title={i18nBackendRolesText}
-        onAdd={() => arrayHelpers.push({})}
-        onRemove={i => arrayHelpers.remove(i)}
-        items={roles}
-        name="roles"
-        onRenderValueField={handleRenderValueField}
-      />
-    )}
-  />
-);
+BackendRoles.propTypes = {
+  allRoles: PropTypes.array.isRequired
+};
 
 export default BackendRoles;
