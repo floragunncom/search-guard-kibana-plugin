@@ -81,7 +81,7 @@ const UserCredentials = ({ isEdit = false, values }) => (
         name="changePassword"
       />
     )}
-    {values.changePassword && renderPassword()}
+    {(!isEdit || values.changePassword) && renderPassword()}
   </Fragment>
 );
 
