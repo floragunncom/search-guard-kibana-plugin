@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 import { EuiButton, EuiSpacer } from '@elastic/eui';
@@ -91,7 +91,12 @@ class CreateInternalUser extends Component {
     this.setState({ error });
     this.props.onTriggerCallout({
       type: CALLOUTS.ERROR_CALLOUT,
-      payload: error.message
+      payload: (
+        <Fragment>
+          <p>{error.message}</p>
+          {error.stack && <p>{error.stack}</p>}
+        </Fragment>
+      )
     });
   }
 

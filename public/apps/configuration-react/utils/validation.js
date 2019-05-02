@@ -7,11 +7,11 @@ import {
   i18nUsernameAlreadyExists
 } from './i18n_nodes';
 
-export const validateInternalUserName = ({ users, isEdit }) => name => {
+export const validateInternalUserName = ({ allUsers, isEdit }) => name => {
   if (!name) throw i18nRequiredText;
   const hasDotsAndAsterisks = (/[\.\*]/gm).test(name);
   if (hasDotsAndAsterisks) throw i18nUsernameMustNotContainDotsAndAsterisks;
-  if (!isEdit && users.includes(name)) throw i18nUsernameAlreadyExists;
+  if (!isEdit && allUsers.includes(name)) throw i18nUsernameAlreadyExists;
 };
 
 export const validatePassword = passwordConfirmation => password => {
