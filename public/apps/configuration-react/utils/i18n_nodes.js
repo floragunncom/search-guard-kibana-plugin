@@ -38,3 +38,4 @@ export const i18nUsernameMustNotContainDotsAndAsterisks = (
 export const i18nPasswordMustBeAtLeast5Chars = (
   <EuiI18n token="sgPasswordMustBeAtLeast5Chars.text" default="Password must be at least 5 characters" />
 );
+export const i18nUsernameAlreadyExists = (<EuiI18n token="sgUsernameAlreadyExists.text" default="Username already exists" />);

@@ -9,12 +9,12 @@ import {
   i18nChangePasswordText
 } from '../../../../utils/i18n_nodes';
 
-const renderPassword = passwordRepeat => (
+const renderPassword = passwordConfirmation => (
   <Fragment>
     <FormikFieldPassword
       formRow
       formikFieldProps={{
-        validate: validatePassword(passwordRepeat)
+        validate: validatePassword(passwordConfirmation)
       }}
       rowProps={{
         label: i18nPasswordText,
@@ -29,7 +29,7 @@ const renderPassword = passwordRepeat => (
     <FormikFieldPassword
       formRow
       formikFieldProps={{
-        validate: validatePassword(passwordRepeat)
+        validate: validatePassword(passwordConfirmation)
       }}
       rowProps={{
         label: i18nRepeatPasswordText,
@@ -39,17 +39,17 @@ const renderPassword = passwordRepeat => (
       elementProps={{
         isInvalid
       }}
-      name="passwordRepeat"
+      name="passwordConfirmation"
     />
   </Fragment>
 );
 
-const UserCredentials = ({ isEdit = false, values }) => (
+const UserCredentials = ({ isEdit = false, values, users }) => (
   <Fragment>
     <FormikFieldText
       formRow
       formikFieldProps={{
-        validate: validateInternalUserName
+        validate: validateInternalUserName({ users, isEdit })
       }}
       rowProps={{
         label: i18nUsernameText,
@@ -72,7 +72,7 @@ const UserCredentials = ({ isEdit = false, values }) => (
               form.setValues({
                 ...values,
                 password: '',
-                passwordRepeat: ''
+                passwordConfirmation: ''
               });
             }
             field.onChange(e);
@@ -81,13 +81,14 @@ const UserCredentials = ({ isEdit = false, values }) => (
         name="changePassword"
       />
     )}
-    {(!isEdit || values.changePassword) && renderPassword(values.passwordRepeat)}
+    {(!isEdit || values.changePassword) && renderPassword(values.passwordConfirmation)}
   </Fragment>
 );
 
 UserCredentials.propTypes = {
   isEdit: PropTypes.bool.isRequired,
-  values: PropTypes.object.isRequired
+  values: PropTypes.object.isRequired,
+  users: PropTypes.array.isRequired
 };
 
 export default UserCredentials;

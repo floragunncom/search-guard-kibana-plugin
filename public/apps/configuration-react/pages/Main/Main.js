@@ -41,7 +41,7 @@ class Main extends Component {
 
   render() {
     const { flyout, callout } = this.state;
-    const { httpClient, history, ...rest } = this.props;
+    const { httpClient, backendInternalUsers, history, ...rest } = this.props;
 
     return (
       <EuiPage id="searchGuardKibanaPlugin">
@@ -61,6 +61,7 @@ class Main extends Component {
                   render={props => (
                     <CreateInternalUser
                       httpClient={httpClient}
+                      backendInternalUsers={backendInternalUsers}
                       onTriggerFlyout={this.handleTriggerFlyout}
                       onTriggerCallout={this.handleTriggerCallout}
                       {...props}
@@ -86,6 +87,7 @@ class Main extends Component {
 
 Main.propTypes = {
   httpClient: PropTypes.func.isRequired,
+  backendInternalUsers: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired
 };

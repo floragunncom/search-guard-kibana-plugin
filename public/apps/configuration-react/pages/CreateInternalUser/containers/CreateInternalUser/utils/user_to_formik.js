@@ -1,9 +1,12 @@
-import { map } from 'lodash';
+import { map, omit } from 'lodash';
+import { DEFAULT_USER } from './constants';
 
-const userToFormik = userDoc => ({
-  ...userDoc,
-  roles: map(userDoc.roles, label => ({ label })),
-  attributes: map(userDoc.attributes, (value, key) => ({ value, key }))
+const userToFormik = ({ user, id }) => ({
+  ...omit(user, ['hash']),
+  ...DEFAULT_USER,
+  username: id,
+  roles: map(user.roles, label => ({ label })),
+  attributes: map(user.attributes, (value, key) => ({ value, key }))
 });
 
 export default userToFormik;

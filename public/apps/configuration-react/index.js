@@ -8,7 +8,15 @@ import { I18nProvider } from '@kbn/i18n/react';
 import 'ui/autoload/styles';
 import Main from './pages/Main';
 
-const app = uiModules.get('apps/searchguardConfigurationReact');
+// TODO: delete these services imports after they are refactored to JS/React
+import './services/actiongroups';
+import './services/client';
+import './services/internalusers';
+import './services/roles';
+import './services/rolesmapping';
+import './services/sgconfiguration';
+
+const app = uiModules.get('apps/searchguardConfiguration');
 
 app.config($locationProvider => {
   $locationProvider.html5Mode({
@@ -22,7 +30,12 @@ app.config(stateManagementConfigProvider =>
   stateManagementConfigProvider.disable()
 );
 
-function RootController($scope, $element, $http) {
+function RootController(
+  $scope,
+  $element,
+  $http,
+  backendInternalUsers
+) {
   const domNode = $element[0];
 
   // render react to DOM
@@ -30,7 +43,12 @@ function RootController($scope, $element, $http) {
     <I18nProvider>
       <Router>
         <Route render={props => (
-          <Main title="Search Guard" httpClient={$http} {...props} />
+          <Main
+            title="Search Guard"
+            httpClient={$http}
+            backendInternalUsers={backendInternalUsers}
+            {...props}
+          />
         )}
         />
       </Router>

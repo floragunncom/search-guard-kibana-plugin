@@ -1,5 +1,6 @@
+export const API_BASE = '../api/search-guard-configuration';
 export const API = {
-  BASE: '../api/search-guard-configuration'
+  INTERNAL_USERS: `${API_BASE}/configuration/internalusers`,
 };
 
 export const APP_PATH = {
