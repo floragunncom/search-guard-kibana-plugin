@@ -30,14 +30,6 @@ class CreateInternalUser extends Component {
   }
 
   onSubmit = (values, { setSubmitting }) => {
-    const { onTriggerCallout } = this.props;
-    const passwordsMatch = values.password === values.passwordRepeat;
-    if (!passwordsMatch) {
-      onTriggerCallout({
-        type: CALLOUTS.ERROR_CALLOUT,
-        payload: i18nPasswordsDontMatchText
-      });
-    }
     values = formikToUser(values);
     console.log('CreateInternalUser - onSubmit - values', values);
     setSubmitting(false);
@@ -108,8 +100,7 @@ CreateInternalUser.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
   httpClient: PropTypes.func.isRequired,
-  onTriggerFlyout: PropTypes.func.isRequired,
-  onTriggerCallout: PropTypes.func.isRequired
+  onTriggerFlyout: PropTypes.func.isRequired
 };
 
 export default CreateInternalUser;

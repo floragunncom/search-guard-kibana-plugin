@@ -1,5 +1,22 @@
 import { get } from 'lodash';
-import { i18nRequiredText } from './i18n_nodes';
+import {
+  i18nRequiredText,
+  i18nUsernameMustNotContainDotsAndAsterisks,
+  i18nPasswordMustBeAtLeast5Chars,
+  i18nPasswordsDontMatchText
+} from './i18n_nodes';
+
+export const validateInternalUserName = name => {
+  if (!name) throw i18nRequiredText;
+  const hasDotsAndAsterisks = (/[\.\*]/gm).test(name);
+  if (hasDotsAndAsterisks) throw i18nUsernameMustNotContainDotsAndAsterisks;
+};
+
+export const validatePassword = passwordRepeat => password => {
+  if (!password) throw i18nRequiredText;
+  if (password.length < 5) throw i18nPasswordMustBeAtLeast5Chars;
+  if (password !== passwordRepeat) throw i18nPasswordsDontMatchText;
+};
 
 export const validateTextField = value => {
   if (!value) throw i18nRequiredText;

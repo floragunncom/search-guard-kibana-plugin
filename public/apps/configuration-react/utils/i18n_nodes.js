@@ -32,3 +32,9 @@ export const i18nPasswordText = (<EuiI18n token="sgPassword.text" default="Passw
 export const i18nRepeatPasswordText = (<EuiI18n token="sgRepeatPassword.text" default="Repeat Password" />);
 export const i18nChangePasswordText = (<EuiI18n token="sgChangePassword.text" default="Change Password" />);
 export const i18nPasswordsDontMatchText = (<EuiI18n token="sgPasswordsDontMatch.text" default="Passwords don't match" />);
+export const i18nUsernameMustNotContainDotsAndAsterisks = (
+  <EuiI18n token="sgUsernameMustNotContainDotsAndAsterisks.text" default="Username must not contain '.' or '*'" />
+);
+export const i18nPasswordMustBeAtLeast5Chars = (
+  <EuiI18n token="sgPasswordMustBeAtLeast5Chars.text" default="Password must be at least 5 characters" />
+);

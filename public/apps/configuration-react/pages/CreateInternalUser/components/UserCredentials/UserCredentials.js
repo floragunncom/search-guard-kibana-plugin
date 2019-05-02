@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { FormikFieldText, FormikSwitch } from '../../../../components';
-import { hasError, isInvalid, validateTextField } from '../../../../utils/validation';
+import { FormikFieldText, FormikFieldPassword, FormikSwitch } from '../../../../components';
+import { hasError, isInvalid, validatePassword, validateInternalUserName } from '../../../../utils/validation';
 import {
   i18nUsernameText,
   i18nPasswordText,
@@ -9,12 +9,12 @@ import {
   i18nChangePasswordText
 } from '../../../../utils/i18n_nodes';
 
-const renderPassword = () => (
+const renderPassword = passwordRepeat => (
   <Fragment>
-    <FormikFieldText
+    <FormikFieldPassword
       formRow
       formikFieldProps={{
-        validate: validateTextField
+        validate: validatePassword(passwordRepeat)
       }}
       rowProps={{
         label: i18nPasswordText,
@@ -26,10 +26,10 @@ const renderPassword = () => (
       }}
       name="password"
     />
-    <FormikFieldText
+    <FormikFieldPassword
       formRow
       formikFieldProps={{
-        validate: validateTextField
+        validate: validatePassword(passwordRepeat)
       }}
       rowProps={{
         label: i18nRepeatPasswordText,
@@ -49,7 +49,7 @@ const UserCredentials = ({ isEdit = false, values }) => (
     <FormikFieldText
       formRow
       formikFieldProps={{
-        validate: validateTextField
+        validate: validateInternalUserName
       }}
       rowProps={{
         label: i18nUsernameText,
@@ -81,7 +81,7 @@ const UserCredentials = ({ isEdit = false, values }) => (
         name="changePassword"
       />
     )}
-    {(!isEdit || values.changePassword) && renderPassword()}
+    {(!isEdit || values.changePassword) && renderPassword(values.passwordRepeat)}
   </Fragment>
 );
 
