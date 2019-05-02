@@ -25,8 +25,8 @@ class CreateInternalUser extends Component {
       id,
       isEdit: !!id,
       user: userToFormik({ user: DEFAULT_USER, id }),
-      allRoles: [], // TODO: fetch roles from API
-      users: [],
+      allRoles: [],
+      allUsers: [],
       error: null,
       isLoading: true
     };
@@ -47,16 +47,21 @@ class CreateInternalUser extends Component {
 
   fetchData = async () => {
     const { id } = this.state;
-    const { backendInternalUsers } = this.props;
+    const { internalUsersService, rolesService } = this.props;
     try {
       this.setState({ isLoading: true });
-      const { data: users } = await backendInternalUsers.list();
-      this.setState({ users, error: null });
+      const { data: allUsers } = await internalUsersService.list();
+      const { data: allRoles } = await rolesService.list();
+      this.setState({
+        allUsers: Object.keys(allUsers),
+        allRoles: Object.keys(allRoles).map(label => ({ label })),
+        error: null
+      });
 
       if (id) {
-        let user = await backendInternalUsers.get(id);
+        let user = await internalUsersService.get(id);
         user = userToFormik({ user, id });
-        this.setState({ user, error: null });
+        this.setState({ user });
       }
     } catch(error) {
       this.handleTriggerCallout(error);
@@ -65,12 +70,12 @@ class CreateInternalUser extends Component {
   }
 
   onSubmit = async (values, { setSubmitting }) => {
-    const { backendInternalUsers, history } = this.props;
+    const { internalUsersService, history } = this.props;
     const { username } = values;
     try {
       const user = formikToUser(values);
       const doPreSaveUserAdaptation = false;
-      await backendInternalUsers.save(username, user, doPreSaveUserAdaptation);
+      await internalUsersService.save(username, user, doPreSaveUserAdaptation);
       this.setState({ error: null });
     } catch (error) {
       this.handleTriggerCallout(error);
@@ -104,7 +109,7 @@ class CreateInternalUser extends Component {
 
   render() {
     const { history, onTriggerFlyout } = this.props;
-    const { user, isEdit, allRoles, users, isLoading } = this.state;
+    const { user, isEdit, allRoles, allUsers, isLoading } = this.state;
 
     return (
       <Formik
@@ -139,7 +144,7 @@ class CreateInternalUser extends Component {
               </EuiButton>
               <EuiSpacer />
 
-              <UserCredentials isEdit={isEdit} values={values} users={Object.keys(users)} />
+              <UserCredentials isEdit={isEdit} values={values} allUsers={allUsers} />
               <BackendRoles allRoles={allRoles} />
               <UserAttributes attributes={values.attributes} />
             </ContentPanel>
@@ -154,7 +159,8 @@ CreateInternalUser.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
   httpClient: PropTypes.func,
-  backendInternalUsers: PropTypes.object.isRequired,
+  internalUsersService: PropTypes.object.isRequired,
+  rolesService: PropTypes.object.isRequired,
   onTriggerFlyout: PropTypes.func.isRequired,
   onTriggerCallout: PropTypes.func.isRequired
 };

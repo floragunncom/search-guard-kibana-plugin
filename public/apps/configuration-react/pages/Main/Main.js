@@ -41,7 +41,13 @@ class Main extends Component {
 
   render() {
     const { flyout, callout } = this.state;
-    const { httpClient, backendInternalUsers, history, ...rest } = this.props;
+    const {
+      httpClient,
+      backendInternalUsers,
+      backendRoles,
+      history,
+      ...rest
+    } = this.props;
 
     return (
       <EuiPage id="searchGuardKibanaPlugin">
@@ -61,7 +67,8 @@ class Main extends Component {
                   render={props => (
                     <CreateInternalUser
                       httpClient={httpClient}
-                      backendInternalUsers={backendInternalUsers}
+                      internalUsersService={backendInternalUsers}
+                      rolesService={backendRoles}
                       onTriggerFlyout={this.handleTriggerFlyout}
                       onTriggerCallout={this.handleTriggerCallout}
                       {...props}

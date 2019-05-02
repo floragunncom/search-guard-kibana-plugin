@@ -34,7 +34,8 @@ function RootController(
   $scope,
   $element,
   $http,
-  backendInternalUsers
+  backendInternalUsers,
+  backendRoles
 ) {
   const domNode = $element[0];
 
@@ -47,6 +48,7 @@ function RootController(
             title="Search Guard"
             httpClient={$http}
             backendInternalUsers={backendInternalUsers}
+            backendRoles={backendRoles}
             {...props}
           />
         )}
