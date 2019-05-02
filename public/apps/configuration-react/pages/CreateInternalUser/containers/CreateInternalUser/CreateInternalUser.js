@@ -49,6 +49,7 @@ class CreateInternalUser extends Component {
     const { id } = this.state;
     const { backendInternalUsers } = this.props;
     try {
+      this.setState({ isLoading: true });
       const { data: users } = await backendInternalUsers.list();
       this.setState({ users, error: null });
 
@@ -75,7 +76,6 @@ class CreateInternalUser extends Component {
       this.handleTriggerCallout(error);
     }
     setSubmitting(false);
-    this.setState({ isLoading: false });
     if (!this.state.error) {
       history.push(APP_PATH.INTERNAL_USERS);
     }
@@ -104,7 +104,7 @@ class CreateInternalUser extends Component {
 
   render() {
     const { history, onTriggerFlyout } = this.props;
-    const { user, isEdit, allRoles, users } = this.state;
+    const { user, isEdit, allRoles, users, isLoading } = this.state;
 
     return (
       <Formik
@@ -116,6 +116,7 @@ class CreateInternalUser extends Component {
           return (
             <ContentPanel
               title={i18nCreateInternalUserText}
+              isLoading={isLoading}
               actions={[
                 this.renderCancelButton(history),
                 this.renderSaveButton({ handleSubmit, isSubmitting })
