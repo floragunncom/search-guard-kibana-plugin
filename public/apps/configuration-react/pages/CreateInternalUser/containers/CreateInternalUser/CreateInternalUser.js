@@ -1,19 +1,18 @@
 import React, { Component } from 'react';
-import { Formik, Form } from 'formik';
+import { Formik } from 'formik';
 import PropTypes from 'prop-types';
-import { EuiButton, EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
-import { isEqual } from 'lodash';
+import { EuiButton, EuiSpacer } from '@elastic/eui';
 import queryString from 'query-string';
 import {
   i18nSaveText,
   i18nCancelText,
   i18nCreateInternalUserText,
-  i18nPasswordsDontMatchText
+  i18nPasswordsDontMatchText,
+  i18nInspectText
 } from '../../../../utils/i18n_nodes';
-import { ContentPanel, FormikEffect, PageModelEditor, ErrorCallOut } from '../../../../components';
+import { ContentPanel } from '../../../../components';
 import { BackendRoles, UserAttributes, UserCredentials } from '../../components';
-import { APP_PATH } from '../../../../utils/constants';
-import { stringifyPretty } from '../../../../utils/helpers';
+import { APP_PATH, FLYOUTS, CALLOUTS } from '../../../../utils/constants';
 import { DEFAULT_USER } from './utils/constants';
 import { userToFormik, formikToUser } from './utils';
 
@@ -22,27 +21,26 @@ class CreateInternalUser extends Component {
     super(props);
 
     const { id } = queryString.parse(this.props.location.search);
-
     this.state = {
       id,
       isEdit: !!id,
       initialValues: userToFormik(DEFAULT_USER),
-      userText: stringifyPretty(DEFAULT_USER),
-      allRoles: [], // TODO: fetch roles from API
-      passwordsMatch: true
+      allRoles: [] // TODO: fetch roles from API
     };
   }
 
   onSubmit = (values, { setSubmitting }) => {
+    const { onTriggerCallout } = this.props;
     const passwordsMatch = values.password === values.passwordRepeat;
-    this.setState({ passwordsMatch });
+    if (!passwordsMatch) {
+      onTriggerCallout({
+        type: CALLOUTS.ERROR_CALLOUT,
+        payload: i18nPasswordsDontMatchText
+      });
+    }
     values = formikToUser(values);
     console.log('CreateInternalUser - onSubmit - values', values);
     setSubmitting(false);
-  };
-
-  updatePageModelEditor = values => {
-    this.setState({ userText: stringifyPretty(formikToUser(values)) });
   };
 
   renderCancelButton = history => (
@@ -60,8 +58,8 @@ class CreateInternalUser extends Component {
   );
 
   render() {
-    const { history } = this.props;
-    const { initialValues, userText, isEdit, passwordsMatch, allRoles } = this.state;
+    const { history, onTriggerFlyout } = this.props;
+    const { initialValues, isEdit, allRoles } = this.state;
 
     return (
       <Formik
@@ -71,40 +69,34 @@ class CreateInternalUser extends Component {
         enableReinitialize={true}
         render={({ values, handleSubmit, isSubmitting }) => {
           return (
-            <Form>
-              <FormikEffect onChange={(current, prev) => {
-                if (!isEqual(current.values, prev.values)) {
-                  this.updatePageModelEditor(current.values);
-                }
-              }}
-              />
-              <ContentPanel
-                title={i18nCreateInternalUserText}
-                actions={[
-                  this.renderCancelButton(history),
-                  this.renderSaveButton({ handleSubmit, isSubmitting })
-                ]}
+            <ContentPanel
+              title={i18nCreateInternalUserText}
+              actions={[
+                this.renderCancelButton(history),
+                this.renderSaveButton({ handleSubmit, isSubmitting })
+              ]}
+            >
+              <EuiButton
+                size="s"
+                iconType="inspect"
+                onClick={() => {
+                  onTriggerFlyout({
+                    type: FLYOUTS.INSPECT_JSON,
+                    payload: {
+                      json: formikToUser(values),
+                      title: i18nCreateInternalUserText
+                    }
+                  });
+                }}
               >
-                {!passwordsMatch && <ErrorCallOut text={i18nPasswordsDontMatchText} />}
+                {i18nInspectText}
+              </EuiButton>
+              <EuiSpacer />
 
-                <EuiFlexGroup>
-                  <EuiFlexItem>
-                    <UserCredentials isEdit={isEdit} values={values} />
-                  </EuiFlexItem>
-                  <EuiFlexItem>
-                    <PageModelEditor value={userText} showJson={values.showJson} />
-                  </EuiFlexItem>
-                </EuiFlexGroup>
-
-                <EuiFlexGroup>
-                  <EuiFlexItem>
-                    <BackendRoles allRoles={allRoles} />
-                  </EuiFlexItem>
-                </EuiFlexGroup>
-
-                <UserAttributes attributes={values.attributes} />
-              </ContentPanel>
-            </Form>
+              <UserCredentials isEdit={isEdit} values={values} />
+              <BackendRoles allRoles={allRoles} />
+              <UserAttributes attributes={values.attributes} />
+            </ContentPanel>
           );
         }}
       />
@@ -115,7 +107,9 @@ class CreateInternalUser extends Component {
 CreateInternalUser.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  httpClient: PropTypes.func.isRequired
+  httpClient: PropTypes.func.isRequired,
+  onTriggerFlyout: PropTypes.func.isRequired,
+  onTriggerCallout: PropTypes.func.isRequired
 };
 
 export default CreateInternalUser;

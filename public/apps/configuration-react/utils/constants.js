@@ -11,3 +11,11 @@ export const APP_PATH = {
 export const INTERNAL_USERS_ACTIONS = {
   UPDATE_USER: 'update-user'
 };
+
+export const FLYOUTS = {
+  INSPECT_JSON: 'inspectJson'
+};
+
+export const CALLOUTS = {
+  ERROR_CALLOUT: 'errorCallout'
+};

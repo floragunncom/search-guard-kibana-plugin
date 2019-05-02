@@ -1,5 +1,4 @@
 export const DEFAULT_USER = {
-  showJson: false,
   changePassword: false,
   readonly: false,
   password: '',
