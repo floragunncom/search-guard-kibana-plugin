@@ -37,50 +37,9 @@ const Callout = ({ callout, onClose }) => {
 Callout.propTypes = {
   callout: PropTypes.shape({
     type: PropTypes.string.isRequired,
-    payload: PropTypes.node.isRequired
+    payload: PropTypes.any.isRequired
   }),
   onClose: PropTypes.func.isRequired
 };
 
 export default Callout;
-
-/*
-const getFlyoutProps = ({ type, payload }) => {
-  const flyout = Flyouts[type];
-  if (!flyout || !(flyout instanceof Function)) return null;
-  return flyout(payload);
-};
-
-const Flyout = ({ flyout, onClose }) => {
-  if (!flyout) return null;
-  const flyoutData = getFlyoutProps(flyout);
-  if (!flyoutData) return null;
-  const {
-    header = null,
-    body = null,
-    footer = null,
-    flyoutProps = {},
-    headerProps = {},
-    bodyProps = {},
-    footerProps = {}
-  } = flyoutData;
-
-  return (
-    <EuiFlyout onClose={onClose} {...flyoutProps}>
-      {header && <EuiFlyoutHeader {...headerProps}>{header}</EuiFlyoutHeader>}
-      {body && <EuiFlyoutBody {...bodyProps}>{body}</EuiFlyoutBody>}
-      {footer && <EuiFlyoutFooter {...footerProps}>{footer}</EuiFlyoutFooter>}
-    </EuiFlyout>
-  );
-};
-
-Flyout.propTypes = {
-  flyout: PropTypes.shape({
-    type: PropTypes.string.isRequired,
-    payload: PropTypes.any
-  }),
-  onClose: PropTypes.func.isRequired,
-};
-
-export default Flyout;
-*/
