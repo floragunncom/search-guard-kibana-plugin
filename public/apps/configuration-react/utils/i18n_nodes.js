@@ -20,7 +20,7 @@ export const i18nNameText = (<EuiI18n token="sgName.text" default="Name" />);
 export const i18nReservedText = (<EuiI18n token="sgReserved.text" default="Reserved" />);
 export const i18nCloneText = (<EuiI18n token="sgClone.text" default="Clone" />);
 export const i18nDeleteText = (<EuiI18n token="sgDelete.text" default="Delete" />);
-export const i18nCurrentUserText = (<EuiI18n token="sgCurrentUser.text" default="CurrentUser" />);
+export const i18nCurrentUserText = (<EuiI18n token="sgCurrentUser.text" default="Current User" />);
 
 // Internal Users
 export const i18nInternalUsersText = (<EuiI18n token="sgInternalUsers.text" default="Internal Users" />);
