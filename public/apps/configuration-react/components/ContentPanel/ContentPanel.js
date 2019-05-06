@@ -4,7 +4,8 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiHorizontalRule,
-  EuiTitle
+  EuiTitle,
+  EuiLoadingKibana
 } from '@elastic/eui';
 
 const handleRenderActions = actions => (
@@ -13,6 +14,14 @@ const handleRenderActions = actions => (
   ) : (
     <EuiFlexItem>{actions}</EuiFlexItem>
   )
+);
+
+const loadingPageData = (
+  <EuiFlexGroup justifyContent="spaceAround">
+    <EuiFlexItem grow={false}>
+      <EuiLoadingKibana size="xl" />
+    </EuiFlexItem>
+  </EuiFlexGroup>
 );
 
 const ContentPanel = ({
@@ -24,6 +33,7 @@ const ContentPanel = ({
   headerStyles = {},
   actions,
   children,
+  isLoading = false
 }) => (
   <div style={{ ...panelStyles }} className="sgContentPanel">
     <EuiFlexGroup style={{ ...headerStyles }} className="sgContentPanel__header" justifyContent="spaceBetween" alignItems="center">
@@ -41,7 +51,7 @@ const ContentPanel = ({
 
     <EuiHorizontalRule margin={horizontalRuleMargin} />
 
-    <div style={{ ...bodyStyles }} className="sgContentPanel__body">{children}</div>
+    {isLoading ? loadingPageData : (<div style={{ ...bodyStyles }} className="sgContentPanel__body">{children}</div>)}
   </div>
 );
 
@@ -53,6 +63,7 @@ ContentPanel.propTypes = {
   headerStyles: PropTypes.object,
   actions: PropTypes.oneOfType([PropTypes.node, PropTypes.arrayOf([PropTypes.node])]),
   children: PropTypes.oneOfType([PropTypes.node, PropTypes.arrayOf([PropTypes.node])]).isRequired,
+  isLoading: PropTypes.bool
 };
 
 export default ContentPanel;
