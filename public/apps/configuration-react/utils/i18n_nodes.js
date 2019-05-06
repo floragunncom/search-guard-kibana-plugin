@@ -16,6 +16,11 @@ export const i18nRequiredText = (<EuiI18n token="sgRequired.text" default="Requi
 export const i18nErrorText = (<EuiI18n token="sgError.text" default="Error" />);
 export const i18nInspectText = (<EuiI18n token="sgInspect.text" default="Inspect" />);
 export const i18nCloseText = (<EuiI18n token="sgClose.text" default="Close" />);
+export const i18nNameText = (<EuiI18n token="sgName.text" default="Name" />);
+export const i18nReservedText = (<EuiI18n token="sgReserved.text" default="Reserved" />);
+export const i18nCloneText = (<EuiI18n token="sgClone.text" default="Clone" />);
+export const i18nDeleteText = (<EuiI18n token="sgDelete.text" default="Delete" />);
+export const i18nCurrentUserText = (<EuiI18n token="sgCurrentUser.text" default="Current User" />);
 
 // Internal Users
 export const i18nInternalUsersText = (<EuiI18n token="sgInternalUsers.text" default="Internal Users" />);
@@ -39,3 +44,6 @@ export const i18nPasswordMustBeAtLeast5Chars = (
   <EuiI18n token="sgPasswordMustBeAtLeast5Chars.text" default="Password must be at least 5 characters" />
 );
 export const i18nUsernameAlreadyExists = (<EuiI18n token="sgUsernameAlreadyExists.text" default="Username already exists" />);
+export const i18nEmptyUsersTableMessage = (
+  <EuiI18n token="sgEmptyUsersTableMessage.text" default="Looks like you don&rsquo;t have any users. Let&rsquo;s create some!" />
+);

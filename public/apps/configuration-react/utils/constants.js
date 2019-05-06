@@ -1,3 +1,5 @@
+export const DEFAULT_PASSWORD = 'admin';
+
 export const API_BASE = '../api/search-guard-configuration';
 export const API = {
   INTERNAL_USERS: `${API_BASE}/configuration/internalusers`,
@@ -19,4 +21,8 @@ export const FLYOUTS = {
 
 export const CALLOUTS = {
   ERROR_CALLOUT: 'errorCallout'
+};
+
+export const SESSION_STORAGE = {
+  SG_USER: 'sg_user'
 };

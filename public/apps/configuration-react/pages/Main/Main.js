@@ -77,7 +77,14 @@ class Main extends Component {
                 />
                 <Route
                   path={APP_PATH.INTERNAL_USERS}
-                  render={props => <InternalUsers httpClient={httpClient} {...props} />}
+                  render={props => (
+                    <InternalUsers
+                      httpClient={httpClient}
+                      internalUsersService={backendInternalUsers}
+                      onTriggerCallout={this.handleTriggerCallout}
+                      {...props}
+                    />
+                  )}
                 />
                 <Route
                   render={props => <Home {...props} />}
@@ -95,6 +102,7 @@ class Main extends Component {
 Main.propTypes = {
   httpClient: PropTypes.func.isRequired,
   backendInternalUsers: PropTypes.object.isRequired,
+  backendRoles: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired
 };
