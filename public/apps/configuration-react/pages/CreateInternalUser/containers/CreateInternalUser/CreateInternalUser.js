@@ -1,8 +1,9 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 import { EuiButton, EuiSpacer } from '@elastic/eui';
 import queryString from 'query-string';
+import { get } from 'lodash';
 import {
   i18nSaveText,
   i18nCancelText,
@@ -15,6 +16,7 @@ import { APP_PATH, FLYOUTS, CALLOUTS } from '../../../../utils/constants';
 import { DEFAULT_USER } from './utils/constants';
 import { userToFormik, formikToUser } from './utils';
 
+// TODO: make this component get API data by chunks (paginations)
 class CreateInternalUser extends Component {
   constructor(props) {
     super(props);
@@ -36,12 +38,13 @@ class CreateInternalUser extends Component {
     this.fetchData();
   }
 
-  componentDidUpdate() {
-    const { id } = queryString.parse(this.props.location.search);
+  componentWillReceiveProps({ location }) {
+    const { id } = queryString.parse(location.search);
     const { id: currentId } = this.state;
     if (id !== currentId) {
-      this.setState({ id });
-      this.fetchData();
+      this.setState({ id }, () => {
+        this.fetchData();
+      });
     }
   }
 
@@ -62,6 +65,8 @@ class CreateInternalUser extends Component {
         let user = await internalUsersService.get(id);
         user = userToFormik({ user, id });
         this.setState({ user });
+      } else {
+        this.setState({ user: userToFormik({ user: DEFAULT_USER, id }), isEdit: !!id });
       }
     } catch(error) {
       this.handleTriggerCallout(error);
@@ -91,12 +96,7 @@ class CreateInternalUser extends Component {
     this.setState({ error });
     this.props.onTriggerCallout({
       type: CALLOUTS.ERROR_CALLOUT,
-      payload: (
-        <Fragment>
-          <p>{error.message}</p>
-          {error.stack && <p>{error.stack}</p>}
-        </Fragment>
-      )
+      payload: get(error, 'message')
     });
   }
 
