@@ -9,12 +9,12 @@ import 'ui/autoload/styles';
 import Main from './pages/Main';
 
 // TODO: delete these services imports after they are refactored to JS/React
-import './services/actiongroups';
-import './services/client';
-import './services/internalusers';
-import './services/roles';
-import './services/rolesmapping';
-import './services/sgconfiguration';
+import '../configuration/backend_api/actiongroups';
+import '../configuration/backend_api/client';
+import '../configuration/backend_api/internalusers';
+import '../configuration/backend_api/roles';
+import '../configuration/backend_api/rolesmapping';
+import '../configuration/backend_api/sgconfiguration';
 
 const app = uiModules.get('apps/searchguardConfiguration');
 
