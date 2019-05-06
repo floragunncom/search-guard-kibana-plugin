@@ -8,7 +8,8 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiLink,
-  EuiEmptyPrompt
+  EuiEmptyPrompt,
+  EuiFlexGrid
 } from '@elastic/eui';
 import { get } from 'lodash';
 import { ContentPanel } from '../../../../components';
@@ -52,24 +53,24 @@ const renderUserNameCell = history => (name, user) => {
         </EuiFlexItem>
       </EuiFlexGroup>
       {name === currentUser && (
-        <EuiFlexGroup>
+        <EuiFlexGrid columns={2} gutterSize="s" responsive={false}>
           <EuiFlexItem grow={false}>
             <EuiIcon type="user"/>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiText size="s">{i18nCurrentUserText}</EuiText>
           </EuiFlexItem>
-        </EuiFlexGroup>
+        </EuiFlexGrid>
       )}
       {user.readonly && (
-        <EuiFlexGroup>
+        <EuiFlexGrid columns={2} gutterSize="s" responsive={false}>
           <EuiFlexItem grow={false}>
             <EuiIcon type="lock"/>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiText size="s">{i18nReservedText}</EuiText>
           </EuiFlexItem>
-        </EuiFlexGroup>
+        </EuiFlexGrid>
       )}
     </div>
   );
@@ -83,7 +84,6 @@ class InternalUsers extends Component {
 
     this.state = {
       allUsers: [],
-      config: {},
       error: null,
       isLoading: true,
       tableSelection: []
