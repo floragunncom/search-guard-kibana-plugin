@@ -27,22 +27,8 @@ export const getBreadcrumb = route => {
   const [ base, queryParams ] = route.split('?');
   if (!base) return null;
 
-  const isElasticsearchDocId = base => RegExp(/^[0-9a-z_-]{20}$/i).test(base);
-  if (isElasticsearchDocId(base)) {
-    const { action } = queryString.parse(`?${queryParams}`);
-    switch (action) {
-      case INTERNAL_USERS_ACTIONS.UPDATE_USER:
-        // TODO: query API to get user doc, retrieve the user name and put it in breadcrumbs
-        const userName = base;
-        return [
-          { text: userName, href: `${APP_PATH.INTERNAL_USERS}/${base}` },
-          { text: i18nUpdateInternalUserText, href: APP_PATH.CREATE_INTERNAL_USER }
-        ];
-    }
-  }
-
   const removePrefixSlash = path => path.slice(1);
-  return {
+  const breadcrumb = {
     '#': { text: i18nHomeText, href: APP_PATH.HOME },
     [removePrefixSlash(APP_PATH.INTERNAL_USERS)]: {
       text: i18nInternalUsersText,
@@ -53,6 +39,13 @@ export const getBreadcrumb = route => {
       { text: i18nCreateInternalUserText, href: APP_PATH.CREATE_INTERNAL_USER }
     ]
   }[base];
+
+  const { id } = queryString.parse(queryParams);
+  if (id) {
+    breadcrumb.push({ text: id, href: APP_PATH.CREATE_INTERNAL_USER + `?id=${id}` });
+  }
+
+  return breadcrumb;
 };
 
 class Breadcrumbs extends Component {
