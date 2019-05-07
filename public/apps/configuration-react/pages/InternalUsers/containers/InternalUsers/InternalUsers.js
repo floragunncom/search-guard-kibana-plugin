@@ -21,7 +21,6 @@ import {
   i18nNameText,
   i18nReservedText,
   i18nBackendRolesText,
-  i18nCloneText,
   i18nDeleteText,
   i18nEmptyUsersTableMessage,
   i18nCurrentUserText
@@ -204,13 +203,13 @@ class InternalUsers extends Component {
 
     const actions = [
       {
-        name: i18nCloneText,
+        name: 'Clone',
         description: 'Clone this user',
         icon: 'copy',
         type: 'icon',
         onClick: this.cloneUser
       }, {
-        name: i18nDeleteText,
+        name: 'Delete',
         enabled: user => !user.readonly,
         description: 'Delete this user',
         icon: 'trash',
