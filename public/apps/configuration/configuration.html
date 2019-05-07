@@ -48,7 +48,7 @@
                                tooltip="Map users, backend roles and hostnames to Search Guard roles."
                                tooltip-placement="bottom" href="#/rolesmapping">
                                 <div class="FeaturePanelButton__image">
-                                    <span class="fa fa-exchange fa-4x"></span>
+                                    <span class="fa fa-exchange fa-4x configpanel"></span>
                                 </div>
                                 <div class="FeaturePanelButton__label">
                                     Role Mappings
@@ -59,7 +59,7 @@
                                ng-href="#/roles" tooltip="Configure Search Guard Roles and their permissions."
                                tooltip-placement="bottom" href="#/roles">
                                 <div class="FeaturePanelButton__image">
-                                    <span class="fa fa-users fa-4x"></span>
+                                    <span class="fa fa-users fa-4x configpanel"></span>
                                 </div>
                                 <div class="FeaturePanelButton__label">
                                     Search Guard <br/> Roles
@@ -71,10 +71,22 @@
                                tooltip="Configure named groups of permissions that can be applied to roles."
                                tooltip-placement="bottom" href="#/actiongroups">
                                 <div class="FeaturePanelButton__image">
-                                    <span class="fa fa-sitemap fa-4x"></span>
+                                    <span class="fa fa-sitemap fa-4x configpanel"></span>
                                 </div>
                                 <div class="FeaturePanelButton__label">
                                     Action Groups
+                                </div>
+                            </a>
+
+                            <a id="sg.link.tenants" ng-if="endpointAndMethodEnabled('TENANTS', 'GET')" class="FeaturePanel ng-scope"
+                               ng-href="#/tenants"
+                               tooltip="Configure tenants."
+                               tooltip-placement="bottom" href="#/tenants">
+                                <div class="FeaturePanelButton__image">
+                                    <span class="fa fa-building-o fa-4x configpanel"></span>
+                                </div>
+                                <div class="FeaturePanelButton__label">
+                                    Tenants
                                 </div>
                             </a>
 
@@ -91,7 +103,7 @@
                                tooltip="Use the Internal Users Database if you don't have any external authentication systems in place."
                                tooltip-placement="bottom" href="#/internalusers">
                                 <div class="FeaturePanelButton__image">
-                                    <span class="fa fa-user fa-4x"></span>
+                                    <span class="fa fa-user fa-4x configpanel"></span>
                                 </div>
                                 <div class="FeaturePanelButton__label">
                                     Internal User Database
@@ -108,7 +120,7 @@
                                    tooltip="View the configured authentication and authorization modules."
                                    href="#/sgconfiguration">
                                     <div class="FeaturePanelButton__image">
-                                        <span class="fa fa-lock fa-4x"></span>
+                                        <span class="fa fa-lock fa-4x configpanel"></span>
                                     </div>
                                     <div class="FeaturePanelButton__label">
                                         Authentication & Authorisation
@@ -120,7 +132,7 @@
                                    tooltip="Display the Search Guard license and all installed modules"
                                    tooltip-placement="bottom">
                                     <div class="FeaturePanelButton__image">
-                                        <span class="fa fa-info fa-4x"></span>
+                                        <span class="fa fa-info fa-4x configpanel"></span>
                                     </div>
                                     <div class="FeaturePanelButton__label">
                                         License & System Info
@@ -131,7 +143,7 @@
                                    ng-click="clearCache()" tooltip="Purge all Search Guard caches"
                                    tooltip-placement="bottom">
                                     <div class="FeaturePanelButton__image">
-                                        <span class="fa fa-refresh fa-4x"></span>
+                                        <span class="fa fa-refresh fa-4x configpanel"></span>
                                     </div>
                                     <div class="FeaturePanelButton__label">
                                         Purge Cache
