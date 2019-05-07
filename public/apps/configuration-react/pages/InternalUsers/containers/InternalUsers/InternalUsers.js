@@ -38,7 +38,7 @@ const renderUserNameCell = history => (name, user) => {
     <div>
       <EuiFlexGroup>
         <EuiFlexItem>
-          {user.readonly ? (
+          {user.reserved ? (
             <EuiText size="s">{name}</EuiText>
           ) : (
             <EuiLink
@@ -62,7 +62,7 @@ const renderUserNameCell = history => (name, user) => {
           </EuiFlexItem>
         </EuiFlexGrid>
       )}
-      {user.readonly && (
+      {user.reserved && (
         <EuiFlexGrid columns={2} gutterSize="s" responsive={false}>
           <EuiFlexItem grow={false}>
             <EuiIcon type="lock"/>
@@ -211,7 +211,7 @@ class InternalUsers extends Component {
         onClick: this.cloneUser
       }, {
         name: i18nDeleteText,
-        enabled: user => !user.readonly,
+        enabled: user => !user.reserved,
         description: 'Delete this user',
         icon: 'trash',
         type: 'icon',
@@ -234,7 +234,7 @@ class InternalUsers extends Component {
         render: renderUserNameCell(history)
       },
       {
-        field: 'roles',
+        field: 'backend_roles',
         name: i18nBackendRolesText,
         footer: i18nBackendRolesText,
         align: 'left',

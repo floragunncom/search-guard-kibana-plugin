@@ -5,7 +5,7 @@ import { i18nBackendRolesText } from '../../../../utils/i18n_nodes';
 
 const BackendRoles = ({ allRoles }) => (
   <FormikComboBox
-    name="roles"
+    name="backend_roles"
     formRow
     rowProps={{
       label: i18nBackendRolesText,
@@ -14,15 +14,15 @@ const BackendRoles = ({ allRoles }) => (
       options: allRoles,
       isClearable: true,
       onBlur: (e, field, form) => {
-        form.setFieldTouched('roles', true);
+        form.setFieldTouched('backend_roles', true);
       },
       onChange: (options, field, form) => {
-        form.setFieldValue('roles', options);
+        form.setFieldValue('backend_roles', options);
       },
       onCreateOption: (label, field, form) => {
         const normalizedSearchValue = label.trim().toLowerCase();
         if (!normalizedSearchValue) return;
-        form.setFieldValue('roles', field.value.concat({ label }));
+        form.setFieldValue('backend_roles', field.value.concat({ label }));
       },
     }}
   />
