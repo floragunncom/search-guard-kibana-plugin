@@ -9,6 +9,7 @@ export const i18nAuthenticationBackendsText = (<EuiI18n token="sgAuthenticationB
 export const i18nJsonText = (<EuiI18n token="sgJson.text" default="JSON" />);
 export const i18nSaveText = (<EuiI18n token="sgSave.text" default="Save" />);
 export const i18nCancelText = (<EuiI18n token="sgCancel.text" default="Cancel" />);
+export const i18nConfirmText = (<EuiI18n token="sgConfirm.text" default="Confirm" />);
 export const i18nAddText = (<EuiI18n token="sgAdd.text" default="Add" />);
 export const i18nRemoveText = (<EuiI18n token="sgRemove.text" default="Remove" />);
 export const i18nNoItemsFoundText = (<EuiI18n token="sgNoItemsFound.text" default="No items found" />);
@@ -20,6 +21,10 @@ export const i18nNameText = (<EuiI18n token="sgName.text" default="Name" />);
 export const i18nReservedText = (<EuiI18n token="sgReserved.text" default="Reserved" />);
 export const i18nCloneText = (<EuiI18n token="sgClone.text" default="Clone" />);
 export const i18nDeleteText = (<EuiI18n token="sgDelete.text" default="Delete" />);
+export const i18nConfirmDeleteText = (<EuiI18n token="sgConfirmDelete.text" default="Confirm Delete" />);
+export const i18nDoYouReallyWantToDeleteText = (
+  <EuiI18n token="sgDoYouReallyWantToDelete.text" default="Do you really want to delete" />
+);
 export const i18nCurrentUserText = (<EuiI18n token="sgCurrentUser.text" default="Current User" />);
 
 // Internal Users
