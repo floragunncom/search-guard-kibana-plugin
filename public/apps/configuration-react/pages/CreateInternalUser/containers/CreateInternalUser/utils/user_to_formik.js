@@ -5,7 +5,7 @@ const userToFormik = ({ user, id }) => ({
   ...omit(user, ['hash']),
   ...DEFAULT_USER,
   username: id,
-  roles: map(user.roles, label => ({ label })),
+  backend_roles: map(user.backend_roles, label => ({ label })),
   attributes: map(user.attributes, (value, key) => ({ value, key }))
 });
 

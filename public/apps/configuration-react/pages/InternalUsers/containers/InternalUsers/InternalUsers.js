@@ -9,7 +9,10 @@ import {
   EuiFlexItem,
   EuiLink,
   EuiEmptyPrompt,
-  EuiFlexGrid
+  EuiFlexGrid,
+  EuiConfirmModal,
+  EuiOverlayMask,
+  EUI_MODAL_CONFIRM_BUTTON
 } from '@elastic/eui';
 import { get } from 'lodash';
 import { ContentPanel } from '../../../../components';
@@ -23,7 +26,10 @@ import {
   i18nBackendRolesText,
   i18nDeleteText,
   i18nEmptyUsersTableMessage,
-  i18nCurrentUserText
+  i18nCurrentUserText,
+  i18nDoYouReallyWantToDeleteText,
+  i18nConfirmDeleteText,
+  i18nConfirmText
 } from '../../../../utils/i18n_nodes';
 import { usersToTableUsers, tableUserToUser } from './utils';
 
@@ -37,7 +43,7 @@ const renderUserNameCell = history => (name, user) => {
     <div>
       <EuiFlexGroup>
         <EuiFlexItem>
-          {user.readonly ? (
+          {user.reserved ? (
             <EuiText size="s">{name}</EuiText>
           ) : (
             <EuiLink
@@ -61,7 +67,7 @@ const renderUserNameCell = history => (name, user) => {
           </EuiFlexItem>
         </EuiFlexGrid>
       )}
-      {user.readonly && (
+      {user.reserved && (
         <EuiFlexGrid columns={2} gutterSize="s" responsive={false}>
           <EuiFlexItem grow={false}>
             <EuiIcon type="lock"/>
@@ -85,7 +91,8 @@ class InternalUsers extends Component {
       allUsers: [],
       error: null,
       isLoading: true,
-      tableSelection: []
+      tableSelection: [],
+      userIdsToDelete: []
     };
   }
 
@@ -114,6 +121,8 @@ class InternalUsers extends Component {
     });
   }
 
+  handleUsersDelete = userIdsToDelete => this.setState({ userIdsToDelete })
+
   deleteUsers = async userIds => {
     const { internalUsersService } = this.props;
     try {
@@ -125,6 +134,7 @@ class InternalUsers extends Component {
       this.handleTriggerCallout(error);
     }
     this.setState({ isLoading: false });
+    this.handleUsersDelete([]);
     this.fetchData();
   }
 
@@ -166,20 +176,22 @@ class InternalUsers extends Component {
       return;
     }
 
-    const onClick = () => {
-      this.deleteUsers([...tableSelection.map(item => item.id)]);
+    const handleMultiDelete = () => {
+      this.handleUsersDelete(tableSelection.map(item => item.id));
       this.setState({ tableSelection: [] });
     };
 
-    return (
+    const multiDeleteButton = (
       <EuiButton
         color="danger"
         iconType="trash"
-        onClick={onClick}
+        onClick={handleMultiDelete}
       >
         {i18nDeleteText} {tableSelection.length}
       </EuiButton>
     );
+
+    return multiDeleteButton;
   }
 
   renderEmptyTableMessage = history => (
@@ -197,9 +209,26 @@ class InternalUsers extends Component {
     />
   )
 
+  renderConfirmUsersDeleteModal = userIdsToDelete => (
+    <EuiOverlayMask>
+      <EuiConfirmModal
+        title={i18nConfirmDeleteText}
+        onCancel={() => this.handleUsersDelete([])}
+        onConfirm={() => this.deleteUsers(userIdsToDelete)}
+        cancelButtonText={i18nCancelText}
+        confirmButtonText={i18nConfirmText}
+        buttonColor="danger"
+        defaultFocusedButton={EUI_MODAL_CONFIRM_BUTTON}
+      >
+        <p>{i18nDoYouReallyWantToDeleteText} {userIdsToDelete.join(', ')}?</p>
+      </EuiConfirmModal>
+    </EuiOverlayMask>
+  )
+
   render() {
-    const { isLoading, error, allUsers } = this.state;
     const { history } = this.props;
+    const { isLoading, error, allUsers, userIdsToDelete } = this.state;
+    const isDeleting = !!userIdsToDelete.length;
 
     const actions = [
       {
@@ -210,12 +239,12 @@ class InternalUsers extends Component {
         onClick: this.cloneUser
       }, {
         name: 'Delete',
-        enabled: user => !user.readonly,
+        enabled: user => !user.reserved,
         description: 'Delete this user',
         icon: 'trash',
         type: 'icon',
         color: 'danger',
-        onClick: user => this.deleteUsers([user.id])
+        onClick: user => this.handleUsersDelete([user.id])
       }
     ];
 
@@ -233,7 +262,7 @@ class InternalUsers extends Component {
         render: renderUserNameCell(history)
       },
       {
-        field: 'roles',
+        field: 'backend_roles',
         name: i18nBackendRolesText,
         footer: i18nBackendRolesText,
         align: 'left',
@@ -281,6 +310,8 @@ class InternalUsers extends Component {
           selection={selection}
           isSelectable={true}
         />
+
+        {isDeleting && this.renderConfirmUsersDeleteModal(userIdsToDelete)}
       </ContentPanel>
     );
   }
