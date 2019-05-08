@@ -52,3 +52,4 @@ export const i18nUsernameAlreadyExists = (<EuiI18n token="sgUsernameAlreadyExist
 export const i18nEmptyUsersTableMessage = (
   <EuiI18n token="sgEmptyUsersTableMessage.text" default="Looks like you don&rsquo;t have any users. Let&rsquo;s create some!" />
 );
+export const i18nNoUsersText = (<EuiI18n token="sgNoUsers.text" default="No users" />);

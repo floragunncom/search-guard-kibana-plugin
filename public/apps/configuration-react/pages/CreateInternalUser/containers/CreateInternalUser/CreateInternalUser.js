@@ -26,9 +26,9 @@ class CreateInternalUser extends Component {
     this.state = {
       id,
       isEdit: !!id,
-      user: userToFormik({ user: DEFAULT_USER, id }),
-      allRoles: [],
-      allUsers: [],
+      resource: userToFormik({ user: DEFAULT_USER, id }),
+      backendRoles: [],
+      resources: [],
       error: null,
       isLoading: true
     };
@@ -53,20 +53,20 @@ class CreateInternalUser extends Component {
     const { internalUsersService, rolesService } = this.props;
     try {
       this.setState({ isLoading: true });
-      const { data: allUsers } = await internalUsersService.list();
-      const { data: allRoles } = await rolesService.list();
+      const { data: resources } = await internalUsersService.list();
+      const { data: backendRoles } = await rolesService.list();
       this.setState({
-        allUsers: Object.keys(allUsers),
-        allRoles: Object.keys(allRoles).map(label => ({ label })),
+        resources: Object.keys(resources),
+        backendRoles: Object.keys(backendRoles).map(label => ({ label })),
         error: null
       });
 
       if (id) {
-        let user = await internalUsersService.get(id);
-        user = userToFormik({ user, id });
-        this.setState({ user });
+        let resource = await internalUsersService.get(id);
+        resource = userToFormik({ user: resource, id });
+        this.setState({ resource });
       } else {
-        this.setState({ user: userToFormik({ user: DEFAULT_USER, id }), isEdit: !!id });
+        this.setState({ resource: userToFormik({ user: DEFAULT_USER, id }), isEdit: !!id });
       }
     } catch(error) {
       this.handleTriggerCallout(error);
@@ -79,9 +79,8 @@ class CreateInternalUser extends Component {
     const { username } = values;
     try {
       const user = formikToUser(values);
-      console.log('CreateInternalUser - user', user);
-      const doPreSaveUserAdaptation = false;
-      await internalUsersService.save(username, user, doPreSaveUserAdaptation);
+      const doPreSaveResourceAdaptation = false;
+      await internalUsersService.save(username, user, doPreSaveResourceAdaptation);
       this.setState({ error: null });
     } catch (error) {
       this.handleTriggerCallout(error);
@@ -115,11 +114,11 @@ class CreateInternalUser extends Component {
 
   render() {
     const { history, onTriggerFlyout } = this.props;
-    const { user, isEdit, allRoles, allUsers, isLoading } = this.state;
+    const { resource, isEdit, backendRoles, resources, isLoading } = this.state;
 
     return (
       <Formik
-        initialValues={user}
+        initialValues={resource}
         onSubmit={this.onSubmit}
         validateOnChange={false}
         enableReinitialize={true}
@@ -150,8 +149,8 @@ class CreateInternalUser extends Component {
               </EuiButton>
               <EuiSpacer />
 
-              <UserCredentials isEdit={isEdit} values={values} allUsers={allUsers} />
-              <BackendRoles allRoles={allRoles} />
+              <UserCredentials isEdit={isEdit} values={values} allUsers={resources} />
+              <BackendRoles allRoles={backendRoles} />
               <UserAttributes attributes={values.attributes} />
             </ContentPanel>
           );
