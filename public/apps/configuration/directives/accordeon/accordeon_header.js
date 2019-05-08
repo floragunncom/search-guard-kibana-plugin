@@ -9,7 +9,6 @@ app.directive('accordeonHeader', function () {
     replace: true,
     template: template,
     scope: {
-      testid: '@',
       title: '@',
       isCollapsed: '=',
       onClick: '=',

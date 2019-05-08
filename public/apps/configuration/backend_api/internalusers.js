@@ -39,22 +39,26 @@ uiModules.get('apps/searchguard/configuration', [])
             var user = {};
             user["password"] = "";
             user["passwordConfirmation"] = "";
-            user.backend_roles = [];
+            user.roles = [];
             user.attributesArray = [];
             return user;
         };
 
         this.preSave = (user) => {
 
-            delete user.hidden;
-            delete user.reserved;
-            delete user.static;
+            if (user.hidden === false) {
+                delete user.hidden;
+            }
+
+            if (user.readonly === false) {
+                delete user.readonly;
+            }
 
             delete user["passwordConfirmation"];
             // remove empty roles
-            user.backend_roles = user.backend_roles.filter(e => String(e).trim());
+            user.roles = user.roles.filter(e => String(e).trim());
             // remove duplicate roles
-            user.backend_roles = uniq(user.backend_roles);
+            user.roles = uniq(user.roles);
 
             // attribiutes
             user["attributes"] = {};
@@ -73,8 +77,8 @@ uiModules.get('apps/searchguard/configuration', [])
             delete user["hash"];
             user["password"] = "";
             user["passwordConfirmation"] = "";
-            if (!user.backend_roles) {
-                user.backend_roles = [];
+            if (!user.roles) {
+                user.roles = [];
             }
             // transform user attributes to object
             user["attributesArray"] = [];

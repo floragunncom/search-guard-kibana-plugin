@@ -123,6 +123,12 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
             event.preventDefault();
         }
 
+        // not dots in keys allowed
+        if ($scope.resourcename.indexOf('.') != -1) {
+            $scope.errorMessage = 'Please do not use dots in the role mapping name.';
+            return;
+        }
+
         const form = $element.find('form[name="objectForm"]');
 
         if (form.hasClass('ng-invalid-required')) {
@@ -142,7 +148,7 @@ app.controller('sgEditRoleMappingsController', function ($scope, $element, $rout
 
         // check for empty arrays or undefined objects
         $scope.resource.users = backendAPI.cleanArray($scope.resource.users);
-        $scope.resource.backend_roles = backendAPI.cleanArray($scope.resource.backend_roles);
+        $scope.resource.backendroles = backendAPI.cleanArray($scope.resource.backendroles);
         $scope.resource.hosts = backendAPI.cleanArray($scope.resource.hosts);
 
         if ($scope.resource.users.length == 0 && $scope.resource.backendroles.length == 0 && $scope.resource.hosts.length == 0) {

@@ -20,12 +20,12 @@ app.controller('sgConfigController', function ($scope, $element, $route, createN
 
         $scope.resource = $scope.service.postFetch(response.data);
 
-        forEach(response.data.sg_config.dynamic.authc, function(value, key) {
+        forEach(response.data.searchguard.dynamic.authc, function(value, key) {
             value["name"] = key;
             $scope.sortedAuthc.push(value);
         });
 
-        forEach(response.data.sg_config.dynamic.authz, function(value, key) {
+        forEach(response.data.searchguard.dynamic.authz, function(value, key) {
             value["name"] = key;
             $scope.sortedAuthz.push(value);
         });

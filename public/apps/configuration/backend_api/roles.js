@@ -49,90 +49,100 @@ uiModules.get('apps/searchguard/configuration', [])
 
         this.emptyModel = () => {
             var role = {};
-            role["cluster_permissions"] = [];
-            role["index_permissions"] = [];
-            role["tenant_permissions"] = [];
+            role["cluster"] = [""];
+            role["indices"] = {};
+            role["tenants"] = {};
             return role;
         };
 
-        this.emptyIndexPermissions = () => {
-            var indexPermissions = {};
-            indexPermissions["index_patterns"] = [""];
-            indexPermissions["allowed_actions"] = {};
-            indexPermissions.allowed_actions["actiongroups"] = [];
-            indexPermissions.allowed_actions["permissions"] = [];
-            indexPermissions["dls"] = "";
-            indexPermissions["fls"] = [];
-            indexPermissions["flsmode"] = "blacklist";
-            indexPermissions["masked_fields"] = [];
-            indexPermissions["collapsed"] = false;
-            return indexPermissions;
-
-        };
-
-        this.emptyTenantPermissions = () => {
-            var tenantPermissions = {};
-            tenantPermissions["tenant_patterns"] = [];
-            tenantPermissions["allowed_actions"] = [];
-            tenantPermissions["collapsed"] = false;
-            return tenantPermissions;
-        };
-
-        this.emptyGlobalPermissions = () => {
-            var globalPermissions = {};
-            tenantPermissions["tenant_patterns"] = ["SGS_GLOBAL_TENANT"];
-            tenantPermissions["allowed_actions"] = [""];
-            return globalPermissions;
-        };
+        this.addEmptyIndex = (role, indexname, doctypename) => {
+            if (!role.indices) {
+                role["indices"] = {};
+            }
+            if (!role.indices[indexname]) {
+                role.indices[indexname] = {};
+                role.dlsfls[indexname] = {
+                    _dls_: "",
+                    _fls_: [],
+                    _masked_fields_: [],
+                    _flsmode_: "whitelist"
+                };
+            }
+            role.indices[indexname][doctypename] = {
+                "actiongroups": [""],
+                "permissions": []
+            };
+        }
 
         this.preSave = (role) => {
 
-            delete role.hidden;
-            delete role.reserved;
-            delete role.static;
+            if (role.hidden === false) {
+                delete role.hidden;
+            }
 
-            // merge action groups and permissions for cluster
-            var cluster_permissions = backendAPI.mergeCleanArray(role.cluster_permissions.actiongroups, role.cluster_permissions.permissions);
-            delete role.cluster_permissions;
-            role.cluster_permissions = cluster_permissions;
+            if (role.readonly === false) {
+                delete role.readonly;
+            }
 
-            // merge action groups and permissions for each index
-            if (role.index_permissions) {
-                for (var i = 0; i < role.index_permissions.length; i++) {
-                    // delete collapsed marker we used in the UI
-                    var indexpermission = role.index_permissions[i];
-                    delete indexpermission["collapsed"]
+            delete role["indexnames"];
+            // merge cluster permissions
+            var clusterpermissions = backendAPI.mergeCleanArray(role.cluster.actiongroups, role.cluster.permissions);
+            // delete tmp permissions
+            delete role.cluster["actiongroups"];
+            delete role.cluster["permissions"];
+            role.cluster = clusterpermissions;
 
-                    // merge back permissions
-                    var permissions = backendAPI.mergeCleanArray(indexpermission.allowed_actions.actiongroups, indexpermission.allowed_actions.permissions);
-                    indexpermission["allowed_actions"] = permissions;
+            // same for each index and each doctype
+            for (var indexname in role.indices) {
+                var index = role.indices[indexname];
 
-                    // set fls mode
-                    this.setFlsModeToFields(indexpermission)
-                    delete indexpermission["flsmode"];
+                for (var doctypename in index) {
+                    var doctype = index[doctypename];
+                    var doctypepermissions = backendAPI.mergeCleanArray(doctype.actiongroups, doctype.permissions);
+                    delete doctype["actiongroups"];
+                    delete doctype["permissions"];
+                    index[doctypename] = doctypepermissions;
+                }
+
+                // set field prefixes according to FLS mode
+                this.setFlsModeToFields(role.dlsfls[indexname]);
+
+                // move back dls and fls
+                var dlsfls = role.dlsfls[indexname];
+                if(dlsfls) {
+                    if (dlsfls["_dls_"].length > 0) {
+                        // remove any formatting
+                        var dls = dlsfls["_dls_"];
+                        try {
+                            var dlsJsonObject = JSON.parse(dls);
+                            dls = JSON.stringify(dlsJsonObject);
+                        } catch (exception) {
+                            // no valid json, keep as is.
+                        }
+                        index["_dls_"] = dls.replace(/(\r\n|\n|\r|\t)/gm,"");;
+                    }
+                    if (dlsfls["_fls_"].length > 0) {
+                        index["_fls_"] = dlsfls["_fls_"];
+                    }
+                    if (dlsfls["_masked_fields_"].length > 0) {
+                        index["_masked_fields_"] = dlsfls["_masked_fields_"];
+                    }
+
                 }
             }
 
-            // delete collapsed marker from tenant permissions
-            if (role.tenant_permissions) {
-                for (var i = 0; i < role.tenant_permissions.length; i++) {
-                    // delete collapsed marker we used in the UI
-                    var tenantpermission = role.tenant_permissions[i];
-                    delete tenantpermission["collapsed"]
+            delete role["dlsfls"];
+
+            // tenants
+            role["tenants"] = {};
+            for (var i = 0, l = role.tenantsArray.length; i < l; i++) {
+                var tenant = role.tenantsArray[i];
+                if (tenant && tenant.name != "") {
+                    role.tenants[tenant.name] = tenant.permissions;
                 }
-            } else {
-                role["tenant_permission"] = [];
-            }
-            // merge global application permissions, if any and defined
-            if (role.global_application_permissions && role.global_application_permissions.length > 0) {
-                role.tenant_permissions.push({
-                    "tenant_patterns": ["SGS_GLOBAL_TENANT"],
-                    "allowed_actions": role.global_application_permissions
-                });
             }
 
-            delete role["global_application_permissions"];
-
+            delete role["tenantsArray"];
             return role;
         };
 
@@ -141,57 +151,82 @@ uiModules.get('apps/searchguard/configuration', [])
             role = backendAPI.cleanArraysFromDuplicates(role);
 
             // separate action groups and single permissions on cluster level
-            var clusterpermissions = backendAPI.sortPermissions(role.cluster_permissions);
+            var clusterpermissions = backendAPI.sortPermissions(role.cluster);
+            role["cluster"] = {};
+            role.cluster["actiongroups"] = clusterpermissions.actiongroups;
+            role.cluster["permissions"] = clusterpermissions.permissions;
 
-            // put them into an object on the role
-            role["cluster_permissions"] = {};
-            role.cluster_permissions["actiongroups"] = clusterpermissions.actiongroups;
-            role.cluster_permissions["permissions"] = clusterpermissions.permissions;
+            // move dls and fls to separate section on top level
+            // otherwise its on the same level as the document types
+            // and it is hard to separate them in the views. We
+            // should think about restructuring the config here, but
+            // for the moment we're fiddling with the model directly
+            role.dlsfls = {};
 
-            // separate action groups and single permissions on index level. Also take care of dls/fls modes
-            if (role.index_permissions) {
-                for(var i=0; i < role.index_permissions.length; i++) {
-                    var indexpermission = role.index_permissions[i];
-                    indexpermission["collapsed"] = true;
-                    if (indexpermission.allowed_actions) {
-                        var permissions = backendAPI.sortPermissions(role.index_permissions[i].allowed_actions);
-                        indexpermission["allowed_actions"] = {};
-                        indexpermission.allowed_actions["actiongroups"] = permissions.actiongroups;
-                        indexpermission.allowed_actions["permissions"] = permissions.permissions;
+            if (role.indices) {
 
-                    } else {
-                        indexpermission["allowed_actions"] = {};
-                        indexpermission.allowed_actions["actiongroups"] = [];
-                        indexpermission.allowed_actions["permissions"] = [];
+                // flat list of indexnames, can't be done in view
+                role["indexnames"] = Object.keys(role.indices).sort();
+
+                for (var indexname in role.indices) {
+
+                    var index = role.indices[indexname];
+
+                    var dlsfls = {
+                        _dls_: "",
+                        _fls_: [],
+                        _masked_fields_: [],
+                        _flsmode_: "whitelist"
+                    };
+
+                    if (index["_dls_"]) {
+                        dlsfls._dls_ = index["_dls_"];
                     }
+                    if (index["_fls_"]) {
+                        dlsfls._fls_ = index["_fls_"];
+                    }
+                    if (index["_masked_fields_"]) {
+                        dlsfls._masked_fields_ = index["_masked_fields_"];
+                    }
+
+                    delete role.indices[indexname]["_fls_"];
+                    delete role.indices[indexname]["_dls_"];
+                    delete role.indices[indexname]["_masked_fields_"];
+                    role.dlsfls[indexname] = dlsfls;
 
                     // determine the fls mode and strip any prefixes
-                    this.determineFlsMode(indexpermission);
-                }
-            } else {
-                role.index_permissions = [];
-            }
+                    this.determineFlsMode(role.dlsfls[indexname]);
 
-            // special treatment of GLOBAL permissions, listed separately in the UI
-            role["global_application_permissions"] = [];
-            var globalPermissionsIndex = -1;
-
-            if (role.tenant_permissions) {
-                for (var i = 0; i < role.tenant_permissions.length; i++) {
-                    var tenantpermission = role.tenant_permissions[i];
-                    tenantpermission["collapsed"] = true;
-
-                    // special treatment of GLOBAL permissions, listed separately in the UI
-                    var tenantPatterns = tenantpermission.tenant_patterns;
-                    if (tenantPatterns && tenantPatterns.length > 0 && tenantPatterns[0] == "SGS_GLOBAL_TENANT") {
-                        role["global_application_permissions"] = tenantpermission.allowed_actions;
-                        globalPermissionsIndex = i;
+                    // sort permissions into actiongroups and single permissions
+                    for (var doctypename in index) {
+                        var doctype = index[doctypename];
+                        var doctypepermissions = backendAPI.sortPermissions(doctype);
+                        doctype = {
+                            actiongroups: doctypepermissions.actiongroups,
+                            permissions: doctypepermissions.permissions
+                        }
+                        index[doctypename] = doctype;
                     }
                 }
+            } else {
+                role.indices = {};
             }
-            if (globalPermissionsIndex > -1) {
-                role.tenant_permissions.splice(globalPermissionsIndex, 1);
+
+            // transform tenants to object
+            role["tenantsArray"] = [];
+            if (role.tenants) {
+                var tenantNames = Object.keys(role.tenants).sort();
+                tenantNames.forEach(function(tenantName){
+
+                    role.tenantsArray.push(
+                        {
+                            name: tenantName,
+                            permissions: role.tenants[tenantName]
+                        }
+                    );
+                });
             }
+            delete role["tenants"];
             return role;
         };
 
@@ -203,11 +238,11 @@ uiModules.get('apps/searchguard/configuration', [])
          * assume exclude (blacklist) mode.
          * @param dlsfls
          */
-        this.determineFlsMode = function (indexpermission) {
+        this.determineFlsMode = function (dlsfls) {
             // default is whitelisting
-            indexpermission["flsmode"] = "whitelist";
+            dlsfls["_flsmode_"] = "whitelist";
             // any fields to set?
-            var flsFields = indexpermission["fls"];
+            var flsFields = dlsfls["_fls_"];
             if (isEmpty(flsFields) || !Array.isArray(flsFields)) {
                 return;
             }
@@ -216,7 +251,7 @@ uiModules.get('apps/searchguard/configuration', [])
                 if (field.startsWith("~")) {
                     // clean multiple tildes at the beginning, just in case
                     flsFields[index] = field.replace(/^\~+/, '');
-                    indexpermission["flsmode"] = "blacklist";
+                    dlsfls["_flsmode_"] = "blacklist";
                 }
             }
         }
@@ -227,9 +262,12 @@ uiModules.get('apps/searchguard/configuration', [])
          * on the exclude/include mode of FLS.
          * @param dlsfls
          */
-        this.setFlsModeToFields = function(indexpermission) {
+        this.setFlsModeToFields = function(dlsfls) {
+            if (!dlsfls) {
+                return;
+            }
             // any fields to set?
-            var flsFields = indexpermission["fls"];
+            var flsFields = dlsfls["_fls_"];
             if (isEmpty(flsFields) || !Array.isArray(flsFields)) {
                 return;
             }
@@ -240,7 +278,7 @@ uiModules.get('apps/searchguard/configuration', [])
                 // the user has added it in addition to setting mode to blacklist
                 // We need just a single tilde here.
                 field = field.replace(/^\~+/, '');
-                if (!field.startsWith("~") && indexpermission["flsmode"] == "blacklist") {
+                if (!field.startsWith("~") && dlsfls["_flsmode_"] == "blacklist") {
                     flsFields[index] = "~" + field;
                 }
             }
@@ -261,6 +299,33 @@ uiModules.get('apps/searchguard/configuration', [])
             return clusterPermsEmpty && indicesEmpty;
         }
 
+        this.checkIndicesStatus = function (role) {
 
+            // index, we need at least one index with one document type with one permissions
+            var indicesStatus = {
+                allEmpty: true,
+                faultyIndices: []
+            };
+            if (role.indices) {
+
+                var indexNames = Object.keys(role.indices);
+                indexNames.forEach(function(indexName) {
+                    var docTypeNames = Object.keys(role.indices[indexName]);
+                    docTypeNames.forEach(function(docTypeName) {
+                        var doctype = role.indices[indexName][docTypeName];
+                        // doctype with at least one permission
+                        doctype.actiongroups = backendAPI.cleanArray(doctype.actiongroups);
+                        doctype.permissions = backendAPI.cleanArray(doctype.permissions);
+                        if ((doctype.actiongroups && doctype.actiongroups.length > 0) || (doctype.permissions && doctype.permissions.length > 0)) {
+                            indicesStatus.allEmpty = false;
+                        } else {
+                            // empty doctype
+                            indicesStatus.faultyIndices.push(indexName + " / " + docTypeName);
+                        }
+                    });
+                });
+            }
+            return indicesStatus;
+        }
 
     });

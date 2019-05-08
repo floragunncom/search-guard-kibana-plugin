@@ -55,11 +55,6 @@ uiModules.get('apps/searchguard/configuration', [])
         };
 
         this.preSave = (actiongroup) => {
-
-            delete actiongroup.hidden;
-            delete actiongroup.reserved;
-            delete actiongroup.static;
-
             var result = {};
             var all = [];
             all = all.concat(actiongroup.actiongroups);
@@ -68,7 +63,7 @@ uiModules.get('apps/searchguard/configuration', [])
             all = all.filter(e => String(e).trim());
             // remove duplicate roles
             all = uniq(all);
-            result["allowed_actions"] = all;
+            result["permissions"] = all;
             return result;
         };
 
@@ -79,8 +74,8 @@ uiModules.get('apps/searchguard/configuration', [])
             var permissionsArray = actiongroup;
 
             // new SG6 format, explicit permissions entry
-            if (actiongroup.allowed_actions) {
-                permissionsArray = actiongroup.allowed_actions;
+            if (actiongroup.permissions) {
+                permissionsArray = actiongroup.permissions;
             }
             // determine which format to use
             permissionsArray = backendAPI.cleanArraysFromDuplicates(permissionsArray);
@@ -88,8 +83,8 @@ uiModules.get('apps/searchguard/configuration', [])
             var permissions = backendAPI.sortPermissions(permissionsArray);
 
             // if readonly flag is set for SG6 format, add as well
-            if (actiongroup.reserved) {
-                permissions["reserved"] = actiongroup.reserved;
+            if (actiongroup.readonly) {
+                permissions["readonly"] = actiongroup.readonly;
             }
 
             return permissions;

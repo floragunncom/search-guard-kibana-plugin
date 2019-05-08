@@ -43,30 +43,25 @@ uiModules.get('apps/searchguard/configuration', [])
             var rolemapping = {};
             rolemapping.users = [];
             rolemapping.hosts = [];
-            rolemapping.backend_roles = [];
+            rolemapping.backendroles = [];
             return rolemapping;
         };
 
         this.preSave = (rolemapping) => {
-
-            delete rolemapping.hidden;
-            delete rolemapping.reserved;
-            delete rolemapping.static;
-
             rolemapping.users = this.cleanArray(rolemapping.users);
-            rolemapping.backend_roles = this.cleanArray(rolemapping.backend_roles);
+            rolemapping.backendroles = this.cleanArray(rolemapping.backendroles);
             rolemapping.hosts = this.cleanArray(rolemapping.hosts);
 
             if (rolemapping.hidden === false) {
                 delete rolemapping.hidden;
             }
 
-            if (rolemapping.reserved === false) {
-                delete rolemapping.reserved;
+            if (rolemapping.readonly === false) {
+                delete rolemapping.readonly;
             }
 
-            if (typeof rolemapping.and_backend_roles !== 'undefined') {
-                delete rolemapping.and_backend_roles;
+            if (typeof rolemapping.and_backendroles !== 'undefined') {
+                delete rolemapping.and_backendroles;
             }
 
             return rolemapping;
