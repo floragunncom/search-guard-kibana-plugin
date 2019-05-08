@@ -35,7 +35,8 @@ function RootController(
   $element,
   $http,
   backendInternalUsers,
-  backendRoles
+  backendRoles,
+  sgConfiguration
 ) {
   const domNode = $element[0];
 
@@ -49,6 +50,7 @@ function RootController(
             httpClient={$http}
             backendInternalUsers={backendInternalUsers}
             backendRoles={backendRoles}
+            sgConfiguration={sgConfiguration}
             {...props}
           />
         )}

@@ -7,9 +7,11 @@ import {
   i18nHomeText,
   i18nInternalUsersText,
   i18nCreateInternalUserText,
-  i18nUpdateInternalUserText
 } from '../../utils/i18n_nodes';
-import { APP_PATH, INTERNAL_USERS_ACTIONS } from '../../utils/constants';
+import {
+  authenticationAndAuthorizationText,
+} from '../../utils/i18n/auth';
+import { APP_PATH } from '../../utils/constants';
 
 export const createBreadcrumb = (breadcrumb, history) => {
   const { text, href } = breadcrumb;
@@ -37,6 +39,9 @@ export const getBreadcrumb = route => {
     [removePrefixSlash(APP_PATH.CREATE_INTERNAL_USER)]: [
       { text: i18nInternalUsersText, href: APP_PATH.INTERNAL_USERS },
       { text: i18nCreateInternalUserText, href: APP_PATH.CREATE_INTERNAL_USER }
+    ],
+    [removePrefixSlash(APP_PATH.AUTH)]: [
+      { text: authenticationAndAuthorizationText, href: APP_PATH.AUTH },
     ]
   }[base];
 

@@ -26,6 +26,7 @@ export const i18nDoYouReallyWantToDeleteText = (
   <EuiI18n token="sgDoYouReallyWantToDelete.text" default="Do you really want to delete" />
 );
 export const i18nCurrentUserText = (<EuiI18n token="sgCurrentUser.text" default="Current User" />);
+export const i18nSystemText = (<EuiI18n token="sgSystem.text" default="System" />);
 
 // Internal Users
 export const i18nInternalUsersText = (<EuiI18n token="sgInternalUsers.text" default="Internal Users" />);

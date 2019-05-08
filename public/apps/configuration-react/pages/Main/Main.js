@@ -11,6 +11,7 @@ import {
 import Home from '../Home';
 import { CreateInternalUser } from '../CreateInternalUser';
 import { InternalUsers } from '../InternalUsers';
+import { Auth } from '../Auth';
 import { Breadcrumbs, Flyout, Callout } from '../../components';
 import { APP_PATH } from '../../utils/constants';
 
@@ -21,7 +22,9 @@ class Main extends Component {
     super(props);
     this.state = {
       flyout: null,
-      callout: null
+      callout: null,
+      sideNavItems: [],
+      selectedSideNavItemName: undefined
     };
   }
 
@@ -40,11 +43,15 @@ class Main extends Component {
   }
 
   render() {
-    const { flyout, callout } = this.state;
+    const {
+      flyout,
+      callout
+    } = this.state;
     const {
       httpClient,
       backendInternalUsers,
       backendRoles,
+      sgConfiguration,
       history,
       ...rest
     } = this.props;
@@ -81,6 +88,17 @@ class Main extends Component {
                     <InternalUsers
                       httpClient={httpClient}
                       internalUsersService={backendInternalUsers}
+                      onTriggerCallout={this.handleTriggerCallout}
+                      {...props}
+                    />
+                  )}
+                />
+                <Route
+                  path={APP_PATH.AUTH}
+                  render={props => (
+                    <Auth
+                      httpClient={httpClient}
+                      configurationService={sgConfiguration}
                       onTriggerCallout={this.handleTriggerCallout}
                       {...props}
                     />
