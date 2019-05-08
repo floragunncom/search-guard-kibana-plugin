@@ -38,7 +38,7 @@ const renderUserBackendRolesCell = roles => (
 );
 
 const renderUserNameCell = history => (name, user) => {
-  const { username: currentUser } = JSON.parse(sessionStorage.getItem(SESSION_STORAGE.SG_USER));
+  const { user_name: currentUser } = JSON.parse(sessionStorage.getItem(SESSION_STORAGE.RESTAPIINFO) || '{}');
   return(
     <div>
       <EuiFlexGroup>
