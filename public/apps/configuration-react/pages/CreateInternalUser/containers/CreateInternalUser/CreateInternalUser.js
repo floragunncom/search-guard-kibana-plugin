@@ -4,12 +4,8 @@ import PropTypes from 'prop-types';
 import { EuiButton, EuiSpacer } from '@elastic/eui';
 import queryString from 'query-string';
 import { get } from 'lodash';
-import {
-  i18nSaveText,
-  i18nCancelText,
-  i18nCreateInternalUserText,
-  i18nInspectText
-} from '../../../../utils/i18n_nodes';
+import { saveText, cancelText, inspectText } from '../../../../utils/i18n/common';
+import { createInternalUserText } from '../../../../utils/i18n/internalusers';
 import { ContentPanel } from '../../../../components';
 import { BackendRoles, UserAttributes, UserCredentials } from '../../components';
 import { APP_PATH, FLYOUTS, CALLOUTS } from '../../../../utils/constants';
@@ -102,13 +98,13 @@ class CreateInternalUser extends Component {
 
   renderCancelButton = history => (
     <EuiButton onClick={() => history.push(APP_PATH.INTERNAL_USERS)}>
-      {i18nCancelText}
+      {cancelText}
     </EuiButton>
   )
 
   renderSaveButton = ({ isSubmitting, handleSubmit }) => (
     <EuiButton isLoading={isSubmitting} iconType="save" fill onClick={handleSubmit}>
-      {i18nSaveText}
+      {saveText}
     </EuiButton>
   )
 
@@ -125,7 +121,7 @@ class CreateInternalUser extends Component {
         render={({ values, handleSubmit, isSubmitting }) => {
           return (
             <ContentPanel
-              title={i18nCreateInternalUserText}
+              title={createInternalUserText}
               isLoading={isLoading}
               actions={[
                 this.renderCancelButton(history),
@@ -140,12 +136,12 @@ class CreateInternalUser extends Component {
                     type: FLYOUTS.INSPECT_JSON,
                     payload: {
                       json: formikToUser(values),
-                      title: i18nCreateInternalUserText
+                      title: createInternalUserText
                     }
                   });
                 }}
               >
-                {i18nInspectText}
+                {inspectText}
               </EuiButton>
               <EuiSpacer />
 

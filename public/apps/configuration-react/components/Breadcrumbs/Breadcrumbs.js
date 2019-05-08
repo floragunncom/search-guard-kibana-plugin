@@ -3,13 +3,9 @@ import PropTypes from 'prop-types';
 import { flatten } from 'lodash';
 import queryString from 'query-string';
 import { EuiBreadcrumbs } from '@elastic/eui';
-import {
-  i18nHomeText,
-  i18nInternalUsersText,
-  i18nCreateInternalUserText,
-  i18nUpdateInternalUserText
-} from '../../utils/i18n_nodes';
-import { APP_PATH, INTERNAL_USERS_ACTIONS } from '../../utils/constants';
+import { homeText } from '../../utils/i18n/home';
+import { internalUsersText, createInternalUserText } from '../../utils/i18n/internalusers';
+import { APP_PATH } from '../../utils/constants';
 
 export const createBreadcrumb = (breadcrumb, history) => {
   const { text, href } = breadcrumb;
@@ -29,14 +25,14 @@ export const getBreadcrumb = route => {
 
   const removePrefixSlash = path => path.slice(1);
   const breadcrumb = {
-    '#': { text: i18nHomeText, href: APP_PATH.HOME },
+    '#': { text: homeText, href: APP_PATH.HOME },
     [removePrefixSlash(APP_PATH.INTERNAL_USERS)]: {
-      text: i18nInternalUsersText,
+      text: internalUsersText,
       href: APP_PATH.INTERNAL_USERS
     },
     [removePrefixSlash(APP_PATH.CREATE_INTERNAL_USER)]: [
-      { text: i18nInternalUsersText, href: APP_PATH.INTERNAL_USERS },
-      { text: i18nCreateInternalUserText, href: APP_PATH.CREATE_INTERNAL_USER }
+      { text: internalUsersText, href: APP_PATH.INTERNAL_USERS },
+      { text: createInternalUserText, href: APP_PATH.CREATE_INTERNAL_USER }
     ]
   }[base];
 

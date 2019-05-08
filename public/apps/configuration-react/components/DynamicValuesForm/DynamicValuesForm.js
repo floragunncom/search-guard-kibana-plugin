@@ -7,7 +7,7 @@ import {
   EuiButton,
   EuiText
 } from '@elastic/eui';
-import { i18nAddText, i18nRemoveText, i18nNoItemsFoundText } from '../../utils/i18n_nodes';
+import { addText, removeText, noItemsFoundText } from '../../utils/i18n/common';
 
 const renderTitle = ({ title, titleSize }) => (
   <EuiFlexItem className="sgDynamicValuesForm__title">
@@ -73,10 +73,10 @@ const DynamicValuesForm = ({
   name,
   addButtonSize = 's',
   removeButtonSize = 's',
-  addButtonText = i18nAddText,
-  removeButtonText = i18nRemoveText,
+  addButtonText = addText,
+  removeButtonText = removeText,
   onRenderValueField,
-  emptyText = i18nNoItemsFoundText,
+  emptyText = noItemsFoundText,
   emptyTextSize = 's',
   onRenderKeyField
 }) => (

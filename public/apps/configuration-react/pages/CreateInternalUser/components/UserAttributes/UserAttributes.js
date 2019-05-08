@@ -2,7 +2,7 @@ import React from 'react';
 import { FieldArray } from 'formik';
 import { FormikFieldText, DynamicValuesForm } from '../../../../components';
 import { hasError, isInvalid, validateTextField } from '../../../../utils/validation';
-import { i18nUserAttributesText } from '../../../../utils/i18n_nodes';
+import { userAttributesText } from '../../../../utils/i18n/internalusers';
 
 const renderValueField = fieldName => (
   <FormikFieldText
@@ -45,7 +45,7 @@ const UserAttributes = ({ attributes }) => (
     render={arrayHelpers => (
       <DynamicValuesForm
         isKey
-        title={i18nUserAttributesText}
+        title={userAttributesText}
         onAdd={() => arrayHelpers.push({})}
         onRemove={i => arrayHelpers.remove(i)}
         items={attributes}

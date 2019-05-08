@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import { FormikFieldText, FormikFieldPassword, FormikSwitch } from '../../../../components';
 import { hasError, isInvalid, validatePassword, validateInternalUserName } from '../../../../utils/validation';
 import {
-  i18nUsernameText,
-  i18nPasswordText,
-  i18nRepeatPasswordText,
-  i18nChangePasswordText
-} from '../../../../utils/i18n_nodes';
+  usernameText,
+  passwordText,
+  repeatPasswordText,
+  changePasswordText
+} from '../../../../utils/i18n/internalusers';
 
 const renderPassword = passwordConfirmation => (
   <Fragment>
@@ -17,7 +17,7 @@ const renderPassword = passwordConfirmation => (
         validate: validatePassword(passwordConfirmation)
       }}
       rowProps={{
-        label: i18nPasswordText,
+        label: passwordText,
         isInvalid,
         error: hasError
       }}
@@ -32,7 +32,7 @@ const renderPassword = passwordConfirmation => (
         validate: validatePassword(passwordConfirmation)
       }}
       rowProps={{
-        label: i18nRepeatPasswordText,
+        label: repeatPasswordText,
         isInvalid,
         error: hasError
       }}
@@ -52,7 +52,7 @@ const UserCredentials = ({ isEdit = false, values, allUsers }) => (
         validate: validateInternalUserName({ allUsers, isEdit })
       }}
       rowProps={{
-        label: i18nUsernameText,
+        label: usernameText,
         isInvalid,
         error: hasError
       }}
@@ -65,7 +65,7 @@ const UserCredentials = ({ isEdit = false, values, allUsers }) => (
       <FormikSwitch
         formRow
         elementProps={{
-          label: i18nChangePasswordText,
+          label: changePasswordText,
           onChange: (e, field, form) => {
             const changePasswordAborted = values.changePassword;
             if (changePasswordAborted) {

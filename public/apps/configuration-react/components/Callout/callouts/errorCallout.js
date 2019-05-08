@@ -1,4 +1,4 @@
-import { i18nErrorText } from '../../../utils/i18n_nodes';
+import { errorText } from '../../../utils/i18n/common';
 
 const errorCallout = text => ({
   calloutProps: {
@@ -6,7 +6,7 @@ const errorCallout = text => ({
   },
   iconType: 'cross',
   color: 'danger',
-  title: i18nErrorText,
+  title: errorText,
   text,
 });
 

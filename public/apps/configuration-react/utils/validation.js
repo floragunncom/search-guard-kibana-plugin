@@ -1,27 +1,27 @@
 import { get } from 'lodash';
 import {
-  i18nRequiredText,
-  i18nUsernameMustNotContainDotsAndAsterisks,
-  i18nPasswordMustBeAtLeast5Chars,
-  i18nPasswordsDontMatchText,
-  i18nUsernameAlreadyExists
-} from './i18n_nodes';
+  usernameAlreadyExistsText,
+  usernameMustNotContainDotsAndAsterisksText,
+  passwordsDontMatchText,
+  passwordMustBeAtLeast5CharsText
+} from './i18n/internalusers';
+import { requiredText } from './i18n/common';
 
 export const validateInternalUserName = ({ allUsers, isEdit }) => name => {
-  if (!name) throw i18nRequiredText;
+  if (!name) throw requiredText;
   const hasDotsAndAsterisks = (/[\.\*]/gm).test(name);
-  if (hasDotsAndAsterisks) throw i18nUsernameMustNotContainDotsAndAsterisks;
-  if (!isEdit && allUsers.includes(name)) throw i18nUsernameAlreadyExists;
+  if (hasDotsAndAsterisks) throw usernameMustNotContainDotsAndAsterisksText;
+  if (!isEdit && allUsers.includes(name)) throw usernameAlreadyExistsText;
 };
 
 export const validatePassword = passwordConfirmation => password => {
-  if (!password) throw i18nRequiredText;
-  if (password.length < 5) throw i18nPasswordMustBeAtLeast5Chars;
-  if (password !== passwordConfirmation) throw i18nPasswordsDontMatchText;
+  if (!password) throw requiredText;
+  if (password.length < 5) throw passwordMustBeAtLeast5CharsText;
+  if (password !== passwordConfirmation) throw passwordsDontMatchText;
 };
 
 export const validateTextField = value => {
-  if (!value) throw i18nRequiredText;
+  if (!value) throw requiredText;
 };
 
 export const isInvalid = (name, form) => {

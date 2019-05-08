@@ -18,20 +18,22 @@ import { get } from 'lodash';
 import { ContentPanel, SimpleItemsList } from '../../../../components';
 import { APP_PATH, CALLOUTS, SESSION_STORAGE } from '../../../../utils/constants';
 import {
-  i18nCreateInternalUserText,
-  i18nCancelText,
-  i18nInternalUsersText,
-  i18nNameText,
-  i18nReservedText,
-  i18nBackendRolesText,
-  i18nDeleteText,
-  i18nEmptyUsersTableMessage,
-  i18nCurrentUserText,
-  i18nDoYouReallyWantToDeleteText,
-  i18nConfirmDeleteText,
-  i18nConfirmText,
-  i18nNoUsersText
-} from '../../../../utils/i18n_nodes';
+  createInternalUserText,
+  internalUsersText,
+  backendRolesText,
+  emptyUsersTableMessageText,
+  noUsersText
+} from '../../../../utils/i18n/internalusers';
+import {
+  cancelText,
+  nameText,
+  reservedText,
+  deleteText,
+  currentUserText,
+  doYouReallyWantToDeleteText,
+  confirmDeleteText,
+  confirmText
+} from '../../../../utils/i18n/common';
 import { usersToTableUsers, tableUserToUser } from './utils';
 
 const renderResourceNameCell = history => (name, resource) => {
@@ -60,7 +62,7 @@ const renderResourceNameCell = history => (name, resource) => {
             <EuiIcon type="user"/>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiText size="s">{i18nCurrentUserText}</EuiText>
+            <EuiText size="s">{currentUserText}</EuiText>
           </EuiFlexItem>
         </EuiFlexGrid>
       )}
@@ -70,7 +72,7 @@ const renderResourceNameCell = history => (name, resource) => {
             <EuiIcon type="lock"/>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiText size="s">{i18nReservedText}</EuiText>
+            <EuiText size="s">{reservedText}</EuiText>
           </EuiFlexItem>
         </EuiFlexGrid>
       )}
@@ -152,7 +154,7 @@ class InternalUsers extends Component {
     <EuiButton
       onClick={() => history.push(APP_PATH.CREATE_INTERNAL_USER)}
     >
-      {i18nCreateInternalUserText}
+      {createInternalUserText}
     </EuiButton>
   )
 
@@ -160,7 +162,7 @@ class InternalUsers extends Component {
     <EuiButton
       onClick={() => history.push(APP_PATH.HOME)}
     >
-      {i18nCancelText}
+      {cancelText}
     </EuiButton>
   )
 
@@ -182,7 +184,7 @@ class InternalUsers extends Component {
         iconType="trash"
         onClick={handleMultiDelete}
       >
-        {i18nDeleteText} {tableSelection.length}
+        {deleteText} {tableSelection.length}
       </EuiButton>
     );
 
@@ -191,14 +193,14 @@ class InternalUsers extends Component {
 
   renderEmptyTableMessage = history => (
     <EuiEmptyPrompt
-      title={<h3>{i18nNoUsersText}</h3>}
+      title={<h3>{noUsersText}</h3>}
       titleSize="xs"
-      body={i18nEmptyUsersTableMessage}
+      body={emptyUsersTableMessageText}
       actions={(
         <EuiButton
           onClick={() => history.push(APP_PATH.CREATE_INTERNAL_USER)}
         >
-          {i18nCreateInternalUserText}
+          {createInternalUserText}
         </EuiButton>
       )}
     />
@@ -207,15 +209,15 @@ class InternalUsers extends Component {
   renderConfirmResourcesDeleteModal = resourcesToDelete => (
     <EuiOverlayMask>
       <EuiConfirmModal
-        title={i18nConfirmDeleteText}
+        title={confirmDeleteText}
         onCancel={() => this.handleDeleteResources([])}
         onConfirm={() => this.deleteResources(resourcesToDelete)}
-        cancelButtonText={i18nCancelText}
-        confirmButtonText={i18nConfirmText}
+        cancelButtonText={cancelText}
+        confirmButtonText={confirmText}
         buttonColor="danger"
         defaultFocusedButton={EUI_MODAL_CONFIRM_BUTTON}
       >
-        <p>{i18nDoYouReallyWantToDeleteText} {resourcesToDelete.join(', ')}?</p>
+        <p>{doYouReallyWantToDeleteText} {resourcesToDelete.join(', ')}?</p>
       </EuiConfirmModal>
     </EuiOverlayMask>
   )
@@ -246,8 +248,8 @@ class InternalUsers extends Component {
     const columns = [
       {
         field: 'id',
-        name: i18nNameText,
-        footer: i18nNameText,
+        name: nameText,
+        footer: nameText,
         align: 'left',
         sortable: true,
         mobileOptions: {
@@ -257,8 +259,8 @@ class InternalUsers extends Component {
       },
       {
         field: 'backend_roles',
-        name: i18nBackendRolesText,
-        footer: i18nBackendRolesText,
+        name: backendRolesText,
+        footer: backendRolesText,
         align: 'left',
         mobileOptions: {
           header: false
@@ -285,7 +287,7 @@ class InternalUsers extends Component {
 
     return (
       <ContentPanel
-        title={i18nInternalUsersText}
+        title={internalUsersText}
         actions={[
           this.renderCancelButton(history),
           this.renderCreateResourceButton(history)
