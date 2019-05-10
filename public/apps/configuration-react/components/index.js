@@ -12,3 +12,4 @@ export { default as FormikFieldPassword } from './FormControls/FormikFieldPasswo
 export { default as FormikEffect } from './FormControls/FormikEffect';
 export { default as FormikSwitch } from './FormControls/FormikSwitch';
 export { default as FormikComboBox } from './FormControls/FormikComboBox';
+export { default as FormikCodeEditor } from './FormControls/FormikCodeEditor';

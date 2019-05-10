@@ -1,2 +1,3 @@
 import inspectJson from './inspectJson';
-export default { inspectJson };
+import customFlyout from './customFlyout';
+export default { inspectJson, customFlyout };
