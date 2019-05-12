@@ -109,13 +109,13 @@
 
                                     <td class="kuiTableRowCell actions cellAlignTop">
                                         <div class="kuiTableRowCell__liner">
-                                            <a tooltip="Edit" ng-click="edit(rolename)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                            <a id="sg.button.roles.edit.{{rolename}}" tooltip="Edit" ng-click="edit(rolename)" id="" class="kuiButton kuiButton--primary kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-edit"></span>
                                             </a>
-                                            <a tooltip="Clone" ng-click="clone(rolename)" class="kuiButton kuiButton--primary kuiButton--iconText">
+                                            <a id="sg.button.roles.clone.{{rolename}}" tooltip="Clone" ng-click="clone(rolename)" class="kuiButton kuiButton--primary kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-copy"></span>
                                             </a>
-                                            <button tooltip="Delete" type="button" ng-disabled="!endpointAndMethodEnabled('ROLES', 'DELETE') || resources[rolename].readonly" ng-click="confirmDelete(rolename)" class="kuiButton kuiButton--danger kuiButton--iconText">
+                                            <button id="sg.button.roles.delete.{{rolename}}" tooltip="Delete" type="button" ng-disabled="!endpointAndMethodEnabled('ROLES', 'DELETE') || resources[rolename].readonly" ng-click="confirmDelete(rolename)" class="kuiButton kuiButton--danger kuiButton--iconText">
                                                 <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                             </button>
                                         </div>
