@@ -470,12 +470,12 @@ export default function (kibana) {
                 waitForElasticsearchGreen().then( () => {
                     this.status.yellow('Setting up index template.');
                     setupIndexTemplate();
-
                     migrateTenants(server)
                         .then(  () => {
                             this.status.green('Search Guard plugin version '+ sgVersion + ' initialised.');
                         })
                         .catch((error) => {
+                            server.log(['error', 'Search Guard migration'], error);
                             this.status.yellow('Tenant indices migration failed');
                         });
 

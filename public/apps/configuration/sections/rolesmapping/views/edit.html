@@ -23,7 +23,7 @@
                                             {{newResourceName.name}}
                                         </ui-select-match>
                                         <ui-select-choices repeat="item in rolesAutoComplete | filter: $select.search track by $index"
-                                                           ui-disable-choice="resourcenames.indexOf(item.name) > -1">
+                                                           ui-disable-choice="resourcenames.indexOf(item.name) > -1" id="lalala">
                                             <span ng-bind="item.name"></span>
                                         </ui-select-choices>
                                     </ui-select>
