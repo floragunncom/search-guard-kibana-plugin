@@ -278,8 +278,8 @@ class InternalUsers extends Component {
     ];
 
     const selection = {
-      selectable: user => user.id,
-      onSelectionChange: (tableSelection) => this.setState({ tableSelection })
+      selectable: user => user.id && !user.reserved,
+      onSelectionChange: tableSelection => this.setState({ tableSelection })
     };
 
     const search = {
