@@ -24,5 +24,6 @@ export const CALLOUTS = {
 };
 
 export const SESSION_STORAGE = {
-  SG_USER: 'sg_user'
+  SG_USER: 'sg_user',
+  RESTAPIINFO: 'restapiinfo'
 };
