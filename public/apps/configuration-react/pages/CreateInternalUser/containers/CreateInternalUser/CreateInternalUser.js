@@ -3,12 +3,11 @@ import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 import { EuiButton, EuiSpacer } from '@elastic/eui';
 import queryString from 'query-string';
-import { get } from 'lodash';
 import { saveText, cancelText, inspectText } from '../../../../utils/i18n/common';
 import { createInternalUserText } from '../../../../utils/i18n/internal_users';
 import { ContentPanel } from '../../../../components';
 import { BackendRoles, UserAttributes, UserCredentials } from '../../components';
-import { APP_PATH, FLYOUTS, CALLOUTS } from '../../../../utils/constants';
+import { APP_PATH } from '../../../../utils/constants';
 import { DEFAULT_USER } from './utils/constants';
 import { userToFormik, formikToUser } from './utils';
 
@@ -25,7 +24,6 @@ class CreateInternalUser extends Component {
       resource: userToFormik({ user: DEFAULT_USER, id }),
       backendRoles: [],
       resources: [],
-      error: null,
       isLoading: true
     };
   }
@@ -46,15 +44,14 @@ class CreateInternalUser extends Component {
 
   fetchData = async () => {
     const { id } = this.state;
-    const { internalUsersService, rolesService } = this.props;
+    const { internalUsersService, rolesService, onTriggerErrorCallout } = this.props;
     try {
       this.setState({ isLoading: true });
       const { data: resources } = await internalUsersService.list();
       const { data: backendRoles } = await rolesService.list();
       this.setState({
         resources: Object.keys(resources),
-        backendRoles: Object.keys(backendRoles).map(label => ({ label })),
-        error: null
+        backendRoles: Object.keys(backendRoles).map(label => ({ label }))
       });
 
       if (id) {
@@ -65,35 +62,24 @@ class CreateInternalUser extends Component {
         this.setState({ resource: userToFormik({ user: DEFAULT_USER, id }), isEdit: !!id });
       }
     } catch(error) {
-      this.handleTriggerCallout(error);
+      onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
   }
 
   onSubmit = async (values, { setSubmitting }) => {
-    const { internalUsersService, history } = this.props;
+    const { internalUsersService, history, onTriggerErrorCallout } = this.props;
     const { username } = values;
     try {
       const user = formikToUser(values);
       const doPreSaveResourceAdaptation = false;
       await internalUsersService.save(username, user, doPreSaveResourceAdaptation);
-      this.setState({ error: null });
-    } catch (error) {
-      this.handleTriggerCallout(error);
-    }
-    setSubmitting(false);
-    if (!this.state.error) {
+      setSubmitting(false);
       history.push(APP_PATH.INTERNAL_USERS);
+    } catch (error) {
+      setSubmitting(false);
+      onTriggerErrorCallout(error);
     }
-  }
-
-  handleTriggerCallout = error => {
-    error = error.data || error;
-    this.setState({ error });
-    this.props.onTriggerCallout({
-      type: CALLOUTS.ERROR_CALLOUT,
-      payload: get(error, 'message')
-    });
   }
 
   renderCancelButton = history => (
@@ -109,7 +95,7 @@ class CreateInternalUser extends Component {
   )
 
   render() {
-    const { history, onTriggerFlyout } = this.props;
+    const { history, onTriggerInspectJsonFlyout } = this.props;
     const { resource, isEdit, backendRoles, resources, isLoading } = this.state;
 
     return (
@@ -132,12 +118,9 @@ class CreateInternalUser extends Component {
                 size="s"
                 iconType="inspect"
                 onClick={() => {
-                  onTriggerFlyout({
-                    type: FLYOUTS.INSPECT_JSON,
-                    payload: {
-                      json: formikToUser(values),
-                      title: createInternalUserText
-                    }
+                  onTriggerInspectJsonFlyout({
+                    json: formikToUser(values),
+                    title: createInternalUserText
                   });
                 }}
               >
@@ -162,8 +145,8 @@ CreateInternalUser.propTypes = {
   httpClient: PropTypes.func,
   internalUsersService: PropTypes.object.isRequired,
   rolesService: PropTypes.object.isRequired,
-  onTriggerFlyout: PropTypes.func.isRequired,
-  onTriggerCallout: PropTypes.func.isRequired
+  onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
+  onTriggerErrorCallout: PropTypes.func.isRequired
 };
 
 export default CreateInternalUser;

@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
-import { get } from 'lodash';
 import { EuiButton, EuiFilePicker, EuiSpacer } from '@elastic/eui';
 import { ContentPanel, FormikCodeEditor } from '../../../../components';
-import { APP_PATH, CALLOUTS, FLYOUTS } from '../../../../utils/constants';
+import { APP_PATH } from '../../../../utils/constants';
 import { cancelText, saveText } from '../../../../utils/i18n/common';
 import {
   importText,
@@ -49,7 +48,6 @@ class UploadLicense extends Component {
     super(props);
 
     this.state = {
-      error: null,
       isLoading: false,
       licenseFile: undefined,
       initialValues: {
@@ -61,27 +59,14 @@ class UploadLicense extends Component {
   }
 
   onSubmit = async ({ license }, { setSubmitting }) => {
-    const { onTriggerCallout } = this.props;
+    const { onTriggerSuccessCallout, onTriggerErrorCallout } = this.props;
     try {
       await this.backendService.uploadLicense(license);
-      this.setState({ error: null });
-      onTriggerCallout({
-        type: CALLOUTS.SUCCESS_CALLOUT,
-        payload: licenseWasUploadedSuccessfullyText
-      });
+      onTriggerSuccessCallout(licenseWasUploadedSuccessfullyText);
     } catch (error) {
-      this.handleTriggerErrorCallout(error);
+      onTriggerErrorCallout(error);
     }
     setSubmitting(false);
-  }
-
-  handleTriggerErrorCallout = error => {
-    error = error.data || error;
-    this.setState({ error });
-    this.props.onTriggerCallout({
-      type: CALLOUTS.ERROR_CALLOUT,
-      payload: get(error, 'message') || error
-    });
   }
 
   setImportedLicenseFile = ([licenseFile]) => this.setState({ licenseFile })
@@ -92,7 +77,7 @@ class UploadLicense extends Component {
       const license = await readFileAsText(this.state.licenseFile);
       this.setState({ initialValues: { license } });
     } catch (error) {
-      this.handleTriggerErrorCallout(licenseFileCantBeImportedText);
+      this.props.onTriggerErrorCallout(licenseFileCantBeImportedText);
     }
     this.setState({ isLoading: false });
   }
@@ -114,24 +99,21 @@ class UploadLicense extends Component {
       iconType="importAction"
       isLoading={this.state.isLoading}
       onClick={() => {
-        this.props.onTriggerFlyout({
-          type: FLYOUTS.CUSTOM,
-          payload: {
-            title: uploadLicenseText,
-            flyoutProps: { size: 's' },
-            body: (
-              <div>
-                <EuiFilePicker
-                  initialPromptText={selectOrDragAndDropLicenseFileText}
-                  disabled={this.state.isLoading}
-                  onChange={this.setImportedLicenseFile}
-                  accept=".txt,.lic"
-                />
-                <EuiSpacer />
-                <EuiButton size="s" onClick={this.importFile}>{importText}</EuiButton>
-              </div>
-            )
-          }
+        this.props.onTriggerCustomFlyout({
+          title: uploadLicenseText,
+          flyoutProps: { size: 's' },
+          body: (
+            <div>
+              <EuiFilePicker
+                initialPromptText={selectOrDragAndDropLicenseFileText}
+                disabled={this.state.isLoading}
+                onChange={this.setImportedLicenseFile}
+                accept=".txt,.lic"
+              />
+              <EuiSpacer />
+              <EuiButton size="s" onClick={this.importFile}>{importText}</EuiButton>
+            </div>
+          )
         });
       }}
     >
@@ -172,7 +154,9 @@ UploadLicense.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
   httpClient: PropTypes.func.isRequired,
-  onTriggerCallout: PropTypes.func.isRequired
+  onTriggerErrorCallout: PropTypes.func.isRequired,
+  onTriggerSuccessCallout: PropTypes.func.isRequired,
+  onTriggerCustomFlyout: PropTypes.func.isRequired
 };
 
 export default UploadLicense;

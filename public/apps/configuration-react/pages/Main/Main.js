@@ -18,7 +18,7 @@ import { InternalUsers } from '../InternalUsers';
 import { Auth } from '../Auth';
 import { SystemStatus } from '../SystemStatus';
 import { Breadcrumbs, Flyout, Callout } from '../../components';
-import { APP_PATH, CALLOUTS } from '../../utils/constants';
+import { APP_PATH, CALLOUTS, FLYOUTS } from '../../utils/constants';
 import { checkIfLicenseValid } from '../../utils/helpers';
 import { sgLicenseNotValidText } from '../../utils/i18n/common';
 import '../../less/main.less';
@@ -68,6 +68,14 @@ class Main extends Component {
     }
   }
 
+  handleTriggerInspectJsonFlyout = payload => {
+    this.handleTriggerFlyout({ type: FLYOUTS.INSPECT_JSON, payload });
+  }
+
+  handleTriggerCustomFlyout = payload => {
+    this.handleTriggerFlyout({ type: FLYOUTS.CUSTOM, payload });
+  }
+
   handleTriggerCallout = callout => {
     this.setState({ callout });
   }
@@ -80,10 +88,14 @@ class Main extends Component {
     });
   }
 
+  handleTriggerSuccessCallout = payload => {
+    this.handleTriggerCallout({ type: CALLOUTS.SUCCESS_CALLOUT, payload });
+  }
+
   handlePurgeCache = async () => {
     this.setState({ purgingCache: true });
     try {
-      await this.backendAPI.clearCache();
+      await this.props.backendAPI.clearCache();
     } catch (error) {
       this.handleTriggerErrorCallout(error);
     }
@@ -125,8 +137,8 @@ class Main extends Component {
                       httpClient={httpClient}
                       internalUsersService={backendInternalUsers}
                       rolesService={backendRoles}
-                      onTriggerFlyout={this.handleTriggerFlyout}
-                      onTriggerCallout={this.handleTriggerCallout}
+                      onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
+                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
                       {...props}
                     />
                   )}
@@ -137,7 +149,7 @@ class Main extends Component {
                     <InternalUsers
                       httpClient={httpClient}
                       internalUsersService={backendInternalUsers}
-                      onTriggerCallout={this.handleTriggerCallout}
+                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
                       {...props}
                     />
                   )}
@@ -148,7 +160,7 @@ class Main extends Component {
                     <Auth
                       httpClient={httpClient}
                       configurationService={sgConfiguration}
-                      onTriggerCallout={this.handleTriggerCallout}
+                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
                       {...props}
                     />
                   )}
@@ -158,8 +170,9 @@ class Main extends Component {
                   render={props => (
                     <SystemStatus
                       httpClient={httpClient}
-                      onTriggerFlyout={this.handleTriggerFlyout}
-                      onTriggerCallout={this.handleTriggerCallout}
+                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      onTriggerSuccessCallout={this.handleTriggerSuccessCallout}
+                      onTriggerCustomFlyout={this.handleTriggerCustomFlyout}
                       {...props}
                     />
                   )}
