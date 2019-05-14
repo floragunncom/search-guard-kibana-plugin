@@ -2,7 +2,7 @@ import React from 'react';
 import { FieldArray } from 'formik';
 import { FormikFieldText, DynamicValuesForm } from '../../../../components';
 import { hasError, isInvalid, validateTextField } from '../../../../utils/validation';
-import { userAttributesText } from '../../../../utils/i18n/internalusers';
+import { userAttributesText } from '../../../../utils/i18n/internal_users';
 
 const renderValueField = fieldName => (
   <FormikFieldText

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FormikComboBox } from '../../../../components';
-import { backendRolesText } from '../../../../utils/i18n/internalusers';
+import { backendRolesText } from '../../../../utils/i18n/internal_users';
 
 const BackendRoles = ({ allRoles }) => (
   <FormikComboBox

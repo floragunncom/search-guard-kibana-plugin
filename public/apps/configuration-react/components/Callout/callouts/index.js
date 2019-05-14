@@ -1,2 +1,3 @@
 import errorCallout from './errorCallout';
-export default { errorCallout };
+import successCallout from './successCallout';
+export default { errorCallout, successCallout };

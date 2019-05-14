@@ -4,6 +4,9 @@ const errorCallout = text => ({
   calloutProps: {
     size: 'm'
   },
+  closeButtonProps: {
+    color: 'danger',
+  },
   iconType: 'cross',
   color: 'danger',
   title: errorText,

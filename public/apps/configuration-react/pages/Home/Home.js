@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiCard,
-  EuiIcon
+  EuiIcon,
+  EuiSpacer
 } from '@elastic/eui';
 import { ContentPanel } from '../../components';
 import { APP_PATH } from '../../utils/constants';
@@ -12,7 +13,18 @@ import { authenticationBackendsText } from '../../utils/i18n/home';
 import {
   internalUsersDatabaseText,
   internalUsersDatabaseDescription
-} from '../../utils/i18n/internalusers';
+} from '../../utils/i18n/internal_users';
+import {
+  authenticationAndAuthorizationText,
+  authenticationAndAuthorizationDescription
+} from '../../utils/i18n/auth';
+import {
+  systemText
+} from '../../utils/i18n/common';
+import {
+  systemStatus as systemStatusText,
+  systemStatusDescription
+} from '../../utils/i18n/system_status';
 
 const Home = ({ history }) => {
   // TODO: use pesonalized Search Guard icons in cards instead of the default ones
@@ -25,8 +37,23 @@ const Home = ({ history }) => {
     }
   ];
 
-  const handleRenderAuthenticationBackendsCards = () => (
-    authenticationBackendsCards.map((card, i) => (
+  const systemCards = [
+    {
+      icon: (<EuiIcon size="xxl" type="securityApp" />),
+      title: authenticationAndAuthorizationText,
+      description: authenticationAndAuthorizationDescription,
+      onClick: () => history.push(APP_PATH.AUTH)
+    },
+    {
+      icon: (<EuiIcon size="xxl" type="gear" />),
+      title: systemStatusText,
+      description: systemStatusDescription,
+      onClick: () => history.push(APP_PATH.SYSTEM_STATUS)
+    }
+  ];
+
+  const renderCards = cards => (
+    cards.map((card, i) => (
       <EuiFlexItem key={i} grow={false} className="sgHomeMenu__card">
         <EuiCard
           icon={card.icon}
@@ -39,13 +66,26 @@ const Home = ({ history }) => {
   );
 
   return (
-    <ContentPanel
-      title={authenticationBackendsText}
-    >
-      <EuiFlexGroup>
-        {handleRenderAuthenticationBackendsCards()}
-      </EuiFlexGroup>
-    </ContentPanel>
+    <Fragment>
+      <ContentPanel
+        title={authenticationBackendsText}
+      >
+        <EuiFlexGroup>
+          {renderCards(authenticationBackendsCards)}
+        </EuiFlexGroup>
+      </ContentPanel>
+
+      <EuiSpacer size="xl" />
+
+      <ContentPanel
+        title={systemText}
+      >
+        <EuiFlexGroup>
+          {renderCards(systemCards)}
+        </EuiFlexGroup>
+      </ContentPanel>
+
+    </Fragment>
   );
 };
 

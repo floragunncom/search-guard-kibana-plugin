@@ -7,7 +7,7 @@ import {
   passwordText,
   repeatPasswordText,
   changePasswordText
-} from '../../../../utils/i18n/internalusers';
+} from '../../../../utils/i18n/internal_users';
 
 const renderPassword = passwordConfirmation => (
   <Fragment>

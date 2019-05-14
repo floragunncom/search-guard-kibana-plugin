@@ -23,7 +23,7 @@ import {
   backendRolesText,
   emptyUsersTableMessageText,
   noUsersText
-} from '../../../../utils/i18n/internalusers';
+} from '../../../../utils/i18n/internal_users';
 import {
   cancelText,
   nameText,
@@ -37,7 +37,7 @@ import {
 import { usersToTableUsers, tableUserToUser } from './utils';
 
 const renderResourceNameCell = history => (name, resource) => {
-  const { username: currentResource } = JSON.parse(sessionStorage.getItem(SESSION_STORAGE.SG_USER));
+  const { user_name: currentResource } = JSON.parse(sessionStorage.getItem(SESSION_STORAGE.RESTAPIINFO) || '{}');
   return(
     <div>
       <EuiFlexGroup>
@@ -274,8 +274,8 @@ class InternalUsers extends Component {
     ];
 
     const selection = {
-      selectable: resource => resource.id,
-      onSelectionChange: (tableSelection) => this.setState({ tableSelection })
+      selectable: resource => resource.id && !resource.reserved,
+      onSelectionChange: tableSelection => this.setState({ tableSelection })
     };
 
     const search = {

@@ -5,7 +5,7 @@ import { EuiButton, EuiSpacer } from '@elastic/eui';
 import queryString from 'query-string';
 import { get } from 'lodash';
 import { saveText, cancelText, inspectText } from '../../../../utils/i18n/common';
-import { createInternalUserText } from '../../../../utils/i18n/internalusers';
+import { createInternalUserText } from '../../../../utils/i18n/internal_users';
 import { ContentPanel } from '../../../../components';
 import { BackendRoles, UserAttributes, UserCredentials } from '../../components';
 import { APP_PATH, FLYOUTS, CALLOUTS } from '../../../../utils/constants';

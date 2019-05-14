@@ -4,7 +4,7 @@ import {
   usernameMustNotContainDotsAndAsterisksText,
   passwordsDontMatchText,
   passwordMustBeAtLeast5CharsText
-} from './i18n/internalusers';
+} from './i18n/internal_users';
 import { requiredText } from './i18n/common';
 
 export const validateInternalUserName = ({ allUsers, isEdit }) => name => {

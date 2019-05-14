@@ -1,5 +1,5 @@
 import React from 'react';
-import { EuiCodeEditor, EuiSpacer, EuiText, EuiTitle } from '@elastic/eui';
+import { EuiCodeEditor, EuiText, EuiTitle } from '@elastic/eui';
 import { jsonText } from '../../../utils/i18n/common';
 import { stringifyPretty } from '../../../utils/helpers';
 
@@ -16,8 +16,6 @@ const inspectJson = ({ title, json }) => ({
   body: (
     <div>
       <EuiText>{jsonText}</EuiText>
-      <EuiSpacer />
-
       <EuiCodeEditor
         mode="json"
         theme="github"
