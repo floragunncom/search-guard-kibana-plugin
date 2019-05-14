@@ -1,6 +1,7 @@
 import React from 'react';
 import { EuiI18n } from '@elastic/eui';
 
+export const descriptionText = (<EuiI18n token="sg.common.description.text" default="Description" />);
 export const jsonText = (<EuiI18n token="sg.common.json.text" default="JSON" />);
 export const saveText = (<EuiI18n token="sg.common.save.text" default="Save" />);
 export const cancelText = (<EuiI18n token="sg.common.cancel.text" default="Cancel" />);

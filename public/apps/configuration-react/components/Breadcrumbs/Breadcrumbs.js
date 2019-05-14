@@ -12,6 +12,10 @@ import {
   systemStatusText,
   uploadLicenseText
 } from '../../utils/i18n/system_status';
+import {
+  tenantsText,
+  createTenantText
+} from '../../utils/i18n/tenants';
 import { APP_PATH, SYSTEM_STATUS_ACTIONS } from '../../utils/constants';
 
 export const createBreadcrumb = (breadcrumb, history) => {
@@ -46,6 +50,13 @@ export const getBreadcrumb = route => {
     ],
     [removePrefixSlash(APP_PATH.SYSTEM_STATUS)]: [
       { text: systemStatusText, href: APP_PATH.SYSTEM_STATUS },
+    ],
+    [removePrefixSlash(APP_PATH.TENANTS)]: [
+      { text: tenantsText, href: APP_PATH.TENANTS },
+    ],
+    [removePrefixSlash(APP_PATH.CREATE_TENANT)]: [
+      { text: tenantsText, href: APP_PATH.TENANTS },
+      { text: tenantsText, href: APP_PATH.CREATE_TENANT }
     ]
   }[base];
 

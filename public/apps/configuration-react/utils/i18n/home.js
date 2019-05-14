@@ -6,3 +6,6 @@ export const authenticationBackendsText = (<EuiI18n token="sg.home.authenticatio
 export const systemText = (<EuiI18n token="sg.common.system.text" default="System" />);
 export const purgeCacheText = (<EuiI18n token="sg.home.purgeCache.text" default="Purge Cache" />);
 export const purgeCacheDescription = (<EuiI18n token="sg.home.purgeCacheDescription.text" default="Remove configuration cache" />);
+export const permissionsAndRolesText = (
+  <EuiI18n token="sg.home.permissionsAndRoles.text" default="Permissions And Roles" />
+);
