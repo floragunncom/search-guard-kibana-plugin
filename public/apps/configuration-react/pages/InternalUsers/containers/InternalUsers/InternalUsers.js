@@ -16,7 +16,7 @@ import {
 } from '@elastic/eui';
 import { get } from 'lodash';
 import { ContentPanel, SimpleItemsList } from '../../../../components';
-import { APP_PATH, CALLOUTS, SESSION_STORAGE } from '../../../../utils/constants';
+import { APP_PATH, SESSION_STORAGE } from '../../../../utils/constants';
 import {
   createInternalUserText,
   internalUsersText,
@@ -106,18 +106,10 @@ class InternalUsers extends Component {
       const { data: resources } = await this.backendService.list();
       this.setState({ resources: usersToTableUsers(resources), error: null });
     } catch(error) {
-      this.handleTriggerCallout(error);
+      this.setState({ error });
+      this.props.onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
-  }
-
-  handleTriggerCallout = error => {
-    error = error.data || error;
-    this.setState({ error });
-    this.props.onTriggerCallout({
-      type: CALLOUTS.ERROR_CALLOUT,
-      payload: get(error, 'message')
-    });
   }
 
   handleDeleteResources = resourcesToDelete => this.setState({ resourcesToDelete })
@@ -129,7 +121,8 @@ class InternalUsers extends Component {
         await this.backendService.delete(resourceIds[i]);
       }
     } catch(error) {
-      this.handleTriggerCallout(error);
+      this.setState({ error });
+      this.props.onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
     this.handleDeleteResources([]);
@@ -144,7 +137,8 @@ class InternalUsers extends Component {
       const doPreSaveResourceAdaptation = false;
       await this.backendService.save(username, tableUserToUser(resource), doPreSaveResourceAdaptation);
     } catch(error) {
-      this.handleTriggerCallout(error);
+      this.setState({ error });
+      this.props.onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
     this.fetchData();
@@ -317,7 +311,7 @@ InternalUsers.propTypes = {
   history: PropTypes.object.isRequired,
   httpClient: PropTypes.func,
   internalUsersService: PropTypes.object.isRequired,
-  onTriggerCallout: PropTypes.func.isRequired
+  onTriggerErrorCallout: PropTypes.func.isRequired
 };
 
 export default InternalUsers;

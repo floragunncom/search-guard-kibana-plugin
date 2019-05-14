@@ -23,7 +23,6 @@ export const doYouReallyWantToDeleteText = (
 export const currentUserText = (<EuiI18n token="sg.common.currentUser.text" default="Current User" />);
 export const navigateText = (<EuiI18n token="sg.common.navigate.text" default="Navigate" />);
 export const disabledText = (<EuiI18n token="sg.common.disabled.text" default="Disabled" />);
-export const systemText = (<EuiI18n token="sg.common.system.text" default="System" />);
 export const sgLicenseNotValidText = (
   <EuiI18n token="sg.common.sgLicenseNotValid.text" default="The Search Guard license key is not valid for this cluster" />
 );

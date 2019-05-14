@@ -12,7 +12,7 @@ import {
 } from '@elastic/eui';
 import { ContentPanel } from '../../components';
 import { get, isEmpty, map, forEach } from 'lodash';
-import { APP_PATH, CALLOUTS } from '../../utils/constants';
+import { APP_PATH } from '../../utils/constants';
 import { stringifyPretty } from '../../utils/helpers';
 import { navigateText, cancelText, disabledText } from '../../utils/i18n/common';
 import * as authI18nLabels from '../../utils/i18n/auth';
@@ -41,7 +41,6 @@ class Auth extends Component {
 
     this.state = {
       resources: {},
-      error: null,
       isLoading: true,
       selectedSideNavItemName: SELECTED_SIDE_NAV_ITEM_NAME,
       isSideNavOpenOnMobile: false
@@ -60,24 +59,14 @@ class Auth extends Component {
       const { data } = await this.backendService.list();
       this.setState({
         resources: resourcesToUiResources({
-          authc: get(data, 'sg_config.dynamic.authc'),
-          authz: get(data, 'sg_config.dynamic.authz')
-        }),
-        error: null
+          authc: get(data, 'sg_config.dynamic.authc', {}),
+          authz: get(data, 'sg_config.dynamic.authz', {})
+        })
       });
     } catch(error) {
-      this.handleTriggerCallout(error);
+      this.props.onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
-  }
-
-  handleTriggerCallout = error => {
-    error = error.data || error;
-    this.setState({ error });
-    this.props.onTriggerCallout({
-      type: CALLOUTS.ERROR_CALLOUT,
-      payload: get(error, 'message')
-    });
   }
 
   toggleOpenOnMobile = () => {
@@ -217,7 +206,7 @@ Auth.propTypes = {
   history: PropTypes.object.isRequired,
   httpClient: PropTypes.func,
   configurationService: PropTypes.object.isRequired,
-  onTriggerCallout: PropTypes.func.isRequired
+  onTriggerErrorCallout: PropTypes.func.isRequired
 };
 
 export default Auth;

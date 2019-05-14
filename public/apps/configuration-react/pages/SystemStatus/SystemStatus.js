@@ -19,7 +19,7 @@ import { UploadLicense } from './components';
 import { SELECTED_SIDE_NAV_ITEM_NAME } from './utils/constants';
 import { navigateText, cancelText } from '../../utils/i18n/common';
 import * as systemStatusI18nLabels from '../../utils/i18n/system_status';
-import { APP_PATH, CALLOUTS, SYSTEM_STATUS_ACTIONS } from '../../utils/constants';
+import { APP_PATH, SYSTEM_STATUS_ACTIONS } from '../../utils/constants';
 import { getResource } from './utils';
 
 const SystemStatusContent = ({ resource, sideNavItemName }) => {
@@ -82,7 +82,6 @@ class SystemStatus extends Component {
 
     this.state = {
       resources: {},
-      error: null,
       isLoading: true,
       selectedSideNavItemName: SELECTED_SIDE_NAV_ITEM_NAME,
       isSideNavOpenOnMobile: false
@@ -99,20 +98,11 @@ class SystemStatus extends Component {
     try {
       this.setState({ isLoading: true });
       const { data: resources } = await this.backendService.getSystemInfo();
-      this.setState({ resources, error: null });
+      this.setState({ resources });
     } catch(error) {
-      this.handleTriggerCallout(error);
+      this.props.onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
-  }
-
-  handleTriggerCallout = error => {
-    error = error.data || error;
-    this.setState({ error });
-    this.props.onTriggerCallout({
-      type: CALLOUTS.ERROR_CALLOUT,
-      payload: get(error, 'message')
-    });
   }
 
   toggleOpenOnMobile = () => {
@@ -211,7 +201,9 @@ SystemStatus.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
   httpClient: PropTypes.func.isRequired,
-  onTriggerCallout: PropTypes.func.isRequired
+  onTriggerErrorCallout: PropTypes.func.isRequired,
+  onTriggerSuccessCallout: PropTypes.func.isRequired,
+  onTriggerCustomFlyout: PropTypes.func.isRequired
 };
 
 export default SystemStatus;
