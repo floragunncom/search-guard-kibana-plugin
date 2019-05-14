@@ -16,7 +16,11 @@ import {
 } from '@elastic/eui';
 import { get } from 'lodash';
 import { ContentPanel, SimpleItemsList } from '../../../../components';
-import { APP_PATH, SESSION_STORAGE } from '../../../../utils/constants';
+import {
+  APP_PATH,
+  SESSION_STORAGE,
+  INTERNAL_USERS_ACTIONS
+} from '../../../../utils/constants';
 import {
   createInternalUserText,
   internalUsersText,
@@ -47,7 +51,7 @@ const renderResourceNameCell = history => (name, resource) => {
           ) : (
             <EuiLink
               onClick={() =>
-                history.push(`${APP_PATH.CREATE_INTERNAL_USER}?id=${name}`)
+                history.push(`${APP_PATH.CREATE_INTERNAL_USER}?id=${name}&action=${INTERNAL_USERS_ACTIONS.UPDATE_USER}`)
               }
             >
               {name}

@@ -24,6 +24,10 @@ export const INTERNAL_USERS_ACTIONS = {
   UPDATE_USER: 'update-user'
 };
 
+export const TENANTS_ACTIONS = {
+  UPDATE_TENANT: 'update-tenant'
+};
+
 export const FLYOUTS = {
   INSPECT_JSON: 'inspectJson',
   CUSTOM: 'customFlyout'

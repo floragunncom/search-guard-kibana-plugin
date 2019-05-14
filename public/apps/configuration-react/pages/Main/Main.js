@@ -18,6 +18,7 @@ import { InternalUsers } from '../InternalUsers';
 import { Auth } from '../Auth';
 import { SystemStatus } from '../SystemStatus';
 import { Tenants } from '../Tenants';
+import { CreateTenant } from '../CreateTenant';
 import { Breadcrumbs, Flyout, Callout } from '../../components';
 import { APP_PATH, CALLOUTS, FLYOUTS } from '../../utils/constants';
 import { checkIfLicenseValid } from '../../utils/helpers';
@@ -185,6 +186,17 @@ class Main extends Component {
                   path={APP_PATH.TENANTS}
                   render={props => (
                     <Tenants
+                      httpClient={httpClient}
+                      tenantsService={tenantsService}
+                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      {...props}
+                    />
+                  )}
+                />
+                <Route
+                  path={APP_PATH.CREATE_TENANT}
+                  render={props => (
+                    <CreateTenant
                       httpClient={httpClient}
                       tenantsService={tenantsService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}

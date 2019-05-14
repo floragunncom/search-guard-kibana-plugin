@@ -4,7 +4,11 @@ import { flatten } from 'lodash';
 import queryString from 'query-string';
 import { EuiBreadcrumbs } from '@elastic/eui';
 import { homeText } from '../../utils/i18n/home';
-import { internalUsersText, createInternalUserText } from '../../utils/i18n/internal_users';
+import {
+  internalUsersText,
+  createInternalUserText,
+  updateInternalUserText
+} from '../../utils/i18n/internal_users';
 import {
   authenticationAndAuthorizationText,
 } from '../../utils/i18n/auth';
@@ -14,9 +18,15 @@ import {
 } from '../../utils/i18n/system_status';
 import {
   tenantsText,
-  createTenantText
+  createTenantText,
+  updateTenantText
 } from '../../utils/i18n/tenants';
-import { APP_PATH, SYSTEM_STATUS_ACTIONS } from '../../utils/constants';
+import {
+  APP_PATH,
+  SYSTEM_STATUS_ACTIONS,
+  TENANTS_ACTIONS,
+  INTERNAL_USERS_ACTIONS
+} from '../../utils/constants';
 
 export const createBreadcrumb = (breadcrumb, history) => {
   const { text, href } = breadcrumb;
@@ -34,6 +44,11 @@ export const getBreadcrumb = route => {
   const [ base, queryParams ] = route.split('?');
   if (!base) return null;
 
+  const { id, action } = queryString.parse(queryParams);
+  const uploadLicense = action === SYSTEM_STATUS_ACTIONS.UPLOAD_LICENSE;
+  const updateTenant = action === TENANTS_ACTIONS.UPDATE_TENANT;
+  const updateUser = action === INTERNAL_USERS_ACTIONS.UPDATE_USER;
+
   const removePrefixSlash = path => path.slice(1);
   const breadcrumb = {
     '#': { text: homeText, href: APP_PATH.HOME },
@@ -43,7 +58,7 @@ export const getBreadcrumb = route => {
     },
     [removePrefixSlash(APP_PATH.CREATE_INTERNAL_USER)]: [
       { text: internalUsersText, href: APP_PATH.INTERNAL_USERS },
-      { text: createInternalUserText, href: APP_PATH.CREATE_INTERNAL_USER }
+      { text: (updateUser ? updateInternalUserText : createInternalUserText), href: APP_PATH.CREATE_INTERNAL_USER }
     ],
     [removePrefixSlash(APP_PATH.AUTH)]: [
       { text: authenticationAndAuthorizationText, href: APP_PATH.AUTH },
@@ -56,18 +71,18 @@ export const getBreadcrumb = route => {
     ],
     [removePrefixSlash(APP_PATH.CREATE_TENANT)]: [
       { text: tenantsText, href: APP_PATH.TENANTS },
-      { text: tenantsText, href: APP_PATH.CREATE_TENANT }
+      { text: (updateTenant ? updateTenantText : createTenantText), href: APP_PATH.CREATE_TENANT }
     ]
   }[base];
 
-  const { id, action } = queryString.parse(queryParams);
-  if (id) {
-    breadcrumb.push({ text: id, href: APP_PATH.CREATE_INTERNAL_USER + `?id=${id}` });
-  }
-
-  const uploadLicense = action === SYSTEM_STATUS_ACTIONS.UPLOAD_LICENSE;
   if (uploadLicense) {
     breadcrumb.push({ text: uploadLicenseText, href: APP_PATH.SYSTEM_STATUS + `?action=${action}` });
+  }
+  if (updateUser) {
+    breadcrumb.push({ text: id, href: APP_PATH.CREATE_INTERNAL_USER + `?id=${id}&action=${INTERNAL_USERS_ACTIONS.UPDATE_USER}` });
+  }
+  if (updateTenant) {
+    breadcrumb.push({ text: id, href: APP_PATH.CREATE_TENANT + `?id=${id}&action=${TENANTS_ACTIONS.UPDATE_TENANT}` });
   }
 
   return breadcrumb;

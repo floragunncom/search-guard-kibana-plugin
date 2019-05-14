@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import { EuiButton, EuiSpacer } from '@elastic/eui';
 import queryString from 'query-string';
 import { saveText, cancelText, inspectText } from '../../../../utils/i18n/common';
-import { createInternalUserText } from '../../../../utils/i18n/internal_users';
+import { createInternalUserText, updateInternalUserText } from '../../../../utils/i18n/internal_users';
 import { ContentPanel } from '../../../../components';
 import { BackendRoles, UserAttributes, UserCredentials } from '../../components';
-import { APP_PATH } from '../../../../utils/constants';
+import { APP_PATH, INTERNAL_USERS_ACTIONS } from '../../../../utils/constants';
 import { DEFAULT_USER } from './utils/constants';
 import { userToFormik, formikToUser } from './utils';
 
@@ -95,8 +95,11 @@ class CreateInternalUser extends Component {
   )
 
   render() {
-    const { history, onTriggerInspectJsonFlyout } = this.props;
+    const { history, onTriggerInspectJsonFlyout, location } = this.props;
     const { resource, isEdit, backendRoles, resources, isLoading } = this.state;
+    const { action } = queryString.parse(location.search);
+    const updateUser = action === INTERNAL_USERS_ACTIONS.UPDATE_USER;
+    const titleText = updateUser ? updateInternalUserText : createInternalUserText;
 
     return (
       <Formik
@@ -107,7 +110,7 @@ class CreateInternalUser extends Component {
         render={({ values, handleSubmit, isSubmitting }) => {
           return (
             <ContentPanel
-              title={createInternalUserText}
+              title={titleText}
               isLoading={isLoading}
               actions={[
                 this.renderCancelButton(history),
