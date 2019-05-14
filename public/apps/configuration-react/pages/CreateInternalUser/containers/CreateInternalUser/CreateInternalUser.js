@@ -4,12 +4,8 @@ import PropTypes from 'prop-types';
 import { EuiButton, EuiSpacer } from '@elastic/eui';
 import queryString from 'query-string';
 import { get } from 'lodash';
-import {
-  i18nSaveText,
-  i18nCancelText,
-  i18nCreateInternalUserText,
-  i18nInspectText
-} from '../../../../utils/i18n_nodes';
+import { saveText, cancelText, inspectText } from '../../../../utils/i18n/common';
+import { createInternalUserText } from '../../../../utils/i18n/internal_users';
 import { ContentPanel } from '../../../../components';
 import { BackendRoles, UserAttributes, UserCredentials } from '../../components';
 import { APP_PATH, FLYOUTS, CALLOUTS } from '../../../../utils/constants';
@@ -26,9 +22,9 @@ class CreateInternalUser extends Component {
     this.state = {
       id,
       isEdit: !!id,
-      user: userToFormik({ user: DEFAULT_USER, id }),
-      allRoles: [],
-      allUsers: [],
+      resource: userToFormik({ user: DEFAULT_USER, id }),
+      backendRoles: [],
+      resources: [],
       error: null,
       isLoading: true
     };
@@ -53,20 +49,20 @@ class CreateInternalUser extends Component {
     const { internalUsersService, rolesService } = this.props;
     try {
       this.setState({ isLoading: true });
-      const { data: allUsers } = await internalUsersService.list();
-      const { data: allRoles } = await rolesService.list();
+      const { data: resources } = await internalUsersService.list();
+      const { data: backendRoles } = await rolesService.list();
       this.setState({
-        allUsers: Object.keys(allUsers),
-        allRoles: Object.keys(allRoles).map(label => ({ label })),
+        resources: Object.keys(resources),
+        backendRoles: Object.keys(backendRoles).map(label => ({ label })),
         error: null
       });
 
       if (id) {
-        let user = await internalUsersService.get(id);
-        user = userToFormik({ user, id });
-        this.setState({ user });
+        let resource = await internalUsersService.get(id);
+        resource = userToFormik({ user: resource, id });
+        this.setState({ resource });
       } else {
-        this.setState({ user: userToFormik({ user: DEFAULT_USER, id }), isEdit: !!id });
+        this.setState({ resource: userToFormik({ user: DEFAULT_USER, id }), isEdit: !!id });
       }
     } catch(error) {
       this.handleTriggerCallout(error);
@@ -79,8 +75,8 @@ class CreateInternalUser extends Component {
     const { username } = values;
     try {
       const user = formikToUser(values);
-      const doPreSaveUserAdaptation = false;
-      await internalUsersService.save(username, user, doPreSaveUserAdaptation);
+      const doPreSaveResourceAdaptation = false;
+      await internalUsersService.save(username, user, doPreSaveResourceAdaptation);
       this.setState({ error: null });
     } catch (error) {
       this.handleTriggerCallout(error);
@@ -102,30 +98,30 @@ class CreateInternalUser extends Component {
 
   renderCancelButton = history => (
     <EuiButton onClick={() => history.push(APP_PATH.INTERNAL_USERS)}>
-      {i18nCancelText}
+      {cancelText}
     </EuiButton>
   )
 
   renderSaveButton = ({ isSubmitting, handleSubmit }) => (
     <EuiButton isLoading={isSubmitting} iconType="save" fill onClick={handleSubmit}>
-      {i18nSaveText}
+      {saveText}
     </EuiButton>
   )
 
   render() {
     const { history, onTriggerFlyout } = this.props;
-    const { user, isEdit, allRoles, allUsers, isLoading } = this.state;
+    const { resource, isEdit, backendRoles, resources, isLoading } = this.state;
 
     return (
       <Formik
-        initialValues={user}
+        initialValues={resource}
         onSubmit={this.onSubmit}
         validateOnChange={false}
         enableReinitialize={true}
         render={({ values, handleSubmit, isSubmitting }) => {
           return (
             <ContentPanel
-              title={i18nCreateInternalUserText}
+              title={createInternalUserText}
               isLoading={isLoading}
               actions={[
                 this.renderCancelButton(history),
@@ -140,17 +136,17 @@ class CreateInternalUser extends Component {
                     type: FLYOUTS.INSPECT_JSON,
                     payload: {
                       json: formikToUser(values),
-                      title: i18nCreateInternalUserText
+                      title: createInternalUserText
                     }
                   });
                 }}
               >
-                {i18nInspectText}
+                {inspectText}
               </EuiButton>
               <EuiSpacer />
 
-              <UserCredentials isEdit={isEdit} values={values} allUsers={allUsers} />
-              <BackendRoles allRoles={allRoles} />
+              <UserCredentials isEdit={isEdit} values={values} allUsers={resources} />
+              <BackendRoles allRoles={backendRoles} />
               <UserAttributes attributes={values.attributes} />
             </ContentPanel>
           );

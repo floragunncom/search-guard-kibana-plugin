@@ -15,35 +15,34 @@ import {
   EUI_MODAL_CONFIRM_BUTTON
 } from '@elastic/eui';
 import { get } from 'lodash';
-import { ContentPanel } from '../../../../components';
+import { ContentPanel, SimpleItemsList } from '../../../../components';
 import { APP_PATH, CALLOUTS, SESSION_STORAGE } from '../../../../utils/constants';
 import {
-  i18nCreateInternalUserText,
-  i18nCancelText,
-  i18nInternalUsersText,
-  i18nNameText,
-  i18nReservedText,
-  i18nBackendRolesText,
-  i18nDeleteText,
-  i18nEmptyUsersTableMessage,
-  i18nCurrentUserText,
-  i18nDoYouReallyWantToDeleteText,
-  i18nConfirmDeleteText,
-  i18nConfirmText
-} from '../../../../utils/i18n_nodes';
+  createInternalUserText,
+  internalUsersText,
+  backendRolesText,
+  emptyUsersTableMessageText,
+  noUsersText
+} from '../../../../utils/i18n/internal_users';
+import {
+  cancelText,
+  nameText,
+  reservedText,
+  deleteText,
+  currentUserText,
+  doYouReallyWantToDeleteText,
+  confirmDeleteText,
+  confirmText
+} from '../../../../utils/i18n/common';
 import { usersToTableUsers, tableUserToUser } from './utils';
 
-const renderUserBackendRolesCell = roles => (
-  <div>{roles.map((role, i) => <div key={i}>{role}</div>)}</div>
-);
-
-const renderUserNameCell = history => (name, user) => {
-  const { user_name: currentUser } = JSON.parse(sessionStorage.getItem(SESSION_STORAGE.RESTAPIINFO) || '{}');
+const renderResourceNameCell = history => (name, resource) => {
+  const { user_name: currentResource } = JSON.parse(sessionStorage.getItem(SESSION_STORAGE.RESTAPIINFO) || '{}');
   return(
     <div>
       <EuiFlexGroup>
         <EuiFlexItem>
-          {user.reserved ? (
+          {resource.reserved ? (
             <EuiText size="s">{name}</EuiText>
           ) : (
             <EuiLink
@@ -57,23 +56,23 @@ const renderUserNameCell = history => (name, user) => {
           }
         </EuiFlexItem>
       </EuiFlexGroup>
-      {name === currentUser && (
+      {name === currentResource && (
         <EuiFlexGrid columns={2} gutterSize="s" responsive={false}>
           <EuiFlexItem grow={false}>
             <EuiIcon type="user"/>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiText size="s">{i18nCurrentUserText}</EuiText>
+            <EuiText size="s">{currentUserText}</EuiText>
           </EuiFlexItem>
         </EuiFlexGrid>
       )}
-      {user.reserved && (
+      {resource.reserved && (
         <EuiFlexGrid columns={2} gutterSize="s" responsive={false}>
           <EuiFlexItem grow={false}>
             <EuiIcon type="lock"/>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiText size="s">{i18nReservedText}</EuiText>
+            <EuiText size="s">{reservedText}</EuiText>
           </EuiFlexItem>
         </EuiFlexGrid>
       )}
@@ -82,18 +81,19 @@ const renderUserNameCell = history => (name, user) => {
 };
 
 // TODO: make this component get API data by chunks (paginations)
-// TODO: hook up a confirmation modal
 class InternalUsers extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      allUsers: [],
+      resources: [],
       error: null,
       isLoading: true,
       tableSelection: [],
-      userIdsToDelete: []
+      resourcesToDelete: []
     };
+
+    this.backendService = this.props.internalUsersService;
   }
 
   componentDidMount() {
@@ -101,11 +101,10 @@ class InternalUsers extends Component {
   }
 
   fetchData = async () => {
-    const { internalUsersService } = this.props;
     try {
       this.setState({ isLoading: true });
-      const { data: allUsers } = await internalUsersService.list();
-      this.setState({ allUsers: usersToTableUsers(allUsers), error: null });
+      const { data: resources } = await this.backendService.list();
+      this.setState({ resources: usersToTableUsers(resources), error: null });
     } catch(error) {
       this.handleTriggerCallout(error);
     }
@@ -121,31 +120,29 @@ class InternalUsers extends Component {
     });
   }
 
-  handleUsersDelete = userIdsToDelete => this.setState({ userIdsToDelete })
+  handleDeleteResources = resourcesToDelete => this.setState({ resourcesToDelete })
 
-  deleteUsers = async userIds => {
-    const { internalUsersService } = this.props;
+  deleteResources = async resourceIds => {
     try {
       this.setState({ isLoading: true });
-      for (let i = 0; i < userIds.length; i++) {
-        await internalUsersService.delete(userIds[i]);
+      for (let i = 0; i < resourceIds.length; i++) {
+        await this.backendService.delete(resourceIds[i]);
       }
     } catch(error) {
       this.handleTriggerCallout(error);
     }
     this.setState({ isLoading: false });
-    this.handleUsersDelete([]);
+    this.handleDeleteResources([]);
     this.fetchData();
   }
 
-  cloneUser = async user => {
-    const { internalUsersService } = this.props;
-    let { id: username } = user;
+  cloneResource = async resource => {
+    let { id: username } = resource;
     username += '_copy';
     try {
       this.setState({ isLoading: true });
-      const doPreSaveUserAdaptation = false;
-      await internalUsersService.save(username, tableUserToUser(user), doPreSaveUserAdaptation);
+      const doPreSaveResourceAdaptation = false;
+      await this.backendService.save(username, tableUserToUser(resource), doPreSaveResourceAdaptation);
     } catch(error) {
       this.handleTriggerCallout(error);
     }
@@ -153,11 +150,11 @@ class InternalUsers extends Component {
     this.fetchData();
   }
 
-  renderCreateUserButton = history => (
+  renderCreateResourceButton = history => (
     <EuiButton
       onClick={() => history.push(APP_PATH.CREATE_INTERNAL_USER)}
     >
-      {i18nCreateInternalUserText}
+      {createInternalUserText}
     </EuiButton>
   )
 
@@ -165,7 +162,7 @@ class InternalUsers extends Component {
     <EuiButton
       onClick={() => history.push(APP_PATH.HOME)}
     >
-      {i18nCancelText}
+      {cancelText}
     </EuiButton>
   )
 
@@ -177,7 +174,7 @@ class InternalUsers extends Component {
     }
 
     const handleMultiDelete = () => {
-      this.handleUsersDelete(tableSelection.map(item => item.id));
+      this.handleDeleteResources(tableSelection.map(item => item.id));
       this.setState({ tableSelection: [] });
     };
 
@@ -187,7 +184,7 @@ class InternalUsers extends Component {
         iconType="trash"
         onClick={handleMultiDelete}
       >
-        {i18nDeleteText} {tableSelection.length}
+        {deleteText} {tableSelection.length}
       </EuiButton>
     );
 
@@ -196,39 +193,39 @@ class InternalUsers extends Component {
 
   renderEmptyTableMessage = history => (
     <EuiEmptyPrompt
-      title={<h3>No users</h3>}
+      title={<h3>{noUsersText}</h3>}
       titleSize="xs"
-      body={i18nEmptyUsersTableMessage}
+      body={emptyUsersTableMessageText}
       actions={(
         <EuiButton
           onClick={() => history.push(APP_PATH.CREATE_INTERNAL_USER)}
         >
-          {i18nCreateInternalUserText}
+          {createInternalUserText}
         </EuiButton>
       )}
     />
   )
 
-  renderConfirmUsersDeleteModal = userIdsToDelete => (
+  renderConfirmResourcesDeleteModal = resourcesToDelete => (
     <EuiOverlayMask>
       <EuiConfirmModal
-        title={i18nConfirmDeleteText}
-        onCancel={() => this.handleUsersDelete([])}
-        onConfirm={() => this.deleteUsers(userIdsToDelete)}
-        cancelButtonText={i18nCancelText}
-        confirmButtonText={i18nConfirmText}
+        title={confirmDeleteText}
+        onCancel={() => this.handleDeleteResources([])}
+        onConfirm={() => this.deleteResources(resourcesToDelete)}
+        cancelButtonText={cancelText}
+        confirmButtonText={confirmText}
         buttonColor="danger"
         defaultFocusedButton={EUI_MODAL_CONFIRM_BUTTON}
       >
-        <p>{i18nDoYouReallyWantToDeleteText} {userIdsToDelete.join(', ')}?</p>
+        <p>{doYouReallyWantToDeleteText} {resourcesToDelete.join(', ')}?</p>
       </EuiConfirmModal>
     </EuiOverlayMask>
   )
 
   render() {
     const { history } = this.props;
-    const { isLoading, error, allUsers, userIdsToDelete } = this.state;
-    const isDeleting = !!userIdsToDelete.length;
+    const { isLoading, error, resources, resourcesToDelete } = this.state;
+    const isDeleting = !!resourcesToDelete.length;
 
     const actions = [
       {
@@ -236,40 +233,39 @@ class InternalUsers extends Component {
         description: 'Clone this user',
         icon: 'copy',
         type: 'icon',
-        onClick: this.cloneUser
+        onClick: this.cloneResource
       }, {
         name: 'Delete',
-        enabled: user => !user.reserved,
-        description: 'Delete this user',
+        enabled: resource => !resource.reserved,
+        description: 'Delete this resource',
         icon: 'trash',
         type: 'icon',
         color: 'danger',
-        onClick: user => this.handleUsersDelete([user.id])
+        onClick: resource => this.handleDeleteResources([resource.id])
       }
     ];
 
-    // TODO: render 'current user' note in one of the columns
     const columns = [
       {
         field: 'id',
-        name: i18nNameText,
-        footer: i18nNameText,
+        name: nameText,
+        footer: nameText,
         align: 'left',
         sortable: true,
         mobileOptions: {
           header: false
         },
-        render: renderUserNameCell(history)
+        render: renderResourceNameCell(history)
       },
       {
         field: 'backend_roles',
-        name: i18nBackendRolesText,
-        footer: i18nBackendRolesText,
+        name: backendRolesText,
+        footer: backendRolesText,
         align: 'left',
         mobileOptions: {
           header: false
         },
-        render: renderUserBackendRolesCell
+        render: items => (<SimpleItemsList items={items} />)
       },
       {
         align: 'right',
@@ -278,7 +274,7 @@ class InternalUsers extends Component {
     ];
 
     const selection = {
-      selectable: user => user.id && !user.reserved,
+      selectable: resource => resource.id && !resource.reserved,
       onSelectionChange: tableSelection => this.setState({ tableSelection })
     };
 
@@ -291,14 +287,14 @@ class InternalUsers extends Component {
 
     return (
       <ContentPanel
-        title={i18nInternalUsersText}
+        title={internalUsersText}
         actions={[
           this.renderCancelButton(history),
-          this.renderCreateUserButton(history)
+          this.renderCreateResourceButton(history)
         ]}
       >
         <EuiInMemoryTable
-          items={allUsers}
+          items={resources}
           itemId="id"
           error={get(error, 'message')}
           message={this.renderEmptyTableMessage(history)}
@@ -311,7 +307,7 @@ class InternalUsers extends Component {
           isSelectable={true}
         />
 
-        {isDeleting && this.renderConfirmUsersDeleteModal(userIdsToDelete)}
+        {isDeleting && this.renderConfirmResourcesDeleteModal(resourcesToDelete)}
       </ContentPanel>
     );
   }

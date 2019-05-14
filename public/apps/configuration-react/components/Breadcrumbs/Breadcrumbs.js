@@ -3,11 +3,8 @@ import PropTypes from 'prop-types';
 import { flatten } from 'lodash';
 import queryString from 'query-string';
 import { EuiBreadcrumbs } from '@elastic/eui';
-import {
-  i18nHomeText,
-  i18nInternalUsersText,
-  i18nCreateInternalUserText,
-} from '../../utils/i18n_nodes';
+import { homeText } from '../../utils/i18n/home';
+import { internalUsersText, createInternalUserText } from '../../utils/i18n/internal_users';
 import {
   authenticationAndAuthorizationText,
 } from '../../utils/i18n/auth';
@@ -35,14 +32,14 @@ export const getBreadcrumb = route => {
 
   const removePrefixSlash = path => path.slice(1);
   const breadcrumb = {
-    '#': { text: i18nHomeText, href: APP_PATH.HOME },
+    '#': { text: homeText, href: APP_PATH.HOME },
     [removePrefixSlash(APP_PATH.INTERNAL_USERS)]: {
-      text: i18nInternalUsersText,
+      text: internalUsersText,
       href: APP_PATH.INTERNAL_USERS
     },
     [removePrefixSlash(APP_PATH.CREATE_INTERNAL_USER)]: [
-      { text: i18nInternalUsersText, href: APP_PATH.INTERNAL_USERS },
-      { text: i18nCreateInternalUserText, href: APP_PATH.CREATE_INTERNAL_USER }
+      { text: internalUsersText, href: APP_PATH.INTERNAL_USERS },
+      { text: createInternalUserText, href: APP_PATH.CREATE_INTERNAL_USER }
     ],
     [removePrefixSlash(APP_PATH.AUTH)]: [
       { text: authenticationAndAuthorizationText, href: APP_PATH.AUTH },

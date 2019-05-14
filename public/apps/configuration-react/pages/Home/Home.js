@@ -9,11 +9,11 @@ import {
 } from '@elastic/eui';
 import { ContentPanel } from '../../components';
 import { APP_PATH } from '../../utils/constants';
+import { authenticationBackendsText } from '../../utils/i18n/home';
 import {
-  i18nInternalUsersDatabaseText,
-  i18nInternalUsersDatabaseDescription,
-  i18nAuthenticationBackendsText
-} from '../../utils/i18n_nodes';
+  internalUsersDatabaseText,
+  internalUsersDatabaseDescription
+} from '../../utils/i18n/internal_users';
 import {
   authenticationAndAuthorizationText,
   authenticationAndAuthorizationDescription
@@ -31,8 +31,8 @@ const Home = ({ history }) => {
   const authenticationBackendsCards = [
     {
       icon: (<EuiIcon size="xxl" type="database" />),
-      title: i18nInternalUsersDatabaseText,
-      description: i18nInternalUsersDatabaseDescription,
+      title: internalUsersDatabaseText,
+      description: internalUsersDatabaseDescription,
       onClick: () => history.push(APP_PATH.INTERNAL_USERS)
     }
   ];
@@ -68,7 +68,7 @@ const Home = ({ history }) => {
   return (
     <Fragment>
       <ContentPanel
-        title={i18nAuthenticationBackendsText}
+        title={authenticationBackendsText}
       >
         <EuiFlexGroup>
           {renderCards(authenticationBackendsCards)}

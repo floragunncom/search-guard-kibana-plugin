@@ -1,14 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FormikComboBox } from '../../../../components';
-import { i18nBackendRolesText } from '../../../../utils/i18n_nodes';
+import { backendRolesText } from '../../../../utils/i18n/internal_users';
 
 const BackendRoles = ({ allRoles }) => (
   <FormikComboBox
     name="backend_roles"
     formRow
     rowProps={{
-      label: i18nBackendRolesText,
+      label: backendRolesText,
     }}
     elementProps={{
       options: allRoles,

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { EuiCallOut, EuiFlexGroup, EuiFlexItem, EuiButton, EuiSpacer } from '@elastic/eui';
 import Callouts from './callouts';
-import { i18nCloseText } from '../../utils/i18n_nodes';
+import { closeText } from '../../utils/i18n/common';
 
 const getCalloutProps = ({ type, payload }) => {
   const callout = Callouts[type];
@@ -29,7 +29,7 @@ const Callout = ({ callout, onClose }) => {
         <EuiCallOut title={title} iconType={iconType} color={color} {...calloutProps}>
           {text}
           <EuiSpacer />
-          <EuiButton size="s" onClick={onClose} {...closeButtonProps}>{i18nCloseText}</EuiButton>
+          <EuiButton size="s" onClick={onClose} {...closeButtonProps}>{closeText}</EuiButton>
         </EuiCallOut>
       </EuiFlexItem>
     </EuiFlexGroup>
