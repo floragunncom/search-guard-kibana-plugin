@@ -8,7 +8,8 @@ export const API = {
 export const APP_PATH = {
   HOME: '/',
   INTERNAL_USERS: '/internal-users',
-  CREATE_INTERNAL_USER: '/create-internal-user'
+  CREATE_INTERNAL_USER: '/create-internal-user',
+  AUTH: '/auth'
 };
 
 export const INTERNAL_USERS_ACTIONS = {
