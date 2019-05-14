@@ -12,13 +12,19 @@ import { APP_PATH } from '../../utils/constants';
 import {
   i18nInternalUsersDatabaseText,
   i18nInternalUsersDatabaseDescription,
-  i18nAuthenticationBackendsText,
-  i18nSystemText
+  i18nAuthenticationBackendsText
 } from '../../utils/i18n_nodes';
 import {
   authenticationAndAuthorizationText,
   authenticationAndAuthorizationDescription
 } from '../../utils/i18n/auth';
+import {
+  systemText
+} from '../../utils/i18n/common';
+import {
+  systemStatus as systemStatusText,
+  systemStatusDescription
+} from '../../utils/i18n/system_status';
 
 const Home = ({ history }) => {
   // TODO: use pesonalized Search Guard icons in cards instead of the default ones
@@ -37,6 +43,12 @@ const Home = ({ history }) => {
       title: authenticationAndAuthorizationText,
       description: authenticationAndAuthorizationDescription,
       onClick: () => history.push(APP_PATH.AUTH)
+    },
+    {
+      icon: (<EuiIcon size="xxl" type="gear" />),
+      title: systemStatusText,
+      description: systemStatusDescription,
+      onClick: () => history.push(APP_PATH.SYSTEM_STATUS)
     }
   ];
 
@@ -66,7 +78,7 @@ const Home = ({ history }) => {
       <EuiSpacer size="xl" />
 
       <ContentPanel
-        title={i18nSystemText}
+        title={systemText}
       >
         <EuiFlexGroup>
           {renderCards(systemCards)}

@@ -79,7 +79,6 @@ class CreateInternalUser extends Component {
     const { username } = values;
     try {
       const user = formikToUser(values);
-      console.log('CreateInternalUser - user', user);
       const doPreSaveUserAdaptation = false;
       await internalUsersService.save(username, user, doPreSaveUserAdaptation);
       this.setState({ error: null });

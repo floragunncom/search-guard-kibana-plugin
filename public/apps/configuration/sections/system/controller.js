@@ -169,5 +169,3 @@ app.controller('sgLicenseController', function ($scope, $element, $route, $locat
         fileField.removeEventListener('change', uploadLicenseFile);
     });
 });
-
-

@@ -11,7 +11,11 @@ import {
 import {
   authenticationAndAuthorizationText,
 } from '../../utils/i18n/auth';
-import { APP_PATH } from '../../utils/constants';
+import {
+  systemStatusText,
+  uploadLicenseText
+} from '../../utils/i18n/system_status';
+import { APP_PATH, SYSTEM_STATUS_ACTIONS } from '../../utils/constants';
 
 export const createBreadcrumb = (breadcrumb, history) => {
   const { text, href } = breadcrumb;
@@ -42,12 +46,20 @@ export const getBreadcrumb = route => {
     ],
     [removePrefixSlash(APP_PATH.AUTH)]: [
       { text: authenticationAndAuthorizationText, href: APP_PATH.AUTH },
+    ],
+    [removePrefixSlash(APP_PATH.SYSTEM_STATUS)]: [
+      { text: systemStatusText, href: APP_PATH.SYSTEM_STATUS },
     ]
   }[base];
 
-  const { id } = queryString.parse(queryParams);
+  const { id, action } = queryString.parse(queryParams);
   if (id) {
     breadcrumb.push({ text: id, href: APP_PATH.CREATE_INTERNAL_USER + `?id=${id}` });
+  }
+
+  const uploadLicense = action === SYSTEM_STATUS_ACTIONS.UPLOAD_LICENSE;
+  if (uploadLicense) {
+    breadcrumb.push({ text: uploadLicenseText, href: APP_PATH.SYSTEM_STATUS + `?action=${action}` });
   }
 
   return breadcrumb;

@@ -16,8 +16,6 @@ const inspectJson = ({ title, json }) => ({
   body: (
     <div>
       <EuiText>{i18nJsonText}</EuiText>
-      <EuiSpacer />
-
       <EuiCodeEditor
         mode="json"
         theme="github"
