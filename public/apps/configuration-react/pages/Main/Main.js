@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Switch, Route } from 'react-router-dom';
+import { get } from 'lodash';
 import {
   EuiPage,
   EuiPageBody,
@@ -26,6 +27,7 @@ class Main extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      purgingCache: false,
       flyout: null,
       callout: null,
       sideNavItems: [],
@@ -70,10 +72,29 @@ class Main extends Component {
     this.setState({ callout });
   }
 
+  handleTriggerErrorCallout = error => {
+    error = error.data || error;
+    this.handleTriggerCallout({
+      type: CALLOUTS.ERROR_CALLOUT,
+      payload: get(error, 'message', error)
+    });
+  }
+
+  handlePurgeCache = async () => {
+    this.setState({ purgingCache: true });
+    try {
+      await this.backendAPI.clearCache();
+    } catch (error) {
+      this.handleTriggerErrorCallout(error);
+    }
+    this.setState({ purgingCache: false });
+  }
+
   render() {
     const {
       flyout,
-      callout
+      callout,
+      purgingCache
     } = this.state;
     const {
       httpClient,
@@ -144,7 +165,13 @@ class Main extends Component {
                   )}
                 />
                 <Route
-                  render={props => <Home {...props} />}
+                  render={props => (
+                    <Home
+                      purgingCache={purgingCache}
+                      onPurgeCache={this.handlePurgeCache}
+                      {...props}
+                    />
+                  )}
                 />
               </Switch>
             </EuiPageContentBody>
@@ -160,6 +187,7 @@ Main.propTypes = {
   httpClient: PropTypes.func.isRequired,
   backendInternalUsers: PropTypes.object.isRequired,
   backendRoles: PropTypes.object.isRequired,
+  backendAPI: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired
 };

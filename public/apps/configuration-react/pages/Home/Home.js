@@ -5,11 +5,17 @@ import {
   EuiFlexItem,
   EuiCard,
   EuiIcon,
-  EuiSpacer
+  EuiSpacer,
+  EuiLoadingSpinner
 } from '@elastic/eui';
 import { ContentPanel } from '../../components';
 import { APP_PATH } from '../../utils/constants';
-import { authenticationBackendsText } from '../../utils/i18n/home';
+import {
+  authenticationBackendsText,
+  systemText,
+  purgeCacheText,
+  purgeCacheDescription
+} from '../../utils/i18n/home';
 import {
   internalUsersDatabaseText,
   internalUsersDatabaseDescription
@@ -19,14 +25,11 @@ import {
   authenticationAndAuthorizationDescription
 } from '../../utils/i18n/auth';
 import {
-  systemText
-} from '../../utils/i18n/common';
-import {
   systemStatus as systemStatusText,
   systemStatusDescription
 } from '../../utils/i18n/system_status';
 
-const Home = ({ history }) => {
+const Home = ({ history, onPurgeCache, purgingCache }) => {
   // TODO: use pesonalized Search Guard icons in cards instead of the default ones
   const authenticationBackendsCards = [
     {
@@ -49,6 +52,12 @@ const Home = ({ history }) => {
       title: systemStatusText,
       description: systemStatusDescription,
       onClick: () => history.push(APP_PATH.SYSTEM_STATUS)
+    },
+    {
+      icon: (<EuiIcon size="xxl" type="refresh" />),
+      title: purgeCacheText,
+      description: (purgingCache ? <EuiLoadingSpinner size="xl" /> : purgeCacheDescription),
+      onClick: () => onPurgeCache()
     }
   ];
 
@@ -90,7 +99,9 @@ const Home = ({ history }) => {
 };
 
 Home.propTypes = {
-  history: PropTypes.object.isRequired
+  history: PropTypes.object.isRequired,
+  onPurgeCache: PropTypes.func.isRequired,
+  purgingCache: PropTypes.bool.isRequired
 };
 
 export default Home;
