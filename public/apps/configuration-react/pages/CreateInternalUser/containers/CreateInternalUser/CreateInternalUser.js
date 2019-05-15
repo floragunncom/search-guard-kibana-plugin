@@ -21,9 +21,8 @@ class CreateInternalUser extends Component {
     this.state = {
       id,
       isEdit: !!id,
-      resource: userToFormik({ user: DEFAULT_USER, id }),
+      resource: userToFormik(DEFAULT_USER, id),
       backendRoles: [],
-      resources: [],
       isLoading: true
     };
   }
@@ -47,19 +46,17 @@ class CreateInternalUser extends Component {
     const { internalUsersService, rolesService, onTriggerErrorCallout } = this.props;
     try {
       this.setState({ isLoading: true });
-      const { data: resources } = await internalUsersService.list();
       const { data: backendRoles } = await rolesService.list();
       this.setState({
-        resources: Object.keys(resources),
         backendRoles: Object.keys(backendRoles).map(label => ({ label }))
       });
 
       if (id) {
         let resource = await internalUsersService.get(id);
-        resource = userToFormik({ user: resource, id });
+        resource = userToFormik(resource, id);
         this.setState({ resource });
       } else {
-        this.setState({ resource: userToFormik({ user: DEFAULT_USER, id }), isEdit: !!id });
+        this.setState({ resource: userToFormik(DEFAULT_USER), isEdit: !!id });
       }
     } catch(error) {
       onTriggerErrorCallout(error);
@@ -96,7 +93,7 @@ class CreateInternalUser extends Component {
 
   render() {
     const { history, onTriggerInspectJsonFlyout, location } = this.props;
-    const { resource, isEdit, backendRoles, resources, isLoading } = this.state;
+    const { resource, isEdit, backendRoles, isLoading } = this.state;
     const { action } = queryString.parse(location.search);
     const updateUser = action === INTERNAL_USERS_ACTIONS.UPDATE_USER;
     const titleText = updateUser ? updateInternalUserText : createInternalUserText;
@@ -131,7 +128,7 @@ class CreateInternalUser extends Component {
               </EuiButton>
               <EuiSpacer />
 
-              <UserCredentials isEdit={isEdit} values={values} allUsers={resources} />
+              <UserCredentials isEdit={isEdit} values={values} {...this.props} />
               <BackendRoles allRoles={backendRoles} />
               <UserAttributes attributes={values.attributes} />
             </ContentPanel>

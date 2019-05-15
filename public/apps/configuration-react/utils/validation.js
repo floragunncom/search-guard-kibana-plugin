@@ -9,15 +9,20 @@ import {
   nameAlreadyExistsText
 } from './i18n/tenants';
 import {
+  requiredText,
   problemWithValidationTryAgainText
 } from './i18n/common';
-import { requiredText } from './i18n/common';
 
-export const validateInternalUserName = ({ allUsers, isEdit }) => name => {
+export const validateInternalUserName = (internalUsersService, isEdit = false) => async (name) => {
   if (!name) throw requiredText;
   const hasDotsAndAsterisks = (/[\.\*]/gm).test(name);
   if (hasDotsAndAsterisks) throw usernameMustNotContainDotsAndAsterisksText;
-  if (!isEdit && allUsers.includes(name)) throw usernameAlreadyExistsText;
+  try {
+    const { data: users } = await internalUsersService.list();
+    if (!isEdit && Object.keys(users).includes(name)) return usernameAlreadyExistsText;
+  } catch (error) {
+    throw problemWithValidationTryAgainText;
+  }
 };
 
 export const validatePassword = passwordConfirmation => password => {
