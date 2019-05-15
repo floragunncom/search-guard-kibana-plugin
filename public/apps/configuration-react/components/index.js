@@ -3,7 +3,6 @@ export { default as ContentPanel } from './ContentPanel';
 export { default as DynamicValuesForm } from './DynamicValuesForm';
 export { default as Flyout } from './Flyout';
 export { default as Callout } from './Callout';
-export { default as SimpleItemsList } from './SimpleItemsList';
 
 // Formik wrappers
 export { default as FormikFormRow } from './FormControls/FormikFormRow';
@@ -14,3 +13,7 @@ export { default as FormikEffect } from './FormControls/FormikEffect';
 export { default as FormikSwitch } from './FormControls/FormikSwitch';
 export { default as FormikComboBox } from './FormControls/FormikComboBox';
 export { default as FormikCodeEditor } from './FormControls/FormikCodeEditor';
+
+// Table
+export { default as NameCell } from './Table/NameCell';
+export { default as SimpleItemsList } from './Table/SimpleItemsList';

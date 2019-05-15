@@ -1,6 +1,6 @@
 import { SESSION_STORAGE } from '../utils/constants';
 
-export default class BrowserStorage {
+export default class BrowserStorageService {
   static systemInfo() {
     return JSON.parse(sessionStorage.getItem(SESSION_STORAGE.SYSTEMINFO), '{}');
   }

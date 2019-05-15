@@ -13,7 +13,9 @@ export const APP_PATH = {
   AUTH: '/auth',
   SYSTEM_STATUS: '/system-status',
   TENANTS: '/tenants',
-  CREATE_TENANT: '/create-tenant'
+  CREATE_TENANT: '/create-tenant',
+  ACTION_GROUPS: '/action-groups',
+  CREATE_ACTION_GROUP: '/create-action-group'
 };
 
 export const SYSTEM_STATUS_ACTIONS = {
@@ -26,6 +28,10 @@ export const INTERNAL_USERS_ACTIONS = {
 
 export const TENANTS_ACTIONS = {
   UPDATE_TENANT: 'update-tenant'
+};
+
+export const ACTION_GROUPS_ACTIONS = {
+  UPDATE_ACTION_GROUP: 'update-action-group'
 };
 
 export const FLYOUTS = {

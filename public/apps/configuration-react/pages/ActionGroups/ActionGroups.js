@@ -9,26 +9,26 @@ import {
   EUI_MODAL_CONFIRM_BUTTON
 } from '@elastic/eui';
 import { get } from 'lodash';
-import { ContentPanel, NameCell } from '../../components';
+import { ContentPanel, SimpleItemsList, NameCell } from '../../components';
 import { resourcesToUiResources, uiResourceToResource } from './utils';
-import { APP_PATH, TENANTS_ACTIONS } from '../../utils/constants';
+import { APP_PATH, ACTION_GROUPS_ACTIONS } from '../../utils/constants';
 import {
   cancelText,
   deleteText,
   confirmDeleteText,
   confirmText,
   doYouReallyWantToDeleteText,
-  nameText,
-  descriptionText
+  nameText
 } from '../../utils/i18n/common';
 import {
-  tenantsText,
-  createTenantText,
-  emptyTenantsTableMessageText,
-  noTenantsText
-} from '../../utils/i18n/tenants';
+  actionGroupsText,
+  permissionsText,
+  createActionGroupText,
+  emptyActionGroupsTableMessageText,
+  noActionGroupsText
+} from '../../utils/i18n/action_groups';
 
-class Tenants extends Component {
+class ActionGroups extends Component {
   constructor(props) {
     super(props);
 
@@ -40,7 +40,7 @@ class Tenants extends Component {
       resourcesToDelete: []
     };
 
-    this.backendService = this.props.tenantsService;
+    this.backendService = this.props.actionGroupsService;
   }
 
   componentDidMount() {
@@ -92,9 +92,9 @@ class Tenants extends Component {
 
   renderCreateResourceButton = history => (
     <EuiButton
-      onClick={() => history.push(APP_PATH.CREATE_TENANT)}
+      onClick={() => history.push(APP_PATH.CREATE_ACTION_GROUP)}
     >
-      {createTenantText}
+      {createActionGroupText}
     </EuiButton>
   )
 
@@ -133,14 +133,14 @@ class Tenants extends Component {
 
   renderEmptyTableMessage = history => (
     <EuiEmptyPrompt
-      title={<h3>{noTenantsText}</h3>}
+      title={<h3>{noActionGroupsText}</h3>}
       titleSize="xs"
-      body={emptyTenantsTableMessageText}
+      body={emptyActionGroupsTableMessageText}
       actions={(
         <EuiButton
-          onClick={() => history.push(APP_PATH.CREATE_TENANT)}
+          onClick={() => history.push(APP_PATH.CREATE_ACTION_GROUP)}
         >
-          {createTenantText}
+          {createActionGroupText}
         </EuiButton>
       )}
     />
@@ -166,19 +166,19 @@ class Tenants extends Component {
     const { history } = this.props;
     const { isLoading, error, resources, resourcesToDelete } = this.state;
     const isDeleting = !!resourcesToDelete.length;
-    const getResourceEditUri = name => `${APP_PATH.CREATE_TENANT}?id=${name}&action=${TENANTS_ACTIONS.UPDATE_TENANT}`;
+    const getResourceEditUri = name => `${APP_PATH.CREATE_ACTION_GROUP}?id=${name}&action=${ACTION_GROUPS_ACTIONS.UPDATE_ACTION_GROUP}`;
 
     const actions = [
       {
         name: 'Clone',
-        description: 'Clone this tenant',
+        description: 'Clone this action group',
         icon: 'copy',
         type: 'icon',
         onClick: this.cloneResource
       }, {
         name: 'Delete',
         enabled: resource => !resource.reserved,
-        description: 'Delete this tenant',
+        description: 'Delete this action group',
         icon: 'trash',
         type: 'icon',
         color: 'danger',
@@ -206,13 +206,24 @@ class Tenants extends Component {
         )
       },
       {
-        field: 'description',
-        name: descriptionText,
-        footer: descriptionText,
+        field: 'permissions',
+        name: permissionsText,
+        footer: permissionsText,
         align: 'left',
         mobileOptions: {
           header: false
-        }
+        },
+        render: items => (<SimpleItemsList items={items} />)
+      },
+      {
+        field: 'actiongroups',
+        name: actionGroupsText,
+        footer: actionGroupsText,
+        align: 'left',
+        mobileOptions: {
+          header: false
+        },
+        render: items => (<SimpleItemsList items={items} />)
       },
       {
         align: 'right',
@@ -234,7 +245,7 @@ class Tenants extends Component {
 
     return (
       <ContentPanel
-        title={tenantsText}
+        title={actionGroupsText}
         actions={[
           this.renderCancelButton(history),
           this.renderCreateResourceButton(history)
@@ -260,11 +271,10 @@ class Tenants extends Component {
   }
 }
 
-Tenants.propTypes = {
+ActionGroups.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  tenantsService: PropTypes.object.isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired
+  actionGroupsService: PropTypes.object.isRequired,
 };
 
-export default Tenants;
+export default ActionGroups;
