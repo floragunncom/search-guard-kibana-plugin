@@ -16,7 +16,6 @@ import { get } from 'lodash';
 import { ContentPanel, SimpleItemsList, NameCell } from '../../../../components';
 import {
   APP_PATH,
-  SESSION_STORAGE,
   INTERNAL_USERS_ACTIONS
 } from '../../../../utils/constants';
 import {

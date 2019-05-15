@@ -13,13 +13,16 @@ import {
   EuiListGroupItem
 } from '@elastic/eui';
 import Home from '../Home';
-import { CreateInternalUser } from '../CreateInternalUser';
-import { InternalUsers } from '../InternalUsers';
-import { Auth } from '../Auth';
-import { SystemStatus } from '../SystemStatus';
-import { Tenants } from '../Tenants';
-import { CreateTenant } from '../CreateTenant';
-import { ActionGroups } from '../ActionGroups';
+import {
+  InternalUsers,
+  CreateInternalUser,
+  Auth,
+  SystemStatus,
+  Tenants,
+  CreateTenant,
+  ActionGroups,
+  CreateActionGroup
+} from '../';
 import { Breadcrumbs, Flyout, Callout } from '../../components';
 import { APP_PATH, CALLOUTS, FLYOUTS } from '../../utils/constants';
 import { checkIfLicenseValid } from '../../utils/helpers';
@@ -214,6 +217,18 @@ class Main extends Component {
                       httpClient={httpClient}
                       actionGroupsService={actionGroupsService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      {...props}
+                    />
+                  )}
+                />
+                <Route
+                  path={APP_PATH.CREATE_ACTION_GROUP}
+                  render={props => (
+                    <CreateActionGroup
+                      httpClient={httpClient}
+                      actionGroupsService={actionGroupsService}
+                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
                       {...props}
                     />
                   )}

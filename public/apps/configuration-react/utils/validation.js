@@ -6,11 +6,10 @@ import {
   passwordMustBeAtLeast5CharsText
 } from './i18n/internal_users';
 import {
-  nameAlreadyExistsText
-} from './i18n/tenants';
-import {
   requiredText,
-  problemWithValidationTryAgainText
+  problemWithValidationTryAgainText,
+  nameAlreadyExistsText,
+  nameMustNotContainDotsText
 } from './i18n/common';
 
 export const validateInternalUserName = (internalUsersService, isEdit = false) => async (name) => {
@@ -46,6 +45,18 @@ export const validateTenantName = (tenantsService, isEdit = false) => async (nam
   try {
     const { data: tenants } = await tenantsService.list();
     if (!isEdit && Object.keys(tenants).includes(name)) return nameAlreadyExistsText;
+  } catch (error) {
+    throw problemWithValidationTryAgainText;
+  }
+};
+
+export const validateActionGroupName = (actionGroupsService, isEdit = false) => async (name) => {
+  if (!name) throw requiredText;
+  const hasDots = (/[\.]/gm).test(name);
+  if (hasDots) throw nameMustNotContainDotsText;
+  try {
+    const { data: actionGroups } = await actionGroupsService.list();
+    if (!isEdit && Object.keys(actionGroups).includes(name)) return nameAlreadyExistsText;
   } catch (error) {
     throw problemWithValidationTryAgainText;
   }

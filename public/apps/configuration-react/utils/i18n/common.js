@@ -31,3 +31,9 @@ export const successText = (<EuiI18n token="sg.common.success.text" default="Suc
 export const problemWithValidationTryAgainText = (
   <EuiI18n token="sg.common.problemWithValidationTryAgain.text" default="Problem with validation. Please try again" />
 );
+export const nameAlreadyExistsText = (
+  <EuiI18n token="sg.tenants.nameAlreadyExists.text" default="Name already exists" />
+);
+export const nameMustNotContainDotsText = (
+  <EuiI18n token="sg.internalUsers.nameMustNotContainDots.text" default="Name must not contain '.'" />
+);

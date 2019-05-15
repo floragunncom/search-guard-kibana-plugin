@@ -18,7 +18,6 @@ app.controller('sgActionGroupsController', function ($scope, $element, $route, b
 
     $scope.service.list()
         .then((response) => {
-            console.log('sgActionGroupsController - list - response', JSON.stringify(response, null, 2));
             $scope.resourcenames = Object.keys(response.data).sort();
 
             $scope.resourcenames.forEach(function (entry) {
@@ -81,7 +80,6 @@ app.controller('sgEditActionGroupsController', function ($scope, $element, $rout
         if (actiongroupname) {
             $scope.service.get(actiongroupname)
                 .then((response) => {
-                    console.log('sgEditActionGroupsController - get - response', JSON.stringify(response, null, 2));
                     $scope.resource = $scope.service.postFetch(response);
                     $scope.resourcename = actiongroupname;
                     if($location.path().indexOf("clone") == -1) {
@@ -144,8 +142,6 @@ app.controller('sgEditActionGroupsController', function ($scope, $element, $rout
             return;
         }
 
-        console.log('sgEditActionGroupsController - save - resourcename', $scope.resourcename);
-        console.log('sgEditActionGroupsController - save - resource', JSON.stringify($scope.resource, null, 2));
         $scope.service.save($scope.resourcename, $scope.resource).then(() => kbnUrl.change(`/actiongroups/`));
 
         $scope.errorMessage = null;
