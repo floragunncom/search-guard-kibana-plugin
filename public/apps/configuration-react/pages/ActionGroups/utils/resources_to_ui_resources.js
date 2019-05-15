@@ -1,12 +1,12 @@
 import { reduce, sortBy, omit } from 'lodash';
+import { isSinglePermission } from '../../../utils/helpers';
 
 export const enrichResource = values => {
-  const permissions = [];
-  const actiongroups = [];
+  const { permissions = [], actiongroups = [] } = values;
 
   if (Array.isArray(values.allowed_actions)) {
     values.allowed_actions.forEach(action => {
-      if (action.startsWith('cluster:') || action.startsWith('indices:')) {
+      if (isSinglePermission(action)) {
         permissions.push(action);
       } else {
         actiongroups.push(action);

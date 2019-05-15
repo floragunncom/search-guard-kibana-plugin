@@ -37,3 +37,6 @@ export const nameAlreadyExistsText = (
 export const nameMustNotContainDotsText = (
   <EuiI18n token="sg.internalUsers.nameMustNotContainDots.text" default="Name must not contain '.'" />
 );
+export const permissionsText = (<EuiI18n token="sg.common.permissions.text" default="Permissions" />);
+export const theOptionIsNotValidText = (<EuiI18n token="sg.common.theOptionIsNotValid.text" default="The option is not valid" />);
+export const advancedText = (<EuiI18n token="sg.common.advanced.text" default="Advanced" />);

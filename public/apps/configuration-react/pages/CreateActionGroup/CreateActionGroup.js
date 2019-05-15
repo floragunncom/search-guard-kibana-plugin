@@ -8,16 +8,19 @@ import {
   cancelText,
   inspectText,
   nameText,
+  advancedText
 } from '../../utils/i18n/common';
 import {
   createActionGroupText,
-  updateActionGroupText
+  updateActionGroupText,
+  actionGroupsText,
+  singlePermissionsText
 } from '../../utils/i18n/action_groups';
-import { ContentPanel, FormikFieldText } from '../../components';
+import { ContentPanel, FormikFieldText, FormikComboBox, FormikSwitch } from '../../components';
 import { APP_PATH, ACTION_GROUPS_ACTIONS } from '../../utils/constants';
 import { isInvalid, hasError, validateActionGroupName } from '../../utils/validation';
 import { DEFAULT_ACTION_GROUP } from './utils/constants';
-import { actionGroupToFormik, formikToActionGroup } from './utils';
+import { actionGroupToFormik, formikToActionGroup, getAllActionGroupNamesAndPermissions } from './utils';
 
 class CreateActionGroup extends Component {
   constructor(props) {
@@ -29,6 +32,8 @@ class CreateActionGroup extends Component {
       id,
       isEdit: !!id,
       resource: actionGroupToFormik(DEFAULT_ACTION_GROUP, id),
+      allActionGroups: [],
+      allSinglePermissions: [],
       isLoading: true
     };
 
@@ -54,6 +59,10 @@ class CreateActionGroup extends Component {
     const { onTriggerErrorCallout } = this.props;
     try {
       this.setState({ isLoading: true });
+      const { data } = await this.backendService.list();
+      const { allSinglePermissions, allActionGroups } = getAllActionGroupNamesAndPermissions(data, id);
+      this.setState({ allSinglePermissions, allActionGroups });
+
       if (id) {
         let resource = await this.backendService.get(id);
         resource = actionGroupToFormik(resource, id);
@@ -94,7 +103,7 @@ class CreateActionGroup extends Component {
 
   render() {
     const { history, onTriggerInspectJsonFlyout, location, actionGroupsService } = this.props;
-    const { resource, isEdit, isLoading } = this.state;
+    const { resource, isEdit, isLoading, allSinglePermissions, allActionGroups } = this.state;
     const { action } = queryString.parse(location.search);
     const updateActionGroup = action === ACTION_GROUPS_ACTIONS.UPDATE_ACTION_GROUP;
     const titleText = updateActionGroup ? updateActionGroupText : createActionGroupText;
@@ -144,6 +153,49 @@ class CreateActionGroup extends Component {
                 }}
                 name="name"
               />
+              <FormikComboBox
+                name="actiongroups"
+                formRow
+                rowProps={{
+                  label: actionGroupsText,
+                }}
+                elementProps={{
+                  options: allActionGroups,
+                  isClearable: true,
+                  onBlur: (e, field, form) => {
+                    form.setFieldTouched('actiongroups', true);
+                  },
+                  onChange: (options, field, form) => {
+                    form.setFieldValue('actiongroups', options);
+                  }
+                }}
+              />
+              <FormikSwitch
+                formRow
+                elementProps={{
+                  label: advancedText
+                }}
+                name="isAdvanced"
+              />
+              {values.isAdvanced &&
+                <FormikComboBox
+                  name="permissions"
+                  formRow
+                  rowProps={{
+                    label: singlePermissionsText,
+                  }}
+                  elementProps={{
+                    options: allSinglePermissions,
+                    isClearable: true,
+                    onBlur: (e, field, form) => {
+                      form.setFieldTouched('permissions', true);
+                    },
+                    onChange: (options, field, form) => {
+                      form.setFieldValue('permissions', options);
+                    }
+                  }}
+                />
+              }
             </ContentPanel>
           );
         }}

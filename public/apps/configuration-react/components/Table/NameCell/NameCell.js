@@ -17,11 +17,7 @@ const NameCell = ({ history, uri, name, resource, children }) => (
         {resource.reserved ? (
           <EuiText size="s">{name}</EuiText>
         ) : (
-          <EuiLink
-            onClick={() => history.push(uri)}
-          >
-            {name}
-          </EuiLink>
+          <EuiLink onClick={() => history.push(uri)}>{name}</EuiLink>
         )
         }
       </EuiFlexItem>

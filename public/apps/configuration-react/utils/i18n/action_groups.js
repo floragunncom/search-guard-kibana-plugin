@@ -13,3 +13,4 @@ export const emptyActionGroupsTableMessageText = (
     default="Looks like you don&rsquo;t have any action groups. Let&rsquo;s create some!"
   />
 );
+export const singlePermissionsText = (<EuiI18n token="sg.action_groups.singlePermissions.text" default="Single Permissions" />);

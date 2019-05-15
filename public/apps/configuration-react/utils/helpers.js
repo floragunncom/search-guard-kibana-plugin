@@ -17,3 +17,5 @@ export const readFileAsText = (file, FileReader = window.FileReader) => {
     fr.readAsText(file);
   });
 };
+
+export const isSinglePermission = permission => permission.startsWith('cluster:') || permission.startsWith('indices:');
