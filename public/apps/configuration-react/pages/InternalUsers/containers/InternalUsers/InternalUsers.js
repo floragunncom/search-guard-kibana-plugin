@@ -5,9 +5,7 @@ import {
   EuiInMemoryTable,
   EuiIcon,
   EuiText,
-  EuiFlexGroup,
   EuiFlexItem,
-  EuiLink,
   EuiEmptyPrompt,
   EuiFlexGrid,
   EuiConfirmModal,
@@ -15,7 +13,7 @@ import {
   EUI_MODAL_CONFIRM_BUTTON
 } from '@elastic/eui';
 import { get } from 'lodash';
-import { ContentPanel, SimpleItemsList } from '../../../../components';
+import { ContentPanel, SimpleItemsList, NameCell } from '../../../../components';
 import {
   APP_PATH,
   SESSION_STORAGE,
@@ -31,7 +29,6 @@ import {
 import {
   cancelText,
   nameText,
-  reservedText,
   deleteText,
   currentUserText,
   doYouReallyWantToDeleteText,
@@ -39,50 +36,7 @@ import {
   confirmText
 } from '../../../../utils/i18n/common';
 import { usersToTableUsers, tableUserToUser } from './utils';
-
-const renderResourceNameCell = history => (name, resource) => {
-  const { user_name: currentResource } = JSON.parse(sessionStorage.getItem(SESSION_STORAGE.RESTAPIINFO) || '{}');
-  return(
-    <div>
-      <EuiFlexGroup>
-        <EuiFlexItem>
-          {resource.reserved ? (
-            <EuiText size="s">{name}</EuiText>
-          ) : (
-            <EuiLink
-              onClick={() =>
-                history.push(`${APP_PATH.CREATE_INTERNAL_USER}?id=${name}&action=${INTERNAL_USERS_ACTIONS.UPDATE_USER}`)
-              }
-            >
-              {name}
-            </EuiLink>
-          )
-          }
-        </EuiFlexItem>
-      </EuiFlexGroup>
-      {name === currentResource && (
-        <EuiFlexGrid columns={2} gutterSize="s" responsive={false}>
-          <EuiFlexItem grow={false}>
-            <EuiIcon type="user"/>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiText size="s">{currentUserText}</EuiText>
-          </EuiFlexItem>
-        </EuiFlexGrid>
-      )}
-      {resource.reserved && (
-        <EuiFlexGrid columns={2} gutterSize="s" responsive={false}>
-          <EuiFlexItem grow={false}>
-            <EuiIcon type="lock"/>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiText size="s">{reservedText}</EuiText>
-          </EuiFlexItem>
-        </EuiFlexGrid>
-      )}
-    </div>
-  );
-};
+import { BrowserStorageService } from '../../../../services';
 
 // TODO: make this component get API data by chunks (paginations)
 class InternalUsers extends Component {
@@ -220,10 +174,27 @@ class InternalUsers extends Component {
     </EuiOverlayMask>
   )
 
+  renderActiveUser = name => {
+    const { user_name: currentResource } = BrowserStorageService.restApiInfo();
+    return (
+      name === currentResource && (
+        <EuiFlexGrid columns={2} gutterSize="s" responsive={false}>
+          <EuiFlexItem grow={false}>
+            <EuiIcon type="user"/>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiText size="s">{currentUserText}</EuiText>
+          </EuiFlexItem>
+        </EuiFlexGrid>
+      )
+    );
+  }
+
   render() {
     const { history } = this.props;
     const { isLoading, error, resources, resourcesToDelete } = this.state;
     const isDeleting = !!resourcesToDelete.length;
+    const getResourceEditUri = name => `${APP_PATH.CREATE_INTERNAL_USER}?id=${name}&action=${INTERNAL_USERS_ACTIONS.UPDATE_USER}`;
 
     const actions = [
       {
@@ -253,7 +224,15 @@ class InternalUsers extends Component {
         mobileOptions: {
           header: false
         },
-        render: renderResourceNameCell(history)
+        render: (id, resource) => (
+          <NameCell
+            history={history}
+            uri={getResourceEditUri(id)}
+            name={id}
+            resource={resource}
+            children={this.renderActiveUser(id)}
+          />
+        )
       },
       {
         field: 'backend_roles',

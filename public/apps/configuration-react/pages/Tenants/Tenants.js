@@ -3,19 +3,13 @@ import PropTypes from 'prop-types';
 import {
   EuiButton,
   EuiInMemoryTable,
-  EuiIcon,
-  EuiText,
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiLink,
   EuiEmptyPrompt,
-  EuiFlexGrid,
   EuiConfirmModal,
   EuiOverlayMask,
   EUI_MODAL_CONFIRM_BUTTON
 } from '@elastic/eui';
 import { get } from 'lodash';
-import { ContentPanel } from '../../components';
+import { ContentPanel, NameCell } from '../../components';
 import { resourcesToUiResources, uiResourceToResource } from './utils';
 import { APP_PATH, TENANTS_ACTIONS } from '../../utils/constants';
 import {
@@ -25,8 +19,7 @@ import {
   confirmText,
   doYouReallyWantToDeleteText,
   nameText,
-  descriptionText,
-  reservedText
+  descriptionText
 } from '../../utils/i18n/common';
 import {
   tenantsText,
@@ -34,39 +27,6 @@ import {
   emptyTenantsTableMessageText,
   noTenantsText
 } from '../../utils/i18n/tenants';
-
-const renderResourceNameCell = history => (name, resource) => {
-  return(
-    <div>
-      <EuiFlexGroup>
-        <EuiFlexItem>
-          {resource.reserved ? (
-            <EuiText size="s">{name}</EuiText>
-          ) : (
-            <EuiLink
-              onClick={() =>
-                history.push(`${APP_PATH.CREATE_TENANT}?id=${name}&action=${TENANTS_ACTIONS.UPDATE_TENANT}`)
-              }
-            >
-              {name}
-            </EuiLink>
-          )
-          }
-        </EuiFlexItem>
-      </EuiFlexGroup>
-      {resource.reserved && (
-        <EuiFlexGrid columns={2} gutterSize="s" responsive={false}>
-          <EuiFlexItem grow={false}>
-            <EuiIcon type="lock"/>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiText size="s">{reservedText}</EuiText>
-          </EuiFlexItem>
-        </EuiFlexGrid>
-      )}
-    </div>
-  );
-};
 
 class Tenants extends Component {
   constructor(props) {
@@ -206,6 +166,7 @@ class Tenants extends Component {
     const { history } = this.props;
     const { isLoading, error, resources, resourcesToDelete } = this.state;
     const isDeleting = !!resourcesToDelete.length;
+    const getResourceEditUri = name => `${APP_PATH.CREATE_TENANT}?id=${name}&action=${TENANTS_ACTIONS.UPDATE_TENANT}`;
 
     const actions = [
       {
@@ -235,7 +196,14 @@ class Tenants extends Component {
         mobileOptions: {
           header: false
         },
-        render: renderResourceNameCell(history)
+        render: (id, resource) => (
+          <NameCell
+            history={history}
+            uri={getResourceEditUri(id)}
+            name={id}
+            resource={resource}
+          />
+        )
       },
       {
         field: 'description',

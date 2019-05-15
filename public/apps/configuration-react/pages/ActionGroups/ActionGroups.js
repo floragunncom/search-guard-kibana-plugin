@@ -3,19 +3,13 @@ import PropTypes from 'prop-types';
 import {
   EuiButton,
   EuiInMemoryTable,
-  EuiIcon,
-  EuiText,
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiLink,
   EuiEmptyPrompt,
-  EuiFlexGrid,
   EuiConfirmModal,
   EuiOverlayMask,
   EUI_MODAL_CONFIRM_BUTTON
 } from '@elastic/eui';
 import { get } from 'lodash';
-import { ContentPanel, SimpleItemsList } from '../../components';
+import { ContentPanel, SimpleItemsList, NameCell } from '../../components';
 import { resourcesToUiResources, uiResourceToResource } from './utils';
 import { APP_PATH, ACTION_GROUPS_ACTIONS } from '../../utils/constants';
 import {
@@ -24,8 +18,7 @@ import {
   confirmDeleteText,
   confirmText,
   doYouReallyWantToDeleteText,
-  nameText,
-  reservedText
+  nameText
 } from '../../utils/i18n/common';
 import {
   actionGroupsText,
@@ -34,39 +27,6 @@ import {
   emptyActionGroupsTableMessageText,
   noActionGroupsText
 } from '../../utils/i18n/action_groups';
-
-const renderResourceNameCell = history => (name, resource) => {
-  return(
-    <div>
-      <EuiFlexGroup>
-        <EuiFlexItem>
-          {resource.reserved ? (
-            <EuiText size="s">{name}</EuiText>
-          ) : (
-            <EuiLink
-              onClick={() =>
-                history.push(`${APP_PATH.CREATE_ACTION_GROUP}?id=${name}&action=${ACTION_GROUPS_ACTIONS.UPDATE_ACTION_GROUP}`)
-              }
-            >
-              {name}
-            </EuiLink>
-          )
-          }
-        </EuiFlexItem>
-      </EuiFlexGroup>
-      {resource.reserved && (
-        <EuiFlexGrid columns={2} gutterSize="s" responsive={false}>
-          <EuiFlexItem grow={false}>
-            <EuiIcon type="lock"/>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiText size="s">{reservedText}</EuiText>
-          </EuiFlexItem>
-        </EuiFlexGrid>
-      )}
-    </div>
-  );
-};
 
 class ActionGroups extends Component {
   constructor(props) {
@@ -206,6 +166,7 @@ class ActionGroups extends Component {
     const { history } = this.props;
     const { isLoading, error, resources, resourcesToDelete } = this.state;
     const isDeleting = !!resourcesToDelete.length;
+    const getResourceEditUri = name => `${APP_PATH.CREATE_ACTION_GROUP}?id=${name}&action=${ACTION_GROUPS_ACTIONS.UPDATE_ACTION_GROUP}`;
 
     const actions = [
       {
@@ -235,7 +196,14 @@ class ActionGroups extends Component {
         mobileOptions: {
           header: false
         },
-        render: renderResourceNameCell(history)
+        render: (id, resource) => (
+          <NameCell
+            history={history}
+            uri={getResourceEditUri(id)}
+            name={id}
+            resource={resource}
+          />
+        )
       },
       {
         field: 'permissions',
