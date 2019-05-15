@@ -5,13 +5,24 @@ import {
   passwordsDontMatchText,
   passwordMustBeAtLeast5CharsText
 } from './i18n/internal_users';
-import { requiredText } from './i18n/common';
+import {
+  nameAlreadyExistsText
+} from './i18n/tenants';
+import {
+  requiredText,
+  problemWithValidationTryAgainText
+} from './i18n/common';
 
-export const validateInternalUserName = ({ allUsers, isEdit }) => name => {
+export const validateInternalUserName = (internalUsersService, isEdit = false) => async (name) => {
   if (!name) throw requiredText;
   const hasDotsAndAsterisks = (/[\.\*]/gm).test(name);
   if (hasDotsAndAsterisks) throw usernameMustNotContainDotsAndAsterisksText;
-  if (!isEdit && allUsers.includes(name)) throw usernameAlreadyExistsText;
+  try {
+    const { data: users } = await internalUsersService.list();
+    if (!isEdit && Object.keys(users).includes(name)) return usernameAlreadyExistsText;
+  } catch (error) {
+    throw problemWithValidationTryAgainText;
+  }
 };
 
 export const validatePassword = passwordConfirmation => password => {
@@ -29,3 +40,13 @@ export const isInvalid = (name, form) => {
 };
 
 export const hasError = (name, form) => get(form.errors, name);
+
+export const validateTenantName = (tenantsService, isEdit = false) => async (name) => {
+  if (!name) throw requiredText;
+  try {
+    const { data: tenants } = await tenantsService.list();
+    if (!isEdit && Object.keys(tenants).includes(name)) return nameAlreadyExistsText;
+  } catch (error) {
+    throw problemWithValidationTryAgainText;
+  }
+};

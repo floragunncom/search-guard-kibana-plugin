@@ -15,6 +15,7 @@ import '../configuration/backend_api/internalusers';
 import '../configuration/backend_api/roles';
 import '../configuration/backend_api/rolesmapping';
 import '../configuration/backend_api/sgconfiguration';
+import '../configuration/backend_api/tenants';
 
 const app = uiModules.get('apps/searchguardConfiguration');
 
@@ -37,9 +38,18 @@ function RootController(
   backendInternalUsers,
   backendRoles,
   sgConfiguration,
-  backendAPI
+  backendAPI,
+  backendTenants
 ) {
   const domNode = $element[0];
+
+  const angularServices = {
+    internalUsersService: backendInternalUsers,
+    rolesService: backendRoles,
+    configurationService: sgConfiguration,
+    backendApiService: backendAPI,
+    tenantsService: backendTenants
+  };
 
   // render react to DOM
   render(
@@ -49,10 +59,7 @@ function RootController(
           <Main
             title="Search Guard"
             httpClient={$http}
-            backendInternalUsers={backendInternalUsers}
-            backendRoles={backendRoles}
-            backendAPI={backendAPI}
-            sgConfiguration={sgConfiguration}
+            angularServices={angularServices}
             {...props}
           />
         )}

@@ -11,7 +11,9 @@ export const APP_PATH = {
   INTERNAL_USERS: '/internal-users',
   CREATE_INTERNAL_USER: '/create-internal-user',
   AUTH: '/auth',
-  SYSTEM_STATUS: '/system-status'
+  SYSTEM_STATUS: '/system-status',
+  TENANTS: '/tenants',
+  CREATE_TENANT: '/create-tenant'
 };
 
 export const SYSTEM_STATUS_ACTIONS = {
@@ -20,6 +22,10 @@ export const SYSTEM_STATUS_ACTIONS = {
 
 export const INTERNAL_USERS_ACTIONS = {
   UPDATE_USER: 'update-user'
+};
+
+export const TENANTS_ACTIONS = {
+  UPDATE_TENANT: 'update-tenant'
 };
 
 export const FLYOUTS = {

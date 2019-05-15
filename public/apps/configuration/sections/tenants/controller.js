@@ -128,6 +128,11 @@ app.controller('sgEditTenantsController', function ($scope, $element, $route, $l
             return;
         }
 
+        console.log('tenant save');
+        console.log('resourcename', $scope.resourcename);
+        // trex
+        console.log('resource', $scope.resource);
+        // { description: 'dino' }
         $scope.service.save($scope.resourcename, $scope.resource).then(() => kbnUrl.change(`/tenants/`));
 
         $scope.errorMessage = null;

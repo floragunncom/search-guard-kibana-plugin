@@ -15,33 +15,27 @@ import {
   EUI_MODAL_CONFIRM_BUTTON
 } from '@elastic/eui';
 import { get } from 'lodash';
-import { ContentPanel, SimpleItemsList } from '../../../../components';
-import {
-  APP_PATH,
-  SESSION_STORAGE,
-  INTERNAL_USERS_ACTIONS
-} from '../../../../utils/constants';
-import {
-  createInternalUserText,
-  internalUsersText,
-  backendRolesText,
-  emptyUsersTableMessageText,
-  noUsersText
-} from '../../../../utils/i18n/internal_users';
+import { ContentPanel } from '../../components';
+import { resourcesToUiResources, uiResourceToResource } from './utils';
+import { APP_PATH, TENANTS_ACTIONS } from '../../utils/constants';
 import {
   cancelText,
-  nameText,
-  reservedText,
   deleteText,
-  currentUserText,
-  doYouReallyWantToDeleteText,
   confirmDeleteText,
-  confirmText
-} from '../../../../utils/i18n/common';
-import { usersToTableUsers, tableUserToUser } from './utils';
+  confirmText,
+  doYouReallyWantToDeleteText,
+  nameText,
+  descriptionText,
+  reservedText
+} from '../../utils/i18n/common';
+import {
+  tenantsText,
+  createTenantText,
+  emptyTenantsTableMessageText,
+  noTenantsText
+} from '../../utils/i18n/tenants';
 
 const renderResourceNameCell = history => (name, resource) => {
-  const { user_name: currentResource } = JSON.parse(sessionStorage.getItem(SESSION_STORAGE.RESTAPIINFO) || '{}');
   return(
     <div>
       <EuiFlexGroup>
@@ -51,7 +45,7 @@ const renderResourceNameCell = history => (name, resource) => {
           ) : (
             <EuiLink
               onClick={() =>
-                history.push(`${APP_PATH.CREATE_INTERNAL_USER}?id=${name}&action=${INTERNAL_USERS_ACTIONS.UPDATE_USER}`)
+                history.push(`${APP_PATH.CREATE_TENANT}?id=${name}&action=${TENANTS_ACTIONS.UPDATE_TENANT}`)
               }
             >
               {name}
@@ -60,16 +54,6 @@ const renderResourceNameCell = history => (name, resource) => {
           }
         </EuiFlexItem>
       </EuiFlexGroup>
-      {name === currentResource && (
-        <EuiFlexGrid columns={2} gutterSize="s" responsive={false}>
-          <EuiFlexItem grow={false}>
-            <EuiIcon type="user"/>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiText size="s">{currentUserText}</EuiText>
-          </EuiFlexItem>
-        </EuiFlexGrid>
-      )}
       {resource.reserved && (
         <EuiFlexGrid columns={2} gutterSize="s" responsive={false}>
           <EuiFlexItem grow={false}>
@@ -84,8 +68,7 @@ const renderResourceNameCell = history => (name, resource) => {
   );
 };
 
-// TODO: make this component get API data by chunks (paginations)
-class InternalUsers extends Component {
+class Tenants extends Component {
   constructor(props) {
     super(props);
 
@@ -97,7 +80,7 @@ class InternalUsers extends Component {
       resourcesToDelete: []
     };
 
-    this.backendService = this.props.internalUsersService;
+    this.backendService = this.props.tenantsService;
   }
 
   componentDidMount() {
@@ -105,10 +88,10 @@ class InternalUsers extends Component {
   }
 
   fetchData = async () => {
+    this.setState({ isLoading: true });
     try {
-      this.setState({ isLoading: true });
       const { data: resources } = await this.backendService.list();
-      this.setState({ resources: usersToTableUsers(resources), error: null });
+      this.setState({ resources: resourcesToUiResources(resources), error: null });
     } catch(error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
@@ -134,12 +117,11 @@ class InternalUsers extends Component {
   }
 
   cloneResource = async resource => {
-    let { id: username } = resource;
-    username += '_copy';
+    let { id: name } = resource;
+    name += '_copy';
     try {
       this.setState({ isLoading: true });
-      const doPreSaveResourceAdaptation = false;
-      await this.backendService.save(username, tableUserToUser(resource), doPreSaveResourceAdaptation);
+      await this.backendService.save(name, uiResourceToResource(resource));
     } catch(error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
@@ -150,9 +132,9 @@ class InternalUsers extends Component {
 
   renderCreateResourceButton = history => (
     <EuiButton
-      onClick={() => history.push(APP_PATH.CREATE_INTERNAL_USER)}
+      onClick={() => history.push(APP_PATH.CREATE_TENANT)}
     >
-      {createInternalUserText}
+      {createTenantText}
     </EuiButton>
   )
 
@@ -191,14 +173,14 @@ class InternalUsers extends Component {
 
   renderEmptyTableMessage = history => (
     <EuiEmptyPrompt
-      title={<h3>{noUsersText}</h3>}
+      title={<h3>{noTenantsText}</h3>}
       titleSize="xs"
-      body={emptyUsersTableMessageText}
+      body={emptyTenantsTableMessageText}
       actions={(
         <EuiButton
-          onClick={() => history.push(APP_PATH.CREATE_INTERNAL_USER)}
+          onClick={() => history.push(APP_PATH.CREATE_TENANT)}
         >
-          {createInternalUserText}
+          {createTenantText}
         </EuiButton>
       )}
     />
@@ -228,14 +210,14 @@ class InternalUsers extends Component {
     const actions = [
       {
         name: 'Clone',
-        description: 'Clone this user',
+        description: 'Clone this tenant',
         icon: 'copy',
         type: 'icon',
         onClick: this.cloneResource
       }, {
         name: 'Delete',
         enabled: resource => !resource.reserved,
-        description: 'Delete this resource',
+        description: 'Delete this tenant',
         icon: 'trash',
         type: 'icon',
         color: 'danger',
@@ -256,14 +238,13 @@ class InternalUsers extends Component {
         render: renderResourceNameCell(history)
       },
       {
-        field: 'backend_roles',
-        name: backendRolesText,
-        footer: backendRolesText,
+        field: 'description',
+        name: descriptionText,
+        footer: descriptionText,
         align: 'left',
         mobileOptions: {
           header: false
-        },
-        render: items => (<SimpleItemsList items={items} />)
+        }
       },
       {
         align: 'right',
@@ -285,7 +266,7 @@ class InternalUsers extends Component {
 
     return (
       <ContentPanel
-        title={internalUsersText}
+        title={tenantsText}
         actions={[
           this.renderCancelButton(history),
           this.renderCreateResourceButton(history)
@@ -311,11 +292,11 @@ class InternalUsers extends Component {
   }
 }
 
-InternalUsers.propTypes = {
+Tenants.propTypes = {
   history: PropTypes.object.isRequired,
-  httpClient: PropTypes.func,
-  internalUsersService: PropTypes.object.isRequired,
+  location: PropTypes.object.isRequired,
+  tenantsService: PropTypes.object.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired
 };
 
-export default InternalUsers;
+export default Tenants;

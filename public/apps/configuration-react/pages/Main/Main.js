@@ -17,6 +17,8 @@ import { CreateInternalUser } from '../CreateInternalUser';
 import { InternalUsers } from '../InternalUsers';
 import { Auth } from '../Auth';
 import { SystemStatus } from '../SystemStatus';
+import { Tenants } from '../Tenants';
+import { CreateTenant } from '../CreateTenant';
 import { Breadcrumbs, Flyout, Callout } from '../../components';
 import { APP_PATH, CALLOUTS, FLYOUTS } from '../../utils/constants';
 import { checkIfLicenseValid } from '../../utils/helpers';
@@ -95,7 +97,7 @@ class Main extends Component {
   handlePurgeCache = async () => {
     this.setState({ purgingCache: true });
     try {
-      await this.props.backendAPI.clearCache();
+      await this.props.backendApiService.clearCache();
     } catch (error) {
       this.handleTriggerErrorCallout(error);
     }
@@ -110,9 +112,12 @@ class Main extends Component {
     } = this.state;
     const {
       httpClient,
-      backendInternalUsers,
-      backendRoles,
-      sgConfiguration,
+      angularServices: {
+        internalUsersService,
+        rolesService,
+        configurationService,
+        tenantsService
+      },
       history,
       ...rest
     } = this.props;
@@ -135,8 +140,8 @@ class Main extends Component {
                   render={props => (
                     <CreateInternalUser
                       httpClient={httpClient}
-                      internalUsersService={backendInternalUsers}
-                      rolesService={backendRoles}
+                      internalUsersService={internalUsersService}
+                      rolesService={rolesService}
                       onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
                       {...props}
@@ -148,7 +153,7 @@ class Main extends Component {
                   render={props => (
                     <InternalUsers
                       httpClient={httpClient}
-                      internalUsersService={backendInternalUsers}
+                      internalUsersService={internalUsersService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
                       {...props}
                     />
@@ -159,7 +164,7 @@ class Main extends Component {
                   render={props => (
                     <Auth
                       httpClient={httpClient}
-                      configurationService={sgConfiguration}
+                      configurationService={configurationService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
                       {...props}
                     />
@@ -173,6 +178,29 @@ class Main extends Component {
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
                       onTriggerSuccessCallout={this.handleTriggerSuccessCallout}
                       onTriggerCustomFlyout={this.handleTriggerCustomFlyout}
+                      {...props}
+                    />
+                  )}
+                />
+                <Route
+                  path={APP_PATH.TENANTS}
+                  render={props => (
+                    <Tenants
+                      httpClient={httpClient}
+                      tenantsService={tenantsService}
+                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      {...props}
+                    />
+                  )}
+                />
+                <Route
+                  path={APP_PATH.CREATE_TENANT}
+                  render={props => (
+                    <CreateTenant
+                      httpClient={httpClient}
+                      tenantsService={tenantsService}
+                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
                       {...props}
                     />
                   )}
@@ -198,9 +226,13 @@ class Main extends Component {
 
 Main.propTypes = {
   httpClient: PropTypes.func.isRequired,
-  backendInternalUsers: PropTypes.object.isRequired,
-  backendRoles: PropTypes.object.isRequired,
-  backendAPI: PropTypes.object.isRequired,
+  angularServices: PropTypes.shape({
+    internalUsersService: PropTypes.object.isRequired,
+    rolesService: PropTypes.object.isRequired,
+    configurationService: PropTypes.object.isRequired,
+    backendApiService: PropTypes.object.isRequired,
+    tenantsService: PropTypes.object.isRequired
+  }),
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired
 };

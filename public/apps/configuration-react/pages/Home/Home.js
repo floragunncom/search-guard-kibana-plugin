@@ -14,7 +14,8 @@ import {
   authenticationBackendsText,
   systemText,
   purgeCacheText,
-  purgeCacheDescription
+  purgeCacheDescription,
+  permissionsAndRolesText
 } from '../../utils/i18n/home';
 import {
   internalUsersDatabaseText,
@@ -28,6 +29,10 @@ import {
   systemStatus as systemStatusText,
   systemStatusDescription
 } from '../../utils/i18n/system_status';
+import {
+  tenantsText,
+  tenantsDescription
+} from '../../utils/i18n/tenants';
 
 const Home = ({ history, onPurgeCache, purgingCache }) => {
   // TODO: use pesonalized Search Guard icons in cards instead of the default ones
@@ -61,6 +66,15 @@ const Home = ({ history, onPurgeCache, purgingCache }) => {
     }
   ];
 
+  const permissionsAndRolesCards = [
+    {
+      icon: (<EuiIcon size="xxl" type="grid" />),
+      title: tenantsText,
+      description: tenantsDescription,
+      onClick: () => history.push(APP_PATH.TENANTS)
+    }
+  ];
+
   const renderCards = cards => (
     cards.map((card, i) => (
       <EuiFlexItem key={i} grow={false} className="sgHomeMenu__card">
@@ -76,6 +90,16 @@ const Home = ({ history, onPurgeCache, purgingCache }) => {
 
   return (
     <Fragment>
+      <ContentPanel
+        title={permissionsAndRolesText}
+      >
+        <EuiFlexGroup>
+          {renderCards(permissionsAndRolesCards)}
+        </EuiFlexGroup>
+      </ContentPanel>
+
+      <EuiSpacer size="xl" />
+
       <ContentPanel
         title={authenticationBackendsText}
       >
