@@ -19,6 +19,7 @@ import { Auth } from '../Auth';
 import { SystemStatus } from '../SystemStatus';
 import { Tenants } from '../Tenants';
 import { CreateTenant } from '../CreateTenant';
+import { ActionGroups } from '../ActionGroups';
 import { Breadcrumbs, Flyout, Callout } from '../../components';
 import { APP_PATH, CALLOUTS, FLYOUTS } from '../../utils/constants';
 import { checkIfLicenseValid } from '../../utils/helpers';
@@ -116,7 +117,8 @@ class Main extends Component {
         internalUsersService,
         rolesService,
         configurationService,
-        tenantsService
+        tenantsService,
+        actionGroupsService
       },
       history,
       ...rest
@@ -206,6 +208,17 @@ class Main extends Component {
                   )}
                 />
                 <Route
+                  path={APP_PATH.ACTION_GROUPS}
+                  render={props => (
+                    <ActionGroups
+                      httpClient={httpClient}
+                      actionGroupsService={actionGroupsService}
+                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      {...props}
+                    />
+                  )}
+                />
+                <Route
                   render={props => (
                     <Home
                       purgingCache={purgingCache}
@@ -231,7 +244,8 @@ Main.propTypes = {
     rolesService: PropTypes.object.isRequired,
     configurationService: PropTypes.object.isRequired,
     backendApiService: PropTypes.object.isRequired,
-    tenantsService: PropTypes.object.isRequired
+    tenantsService: PropTypes.object.isRequired,
+    actionGroupsService: PropTypes.object.isRequired
   }),
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired

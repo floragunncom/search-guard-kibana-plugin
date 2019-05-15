@@ -22,10 +22,16 @@ import {
   updateTenantText
 } from '../../utils/i18n/tenants';
 import {
+  actionGroupsText,
+  createActionGroupText,
+  updateActionGroupText
+} from '../../utils/i18n/action_groups';
+import {
   APP_PATH,
   SYSTEM_STATUS_ACTIONS,
   TENANTS_ACTIONS,
-  INTERNAL_USERS_ACTIONS
+  INTERNAL_USERS_ACTIONS,
+  ACTION_GROUPS_ACTIONS
 } from '../../utils/constants';
 
 export const createBreadcrumb = (breadcrumb, history) => {
@@ -48,6 +54,7 @@ export const getBreadcrumb = route => {
   const uploadLicense = action === SYSTEM_STATUS_ACTIONS.UPLOAD_LICENSE;
   const updateTenant = action === TENANTS_ACTIONS.UPDATE_TENANT;
   const updateUser = action === INTERNAL_USERS_ACTIONS.UPDATE_USER;
+  const updateActionGroup = action === ACTION_GROUPS_ACTIONS.UPDATE_ACTION_GROUP;
 
   const removePrefixSlash = path => path.slice(1);
   const breadcrumb = {
@@ -72,6 +79,13 @@ export const getBreadcrumb = route => {
     [removePrefixSlash(APP_PATH.CREATE_TENANT)]: [
       { text: tenantsText, href: APP_PATH.TENANTS },
       { text: (updateTenant ? updateTenantText : createTenantText), href: APP_PATH.CREATE_TENANT }
+    ],
+    [removePrefixSlash(APP_PATH.ACTION_GROUPS)]: [
+      { text: actionGroupsText, href: APP_PATH.ACTION_GROUPS },
+    ],
+    [removePrefixSlash(APP_PATH.CREATE_ACTION_GROUP)]: [
+      { text: actionGroupsText, href: APP_PATH.ACTION_GROUPS },
+      { text: (updateActionGroup ? updateActionGroupText : createActionGroupText), href: APP_PATH.CREATE_ACTION_GROUP }
     ]
   }[base];
 
@@ -79,10 +93,13 @@ export const getBreadcrumb = route => {
     breadcrumb.push({ text: uploadLicenseText, href: APP_PATH.SYSTEM_STATUS + `?action=${action}` });
   }
   if (updateUser) {
-    breadcrumb.push({ text: id, href: APP_PATH.CREATE_INTERNAL_USER + `?id=${id}&action=${INTERNAL_USERS_ACTIONS.UPDATE_USER}` });
+    breadcrumb.push({ text: id, href: APP_PATH.CREATE_INTERNAL_USER + `?id=${id}&action=${action}` });
   }
   if (updateTenant) {
-    breadcrumb.push({ text: id, href: APP_PATH.CREATE_TENANT + `?id=${id}&action=${TENANTS_ACTIONS.UPDATE_TENANT}` });
+    breadcrumb.push({ text: id, href: APP_PATH.CREATE_TENANT + `?id=${id}&action=${action}` });
+  }
+  if (updateActionGroup) {
+    breadcrumb.push({ text: id, href: APP_PATH.CREATE_ACTION_GROUP + `?id=${id}&action=${action}` });
   }
 
   return breadcrumb;

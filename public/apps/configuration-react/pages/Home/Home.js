@@ -33,6 +33,10 @@ import {
   tenantsText,
   tenantsDescription
 } from '../../utils/i18n/tenants';
+import {
+  actionGroupsText,
+  actionGroupsDescription
+} from '../../utils/i18n/action_groups';
 
 const Home = ({ history, onPurgeCache, purgingCache }) => {
   // TODO: use pesonalized Search Guard icons in cards instead of the default ones
@@ -67,6 +71,12 @@ const Home = ({ history, onPurgeCache, purgingCache }) => {
   ];
 
   const permissionsAndRolesCards = [
+    {
+      icon: (<EuiIcon size="xxl" type="indexPatternApp" />),
+      title: actionGroupsText,
+      description: actionGroupsDescription,
+      onClick: () => history.push(APP_PATH.ACTION_GROUPS)
+    },
     {
       icon: (<EuiIcon size="xxl" type="grid" />),
       title: tenantsText,
