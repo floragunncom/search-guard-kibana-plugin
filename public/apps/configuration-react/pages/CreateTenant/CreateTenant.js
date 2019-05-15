@@ -1,18 +1,23 @@
 import React, { Component } from 'react';
-import { Formik } from 'formik';
 import PropTypes from 'prop-types';
+import { Formik } from 'formik';
 import { EuiButton, EuiSpacer } from '@elastic/eui';
 import queryString from 'query-string';
-import { saveText, cancelText, inspectText } from '../../../../utils/i18n/common';
-import { createInternalUserText, updateInternalUserText } from '../../../../utils/i18n/internal_users';
-import { ContentPanel } from '../../../../components';
-import { BackendRoles, UserAttributes, UserCredentials } from '../../components';
-import { APP_PATH, INTERNAL_USERS_ACTIONS } from '../../../../utils/constants';
-import { DEFAULT_USER } from './utils/constants';
-import { userToFormik, formikToUser } from './utils';
+import {
+  saveText,
+  cancelText,
+  inspectText,
+  nameText,
+  descriptionText
+} from '../../utils/i18n/common';
+import { createTenantText, updateTenantText } from '../../utils/i18n/tenants';
+import { ContentPanel, FormikFieldText } from '../../components';
+import { APP_PATH, TENANTS_ACTIONS } from '../../utils/constants';
+import { isInvalid, hasError, validateTextField, validateTenantName } from '../../utils/validation';
+import { DEFAULT_TENANT } from './utils/constants';
+import { tenantToFormik, formikToTenant } from './utils';
 
-// TODO: make this component get API data by chunks (paginations)
-class CreateInternalUser extends Component {
+class CreateTenant extends Component {
   constructor(props) {
     super(props);
 
@@ -21,11 +26,11 @@ class CreateInternalUser extends Component {
     this.state = {
       id,
       isEdit: !!id,
-      resource: userToFormik({ user: DEFAULT_USER, id }),
-      backendRoles: [],
-      resources: [],
+      resource: tenantToFormik(DEFAULT_TENANT, id),
       isLoading: true
     };
+
+    this.backendService = this.props.tenantsService;
   }
 
   componentDidMount() {
@@ -44,22 +49,15 @@ class CreateInternalUser extends Component {
 
   fetchData = async () => {
     const { id } = this.state;
-    const { internalUsersService, rolesService, onTriggerErrorCallout } = this.props;
+    const { onTriggerErrorCallout } = this.props;
     try {
       this.setState({ isLoading: true });
-      const { data: resources } = await internalUsersService.list();
-      const { data: backendRoles } = await rolesService.list();
-      this.setState({
-        resources: Object.keys(resources),
-        backendRoles: Object.keys(backendRoles).map(label => ({ label }))
-      });
-
       if (id) {
-        let resource = await internalUsersService.get(id);
-        resource = userToFormik({ user: resource, id });
+        let resource = await this.backendService.get(id);
+        resource = tenantToFormik(resource, id);
         this.setState({ resource });
       } else {
-        this.setState({ resource: userToFormik({ user: DEFAULT_USER, id }), isEdit: !!id });
+        this.setState({ resource: tenantToFormik(DEFAULT_TENANT), isEdit: !!id });
       }
     } catch(error) {
       onTriggerErrorCallout(error);
@@ -68,14 +66,12 @@ class CreateInternalUser extends Component {
   }
 
   onSubmit = async (values, { setSubmitting }) => {
-    const { internalUsersService, history, onTriggerErrorCallout } = this.props;
-    const { username } = values;
+    const { history, onTriggerErrorCallout } = this.props;
+    const { name } = values;
     try {
-      const user = formikToUser(values);
-      const doPreSaveResourceAdaptation = false;
-      await internalUsersService.save(username, user, doPreSaveResourceAdaptation);
+      await this.backendService.save(name, formikToTenant(values));
       setSubmitting(false);
-      history.push(APP_PATH.INTERNAL_USERS);
+      history.push(APP_PATH.TENANTS);
     } catch (error) {
       setSubmitting(false);
       onTriggerErrorCallout(error);
@@ -83,7 +79,7 @@ class CreateInternalUser extends Component {
   }
 
   renderCancelButton = history => (
-    <EuiButton onClick={() => history.push(APP_PATH.INTERNAL_USERS)}>
+    <EuiButton onClick={() => history.push(APP_PATH.TENANTS)}>
       {cancelText}
     </EuiButton>
   )
@@ -95,11 +91,11 @@ class CreateInternalUser extends Component {
   )
 
   render() {
-    const { history, onTriggerInspectJsonFlyout, location } = this.props;
-    const { resource, isEdit, backendRoles, resources, isLoading } = this.state;
+    const { history, onTriggerInspectJsonFlyout, location, tenantsService } = this.props;
+    const { resource, isEdit, isLoading } = this.state;
     const { action } = queryString.parse(location.search);
-    const updateUser = action === INTERNAL_USERS_ACTIONS.UPDATE_USER;
-    const titleText = updateUser ? updateInternalUserText : createInternalUserText;
+    const updateTenant = action === TENANTS_ACTIONS.UPDATE_TENANT;
+    const titleText = updateTenant ? updateTenantText : createTenantText;
 
     return (
       <Formik
@@ -122,7 +118,7 @@ class CreateInternalUser extends Component {
                 iconType="inspect"
                 onClick={() => {
                   onTriggerInspectJsonFlyout({
-                    json: formikToUser(values),
+                    json: formikToTenant(values),
                     title: titleText
                   });
                 }}
@@ -131,9 +127,36 @@ class CreateInternalUser extends Component {
               </EuiButton>
               <EuiSpacer />
 
-              <UserCredentials isEdit={isEdit} values={values} allUsers={resources} />
-              <BackendRoles allRoles={backendRoles} />
-              <UserAttributes attributes={values.attributes} />
+              <FormikFieldText
+                formRow
+                formikFieldProps={{
+                  validate: validateTenantName(tenantsService, isEdit)
+                }}
+                rowProps={{
+                  label: nameText,
+                  isInvalid,
+                  error: hasError
+                }}
+                elementProps={{
+                  isInvalid
+                }}
+                name="name"
+              />
+              <FormikFieldText
+                formRow
+                formikFieldProps={{
+                  validate: validateTextField
+                }}
+                rowProps={{
+                  label: descriptionText,
+                  isInvalid,
+                  error: hasError
+                }}
+                elementProps={{
+                  isInvalid
+                }}
+                name="description"
+              />
             </ContentPanel>
           );
         }}
@@ -142,14 +165,12 @@ class CreateInternalUser extends Component {
   }
 }
 
-CreateInternalUser.propTypes = {
+CreateTenant.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  httpClient: PropTypes.func,
-  internalUsersService: PropTypes.object.isRequired,
-  rolesService: PropTypes.object.isRequired,
+  tenantsService: PropTypes.object.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired
 };
 
-export default CreateInternalUser;
+export default CreateTenant;

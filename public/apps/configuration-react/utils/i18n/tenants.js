@@ -12,3 +12,6 @@ export const emptyTenantsTableMessageText = (
     default="Looks like you don&rsquo;t have any tenants. Let&rsquo;s create some!"
   />
 );
+export const nameAlreadyExistsText = (
+  <EuiI18n token="sg.tenants.nameAlreadyExists.text" default="Name already exists" />
+);

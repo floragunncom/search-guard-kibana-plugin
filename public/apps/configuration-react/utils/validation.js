@@ -5,6 +5,12 @@ import {
   passwordsDontMatchText,
   passwordMustBeAtLeast5CharsText
 } from './i18n/internal_users';
+import {
+  nameAlreadyExistsText
+} from './i18n/tenants';
+import {
+  problemWithValidationTryAgainText
+} from './i18n/common';
 import { requiredText } from './i18n/common';
 
 export const validateInternalUserName = ({ allUsers, isEdit }) => name => {
@@ -29,3 +35,13 @@ export const isInvalid = (name, form) => {
 };
 
 export const hasError = (name, form) => get(form.errors, name);
+
+export const validateTenantName = (tenantsService, isEdit = false) => async (name) => {
+  if (!name) throw requiredText;
+  try {
+    const { data: tenants } = await tenantsService.list();
+    if (!isEdit && Object.keys(tenants).includes(name)) return nameAlreadyExistsText;
+  } catch (error) {
+    throw problemWithValidationTryAgainText;
+  }
+};
