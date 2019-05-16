@@ -6,3 +6,5 @@ export { Tenants } from './Tenants';
 export { CreateTenant } from './CreateTenant';
 export { ActionGroups } from './ActionGroups';
 export { CreateActionGroup } from './CreateActionGroup';
+export { Roles } from './Roles';
+export { CreateRole } from './CreateRole';

@@ -18,12 +18,7 @@ const BackendRoles = ({ allRoles }) => (
       },
       onChange: (options, field, form) => {
         form.setFieldValue('backend_roles', options);
-      },
-      onCreateOption: (label, field, form) => {
-        const normalizedSearchValue = label.trim().toLowerCase();
-        if (!normalizedSearchValue) return;
-        form.setFieldValue('backend_roles', field.value.concat({ label }));
-      },
+      }
     }}
   />
 );

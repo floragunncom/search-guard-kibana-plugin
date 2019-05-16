@@ -16,8 +16,8 @@ const getAllActionGroupNamesAndPermissions = (actionGroups, currentGroup) => {
   }, { allSinglePermissions: [], allActionGroups: [] });
 
   return {
-    allActionGroups: sortBy(allActionGroups, ['label']),
-    allSinglePermissions: uniqBy(sortBy(allSinglePermissions, ['label']), 'label')
+    allActiongroups: sortBy(allActionGroups, ['label']),
+    allPermissions: uniqBy(sortBy(allSinglePermissions, ['label']), 'label')
   };
 };
 

@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import {
   usernameAlreadyExistsText,
   usernameMustNotContainDotsAndAsterisksText,
@@ -9,9 +9,12 @@ import {
   requiredText,
   problemWithValidationTryAgainText,
   nameAlreadyExistsText,
-  nameMustNotContainDotsText
+  nameMustNotContainDotsText,
+  jsonIsInvalidText,
+  jsonMustNotBeEmptyText
 } from './i18n/common';
 
+// TODO: deprecate it in favour of validateName
 export const validateInternalUserName = (internalUsersService, isEdit = false) => async (name) => {
   if (!name) throw requiredText;
   const hasDotsAndAsterisks = (/[\.\*]/gm).test(name);
@@ -40,6 +43,7 @@ export const isInvalid = (name, form) => {
 
 export const hasError = (name, form) => get(form.errors, name);
 
+// TODO: deprecate it in favour of validateName
 export const validateTenantName = (tenantsService, isEdit = false) => async (name) => {
   if (!name) throw requiredText;
   try {
@@ -50,6 +54,7 @@ export const validateTenantName = (tenantsService, isEdit = false) => async (nam
   }
 };
 
+// TODO: deprecate it in favour of validateName
 export const validateActionGroupName = (actionGroupsService, isEdit = false) => async (name) => {
   if (!name) throw requiredText;
   const hasDots = (/[\.]/gm).test(name);
@@ -59,5 +64,25 @@ export const validateActionGroupName = (actionGroupsService, isEdit = false) => 
     if (!isEdit && Object.keys(actionGroups).includes(name)) return nameAlreadyExistsText;
   } catch (error) {
     throw problemWithValidationTryAgainText;
+  }
+};
+
+export const validateName = (Service, isEdit = false) => async (name) => {
+  if (!name) throw requiredText;
+  const hasDots = (/[\.]/gm).test(name);
+  if (hasDots) throw nameMustNotContainDotsText;
+  try {
+    const { data: actionGroups } = await Service.list();
+    if (!isEdit && Object.keys(actionGroups).includes(name)) return nameAlreadyExistsText;
+  } catch (error) {
+    throw problemWithValidationTryAgainText;
+  }
+};
+
+export const validateESDSL = dslQuery => {
+  try {
+    JSON.parse(dslQuery);
+  } catch (error) {
+    throw jsonIsInvalidText;
   }
 };

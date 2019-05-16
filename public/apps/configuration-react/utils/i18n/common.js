@@ -40,3 +40,7 @@ export const nameMustNotContainDotsText = (
 export const permissionsText = (<EuiI18n token="sg.common.permissions.text" default="Permissions" />);
 export const theOptionIsNotValidText = (<EuiI18n token="sg.common.theOptionIsNotValid.text" default="The option is not valid" />);
 export const advancedText = (<EuiI18n token="sg.common.advanced.text" default="Advanced" />);
+export const includeText = (<EuiI18n token="sg.common.include.text" default="Include" />);
+export const excludeText = (<EuiI18n token="sg.common.exclude.text" default="Exclude" />);
+export const jsonIsInvalidText = (<EuiI18n token="sg.common.jsonIsInvalid.text" default="JSON is invalid" />);
+export const jsonMustNotBeEmptyText = (<EuiI18n token="sg.common.jsonMustNotBeEmpty.text" default="JSON must not be empty" />);

@@ -21,7 +21,9 @@ import {
   Tenants,
   CreateTenant,
   ActionGroups,
-  CreateActionGroup
+  CreateActionGroup,
+  Roles,
+  CreateRole
 } from '../';
 import { Breadcrumbs, Flyout, Callout } from '../../components';
 import { APP_PATH, CALLOUTS, FLYOUTS } from '../../utils/constants';
@@ -100,8 +102,9 @@ class Main extends Component {
 
   handlePurgeCache = async () => {
     this.setState({ purgingCache: true });
+    const { backendApiService } = this.props.angularServices;
     try {
-      await this.props.backendApiService.clearCache();
+      await backendApiService.clearCache();
     } catch (error) {
       this.handleTriggerErrorCallout(error);
     }
@@ -121,7 +124,8 @@ class Main extends Component {
         rolesService,
         configurationService,
         tenantsService,
-        actionGroupsService
+        actionGroupsService,
+        rolesMappingService
       },
       history,
       ...rest
@@ -234,6 +238,31 @@ class Main extends Component {
                   )}
                 />
                 <Route
+                  path={APP_PATH.ROLES}
+                  render={props => (
+                    <Roles
+                      httpClient={httpClient}
+                      rolesService={rolesService}
+                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      {...props}
+                    />
+                  )}
+                />
+                <Route
+                  path={APP_PATH.CREATE_ROLE}
+                  render={props => (
+                    <CreateRole
+                      httpClient={httpClient}
+                      rolesService={rolesService}
+                      rolesMappingService={rolesMappingService}
+                      actionGroupsService={actionGroupsService}
+                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
+                      {...props}
+                    />
+                  )}
+                />
+                <Route
                   render={props => (
                     <Home
                       purgingCache={purgingCache}
@@ -260,7 +289,8 @@ Main.propTypes = {
     configurationService: PropTypes.object.isRequired,
     backendApiService: PropTypes.object.isRequired,
     tenantsService: PropTypes.object.isRequired,
-    actionGroupsService: PropTypes.object.isRequired
+    actionGroupsService: PropTypes.object.isRequired,
+    rolesMappingService: PropTypes.object.isRequired
   }),
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired

@@ -40,7 +40,8 @@ function RootController(
   sgConfiguration,
   backendAPI,
   backendTenants,
-  backendActionGroups
+  backendActionGroups,
+  backendrolesmapping
 ) {
   const domNode = $element[0];
 
@@ -50,7 +51,8 @@ function RootController(
     configurationService: sgConfiguration,
     backendApiService: backendAPI,
     tenantsService: backendTenants,
-    actionGroupsService: backendActionGroups
+    actionGroupsService: backendActionGroups,
+    rolesMappingService: backendrolesmapping
   };
 
   // render react to DOM
