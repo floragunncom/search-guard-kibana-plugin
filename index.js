@@ -25,6 +25,9 @@ export default function (kibana) {
                 readonly_mode: Joi.object().keys({
                     roles: Joi.array().default([]),
                 }).default(),
+                xff: Joi.object().keys({
+                    enabled: Joi.boolean().default(false),
+                }).default(),
                 cookie: Joi.object().keys({
                     secure: Joi.boolean().default(false),
                     name: Joi.string().default('searchguard_authentication'),
@@ -413,6 +416,10 @@ export default function (kibana) {
                 this.status.yellow("Search Guard copy JWT params disabled");
             }
 
+            if (config.get('searchguard.xff.enabled')) {
+                require('./lib/xff/xff')(pluginRoot, server, this);
+                this.status.yellow("Search Guard XFF enabled.");
+            }
             if (config.get('searchguard.multitenancy.enabled')) {
 
                 // sanity check - header whitelisted?
