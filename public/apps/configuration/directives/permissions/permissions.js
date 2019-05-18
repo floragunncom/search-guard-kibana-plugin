@@ -8,7 +8,7 @@ app.directive('sgcPermissions', function () {
         restrict: 'EA',
         scope: {
             "permissionsResource": "=permissionsresource",
-            "actiongroupType": "&",
+            "actiongroupType": "@",
             'onShouldConfirm': '&',
         },
         controller: 'sgBaseController',
@@ -41,8 +41,15 @@ app.directive('sgcPermissions', function () {
                     return scope.actiongroupItems;
                 }
 
-                if (scope.actiongroupsAutoComplete && scope.actiongroupsAutoComplete.map) {
-                    scope.actiongroupItems = scope.actiongroupsAutoComplete.map((item) => {
+                var allActionGroups = scope.actiongroupsAutoComplete;
+
+                // if type is set, we filter the action groups by type first
+                if ( allActionGroups && allActionGroups.length > 0 && scope.actiongroupType != "all") {
+                    allActionGroups = allActionGroups.filter(group => group.type == scope.actiongroupType);
+                }
+
+                if (allActionGroups && allActionGroups.map) {
+                    scope.actiongroupItems = allActionGroups.map((item) => {
                         return item.name;
                     });
                 }

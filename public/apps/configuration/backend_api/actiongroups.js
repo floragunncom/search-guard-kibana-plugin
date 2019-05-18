@@ -22,8 +22,8 @@ uiModules.get('apps/searchguard/configuration', [])
             return backendAPI.list(RESOURCE);
         };
 
-        this.listSilent = () => {
-            return backendAPI.listSilent(RESOURCE);
+        this.listSilent = (queryParameterObject) => {
+            return backendAPI.listSilent(RESOURCE, queryParameterObject);
         };
 
         this.get = (id) => {
@@ -43,8 +43,17 @@ uiModules.get('apps/searchguard/configuration', [])
             return backendAPI.delete(RESOURCE, id);
         };
 
-        this.listAutocomplete = (names) => {
-            return backendAPI.listAutocomplete(names);
+        this.listAutocomplete = (actiongroups) => {
+            var completeList = [];
+            var actiongroupNames = Object.keys(actiongroups);
+
+            actiongroupNames.sort().forEach( function(name) {
+                var autocomplete = {};
+                autocomplete["name"] = name;
+                autocomplete["type"] = actiongroups[name].type;
+                completeList.push(autocomplete);
+            } );
+            return completeList;
         };
 
         this.emptyModel = () => {

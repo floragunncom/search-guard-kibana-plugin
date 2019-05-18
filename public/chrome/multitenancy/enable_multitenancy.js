@@ -21,9 +21,21 @@ import { FeatureCatalogueRegistryProvider, FeatureCatalogueCategory } from 'ui/r
 import { EuiIcon } from '@elastic/eui';
 import {parse} from "url";
 
+
+
 export function enableMultiTenancy(Private) {
     const sgDynamic = chrome.getInjected().sgDynamic;
     var enabled = chrome.getInjected('multitenancy_enabled');
+
+    let appAllowedByRbac = true;
+    if (sgDynamic && sgDynamic.rbac) {
+        if (sgDynamic.rbac.allowedNavLinkIds && sgDynamic.rbac.allowedNavLinkIds.indexOf('searchguard-multitenancy') === -1) {
+            appAllowedByRbac = false;
+        }
+    }
+
+    var enabled = (chrome.getInjected('multitenancy_enabled') && appAllowedByRbac);
+
     chrome.getNavLinkById("searchguard-multitenancy").hidden = !enabled;
     if (enabled) {
       FeatureCatalogueRegistryProvider.register(() => {

@@ -226,7 +226,8 @@ uiModules
                         // before switching tenants
                         try {
                             const injected = chrome.getInjected();
-                            if (injected.spacesEnabled && injected.activeSpace && injected.activeSpace.id !== 'default') {
+                            if ((injected.searchguard && injected.searchguard.rbac && injected.searchguard.rbac.enabled)
+                                || (injected.spacesEnabled && injected.activeSpace && injected.activeSpace.id !== 'default')) {
                                 $window.location.href = "/app/searchguard-multitenancy";
                             }
                         } catch(error) {

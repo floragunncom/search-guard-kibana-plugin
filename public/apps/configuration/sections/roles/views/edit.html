@@ -214,7 +214,7 @@
                                         </table>
 
                                         <!-- Index Permissions -->
-                                        <sgc-permissions on-should-confirm="confirmRemoveArrayEntry" permissionsResource="indexpermission.allowed_actions"></sgc-permissions>
+                                        <sgc-permissions on-should-confirm="confirmRemoveArrayEntry" permissionsResource="indexpermission.allowed_actions" actiongroup-type="index"></sgc-permissions>
 
                                         <!-- DLS -->
                                         <table class="kuiTable tableIndexGroups">
@@ -533,7 +533,7 @@
                                 <div class="euiFlexItem">
                                     <accordeon title="Tenant patterns: {{getAccordeonTitle(tenantpermission.tenant_patterns, '(no tenant patterns configured)')}}" is-collapsed="tenantpermission.collapsed" testid="sg.roles.tenantpermissions-{{$index}}" additional-class="euiTitle euiTitle--xsmall">
 
-                                        <!-- Delete index permissions -->
+                                        <!-- Delete tenant permissions -->
                                         <div class="euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--directionRow euiFlexGroup--responsive">
                                             <div class="euiFlexItem">
                                                 <h2 class="euiTitle euiTitle--xsmall topBottomMargin" ></h2>
@@ -549,7 +549,7 @@
                                             </div>
                                         </div>
 
-                                        <!-- Index patterns table -->
+                                        <!-- Tenant patterns table -->
                                         <table class="kuiTable tableIndexGroups">
                                             <thead>
                                             <tr>

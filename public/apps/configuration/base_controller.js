@@ -108,6 +108,10 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
             $scope.actiongroupNames = JSON.parse(cachedActionGroupNames);
         }
 
+        $scope.applicationActionGroups = $scope.actiongroupsAutoComplete.filter(group => group.type == "kibana").map((item) => {
+            return item.name;
+        });
+
         if (cachedActionGroupNames && cachedActionGroups) {
             return;
         }
@@ -116,7 +120,8 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
             backendActionGroups.listSilent().then((response) => {
                 $scope.actiongroupNames = Object.keys(response.data);
                 sessionStorage.setItem("actiongroupnames", JSON.stringify($scope.actiongroupNames));
-                $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete($scope.actiongroupNames);
+
+                $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete(response.data);
                 sessionStorage.setItem("actiongroupsautocomplete", JSON.stringify($scope.actiongroupsAutoComplete));
             }, (error) => {
                 toastNotifications.addDanger({

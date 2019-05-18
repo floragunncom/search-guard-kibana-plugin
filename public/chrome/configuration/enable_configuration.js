@@ -82,15 +82,26 @@ export function enableConfiguration($http, $window, systemstate) {
 
     chrome.getNavLinkById("searchguard-configuration").hidden = true;
 
+    const injectedConfig = chrome.getInjected();
+    const searchguardRequestConfig = injectedConfig.sgDynamic;
     const ROOT = chrome.getBasePath();
     const APP_ROOT = `${ROOT}`;
     const API_ROOT = `${APP_ROOT}/api/v1`;
     const path = chrome.removeBasePath($window.location.pathname);
 
+    let appAllowedByRbac = true;
+
     // don't run on login or logout, we don't have any user on these pages
     if(path === '/login' || path === '/logout' || path === '/customerror') {
         return;
     }
+
+    if (searchguardRequestConfig && searchguardRequestConfig.rbac) {
+        if (searchguardRequestConfig.rbac.allowedNavLinkIds && searchguardRequestConfig.rbac.allowedNavLinkIds.indexOf('searchguard-configuration') === -1) {
+            appAllowedByRbac = false;
+        }
+    }
+
     // make sure all infos are loaded since sessionStorage might
     // get cleared sporadically, especially on mobile
     systemstate.loadSystemInfo().then(function(){
@@ -101,7 +112,7 @@ export function enableConfiguration($http, $window, systemstate) {
         }
         // rest module installed, check if user has access to the API
         systemstate.loadRestInfo().then(function(){
-            if (systemstate.hasApiAccess()) {
+            if (systemstate.hasApiAccess() && appAllowedByRbac) {
                 chrome.getNavLinkById("searchguard-configuration").hidden = false;
                 FeatureCatalogueRegistryProvider.register(() => {
                     return {
