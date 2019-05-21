@@ -39,7 +39,7 @@ const renderPassword = passwordConfirmation => (
       elementProps={{
         isInvalid
       }}
-      name="passwordConfirmation"
+      name="_passwordConfirmation"
     />
   </Fragment>
 );
@@ -59,7 +59,7 @@ const UserCredentials = ({ isEdit = false, values, internalUsersService }) => (
       elementProps={{
         isInvalid
       }}
-      name="username"
+      name="_username"
     />
     {isEdit && (
       <FormikSwitch
@@ -67,21 +67,21 @@ const UserCredentials = ({ isEdit = false, values, internalUsersService }) => (
         elementProps={{
           label: changePasswordText,
           onChange: (e, field, form) => {
-            const changePasswordAborted = values.changePassword;
+            const changePasswordAborted = values._changePassword;
             if (changePasswordAborted) {
               form.setValues({
                 ...values,
                 password: '',
-                passwordConfirmation: ''
+                _passwordConfirmation: ''
               });
             }
             field.onChange(e);
           }
         }}
-        name="changePassword"
+        name="_changePassword"
       />
     )}
-    {(!isEdit || values.changePassword) && renderPassword(values.passwordConfirmation)}
+    {(!isEdit || values._changePassword) && renderPassword(values._passwordConfirmation)}
   </Fragment>
 );
 

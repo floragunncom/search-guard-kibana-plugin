@@ -78,7 +78,7 @@ class Roles extends Component {
   }
 
   cloneResource = async resource => {
-    let { id: name } = resource;
+    let { _id: name } = resource;
     name += '_copy';
     try {
       this.setState({ isLoading: true });
@@ -115,7 +115,7 @@ class Roles extends Component {
     }
 
     const handleMultiDelete = () => {
-      this.handleDeleteResources(tableSelection.map(item => item.id));
+      this.handleDeleteResources(tableSelection.map(item => item._id));
       this.setState({ tableSelection: [] });
     };
 
@@ -183,13 +183,13 @@ class Roles extends Component {
         icon: 'trash',
         type: 'icon',
         color: 'danger',
-        onClick: resource => this.handleDeleteResources([resource.id])
+        onClick: resource => this.handleDeleteResources([resource._id])
       }
     ];
 
     const columns = [
       {
-        field: 'id',
+        field: '_id',
         name: nameText,
         footer: nameText,
         align: 'left',
@@ -207,7 +207,7 @@ class Roles extends Component {
         )
       },
       {
-        field: 'allRoleClusterPermissions',
+        field: '_clusterPermissions',
         name: clusterPermissionsText,
         footer: clusterPermissionsText,
         align: 'left',
@@ -217,7 +217,7 @@ class Roles extends Component {
         render: items => (<SimpleItemsList items={items} />)
       },
       {
-        field: 'allRoleIndexPatterns',
+        field: '_indexPatterns',
         name: indexPatternsText,
         footer: indexPatternsText,
         align: 'left',
@@ -227,7 +227,7 @@ class Roles extends Component {
         render: items => (<SimpleItemsList items={items} />)
       },
       {
-        field: 'allRoleTenantPatterns',
+        field: '_tenantPatterns',
         name: tenantPatternsText,
         footer: tenantPatternsText,
         align: 'left',
@@ -243,7 +243,7 @@ class Roles extends Component {
     ];
 
     const selection = {
-      selectable: resource => resource.id && !resource.reserved,
+      selectable: resource => resource._id && !resource.reserved,
       onSelectionChange: tableSelection => this.setState({ tableSelection })
     };
 
@@ -265,7 +265,7 @@ class Roles extends Component {
       >
         <EuiInMemoryTable
           items={resources}
-          itemId="id"
+          itemId="_id"
           error={get(error, 'message')}
           message={this.renderEmptyTableMessage(history)}
           loading={isLoading}

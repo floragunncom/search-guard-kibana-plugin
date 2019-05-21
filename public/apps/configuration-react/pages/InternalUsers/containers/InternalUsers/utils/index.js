@@ -1,2 +1,2 @@
-export { default as usersToTableUsers } from './users_to_table_users';
-export { default as tableUserToUser } from './table_user_to_user';
+export { default as resourcesToUiResources } from './resources_to_ui_resources';
+export { default as uiResourceToResource } from './ui_resource_to_resource';

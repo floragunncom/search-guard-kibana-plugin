@@ -1,12 +1,13 @@
-import { map, omit } from 'lodash';
-import { DEFAULT_USER } from './constants';
+import { omit } from 'lodash';
+import { arrayToComboBoxOptions, attributesToUiAttributes } from '../../../../../utils/helpers';
 
-const userToFormik = (user, id = '') => ({
-  ...omit(user, ['hash']),
-  ...DEFAULT_USER,
-  username: id,
-  backend_roles: map(user.backend_roles, label => ({ label })),
-  attributes: map(user.attributes, (value, key) => ({ value, key }))
-});
+export const backendRolesToUiBackendRoles = backendRoles => arrayToComboBoxOptions(Object.keys(backendRoles));
 
-export default userToFormik;
+export const userToFormik = (user, id = '') => {
+  return {
+    ...omit(user, ['hash']),
+    _username: id,
+    _backendRoles: arrayToComboBoxOptions(user.backend_roles),
+    _attributes: attributesToUiAttributes(user.attributes)
+  };
+};

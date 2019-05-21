@@ -5,7 +5,7 @@ import { backendRolesText } from '../../../../utils/i18n/internal_users';
 
 const BackendRoles = ({ allRoles }) => (
   <FormikComboBox
-    name="backend_roles"
+    name="_backendRoles"
     formRow
     rowProps={{
       label: backendRolesText,
@@ -14,10 +14,10 @@ const BackendRoles = ({ allRoles }) => (
       options: allRoles,
       isClearable: true,
       onBlur: (e, field, form) => {
-        form.setFieldTouched('backend_roles', true);
+        form.setFieldTouched('_backendRoles', true);
       },
       onChange: (options, field, form) => {
-        form.setFieldValue('backend_roles', options);
+        form.setFieldValue('_backendRoles', options);
       }
     }}
   />

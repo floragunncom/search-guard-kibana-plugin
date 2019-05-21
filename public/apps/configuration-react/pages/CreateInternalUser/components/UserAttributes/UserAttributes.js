@@ -40,7 +40,7 @@ const renderKeyField = fieldName => (
 
 const UserAttributes = ({ attributes }) => (
   <FieldArray
-    name="attributes"
+    name="_attributes"
     validateOnChange={false}
     render={arrayHelpers => (
       <DynamicValuesForm
@@ -49,7 +49,7 @@ const UserAttributes = ({ attributes }) => (
         onAdd={() => arrayHelpers.push({})}
         onRemove={i => arrayHelpers.remove(i)}
         items={attributes}
-        name="attributes"
+        name="_attributes"
         onRenderValueField={renderValueField}
         onRenderKeyField={renderKeyField}
       />

@@ -20,7 +20,7 @@ import { ContentPanel, FormikFieldText, FormikComboBox, FormikSwitch } from '../
 import { APP_PATH, ACTION_GROUPS_ACTIONS } from '../../utils/constants';
 import { isInvalid, hasError, validateActionGroupName } from '../../utils/validation';
 import { DEFAULT_ACTION_GROUP } from './utils/constants';
-import { actionGroupToFormik, formikToActionGroup, getAllActionGroupNamesAndPermissions } from './utils';
+import { actionGroupToFormik, formikToActionGroup, actionGroupsToUiActionGroups } from './utils';
 
 class CreateActionGroup extends Component {
   constructor(props) {
@@ -60,7 +60,7 @@ class CreateActionGroup extends Component {
     try {
       this.setState({ isLoading: true });
       const { data } = await this.backendService.list();
-      const { allSinglePermissions, allActionGroups } = getAllActionGroupNamesAndPermissions(data, id);
+      const { allActionGroups, allSinglePermissions } = actionGroupsToUiActionGroups(data);
       this.setState({ allSinglePermissions, allActionGroups });
 
       if (id) {
@@ -78,9 +78,9 @@ class CreateActionGroup extends Component {
 
   onSubmit = async (values, { setSubmitting }) => {
     const { history, onTriggerErrorCallout } = this.props;
-    const { name } = values;
+    const { _name } = values;
     try {
-      await this.backendService.save(name, formikToActionGroup(values));
+      await this.backendService.save(_name, formikToActionGroup(values));
       setSubmitting(false);
       history.push(APP_PATH.ACTION_GROUPS);
     } catch (error) {
@@ -151,10 +151,10 @@ class CreateActionGroup extends Component {
                 elementProps={{
                   isInvalid
                 }}
-                name="name"
+                name="_name"
               />
               <FormikComboBox
-                name="actiongroups"
+                name="_actiongroups"
                 formRow
                 rowProps={{
                   label: actionGroupsText,
@@ -163,10 +163,10 @@ class CreateActionGroup extends Component {
                   options: allActionGroups,
                   isClearable: true,
                   onBlur: (e, field, form) => {
-                    form.setFieldTouched('actiongroups', true);
+                    form.setFieldTouched('_actiongroups', true);
                   },
                   onChange: (options, field, form) => {
-                    form.setFieldValue('actiongroups', options);
+                    form.setFieldValue('_actiongroups', options);
                   }
                 }}
               />
@@ -175,11 +175,11 @@ class CreateActionGroup extends Component {
                 elementProps={{
                   label: advancedText
                 }}
-                name="isAdvanced"
+                name="_isAdvanced"
               />
-              {values.isAdvanced &&
+              {values._isAdvanced &&
                 <FormikComboBox
-                  name="permissions"
+                  name="_permissions"
                   formRow
                   rowProps={{
                     label: singlePermissionsText,
@@ -188,10 +188,10 @@ class CreateActionGroup extends Component {
                     options: allSinglePermissions,
                     isClearable: true,
                     onBlur: (e, field, form) => {
-                      form.setFieldTouched('permissions', true);
+                      form.setFieldTouched('_permissions', true);
                     },
                     onChange: (options, field, form) => {
-                      form.setFieldValue('permissions', options);
+                      form.setFieldValue('_permissions', options);
                     }
                   }}
                 />

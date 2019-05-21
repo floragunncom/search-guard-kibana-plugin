@@ -28,13 +28,13 @@ import {
   IndexPermissions,
   TenantPermissions
 } from './components';
-import { formikToRole, roleToFormik } from './utils';
+import { formikToRole, roleToFormik, indicesToUiIndices } from './utils';
 import { TABS, ROLE, ROLE_MAPPING, APP_ACTION_GROUPS } from './utils/constants';
 import {
-  actionGroupsToActiongroupsAndPermissions,
   arrayToComboBoxOptions
 } from '../../utils/helpers';
 import { SystemService } from '../../services';
+import { actionGroupsToUiActionGroups } from '../CreateActionGroup/utils';
 
 class CreateRole extends Component {
   constructor(props) {
@@ -48,8 +48,8 @@ class CreateRole extends Component {
       resource: roleToFormik({ resource: ROLE, roleMapping: ROLE_MAPPING }),
       isLoading: true,
       selectedTabId: TABS.OVERVIEW,
-      allActiongroups: [],
-      allPermissions: [],
+      allActionGroups: [],
+      allSinglePermissions: [],
       allIndices: [],
       allAppActionGroups: arrayToComboBoxOptions(APP_ACTION_GROUPS)
     };
@@ -101,19 +101,15 @@ class CreateRole extends Component {
         const roleMapping = await rolesMappingService.getSilent(id, false);
         resource = roleToFormik({ resource, id, roleMapping });
 
-        const { data: allActionGroups } = await actionGroupsService.list();
-        const {
-          actiongroups: allActiongroups,
-          permissions: allPermissions
-        } = actionGroupsToActiongroupsAndPermissions(allActionGroups);
-
+        const { data: actionGroups } = await actionGroupsService.list();
+        const { allActionGroups, allSinglePermissions } = actionGroupsToUiActionGroups(actionGroups);
         const { data: allIndices } = await this.systemService.getIndices();
 
         this.setState({
           resource,
-          allActiongroups: arrayToComboBoxOptions(allActiongroups),
-          allPermissions: arrayToComboBoxOptions(allPermissions),
-          allIndices: arrayToComboBoxOptions(Object.keys(allIndices))
+          allActionGroups,
+          allSinglePermissions,
+          allIndices: indicesToUiIndices(allIndices)
         });
       } else {
         this.setState({ resource: roleToFormik({ resource: ROLE, roleMapping: ROLE_MAPPING }), isEdit: !!id });
@@ -170,8 +166,8 @@ class CreateRole extends Component {
       isLoading,
       resource,
       selectedTabId,
-      allActiongroups,
-      allPermissions,
+      allActionGroups,
+      allSinglePermissions,
       allIndices,
       allAppActionGroups
     } = this.state;
@@ -214,8 +210,8 @@ class CreateRole extends Component {
               {isClusterPermissionsTab &&
                 <ClusterPermissions
                   isAdvanced={values._isClusterPermissionsAdvanced}
-                  allActiongroups={allActiongroups}
-                  allPermissions={allPermissions}
+                  allActionGroups={allActionGroups}
+                  allSinglePermissions={allSinglePermissions}
                   isEdit={isEdit}
                   {...this.props}
                 />
@@ -224,8 +220,8 @@ class CreateRole extends Component {
                 <IndexPermissions
                   indexPermissions={values._indexPermissions}
                   allIndices={allIndices}
-                  allActiongroups={allActiongroups}
-                  allPermissions={allPermissions}
+                  allActionGroups={allActionGroups}
+                  allSinglePermissions={allSinglePermissions}
                   isEdit={isEdit}
                   {...this.props}
                 />

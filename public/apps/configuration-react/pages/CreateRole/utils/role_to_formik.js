@@ -6,6 +6,8 @@ import {
   stringifyPretty
 } from '../../../utils/helpers';
 
+export const indicesToUiIndices = indices => arrayToComboBoxOptions(Object.keys(indices));
+
 export const tenantPermissionToUiTenantPermission = tenantPermission => {
   const {
     tenant_patterns: tenantPatterns = [],

@@ -34,7 +34,7 @@ import {
   confirmDeleteText,
   confirmText
 } from '../../../../utils/i18n/common';
-import { usersToTableUsers, tableUserToUser } from './utils';
+import { resourcesToUiResources, uiResourceToResource } from './utils';
 import { BrowserStorageService } from '../../../../services';
 
 // TODO: make this component get API data by chunks (paginations)
@@ -61,7 +61,7 @@ class InternalUsers extends Component {
     try {
       this.setState({ isLoading: true });
       const { data: resources } = await this.backendService.list();
-      this.setState({ resources: usersToTableUsers(resources), error: null });
+      this.setState({ resources: resourcesToUiResources(resources), error: null });
     } catch(error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
@@ -87,12 +87,12 @@ class InternalUsers extends Component {
   }
 
   cloneResource = async resource => {
-    let { id: username } = resource;
+    let { _id: username } = resource;
     username += '_copy';
     try {
       this.setState({ isLoading: true });
       const doPreSaveResourceAdaptation = false;
-      await this.backendService.save(username, tableUserToUser(resource), doPreSaveResourceAdaptation);
+      await this.backendService.save(username, uiResourceToResource(resource), doPreSaveResourceAdaptation);
     } catch(error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
@@ -125,7 +125,7 @@ class InternalUsers extends Component {
     }
 
     const handleMultiDelete = () => {
-      this.handleDeleteResources(tableSelection.map(item => item.id));
+      this.handleDeleteResources(tableSelection.map(item => item._id));
       this.setState({ tableSelection: [] });
     };
 
@@ -209,13 +209,13 @@ class InternalUsers extends Component {
         icon: 'trash',
         type: 'icon',
         color: 'danger',
-        onClick: resource => this.handleDeleteResources([resource.id])
+        onClick: resource => this.handleDeleteResources([resource._id])
       }
     ];
 
     const columns = [
       {
-        field: 'id',
+        field: '_id',
         name: nameText,
         footer: nameText,
         align: 'left',
@@ -250,7 +250,7 @@ class InternalUsers extends Component {
     ];
 
     const selection = {
-      selectable: resource => resource.id && !resource.reserved,
+      selectable: resource => resource._id && !resource.reserved,
       onSelectionChange: tableSelection => this.setState({ tableSelection })
     };
 
@@ -271,7 +271,7 @@ class InternalUsers extends Component {
       >
         <EuiInMemoryTable
           items={resources}
-          itemId="id"
+          itemId="_id"
           error={get(error, 'message')}
           message={this.renderEmptyTableMessage(history)}
           loading={isLoading}

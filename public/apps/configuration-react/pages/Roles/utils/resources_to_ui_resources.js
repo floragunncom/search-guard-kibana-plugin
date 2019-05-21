@@ -1,30 +1,24 @@
-import { reduce, sortBy, forEach, map } from 'lodash';
-import { allowedActionsToPermissionsAndActiongroups } from '../../../utils/helpers';
+import { reduce, sortBy, forEach, cloneDeep } from 'lodash';
 
-const resourcesToUiResources = resources => reduce(resources, (result, values, id) => {
+const resourcesToUiResources = resources => sortBy(reduce(cloneDeep(resources), (result, values, id) => {
   result.push({
-    id,
-    allRoleTenantPatterns: sortBy(reduce(values.tenant_permissions, (result, values) => {
+    _id: id,
+    _tenantPatterns: sortBy(reduce(values.tenant_permissions, (result, values) => {
       forEach(values.tenant_patterns, pattern => {
         result.push(pattern);
       });
       return result;
     }, [])),
-    allRoleIndexPatterns: sortBy(reduce(values.index_permissions, (result, values) => {
+    _indexPatterns: sortBy(reduce(values.index_permissions, (result, values) => {
       forEach(values.index_patterns, pattern => {
         result.push(pattern);
       });
       return result;
     }, [])),
-    allRoleClusterPermissions: sortBy(values.cluster_permissions),
-    ...values,
-    index_permissions: map(values.index_permissions, values => {
-      values.allowed_actions = allowedActionsToPermissionsAndActiongroups(values.allowed_actions);
-      return values;
-    }),
-    cluster_permissions: allowedActionsToPermissionsAndActiongroups(values.cluster_permissions)
+    _clusterPermissions: sortBy(values.cluster_permissions),
+    ...values
   });
   return result;
-}, []);
+}, []), '_id');
 
 export default resourcesToUiResources;

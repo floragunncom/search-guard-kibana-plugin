@@ -9,7 +9,7 @@ import { ContentPanel } from '../../../../components';
 import { BackendRoles, UserAttributes, UserCredentials } from '../../components';
 import { APP_PATH, INTERNAL_USERS_ACTIONS } from '../../../../utils/constants';
 import { DEFAULT_USER } from './utils/constants';
-import { userToFormik, formikToUser } from './utils';
+import { userToFormik, formikToUser, backendRolesToUiBackendRoles } from './utils';
 
 // TODO: make this component get API data by chunks (paginations)
 class CreateInternalUser extends Component {
@@ -48,7 +48,7 @@ class CreateInternalUser extends Component {
       this.setState({ isLoading: true });
       const { data: backendRoles } = await rolesService.list();
       this.setState({
-        backendRoles: Object.keys(backendRoles).map(label => ({ label }))
+        backendRoles: backendRolesToUiBackendRoles(backendRoles)
       });
 
       if (id) {
@@ -66,11 +66,11 @@ class CreateInternalUser extends Component {
 
   onSubmit = async (values, { setSubmitting }) => {
     const { internalUsersService, history, onTriggerErrorCallout } = this.props;
-    const { username } = values;
+    const { _username } = values;
     try {
       const user = formikToUser(values);
       const doPreSaveResourceAdaptation = false;
-      await internalUsersService.save(username, user, doPreSaveResourceAdaptation);
+      await internalUsersService.save(_username, user, doPreSaveResourceAdaptation);
       setSubmitting(false);
       history.push(APP_PATH.INTERNAL_USERS);
     } catch (error) {
@@ -130,7 +130,7 @@ class CreateInternalUser extends Component {
 
               <UserCredentials isEdit={isEdit} values={values} {...this.props} />
               <BackendRoles allRoles={backendRoles} />
-              <UserAttributes attributes={values.attributes} />
+              <UserAttributes attributes={values._attributes} />
             </ContentPanel>
           );
         }}

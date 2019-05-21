@@ -4,7 +4,7 @@ import { FormikComboBox, FormikSwitch } from '../../../components';
 import { actionGroupsText, singlePermissionsText } from '../../../utils/i18n/action_groups';
 import { advancedText } from '../../../utils/i18n/common';
 
-const ClusterPermissions = ({ allActiongroups, allPermissions, isAdvanced }) => (
+const ClusterPermissions = ({ allActionGroups, allSinglePermissions, isAdvanced }) => (
   <Fragment>
     <FormikComboBox
       name="_clusterPermissions.actiongroups"
@@ -13,7 +13,7 @@ const ClusterPermissions = ({ allActiongroups, allPermissions, isAdvanced }) => 
         label: actionGroupsText,
       }}
       elementProps={{
-        options: allActiongroups,
+        options: allActionGroups,
         isClearable: true,
         onBlur: (e, field, form) => {
           form.setFieldTouched('_clusterPermissions.actiongroups', true);
@@ -38,7 +38,7 @@ const ClusterPermissions = ({ allActiongroups, allPermissions, isAdvanced }) => 
           label: singlePermissionsText,
         }}
         elementProps={{
-          options: allPermissions,
+          options: allSinglePermissions,
           isClearable: true,
           onBlur: (e, field, form) => {
             form.setFieldTouched('_clusterPermissions.permissions', true);
@@ -53,8 +53,8 @@ const ClusterPermissions = ({ allActiongroups, allPermissions, isAdvanced }) => 
 );
 
 ClusterPermissions.propTypes = {
-  allActiongroups: PropTypes.array.isRequired,
-  allPermissions: PropTypes.array.isRequired,
+  allActionGroups: PropTypes.array.isRequired,
+  allSinglePermissions: PropTypes.array.isRequired,
   isAdvanced: PropTypes.bool.isRequired
 };
 

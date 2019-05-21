@@ -1,4 +1,4 @@
-import { get, isEmpty } from 'lodash';
+import { get } from 'lodash';
 import {
   usernameAlreadyExistsText,
   usernameMustNotContainDotsAndAsterisksText,
@@ -10,8 +10,7 @@ import {
   problemWithValidationTryAgainText,
   nameAlreadyExistsText,
   nameMustNotContainDotsText,
-  jsonIsInvalidText,
-  jsonMustNotBeEmptyText
+  jsonIsInvalidText
 } from './i18n/common';
 
 // TODO: deprecate it in favour of validateName

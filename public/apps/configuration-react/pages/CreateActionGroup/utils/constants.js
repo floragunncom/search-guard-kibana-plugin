@@ -1,6 +1,6 @@
 export const DEFAULT_ACTION_GROUP = {
-  name: '',
-  permissions: [],
-  actiongroups: [],
-  isAdvanced: false
+  _name: '',
+  _permissions: [],
+  _actiongroups: [],
+  _isAdvanced: false
 };

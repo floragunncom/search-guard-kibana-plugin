@@ -1,6 +1,6 @@
 import { omit } from 'lodash';
 
 const uiResourceToResource = resource =>
-  omit(resource, ['allRoleTenantPatterns', 'allRoleIndexPatterns', 'allRoleClusterPermissions', 'id']);
+  omit(resource, ['_tenantPatterns', '_indexPatterns', '_clusterPermissions', '_id']);
 
 export default uiResourceToResource;

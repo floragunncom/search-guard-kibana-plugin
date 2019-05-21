@@ -1,5 +1,5 @@
 import { BrowserStorageService } from '../services';
-import { get, reduce, sortBy, uniqBy } from 'lodash';
+import { get, reduce, sortBy, uniqBy, forEach, map } from 'lodash';
 
 export const stringifyPretty = json => JSON.stringify(json, null, 2);
 
@@ -40,17 +40,35 @@ export const allowedActionsToPermissionsAndActiongroups = (allowedActions = []) 
   };
 };
 
+export const actionGroupToActiongroupsAndPermissions = (actionGroup = {}) => {
+  const { permissions, actiongroups } = allowedActionsToPermissionsAndActiongroups(actionGroup.allowed_actions || []);
+
+  forEach(actionGroup.actiongroups, item => {
+    actiongroups.push(item);
+  });
+
+  forEach(actionGroup.permissions, item => {
+    permissions.push(item);
+  });
+
+  return {
+    ...actionGroup,
+    permissions: uniqBy(sortBy(permissions)),
+    actiongroups: uniqBy(sortBy(actiongroups))
+  };
+};
+
 export const actionGroupsToActiongroupsAndPermissions = (actionGroups = {}) => {
   const { actiongroups, permissions } = reduce(actionGroups, (result, values, groupName) => {
     result.actiongroups.push(groupName);
 
-    const { permissions, actiongroups } = allowedActionsToPermissionsAndActiongroups(values.allowed_actions);
+    const { permissions, actiongroups } = actionGroupToActiongroupsAndPermissions(values);
 
-    actiongroups.forEach(item => {
+    forEach(actiongroups, item => {
       result.actiongroups.push(item);
     });
 
-    permissions.forEach(item => {
+    forEach(permissions, item => {
       result.permissions.push(item);
     });
 
@@ -62,3 +80,9 @@ export const actionGroupsToActiongroupsAndPermissions = (actionGroups = {}) => {
     permissions: uniqBy(sortBy(permissions))
   };
 };
+
+export const attributesToUiAttributes = (attributes = {}) => map(attributes, (value, key) => ({ value, key }));
+export const uiAttributesToAttributes = (attributes = []) => attributes.reduce((result, { key, value }) => {
+  result[key] = value;
+  return result;
+}, {});

@@ -1,9 +1,9 @@
 export const DEFAULT_USER = {
-  changePassword: false,
+  _changePassword: false,
   reserved: false,
   password: '',
-  passwordConfirmation: '',
-  username: '',
+  _passwordConfirmation: '',
+  _username: '',
   backend_roles: [],
   attributes: []
 };

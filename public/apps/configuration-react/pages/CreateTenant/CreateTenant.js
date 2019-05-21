@@ -53,9 +53,8 @@ class CreateTenant extends Component {
     try {
       this.setState({ isLoading: true });
       if (id) {
-        let resource = await this.backendService.get(id);
-        resource = tenantToFormik(resource, id);
-        this.setState({ resource });
+        const resource = await this.backendService.get(id);
+        this.setState({ resource: tenantToFormik(resource, id) });
       } else {
         this.setState({ resource: tenantToFormik(DEFAULT_TENANT), isEdit: !!id });
       }
@@ -67,9 +66,9 @@ class CreateTenant extends Component {
 
   onSubmit = async (values, { setSubmitting }) => {
     const { history, onTriggerErrorCallout } = this.props;
-    const { name } = values;
+    const { _name } = values;
     try {
-      await this.backendService.save(name, formikToTenant(values));
+      await this.backendService.save(_name, formikToTenant(values));
       setSubmitting(false);
       history.push(APP_PATH.TENANTS);
     } catch (error) {
@@ -140,7 +139,7 @@ class CreateTenant extends Component {
                 elementProps={{
                   isInvalid
                 }}
-                name="name"
+                name="_name"
               />
               <FormikFieldText
                 formRow

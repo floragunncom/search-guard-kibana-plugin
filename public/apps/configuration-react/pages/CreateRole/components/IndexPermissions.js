@@ -41,8 +41,8 @@ const indexPatternNames = (indexPatterns = []) => comboBoxOptionsToArray(indexPa
 const IndexPermissionsAccordion = ({
   indexPermissions,
   arrayHelpers,
-  allActiongroups,
-  allPermissions,
+  allActionGroups,
+  allSinglePermissions,
   allIndices
 }) => (
   indexPermissions.map((indexPermission, index) => (
@@ -97,7 +97,7 @@ const IndexPermissionsAccordion = ({
                   label: actionGroupsText,
                 }}
                 elementProps={{
-                  options: allActiongroups,
+                  options: allActionGroups,
                   isClearable: true,
                   onBlur: (e, field, form) => {
                     form.setFieldTouched(`_indexPermissions[${index}].allowed_actions.actiongroups`, true);
@@ -126,7 +126,7 @@ const IndexPermissionsAccordion = ({
                 label: singlePermissionsText,
               }}
               elementProps={{
-                options: allPermissions,
+                options: allSinglePermissions,
                 isClearable: true,
                 onBlur: (e, field, form) => {
                   form.setFieldTouched(`_indexPermissions[${index}].allowed_actions.permissions`, true);
@@ -184,8 +184,8 @@ const addIndexPermission = arrayHelpers => {
 
 const IndexPermissions = ({
   indexPermissions,
-  allActiongroups,
-  allPermissions,
+  allActionGroups,
+  allSinglePermissions,
   allIndices
 }) => (
   <FieldArray
@@ -211,8 +211,8 @@ const IndexPermissions = ({
         ) : (
           <IndexPermissionsAccordion
             indexPermissions={indexPermissions}
-            allActiongroups={allActiongroups}
-            allPermissions={allPermissions}
+            allActionGroups={allActionGroups}
+            allSinglePermissions={allSinglePermissions}
             allIndices={allIndices}
             arrayHelpers={arrayHelpers}
           />
@@ -234,8 +234,8 @@ IndexPermissions.propTypes = {
       })
     })
   ).isRequired,
-  allActiongroups: PropTypes.array.isRequired,
-  allPermissions: PropTypes.array.isRequired,
+  allActionGroups: PropTypes.array.isRequired,
+  allSinglePermissions: PropTypes.array.isRequired,
   allIndices: PropTypes.array.isRequired
 };
 
