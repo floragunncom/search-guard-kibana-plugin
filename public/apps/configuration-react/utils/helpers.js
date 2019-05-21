@@ -18,8 +18,9 @@ export const readFileAsText = (file, FileReader = window.FileReader) => {
   });
 };
 
-export const isSinglePermission = permission =>
-  permission.startsWith('cluster:') || permission.startsWith('indices:') || permission.startsWith('kibana:');
+export const isSinglePermission = permission => {
+  return permission.startsWith('cluster:') || permission.startsWith('indices:') || permission.startsWith('kibana:');
+};
 
 export const arrayToComboBoxOptions = array => sortBy(array.map(label => ({ label })));
 export const comboBoxOptionsToArray = array => sortBy(array.map(({ label }) => label));

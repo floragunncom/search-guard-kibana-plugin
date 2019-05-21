@@ -171,7 +171,7 @@ class CreateRole extends Component {
       allIndices,
       allAppActionGroups
     } = this.state;
-    const { action } = queryString.parse(location.search);
+    const { action, id } = queryString.parse(location.search);
     const updateRole = action === ROLES_ACTIONS.UPDATE_ROLE;
     const titleText = updateRole ? updateRoleText : createRoleText;
     const isOverviewTab = selectedTabId === TABS.OVERVIEW;
@@ -186,6 +186,8 @@ class CreateRole extends Component {
         validateOnChange={false}
         enableReinitialize={true}
         render={({ values, handleSubmit, isSubmitting }) => {
+          const isUpdatingName = id !== values._name;
+
           return (
             <ContentPanel
               title={titleText}
@@ -201,6 +203,7 @@ class CreateRole extends Component {
 
               {isOverviewTab &&
                 <Overview
+                  isUpdatingName={isUpdatingName}
                   values={values}
                   titleText={titleText}
                   isEdit={isEdit}

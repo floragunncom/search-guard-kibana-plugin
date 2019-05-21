@@ -18,7 +18,7 @@ import {
 } from '../../utils/i18n/action_groups';
 import { ContentPanel, FormikFieldText, FormikComboBox, FormikSwitch } from '../../components';
 import { APP_PATH, ACTION_GROUPS_ACTIONS } from '../../utils/constants';
-import { isInvalid, hasError, validateActionGroupName } from '../../utils/validation';
+import { isInvalid, hasError, validateName } from '../../utils/validation';
 import { DEFAULT_ACTION_GROUP } from './utils/constants';
 import { actionGroupToFormik, formikToActionGroup, actionGroupsToUiActionGroups } from './utils';
 
@@ -103,8 +103,8 @@ class CreateActionGroup extends Component {
 
   render() {
     const { history, onTriggerInspectJsonFlyout, location, actionGroupsService } = this.props;
-    const { resource, isEdit, isLoading, allSinglePermissions, allActionGroups } = this.state;
-    const { action } = queryString.parse(location.search);
+    const { resource, isLoading, allSinglePermissions, allActionGroups } = this.state;
+    const { action, id } = queryString.parse(location.search);
     const updateActionGroup = action === ACTION_GROUPS_ACTIONS.UPDATE_ACTION_GROUP;
     const titleText = updateActionGroup ? updateActionGroupText : createActionGroupText;
 
@@ -115,6 +115,8 @@ class CreateActionGroup extends Component {
         validateOnChange={false}
         enableReinitialize={true}
         render={({ values, handleSubmit, isSubmitting }) => {
+          const isUpdatingName = id !== values._name;
+
           return (
             <ContentPanel
               title={titleText}
@@ -141,7 +143,7 @@ class CreateActionGroup extends Component {
               <FormikFieldText
                 formRow
                 formikFieldProps={{
-                  validate: validateActionGroupName(actionGroupsService, isEdit)
+                  validate: validateName(actionGroupsService, isUpdatingName)
                 }}
                 rowProps={{
                   label: nameText,

@@ -94,7 +94,7 @@ class CreateInternalUser extends Component {
   render() {
     const { history, onTriggerInspectJsonFlyout, location } = this.props;
     const { resource, isEdit, backendRoles, isLoading } = this.state;
-    const { action } = queryString.parse(location.search);
+    const { action, id } = queryString.parse(location.search);
     const updateUser = action === INTERNAL_USERS_ACTIONS.UPDATE_USER;
     const titleText = updateUser ? updateInternalUserText : createInternalUserText;
 
@@ -105,6 +105,8 @@ class CreateInternalUser extends Component {
         validateOnChange={false}
         enableReinitialize={true}
         render={({ values, handleSubmit, isSubmitting }) => {
+          const isUpdatingName = id !== values._username;
+
           return (
             <ContentPanel
               title={titleText}
@@ -128,7 +130,12 @@ class CreateInternalUser extends Component {
               </EuiButton>
               <EuiSpacer />
 
-              <UserCredentials isEdit={isEdit} values={values} {...this.props} />
+              <UserCredentials
+                isEdit={isEdit}
+                isUpdatingName={isUpdatingName}
+                values={values}
+                {...this.props}
+              />
               <BackendRoles allRoles={backendRoles} />
               <UserAttributes attributes={values._attributes} />
             </ContentPanel>

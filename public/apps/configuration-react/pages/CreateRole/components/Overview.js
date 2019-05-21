@@ -28,7 +28,7 @@ import { formikToRole } from '../utils';
 import { FormikFieldText } from '../../../components';
 import { hasError, isInvalid, validateName } from '../../../utils/validation';
 
-const Overview = ({ values, titleText, onTriggerInspectJsonFlyout, rolesService, isEdit }) => {
+const Overview = ({ values, titleText, onTriggerInspectJsonFlyout, rolesService, isUpdatingName }) => {
   const sectionNoMappedText = {
     users: noMappedUsersFoundText,
     backend_roles: noMappedBackendRolesFoundText,
@@ -61,7 +61,7 @@ const Overview = ({ values, titleText, onTriggerInspectJsonFlyout, rolesService,
       <FormikFieldText
         formRow
         formikFieldProps={{
-          validate: validateName(rolesService, isEdit)
+          validate: validateName(rolesService, isUpdatingName)
         }}
         rowProps={{
           label: nameText,
@@ -105,7 +105,7 @@ const Overview = ({ values, titleText, onTriggerInspectJsonFlyout, rolesService,
 Overview.propTypes = {
   values: PropTypes.object.isRequired,
   rolesService: PropTypes.object.isRequired,
-  isEdit: PropTypes.bool.isRequired,
+  isUpdatingName: PropTypes.bool.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired
 };
 

@@ -44,12 +44,12 @@ const renderPassword = passwordConfirmation => (
   </Fragment>
 );
 
-const UserCredentials = ({ isEdit = false, values, internalUsersService }) => (
+const UserCredentials = ({ isEdit = false, isUpdatingName, values, internalUsersService }) => (
   <Fragment>
     <FormikFieldText
       formRow
       formikFieldProps={{
-        validate: validateInternalUserName(internalUsersService, isEdit)
+        validate: validateInternalUserName(internalUsersService, isUpdatingName)
       }}
       rowProps={{
         label: usernameText,
@@ -87,6 +87,7 @@ const UserCredentials = ({ isEdit = false, values, internalUsersService }) => (
 
 UserCredentials.propTypes = {
   isEdit: PropTypes.bool.isRequired,
+  isUpdatingName: PropTypes.bool.isRequired,
   values: PropTypes.object.isRequired,
   internalUsersService: PropTypes.object.isRequired
 };
