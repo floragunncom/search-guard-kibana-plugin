@@ -77,45 +77,52 @@ const TenantPermissionsAccordion = ({ tenantPermissions, allAppActionGroups, arr
         >
           <EuiSpacer />
 
-          <FormikComboBox
-            name={`_tenantPermissions[${index}].tenant_patterns`}
-            formRow
-            rowProps={{
-              label: tenantPatternsText,
-            }}
-            elementProps={{
-              isClearable: true,
-              onBlur: (e, field, form) => {
-                form.setFieldTouched(`_tenantPermissions[${index}].tenant_patterns`, true);
-              },
-              onChange: (options, field, form) => {
-                form.setFieldValue(`_tenantPermissions[${index}].tenant_patterns`, options);
-              },
-              onCreateOption: (label, field, form) => {
-                const normalizedSearchValue = label.trim().toLowerCase();
-                if (!normalizedSearchValue) return;
-                form.setFieldValue(`_tenantPermissions[${index}].tenant_patterns`, field.value.concat({ label }));
-              }
-            }}
-          />
-          <FormikComboBox
-            name={`_tenantPermissions[${index}].allowed_actions`}
-            formRow
-            rowProps={{
-              label: actionGroupsText,
-            }}
-            elementProps={{
-              options: allAppActionGroups,
-              isClearable: true,
-              onBlur: (e, field, form) => {
-                form.setFieldTouched(`_tenantPermissions[${index}].allowed_actions`, true);
-              },
-              onChange: (options, field, form) => {
-                form.setFieldValue(`_tenantPermissions[${index}].allowed_actions`, options);
-              }
-            }}
-          />
-          <EuiSpacer />
+          <EuiFlexGroup>
+            <EuiFlexItem>
+              <FormikComboBox
+                name={`_tenantPermissions[${index}].tenant_patterns`}
+                formRow
+                rowProps={{
+                  label: tenantPatternsText,
+                }}
+                elementProps={{
+                  isClearable: true,
+                  onBlur: (e, field, form) => {
+                    form.setFieldTouched(`_tenantPermissions[${index}].tenant_patterns`, true);
+                  },
+                  onChange: (options, field, form) => {
+                    form.setFieldValue(`_tenantPermissions[${index}].tenant_patterns`, options);
+                  },
+                  onCreateOption: (label, field, form) => {
+                    const normalizedSearchValue = label.trim().toLowerCase();
+                    if (!normalizedSearchValue) return;
+                    form.setFieldValue(`_tenantPermissions[${index}].tenant_patterns`, field.value.concat({ label }));
+                  }
+                }}
+              />
+            </EuiFlexItem>
+
+            <EuiFlexItem>
+              <FormikComboBox
+                name={`_tenantPermissions[${index}].allowed_actions`}
+                formRow
+                rowProps={{
+                  label: actionGroupsText,
+                }}
+                elementProps={{
+                  options: allAppActionGroups,
+                  isClearable: true,
+                  onBlur: (e, field, form) => {
+                    form.setFieldTouched(`_tenantPermissions[${index}].allowed_actions`, true);
+                  },
+                  onChange: (options, field, form) => {
+                    form.setFieldValue(`_tenantPermissions[${index}].allowed_actions`, options);
+                  }
+                }}
+              />
+            </EuiFlexItem>
+          </EuiFlexGroup>
+          <EuiSpacer size="xl" />
 
         </EuiAccordion>
       </EuiFlexItem>
