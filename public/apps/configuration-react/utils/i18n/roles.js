@@ -45,3 +45,13 @@ export const emptyTenantPermissionsText = (
     default="Looks like you don&rsquo;t have any tenant permissions. Let&rsquo;s create some!"
   />
 );
+export const fieldLevelSecurityDisabledText = (
+  <EuiI18n token="sg.roles.fieldLevelSecurityDisabled.text" default="Field-Level Security is Disabled" />
+);
+export const documentLevelSecurityDisabledText = (
+  <EuiI18n token="sg.roles.documentLevelSecurityDisabled.text" default="Document-Level Security is Disabled" />
+);
+export const multiTenancyDisabledText = (<EuiI18n token="sg.roles.multiTenancyDisabled.text" default="Multitenancy is Disabled" />);
+export const globalAppPermissionsDisabledText = (
+  <EuiI18n token="sg.roles.globalAppPermissionsDisabled.text" default="Global App Permissions are Disabled" />
+);

@@ -1,4 +1,5 @@
-import { API } from '../utils/constants';
+import chrome from 'ui/chrome';
+import { API, PERMISSIONS } from '../utils/constants';
 
 export default class SystemService {
   constructor(httpClient) {
@@ -15,5 +16,9 @@ export default class SystemService {
 
   getIndices() {
     return this.httpClient.get(API.INDICES);
+  }
+
+  get isGlobalAppPermissionsEnabled() {
+    return chrome.getInjected(PERMISSIONS.GLOBAL_APP);
   }
 }

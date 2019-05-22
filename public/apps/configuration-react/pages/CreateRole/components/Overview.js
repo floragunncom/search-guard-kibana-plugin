@@ -86,7 +86,7 @@ const Overview = ({ values, titleText, onTriggerInspectJsonFlyout, rolesService,
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiFlexGroup>
-            <EuiFlexItem className="sgFixedFlexItem">
+            <EuiFlexItem className="sgFixedFormItem">
               {isEmpty(values._roleMapping[sectionName]) ? (
                 <EuiCallOut iconType="iInCircle" title={sectionNoMappedText[sectionName]} />
               ) : (

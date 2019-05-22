@@ -42,6 +42,9 @@ class CreateRole extends Component {
 
     const { location, rolesService, httpClient } = this.props;
     const { id } = queryString.parse(location.search);
+    this.systemService = new SystemService(httpClient);
+    this.backendService = rolesService;
+
     this.state = {
       id,
       isEdit: !!id,
@@ -51,11 +54,12 @@ class CreateRole extends Component {
       allActionGroups: [],
       allSinglePermissions: [],
       allIndices: [],
-      allAppActionGroups: arrayToComboBoxOptions(APP_ACTION_GROUPS)
+      allAppActionGroups: arrayToComboBoxOptions(APP_ACTION_GROUPS),
+      isFlsEnabled: true,
+      isDlsEnabled: true,
+      isMultiTenancyEnabled: true,
+      isGlobalAppPermissionsEnabled: this.systemService.isGlobalAppPermissionsEnabled
     };
-
-    this.backendService = rolesService;
-    this.systemService = new SystemService(httpClient);
 
     this.tabs = [
       {
@@ -93,7 +97,7 @@ class CreateRole extends Component {
 
   fetchData = async () => {
     const { id } = this.state;
-    const { onTriggerErrorCallout, rolesMappingService, actionGroupsService } = this.props;
+    const { onTriggerErrorCallout, rolesMappingService, actionGroupsService, systemstateService } = this.props;
     try {
       this.setState({ isLoading: true });
       if (id) {
@@ -105,10 +109,19 @@ class CreateRole extends Component {
         const { allActionGroups, allSinglePermissions } = actionGroupsToUiActionGroups(actionGroups);
         const { data: allIndices } = await this.systemService.getIndices();
 
+        // TODO: Refactor this to get stuff without side effects
+        await systemstateService.loadSystemInfo();
+        const isDlsEnabled = systemstateService.dlsFlsEnabled();
+        const isFlsEnabled = isDlsEnabled;
+        const isMultiTenancyEnabled = systemstateService.multiTenancyEnabled();
+
         this.setState({
           resource,
           allActionGroups,
           allSinglePermissions,
+          isDlsEnabled,
+          isFlsEnabled,
+          isMultiTenancyEnabled,
           allIndices: indicesToUiIndices(allIndices)
         });
       } else {
@@ -169,7 +182,11 @@ class CreateRole extends Component {
       allActionGroups,
       allSinglePermissions,
       allIndices,
-      allAppActionGroups
+      allAppActionGroups,
+      isDlsEnabled,
+      isFlsEnabled,
+      isMultiTenancyEnabled,
+      isGlobalAppPermissionsEnabled
     } = this.state;
     const { action, id } = queryString.parse(location.search);
     const updateRole = action === ROLES_ACTIONS.UPDATE_ROLE;
@@ -226,6 +243,8 @@ class CreateRole extends Component {
                   allActionGroups={allActionGroups}
                   allSinglePermissions={allSinglePermissions}
                   isEdit={isEdit}
+                  isDlsEnabled={isDlsEnabled}
+                  isFlsEnabled={isFlsEnabled}
                   {...this.props}
                 />
               }
@@ -235,6 +254,8 @@ class CreateRole extends Component {
                   tenantPermissions={values._tenantPermissions}
                   values={values}
                   isEdit={isEdit}
+                  isMultiTenancyEnabled={isMultiTenancyEnabled}
+                  isGlobalAppPermissionsEnabled={isGlobalAppPermissionsEnabled}
                   {...this.props}
                 />
               }
@@ -252,6 +273,7 @@ CreateRole.propTypes = {
   rolesService: PropTypes.object.isRequired,
   rolesMappingService: PropTypes.object.isRequired,
   actionGroupsService: PropTypes.object.isRequired,
+  systemstateService: PropTypes.object.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
   httpClient: PropTypes.func.isRequired

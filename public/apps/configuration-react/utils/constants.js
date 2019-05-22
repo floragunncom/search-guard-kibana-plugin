@@ -56,3 +56,7 @@ export const SESSION_STORAGE = {
   SYSTEMINFO: 'systeminfo',
   RESTAPIINFO: 'restapiinfo'
 };
+
+export const PERMISSIONS = {
+  GLOBAL_APP: 'multitenancy.tenants.enable_global'
+};

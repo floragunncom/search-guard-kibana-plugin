@@ -16,6 +16,7 @@ import '../configuration/backend_api/roles';
 import '../configuration/backend_api/rolesmapping';
 import '../configuration/backend_api/sgconfiguration';
 import '../configuration/backend_api/tenants';
+import '../configuration/systemstate/systemstate';
 
 const app = uiModules.get('apps/searchguardConfiguration');
 
@@ -41,7 +42,8 @@ function RootController(
   backendAPI,
   backendTenants,
   backendActionGroups,
-  backendrolesmapping
+  backendrolesmapping,
+  systemstate
 ) {
   const domNode = $element[0];
 
@@ -52,7 +54,8 @@ function RootController(
     backendApiService: backendAPI,
     tenantsService: backendTenants,
     actionGroupsService: backendActionGroups,
-    rolesMappingService: backendrolesmapping
+    rolesMappingService: backendrolesmapping,
+    systemstateService: systemstate
   };
 
   // render react to DOM

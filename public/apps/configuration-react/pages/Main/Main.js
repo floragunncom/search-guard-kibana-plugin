@@ -125,7 +125,8 @@ class Main extends Component {
         configurationService,
         tenantsService,
         actionGroupsService,
-        rolesMappingService
+        rolesMappingService,
+        systemstateService
       },
       history,
       ...rest
@@ -256,6 +257,7 @@ class Main extends Component {
                       rolesService={rolesService}
                       rolesMappingService={rolesMappingService}
                       actionGroupsService={actionGroupsService}
+                      systemstateService={systemstateService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
                       onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
                       {...props}
@@ -290,7 +292,8 @@ Main.propTypes = {
     backendApiService: PropTypes.object.isRequired,
     tenantsService: PropTypes.object.isRequired,
     actionGroupsService: PropTypes.object.isRequired,
-    rolesMappingService: PropTypes.object.isRequired
+    rolesMappingService: PropTypes.object.isRequired,
+    systemstateService: PropTypes.object.isRequired
   }),
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired

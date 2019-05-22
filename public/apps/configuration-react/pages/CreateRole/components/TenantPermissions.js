@@ -8,7 +8,8 @@ import {
   EuiButton,
   EuiFlexItem,
   EuiFlexGroup,
-  EuiAccordion
+  EuiAccordion,
+  EuiCallOut
 } from '@elastic/eui';
 import {
   AccordionButtonContent,
@@ -26,7 +27,9 @@ import {
   globalAppPermissionsText,
   tenantPatternsText,
   emptyTenantPermissionsText,
-  tenantPermissionsText
+  tenantPermissionsText,
+  multiTenancyDisabledText,
+  globalAppPermissionsDisabledText
 } from '../../../utils/i18n/roles';
 import { TENANT_PERMISSION } from '../utils/constants';
 import { tenantPermissionToUiTenantPermission } from '../utils';
@@ -134,43 +137,66 @@ const addTenantPermission = arrayHelpers => {
   arrayHelpers.push(tenantPermissionToUiTenantPermission(TENANT_PERMISSION));
 };
 
-const TenantPermissions = ({ allAppActionGroups, tenantPermissions }) => (
+const TenantPermissions = ({
+  allAppActionGroups,
+  tenantPermissions,
+  isMultiTenancyEnabled,
+  isGlobalAppPermissionsEnabled
+}) => (
   <Fragment>
-    <GlobalAppPermissions allAppActionGroups={allAppActionGroups} />
-    <FieldArray
-      name="_tenantPermissions"
-      render={arrayHelpers => (
-        <Fragment>
-          <EuiButton
-            onClick={() => { addTenantPermission(arrayHelpers); }}
-            size="s"
-            iconType="plusInCircle"
-          >
-            {addText}
-          </EuiButton>
-          <EuiSpacer />
+    {!isGlobalAppPermissionsEnabled ? (
+      <EuiCallOut className="sgFixedFormItem" iconType="iInCircle" title={globalAppPermissionsDisabledText} />
+    ) : (
+      <GlobalAppPermissions allAppActionGroups={allAppActionGroups} />
+    )}
+    <EuiSpacer />
 
-          {isEmpty(tenantPermissions) ? (
-            <EmptyPrompt
-              titleText={tenantPermissionsText}
-              bodyText={emptyTenantPermissionsText}
-              createButtonText={addText}
-              onCreate={() => { addTenantPermission(arrayHelpers); }}
-            />
-          ) : (
-            <TenantPermissionsAccordion
-              tenantPermissions={tenantPermissions}
-              allAppActionGroups={allAppActionGroups}
-              arrayHelpers={arrayHelpers}
-            />
+    {!isMultiTenancyEnabled ? (
+      <EuiCallOut className="sgFixedFormItem" iconType="iInCircle" title={multiTenancyDisabledText} />
+    ) : (
+      <Fragment>
+        <EuiTitle size="xs"><h4>{tenantPermissionsText}</h4></EuiTitle>
+        <EuiSpacer size="s" />
+
+        <FieldArray
+          name="_tenantPermissions"
+          render={arrayHelpers => (
+            <Fragment>
+              <EuiButton
+                onClick={() => { addTenantPermission(arrayHelpers); }}
+                size="s"
+                iconType="plusInCircle"
+              >
+                {addText}
+              </EuiButton>
+              <EuiSpacer />
+
+              {isEmpty(tenantPermissions) ? (
+                <EmptyPrompt
+                  titleText={tenantPermissionsText}
+                  bodyText={emptyTenantPermissionsText}
+                  createButtonText={addText}
+                  onCreate={() => { addTenantPermission(arrayHelpers); }}
+                />
+              ) : (
+                <TenantPermissionsAccordion
+                  tenantPermissions={tenantPermissions}
+                  allAppActionGroups={allAppActionGroups}
+                  arrayHelpers={arrayHelpers}
+                />
+              )}
+            </Fragment>
           )}
-        </Fragment>
-      )}
-    />
+        />
+      </Fragment>
+    )}
+    <EuiSpacer />
   </Fragment>
 );
 
 TenantPermissions.propTypes = {
+  isMultiTenancyEnabled: PropTypes.bool.isRequired,
+  isGlobalAppPermissionsEnabled: PropTypes.bool.isRequired,
   tenantPermissions: PropTypes.arrayOf(
     PropTypes.shape({
       tenant_patterns: PropTypes.array.isRequired,

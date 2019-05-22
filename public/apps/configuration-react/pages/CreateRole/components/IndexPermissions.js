@@ -8,7 +8,8 @@ import {
   EuiFlexItem,
   EuiButton,
   EuiSpacer,
-  EuiTitle
+  EuiTitle,
+  EuiCallOut
 } from '@elastic/eui';
 import {
   addText,
@@ -19,7 +20,9 @@ import {
   elasticsearhQueryDSLText,
   documentLevelSecurityText,
   emptyIndexPermissionsText,
-  indexPermissionsText
+  indexPermissionsText,
+  fieldLevelSecurityDisabledText,
+  documentLevelSecurityDisabledText
 } from '../../../utils/i18n/roles';
 import { actionGroupsText, singlePermissionsText } from '../../../utils/i18n/action_groups';
 import {
@@ -43,7 +46,9 @@ const IndexPermissionsAccordion = ({
   arrayHelpers,
   allActionGroups,
   allSinglePermissions,
-  allIndices
+  allIndices,
+  isDlsEnabled,
+  isFlsEnabled
 }) => (
   indexPermissions.map((indexPermission, index) => (
     <EuiFlexGroup key={index}>
@@ -139,39 +144,52 @@ const IndexPermissionsAccordion = ({
           }
           <EuiSpacer />
 
-          <FieldLevelSecurity indexPermission={indexPermission} index={index} />
+          {!isFlsEnabled ? (
+            <EuiCallOut className="sgFixedFormItem" iconType="iInCircle" title={fieldLevelSecurityDisabledText} />
+          ) : (
+            <Fragment>
+              <FieldLevelSecurity indexPermission={indexPermission} index={index} />
+              <EuiSpacer />
+            </Fragment>
+          )}
           <EuiSpacer />
 
-          <EuiTitle size="xs"><h4>{documentLevelSecurityText}</h4></EuiTitle>
-          <EuiSpacer size="s"/>
+          {!isDlsEnabled ? (
+            <EuiCallOut className="sgFixedFormItem" iconType="iInCircle" title={documentLevelSecurityDisabledText} />
+          ) : (
+            <Fragment>
+              <EuiTitle size="xs"><h4>{documentLevelSecurityText}</h4></EuiTitle>
+              <EuiSpacer size="s"/>
 
-          <FormikCodeEditor
-            name={`_indexPermissions[${index}]._dls`}
-            formRow
-            formikFieldProps={{
-              validate: validateESDSL
-            }}
-            rowProps={{
-              helpText: elasticsearhQueryDSLText,
-              fullWidth: true,
-              isInvalid,
-              error: hasError,
-            }}
-            elementProps={{
-              mode: 'text',
-              width: '100%',
-              height: '300px',
-              theme: 'github',
-              onChange: (dls, field, form) => {
-                form.setFieldValue(`_indexPermissions[${index}]._dls`, dls);
-              },
-              onBlur: (e, field, form) => {
-                form.setFieldTouched(`_indexPermissions[${index}]._dls`, true);
-              },
-            }}
-          />
-
+              <FormikCodeEditor
+                name={`_indexPermissions[${index}]._dls`}
+                formRow
+                formikFieldProps={{
+                  validate: validateESDSL
+                }}
+                rowProps={{
+                  helpText: elasticsearhQueryDSLText,
+                  fullWidth: true,
+                  isInvalid,
+                  error: hasError,
+                }}
+                elementProps={{
+                  mode: 'text',
+                  width: '100%',
+                  height: '300px',
+                  theme: 'github',
+                  onChange: (dls, field, form) => {
+                    form.setFieldValue(`_indexPermissions[${index}]._dls`, dls);
+                  },
+                  onBlur: (e, field, form) => {
+                    form.setFieldTouched(`_indexPermissions[${index}]._dls`, true);
+                  },
+                }}
+              />
+            </Fragment>
+          )}
           <EuiSpacer />
+
         </EuiAccordion>
       </EuiFlexItem>
     </EuiFlexGroup>
@@ -186,7 +204,9 @@ const IndexPermissions = ({
   indexPermissions,
   allActionGroups,
   allSinglePermissions,
-  allIndices
+  allIndices,
+  isDlsEnabled,
+  isFlsEnabled
 }) => (
   <FieldArray
     name="_indexPermissions"
@@ -215,6 +235,8 @@ const IndexPermissions = ({
             allSinglePermissions={allSinglePermissions}
             allIndices={allIndices}
             arrayHelpers={arrayHelpers}
+            isDlsEnabled={isDlsEnabled}
+            isFlsEnabled={isFlsEnabled}
           />
         )}
       </Fragment>
@@ -236,7 +258,9 @@ IndexPermissions.propTypes = {
   ).isRequired,
   allActionGroups: PropTypes.array.isRequired,
   allSinglePermissions: PropTypes.array.isRequired,
-  allIndices: PropTypes.array.isRequired
+  allIndices: PropTypes.array.isRequired,
+  isDlsEnabled: PropTypes.bool.isRequired,
+  isFlsEnabled: PropTypes.bool.isRequired
 };
 
 export default IndexPermissions;
