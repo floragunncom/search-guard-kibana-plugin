@@ -1,8 +1,8 @@
 import { reduce, sortBy } from 'lodash';
 
 const resourcesToUiResources = resources => sortBy(reduce(resources, (result, values, id) => {
-  result.push({ id, ...values });
+  result.push({ _id: id, ...values });
   return result;
-}, []), 'id');
+}, []), '_id');
 
 export default resourcesToUiResources;

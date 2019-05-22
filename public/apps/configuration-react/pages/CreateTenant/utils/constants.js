@@ -1,3 +1,4 @@
 export const DEFAULT_TENANT = {
-  description: ''
+  description: '',
+  _name: ''
 };

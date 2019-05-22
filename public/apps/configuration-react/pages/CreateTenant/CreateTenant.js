@@ -13,7 +13,7 @@ import {
 import { createTenantText, updateTenantText } from '../../utils/i18n/tenants';
 import { ContentPanel, FormikFieldText } from '../../components';
 import { APP_PATH, TENANTS_ACTIONS } from '../../utils/constants';
-import { isInvalid, hasError, validateTextField, validateTenantName } from '../../utils/validation';
+import { isInvalid, hasError, validateTextField, validateName } from '../../utils/validation';
 import { DEFAULT_TENANT } from './utils/constants';
 import { tenantToFormik, formikToTenant } from './utils';
 
@@ -53,9 +53,8 @@ class CreateTenant extends Component {
     try {
       this.setState({ isLoading: true });
       if (id) {
-        let resource = await this.backendService.get(id);
-        resource = tenantToFormik(resource, id);
-        this.setState({ resource });
+        const resource = await this.backendService.get(id);
+        this.setState({ resource: tenantToFormik(resource, id) });
       } else {
         this.setState({ resource: tenantToFormik(DEFAULT_TENANT), isEdit: !!id });
       }
@@ -67,9 +66,9 @@ class CreateTenant extends Component {
 
   onSubmit = async (values, { setSubmitting }) => {
     const { history, onTriggerErrorCallout } = this.props;
-    const { name } = values;
+    const { _name } = values;
     try {
-      await this.backendService.save(name, formikToTenant(values));
+      await this.backendService.save(_name, formikToTenant(values));
       setSubmitting(false);
       history.push(APP_PATH.TENANTS);
     } catch (error) {
@@ -92,8 +91,8 @@ class CreateTenant extends Component {
 
   render() {
     const { history, onTriggerInspectJsonFlyout, location, tenantsService } = this.props;
-    const { resource, isEdit, isLoading } = this.state;
-    const { action } = queryString.parse(location.search);
+    const { resource, isLoading } = this.state;
+    const { action, id } = queryString.parse(location.search);
     const updateTenant = action === TENANTS_ACTIONS.UPDATE_TENANT;
     const titleText = updateTenant ? updateTenantText : createTenantText;
 
@@ -104,6 +103,8 @@ class CreateTenant extends Component {
         validateOnChange={false}
         enableReinitialize={true}
         render={({ values, handleSubmit, isSubmitting }) => {
+          const isUpdatingName = id !== values._name;
+
           return (
             <ContentPanel
               title={titleText}
@@ -130,7 +131,7 @@ class CreateTenant extends Component {
               <FormikFieldText
                 formRow
                 formikFieldProps={{
-                  validate: validateTenantName(tenantsService, isEdit)
+                  validate: validateName(tenantsService, isUpdatingName)
                 }}
                 rowProps={{
                   label: nameText,
@@ -140,7 +141,7 @@ class CreateTenant extends Component {
                 elementProps={{
                   isInvalid
                 }}
-                name="name"
+                name="_name"
               />
               <FormikFieldText
                 formRow

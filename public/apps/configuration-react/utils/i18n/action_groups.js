@@ -6,7 +6,7 @@ export const actionGroupsDescription = (<EuiI18n token="sg.action_groups.actionG
 export const permissionsText = (<EuiI18n token="sg.action_groups.permissions.text" default="Permissions" />);
 export const createActionGroupText = (<EuiI18n token="sg.action_groups.createActionGroup.text" default="Create Action Group" />);
 export const updateActionGroupText = (<EuiI18n token="sg.action_groups.updateActionGroup.text" default="Update Action Group" />);
-export const noActionGroupsText = (<EuiI18n token="sg.action_groups.noActionGroupsText.text" default="No Action Groups" />);
+export const noActionGroupsText = (<EuiI18n token="sg.action_groups.noActionGroups.text" default="No Action Groups" />);
 export const emptyActionGroupsTableMessageText = (
   <EuiI18n
     token="sg.action_groups.emptyActionGroupsTableMessage.text"

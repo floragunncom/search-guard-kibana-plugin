@@ -3,7 +3,8 @@ export const DEFAULT_PASSWORD = 'admin';
 export const API_BASE = '../api/v1';
 export const API = {
   SYSTEM_INFO: `${API_BASE}/systeminfo`,
-  LICENSE: `${API_BASE}/license`
+  LICENSE: `${API_BASE}/license`,
+  INDICES: `${API_BASE}/configuration/indices`
 };
 
 export const APP_PATH = {
@@ -15,7 +16,9 @@ export const APP_PATH = {
   TENANTS: '/tenants',
   CREATE_TENANT: '/create-tenant',
   ACTION_GROUPS: '/action-groups',
-  CREATE_ACTION_GROUP: '/create-action-group'
+  CREATE_ACTION_GROUP: '/create-action-group',
+  ROLES: '/roles',
+  CREATE_ROLE: '/create-role'
 };
 
 export const SYSTEM_STATUS_ACTIONS = {
@@ -34,6 +37,10 @@ export const ACTION_GROUPS_ACTIONS = {
   UPDATE_ACTION_GROUP: 'update-action-group'
 };
 
+export const ROLES_ACTIONS = {
+  UPDATE_ROLE: 'update-role'
+};
+
 export const FLYOUTS = {
   INSPECT_JSON: 'inspectJson',
   CUSTOM: 'customFlyout'
@@ -48,4 +55,8 @@ export const SESSION_STORAGE = {
   SG_USER: 'sg_user',
   SYSTEMINFO: 'systeminfo',
   RESTAPIINFO: 'restapiinfo'
+};
+
+export const PERMISSIONS = {
+  GLOBAL_APP: 'multitenancy.tenants.enable_global'
 };

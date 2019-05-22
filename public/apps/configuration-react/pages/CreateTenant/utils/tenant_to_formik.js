@@ -1,2 +1,2 @@
-const tenantToFormik = (tenant, id = '') => ({ name: id, ...tenant });
+const tenantToFormik = (tenant, id = '') => ({ _name: id, ...tenant });
 export default tenantToFormik;

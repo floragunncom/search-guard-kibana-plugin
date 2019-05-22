@@ -9,7 +9,7 @@ import { ContentPanel } from '../../../../components';
 import { BackendRoles, UserAttributes, UserCredentials } from '../../components';
 import { APP_PATH, INTERNAL_USERS_ACTIONS } from '../../../../utils/constants';
 import { DEFAULT_USER } from './utils/constants';
-import { userToFormik, formikToUser } from './utils';
+import { userToFormik, formikToUser, backendRolesToUiBackendRoles } from './utils';
 
 // TODO: make this component get API data by chunks (paginations)
 class CreateInternalUser extends Component {
@@ -48,7 +48,7 @@ class CreateInternalUser extends Component {
       this.setState({ isLoading: true });
       const { data: backendRoles } = await rolesService.list();
       this.setState({
-        backendRoles: Object.keys(backendRoles).map(label => ({ label }))
+        backendRoles: backendRolesToUiBackendRoles(backendRoles)
       });
 
       if (id) {
@@ -66,11 +66,11 @@ class CreateInternalUser extends Component {
 
   onSubmit = async (values, { setSubmitting }) => {
     const { internalUsersService, history, onTriggerErrorCallout } = this.props;
-    const { username } = values;
+    const { _username } = values;
     try {
       const user = formikToUser(values);
       const doPreSaveResourceAdaptation = false;
-      await internalUsersService.save(username, user, doPreSaveResourceAdaptation);
+      await internalUsersService.save(_username, user, doPreSaveResourceAdaptation);
       setSubmitting(false);
       history.push(APP_PATH.INTERNAL_USERS);
     } catch (error) {
@@ -94,7 +94,7 @@ class CreateInternalUser extends Component {
   render() {
     const { history, onTriggerInspectJsonFlyout, location } = this.props;
     const { resource, isEdit, backendRoles, isLoading } = this.state;
-    const { action } = queryString.parse(location.search);
+    const { action, id } = queryString.parse(location.search);
     const updateUser = action === INTERNAL_USERS_ACTIONS.UPDATE_USER;
     const titleText = updateUser ? updateInternalUserText : createInternalUserText;
 
@@ -105,6 +105,8 @@ class CreateInternalUser extends Component {
         validateOnChange={false}
         enableReinitialize={true}
         render={({ values, handleSubmit, isSubmitting }) => {
+          const isUpdatingName = id !== values._username;
+
           return (
             <ContentPanel
               title={titleText}
@@ -128,9 +130,14 @@ class CreateInternalUser extends Component {
               </EuiButton>
               <EuiSpacer />
 
-              <UserCredentials isEdit={isEdit} values={values} {...this.props} />
+              <UserCredentials
+                isEdit={isEdit}
+                isUpdatingName={isUpdatingName}
+                values={values}
+                {...this.props}
+              />
               <BackendRoles allRoles={backendRoles} />
-              <UserAttributes attributes={values.attributes} />
+              <UserAttributes attributes={values._attributes} />
             </ContentPanel>
           );
         }}

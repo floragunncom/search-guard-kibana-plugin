@@ -1,8 +1,12 @@
-const formikToActionGroup = formik => {
-  const { permissions, actiongroups } = formik;
+import { cloneDeep } from 'lodash';
+import { comboBoxOptionsToArray } from '../../../utils/helpers';
+
+const formikToActionGroup = _formik => {
+  const formik = cloneDeep(_formik);
+  const { _permissions, _actiongroups } = formik;
   return {
-    permissions: permissions.map(({ label }) => label),
-    actiongroups: actiongroups.map(({ label }) => label)
+    permissions: comboBoxOptionsToArray(_permissions),
+    actiongroups: comboBoxOptionsToArray(_actiongroups)
   };
 };
 export default formikToActionGroup;

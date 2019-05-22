@@ -1,23 +1,14 @@
-import { reduce, sortBy, omit } from 'lodash';
-import { isSinglePermission } from '../../../utils/helpers';
+import { cloneDeep, omit, map, sortBy } from 'lodash';
+import { allowedActionsToPermissionsAndActiongroups } from '../../../utils/helpers';
 
-export const enrichResource = values => {
-  const { permissions = [], actiongroups = [] } = values;
-
-  if (Array.isArray(values.allowed_actions)) {
-    values.allowed_actions.forEach(action => {
-      if (isSinglePermission(action)) {
-        permissions.push(action);
-      } else {
-        actiongroups.push(action);
-      }
-    });
-  }
-
-  return { permissions, actiongroups, ...omit(values, ['allowed_actions']) };
+export const resourcesToUiResources = actionGroups => {
+  return sortBy(map(cloneDeep(actionGroups), (values, name) => {
+    const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(values.allowed_actions);
+    return {
+      _id: name,
+      actiongroups,
+      permissions,
+      ...omit(values, ['allowed_actions'])
+    };
+  }), '_id');
 };
-
-export const resourcesToUiResources = resources => sortBy(reduce(resources, (result, values, id) => {
-  result.push(enrichResource({ ...values, id }));
-  return result;
-}, []), 'id');
