@@ -54,7 +54,7 @@ function RootController(
     backendApiService: backendAPI,
     tenantsService: backendTenants,
     actionGroupsService: backendActionGroups,
-    rolesMappingService: backendrolesmapping,
+    roleMappingsService: backendrolesmapping,
     systemstateService: systemstate
   };
 

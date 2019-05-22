@@ -32,12 +32,18 @@ import {
   updateRoleText
 } from '../../utils/i18n/roles';
 import {
+  roleMappingsText,
+  createRoleMappingText,
+  updateRoleMappingText
+} from '../../utils/i18n/role_mappings';
+import {
   APP_PATH,
   SYSTEM_STATUS_ACTIONS,
   TENANTS_ACTIONS,
   INTERNAL_USERS_ACTIONS,
   ACTION_GROUPS_ACTIONS,
-  ROLES_ACTIONS
+  ROLES_ACTIONS,
+  ROLE_MAPPINGS_ACTIONS
 } from '../../utils/constants';
 
 export const createBreadcrumb = (breadcrumb, history) => {
@@ -62,6 +68,7 @@ export const getBreadcrumb = route => {
   const updateUser = action === INTERNAL_USERS_ACTIONS.UPDATE_USER;
   const updateActionGroup = action === ACTION_GROUPS_ACTIONS.UPDATE_ACTION_GROUP;
   const updateRole = action === ROLES_ACTIONS.UPDATE_ROLE;
+  const updateRoleMapping = action === ROLE_MAPPINGS_ACTIONS.UPDATE_ROLE_MAPPING;
 
   const removePrefixSlash = path => path.slice(1);
   const breadcrumb = {
@@ -100,6 +107,13 @@ export const getBreadcrumb = route => {
     [removePrefixSlash(APP_PATH.CREATE_ROLE)]: [
       { text: rolesText, href: APP_PATH.ROLES },
       { text: (updateRole ? updateRoleText : createRoleText), href: APP_PATH.CREATE_ROLE }
+    ],
+    [removePrefixSlash(APP_PATH.ROLE_MAPPINGS)]: [
+      { text: roleMappingsText, href: APP_PATH.ROLE_MAPPINGS },
+    ],
+    [removePrefixSlash(APP_PATH.CREATE_ROLE_MAPPING)]: [
+      { text: roleMappingsText, href: APP_PATH.ROLE_MAPPINGS },
+      { text: (updateRoleMapping ? updateRoleMappingText : createRoleMappingText), href: APP_PATH.CREATE_ROLE_MAPPING }
     ]
   }[base];
 
@@ -120,6 +134,9 @@ export const getBreadcrumb = route => {
   }
   if (updateRole) {
     breadcrumb.push({ text: id, href: APP_PATH.CREATE_ROLE + args });
+  }
+  if (updateRoleMapping) {
+    breadcrumb.push({ text: id, href: APP_PATH.CREATE_ROLE_MAPPING + args });
   }
 
   return breadcrumb;

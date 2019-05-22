@@ -97,12 +97,12 @@ class CreateRole extends Component {
 
   fetchData = async () => {
     const { id } = this.state;
-    const { onTriggerErrorCallout, rolesMappingService, actionGroupsService, systemstateService } = this.props;
+    const { onTriggerErrorCallout, roleMappingsService, actionGroupsService, systemstateService } = this.props;
     try {
       this.setState({ isLoading: true });
       if (id) {
         let resource = await this.backendService.get(id);
-        const roleMapping = await rolesMappingService.getSilent(id, false);
+        const roleMapping = await roleMappingsService.getSilent(id, false);
         resource = roleToFormik({ resource, id, roleMapping });
 
         const { data: actionGroups } = await actionGroupsService.list();
@@ -271,7 +271,7 @@ CreateRole.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
   rolesService: PropTypes.object.isRequired,
-  rolesMappingService: PropTypes.object.isRequired,
+  roleMappingsService: PropTypes.object.isRequired,
   actionGroupsService: PropTypes.object.isRequired,
   systemstateService: PropTypes.object.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
