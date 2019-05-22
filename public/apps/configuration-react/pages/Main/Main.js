@@ -23,7 +23,9 @@ import {
   ActionGroups,
   CreateActionGroup,
   Roles,
-  CreateRole
+  CreateRole,
+  RoleMappings,
+  CreateRoleMapping
 } from '../';
 import { Breadcrumbs, Flyout, Callout } from '../../components';
 import { APP_PATH, CALLOUTS, FLYOUTS } from '../../utils/constants';
@@ -125,7 +127,7 @@ class Main extends Component {
         configurationService,
         tenantsService,
         actionGroupsService,
-        rolesMappingService,
+        roleMappingsService,
         systemstateService
       },
       history,
@@ -255,9 +257,32 @@ class Main extends Component {
                     <CreateRole
                       httpClient={httpClient}
                       rolesService={rolesService}
-                      rolesMappingService={rolesMappingService}
+                      roleMappingsService={roleMappingsService}
                       actionGroupsService={actionGroupsService}
                       systemstateService={systemstateService}
+                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
+                      {...props}
+                    />
+                  )}
+                />
+                <Route
+                  path={APP_PATH.ROLE_MAPPINGS}
+                  render={props => (
+                    <RoleMappings
+                      httpClient={httpClient}
+                      roleMappingsService={roleMappingsService}
+                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      {...props}
+                    />
+                  )}
+                />
+                <Route
+                  path={APP_PATH.CREATE_ROLE_MAPPING}
+                  render={props => (
+                    <CreateRoleMapping
+                      httpClient={httpClient}
+                      roleMappingsService={roleMappingsService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
                       onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
                       {...props}
@@ -292,7 +317,7 @@ Main.propTypes = {
     backendApiService: PropTypes.object.isRequired,
     tenantsService: PropTypes.object.isRequired,
     actionGroupsService: PropTypes.object.isRequired,
-    rolesMappingService: PropTypes.object.isRequired,
+    roleMappingsService: PropTypes.object.isRequired,
     systemstateService: PropTypes.object.isRequired
   }),
   history: PropTypes.object.isRequired,

@@ -18,7 +18,9 @@ export const APP_PATH = {
   ACTION_GROUPS: '/action-groups',
   CREATE_ACTION_GROUP: '/create-action-group',
   ROLES: '/roles',
-  CREATE_ROLE: '/create-role'
+  CREATE_ROLE: '/create-role',
+  ROLE_MAPPINGS: '/role-mappings',
+  CREATE_ROLE_MAPPING: '/create-role-mapping'
 };
 
 export const SYSTEM_STATUS_ACTIONS = {
@@ -39,6 +41,10 @@ export const ACTION_GROUPS_ACTIONS = {
 
 export const ROLES_ACTIONS = {
   UPDATE_ROLE: 'update-role'
+};
+
+export const ROLE_MAPPINGS_ACTIONS = {
+  UPDATE_ROLE_MAPPING: 'update-role-mapping'
 };
 
 export const FLYOUTS = {

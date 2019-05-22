@@ -41,6 +41,10 @@ import {
   rolesText,
   rolesDescription
 } from '../../utils/i18n/roles';
+import {
+  roleMappingsText,
+  roleMappingsDescription
+} from '../../utils/i18n/role_mappings';
 
 const Home = ({ history, onPurgeCache, purgingCache }) => {
   // TODO: use pesonalized Search Guard icons in cards instead of the default ones
@@ -75,6 +79,12 @@ const Home = ({ history, onPurgeCache, purgingCache }) => {
   ];
 
   const permissionsAndRolesCards = [
+    {
+      icon: (<EuiIcon size="xxl" type="indexMapping" />),
+      title: roleMappingsText,
+      description: roleMappingsDescription,
+      onClick: () => history.push(APP_PATH.ROLE_MAPPINGS)
+    },
     {
       icon: (<EuiIcon size="xxl" type="usersRolesApp" />),
       title: rolesText,

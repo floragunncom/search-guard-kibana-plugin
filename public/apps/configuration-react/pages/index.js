@@ -8,3 +8,5 @@ export { ActionGroups } from './ActionGroups';
 export { CreateActionGroup } from './CreateActionGroup';
 export { Roles } from './Roles';
 export { CreateRole } from './CreateRole';
+export { RoleMappings } from './RoleMappings';
+export { CreateRoleMapping } from './CreateRoleMapping';
