@@ -1,47 +1,36 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { FieldArray } from 'formik';
-import { isEmpty } from 'lodash';
 import {
   EuiAccordion,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiButton,
   EuiSpacer,
   EuiTitle,
   EuiCallOut
 } from '@elastic/eui';
-import {
-  addText,
-  advancedText
-} from '../../../utils/i18n/common';
+import { advancedText } from '../../../../utils/i18n/common';
 import {
   indexPatternsText,
   elasticsearhQueryDSLText,
   documentLevelSecurityText,
-  emptyIndexPermissionsText,
-  indexPermissionsText,
   fieldLevelSecurityDisabledText,
   documentLevelSecurityDisabledText
-} from '../../../utils/i18n/roles';
-import { actionGroupsText, singlePermissionsText } from '../../../utils/i18n/action_groups';
+} from '../../../../utils/i18n/roles';
+import { actionGroupsText, singlePermissionsText } from '../../../../utils/i18n/action_groups';
 import {
   AccordionButtonContent,
   AccordionDeleteButton,
   FormikComboBox,
   FormikSwitch,
-  FormikCodeEditor,
-  EmptyPrompt
-} from '../../../components';
-import { comboBoxOptionsToArray } from '../../../utils/helpers';
-import { isInvalid, hasError, validateESDSL } from '../../../utils/validation';
+  FormikCodeEditor
+} from '../../../../components';
+import { comboBoxOptionsToArray } from '../../../../utils/helpers';
+import { isInvalid, hasError, validateESDSL } from '../../../../utils/validation';
 import FieldLevelSecurity from './FieldLevelSecurity';
-import { indexPermissionToUiIndexPermission } from '../utils';
-import { INDEX_PERMISSION } from '../utils/constants';
 
 const indexPatternNames = (indexPatterns = []) => comboBoxOptionsToArray(indexPatterns).join(', ');
 
-const IndexPermissionsAccordion = ({
+const IndexPatterns = ({
   indexPermissions,
   arrayHelpers,
   allActionGroups,
@@ -196,66 +185,9 @@ const IndexPermissionsAccordion = ({
   ))
 );
 
-const addIndexPermission = arrayHelpers => {
-  arrayHelpers.push(indexPermissionToUiIndexPermission(INDEX_PERMISSION));
-};
-
-const IndexPermissions = ({
-  indexPermissions,
-  allActionGroups,
-  allSinglePermissions,
-  allIndices,
-  isDlsEnabled,
-  isFlsEnabled
-}) => (
-  <FieldArray
-    name="_indexPermissions"
-    render={arrayHelpers => (
-      <Fragment>
-        <EuiButton
-          onClick={() => { addIndexPermission(arrayHelpers); }}
-          size="s"
-          iconType="plusInCircle"
-        >
-          {addText}
-        </EuiButton>
-        <EuiSpacer />
-
-        {isEmpty(indexPermissions) ? (
-          <EmptyPrompt
-            titleText={indexPermissionsText}
-            bodyText={emptyIndexPermissionsText}
-            createButtonText={addText}
-            onCreate={() => { addIndexPermission(arrayHelpers); }}
-          />
-        ) : (
-          <IndexPermissionsAccordion
-            indexPermissions={indexPermissions}
-            allActionGroups={allActionGroups}
-            allSinglePermissions={allSinglePermissions}
-            allIndices={allIndices}
-            arrayHelpers={arrayHelpers}
-            isDlsEnabled={isDlsEnabled}
-            isFlsEnabled={isFlsEnabled}
-          />
-        )}
-      </Fragment>
-    )}
-  />
-);
-
-IndexPermissions.propTypes = {
-  indexPermissions: PropTypes.arrayOf(
-    PropTypes.shape({
-      index_patterns: PropTypes.array.isRequired,
-      fls: PropTypes.array.isRequired,
-      masked_fields: PropTypes.array.isRequired,
-      allowed_actions: PropTypes.shape({
-        actiongroups: PropTypes.array.isRequired,
-        permissions: PropTypes.array.isRequired
-      })
-    })
-  ).isRequired,
+IndexPatterns.propTypes = {
+  indexPermissions: PropTypes.array.isRequired,
+  arrayHelpers: PropTypes.object.isRequired,
   allActionGroups: PropTypes.array.isRequired,
   allSinglePermissions: PropTypes.array.isRequired,
   allIndices: PropTypes.array.isRequired,
@@ -263,4 +195,4 @@ IndexPermissions.propTypes = {
   isFlsEnabled: PropTypes.bool.isRequired
 };
 
-export default IndexPermissions;
+export default IndexPatterns;

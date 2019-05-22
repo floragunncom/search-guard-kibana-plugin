@@ -6,13 +6,13 @@ import {
   EuiFlexItem,
   EuiFlexGroup
 } from '@elastic/eui';
-import { FormikRadio, FormikComboBox } from '../../../components';
-import { FLS_MODES } from '../utils/constants';
+import { FormikRadio, FormikComboBox } from '../../../../components';
+import { FLS_MODES } from '../../utils/constants';
 import {
   fieldLevelSecurityText,
   includeOrExcludeFieldsText,
   anonymizeFieldsText
-} from '../../../utils/i18n/roles';
+} from '../../../../utils/i18n/roles';
 
 const FieldLevelSecurity = ({ indexPermission, index }) => (
   <Fragment>

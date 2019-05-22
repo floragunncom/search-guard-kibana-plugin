@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { FormikComboBox, FormikSwitch } from '../../../components';
-import { actionGroupsText, singlePermissionsText } from '../../../utils/i18n/action_groups';
-import { advancedText } from '../../../utils/i18n/common';
+import { FormikComboBox, FormikSwitch } from '../../../../components';
+import { actionGroupsText, singlePermissionsText } from '../../../../utils/i18n/action_groups';
+import { advancedText } from '../../../../utils/i18n/common';
 
 const ClusterPermissions = ({ allActionGroups, allSinglePermissions, isAdvanced }) => (
   <Fragment>

@@ -14,7 +14,7 @@ import {
 import {
   inspectText,
   nameText
-} from '../../../utils/i18n/common';
+} from '../../../../utils/i18n/common';
 import {
   membersText,
   rolesText,
@@ -23,10 +23,10 @@ import {
   noMappedUsersFoundText,
   noMappedBackendRolesFoundText,
   noMappedHostsFoundText
-} from '../../../utils/i18n/roles';
-import { formikToRole } from '../utils';
-import { FormikFieldText } from '../../../components';
-import { hasError, isInvalid, validateName } from '../../../utils/validation';
+} from '../../../../utils/i18n/roles';
+import { formikToRole } from '../../utils';
+import { FormikFieldText } from '../../../../components';
+import { hasError, isInvalid, validateName } from '../../../../utils/validation';
 
 const Overview = ({ values, titleText, onTriggerInspectJsonFlyout, rolesService, isUpdatingName }) => {
   const sectionNoMappedText = {
