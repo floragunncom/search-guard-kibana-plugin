@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { FormikComboBox } from '../../../../components';
 import { backendRolesText } from '../../../../utils/i18n/internal_users';
 
-const BackendRoles = ({ allRoles }) => (
+const BackendRoles = ({ allRoles, onComboBoxChange, onComboBoxOnBlur }) => (
   <FormikComboBox
     name="_backendRoles"
     formRow
@@ -13,18 +13,16 @@ const BackendRoles = ({ allRoles }) => (
     elementProps={{
       options: allRoles,
       isClearable: true,
-      onBlur: (e, field, form) => {
-        form.setFieldTouched('_backendRoles', true);
-      },
-      onChange: (options, field, form) => {
-        form.setFieldValue('_backendRoles', options);
-      }
+      onBlur: onComboBoxOnBlur,
+      onChange: onComboBoxChange
     }}
   />
 );
 
 BackendRoles.propTypes = {
-  allRoles: PropTypes.array.isRequired
+  allRoles: PropTypes.array.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired
 };
 
 export default BackendRoles;

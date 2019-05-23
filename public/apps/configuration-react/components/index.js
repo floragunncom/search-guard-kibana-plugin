@@ -4,6 +4,7 @@ export { default as DynamicValuesForm } from './DynamicValuesForm';
 export { default as Flyout } from './Flyout';
 export { default as Callout } from './Callout';
 export { default as EmptyPrompt } from './EmptyPrompt';
+export { default as Modal } from './Modal';
 
 // Formik wrappers
 export { default as FormikFormRow } from './FormControls/FormikFormRow';

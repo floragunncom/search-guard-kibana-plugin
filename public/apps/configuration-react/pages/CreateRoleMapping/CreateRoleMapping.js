@@ -97,7 +97,15 @@ class CreateRoleMapping extends Component {
   )
 
   render() {
-    const { history, onTriggerInspectJsonFlyout, location, roleMappingsService } = this.props;
+    const {
+      history,
+      onTriggerInspectJsonFlyout,
+      location,
+      roleMappingsService,
+      onComboBoxOnBlur,
+      onComboBoxChange,
+      onComboBoxCreateOption
+    } = this.props;
     const { resource, isLoading } = this.state;
     const { action, id } = queryString.parse(location.search);
     const updateRoleMapping = action === ROLE_MAPPINGS_ACTIONS.UPDATE_ROLE_MAPPING;
@@ -158,17 +166,9 @@ class CreateRoleMapping extends Component {
                 }}
                 elementProps={{
                   isClearable: true,
-                  onBlur: (e, field, form) => {
-                    form.setFieldTouched('_users', true);
-                  },
-                  onChange: (options, field, form) => {
-                    form.setFieldValue('_users', options);
-                  },
-                  onCreateOption: (label, field, form) => {
-                    const normalizedSearchValue = label.trim().toLowerCase();
-                    if (!normalizedSearchValue) return;
-                    form.setFieldValue(`_users`, field.value.concat({ label }));
-                  }
+                  onChange: onComboBoxChange,
+                  onCreateOption: onComboBoxCreateOption,
+                  onBlur: onComboBoxOnBlur
                 }}
               />
               <FormikComboBox
@@ -179,17 +179,9 @@ class CreateRoleMapping extends Component {
                 }}
                 elementProps={{
                   isClearable: true,
-                  onBlur: (e, field, form) => {
-                    form.setFieldTouched('_backendRoles', true);
-                  },
-                  onChange: (options, field, form) => {
-                    form.setFieldValue('_backendRoles', options);
-                  },
-                  onCreateOption: (label, field, form) => {
-                    const normalizedSearchValue = label.trim().toLowerCase();
-                    if (!normalizedSearchValue) return;
-                    form.setFieldValue(`_backendRoles`, field.value.concat({ label }));
-                  }
+                  onChange: onComboBoxChange,
+                  onCreateOption: onComboBoxCreateOption,
+                  onBlur: onComboBoxOnBlur
                 }}
               />
               <FormikComboBox
@@ -200,17 +192,9 @@ class CreateRoleMapping extends Component {
                 }}
                 elementProps={{
                   isClearable: true,
-                  onBlur: (e, field, form) => {
-                    form.setFieldTouched('_hosts', true);
-                  },
-                  onChange: (options, field, form) => {
-                    form.setFieldValue('_hosts', options);
-                  },
-                  onCreateOption: (label, field, form) => {
-                    const normalizedSearchValue = label.trim().toLowerCase();
-                    if (!normalizedSearchValue) return;
-                    form.setFieldValue(`_hosts`, field.value.concat({ label }));
-                  }
+                  onChange: onComboBoxChange,
+                  onCreateOption: onComboBoxCreateOption,
+                  onBlur: onComboBoxOnBlur
                 }}
               />
             </ContentPanel>
@@ -226,7 +210,10 @@ CreateRoleMapping.propTypes = {
   location: PropTypes.object.isRequired,
   roleMappingsService: PropTypes.object.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired
+  onTriggerErrorCallout: PropTypes.func.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired,
+  onComboBoxCreateOption: PropTypes.func.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired
 };
 
 export default CreateRoleMapping;

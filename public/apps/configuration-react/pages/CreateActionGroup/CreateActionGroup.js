@@ -102,7 +102,14 @@ class CreateActionGroup extends Component {
   )
 
   render() {
-    const { history, onTriggerInspectJsonFlyout, location, actionGroupsService } = this.props;
+    const {
+      history,
+      onTriggerInspectJsonFlyout,
+      location,
+      actionGroupsService,
+      onComboBoxChange,
+      onComboBoxOnBlur
+    } = this.props;
     const { resource, isLoading, allSinglePermissions, allActionGroups } = this.state;
     const { action, id } = queryString.parse(location.search);
     const updateActionGroup = action === ACTION_GROUPS_ACTIONS.UPDATE_ACTION_GROUP;
@@ -164,12 +171,8 @@ class CreateActionGroup extends Component {
                 elementProps={{
                   options: allActionGroups,
                   isClearable: true,
-                  onBlur: (e, field, form) => {
-                    form.setFieldTouched('_actiongroups', true);
-                  },
-                  onChange: (options, field, form) => {
-                    form.setFieldValue('_actiongroups', options);
-                  }
+                  onBlur: onComboBoxOnBlur,
+                  onChange: onComboBoxChange
                 }}
               />
               <FormikSwitch
@@ -189,12 +192,8 @@ class CreateActionGroup extends Component {
                   elementProps={{
                     options: allSinglePermissions,
                     isClearable: true,
-                    onBlur: (e, field, form) => {
-                      form.setFieldTouched('_permissions', true);
-                    },
-                    onChange: (options, field, form) => {
-                      form.setFieldValue('_permissions', options);
-                    }
+                    onBlur: onComboBoxOnBlur,
+                    onChange: onComboBoxChange
                   }}
                 />
               }
@@ -211,7 +210,9 @@ CreateActionGroup.propTypes = {
   location: PropTypes.object.isRequired,
   actionGroupsService: PropTypes.object.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired
+  onTriggerErrorCallout: PropTypes.func.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired
 };
 
 export default CreateActionGroup;

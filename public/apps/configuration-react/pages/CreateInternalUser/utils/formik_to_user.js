@@ -1,5 +1,5 @@
 import { omit } from 'lodash';
-import { uiAttributesToAttributes, comboBoxOptionsToArray } from '../../../../../utils/helpers';
+import { uiAttributesToAttributes, comboBoxOptionsToArray } from '../../../utils/helpers';
 
 const formikToUser = userFormik => {
   const user = {

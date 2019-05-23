@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Switch, Route } from 'react-router-dom';
-import { get } from 'lodash';
+import { get, differenceBy } from 'lodash';
 import {
   EuiPage,
   EuiPageBody,
@@ -27,9 +27,9 @@ import {
   RoleMappings,
   CreateRoleMapping
 } from '../';
-import { Breadcrumbs, Flyout, Callout } from '../../components';
-import { APP_PATH, CALLOUTS, FLYOUTS } from '../../utils/constants';
-import { checkIfLicenseValid } from '../../utils/helpers';
+import { Breadcrumbs, Flyout, Callout, Modal } from '../../components';
+import { APP_PATH, CALLOUTS, FLYOUTS, MODALS } from '../../utils/constants';
+import { checkIfLicenseValid, comboBoxOptionsToArray } from '../../utils/helpers';
 import { sgLicenseNotValidText } from '../../utils/i18n/common';
 import '../../less/main.less';
 
@@ -40,6 +40,7 @@ class Main extends Component {
       purgingCache: false,
       flyout: null,
       callout: null,
+      modal: null,
       sideNavItems: [],
       selectedSideNavItemName: undefined
     };
@@ -102,6 +103,15 @@ class Main extends Component {
     this.handleTriggerCallout({ type: CALLOUTS.SUCCESS_CALLOUT, payload });
   }
 
+  handleTriggerModal = modal => {
+    this.setState({ modal });
+  }
+
+  handleTriggerConfirmDeletionModal = payload => {
+    const modal = payload === null ? null : { type: MODALS.CONFIRM_DELETION, payload };
+    this.handleTriggerModal(modal);
+  }
+
   handlePurgeCache = async () => {
     this.setState({ purgingCache: true });
     const { backendApiService } = this.props.angularServices;
@@ -113,11 +123,38 @@ class Main extends Component {
     this.setState({ purgingCache: false });
   }
 
+  handleComboBoxChange = (options, field, form) => {
+    const isDeleting = options.length < field.value.length;
+    if (isDeleting) {
+      const optionToDelete = comboBoxOptionsToArray(differenceBy(field.value, options, 'label')).join(', ');
+      this.handleTriggerConfirmDeletionModal({
+        body: optionToDelete,
+        onConfirm: () => {
+          form.setFieldValue(field.name, options);
+          this.handleTriggerConfirmDeletionModal(null);
+        }
+      });
+    } else {
+      form.setFieldValue(field.name, options);
+    }
+  }
+
+  handleComboBoxCreateOption = (label, field, form) => {
+    const normalizedSearchValue = label.trim().toLowerCase();
+    if (!normalizedSearchValue) return;
+    form.setFieldValue(field.name, field.value.concat({ label }));
+  }
+
+  handleComboBoxOnBlur = (e, field, form) => {
+    form.setFieldTouched(field.name, true);
+  }
+
   render() {
     const {
       flyout,
       callout,
-      purgingCache
+      purgingCache,
+      modal
     } = this.state;
     const {
       httpClient,
@@ -146,6 +183,7 @@ class Main extends Component {
           <EuiPageContent>
             <EuiPageContentBody>
               <Callout callout={callout} onClose={() => this.handleTriggerCallout(null)} />
+              <Modal modal={modal} onClose={() => this.handleTriggerModal(null)} />
               <Switch>
                 <Route
                   path={APP_PATH.CREATE_INTERNAL_USER}
@@ -156,6 +194,9 @@ class Main extends Component {
                       rolesService={rolesService}
                       onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
+                      onComboBoxChange={this.handleComboBoxChange}
+                      onComboBoxOnBlur={this.handleComboBoxOnBlur}
                       {...props}
                     />
                   )}
@@ -167,6 +208,7 @@ class Main extends Component {
                       httpClient={httpClient}
                       internalUsersService={internalUsersService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                       {...props}
                     />
                   )}
@@ -201,6 +243,7 @@ class Main extends Component {
                       httpClient={httpClient}
                       tenantsService={tenantsService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                       {...props}
                     />
                   )}
@@ -224,6 +267,7 @@ class Main extends Component {
                       httpClient={httpClient}
                       actionGroupsService={actionGroupsService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                       {...props}
                     />
                   )}
@@ -236,6 +280,8 @@ class Main extends Component {
                       actionGroupsService={actionGroupsService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
                       onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
+                      onComboBoxChange={this.handleComboBoxChange}
+                      onComboBoxOnBlur={this.handleComboBoxOnBlur}
                       {...props}
                     />
                   )}
@@ -247,6 +293,7 @@ class Main extends Component {
                       httpClient={httpClient}
                       rolesService={rolesService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                       {...props}
                     />
                   )}
@@ -262,6 +309,9 @@ class Main extends Component {
                       systemstateService={systemstateService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
                       onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
+                      onComboBoxChange={this.handleComboBoxChange}
+                      onComboBoxOnBlur={this.handleComboBoxOnBlur}
+                      onComboBoxCreateOption={this.handleComboBoxCreateOption}
                       {...props}
                     />
                   )}
@@ -273,6 +323,7 @@ class Main extends Component {
                       httpClient={httpClient}
                       roleMappingsService={roleMappingsService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                       {...props}
                     />
                   )}
@@ -285,6 +336,9 @@ class Main extends Component {
                       roleMappingsService={roleMappingsService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
                       onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
+                      onComboBoxChange={this.handleComboBoxChange}
+                      onComboBoxOnBlur={this.handleComboBoxOnBlur}
+                      onComboBoxCreateOption={this.handleComboBoxCreateOption}
                       {...props}
                     />
                   )}

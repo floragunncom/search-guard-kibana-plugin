@@ -186,7 +186,10 @@ class CreateRole extends Component {
       isDlsEnabled,
       isFlsEnabled,
       isMultiTenancyEnabled,
-      isGlobalAppPermissionsEnabled
+      isGlobalAppPermissionsEnabled,
+      onComboBoxChange,
+      onComboBoxOnBlur,
+      onComboBoxCreateOption
     } = this.state;
     const { action, id } = queryString.parse(location.search);
     const updateRole = action === ROLES_ACTIONS.UPDATE_ROLE;
@@ -232,6 +235,8 @@ class CreateRole extends Component {
                   isAdvanced={values._isClusterPermissionsAdvanced}
                   allActionGroups={allActionGroups}
                   allSinglePermissions={allSinglePermissions}
+                  onComboBoxChange={onComboBoxChange}
+                  onComboBoxOnBlur={onComboBoxOnBlur}
                   isEdit={isEdit}
                   {...this.props}
                 />
@@ -245,6 +250,9 @@ class CreateRole extends Component {
                   isEdit={isEdit}
                   isDlsEnabled={isDlsEnabled}
                   isFlsEnabled={isFlsEnabled}
+                  onComboBoxChange={onComboBoxChange}
+                  onComboBoxOnBlur={onComboBoxOnBlur}
+                  onComboBoxCreateOption={onComboBoxCreateOption}
                   {...this.props}
                 />
               }
@@ -256,6 +264,9 @@ class CreateRole extends Component {
                   isEdit={isEdit}
                   isMultiTenancyEnabled={isMultiTenancyEnabled}
                   isGlobalAppPermissionsEnabled={isGlobalAppPermissionsEnabled}
+                  onComboBoxChange={onComboBoxChange}
+                  onComboBoxOnBlur={onComboBoxOnBlur}
+                  onComboBoxCreateOption={onComboBoxCreateOption}
                   {...this.props}
                 />
               }
@@ -276,7 +287,10 @@ CreateRole.propTypes = {
   systemstateService: PropTypes.object.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
-  httpClient: PropTypes.func.isRequired
+  httpClient: PropTypes.func.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired,
+  onComboBoxCreateOption: PropTypes.func.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired
 };
 
 export default CreateRole;

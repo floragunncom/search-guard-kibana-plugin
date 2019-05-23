@@ -23,7 +23,10 @@ const IndexPermissions = ({
   allSinglePermissions,
   allIndices,
   isDlsEnabled,
-  isFlsEnabled
+  isFlsEnabled,
+  onComboBoxChange,
+  onComboBoxOnBlur,
+  onComboBoxCreateOption
 }) => (
   <FieldArray
     name="_indexPermissions"
@@ -54,6 +57,9 @@ const IndexPermissions = ({
             arrayHelpers={arrayHelpers}
             isDlsEnabled={isDlsEnabled}
             isFlsEnabled={isFlsEnabled}
+            onComboBoxChange={onComboBoxChange}
+            onComboBoxOnBlur={onComboBoxOnBlur}
+            onComboBoxCreateOption={onComboBoxCreateOption}
           />
         )}
       </Fragment>
@@ -77,7 +83,10 @@ IndexPermissions.propTypes = {
   allSinglePermissions: PropTypes.array.isRequired,
   allIndices: PropTypes.array.isRequired,
   isDlsEnabled: PropTypes.bool.isRequired,
-  isFlsEnabled: PropTypes.bool.isRequired
+  isFlsEnabled: PropTypes.bool.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired,
+  onComboBoxCreateOption: PropTypes.func.isRequired
 };
 
 export default IndexPermissions;

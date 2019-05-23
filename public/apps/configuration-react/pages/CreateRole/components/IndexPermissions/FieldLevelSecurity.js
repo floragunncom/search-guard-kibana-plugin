@@ -14,7 +14,13 @@ import {
   anonymizeFieldsText
 } from '../../../../utils/i18n/roles';
 
-const FieldLevelSecurity = ({ indexPermission, index }) => (
+const FieldLevelSecurity = ({
+  indexPermission,
+  index,
+  onComboBoxChange,
+  onComboBoxOnBlur,
+  onComboBoxCreateOption
+}) => (
   <Fragment>
     <EuiTitle size="xs"><h4>{fieldLevelSecurityText}</h4></EuiTitle>
 
@@ -63,17 +69,9 @@ const FieldLevelSecurity = ({ indexPermission, index }) => (
           }}
           elementProps={{
             isClearable: true,
-            onBlur: (e, field, form) => {
-              form.setFieldTouched(`_indexPermissions[${index}].fls`, true);
-            },
-            onChange: (options, field, form) => {
-              form.setFieldValue(`_indexPermissions[${index}].fls`, options);
-            },
-            onCreateOption: (label, field, form) => {
-              const normalizedSearchValue = label.trim().toLowerCase();
-              if (!normalizedSearchValue) return;
-              form.setFieldValue(`_indexPermissions[${index}].fls`, field.value.concat({ label }));
-            }
+            onBlur: onComboBoxOnBlur,
+            onChange: onComboBoxChange,
+            onCreateOption: onComboBoxCreateOption
           }}
         />
       </EuiFlexItem>
@@ -87,17 +85,9 @@ const FieldLevelSecurity = ({ indexPermission, index }) => (
           }}
           elementProps={{
             isClearable: true,
-            onBlur: (e, field, form) => {
-              form.setFieldTouched(`_indexPermissions[${index}].masked_fields`, true);
-            },
-            onChange: (options, field, form) => {
-              form.setFieldValue(`_indexPermissions[${index}].masked_fields`, options);
-            },
-            onCreateOption: (label, field, form) => {
-              const normalizedSearchValue = label.trim().toLowerCase();
-              if (!normalizedSearchValue) return;
-              form.setFieldValue(`_indexPermissions[${index}].masked_fields`, field.value.concat({ label }));
-            }
+            onBlur: onComboBoxOnBlur,
+            onChange: onComboBoxChange,
+            onCreateOption: onComboBoxCreateOption
           }}
         />
       </EuiFlexItem>
@@ -107,7 +97,10 @@ const FieldLevelSecurity = ({ indexPermission, index }) => (
 
 FieldLevelSecurity.propTypes = {
   index: PropTypes.number.isRequired,
-  indexPermission: PropTypes.object.isRequired
+  indexPermission: PropTypes.object.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired,
+  onComboBoxCreateOption: PropTypes.func.isRequired
 };
 
 export default FieldLevelSecurity;

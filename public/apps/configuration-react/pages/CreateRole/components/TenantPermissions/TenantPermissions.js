@@ -29,13 +29,20 @@ const TenantPermissions = ({
   allAppActionGroups,
   tenantPermissions,
   isMultiTenancyEnabled,
-  isGlobalAppPermissionsEnabled
+  isGlobalAppPermissionsEnabled,
+  onComboBoxChange,
+  onComboBoxOnBlur,
+  onComboBoxCreateOption
 }) => (
   <Fragment>
     {!isGlobalAppPermissionsEnabled ? (
       <EuiCallOut className="sgFixedFormItem" iconType="iInCircle" title={globalAppPermissionsDisabledText} />
     ) : (
-      <GlobalAppPermissions allAppActionGroups={allAppActionGroups} />
+      <GlobalAppPermissions
+        allAppActionGroups={allAppActionGroups}
+        onComboBoxChange={onComboBoxChange}
+        onComboBoxOnBlur={onComboBoxOnBlur}
+      />
     )}
     <EuiSpacer />
 
@@ -71,6 +78,9 @@ const TenantPermissions = ({
                   tenantPermissions={tenantPermissions}
                   allAppActionGroups={allAppActionGroups}
                   arrayHelpers={arrayHelpers}
+                  onComboBoxChange={onComboBoxChange}
+                  onComboBoxOnBlur={onComboBoxOnBlur}
+                  onComboBoxCreateOption={onComboBoxCreateOption}
                 />
               )}
             </Fragment>
@@ -91,7 +101,10 @@ TenantPermissions.propTypes = {
       allowed_actions: PropTypes.array.isRequired
     })
   ).isRequired,
-  allAppActionGroups: PropTypes.array.isRequired
+  allAppActionGroups: PropTypes.array.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired,
+  onComboBoxCreateOption: PropTypes.func.isRequired
 };
 
 export default TenantPermissions;

@@ -37,7 +37,10 @@ const IndexPatterns = ({
   allSinglePermissions,
   allIndices,
   isDlsEnabled,
-  isFlsEnabled
+  isFlsEnabled,
+  onComboBoxChange,
+  onComboBoxOnBlur,
+  onComboBoxCreateOption
 }) => (
   indexPermissions.map((indexPermission, index) => (
     <EuiFlexGroup key={index}>
@@ -68,17 +71,9 @@ const IndexPatterns = ({
                 elementProps={{
                   options: allIndices,
                   isClearable: true,
-                  onBlur: (e, field, form) => {
-                    form.setFieldTouched(`_indexPermissions[${index}].index_patterns`, true);
-                  },
-                  onChange: (options, field, form) => {
-                    form.setFieldValue(`_indexPermissions[${index}].index_patterns`, options);
-                  },
-                  onCreateOption: (label, field, form) => {
-                    const normalizedSearchValue = label.trim().toLowerCase();
-                    if (!normalizedSearchValue) return;
-                    form.setFieldValue(`_indexPermissions[${index}].index_patterns`, field.value.concat({ label }));
-                  }
+                  onBlur: onComboBoxOnBlur,
+                  onChange: onComboBoxChange,
+                  onCreateOption: onComboBoxCreateOption
                 }}
               />
             </EuiFlexItem>
@@ -93,12 +88,8 @@ const IndexPatterns = ({
                 elementProps={{
                   options: allActionGroups,
                   isClearable: true,
-                  onBlur: (e, field, form) => {
-                    form.setFieldTouched(`_indexPermissions[${index}].allowed_actions.actiongroups`, true);
-                  },
-                  onChange: (options, field, form) => {
-                    form.setFieldValue(`_indexPermissions[${index}].allowed_actions.actiongroups`, options);
-                  }
+                  onBlur: onComboBoxOnBlur,
+                  onChange: onComboBoxChange
                 }}
               />
             </EuiFlexItem>
@@ -122,12 +113,8 @@ const IndexPatterns = ({
               elementProps={{
                 options: allSinglePermissions,
                 isClearable: true,
-                onBlur: (e, field, form) => {
-                  form.setFieldTouched(`_indexPermissions[${index}].allowed_actions.permissions`, true);
-                },
-                onChange: (options, field, form) => {
-                  form.setFieldValue(`_indexPermissions[${index}].allowed_actions.permissions`, options);
-                }
+                onBlur: onComboBoxOnBlur,
+                onChange: onComboBoxChange
               }}
             />
           }
@@ -137,7 +124,13 @@ const IndexPatterns = ({
             <EuiCallOut className="sgFixedFormItem" iconType="iInCircle" title={fieldLevelSecurityDisabledText} />
           ) : (
             <Fragment>
-              <FieldLevelSecurity indexPermission={indexPermission} index={index} />
+              <FieldLevelSecurity
+                indexPermission={indexPermission}
+                index={index}
+                onComboBoxChange={onComboBoxChange}
+                onComboBoxOnBlur={onComboBoxOnBlur}
+                onComboBoxCreateOption={onComboBoxCreateOption}
+              />
               <EuiSpacer />
             </Fragment>
           )}
@@ -192,7 +185,10 @@ IndexPatterns.propTypes = {
   allSinglePermissions: PropTypes.array.isRequired,
   allIndices: PropTypes.array.isRequired,
   isDlsEnabled: PropTypes.bool.isRequired,
-  isFlsEnabled: PropTypes.bool.isRequired
+  isFlsEnabled: PropTypes.bool.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired,
+  onComboBoxCreateOption: PropTypes.func.isRequired
 };
 
 export default IndexPatterns;

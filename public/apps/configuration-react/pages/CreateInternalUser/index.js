@@ -1,1 +1,1 @@
-export { default as CreateInternalUser } from './containers/CreateInternalUser';
+export { default as CreateInternalUser } from './CreateInternalUser';
