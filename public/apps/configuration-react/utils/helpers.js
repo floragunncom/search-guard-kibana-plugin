@@ -87,7 +87,3 @@ export const uiAttributesToAttributes = (attributes = []) => attributes.reduce((
   result[key] = value;
   return result;
 }, {});
-
-export const differenceBy = (arrayOfObjectsA = [], arrayOfObjectsB = [], key) => {
-  return [arrayOfObjectsA].filter(a => !arrayOfObjectsB.map(b => b[key]).includes(a[key]));
-};

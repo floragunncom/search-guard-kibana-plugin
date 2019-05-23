@@ -1,1 +1,1 @@
-export { default as InternalUsers } from './containers/InternalUsers';
+export { default as InternalUsers } from './InternalUsers';

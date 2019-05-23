@@ -3,11 +3,11 @@ import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 import { EuiButton, EuiSpacer } from '@elastic/eui';
 import queryString from 'query-string';
-import { saveText, cancelText, inspectText } from '../../../../utils/i18n/common';
-import { createInternalUserText, updateInternalUserText } from '../../../../utils/i18n/internal_users';
-import { ContentPanel } from '../../../../components';
-import { BackendRoles, UserAttributes, UserCredentials } from '../../components';
-import { APP_PATH, INTERNAL_USERS_ACTIONS } from '../../../../utils/constants';
+import { saveText, cancelText, inspectText } from '../../utils/i18n/common';
+import { createInternalUserText, updateInternalUserText } from '../../utils/i18n/internal_users';
+import { ContentPanel } from '../../components';
+import { BackendRoles, UserAttributes, UserCredentials } from './components';
+import { APP_PATH, INTERNAL_USERS_ACTIONS } from '../../utils/constants';
 import { DEFAULT_USER } from './utils/constants';
 import { userToFormik, formikToUser, backendRolesToUiBackendRoles } from './utils';
 

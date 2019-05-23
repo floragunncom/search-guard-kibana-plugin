@@ -1,5 +1,5 @@
 import { omit } from 'lodash';
-import { arrayToComboBoxOptions, attributesToUiAttributes } from '../../../../../utils/helpers';
+import { arrayToComboBoxOptions, attributesToUiAttributes } from '../../../utils/helpers';
 
 export const backendRolesToUiBackendRoles = backendRoles => arrayToComboBoxOptions(Object.keys(backendRoles));
 

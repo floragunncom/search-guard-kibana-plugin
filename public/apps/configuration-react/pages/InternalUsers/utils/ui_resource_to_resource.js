@@ -1,5 +1,5 @@
 import { omit } from 'lodash';
-import { DEFAULT_PASSWORD } from '../../../../../utils/constants';
+import { DEFAULT_PASSWORD } from '../../../utils/constants';
 
 const uiResourceToResource = user => ({
   ...omit(user, ['_id', 'hidden', 'reserved', 'static']),

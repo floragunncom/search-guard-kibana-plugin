@@ -10,26 +10,26 @@ import {
   EuiFlexGrid
 } from '@elastic/eui';
 import { get } from 'lodash';
-import { ContentPanel, SimpleItemsList, NameCell } from '../../../../components';
+import { ContentPanel, SimpleItemsList, NameCell } from '../../components';
 import {
   APP_PATH,
   INTERNAL_USERS_ACTIONS
-} from '../../../../utils/constants';
+} from '../../utils/constants';
 import {
   createInternalUserText,
   internalUsersText,
   backendRolesText,
   emptyUsersTableMessageText,
   noUsersText
-} from '../../../../utils/i18n/internal_users';
+} from '../../utils/i18n/internal_users';
 import {
   cancelText,
   nameText,
   deleteText,
   currentUserText
-} from '../../../../utils/i18n/common';
+} from '../../utils/i18n/common';
 import { resourcesToUiResources, uiResourceToResource } from './utils';
-import { BrowserStorageService } from '../../../../services';
+import { BrowserStorageService } from '../../services';
 
 // TODO: make this component get API data by chunks (paginations)
 class InternalUsers extends Component {
