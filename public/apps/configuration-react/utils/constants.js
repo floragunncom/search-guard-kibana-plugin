@@ -66,3 +66,7 @@ export const SESSION_STORAGE = {
 export const PERMISSIONS = {
   GLOBAL_APP: 'multitenancy.tenants.enable_global'
 };
+
+export const MODALS = {
+  CONFIRM_DELETION: 'confirmDeletion'
+};

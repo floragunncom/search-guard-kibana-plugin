@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { FieldArray } from 'formik';
 import { FormikFieldText, DynamicValuesForm } from '../../../../components';
 import { hasError, isInvalid, validateTextField } from '../../../../utils/validation';
@@ -38,7 +39,7 @@ const renderKeyField = fieldName => (
   />
 );
 
-const UserAttributes = ({ attributes }) => (
+const UserAttributes = ({ attributes, onTriggerConfirmDeletionModal }) => (
   <FieldArray
     name="_attributes"
     validateOnChange={false}
@@ -47,7 +48,14 @@ const UserAttributes = ({ attributes }) => (
         isKey
         title={userAttributesText}
         onAdd={() => arrayHelpers.push({})}
-        onRemove={i => arrayHelpers.remove(i)}
+        onRemove={i => {
+          onTriggerConfirmDeletionModal({
+            onConfirm: () => {
+              arrayHelpers.remove(i);
+              onTriggerConfirmDeletionModal(null);
+            }
+          });
+        }}
         items={attributes}
         name="_attributes"
         onRenderValueField={renderValueField}
@@ -56,5 +64,10 @@ const UserAttributes = ({ attributes }) => (
     )}
   />
 );
+
+UserAttributes.propTypes = {
+  attributes: PropTypes.array.isRequired,
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired
+};
 
 export default UserAttributes;

@@ -17,7 +17,14 @@ import { comboBoxOptionsToArray } from '../../../../utils/helpers';
 
 const tenantPatternNames = (options = []) => comboBoxOptionsToArray(options).join(', ');
 
-const TenantPatterns = ({ tenantPermissions, allAppActionGroups, arrayHelpers }) => (
+const TenantPatterns = ({
+  tenantPermissions,
+  allAppActionGroups,
+  arrayHelpers,
+  onComboBoxChange,
+  onComboBoxOnBlur,
+  onComboBoxCreateOption
+}) => (
   tenantPermissions.map((tenantPermission, index) => (
     <EuiFlexGroup key={index}>
       <EuiFlexItem>
@@ -46,17 +53,9 @@ const TenantPatterns = ({ tenantPermissions, allAppActionGroups, arrayHelpers })
                 }}
                 elementProps={{
                   isClearable: true,
-                  onBlur: (e, field, form) => {
-                    form.setFieldTouched(`_tenantPermissions[${index}].tenant_patterns`, true);
-                  },
-                  onChange: (options, field, form) => {
-                    form.setFieldValue(`_tenantPermissions[${index}].tenant_patterns`, options);
-                  },
-                  onCreateOption: (label, field, form) => {
-                    const normalizedSearchValue = label.trim().toLowerCase();
-                    if (!normalizedSearchValue) return;
-                    form.setFieldValue(`_tenantPermissions[${index}].tenant_patterns`, field.value.concat({ label }));
-                  }
+                  onBlur: onComboBoxOnBlur,
+                  onChange: onComboBoxChange,
+                  onCreateOption: onComboBoxCreateOption
                 }}
               />
             </EuiFlexItem>
@@ -71,12 +70,8 @@ const TenantPatterns = ({ tenantPermissions, allAppActionGroups, arrayHelpers })
                 elementProps={{
                   options: allAppActionGroups,
                   isClearable: true,
-                  onBlur: (e, field, form) => {
-                    form.setFieldTouched(`_tenantPermissions[${index}].allowed_actions`, true);
-                  },
-                  onChange: (options, field, form) => {
-                    form.setFieldValue(`_tenantPermissions[${index}].allowed_actions`, options);
-                  }
+                  onBlur: onComboBoxOnBlur,
+                  onChange: onComboBoxChange
                 }}
               />
             </EuiFlexItem>
@@ -92,7 +87,10 @@ const TenantPatterns = ({ tenantPermissions, allAppActionGroups, arrayHelpers })
 TenantPatterns.propTypes = {
   tenantPermissions: PropTypes.array.isRequired,
   arrayHelpers: PropTypes.object.isRequired,
-  allAppActionGroups: PropTypes.array.isRequired
+  allAppActionGroups: PropTypes.array.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired,
+  onComboBoxCreateOption: PropTypes.func.isRequired
 };
 
 export default TenantPatterns;

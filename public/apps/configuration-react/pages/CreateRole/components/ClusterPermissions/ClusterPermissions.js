@@ -4,7 +4,13 @@ import { FormikComboBox, FormikSwitch } from '../../../../components';
 import { actionGroupsText, singlePermissionsText } from '../../../../utils/i18n/action_groups';
 import { advancedText } from '../../../../utils/i18n/common';
 
-const ClusterPermissions = ({ allActionGroups, allSinglePermissions, isAdvanced }) => (
+const ClusterPermissions = ({
+  allActionGroups,
+  allSinglePermissions,
+  isAdvanced,
+  onComboBoxChange,
+  onComboBoxOnBlur
+}) => (
   <Fragment>
     <FormikComboBox
       name="_clusterPermissions.actiongroups"
@@ -15,12 +21,8 @@ const ClusterPermissions = ({ allActionGroups, allSinglePermissions, isAdvanced 
       elementProps={{
         options: allActionGroups,
         isClearable: true,
-        onBlur: (e, field, form) => {
-          form.setFieldTouched('_clusterPermissions.actiongroups', true);
-        },
-        onChange: (options, field, form) => {
-          form.setFieldValue('_clusterPermissions.actiongroups', options);
-        }
+        onBlur: onComboBoxOnBlur,
+        onChange: onComboBoxChange
       }}
     />
     <FormikSwitch
@@ -40,12 +42,8 @@ const ClusterPermissions = ({ allActionGroups, allSinglePermissions, isAdvanced 
         elementProps={{
           options: allSinglePermissions,
           isClearable: true,
-          onBlur: (e, field, form) => {
-            form.setFieldTouched('_clusterPermissions.permissions', true);
-          },
-          onChange: (options, field, form) => {
-            form.setFieldValue('_clusterPermissions.permissions', options);
-          }
+          onBlur: onComboBoxOnBlur,
+          onChange: onComboBoxChange
         }}
       />
     }
@@ -55,7 +53,9 @@ const ClusterPermissions = ({ allActionGroups, allSinglePermissions, isAdvanced 
 ClusterPermissions.propTypes = {
   allActionGroups: PropTypes.array.isRequired,
   allSinglePermissions: PropTypes.array.isRequired,
-  isAdvanced: PropTypes.bool.isRequired
+  isAdvanced: PropTypes.bool.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired
 };
 
 export default ClusterPermissions;

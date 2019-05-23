@@ -92,7 +92,14 @@ class CreateInternalUser extends Component {
   )
 
   render() {
-    const { history, onTriggerInspectJsonFlyout, location } = this.props;
+    const {
+      history,
+      onTriggerInspectJsonFlyout,
+      location,
+      onTriggerConfirmDeletionModal,
+      onComboBoxChange,
+      onComboBoxOnBlur
+    } = this.props;
     const { resource, isEdit, backendRoles, isLoading } = this.state;
     const { action, id } = queryString.parse(location.search);
     const updateUser = action === INTERNAL_USERS_ACTIONS.UPDATE_USER;
@@ -136,8 +143,15 @@ class CreateInternalUser extends Component {
                 values={values}
                 {...this.props}
               />
-              <BackendRoles allRoles={backendRoles} />
-              <UserAttributes attributes={values._attributes} />
+              <BackendRoles
+                allRoles={backendRoles}
+                onComboBoxChange={onComboBoxChange}
+                onComboBoxOnBlur={onComboBoxOnBlur}
+              />
+              <UserAttributes
+                attributes={values._attributes}
+                onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
+              />
             </ContentPanel>
           );
         }}
@@ -153,7 +167,10 @@ CreateInternalUser.propTypes = {
   internalUsersService: PropTypes.object.isRequired,
   rolesService: PropTypes.object.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired
+  onTriggerErrorCallout: PropTypes.func.isRequired,
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired
 };
 
 export default CreateInternalUser;

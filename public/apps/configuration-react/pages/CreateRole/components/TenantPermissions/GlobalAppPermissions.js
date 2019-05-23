@@ -5,7 +5,11 @@ import { FormikComboBox } from '../../../../components';
 import { actionGroupsText } from '../../../../utils/i18n/action_groups';
 import { globalAppPermissionsText } from '../../../../utils/i18n/roles';
 
-const GlobalAppPermissions = ({ allAppActionGroups }) => (
+const GlobalAppPermissions = ({
+  allAppActionGroups,
+  onComboBoxChange,
+  onComboBoxOnBlur
+}) => (
   <Fragment>
     <EuiTitle size="xs"><h4>{globalAppPermissionsText}</h4></EuiTitle>
     <EuiSpacer size="s" />
@@ -19,19 +23,17 @@ const GlobalAppPermissions = ({ allAppActionGroups }) => (
       elementProps={{
         options: allAppActionGroups,
         isClearable: true,
-        onBlur: (e, field, form) => {
-          form.setFieldTouched('_globalApplicationPermissions', true);
-        },
-        onChange: (options, field, form) => {
-          form.setFieldValue('_globalApplicationPermissions', options);
-        }
+        onBlur: onComboBoxOnBlur,
+        onChange: onComboBoxChange
       }}
     />
   </Fragment>
 );
 
 GlobalAppPermissions.propTypes = {
-  allAppActionGroups: PropTypes.array.isRequired
+  allAppActionGroups: PropTypes.array.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired
 };
 
 export default GlobalAppPermissions;
