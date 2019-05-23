@@ -13,6 +13,7 @@ const confirmDeletion = ({
   modalProps = {},
   body = null,
   onConfirm,
+  onCancel,
   cancelButtonText = cancelText,
   confirmButtonText = confirmText
 }) => {
@@ -30,6 +31,7 @@ const confirmDeletion = ({
     cancelButtonText,
     confirmButtonText,
     onConfirm,
+    onCancel,
     title,
     body: bodyText
   };
@@ -40,6 +42,7 @@ confirmDeletion.propTypes = {
   modalProps: PropTypes.object,
   body: PropTypes.node,
   onConfirm: PropTypes.func.isRequired,
+  onCancel: PropTypes.func,
   cancelButtonText: PropTypes.node,
   confirmButtonText: PropTypes.node
 };

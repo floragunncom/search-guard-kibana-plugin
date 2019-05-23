@@ -3,10 +3,7 @@ import PropTypes from 'prop-types';
 import {
   EuiButton,
   EuiInMemoryTable,
-  EuiEmptyPrompt,
-  EuiConfirmModal,
-  EuiOverlayMask,
-  EUI_MODAL_CONFIRM_BUTTON
+  EuiEmptyPrompt
 } from '@elastic/eui';
 import { get } from 'lodash';
 import { ContentPanel, NameCell } from '../../components';
@@ -15,9 +12,6 @@ import { APP_PATH, TENANTS_ACTIONS } from '../../utils/constants';
 import {
   cancelText,
   deleteText,
-  confirmDeleteText,
-  confirmText,
-  doYouReallyWantToDeleteText,
   nameText,
   descriptionText
 } from '../../utils/i18n/common';
@@ -36,8 +30,7 @@ class Tenants extends Component {
       resources: [],
       error: null,
       isLoading: true,
-      tableSelection: [],
-      resourcesToDelete: []
+      tableSelection: []
     };
 
     this.backendService = this.props.tenantsService;
@@ -59,7 +52,20 @@ class Tenants extends Component {
     this.setState({ isLoading: false });
   }
 
-  handleDeleteResources = resourcesToDelete => this.setState({ resourcesToDelete })
+  handleDeleteResources = resourcesToDelete => {
+    const { onTriggerConfirmDeletionModal } = this.props;
+    onTriggerConfirmDeletionModal({
+      body: resourcesToDelete.join(', '),
+      onConfirm: () => {
+        this.deleteResources(resourcesToDelete);
+        onTriggerConfirmDeletionModal(null);
+      },
+      onCancel: () => {
+        this.setState({ tableSelection: [] });
+        onTriggerConfirmDeletionModal(null);
+      }
+    });
+  }
 
   deleteResources = async resourceIds => {
     try {
@@ -72,7 +78,6 @@ class Tenants extends Component {
       this.props.onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
-    this.handleDeleteResources([]);
     this.fetchData();
   }
 
@@ -146,26 +151,9 @@ class Tenants extends Component {
     />
   )
 
-  renderConfirmResourcesDeleteModal = resourcesToDelete => (
-    <EuiOverlayMask>
-      <EuiConfirmModal
-        title={confirmDeleteText}
-        onCancel={() => this.handleDeleteResources([])}
-        onConfirm={() => this.deleteResources(resourcesToDelete)}
-        cancelButtonText={cancelText}
-        confirmButtonText={confirmText}
-        buttonColor="danger"
-        defaultFocusedButton={EUI_MODAL_CONFIRM_BUTTON}
-      >
-        <p>{doYouReallyWantToDeleteText} {resourcesToDelete.join(', ')}?</p>
-      </EuiConfirmModal>
-    </EuiOverlayMask>
-  )
-
   render() {
     const { history } = this.props;
-    const { isLoading, error, resources, resourcesToDelete } = this.state;
-    const isDeleting = !!resourcesToDelete.length;
+    const { isLoading, error, resources } = this.state;
     const getResourceEditUri = name => `${APP_PATH.CREATE_TENANT}?id=${name}&action=${TENANTS_ACTIONS.UPDATE_TENANT}`;
 
     const actions = [
@@ -253,8 +241,6 @@ class Tenants extends Component {
           selection={selection}
           isSelectable={true}
         />
-
-        {isDeleting && this.renderConfirmResourcesDeleteModal(resourcesToDelete)}
       </ContentPanel>
     );
   }
@@ -264,7 +250,8 @@ Tenants.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
   tenantsService: PropTypes.object.isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired
+  onTriggerErrorCallout: PropTypes.func.isRequired,
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired
 };
 
 export default Tenants;

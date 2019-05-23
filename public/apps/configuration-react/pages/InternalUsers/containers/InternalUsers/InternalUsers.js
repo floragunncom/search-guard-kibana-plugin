@@ -7,10 +7,7 @@ import {
   EuiText,
   EuiFlexItem,
   EuiEmptyPrompt,
-  EuiFlexGrid,
-  EuiConfirmModal,
-  EuiOverlayMask,
-  EUI_MODAL_CONFIRM_BUTTON
+  EuiFlexGrid
 } from '@elastic/eui';
 import { get } from 'lodash';
 import { ContentPanel, SimpleItemsList, NameCell } from '../../../../components';
@@ -29,10 +26,7 @@ import {
   cancelText,
   nameText,
   deleteText,
-  currentUserText,
-  doYouReallyWantToDeleteText,
-  confirmDeleteText,
-  confirmText
+  currentUserText
 } from '../../../../utils/i18n/common';
 import { resourcesToUiResources, uiResourceToResource } from './utils';
 import { BrowserStorageService } from '../../../../services';
@@ -46,8 +40,7 @@ class InternalUsers extends Component {
       resources: [],
       error: null,
       isLoading: true,
-      tableSelection: [],
-      resourcesToDelete: []
+      tableSelection: []
     };
 
     this.backendService = this.props.internalUsersService;
@@ -69,7 +62,20 @@ class InternalUsers extends Component {
     this.setState({ isLoading: false });
   }
 
-  handleDeleteResources = resourcesToDelete => this.setState({ resourcesToDelete })
+  handleDeleteResources = resourcesToDelete => {
+    const { onTriggerConfirmDeletionModal } = this.props;
+    onTriggerConfirmDeletionModal({
+      body: resourcesToDelete.join(', '),
+      onConfirm: () => {
+        this.deleteResources(resourcesToDelete);
+        onTriggerConfirmDeletionModal(null);
+      },
+      onCancel: () => {
+        this.setState({ tableSelection: [] });
+        onTriggerConfirmDeletionModal(null);
+      }
+    });
+  }
 
   deleteResources = async resourceIds => {
     try {
@@ -82,7 +88,6 @@ class InternalUsers extends Component {
       this.props.onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
-    this.handleDeleteResources([]);
     this.fetchData();
   }
 
@@ -157,22 +162,6 @@ class InternalUsers extends Component {
     />
   )
 
-  renderConfirmResourcesDeleteModal = resourcesToDelete => (
-    <EuiOverlayMask>
-      <EuiConfirmModal
-        title={confirmDeleteText}
-        onCancel={() => this.handleDeleteResources([])}
-        onConfirm={() => this.deleteResources(resourcesToDelete)}
-        cancelButtonText={cancelText}
-        confirmButtonText={confirmText}
-        buttonColor="danger"
-        defaultFocusedButton={EUI_MODAL_CONFIRM_BUTTON}
-      >
-        <p>{doYouReallyWantToDeleteText} {resourcesToDelete.join(', ')}?</p>
-      </EuiConfirmModal>
-    </EuiOverlayMask>
-  )
-
   renderActiveUser = name => {
     const { user_name: currentResource } = BrowserStorageService.restApiInfo();
     return (
@@ -191,8 +180,7 @@ class InternalUsers extends Component {
 
   render() {
     const { history } = this.props;
-    const { isLoading, error, resources, resourcesToDelete } = this.state;
-    const isDeleting = !!resourcesToDelete.length;
+    const { isLoading, error, resources } = this.state;
     const getResourceEditUri = name => `${APP_PATH.CREATE_INTERNAL_USER}?id=${name}&action=${INTERNAL_USERS_ACTIONS.UPDATE_USER}`;
 
     const actions = [
@@ -282,8 +270,6 @@ class InternalUsers extends Component {
           selection={selection}
           isSelectable={true}
         />
-
-        {isDeleting && this.renderConfirmResourcesDeleteModal(resourcesToDelete)}
       </ContentPanel>
     );
   }
@@ -293,7 +279,8 @@ InternalUsers.propTypes = {
   history: PropTypes.object.isRequired,
   httpClient: PropTypes.func,
   internalUsersService: PropTypes.object.isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired
+  onTriggerErrorCallout: PropTypes.func.isRequired,
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired
 };
 
 export default InternalUsers;

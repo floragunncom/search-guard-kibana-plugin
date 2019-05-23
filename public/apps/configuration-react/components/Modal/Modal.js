@@ -9,7 +9,7 @@ const getModalProps = ({ type, payload }) => {
   return modal(payload);
 };
 
-const Modal = ({ modal, onCancel }) => {
+const Modal = ({ modal, onClose }) => {
   if (!modal) return null;
   const modalData = getModalProps(modal);
   if (!modalData) return null;
@@ -17,6 +17,7 @@ const Modal = ({ modal, onCancel }) => {
     modalProps,
     title,
     onConfirm,
+    onCancel,
     body,
     cancelButtonText,
     confirmButtonText
@@ -26,7 +27,7 @@ const Modal = ({ modal, onCancel }) => {
     <EuiOverlayMask>
       <EuiConfirmModal
         title={title}
-        onCancel={onCancel}
+        onCancel={onCancel ? onCancel : onClose}
         onConfirm={onConfirm}
         cancelButtonText={cancelButtonText}
         confirmButtonText={confirmButtonText}
@@ -43,7 +44,7 @@ Modal.propTypes = {
     type: PropTypes.string.isRequired,
     payload: PropTypes.any.isRequired
   }),
-  onCancel: PropTypes.func.isRequired
+  onClose: PropTypes.func.isRequired
 };
 
 export default Modal;

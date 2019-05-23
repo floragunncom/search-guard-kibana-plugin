@@ -183,7 +183,7 @@ class Main extends Component {
           <EuiPageContent>
             <EuiPageContentBody>
               <Callout callout={callout} onClose={() => this.handleTriggerCallout(null)} />
-              <Modal modal={modal} onCancel={() => this.handleTriggerModal(null)} />
+              <Modal modal={modal} onClose={() => this.handleTriggerModal(null)} />
               <Switch>
                 <Route
                   path={APP_PATH.CREATE_INTERNAL_USER}
@@ -208,6 +208,7 @@ class Main extends Component {
                       httpClient={httpClient}
                       internalUsersService={internalUsersService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                       {...props}
                     />
                   )}
@@ -242,6 +243,7 @@ class Main extends Component {
                       httpClient={httpClient}
                       tenantsService={tenantsService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                       {...props}
                     />
                   )}
@@ -265,6 +267,7 @@ class Main extends Component {
                       httpClient={httpClient}
                       actionGroupsService={actionGroupsService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                       {...props}
                     />
                   )}
@@ -290,6 +293,7 @@ class Main extends Component {
                       httpClient={httpClient}
                       rolesService={rolesService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                       {...props}
                     />
                   )}
@@ -319,6 +323,7 @@ class Main extends Component {
                       httpClient={httpClient}
                       roleMappingsService={roleMappingsService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                      onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                       {...props}
                     />
                   )}
