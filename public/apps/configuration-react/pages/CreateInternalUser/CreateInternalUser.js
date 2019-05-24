@@ -9,7 +9,8 @@ import { ContentPanel } from '../../components';
 import { BackendRoles, UserAttributes, UserCredentials } from './components';
 import { APP_PATH, INTERNAL_USERS_ACTIONS } from '../../utils/constants';
 import { DEFAULT_USER } from './utils/constants';
-import { userToFormik, formikToUser, backendRolesToUiBackendRoles } from './utils';
+import { userToFormik, formikToUser } from './utils';
+import { internalUsersToUiBackendRoles } from '../../utils/helpers';
 
 // TODO: make this component get API data by chunks (paginations)
 class CreateInternalUser extends Component {
@@ -22,8 +23,8 @@ class CreateInternalUser extends Component {
       id,
       isEdit: !!id,
       resource: userToFormik(DEFAULT_USER, id),
-      backendRoles: [],
-      isLoading: true
+      allBackendRoles: [],
+      isLoading: true,
     };
   }
 
@@ -43,20 +44,22 @@ class CreateInternalUser extends Component {
 
   fetchData = async () => {
     const { id } = this.state;
-    const { internalUsersService, rolesService, onTriggerErrorCallout } = this.props;
+    const { internalUsersService, onTriggerErrorCallout } = this.props;
     try {
       this.setState({ isLoading: true });
-      const { data: backendRoles } = await rolesService.list();
+      const { data: internalUsers } = await internalUsersService.list();
       this.setState({
-        backendRoles: backendRolesToUiBackendRoles(backendRoles)
+        allBackendRoles: internalUsersToUiBackendRoles(internalUsers)
       });
 
       if (id) {
-        let resource = await internalUsersService.get(id);
-        resource = userToFormik(resource, id);
-        this.setState({ resource });
+        const resource = await internalUsersService.get(id);
+        this.setState({ resource: userToFormik(resource, id) });
       } else {
-        this.setState({ resource: userToFormik(DEFAULT_USER), isEdit: !!id });
+        this.setState({
+          resource: userToFormik(DEFAULT_USER),
+          isEdit: !!id
+        });
       }
     } catch(error) {
       onTriggerErrorCallout(error);
@@ -98,9 +101,10 @@ class CreateInternalUser extends Component {
       location,
       onTriggerConfirmDeletionModal,
       onComboBoxChange,
-      onComboBoxOnBlur
+      onComboBoxOnBlur,
+      onComboBoxCreateOption
     } = this.props;
-    const { resource, isEdit, backendRoles, isLoading } = this.state;
+    const { resource, isEdit, allBackendRoles, isLoading } = this.state;
     const { action, id } = queryString.parse(location.search);
     const updateUser = action === INTERNAL_USERS_ACTIONS.UPDATE_USER;
     const titleText = updateUser ? updateInternalUserText : createInternalUserText;
@@ -144,9 +148,10 @@ class CreateInternalUser extends Component {
                 {...this.props}
               />
               <BackendRoles
-                allRoles={backendRoles}
+                allRoles={allBackendRoles}
                 onComboBoxChange={onComboBoxChange}
                 onComboBoxOnBlur={onComboBoxOnBlur}
+                onComboBoxCreateOption={onComboBoxCreateOption}
               />
               <UserAttributes
                 attributes={values._attributes}
@@ -165,12 +170,12 @@ CreateInternalUser.propTypes = {
   location: PropTypes.object.isRequired,
   httpClient: PropTypes.func,
   internalUsersService: PropTypes.object.isRequired,
-  rolesService: PropTypes.object.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,
-  onComboBoxOnBlur: PropTypes.func.isRequired
+  onComboBoxOnBlur: PropTypes.func.isRequired,
+  onComboBoxCreateOption: PropTypes.func.isRequired
 };
 
 export default CreateInternalUser;

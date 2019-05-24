@@ -27,6 +27,7 @@ import {
   internalUsersToUiInternalUsers,
   rolesToUiRoles
 } from './utils';
+import { internalUsersToUiBackendRoles } from '../../utils/helpers';
 
 class CreateRoleMapping extends Component {
   constructor(props) {
@@ -40,7 +41,8 @@ class CreateRoleMapping extends Component {
       resource: roleMappingToFormik(DEFAULT_ROLE_MAPPING, id),
       isLoading: true,
       allInternalUsers: [],
-      allNotReservedRoles: []
+      allNotReservedRoles: [],
+      allBackendRoles: []
     };
   }
 
@@ -71,6 +73,7 @@ class CreateRoleMapping extends Component {
       const { data: allInternalUsers } = await internalUsersService.list();
       const { data: allNotReservedRoles } = await rolesService.list();
       this.setState({
+        allBackendRoles: internalUsersToUiBackendRoles(allInternalUsers),
         allInternalUsers: internalUsersToUiInternalUsers(allInternalUsers),
         allNotReservedRoles: rolesToUiRoles(allNotReservedRoles)
       });
@@ -121,7 +124,13 @@ class CreateRoleMapping extends Component {
       onComboBoxChange,
       onComboBoxCreateOption
     } = this.props;
-    const { resource, isLoading, allInternalUsers, allNotReservedRoles } = this.state;
+    const {
+      resource,
+      isLoading,
+      allInternalUsers,
+      allNotReservedRoles,
+      allBackendRoles
+    } = this.state;
     const { action } = queryString.parse(location.search);
     const updateRoleMapping = action === ROLE_MAPPINGS_ACTIONS.UPDATE_ROLE_MAPPING;
     const titleText = updateRoleMapping ? updateRoleMappingText : createRoleMappingText;
@@ -192,6 +201,7 @@ class CreateRoleMapping extends Component {
                   label: backendRolesText,
                 }}
                 elementProps={{
+                  options: allBackendRoles,
                   isClearable: true,
                   onChange: onComboBoxChange,
                   onCreateOption: onComboBoxCreateOption,

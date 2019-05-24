@@ -87,3 +87,12 @@ export const uiAttributesToAttributes = (attributes = []) => attributes.reduce((
   result[key] = value;
   return result;
 }, {});
+
+export const internalUsersToUiBackendRoles = (internalUsers = {}) => {
+  return arrayToComboBoxOptions(uniqBy(sortBy(reduce(internalUsers, (result, user) => {
+    user.backend_roles.forEach(role => {
+      result.push(role);
+    });
+    return result;
+  }, []))));
+};

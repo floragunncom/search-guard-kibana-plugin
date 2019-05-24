@@ -5,11 +5,11 @@ export const internalUsersToUiInternalUsers = (internalUsers = {}) =>
   arrayToComboBoxOptions(Object.keys(internalUsers));
 
 export const rolesToUiRoles = (roles = {}) => {
-  return arrayToComboBoxOptions(filter(map(roles, (role, roleName) => {
+  return sortBy(arrayToComboBoxOptions(filter(map(roles, (role, roleName) => {
     if (!role.reserved) {
       return roleName;
     }
-  }), element => element));
+  }), element => element)), 'label');
 };
 
 export const roleMappingToFormik = (roleMapping = {}, id = '') => ({

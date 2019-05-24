@@ -197,6 +197,7 @@ class Main extends Component {
                       onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                       onComboBoxChange={this.handleComboBoxChange}
                       onComboBoxOnBlur={this.handleComboBoxOnBlur}
+                      onComboBoxCreateOption={this.handleComboBoxCreateOption}
                       {...props}
                     />
                   )}
