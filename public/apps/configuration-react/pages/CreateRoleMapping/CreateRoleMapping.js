@@ -6,23 +6,27 @@ import queryString from 'query-string';
 import {
   saveText,
   cancelText,
-  inspectText,
-  nameText
+  inspectText
 } from '../../utils/i18n/common';
 import {
   createRoleMappingText,
   updateRoleMappingText
 } from '../../utils/i18n/role_mappings';
 import {
-  rolesText,
+  roleText,
+  backendRolesText,
   usersText,
   hostsText
 } from '../../utils/i18n/roles';
-import { ContentPanel, FormikFieldText, FormikComboBox } from '../../components';
+import { ContentPanel, FormikComboBox } from '../../components';
 import { APP_PATH, ROLE_MAPPINGS_ACTIONS } from '../../utils/constants';
-import { isInvalid, hasError, validateName } from '../../utils/validation';
 import { DEFAULT_ROLE_MAPPING } from './utils/constants';
-import { roleMappingToFormik, formikToRoleMapping } from './utils';
+import {
+  roleMappingToFormik,
+  formikToRoleMapping,
+  internalUsersToUiInternalUsers,
+  rolesToUiRoles
+} from './utils';
 
 class CreateRoleMapping extends Component {
   constructor(props) {
@@ -34,10 +38,10 @@ class CreateRoleMapping extends Component {
       id,
       isEdit: !!id,
       resource: roleMappingToFormik(DEFAULT_ROLE_MAPPING, id),
-      isLoading: true
+      isLoading: true,
+      allInternalUsers: [],
+      allNotReservedRoles: []
     };
-
-    this.backendService = this.props.roleMappingsService;
   }
 
   componentDidMount() {
@@ -56,11 +60,23 @@ class CreateRoleMapping extends Component {
 
   fetchData = async () => {
     const { id } = this.state;
-    const { onTriggerErrorCallout } = this.props;
+    const {
+      onTriggerErrorCallout,
+      roleMappingsService,
+      internalUsersService,
+      rolesService
+    } = this.props;
     try {
       this.setState({ isLoading: true });
+      const { data: allInternalUsers } = await internalUsersService.list();
+      const { data: allNotReservedRoles } = await rolesService.list();
+      this.setState({
+        allInternalUsers: internalUsersToUiInternalUsers(allInternalUsers),
+        allNotReservedRoles: rolesToUiRoles(allNotReservedRoles)
+      });
+
       if (id) {
-        const resource = await this.backendService.get(id);
+        const resource = await roleMappingsService.get(id);
         this.setState({ resource: roleMappingToFormik(resource, id) });
       } else {
         this.setState({ resource: roleMappingToFormik(DEFAULT_ROLE_MAPPING), isEdit: !!id });
@@ -72,10 +88,10 @@ class CreateRoleMapping extends Component {
   }
 
   onSubmit = async (values, { setSubmitting }) => {
-    const { history, onTriggerErrorCallout } = this.props;
-    const { _name } = values;
+    const { history, onTriggerErrorCallout, roleMappingsService } = this.props;
+    const { _name: { label: name } } = values;
     try {
-      await this.backendService.save(_name, formikToRoleMapping(values));
+      await roleMappingsService.save(name, formikToRoleMapping(values));
       setSubmitting(false);
       history.push(APP_PATH.ROLE_MAPPINGS);
     } catch (error) {
@@ -101,13 +117,12 @@ class CreateRoleMapping extends Component {
       history,
       onTriggerInspectJsonFlyout,
       location,
-      roleMappingsService,
       onComboBoxOnBlur,
       onComboBoxChange,
       onComboBoxCreateOption
     } = this.props;
-    const { resource, isLoading } = this.state;
-    const { action, id } = queryString.parse(location.search);
+    const { resource, isLoading, allInternalUsers, allNotReservedRoles } = this.state;
+    const { action } = queryString.parse(location.search);
     const updateRoleMapping = action === ROLE_MAPPINGS_ACTIONS.UPDATE_ROLE_MAPPING;
     const titleText = updateRoleMapping ? updateRoleMappingText : createRoleMappingText;
 
@@ -118,8 +133,6 @@ class CreateRoleMapping extends Component {
         validateOnChange={false}
         enableReinitialize={true}
         render={({ values, handleSubmit, isSubmitting }) => {
-          const isUpdatingName = id !== values._name;
-
           return (
             <ContentPanel
               title={titleText}
@@ -143,20 +156,20 @@ class CreateRoleMapping extends Component {
               </EuiButton>
               <EuiSpacer />
 
-              <FormikFieldText
+              <FormikComboBox
+                name="_name"
                 formRow
-                formikFieldProps={{
-                  validate: validateName(roleMappingsService, isUpdatingName)
-                }}
                 rowProps={{
-                  label: nameText,
-                  isInvalid,
-                  error: hasError
+                  label: roleText,
                 }}
                 elementProps={{
-                  isInvalid
+                  options: allNotReservedRoles,
+                  isClearable: false,
+                  singleSelection: { asPlainText: true },
+                  onChange: (options, field, form) => {
+                    form.setFieldValue(field.name, options);
+                  }
                 }}
-                name="_name"
               />
               <FormikComboBox
                 name="_users"
@@ -165,6 +178,7 @@ class CreateRoleMapping extends Component {
                   label: usersText,
                 }}
                 elementProps={{
+                  options: allInternalUsers,
                   isClearable: true,
                   onChange: onComboBoxChange,
                   onCreateOption: onComboBoxCreateOption,
@@ -175,7 +189,7 @@ class CreateRoleMapping extends Component {
                 name="_backendRoles"
                 formRow
                 rowProps={{
-                  label: rolesText,
+                  label: backendRolesText,
                 }}
                 elementProps={{
                   isClearable: true,
@@ -209,6 +223,8 @@ CreateRoleMapping.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
   roleMappingsService: PropTypes.object.isRequired,
+  internalUsersService: PropTypes.object.isRequired,
+  rolesService: PropTypes.object.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,

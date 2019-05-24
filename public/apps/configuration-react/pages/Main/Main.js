@@ -334,6 +334,8 @@ class Main extends Component {
                     <CreateRoleMapping
                       httpClient={httpClient}
                       roleMappingsService={roleMappingsService}
+                      internalUsersService={internalUsersService}
+                      rolesService={rolesService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
                       onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
                       onComboBoxChange={this.handleComboBoxChange}
