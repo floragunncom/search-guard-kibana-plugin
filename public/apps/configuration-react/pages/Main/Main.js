@@ -197,6 +197,7 @@ class Main extends Component {
                       onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                       onComboBoxChange={this.handleComboBoxChange}
                       onComboBoxOnBlur={this.handleComboBoxOnBlur}
+                      onComboBoxCreateOption={this.handleComboBoxCreateOption}
                       {...props}
                     />
                   )}
@@ -334,6 +335,8 @@ class Main extends Component {
                     <CreateRoleMapping
                       httpClient={httpClient}
                       roleMappingsService={roleMappingsService}
+                      internalUsersService={internalUsersService}
+                      rolesService={rolesService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
                       onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
                       onComboBoxChange={this.handleComboBoxChange}

@@ -1,8 +1,6 @@
 import { omit } from 'lodash';
 import { arrayToComboBoxOptions, attributesToUiAttributes } from '../../../utils/helpers';
 
-export const backendRolesToUiBackendRoles = backendRoles => arrayToComboBoxOptions(Object.keys(backendRoles));
-
 export const userToFormik = (user, id = '') => {
   return {
     ...omit(user, ['hash']),
