@@ -1,21 +1,17 @@
-import { sortBy, filter, map } from 'lodash';
+import { sortBy } from 'lodash';
 import { arrayToComboBoxOptions } from '../../../utils/helpers';
 
 export const internalUsersToUiInternalUsers = (internalUsers = {}) =>
   arrayToComboBoxOptions(Object.keys(internalUsers));
 
-export const rolesToUiRoles = (roles = {}) => {
-  return sortBy(arrayToComboBoxOptions(filter(map(roles, (role, roleName) => {
-    if (!role.reserved) {
-      return roleName;
-    }
-  }), element => element)), 'label');
-};
+export const rolesToUiRoles = (roles = {}) => arrayToComboBoxOptions(sortBy(Object.keys(roles)));
 
-export const roleMappingToFormik = (roleMapping = {}, id = '') => ({
-  _name: [{ label: id }],
-  _backendRoles: arrayToComboBoxOptions(sortBy(roleMapping.backend_roles)),
-  _hosts: arrayToComboBoxOptions(sortBy(roleMapping.hosts)),
-  _users: arrayToComboBoxOptions(sortBy(roleMapping.users)),
-  ...roleMapping
-});
+export const roleMappingToFormik = (roleMapping = {}, id = { label: '' }) => {
+  return {
+    ...roleMapping,
+    _name: [id],
+    _backendRoles: arrayToComboBoxOptions(sortBy(roleMapping.backend_roles)),
+    _hosts: arrayToComboBoxOptions(sortBy(roleMapping.hosts)),
+    _users: arrayToComboBoxOptions(sortBy(roleMapping.users))
+  };
+};

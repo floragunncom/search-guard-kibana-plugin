@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
-import { EuiButton, EuiSpacer } from '@elastic/eui';
+import { EuiButton, EuiSpacer, EuiLink } from '@elastic/eui';
 import queryString from 'query-string';
 import {
   saveText,
@@ -10,13 +10,15 @@ import {
 } from '../../utils/i18n/common';
 import {
   createRoleMappingText,
-  updateRoleMappingText
+  updateRoleMappingText,
+  roleHelpText
 } from '../../utils/i18n/role_mappings';
 import {
   roleText,
   backendRolesText,
   usersText,
-  hostsText
+  hostsText,
+  createRoleText
 } from '../../utils/i18n/roles';
 import { ContentPanel, FormikComboBox } from '../../components';
 import { APP_PATH, ROLE_MAPPINGS_ACTIONS } from '../../utils/constants';
@@ -41,7 +43,7 @@ class CreateRoleMapping extends Component {
       resource: roleMappingToFormik(DEFAULT_ROLE_MAPPING, id),
       isLoading: true,
       allInternalUsers: [],
-      allNotReservedRoles: [],
+      allRoles: [],
       allBackendRoles: []
     };
   }
@@ -71,18 +73,21 @@ class CreateRoleMapping extends Component {
     try {
       this.setState({ isLoading: true });
       const { data: allInternalUsers } = await internalUsersService.list();
-      const { data: allNotReservedRoles } = await rolesService.list();
+      const { data: allRoles } = await rolesService.list();
       this.setState({
         allBackendRoles: internalUsersToUiBackendRoles(allInternalUsers),
         allInternalUsers: internalUsersToUiInternalUsers(allInternalUsers),
-        allNotReservedRoles: rolesToUiRoles(allNotReservedRoles)
+        allRoles: rolesToUiRoles(allRoles)
       });
 
       if (id) {
         const resource = await roleMappingsService.get(id);
-        this.setState({ resource: roleMappingToFormik(resource, id) });
+        this.setState({ resource: roleMappingToFormik(resource, { label: id }) });
       } else {
-        this.setState({ resource: roleMappingToFormik(DEFAULT_ROLE_MAPPING), isEdit: !!id });
+        this.setState({
+          resource: roleMappingToFormik(DEFAULT_ROLE_MAPPING, allRoles[0]),
+          isEdit: !!id
+        });
       }
     } catch(error) {
       onTriggerErrorCallout(error);
@@ -92,7 +97,7 @@ class CreateRoleMapping extends Component {
 
   onSubmit = async (values, { setSubmitting }) => {
     const { history, onTriggerErrorCallout, roleMappingsService } = this.props;
-    const { _name: { label: name } } = values;
+    const { _name: [{ label: name }] } = values;
     try {
       await roleMappingsService.save(name, formikToRoleMapping(values));
       setSubmitting(false);
@@ -115,6 +120,17 @@ class CreateRoleMapping extends Component {
     </EuiButton>
   )
 
+  renderRoleHelpText = history => (
+    <Fragment>
+      {roleHelpText}{' '}
+      <EuiLink
+        onClick={() => history.push(APP_PATH.CREATE_ROLE)}
+      >
+        {createRoleText}
+      </EuiLink>
+    </Fragment>
+  )
+
   render() {
     const {
       history,
@@ -128,7 +144,7 @@ class CreateRoleMapping extends Component {
       resource,
       isLoading,
       allInternalUsers,
-      allNotReservedRoles,
+      allRoles,
       allBackendRoles
     } = this.state;
     const { action } = queryString.parse(location.search);
@@ -170,14 +186,18 @@ class CreateRoleMapping extends Component {
                 formRow
                 rowProps={{
                   label: roleText,
+                  helpText: this.renderRoleHelpText(history)
                 }}
                 elementProps={{
-                  options: allNotReservedRoles,
+                  options: allRoles,
                   isClearable: false,
                   singleSelection: { asPlainText: true },
-                  onChange: (options, field, form) => {
-                    form.setFieldValue(field.name, options);
-                  }
+                  onChange: onComboBoxChange,
+                  // onChange: (options, field, form) => {
+                  //   if (!isEmpty(options)) {
+                  //     form.setFieldValue(field.name, options);
+                  //   }
+                  // }
                 }}
               />
               <FormikComboBox
