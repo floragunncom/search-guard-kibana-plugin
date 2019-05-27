@@ -1,5 +1,3 @@
-import { includeText, excludeText } from '../../../utils/i18n/common';
-
 export const ROLE = {
   _name: '',
   description: '',
@@ -16,15 +14,15 @@ export const ROLE_MAPPING = {
   hosts: []
 };
 
-export const FLS_MODES = [
-  { id: 'whitelist', label: includeText },
-  { id: 'blacklist', label: excludeText },
-];
+export const FLS_MODES = {
+  WHITELIST: 'whitelist',
+  BLACKLIST: 'blacklist'
+};
 
 export const INDEX_PERMISSION = {
   allowed_actions: [],
   fls: [],
-  flsmode: FLS_MODES[0].id,
+  flsmode: FLS_MODES.WHITELIST,
   index_patterns: [],
   masked_fields: []
 };

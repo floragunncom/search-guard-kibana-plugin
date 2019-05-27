@@ -11,8 +11,12 @@ import { FLS_MODES } from '../../utils/constants';
 import {
   fieldLevelSecurityText,
   includeOrExcludeFieldsText,
-  anonymizeFieldsText
+  anonymizeFieldsText,
 } from '../../../../utils/i18n/roles';
+import {
+  includeText,
+  excludeText
+} from '../../../../utils/i18n/common';
 
 const FieldLevelSecurity = ({
   indexPermission,
@@ -32,11 +36,13 @@ const FieldLevelSecurity = ({
           name={`_indexPermissions[${index}].flsmode`}
           formRow
           elementProps={{
-            id: FLS_MODES[0].id,
-            label: FLS_MODES[0].label,
-            checked: indexPermission.flsmode === FLS_MODES[0].id,
+            // Radio id must be unique through all accordion items!
+            id: `${FLS_MODES.WHITELIST}_${index}`,
+            label: includeText,
+            checked: indexPermission.flsmode === FLS_MODES.WHITELIST,
             onChange: ({ target: { id } }, field, form) => {
-              form.setFieldValue(`_indexPermissions[${index}].flsmode`, id);
+              const flsmode = id.split('_')[0];
+              form.setFieldValue(field.name, flsmode);
             }
           }}
         />
@@ -46,11 +52,13 @@ const FieldLevelSecurity = ({
           name={`_indexPermissions[${index}].flsmode`}
           formRow
           elementProps={{
-            id: FLS_MODES[1].id,
-            label: FLS_MODES[1].label,
-            checked: indexPermission.flsmode === FLS_MODES[1].id,
+            // Radio id must be unique through all accordion items!
+            id: `${FLS_MODES.BLACKLIST}_${index}`,
+            label: excludeText,
+            checked: indexPermission.flsmode === FLS_MODES.BLACKLIST,
             onChange: ({ target: { id } }, field, form) => {
-              form.setFieldValue(`_indexPermissions[${index}].flsmode`, id);
+              const flsmode = id.split('_')[0];
+              form.setFieldValue(field.name, flsmode);
             }
           }}
         />
