@@ -86,7 +86,7 @@ export function enableMultiTenancy(Private) {
  */
 function addTenantToURL(url, originalValue = null, userRequestedTenant) {
     const tenantKey = 'sg_tenant';
-    const tenantKeyAndValue = tenantKey + '=' + userRequestedTenant;
+    const tenantKeyAndValue = tenantKey + '=' + encodeURIComponent(userRequestedTenant);
 
     if (! originalValue) {
         originalValue = url;
