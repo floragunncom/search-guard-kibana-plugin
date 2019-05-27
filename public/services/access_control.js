@@ -26,6 +26,7 @@ uiModules
 
   const authConfig = chrome.getInjected('auth');
   const authType = authConfig.type || null;
+  const logoutUrl = authConfig.logout_url || null;
 
   class SearchGuardControlService {
 
@@ -42,7 +43,11 @@ uiModules
                     $window.location.href = `${APP_ROOT}/customerror`;
                 }
             } else {
-                $window.location.href = `${APP_ROOT}/login?type=${authType || ''}Logout`;
+                if (logoutUrl && logoutUrl.length > 0) {
+                    $window.location.href = logoutUrl;
+                } else {
+                    $window.location.href = `${APP_ROOT}/login?type=${authType || ''}Logout`;
+                }
             }
           },
           (error) =>
