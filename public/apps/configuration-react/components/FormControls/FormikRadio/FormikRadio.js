@@ -5,15 +5,18 @@ import FormikInputWrapper from '../FormikInputWrapper';
 import FormikFormRow from '../FormikFormRow';
 
 const FieldRadio = ({
+  name,
   form,
   field,
-  elementProps: { onChange, onFocus, ...props },
+  elementProps: { onBlur, onChange, onFocus, ...props },
 }) => (
   <EuiRadio
     {...field}
     {...props}
+    name={name}
     onFocus={onFocus instanceof Function ? e => onFocus(e, field, form) : onFocus}
     onChange={e => (onChange instanceof Function ? onChange(e, field, form) : field.onChange(e))}
+    onBlur={onBlur instanceof Function ? e => onBlur(e, field, form) : onBlur}
   />
 );
 

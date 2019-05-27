@@ -1,4 +1,4 @@
-import { cloneDeep, map, defaultsDeep } from 'lodash';
+import { cloneDeep, map, defaultsDeep, isEmpty } from 'lodash';
 import { FLS_MODES, ROLE, ROLE_MAPPING } from './constants';
 import {
   allowedActionsToPermissionsAndActiongroups,
@@ -20,6 +20,21 @@ export const tenantPermissionToUiTenantPermission = tenantPermission => {
   };
 };
 
+export const flsmodeAndFlsToUiFlsmoddeAndFls = (fls = []) => {
+  let _fls = [];
+  let flsmode = FLS_MODES.WHITELIST;
+  const isFlsBlacklist = !isEmpty(fls) && fls[0].startsWith('~');
+
+  if (isFlsBlacklist) {
+    flsmode = FLS_MODES.BLACKLIST;
+    _fls = arrayToComboBoxOptions(map(fls, field => field.slice(1)));
+  } else {
+    _fls = arrayToComboBoxOptions(fls);
+  }
+
+  return { flsmode, fls: _fls };
+};
+
 export const indexPermissionToUiIndexPermission = indexPermission =>  {
   const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(indexPermission.allowed_actions);
   const allowedActions = {
@@ -33,15 +48,17 @@ export const indexPermissionToUiIndexPermission = indexPermission =>  {
     _dls = stringifyPretty(JSON.parse(_dls));
   }
 
+  const { fls, flsmode } = flsmodeAndFlsToUiFlsmoddeAndFls(indexPermission.fls);
+
   return {
     ...indexPermission,
+    fls,
+    flsmode,
     _dls,
     allowed_actions: allowedActions,
     index_patterns: indexPatterns,
-    fls: arrayToComboBoxOptions(indexPermission.fls),
     masked_fields: arrayToComboBoxOptions(indexPermission.masked_fields),
     _isAdvanced: false,
-    flsmode: FLS_MODES[0].id
   };
 };
 
