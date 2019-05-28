@@ -308,6 +308,7 @@ class Main extends Component {
                       roleMappingsService={roleMappingsService}
                       actionGroupsService={actionGroupsService}
                       systemstateService={systemstateService}
+                      tenantsService={tenantsService}
                       onTriggerErrorCallout={this.handleTriggerErrorCallout}
                       onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
                       onComboBoxChange={this.handleComboBoxChange}

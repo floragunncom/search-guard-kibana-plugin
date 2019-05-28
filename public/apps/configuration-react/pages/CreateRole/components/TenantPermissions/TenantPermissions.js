@@ -4,7 +4,6 @@ import { FieldArray } from 'formik';
 import { isEmpty } from 'lodash';
 import {
   EuiSpacer,
-  EuiTitle,
   EuiButton,
   EuiCallOut
 } from '@elastic/eui';
@@ -14,87 +13,77 @@ import {
   emptyTenantPermissionsText,
   tenantPermissionsText,
   multiTenancyDisabledText,
-  globalAppPermissionsDisabledText
 } from '../../../../utils/i18n/roles';
-import { TENANT_PERMISSION } from '../../utils/constants';
+import { TENANT_PERMISSION, GLOBAL_TENANT } from '../../utils/constants';
 import { tenantPermissionToUiTenantPermission } from '../../utils';
 import TenantPatterns from './TenantPatterns';
-import GlobalAppPermissions from './GlobalAppPermissions';
 
-const addTenantPermission = arrayHelpers => {
-  arrayHelpers.push(tenantPermissionToUiTenantPermission(TENANT_PERMISSION));
+const addTenantPermission = (arrayHelpers, isMultiTenancyEnabled) => {
+  const permission = tenantPermissionToUiTenantPermission(TENANT_PERMISSION);
+  if (!isMultiTenancyEnabled) {
+    permission.tenant_patterns.push({ label: GLOBAL_TENANT });
+  }
+  arrayHelpers.push(permission);
 };
 
 const TenantPermissions = ({
+  allTenants,
   allAppActionGroups,
   tenantPermissions,
   isMultiTenancyEnabled,
-  isGlobalAppPermissionsEnabled,
   onComboBoxChange,
   onComboBoxOnBlur,
   onComboBoxCreateOption
 }) => (
   <Fragment>
-    {!isGlobalAppPermissionsEnabled ? (
-      <EuiCallOut className="sgFixedFormItem" iconType="iInCircle" title={globalAppPermissionsDisabledText} />
-    ) : (
-      <GlobalAppPermissions
-        allAppActionGroups={allAppActionGroups}
-        onComboBoxChange={onComboBoxChange}
-        onComboBoxOnBlur={onComboBoxOnBlur}
-      />
-    )}
-    <EuiSpacer />
-
-    {!isMultiTenancyEnabled ? (
-      <EuiCallOut className="sgFixedFormItem" iconType="iInCircle" title={multiTenancyDisabledText} />
-    ) : (
+    {!isMultiTenancyEnabled && (
       <Fragment>
-        <EuiTitle size="xs"><h4>{tenantPermissionsText}</h4></EuiTitle>
-        <EuiSpacer size="s" />
-
-        <FieldArray
-          name="_tenantPermissions"
-          render={arrayHelpers => (
-            <Fragment>
-              <EuiButton
-                onClick={() => { addTenantPermission(arrayHelpers); }}
-                size="s"
-                iconType="plusInCircle"
-              >
-                {addText}
-              </EuiButton>
-              <EuiSpacer />
-
-              {isEmpty(tenantPermissions) ? (
-                <EmptyPrompt
-                  titleText={tenantPermissionsText}
-                  bodyText={emptyTenantPermissionsText}
-                  createButtonText={addText}
-                  onCreate={() => { addTenantPermission(arrayHelpers); }}
-                />
-              ) : (
-                <TenantPatterns
-                  tenantPermissions={tenantPermissions}
-                  allAppActionGroups={allAppActionGroups}
-                  arrayHelpers={arrayHelpers}
-                  onComboBoxChange={onComboBoxChange}
-                  onComboBoxOnBlur={onComboBoxOnBlur}
-                  onComboBoxCreateOption={onComboBoxCreateOption}
-                />
-              )}
-            </Fragment>
-          )}
-        />
+        <EuiCallOut className="sgFixedFormItem" iconType="iInCircle" title={multiTenancyDisabledText} />
+        <EuiSpacer />
       </Fragment>
     )}
+    <FieldArray
+      name="_tenantPermissions"
+      render={arrayHelpers => (
+        <Fragment>
+          <EuiButton
+            onClick={() => addTenantPermission(arrayHelpers, isMultiTenancyEnabled)}
+            size="s"
+            iconType="plusInCircle"
+          >
+            {addText}
+          </EuiButton>
+          <EuiSpacer />
+
+          {isEmpty(tenantPermissions) ? (
+            <EmptyPrompt
+              titleText={tenantPermissionsText}
+              bodyText={emptyTenantPermissionsText}
+              createButtonText={addText}
+              onCreate={() => { addTenantPermission(arrayHelpers); }}
+            />
+          ) : (
+            <TenantPatterns
+              isMultiTenancyEnabled={isMultiTenancyEnabled}
+              allTenants={allTenants}
+              tenantPermissions={tenantPermissions}
+              allAppActionGroups={allAppActionGroups}
+              arrayHelpers={arrayHelpers}
+              onComboBoxChange={onComboBoxChange}
+              onComboBoxOnBlur={onComboBoxOnBlur}
+              onComboBoxCreateOption={onComboBoxCreateOption}
+            />
+          )}
+        </Fragment>
+      )}
+    />
     <EuiSpacer />
   </Fragment>
 );
 
 TenantPermissions.propTypes = {
+  allTenants: PropTypes.array.isRequired,
   isMultiTenancyEnabled: PropTypes.bool.isRequired,
-  isGlobalAppPermissionsEnabled: PropTypes.bool.isRequired,
   tenantPermissions: PropTypes.arrayOf(
     PropTypes.shape({
       tenant_patterns: PropTypes.array.isRequired,

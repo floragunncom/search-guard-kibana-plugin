@@ -3,6 +3,7 @@ export {
   indexPermissionToUiIndexPermission,
   tenantPermissionToUiTenantPermission,
   indicesToUiIndices,
-  actionGroupsToUiClusterIndexTenantActionGroups
+  actionGroupsToUiClusterIndexTenantActionGroups,
+  tenantsToUiTenants
 } from './role_to_formik';
 export { default as formikToRole } from './formik_to_role';

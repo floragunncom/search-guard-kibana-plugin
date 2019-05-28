@@ -32,7 +32,8 @@ import {
   formikToRole,
   roleToFormik,
   indicesToUiIndices,
-  actionGroupsToUiClusterIndexTenantActionGroups
+  actionGroupsToUiClusterIndexTenantActionGroups,
+  tenantsToUiTenants
 } from './utils';
 import { TABS, ROLE, ROLE_MAPPING } from './utils/constants';
 import { getAllUiIndexPermissions, getAllUiClusterPermissions } from '../../utils/helpers';
@@ -43,10 +44,9 @@ class CreateRole extends Component {
   constructor(props) {
     super(props);
 
-    const { location, rolesService, httpClient } = this.props;
+    const { location, httpClient } = this.props;
     const { id } = queryString.parse(location.search);
     this.systemService = new SystemService(httpClient);
-    this.backendService = rolesService;
 
     this.state = {
       id,
@@ -59,11 +59,11 @@ class CreateRole extends Component {
       allIndexActionGroups: [],
       allClusterActionGroups: [],
       allTenantActionGroups: [],
+      allTenants: [],
       allIndices: [],
       isFlsEnabled: true,
       isDlsEnabled: true,
       isMultiTenancyEnabled: true,
-      isGlobalAppPermissionsEnabled: this.systemService.isGlobalAppPermissionsEnabled
     };
 
     this.tabs = [
@@ -106,7 +106,9 @@ class CreateRole extends Component {
       onTriggerErrorCallout,
       roleMappingsService,
       actionGroupsService,
-      systemstateService
+      systemstateService,
+      rolesService,
+      tenantsService
     } = this.props;
 
     try {
@@ -118,6 +120,7 @@ class CreateRole extends Component {
         allTenantActionGroups
       } = actionGroupsToUiClusterIndexTenantActionGroups(actionGroups);
       const { data: allIndices } = await this.systemService.getIndices();
+      const { data: allTenants } = await tenantsService.list();
 
       // TODO: Refactor this to get stuff without side effects
       await systemstateService.loadSystemInfo();
@@ -132,11 +135,12 @@ class CreateRole extends Component {
         isDlsEnabled,
         isFlsEnabled,
         isMultiTenancyEnabled,
-        allIndices: indicesToUiIndices(allIndices)
+        allIndices: indicesToUiIndices(allIndices),
+        allTenants: tenantsToUiTenants(allTenants)
       });
 
       if (id) {
-        const resource = await this.backendService.get(id);
+        const resource = await rolesService.get(id);
         const roleMapping = await roleMappingsService.getSilent(id, false);
         this.setState({ resource: roleToFormik({ resource, id, roleMapping }) });
       } else {
@@ -149,10 +153,10 @@ class CreateRole extends Component {
   }
 
   onSubmit = async (values, { setSubmitting }) => {
-    const { history, onTriggerErrorCallout } = this.props;
+    const { history, onTriggerErrorCallout, rolesService } = this.props;
     const { _name } = values;
     try {
-      await this.backendService.save(_name, formikToRole(values));
+      await rolesService.save(_name, formikToRole(values));
       setSubmitting(false);
       history.push(APP_PATH.ROLES);
     } catch (error) {
@@ -198,7 +202,6 @@ class CreateRole extends Component {
       isDlsEnabled,
       isFlsEnabled,
       isMultiTenancyEnabled,
-      isGlobalAppPermissionsEnabled,
       onComboBoxChange,
       onComboBoxOnBlur,
       onComboBoxCreateOption,
@@ -206,7 +209,8 @@ class CreateRole extends Component {
       allClusterPermissions,
       allIndexActionGroups,
       allClusterActionGroups,
-      allTenantActionGroups
+      allTenantActionGroups,
+      allTenants
     } = this.state;
     const { action, id } = queryString.parse(location.search);
     const updateRole = action === ROLES_ACTIONS.UPDATE_ROLE;
@@ -275,12 +279,12 @@ class CreateRole extends Component {
               }
               {isTenantPermissionsTab &&
                 <TenantPermissions
+                  allTenants={allTenants}
                   allAppActionGroups={allTenantActionGroups}
                   tenantPermissions={values._tenantPermissions}
                   values={values}
                   isEdit={isEdit}
                   isMultiTenancyEnabled={isMultiTenancyEnabled}
-                  isGlobalAppPermissionsEnabled={isGlobalAppPermissionsEnabled}
                   onComboBoxChange={onComboBoxChange}
                   onComboBoxOnBlur={onComboBoxOnBlur}
                   onComboBoxCreateOption={onComboBoxCreateOption}
@@ -302,6 +306,7 @@ CreateRole.propTypes = {
   roleMappingsService: PropTypes.object.isRequired,
   actionGroupsService: PropTypes.object.isRequired,
   systemstateService: PropTypes.object.isRequired,
+  tenantsService: PropTypes.object.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
   httpClient: PropTypes.func.isRequired,

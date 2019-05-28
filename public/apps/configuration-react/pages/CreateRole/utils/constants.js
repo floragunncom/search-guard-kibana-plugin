@@ -38,3 +38,5 @@ export const TABS = {
   INDEX_PERMISSIONS: 'indexPermissions',
   TENANT_PERMISSIONS: 'tenantPermissions'
 };
+
+export const GLOBAL_TENANT = 'SGS_GLOBAL_TENANT';

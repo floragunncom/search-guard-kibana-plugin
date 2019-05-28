@@ -22,7 +22,6 @@ export const noMappedBackendRolesFoundText = (
   <EuiI18n token="sg.roles.noMappedBackendRolesFound.text" default="No mapped backend roles found" />
 );
 export const noMappedHostsFoundText = (<EuiI18n token="sg.roles.noMappedHostsFound.text" default="No mapped hosts found" />);
-export const globalPermissionsText = (<EuiI18n token="sg.roles.globalPermissions.text" default="Global Permissions" />);
 export const tenantPermissionsText = (<EuiI18n token="sg.roles.tenantPermissions.text" default="Tenant Permissions" />);
 export const indexPermissionsText = (<EuiI18n token="sg.roles.indexPermissions.text" default="Index Permissions" />);
 export const overviewText = (<EuiI18n token="sg.roles.overview.text" default="Overview" />);
@@ -34,7 +33,6 @@ export const fieldLevelSecurityText = (<EuiI18n token="sg.roles.fieldLevelSecuri
 export const anonymizeFieldsText = (<EuiI18n token="sg.roles.anonimizeFields.text" default="Anonimize fields" />);
 export const elasticsearhQueryDSLText = (<EuiI18n token="sg.roles.elasticsearhQueryDSL.text" default="Elasticsearh query DSL" />);
 export const documentLevelSecurityText = (<EuiI18n token="sg.roles.documentLevelSecurity.text" default="Document Level Security" />);
-export const globalAppPermissionsText = (<EuiI18n token="sg.roles.globalAppPermissions.text" default="Global App Permissions" />);
 export const emptyIndexPermissionsText = (
   <EuiI18n
     token="sg.roles.emptyIndexPermissions.text"
@@ -54,6 +52,3 @@ export const documentLevelSecurityDisabledText = (
   <EuiI18n token="sg.roles.documentLevelSecurityDisabled.text" default="Document-Level Security is Disabled" />
 );
 export const multiTenancyDisabledText = (<EuiI18n token="sg.roles.multiTenancyDisabled.text" default="Multitenancy is Disabled" />);
-export const globalAppPermissionsDisabledText = (
-  <EuiI18n token="sg.roles.globalAppPermissionsDisabled.text" default="Global App Permissions are Disabled" />
-);
