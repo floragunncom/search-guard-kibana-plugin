@@ -21,7 +21,7 @@ import {
   cancelText,
   saveText
 } from '../../utils/i18n/common';
-import { APP_PATH, ROLES_ACTIONS } from '../../utils/constants';
+import { ROLES_ACTIONS } from '../../utils/constants';
 import {
   Overview,
   ClusterPermissions,
@@ -139,7 +139,7 @@ class CreateRole extends Component {
     try {
       await this.backendService.save(_name, formikToRole(values));
       setSubmitting(false);
-      history.push(APP_PATH.ROLES);
+      history.goBack();
     } catch (error) {
       setSubmitting(false);
       onTriggerErrorCallout(error);
@@ -166,7 +166,7 @@ class CreateRole extends Component {
 
   renderCancelButton = history => (
     <EuiButton
-      onClick={() => history.push(APP_PATH.ROLES)}
+      onClick={() => history.goBack()}
     >
       {cancelText}
     </EuiButton>

@@ -14,3 +14,7 @@ export const emptyRoleMappingsTableMessageText = (
     default="Looks like you don&rsquo;t have any role mappings. Let&rsquo;s create some!"
   />
 );
+
+export const roleHelpText = (
+  <EuiI18n token="role_mappings.roleHelp.text" default="If you neead a new role," />
+);
