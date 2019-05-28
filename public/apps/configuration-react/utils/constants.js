@@ -70,3 +70,6 @@ export const PERMISSIONS = {
 export const MODALS = {
   CONFIRM_DELETION: 'confirmDeletion'
 };
+
+export { default as INDEX_PERMISSIONS } from '../../configuration/permissions/indexpermissions';
+export { default as CLUSTER_PERMISSIONS } from '../../configuration/permissions/clusterpermissions';

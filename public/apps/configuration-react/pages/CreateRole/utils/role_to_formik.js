@@ -3,8 +3,31 @@ import { FLS_MODES, ROLE, ROLE_MAPPING } from './constants';
 import {
   allowedActionsToPermissionsAndActiongroups,
   arrayToComboBoxOptions,
-  stringifyPretty
+  stringifyPretty,
+  isGlobalActionGroup,
+  isClusterActionGroup
 } from '../../../utils/helpers';
+import { actionGroupsToUiActionGroups } from '../../CreateActionGroup/utils';
+
+export const actionGroupsToUiClusterIndexTenantActionGroups = (actionGroups = {}) => {
+  const allActionGroups = actionGroupsToUiActionGroups(actionGroups);
+
+  const allClusterActionGroups = [];
+  const allIndexActionGroups = [];
+  const allTenantActionGroups = [];
+
+  for (const actionGroup of allActionGroups) {
+    if (isClusterActionGroup(actionGroup.label)) {
+      allClusterActionGroups.push(actionGroup);
+    } else if (isGlobalActionGroup(actionGroup.label)) {
+      allTenantActionGroups.push(actionGroup);
+    } else {
+      allIndexActionGroups.push(actionGroup);
+    }
+  }
+
+  return { allClusterActionGroups, allIndexActionGroups, allTenantActionGroups };
+};
 
 export const indicesToUiIndices = indices => arrayToComboBoxOptions(Object.keys(indices));
 

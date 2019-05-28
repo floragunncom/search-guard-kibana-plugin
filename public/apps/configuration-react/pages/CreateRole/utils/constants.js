@@ -32,8 +32,6 @@ export const TENANT_PERMISSION = {
   allowed_actions: []
 };
 
-export const APP_ACTION_GROUPS = ['SGS_KIBANA_ALL_READ', 'SGS_KIBANA_ALL_WRITE'];
-
 export const TABS = {
   OVERVIEW: 'overview',
   CLUSTER_PERMISSIONS: 'clusterPermissions',
