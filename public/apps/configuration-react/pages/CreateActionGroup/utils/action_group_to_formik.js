@@ -1,4 +1,4 @@
-import { omit, cloneDeep, sortBy, filter } from 'lodash';
+import { cloneDeep, sortBy, filter } from 'lodash';
 import {
   arrayToComboBoxOptions,
   actionGroupToActiongroupsAndPermissions
@@ -14,10 +14,10 @@ export const actionGroupToFormik = (_actionGroup, id = '') => {
   const actionGroup = cloneDeep(_actionGroup);
   const { permissions, actiongroups } = actionGroupToActiongroupsAndPermissions(actionGroup);
   return {
+    ...actionGroup,
     _name: id,
     _isAdvanced: false,
     _permissions: arrayToComboBoxOptions(sortBy(permissions)),
-    _actiongroups: arrayToComboBoxOptions(sortBy(actiongroups)),
-    ...omit(actionGroup, 'allowed_actions')
+    _actiongroups: arrayToComboBoxOptions(sortBy(actiongroups))
   };
 };

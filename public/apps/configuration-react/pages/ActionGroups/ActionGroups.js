@@ -86,7 +86,8 @@ class ActionGroups extends Component {
     name += '_copy';
     try {
       this.setState({ isLoading: true });
-      await this.backendService.save(name, uiResourceToResource(resource));
+      const doPreSave = false;
+      await this.backendService.save(name, uiResourceToResource(resource), doPreSave);
     } catch(error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
@@ -194,7 +195,7 @@ class ActionGroups extends Component {
         )
       },
       {
-        field: 'permissions',
+        field: '_permissions',
         name: permissionsText,
         footer: permissionsText,
         align: 'left',
@@ -204,7 +205,7 @@ class ActionGroups extends Component {
         render: items => (<SimpleItemsList items={items} />)
       },
       {
-        field: 'actiongroups',
+        field: '_actiongroups',
         name: actionGroupsText,
         footer: actionGroupsText,
         align: 'left',

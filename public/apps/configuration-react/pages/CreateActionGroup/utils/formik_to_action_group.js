@@ -3,10 +3,10 @@ import { comboBoxOptionsToArray } from '../../../utils/helpers';
 
 const formikToActionGroup = _formik => {
   const formik = cloneDeep(_formik);
-  const { _permissions, _actiongroups } = formik;
+  const { _permissions, _actiongroups, type } = formik;
   return {
-    permissions: comboBoxOptionsToArray(_permissions),
-    actiongroups: comboBoxOptionsToArray(_actiongroups)
+    type,
+    allowed_actions: [...comboBoxOptionsToArray(_permissions), ...comboBoxOptionsToArray(_actiongroups)]
   };
 };
 export default formikToActionGroup;
