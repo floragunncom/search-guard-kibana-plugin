@@ -1,10 +1,35 @@
 import { cloneDeep, map, defaultsDeep, isEmpty } from 'lodash';
-import { FLS_MODES, ROLE, ROLE_MAPPING } from './constants';
+import { FLS_MODES, ROLE, ROLE_MAPPING, GLOBAL_TENANT } from './constants';
 import {
   allowedActionsToPermissionsAndActiongroups,
   arrayToComboBoxOptions,
-  stringifyPretty
+  stringifyPretty,
+  isGlobalActionGroup,
+  isClusterActionGroup
 } from '../../../utils/helpers';
+import { actionGroupsToUiActionGroups } from '../../CreateActionGroup/utils';
+
+export const tenantsToUiTenants = (tenants = {}) => arrayToComboBoxOptions(Object.keys(tenants));
+
+export const actionGroupsToUiClusterIndexTenantActionGroups = (actionGroups = {}) => {
+  const allActionGroups = actionGroupsToUiActionGroups(actionGroups);
+
+  const allClusterActionGroups = [];
+  const allIndexActionGroups = [];
+  const allTenantActionGroups = [];
+
+  for (const actionGroup of allActionGroups) {
+    if (isClusterActionGroup(actionGroup.label)) {
+      allClusterActionGroups.push(actionGroup);
+    } else if (isGlobalActionGroup(actionGroup.label)) {
+      allTenantActionGroups.push(actionGroup);
+    } else {
+      allIndexActionGroups.push(actionGroup);
+    }
+  }
+
+  return { allClusterActionGroups, allIndexActionGroups, allTenantActionGroups };
+};
 
 export const indicesToUiIndices = indices => arrayToComboBoxOptions(Object.keys(indices));
 
@@ -76,7 +101,6 @@ export const roleToFormik = ({ resource, roleMapping, id = '' } = {}) => {
   const _clusterPermissions = clusterPermissionsToUiClusterPermissions(formik.cluster_permissions);
   const _indexPermissions = map(formik.index_permissions, indexPermissionToUiIndexPermission);
   const _tenantPermissions = map(formik.tenant_permissions, tenantPermissionToUiTenantPermission);
-  const _globalApplicationPermissions = arrayToComboBoxOptions(formik.global_application_permissions);
 
   return {
     ...formik,
@@ -84,7 +108,6 @@ export const roleToFormik = ({ resource, roleMapping, id = '' } = {}) => {
     _roleMapping,
     _clusterPermissions,
     _indexPermissions,
-    _tenantPermissions,
-    _globalApplicationPermissions
+    _tenantPermissions
   };
 };

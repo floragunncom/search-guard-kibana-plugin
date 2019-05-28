@@ -57,7 +57,6 @@ const formikToRole = _formik => {
   const clusterPermissions = uiClusterPermissionsToClusterPermissions(formik._clusterPermissions);
   const indexPermissions = uiIndexPermissionsToIndexPermissions(formik._indexPermissions);
   const tenantPermissions = uiTenantPermissionsToTenantPermissions(formik._tenantPermissions);
-  const globalApplicationPermissions = comboBoxOptionsToArray(formik._globalApplicationPermissions);
 
   return {
     ...omit(formik, [
@@ -66,13 +65,11 @@ const formikToRole = _formik => {
       '_isClusterPermissionsAdvanced',
       '_clusterPermissions',
       '_indexPermissions',
-      '_globalApplicationPermissions',
       '_tenantPermissions'
     ]),
     cluster_permissions: clusterPermissions,
     index_permissions: indexPermissions,
-    tenant_permissions: tenantPermissions,
-    global_application_permissions: globalApplicationPermissions
+    tenant_permissions: tenantPermissions
   };
 };
 

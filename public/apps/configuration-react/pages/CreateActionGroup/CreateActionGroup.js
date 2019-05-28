@@ -21,6 +21,7 @@ import { APP_PATH, ACTION_GROUPS_ACTIONS } from '../../utils/constants';
 import { isInvalid, hasError, validateName } from '../../utils/validation';
 import { DEFAULT_ACTION_GROUP } from './utils/constants';
 import { actionGroupToFormik, formikToActionGroup, actionGroupsToUiActionGroups } from './utils';
+import { getAllUiIndexPermissions, getAllUiClusterPermissions } from '../../utils/helpers';
 
 class CreateActionGroup extends Component {
   constructor(props) {
@@ -33,7 +34,7 @@ class CreateActionGroup extends Component {
       isEdit: !!id,
       resource: actionGroupToFormik(DEFAULT_ACTION_GROUP, id),
       allActionGroups: [],
-      allSinglePermissions: [],
+      allSinglePermissions: [ ...getAllUiIndexPermissions(), ...getAllUiClusterPermissions() ],
       isLoading: true
     };
 
@@ -60,8 +61,8 @@ class CreateActionGroup extends Component {
     try {
       this.setState({ isLoading: true });
       const { data } = await this.backendService.list();
-      const { allActionGroups, allSinglePermissions } = actionGroupsToUiActionGroups(data);
-      this.setState({ allSinglePermissions, allActionGroups });
+      const allActionGroups = actionGroupsToUiActionGroups(data, [ id ]);
+      this.setState({ allActionGroups });
 
       if (id) {
         let resource = await this.backendService.get(id);

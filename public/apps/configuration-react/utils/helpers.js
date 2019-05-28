@@ -1,4 +1,5 @@
 import { BrowserStorageService } from '../services';
+import { INDEX_PERMISSIONS, CLUSTER_PERMISSIONS } from './constants';
 import { get, reduce, sortBy, uniqBy, forEach, map } from 'lodash';
 
 export const stringifyPretty = json => JSON.stringify(json, null, 2);
@@ -18,8 +19,16 @@ export const readFileAsText = (file, FileReader = window.FileReader) => {
   });
 };
 
-export const isSinglePermission = permission => {
+export const isSinglePermission = (permission = '') => {
   return permission.startsWith('cluster:') || permission.startsWith('indices:') || permission.startsWith('kibana:');
+};
+
+export const isClusterActionGroup = (permission = '') => {
+  return permission.toLowerCase().includes('cluster');
+};
+
+export const isGlobalActionGroup = (permission = '') => {
+  return permission.toLowerCase().includes('kibana');
 };
 
 export const arrayToComboBoxOptions = array => sortBy(array.map(label => ({ label })));
@@ -59,29 +68,6 @@ export const actionGroupToActiongroupsAndPermissions = (actionGroup = {}) => {
   };
 };
 
-export const actionGroupsToActiongroupsAndPermissions = (actionGroups = {}) => {
-  const { actiongroups, permissions } = reduce(actionGroups, (result, values, groupName) => {
-    result.actiongroups.push(groupName);
-
-    const { permissions, actiongroups } = actionGroupToActiongroupsAndPermissions(values);
-
-    forEach(actiongroups, item => {
-      result.actiongroups.push(item);
-    });
-
-    forEach(permissions, item => {
-      result.permissions.push(item);
-    });
-
-    return result;
-  }, { permissions: [], actiongroups: [] });
-
-  return {
-    actiongroups: uniqBy(sortBy(actiongroups)),
-    permissions: uniqBy(sortBy(permissions))
-  };
-};
-
 export const attributesToUiAttributes = (attributes = {}) => map(attributes, (value, key) => ({ value, key }));
 export const uiAttributesToAttributes = (attributes = []) => attributes.reduce((result, { key, value }) => {
   result[key] = value;
@@ -96,3 +82,6 @@ export const internalUsersToUiBackendRoles = (internalUsers = {}) => {
     return result;
   }, []))));
 };
+
+export const getAllUiClusterPermissions = () => map(CLUSTER_PERMISSIONS, ({ name }) => ({ label: name }));
+export const getAllUiIndexPermissions = () => map(INDEX_PERMISSIONS, ({ name }) => ({ label: name }));
