@@ -8,7 +8,8 @@ import {
   cancelText,
   inspectText,
   nameText,
-  advancedText
+  advancedText,
+  typeText
 } from '../../utils/i18n/common';
 import {
   createActionGroupText,
@@ -16,10 +17,16 @@ import {
   actionGroupsText,
   singlePermissionsText
 } from '../../utils/i18n/action_groups';
-import { ContentPanel, FormikFieldText, FormikComboBox, FormikSwitch } from '../../components';
+import {
+  ContentPanel,
+  FormikFieldText,
+  FormikComboBox,
+  FormikSwitch,
+  FormikSelect
+} from '../../components';
 import { APP_PATH, ACTION_GROUPS_ACTIONS } from '../../utils/constants';
 import { isInvalid, hasError, validateName } from '../../utils/validation';
-import { DEFAULT_ACTION_GROUP } from './utils/constants';
+import { DEFAULT_ACTION_GROUP, TYPES } from './utils/constants';
 import { actionGroupToFormik, formikToActionGroup, actionGroupsToUiActionGroups } from './utils';
 import { getAllUiIndexPermissions, getAllUiClusterPermissions } from '../../utils/helpers';
 
@@ -65,9 +72,8 @@ class CreateActionGroup extends Component {
       this.setState({ allActionGroups });
 
       if (id) {
-        let resource = await this.backendService.get(id);
-        resource = actionGroupToFormik(resource, id);
-        this.setState({ resource });
+        const resource = await this.backendService.get(id);
+        this.setState({ resource: actionGroupToFormik(resource, id) });
       } else {
         this.setState({ resource: actionGroupToFormik(DEFAULT_ACTION_GROUP), isEdit: !!id });
       }
@@ -81,7 +87,8 @@ class CreateActionGroup extends Component {
     const { history, onTriggerErrorCallout } = this.props;
     const { _name } = values;
     try {
-      await this.backendService.save(_name, formikToActionGroup(values));
+      const doPreSave = false;
+      await this.backendService.save(_name, formikToActionGroup(values), doPreSave);
       setSubmitting(false);
       history.push(APP_PATH.ACTION_GROUPS);
     } catch (error) {
@@ -162,6 +169,16 @@ class CreateActionGroup extends Component {
                   isInvalid
                 }}
                 name="_name"
+              />
+              <FormikSelect
+                formRow
+                rowProps={{
+                  label: typeText
+                }}
+                elementProps={{
+                  options: TYPES
+                }}
+                name="type"
               />
               <FormikComboBox
                 name="_actiongroups"
