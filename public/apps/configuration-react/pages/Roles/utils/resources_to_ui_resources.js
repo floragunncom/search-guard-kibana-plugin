@@ -1,4 +1,4 @@
-import { reduce, sortBy, forEach, cloneDeep } from 'lodash';
+import { reduce, sortBy, forEach, cloneDeep, omit } from 'lodash';
 
 const resourcesToUiResources = resources => sortBy(reduce(cloneDeep(resources), (result, values, id) => {
   result.push({
@@ -16,7 +16,7 @@ const resourcesToUiResources = resources => sortBy(reduce(cloneDeep(resources), 
       return result;
     }, [])),
     _clusterPermissions: sortBy(values.cluster_permissions),
-    ...values
+    ...omit(values, ['cluster_permissions'])
   });
   return result;
 }, []), '_id');

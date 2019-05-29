@@ -1,7 +1,7 @@
 import { cloneDeep, map, sortBy } from 'lodash';
 import { allowedActionsToPermissionsAndActiongroups } from '../../../utils/helpers';
 
-export const resourcesToUiResources = actionGroups => {
+const resourcesToUiResources = actionGroups => {
   return sortBy(map(cloneDeep(actionGroups), (values, name) => {
     const {
       actiongroups: _actiongroups,
@@ -15,3 +15,5 @@ export const resourcesToUiResources = actionGroups => {
     };
   }), '_id');
 };
+
+export default resourcesToUiResources;

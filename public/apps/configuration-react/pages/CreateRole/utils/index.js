@@ -6,4 +6,4 @@ export {
   actionGroupsToUiClusterIndexTenantActionGroups,
   tenantsToUiTenants
 } from './role_to_formik';
-export { default as formikToRole } from './formik_to_role';
+export { formikToRole } from './formik_to_role';

@@ -16,7 +16,7 @@
     "lint": "eslint .",
     "start": "plugin-helpers start",
     "test:server": "plugin-helpers test:server",
-    "test:browser": "plugin-helpers test:browser",
+    "test:browser": "./node_modules/.bin/jest --config ./test/jest.config.js",
     "build": "plugin-helpers build"
   },
   "dependencies": {
@@ -41,9 +41,14 @@
     "react-dom": "^16.8.6",
     "react-router-dom": "^5.0.0",
     "requirefrom": "^0.2.0",
+    "uuid": "^3.3.2",
     "wreck": "14.x.x"
   },
   "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/polyfill": "^7.4.4",
+    "@babel/preset-env": "^7.4.5",
+    "@babel/preset-react": "^7.0.0",
     "@elastic/eslint-config-kibana": "link:../../kibana/packages/eslint-config-kibana",
     "@elastic/eslint-import-resolver-kibana": "link:../../kibana/packages/kbn-eslint-import-resolver-kibana",
     "@kbn/expect": "link:../../kibana/packages/kbn-expect",
@@ -58,6 +63,7 @@
     "eslint-plugin-no-unsanitized": "^3.0.2",
     "eslint-plugin-prefer-object-spread": "^1.2.1",
     "eslint-plugin-react": "^7.11.1",
+    "jest": "^24.8.0",
     "ui-select": "^0.19.8"
   }
 }
