@@ -1,5 +1,6 @@
 import { omit, map, cloneDeep, isEmpty } from 'lodash';
 import { comboBoxOptionsToArray } from '../../../utils/helpers';
+import { FIELDS_TO_OMIT_BEFORE_SAVE } from '../../../utils/constants';
 
 export const uiIndexPermissionsToIndexPermissions = indexPermissions => {
   return map(indexPermissions, values => {
@@ -52,7 +53,7 @@ export const uiClusterPermissionsToClusterPermissions = clusterPermissions => {
   };
 };
 
-const formikToRole = _formik => {
+export const formikToRole = _formik => {
   const formik = cloneDeep(_formik);
   const clusterPermissions = uiClusterPermissionsToClusterPermissions(formik._clusterPermissions);
   const indexPermissions = uiIndexPermissionsToIndexPermissions(formik._indexPermissions);
@@ -65,12 +66,11 @@ const formikToRole = _formik => {
       '_isClusterPermissionsAdvanced',
       '_clusterPermissions',
       '_indexPermissions',
-      '_tenantPermissions'
+      '_tenantPermissions',
+      ...FIELDS_TO_OMIT_BEFORE_SAVE
     ]),
     cluster_permissions: clusterPermissions,
     index_permissions: indexPermissions,
     tenant_permissions: tenantPermissions
   };
 };
-
-export default formikToRole;

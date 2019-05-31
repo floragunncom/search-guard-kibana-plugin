@@ -1,7 +1,7 @@
 import { omit } from 'lodash';
 import { arrayToComboBoxOptions, attributesToUiAttributes } from '../../../utils/helpers';
 
-export const userToFormik = (user, id = '') => {
+const userToFormik = (user, id = '') => {
   return {
     ...omit(user, ['hash']),
     _username: id,
@@ -9,3 +9,5 @@ export const userToFormik = (user, id = '') => {
     _attributes: attributesToUiAttributes(user.attributes)
   };
 };
+
+export default userToFormik;

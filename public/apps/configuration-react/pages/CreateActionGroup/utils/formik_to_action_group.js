@@ -9,4 +9,5 @@ const formikToActionGroup = _formik => {
     allowed_actions: [...comboBoxOptionsToArray(_permissions), ...comboBoxOptionsToArray(_actiongroups)]
   };
 };
+
 export default formikToActionGroup;

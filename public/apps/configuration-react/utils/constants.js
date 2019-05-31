@@ -73,3 +73,5 @@ export const MODALS = {
 
 export { default as INDEX_PERMISSIONS } from '../../configuration/permissions/indexpermissions';
 export { default as CLUSTER_PERMISSIONS } from '../../configuration/permissions/clusterpermissions';
+
+export const FIELDS_TO_OMIT_BEFORE_SAVE = ['reserved', 'static', 'hidden'];

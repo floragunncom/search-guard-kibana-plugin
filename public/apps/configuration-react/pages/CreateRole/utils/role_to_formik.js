@@ -1,5 +1,5 @@
 import { cloneDeep, map, defaultsDeep, isEmpty } from 'lodash';
-import { FLS_MODES, ROLE, ROLE_MAPPING, GLOBAL_TENANT } from './constants';
+import { FLS_MODES, ROLE, ROLE_MAPPING } from './constants';
 import {
   allowedActionsToPermissionsAndActiongroups,
   arrayToComboBoxOptions,
@@ -60,6 +60,18 @@ export const flsmodeAndFlsToUiFlsmoddeAndFls = (fls = []) => {
   return { flsmode, fls: _fls };
 };
 
+export const dlsToUiDls = (dls = '{}') => {
+  let _dls = '{}';
+  if (!isEmpty(dls)) {
+    try {
+      _dls = stringifyPretty(JSON.parse(dls));
+    } catch (error) {
+      // Keep '{}' if value in .dls cannot be parsed
+    }
+  }
+  return _dls;
+};
+
 export const indexPermissionToUiIndexPermission = indexPermission =>  {
   const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(indexPermission.allowed_actions);
   const allowedActions = {
@@ -68,18 +80,10 @@ export const indexPermissionToUiIndexPermission = indexPermission =>  {
   };
   const indexPatterns = arrayToComboBoxOptions(indexPermission.index_patterns);
 
-  let _dls = '{}';
-  if (indexPermission.dls) {
-    _dls = stringifyPretty(JSON.parse(_dls));
-  }
-
-  const { fls, flsmode } = flsmodeAndFlsToUiFlsmoddeAndFls(indexPermission.fls);
-
   return {
     ...indexPermission,
-    fls,
-    flsmode,
-    _dls,
+    ...flsmodeAndFlsToUiFlsmoddeAndFls(indexPermission.fls),
+    _dls: dlsToUiDls(indexPermission.dls),
     allowed_actions: allowedActions,
     index_patterns: indexPatterns,
     masked_fields: arrayToComboBoxOptions(indexPermission.masked_fields),
@@ -95,7 +99,7 @@ export const clusterPermissionsToUiClusterPermissions = clusterPermissions => {
   };
 };
 
-export const roleToFormik = ({ resource, roleMapping, id = '' } = {}) => {
+export const roleToFormik = ({ resource, roleMapping = {}, id = '' }) => {
   const formik = defaultsDeep(cloneDeep(resource), ROLE);
   const _roleMapping = defaultsDeep(cloneDeep(roleMapping), ROLE_MAPPING);
   const _clusterPermissions = clusterPermissionsToUiClusterPermissions(formik.cluster_permissions);

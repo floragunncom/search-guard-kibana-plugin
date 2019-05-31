@@ -1,5 +1,5 @@
 ---
-extends: "@elastic/kibana"
+extends: ["@elastic/kibana", "@elastic/eslint-config-kibana/jest"]
 
 settings:
   import/resolver:
@@ -7,3 +7,4 @@ settings:
       paths: ["public", "node_modules", "../../kibana/node_modules"]
     '@kbn/eslint-import-resolver-kibana':
       rootPackageName: 'search-guard-kibana-plugin'
+

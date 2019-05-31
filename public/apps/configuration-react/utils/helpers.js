@@ -1,4 +1,4 @@
-import { BrowserStorageService } from '../services';
+import BrowserStorageService from '../services/BrowserStorageService';
 import { INDEX_PERMISSIONS, CLUSTER_PERMISSIONS } from './constants';
 import { get, reduce, sortBy, uniqBy, forEach, map } from 'lodash';
 
@@ -31,7 +31,7 @@ export const isGlobalActionGroup = (permission = '') => {
   return permission.toLowerCase().includes('kibana');
 };
 
-export const arrayToComboBoxOptions = array => sortBy(array.map(label => ({ label })));
+export const arrayToComboBoxOptions = array => sortBy(array.map(label => ({ label })), 'label');
 export const comboBoxOptionsToArray = array => sortBy(array.map(({ label }) => label));
 
 export const allowedActionsToPermissionsAndActiongroups = (allowedActions = []) => {
@@ -68,7 +68,7 @@ export const actionGroupToActiongroupsAndPermissions = (actionGroup = {}) => {
   };
 };
 
-export const attributesToUiAttributes = (attributes = {}) => map(attributes, (value, key) => ({ value, key }));
+export const attributesToUiAttributes = (attributes = {}) => sortBy(map(attributes, (value, key) => ({ value, key })));
 export const uiAttributesToAttributes = (attributes = []) => attributes.reduce((result, { key, value }) => {
   result[key] = value;
   return result;

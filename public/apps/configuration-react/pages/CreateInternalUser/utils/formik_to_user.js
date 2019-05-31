@@ -1,5 +1,6 @@
 import { omit } from 'lodash';
 import { uiAttributesToAttributes, comboBoxOptionsToArray } from '../../../utils/helpers';
+import { FIELDS_TO_OMIT_BEFORE_SAVE } from '../../../utils/constants';
 
 const formikToUser = userFormik => {
   const user = {
@@ -9,8 +10,8 @@ const formikToUser = userFormik => {
       '_changePassword',
       '_backendRoles',
       '_attributes',
-      'static']
-    ),
+      ...FIELDS_TO_OMIT_BEFORE_SAVE
+    ]),
     backend_roles: comboBoxOptionsToArray(userFormik._backendRoles),
     attributes: uiAttributesToAttributes(userFormik._attributes)
   };

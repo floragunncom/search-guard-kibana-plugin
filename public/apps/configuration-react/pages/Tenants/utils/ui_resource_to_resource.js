@@ -1,5 +1,5 @@
-import { omit } from 'lodash';
+import { pick } from 'lodash';
 
-const uiResourceToResource = resource => omit(resource, ['hidden', 'reserved', 'static', '_id']);
+const uiResourceToResource = resource => pick(resource, ['description']);
 
 export default uiResourceToResource;
