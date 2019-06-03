@@ -4,9 +4,9 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiHorizontalRule,
-  EuiTitle,
-  EuiLoadingKibana
+  EuiTitle
 } from '@elastic/eui';
+import LoadingPage from '../Page/LoadingPage';
 
 const handleRenderActions = actions => (
   Array.isArray(actions) ? (
@@ -14,14 +14,6 @@ const handleRenderActions = actions => (
   ) : (
     <EuiFlexItem>{actions}</EuiFlexItem>
   )
-);
-
-const loadingPageData = (
-  <EuiFlexGroup justifyContent="spaceAround">
-    <EuiFlexItem grow={false}>
-      <EuiLoadingKibana size="xl" />
-    </EuiFlexItem>
-  </EuiFlexGroup>
 );
 
 const ContentPanel = ({
@@ -51,7 +43,7 @@ const ContentPanel = ({
 
     <EuiHorizontalRule margin={horizontalRuleMargin} />
 
-    {isLoading ? loadingPageData : (<div style={{ ...bodyStyles }} className="sgContentPanel__body">{children}</div>)}
+    {isLoading ? LoadingPage : (<div style={{ ...bodyStyles }} className="sgContentPanel__body">{children}</div>)}
   </div>
 );
 

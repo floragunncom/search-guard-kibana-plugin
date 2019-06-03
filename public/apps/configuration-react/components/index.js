@@ -25,3 +25,6 @@ export { default as SimpleItemsList } from './Table/SimpleItemsList';
 // Accordion
 export { default as AccordionButtonContent } from './Accordion/AccordionButtonContent';
 export { default as AccordionDeleteButton } from './Accordion/AccordionDeleteButton';
+
+// Page
+export { default as LoadingPage } from './Page/LoadingPage';
