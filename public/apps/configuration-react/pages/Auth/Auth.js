@@ -8,10 +8,11 @@ import {
   EuiSideNav,
   EuiButton,
   EuiTextColor,
-  EuiFlexGrid
+  EuiFlexGrid,
+  EuiCodeEditor
 } from '@elastic/eui';
 import { ContentPanel } from '../../components';
-import { get, isEmpty, map, forEach } from 'lodash';
+import { get, isEmpty, map, forEach, toString } from 'lodash';
 import { APP_PATH } from '../../utils/constants';
 import { stringifyPretty } from '../../utils/helpers';
 import { navigateText, cancelText, disabledText } from '../../utils/i18n/common';
@@ -20,21 +21,22 @@ import { SELECTED_SIDE_NAV_ITEM_NAME } from './utils/constants';
 import { resourcesToUiResources } from './utils';
 
 const AuthContent = ({ resource }) => (
-  <EuiFlexGrid columns={2}>
+  <EuiFlexGrid columns={2} className="sgFixedFormGroupItem">
     {map(resource, (value, key) => (
       <Fragment key={key}>
         <EuiFlexItem>
           {authI18nLabels[key]}
         </EuiFlexItem>
         <EuiFlexItem>
-          <pre><code>{value.toString()}</code></pre>
+          {React.isValidElement(value) ? value : (
+            <pre><code>{toString(value)}</code></pre>
+          )}
         </EuiFlexItem>
       </Fragment>
     ))}
   </EuiFlexGrid>
 );
 
-// Move nav item names to i18n
 class Auth extends Component {
   constructor(props) {
     super(props);
@@ -137,18 +139,31 @@ class Auth extends Component {
         ...common,
         HTTPAuthenticationType: resource.http_authenticator.type,
         HTTPChallenge: resource.http_authenticator.challenge,
-        HTTPAuthenticatorConfiguration: stringifyPretty(resource.http_authenticator.config),
+        HTTPAuthenticatorConfiguration: this.renderCodeEditor(stringifyPretty(resource.http_authenticator.config)),
         authenticationBackendType: resource.authentication_backend.type,
-        authenticationBackendConfiguration: stringifyPretty(resource.authentication_backend.config)
+        authenticationBackendConfiguration: this.renderCodeEditor(stringifyPretty(resource.authentication_backend.config))
       };
     }
 
     return {
       ...common,
       authorizationBackendType: resource.authorization_backend.type,
-      authorizationBackendConfiguration: stringifyPretty(resource.authorization_backend.config)
+      authorizationBackendConfiguration: this.renderCodeEditor(stringifyPretty(resource.authorization_backend.config))
     };
   }
+
+  renderCodeEditor = value => (
+    <EuiCodeEditor
+      isReadOnly
+      width="100%"
+      setOptions={{
+        minLines: 10,
+        maxLines: 15,
+        fontSize: '12px'
+      }}
+      value={value}
+    />
+  )
 
   renderCancelButton = history => (
     <EuiButton onClick={() => history.push(APP_PATH.HOME)}>
