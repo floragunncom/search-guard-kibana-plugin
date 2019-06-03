@@ -383,6 +383,7 @@ class Main extends Component {
                   <Route
                     render={props => (
                       <Home
+                        systemstateService={systemstateService}
                         purgingCache={purgingCache}
                         onPurgeCache={this.handlePurgeCache}
                         {...props}

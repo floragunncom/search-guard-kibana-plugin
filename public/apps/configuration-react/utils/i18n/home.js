@@ -9,3 +9,12 @@ export const purgeCacheDescription = (<EuiI18n token="sg.home.purgeCacheDescript
 export const permissionsAndRolesText = (
   <EuiI18n token="sg.home.permissionsAndRoles.text" default="Permissions And Roles" />
 );
+export const isNoAuthenticationBackendsText = (
+  <EuiI18n token="sg.home.isNoEuthenticationBackends.text" default="Access to Internal Users Database is disabled" />
+);
+export const isNoPermissionsAndRolesText = (
+  <EuiI18n token="sg.home.isNoPermissionsAndRoles.text" default="Access to Permissions and Roles is disabled" />
+);
+export const isNoSystemText = (
+  <EuiI18n token="sg.home.isNoSystem.text" default="Access to system settings is disabled" />
+);
