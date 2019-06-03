@@ -28,19 +28,21 @@
     "@types/react-dom": "^16.8.4",
     "bell": "9.4.0",
     "brace": "^0.11.1",
-    "elasticsearch": "^15.4.1",
     "formik": "^1.5.4",
     "formik-effect": "^1.2.0",
     "hapi-auth-cookie": "^9.1.0",
     "joi": "10.6.0",
     "js-yaml": "^3.7.0",
     "lodash": "^4.17.11",
+    "moment": "^2.24.0",
     "prop-types": "^15.7.2",
     "query-string": "^6.5.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-router-dom": "^5.0.0",
     "requirefrom": "^0.2.0",
+    "typescript": "^3.5.1",
+    "ui-select": "^0.19.8",
     "uuid": "^3.3.2",
     "wreck": "14.x.x"
   },
@@ -63,7 +65,6 @@
     "eslint-plugin-no-unsanitized": "^3.0.2",
     "eslint-plugin-prefer-object-spread": "^1.2.1",
     "eslint-plugin-react": "^7.11.1",
-    "jest": "^24.8.0",
-    "ui-select": "^0.19.8"
+    "jest": "^24.8.0"
   }
 }
