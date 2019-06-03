@@ -4,7 +4,9 @@ import { EuiI18n } from '@elastic/eui';
 export const rolesText = (<EuiI18n token="sg.roles.roles.text" default="Roles" />);
 export const roleText = (<EuiI18n token="sg.roles.role.text" default="Role" />);
 export const backendRolesText = (<EuiI18n token="sg.roles.backendRoles.text" default="Backend Roles" />);
-export const rolesDescription = (<EuiI18n token="sg.roles.actionGroups.description" default="Create access roles" />);
+export const rolesDescription = (
+  <EuiI18n token="sg.roles.actionGroups.description" default="Configure Search Guard Roles and their permissions" />
+);
 export const createRoleText = (<EuiI18n token="sg.roles.createRole.text" default="Create Role" />);
 export const updateRoleText = (<EuiI18n token="sg.roles.updateRole.text" default="Update Role" />);
 export const noRolesText = (<EuiI18n token="sg.roles.noRoles.text" default="No Roles" />);
