@@ -32,7 +32,12 @@ export const usersText = (<EuiI18n token="sg.roles.users.text" default="Users" /
 export const hostsText = (<EuiI18n token="sg.roles.hosts.text" default="Hosts" />);
 export const includeOrExcludeFieldsText = (<EuiI18n token="sg.roles.includeOrExcludeFields.text" default="Include or exclude fields" />);
 export const fieldLevelSecurityText = (<EuiI18n token="sg.roles.fieldLevelSecurity.text" default="Field Level Security" />);
-export const anonymizeFieldsText = (<EuiI18n token="sg.roles.anonimizeFields.text" default="Anonimize fields" />);
+export const anonymizeFieldsText = (
+  <EuiI18n
+    token="sg.roles.anonimizeFields.text"
+    default="Anonimize fields. You can replace the fields with anonymized hashes"
+  />
+);
 export const elasticsearhQueryDSLText = (<EuiI18n token="sg.roles.elasticsearhQueryDSL.text" default="Elasticsearh query DSL" />);
 export const documentLevelSecurityText = (<EuiI18n token="sg.roles.documentLevelSecurity.text" default="Document Level Security" />);
 export const emptyIndexPermissionsText = (
@@ -54,3 +59,9 @@ export const documentLevelSecurityDisabledText = (
   <EuiI18n token="sg.roles.documentLevelSecurityDisabled.text" default="Document-Level Security is Disabled" />
 );
 export const multiTenancyDisabledText = (<EuiI18n token="sg.roles.multiTenancyDisabled.text" default="Multitenancy is Disabled" />);
+export const anonymizedFieldsDisabledText = (
+  <EuiI18n
+    token="sg.roles.maskedFieldsDisabled.text"
+    default="Fields anonymization feature is disabled"
+  />
+);
