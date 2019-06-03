@@ -4,7 +4,8 @@ import {
   EuiTitle,
   EuiSpacer,
   EuiFlexItem,
-  EuiFlexGroup
+  EuiFlexGroup,
+  EuiCallOut
 } from '@elastic/eui';
 import { FormikRadio, FormikComboBox } from '../../../../components';
 import { FLS_MODES } from '../../utils/constants';
@@ -12,6 +13,7 @@ import {
   fieldLevelSecurityText,
   includeOrExcludeFieldsText,
   anonymizeFieldsText,
+  anonymizedFieldsDisabledText
 } from '../../../../utils/i18n/roles';
 import {
   includeText,
@@ -21,6 +23,7 @@ import {
 const FieldLevelSecurity = ({
   indexPermission,
   index,
+  isAnonymizedFieldsEnabled,
   onComboBoxChange,
   onComboBoxOnBlur,
   onComboBoxCreateOption
@@ -85,19 +88,23 @@ const FieldLevelSecurity = ({
       </EuiFlexItem>
 
       <EuiFlexItem>
-        <FormikComboBox
-          name={`_indexPermissions[${index}].masked_fields`}
-          formRow
-          rowProps={{
-            helpText: anonymizeFieldsText
-          }}
-          elementProps={{
-            isClearable: true,
-            onBlur: onComboBoxOnBlur,
-            onChange: onComboBoxChange,
-            onCreateOption: onComboBoxCreateOption
-          }}
-        />
+        {!isAnonymizedFieldsEnabled ? (
+          <EuiCallOut className="sgFixedFormItem" iconType="iInCircle" title={anonymizedFieldsDisabledText} />
+        ) : (
+          <FormikComboBox
+            name={`_indexPermissions[${index}].masked_fields`}
+            formRow
+            rowProps={{
+              helpText: anonymizeFieldsText
+            }}
+            elementProps={{
+              isClearable: true,
+              onBlur: onComboBoxOnBlur,
+              onChange: onComboBoxChange,
+              onCreateOption: onComboBoxCreateOption
+            }}
+          />
+        )}
       </EuiFlexItem>
     </EuiFlexGroup>
   </Fragment>
@@ -106,6 +113,7 @@ const FieldLevelSecurity = ({
 FieldLevelSecurity.propTypes = {
   index: PropTypes.number.isRequired,
   indexPermission: PropTypes.object.isRequired,
+  isAnonymizedFieldsEnabled: PropTypes.bool.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,
   onComboBoxOnBlur: PropTypes.func.isRequired,
   onComboBoxCreateOption: PropTypes.func.isRequired

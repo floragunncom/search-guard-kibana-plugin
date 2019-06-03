@@ -27,10 +27,15 @@ import {
   RoleMappings,
   CreateRoleMapping
 } from '../';
-import { Breadcrumbs, Flyout, Callout, Modal } from '../../components';
+import { Breadcrumbs, Flyout, Callout, Modal, LoadingPage } from '../../components';
 import { APP_PATH, CALLOUTS, FLYOUTS, MODALS } from '../../utils/constants';
 import { checkIfLicenseValid, comboBoxOptionsToArray } from '../../utils/helpers';
-import { sgLicenseNotValidText } from '../../utils/i18n/common';
+import {
+  apiAccessStateForbiddenText,
+  apiAccessStateNotEnabledText,
+  sgLicenseNotValidText
+} from '../../utils/i18n/main';
+import { API_ACCESS_STATE } from './utils/constants';
 import '../../less/main.less';
 
 class Main extends Component {
@@ -42,12 +47,33 @@ class Main extends Component {
       callout: null,
       modal: null,
       sideNavItems: [],
-      selectedSideNavItemName: undefined
+      selectedSideNavItemName: undefined,
+      apiAccessState: API_ACCESS_STATE.PENDING
     };
   }
 
   componentDidMount() {
     this.calloutErrorIfLicenseNotValid();
+    this.checkAPIAccess();
+  }
+
+  checkAPIAccess = async () => {
+    const { systemstateService } = this.props.angularServices;
+    try {
+      await systemstateService.loadSystemInfo();
+      if (!systemstateService.restApiEnabled()) {
+        this.handleTriggerErrorCallout({ message: apiAccessStateNotEnabledText });
+      } else {
+        await systemstateService.loadRestInfo();
+        if (!systemstateService.hasApiAccess()) {
+          this.handleTriggerErrorCallout({ message: apiAccessStateForbiddenText });
+        } else {
+          this.setState({ apiAccessState: API_ACCESS_STATE.OK });
+        }
+      }
+    } catch (error) {
+      this.handleTriggerErrorCallout(error);
+    }
   }
 
   calloutErrorIfLicenseNotValid = () => {
@@ -97,6 +123,7 @@ class Main extends Component {
       type: CALLOUTS.ERROR_CALLOUT,
       payload: get(error, 'message', error)
     });
+    console.error(error);
   }
 
   handleTriggerSuccessCallout = payload => {
@@ -154,7 +181,8 @@ class Main extends Component {
       flyout,
       callout,
       purgingCache,
-      modal
+      modal,
+      apiAccessState
     } = this.state;
     const {
       httpClient,
@@ -171,6 +199,9 @@ class Main extends Component {
       ...rest
     } = this.props;
 
+    const isAPIAccessPending = apiAccessState === API_ACCESS_STATE.PENDING;
+    const isAPIAccessOk = apiAccessState === API_ACCESS_STATE.OK;
+
     return (
       <EuiPage id="searchGuardKibanaPlugin">
         <EuiPageBody>
@@ -184,179 +215,183 @@ class Main extends Component {
             <EuiPageContentBody>
               <Callout callout={callout} onClose={() => this.handleTriggerCallout(null)} />
               <Modal modal={modal} onClose={() => this.handleTriggerModal(null)} />
-              <Switch>
-                <Route
-                  path={APP_PATH.CREATE_INTERNAL_USER}
-                  render={props => (
-                    <CreateInternalUser
-                      httpClient={httpClient}
-                      internalUsersService={internalUsersService}
-                      rolesService={rolesService}
-                      onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
-                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                      onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
-                      onComboBoxChange={this.handleComboBoxChange}
-                      onComboBoxOnBlur={this.handleComboBoxOnBlur}
-                      onComboBoxCreateOption={this.handleComboBoxCreateOption}
-                      {...props}
-                    />
-                  )}
-                />
-                <Route
-                  path={APP_PATH.INTERNAL_USERS}
-                  render={props => (
-                    <InternalUsers
-                      httpClient={httpClient}
-                      internalUsersService={internalUsersService}
-                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                      onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
-                      {...props}
-                    />
-                  )}
-                />
-                <Route
-                  path={APP_PATH.AUTH}
-                  render={props => (
-                    <Auth
-                      httpClient={httpClient}
-                      configurationService={configurationService}
-                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                      {...props}
-                    />
-                  )}
-                />
-                <Route
-                  path={APP_PATH.SYSTEM_STATUS}
-                  render={props => (
-                    <SystemStatus
-                      httpClient={httpClient}
-                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                      onTriggerSuccessCallout={this.handleTriggerSuccessCallout}
-                      onTriggerCustomFlyout={this.handleTriggerCustomFlyout}
-                      {...props}
-                    />
-                  )}
-                />
-                <Route
-                  path={APP_PATH.TENANTS}
-                  render={props => (
-                    <Tenants
-                      httpClient={httpClient}
-                      tenantsService={tenantsService}
-                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                      onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
-                      {...props}
-                    />
-                  )}
-                />
-                <Route
-                  path={APP_PATH.CREATE_TENANT}
-                  render={props => (
-                    <CreateTenant
-                      httpClient={httpClient}
-                      tenantsService={tenantsService}
-                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                      onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
-                      {...props}
-                    />
-                  )}
-                />
-                <Route
-                  path={APP_PATH.ACTION_GROUPS}
-                  render={props => (
-                    <ActionGroups
-                      httpClient={httpClient}
-                      actionGroupsService={actionGroupsService}
-                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                      onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
-                      {...props}
-                    />
-                  )}
-                />
-                <Route
-                  path={APP_PATH.CREATE_ACTION_GROUP}
-                  render={props => (
-                    <CreateActionGroup
-                      httpClient={httpClient}
-                      actionGroupsService={actionGroupsService}
-                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                      onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
-                      onComboBoxChange={this.handleComboBoxChange}
-                      onComboBoxOnBlur={this.handleComboBoxOnBlur}
-                      {...props}
-                    />
-                  )}
-                />
-                <Route
-                  path={APP_PATH.ROLES}
-                  render={props => (
-                    <Roles
-                      httpClient={httpClient}
-                      rolesService={rolesService}
-                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                      onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
-                      {...props}
-                    />
-                  )}
-                />
-                <Route
-                  path={APP_PATH.CREATE_ROLE}
-                  render={props => (
-                    <CreateRole
-                      httpClient={httpClient}
-                      rolesService={rolesService}
-                      roleMappingsService={roleMappingsService}
-                      actionGroupsService={actionGroupsService}
-                      systemstateService={systemstateService}
-                      tenantsService={tenantsService}
-                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                      onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
-                      onComboBoxChange={this.handleComboBoxChange}
-                      onComboBoxOnBlur={this.handleComboBoxOnBlur}
-                      onComboBoxCreateOption={this.handleComboBoxCreateOption}
-                      {...props}
-                    />
-                  )}
-                />
-                <Route
-                  path={APP_PATH.ROLE_MAPPINGS}
-                  render={props => (
-                    <RoleMappings
-                      httpClient={httpClient}
-                      roleMappingsService={roleMappingsService}
-                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                      onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
-                      {...props}
-                    />
-                  )}
-                />
-                <Route
-                  path={APP_PATH.CREATE_ROLE_MAPPING}
-                  render={props => (
-                    <CreateRoleMapping
-                      httpClient={httpClient}
-                      roleMappingsService={roleMappingsService}
-                      internalUsersService={internalUsersService}
-                      rolesService={rolesService}
-                      onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                      onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
-                      onComboBoxChange={this.handleComboBoxChange}
-                      onComboBoxOnBlur={this.handleComboBoxOnBlur}
-                      onComboBoxCreateOption={this.handleComboBoxCreateOption}
-                      {...props}
-                    />
-                  )}
-                />
-                <Route
-                  render={props => (
-                    <Home
-                      purgingCache={purgingCache}
-                      onPurgeCache={this.handlePurgeCache}
-                      {...props}
-                    />
-                  )}
-                />
-              </Switch>
+              {isAPIAccessPending && LoadingPage}
+              {isAPIAccessOk &&
+                <Switch>
+                  <Route
+                    path={APP_PATH.CREATE_INTERNAL_USER}
+                    render={props => (
+                      <CreateInternalUser
+                        httpClient={httpClient}
+                        internalUsersService={internalUsersService}
+                        rolesService={rolesService}
+                        onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
+                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                        onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
+                        onComboBoxChange={this.handleComboBoxChange}
+                        onComboBoxOnBlur={this.handleComboBoxOnBlur}
+                        onComboBoxCreateOption={this.handleComboBoxCreateOption}
+                        {...props}
+                      />
+                    )}
+                  />
+                  <Route
+                    path={APP_PATH.INTERNAL_USERS}
+                    render={props => (
+                      <InternalUsers
+                        httpClient={httpClient}
+                        internalUsersService={internalUsersService}
+                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                        onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
+                        {...props}
+                      />
+                    )}
+                  />
+                  <Route
+                    path={APP_PATH.AUTH}
+                    render={props => (
+                      <Auth
+                        httpClient={httpClient}
+                        configurationService={configurationService}
+                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                        {...props}
+                      />
+                    )}
+                  />
+                  <Route
+                    path={APP_PATH.SYSTEM_STATUS}
+                    render={props => (
+                      <SystemStatus
+                        httpClient={httpClient}
+                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                        onTriggerSuccessCallout={this.handleTriggerSuccessCallout}
+                        onTriggerCustomFlyout={this.handleTriggerCustomFlyout}
+                        {...props}
+                      />
+                    )}
+                  />
+                  <Route
+                    path={APP_PATH.TENANTS}
+                    render={props => (
+                      <Tenants
+                        httpClient={httpClient}
+                        tenantsService={tenantsService}
+                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                        onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
+                        {...props}
+                      />
+                    )}
+                  />
+                  <Route
+                    path={APP_PATH.CREATE_TENANT}
+                    render={props => (
+                      <CreateTenant
+                        httpClient={httpClient}
+                        tenantsService={tenantsService}
+                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                        onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
+                        {...props}
+                      />
+                    )}
+                  />
+                  <Route
+                    path={APP_PATH.ACTION_GROUPS}
+                    render={props => (
+                      <ActionGroups
+                        httpClient={httpClient}
+                        actionGroupsService={actionGroupsService}
+                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                        onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
+                        {...props}
+                      />
+                    )}
+                  />
+                  <Route
+                    path={APP_PATH.CREATE_ACTION_GROUP}
+                    render={props => (
+                      <CreateActionGroup
+                        httpClient={httpClient}
+                        actionGroupsService={actionGroupsService}
+                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                        onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
+                        onComboBoxChange={this.handleComboBoxChange}
+                        onComboBoxOnBlur={this.handleComboBoxOnBlur}
+                        {...props}
+                      />
+                    )}
+                  />
+                  <Route
+                    path={APP_PATH.ROLES}
+                    render={props => (
+                      <Roles
+                        httpClient={httpClient}
+                        rolesService={rolesService}
+                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                        onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
+                        {...props}
+                      />
+                    )}
+                  />
+                  <Route
+                    path={APP_PATH.CREATE_ROLE}
+                    render={props => (
+                      <CreateRole
+                        httpClient={httpClient}
+                        rolesService={rolesService}
+                        roleMappingsService={roleMappingsService}
+                        actionGroupsService={actionGroupsService}
+                        systemstateService={systemstateService}
+                        tenantsService={tenantsService}
+                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                        onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
+                        onComboBoxChange={this.handleComboBoxChange}
+                        onComboBoxOnBlur={this.handleComboBoxOnBlur}
+                        onComboBoxCreateOption={this.handleComboBoxCreateOption}
+                        {...props}
+                      />
+                    )}
+                  />
+                  <Route
+                    path={APP_PATH.ROLE_MAPPINGS}
+                    render={props => (
+                      <RoleMappings
+                        httpClient={httpClient}
+                        roleMappingsService={roleMappingsService}
+                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                        onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
+                        {...props}
+                      />
+                    )}
+                  />
+                  <Route
+                    path={APP_PATH.CREATE_ROLE_MAPPING}
+                    render={props => (
+                      <CreateRoleMapping
+                        httpClient={httpClient}
+                        roleMappingsService={roleMappingsService}
+                        internalUsersService={internalUsersService}
+                        rolesService={rolesService}
+                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
+                        onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
+                        onComboBoxChange={this.handleComboBoxChange}
+                        onComboBoxOnBlur={this.handleComboBoxOnBlur}
+                        onComboBoxCreateOption={this.handleComboBoxCreateOption}
+                        {...props}
+                      />
+                    )}
+                  />
+                  <Route
+                    render={props => (
+                      <Home
+                        systemstateService={systemstateService}
+                        purgingCache={purgingCache}
+                        onPurgeCache={this.handlePurgeCache}
+                        {...props}
+                      />
+                    )}
+                  />
+                </Switch>
+              }
             </EuiPageContentBody>
           </EuiPageContent>
 

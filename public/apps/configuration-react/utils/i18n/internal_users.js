@@ -10,7 +10,7 @@ export const internalUsersDatabaseText = (
 export const internalUsersDatabaseDescription = (
   <EuiI18n
     token="sg.internalUsers.internalUsersDatabase.description"
-    default="Use it if you do not have any external authentication system"
+    default="Use it if you don't have any external authentication systems in place"
   />
 );
 export const backendRolesText = (<EuiI18n token="sg.internalUsers.backendRoles.text" default="Backend Roles" />);

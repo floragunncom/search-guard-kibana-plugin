@@ -38,6 +38,7 @@ const IndexPatterns = ({
   allIndices,
   isDlsEnabled,
   isFlsEnabled,
+  isAnonymizedFieldsEnabled,
   onComboBoxChange,
   onComboBoxOnBlur,
   onComboBoxCreateOption
@@ -127,6 +128,7 @@ const IndexPatterns = ({
               <FieldLevelSecurity
                 indexPermission={indexPermission}
                 index={index}
+                isAnonymizedFieldsEnabled={isAnonymizedFieldsEnabled}
                 onComboBoxChange={onComboBoxChange}
                 onComboBoxOnBlur={onComboBoxOnBlur}
                 onComboBoxCreateOption={onComboBoxCreateOption}
@@ -186,6 +188,7 @@ IndexPatterns.propTypes = {
   allIndices: PropTypes.array.isRequired,
   isDlsEnabled: PropTypes.bool.isRequired,
   isFlsEnabled: PropTypes.bool.isRequired,
+  isAnonymizedFieldsEnabled: PropTypes.bool.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,
   onComboBoxOnBlur: PropTypes.func.isRequired,
   onComboBoxCreateOption: PropTypes.func.isRequired

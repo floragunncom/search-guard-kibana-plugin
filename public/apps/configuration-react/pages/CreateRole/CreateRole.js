@@ -63,6 +63,7 @@ class CreateRole extends Component {
       allIndices: [],
       isFlsEnabled: true,
       isDlsEnabled: true,
+      isAnonymizedFieldsEnabled: true,
       isMultiTenancyEnabled: true,
     };
 
@@ -127,6 +128,7 @@ class CreateRole extends Component {
       const isDlsEnabled = systemstateService.dlsFlsEnabled();
       const isFlsEnabled = isDlsEnabled;
       const isMultiTenancyEnabled = systemstateService.multiTenancyEnabled();
+      const isAnonymizedFieldsEnabled = systemstateService.complianceFeaturesEnabled();
 
       this.setState({
         allClusterActionGroups,
@@ -134,6 +136,7 @@ class CreateRole extends Component {
         allTenantActionGroups,
         isDlsEnabled,
         isFlsEnabled,
+        isAnonymizedFieldsEnabled,
         isMultiTenancyEnabled,
         allIndices: indicesToUiIndices(allIndices),
         allTenants: tenantsToUiTenants(allTenants)
@@ -202,6 +205,7 @@ class CreateRole extends Component {
       isDlsEnabled,
       isFlsEnabled,
       isMultiTenancyEnabled,
+      isAnonymizedFieldsEnabled,
       onComboBoxChange,
       onComboBoxOnBlur,
       onComboBoxCreateOption,
@@ -271,6 +275,7 @@ class CreateRole extends Component {
                   isEdit={isEdit}
                   isDlsEnabled={isDlsEnabled}
                   isFlsEnabled={isFlsEnabled}
+                  isAnonymizedFieldsEnabled={isAnonymizedFieldsEnabled}
                   onComboBoxChange={onComboBoxChange}
                   onComboBoxOnBlur={onComboBoxOnBlur}
                   onComboBoxCreateOption={onComboBoxCreateOption}

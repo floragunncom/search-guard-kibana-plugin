@@ -24,6 +24,7 @@ const IndexPermissions = ({
   allIndices,
   isDlsEnabled,
   isFlsEnabled,
+  isAnonymizedFieldsEnabled,
   onComboBoxChange,
   onComboBoxOnBlur,
   onComboBoxCreateOption
@@ -57,6 +58,7 @@ const IndexPermissions = ({
             arrayHelpers={arrayHelpers}
             isDlsEnabled={isDlsEnabled}
             isFlsEnabled={isFlsEnabled}
+            isAnonymizedFieldsEnabled={isAnonymizedFieldsEnabled}
             onComboBoxChange={onComboBoxChange}
             onComboBoxOnBlur={onComboBoxOnBlur}
             onComboBoxCreateOption={onComboBoxCreateOption}
@@ -84,6 +86,7 @@ IndexPermissions.propTypes = {
   allIndices: PropTypes.array.isRequired,
   isDlsEnabled: PropTypes.bool.isRequired,
   isFlsEnabled: PropTypes.bool.isRequired,
+  isAnonymizedFieldsEnabled: PropTypes.bool.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,
   onComboBoxOnBlur: PropTypes.func.isRequired,
   onComboBoxCreateOption: PropTypes.func.isRequired

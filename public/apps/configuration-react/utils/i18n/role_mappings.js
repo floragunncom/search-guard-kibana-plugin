@@ -3,7 +3,7 @@ import { EuiI18n } from '@elastic/eui';
 
 export const roleMappingsText = (<EuiI18n token="sg.role_mappings.roleMappings.text" default="Role Mappings" />);
 export const roleMappingsDescription = (
-  <EuiI18n token="sg.role_mappings.roleMappings.description" default="Map roles to users and hosts" />
+  <EuiI18n token="sg.role_mappings.roleMappings.description" default="Map users, backend roles and hostnames to Search Guard roles" />
 );
 export const createRoleMappingText = (<EuiI18n token="sg.role_mappings.createRoleMapping.text" default="Create Role Mapping" />);
 export const updateRoleMappingText = (<EuiI18n token="sg.role_mappings.updateRoleMapping.text" default="Update Role Mapping" />);

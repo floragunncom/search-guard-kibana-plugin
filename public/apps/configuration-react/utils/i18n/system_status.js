@@ -2,7 +2,9 @@ import React from 'react';
 import { EuiI18n } from '@elastic/eui';
 
 export const systemStatusText = (<EuiI18n token="sg.system_status.systemStatus.text" default="System Status" />);
-export const systemStatusDescription = (<EuiI18n token="sg.system_status.systemStatus.description" default="Check system status" />);
+export const systemStatusDescription = (
+  <EuiI18n token="sg.system_status.systemStatus.description" default="View the Search Guard license and all installed modules" />
+);
 export const uploadLicenseText = (<EuiI18n token="sg.system_status.uploadLicenseText.text" default="Upload License" />);
 export const importText = (<EuiI18n token="sg.common.import.text" default="Import" />);
 export const licenseStringText = (<EuiI18n token="sg.common.licenseString.text" default="License string" />);

@@ -5,7 +5,10 @@ export const authenticationAndAuthorizationText = (
   <EuiI18n token="sg.auth.authenticationAndAuthorization.text" default="Authentication and Authorization" />
 );
 export const authenticationAndAuthorizationDescription = (
-  <EuiI18n token="sg.auth.authenticationAndAuthorization.description" default="Grant access and permissions" />
+  <EuiI18n
+    token="sg.auth.authenticationAndAuthorization.description"
+    default="View the configured authentication and authorization modules"
+  />
 );
 
 // The following constant names are used dynamically. Make sure the page is not broken if you change them.
