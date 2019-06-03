@@ -1,4 +1,5 @@
 import chrome from 'ui/chrome';
+import React from 'react';
 import { isEmpty, pick } from 'lodash';
 
 const getResource = (selectSideNavItem, resources) => {
@@ -14,7 +15,7 @@ const getResource = (selectSideNavItem, resources) => {
         type: resources.sg_license.type,
         nodes: resources.sg_license.allowed_node_count_per_cluster,
         issuedTo: resources.sg_license.issued_to,
-        UUID: resources.sg_license.uid,
+        UUID: (<span>{resources.sg_license.uid}</span>),
         startDate: resources.sg_license.start_date,
         endDate: resources.sg_license.expiry_date,
         daysLeft: resources.sg_license.expiry_in_days,

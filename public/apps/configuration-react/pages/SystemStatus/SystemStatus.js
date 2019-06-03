@@ -1,7 +1,7 @@
 /* eslint import/namespace: ['error', { allowComputed: true }] */
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { get, map } from 'lodash';
+import { get, map, toString } from 'lodash';
 import queryString from 'query-string';
 import {
   EuiIcon,
@@ -26,7 +26,7 @@ const SystemStatusContent = ({ resource, sideNavItemName }) => {
   const isActiveModulesSection = sideNavItemName === 'activeModules';
   return (
     <Fragment>
-      <EuiFlexGrid columns={2}>
+      <EuiFlexGrid columns={2} className="sgFixedFormGroupItem">
         {map(resource, (value, key) => {
           return !isActiveModulesSection ? (
             <Fragment key={key}>
@@ -34,7 +34,9 @@ const SystemStatusContent = ({ resource, sideNavItemName }) => {
                 {systemStatusI18nLabels[key]}
               </EuiFlexItem>
               <EuiFlexItem>
-                <pre><code>{value.toString()}</code></pre>
+                {React.isValidElement(value) ? value : (
+                  <pre><code>{toString(value)}</code></pre>
+                )}
               </EuiFlexItem>
             </Fragment>
           ) : (
@@ -45,7 +47,7 @@ const SystemStatusContent = ({ resource, sideNavItemName }) => {
 
       {isActiveModulesSection && (
         <Fragment>
-          <EuiFlexGrid columns={3}>
+          <EuiFlexGrid columns={3} className="sgFixedFormGroupItem">
             <EuiFlexItem><EuiText><h3>{systemStatusI18nLabels.name}</h3></EuiText></EuiFlexItem>
             <EuiFlexItem><EuiText><h3>{systemStatusI18nLabels.version}</h3></EuiText></EuiFlexItem>
             <EuiFlexItem><EuiText><h3>{systemStatusI18nLabels.isEnterprise}</h3></EuiText></EuiFlexItem>
@@ -54,7 +56,7 @@ const SystemStatusContent = ({ resource, sideNavItemName }) => {
         </Fragment>
       )}
 
-      <EuiFlexGrid columns={3}>
+      <EuiFlexGrid columns={3} className="sgFixedFormGroupItem">
         {map(resource, (value, key) => {
           return isActiveModulesSection && (
             <Fragment key={key}>
