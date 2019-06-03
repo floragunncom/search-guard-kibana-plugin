@@ -4,6 +4,7 @@ describe('UI table role mapping to role mapping', () => {
   test('can build role mapping', () => {
     const uiResource = {
       _id: 'A_ROLE_MAPPING',
+      _isCorrespondingRole: true,
       reserved: true,
       hidden: false,
       backend_roles: ['g'],

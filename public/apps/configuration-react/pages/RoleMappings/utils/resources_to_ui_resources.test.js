@@ -3,7 +3,7 @@ import resourcesToUiResources from './resources_to_ui_resources';
 describe('role mappings to UI table role mappings', () => {
   test('can build UI table role mappings', () => {
     const resources = {
-      B_ROLE_MAPPING: {
+      B: {
         reserved: false,
         hidden: false,
         backend_roles: ['b', 'a'],
@@ -12,7 +12,7 @@ describe('role mappings to UI table role mappings', () => {
         and_backend_roles: [],
         description: 'Migrated from v6'
       },
-      A_ROLE_MAPPING: {
+      A: {
         reserved: true,
         hidden: false,
         backend_roles: ['g'],
@@ -25,7 +25,8 @@ describe('role mappings to UI table role mappings', () => {
 
     const uiResources = [
       {
-        _id: 'A_ROLE_MAPPING',
+        _id: 'A',
+        _isCorrespondingRole: false,
         reserved: true,
         hidden: false,
         backend_roles: ['g'],
@@ -35,7 +36,8 @@ describe('role mappings to UI table role mappings', () => {
         description: 'Migrated from v6'
       },
       {
-        _id: 'B_ROLE_MAPPING',
+        _id: 'B',
+        _isCorrespondingRole: true,
         reserved: false,
         hidden: false,
         backend_roles: ['b', 'a'],
@@ -46,6 +48,8 @@ describe('role mappings to UI table role mappings', () => {
       }
     ];
 
-    expect(resourcesToUiResources(resources)).toEqual(uiResources);
+    const correspondingRoles = { A: false, B: true };
+
+    expect(resourcesToUiResources(resources, correspondingRoles)).toEqual(uiResources);
   });
 });
