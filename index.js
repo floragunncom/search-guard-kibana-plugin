@@ -4,6 +4,7 @@ import { has } from 'lodash';
 import indexTemplate from './lib/elasticsearch/setup_index_template';
 import { migrateTenants } from './lib/multitenancy/migrate_tenants';
 import { version as sgVersion } from './package.json';
+import SearchguardSavedObjectsClient from './lib/rbac/searchguard_saved_objects_client';
 
 export default function (kibana) {
 
@@ -530,6 +531,27 @@ export default function (kibana) {
                 this.status.green('Search Guard plugin version '+ sgVersion + ' initialised.');
             }
 
+
+            if (config.get('searchguard.rbac.enabled')) {
+                const { savedObjects } = server;
+
+                savedObjects.setScopedSavedObjectsClientFactory(({request}) => {
+                    const adminCluster = server.plugins.elasticsearch.getCluster('admin');
+                    const {callWithRequest} = adminCluster;
+                    const callCluster = (...args) => callWithRequest(request, ...args);
+                    const callWithRequestRepository = savedObjects.getSavedObjectsRepository(callCluster);
+
+                    return new SearchguardSavedObjectsClient(
+                        request,
+                        searchguardBackend,
+                        callWithRequestRepository,
+                        savedObjects
+                    );
+                });
+                this.status.green("Search Guard RBAC enabled");
+            } else {
+                this.status.yellow("Search Guard RBAC not enabled");
+            }
         }
     });
 };
