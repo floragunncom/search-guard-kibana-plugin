@@ -87,7 +87,7 @@ uiModules.get('apps/searchguard/configuration', [])
             return $http.post(url, data)
                 .then((response) => {
                     toastNotifications.addSuccess({
-                        title: `'${id}' saved.`
+                        title: `'${decodeURIComponent(id)}' saved.`
                     });
                 })
                 .catch((error) => {
@@ -106,7 +106,7 @@ uiModules.get('apps/searchguard/configuration', [])
             return $http.delete(`${AUTH_BACKEND_API_ROOT}/configuration/${resourceName}/${id}`)
                 .then((response) => {
                     toastNotifications.addSuccess({
-                        title: `'${id}' deleted.`
+                        title: `'${decodeURIComponent(id)}' deleted.`
                     });
                 })
                 .catch((error) => {

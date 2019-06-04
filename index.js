@@ -43,6 +43,9 @@ export default function (kibana) {
                 rbac: Joi.object().keys({
                     enabled: Joi.boolean().default(false),
                 }).default(),
+                xff: Joi.object().keys({
+                    enabled: Joi.boolean().default(false),
+                }).default(),
                 cookie: Joi.object().keys({
                     secure: Joi.boolean().default(false),
                     name: Joi.string().default('searchguard_authentication'),
@@ -59,6 +62,7 @@ export default function (kibana) {
                     type: Joi.string().valid(['', 'basicauth', 'jwt', 'openid', 'saml', 'proxy', 'kerberos', 'proxycache']).default(''),
                     anonymous_auth_enabled: Joi.boolean().default(false),
                     unauthenticated_routes: Joi.array().default(["/api/status"]),
+                    logout_url: Joi.string().allow('').default(''),
                 }).default(),
                 basicauth: Joi.object().keys({
                     enabled: Joi.boolean().default(true),
@@ -448,6 +452,10 @@ export default function (kibana) {
                 this.status.yellow("Search Guard copy JWT params disabled");
             }
 
+            if (config.get('searchguard.xff.enabled')) {
+                require('./lib/xff/xff')(pluginRoot, server, this);
+                this.status.yellow("Search Guard XFF enabled.");
+            }
             if (config.get('searchguard.multitenancy.enabled')) {
 
                 // sanity check - header whitelisted?

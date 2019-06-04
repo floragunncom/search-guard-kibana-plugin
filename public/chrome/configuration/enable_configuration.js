@@ -25,6 +25,37 @@ require ('../../apps/configuration/systemstate/systemstate');
 
 const app = uiModules.get('apps/searchguard/configuration');
 
+function redirectOnSessionTimeout($window) {
+    const APP_ROOT = `${chrome.getBasePath()}`;
+    const path = chrome.removeBasePath($window.location.pathname);
+    const injectedConfig = chrome.getInjected();
+
+    // Don't run on login or logout. We shouldn't have any Ajax requests here,
+    // but if other plugins are active, we would get a redirect loop.
+    if(path === '/login' || path === '/logout' || path === '/customerror') {
+        return $q.reject(response);
+    }
+
+    let auth = injectedConfig.auth;
+    if (auth && auth.type && auth.type === 'jwt') {
+        // For JWT we don't have a login page, so we need to go to the custom error page
+        $window.location.href = `${APP_ROOT}/customerror?type=sessionExpired`;
+    } else {
+        let nextUrl = path + $window.location.hash + $window.location.search;
+        if (auth && auth.type === 'openid') {
+            $window.location.href = `${APP_ROOT}/auth/openid/login?nextUrl=${encodeURIComponent(nextUrl)}`;
+        } else if (auth && auth.type === 'saml') {
+            $window.location.href = `${APP_ROOT}/auth/saml/login?nextUrl=${encodeURIComponent(nextUrl)}`;
+        } else {
+            // Handle differently if we were logged in anonymously
+            if (auth && auth.type === 'basicauth' && injectedConfig.sgDynamic && injectedConfig.sgDynamic.user && injectedConfig.sgDynamic.user.isAnonymousAuth) {
+                $window.location.href = `${APP_ROOT}/auth/anonymous?nextUrl=${encodeURIComponent(nextUrl)}`;
+            } else {
+                $window.location.href = `${APP_ROOT}/login?nextUrl=${encodeURIComponent(nextUrl)}`;
+            }
+        }
+    }
+}
 
 app.factory('errorInterceptor', function ($q, $window) {
 
@@ -33,35 +64,7 @@ app.factory('errorInterceptor', function ($q, $window) {
 
             // Handles 401s, but only if we've explicitly set the redirect property on the response.
             if (response.status == 401 && response.data && response.data.redirectTo === 'login') {
-                const APP_ROOT = `${chrome.getBasePath()}`;
-                const path = chrome.removeBasePath($window.location.pathname);
-                const injectedConfig = chrome.getInjected();
-
-                // Don't run on login or logout. We shouldn't have any Ajax requests here,
-                // but if other plugins are active, we would get a redirect loop.
-                if(path === '/login' || path === '/logout' || path === '/customerror') {
-                    return $q.reject(response);
-                }
-
-                let auth = injectedConfig.auth;
-                if (auth && auth.type && auth.type === 'jwt') {
-                    // For JWT we don't have a login page, so we need to go to the custom error page
-                    $window.location.href = `${APP_ROOT}/customerror?type=sessionExpired`;
-                } else {
-                    let nextUrl = path + $window.location.hash + $window.location.search;
-                    if (auth && auth.type === 'openid') {
-                        $window.location.href = `${APP_ROOT}/auth/openid/login?nextUrl=${encodeURIComponent(nextUrl)}`;
-                    } else if (auth && auth.type === 'saml') {
-                        $window.location.href = `${APP_ROOT}/auth/saml/login?nextUrl=${encodeURIComponent(nextUrl)}`;
-                    } else {
-                        // Handle differently if we were logged in anonymously
-                        if (auth && auth.type === 'basicauth' && injectedConfig.sgDynamic && injectedConfig.sgDynamic.user && injectedConfig.sgDynamic.user.isAnonymousAuth) {
-                            $window.location.href = `${APP_ROOT}/auth/anonymous?nextUrl=${encodeURIComponent(nextUrl)}`;
-                        } else {
-                            $window.location.href = `${APP_ROOT}/login?nextUrl=${encodeURIComponent(nextUrl)}`;
-                        }
-                    }
-                }
+                redirectOnSessionTimeout($window);
             }
 
             // If unhandled, we just pass the error on to the next handler.
@@ -77,8 +80,44 @@ app.config(function($httpProvider) {
     $httpProvider.interceptors.push('errorInterceptor');
 });
 
+/**
+ * Setup a wrapper around fetch so that we can
+ * handle session timeouts on ajax calls made
+ * by the kfetch component
+ * @param $window
+ */
+function setupResponseErrorHandler($window) {
+    if (!window.fetch) {
+        return;
+    }
+
+    const nativeFetch = window.fetch;
+    window.fetch = (url, config) => {
+        return nativeFetch(url, config)
+            .then(async(result) => {
+                if (result.status === 401) {
+                    try {
+                        // We need to clone the response before converting the body to JSON,
+                        // otherwise the response will be locked for the next consumer.
+                        const bodyJSON = await result.clone().json();
+                        if (bodyJSON && bodyJSON.redirectTo === 'login') {
+                            redirectOnSessionTimeout($window);
+                        }
+
+                    } catch (error) {
+                        // Ignore
+                    }
+                }
+
+              return result;
+            });
+    };
+}
+
 
 export function enableConfiguration($http, $window, systemstate) {
+
+    setupResponseErrorHandler($window);
 
     chrome.getNavLinkById("searchguard-configuration").hidden = true;
 
