@@ -65,3 +65,6 @@ export const anonymizedFieldsDisabledText = (
     default="Fields anonymization feature is disabled"
   />
 );
+export const dlsQuerySyntaxIsInvalidText = (
+  <EuiI18n token="sg.roles.dlsQuerySyntaxIsInvalid.text" default="DLS query syntax is invalid" />
+);

@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import { get } from 'lodash';
 import {
   EuiAccordion,
   EuiFlexGroup,
@@ -25,12 +26,13 @@ import {
   FormikCodeEditor
 } from '../../../../components';
 import { comboBoxOptionsToArray } from '../../../../utils/helpers';
-import { isInvalid, hasError, validateESDSL } from '../../../../utils/validation';
+import { isInvalid, hasError, validateESDSLQuery } from '../../../../utils/validation';
 import FieldLevelSecurity from './FieldLevelSecurity';
 
 const indexPatternNames = (indexPatterns = []) => comboBoxOptionsToArray(indexPatterns).join(', ');
 
 const IndexPatterns = ({
+  httpClient,
   indexPermissions,
   arrayHelpers,
   allActionGroups,
@@ -149,7 +151,8 @@ const IndexPatterns = ({
                 name={`_indexPermissions[${index}]._dls`}
                 formRow
                 formikFieldProps={{
-                  validate: validateESDSL
+                  // TODO: should we validate all indexes? This logic was taken from the old app
+                  validate: validateESDSLQuery(get(indexPermission, 'index_patterns[0].label'), httpClient)
                 }}
                 rowProps={{
                   helpText: elasticsearhQueryDSLText,
@@ -181,6 +184,7 @@ const IndexPatterns = ({
 );
 
 IndexPatterns.propTypes = {
+  httpClient: PropTypes.func.isRequired,
   indexPermissions: PropTypes.array.isRequired,
   arrayHelpers: PropTypes.object.isRequired,
   allActionGroups: PropTypes.array.isRequired,

@@ -38,7 +38,6 @@ import {
 import { TABS, ROLE, ROLE_MAPPING } from './utils/constants';
 import { getAllUiIndexPermissions, getAllUiClusterPermissions } from '../../utils/helpers';
 import { SystemService } from '../../services';
-import { actionGroupsToUiActionGroups } from '../CreateActionGroup/utils';
 
 class CreateRole extends Component {
   constructor(props) {
@@ -195,7 +194,7 @@ class CreateRole extends Component {
   )
 
   render() {
-    const { history, location } = this.props;
+    const { history, location, httpClient } = this.props;
     const {
       isEdit,
       isLoading,
@@ -268,6 +267,7 @@ class CreateRole extends Component {
               }
               {isIndexPermissionsTab &&
                 <IndexPermissions
+                  httpClient={httpClient}
                   indexPermissions={values._indexPermissions}
                   allIndices={allIndices}
                   allActionGroups={allIndexActionGroups}

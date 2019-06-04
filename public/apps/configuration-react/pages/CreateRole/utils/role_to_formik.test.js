@@ -118,7 +118,7 @@ describe('role to UI role ', () => {
 
   test('can build UI DLS if .dls value cannot be parsed', () => {
     const dls = '{ "a" }';
-    const uiDls = '{}';
+    const uiDls = '';
     expect(dlsToUiDls(dls)).toBe(uiDls);
   });
 
@@ -138,7 +138,7 @@ describe('role to UI role ', () => {
 
     const uiResource = {
       _isAdvanced: false,
-      _dls: '{}',
+      _dls: '',
       flsmode: FLS_MODES.WHITELIST,
       index_patterns: [
         { label: 'a' },
@@ -290,7 +290,7 @@ describe('role to UI role ', () => {
             ]
           },
           flsmode: FLS_MODES.WHITELIST,
-          _dls: '{}',
+          _dls: '',
           _isAdvanced: false
         },
         {
@@ -318,7 +318,7 @@ describe('role to UI role ', () => {
             ]
           },
           flsmode: FLS_MODES.BLACKLIST,
-          _dls: '{}',
+          _dls: '',
           _isAdvanced: false
         }
       ],

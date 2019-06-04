@@ -19,7 +19,7 @@ export const uiIndexPermissionsToIndexPermissions = indexPermissions => {
       masked_fields: comboBoxOptionsToArray(values.masked_fields)
     };
 
-    if (!isEmpty(JSON.parse(values._dls))) {
+    if (!isEmpty(values._dls)) {
       result.dls = JSON.stringify(JSON.parse(values._dls));
     }
 

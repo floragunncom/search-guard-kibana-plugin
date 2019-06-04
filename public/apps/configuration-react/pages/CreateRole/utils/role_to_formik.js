@@ -60,16 +60,16 @@ export const flsmodeAndFlsToUiFlsmoddeAndFls = (fls = []) => {
   return { flsmode, fls: _fls };
 };
 
-export const dlsToUiDls = (dls = '{}') => {
-  let _dls = '{}';
-  if (!isEmpty(dls)) {
+export const dlsToUiDls = dlsQuery => {
+  let _dlsQuery = '';
+  if (!isEmpty(dlsQuery)) {
     try {
-      _dls = stringifyPretty(JSON.parse(dls));
+      _dlsQuery = stringifyPretty(JSON.parse(dlsQuery));
     } catch (error) {
       // Keep '{}' if value in .dls cannot be parsed
     }
   }
-  return _dls;
+  return _dlsQuery;
 };
 
 export const indexPermissionToUiIndexPermission = indexPermission =>  {
