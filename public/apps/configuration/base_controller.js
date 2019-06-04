@@ -96,21 +96,24 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
 
     }
 
+    const setApplicationActionGroups = function() {
+        $scope.applicationActionGroups = $scope.actiongroupsAutoComplete.filter(group => group.type == "kibana").map((item) => {
+            return item.name;
+        });
+    };
+
     $scope.loadActionGroups = () => {
         var cachedActionGroups = sessionStorage.getItem("actiongroupsautocomplete");
         var cachedActionGroupNames = sessionStorage.getItem("actiongroupnames");
 
         if (cachedActionGroups) {
             $scope.actiongroupsAutoComplete = JSON.parse(cachedActionGroups);
+            setApplicationActionGroups();
         }
 
         if (cachedActionGroupNames) {
             $scope.actiongroupNames = JSON.parse(cachedActionGroupNames);
         }
-
-        $scope.applicationActionGroups = $scope.actiongroupsAutoComplete.filter(group => group.type == "kibana").map((item) => {
-            return item.name;
-        });
 
         if (cachedActionGroupNames && cachedActionGroups) {
             return;
@@ -122,6 +125,7 @@ app.controller('sgBaseController', function ($scope, $element, $route, $window, 
                 sessionStorage.setItem("actiongroupnames", JSON.stringify($scope.actiongroupNames));
 
                 $scope.actiongroupsAutoComplete = backendActionGroups.listAutocomplete(response.data);
+                setApplicationActionGroups();
                 sessionStorage.setItem("actiongroupsautocomplete", JSON.stringify($scope.actiongroupsAutoComplete));
             }, (error) => {
                 toastNotifications.addDanger({
