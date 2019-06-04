@@ -12,18 +12,20 @@ export default function (kibana) {
     let authenticationBackend;
     let searchGuardConfiguration;
 
-    // TODO RBAC not needed anymore?
-    // /**
-    //  * In some cases we need to pass settings that are not defined in the plugin's config object
-    //  *
-    //  * Access these with server.plugins.searchguard.getSearchguardSettings([key], [defaultValue = null])
-    //  * @type {}
-    //  */
-    // let exposedSettings = {
-    //     rbac: {
-    //         enabled: false
-    //     }
-    // };
+    /**
+     * In some cases we need to pass settings that are not defined in the plugin's config object
+     *
+     * Access these with server.plugins.searchguard.getSearchguardSettings([key], [defaultValue = null])
+     * @type {}
+     */
+    let exposedSettings = {
+        // Add key => value here if needed
+        /*
+        example: {
+            some: 'value'
+        }
+         */
+    };
 
     return new kibana.Plugin({
         name: 'searchguard',
@@ -528,26 +530,6 @@ export default function (kibana) {
                 this.status.green('Search Guard plugin version '+ sgVersion + ' initialised.');
             }
 
-            // TODO RBAC: I think migration is not needed for 7
-            // RBAC Lite
-            // const backend = server.plugins.searchguard.getSearchGuardBackend();
-            // backend.getKibanaInfo(backend.getServerUserAuthHeader())
-            //     .then((response) => {
-            //         if (response.rbac_enabled) {
-            //             exposedSettings.rbac.enabled = response.rbac_enabled;
-            //
-            //             if (response.application_permission_migration_required) {
-            //                 this.status.yellow('Starting RBAC configuration migration');
-            //                 backend.upgradeRolesFormat(backend.getServerUserAuthHeader())
-            //                     .then((response) => {
-            //                         this.status.green('RBAC configuration migrated');
-            //                     });
-            //             }
-            //
-            //             const rbacAppPermissionsClass = require('./lib/rbac/RbacAppPermissions');
-            //             require('./lib/rbac/rbaclite_extension')(pluginRoot, server, new rbacAppPermissionsClass(server, backend));
-            //         }
-            //     });
         }
     });
 };
