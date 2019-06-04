@@ -285,7 +285,12 @@ export default function (kibana) {
                 options.kibana_index = server.config().get('kibana.index');
                 options.kibana_server_user = server.config().get('elasticsearch.username');
                 options.sg_version = sgVersion;
-                options.searchguard = server.config().get('searchguard.rbac.enabled');
+                options.searchguard = {
+                    rbac: {
+                        enabled: (server.config().get('searchguard.rbac.enabled') === true) ? true : false
+                    }
+                };
+
                 return options;
             }
 
