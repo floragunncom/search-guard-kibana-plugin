@@ -356,6 +356,7 @@ class Main extends Component {
                     render={props => (
                       <RoleMappings
                         httpClient={httpClient}
+                        rolesService={rolesService}
                         roleMappingsService={roleMappingsService}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
                         onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}

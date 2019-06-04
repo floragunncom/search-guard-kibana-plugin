@@ -3,11 +3,17 @@ import PropTypes from 'prop-types';
 import {
   EuiButton,
   EuiInMemoryTable,
-  EuiEmptyPrompt
+  EuiEmptyPrompt,
+  EuiSpacer,
+  EuiCallOut
 } from '@elastic/eui';
 import { get } from 'lodash';
 import { ContentPanel, SimpleItemsList, NameCell } from '../../components';
-import { resourcesToUiResources, uiResourceToResource } from './utils';
+import {
+  resourcesToUiResources,
+  uiResourceToResource,
+  getCorrespondingRoles
+} from './utils';
 import { APP_PATH, ROLE_MAPPINGS_ACTIONS } from '../../utils/constants';
 import {
   cancelText,
@@ -18,7 +24,8 @@ import {
   roleMappingsText,
   createRoleMappingText,
   emptyRoleMappingsTableMessageText,
-  noRoleMappingsText
+  noRoleMappingsText,
+  noCorrespondingRoleText
 } from '../../utils/i18n/role_mappings';
 import {
   usersText,
@@ -48,7 +55,11 @@ class RoleMappings extends Component {
     this.setState({ isLoading: true });
     try {
       const { data: resources } = await this.backendService.list();
-      this.setState({ resources: resourcesToUiResources(resources), error: null });
+      const correspondingRoles = await getCorrespondingRoles(resources, this.props.rolesService);
+      this.setState({
+        resources: resourcesToUiResources(resources, correspondingRoles),
+        error: null
+      });
     } catch(error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
@@ -178,6 +189,12 @@ class RoleMappings extends Component {
       }
     ];
 
+    const missingRoleAlert = isCorrespondingRole => (
+      isCorrespondingRole ? null : (
+        <EuiCallOut size="s" iconType="alert" color="danger" title={noCorrespondingRoleText} />
+      )
+    );
+
     const columns = [
       {
         field: '_id',
@@ -189,12 +206,16 @@ class RoleMappings extends Component {
           header: false
         },
         render: (id, resource) => (
-          <NameCell
-            history={history}
-            uri={getResourceEditUri(id)}
-            name={id}
-            resource={resource}
-          />
+          <div>
+            <NameCell
+              history={history}
+              uri={getResourceEditUri(id)}
+              name={id}
+              resource={resource}
+            />
+            <EuiSpacer size="xs" />
+            {missingRoleAlert(resource._isCorrespondingRole)}
+          </div>
         )
       },
       {
@@ -274,6 +295,7 @@ class RoleMappings extends Component {
 RoleMappings.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
+  rolesService: PropTypes.object.isRequired,
   roleMappingsService: PropTypes.object.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired
 };
