@@ -12,7 +12,7 @@ import {
 import { advancedText } from '../../../../utils/i18n/common';
 import {
   indexPatternsText,
-  elasticsearhQueryDSLText,
+  elasticsearhQueryDLSText,
   documentLevelSecurityText,
   fieldLevelSecurityDisabledText,
   documentLevelSecurityDisabledText
@@ -26,7 +26,7 @@ import {
   FormikCodeEditor
 } from '../../../../components';
 import { comboBoxOptionsToArray } from '../../../../utils/helpers';
-import { isInvalid, hasError, validateESDSLQuery } from '../../../../utils/validation';
+import { isInvalid, hasError, validateESDLSQuery } from '../../../../utils/validation';
 import FieldLevelSecurity from './FieldLevelSecurity';
 
 const indexPatternNames = (indexPatterns = []) => comboBoxOptionsToArray(indexPatterns).join(', ');
@@ -152,10 +152,10 @@ const IndexPatterns = ({
                 formRow
                 formikFieldProps={{
                   // TODO: should we validate all indexes? This logic was taken from the old app
-                  validate: validateESDSLQuery(get(indexPermission, 'index_patterns[0].label'), httpClient)
+                  validate: validateESDLSQuery(get(indexPermission, 'index_patterns[0].label'), httpClient)
                 }}
                 rowProps={{
-                  helpText: elasticsearhQueryDSLText,
+                  helpText: elasticsearhQueryDLSText,
                   fullWidth: true,
                   isInvalid,
                   error: hasError,

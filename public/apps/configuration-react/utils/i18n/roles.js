@@ -38,7 +38,7 @@ export const anonymizeFieldsText = (
     default="Anonimize fields. You can replace the fields with anonymized hashes"
   />
 );
-export const elasticsearhQueryDSLText = (<EuiI18n token="sg.roles.elasticsearhQueryDSL.text" default="Elasticsearh query DSL" />);
+export const elasticsearhQueryDLSText = (<EuiI18n token="sg.roles.elasticsearhQueryDLS.text" default="Elasticsearh query DLS" />);
 export const documentLevelSecurityText = (<EuiI18n token="sg.roles.documentLevelSecurity.text" default="Document Level Security" />);
 export const emptyIndexPermissionsText = (
   <EuiI18n

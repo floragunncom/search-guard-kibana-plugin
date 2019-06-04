@@ -54,7 +54,7 @@ export const validateInternalUserName = (internalUsersService, isUpdatingName = 
   }
 };
 
-export const validateESDSLQuery = (index, httpClient) => async (query) => {
+export const validateESDLSQuery = (index, httpClient) => async (query) => {
   if (isEmpty(query)) return;
 
   let _query;
