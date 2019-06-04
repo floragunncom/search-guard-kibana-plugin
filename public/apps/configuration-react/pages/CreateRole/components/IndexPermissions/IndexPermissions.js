@@ -18,6 +18,7 @@ const addIndexPermission = arrayHelpers => {
 };
 
 const IndexPermissions = ({
+  httpClient,
   indexPermissions,
   allActionGroups,
   allSinglePermissions,
@@ -51,6 +52,7 @@ const IndexPermissions = ({
           />
         ) : (
           <IndexPatterns
+            httpClient={httpClient}
             indexPermissions={indexPermissions}
             allActionGroups={allActionGroups}
             allSinglePermissions={allSinglePermissions}
@@ -70,6 +72,7 @@ const IndexPermissions = ({
 );
 
 IndexPermissions.propTypes = {
+  httpClient: PropTypes.func.isRequired,
   indexPermissions: PropTypes.arrayOf(
     PropTypes.shape({
       index_patterns: PropTypes.array.isRequired,

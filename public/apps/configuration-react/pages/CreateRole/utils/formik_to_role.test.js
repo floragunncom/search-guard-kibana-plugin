@@ -28,7 +28,7 @@ describe('UI role to role ', () => {
     const uiResource = [
       {
         _isAdvanced: false,
-        _dls: '{}',
+        _dls: '',
         flsmode: FLS_MODES.WHITELIST,
         index_patterns: [
           { label: 'a' },
@@ -255,7 +255,7 @@ describe('UI role to role ', () => {
             ]
           },
           flsmode: FLS_MODES.WHITELIST,
-          _dls: '{}',
+          _dls: '',
           _isAdvanced: false
         },
         {
@@ -283,7 +283,7 @@ describe('UI role to role ', () => {
             ]
           },
           flsmode: FLS_MODES.BLACKLIST,
-          _dls: '{}',
+          _dls: '',
           _isAdvanced: false
         }
       ],

@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import {
   nameMustNotContainDotsAndAsterisksText,
   passwordsDontMatchText,
@@ -11,6 +11,8 @@ import {
   nameMustNotContainDotsText,
   jsonIsInvalidText
 } from './i18n/common';
+import { dlsQuerySyntaxIsInvalidText } from './i18n/roles';
+import { API } from './constants';
 
 export const validatePassword = passwordConfirmation => password => {
   if (!password) throw requiredText;
@@ -52,10 +54,24 @@ export const validateInternalUserName = (internalUsersService, isUpdatingName = 
   }
 };
 
-export const validateESDSL = dslQuery => {
+export const validateESDSLQuery = (index, httpClient) => async (query) => {
+  if (isEmpty(query)) return;
+
+  let _query;
   try {
-    JSON.parse(dslQuery);
+    _query = JSON.parse(query);
   } catch (error) {
-    throw jsonIsInvalidText;
+    return jsonIsInvalidText;
+  }
+
+  _query = JSON.stringify({ query: _query });
+
+  try {
+    const { data } = await httpClient.post(API.VALIDATE_DLS + `/${encodeURIComponent(index)}`, _query);
+    if (!data.valid) {
+      return dlsQuerySyntaxIsInvalidText;
+    }
+  } catch (error) {
+    throw problemWithValidationTryAgainText;
   }
 };

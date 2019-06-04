@@ -4,7 +4,8 @@ export const API_BASE = '../api/v1';
 export const API = {
   SYSTEM_INFO: `${API_BASE}/systeminfo`,
   LICENSE: `${API_BASE}/license`,
-  INDICES: `${API_BASE}/configuration/indices`
+  INDICES: `${API_BASE}/configuration/indices`,
+  VALIDATE_DLS: `${API_BASE}/configuration/validatedls`
 };
 
 export const APP_PATH = {
@@ -61,10 +62,6 @@ export const SESSION_STORAGE = {
   SG_USER: 'sg_user',
   SYSTEMINFO: 'systeminfo',
   RESTAPIINFO: 'restapiinfo'
-};
-
-export const PERMISSIONS = {
-  GLOBAL_APP: 'multitenancy.tenants.enable_global'
 };
 
 export const MODALS = {
