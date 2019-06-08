@@ -30,13 +30,13 @@ uiModules.get('apps/searchguard/configuration', [])
             return backendAPI.get(RESOURCE, id);
         };
 
-        this.save = (actiongroupname, data) => {
+        this.save = (tenantName, data) => {
             var data = this.preSave(data);
-            return backendAPI.save(RESOURCE, actiongroupname, data);
+            return backendAPI.save(RESOURCE, encodeURIComponent(tenantname), data);
         };
 
         this.delete = (id) => {
-            return backendAPI.delete(RESOURCE, id);
+          return backendAPI.delete(RESOURCE, encodeURIComponent(id));
         };
 
         this.listAutocomplete = (names) => {

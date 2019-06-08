@@ -126,7 +126,7 @@
 
                             <div class="euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--directionRow euiFlexGroup--responsive" data-ng-repeat="indexpermission in resource.index_permissions track by $index">
                                 <div class="euiFlexItem">
-                                    <accordeon title="Index patterns: {{getAccordeonTitle(indexpermission.index_patterns, '(No index patterns configured)')}}" is-collapsed="indexpermission.collapsed" testid="sg.roles.indexpermissions-{{$index}}" additional-class="euiTitle euiTitle--xsmall">
+                                    <accordeon title="Index patterns: {{getAccordeonTitle(indexpermission.index_patterns, '(No index patterns configured)')}}" is-collapsed="indexpermission.collapsed" testid="sg.roles.indexpermissions.{{indexpermission.index_patterns[0]}}" additional-class="euiTitle euiTitle--xsmall">
 
                                         <!-- Delete index permissions -->
                                         <div class="euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--directionRow euiFlexGroup--responsive">
@@ -277,8 +277,8 @@
                                                 <th class="kuiTableHeaderCell tableHeaderCellIndexGroups actions">
                                                     <div class="kuiTableHeaderCell__liner">
                                                         <select class="kuiSelect" name="flsModeSelect" ng-model="indexpermission.flsmode">
-                                                            <option value="whitelist" id="sg.option.roles.fls.whitelist">Include fields</option>
-                                                            <option value="blacklist" id="sg.option.roles.fls.blacklist">Exclude fields</option>
+                                                            <option value="whitelist" id="sg.option.roles.{{indexpermission.index_patterns[0]}}.fls.whitelist">Include fields</option>
+                                                            <option value="blacklist" id="sg.option.roles.{{indexpermission.index_patterns[0]}}.fls.blacklist">Exclude fields</option>
                                                         </select>
                                                     </div>
                                                 </th>
@@ -297,13 +297,13 @@
 
                                             <tr data-ng-repeat="flsfield in indexpermission.fls track by $index">
                                                 <td class="kuiTableRowCell cellAlignTop">
-                                                    <fieldset class="marginbottom--small" id="" >
+                                                    <fieldset class="marginbottom--small">
                                                         <input
                                                                 type="text"
                                                                 class="kuiTextInput fullwidth"
                                                                 ng-model="indexpermission.fls[$index]"
                                                                 name=""
-                                                                id="sg.input.roles.fls.{{indexpermission.fls[$index]}}">
+                                                                id="sg.input.roles.fls.{{indexpermission.index_patterns[0]}}.{{$index}}">
                                                     </fieldset>
                                                 </td>
                                                 <td class="kuiTableRowCell cellAlignTop actions">
@@ -311,7 +311,7 @@
                                                             tooltip="Delete field {{indexpermission.fls[$index]}}"
                                                             ng-click="confirmRemoveArrayEntry(indexpermission.fls, flsfield)"
                                                             class="kuiButton kuiButton--danger kuiButton--iconText"
-                                                            id="sg.button.roles.fls.delete.{{indexpermission.fls[$index]}}">
+                                                            id="sg.button.roles.fls.delete.{{indexpermission.index_patterns[0]}}.{{$index}}">
                                                         <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                                     </a>
                                                 </td>
@@ -324,7 +324,7 @@
                                                             ng-click="addArrayEntry(indexpermission, 'fls', '')"
                                                             ng-disabled="lastArrayEntryEmpty(indexpermission.fls)"
                                                             class="kuiButton kuiButton--primary kuiButton--iconText"
-                                                            id="sg.button.roles.fls.add">
+                                                            id="sg.button.roles.fls.add.{{indexpermission.index_patterns[0]}}">
                                                         <span class="kuiButton__icon kuiIcon fa-plus"></span>
                                                         Add Field
                                                     </button>
@@ -366,13 +366,13 @@
 
                                             <tr data-ng-repeat="maskedfield in indexpermission.masked_fields track by $index">
                                                 <td class="kuiTableRowCell cellAlignTop">
-                                                    <fieldset class="marginbottom--small" id="" >
+                                                    <fieldset class="marginbottom--small" >
                                                         <input
                                                                 type="text"
                                                                 class="kuiTextInput fullwidth"
                                                                 ng-model="indexpermission.masked_fields[$index]"
                                                                 name=""
-                                                                id="sg.input.roles.maskedfields.{{$index}}">
+                                                                id="sg.input.roles.maskedfields.{{indexpermission.index_patterns[0]}}.{{$index}}">
                                                     </fieldset>
                                                 </td>
                                                 <td class="kuiTableRowCell cellAlignTop actions">
@@ -380,7 +380,7 @@
                                                             tooltip="Delete field {{indexpermission.masked_fields[$index]}}"
                                                             ng-click="confirmRemoveArrayEntry(indexpermission.masked_fields, maskedfield)"
                                                             class="kuiButton kuiButton--danger kuiButton--iconText"
-                                                            id="sg.button.roles.maskedfields.delete.{{$index}}">
+                                                            id="sg.button.roles.maskedfields.delete.{{indexpermission.index_patterns[0]}}.{{$index}}">
                                                         <span class="kuiButton__icon kuiIcon fa-trash-o"></span>
                                                     </a>
                                                 </td>
@@ -392,7 +392,7 @@
                                                             ng-click="addArrayEntry(indexpermission, 'masked_fields', '')"
                                                             ng-disabled="lastArrayEntryEmpty(indexpermission.masked_fields)"
                                                             class="kuiButton kuiButton--primary kuiButton--iconText"
-                                                            id="sg.button.roles.maskedfields.add">
+                                                            id="sg.button.roles.maskedfields.add.{{indexpermission.index_patterns[0]}}">
                                                         <span class="kuiButton__icon kuiIcon fa-plus"></span>
                                                         Add Field
                                                     </button>
