@@ -130,6 +130,7 @@ const Home = ({ history, systemstateService, onPurgeCache, purgingCache }) => {
     cards.map((card, i) => (
       <EuiFlexItem key={i} grow={false} className="sgHomeMenu__card">
         <EuiCard
+          data-test-subj={`sgHomeMenu-${card.endpoint.toLowerCase()}`}
           icon={card.icon}
           title={card.title}
           description={card.description}

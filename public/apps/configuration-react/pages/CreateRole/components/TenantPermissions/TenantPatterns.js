@@ -38,6 +38,7 @@ const TenantPatterns = ({
         <EuiFlexGroup key={index}>
           <EuiFlexItem>
             <EuiAccordion
+              data-test-subj={`sgRoleTenantPatternsAccordion-${index}`}
               id={index.toString(2)}
               className="euiAccordionForm"
               buttonClassName="euiAccordionForm__button"

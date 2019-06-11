@@ -49,6 +49,7 @@ const IndexPatterns = ({
     <EuiFlexGroup key={index}>
       <EuiFlexItem>
         <EuiAccordion
+          data-test-subj={`sgRoleIndexPatternsAccordion-${index}`}
           id={index.toString(2)}
           className="euiAccordionForm"
           buttonClassName="euiAccordionForm__button"
@@ -124,7 +125,12 @@ const IndexPatterns = ({
           <EuiSpacer />
 
           {!isFlsEnabled ? (
-            <EuiCallOut className="sgFixedFormItem" iconType="iInCircle" title={fieldLevelSecurityDisabledText} />
+            <EuiCallOut
+              data-test-subj="sgFLSDisabledCallout"
+              className="sgFixedFormItem"
+              iconType="iInCircle"
+              title={fieldLevelSecurityDisabledText}
+            />
           ) : (
             <Fragment>
               <FieldLevelSecurity
@@ -141,7 +147,12 @@ const IndexPatterns = ({
           <EuiSpacer />
 
           {!isDlsEnabled ? (
-            <EuiCallOut className="sgFixedFormItem" iconType="iInCircle" title={documentLevelSecurityDisabledText} />
+            <EuiCallOut
+              data-test-subj="sgDLSDisabledCallout"
+              className="sgFixedFormItem"
+              iconType="iInCircle"
+              title={documentLevelSecurityDisabledText}
+            />
           ) : (
             <Fragment>
               <EuiTitle size="xs"><h4>{documentLevelSecurityText}</h4></EuiTitle>

@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import { EuiButton, EuiFilePicker, EuiSpacer } from '@elastic/eui';
 import { ContentPanel, FormikCodeEditor } from '../../../../components';
+import { CancelButton, SaveButton } from '../../../../components/ContentPanel/components';
 import { APP_PATH } from '../../../../utils/constants';
-import { cancelText, saveText } from '../../../../utils/i18n/common';
 import {
   importText,
   uploadLicenseText,
@@ -82,20 +82,9 @@ class UploadLicense extends Component {
     this.setState({ isLoading: false });
   }
 
-  renderCancelButton = history => (
-    <EuiButton onClick={() => history.push(APP_PATH.SYSTEM_INFO)}>
-      {cancelText}
-    </EuiButton>
-  )
-
-  renderSaveButton = ({ isSubmitting, handleSubmit }) => (
-    <EuiButton isLoading={isSubmitting} iconType="save" fill onClick={handleSubmit}>
-      {saveText}
-    </EuiButton>
-  )
-
   renderImportButton = () => (
     <EuiButton
+      data-test-subj="sgImportLicenseButton"
       iconType="importAction"
       isLoading={this.state.isLoading}
       onClick={() => {
@@ -105,13 +94,20 @@ class UploadLicense extends Component {
           body: (
             <div>
               <EuiFilePicker
+                data-test-subj="sgImportLicenseFlyoutFilePicker"
                 initialPromptText={selectOrDragAndDropLicenseFileText}
                 disabled={this.state.isLoading}
                 onChange={this.setImportedLicenseFile}
                 accept=".txt,.lic"
               />
               <EuiSpacer />
-              <EuiButton size="s" onClick={this.importFile}>{importText}</EuiButton>
+              <EuiButton
+                data-test-subj="sgImportLicenseFlyoutButton"
+                size="s"
+                onClick={this.importFile}
+              >
+                {importText}
+              </EuiButton>
             </div>
           )
         });
@@ -136,8 +132,8 @@ class UploadLicense extends Component {
             <ContentPanel
               title={uploadLicenseText}
               actions={[
-                this.renderCancelButton(history),
-                this.renderSaveButton({ handleSubmit, isSubmitting }),
+                (<CancelButton onClick={() => history.push(APP_PATH.SYSTEM_INFO)} />),
+                (<SaveButton isLoading={isSubmitting} onClick={handleSubmit} />),
                 this.renderImportButton(history)
               ]}
             >

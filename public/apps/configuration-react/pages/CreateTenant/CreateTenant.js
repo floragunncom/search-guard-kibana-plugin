@@ -1,17 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
-import { EuiButton, EuiSpacer } from '@elastic/eui';
+import { EuiSpacer } from '@elastic/eui';
 import queryString from 'query-string';
 import {
-  saveText,
-  cancelText,
-  inspectText,
   nameText,
   descriptionText
 } from '../../utils/i18n/common';
 import { createTenantText, updateTenantText } from '../../utils/i18n/tenants';
-import { ContentPanel, FormikFieldText } from '../../components';
+import { ContentPanel, FormikFieldText, InspectButton } from '../../components';
+import { CancelButton, SaveButton } from '../../components/ContentPanel/components';
 import { APP_PATH, TENANTS_ACTIONS } from '../../utils/constants';
 import { isInvalid, hasError, validateTextField, validateName } from '../../utils/validation';
 import { DEFAULT_TENANT } from './utils/constants';
@@ -77,18 +75,6 @@ class CreateTenant extends Component {
     }
   }
 
-  renderCancelButton = history => (
-    <EuiButton onClick={() => history.push(APP_PATH.TENANTS)}>
-      {cancelText}
-    </EuiButton>
-  )
-
-  renderSaveButton = ({ isSubmitting, handleSubmit }) => (
-    <EuiButton isLoading={isSubmitting} iconType="save" fill onClick={handleSubmit}>
-      {saveText}
-    </EuiButton>
-  )
-
   render() {
     const { history, onTriggerInspectJsonFlyout, location, tenantsService } = this.props;
     const { resource, isLoading } = this.state;
@@ -110,22 +96,18 @@ class CreateTenant extends Component {
               title={titleText}
               isLoading={isLoading}
               actions={[
-                this.renderCancelButton(history),
-                this.renderSaveButton({ handleSubmit, isSubmitting })
+                (<CancelButton onClick={() => history.push(APP_PATH.TENANTS)} />),
+                (<SaveButton isLoading={isSubmitting} onClick={handleSubmit} />)
               ]}
             >
-              <EuiButton
-                size="s"
-                iconType="inspect"
+              <InspectButton
                 onClick={() => {
                   onTriggerInspectJsonFlyout({
                     json: formikToTenant(values),
                     title: titleText
                   });
                 }}
-              >
-                {inspectText}
-              </EuiButton>
+              />
               <EuiSpacer />
 
               <FormikFieldText

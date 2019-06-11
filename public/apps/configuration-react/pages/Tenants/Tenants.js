@@ -6,12 +6,21 @@ import {
   EuiEmptyPrompt
 } from '@elastic/eui';
 import { get } from 'lodash';
-import { ContentPanel, NameCell } from '../../components';
+import {
+  ContentPanel,
+  TableNameCell,
+  TableDeleteAction,
+  TableCloneAction,
+  TableTextCell,
+  TableMultiDeleteButton
+} from '../../components';
+import {
+  CreateButton,
+  CancelButton
+} from '../../components/ContentPanel/components';
 import { resourcesToUiResources, uiResourceToResource } from './utils';
 import { APP_PATH, TENANTS_ACTIONS } from '../../utils/constants';
 import {
-  cancelText,
-  deleteText,
   nameText,
   descriptionText
 } from '../../utils/i18n/common';
@@ -95,22 +104,6 @@ class Tenants extends Component {
     this.fetchData();
   }
 
-  renderCreateResourceButton = history => (
-    <EuiButton
-      onClick={() => history.push(APP_PATH.CREATE_TENANT)}
-    >
-      {createTenantText}
-    </EuiButton>
-  )
-
-  renderCancelButton = history => (
-    <EuiButton
-      onClick={() => history.push(APP_PATH.HOME)}
-    >
-      {cancelText}
-    </EuiButton>
-  )
-
   renderToolsLeft = () => {
     const tableSelection = this.state.tableSelection;
 
@@ -123,17 +116,12 @@ class Tenants extends Component {
       this.setState({ tableSelection: [] });
     };
 
-    const multiDeleteButton = (
-      <EuiButton
-        color="danger"
-        iconType="trash"
+    return (
+      <TableMultiDeleteButton
         onClick={handleMultiDelete}
-      >
-        {deleteText} {tableSelection.length}
-      </EuiButton>
+        numOfSelections={tableSelection.length}
+      />
     );
-
-    return multiDeleteButton;
   }
 
   renderEmptyTableMessage = history => (
@@ -158,19 +146,21 @@ class Tenants extends Component {
 
     const actions = [
       {
-        name: 'Clone',
-        description: 'Clone this tenant',
-        icon: 'copy',
-        type: 'icon',
-        onClick: this.cloneResource
-      }, {
-        name: 'Delete',
-        enabled: resource => !resource.reserved,
-        description: 'Delete this tenant',
-        icon: 'trash',
-        type: 'icon',
-        color: 'danger',
-        onClick: resource => this.handleDeleteResources([resource._id])
+        render: (resource) => (
+          <TableCloneAction
+            name={resource._id}
+            onClick={() => this.cloneResource(resource)}
+          />
+        )
+      },
+      {
+        available: resource => !resource.reserved,
+        render: ({ _id }) => (
+          <TableDeleteAction
+            name={_id}
+            onClick={() => this.handleDeleteResources([_id])}
+          />
+        )
       }
     ];
 
@@ -184,12 +174,12 @@ class Tenants extends Component {
         mobileOptions: {
           header: false
         },
-        render: (id, resource) => (
-          <NameCell
+        render: (id, { reserved }) => (
+          <TableNameCell
             history={history}
             uri={getResourceEditUri(id)}
             name={id}
-            resource={resource}
+            isReserved={reserved}
           />
         )
       },
@@ -200,7 +190,10 @@ class Tenants extends Component {
         align: 'left',
         mobileOptions: {
           header: false
-        }
+        },
+        render: (description, { _id }) => (
+          <TableTextCell name={`Description-${_id}`} value={description} />
+        )
       },
       {
         align: 'right',
@@ -224,8 +217,11 @@ class Tenants extends Component {
       <ContentPanel
         title={tenantsText}
         actions={[
-          this.renderCancelButton(history),
-          this.renderCreateResourceButton(history)
+          (<CancelButton onClick={() => history.push(APP_PATH.HOME)} />),
+          (<CreateButton
+            value={createTenantText}
+            onClick={() => history.push(APP_PATH.CREATE_TENANT)}
+          />)
         ]}
       >
         <EuiInMemoryTable

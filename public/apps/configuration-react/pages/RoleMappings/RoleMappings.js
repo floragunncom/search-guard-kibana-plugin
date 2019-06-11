@@ -8,7 +8,18 @@ import {
   EuiCallOut
 } from '@elastic/eui';
 import { get } from 'lodash';
-import { ContentPanel, SimpleItemsList, NameCell } from '../../components';
+import {
+  ContentPanel,
+  TableItemsListCell,
+  TableNameCell,
+  TableDeleteAction,
+  TableCloneAction,
+  TableMultiDeleteButton
+} from '../../components';
+import {
+  CreateButton,
+  CancelButton
+} from '../../components/ContentPanel/components';
 import {
   resourcesToUiResources,
   uiResourceToResource,
@@ -16,8 +27,6 @@ import {
 } from './utils';
 import { APP_PATH, ROLE_MAPPINGS_ACTIONS } from '../../utils/constants';
 import {
-  cancelText,
-  deleteText,
   nameText
 } from '../../utils/i18n/common';
 import {
@@ -110,22 +119,6 @@ class RoleMappings extends Component {
     this.fetchData();
   }
 
-  renderCreateResourceButton = history => (
-    <EuiButton
-      onClick={() => history.push(APP_PATH.CREATE_ROLE_MAPPING)}
-    >
-      {createRoleMappingText}
-    </EuiButton>
-  )
-
-  renderCancelButton = history => (
-    <EuiButton
-      onClick={() => history.push(APP_PATH.HOME)}
-    >
-      {cancelText}
-    </EuiButton>
-  )
-
   renderToolsLeft = () => {
     const tableSelection = this.state.tableSelection;
 
@@ -138,17 +131,12 @@ class RoleMappings extends Component {
       this.setState({ tableSelection: [] });
     };
 
-    const multiDeleteButton = (
-      <EuiButton
-        color="danger"
-        iconType="trash"
+    return (
+      <TableMultiDeleteButton
         onClick={handleMultiDelete}
-      >
-        {deleteText} {tableSelection.length}
-      </EuiButton>
+        numOfSelections={tableSelection.length}
+      />
     );
-
-    return multiDeleteButton;
   }
 
   renderEmptyTableMessage = history => (
@@ -173,25 +161,33 @@ class RoleMappings extends Component {
 
     const actions = [
       {
-        name: 'Clone',
-        description: 'Clone this role mapping',
-        icon: 'copy',
-        type: 'icon',
-        onClick: this.cloneResource
-      }, {
-        name: 'Delete',
-        enabled: resource => !resource.reserved,
-        description: 'Delete this role mapping',
-        icon: 'trash',
-        type: 'icon',
-        color: 'danger',
-        onClick: resource => this.handleDeleteResources([resource._id])
+        render: (resource) => (
+          <TableCloneAction
+            name={resource._id}
+            onClick={() => this.cloneResource(resource)}
+          />
+        )
+      },
+      {
+        available: resource => !resource.reserved,
+        render: ({ _id }) => (
+          <TableDeleteAction
+            name={_id}
+            onClick={() => this.handleDeleteResources([_id])}
+          />
+        )
       }
     ];
 
-    const missingRoleAlert = isCorrespondingRole => (
-      isCorrespondingRole ? null : (
-        <EuiCallOut size="s" iconType="alert" color="danger" title={noCorrespondingRoleText} />
+    const missingRoleAlert = ({ _isCorrespondingRole, _id }) => (
+      _isCorrespondingRole ? null : (
+        <EuiCallOut
+          size="s"
+          iconType="alert"
+          color="danger"
+          title={noCorrespondingRoleText}
+          data-test-subj={`sgTableColNameMissingRole-${_id}`}
+        />
       )
     );
 
@@ -207,14 +203,14 @@ class RoleMappings extends Component {
         },
         render: (id, resource) => (
           <div>
-            <NameCell
+            <TableNameCell
               history={history}
               uri={getResourceEditUri(id)}
               name={id}
-              resource={resource}
+              isReserved={resource.reserved}
             />
             <EuiSpacer size="xs" />
-            {missingRoleAlert(resource._isCorrespondingRole)}
+            {missingRoleAlert(resource)}
           </div>
         )
       },
@@ -226,7 +222,9 @@ class RoleMappings extends Component {
         mobileOptions: {
           header: false
         },
-        render: items => (<SimpleItemsList items={items} />)
+        render: (items, { _id }) => (
+          <TableItemsListCell name={`Users-${_id}`} items={items} />
+        )
       },
       {
         field: 'backend_roles',
@@ -236,7 +234,9 @@ class RoleMappings extends Component {
         mobileOptions: {
           header: false
         },
-        render: items => (<SimpleItemsList items={items} />)
+        render: (items, { _id }) => (
+          <TableItemsListCell name={`BackendRoles-${_id}`} items={items} />
+        )
       },
       {
         field: 'hosts',
@@ -246,7 +246,9 @@ class RoleMappings extends Component {
         mobileOptions: {
           header: false
         },
-        render: items => (<SimpleItemsList items={items} />)
+        render: (items, { _id }) => (
+          <TableItemsListCell name={`Hosts-${_id}`} items={items} />
+        )
       },
       {
         align: 'right',
@@ -270,8 +272,11 @@ class RoleMappings extends Component {
       <ContentPanel
         title={roleMappingsText}
         actions={[
-          this.renderCancelButton(history),
-          this.renderCreateResourceButton(history)
+          (<CancelButton onClick={() => history.push(APP_PATH.HOME)} />),
+          (<CreateButton
+            value={createRoleMappingText}
+            onClick={() => history.push(APP_PATH.CREATE_ROLE_MAPPING)}
+          />)
         ]}
       >
         <EuiInMemoryTable

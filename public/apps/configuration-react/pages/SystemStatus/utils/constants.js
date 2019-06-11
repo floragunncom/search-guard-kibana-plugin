@@ -1,1 +1,8 @@
-export const SELECTED_SIDE_NAV_ITEM_NAME = 'cluster';
+export const SIDE_NAV = {
+  SYSTEM_STATUS: 'systemStatus',
+  CLUSTER: 'cluster',
+  LICENSE: 'license',
+  ACTIVE_MODULES: 'activeModules'
+};
+
+export const SELECTED_SIDE_NAV_ITEM_NAME = SIDE_NAV.CLUSTER;

@@ -2,13 +2,13 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { FieldArray } from 'formik';
 import { isEmpty } from 'lodash';
-import { EuiButton, EuiSpacer } from '@elastic/eui';
+import { EuiSpacer } from '@elastic/eui';
 import { addText } from '../../../../utils/i18n/common';
 import {
   emptyIndexPermissionsText,
   indexPermissionsText,
 } from '../../../../utils/i18n/roles';
-import { EmptyPrompt } from '../../../../components';
+import { EmptyPrompt, AddButton } from '../../../../components';
 import { indexPermissionToUiIndexPermission } from '../../utils';
 import { INDEX_PERMISSION } from '../../utils/constants';
 import IndexPatterns from './IndexPatterns';
@@ -34,13 +34,7 @@ const IndexPermissions = ({
     name="_indexPermissions"
     render={arrayHelpers => (
       <Fragment>
-        <EuiButton
-          onClick={() => { addIndexPermission(arrayHelpers); }}
-          size="s"
-          iconType="plusInCircle"
-        >
-          {addText}
-        </EuiButton>
+        <AddButton onClick={() => addIndexPermission(arrayHelpers)} />
         <EuiSpacer />
 
         {isEmpty(indexPermissions) ? (

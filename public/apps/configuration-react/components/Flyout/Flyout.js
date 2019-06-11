@@ -29,7 +29,7 @@ const Flyout = ({ flyout, onClose }) => {
   } = flyoutData;
 
   return (
-    <EuiFlyout onClose={onClose} {...flyoutProps}>
+    <EuiFlyout onClose={onClose} {...flyoutProps} className="sgFlyout">
       {header && <EuiFlyoutHeader {...headerProps}>{header}</EuiFlyoutHeader>}
       {body && <EuiFlyoutBody {...bodyProps}>{body}</EuiFlyoutBody>}
       {footer && <EuiFlyoutFooter {...footerProps}>{footer}</EuiFlyoutFooter>}

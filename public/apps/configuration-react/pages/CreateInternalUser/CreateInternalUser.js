@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
-import { EuiButton, EuiSpacer } from '@elastic/eui';
+import { EuiSpacer } from '@elastic/eui';
 import queryString from 'query-string';
-import { saveText, cancelText, inspectText } from '../../utils/i18n/common';
 import { createInternalUserText, updateInternalUserText } from '../../utils/i18n/internal_users';
-import { ContentPanel } from '../../components';
+import { ContentPanel, InspectButton } from '../../components';
+import { CancelButton, SaveButton } from '../../components/ContentPanel/components';
 import { BackendRoles, UserAttributes, UserCredentials } from './components';
 import { APP_PATH, INTERNAL_USERS_ACTIONS } from '../../utils/constants';
 import { DEFAULT_USER } from './utils/constants';
@@ -82,18 +82,6 @@ class CreateInternalUser extends Component {
     }
   }
 
-  renderCancelButton = history => (
-    <EuiButton onClick={() => history.push(APP_PATH.INTERNAL_USERS)}>
-      {cancelText}
-    </EuiButton>
-  )
-
-  renderSaveButton = ({ isSubmitting, handleSubmit }) => (
-    <EuiButton isLoading={isSubmitting} iconType="save" fill onClick={handleSubmit}>
-      {saveText}
-    </EuiButton>
-  )
-
   render() {
     const {
       history,
@@ -123,22 +111,18 @@ class CreateInternalUser extends Component {
               title={titleText}
               isLoading={isLoading}
               actions={[
-                this.renderCancelButton(history),
-                this.renderSaveButton({ handleSubmit, isSubmitting })
+                (<CancelButton onClick={() => history.push(APP_PATH.INTERNAL_USERS)} />),
+                (<SaveButton isLoading={isSubmitting} onClick={handleSubmit} />)
               ]}
             >
-              <EuiButton
-                size="s"
-                iconType="inspect"
+              <InspectButton
                 onClick={() => {
                   onTriggerInspectJsonFlyout({
                     json: formikToUser(values),
                     title: titleText
                   });
                 }}
-              >
-                {inspectText}
-              </EuiButton>
+              />
               <EuiSpacer />
 
               <UserCredentials

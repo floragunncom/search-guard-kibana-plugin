@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import queryString from 'query-string';
 import {
-  EuiButton,
   EuiTabs,
   EuiTab,
   EuiSpacer
 } from '@elastic/eui';
 import { ContentPanel } from '../../components';
+import { CancelButton, SaveButton } from '../../components/ContentPanel/components';
 import {
   createRoleText,
   clusterPermissionsText,
@@ -17,10 +17,6 @@ import {
   updateRoleText,
   overviewText
 } from '../../utils/i18n/roles';
-import {
-  cancelText,
-  saveText
-} from '../../utils/i18n/common';
 import { ROLES_ACTIONS } from '../../utils/constants';
 import {
   Overview,
@@ -171,6 +167,7 @@ class CreateRole extends Component {
 
   renderTabs = () => this.tabs.map((tab, i) => (
     <EuiTab
+      data-test-subj={`sgRoleTab-${tab.id}`}
       key={i}
       isSelected={tab.id === this.state.selectedTabId}
       onClick={() => this.handleSelectedTabChange(tab.id)}
@@ -178,20 +175,6 @@ class CreateRole extends Component {
       {tab.name}
     </EuiTab>
   ))
-
-  renderSaveButton = ({ isSubmitting, handleSubmit }) => (
-    <EuiButton isLoading={isSubmitting} iconType="save" fill onClick={handleSubmit}>
-      {saveText}
-    </EuiButton>
-  )
-
-  renderCancelButton = history => (
-    <EuiButton
-      onClick={() => history.goBack()}
-    >
-      {cancelText}
-    </EuiButton>
-  )
 
   render() {
     const { history, location, httpClient } = this.props;
@@ -237,8 +220,8 @@ class CreateRole extends Component {
               title={titleText}
               isLoading={isLoading}
               actions={[
-                this.renderCancelButton(history),
-                this.renderSaveButton({ handleSubmit, isSubmitting })
+                (<CancelButton onClick={() => history.goBack()} />),
+                (<SaveButton isLoading={isSubmitting} onClick={handleSubmit} />)
               ]}
             >
               <EuiTabs display="condensed">{this.renderTabs()}</EuiTabs>
