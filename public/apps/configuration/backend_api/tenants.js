@@ -32,7 +32,7 @@ uiModules.get('apps/searchguard/configuration', [])
 
         this.save = (tenantName, data) => {
             var data = this.preSave(data);
-            return backendAPI.save(RESOURCE, encodeURIComponent(tenantname), data);
+            return backendAPI.save(RESOURCE, encodeURIComponent(tenantName), data);
         };
 
         this.delete = (id) => {
