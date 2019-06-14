@@ -2,22 +2,22 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import {
-  EuiIcon,
   EuiFlexItem,
   EuiFlexGroup,
   EuiSideNav,
-  EuiButton,
   EuiTextColor,
   EuiFlexGrid,
-  EuiCodeEditor
+  EuiCodeEditor,
+  EuiText
 } from '@elastic/eui';
 import { ContentPanel } from '../../components';
+import { CancelButton } from '../../components/ContentPanel/components';
 import { get, isEmpty, map, forEach, toString } from 'lodash';
 import { APP_PATH } from '../../utils/constants';
-import { stringifyPretty } from '../../utils/helpers';
-import { navigateText, cancelText, disabledText } from '../../utils/i18n/common';
+import { stringifyPretty, sideNavItem } from '../../utils/helpers';
+import { navigateText, disabledText } from '../../utils/i18n/common';
 import * as authI18nLabels from '../../utils/i18n/auth';
-import { SELECTED_SIDE_NAV_ITEM_NAME } from './utils/constants';
+import { SELECTED_SIDE_NAV_ITEM_NAME, SIDE_NAV } from './utils/constants';
 import { resourcesToUiResources } from './utils';
 
 const AuthContent = ({ resource }) => (
@@ -25,11 +25,15 @@ const AuthContent = ({ resource }) => (
     {map(resource, (value, key) => (
       <Fragment key={key}>
         <EuiFlexItem>
-          {authI18nLabels[key]}
+          <EuiText data-test-subj={`sgAuthContentKey-${key}`}>
+            {authI18nLabels[key]}
+          </EuiText>
         </EuiFlexItem>
         <EuiFlexItem>
-          {React.isValidElement(value) ? value : (
-            <pre><code>{toString(value)}</code></pre>
+          {React.isValidElement(value) ? (
+            <div data-test-subj={`sgAuthContentValue-${key}`}>{value}</div>
+          ) : (
+            <EuiText data-test-subj={`sgAuthContentValue-${key}`}>{toString(value)}</EuiText>
           )}
         </EuiFlexItem>
       </Fragment>
@@ -81,16 +85,6 @@ class Auth extends Component {
     this.setState({ selectedSideNavItemName });
   };
 
-  createSideNavItem = (name, navData = {}) => {
-    return {
-      onClick: () => this.selectSideNavItem(name),
-      ...navData,
-      id: name,
-      name: authI18nLabels[name],
-      isSelected: this.state.selectedSideNavItemName === name
-    };
-  };
-
   getSideNavItems = resources => {
     const sideNavItems = [];
     if (isEmpty(resources)) return sideNavItems;
@@ -98,10 +92,19 @@ class Auth extends Component {
     const authcItems = [];
     const authzItems = [];
 
-    forEach(resources, resource => {
-      const navItem = this.createSideNavItem(resource.name, { order: resource.order });
+    forEach(resources, ({ name, order, resourceType }) => {
+      const isCategory = name === SIDE_NAV.AUTHORIZATION || name === SIDE_NAV.AUTHENTICATION;
+      const isActive = this.state.selectedSideNavItemName === name;
+      const navItem = sideNavItem({
+        id: name,
+        text: authI18nLabels[name],
+        navData: { order },
+        isCategory,
+        isActive,
+        onClick: () => this.selectSideNavItem(name)
+      });
 
-      if (resource.resourceType === 'authc') {
+      if (resourceType === 'authc') {
         authcItems.push(navItem);
       } else {
         authzItems.push(navItem);
@@ -109,18 +112,24 @@ class Auth extends Component {
     });
 
     sideNavItems.push(
-      this.createSideNavItem('authentication', {
-        icon: <EuiIcon type="securityAnalyticsApp"/>,
-        items: authcItems.sort((a, b) => a.order - b.order),
-        onClick: () => undefined
+      sideNavItem({
+        id: SIDE_NAV.AUTHENTICATION,
+        text: authI18nLabels[SIDE_NAV.AUTHENTICATION],
+        navData: {
+          items: authcItems.sort((a, b) => a.order - b.order)
+        },
+        isCategory: true
       })
     );
 
     sideNavItems.push(
-      this.createSideNavItem('authorization', {
-        icon: <EuiIcon type="securityApp"/>,
-        items: authzItems.sort((a, b) => a.order - b.order),
-        onClick: () => undefined
+      sideNavItem({
+        id: SIDE_NAV.AUTHORIZATION,
+        text: authI18nLabels[SIDE_NAV.AUTHORIZATION],
+        navData: {
+          items: authzItems.sort((a, b) => a.order - b.order),
+        },
+        isCategory: true
       })
     );
 
@@ -165,12 +174,6 @@ class Auth extends Component {
     />
   )
 
-  renderCancelButton = history => (
-    <EuiButton onClick={() => history.push(APP_PATH.HOME)}>
-      {cancelText}
-    </EuiButton>
-  )
-
   renderPanelTitle = selectedSideNavItemName => {
     const disabled = !isEmpty(this.state.resources) &&
       !this.state.resources[selectedSideNavItemName].transport_enabled;
@@ -178,7 +181,12 @@ class Auth extends Component {
     return (
       <Fragment>
         {authI18nLabels[selectedSideNavItemName]} {disabled &&
-          <EuiTextColor color="danger">{disabledText}</EuiTextColor>
+          <EuiTextColor
+            data-test-subj="sgAuthContentPanelDisabledTag"
+            color="danger"
+          >
+            {disabledText}
+          </EuiTextColor>
         }
       </Fragment>
     );
@@ -206,7 +214,7 @@ class Auth extends Component {
           <ContentPanel
             title={this.renderPanelTitle(selectedSideNavItemName)}
             actions={[
-              this.renderCancelButton(history),
+              (<CancelButton onClick={() => history.push(APP_PATH.HOME)} />)
             ]}
           >
             <AuthContent resource={resource} />

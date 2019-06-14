@@ -10,7 +10,18 @@ import {
   EuiFlexGrid
 } from '@elastic/eui';
 import { get } from 'lodash';
-import { ContentPanel, SimpleItemsList, NameCell } from '../../components';
+import {
+  ContentPanel,
+  TableItemsListCell,
+  TableNameCell,
+  TableDeleteAction,
+  TableCloneAction,
+  TableMultiDeleteButton
+} from '../../components';
+import {
+  CreateButton,
+  CancelButton
+} from '../../components/ContentPanel/components';
 import {
   APP_PATH,
   INTERNAL_USERS_ACTIONS
@@ -23,9 +34,7 @@ import {
   noUsersText
 } from '../../utils/i18n/internal_users';
 import {
-  cancelText,
   nameText,
-  deleteText,
   currentUserText
 } from '../../utils/i18n/common';
 import { resourcesToUiResources, uiResourceToResource } from './utils';
@@ -106,22 +115,6 @@ class InternalUsers extends Component {
     this.fetchData();
   }
 
-  renderCreateResourceButton = history => (
-    <EuiButton
-      onClick={() => history.push(APP_PATH.CREATE_INTERNAL_USER)}
-    >
-      {createInternalUserText}
-    </EuiButton>
-  )
-
-  renderCancelButton = history => (
-    <EuiButton
-      onClick={() => history.push(APP_PATH.HOME)}
-    >
-      {cancelText}
-    </EuiButton>
-  )
-
   renderToolsLeft = () => {
     const tableSelection = this.state.tableSelection;
 
@@ -134,17 +127,12 @@ class InternalUsers extends Component {
       this.setState({ tableSelection: [] });
     };
 
-    const multiDeleteButton = (
-      <EuiButton
-        color="danger"
-        iconType="trash"
+    return (
+      <TableMultiDeleteButton
         onClick={handleMultiDelete}
-      >
-        {deleteText} {tableSelection.length}
-      </EuiButton>
+        numOfSelections={tableSelection.length}
+      />
     );
-
-    return multiDeleteButton;
   }
 
   renderEmptyTableMessage = history => (
@@ -166,7 +154,12 @@ class InternalUsers extends Component {
     const { user_name: currentResource } = BrowserStorageService.restApiInfo();
     return (
       name === currentResource && (
-        <EuiFlexGrid columns={2} gutterSize="s" responsive={false}>
+        <EuiFlexGrid
+          columns={2}
+          gutterSize="s"
+          responsive={false}
+          data-test-subj={`sgTableColNameCurrentUser-${name}`}
+        >
           <EuiFlexItem grow={false}>
             <EuiIcon type="user"/>
           </EuiFlexItem>
@@ -185,19 +178,21 @@ class InternalUsers extends Component {
 
     const actions = [
       {
-        name: 'Clone',
-        description: 'Clone this user',
-        icon: 'copy',
-        type: 'icon',
-        onClick: this.cloneResource
-      }, {
-        name: 'Delete',
-        enabled: resource => !resource.reserved,
-        description: 'Delete this resource',
-        icon: 'trash',
-        type: 'icon',
-        color: 'danger',
-        onClick: resource => this.handleDeleteResources([resource._id])
+        render: (resource) => (
+          <TableCloneAction
+            name={resource._id}
+            onClick={() => this.cloneResource(resource)}
+          />
+        )
+      },
+      {
+        available: resource => !resource.reserved,
+        render: ({ _id }) => (
+          <TableDeleteAction
+            name={_id}
+            onClick={() => this.handleDeleteResources([_id])}
+          />
+        )
       }
     ];
 
@@ -211,12 +206,12 @@ class InternalUsers extends Component {
         mobileOptions: {
           header: false
         },
-        render: (id, resource) => (
-          <NameCell
+        render: (id, { reserved }) => (
+          <TableNameCell
             history={history}
             uri={getResourceEditUri(id)}
             name={id}
-            resource={resource}
+            isReserved={reserved}
             children={this.renderActiveUser(id)}
           />
         )
@@ -229,7 +224,9 @@ class InternalUsers extends Component {
         mobileOptions: {
           header: false
         },
-        render: items => (<SimpleItemsList items={items} />)
+        render: (items, { _id }) => (
+          <TableItemsListCell items={items} name={`BackendRoles-${_id}`} />
+        )
       },
       {
         align: 'right',
@@ -253,8 +250,11 @@ class InternalUsers extends Component {
       <ContentPanel
         title={internalUsersText}
         actions={[
-          this.renderCancelButton(history),
-          this.renderCreateResourceButton(history)
+          (<CancelButton onClick={() => history.push(APP_PATH.HOME)} />),
+          (<CreateButton
+            value={createInternalUserText}
+            onClick={() => history.push(APP_PATH.CREATE_INTERNAL_USER)}
+          />)
         ]}
       >
         <EuiInMemoryTable

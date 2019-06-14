@@ -1,12 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
-import { EuiButton, EuiSpacer } from '@elastic/eui';
+import { EuiSpacer } from '@elastic/eui';
 import queryString from 'query-string';
 import {
-  saveText,
-  cancelText,
-  inspectText,
   nameText,
   advancedText,
   typeText
@@ -22,8 +19,10 @@ import {
   FormikFieldText,
   FormikComboBox,
   FormikSwitch,
-  FormikSelect
+  FormikSelect,
+  InspectButton
 } from '../../components';
+import { CancelButton, SaveButton } from '../../components/ContentPanel/components';
 import { APP_PATH, ACTION_GROUPS_ACTIONS } from '../../utils/constants';
 import { isInvalid, hasError, validateName } from '../../utils/validation';
 import { DEFAULT_ACTION_GROUP, TYPES } from './utils/constants';
@@ -97,18 +96,6 @@ class CreateActionGroup extends Component {
     }
   }
 
-  renderCancelButton = history => (
-    <EuiButton onClick={() => history.push(APP_PATH.ACTION_GROUPS)}>
-      {cancelText}
-    </EuiButton>
-  )
-
-  renderSaveButton = ({ isSubmitting, handleSubmit }) => (
-    <EuiButton isLoading={isSubmitting} iconType="save" fill onClick={handleSubmit}>
-      {saveText}
-    </EuiButton>
-  )
-
   render() {
     const {
       history,
@@ -137,22 +124,18 @@ class CreateActionGroup extends Component {
               title={titleText}
               isLoading={isLoading}
               actions={[
-                this.renderCancelButton(history),
-                this.renderSaveButton({ handleSubmit, isSubmitting })
+                (<CancelButton onClick={() => history.push(APP_PATH.ACTION_GROUPS)} />),
+                (<SaveButton isLoading={isSubmitting} onClick={handleSubmit} />)
               ]}
             >
-              <EuiButton
-                size="s"
-                iconType="inspect"
+              <InspectButton
                 onClick={() => {
                   onTriggerInspectJsonFlyout({
                     json: formikToActionGroup(values),
                     title: titleText
                   });
                 }}
-              >
-                {inspectText}
-              </EuiButton>
+              />
               <EuiSpacer />
 
               <FormikFieldText

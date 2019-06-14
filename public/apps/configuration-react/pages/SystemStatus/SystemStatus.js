@@ -1,7 +1,7 @@
 /* eslint import/namespace: ['error', { allowComputed: true }] */
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { get, map, toString } from 'lodash';
+import { get, map, toString, filter } from 'lodash';
 import queryString from 'query-string';
 import {
   EuiIcon,
@@ -16,14 +16,16 @@ import {
 import { ContentPanel } from '../../components';
 import { SystemService } from '../../services';
 import { UploadLicense } from './components';
-import { SELECTED_SIDE_NAV_ITEM_NAME } from './utils/constants';
+import { CancelButton } from '../../components/ContentPanel/components';
+import { SELECTED_SIDE_NAV_ITEM_NAME, SIDE_NAV } from './utils/constants';
 import { navigateText, cancelText } from '../../utils/i18n/common';
 import * as systemStatusI18nLabels from '../../utils/i18n/system_status';
 import { APP_PATH, SYSTEM_STATUS_ACTIONS } from '../../utils/constants';
 import { getResource } from './utils';
+import { sideNavItem } from '../../utils/helpers';
 
 const SystemStatusContent = ({ resource, sideNavItemName }) => {
-  const isActiveModulesSection = sideNavItemName === 'activeModules';
+  const isActiveModulesSection = sideNavItemName === SIDE_NAV.ACTIVE_MODULES;
   return (
     <Fragment>
       <EuiFlexGrid columns={2} className="sgFixedFormGroupItem">
@@ -31,16 +33,20 @@ const SystemStatusContent = ({ resource, sideNavItemName }) => {
           return !isActiveModulesSection ? (
             <Fragment key={key}>
               <EuiFlexItem>
-                {systemStatusI18nLabels[key]}
+                <EuiText data-test-subj={`sgSystemStatusContentKey-${key}`}>
+                  {systemStatusI18nLabels[key]}
+                </EuiText>
               </EuiFlexItem>
               <EuiFlexItem>
-                {React.isValidElement(value) ? value : (
-                  <pre><code>{toString(value)}</code></pre>
+                {React.isValidElement(value) ? (
+                  <div data-test-subj={`sgSystemStatusContentValue-${key}`}>{value}</div>
+                ) : (
+                  <EuiText data-test-subj={`sgSystemStatusContentValue-${key}`}>{toString(value)}</EuiText>
                 )}
               </EuiFlexItem>
             </Fragment>
           ) : (
-            <EuiSpacer size="m" />
+            <EuiSpacer key={key} size="m" />
           );
         })}
       </EuiFlexGrid>
@@ -61,13 +67,19 @@ const SystemStatusContent = ({ resource, sideNavItemName }) => {
           return isActiveModulesSection && (
             <Fragment key={key}>
               <EuiFlexItem>
-                {systemStatusI18nLabels[key]}
+                <EuiText data-test-subj={`sgSystemStatusContentActiveModulesName-${key}`}>
+                  {systemStatusI18nLabels[key]}
+                </EuiText>
               </EuiFlexItem>
               <EuiFlexItem>
-                {value.version}
+                <EuiText data-test-subj={`sgSystemStatusContentActiveModulesVersion-${key}`}>
+                  {value.version}
+                </EuiText>
               </EuiFlexItem>
               <EuiFlexItem>
-                {value.is_enterprise.toString()}
+                <EuiText data-test-subj={`sgSystemStatusContentActiveModulesIsEnterprise-${key}`}>
+                  {value.is_enterprise.toString()}
+                </EuiText>
               </EuiFlexItem>
             </Fragment>
           );
@@ -117,36 +129,28 @@ class SystemStatus extends Component {
     this.setState({ selectedSideNavItemName });
   };
 
-  createSideNavItem = (name, navData = {}) => {
-    return {
-      onClick: () => this.selectSideNavItem(name),
-      ...navData,
-      id: name,
-      name: systemStatusI18nLabels[name],
-      isSelected: this.state.selectedSideNavItemName === name
-    };
-  };
-
   getSideNavItems = () => {
+    const items = filter(SIDE_NAV, e => e !== SIDE_NAV.SYSTEM_STATUS)
+      .map(name => sideNavItem({
+        id: name,
+        onClick: () => this.selectSideNavItem(name),
+        text: systemStatusI18nLabels[name],
+        isActive: this.state.selectedSideNavItemName === name
+      }));
+
     return [
-      this.createSideNavItem('systemStatus', {
-        icon: <EuiIcon type="gear"/>,
-        items: ['cluster', 'license', 'activeModules'].map(item => {
-          return this.createSideNavItem(item);
-        }),
-        onClick: () => undefined
+      sideNavItem({
+        id: SIDE_NAV.SYSTEM_STATUS,
+        text: systemStatusI18nLabels[SIDE_NAV.SYSTEM_STATUS],
+        navData: { items },
+        isCategory: true
       })
     ];
   }
 
-  renderCancelButton = history => (
-    <EuiButton onClick={() => history.push(APP_PATH.HOME)}>
-      {cancelText}
-    </EuiButton>
-  )
-
   renderUploadLicenseButton = (history, location) => (
     <EuiButton
+      data-test-subj="sgUploadLicenseButton"
       onClick={() => {
         this.props.history.push({
           ...location,
@@ -187,7 +191,7 @@ class SystemStatus extends Component {
           <ContentPanel
             title={systemStatusI18nLabels[selectedSideNavItemName]}
             actions={[
-              this.renderCancelButton(history),
+              (<CancelButton onClick={() => history.goBack()} />),
               this.renderUploadLicenseButton(history, location)
             ]}
           >

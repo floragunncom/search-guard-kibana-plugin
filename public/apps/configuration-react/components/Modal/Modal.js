@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { EuiOverlayMask, EuiConfirmModal } from '@elastic/eui';
+import { EuiOverlayMask, EuiConfirmModal, EuiText } from '@elastic/eui';
 import Modals from './modals';
 
 const getModalProps = ({ type, payload }) => {
@@ -26,6 +26,7 @@ const Modal = ({ modal, onClose }) => {
   return (
     <EuiOverlayMask>
       <EuiConfirmModal
+        className="sgConfirmModal"
         title={title}
         onCancel={onCancel ? onCancel : onClose}
         onConfirm={onConfirm}
@@ -33,7 +34,7 @@ const Modal = ({ modal, onClose }) => {
         confirmButtonText={confirmButtonText}
         {...modalProps}
       >
-        {body}
+        <EuiText className="sgConfirmModalBody" data-test-subj="sgConfirmModalBody">{body}</EuiText>
       </EuiConfirmModal>
     </EuiOverlayMask>
   );

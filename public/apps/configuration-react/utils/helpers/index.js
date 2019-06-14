@@ -1,6 +1,8 @@
-import BrowserStorageService from '../services/BrowserStorageService';
-import { INDEX_PERMISSIONS, CLUSTER_PERMISSIONS } from './constants';
+import BrowserStorageService from '../../services/BrowserStorageService';
+import { INDEX_PERMISSIONS, CLUSTER_PERMISSIONS } from '../constants';
 import { get, reduce, sortBy, uniqBy, forEach, map } from 'lodash';
+
+export { default as sideNavItem } from './sideNavItem';
 
 export const stringifyPretty = json => JSON.stringify(json, null, 2);
 

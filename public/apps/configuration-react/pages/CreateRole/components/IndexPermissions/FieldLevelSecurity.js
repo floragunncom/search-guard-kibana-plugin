@@ -89,7 +89,12 @@ const FieldLevelSecurity = ({
 
       <EuiFlexItem>
         {!isAnonymizedFieldsEnabled ? (
-          <EuiCallOut className="sgFixedFormItem" iconType="iInCircle" title={anonymizedFieldsDisabledText} />
+          <EuiCallOut
+            data-test-subj="sgAnonymFieldsDisabledCallout"
+            className="sgFixedFormItem"
+            iconType="iInCircle"
+            title={anonymizedFieldsDisabledText}
+          />
         ) : (
           <FormikComboBox
             name={`_indexPermissions[${index}].masked_fields`}

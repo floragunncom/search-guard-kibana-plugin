@@ -6,12 +6,21 @@ import {
   EuiEmptyPrompt
 } from '@elastic/eui';
 import { get } from 'lodash';
-import { ContentPanel, SimpleItemsList, NameCell } from '../../components';
+import {
+  ContentPanel,
+  TableItemsListCell,
+  TableNameCell,
+  TableDeleteAction,
+  TableCloneAction,
+  TableMultiDeleteButton
+} from '../../components';
+import {
+  CreateButton,
+  CancelButton
+} from '../../components/ContentPanel/components';
 import { resourcesToUiResources, uiResourceToResource } from './utils';
 import { APP_PATH, ROLES_ACTIONS } from '../../utils/constants';
 import {
-  cancelText,
-  deleteText,
   nameText
 } from '../../utils/i18n/common';
 import {
@@ -96,22 +105,6 @@ class Roles extends Component {
     this.fetchData();
   }
 
-  renderCreateRoleButton = history => (
-    <EuiButton
-      onClick={() => history.push(APP_PATH.CREATE_ROLE)}
-    >
-      {createRoleText}
-    </EuiButton>
-  )
-
-  renderCancelButton = history => (
-    <EuiButton
-      onClick={() => history.push(APP_PATH.HOME)}
-    >
-      {cancelText}
-    </EuiButton>
-  )
-
   renderToolsLeft = () => {
     const tableSelection = this.state.tableSelection;
 
@@ -124,17 +117,12 @@ class Roles extends Component {
       this.setState({ tableSelection: [] });
     };
 
-    const multiDeleteButton = (
-      <EuiButton
-        color="danger"
-        iconType="trash"
+    return (
+      <TableMultiDeleteButton
         onClick={handleMultiDelete}
-      >
-        {deleteText} {tableSelection.length}
-      </EuiButton>
+        numOfSelections={tableSelection.length}
+      />
     );
-
-    return multiDeleteButton;
   }
 
   renderEmptyTableMessage = history => (
@@ -159,19 +147,21 @@ class Roles extends Component {
 
     const actions = [
       {
-        name: 'Clone',
-        description: 'Clone this role',
-        icon: 'copy',
-        type: 'icon',
-        onClick: this.cloneResource
-      }, {
-        name: 'Delete',
-        enabled: resource => !resource.reserved,
-        description: 'Delete this role',
-        icon: 'trash',
-        type: 'icon',
-        color: 'danger',
-        onClick: resource => this.handleDeleteResources([resource._id])
+        render: (resource) => (
+          <TableCloneAction
+            name={resource._id}
+            onClick={() => this.cloneResource(resource)}
+          />
+        )
+      },
+      {
+        available: resource => !resource.reserved,
+        render: ({ _id }) => (
+          <TableDeleteAction
+            name={_id}
+            onClick={() => this.handleDeleteResources([_id])}
+          />
+        )
       }
     ];
 
@@ -185,12 +175,12 @@ class Roles extends Component {
         mobileOptions: {
           header: false
         },
-        render: (id, resource) => (
-          <NameCell
+        render: (id, { reserved }) => (
+          <TableNameCell
             history={history}
             uri={getResourceEditUri(id)}
             name={id}
-            resource={resource}
+            isReserved={reserved}
           />
         )
       },
@@ -202,7 +192,9 @@ class Roles extends Component {
         mobileOptions: {
           header: false
         },
-        render: items => (<SimpleItemsList items={items} />)
+        render: (items, { _id }) => (
+          <TableItemsListCell name={`ClusterPermissions-${_id}`} items={items} />
+        )
       },
       {
         field: '_indexPatterns',
@@ -212,7 +204,9 @@ class Roles extends Component {
         mobileOptions: {
           header: false
         },
-        render: items => (<SimpleItemsList items={items} />)
+        render: (items, { _id }) => (
+          <TableItemsListCell name={`IndexPatterns-${_id}`} items={items} />
+        )
       },
       {
         field: '_tenantPatterns',
@@ -222,7 +216,9 @@ class Roles extends Component {
         mobileOptions: {
           header: false
         },
-        render: items => (<SimpleItemsList items={items} />)
+        render: (items, { _id }) => (
+          <TableItemsListCell name={`TenantPatterns-${_id}`} items={items} />
+        )
       },
       {
         align: 'right',
@@ -242,13 +238,15 @@ class Roles extends Component {
       }
     };
 
-
     return (
       <ContentPanel
         title={rolesText}
         actions={[
-          this.renderCancelButton(history),
-          this.renderCreateRoleButton(history)
+          (<CancelButton onClick={() => history.push(APP_PATH.HOME)} />),
+          (<CreateButton
+            value={createRoleText}
+            onClick={() => history.push(APP_PATH.CREATE_ROLE)}
+          />)
         ]}
       >
         <EuiInMemoryTable

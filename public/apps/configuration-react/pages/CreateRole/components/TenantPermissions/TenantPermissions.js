@@ -4,10 +4,9 @@ import { FieldArray } from 'formik';
 import { isEmpty } from 'lodash';
 import {
   EuiSpacer,
-  EuiButton,
   EuiCallOut
 } from '@elastic/eui';
-import { EmptyPrompt } from '../../../../components';
+import { EmptyPrompt, AddButton } from '../../../../components';
 import { addText } from '../../../../utils/i18n/common';
 import {
   emptyTenantPermissionsText,
@@ -38,7 +37,12 @@ const TenantPermissions = ({
   <Fragment>
     {!isMultiTenancyEnabled && (
       <Fragment>
-        <EuiCallOut className="sgFixedFormItem" iconType="iInCircle" title={multiTenancyDisabledText} />
+        <EuiCallOut
+          data-test-subj="sgMultiTenancyDisabled"
+          className="sgFixedFormItem"
+          iconType="iInCircle"
+          title={multiTenancyDisabledText}
+        />
         <EuiSpacer />
       </Fragment>
     )}
@@ -46,13 +50,7 @@ const TenantPermissions = ({
       name="_tenantPermissions"
       render={arrayHelpers => (
         <Fragment>
-          <EuiButton
-            onClick={() => addTenantPermission(arrayHelpers, isMultiTenancyEnabled)}
-            size="s"
-            iconType="plusInCircle"
-          >
-            {addText}
-          </EuiButton>
+          <AddButton onClick={() => addTenantPermission(arrayHelpers, isMultiTenancyEnabled)} />
           <EuiSpacer />
 
           {isEmpty(tenantPermissions) ? (

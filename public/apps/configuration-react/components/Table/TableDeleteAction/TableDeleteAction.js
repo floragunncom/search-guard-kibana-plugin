@@ -1,0 +1,20 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+import { EuiButtonIcon } from '@elastic/eui';
+
+const TableDeleteAction = ({ onClick, name }) => (
+  <EuiButtonIcon
+    data-test-subj={`sgTableActionDelete-${name}`}
+    onClick={onClick}
+    color="danger"
+    iconType="trash"
+    aria-label="Delete"
+  />
+);
+
+TableDeleteAction.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  name: PropTypes.string.isRequired
+};
+
+export default TableDeleteAction;

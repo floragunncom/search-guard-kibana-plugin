@@ -19,8 +19,12 @@ export { default as FormikSelect } from './FormControls/FormikSelect';
 export { default as FormikRadio } from './FormControls/FormikRadio';
 
 // Table
-export { default as NameCell } from './Table/NameCell';
-export { default as SimpleItemsList } from './Table/SimpleItemsList';
+export { default as TableNameCell } from './Table/TableNameCell';
+export { default as TableItemsListCell } from './Table/TableItemsListCell';
+export { default as TableDeleteAction } from './Table/TableDeleteAction';
+export { default as TableCloneAction } from './Table/TableCloneAction';
+export { default as TableTextCell } from './Table/TableTextCell';
+export { default as TableMultiDeleteButton } from './Table/TableMultiDeleteButton';
 
 // Accordion
 export { default as AccordionButtonContent } from './Accordion/AccordionButtonContent';
@@ -28,3 +32,5 @@ export { default as AccordionDeleteButton } from './Accordion/AccordionDeleteBut
 
 // Page
 export { default as LoadingPage } from './Page/LoadingPage';
+export { default as InspectButton } from './Page/InspectButton';
+export { default as AddButton } from './Page/AddButton';

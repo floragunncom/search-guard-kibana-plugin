@@ -4,6 +4,7 @@ import { EuiButtonIcon } from '@elastic/eui';
 
 const AccordionDeleteButton = ({ onClick }) => (
   <EuiButtonIcon
+    data-test-subj="sgAccordionDeleteButton"
     iconType="cross"
     color="danger"
     className="euiAccordionForm__extraAction"

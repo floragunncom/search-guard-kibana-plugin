@@ -28,13 +28,17 @@ const renderValues = ({
   items.map((item, index) => (
     <EuiFlexItem key={`${name}.${index}.key`} className="sgDynamicValuesForm__item">
       <EuiFlexGroup alignItems="center">
-        { isKey ?
-          <EuiFlexItem>{onRenderKeyField(`${name}.${index}.key`, index)}</EuiFlexItem>
-          : null
-        }
-        <EuiFlexItem>{onRenderValueField(`${name}.${index}.value`, index)}</EuiFlexItem>
+        { isKey ? (
+          <EuiFlexItem>
+            {onRenderKeyField(`${name}.${index}.key`, index)}
+          </EuiFlexItem>
+        ) : null}
+        <EuiFlexItem>
+          {onRenderValueField(`${name}.${index}.value`, index)}
+        </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiButton
+            data-test-subj={`sgDynamicValuesFormRemoveButton-${index}`}
             size={removeButtonSize}
             fill
             color="danger"
@@ -57,7 +61,12 @@ const renderEmpty = ({ emptyText, emptyTextSize }) => (
 
 const renderAddButton = ({ addButtonText, onAdd, addButtonSize }) => (
   <EuiFlexItem>
-    <EuiButton size={addButtonSize} onClick={onAdd} iconType="plusInCircle">
+    <EuiButton
+      data-test-subj="sgDynamicValuesFormAddButton"
+      size={addButtonSize}
+      onClick={onAdd}
+      iconType="plusInCircle"
+    >
       {addButtonText}
     </EuiButton>
   </EuiFlexItem>

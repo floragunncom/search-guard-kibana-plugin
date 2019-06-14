@@ -1,13 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
-import { EuiButton, EuiSpacer, EuiLink } from '@elastic/eui';
+import { EuiSpacer, EuiLink } from '@elastic/eui';
 import queryString from 'query-string';
-import {
-  saveText,
-  cancelText,
-  inspectText
-} from '../../utils/i18n/common';
 import {
   createRoleMappingText,
   updateRoleMappingText,
@@ -20,7 +15,8 @@ import {
   hostsText,
   createRoleText
 } from '../../utils/i18n/roles';
-import { ContentPanel, FormikComboBox } from '../../components';
+import { ContentPanel, FormikComboBox, InspectButton } from '../../components';
+import { CancelButton, SaveButton } from '../../components/ContentPanel/components';
 import { APP_PATH, ROLE_MAPPINGS_ACTIONS } from '../../utils/constants';
 import { DEFAULT_ROLE_MAPPING } from './utils/constants';
 import {
@@ -108,22 +104,11 @@ class CreateRoleMapping extends Component {
     }
   }
 
-  renderCancelButton = history => (
-    <EuiButton onClick={() => history.push(APP_PATH.ROLE_MAPPINGS)}>
-      {cancelText}
-    </EuiButton>
-  )
-
-  renderSaveButton = ({ isSubmitting, handleSubmit }) => (
-    <EuiButton isLoading={isSubmitting} iconType="save" fill onClick={handleSubmit}>
-      {saveText}
-    </EuiButton>
-  )
-
   renderRoleHelpText = history => (
     <Fragment>
       {roleHelpText}{' '}
       <EuiLink
+        data-test-subj="sgCreateRole"
         onClick={() => history.push(APP_PATH.CREATE_ROLE)}
       >
         {createRoleText}
@@ -163,22 +148,18 @@ class CreateRoleMapping extends Component {
               title={titleText}
               isLoading={isLoading}
               actions={[
-                this.renderCancelButton(history),
-                this.renderSaveButton({ handleSubmit, isSubmitting })
+                (<CancelButton onClick={() => history.push(APP_PATH.ROLE_MAPPINGS)} />),
+                (<SaveButton isLoading={isSubmitting} onClick={handleSubmit} />)
               ]}
             >
-              <EuiButton
-                size="s"
-                iconType="inspect"
+              <InspectButton
                 onClick={() => {
                   onTriggerInspectJsonFlyout({
                     json: formikToRoleMapping(values),
                     title: titleText
                   });
                 }}
-              >
-                {inspectText}
-              </EuiButton>
+              />
               <EuiSpacer />
 
               <FormikComboBox
