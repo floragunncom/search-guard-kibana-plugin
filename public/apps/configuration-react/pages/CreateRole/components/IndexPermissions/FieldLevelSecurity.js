@@ -81,7 +81,7 @@ const FieldLevelSecurity = ({
           elementProps={{
             isClearable: true,
             onBlur: onComboBoxOnBlur,
-            onChange: onComboBoxChange,
+            onChange: onComboBoxChange(),
             onCreateOption: onComboBoxCreateOption
           }}
         />
@@ -105,7 +105,7 @@ const FieldLevelSecurity = ({
             elementProps={{
               isClearable: true,
               onBlur: onComboBoxOnBlur,
-              onChange: onComboBoxChange,
+              onChange: onComboBoxChange(),
               onCreateOption: onComboBoxCreateOption
             }}
           />

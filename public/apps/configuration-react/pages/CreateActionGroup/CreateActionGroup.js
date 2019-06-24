@@ -173,7 +173,7 @@ class CreateActionGroup extends Component {
                   options: allActionGroups,
                   isClearable: true,
                   onBlur: onComboBoxOnBlur,
-                  onChange: onComboBoxChange
+                  onChange: onComboBoxChange()
                 }}
               />
               <FormikSwitch
@@ -194,7 +194,7 @@ class CreateActionGroup extends Component {
                     options: allSinglePermissions,
                     isClearable: true,
                     onBlur: onComboBoxOnBlur,
-                    onChange: onComboBoxChange
+                    onChange: onComboBoxChange()
                   }}
                 />
               }

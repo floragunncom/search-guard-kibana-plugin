@@ -65,7 +65,7 @@ const TenantPatterns = ({
                       isClearable: true,
                       options: isMultiTenancyEnabled ? allTenants : [{ label: GLOBAL_TENANT }],
                       onBlur: onComboBoxOnBlur,
-                      onChange: onComboBoxChange,
+                      onChange: onComboBoxChange(),
                       onCreateOption: (label, field, form) => {
                         if (isMultiTenancyEnabled) {
                           onComboBoxCreateOption(label, field, form);
@@ -86,7 +86,7 @@ const TenantPatterns = ({
                       options: allAppActionGroups,
                       isClearable: true,
                       onBlur: onComboBoxOnBlur,
-                      onChange: onComboBoxChange
+                      onChange: onComboBoxChange()
                     }}
                   />
                 </EuiFlexItem>

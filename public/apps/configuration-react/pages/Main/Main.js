@@ -150,7 +150,19 @@ class Main extends Component {
     this.setState({ purgingCache: false });
   }
 
-  handleComboBoxChange = (options, field, form) => {
+  handleComboBoxChange = validationFn => (options, field, form) => {
+    const isValidationRequired = validationFn instanceof Function;
+    if (isValidationRequired) {
+      const error = validationFn(options);
+      if (error instanceof Promise) {
+        error
+          .then(_error => { throw _error; })
+          .catch(_error => form.setFieldError(field.name, _error));
+      } else {
+        form.setFieldError(field.name, error);
+      }
+    }
+
     const isDeleting = options.length < field.value.length;
     if (isDeleting) {
       const optionToDelete = comboBoxOptionsToArray(differenceBy(field.value, options, 'label')).join(', ');

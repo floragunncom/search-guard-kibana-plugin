@@ -19,7 +19,7 @@ const BackendRoles = ({
       options: allRoles,
       isClearable: true,
       onBlur: onComboBoxOnBlur,
-      onChange: onComboBoxChange,
+      onChange: onComboBoxChange(),
       onCreateOption: onComboBoxCreateOption
     }}
   />

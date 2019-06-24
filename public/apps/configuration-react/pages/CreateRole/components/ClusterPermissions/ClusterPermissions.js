@@ -22,7 +22,7 @@ const ClusterPermissions = ({
         options: allActionGroups,
         isClearable: true,
         onBlur: onComboBoxOnBlur,
-        onChange: onComboBoxChange
+        onChange: onComboBoxChange()
       }}
     />
     <FormikSwitch
@@ -43,7 +43,7 @@ const ClusterPermissions = ({
           options: allSinglePermissions,
           isClearable: true,
           onBlur: onComboBoxOnBlur,
-          onChange: onComboBoxChange
+          onChange: onComboBoxChange()
         }}
       />
     }
