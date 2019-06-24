@@ -3,6 +3,7 @@ import {
   internalUsersToUiInternalUsers,
   roleMappingToFormik
 } from './role_mapping_to_formik';
+import { DEFAULT_ROLE_MAPPING } from './constants';
 
 describe('role mapping to UI role mapping', () => {
   test('can build UI roles and internal users', () => {
@@ -41,7 +42,7 @@ describe('role mapping to UI role mapping', () => {
       users: ['f', 'e'],
       and_backend_roles: [],
       description: '',
-      _name: [{ label: 'A_MAP' }],
+      _name: [{ label: 'role_a' }],
       _backendRoles: [
         { label: 'a' },
         { label: 'b' }
@@ -56,6 +57,21 @@ describe('role mapping to UI role mapping', () => {
       ]
     };
 
-    expect(roleMappingToFormik(resource, { label: uiResource._name[0].label })).toEqual(uiResource);
+    expect(roleMappingToFormik(resource, 'role_a')).toEqual(uiResource);
+  });
+
+  test('can build UI role mapping for the new resource', () => {
+    const uiResource = {
+      _backendRoles: [],
+      _hosts: [],
+      _name: [],
+      _users: [],
+      backend_roles: [],
+      description: '',
+      hosts: [],
+      users: []
+    };
+
+    expect(roleMappingToFormik(DEFAULT_ROLE_MAPPING)).toEqual(uiResource);
   });
 });
