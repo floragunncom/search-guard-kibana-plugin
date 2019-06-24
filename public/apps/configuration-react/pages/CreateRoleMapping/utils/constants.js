@@ -1,5 +1,5 @@
 export const DEFAULT_ROLE_MAPPING = {
-  _name: [{ label: '' }],
+  _name: [],
   backend_roles: [],
   hosts: [],
   users: [],

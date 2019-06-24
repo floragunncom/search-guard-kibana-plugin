@@ -1,9 +1,9 @@
 import { map, sortBy } from 'lodash';
 
-const resourcesToUiResources = (roleMappings, correspondingRoles = {}) => {
+const resourcesToUiResources = (roleMappings, allRoles = {}) => {
   return sortBy(map(roleMappings, (values, name) => ({
     _id: name,
-    _isCorrespondingRole: !!correspondingRoles[name],
+    _isCorrespondingRole: !!allRoles[name],
     ...values
   })), '_id');
 };

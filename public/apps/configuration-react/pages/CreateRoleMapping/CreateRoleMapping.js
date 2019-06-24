@@ -78,10 +78,10 @@ class CreateRoleMapping extends Component {
 
       if (id) {
         const resource = await roleMappingsService.get(id);
-        this.setState({ resource: roleMappingToFormik(resource, { label: id }) });
+        this.setState({ resource: roleMappingToFormik(resource, id) });
       } else {
         this.setState({
-          resource: roleMappingToFormik(DEFAULT_ROLE_MAPPING, allRoles[0]),
+          resource: roleMappingToFormik(DEFAULT_ROLE_MAPPING),
           isEdit: !!id
         });
       }
@@ -174,11 +174,6 @@ class CreateRoleMapping extends Component {
                   isClearable: false,
                   singleSelection: { asPlainText: true },
                   onChange: onComboBoxChange,
-                  // onChange: (options, field, form) => {
-                  //   if (!isEmpty(options)) {
-                  //     form.setFieldValue(field.name, options);
-                  //   }
-                  // }
                 }}
               />
               <FormikComboBox
