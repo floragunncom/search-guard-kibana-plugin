@@ -75,3 +75,7 @@ export const validateESDLSQuery = (index, httpClient) => async (query) => {
     throw problemWithValidationTryAgainText;
   }
 };
+
+export const validateEmptyComboBox = value => {
+  if (isEmpty(value)) return requiredText;
+};

@@ -76,7 +76,7 @@ const IndexPatterns = ({
                   options: allIndices,
                   isClearable: true,
                   onBlur: onComboBoxOnBlur,
-                  onChange: onComboBoxChange,
+                  onChange: onComboBoxChange(),
                   onCreateOption: onComboBoxCreateOption
                 }}
               />
@@ -93,7 +93,7 @@ const IndexPatterns = ({
                   options: allActionGroups,
                   isClearable: true,
                   onBlur: onComboBoxOnBlur,
-                  onChange: onComboBoxChange
+                  onChange: onComboBoxChange()
                 }}
               />
             </EuiFlexItem>
@@ -118,7 +118,7 @@ const IndexPatterns = ({
                 options: allSinglePermissions,
                 isClearable: true,
                 onBlur: onComboBoxOnBlur,
-                onChange: onComboBoxChange
+                onChange: onComboBoxChange()
               }}
             />
           }

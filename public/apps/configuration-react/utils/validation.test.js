@@ -1,4 +1,8 @@
-import { validateESDLSQuery, validatePassword } from './validation';
+import {
+  validateESDLSQuery,
+  validatePassword,
+  validateEmptyComboBox
+} from './validation';
 import {
   jsonIsInvalidText,
   requiredText,
@@ -105,6 +109,16 @@ describe('validation', () => {
       await expect(
         validateESDLSQuery(index, HttpClient)(query)
       ).rejects.toEqual(problemWithValidationTryAgainText);
+    });
+  });
+
+  describe('Validate empty ComboBox', () => {
+    test('can validate ComboBox', () => {
+      expect(validateEmptyComboBox([{ label: 'a' }])).toEqual(undefined);
+    });
+
+    test('fail to validate because ComboBox is not allowed to be empty', () => {
+      expect(validateEmptyComboBox([])).toEqual(requiredText);
     });
   });
 });

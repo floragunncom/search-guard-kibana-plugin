@@ -26,6 +26,7 @@ import {
   rolesToUiRoles
 } from './utils';
 import { internalUsersToUiBackendRoles } from '../../utils/helpers';
+import { hasError, isInvalid, validateEmptyComboBox } from '../../utils/validation';
 
 class CreateRoleMapping extends Component {
   constructor(props) {
@@ -165,27 +166,30 @@ class CreateRoleMapping extends Component {
               <FormikComboBox
                 name="_name"
                 formRow
+                formikFieldProps={{ validate: validateEmptyComboBox }}
                 rowProps={{
                   label: roleText,
-                  helpText: this.renderRoleHelpText(history)
+                  helpText: this.renderRoleHelpText(history),
+                  error: hasError,
+                  isInvalid
                 }}
                 elementProps={{
                   options: allRoles,
                   isClearable: false,
                   singleSelection: { asPlainText: true },
-                  onChange: onComboBoxChange,
+                  onChange: onComboBoxChange(validateEmptyComboBox),
                 }}
               />
               <FormikComboBox
                 name="_users"
                 formRow
                 rowProps={{
-                  label: usersText,
+                  label: usersText
                 }}
                 elementProps={{
                   options: allInternalUsers,
                   isClearable: true,
-                  onChange: onComboBoxChange,
+                  onChange: onComboBoxChange(),
                   onCreateOption: onComboBoxCreateOption,
                   onBlur: onComboBoxOnBlur
                 }}
@@ -199,7 +203,7 @@ class CreateRoleMapping extends Component {
                 elementProps={{
                   options: allBackendRoles,
                   isClearable: true,
-                  onChange: onComboBoxChange,
+                  onChange: onComboBoxChange(),
                   onCreateOption: onComboBoxCreateOption,
                   onBlur: onComboBoxOnBlur
                 }}
@@ -212,7 +216,7 @@ class CreateRoleMapping extends Component {
                 }}
                 elementProps={{
                   isClearable: true,
-                  onChange: onComboBoxChange,
+                  onChange: onComboBoxChange(),
                   onCreateOption: onComboBoxCreateOption,
                   onBlur: onComboBoxOnBlur
                 }}
