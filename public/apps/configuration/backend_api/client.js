@@ -37,7 +37,6 @@ uiModules.get('apps/searchguard/configuration', [])
                     return response.data;
                 })
                 .catch((error) => {
-                    if (error.status === 404) throw error;
                     if (error.status == 403) {
                         searchGuardAccessControl.logout();
                     } else {
