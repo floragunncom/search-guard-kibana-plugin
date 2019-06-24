@@ -15,9 +15,9 @@ import { dlsQuerySyntaxIsInvalidText } from './i18n/roles';
 import { API } from './constants';
 
 export const validatePassword = passwordConfirmation => password => {
-  if (!password) throw requiredText;
-  if (password.length < 5) throw passwordMustBeAtLeast5CharsText;
-  if (password !== passwordConfirmation) throw passwordsDontMatchText;
+  if (!password) return requiredText;
+  if (password.length < 5) return passwordMustBeAtLeast5CharsText;
+  if (password !== passwordConfirmation) return passwordsDontMatchText;
 };
 
 export const validateTextField = value => {

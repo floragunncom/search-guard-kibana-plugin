@@ -1,8 +1,49 @@
-import { validateESDLSQuery } from './validation';
-import { jsonIsInvalidText } from './i18n/common';
+import { validateESDLSQuery, validatePassword } from './validation';
+import {
+  jsonIsInvalidText,
+  requiredText,
+  problemWithValidationTryAgainText
+} from './i18n/common';
 import { dlsQuerySyntaxIsInvalidText } from './i18n/roles';
+import {
+  passwordsDontMatchText,
+  passwordMustBeAtLeast5CharsText
+} from './i18n/internal_users';
 
 describe('validation', () => {
+
+  describe('Internal User validation', () => {
+    test('can validate password equals passwordConfirmation', () => {
+      const password = '12345';
+      const passwordConfirmation = '12345';
+      expect(
+        validatePassword(passwordConfirmation)(password)
+      ).toEqual(undefined);
+    });
+
+    test('fail to validate due to password != passwordConfirmation', () => {
+      const password = '12345678';
+      const passwordConfirmation = '12345';
+      expect(
+        validatePassword(passwordConfirmation)(password)
+      ).toEqual(passwordsDontMatchText);
+    });
+
+    test('fail to validate due to password not set', () => {
+      const password = '';
+      expect(
+        validatePassword(password)(password)
+      ).toEqual(requiredText);
+    });
+
+    test('fail to validate due to password too short', () => {
+      const password = 'abcd';
+      expect(
+        validatePassword(password)(password)
+      ).toEqual(passwordMustBeAtLeast5CharsText);
+    });
+  });
+
   describe('DLS Query', () => {
     test('can validate DLS Query', async () => {
       const query = JSON.stringify({ match: { a: 'b' } });
@@ -13,7 +54,9 @@ describe('validation', () => {
         }
       }
 
-      await expect(validateESDLSQuery(index, HttpClient)(query)).resolves.toEqual(undefined);
+      await expect(
+        validateESDLSQuery(index, HttpClient)(query)
+      ).resolves.toEqual(undefined);
     });
 
     test('can validate empty DLS Query (no DLS is used)', async () => {
@@ -21,7 +64,9 @@ describe('validation', () => {
       const index = 'index';
       class HttpClient {}
 
-      await expect(validateESDLSQuery(index, HttpClient)(query)).resolves.toEqual(undefined);
+      await expect(
+        validateESDLSQuery(index, HttpClient)(query)
+      ).resolves.toEqual(undefined);
     });
 
     test('fail to validate DLS Query due to wrong syntax', async () => {
@@ -33,7 +78,9 @@ describe('validation', () => {
         }
       }
 
-      await expect(validateESDLSQuery(index, HttpClient)(query)).resolves.toEqual(dlsQuerySyntaxIsInvalidText);
+      await expect(
+        validateESDLSQuery(index, HttpClient)(query)
+      ).resolves.toEqual(dlsQuerySyntaxIsInvalidText);
     });
 
     test('fail to validate DLS Query due to wrong JSON', async () => {
@@ -41,7 +88,23 @@ describe('validation', () => {
       const index = 'index';
       class HttpClient {}
 
-      await expect(validateESDLSQuery(index, HttpClient)(query)).resolves.toEqual(jsonIsInvalidText);
+      await expect(
+        validateESDLSQuery(index, HttpClient)(query)
+      ).resolves.toEqual(jsonIsInvalidText);
+    });
+
+    test('fail to validate due to the failed async call', async () => {
+      const query = '{"a": "b"}';
+      const index = 'index';
+      class HttpClient {
+        static post() {
+          return Promise.reject('async call failed');
+        }
+      }
+
+      await expect(
+        validateESDLSQuery(index, HttpClient)(query)
+      ).rejects.toEqual(problemWithValidationTryAgainText);
     });
   });
 });

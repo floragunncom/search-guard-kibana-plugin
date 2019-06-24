@@ -5,6 +5,7 @@ const userToFormik = (user, id = '') => {
   return {
     ...omit(user, ['hash']),
     _username: id,
+    _password: '',
     _backendRoles: arrayToComboBoxOptions(user.backend_roles),
     _attributes: attributesToUiAttributes(user.attributes)
   };

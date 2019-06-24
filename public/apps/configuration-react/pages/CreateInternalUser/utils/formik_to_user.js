@@ -6,6 +6,7 @@ const formikToUser = userFormik => {
   const user = {
     ...omit(userFormik, [
       '_username',
+      '_password',
       '_passwordConfirmation',
       '_changePassword',
       '_backendRoles',
@@ -15,6 +16,10 @@ const formikToUser = userFormik => {
     backend_roles: comboBoxOptionsToArray(userFormik._backendRoles),
     attributes: uiAttributesToAttributes(userFormik._attributes)
   };
+
+  if (userFormik._password) {
+    user.password = userFormik._password;
+  }
 
   // The logic below is from the old app.
   if (user.hidden === false) delete user.hidden;

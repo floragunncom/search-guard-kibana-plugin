@@ -24,7 +24,7 @@ const renderPassword = passwordConfirmation => (
       elementProps={{
         isInvalid
       }}
-      name="password"
+      name="_password"
     />
     <FormikFieldPassword
       formRow

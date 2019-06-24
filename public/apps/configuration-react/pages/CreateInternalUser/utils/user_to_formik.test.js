@@ -26,6 +26,7 @@ describe('user to UI user', () => {
       description: 'Migrated from v6',
       static: false,
       _username: 'admin',
+      _password: '',
       _backendRoles: [
         { label: 'a' },
         { label: 'b' }
