@@ -72,7 +72,9 @@ export const actionGroupToActiongroupsAndPermissions = (actionGroup = {}) => {
 
 export const attributesToUiAttributes = (attributes = {}) => sortBy(map(attributes, (value, key) => ({ value, key })));
 export const uiAttributesToAttributes = (attributes = []) => attributes.reduce((result, { key, value }) => {
-  result[key] = value;
+  if (key.trim() !== '') {
+    result[key] = value;
+  }
   return result;
 }, {});
 

@@ -94,7 +94,8 @@ describe('common helpers', () => {
 
     const uiAttributes = [
       { key: 'a', value: 'b' },
-      { key: 'c', value: 'd' }
+      { key: 'c', value: 'd' },
+      { key: ' ', value: 'f' }
     ];
 
     expect(uiAttributesToAttributes(uiAttributes)).toEqual(attributes);

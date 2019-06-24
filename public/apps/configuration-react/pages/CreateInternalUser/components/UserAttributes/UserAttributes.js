@@ -47,7 +47,7 @@ const UserAttributes = ({ attributes, onTriggerConfirmDeletionModal }) => (
       <DynamicValuesForm
         isKey
         title={userAttributesText}
-        onAdd={() => arrayHelpers.push({})}
+        onAdd={() => arrayHelpers.push({ key: '', value: '' })}
         onRemove={i => {
           onTriggerConfirmDeletionModal({
             onConfirm: () => {
