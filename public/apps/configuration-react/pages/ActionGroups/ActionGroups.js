@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import {
   EuiButton,
   EuiInMemoryTable,
-  EuiEmptyPrompt
+  EuiEmptyPrompt,
+  EuiSwitch
 } from '@elastic/eui';
 import { get } from 'lodash';
 import {
@@ -21,7 +22,8 @@ import {
 import { resourcesToUiResources, uiResourceToResource } from './utils';
 import { APP_PATH, ACTION_GROUPS_ACTIONS } from '../../utils/constants';
 import {
-  nameText
+  nameText,
+  systemItemsText
 } from '../../utils/i18n/common';
 import {
   actionGroupsText,
@@ -30,6 +32,7 @@ import {
   emptyActionGroupsTableMessageText,
   noActionGroupsText
 } from '../../utils/i18n/action_groups';
+import { filterReservedStaticTableResources } from '../../utils/helpers';
 
 class ActionGroups extends Component {
   constructor(props) {
@@ -39,7 +42,8 @@ class ActionGroups extends Component {
       resources: [],
       error: null,
       isLoading: true,
-      tableSelection: []
+      tableSelection: [],
+      isShowingSystemItems: true
     };
 
     this.backendService = this.props.actionGroupsService;
@@ -125,6 +129,19 @@ class ActionGroups extends Component {
     );
   }
 
+  renderToolsRight = () => {
+    const { isShowingSystemItems } = this.state;
+    return (
+      <EuiSwitch
+        label={systemItemsText}
+        checked={isShowingSystemItems}
+        onChange={() => {
+          this.setState({ isShowingSystemItems: !isShowingSystemItems });
+        }}
+      />
+    );
+  }
+
   renderEmptyTableMessage = history => (
     <EuiEmptyPrompt
       title={<h3>{noActionGroupsText}</h3>}
@@ -142,7 +159,7 @@ class ActionGroups extends Component {
 
   render() {
     const { history } = this.props;
-    const { isLoading, error, resources } = this.state;
+    const { isLoading, error, resources, isShowingSystemItems } = this.state;
     const getResourceEditUri = name => `${APP_PATH.CREATE_ACTION_GROUP}?id=${name}&action=${ACTION_GROUPS_ACTIONS.UPDATE_ACTION_GROUP}`;
 
     const actions = [
@@ -221,10 +238,13 @@ class ActionGroups extends Component {
 
     const search = {
       toolsLeft: this.renderToolsLeft(),
+      toolsRight: this.renderToolsRight(),
       box: {
         incremental: true,
       }
     };
+
+    const tableResources = filterReservedStaticTableResources(resources, isShowingSystemItems);
 
     return (
       <ContentPanel
@@ -238,7 +258,7 @@ class ActionGroups extends Component {
         ]}
       >
         <EuiInMemoryTable
-          items={resources}
+          items={tableResources}
           itemId="_id"
           error={get(error, 'message')}
           message={this.renderEmptyTableMessage(history)}

@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import {
   EuiButton,
   EuiInMemoryTable,
-  EuiEmptyPrompt
+  EuiEmptyPrompt,
+  EuiSwitch
 } from '@elastic/eui';
 import { get } from 'lodash';
 import {
@@ -22,7 +23,8 @@ import { resourcesToUiResources, uiResourceToResource } from './utils';
 import { APP_PATH, TENANTS_ACTIONS } from '../../utils/constants';
 import {
   nameText,
-  descriptionText
+  descriptionText,
+  systemItemsText
 } from '../../utils/i18n/common';
 import {
   tenantsText,
@@ -30,6 +32,7 @@ import {
   emptyTenantsTableMessageText,
   noTenantsText
 } from '../../utils/i18n/tenants';
+import { filterReservedStaticTableResources } from '../../utils/helpers';
 
 class Tenants extends Component {
   constructor(props) {
@@ -39,7 +42,8 @@ class Tenants extends Component {
       resources: [],
       error: null,
       isLoading: true,
-      tableSelection: []
+      tableSelection: [],
+      isShowingSystemItems: false
     };
 
     this.backendService = this.props.tenantsService;
@@ -124,6 +128,19 @@ class Tenants extends Component {
     );
   }
 
+  renderToolsRight = () => {
+    const { isShowingSystemItems } = this.state;
+    return (
+      <EuiSwitch
+        label={systemItemsText}
+        checked={isShowingSystemItems}
+        onChange={() => {
+          this.setState({ isShowingSystemItems: !isShowingSystemItems });
+        }}
+      />
+    );
+  }
+
   renderEmptyTableMessage = history => (
     <EuiEmptyPrompt
       title={<h3>{noTenantsText}</h3>}
@@ -141,7 +158,7 @@ class Tenants extends Component {
 
   render() {
     const { history } = this.props;
-    const { isLoading, error, resources } = this.state;
+    const { isLoading, error, resources, isShowingSystemItems } = this.state;
     const getResourceEditUri = name => `${APP_PATH.CREATE_TENANT}?id=${name}&action=${TENANTS_ACTIONS.UPDATE_TENANT}`;
 
     const actions = [
@@ -208,10 +225,13 @@ class Tenants extends Component {
 
     const search = {
       toolsLeft: this.renderToolsLeft(),
+      toolsRight: this.renderToolsRight(),
       box: {
         incremental: true,
       }
     };
+
+    const tableResources = filterReservedStaticTableResources(resources, isShowingSystemItems);
 
     return (
       <ContentPanel
@@ -225,7 +245,7 @@ class Tenants extends Component {
         ]}
       >
         <EuiInMemoryTable
-          items={resources}
+          items={tableResources}
           itemId="_id"
           error={get(error, 'message')}
           message={this.renderEmptyTableMessage(history)}

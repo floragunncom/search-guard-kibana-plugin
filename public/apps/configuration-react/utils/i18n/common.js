@@ -42,3 +42,4 @@ export const includeText = (<EuiI18n token="sg.common.include.text" default="Inc
 export const excludeText = (<EuiI18n token="sg.common.exclude.text" default="Exclude" />);
 export const jsonIsInvalidText = (<EuiI18n token="sg.common.jsonIsInvalid.text" default="JSON is invalid" />);
 export const jsonMustNotBeEmptyText = (<EuiI18n token="sg.common.jsonMustNotBeEmpty.text" default="JSON must not be empty" />);
+export const systemItemsText = (<EuiI18n token="sg.common.systemItems.text" default="System Items" />);

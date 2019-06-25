@@ -7,7 +7,8 @@ import {
   EuiText,
   EuiFlexItem,
   EuiEmptyPrompt,
-  EuiFlexGrid
+  EuiFlexGrid,
+  EuiSwitch
 } from '@elastic/eui';
 import { get } from 'lodash';
 import {
@@ -35,10 +36,12 @@ import {
 } from '../../utils/i18n/internal_users';
 import {
   nameText,
-  currentUserText
+  currentUserText,
+  systemItemsText
 } from '../../utils/i18n/common';
 import { resourcesToUiResources, uiResourceToResource } from './utils';
 import { BrowserStorageService } from '../../services';
+import { filterReservedStaticTableResources } from '../../utils/helpers';
 
 // TODO: make this component get API data by chunks (paginations)
 class InternalUsers extends Component {
@@ -49,7 +52,8 @@ class InternalUsers extends Component {
       resources: [],
       error: null,
       isLoading: true,
-      tableSelection: []
+      tableSelection: [],
+      isShowingSystemItems: false
     };
 
     this.backendService = this.props.internalUsersService;
@@ -135,6 +139,19 @@ class InternalUsers extends Component {
     );
   }
 
+  renderToolsRight = () => {
+    const { isShowingSystemItems } = this.state;
+    return (
+      <EuiSwitch
+        label={systemItemsText}
+        checked={isShowingSystemItems}
+        onChange={() => {
+          this.setState({ isShowingSystemItems: !isShowingSystemItems });
+        }}
+      />
+    );
+  }
+
   renderEmptyTableMessage = history => (
     <EuiEmptyPrompt
       title={<h3>{noUsersText}</h3>}
@@ -173,7 +190,7 @@ class InternalUsers extends Component {
 
   render() {
     const { history } = this.props;
-    const { isLoading, error, resources } = this.state;
+    const { isLoading, error, resources, isShowingSystemItems } = this.state;
     const getResourceEditUri = name => `${APP_PATH.CREATE_INTERNAL_USER}?id=${name}&action=${INTERNAL_USERS_ACTIONS.UPDATE_USER}`;
 
     const actions = [
@@ -241,10 +258,13 @@ class InternalUsers extends Component {
 
     const search = {
       toolsLeft: this.renderToolsLeft(),
+      toolsRight: this.renderToolsRight(),
       box: {
         incremental: true,
       }
     };
+
+    const tableResources = filterReservedStaticTableResources(resources, isShowingSystemItems);
 
     return (
       <ContentPanel
@@ -258,7 +278,7 @@ class InternalUsers extends Component {
         ]}
       >
         <EuiInMemoryTable
-          items={resources}
+          items={tableResources}
           itemId="_id"
           error={get(error, 'message')}
           message={this.renderEmptyTableMessage(history)}
