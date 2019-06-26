@@ -178,10 +178,25 @@ class Main extends Component {
     }
   }
 
-  handleComboBoxCreateOption = (label, field, form) => {
-    const normalizedSearchValue = label.trim().toLowerCase();
-    if (!normalizedSearchValue) return;
-    form.setFieldValue(field.name, field.value.concat({ label }));
+  handleComboBoxCreateOption = (validationFn, ...props) => async (label, field, form) => {
+    let isValid = true;
+    const isValidationRequired = validationFn instanceof Function;
+    if (isValidationRequired) {
+      const _isValid = validationFn(label, ...props);
+      if (_isValid instanceof Promise) {
+        await _isValid
+          .then(_error => { throw _error; })
+          .catch(_error => isValid = _error);
+      } else {
+        isValid = _isValid;
+      }
+    }
+
+    if (isValid) {
+      const normalizedSearchValue = label.trim().toLowerCase();
+      if (!normalizedSearchValue) return;
+      form.setFieldValue(field.name, field.value.concat({ label }));
+    }
   }
 
   handleComboBoxOnBlur = (e, field, form) => {
@@ -328,6 +343,7 @@ class Main extends Component {
                         onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
                         onComboBoxChange={this.handleComboBoxChange}
                         onComboBoxOnBlur={this.handleComboBoxOnBlur}
+                        onComboBoxCreateOption={this.handleComboBoxCreateOption}
                         {...props}
                       />
                     )}

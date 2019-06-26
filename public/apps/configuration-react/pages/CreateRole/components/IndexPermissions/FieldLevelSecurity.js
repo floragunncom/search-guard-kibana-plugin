@@ -82,7 +82,7 @@ const FieldLevelSecurity = ({
             isClearable: true,
             onBlur: onComboBoxOnBlur,
             onChange: onComboBoxChange(),
-            onCreateOption: onComboBoxCreateOption
+            onCreateOption: onComboBoxCreateOption()
           }}
         />
       </EuiFlexItem>
@@ -106,7 +106,7 @@ const FieldLevelSecurity = ({
               isClearable: true,
               onBlur: onComboBoxOnBlur,
               onChange: onComboBoxChange(),
-              onCreateOption: onComboBoxCreateOption
+              onCreateOption: onComboBoxCreateOption()
             }}
           />
         )}

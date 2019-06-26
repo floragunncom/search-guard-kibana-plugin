@@ -244,6 +244,7 @@ class CreateRole extends Component {
                   allSinglePermissions={allClusterPermissions}
                   onComboBoxChange={onComboBoxChange}
                   onComboBoxOnBlur={onComboBoxOnBlur}
+                  onComboBoxCreateOption={onComboBoxCreateOption}
                   isEdit={isEdit}
                   {...this.props}
                 />

@@ -1,7 +1,9 @@
 import {
   validateESDLSQuery,
   validatePassword,
-  validateEmptyComboBox
+  validateEmptyComboBox,
+  validClusterSinglePermissionOption,
+  validSinglePermissionOption
 } from './validation';
 import {
   jsonIsInvalidText,
@@ -112,13 +114,42 @@ describe('validation', () => {
     });
   });
 
-  describe('Validate empty ComboBox', () => {
+  describe('validate empty ComboBox', () => {
     test('can validate ComboBox', () => {
       expect(validateEmptyComboBox([{ label: 'a' }])).toEqual(undefined);
     });
 
     test('fail to validate because ComboBox is not allowed to be empty', () => {
       expect(validateEmptyComboBox([])).toEqual(requiredText);
+    });
+  });
+
+  describe('validate single permissions', () => {
+    test('can validate cluster permission', () => {
+      expect(validClusterSinglePermissionOption('cluster:*')).toEqual(true);
+      expect(validClusterSinglePermissionOption('cluster:a')).toEqual(true);
+      expect(validClusterSinglePermissionOption('cluster:a/b/c')).toEqual(true);
+    });
+
+    test('fail to validate cluster permission', () => {
+      expect(validClusterSinglePermissionOption('cluster:')).toEqual(false);
+      expect(validClusterSinglePermissionOption('cat')).toEqual(false);
+      expect(validClusterSinglePermissionOption('indices:a/b/c')).toEqual(false);
+    });
+
+    test('can validate single permission', () => {
+      expect(validSinglePermissionOption('cluster:*')).toEqual(true);
+      expect(validSinglePermissionOption('cluster:a')).toEqual(true);
+      expect(validSinglePermissionOption('cluster:a/b/c')).toEqual(true);
+      expect(validSinglePermissionOption('indices:*')).toEqual(true);
+      expect(validSinglePermissionOption('indices:a')).toEqual(true);
+      expect(validSinglePermissionOption('indices:a/b/c')).toEqual(true);
+    });
+
+    test('fail to validate single permission', () => {
+      expect(validSinglePermissionOption('cluster:')).toEqual(false);
+      expect(validSinglePermissionOption('indices:')).toEqual(false);
+      expect(validSinglePermissionOption('cat')).toEqual(false);
     });
   });
 });

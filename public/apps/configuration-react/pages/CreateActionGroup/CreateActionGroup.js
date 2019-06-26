@@ -24,7 +24,7 @@ import {
 } from '../../components';
 import { CancelButton, SaveButton } from '../../components/ContentPanel/components';
 import { APP_PATH, ACTION_GROUPS_ACTIONS } from '../../utils/constants';
-import { isInvalid, hasError, validateName } from '../../utils/validation';
+import { isInvalid, hasError, validateName, validSinglePermissionOption } from '../../utils/validation';
 import { DEFAULT_ACTION_GROUP, TYPES } from './utils/constants';
 import { actionGroupToFormik, formikToActionGroup, actionGroupsToUiActionGroups } from './utils';
 import { getAllUiIndexPermissions, getAllUiClusterPermissions } from '../../utils/helpers';
@@ -103,7 +103,8 @@ class CreateActionGroup extends Component {
       location,
       actionGroupsService,
       onComboBoxChange,
-      onComboBoxOnBlur
+      onComboBoxOnBlur,
+      onComboBoxCreateOption
     } = this.props;
     const { resource, isLoading, allSinglePermissions, allActionGroups } = this.state;
     const { action, id } = queryString.parse(location.search);
@@ -188,12 +189,13 @@ class CreateActionGroup extends Component {
                   name="_permissions"
                   formRow
                   rowProps={{
-                    label: singlePermissionsText,
+                    label: singlePermissionsText
                   }}
                   elementProps={{
                     options: allSinglePermissions,
                     isClearable: true,
                     onBlur: onComboBoxOnBlur,
+                    onCreateOption: onComboBoxCreateOption(validSinglePermissionOption),
                     onChange: onComboBoxChange()
                   }}
                 />
@@ -213,7 +215,8 @@ CreateActionGroup.propTypes = {
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,
-  onComboBoxOnBlur: PropTypes.func.isRequired
+  onComboBoxOnBlur: PropTypes.func.isRequired,
+  onComboBoxCreateOption: PropTypes.func.isRequired
 };
 
 export default CreateActionGroup;

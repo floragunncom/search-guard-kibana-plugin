@@ -68,7 +68,7 @@ const TenantPatterns = ({
                       onChange: onComboBoxChange(),
                       onCreateOption: (label, field, form) => {
                         if (isMultiTenancyEnabled) {
-                          onComboBoxCreateOption(label, field, form);
+                          onComboBoxCreateOption()(label, field, form);
                         }
                       }
                     }}

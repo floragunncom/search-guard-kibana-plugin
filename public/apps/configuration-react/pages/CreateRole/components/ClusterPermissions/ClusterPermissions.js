@@ -3,13 +3,15 @@ import PropTypes from 'prop-types';
 import { FormikComboBox, FormikSwitch } from '../../../../components';
 import { actionGroupsText, singlePermissionsText } from '../../../../utils/i18n/action_groups';
 import { advancedText } from '../../../../utils/i18n/common';
+import { validClusterSinglePermissionOption } from '../../../../utils/validation';
 
 const ClusterPermissions = ({
   allActionGroups,
   allSinglePermissions,
   isAdvanced,
   onComboBoxChange,
-  onComboBoxOnBlur
+  onComboBoxOnBlur,
+  onComboBoxCreateOption
 }) => (
   <Fragment>
     <FormikComboBox
@@ -37,12 +39,13 @@ const ClusterPermissions = ({
         name="_clusterPermissions.permissions"
         formRow
         rowProps={{
-          label: singlePermissionsText,
+          label: singlePermissionsText
         }}
         elementProps={{
           options: allSinglePermissions,
           isClearable: true,
           onBlur: onComboBoxOnBlur,
+          onCreateOption: onComboBoxCreateOption(validClusterSinglePermissionOption),
           onChange: onComboBoxChange()
         }}
       />
@@ -55,7 +58,8 @@ ClusterPermissions.propTypes = {
   allSinglePermissions: PropTypes.array.isRequired,
   isAdvanced: PropTypes.bool.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,
-  onComboBoxOnBlur: PropTypes.func.isRequired
+  onComboBoxOnBlur: PropTypes.func.isRequired,
+  onComboBoxCreateOption: PropTypes.func.isRequired
 };
 
 export default ClusterPermissions;

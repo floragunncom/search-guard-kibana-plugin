@@ -79,3 +79,6 @@ export const validateESDLSQuery = (index, httpClient) => async (query) => {
 export const validateEmptyComboBox = value => {
   if (isEmpty(value)) return requiredText;
 };
+
+export const validClusterSinglePermissionOption = label => (/^cluster:[\w\*].*/).test(label);
+export const validSinglePermissionOption = label => (/^((cluster)|(indices)):[\w\*].*/).test(label);

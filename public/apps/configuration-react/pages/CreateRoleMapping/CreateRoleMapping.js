@@ -190,7 +190,7 @@ class CreateRoleMapping extends Component {
                   options: allInternalUsers,
                   isClearable: true,
                   onChange: onComboBoxChange(),
-                  onCreateOption: onComboBoxCreateOption,
+                  onCreateOption: onComboBoxCreateOption(),
                   onBlur: onComboBoxOnBlur
                 }}
               />
@@ -204,7 +204,7 @@ class CreateRoleMapping extends Component {
                   options: allBackendRoles,
                   isClearable: true,
                   onChange: onComboBoxChange(),
-                  onCreateOption: onComboBoxCreateOption,
+                  onCreateOption: onComboBoxCreateOption(),
                   onBlur: onComboBoxOnBlur
                 }}
               />
@@ -217,7 +217,7 @@ class CreateRoleMapping extends Component {
                 elementProps={{
                   isClearable: true,
                   onChange: onComboBoxChange(),
-                  onCreateOption: onComboBoxCreateOption,
+                  onCreateOption: onComboBoxCreateOption(),
                   onBlur: onComboBoxOnBlur
                 }}
               />
