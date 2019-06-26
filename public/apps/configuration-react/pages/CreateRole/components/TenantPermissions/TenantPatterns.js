@@ -27,7 +27,8 @@ const TenantPatterns = ({
   arrayHelpers,
   onComboBoxChange,
   onComboBoxOnBlur,
-  onComboBoxCreateOption
+  onComboBoxCreateOption,
+  onTriggerConfirmDeletionModal
 }) => (
   tenantPermissions.map((tenantPermission, index) => {
     const hideTenantPattern = !isMultiTenancyEnabled
@@ -42,7 +43,19 @@ const TenantPatterns = ({
               id={index.toString(2)}
               className="euiAccordionForm"
               buttonClassName="euiAccordionForm__button"
-              extraAction={<AccordionDeleteButton onClick={() => { arrayHelpers.remove(index); }}/>}
+              extraAction={
+                <AccordionDeleteButton
+                  onClick={() => {
+                    onTriggerConfirmDeletionModal({
+                      body: tenantPatternNames(tenantPermission.tenant_patterns),
+                      onConfirm: () => {
+                        arrayHelpers.remove(index);
+                        onTriggerConfirmDeletionModal(null);
+                      }
+                    });
+                  }}
+                />
+              }
               buttonContent={
                 <AccordionButtonContent
                   iconType="usersRolesApp"
@@ -109,7 +122,8 @@ TenantPatterns.propTypes = {
   allAppActionGroups: PropTypes.array.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,
   onComboBoxOnBlur: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired
+  onComboBoxCreateOption: PropTypes.func.isRequired,
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired
 };
 
 export default TenantPatterns;

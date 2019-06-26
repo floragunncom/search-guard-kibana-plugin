@@ -372,6 +372,7 @@ class Main extends Component {
                         tenantsService={tenantsService}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
                         onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
+                        onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                         onComboBoxChange={this.handleComboBoxChange}
                         onComboBoxOnBlur={this.handleComboBoxOnBlur}
                         onComboBoxCreateOption={this.handleComboBoxCreateOption}

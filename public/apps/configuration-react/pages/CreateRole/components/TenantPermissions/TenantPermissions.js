@@ -32,7 +32,8 @@ const TenantPermissions = ({
   isMultiTenancyEnabled,
   onComboBoxChange,
   onComboBoxOnBlur,
-  onComboBoxCreateOption
+  onComboBoxCreateOption,
+  onTriggerConfirmDeletionModal
 }) => (
   <Fragment>
     {!isMultiTenancyEnabled && (
@@ -70,6 +71,7 @@ const TenantPermissions = ({
               onComboBoxChange={onComboBoxChange}
               onComboBoxOnBlur={onComboBoxOnBlur}
               onComboBoxCreateOption={onComboBoxCreateOption}
+              onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
             />
           )}
         </Fragment>
@@ -91,7 +93,8 @@ TenantPermissions.propTypes = {
   allAppActionGroups: PropTypes.array.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,
   onComboBoxOnBlur: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired
+  onComboBoxCreateOption: PropTypes.func.isRequired,
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired
 };
 
 export default TenantPermissions;

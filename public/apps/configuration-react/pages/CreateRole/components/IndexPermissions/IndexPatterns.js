@@ -43,7 +43,8 @@ const IndexPatterns = ({
   isAnonymizedFieldsEnabled,
   onComboBoxChange,
   onComboBoxOnBlur,
-  onComboBoxCreateOption
+  onComboBoxCreateOption,
+  onTriggerConfirmDeletionModal
 }) => (
   indexPermissions.map((indexPermission, index) => (
     <EuiFlexGroup key={index}>
@@ -53,7 +54,19 @@ const IndexPatterns = ({
           id={index.toString(2)}
           className="euiAccordionForm"
           buttonClassName="euiAccordionForm__button"
-          extraAction={<AccordionDeleteButton onClick={() => { arrayHelpers.remove(index); }}/>}
+          extraAction={
+            <AccordionDeleteButton
+              onClick={() => {
+                onTriggerConfirmDeletionModal({
+                  body: indexPatternNames(indexPermission.index_patterns),
+                  onConfirm: () => {
+                    arrayHelpers.remove(index);
+                    onTriggerConfirmDeletionModal(null);
+                  }
+                });
+              }}
+            />
+          }
           buttonContent={
             <AccordionButtonContent
               iconType="indexPatternApp"
@@ -206,7 +219,8 @@ IndexPatterns.propTypes = {
   isAnonymizedFieldsEnabled: PropTypes.bool.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,
   onComboBoxOnBlur: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired
+  onComboBoxCreateOption: PropTypes.func.isRequired,
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired
 };
 
 export default IndexPatterns;
