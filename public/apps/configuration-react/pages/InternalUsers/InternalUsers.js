@@ -40,7 +40,7 @@ import {
   systemItemsText
 } from '../../utils/i18n/common';
 import { resourcesToUiResources, uiResourceToResource } from './utils';
-import { BrowserStorageService } from '../../services';
+import { BrowserStorageService, AppCacheService } from '../../services';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
 
 // TODO: make this component get API data by chunks (paginations)
@@ -48,19 +48,28 @@ class InternalUsers extends Component {
   constructor(props) {
     super(props);
 
+    this.appCache = new AppCacheService();
+    this.backendService = this.props.internalUsersService;
+    const { isShowingTableSystemItems } = this.appCache.cache[APP_PATH.INTERNAL_USERS];
+
     this.state = {
       resources: [],
       error: null,
       isLoading: true,
       tableSelection: [],
-      isShowingSystemItems: false
+      isShowingTableSystemItems
     };
-
-    this.backendService = this.props.internalUsersService;
   }
 
   componentDidMount() {
     this.fetchData();
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    const { isShowingTableSystemItems } = nextState;
+    if (isShowingTableSystemItems !== this.state.isShowingTableSystemItems) {
+      this.appCache.setCacheByPath(APP_PATH.INTERNAL_USERS, { isShowingTableSystemItems });
+    }
   }
 
   fetchData = async () => {
@@ -140,13 +149,13 @@ class InternalUsers extends Component {
   }
 
   renderToolsRight = () => {
-    const { isShowingSystemItems } = this.state;
+    const { isShowingTableSystemItems } = this.state;
     return (
       <EuiSwitch
         label={systemItemsText}
-        checked={isShowingSystemItems}
+        checked={isShowingTableSystemItems}
         onChange={() => {
-          this.setState({ isShowingSystemItems: !isShowingSystemItems });
+          this.setState({ isShowingTableSystemItems: !isShowingTableSystemItems });
         }}
       />
     );
@@ -190,7 +199,7 @@ class InternalUsers extends Component {
 
   render() {
     const { history } = this.props;
-    const { isLoading, error, resources, isShowingSystemItems } = this.state;
+    const { isLoading, error, resources, isShowingTableSystemItems } = this.state;
     const getResourceEditUri = name => `${APP_PATH.CREATE_INTERNAL_USER}?id=${name}&action=${INTERNAL_USERS_ACTIONS.UPDATE_USER}`;
 
     const actions = [
@@ -264,7 +273,7 @@ class InternalUsers extends Component {
       }
     };
 
-    const tableResources = filterReservedStaticTableResources(resources, isShowingSystemItems);
+    const tableResources = filterReservedStaticTableResources(resources, isShowingTableSystemItems);
 
     return (
       <ContentPanel

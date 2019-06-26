@@ -34,24 +34,34 @@ import {
   tenantPatternsText
 } from '../../utils/i18n/roles';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
+import { AppCacheService } from '../../services';
 
 class Roles extends Component {
   constructor(props) {
     super(props);
+
+    this.backendService = this.props.rolesService;
+    this.appCache = new AppCacheService();
+    const { isShowingTableSystemItems } = this.appCache.cache[APP_PATH.ROLES];
 
     this.state = {
       resources: [],
       error: null,
       isLoading: true,
       tableSelection: [],
-      isShowingSystemItems: false
+      isShowingTableSystemItems
     };
-
-    this.backendService = this.props.rolesService;
   }
 
   componentDidMount() {
     this.fetchData();
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    const { isShowingTableSystemItems } = nextState;
+    if (isShowingTableSystemItems !== this.state.isShowingTableSystemItems) {
+      this.appCache.setCacheByPath(APP_PATH.ROLES, { isShowingTableSystemItems });
+    }
   }
 
   fetchData = async () => {
@@ -130,13 +140,13 @@ class Roles extends Component {
   }
 
   renderToolsRight = () => {
-    const { isShowingSystemItems } = this.state;
+    const { isShowingTableSystemItems } = this.state;
     return (
       <EuiSwitch
         label={systemItemsText}
-        checked={isShowingSystemItems}
+        checked={isShowingTableSystemItems}
         onChange={() => {
-          this.setState({ isShowingSystemItems: !isShowingSystemItems });
+          this.setState({ isShowingTableSystemItems: !isShowingTableSystemItems });
         }}
       />
     );
@@ -159,7 +169,7 @@ class Roles extends Component {
 
   render() {
     const { history } = this.props;
-    const { isLoading, error, resources, isShowingSystemItems } = this.state;
+    const { isLoading, error, resources, isShowingTableSystemItems } = this.state;
     const getResourceEditUri = name => `${APP_PATH.CREATE_ROLE}?id=${name}&action=${ROLES_ACTIONS.UPDATE_ROLE}`;
 
     const actions = [
@@ -256,7 +266,7 @@ class Roles extends Component {
       }
     };
 
-    const tableResources = filterReservedStaticTableResources(resources, isShowingSystemItems);
+    const tableResources = filterReservedStaticTableResources(resources, isShowingTableSystemItems);
 
     return (
       <ContentPanel

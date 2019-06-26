@@ -33,24 +33,34 @@ import {
   noActionGroupsText
 } from '../../utils/i18n/action_groups';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
+import { AppCacheService } from '../../services';
 
 class ActionGroups extends Component {
   constructor(props) {
     super(props);
+
+    this.backendService = this.props.actionGroupsService;
+    this.appCache = new AppCacheService();
+    const { isShowingTableSystemItems } = this.appCache.cache[APP_PATH.ACTION_GROUPS];
 
     this.state = {
       resources: [],
       error: null,
       isLoading: true,
       tableSelection: [],
-      isShowingSystemItems: true
+      isShowingTableSystemItems
     };
-
-    this.backendService = this.props.actionGroupsService;
   }
 
   componentDidMount() {
     this.fetchData();
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    const { isShowingTableSystemItems } = nextState;
+    if (isShowingTableSystemItems !== this.state.isShowingTableSystemItems) {
+      this.appCache.setCacheByPath(APP_PATH.ACTION_GROUPS, { isShowingTableSystemItems });
+    }
   }
 
   fetchData = async () => {
@@ -130,13 +140,13 @@ class ActionGroups extends Component {
   }
 
   renderToolsRight = () => {
-    const { isShowingSystemItems } = this.state;
+    const { isShowingTableSystemItems } = this.state;
     return (
       <EuiSwitch
         label={systemItemsText}
-        checked={isShowingSystemItems}
+        checked={isShowingTableSystemItems}
         onChange={() => {
-          this.setState({ isShowingSystemItems: !isShowingSystemItems });
+          this.setState({ isShowingTableSystemItems: !isShowingTableSystemItems });
         }}
       />
     );
@@ -159,7 +169,7 @@ class ActionGroups extends Component {
 
   render() {
     const { history } = this.props;
-    const { isLoading, error, resources, isShowingSystemItems } = this.state;
+    const { isLoading, error, resources, isShowingTableSystemItems } = this.state;
     const getResourceEditUri = name => `${APP_PATH.CREATE_ACTION_GROUP}?id=${name}&action=${ACTION_GROUPS_ACTIONS.UPDATE_ACTION_GROUP}`;
 
     const actions = [
@@ -244,7 +254,7 @@ class ActionGroups extends Component {
       }
     };
 
-    const tableResources = filterReservedStaticTableResources(resources, isShowingSystemItems);
+    const tableResources = filterReservedStaticTableResources(resources, isShowingTableSystemItems);
 
     return (
       <ContentPanel

@@ -72,3 +72,28 @@ export { default as INDEX_PERMISSIONS } from '../../configuration/permissions/in
 export { default as CLUSTER_PERMISSIONS } from '../../configuration/permissions/clusterpermissions';
 
 export const FIELDS_TO_OMIT_BEFORE_SAVE = ['reserved', 'static', 'hidden'];
+
+export const APP_CACHE_NAME = 'app_cache';
+const APP_CACHE_COMMON = {
+  isShowingTableSystemItems: false
+};
+export const APP_CACHE = {
+  [APP_PATH.ROLE_MAPPINGS]: {
+    ...APP_CACHE_COMMON
+  },
+  [APP_PATH.INTERNAL_USERS]: {
+    ...APP_CACHE_COMMON
+  },
+  [APP_PATH.ROLE_MAPPINGS]: {
+    ...APP_CACHE_COMMON
+  },
+  [APP_PATH.ROLES]: {
+    ...APP_CACHE_COMMON
+  },
+  [APP_PATH.ACTION_GROUPS]: {
+    ...APP_CACHE_COMMON
+  },
+  [APP_PATH.TENANTS]: {
+    ...APP_CACHE_COMMON
+  },
+};

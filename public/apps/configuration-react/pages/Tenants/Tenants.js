@@ -33,24 +33,34 @@ import {
   noTenantsText
 } from '../../utils/i18n/tenants';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
+import { AppCacheService } from '../../services';
 
 class Tenants extends Component {
   constructor(props) {
     super(props);
+
+    this.backendService = this.props.tenantsService;
+    this.appCache = new AppCacheService();
+    const { isShowingTableSystemItems } = this.appCache.cache[APP_PATH.TENANTS];
 
     this.state = {
       resources: [],
       error: null,
       isLoading: true,
       tableSelection: [],
-      isShowingSystemItems: false
+      isShowingTableSystemItems
     };
-
-    this.backendService = this.props.tenantsService;
   }
 
   componentDidMount() {
     this.fetchData();
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    const { isShowingTableSystemItems } = nextState;
+    if (isShowingTableSystemItems !== this.state.isShowingTableSystemItems) {
+      this.appCache.setCacheByPath(APP_PATH.TENANTS, { isShowingTableSystemItems });
+    }
   }
 
   fetchData = async () => {
@@ -129,13 +139,13 @@ class Tenants extends Component {
   }
 
   renderToolsRight = () => {
-    const { isShowingSystemItems } = this.state;
+    const { isShowingTableSystemItems } = this.state;
     return (
       <EuiSwitch
         label={systemItemsText}
-        checked={isShowingSystemItems}
+        checked={isShowingTableSystemItems}
         onChange={() => {
-          this.setState({ isShowingSystemItems: !isShowingSystemItems });
+          this.setState({ isShowingTableSystemItems: !isShowingTableSystemItems });
         }}
       />
     );
@@ -158,7 +168,7 @@ class Tenants extends Component {
 
   render() {
     const { history } = this.props;
-    const { isLoading, error, resources, isShowingSystemItems } = this.state;
+    const { isLoading, error, resources, isShowingTableSystemItems } = this.state;
     const getResourceEditUri = name => `${APP_PATH.CREATE_TENANT}?id=${name}&action=${TENANTS_ACTIONS.UPDATE_TENANT}`;
 
     const actions = [
@@ -231,7 +241,7 @@ class Tenants extends Component {
       }
     };
 
-    const tableResources = filterReservedStaticTableResources(resources, isShowingSystemItems);
+    const tableResources = filterReservedStaticTableResources(resources, isShowingTableSystemItems);
 
     return (
       <ContentPanel

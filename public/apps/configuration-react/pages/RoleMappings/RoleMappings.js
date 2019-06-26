@@ -43,24 +43,34 @@ import {
   rolesText
 } from '../../utils/i18n/roles';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
+import { AppCacheService } from '../../services';
 
 class RoleMappings extends Component {
   constructor(props) {
     super(props);
+
+    this.backendService = this.props.roleMappingsService;
+    this.appCache = new AppCacheService();
+    const { isShowingTableSystemItems } = this.appCache.cache[APP_PATH.ROLE_MAPPINGS];
 
     this.state = {
       resources: [],
       error: null,
       isLoading: true,
       tableSelection: [],
-      isShowingSystemItems: false
+      isShowingTableSystemItems
     };
-
-    this.backendService = this.props.roleMappingsService;
   }
 
   componentDidMount() {
     this.fetchData();
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    const { isShowingTableSystemItems } = nextState;
+    if (isShowingTableSystemItems !== this.state.isShowingTableSystemItems) {
+      this.appCache.setCacheByPath(APP_PATH.ROLE_MAPPINGS, { isShowingTableSystemItems });
+    }
   }
 
   fetchData = async () => {
@@ -144,13 +154,13 @@ class RoleMappings extends Component {
   }
 
   renderToolsRight = () => {
-    const { isShowingSystemItems } = this.state;
+    const { isShowingTableSystemItems } = this.state;
     return (
       <EuiSwitch
         label={systemItemsText}
-        checked={isShowingSystemItems}
+        checked={isShowingTableSystemItems}
         onChange={() => {
-          this.setState({ isShowingSystemItems: !isShowingSystemItems });
+          this.setState({ isShowingTableSystemItems: !isShowingTableSystemItems });
         }}
       />
     );
@@ -173,7 +183,7 @@ class RoleMappings extends Component {
 
   render() {
     const { history } = this.props;
-    const { isLoading, error, resources, isShowingSystemItems } = this.state;
+    const { isLoading, error, resources, isShowingTableSystemItems } = this.state;
     const getResourceEditUri = name => `${APP_PATH.CREATE_ROLE_MAPPING}?id=${name}&action=${ROLE_MAPPINGS_ACTIONS.UPDATE_ROLE_MAPPING}`;
 
     const actions = [
@@ -286,7 +296,7 @@ class RoleMappings extends Component {
       }
     };
 
-    const tableResources = filterReservedStaticTableResources(resources, isShowingSystemItems);
+    const tableResources = filterReservedStaticTableResources(resources, isShowingTableSystemItems);
 
     return (
       <ContentPanel
