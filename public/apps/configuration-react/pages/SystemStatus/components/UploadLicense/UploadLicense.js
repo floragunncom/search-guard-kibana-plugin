@@ -58,6 +58,10 @@ class UploadLicense extends Component {
     this.backendService = new SystemService(this.props.httpClient);
   }
 
+  componentWillUnmount = () => {
+    this.props.onTriggerCustomFlyout(null);
+  }
+
   onSubmit = async ({ license }, { setSubmitting }) => {
     const { onTriggerSuccessCallout, onTriggerErrorCallout } = this.props;
     try {

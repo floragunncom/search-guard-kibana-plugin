@@ -45,6 +45,10 @@ class CreateTenant extends Component {
     }
   }
 
+  componentWillUnmount = () => {
+    this.props.onTriggerInspectJsonFlyout(null);
+  }
+
   fetchData = async () => {
     const { id } = this.state;
     const { onTriggerErrorCallout } = this.props;

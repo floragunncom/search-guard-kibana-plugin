@@ -96,6 +96,10 @@ class CreateRole extends Component {
     }
   }
 
+  componentWillUnmount = () => {
+    this.props.onTriggerInspectJsonFlyout(null);
+  }
+
   fetchData = async () => {
     const { id } = this.state;
     const {
