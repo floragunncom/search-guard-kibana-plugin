@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { flatten } from 'lodash';
+import { flatten, get } from 'lodash';
 import queryString from 'query-string';
 import { EuiBreadcrumbs } from '@elastic/eui';
 import { homeText } from '../../utils/i18n/home';
@@ -49,6 +49,7 @@ import {
 export const createBreadcrumb = (breadcrumb, history) => {
   const { text, href } = breadcrumb;
   return {
+    title: get(text, 'props.default', text),
     text,
     href: `#${href}`,
     onClick: e => {
