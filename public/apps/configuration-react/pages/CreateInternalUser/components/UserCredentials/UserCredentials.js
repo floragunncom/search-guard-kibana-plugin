@@ -57,7 +57,11 @@ const UserCredentials = ({ isEdit = false, isUpdatingName, values, internalUsers
         error: hasError
       }}
       elementProps={{
-        isInvalid
+        isInvalid,
+        onChange: (e, field, form) => {
+          form.setFieldValue(field.name, e.target.value);
+          if (!form.values._password) form.setFieldValue('_changePassword', true);
+        }
       }}
       name="_username"
     />
@@ -66,6 +70,8 @@ const UserCredentials = ({ isEdit = false, isUpdatingName, values, internalUsers
         formRow
         elementProps={{
           label: changePasswordText,
+          checked: values._changePassword,
+          disabled: isUpdatingName,
           onChange: (e, field, form) => {
             const changePasswordAborted = values._changePassword;
             if (changePasswordAborted) {

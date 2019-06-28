@@ -7,7 +7,8 @@ const userToFormik = (user, id = '') => {
     _username: id,
     _password: '',
     _backendRoles: arrayToComboBoxOptions(user.backend_roles),
-    _attributes: attributesToUiAttributes(user.attributes)
+    _attributes: attributesToUiAttributes(user.attributes),
+    _changePassword: false
   };
 };
 

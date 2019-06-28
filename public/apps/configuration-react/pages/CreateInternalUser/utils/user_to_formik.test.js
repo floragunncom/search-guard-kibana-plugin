@@ -40,7 +40,8 @@ describe('user to UI user', () => {
           key: 'c',
           value: 'd'
         }
-      ]
+      ],
+      _changePassword: false
     };
 
     expect(userToFormik(resource, uiResource._username)).toEqual(uiResource);
