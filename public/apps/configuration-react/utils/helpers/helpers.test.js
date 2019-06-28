@@ -6,8 +6,9 @@ import {
   arrayToComboBoxOptions,
   comboBoxOptionsToArray,
   attributesToUiAttributes,
-  uiAttributesToAttributes
-} from './helpers';
+  uiAttributesToAttributes,
+  filterReservedStaticTableResources
+} from './index';
 
 describe('common helpers', () => {
   test('can build UI backend roles from internal users', () => {
@@ -99,5 +100,18 @@ describe('common helpers', () => {
     ];
 
     expect(uiAttributesToAttributes(uiAttributes)).toEqual(attributes);
+  });
+
+  test('can filter reserved and static resources', () => {
+    const resources = [
+      { a: 1, static: true },
+      { b: 2, reserved: true },
+      { c: 3 }
+    ];
+
+    let isShowingSystemItems = false;
+    expect(filterReservedStaticTableResources(resources, isShowingSystemItems)).toEqual([{ c: 3 }]);
+    isShowingSystemItems = true;
+    expect(filterReservedStaticTableResources(resources, isShowingSystemItems)).toEqual(resources);
   });
 });

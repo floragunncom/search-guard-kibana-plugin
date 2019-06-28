@@ -16,8 +16,8 @@ export const emptyRoleMappingsTableMessageText = (
 );
 
 export const roleHelpText = (
-  <EuiI18n token="role_mappings.roleHelp.text" default="If you neead a new role," />
+  <EuiI18n token="sg.role_mappings.roleHelp.text" default="If you neead a new role," />
 );
 export const noCorrespondingRoleText = (
-  <EuiI18n token="role_mappings.noCorrespondingRole.text" default="No corresponding role" />
+  <EuiI18n token="sg.role_mappings.noCorrespondingRole.text" default="No corresponding role" />
 );

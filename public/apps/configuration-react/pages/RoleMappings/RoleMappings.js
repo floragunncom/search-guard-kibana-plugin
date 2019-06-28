@@ -5,7 +5,8 @@ import {
   EuiInMemoryTable,
   EuiEmptyPrompt,
   EuiSpacer,
-  EuiCallOut
+  EuiCallOut,
+  EuiSwitch
 } from '@elastic/eui';
 import { get } from 'lodash';
 import {
@@ -26,7 +27,8 @@ import {
 } from './utils';
 import { APP_PATH, ROLE_MAPPINGS_ACTIONS } from '../../utils/constants';
 import {
-  nameText
+  nameText,
+  systemItemsText
 } from '../../utils/i18n/common';
 import {
   roleMappingsText,
@@ -40,23 +42,35 @@ import {
   hostsText,
   rolesText
 } from '../../utils/i18n/roles';
+import { filterReservedStaticTableResources } from '../../utils/helpers';
+import { AppCacheService } from '../../services';
 
 class RoleMappings extends Component {
   constructor(props) {
     super(props);
 
+    this.backendService = this.props.roleMappingsService;
+    this.appCache = new AppCacheService();
+    const { isShowingTableSystemItems } = this.appCache.cache[APP_PATH.ROLE_MAPPINGS];
+
     this.state = {
       resources: [],
       error: null,
       isLoading: true,
-      tableSelection: []
+      tableSelection: [],
+      isShowingTableSystemItems
     };
-
-    this.backendService = this.props.roleMappingsService;
   }
 
   componentDidMount() {
     this.fetchData();
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    const { isShowingTableSystemItems } = nextState;
+    if (isShowingTableSystemItems !== this.state.isShowingTableSystemItems) {
+      this.appCache.setCacheByPath(APP_PATH.ROLE_MAPPINGS, { isShowingTableSystemItems });
+    }
   }
 
   fetchData = async () => {
@@ -139,6 +153,19 @@ class RoleMappings extends Component {
     );
   }
 
+  renderToolsRight = () => {
+    const { isShowingTableSystemItems } = this.state;
+    return (
+      <EuiSwitch
+        label={systemItemsText}
+        checked={isShowingTableSystemItems}
+        onChange={() => {
+          this.setState({ isShowingTableSystemItems: !isShowingTableSystemItems });
+        }}
+      />
+    );
+  }
+
   renderEmptyTableMessage = history => (
     <EuiEmptyPrompt
       title={<h3>{noRoleMappingsText}</h3>}
@@ -156,7 +183,7 @@ class RoleMappings extends Component {
 
   render() {
     const { history } = this.props;
-    const { isLoading, error, resources } = this.state;
+    const { isLoading, error, resources, isShowingTableSystemItems } = this.state;
     const getResourceEditUri = name => `${APP_PATH.CREATE_ROLE_MAPPING}?id=${name}&action=${ROLE_MAPPINGS_ACTIONS.UPDATE_ROLE_MAPPING}`;
 
     const actions = [
@@ -263,10 +290,13 @@ class RoleMappings extends Component {
 
     const search = {
       toolsLeft: this.renderToolsLeft(),
+      toolsRight: this.renderToolsRight(),
       box: {
         incremental: true,
       }
     };
+
+    const tableResources = filterReservedStaticTableResources(resources, isShowingTableSystemItems);
 
     return (
       <ContentPanel
@@ -280,7 +310,7 @@ class RoleMappings extends Component {
         ]}
       >
         <EuiInMemoryTable
-          items={resources}
+          items={tableResources}
           itemId="_id"
           error={get(error, 'message')}
           message={this.renderEmptyTableMessage(history)}

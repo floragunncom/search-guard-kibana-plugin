@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import {
   EuiButton,
   EuiInMemoryTable,
-  EuiEmptyPrompt
+  EuiEmptyPrompt,
+  EuiSwitch
 } from '@elastic/eui';
 import { get } from 'lodash';
 import {
@@ -21,7 +22,8 @@ import {
 import { resourcesToUiResources, uiResourceToResource } from './utils';
 import { APP_PATH, ROLES_ACTIONS } from '../../utils/constants';
 import {
-  nameText
+  nameText,
+  systemItemsText
 } from '../../utils/i18n/common';
 import {
   rolesText,
@@ -31,23 +33,35 @@ import {
   indexPatternsText,
   tenantPatternsText
 } from '../../utils/i18n/roles';
+import { filterReservedStaticTableResources } from '../../utils/helpers';
+import { AppCacheService } from '../../services';
 
 class Roles extends Component {
   constructor(props) {
     super(props);
 
+    this.backendService = this.props.rolesService;
+    this.appCache = new AppCacheService();
+    const { isShowingTableSystemItems } = this.appCache.cache[APP_PATH.ROLES];
+
     this.state = {
       resources: [],
       error: null,
       isLoading: true,
-      tableSelection: []
+      tableSelection: [],
+      isShowingTableSystemItems
     };
-
-    this.backendService = this.props.rolesService;
   }
 
   componentDidMount() {
     this.fetchData();
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    const { isShowingTableSystemItems } = nextState;
+    if (isShowingTableSystemItems !== this.state.isShowingTableSystemItems) {
+      this.appCache.setCacheByPath(APP_PATH.ROLES, { isShowingTableSystemItems });
+    }
   }
 
   fetchData = async () => {
@@ -125,6 +139,19 @@ class Roles extends Component {
     );
   }
 
+  renderToolsRight = () => {
+    const { isShowingTableSystemItems } = this.state;
+    return (
+      <EuiSwitch
+        label={systemItemsText}
+        checked={isShowingTableSystemItems}
+        onChange={() => {
+          this.setState({ isShowingTableSystemItems: !isShowingTableSystemItems });
+        }}
+      />
+    );
+  }
+
   renderEmptyTableMessage = history => (
     <EuiEmptyPrompt
       title={<h3>{rolesText}</h3>}
@@ -142,7 +169,7 @@ class Roles extends Component {
 
   render() {
     const { history } = this.props;
-    const { isLoading, error, resources } = this.state;
+    const { isLoading, error, resources, isShowingTableSystemItems } = this.state;
     const getResourceEditUri = name => `${APP_PATH.CREATE_ROLE}?id=${name}&action=${ROLES_ACTIONS.UPDATE_ROLE}`;
 
     const actions = [
@@ -233,10 +260,13 @@ class Roles extends Component {
 
     const search = {
       toolsLeft: this.renderToolsLeft(),
+      toolsRight: this.renderToolsRight(),
       box: {
         incremental: true,
       }
     };
+
+    const tableResources = filterReservedStaticTableResources(resources, isShowingTableSystemItems);
 
     return (
       <ContentPanel
@@ -250,7 +280,7 @@ class Roles extends Component {
         ]}
       >
         <EuiInMemoryTable
-          items={resources}
+          items={tableResources}
           itemId="_id"
           error={get(error, 'message')}
           message={this.renderEmptyTableMessage(history)}

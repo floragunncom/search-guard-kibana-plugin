@@ -7,7 +7,8 @@ import {
   EuiText,
   EuiFlexItem,
   EuiEmptyPrompt,
-  EuiFlexGrid
+  EuiFlexGrid,
+  EuiSwitch
 } from '@elastic/eui';
 import { get } from 'lodash';
 import {
@@ -35,28 +36,40 @@ import {
 } from '../../utils/i18n/internal_users';
 import {
   nameText,
-  currentUserText
+  currentUserText,
+  systemItemsText
 } from '../../utils/i18n/common';
 import { resourcesToUiResources, uiResourceToResource } from './utils';
-import { BrowserStorageService } from '../../services';
+import { BrowserStorageService, AppCacheService } from '../../services';
+import { filterReservedStaticTableResources } from '../../utils/helpers';
 
 // TODO: make this component get API data by chunks (paginations)
 class InternalUsers extends Component {
   constructor(props) {
     super(props);
 
+    this.appCache = new AppCacheService();
+    this.backendService = this.props.internalUsersService;
+    const { isShowingTableSystemItems } = this.appCache.cache[APP_PATH.INTERNAL_USERS];
+
     this.state = {
       resources: [],
       error: null,
       isLoading: true,
-      tableSelection: []
+      tableSelection: [],
+      isShowingTableSystemItems
     };
-
-    this.backendService = this.props.internalUsersService;
   }
 
   componentDidMount() {
     this.fetchData();
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    const { isShowingTableSystemItems } = nextState;
+    if (isShowingTableSystemItems !== this.state.isShowingTableSystemItems) {
+      this.appCache.setCacheByPath(APP_PATH.INTERNAL_USERS, { isShowingTableSystemItems });
+    }
   }
 
   fetchData = async () => {
@@ -135,6 +148,19 @@ class InternalUsers extends Component {
     );
   }
 
+  renderToolsRight = () => {
+    const { isShowingTableSystemItems } = this.state;
+    return (
+      <EuiSwitch
+        label={systemItemsText}
+        checked={isShowingTableSystemItems}
+        onChange={() => {
+          this.setState({ isShowingTableSystemItems: !isShowingTableSystemItems });
+        }}
+      />
+    );
+  }
+
   renderEmptyTableMessage = history => (
     <EuiEmptyPrompt
       title={<h3>{noUsersText}</h3>}
@@ -173,7 +199,7 @@ class InternalUsers extends Component {
 
   render() {
     const { history } = this.props;
-    const { isLoading, error, resources } = this.state;
+    const { isLoading, error, resources, isShowingTableSystemItems } = this.state;
     const getResourceEditUri = name => `${APP_PATH.CREATE_INTERNAL_USER}?id=${name}&action=${INTERNAL_USERS_ACTIONS.UPDATE_USER}`;
 
     const actions = [
@@ -241,10 +267,13 @@ class InternalUsers extends Component {
 
     const search = {
       toolsLeft: this.renderToolsLeft(),
+      toolsRight: this.renderToolsRight(),
       box: {
         incremental: true,
       }
     };
+
+    const tableResources = filterReservedStaticTableResources(resources, isShowingTableSystemItems);
 
     return (
       <ContentPanel
@@ -258,7 +287,7 @@ class InternalUsers extends Component {
         ]}
       >
         <EuiInMemoryTable
-          items={resources}
+          items={tableResources}
           itemId="_id"
           error={get(error, 'message')}
           message={this.renderEmptyTableMessage(history)}

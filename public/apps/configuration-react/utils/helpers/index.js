@@ -1,6 +1,6 @@
 import BrowserStorageService from '../../services/BrowserStorageService';
 import { INDEX_PERMISSIONS, CLUSTER_PERMISSIONS } from '../constants';
-import { get, reduce, sortBy, uniqBy, forEach, map } from 'lodash';
+import { get, reduce, sortBy, uniqBy, forEach, map, filter } from 'lodash';
 
 export { default as sideNavItem } from './sideNavItem';
 
@@ -89,3 +89,7 @@ export const internalUsersToUiBackendRoles = (internalUsers = {}) => {
 
 export const getAllUiClusterPermissions = () => map(CLUSTER_PERMISSIONS, ({ name }) => ({ label: name }));
 export const getAllUiIndexPermissions = () => map(INDEX_PERMISSIONS, ({ name }) => ({ label: name }));
+
+export const filterReservedStaticTableResources = (resources = [], isShowingSystemItems = false) => !isShowingSystemItems
+  ? filter(resources, resource => !resource.reserved && !resource.static)
+  : resources;

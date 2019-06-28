@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Switch, Route } from 'react-router-dom';
-import { get, differenceBy } from 'lodash';
+import { get, differenceBy, isEmpty } from 'lodash';
 import {
   EuiPage,
   EuiPageBody,
@@ -28,7 +28,7 @@ import {
   CreateRoleMapping
 } from '../';
 import { Breadcrumbs, Flyout, Callout, Modal, LoadingPage } from '../../components';
-import { APP_PATH, CALLOUTS, FLYOUTS, MODALS } from '../../utils/constants';
+import { APP_PATH, CALLOUTS, FLYOUTS, MODALS, APP_CACHE } from '../../utils/constants';
 import { checkIfLicenseValid, comboBoxOptionsToArray } from '../../utils/helpers';
 import {
   apiAccessStateForbiddenText,
@@ -37,10 +37,14 @@ import {
 } from '../../utils/i18n/main';
 import { API_ACCESS_STATE } from './utils/constants';
 import '../../less/main.less';
+import { AppCacheService } from '../../services';
 
 class Main extends Component {
   constructor(props) {
     super(props);
+
+    this.appCache = new AppCacheService();
+
     this.state = {
       purgingCache: false,
       flyout: null,
@@ -55,6 +59,7 @@ class Main extends Component {
   componentDidMount() {
     this.calloutErrorIfLicenseNotValid();
     this.checkAPIAccess();
+    if (isEmpty(this.appCache.cache)) this.appCache.cache = APP_CACHE;
   }
 
   checkAPIAccess = async () => {
