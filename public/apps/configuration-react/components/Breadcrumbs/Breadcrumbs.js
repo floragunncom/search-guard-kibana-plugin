@@ -51,7 +51,7 @@ export const createBreadcrumb = (breadcrumb, history) => {
   return {
     title: get(text, 'props.default', text),
     text,
-    href: `#${href}`,
+    href: href === '#' ? '#' : `#${href}`,
     onClick: e => {
       e.preventDefault();
       history.push(href);
@@ -64,6 +64,7 @@ export const getBreadcrumb = route => {
   if (!base) return null;
 
   const { id, action } = queryString.parse(queryParams);
+  const urlParams =  (id && action) ? `?id=${id}&action=${action}` : '';
   const uploadLicense = action === SYSTEM_STATUS_ACTIONS.UPLOAD_LICENSE;
   const updateTenant = action === TENANTS_ACTIONS.UPDATE_TENANT;
   const updateUser = action === INTERNAL_USERS_ACTIONS.UPDATE_USER;
@@ -80,7 +81,10 @@ export const getBreadcrumb = route => {
     },
     [removePrefixSlash(APP_PATH.CREATE_INTERNAL_USER)]: [
       { text: internalUsersText, href: APP_PATH.INTERNAL_USERS },
-      { text: (updateUser ? updateInternalUserText : createInternalUserText), href: APP_PATH.CREATE_INTERNAL_USER }
+      {
+        text: updateUser ? updateInternalUserText : createInternalUserText,
+        href: APP_PATH.CREATE_INTERNAL_USER + urlParams
+      }
     ],
     [removePrefixSlash(APP_PATH.AUTH)]: [
       { text: authenticationAndAuthorizationText, href: APP_PATH.AUTH },
@@ -93,51 +97,61 @@ export const getBreadcrumb = route => {
     ],
     [removePrefixSlash(APP_PATH.CREATE_TENANT)]: [
       { text: tenantsText, href: APP_PATH.TENANTS },
-      { text: (updateTenant ? updateTenantText : createTenantText), href: APP_PATH.CREATE_TENANT }
+      {
+        text: updateTenant ? updateTenantText : createTenantText,
+        href: APP_PATH.CREATE_TENANT + urlParams
+      }
     ],
     [removePrefixSlash(APP_PATH.ACTION_GROUPS)]: [
       { text: actionGroupsText, href: APP_PATH.ACTION_GROUPS },
     ],
     [removePrefixSlash(APP_PATH.CREATE_ACTION_GROUP)]: [
       { text: actionGroupsText, href: APP_PATH.ACTION_GROUPS },
-      { text: (updateActionGroup ? updateActionGroupText : createActionGroupText), href: APP_PATH.CREATE_ACTION_GROUP }
+      {
+        text: updateActionGroup ? updateActionGroupText : createActionGroupText,
+        href: APP_PATH.CREATE_ACTION_GROUP + urlParams
+      }
     ],
     [removePrefixSlash(APP_PATH.ROLES)]: [
       { text: rolesText, href: APP_PATH.ROLES },
     ],
     [removePrefixSlash(APP_PATH.CREATE_ROLE)]: [
       { text: rolesText, href: APP_PATH.ROLES },
-      { text: (updateRole ? updateRoleText : createRoleText), href: APP_PATH.CREATE_ROLE }
+      {
+        text: updateRole ? updateRoleText : createRoleText,
+        href: APP_PATH.CREATE_ROLE + urlParams
+      }
     ],
     [removePrefixSlash(APP_PATH.ROLE_MAPPINGS)]: [
       { text: roleMappingsText, href: APP_PATH.ROLE_MAPPINGS },
     ],
     [removePrefixSlash(APP_PATH.CREATE_ROLE_MAPPING)]: [
       { text: roleMappingsText, href: APP_PATH.ROLE_MAPPINGS },
-      { text: (updateRoleMapping ? updateRoleMappingText : createRoleMappingText), href: APP_PATH.CREATE_ROLE_MAPPING }
+      {
+        text: updateRoleMapping ? updateRoleMappingText : createRoleMappingText,
+        href: APP_PATH.CREATE_ROLE_MAPPING + urlParams
+      }
     ]
   }[base];
 
-  let args = `?action=${action}`;
   if (uploadLicense) {
-    breadcrumb.push({ text: uploadLicenseText, href: APP_PATH.SYSTEM_STATUS + args });
+    breadcrumb.push({ text: uploadLicenseText, href: APP_PATH.SYSTEM_STATUS + `?action=${action}` });
   }
 
-  args = `?id=${id}&action=${action}`;
   if (updateUser) {
-    breadcrumb.push({ text: id, href: APP_PATH.CREATE_INTERNAL_USER + args });
+    breadcrumb.push({ text: id, href: APP_PATH.CREATE_INTERNAL_USER + urlParams });
   }
   if (updateTenant) {
-    breadcrumb.push({ text: id, href: APP_PATH.CREATE_TENANT + args });
+    breadcrumb.push({ text: id, href: APP_PATH.CREATE_TENANT + urlParams });
   }
   if (updateActionGroup) {
-    breadcrumb.push({ text: id, href: APP_PATH.CREATE_ACTION_GROUP + args });
+    breadcrumb.push({ text: id, href: APP_PATH.CREATE_ACTION_GROUP + urlParams });
   }
   if (updateRole) {
-    breadcrumb.push({ text: id, href: APP_PATH.CREATE_ROLE + args });
+    breadcrumb.push({ text: id, href: APP_PATH.CREATE_ROLE + urlParams });
   }
   if (updateRoleMapping) {
-    breadcrumb.push({ text: id, href: APP_PATH.CREATE_ROLE_MAPPING + args });
+    breadcrumb.push({ text: id, href: APP_PATH.CREATE_ROLE_MAPPING + urlParams });
   }
 
   return breadcrumb;
