@@ -189,12 +189,17 @@ uiModules
                 (response) => {
                     this.tenantLabel = "Active tenant: " + resolveTenantName(response.data, this.username);
                     this.currentTenant = response.data;
-                    // clear lastUrls from nav links to avoid not found errors
-                    chrome.getNavLinkById("kibana:visualize").lastSubUrl = chrome.getNavLinkById("kibana:visualize").url;
-                    chrome.getNavLinkById("kibana:dashboard").lastSubUrl = chrome.getNavLinkById("kibana:dashboard").url;
-                    chrome.getNavLinkById("kibana:discover").lastSubUrl = chrome.getNavLinkById("kibana:discover").url;
-                    chrome.getNavLinkById("timelion").lastSubUrl = chrome.getNavLinkById("timelion").url;
-                    // clear last sub urls, but leave our own items intouched. Take safe mutation approach.
+
+                    // clear lastUrls from nav links to avoid not found errors.
+                    // Make sure that the app is really enabled before accessing.
+                    const appsToReset = ['kibana:visualize', 'kibana:dashboard', 'kibana:discover', 'timelion'];
+                    chrome.getNavLinks().forEach((navLink) => {
+                        if (appsToReset.indexOf(navLink.id) > -1) {
+                            navLink.lastSubUrl = navLink.url;
+                        }
+                    });
+
+                    // clear last sub urls, but leave our own items untouched. Take safe mutation approach.
                     var lastSubUrls = [];
                     for (var i = 0; i < sessionStorage.length; i++) {
                         var key = sessionStorage.key(i);
