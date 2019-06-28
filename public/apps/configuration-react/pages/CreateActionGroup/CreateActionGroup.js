@@ -180,7 +180,8 @@ class CreateActionGroup extends Component {
               <FormikSwitch
                 formRow
                 elementProps={{
-                  label: advancedText
+                  label: advancedText,
+                  checked: values._isAdvanced
                 }}
                 name="_isAdvanced"
               />

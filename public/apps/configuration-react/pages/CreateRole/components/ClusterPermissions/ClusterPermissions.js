@@ -30,7 +30,8 @@ const ClusterPermissions = ({
     <FormikSwitch
       formRow
       elementProps={{
-        label: advancedText
+        label: advancedText,
+        checked: isAdvanced
       }}
       name="_isClusterPermissionsAdvanced"
     />

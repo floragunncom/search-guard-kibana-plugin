@@ -103,7 +103,8 @@ const IndexPatterns = ({
           <FormikSwitch
             formRow
             elementProps={{
-              label: advancedText
+              label: advancedText,
+              checked: indexPermissions[index]._isAdvanced
             }}
             name={`_indexPermissions[${index}]._isAdvanced`}
           />

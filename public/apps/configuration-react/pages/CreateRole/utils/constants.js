@@ -4,7 +4,6 @@ export const ROLE = {
   index_permissions: [],
   tenant_permissions: [],
   cluster_permissions: [],
-  _isClusterPermissionsAdvanced: false,
   global_application_permissions: []
 };
 

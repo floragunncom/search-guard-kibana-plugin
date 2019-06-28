@@ -43,7 +43,7 @@ describe('axction group to UI action group', () => {
       hidden: false,
       reserved: false,
       static: false,
-      _isAdvanced: false,
+      _isAdvanced: true,
       _name: 'A_GROUP',
       _permissions: [
         { label: 'cluster:a/b/c' },
