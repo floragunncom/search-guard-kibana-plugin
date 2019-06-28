@@ -27,6 +27,8 @@ import '../../directives/licensewarning';
 
 import tenantTemplate from './multitenancy.html';
 
+import { chromeWrapper} from "../../services/chrome_wrapper";
+
 uiRoutes.enable();
 
 uiRoutes
@@ -192,10 +194,12 @@ uiModules
 
                     // clear lastUrls from nav links to avoid not found errors.
                     // Make sure that the app is really enabled before accessing.
+                    // If chromeWrapper.resetLastSubUrl is used, the check for enabled apps is redundant.
+                    // Keeping this to make the merges a bit easier.
                     const appsToReset = ['kibana:visualize', 'kibana:dashboard', 'kibana:discover', 'timelion'];
-                    chrome.getNavLinks().forEach((navLink) => {
+                    chromeWrapper.getNavLinks().forEach((navLink) => {
                         if (appsToReset.indexOf(navLink.id) > -1) {
-                            navLink.lastSubUrl = navLink.url;
+                            chromeWrapper.resetLastSubUrl(navLink.id);
                         }
                     });
 
@@ -216,10 +220,10 @@ uiModules
                     // redirect to either Visualize or Dashboard depending on user selection.
                     if(redirect) {
                         if (redirect == 'vis') {
-                            $window.location.href = chrome.getNavLinkById("kibana:visualize").url;
+                            $window.location.href = chromeWrapper.getNavLinkById("kibana:visualize").url;
                         }
                         if (redirect == 'dash') {
-                            $window.location.href = chrome.getNavLinkById("kibana:dashboard").url;
+                            $window.location.href = chromeWrapper.getNavLinkById("kibana:dashboard").url;
                         }
                     } else {
                         toastNotifications.addSuccess({
