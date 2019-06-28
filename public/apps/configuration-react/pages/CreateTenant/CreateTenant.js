@@ -11,7 +11,7 @@ import { createTenantText, updateTenantText } from '../../utils/i18n/tenants';
 import { ContentPanel, FormikFieldText, InspectButton } from '../../components';
 import { CancelButton, SaveButton } from '../../components/ContentPanel/components';
 import { APP_PATH, TENANTS_ACTIONS } from '../../utils/constants';
-import { isInvalid, hasError, validateTextField, validateName } from '../../utils/validation';
+import { isInvalid, hasError, validateName } from '../../utils/validation';
 import { DEFAULT_TENANT } from './utils/constants';
 import { tenantToFormik, formikToTenant } from './utils';
 
@@ -127,13 +127,8 @@ class CreateTenant extends Component {
               />
               <FormikFieldText
                 formRow
-                formikFieldProps={{
-                  validate: validateTextField
-                }}
                 rowProps={{
                   label: descriptionText,
-                  isInvalid,
-                  error: hasError
                 }}
                 elementProps={{
                   isInvalid
