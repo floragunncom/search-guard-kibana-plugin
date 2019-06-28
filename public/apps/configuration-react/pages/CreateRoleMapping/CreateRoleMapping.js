@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
-import { EuiSpacer, EuiLink } from '@elastic/eui';
+import { EuiSpacer, EuiLink, EuiText, EuiTextColor } from '@elastic/eui';
 import queryString from 'query-string';
 import {
   createRoleMappingText,
@@ -71,10 +71,11 @@ class CreateRoleMapping extends Component {
       this.setState({ isLoading: true });
       const { data: allInternalUsers } = await internalUsersService.list();
       const { data: allRoles } = await rolesService.list();
+      const { data: allRoleMappings } = await roleMappingsService.list();
       this.setState({
         allBackendRoles: internalUsersToUiBackendRoles(allInternalUsers),
         allInternalUsers: internalUsersToUiInternalUsers(allInternalUsers),
-        allRoles: rolesToUiRoles(allRoles)
+        allRoles: rolesToUiRoles(allRoles, allRoleMappings)
       });
 
       if (id) {
@@ -116,6 +117,14 @@ class CreateRoleMapping extends Component {
       </EuiLink>
     </Fragment>
   )
+
+  renderRoleOption = ({ color, label }) => {
+    return (
+      <EuiText size="s">
+        <EuiTextColor color={color}>{label}</EuiTextColor>
+      </EuiText>
+    );
+  };
 
   render() {
     const {
@@ -178,6 +187,7 @@ class CreateRoleMapping extends Component {
                   isClearable: false,
                   singleSelection: { asPlainText: true },
                   onChange: onComboBoxChange(validateEmptyComboBox),
+                  renderOption: this.renderRoleOption
                 }}
               />
               <FormikComboBox

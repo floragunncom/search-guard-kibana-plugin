@@ -4,20 +4,52 @@ import {
   roleMappingToFormik
 } from './role_mapping_to_formik';
 import { DEFAULT_ROLE_MAPPING } from './constants';
+import { occupiedText, availableText } from '../../../utils/i18n/common';
 
 describe('role mapping to UI role mapping', () => {
-  test('can build UI roles and internal users', () => {
+  test('can build UI roles difference', () => {
+    const allRoles = {
+      'c': {},
+      'b': {},
+      'a': {}
+    };
+
+    const allRoleMappings = {
+      'a': {}
+    };
+
+    const uiResource = [
+      {
+        label: availableText,
+        options: [
+          { label: 'b', color: 'default', disabled: false },
+          { label: 'c', color: 'default', disabled: false }
+        ]
+      },
+      {
+        label: occupiedText,
+        options: [
+          { label: 'a', color: 'subdued', disabled: true }
+        ]
+      }
+    ];
+
+    expect(rolesToUiRoles(allRoles, allRoleMappings)).toEqual(uiResource);
+  });
+
+  test('can build UI internal users', () => {
     const resource = {
+      'c': {},
       'b': {},
       'a': {}
     };
 
     const uiResource = [
       { label: 'a' },
-      { label: 'b' }
+      { label: 'b' },
+      { label: 'c' }
     ];
 
-    expect(rolesToUiRoles(resource)).toEqual(uiResource);
     expect(internalUsersToUiInternalUsers(resource)).toEqual(uiResource);
   });
 
