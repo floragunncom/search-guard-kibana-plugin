@@ -111,11 +111,19 @@ class Main extends Component {
   }
 
   handleTriggerInspectJsonFlyout = payload => {
-    this.handleTriggerFlyout({ type: FLYOUTS.INSPECT_JSON, payload });
+    if (payload === null) {
+      this.handleTriggerFlyout(null);
+    } else {
+      this.handleTriggerFlyout({ type: FLYOUTS.INSPECT_JSON, payload });
+    }
   }
 
   handleTriggerCustomFlyout = payload => {
-    this.handleTriggerFlyout({ type: FLYOUTS.CUSTOM, payload });
+    if (payload === null) {
+      this.handleTriggerFlyout(null);
+    } else {
+      this.handleTriggerFlyout({ type: FLYOUTS.CUSTOM, payload });
+    }
   }
 
   handleTriggerCallout = callout => {

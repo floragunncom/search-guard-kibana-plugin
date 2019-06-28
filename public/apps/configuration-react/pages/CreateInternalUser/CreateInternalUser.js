@@ -42,6 +42,10 @@ class CreateInternalUser extends Component {
     }
   }
 
+  componentWillUnmount = () => {
+    this.props.onTriggerInspectJsonFlyout(null);
+  }
+
   fetchData = async () => {
     const { id } = this.state;
     const { internalUsersService, onTriggerErrorCallout } = this.props;
