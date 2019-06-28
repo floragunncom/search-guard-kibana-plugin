@@ -6,7 +6,7 @@ describe('UI table role to role', () => {
       _id: 'A_ROLE',
       _indexPatterns: ['a'],
       _tenantPatterns: [],
-      _clusterPermissions: [
+      cluster_permissions: [
         'A',
         'B',
         'cluster:a/b/c',
@@ -29,14 +29,13 @@ describe('UI table role to role', () => {
     };
 
     const resource = {
-      cluster_permissions: {
-        actiongroups: ['A', 'B'],
-        permissions: [
-          'cluster:a/b/c',
-          'indices:a/b/c',
-          'kibana:a/b/c',
-        ]
-      },
+      cluster_permissions: [
+        'A',
+        'B',
+        'cluster:a/b/c',
+        'indices:a/b/c',
+        'kibana:a/b/c',
+      ],
       description: 'Migrated from v6 (all types mapped)',
       index_permissions: [
         {
