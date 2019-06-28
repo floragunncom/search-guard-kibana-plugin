@@ -66,7 +66,7 @@ export const dlsToUiDls = dlsQuery => {
     try {
       _dlsQuery = stringifyPretty(JSON.parse(dlsQuery));
     } catch (error) {
-      // Keep '{}' if value in .dls cannot be parsed
+      // Keep '' if .dls query can't be parsed
     }
   }
   return _dlsQuery;

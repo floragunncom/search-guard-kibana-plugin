@@ -1,30 +1,31 @@
 import { omit, map, cloneDeep, isEmpty } from 'lodash';
 import { comboBoxOptionsToArray } from '../../../utils/helpers';
 import { FIELDS_TO_OMIT_BEFORE_SAVE } from '../../../utils/constants';
+import { FLS_MODES } from './constants';
+
+export const uiFlsToFls = (fls = [], flsmode) => comboBoxOptionsToArray(fls).map(field => {
+  return flsmode === FLS_MODES.BLACKLIST ? '~' + field.replace(/^\~+/, '') : field;
+});
 
 export const uiIndexPermissionsToIndexPermissions = indexPermissions => {
   return map(indexPermissions, values => {
     const { actiongroups, permissions } = values.allowed_actions;
-    const allowedActions = {
-      actiongroups: comboBoxOptionsToArray(actiongroups),
-      permissions: comboBoxOptionsToArray(permissions)
-    };
+    const allowedActions = [
+      ...comboBoxOptionsToArray(actiongroups),
+      ...comboBoxOptionsToArray(permissions)
+    ];
     const indexPatterns = comboBoxOptionsToArray(values.index_patterns);
 
     const result = {
-      ...omit(values, '_isAdvanced', '_dls'),
+      ...omit(values, '_isAdvanced', '_dls', 'flsmode'),
       allowed_actions: allowedActions,
       index_patterns: indexPatterns,
-      fls: comboBoxOptionsToArray(values.fls),
+      fls: uiFlsToFls(values.fls, values.flsmode),
       masked_fields: comboBoxOptionsToArray(values.masked_fields)
     };
 
     if (!isEmpty(values._dls)) {
       result.dls = JSON.stringify(JSON.parse(values._dls));
-    }
-
-    if (isEmpty(result.fls)) {
-      delete result.flsmode;
     }
 
     return result;
@@ -47,10 +48,10 @@ export const uiTenantPermissionsToTenantPermissions = tenantPermissions => {
 
 export const uiClusterPermissionsToClusterPermissions = clusterPermissions => {
   const { actiongroups, permissions } = clusterPermissions;
-  return {
-    actiongroups: comboBoxOptionsToArray(actiongroups),
-    permissions: comboBoxOptionsToArray(permissions)
-  };
+  return [
+    ...comboBoxOptionsToArray(actiongroups),
+    ...comboBoxOptionsToArray(permissions)
+  ];
 };
 
 export const formikToRole = _formik => {

@@ -158,7 +158,8 @@ class CreateRole extends Component {
     const { history, onTriggerErrorCallout, rolesService } = this.props;
     const { _name } = values;
     try {
-      await rolesService.save(_name, formikToRole(values));
+      const doPreSave = false;
+      await rolesService.save(_name, formikToRole(values), doPreSave);
       setSubmitting(false);
       history.goBack();
     } catch (error) {

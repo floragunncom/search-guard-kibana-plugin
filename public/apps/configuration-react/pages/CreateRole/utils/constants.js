@@ -3,8 +3,7 @@ export const ROLE = {
   description: '',
   index_permissions: [],
   tenant_permissions: [],
-  cluster_permissions: [],
-  global_application_permissions: []
+  cluster_permissions: []
 };
 
 export const ROLE_MAPPING = {
