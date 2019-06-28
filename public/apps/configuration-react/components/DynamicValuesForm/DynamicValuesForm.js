@@ -110,7 +110,8 @@ const DynamicValuesForm = ({
 );
 
 DynamicValuesForm.propTypes = {
-  title: PropTypes.node.isRequired,
+  title: PropTypes.node,
+  titleSize: PropTypes.string,
   onAdd: PropTypes.func.isRequired,
   onRemove: PropTypes.func.isRequired,
   items: PropTypes.arrayOf(PropTypes.shape({ value: PropTypes.string })).isRequired,

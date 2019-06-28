@@ -137,7 +137,7 @@ describe('role to UI role ', () => {
     };
 
     const uiResource = {
-      _isAdvanced: false,
+      _isAdvanced: true,
       _dls: '',
       flsmode: FLS_MODES.WHITELIST,
       index_patterns: [
@@ -247,7 +247,7 @@ describe('role to UI role ', () => {
     const uiResource = {
       ...cloneDeep(resource),
       _name: 'A',
-      _isClusterPermissionsAdvanced: false,
+      _isClusterPermissionsAdvanced: true,
       _roleMapping: {
         users: [],
         backend_roles: [],
@@ -291,7 +291,7 @@ describe('role to UI role ', () => {
           },
           flsmode: FLS_MODES.WHITELIST,
           _dls: '',
-          _isAdvanced: false
+          _isAdvanced: true
         },
         {
           index_patterns: [
@@ -319,7 +319,7 @@ describe('role to UI role ', () => {
           },
           flsmode: FLS_MODES.BLACKLIST,
           _dls: '',
-          _isAdvanced: false
+          _isAdvanced: true
         }
       ],
       _tenantPermissions: [

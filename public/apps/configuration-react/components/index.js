@@ -34,3 +34,4 @@ export { default as AccordionDeleteButton } from './Accordion/AccordionDeleteBut
 export { default as LoadingPage } from './Page/LoadingPage';
 export { default as InspectButton } from './Page/InspectButton';
 export { default as AddButton } from './Page/AddButton';
+export { default as TitleSecondary } from './Page/TitleSecondary';

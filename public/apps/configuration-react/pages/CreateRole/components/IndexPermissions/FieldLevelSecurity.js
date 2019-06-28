@@ -5,9 +5,10 @@ import {
   EuiSpacer,
   EuiFlexItem,
   EuiFlexGroup,
-  EuiCallOut
+  EuiCallOut,
+  EuiHorizontalRule
 } from '@elastic/eui';
-import { FormikRadio, FormikComboBox } from '../../../../components';
+import { FormikRadio, FormikComboBox, TitleSecondary } from '../../../../components';
 import { FLS_MODES } from '../../utils/constants';
 import {
   fieldLevelSecurityText,
@@ -29,10 +30,8 @@ const FieldLevelSecurity = ({
   onComboBoxCreateOption
 }) => (
   <Fragment>
-    <EuiTitle size="xs"><h4>{fieldLevelSecurityText}</h4></EuiTitle>
-
-    <EuiSpacer size="s"/>
-
+    <TitleSecondary text={fieldLevelSecurityText} />
+    <EuiHorizontalRule />
     <EuiFlexGroup>
       <EuiFlexItem grow={false}>
         <FormikRadio
@@ -67,51 +66,43 @@ const FieldLevelSecurity = ({
         />
       </EuiFlexItem>
     </EuiFlexGroup>
-
     <EuiSpacer size="s"/>
 
-    <EuiFlexGroup>
-      <EuiFlexItem>
-        <FormikComboBox
-          name={`_indexPermissions[${index}].fls`}
-          formRow
-          rowProps={{
-            helpText: includeOrExcludeFieldsText
-          }}
-          elementProps={{
-            isClearable: true,
-            onBlur: onComboBoxOnBlur,
-            onChange: onComboBoxChange(),
-            onCreateOption: onComboBoxCreateOption()
-          }}
-        />
-      </EuiFlexItem>
-
-      <EuiFlexItem>
-        {!isAnonymizedFieldsEnabled ? (
-          <EuiCallOut
-            data-test-subj="sgAnonymFieldsDisabledCallout"
-            className="sgFixedFormItem"
-            iconType="iInCircle"
-            title={anonymizedFieldsDisabledText}
-          />
-        ) : (
-          <FormikComboBox
-            name={`_indexPermissions[${index}].masked_fields`}
-            formRow
-            rowProps={{
-              helpText: anonymizeFieldsText
-            }}
-            elementProps={{
-              isClearable: true,
-              onBlur: onComboBoxOnBlur,
-              onChange: onComboBoxChange(),
-              onCreateOption: onComboBoxCreateOption()
-            }}
-          />
-        )}
-      </EuiFlexItem>
-    </EuiFlexGroup>
+    <FormikComboBox
+      name={`_indexPermissions[${index}].fls`}
+      formRow
+      rowProps={{
+        helpText: includeOrExcludeFieldsText
+      }}
+      elementProps={{
+        isClearable: true,
+        onBlur: onComboBoxOnBlur,
+        onChange: onComboBoxChange(),
+        onCreateOption: onComboBoxCreateOption()
+      }}
+    />
+    {!isAnonymizedFieldsEnabled ? (
+      <EuiCallOut
+        data-test-subj="sgAnonymFieldsDisabledCallout"
+        className="sgFixedFormItem"
+        iconType="iInCircle"
+        title={anonymizedFieldsDisabledText}
+      />
+    ) : (
+      <FormikComboBox
+        name={`_indexPermissions[${index}].masked_fields`}
+        formRow
+        rowProps={{
+          helpText: anonymizeFieldsText
+        }}
+        elementProps={{
+          isClearable: true,
+          onBlur: onComboBoxOnBlur,
+          onChange: onComboBoxChange(),
+          onCreateOption: onComboBoxCreateOption()
+        }}
+      />
+    )}
   </Fragment>
 );
 

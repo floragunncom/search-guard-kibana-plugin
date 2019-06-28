@@ -6,8 +6,8 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiSpacer,
-  EuiTitle,
-  EuiCallOut
+  EuiCallOut,
+  EuiHorizontalRule
 } from '@elastic/eui';
 import { advancedText } from '../../../../utils/i18n/common';
 import {
@@ -23,7 +23,8 @@ import {
   AccordionDeleteButton,
   FormikComboBox,
   FormikSwitch,
-  FormikCodeEditor
+  FormikCodeEditor,
+  TitleSecondary
 } from '../../../../components';
 import { comboBoxOptionsToArray } from '../../../../utils/helpers';
 import { isInvalid, hasError, validateESDLSQuery } from '../../../../utils/validation';
@@ -75,48 +76,38 @@ const IndexPatterns = ({
             />
           }
         >
-          <EuiSpacer />
-
-          <EuiFlexGroup>
-            <EuiFlexItem>
-              <FormikComboBox
-                name={`_indexPermissions[${index}].index_patterns`}
-                formRow
-                rowProps={{
-                  label: indexPatternsText,
-                }}
-                elementProps={{
-                  options: allIndices,
-                  isClearable: true,
-                  onBlur: onComboBoxOnBlur,
-                  onChange: onComboBoxChange(),
-                  onCreateOption: onComboBoxCreateOption()
-                }}
-              />
-            </EuiFlexItem>
-
-            <EuiFlexItem>
-              <FormikComboBox
-                name={`_indexPermissions[${index}].allowed_actions.actiongroups`}
-                formRow
-                rowProps={{
-                  label: actionGroupsText,
-                }}
-                elementProps={{
-                  options: allActionGroups,
-                  isClearable: true,
-                  onBlur: onComboBoxOnBlur,
-                  onChange: onComboBoxChange()
-                }}
-              />
-            </EuiFlexItem>
-          </EuiFlexGroup>
-          <EuiSpacer />
-
+          <FormikComboBox
+            name={`_indexPermissions[${index}].index_patterns`}
+            formRow
+            rowProps={{
+              label: indexPatternsText,
+            }}
+            elementProps={{
+              options: allIndices,
+              isClearable: true,
+              onBlur: onComboBoxOnBlur,
+              onChange: onComboBoxChange(),
+              onCreateOption: onComboBoxCreateOption()
+            }}
+          />
+          <FormikComboBox
+            name={`_indexPermissions[${index}].allowed_actions.actiongroups`}
+            formRow
+            rowProps={{
+              label: actionGroupsText,
+            }}
+            elementProps={{
+              options: allActionGroups,
+              isClearable: true,
+              onBlur: onComboBoxOnBlur,
+              onChange: onComboBoxChange()
+            }}
+          />
           <FormikSwitch
             formRow
             elementProps={{
-              label: advancedText
+              label: advancedText,
+              checked: indexPermissions[index]._isAdvanced
             }}
             name={`_indexPermissions[${index}]._isAdvanced`}
           />
@@ -135,15 +126,16 @@ const IndexPatterns = ({
               }}
             />
           }
-          <EuiSpacer />
-
           {!isFlsEnabled ? (
-            <EuiCallOut
-              data-test-subj="sgFLSDisabledCallout"
-              className="sgFixedFormItem"
-              iconType="iInCircle"
-              title={fieldLevelSecurityDisabledText}
-            />
+            <Fragment>
+              <EuiSpacer />
+              <EuiCallOut
+                data-test-subj="sgFLSDisabledCallout"
+                className="sgFixedFormItem"
+                iconType="iInCircle"
+                title={fieldLevelSecurityDisabledText}
+              />
+            </Fragment>
           ) : (
             <Fragment>
               <FieldLevelSecurity
@@ -157,20 +149,20 @@ const IndexPatterns = ({
               <EuiSpacer />
             </Fragment>
           )}
-          <EuiSpacer />
-
           {!isDlsEnabled ? (
-            <EuiCallOut
-              data-test-subj="sgDLSDisabledCallout"
-              className="sgFixedFormItem"
-              iconType="iInCircle"
-              title={documentLevelSecurityDisabledText}
-            />
+            <Fragment>
+              <EuiSpacer />
+              <EuiCallOut
+                data-test-subj="sgDLSDisabledCallout"
+                className="sgFixedFormItem"
+                iconType="iInCircle"
+                title={documentLevelSecurityDisabledText}
+              />
+            </Fragment>
           ) : (
             <Fragment>
-              <EuiTitle size="xs"><h4>{documentLevelSecurityText}</h4></EuiTitle>
-              <EuiSpacer size="s"/>
-
+              <TitleSecondary text={documentLevelSecurityText} />
+              <EuiHorizontalRule />
               <FormikCodeEditor
                 name={`_indexPermissions[${index}]._dls`}
                 formRow
@@ -200,7 +192,6 @@ const IndexPatterns = ({
             </Fragment>
           )}
           <EuiSpacer />
-
         </EuiAccordion>
       </EuiFlexItem>
     </EuiFlexGroup>

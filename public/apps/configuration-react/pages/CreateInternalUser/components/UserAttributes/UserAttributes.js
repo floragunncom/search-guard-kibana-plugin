@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { Fragment } from 'react';
+import { EuiHorizontalRule } from '@elastic/eui';
 import PropTypes from 'prop-types';
 import { FieldArray } from 'formik';
-import { FormikFieldText, DynamicValuesForm } from '../../../../components';
+import { FormikFieldText, DynamicValuesForm, TitleSecondary } from '../../../../components';
 import { hasError, isInvalid, validateTextField } from '../../../../utils/validation';
 import { userAttributesText } from '../../../../utils/i18n/internal_users';
 
@@ -40,29 +41,32 @@ const renderKeyField = fieldName => (
 );
 
 const UserAttributes = ({ attributes, onTriggerConfirmDeletionModal }) => (
-  <FieldArray
-    name="_attributes"
-    validateOnChange={false}
-    render={arrayHelpers => (
-      <DynamicValuesForm
-        isKey
-        title={userAttributesText}
-        onAdd={() => arrayHelpers.push({ key: '', value: '' })}
-        onRemove={i => {
-          onTriggerConfirmDeletionModal({
-            onConfirm: () => {
-              arrayHelpers.remove(i);
-              onTriggerConfirmDeletionModal(null);
-            }
-          });
-        }}
-        items={attributes}
-        name="_attributes"
-        onRenderValueField={renderValueField}
-        onRenderKeyField={renderKeyField}
-      />
-    )}
-  />
+  <Fragment>
+    <TitleSecondary text={userAttributesText} />
+    <EuiHorizontalRule />
+    <FieldArray
+      name="_attributes"
+      validateOnChange={false}
+      render={arrayHelpers => (
+        <DynamicValuesForm
+          isKey
+          onAdd={() => arrayHelpers.push({ key: '', value: '' })}
+          onRemove={i => {
+            onTriggerConfirmDeletionModal({
+              onConfirm: () => {
+                arrayHelpers.remove(i);
+                onTriggerConfirmDeletionModal(null);
+              }
+            });
+          }}
+          items={attributes}
+          name="_attributes"
+          onRenderValueField={renderValueField}
+          onRenderKeyField={renderKeyField}
+        />
+      )}
+    />
+  </Fragment>
 );
 
 UserAttributes.propTypes = {

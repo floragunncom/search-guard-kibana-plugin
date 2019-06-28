@@ -87,7 +87,7 @@ export const indexPermissionToUiIndexPermission = indexPermission =>  {
     allowed_actions: allowedActions,
     index_patterns: indexPatterns,
     masked_fields: arrayToComboBoxOptions(indexPermission.masked_fields),
-    _isAdvanced: false,
+    _isAdvanced: !isEmpty(allowedActions.permissions),
   };
 };
 
@@ -112,6 +112,7 @@ export const roleToFormik = ({ resource, roleMapping = {}, id = '' }) => {
     _roleMapping,
     _clusterPermissions,
     _indexPermissions,
-    _tenantPermissions
+    _tenantPermissions,
+    _isClusterPermissionsAdvanced: !isEmpty(_clusterPermissions.permissions)
   };
 };
