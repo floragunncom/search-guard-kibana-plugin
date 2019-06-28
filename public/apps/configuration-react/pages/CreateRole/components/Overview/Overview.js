@@ -17,7 +17,7 @@ import {
 } from '../../../../utils/i18n/common';
 import {
   membersText,
-  rolesText,
+  backendRolesText,
   usersText,
   hostsText,
   noMappedUsersFoundText,
@@ -37,7 +37,7 @@ const Overview = ({ values, titleText, onTriggerInspectJsonFlyout, rolesService,
 
   const sectionText = {
     users: usersText,
-    backend_roles: rolesText,
+    backend_roles: backendRolesText,
     hosts: hostsText
   };
 
