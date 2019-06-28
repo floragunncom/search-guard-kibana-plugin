@@ -177,7 +177,15 @@ class CreateRole extends Component {
   ))
 
   render() {
-    const { history, location, httpClient } = this.props;
+    const {
+      history,
+      location,
+      httpClient,
+      onComboBoxChange,
+      onComboBoxOnBlur,
+      onComboBoxCreateOption,
+      onTriggerConfirmDeletionModal
+    } = this.props;
     const {
       isEdit,
       isLoading,
@@ -188,9 +196,6 @@ class CreateRole extends Component {
       isFlsEnabled,
       isMultiTenancyEnabled,
       isAnonymizedFieldsEnabled,
-      onComboBoxChange,
-      onComboBoxOnBlur,
-      onComboBoxCreateOption,
       allIndexPermissions,
       allClusterPermissions,
       allIndexActionGroups,
@@ -263,6 +268,7 @@ class CreateRole extends Component {
                   onComboBoxChange={onComboBoxChange}
                   onComboBoxOnBlur={onComboBoxOnBlur}
                   onComboBoxCreateOption={onComboBoxCreateOption}
+                  onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
                   {...this.props}
                 />
               }
@@ -277,6 +283,7 @@ class CreateRole extends Component {
                   onComboBoxChange={onComboBoxChange}
                   onComboBoxOnBlur={onComboBoxOnBlur}
                   onComboBoxCreateOption={onComboBoxCreateOption}
+                  onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
                   {...this.props}
                 />
               }
@@ -298,6 +305,7 @@ CreateRole.propTypes = {
   tenantsService: PropTypes.object.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
   httpClient: PropTypes.func.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,
   onComboBoxCreateOption: PropTypes.func.isRequired,
