@@ -51,48 +51,38 @@ const TenantPatterns = ({
                 />
               }
             >
-              <EuiSpacer />
-
-              <EuiFlexGroup>
-                <EuiFlexItem>
-                  <FormikComboBox
-                    name={`_tenantPermissions[${index}].tenant_patterns`}
-                    formRow
-                    rowProps={{
-                      label: tenantPatternsText,
-                    }}
-                    elementProps={{
-                      isClearable: true,
-                      options: isMultiTenancyEnabled ? allTenants : [{ label: GLOBAL_TENANT }],
-                      onBlur: onComboBoxOnBlur,
-                      onChange: onComboBoxChange(),
-                      onCreateOption: (label, field, form) => {
-                        if (isMultiTenancyEnabled) {
-                          onComboBoxCreateOption()(label, field, form);
-                        }
-                      }
-                    }}
-                  />
-                </EuiFlexItem>
-
-                <EuiFlexItem>
-                  <FormikComboBox
-                    name={`_tenantPermissions[${index}].allowed_actions`}
-                    formRow
-                    rowProps={{
-                      label: actionGroupsText,
-                    }}
-                    elementProps={{
-                      options: allAppActionGroups,
-                      isClearable: true,
-                      onBlur: onComboBoxOnBlur,
-                      onChange: onComboBoxChange()
-                    }}
-                  />
-                </EuiFlexItem>
-              </EuiFlexGroup>
+              <FormikComboBox
+                name={`_tenantPermissions[${index}].tenant_patterns`}
+                formRow
+                rowProps={{
+                  label: tenantPatternsText,
+                }}
+                elementProps={{
+                  isClearable: true,
+                  options: isMultiTenancyEnabled ? allTenants : [{ label: GLOBAL_TENANT }],
+                  onBlur: onComboBoxOnBlur,
+                  onChange: onComboBoxChange(),
+                  onCreateOption: (label, field, form) => {
+                    if (isMultiTenancyEnabled) {
+                      onComboBoxCreateOption()(label, field, form);
+                    }
+                  }
+                }}
+              />
+              <FormikComboBox
+                name={`_tenantPermissions[${index}].allowed_actions`}
+                formRow
+                rowProps={{
+                  label: actionGroupsText,
+                }}
+                elementProps={{
+                  options: allAppActionGroups,
+                  isClearable: true,
+                  onBlur: onComboBoxOnBlur,
+                  onChange: onComboBoxChange()
+                }}
+              />
               <EuiSpacer size="xl" />
-
             </EuiAccordion>
           </EuiFlexItem>
         </EuiFlexGroup>
