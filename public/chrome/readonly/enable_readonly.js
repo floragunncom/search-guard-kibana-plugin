@@ -69,23 +69,8 @@ function hideNavItems() {
     originalNavItemsVisibility = {};
     chromeWrapper.getNavLinks().forEach((navLink) => {
         if (navLink.id !== 'kibana:dashboard') {
-
             originalNavItemsVisibility[navLink.id] = navLink.hidden;
-            chromeWrapper.hideNavLink(navLink.id, true);
-
-            // This is a bit of a hack to make sure that we detect
-            // changes that happen between reading the original
-            // state and resolving our info
-            navLink._sgHidden = navLink.hidden;
-            Object.defineProperty(navLink, 'hidden', {
-                set(value) {
-                    originalNavItemsVisibility[this.id] = value;
-                    this._sgHidden = value;
-                },
-                get() {
-                    return this._sgHidden;
-                }
-            });
+            chromeWrapper.hideNavLink(navLink.id, true, true);
         }
     });
 }
@@ -103,7 +88,8 @@ function hideNavItemsForTenantReadOnly() {
             // A bit redundant if all items are hidden from the start
             chromeWrapper.hideNavLink(navLink.id, true);
         } else if (originalNavItemsVisibility !== null) {
-            chromeWrapper.hideNavLink(navLink.id, originalNavItemsVisibility[navLink.id]);
+            const isHidden = getFinalHiddenStatus(navLink.id);
+            chromeWrapper.hideNavLink(navLink.id, isHidden);
         }
     });
 }
@@ -126,7 +112,8 @@ function hideNavItemsForDashboardOnly(multitenancyVisible) {
             // A bit redundant if all items are hidden from the start
             chromeWrapper.hideNavLink(navLink.id, true);
         } else if (originalNavItemsVisibility !== null) {
-            chromeWrapper.hideNavLink(navLink.id, originalNavItemsVisibility[navLink.id]);
+            const isHidden = getFinalHiddenStatus(navLink.id);
+            chromeWrapper.hideNavLink(navLink.id, isHidden);
         }
     });
 }
@@ -278,6 +265,15 @@ function resolveWithDashboardRole($q, $rootScope, $location, route, dashboardCon
 
 }
 
+function getFinalHiddenStatus(id) {
+    let updatedVisibility = chromeWrapper.changedVisibility[id];
+    if (typeof updatedVisibility !== 'undefined') {
+        return updatedVisibility;
+    }
+
+    return (originalNavItemsVisibility[id] === true);
+}
+
 function resolveRegular(authInfo) {
 
     resolvedReadOnly = {
@@ -291,8 +287,8 @@ function resolveRegular(authInfo) {
     // change them back to their original state
     if (originalNavItemsVisibility !== null) {
         chromeWrapper.getNavLinks().forEach((navLink) => {
-            chromeWrapper.hideNavLink(id, originalNavItemsVisibility[navLink.id]);
-
+            const isHidden = getFinalHiddenStatus(navLink.id);
+            chromeWrapper.hideNavLink(navLink.id, isHidden);
         });
     }
 

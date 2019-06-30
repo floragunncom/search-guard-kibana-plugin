@@ -20,6 +20,13 @@ import chrome from 'ui/chrome';
 
 let getNewPlatform = null;
 
+/**
+ * Holds the original state of the navigation links "hidden" property
+ * Helper for the readOnly functionality
+ * @type {null|Object}
+ */
+let changedVisibility = {}
+
 if (! chrome.getNavLinkById) {
   getNewPlatform = require('ui/new_platform').getNewPlatform;
 }
@@ -41,7 +48,14 @@ function getNavLinkById(id) {
   }
 }
 
-function hideNavLink(id, isHidden) {
+function hideNavLink(id, isHidden, skipTracking = false) {
+  // This is a bit of a hack to make sure that we detect
+  // changes that happen between reading the original
+  // state and resolving our info in the readOnly feature
+  if (skipTracking === false) {
+    changedVisibility[id] = isHidden;
+  }
+
   updateNavLinkProperty(id, 'hidden', isHidden);
 }
 
@@ -91,5 +105,6 @@ export let chromeWrapper = {
   getNavLinkById,
   hideNavLink,
   updateNavLinkProperty,
-  resetLastSubUrl
+  resetLastSubUrl,
+  changedVisibility
 };
