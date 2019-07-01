@@ -153,8 +153,20 @@ export function enableConfiguration($http, $window, systemstate) {
                         category: FeatureCatalogueCategory.ADMIN
                     };
                 });
+                FeatureCatalogueRegistryProvider.register(() => {
+                    return {
+                        id: 'searchguard-configuration-react',
+                        title: 'Search Guard Configuration',
+                        description: 'Configure users, roles and permissions for Search Guard.',
+                        icon: 'securityApp',
+                        path: '/app/searchguard-configuration-react',
+                        showOnHomePage: true,
+                        category: FeatureCatalogueCategory.ADMIN
+                    };
+                });
             } else {
                 chrome.getNavLinkById("searchguard-configuration").hidden = true;
+                chrome.getNavLinkById("searchguard-configuration-react").hidden = true;
             }
         });
     });
