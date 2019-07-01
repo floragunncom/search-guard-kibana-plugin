@@ -101,7 +101,8 @@ class CreateRoleMapping extends Component {
     const { history, onTriggerErrorCallout, roleMappingsService } = this.props;
     const { _name: [{ label: name }] } = values;
     try {
-      await roleMappingsService.save(name, formikToRoleMapping(values));
+      const doPreSave = false;
+      await roleMappingsService.save(name, formikToRoleMapping(values), doPreSave);
       setSubmitting(false);
       history.push(APP_PATH.ROLE_MAPPINGS);
     } catch (error) {

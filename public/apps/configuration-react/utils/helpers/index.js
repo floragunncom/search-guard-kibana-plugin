@@ -52,24 +52,6 @@ export const allowedActionsToPermissionsAndActiongroups = (allowedActions = []) 
   };
 };
 
-export const actionGroupToActiongroupsAndPermissions = (actionGroup = {}) => {
-  const { permissions, actiongroups } = allowedActionsToPermissionsAndActiongroups(actionGroup.allowed_actions || []);
-
-  forEach(actionGroup.actiongroups, item => {
-    actiongroups.push(item);
-  });
-
-  forEach(actionGroup.permissions, item => {
-    permissions.push(item);
-  });
-
-  return {
-    ...actionGroup,
-    permissions: uniqBy(sortBy(permissions)),
-    actiongroups: uniqBy(sortBy(actiongroups))
-  };
-};
-
 export const attributesToUiAttributes = (attributes = {}) => sortBy(map(attributes, (value, key) => ({ value, key })));
 export const uiAttributesToAttributes = (attributes = []) => attributes.reduce((result, { key, value }) => {
   if (key.trim() !== '') {

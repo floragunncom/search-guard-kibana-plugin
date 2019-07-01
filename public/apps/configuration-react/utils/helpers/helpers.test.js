@@ -7,7 +7,8 @@ import {
   comboBoxOptionsToArray,
   attributesToUiAttributes,
   uiAttributesToAttributes,
-  filterReservedStaticTableResources
+  filterReservedStaticTableResources,
+  allowedActionsToPermissionsAndActiongroups
 } from './index';
 
 describe('common helpers', () => {
@@ -113,5 +114,15 @@ describe('common helpers', () => {
     expect(filterReservedStaticTableResources(resources, isShowingSystemItems)).toEqual([{ c: 3 }]);
     isShowingSystemItems = true;
     expect(filterReservedStaticTableResources(resources, isShowingSystemItems)).toEqual(resources);
+  });
+
+  test('can crete actiongroups and permissions from allowed_action', () => {
+    const allowedActions = [ 'indices:a', 'cluster:a/b', 'kibana:v', 'B', 'A' ];
+    const result = {
+      actiongroups: ['A', 'B'],
+      permissions: ['cluster:a/b', 'indices:a', 'kibana:v']
+    };
+
+    expect(allowedActionsToPermissionsAndActiongroups(allowedActions)).toEqual(result);
   });
 });

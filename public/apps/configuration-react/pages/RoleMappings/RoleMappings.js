@@ -124,7 +124,8 @@ class RoleMappings extends Component {
     name += '_copy';
     try {
       this.setState({ isLoading: true });
-      await this.backendService.save(name, uiResourceToResource(resource));
+      const doPreSave = false;
+      await this.backendService.save(name, uiResourceToResource(resource), doPreSave);
     } catch(error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
