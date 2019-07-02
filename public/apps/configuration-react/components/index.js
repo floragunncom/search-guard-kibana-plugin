@@ -5,6 +5,7 @@ export { default as Flyout } from './Flyout';
 export { default as Callout } from './Callout';
 export { default as EmptyPrompt } from './EmptyPrompt';
 export { default as Modal } from './Modal';
+export { default as Icon } from './Icon';
 
 // Formik wrappers
 export { default as FormikFormRow } from './FormControls/FormikFormRow';

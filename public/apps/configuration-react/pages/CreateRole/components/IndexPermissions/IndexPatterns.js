@@ -24,7 +24,8 @@ import {
   FormikComboBox,
   FormikSwitch,
   FormikCodeEditor,
-  TitleSecondary
+  TitleSecondary,
+  Icon
 } from '../../../../components';
 import { comboBoxOptionsToArray } from '../../../../utils/helpers';
 import { isInvalid, hasError, validateESDLSQuery } from '../../../../utils/validation';
@@ -70,7 +71,7 @@ const IndexPatterns = ({
           }
           buttonContent={
             <AccordionButtonContent
-              iconType="indexPatternApp"
+              iconType={<Icon size="xl" type="indexPattern" />}
               titleText={indexPatternsText}
               subduedText={indexPatternNames(indexPermission.index_patterns)}
             />
