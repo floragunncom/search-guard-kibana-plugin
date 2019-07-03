@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import {
   EuiButton,
   EuiInMemoryTable,
-  EuiEmptyPrompt,
-  EuiSwitch
+  EuiEmptyPrompt
 } from '@elastic/eui';
 import { get } from 'lodash';
 import {
@@ -13,7 +12,8 @@ import {
   TableNameCell,
   TableDeleteAction,
   TableCloneAction,
-  TableMultiDeleteButton
+  TableMultiDeleteButton,
+  TableSwitchSystemItems
 } from '../../components';
 import {
   CreateButton,
@@ -140,19 +140,6 @@ class Roles extends Component {
     );
   }
 
-  renderToolsRight = () => {
-    const { isShowingTableSystemItems } = this.state;
-    return (
-      <EuiSwitch
-        label={systemItemsText}
-        checked={isShowingTableSystemItems}
-        onChange={() => {
-          this.setState({ isShowingTableSystemItems: !isShowingTableSystemItems });
-        }}
-      />
-    );
-  }
-
   renderEmptyTableMessage = history => (
     <EuiEmptyPrompt
       title={<h3>{rolesText}</h3>}
@@ -261,7 +248,15 @@ class Roles extends Component {
 
     const search = {
       toolsLeft: this.renderToolsLeft(),
-      toolsRight: this.renderToolsRight(),
+      toolsRight: (
+        <TableSwitchSystemItems
+          label={systemItemsText}
+          checked={isShowingTableSystemItems}
+          onChange={() => {
+            this.setState({ isShowingTableSystemItems: !isShowingTableSystemItems });
+          }}
+        />
+      ),
       box: {
         incremental: true,
       }

@@ -15,10 +15,10 @@ const TableNameCell = ({ history, uri, name, isReserved = false, children }) => 
     <EuiFlexGroup>
       <EuiFlexItem>
         {isReserved ? (
-          <EuiText data-test-subj={`sgTableColName-${name}`} size="s">{name}</EuiText>
+          <EuiText data-test-subj={`sgTableCol-Name-${name}`} size="s">{name}</EuiText>
         ) : (
           <EuiLink
-            data-test-subj={`sgTableColName-${name}`}
+            data-test-subj={`sgTableCol-Name-${name}`}
             onClick={() => history.push(uri)}
           >
             {name}
@@ -31,7 +31,7 @@ const TableNameCell = ({ history, uri, name, isReserved = false, children }) => 
         columns={2}
         gutterSize="s"
         responsive={false}
-        data-test-subj={`sgTableColNameReserved-${name}`}
+        data-test-subj={`sgTableCol-Name-${name}-Reserved`}
       >
         <EuiFlexItem grow={false}>
           <EuiIcon type="lock" />

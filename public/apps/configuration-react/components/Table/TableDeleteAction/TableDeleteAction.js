@@ -4,7 +4,7 @@ import { EuiButtonIcon } from '@elastic/eui';
 
 const TableDeleteAction = ({ onClick, name }) => (
   <EuiButtonIcon
-    data-test-subj={`sgTableActionDelete-${name}`}
+    data-test-subj={`sgTableCol-ActionDelete-${name}`}
     onClick={onClick}
     color="danger"
     iconType="trash"

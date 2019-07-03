@@ -2,13 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { EuiText } from '@elastic/eui';
 
-const TableNameCell = ({ name, value }) => (
-  <div data-test-subj={`sgTableCol${name}`}>
+const TableTextCell = ({ name, value }) => (
+  <div data-test-subj={`sgTableCol-${name}`}>
     <EuiText>{value}</EuiText>
   </div>
 );
 
-TableNameCell.propTypes = {
+TableTextCell.propTypes = {
   name: PropTypes.string.isRequired,
   value: PropTypes.oneOfType([
     PropTypes.node,
@@ -16,4 +16,4 @@ TableNameCell.propTypes = {
   ]).isRequired
 };
 
-export default TableNameCell;
+export default TableTextCell;

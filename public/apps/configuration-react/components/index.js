@@ -26,6 +26,7 @@ export { default as TableDeleteAction } from './Table/TableDeleteAction';
 export { default as TableCloneAction } from './Table/TableCloneAction';
 export { default as TableTextCell } from './Table/TableTextCell';
 export { default as TableMultiDeleteButton } from './Table/TableMultiDeleteButton';
+export { default as TableSwitchSystemItems } from './Table/TableSwitchSystemItems';
 
 // Accordion
 export { default as AccordionButtonContent } from './Accordion/AccordionButtonContent';

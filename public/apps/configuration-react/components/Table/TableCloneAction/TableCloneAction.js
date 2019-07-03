@@ -4,7 +4,7 @@ import { EuiButtonIcon } from '@elastic/eui';
 
 const TableCloneAction = ({ onClick, name }) => (
   <EuiButtonIcon
-    data-test-subj={`sgTableActionClone-${name}`}
+    data-test-subj={`sgTableCol-ActionClone-${name}`}
     onClick={onClick}
     color="primary"
     iconType="copy"
