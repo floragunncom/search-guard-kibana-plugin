@@ -18,7 +18,6 @@ describe('UI table role mapping to role mapping', () => {
       backend_roles: ['g'],
       hosts: ['h', 'i'],
       users: ['j', 'k'],
-      and_backend_roles: [],
       description: 'Migrated from v6'
     };
 

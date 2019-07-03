@@ -69,7 +69,7 @@ describe('roles to UI table roles', () => {
         _id: 'A_ROLE',
         _indexPatterns: ['a'],
         _tenantPatterns: [],
-        _clusterPermissions: [
+        cluster_permissions: [
           'A',
           'B',
           'cluster:a/b/c',
@@ -94,7 +94,7 @@ describe('roles to UI table roles', () => {
         _id: 'B_ROLE',
         _indexPatterns: ['a', 'b', 'c', 'd'],
         _tenantPatterns: ['e', 'f', 'g'],
-        _clusterPermissions: [
+        cluster_permissions: [
           'A',
           'B',
           'cluster:a/b/c',

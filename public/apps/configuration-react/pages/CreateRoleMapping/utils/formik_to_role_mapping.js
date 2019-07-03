@@ -11,6 +11,7 @@ const formikToRoleMapping = _formik => {
       '_backendRoles',
       '_hosts',
       '_users',
+      'and_backend_roles',
       ...FIELDS_TO_OMIT_BEFORE_SAVE
     ]),
     backend_roles: comboBoxOptionsToArray(_backendRoles),

@@ -76,8 +76,8 @@ class CreateInternalUser extends Component {
     const { _username } = values;
     try {
       const user = formikToUser(values);
-      const doPreSaveResourceAdaptation = false;
-      await internalUsersService.save(_username, user, doPreSaveResourceAdaptation);
+      const doPreSave = false;
+      await internalUsersService.save(_username, user, doPreSave);
       setSubmitting(false);
       history.push(APP_PATH.INTERNAL_USERS);
     } catch (error) {

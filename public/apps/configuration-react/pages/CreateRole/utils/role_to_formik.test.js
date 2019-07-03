@@ -241,7 +241,6 @@ describe('role to UI role ', () => {
         }
       ],
       static: false,
-      global_application_permissions: []
     };
 
     const uiResource = {

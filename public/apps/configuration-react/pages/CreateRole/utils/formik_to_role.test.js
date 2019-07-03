@@ -2,26 +2,35 @@ import {
   formikToRole,
   uiIndexPermissionsToIndexPermissions,
   uiTenantPermissionsToTenantPermissions,
-  uiClusterPermissionsToClusterPermissions
+  uiClusterPermissionsToClusterPermissions,
+  uiFlsToFls
 } from './formik_to_role';
 import { FLS_MODES } from './constants';
 
 describe('UI role to role ', () => {
+  test(`can build ${FLS_MODES.WHITELIST} fls`, () => {
+    const fls = ['a', '~b'];
+    const uiFls = [{ label: 'a' }, { label: '~b' }];
+
+    expect(uiFlsToFls(uiFls, FLS_MODES.WHITELIST)).toEqual(fls);
+  });
+
+  test(`can build ${FLS_MODES.BLACKLIST} fls`, () => {
+    const fls = ['~a', '~b'];
+    const uiFls = [{ label: 'a' }, { label: '~~b' }];
+
+    expect(uiFlsToFls(uiFls, FLS_MODES.BLACKLIST)).toEqual(fls);
+  });
+
   test('can build index permissions', () => {
     const resource = [
       {
         index_patterns: ['a', 'b'],
         fls: ['c', 'd'],
         masked_fields: ['e', 'f'],
-        allowed_actions: {
-          actiongroups: ['A', 'B'],
-          permissions: [
-            'cluster:a',
-            'indices:a',
-            'kibana:a'
-          ]
-        },
-        flsmode: FLS_MODES.WHITELIST
+        allowed_actions: [
+          'A', 'B', 'cluster:a', 'indices:a', 'kibana:a'
+        ],
       }
     ];
 
@@ -84,14 +93,9 @@ describe('UI role to role ', () => {
   });
 
   test('can build cluster permissions', () => {
-    const resource = {
-      actiongroups: [ 'A', 'B' ],
-      permissions: [
-        'cluster:a',
-        'indices:a',
-        'kibana:a'
-      ]
-    };
+    const resource = [
+      'A', 'B', 'cluster:a', 'indices:a', 'kibana:a'
+    ];
 
     const uiResource = {
       actiongroups: [
@@ -111,42 +115,25 @@ describe('UI role to role ', () => {
   test('can build role', () => {
     const resource = {
       description: 'Migrated from v6 (all types mapped)',
-      cluster_permissions: {
-        actiongroups: [ 'A', 'B' ],
-        permissions: [
-          'cluster:a',
-          'indices:a',
-          'kibana:a'
-        ]
-      },
+      cluster_permissions: [
+        'A', 'B', 'cluster:a', 'indices:a', 'kibana:a'
+      ],
       index_permissions: [
         {
-          flsmode: FLS_MODES.WHITELIST,
           index_patterns: ['a', 'b'],
           fls: ['c', 'd'],
           masked_fields: ['e', 'f'],
-          allowed_actions: {
-            actiongroups: [ 'A', 'B' ],
-            permissions: [
-              'cluster:a',
-              'indices:a',
-              'kibana:a'
-            ]
-          }
+          allowed_actions: [
+            'A', 'B', 'cluster:a', 'indices:a', 'kibana:a'
+          ]
         },
         {
-          flsmode: FLS_MODES.BLACKLIST,
           index_patterns: ['g', 'h'],
-          fls: ['i', 'j'],
+          fls: ['~i', '~j'],
           masked_fields: ['k', 'l'],
-          allowed_actions: {
-            actiongroups: [ 'A', 'B' ],
-            permissions: [
-              'cluster:a',
-              'indices:a',
-              'kibana:a'
-            ]
-          }
+          allowed_actions: [
+            'A', 'B', 'cluster:a', 'indices:a', 'kibana:a'
+          ]
         }
       ],
       tenant_permissions: [
@@ -158,8 +145,7 @@ describe('UI role to role ', () => {
           tenant_patterns: ['e', 'f'],
           allowed_actions: ['g', 'h']
         }
-      ],
-      global_application_permissions: []
+      ]
     };
 
     const uiResource = {
@@ -210,7 +196,6 @@ describe('UI role to role ', () => {
         }
       ],
       static: false,
-      global_application_permissions: [],
       _name: 'A',
       _isClusterPermissionsAdvanced: false,
       _roleMapping: {

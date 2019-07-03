@@ -1,7 +1,7 @@
 import { cloneDeep, sortBy, filter } from 'lodash';
 import {
   arrayToComboBoxOptions,
-  actionGroupToActiongroupsAndPermissions
+  allowedActionsToPermissionsAndActiongroups
 } from '../../../utils/helpers';
 
 export const actionGroupsToUiActionGroups = (actionGroups = {}, groupNamesToFilter = []) => {
@@ -10,9 +10,9 @@ export const actionGroupsToUiActionGroups = (actionGroups = {}, groupNamesToFilt
   }));
 };
 
-export const actionGroupToFormik = (_actionGroup, id = '') => {
-  const actionGroup = cloneDeep(_actionGroup);
-  const { permissions, actiongroups } = actionGroupToActiongroupsAndPermissions(actionGroup);
+export const actionGroupToFormik = (actionGroup, id = '') => {
+  const { allowed_actions: allowedActions } = cloneDeep(actionGroup);
+  const { permissions, actiongroups } = allowedActionsToPermissionsAndActiongroups(allowedActions);
   return {
     ...actionGroup,
     _name: id,

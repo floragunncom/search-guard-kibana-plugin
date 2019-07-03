@@ -118,8 +118,8 @@ class InternalUsers extends Component {
     username += '_copy';
     try {
       this.setState({ isLoading: true });
-      const doPreSaveResourceAdaptation = false;
-      await this.backendService.save(username, uiResourceToResource(resource), doPreSaveResourceAdaptation);
+      const doPreSave = false;
+      await this.backendService.save(username, uiResourceToResource(resource), doPreSave);
     } catch(error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);

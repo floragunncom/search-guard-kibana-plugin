@@ -6,7 +6,6 @@ describe('UI role mapping to role mapping', () => {
       backend_roles: ['a', 'b'],
       hosts: ['c', 'd'],
       users: ['e', 'f'],
-      and_backend_roles: [],
       description: ''
     };
 
