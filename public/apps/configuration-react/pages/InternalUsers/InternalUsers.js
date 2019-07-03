@@ -171,7 +171,7 @@ class InternalUsers extends Component {
           columns={2}
           gutterSize="s"
           responsive={false}
-          data-test-subj={`sgTableColNameCurrentUser-${name}`}
+          data-test-subj={`sgTableCol-Name-${name}-CurrentUser`}
         >
           <EuiFlexItem grow={false}>
             <EuiIcon type="user"/>

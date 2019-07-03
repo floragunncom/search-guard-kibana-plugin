@@ -200,7 +200,7 @@ class RoleMappings extends Component {
           iconType="alert"
           color="danger"
           title={noCorrespondingRoleText}
-          data-test-subj={`sgTableColNameMissingRole-${_id}`}
+          data-test-subj={`sgTableCol-Name-${_id}-MissingRole`}
         />
       )
     );
