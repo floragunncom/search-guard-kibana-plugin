@@ -81,4 +81,5 @@ export const validateEmptyComboBox = value => {
 };
 
 export const validClusterSinglePermissionOption = label => (/^cluster:[\w\*].*/).test(label);
+export const validIndicesSinglePermissionOption = label => (/^indices:[\w\*].*/).test(label);
 export const validSinglePermissionOption = label => (/^((cluster)|(indices)):[\w\*].*/).test(label);

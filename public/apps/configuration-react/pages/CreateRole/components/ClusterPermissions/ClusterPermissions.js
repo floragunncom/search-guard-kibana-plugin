@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { FormikComboBox, FormikSwitch } from '../../../../components';
 import { actionGroupsText, singlePermissionsText } from '../../../../utils/i18n/action_groups';
 import { advancedText } from '../../../../utils/i18n/common';
-import { validClusterSinglePermissionOption } from '../../../../utils/validation';
+import { validSinglePermissionOption } from '../../../../utils/validation';
 
 const ClusterPermissions = ({
   allActionGroups,
@@ -46,7 +46,7 @@ const ClusterPermissions = ({
           options: allSinglePermissions,
           isClearable: true,
           onBlur: onComboBoxOnBlur,
-          onCreateOption: onComboBoxCreateOption(validClusterSinglePermissionOption),
+          onCreateOption: onComboBoxCreateOption(validSinglePermissionOption),
           onChange: onComboBoxChange()
         }}
       />

@@ -28,7 +28,12 @@ import {
   Icon
 } from '../../../../components';
 import { comboBoxOptionsToArray } from '../../../../utils/helpers';
-import { isInvalid, hasError, validateESDLSQuery } from '../../../../utils/validation';
+import {
+  isInvalid,
+  hasError,
+  validateESDLSQuery,
+  validIndicesSinglePermissionOption
+} from '../../../../utils/validation';
 import FieldLevelSecurity from './FieldLevelSecurity';
 
 const indexPatternNames = (indexPatterns = []) => comboBoxOptionsToArray(indexPatterns).join(', ');
@@ -123,6 +128,7 @@ const IndexPatterns = ({
                 options: allSinglePermissions,
                 isClearable: true,
                 onBlur: onComboBoxOnBlur,
+                onCreateOption: onComboBoxCreateOption(validIndicesSinglePermissionOption),
                 onChange: onComboBoxChange()
               }}
             />

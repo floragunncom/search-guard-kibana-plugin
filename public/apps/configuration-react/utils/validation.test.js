@@ -3,7 +3,8 @@ import {
   validatePassword,
   validateEmptyComboBox,
   validClusterSinglePermissionOption,
-  validSinglePermissionOption
+  validSinglePermissionOption,
+  validIndicesSinglePermissionOption
 } from './validation';
 import {
   jsonIsInvalidText,
@@ -125,16 +126,22 @@ describe('validation', () => {
   });
 
   describe('validate single permissions', () => {
-    test('can validate cluster permission', () => {
+    test('can validate cluster and indices permission', () => {
       expect(validClusterSinglePermissionOption('cluster:*')).toEqual(true);
       expect(validClusterSinglePermissionOption('cluster:a')).toEqual(true);
       expect(validClusterSinglePermissionOption('cluster:a/b/c')).toEqual(true);
+      expect(validIndicesSinglePermissionOption('indices:*')).toEqual(true);
+      expect(validIndicesSinglePermissionOption('indices:a')).toEqual(true);
+      expect(validIndicesSinglePermissionOption('indices:a/b/c')).toEqual(true);
     });
 
     test('fail to validate cluster permission', () => {
       expect(validClusterSinglePermissionOption('cluster:')).toEqual(false);
       expect(validClusterSinglePermissionOption('cat')).toEqual(false);
       expect(validClusterSinglePermissionOption('indices:a/b/c')).toEqual(false);
+      expect(validIndicesSinglePermissionOption('indices:')).toEqual(false);
+      expect(validIndicesSinglePermissionOption('cat')).toEqual(false);
+      expect(validIndicesSinglePermissionOption('cluster:a/b/c')).toEqual(false);
     });
 
     test('can validate single permission', () => {
