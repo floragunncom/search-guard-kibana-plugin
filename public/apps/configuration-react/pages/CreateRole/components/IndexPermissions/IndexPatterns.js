@@ -1,19 +1,15 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { get } from 'lodash';
 import {
   EuiAccordion,
   EuiFlexGroup,
   EuiFlexItem,
   EuiSpacer,
-  EuiCallOut,
-  EuiHorizontalRule
+  EuiCallOut
 } from '@elastic/eui';
 import { advancedText } from '../../../../utils/i18n/common';
 import {
   indexPatternsText,
-  elasticsearhQueryDLSText,
-  documentLevelSecurityText,
   fieldLevelSecurityDisabledText,
   documentLevelSecurityDisabledText
 } from '../../../../utils/i18n/roles';
@@ -23,18 +19,14 @@ import {
   AccordionDeleteButton,
   FormikComboBox,
   FormikSwitch,
-  FormikCodeEditor,
-  TitleSecondary,
   Icon
 } from '../../../../components';
 import { comboBoxOptionsToArray } from '../../../../utils/helpers';
 import {
-  isInvalid,
-  hasError,
-  validateESDLSQuery,
   validIndicesSinglePermissionOption
 } from '../../../../utils/validation';
 import FieldLevelSecurity from './FieldLevelSecurity';
+import DocumentLevelSecurity from './DocumentLevelSecurity';
 
 const indexPatternNames = (indexPatterns = []) => comboBoxOptionsToArray(indexPatterns).join(', ');
 
@@ -156,48 +148,20 @@ const IndexPatterns = ({
               <EuiSpacer />
             </Fragment>
           )}
-          {!isDlsEnabled ? (
-            <Fragment>
-              <EuiSpacer />
-              <EuiCallOut
-                data-test-subj="sgDLSDisabledCallout"
-                className="sgFixedFormItem"
-                iconType="iInCircle"
-                title={documentLevelSecurityDisabledText}
-              />
-            </Fragment>
-          ) : (
-            <Fragment>
-              <TitleSecondary text={documentLevelSecurityText} />
-              <EuiHorizontalRule />
-              <FormikCodeEditor
-                name={`_indexPermissions[${index}]._dls`}
-                formRow
-                formikFieldProps={{
-                  // TODO: should we validate all indexes? This logic was taken from the old app
-                  validate: validateESDLSQuery(get(indexPermission, 'index_patterns[0].label'), httpClient)
-                }}
-                rowProps={{
-                  helpText: elasticsearhQueryDLSText,
-                  fullWidth: true,
-                  isInvalid,
-                  error: hasError,
-                }}
-                elementProps={{
-                  mode: 'text',
-                  width: '100%',
-                  height: '300px',
-                  theme: 'github',
-                  onChange: (dls, field, form) => {
-                    form.setFieldValue(`_indexPermissions[${index}]._dls`, dls);
-                  },
-                  onBlur: (e, field, form) => {
-                    form.setFieldTouched(`_indexPermissions[${index}]._dls`, true);
-                  },
-                }}
-              />
-            </Fragment>
-          )}
+          {!isDlsEnabled
+            ? (
+              <Fragment>
+                <EuiSpacer />
+                <EuiCallOut
+                  data-test-subj="sgDLSDisabledCallout"
+                  className="sgFixedFormItem"
+                  iconType="iInCircle"
+                  title={documentLevelSecurityDisabledText}
+                />
+              </Fragment>
+            )
+            : <DocumentLevelSecurity httpClient={httpClient} index={index} />
+          }
           <EuiSpacer />
         </EuiAccordion>
       </EuiFlexItem>
