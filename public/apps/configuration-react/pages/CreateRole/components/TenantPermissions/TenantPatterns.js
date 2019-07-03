@@ -10,7 +10,8 @@ import {
 import {
   AccordionButtonContent,
   AccordionDeleteButton,
-  FormikComboBox
+  FormikComboBox,
+  Icon
 } from '../../../../components';
 import { actionGroupsText } from '../../../../utils/i18n/action_groups';
 import { tenantPatternsText } from '../../../../utils/i18n/roles';
@@ -58,7 +59,7 @@ const TenantPatterns = ({
               }
               buttonContent={
                 <AccordionButtonContent
-                  iconType="usersRolesApp"
+                  iconType={<Icon size="xl" type="tenantPattern" />}
                   titleText={tenantPatternsText}
                   subduedText={tenantPatternNames(tenantPermission.tenant_patterns)}
                 />

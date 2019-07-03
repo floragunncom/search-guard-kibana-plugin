@@ -5,12 +5,11 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiCard,
-  EuiIcon,
   EuiSpacer,
   EuiLoadingSpinner,
   EuiCallOut
 } from '@elastic/eui';
-import { ContentPanel } from '../../components';
+import { ContentPanel, Icon } from '../../components';
 import { APP_PATH } from '../../utils/constants';
 import { ENDPOINTS, METHODS_FOR_ENDPOINTS } from './utils/constants';
 import {
@@ -64,7 +63,7 @@ const Home = ({ history, systemstateService, onPurgeCache, purgingCache }) => {
   const authenticationBackendsCards = filterDisabledCards([
     {
       endpoint: ENDPOINTS.INTERNALUSERS,
-      icon: (<EuiIcon size="xxl" type="database" />),
+      icon: (<Icon size="xxl" type="internalUsersDatabase" />),
       title: internalUsersDatabaseText,
       description: internalUsersDatabaseDescription,
       onClick: () => history.push(APP_PATH.INTERNAL_USERS)
@@ -74,21 +73,21 @@ const Home = ({ history, systemstateService, onPurgeCache, purgingCache }) => {
   const systemCards = filterDisabledCards([
     {
       endpoint: ENDPOINTS.SGCONFIG,
-      icon: (<EuiIcon size="xxl" type="securityApp" />),
+      icon: (<Icon size="xxl" type="authcAndAuthz" />),
       title: authenticationAndAuthorizationText,
       description: authenticationAndAuthorizationDescription,
       onClick: () => history.push(APP_PATH.AUTH)
     },
     {
       endpoint: ENDPOINTS.LICENSE,
-      icon: (<EuiIcon size="xxl" type="gear" />),
+      icon: (<Icon size="xxl" type="systemStatus" />),
       title: systemStatusText,
       description: systemStatusDescription,
       onClick: () => history.push(APP_PATH.SYSTEM_STATUS)
     },
     {
       endpoint: ENDPOINTS.CACHE,
-      icon: (<EuiIcon size="xxl" type="refresh" />),
+      icon: (<Icon size="xxl" type="purgeCache" />),
       title: purgeCacheText,
       description: (purgingCache ? <EuiLoadingSpinner size="xl" /> : purgeCacheDescription),
       onClick: () => onPurgeCache()
@@ -98,28 +97,28 @@ const Home = ({ history, systemstateService, onPurgeCache, purgingCache }) => {
   const permissionsAndRolesCards = filterDisabledCards([
     {
       endpoint: ENDPOINTS.ROLESMAPPING,
-      icon: (<EuiIcon size="xxl" type="indexMapping" />),
+      icon: (<Icon size="xxl" type="roleMappings" />),
       title: roleMappingsText,
       description: roleMappingsDescription,
       onClick: () => history.push(APP_PATH.ROLE_MAPPINGS)
     },
     {
       endpoint: ENDPOINTS.ROLES,
-      icon: (<EuiIcon size="xxl" type="usersRolesApp" />),
+      icon: (<Icon size="xxl" type="roles" />),
       title: rolesText,
       description: rolesDescription,
       onClick: () => history.push(APP_PATH.ROLES)
     },
     {
       endpoint: ENDPOINTS.ACTIONGROUPS,
-      icon: (<EuiIcon size="xxl" type="indexPatternApp" />),
+      icon: (<Icon size="xxl" type="actionGroups" />),
       title: actionGroupsText,
       description: actionGroupsDescription,
       onClick: () => history.push(APP_PATH.ACTION_GROUPS)
     },
     {
       endpoint: ENDPOINTS.TENANTS,
-      icon: (<EuiIcon size="xxl" type="grid" />),
+      icon: (<Icon size="xxl" type="tenants" />),
       title: tenantsText,
       description: tenantsDescription,
       onClick: () => history.push(APP_PATH.TENANTS)
@@ -146,6 +145,12 @@ const Home = ({ history, systemstateService, onPurgeCache, purgingCache }) => {
 
   return (
     <Fragment>
+      <EuiFlexGroup justifyContent="spaceAround">
+        <EuiFlexItem grow={false}>
+          <Icon type="logo" size={{ width: '150px', height: '150px' }} />
+        </EuiFlexItem>
+      </EuiFlexGroup>
+
       {isNoPermissionsAndRoles ? (
         <EuiCallOut className="sgFixedFormItem" iconType="iInCircle" title={isNoPermissionsAndRolesText} />
       ) : (
