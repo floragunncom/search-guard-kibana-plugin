@@ -33,14 +33,14 @@ import {
   noTenantsText
 } from '../../utils/i18n/tenants';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
-import { AppCacheService } from '../../services';
+import { LocalStorageService } from '../../services';
 
 class Tenants extends Component {
   constructor(props) {
     super(props);
 
     this.backendService = this.props.tenantsService;
-    this.appCache = new AppCacheService();
+    this.appCache = new LocalStorageService();
     const { isShowingTableSystemItems } = this.appCache.cache[APP_PATH.TENANTS];
 
     this.state = {

@@ -33,7 +33,7 @@ import {
 } from './utils';
 import { TABS, ROLE, ROLE_MAPPING } from './utils/constants';
 import { getAllUiIndexPermissions, getAllUiClusterPermissions } from '../../utils/helpers';
-import { SystemService } from '../../services';
+import { ElasticsearchService } from '../../services';
 
 class CreateRole extends Component {
   constructor(props) {
@@ -41,7 +41,7 @@ class CreateRole extends Component {
 
     const { location, httpClient } = this.props;
     const { id } = queryString.parse(location.search);
-    this.systemService = new SystemService(httpClient);
+    this.esService = new ElasticsearchService(httpClient);
 
     this.state = {
       id,
@@ -119,7 +119,7 @@ class CreateRole extends Component {
         allIndexActionGroups,
         allTenantActionGroups
       } = actionGroupsToUiClusterIndexTenantActionGroups(actionGroups);
-      const { data: allIndices } = await this.systemService.getIndices();
+      const { data: allIndices } = await this.esService.getIndices();
       const { data: allTenants } = await tenantsService.list();
 
       // TODO: Refactor this to get stuff without side effects

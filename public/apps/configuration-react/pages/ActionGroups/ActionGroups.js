@@ -33,14 +33,14 @@ import {
   noActionGroupsText
 } from '../../utils/i18n/action_groups';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
-import { AppCacheService } from '../../services';
+import { LocalStorageService } from '../../services';
 
 class ActionGroups extends Component {
   constructor(props) {
     super(props);
 
     this.backendService = this.props.actionGroupsService;
-    this.appCache = new AppCacheService();
+    this.appCache = new LocalStorageService();
     const { isShowingTableSystemItems } = this.appCache.cache[APP_PATH.ACTION_GROUPS];
 
     this.state = {

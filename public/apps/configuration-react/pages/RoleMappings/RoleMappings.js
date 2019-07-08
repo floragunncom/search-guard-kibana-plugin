@@ -43,14 +43,14 @@ import {
   rolesText
 } from '../../utils/i18n/roles';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
-import { AppCacheService } from '../../services';
+import { LocalStorageService } from '../../services';
 
 class RoleMappings extends Component {
   constructor(props) {
     super(props);
 
     this.backendService = this.props.roleMappingsService;
-    this.appCache = new AppCacheService();
+    this.appCache = new LocalStorageService();
     const { isShowingTableSystemItems } = this.appCache.cache[APP_PATH.ROLE_MAPPINGS];
 
     this.state = {
