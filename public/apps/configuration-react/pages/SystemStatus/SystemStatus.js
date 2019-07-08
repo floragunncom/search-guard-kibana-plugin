@@ -1,10 +1,9 @@
 /* eslint import/namespace: ['error', { allowComputed: true }] */
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { get, map, toString, filter } from 'lodash';
+import { map, toString, filter } from 'lodash';
 import queryString from 'query-string';
 import {
-  EuiIcon,
   EuiFlexItem,
   EuiFlexGroup,
   EuiSideNav,
@@ -18,9 +17,9 @@ import { SystemService } from '../../services';
 import { UploadLicense } from './components';
 import { CancelButton } from '../../components/ContentPanel/components';
 import { SELECTED_SIDE_NAV_ITEM_NAME, SIDE_NAV } from './utils/constants';
-import { navigateText, cancelText } from '../../utils/i18n/common';
+import { navigateText } from '../../utils/i18n/common';
 import * as systemStatusI18nLabels from '../../utils/i18n/system_status';
-import { APP_PATH, SYSTEM_STATUS_ACTIONS } from '../../utils/constants';
+import { SYSTEM_STATUS_ACTIONS } from '../../utils/constants';
 import { getResource } from './utils';
 import { sideNavItem } from '../../utils/helpers';
 
@@ -94,10 +93,12 @@ class SystemStatus extends Component {
   constructor(props) {
     super(props);
 
+    const selectedSideNavItemName = this.getSideNavItemFromLocation() || SELECTED_SIDE_NAV_ITEM_NAME;
+
     this.state = {
       resources: {},
       isLoading: true,
-      selectedSideNavItemName: SELECTED_SIDE_NAV_ITEM_NAME,
+      selectedSideNavItemName: selectedSideNavItemName,
       isSideNavOpenOnMobile: false
     };
 
@@ -106,6 +107,16 @@ class SystemStatus extends Component {
 
   componentDidMount() {
     this.fetchData();
+  }
+
+  componentDidUpdate(prevProps) {
+
+    if (prevProps !== this.props) {
+      const selectedSideNavItemName = this.getSideNavItemFromLocation();
+      if (selectedSideNavItemName && selectedSideNavItemName !== this.state.selectedSideNavItemName) {
+        this.selectSideNavItem(selectedSideNavItemName);
+      }
+    }
   }
 
   fetchData = async () => {
@@ -117,6 +128,17 @@ class SystemStatus extends Component {
       this.props.onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
+  }
+
+  getSideNavItemFromLocation() {
+    const { location } = this.props;
+    const { state: routerState } = location;
+
+    if (routerState && routerState.selectedSideNavItemName && SIDE_NAV[routerState.selectedSideNavItemName.toUpperCase()]) {
+      return SIDE_NAV[routerState.selectedSideNavItemName.toUpperCase()];
+    }
+
+    return null;
   }
 
   toggleOpenOnMobile = () => {

@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
-import { EuiButton, EuiFilePicker, EuiSpacer } from '@elastic/eui';
+import { EuiFilePicker, EuiFlexGroup, EuiFlexItem, EuiFormRow } from '@elastic/eui';
 import { ContentPanel, FormikCodeEditor } from '../../../../components';
 import { CancelButton, SaveButton } from '../../../../components/ContentPanel/components';
 import { APP_PATH } from '../../../../utils/constants';
+import { SIDE_NAV } from '../../utils/constants';
 import {
-  importText,
   uploadLicenseText,
+  uploadLicenseFileText,
+  uploadFileformatsText,
   licenseStringText,
   licenseWasUploadedSuccessfullyText,
   selectOrDragAndDropLicenseFileText,
@@ -49,7 +51,6 @@ class UploadLicense extends Component {
 
     this.state = {
       isLoading: false,
-      licenseFile: undefined,
       initialValues: {
         license: ''
       }
@@ -63,63 +64,37 @@ class UploadLicense extends Component {
   }
 
   onSubmit = async ({ license }, { setSubmitting }) => {
-    const { onTriggerSuccessCallout, onTriggerErrorCallout } = this.props;
+    const { onTriggerSuccessCallout, onTriggerErrorCallout, history } = this.props;
     try {
       await this.backendService.uploadLicense(license);
       onTriggerSuccessCallout(licenseWasUploadedSuccessfullyText);
+      history.push({
+        pathname: APP_PATH.SYSTEM_INFO,
+        state: {
+          selectedSideNavItemName: SIDE_NAV.LICENSE
+        }
+      });
     } catch (error) {
       onTriggerErrorCallout(error);
     }
     setSubmitting(false);
   }
 
-  setImportedLicenseFile = ([licenseFile]) => this.setState({ licenseFile })
-
-  importFile = async () => {
+  importAndSubmitLicense = async ([licenseFile], isSubmitting, handleSubmit) => {
+    if (!licenseFile) {
+      this.setState({ initialValues: { license: '' } });
+      return false;
+    }
     this.setState({ isLoading: true });
     try {
-      const license = await readFileAsText(this.state.licenseFile);
+      const license = await readFileAsText(licenseFile);
       this.setState({ initialValues: { license } });
+      handleSubmit();
     } catch (error) {
       this.props.onTriggerErrorCallout(licenseFileCantBeImportedText);
     }
     this.setState({ isLoading: false });
   }
-
-  renderImportButton = () => (
-    <EuiButton
-      data-test-subj="sgImportLicenseButton"
-      iconType="importAction"
-      isLoading={this.state.isLoading}
-      onClick={() => {
-        this.props.onTriggerCustomFlyout({
-          title: uploadLicenseText,
-          flyoutProps: { size: 's' },
-          body: (
-            <div>
-              <EuiFilePicker
-                data-test-subj="sgImportLicenseFlyoutFilePicker"
-                initialPromptText={selectOrDragAndDropLicenseFileText}
-                disabled={this.state.isLoading}
-                onChange={this.setImportedLicenseFile}
-                accept=".txt,.lic"
-              />
-              <EuiSpacer />
-              <EuiButton
-                data-test-subj="sgImportLicenseFlyoutButton"
-                size="s"
-                onClick={this.importFile}
-              >
-                {importText}
-              </EuiButton>
-            </div>
-          )
-        });
-      }}
-    >
-      {importText}
-    </EuiButton>
-  )
 
   render() {
     const { history } = this.props;
@@ -131,17 +106,31 @@ class UploadLicense extends Component {
         onSubmit={this.onSubmit}
         validateOnChange={false}
         enableReinitialize={true}
-        render={({ handleSubmit, isSubmitting }) => {
+        render={({ handleSubmit, isSubmitting, values }) => {
           return (
             <ContentPanel
               title={uploadLicenseText}
               actions={[
                 (<CancelButton onClick={() => history.push(APP_PATH.SYSTEM_INFO)} />),
-                (<SaveButton isLoading={isSubmitting} onClick={handleSubmit} />),
-                this.renderImportButton(history)
+                (<SaveButton isDisabled={!values.license} isLoading={isSubmitting} onClick={handleSubmit} />)
               ]}
             >
-              <LicenseEditor />
+              <EuiFlexGroup>
+                <EuiFlexItem grow={4}>
+                  <LicenseEditor />
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiFormRow label={uploadLicenseFileText} helpText={uploadFileformatsText}>
+                    <EuiFilePicker
+                      data-test-subj="sgImportLicenseFlyoutFilePicker"
+                      initialPromptText={selectOrDragAndDropLicenseFileText}
+                      disabled={this.state.isLoading}
+                      onChange={event => this.importAndSubmitLicense(event, isSubmitting, handleSubmit)}
+                      accept=".txt,.lic"
+                    />
+                  </EuiFormRow>
+                </EuiFlexItem>
+              </EuiFlexGroup>
             </ContentPanel>
           );
         }}

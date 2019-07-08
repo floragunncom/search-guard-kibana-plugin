@@ -1,6 +1,6 @@
 import { actionGroupsToUiActionGroups, actionGroupToFormik } from './action_group_to_formik';
 
-describe('axction group to UI action group', () => {
+describe('action group to UI action group', () => {
   test('can build UI action groups', () => {
     const resource = {
       'B': {},

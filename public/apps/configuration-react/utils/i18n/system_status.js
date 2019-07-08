@@ -6,6 +6,8 @@ export const systemStatusDescription = (
   <EuiI18n token="sg.system_status.systemStatus.description" default="View the Search Guard license and all installed modules" />
 );
 export const uploadLicenseText = (<EuiI18n token="sg.system_status.uploadLicenseText.text" default="Upload License" />);
+export const uploadLicenseFileText = (<EuiI18n token="sg.system_status.uploadLicenseText.text" default="Upload License file" />);
+export const uploadFileformatsText = (<EuiI18n token="sg.system_status.fileformats.text" default="Supported file formats: .txt and .lic" />);
 export const importText = (<EuiI18n token="sg.common.import.text" default="Import" />);
 export const licenseStringText = (<EuiI18n token="sg.common.licenseString.text" default="License string" />);
 export const licenseWasUploadedSuccessfullyText = (

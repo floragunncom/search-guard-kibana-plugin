@@ -3,12 +3,13 @@ import PropTypes from 'prop-types';
 import { EuiButton } from '@elastic/eui';
 import { saveText } from '../../../../utils/i18n/common';
 
-const SaveButton = ({ onClick, isLoading = false, value = saveText }) => (
+const SaveButton = ({ onClick, isLoading = false, isDisabled = false, value = saveText }) => (
   <EuiButton
     fill
     iconType="save"
     data-test-subj="sgContentPanelSaveButton"
     onClick={onClick}
+    isDisabled={isDisabled}
     isLoading={isLoading}
   >
     {value}
@@ -21,7 +22,8 @@ SaveButton.propTypes = {
     PropTypes.node
   ]),
   onClick: PropTypes.func.isRequired,
-  isLoading: PropTypes.bool
+  isLoading: PropTypes.bool,
+  isDisabled: PropTypes.bool
 };
 
 export default SaveButton;
