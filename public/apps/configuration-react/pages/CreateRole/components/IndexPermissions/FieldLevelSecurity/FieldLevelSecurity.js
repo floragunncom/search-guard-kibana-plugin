@@ -1,6 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import { connect } from 'formik';
 import PropTypes from 'prop-types';
+import { isEqual } from 'lodash';
 import {
   EuiSpacer,
   EuiFlexItem,
@@ -32,24 +33,30 @@ class FieldLevelSecurity extends Component {
 
     this.state = {
       isLoading: false,
-      allFields: []
+      allFields: [],
+      prevIndexPatterns: null
     };
   }
 
-  fetchData = async () => {
+  fetchFields = async () => {
     const {
       formik: { values: { _indexPermissions } },
       index,
       onTriggerErrorCallout
     } = this.props;
 
+    const currIndexPatterns = _indexPermissions[index].index_patterns;
+    const isNewPatterns = !isEqual(currIndexPatterns, this.state.prevIndexPatterns);
+    if (!isNewPatterns) return;
+
     try {
       this.setState({ isLoading: true });
       const { data: { mappings } } = await this.esService.getIndexMappings(
-        comboBoxOptionsToArray(_indexPermissions[index].index_patterns)
+        comboBoxOptionsToArray(currIndexPatterns)
       );
       this.setState({
-        allFields: fieldNamesToUiFieldNames(mappingsToFieldNames(mappings))
+        allFields: fieldNamesToUiFieldNames(mappingsToFieldNames(mappings)),
+        prevIndexPatterns: currIndexPatterns
       });
     } catch(error) {
       onTriggerErrorCallout(error);
@@ -58,7 +65,7 @@ class FieldLevelSecurity extends Component {
   }
 
   componentDidMount() {
-    this.fetchData();
+    this.fetchFields();
   }
 
   render() {
@@ -123,7 +130,7 @@ class FieldLevelSecurity extends Component {
             isLoading,
             options: allFields,
             isClearable: true,
-            onFocus: this.fetchData,
+            onFocus: this.fetchFields,
             onBlur: onComboBoxOnBlur,
             onChange: onComboBoxChange(),
             onCreateOption: onComboBoxCreateOption()
@@ -147,7 +154,7 @@ class FieldLevelSecurity extends Component {
               isLoading,
               options: allFields,
               isClearable: true,
-              onFocus: this.fetchData,
+              onFocus: this.fetchFields,
               onBlur: onComboBoxOnBlur,
               onChange: onComboBoxChange(),
               onCreateOption: onComboBoxCreateOption()
