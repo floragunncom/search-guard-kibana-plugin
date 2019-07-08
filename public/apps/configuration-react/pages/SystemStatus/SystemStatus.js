@@ -19,7 +19,7 @@ import { CancelButton } from '../../components/ContentPanel/components';
 import { SELECTED_SIDE_NAV_ITEM_NAME, SIDE_NAV } from './utils/constants';
 import { navigateText } from '../../utils/i18n/common';
 import * as systemStatusI18nLabels from '../../utils/i18n/system_status';
-import { SYSTEM_STATUS_ACTIONS } from '../../utils/constants';
+import { APP_PATH, SYSTEM_STATUS_ACTIONS } from '../../utils/constants';
 import { getResource } from './utils';
 import { sideNavItem } from '../../utils/helpers';
 
@@ -213,7 +213,7 @@ class SystemStatus extends Component {
           <ContentPanel
             title={systemStatusI18nLabels[selectedSideNavItemName]}
             actions={[
-              (<CancelButton onClick={() => history.goBack()} />),
+              (<CancelButton onClick={() => history.push(APP_PATH.HOME)} />),
               this.renderUploadLicenseButton(history, location)
             ]}
           >
