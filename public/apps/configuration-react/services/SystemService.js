@@ -12,8 +12,4 @@ export default class SystemService {
   uploadLicense(licenseString) {
     return this.httpClient.post(API.LICENSE, { sg_license: licenseString });
   }
-
-  getIndices() {
-    return this.httpClient.get(API.INDICES);
-  }
 }

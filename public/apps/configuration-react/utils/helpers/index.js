@@ -1,6 +1,6 @@
 import BrowserStorageService from '../../services/BrowserStorageService';
 import { INDEX_PERMISSIONS, CLUSTER_PERMISSIONS } from '../constants';
-import { get, reduce, sortBy, uniqBy, forEach, map, filter } from 'lodash';
+import { get, reduce, sortBy, uniqBy, map, filter } from 'lodash';
 
 export { default as sideNavItem } from './sideNavItem';
 
