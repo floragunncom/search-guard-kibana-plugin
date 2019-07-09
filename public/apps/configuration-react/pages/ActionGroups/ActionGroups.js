@@ -169,13 +169,15 @@ class ActionGroups extends Component {
         )
       },
       {
-        available: resource => !resource.reserved,
-        render: ({ _id }) => (
-          <TableDeleteAction
-            name={_id}
-            onClick={() => this.handleDeleteResources([_id])}
-          />
-        )
+        render: ({ _id, reserved }) => {
+          return (
+            <TableDeleteAction
+              isDisabled={reserved}
+              name={_id}
+              onClick={() => this.handleDeleteResources([_id])}
+            />
+          );
+        }
       }
     ];
 
@@ -238,7 +240,7 @@ class ActionGroups extends Component {
       toolsRight: (
         <TableSwitchSystemItems
           label={systemItemsText}
-          checked={isShowingTableSystemItems}
+          isChecked={isShowingTableSystemItems}
           onChange={() => {
             this.setState({ isShowingTableSystemItems: !isShowingTableSystemItems });
           }}
