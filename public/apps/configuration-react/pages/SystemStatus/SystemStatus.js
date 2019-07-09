@@ -1,7 +1,7 @@
 /* eslint import/namespace: ['error', { allowComputed: true }] */
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { map, toString, filter } from 'lodash';
+import { map, toString, filter, get, toUpper } from 'lodash';
 import queryString from 'query-string';
 import {
   EuiFlexItem,
@@ -93,12 +93,10 @@ class SystemStatus extends Component {
   constructor(props) {
     super(props);
 
-    const selectedSideNavItemName = this.getSideNavItemFromLocation() || SELECTED_SIDE_NAV_ITEM_NAME;
-
     this.state = {
       resources: {},
       isLoading: true,
-      selectedSideNavItemName: selectedSideNavItemName,
+      selectedSideNavItemName: SELECTED_SIDE_NAV_ITEM_NAME,
       isSideNavOpenOnMobile: false
     };
 
@@ -109,13 +107,13 @@ class SystemStatus extends Component {
     this.fetchData();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
+    const { selectedSideNavItemName } = get(this.props, 'location.state', {});
+    const { selectedSideNavItemName: prevSelectedSideNavItemName } = prevState;
 
-    if (prevProps !== this.props) {
-      const selectedSideNavItemName = this.getSideNavItemFromLocation();
-      if (selectedSideNavItemName && selectedSideNavItemName !== this.state.selectedSideNavItemName) {
-        this.selectSideNavItem(selectedSideNavItemName);
-      }
+    if (SIDE_NAV[toUpper(selectedSideNavItemName)] && selectedSideNavItemName !== prevSelectedSideNavItemName) {
+      this.selectSideNavItem(selectedSideNavItemName);
+      this.fetchData();
     }
   }
 
@@ -128,17 +126,6 @@ class SystemStatus extends Component {
       this.props.onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
-  }
-
-  getSideNavItemFromLocation() {
-    const { location } = this.props;
-    const { state: routerState } = location;
-
-    if (routerState && routerState.selectedSideNavItemName && SIDE_NAV[routerState.selectedSideNavItemName.toUpperCase()]) {
-      return SIDE_NAV[routerState.selectedSideNavItemName.toUpperCase()];
-    }
-
-    return null;
   }
 
   toggleOpenOnMobile = () => {
