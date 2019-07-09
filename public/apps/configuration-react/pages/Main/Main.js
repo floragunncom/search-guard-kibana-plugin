@@ -43,7 +43,7 @@ class Main extends Component {
   constructor(props) {
     super(props);
 
-    this.appCache = new LocalStorageService();
+    this.localStorage = new LocalStorageService();
 
     this.state = {
       purgingCache: false,
@@ -59,7 +59,7 @@ class Main extends Component {
   componentDidMount() {
     this.calloutErrorIfLicenseNotValid();
     this.checkAPIAccess();
-    if (isEmpty(this.appCache.cache)) this.appCache.cache = LOCAL_STORAGE;
+    if (isEmpty(this.localStorage.cache)) this.localStorage.cache = LOCAL_STORAGE;
   }
 
   checkAPIAccess = async () => {

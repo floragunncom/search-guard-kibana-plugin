@@ -48,9 +48,9 @@ class InternalUsers extends Component {
   constructor(props) {
     super(props);
 
-    this.appCache = new LocalStorageService();
+    this.localStorage = new LocalStorageService();
     this.backendService = this.props.internalUsersService;
-    const { isShowingTableSystemItems } = this.appCache.cache[APP_PATH.INTERNAL_USERS];
+    const { isShowingTableSystemItems } = this.localStorage.cache[APP_PATH.INTERNAL_USERS];
 
     this.state = {
       resources: [],
@@ -68,7 +68,7 @@ class InternalUsers extends Component {
   componentWillUpdate(nextProps, nextState) {
     const { isShowingTableSystemItems } = nextState;
     if (isShowingTableSystemItems !== this.state.isShowingTableSystemItems) {
-      this.appCache.setCacheByPath(APP_PATH.INTERNAL_USERS, { isShowingTableSystemItems });
+      this.localStorage.setCacheByPath(APP_PATH.INTERNAL_USERS, { isShowingTableSystemItems });
     }
   }
 

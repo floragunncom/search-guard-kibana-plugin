@@ -50,8 +50,8 @@ class RoleMappings extends Component {
     super(props);
 
     this.backendService = this.props.roleMappingsService;
-    this.appCache = new LocalStorageService();
-    const { isShowingTableSystemItems } = this.appCache.cache[APP_PATH.ROLE_MAPPINGS];
+    this.localStorage = new LocalStorageService();
+    const { isShowingTableSystemItems } = this.localStorage.cache[APP_PATH.ROLE_MAPPINGS];
 
     this.state = {
       resources: [],
@@ -69,7 +69,7 @@ class RoleMappings extends Component {
   componentWillUpdate(nextProps, nextState) {
     const { isShowingTableSystemItems } = nextState;
     if (isShowingTableSystemItems !== this.state.isShowingTableSystemItems) {
-      this.appCache.setCacheByPath(APP_PATH.ROLE_MAPPINGS, { isShowingTableSystemItems });
+      this.localStorage.setCacheByPath(APP_PATH.ROLE_MAPPINGS, { isShowingTableSystemItems });
     }
   }
 

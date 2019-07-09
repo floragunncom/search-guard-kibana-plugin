@@ -41,8 +41,8 @@ class Roles extends Component {
     super(props);
 
     this.backendService = this.props.rolesService;
-    this.appCache = new LocalStorageService();
-    const { isShowingTableSystemItems } = this.appCache.cache[APP_PATH.ROLES];
+    this.localStorage = new LocalStorageService();
+    const { isShowingTableSystemItems } = this.localStorage.cache[APP_PATH.ROLES];
 
     this.state = {
       resources: [],
@@ -60,7 +60,7 @@ class Roles extends Component {
   componentWillUpdate(nextProps, nextState) {
     const { isShowingTableSystemItems } = nextState;
     if (isShowingTableSystemItems !== this.state.isShowingTableSystemItems) {
-      this.appCache.setCacheByPath(APP_PATH.ROLES, { isShowingTableSystemItems });
+      this.localStorage.setCacheByPath(APP_PATH.ROLES, { isShowingTableSystemItems });
     }
   }
 
