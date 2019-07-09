@@ -170,13 +170,15 @@ class Roles extends Component {
         )
       },
       {
-        available: resource => !resource.reserved,
-        render: ({ _id }) => (
-          <TableDeleteAction
-            name={_id}
-            onClick={() => this.handleDeleteResources([_id])}
-          />
-        )
+        render: ({ _id, reserved }) => {
+          return (
+            <TableDeleteAction
+              isDisabled={reserved}
+              name={_id}
+              onClick={() => this.handleDeleteResources([_id])}
+            />
+          );
+        }
       }
     ];
 
