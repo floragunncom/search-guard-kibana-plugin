@@ -1,20 +1,16 @@
-/* eslint import/namespace: ['error', { allowComputed: true }] */
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { map, toString, filter, get, toUpper } from 'lodash';
+import { filter, get, toUpper } from 'lodash';
 import queryString from 'query-string';
 import {
   EuiFlexItem,
   EuiFlexGroup,
   EuiSideNav,
-  EuiButton,
-  EuiFlexGrid,
-  EuiSpacer,
-  EuiText
+  EuiButton
 } from '@elastic/eui';
 import { ContentPanel } from '../../components';
 import { SystemService } from '../../services';
-import { UploadLicense } from './components';
+import { UploadLicense, SystemStatusContent } from './components';
 import { CancelButton } from '../../components/ContentPanel/components';
 import { SELECTED_SIDE_NAV_ITEM_NAME, SIDE_NAV } from './utils/constants';
 import { navigateText } from '../../utils/i18n/common';
@@ -22,72 +18,6 @@ import * as systemStatusI18nLabels from '../../utils/i18n/system_status';
 import { APP_PATH, SYSTEM_STATUS_ACTIONS } from '../../utils/constants';
 import { getResource } from './utils';
 import { sideNavItem } from '../../utils/helpers';
-
-const SystemStatusContent = ({ resource, sideNavItemName }) => {
-  const isActiveModulesSection = sideNavItemName === SIDE_NAV.ACTIVE_MODULES;
-  return (
-    <Fragment>
-      <EuiFlexGrid columns={2} className="sgFixedFormGroupItem">
-        {map(resource, (value, key) => {
-          return !isActiveModulesSection ? (
-            <Fragment key={key}>
-              <EuiFlexItem>
-                <EuiText data-test-subj={`sgSystemStatusContentKey-${key}`}>
-                  {systemStatusI18nLabels[key]}
-                </EuiText>
-              </EuiFlexItem>
-              <EuiFlexItem>
-                {React.isValidElement(value) ? (
-                  <div data-test-subj={`sgSystemStatusContentValue-${key}`}>{value}</div>
-                ) : (
-                  <EuiText data-test-subj={`sgSystemStatusContentValue-${key}`}>{toString(value)}</EuiText>
-                )}
-              </EuiFlexItem>
-            </Fragment>
-          ) : (
-            <EuiSpacer key={key} size="m" />
-          );
-        })}
-      </EuiFlexGrid>
-
-      {isActiveModulesSection && (
-        <Fragment>
-          <EuiFlexGrid columns={3} className="sgFixedFormGroupItem">
-            <EuiFlexItem><EuiText><h3>{systemStatusI18nLabels.name}</h3></EuiText></EuiFlexItem>
-            <EuiFlexItem><EuiText><h3>{systemStatusI18nLabels.version}</h3></EuiText></EuiFlexItem>
-            <EuiFlexItem><EuiText><h3>{systemStatusI18nLabels.isEnterprise}</h3></EuiText></EuiFlexItem>
-          </EuiFlexGrid>
-          <EuiSpacer size="m" />
-        </Fragment>
-      )}
-
-      <EuiFlexGrid columns={3} className="sgFixedFormGroupItem">
-        {map(resource, (value, key) => {
-          return isActiveModulesSection && (
-            <Fragment key={key}>
-              <EuiFlexItem>
-                <EuiText data-test-subj={`sgSystemStatusContentActiveModulesName-${key}`}>
-                  {systemStatusI18nLabels[key]}
-                </EuiText>
-              </EuiFlexItem>
-              <EuiFlexItem>
-                <EuiText data-test-subj={`sgSystemStatusContentActiveModulesVersion-${key}`}>
-                  {value.version}
-                </EuiText>
-              </EuiFlexItem>
-              <EuiFlexItem>
-                <EuiText data-test-subj={`sgSystemStatusContentActiveModulesIsEnterprise-${key}`}>
-                  {value.is_enterprise.toString()}
-                </EuiText>
-              </EuiFlexItem>
-            </Fragment>
-          );
-        })}
-      </EuiFlexGrid>
-
-    </Fragment>
-  );
-};
 
 class SystemStatus extends Component {
   constructor(props) {
