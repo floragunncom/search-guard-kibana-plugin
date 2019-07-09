@@ -33,15 +33,15 @@ import {
   noActionGroupsText
 } from '../../utils/i18n/action_groups';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
-import { AppCacheService } from '../../services';
+import { LocalStorageService } from '../../services';
 
 class ActionGroups extends Component {
   constructor(props) {
     super(props);
 
     this.backendService = this.props.actionGroupsService;
-    this.appCache = new AppCacheService();
-    const { isShowingTableSystemItems } = this.appCache.cache[APP_PATH.ACTION_GROUPS];
+    this.localStorage = new LocalStorageService();
+    const { isShowingTableSystemItems } = this.localStorage.cache[APP_PATH.ACTION_GROUPS];
 
     this.state = {
       resources: [],
@@ -59,7 +59,7 @@ class ActionGroups extends Component {
   componentWillUpdate(nextProps, nextState) {
     const { isShowingTableSystemItems } = nextState;
     if (isShowingTableSystemItems !== this.state.isShowingTableSystemItems) {
-      this.appCache.setCacheByPath(APP_PATH.ACTION_GROUPS, { isShowingTableSystemItems });
+      this.localStorage.setCacheByPath(APP_PATH.ACTION_GROUPS, { isShowingTableSystemItems });
     }
   }
 

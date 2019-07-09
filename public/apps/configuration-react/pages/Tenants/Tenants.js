@@ -33,15 +33,15 @@ import {
   noTenantsText
 } from '../../utils/i18n/tenants';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
-import { AppCacheService } from '../../services';
+import { LocalStorageService } from '../../services';
 
 class Tenants extends Component {
   constructor(props) {
     super(props);
 
     this.backendService = this.props.tenantsService;
-    this.appCache = new AppCacheService();
-    const { isShowingTableSystemItems } = this.appCache.cache[APP_PATH.TENANTS];
+    this.localStorage = new LocalStorageService();
+    const { isShowingTableSystemItems } = this.localStorage.cache[APP_PATH.TENANTS];
 
     this.state = {
       resources: [],
@@ -59,7 +59,7 @@ class Tenants extends Component {
   componentWillUpdate(nextProps, nextState) {
     const { isShowingTableSystemItems } = nextState;
     if (isShowingTableSystemItems !== this.state.isShowingTableSystemItems) {
-      this.appCache.setCacheByPath(APP_PATH.TENANTS, { isShowingTableSystemItems });
+      this.localStorage.setCacheByPath(APP_PATH.TENANTS, { isShowingTableSystemItems });
     }
   }
 

@@ -29,7 +29,8 @@ const IndexPermissions = ({
   onComboBoxChange,
   onComboBoxOnBlur,
   onComboBoxCreateOption,
-  onTriggerConfirmDeletionModal
+  onTriggerConfirmDeletionModal,
+  onTriggerErrorCallout
 }) => (
   <FieldArray
     name="_indexPermissions"
@@ -60,6 +61,7 @@ const IndexPermissions = ({
             onComboBoxOnBlur={onComboBoxOnBlur}
             onComboBoxCreateOption={onComboBoxCreateOption}
             onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
+            onTriggerErrorCallout={onTriggerErrorCallout}
           />
         )}
       </Fragment>
@@ -89,7 +91,8 @@ IndexPermissions.propTypes = {
   onComboBoxChange: PropTypes.func.isRequired,
   onComboBoxOnBlur: PropTypes.func.isRequired,
   onComboBoxCreateOption: PropTypes.func.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
+  onTriggerErrorCallout: PropTypes.func.isRequired
 };
 
 export default IndexPermissions;

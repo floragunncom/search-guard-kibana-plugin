@@ -43,7 +43,8 @@ const IndexPatterns = ({
   onComboBoxChange,
   onComboBoxOnBlur,
   onComboBoxCreateOption,
-  onTriggerConfirmDeletionModal
+  onTriggerConfirmDeletionModal,
+  onTriggerErrorCallout
 }) => (
   indexPermissions.map((indexPermission, index) => (
     <EuiFlexGroup key={index}>
@@ -138,12 +139,13 @@ const IndexPatterns = ({
           ) : (
             <Fragment>
               <FieldLevelSecurity
-                indexPermission={indexPermission}
+                httpClient={httpClient}
                 index={index}
                 isAnonymizedFieldsEnabled={isAnonymizedFieldsEnabled}
                 onComboBoxChange={onComboBoxChange}
                 onComboBoxOnBlur={onComboBoxOnBlur}
                 onComboBoxCreateOption={onComboBoxCreateOption}
+                onTriggerErrorCallout={onTriggerErrorCallout}
               />
               <EuiSpacer />
             </Fragment>
@@ -182,7 +184,8 @@ IndexPatterns.propTypes = {
   onComboBoxChange: PropTypes.func.isRequired,
   onComboBoxOnBlur: PropTypes.func.isRequired,
   onComboBoxCreateOption: PropTypes.func.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
+  onTriggerErrorCallout: PropTypes.func.isRequired
 };
 
 export default IndexPatterns;

@@ -5,7 +5,8 @@ export const API = {
   SYSTEM_INFO: `${API_BASE}/systeminfo`,
   LICENSE: `${API_BASE}/license`,
   INDICES: `${API_BASE}/configuration/indices`,
-  VALIDATE_DLS: `${API_BASE}/configuration/validatedls`
+  VALIDATE_DLS: `${API_BASE}/configuration/validatedls`,
+  INDEX_MAPPINGS: `${API_BASE}/configuration/index_mappings`
 };
 
 export const APP_PATH = {
@@ -73,27 +74,27 @@ export { default as CLUSTER_PERMISSIONS } from '../../configuration/permissions/
 
 export const FIELDS_TO_OMIT_BEFORE_SAVE = ['reserved', 'static', 'hidden'];
 
-export const APP_CACHE_NAME = 'app_cache';
-const APP_CACHE_COMMON = {
+export const LOCAL_STORAGE_NAME = 'app_cache';
+const LOCAL_STORAGE_COMMON = {
   isShowingTableSystemItems: false
 };
-export const APP_CACHE = {
+export const LOCAL_STORAGE = {
   [APP_PATH.ROLE_MAPPINGS]: {
-    ...APP_CACHE_COMMON
+    ...LOCAL_STORAGE_COMMON
   },
   [APP_PATH.INTERNAL_USERS]: {
-    ...APP_CACHE_COMMON
+    ...LOCAL_STORAGE_COMMON
   },
   [APP_PATH.ROLE_MAPPINGS]: {
-    ...APP_CACHE_COMMON
+    ...LOCAL_STORAGE_COMMON
   },
   [APP_PATH.ROLES]: {
-    ...APP_CACHE_COMMON
+    ...LOCAL_STORAGE_COMMON
   },
   [APP_PATH.ACTION_GROUPS]: {
-    ...APP_CACHE_COMMON
+    ...LOCAL_STORAGE_COMMON
   },
   [APP_PATH.TENANTS]: {
-    ...APP_CACHE_COMMON
+    ...LOCAL_STORAGE_COMMON
   },
 };

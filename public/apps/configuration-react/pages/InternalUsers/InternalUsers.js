@@ -40,7 +40,7 @@ import {
   systemItemsText
 } from '../../utils/i18n/common';
 import { resourcesToUiResources, uiResourceToResource } from './utils';
-import { BrowserStorageService, AppCacheService } from '../../services';
+import { SessionStorageService, LocalStorageService } from '../../services';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
 
 // TODO: make this component get API data by chunks (paginations)
@@ -48,9 +48,9 @@ class InternalUsers extends Component {
   constructor(props) {
     super(props);
 
-    this.appCache = new AppCacheService();
+    this.localStorage = new LocalStorageService();
     this.backendService = this.props.internalUsersService;
-    const { isShowingTableSystemItems } = this.appCache.cache[APP_PATH.INTERNAL_USERS];
+    const { isShowingTableSystemItems } = this.localStorage.cache[APP_PATH.INTERNAL_USERS];
 
     this.state = {
       resources: [],
@@ -68,7 +68,7 @@ class InternalUsers extends Component {
   componentWillUpdate(nextProps, nextState) {
     const { isShowingTableSystemItems } = nextState;
     if (isShowingTableSystemItems !== this.state.isShowingTableSystemItems) {
-      this.appCache.setCacheByPath(APP_PATH.INTERNAL_USERS, { isShowingTableSystemItems });
+      this.localStorage.setCacheByPath(APP_PATH.INTERNAL_USERS, { isShowingTableSystemItems });
     }
   }
 
@@ -164,7 +164,7 @@ class InternalUsers extends Component {
   )
 
   renderActiveUser = name => {
-    const { user_name: currentResource } = BrowserStorageService.restApiInfo();
+    const { user_name: currentResource } = SessionStorageService.restApiInfo();
     return (
       name === currentResource && (
         <EuiFlexGrid

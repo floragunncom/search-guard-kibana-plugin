@@ -1,14 +1,14 @@
-import BrowserStorageService from '../../services/BrowserStorageService';
+import SessionStorageService from '../../services/SessionStorageService';
 import { INDEX_PERMISSIONS, CLUSTER_PERMISSIONS } from '../constants';
-import { get, reduce, sortBy, uniqBy, forEach, map, filter } from 'lodash';
+import { get, reduce, sortBy, uniqBy, map, filter } from 'lodash';
 
 export { default as sideNavItem } from './sideNavItem';
 
 export const stringifyPretty = json => JSON.stringify(json, null, 2);
 
 export const checkIfLicenseValid = () => ({
-  isValid: !!get(BrowserStorageService.systemInfo(), 'sg_license.is_valid'),
-  messages: get(BrowserStorageService.systemInfo(), 'sg_license.msgs'),
+  isValid: !!get(SessionStorageService.systemInfo(), 'sg_license.is_valid'),
+  messages: get(SessionStorageService.systemInfo(), 'sg_license.msgs'),
 });
 
 export const readFileAsText = (file, FileReader = window.FileReader) => {
