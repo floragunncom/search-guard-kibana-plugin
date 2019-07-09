@@ -251,7 +251,7 @@ class Roles extends Component {
       toolsRight: (
         <TableSwitchSystemItems
           label={systemItemsText}
-          checked={isShowingTableSystemItems}
+          isChecked={isShowingTableSystemItems}
           onChange={() => {
             this.setState({ isShowingTableSystemItems: !isShowingTableSystemItems });
           }}
