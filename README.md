@@ -58,7 +58,7 @@ See the [kibana contributing guide](https://github.com/elastic/kibana/blob/maste
       yarn start --elasticsearch.hosts http://localhost:9220
       ```
 
-  - `yarn build`
+  - `./build.sh <kibana_version> <sg_plugin_version> <install|deploy>`
 
     Build a distributable archive of your plugin.
 

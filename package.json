@@ -16,8 +16,7 @@
     "lint": "eslint .",
     "start": "plugin-helpers start",
     "test:server": "plugin-helpers test:server",
-    "test:browser": "./node_modules/.bin/jest --config ./tests/jest.config.js",
-    "build": "plugin-helpers build"
+    "test:browser": "./node_modules/.bin/jest --config ./tests/jest.config.js"
   },
   "dependencies": {
     "@elastic/datemath": "link:../../packages/elastic-datemath",

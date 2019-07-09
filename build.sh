@@ -104,12 +104,18 @@ rm -rf build/
 rm -rf node_modules/
 
 echo "+++ Installing node modules +++"
-npm install
+yarn
 if [ $? != 0 ]; then
     echo "Installing node modules failed";
     exit 1;
 fi
 
+echo "+++ Testing UI +++"
+uiTestsResult=`./node_modules/.bin/jest --config ./tests/jest.config.js --json`
+if [[ `echo $uiTestsResult | jq '.numFailedTests'` != 0 ]]; then
+  echo "Browser tests failed";
+  exit 1;
+fi
 
 echo "+++ Copy plugin contents +++"
 COPYPATH="build/kibana/$PLUGIN_NAME"
