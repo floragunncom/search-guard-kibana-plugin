@@ -119,8 +119,7 @@ export function enableConfiguration($http, $window, systemstate) {
 
     setupResponseErrorHandler($window);
 
-    chrome.getNavLinkById("searchguard-configuration").hidden = true;
-
+    chrome.getNavLinkById("searchguard-configuration-react").hidden = true;
     const ROOT = chrome.getBasePath();
     const APP_ROOT = `${ROOT}`;
     const API_ROOT = `${APP_ROOT}/api/v1`;
@@ -135,24 +134,13 @@ export function enableConfiguration($http, $window, systemstate) {
     systemstate.loadSystemInfo().then(function(){
         // if no REST module is installed the restinfo endpoint is not available, so fail fast
         if (!systemstate.restApiEnabled()) {
-            chrome.getNavLinkById("searchguard-configuration").hidden = true;
+            chrome.getNavLinkById("searchguard-configuration-react").hidden = true;
             return;
         }
         // rest module installed, check if user has access to the API
         systemstate.loadRestInfo().then(function(){
             if (systemstate.hasApiAccess()) {
-                chrome.getNavLinkById("searchguard-configuration").hidden = false;
-                FeatureCatalogueRegistryProvider.register(() => {
-                    return {
-                        id: 'searchguard-configuration',
-                        title: 'Search Guard Configuration',
-                        description: 'Configure users, roles and permissions for Search Guard.',
-                        icon: 'securityApp',
-                        path: '/app/searchguard-configuration',
-                        showOnHomePage: true,
-                        category: FeatureCatalogueCategory.ADMIN
-                    };
-                });
+                chrome.getNavLinkById("searchguard-configuration-react").hidden = false;
                 FeatureCatalogueRegistryProvider.register(() => {
                     return {
                         id: 'searchguard-configuration-react',
@@ -165,7 +153,6 @@ export function enableConfiguration($http, $window, systemstate) {
                     };
                 });
             } else {
-                chrome.getNavLinkById("searchguard-configuration").hidden = true;
                 chrome.getNavLinkById("searchguard-configuration-react").hidden = true;
             }
         });

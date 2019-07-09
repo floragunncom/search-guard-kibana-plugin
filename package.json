@@ -41,7 +41,6 @@
     "react-router-dom": "^5.0.0",
     "requirefrom": "^0.2.0",
     "typescript": "^3.5.1",
-    "ui-select": "^0.19.8",
     "uuid": "^3.3.2",
     "wreck": "14.x.x"
   },

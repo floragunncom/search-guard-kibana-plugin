@@ -250,16 +250,6 @@ export default function (kibana) {
                     url: '/app/searchguard-accountinfo#/'
                 },
                 {
-                    id: 'searchguard-configuration',
-                    title: 'Search Guard',
-                    main: 'plugins/searchguard/apps/configuration/configuration',
-                    order: 9009,
-                    auth: true,
-                    icon: 'plugins/searchguard/assets/searchguard_logo_nav.svg',
-                    linkToLastSubUrl: false,
-                    url: '/app/searchguard-configuration#/'
-                },
-                {
                     id: 'searchguard-configuration-react',
                     title: 'Search Guard',
                     main: 'plugins/searchguard/apps/configuration-react',
