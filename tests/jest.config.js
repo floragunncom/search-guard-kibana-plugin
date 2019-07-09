@@ -4,8 +4,8 @@ module.exports = {
     '<rootDir>/tests/setup_tests.js',
   ],
   testMatch: ['**/*.test.js'],
-  modulePaths: ['node_modules', `../../kibana/node_modules`],
-  snapshotSerializers: ['../../kibana/node_modules/enzyme-to-json/serializer'],
+  modulePaths: ['node_modules', `../../node_modules`],
+  snapshotSerializers: ['../../node_modules/enzyme-to-json/serializer'],
   coverageDirectory: './coverage',
   coverageReporters: ['lcov', 'text', 'cobertura'],
   transform: {
@@ -25,5 +25,6 @@ module.exports = {
     '!<rootDir>/build/**',
     '!<rootDir>/gather-info.js',
     '!**/vendor/**'
-  ]
+  ],
+  modulePathIgnorePatterns: ['<rootDir>/build_stage/']
 };
