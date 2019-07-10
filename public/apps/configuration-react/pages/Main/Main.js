@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Switch, Route } from 'react-router-dom';
-import { get, differenceBy, isEmpty } from 'lodash';
+import { get, differenceBy, isEmpty, map } from 'lodash';
 import {
   EuiPage,
   EuiPageBody,
@@ -57,7 +57,6 @@ class Main extends Component {
   }
 
   componentDidMount() {
-    this.calloutErrorIfLicenseNotValid();
     this.checkAPIAccess();
     if (isEmpty(this.localStorage.cache)) this.localStorage.cache = LOCAL_STORAGE;
   }
@@ -76,6 +75,7 @@ class Main extends Component {
           this.setState({ apiAccessState: API_ACCESS_STATE.OK });
         }
       }
+      this.calloutErrorIfLicenseNotValid();
     } catch (error) {
       this.handleTriggerErrorCallout(error);
     }
@@ -92,7 +92,7 @@ class Main extends Component {
               <h3>{sgLicenseNotValidText}</h3>
             </EuiText>
             <EuiListGroup>
-              {messages.map((message, i) => <EuiListGroupItem key={i} label={message} />)}
+              {map(messages, (message, i) => <EuiListGroupItem key={i} label={message} />)}
             </EuiListGroup>
           </Fragment>
         )
