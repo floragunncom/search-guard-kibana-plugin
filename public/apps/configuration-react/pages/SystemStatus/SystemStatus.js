@@ -38,13 +38,18 @@ class SystemStatus extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    // Select side nav item
     const { selectedSideNavItemName } = get(this.props, 'location.state', {});
     const { selectedSideNavItemName: prevSelectedSideNavItemName } = prevState;
-
     if (SIDE_NAV[toUpper(selectedSideNavItemName)] && selectedSideNavItemName !== prevSelectedSideNavItemName) {
       this.selectSideNavItem(selectedSideNavItemName);
-      this.fetchData();
     }
+
+    // Fetch data
+    const { action: prevAction } = queryString.parse(prevProps.location.search);
+    const { action } = queryString.parse(this.props.location.search);
+    const uploadedLicense = prevAction === SYSTEM_STATUS_ACTIONS.UPLOAD_LICENSE && action !== prevAction;
+    if (uploadedLicense) this.fetchData();
   }
 
   fetchData = async () => {
