@@ -1,4 +1,6 @@
 #!/bin/bash
+
+# WARNING! Do not use jq here, only bash.
 KIBANA_VERSION="$1"
 SG_PLUGIN_VERSION="$2"
 COMMAND="$3"
@@ -44,7 +46,7 @@ if [ $? != 0 ]; then
     exit 1;
 fi
 
-# check version matches. Do not use jq here, only bash
+# check version matches
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 while read -r line
@@ -112,9 +114,9 @@ fi
 
 echo "+++ Testing UI +++"
 uiTestsResult=`./node_modules/.bin/jest --config ./tests/jest.config.js --json`
-if [[ `echo $uiTestsResult | jq '.numFailedTests'` != 0 ]]; then
-  echo "Browser tests failed";
-  exit 1;
+if [[ ! $browserTestsResult =~ .*\"numFailedTests\":0.* ]]; then
+  echo "Browser tests failed"
+  exit 1
 fi
 
 echo "+++ Copy plugin contents +++"
