@@ -4,6 +4,7 @@ import { has } from 'lodash';
 import indexTemplate from './lib/elasticsearch/setup_index_template';
 import { migrateTenants } from './lib/multitenancy/migrate_tenants';
 import { version as sgVersion } from './package.json';
+import { first } from 'rxjs/operators';
 
 export default function (kibana) {
 
@@ -207,6 +208,11 @@ export default function (kibana) {
                     };
                 }
 
+                // @todo Is there a way to access this synchronously,
+                // so that we can move this setting back to injectDefaulVars?
+                const legacyEsConfig = await server.newPlatform.setup.core.elasticsearch.legacy.config$.pipe(first()).toPromise();
+                originalInjectedVars.kibana_server_user = legacyEsConfig.username;
+
                 return {
                     ...originalInjectedVars,
                     sgDynamic
@@ -269,7 +275,6 @@ export default function (kibana) {
                 options.accountinfo_enabled = server.config().get('searchguard.accountinfo.enabled');
                 options.basicauth_enabled = server.config().get('searchguard.basicauth.enabled');
                 options.kibana_index = server.config().get('kibana.index');
-                options.kibana_server_user = server.config().get('elasticsearch.username');
                 options.sg_version = sgVersion;
 
                 return options;
@@ -278,7 +283,7 @@ export default function (kibana) {
         },
 
         async init(server, options) {
-
+            const legacyEsConfig = await server.newPlatform.setup.core.elasticsearch.legacy.config$.pipe(first()).toPromise();
             APP_ROOT = '';
             API_ROOT = `${APP_ROOT}/api/v1`;
             const config = server.config();
@@ -307,12 +312,12 @@ export default function (kibana) {
 
             // provides authentication methods against Search Guard
             const BackendClass = pluginRoot(`lib/backend/searchguard`);
-            const searchguardBackend = new BackendClass(server, server.config);
+            const searchguardBackend = new BackendClass(server, server.config, legacyEsConfig);
             server.expose('getSearchGuardBackend', () => searchguardBackend);
 
             // provides configuration methods against Search Guard
             const ConfigurationBackendClass = pluginRoot(`lib/configuration/backend/searchguard_configuration_backend`);
-            const searchguardConfigurationBackend = new ConfigurationBackendClass(server, server.config);
+            const searchguardConfigurationBackend = new ConfigurationBackendClass(server, server.config, legacyEsConfig);
             server.expose('getSearchGuardConfigurationBackend', () => searchguardConfigurationBackend);
 
             let authType = config.get('searchguard.auth.type');
@@ -424,7 +429,7 @@ export default function (kibana) {
             if (config.get('searchguard.multitenancy.enabled')) {
 
                 // sanity check - header whitelisted?
-                var headersWhitelist = config.get('elasticsearch.requestHeadersWhitelist');
+                var headersWhitelist = legacyEsConfig.requestHeadersWhitelist;
                 if (headersWhitelist.indexOf('sgtenant') == -1) {
                     this.status.red('No tenant header found in whitelist. Please add sgtenant to elasticsearch.requestHeadersWhitelist in kibana.yml');
                     return;
@@ -493,8 +498,9 @@ export default function (kibana) {
                 this.status.green('Search Guard plugin version '+ sgVersion + ' initialised.');
             }
 
+
             // Using an admin certificate may lead to unintended consequences
-            if ((typeof config.get('elasticsearch.ssl.certificate') !== 'undefined' && typeof config.get('elasticsearch.ssl.certificate') !== false) && config.get('searchguard.allow_client_certificates') !== true) {
+            if ((typeof legacyEsConfig.ssl.certificate !== 'undefined' && typeof legacyEsConfig.ssl.certificate !== false) && config.get('searchguard.allow_client_certificates') !== true) {
                 this.status.red("'elasticsearch.ssl.certificate' can not be used without setting 'searchguard.allow_client_certificates' to 'true' in kibana.yml. Please refer to the documentation for more information about the implications of doing so.");
             }
         }

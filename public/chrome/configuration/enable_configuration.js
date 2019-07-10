@@ -14,7 +14,6 @@
  limitations under the License.
  */
 
-
 import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules';
 // This fixes an issue where the app icons would disappear while having a non-Kibana app open.
@@ -22,8 +21,11 @@ import { uiModules } from 'ui/modules';
 import 'ui/autoload/modules';
 import { FeatureCatalogueRegistryProvider, FeatureCatalogueCategory } from 'ui/registry/feature_catalogue';
 require ('../../apps/configuration/systemstate/systemstate');
+import { chromeWrapper } from "../../services/chrome_wrapper";
 
 const app = uiModules.get('apps/searchguard/configuration');
+
+
 
 function redirectOnSessionTimeout($window) {
     const APP_ROOT = `${chrome.getBasePath()}`;
@@ -133,13 +135,13 @@ export function enableConfiguration($http, $window, systemstate) {
     systemstate.loadSystemInfo().then(function(){
         // if no REST module is installed the restinfo endpoint is not available, so fail fast
         if (!systemstate.restApiEnabled()) {
-            chrome.getNavLinkById("searchguard-configuration").hidden = true;
+            chromeWrapper.hideNavLink('searchguard-configuration', true);
             return;
         }
         // rest module installed, check if user has access to the API
         return systemstate.loadRestInfo().then(function(){
             if (systemstate.hasApiAccess()) {
-                chrome.getNavLinkById("searchguard-configuration").hidden = false;
+                chromeWrapper.hideNavLink('searchguard-configuration', false);
                 FeatureCatalogueRegistryProvider.register(() => {
                     return {
                         id: 'searchguard-configuration',
@@ -152,11 +154,11 @@ export function enableConfiguration($http, $window, systemstate) {
                     };
                 });
             } else {
-                chrome.getNavLinkById("searchguard-configuration").hidden = true;
+                chromeWrapper.hideNavLink('searchguard-configuration', true);
             }
         });
     }).catch(() => {
-      chrome.getNavLinkById("searchguard-configuration").hidden = true;
+      chromeWrapper.hideNavLink('searchguard-configuration', true);
     });
 }
 

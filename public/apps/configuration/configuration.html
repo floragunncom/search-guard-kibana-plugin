@@ -1,0 +1,159 @@
+<div ng-controller="sgBaseController">
+
+    <div class="searchguard app-container" ng-controller="searchguardConfigurationController">
+
+        <sgc-header></sgc-header>
+
+        <div class="row">
+            <div class="col-xs-12" style="text-align: center;">
+
+                <img class="brand-image" kbn-src="/plugins/searchguard/assets/searchguard_logo.svg"  width="250">
+
+
+                <h3 ng-if="accessState=='pending'" style="margin-top:0px;">Please wait ...</h3>
+
+                <p id="sg.label.errormessage" class="error-message" ng-show="errorMessage">{{ errorMessage }}</p>
+
+            </div>
+        </div>
+
+
+        <div class="row" ng-if="accessState=='forbidden'">
+            <div class="col-xs-12" style="text-align: center;">
+                <h3>You do not have permission to access the Search Guard configuration. Please contact your System
+                    Administrator.</h3>
+            </div>
+        </div>
+
+        <div class="row" ng-if="accessState=='notenabled'">
+            <div class="col-xs-12" style="text-align: center;">
+                <h3>The REST API module is not installed. Please contact your System Administrator.</h3>
+            </div>
+        </div>
+
+        <div ng-if="accessState=='ok'">
+
+            <div class="kuiViewContent kuiViewContent--constrainedWidth">
+
+                <div class="kuiViewContentItem">
+
+                    <div class="kuiVerticalRhythm kuiVerticalRhythm--medium ">
+
+                        <h2 class="kuiSubTitle" style="margin-bottom:10px;">Permissions and Roles</h2>
+
+                        <div class="FeaturePanelList">
+
+                            <a id="sg.link.rolesmapping" ng-if="endpointAndMethodEnabled('ROLESMAPPING', 'GET')" class="FeaturePanel ng-scope"
+                               ng-href="#/rolesmapping"
+                               tooltip="Map users, backend roles and hostnames to Search Guard roles."
+                               tooltip-placement="bottom" href="#/rolesmapping">
+                                <div class="FeaturePanelButton__image">
+                                    <span class="fa fa-exchange fa-4x configpanel"></span>
+                                </div>
+                                <div class="FeaturePanelButton__label">
+                                    Role Mappings
+                                </div>
+                            </a>
+
+                            <a id="sg.link.roles" ng-if="endpointAndMethodEnabled('ROLES', 'GET')" class="FeaturePanel ng-scope"
+                               ng-href="#/roles" tooltip="Configure Search Guard Roles and their permissions."
+                               tooltip-placement="bottom" href="#/roles">
+                                <div class="FeaturePanelButton__image">
+                                    <span class="fa fa-users fa-4x configpanel"></span>
+                                </div>
+                                <div class="FeaturePanelButton__label">
+                                    Search Guard <br/> Roles
+                                </div>
+                            </a>
+
+                            <a id="sg.link.actiongroups" ng-if="endpointAndMethodEnabled('ACTIONGROUPS', 'GET')" class="FeaturePanel ng-scope"
+                               ng-href="#/actiongroups"
+                               tooltip="Configure named groups of permissions that can be applied to roles."
+                               tooltip-placement="bottom" href="#/actiongroups">
+                                <div class="FeaturePanelButton__image">
+                                    <span class="fa fa-sitemap fa-4x configpanel"></span>
+                                </div>
+                                <div class="FeaturePanelButton__label">
+                                    Action Groups
+                                </div>
+                            </a>
+
+                            <a id="sg.link.tenants" ng-if="endpointAndMethodEnabled('TENANTS', 'GET')" class="FeaturePanel ng-scope"
+                               ng-href="#/tenants"
+                               tooltip="Configure tenants."
+                               tooltip-placement="bottom" href="#/tenants">
+                                <div class="FeaturePanelButton__image">
+                                    <span class="fa fa-building-o fa-4x configpanel"></span>
+                                </div>
+                                <div class="FeaturePanelButton__label">
+                                    Tenants
+                                </div>
+                            </a>
+
+                        </div>
+                    </div>
+
+                    <div class="kuiVerticalRhythm kuiVerticalRhythm--medium ">
+                        <h2 class="kuiSubTitle" style="margin-bottom:10px;">Authentication Backends</h2>
+
+                        <div class="FeaturePanelList">
+
+                            <a id="sg.link.internalusers" ng-if="endpointAndMethodEnabled('INTERNALUSERS', 'GET')" class="FeaturePanel"
+                               ng-href="#/internalusers"
+                               tooltip="Use the Internal Users Database if you don't have any external authentication systems in place."
+                               tooltip-placement="bottom" href="#/internalusers">
+                                <div class="FeaturePanelButton__image">
+                                    <span class="fa fa-user fa-4x configpanel"></span>
+                                </div>
+                                <div class="FeaturePanelButton__label">
+                                    Internal User Database
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="kuiVerticalRhythm kuiVerticalRhythm--medium ">
+                            <h2 class="kuiSubTitle" style="margin-bottom:10px;">System</h2>
+
+                            <div class="FeaturePanelList">
+                                <a id="sg.link.sgconfig" ng-if="endpointAndMethodEnabled('SGCONFIG', 'GET')" class="FeaturePanel ng-scope"
+                                   ng-href="#/sgconfiguration"
+                                   tooltip="View the configured authentication and authorization modules."
+                                   href="#/sgconfiguration">
+                                    <div class="FeaturePanelButton__image">
+                                        <span class="fa fa-lock fa-4x configpanel"></span>
+                                    </div>
+                                    <div class="FeaturePanelButton__label">
+                                        Authentication & Authorisation
+                                    </div>
+                                </a>
+
+                                <a id="sg.link.license" ng-if="endpointAndMethodEnabled('LICENSE', 'GET')" class="FeaturePanel ng-scope"
+                                   ng-href="#/system"
+                                   tooltip="Display the Search Guard license and all installed modules"
+                                   tooltip-placement="bottom">
+                                    <div class="FeaturePanelButton__image">
+                                        <span class="fa fa-info fa-4x configpanel"></span>
+                                    </div>
+                                    <div class="FeaturePanelButton__label">
+                                        License & System Info
+                                    </div>
+                                </a>
+
+                                <a id="sg.link.cache" ng-if="endpointAndMethodEnabled('CACHE', 'DELETE')" class="FeaturePanel ng-scope"
+                                   ng-click="clearCache()" tooltip="Purge all Search Guard caches"
+                                   tooltip-placement="bottom">
+                                    <div class="FeaturePanelButton__image">
+                                        <span class="fa fa-refresh fa-4x configpanel"></span>
+                                    </div>
+                                    <div class="FeaturePanelButton__label">
+                                        Purge Cache
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
