@@ -1,7 +1,6 @@
 export const TYPES = [
-  { value: 'cluster', text: 'cluster' },
-  { value: 'index', text: 'index' },
-  { value: 'kibana', text: 'kibana' }
+  { value: 'cluster', text: 'Cluster' },
+  { value: 'index', text: 'Index' }
 ];
 
 export const DEFAULT_ACTION_GROUP = {
