@@ -763,15 +763,15 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@elastic/datemath@link:../../kibana/packages/elastic-datemath":
+"@elastic/datemath@link:../../packages/elastic-datemath":
   version "0.0.0"
   uid ""
 
-"@elastic/eslint-config-kibana@link:../../kibana/packages/eslint-config-kibana":
+"@elastic/eslint-config-kibana@link:../../packages/eslint-config-kibana":
   version "0.0.0"
   uid ""
 
-"@elastic/eslint-import-resolver-kibana@link:../../kibana/packages/kbn-eslint-import-resolver-kibana":
+"@elastic/eslint-import-resolver-kibana@link:../../packages/kbn-eslint-import-resolver-kibana":
   version "0.0.0"
   uid ""
 
@@ -952,15 +952,15 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^12.0.9"
 
-"@kbn/expect@link:../../kibana/packages/kbn-expect":
+"@kbn/expect@link:../../packages/kbn-expect":
   version "0.0.0"
   uid ""
 
-"@kbn/i18n@link:../../kibana/packages/kbn-i18n":
+"@kbn/i18n@link:../../packages/kbn-i18n":
   version "0.0.0"
   uid ""
 
-"@kbn/plugin-helpers@link:../../kibana/packages/kbn-plugin-helpers":
+"@kbn/plugin-helpers@link:../../packages/kbn-plugin-helpers":
   version "0.0.0"
   uid ""
 

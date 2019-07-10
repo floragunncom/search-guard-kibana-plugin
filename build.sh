@@ -1,4 +1,6 @@
 #!/bin/bash
+
+# WARNING! Do not use jq here, only bash.
 KIBANA_VERSION="$1"
 SG_PLUGIN_VERSION="$2"
 COMMAND="$3"
@@ -44,7 +46,7 @@ if [ $? != 0 ]; then
     exit 1;
 fi
 
-# check version matches. Do not use jq here, only bash
+# check version matches
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 while read -r line
@@ -104,12 +106,18 @@ rm -rf build/
 rm -rf node_modules/
 
 echo "+++ Installing node modules +++"
-npm install
+yarn
 if [ $? != 0 ]; then
     echo "Installing node modules failed";
     exit 1;
 fi
 
+echo "+++ Testing UI +++"
+uiTestsResult=`./node_modules/.bin/jest --config ./tests/jest.config.js --json`
+if [[ ! $browserTestsResult =~ .*\"numFailedTests\":0.* ]]; then
+  echo "Browser tests failed"
+  exit 1
+fi
 
 echo "+++ Copy plugin contents +++"
 COPYPATH="build/kibana/$PLUGIN_NAME"

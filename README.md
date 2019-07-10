@@ -5,7 +5,7 @@
 </p>
 
 ## About this plugin
-This plugin for Kibana adds session management and true multi-tenancy to a [Search Guard](https://search-guard.com) secured cluster. 
+This plugin for Kibana adds session management and true multi-tenancy to a [Search Guard](https://search-guard.com) secured cluster.
 
 For Kibana 6.x it also provides a configuration GUI for Search Guard.
 
@@ -44,7 +44,7 @@ This software is licensed under the Apache2 license and can be used freely also 
 
 See the [kibana contributing guide](https://github.com/elastic/kibana/blob/master/CONTRIBUTING.md) and the Search Guard documentation above for instructions setting up your development environment. Once you have completed that, use the following yarn scripts.
 
-  - `yarn kbn bootstrap`
+  - `yarn`
 
     Install dependencies and crosslink Kibana and all projects/plugins.
 
@@ -58,7 +58,7 @@ See the [kibana contributing guide](https://github.com/elastic/kibana/blob/maste
       yarn start --elasticsearch.hosts http://localhost:9220
       ```
 
-  - `yarn build`
+  - `./build.sh <kibana_version> <sg_plugin_version> <install|deploy>`
 
     Build a distributable archive of your plugin.
 
