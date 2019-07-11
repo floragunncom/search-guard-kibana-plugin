@@ -1,9 +1,20 @@
 ---
-extends: ["@elastic/kibana", "@elastic/eslint-config-kibana/jest"]
+extends: airbnb
+parser: babel-eslint
+env:
+  browser: true
+  node: true
+  es6: true
+rules:
+  comma-dangle: off
+  import/prefer-default-export: off
+  no-console: off
+  arrow-parens: off
+  no-restricted-syntax: off
+  no-plusplus: off
+  class-methods-use-this: off
+  object-curly-newline: off
+  react/destructuring-assignment: off
+  react/no-access-state-in-setstate: off
+  react/no-array-index-key: off
 
-settings:
-  import/resolver:
-    'node':
-      paths: ["public", "node_modules", "../../node_modules"]
-    '@kbn/eslint-import-resolver-kibana':
-      rootPackageName: 'search-guard-kibana-plugin'
