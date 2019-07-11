@@ -257,7 +257,7 @@ export default function (kibana) {
                 },
                 {
                     id: 'searchguard-configuration',
-                    title: 'Search Guard',
+                    title: 'Search Guard Configuration',
                     main: 'plugins/searchguard/apps/configuration-react',
                     order: 9010,
                     auth: true,
