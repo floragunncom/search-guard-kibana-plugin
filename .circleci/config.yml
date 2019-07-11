@@ -17,9 +17,6 @@ jobs:
             export NVM_HOME=~/.nvm
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-            nvm install "$(cat .node-version)"
-            curl -o- -L https://yarnpkg.com/install.sh | bash
-            export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH" # This loads yarn
             export MAVEN_HOME=/opt/apache-maven
             PACKAGE_VERSION=$(cat package.json | jq --raw-output '.version')
             ES_VERSION=$(echo $PACKAGE_VERSION | cut -d'-' -f1)
