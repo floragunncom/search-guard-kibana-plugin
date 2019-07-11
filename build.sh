@@ -123,7 +123,7 @@ cp -a "$WORK_DIR/.babelrc" "$BUILD_STAGE_PLUGIN_DIR"
 
 cd $BUILD_STAGE_PLUGIN_DIR
 
-echo "+++ Installing node modules +++"
+echo "+++ Installing plugin node modules +++"
 yarn kbn bootstrap
 if [ $? != 0 ]; then
     echo "Installing node modules failed";
@@ -135,6 +135,14 @@ uiTestsResult=`./node_modules/.bin/jest --config ./tests/jest.config.js --json`
 if [[ ! $uiTestsResult =~ .*\"numFailedTests\":0.* ]]; then
   echo "Browser tests failed"
   exit 1
+fi
+
+echo "+++ Installing plugin node modules for production +++"
+rm -rf "node_modules"
+yarn install --production --pure-lockfile
+if [ $? != 0 ]; then
+    echo "Installing node modules failed";
+    exit 1;
 fi
 
 cd "$WORK_DIR"
@@ -149,8 +157,6 @@ cp -a "$BUILD_STAGE_PLUGIN_DIR/package.json" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/node_modules" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/lib" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/public" "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/tests" "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/.babelrc" "$COPYPATH"
 
 # Replace pom version
 rm -f pom.xml
