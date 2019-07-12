@@ -26,7 +26,7 @@
     "hapi-auth-cookie": "^9.1.0",
     "joi": "10.6.0",
     "js-yaml": "^3.7.0",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.14",
     "moment": "^2.24.0",
     "prop-types": "^15.7.2",
     "query-string": "^6.5.0",
