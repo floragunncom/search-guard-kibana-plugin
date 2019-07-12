@@ -257,11 +257,11 @@ export default function (kibana) {
                 },
                 {
                     id: 'searchguard-configuration',
-                    title: 'Search Guard',
-                    main: 'plugins/searchguard/apps/configuration/configuration',
-                    order: 9009,
+                    title: 'Search Guard Configuration',
+                    main: 'plugins/searchguard/apps/configuration-react',
+                    order: 9010,
                     auth: true,
-                    icon: 'plugins/searchguard/assets/searchguard_logo_nav.svg',
+                    icon: 'plugins/searchguard/assets/logo_left_navbar.svg',
                     linkToLastSubUrl: false,
                     url: '/app/searchguard-configuration#/'
                 }
