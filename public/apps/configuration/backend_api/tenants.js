@@ -30,8 +30,8 @@ uiModules.get('apps/searchguard/configuration', [])
             return backendAPI.get(RESOURCE, id);
         };
 
-        this.save = (tenantName, data) => {
-            var data = this.preSave(data);
+        this.save = (tenantName, data, doPreSave = false) => {
+            var data = doPreSave ? this.preSave(data) : data;
             return backendAPI.save(RESOURCE, encodeURIComponent(tenantName), data);
         };
 
@@ -62,4 +62,3 @@ uiModules.get('apps/searchguard/configuration', [])
         };
 
     });
-

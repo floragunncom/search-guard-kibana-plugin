@@ -15,6 +15,8 @@ jobs:
           command: |
             curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash > /dev/null 2>&1
             export NVM_HOME=~/.nvm
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
             export MAVEN_HOME=/opt/apache-maven
             PACKAGE_VERSION=$(cat package.json | jq --raw-output '.version')
             ES_VERSION=$(echo $PACKAGE_VERSION | cut -d'-' -f1)

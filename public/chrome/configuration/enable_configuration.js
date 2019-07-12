@@ -119,8 +119,6 @@ export function enableConfiguration($http, $window, systemstate) {
 
     setupResponseErrorHandler($window);
 
-    chrome.getNavLinkById("searchguard-configuration").hidden = true;
-
     const ROOT = chrome.getBasePath();
     const APP_ROOT = `${ROOT}`;
     const API_ROOT = `${APP_ROOT}/api/v1`;
@@ -139,7 +137,7 @@ export function enableConfiguration($http, $window, systemstate) {
             return;
         }
         // rest module installed, check if user has access to the API
-        systemstate.loadRestInfo().then(function(){
+        return systemstate.loadRestInfo().then(function(){
             if (systemstate.hasApiAccess()) {
                 chrome.getNavLinkById("searchguard-configuration").hidden = false;
                 FeatureCatalogueRegistryProvider.register(() => {
@@ -157,6 +155,8 @@ export function enableConfiguration($http, $window, systemstate) {
                 chrome.getNavLinkById("searchguard-configuration").hidden = true;
             }
         });
+    }).catch(() => {
+      chrome.getNavLinkById("searchguard-configuration").hidden = true;
     });
 }
 
