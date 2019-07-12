@@ -33,11 +33,11 @@ uiModules.get('apps/searchguard/configuration', [])
             return backendAPI.get(RESOURCE, id);
         };
 
-        this.save = (rolename, data) => {
+        this.save = (rolename, data, doPreSave = true) => {
             sessionStorage.removeItem("rolesautocomplete");
             sessionStorage.removeItem("rolenames");
             var resourceCopy = JSON.parse(JSON.stringify(data));
-            var data = this.preSave(resourceCopy);
+            var data = doPreSave ? this.preSave(resourceCopy) : resourceCopy;
             return backendAPI.save(RESOURCE, rolename, data);
         };
 
