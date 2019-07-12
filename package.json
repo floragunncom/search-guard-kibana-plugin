@@ -15,7 +15,7 @@
     "test:browser": "./node_modules/.bin/jest --config ./tests/jest.config.js"
   },
   "dependencies": {
-    "@elastic/eui": "^12.2.0",
+    "@elastic/eui": "6.10.7",
     "@elastic/kibana-ui-framework": "0.0.11",
     "@types/react": "^16.8.14",
     "@types/react-dom": "^16.8.4",

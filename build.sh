@@ -125,6 +125,7 @@ cd $BUILD_STAGE_PLUGIN_DIR
 
 echo "+++ Installing plugin node modules +++"
 yarn kbn bootstrap
+yarn # This is required to build all plugin's packages if Kibana v7[0-1].x
 if [ $? != 0 ]; then
     echo "Installing node modules failed";
     exit 1;
