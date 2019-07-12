@@ -1,4 +1,6 @@
 #!/bin/bash
+
+# WARNING! Do not use jq here, only bash.
 KIBANA_VERSION="$1"
 SG_PLUGIN_VERSION="$2"
 COMMAND="$3"
@@ -44,9 +46,9 @@ if [ $? != 0 ]; then
     exit 1;
 fi
 
-# check version matches. Do not use jq here, only bash
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd $DIR
+# check version matches
+WORK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $WORK_DIR
 while read -r line
 do
     if [[ "$line" =~ ^\"version\".* ]]; then
@@ -68,15 +70,16 @@ fi
 PLUGIN_NAME="searchguard-kibana-$KIBANA_VERSION-$SG_PLUGIN_VERSION"
 echo "+++ Building $PLUGIN_NAME.zip +++"
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd "$DIR"
-mkdir -p build_stage
-cd build_stage
+WORK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$WORK_DIR"
+BUILD_STAGE_DIR="$WORK_DIR/build_stage"
+mkdir -p $BUILD_STAGE_DIR
+cd $BUILD_STAGE_DIR
 
 echo "+++ Cloning https://github.com/elastic/kibana.git +++"
 git clone https://github.com/elastic/kibana.git || true > /dev/null 2>&1
 if [ $? != 0 ]; then
-    echo "got clone Kibana repository failed";
+    echo "Got clone Kibana repository failed";
     exit 1;
 fi
 
@@ -98,27 +101,63 @@ if [ $? != 0 ]; then
     exit 1;
 fi
 
+echo "+++ Installing Yarn +++"
+curl -o- -L https://yarnpkg.com/install.sh | bash
+if [ $? != 0 ]; then
+    echo "Installing Yarn failed";
+    exit 1;
+fi
 
-cd "$DIR"
-rm -rf build/
-rm -rf node_modules/
+echo "+++ Sourcing Yarn +++"
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 
-echo "+++ Installing node modules +++"
-npm install
+echo "+++ Copy plugin contents to build stage +++"
+BUILD_STAGE_PLUGIN_DIR="$BUILD_STAGE_DIR/kibana/plugins/search-guard-kibana-plugin"
+mkdir -p $BUILD_STAGE_PLUGIN_DIR
+cp -a "$WORK_DIR/index.js" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/package.json" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/lib" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/public" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/tests" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/.babelrc" "$BUILD_STAGE_PLUGIN_DIR"
+
+cd $BUILD_STAGE_PLUGIN_DIR
+
+echo "+++ Installing plugin node modules +++"
+yarn kbn bootstrap
+yarn # This is required to build all plugin's packages if Kibana v7[0-1].x
 if [ $? != 0 ]; then
     echo "Installing node modules failed";
     exit 1;
 fi
 
+echo "+++ Testing UI +++"
+uiTestsResult=`./node_modules/.bin/jest --config ./tests/jest.config.js --json`
+if [[ ! $uiTestsResult =~ .*\"numFailedTests\":0.* ]]; then
+  echo "Browser tests failed"
+  exit 1
+fi
 
-echo "+++ Copy plugin contents +++"
+echo "+++ Installing plugin node modules for production +++"
+rm -rf "node_modules"
+yarn install --production --pure-lockfile
+if [ $? != 0 ]; then
+    echo "Installing node modules failed";
+    exit 1;
+fi
+
+cd "$WORK_DIR"
+rm -rf build/
+rm -rf node_modules/
+
+echo "+++ Copy plugin contents to finalize build +++"
 COPYPATH="build/kibana/$PLUGIN_NAME"
 mkdir -p "$COPYPATH"
-cp -a "$DIR/index.js" "$COPYPATH"
-cp -a "$DIR/package.json" "$COPYPATH"
-cp -a "$DIR/lib" "$COPYPATH"
-cp -a "$DIR/node_modules" "$COPYPATH"
-cp -a "$DIR/public" "$COPYPATH"
+cp -a "$BUILD_STAGE_PLUGIN_DIR/index.js" "$COPYPATH"
+cp -a "$BUILD_STAGE_PLUGIN_DIR/package.json" "$COPYPATH"
+cp -a "$BUILD_STAGE_PLUGIN_DIR/node_modules" "$COPYPATH"
+cp -a "$BUILD_STAGE_PLUGIN_DIR/lib" "$COPYPATH"
+cp -a "$BUILD_STAGE_PLUGIN_DIR/public" "$COPYPATH"
 
 # Replace pom version
 rm -f pom.xml
