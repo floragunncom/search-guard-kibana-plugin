@@ -51,10 +51,11 @@ class RoleMappings extends Component {
 
     this.backendService = this.props.roleMappingsService;
     this.localStorage = new LocalStorageService();
-    const { isShowingTableSystemItems } = this.localStorage.cache[APP_PATH.ROLE_MAPPINGS];
+    const { isShowingTableSystemItems = false } = this.localStorage.cache[APP_PATH.ROLE_MAPPINGS];
 
     this.state = {
       resources: [],
+      tableResources: [],
       error: null,
       isLoading: true,
       tableSelection: [],
@@ -77,12 +78,11 @@ class RoleMappings extends Component {
     const { rolesService, onTriggerErrorCallout } = this.props;
     this.setState({ isLoading: true });
     try {
-      const { data: resources } = await this.backendService.list();
+      const { data } = await this.backendService.list();
       const { data: allRoles } = await rolesService.list();
-      this.setState({
-        resources: resourcesToUiResources(resources, allRoles),
-        error: null
-      });
+      const resources = resourcesToUiResources(data, allRoles);
+      const tableResources = filterReservedStaticTableResources(resources, this.state.isShowingTableSystemItems);
+      this.setState({ resources, tableResources, error: null });
     } catch(error) {
       this.setState({ error });
       onTriggerErrorCallout(error);
@@ -171,7 +171,7 @@ class RoleMappings extends Component {
 
   render() {
     const { history } = this.props;
-    const { isLoading, error, resources, isShowingTableSystemItems } = this.state;
+    const { isLoading, error, tableResources, isShowingTableSystemItems } = this.state;
     const getResourceEditUri = name => `${APP_PATH.CREATE_ROLE_MAPPING}?id=${name}&action=${ROLE_MAPPINGS_ACTIONS.UPDATE_ROLE_MAPPING}`;
 
     const actions = [
@@ -285,7 +285,10 @@ class RoleMappings extends Component {
           label={systemItemsText}
           isChecked={isShowingTableSystemItems}
           onChange={() => {
-            this.setState({ isShowingTableSystemItems: !isShowingTableSystemItems });
+            this.setState({
+              isShowingTableSystemItems: !isShowingTableSystemItems,
+              tableResources: filterReservedStaticTableResources(this.state.resources, !isShowingTableSystemItems)
+            });
           }}
         />
       ),
@@ -293,8 +296,6 @@ class RoleMappings extends Component {
         incremental: true,
       }
     };
-
-    const tableResources = filterReservedStaticTableResources(resources, isShowingTableSystemItems);
 
     return (
       <ContentPanel
