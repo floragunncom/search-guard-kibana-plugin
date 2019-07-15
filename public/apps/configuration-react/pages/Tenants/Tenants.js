@@ -41,10 +41,11 @@ class Tenants extends Component {
 
     this.backendService = this.props.tenantsService;
     this.localStorage = new LocalStorageService();
-    const { isShowingTableSystemItems } = this.localStorage.cache[APP_PATH.TENANTS];
+    const { isShowingTableSystemItems = false } = this.localStorage.cache[APP_PATH.TENANTS];
 
     this.state = {
       resources: [],
+      tableResources: [],
       error: null,
       isLoading: true,
       tableSelection: [],
@@ -66,8 +67,10 @@ class Tenants extends Component {
   fetchData = async () => {
     this.setState({ isLoading: true });
     try {
-      const { data: resources } = await this.backendService.list();
-      this.setState({ resources: resourcesToUiResources(resources), error: null });
+      const { data } = await this.backendService.list();
+      const resources = resourcesToUiResources(data);
+      const tableResources = filterReservedStaticTableResources(resources, this.state.isShowingTableSystemItems);
+      this.setState({ resources, tableResources, error: null });
     } catch(error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
@@ -156,7 +159,7 @@ class Tenants extends Component {
 
   render() {
     const { history } = this.props;
-    const { isLoading, error, resources, isShowingTableSystemItems } = this.state;
+    const { isLoading, error, tableResources, isShowingTableSystemItems } = this.state;
     const getResourceEditUri = name => `${APP_PATH.CREATE_TENANT}?id=${name}&action=${TENANTS_ACTIONS.UPDATE_TENANT}`;
 
     const actions = [
@@ -230,7 +233,10 @@ class Tenants extends Component {
           label={systemItemsText}
           isChecked={isShowingTableSystemItems}
           onChange={() => {
-            this.setState({ isShowingTableSystemItems: !isShowingTableSystemItems });
+            this.setState({
+              isShowingTableSystemItems: !isShowingTableSystemItems,
+              tableResources: filterReservedStaticTableResources(this.state.resources, !isShowingTableSystemItems)
+            });
           }}
         />
       ),
@@ -238,8 +244,6 @@ class Tenants extends Component {
         incremental: true,
       }
     };
-
-    const tableResources = filterReservedStaticTableResources(resources, isShowingTableSystemItems);
 
     return (
       <ContentPanel
