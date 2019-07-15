@@ -50,10 +50,11 @@ class InternalUsers extends Component {
 
     this.localStorage = new LocalStorageService();
     this.backendService = this.props.internalUsersService;
-    const { isShowingTableSystemItems } = this.localStorage.cache[APP_PATH.INTERNAL_USERS];
+    const { isShowingTableSystemItems = false } = this.localStorage.cache[APP_PATH.INTERNAL_USERS];
 
     this.state = {
       resources: [],
+      tableResources: [],
       error: null,
       isLoading: true,
       tableSelection: [],
@@ -75,8 +76,10 @@ class InternalUsers extends Component {
   fetchData = async () => {
     try {
       this.setState({ isLoading: true });
-      const { data: resources } = await this.backendService.list();
-      this.setState({ resources: resourcesToUiResources(resources), error: null });
+      const { data } = await this.backendService.list();
+      const resources = resourcesToUiResources(data);
+      const tableResources = filterReservedStaticTableResources(resources, this.state.isShowingTableSystemItems);
+      this.setState({ resources, tableResources, error: null });
     } catch(error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
@@ -186,7 +189,7 @@ class InternalUsers extends Component {
 
   render() {
     const { history } = this.props;
-    const { isLoading, error, resources, isShowingTableSystemItems } = this.state;
+    const { isLoading, error, tableResources, isShowingTableSystemItems } = this.state;
     const getResourceEditUri = name => `${APP_PATH.CREATE_INTERNAL_USER}?id=${name}&action=${INTERNAL_USERS_ACTIONS.UPDATE_USER}`;
 
     const actions = [
@@ -261,7 +264,10 @@ class InternalUsers extends Component {
           label={systemItemsText}
           isChecked={isShowingTableSystemItems}
           onChange={() => {
-            this.setState({ isShowingTableSystemItems: !isShowingTableSystemItems });
+            this.setState({
+              isShowingTableSystemItems: !isShowingTableSystemItems,
+              tableResources: filterReservedStaticTableResources(this.state.resources, !isShowingTableSystemItems)
+            });
           }}
         />
       ),
@@ -269,8 +275,6 @@ class InternalUsers extends Component {
         incremental: true,
       }
     };
-
-    const tableResources = filterReservedStaticTableResources(resources, isShowingTableSystemItems);
 
     return (
       <ContentPanel
