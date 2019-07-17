@@ -12,7 +12,8 @@
   "scripts": {
     "lint": "./node_modules/.bin/eslint .",
     "kbn": "node ../../scripts/kbn",
-    "test:browser": "./node_modules/.bin/jest --config ./tests/jest.config.js"
+    "test:browser": "./node_modules/.bin/jest public --config ./tests/jest.config.js",
+    "test:server": "./node_modules/.bin/jest lib --config ./tests/jest.config.js"
   },
   "dependencies": {
     "@elastic/eui": "^12.2.0",
@@ -44,16 +45,17 @@
     "@babel/preset-env": "^7.4.5",
     "@babel/preset-react": "^7.0.0",
     "babel-eslint": "^9.0.0",
-    "eslint": "^5.6.0",
+    "eslint": "5.3.0",
     "eslint-config-airbnb": "^17.1.1",
     "eslint-plugin-babel": "^5.2.0",
-    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-import": "2.18.0",
     "eslint-plugin-jest": "^21.26.2",
-    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-jsx-a11y": "6.2.3",
     "eslint-plugin-mocha": "^5.2.0",
     "eslint-plugin-no-unsanitized": "^3.0.2",
     "eslint-plugin-prefer-object-spread": "^1.2.1",
-    "eslint-plugin-react": "^7.11.1",
+    "eslint-plugin-react": "7.14.2",
+    "hapi": "17.5.3",
     "jest": "^24.8.0"
   }
 }
