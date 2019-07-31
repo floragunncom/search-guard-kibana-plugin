@@ -502,8 +502,12 @@ export default function (kibana) {
               });
 
             // Using an admin certificate may lead to unintended consequences
-            if ((typeof config.get('elasticsearch.ssl.certificate') !== 'undefined' && typeof config.get('elasticsearch.ssl.certificate') !== false) && config.get('searchguard.allow_client_certificates') !== true) {
-                this.status.red("'elasticsearch.ssl.certificate' can not be used without setting 'searchguard.allow_client_certificates' to 'true' in kibana.yml. Please refer to the documentation for more information about the implications of doing so.");
+            if ((typeof config.get('elasticsearch.ssl.certificate') !== 'undefined' && typeof config.get('elasticsearch.ssl.certificate') !== false)) {
+                if (config.get('searchguard.allow_client_certificates') !== true) {
+                    this.status.red("'elasticsearch.ssl.certificate' can not be used without setting 'searchguard.allow_client_certificates' to 'true' in kibana.yml. Please refer to the documentation for more information about the implications of doing so.");
+                } else if (config.get('elasticsearch.ssl.alwaysPresentCertificate') === true) {
+                    this.status.red("'elasticsearch.ssl.alwaysPresentCertificate' may lead to requests being executed as the user attached to the certificate configured in 'elasticsearch.ssl.certificate'.");
+                }
             }
         }
     });
