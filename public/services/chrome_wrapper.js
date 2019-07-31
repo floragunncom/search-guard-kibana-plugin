@@ -19,6 +19,7 @@
 import chrome from 'ui/chrome';
 
 let getNewPlatform = null;
+let npStart = null;
 
 /**
  * Holds the original state of the navigation links "hidden" property
@@ -29,11 +30,19 @@ let changedVisibility = {}
 
 if (! chrome.getNavLinkById) {
   getNewPlatform = require('ui/new_platform').getNewPlatform;
+
+  if (!getNewPlatform) {
+    npStart = require('ui/new_platform').npStart;
+    getNewPlatform = function() {
+      return npStart;
+    }
+  }
+
 }
 
 function getNavLinks() {
   if (getNewPlatform) {
-    return getNewPlatform().start.core.chrome.navLinks.getAll();
+    return getNewPlatform().core.chrome.navLinks.getAll();
   }
 
   return chrome.getNavLinks();
@@ -42,7 +51,7 @@ function getNavLinks() {
 
 function getNavLinkById(id) {
   if (getNewPlatform) {
-    return getNewPlatform().start.core.chrome.navLinks.get(id);
+    return getNewPlatform().core.chrome.navLinks.get(id);
   } else {
     return chrome.getNavLinkById(id);
   }
@@ -89,7 +98,7 @@ function resetLastSubUrl(id) {
  */
 function updateNavLinkProperty(id, property, value) {
   if (getNewPlatform) {
-    getNewPlatform().start.core.chrome.navLinks.update(id, {
+    getNewPlatform().core.chrome.navLinks.update(id, {
       [property]: value
     });
   } else {
