@@ -498,6 +498,13 @@ export default function (kibana) {
                 this.status.green('Search Guard plugin version '+ sgVersion + ' initialised.');
             }
 
+            const backend = server.plugins.searchguard.getSearchGuardBackend();
+            backend.getKibanaInfoWithInternalUser()
+              .then((response) => {
+                  if (response && response.not_fail_on_forbidden_enabled !== true) {
+                      server.log(['warning', 'searchguard'], '"Do not fail on forbidden" is not enabled. Please refer to the documentation: https://docs.search-guard.com/latest/kibana-plugin-installation#configuring-elasticsearch-enable-do-not-fail-on-forbidden');
+                  }
+              });
 
             // Using an admin certificate may lead to unintended consequences
             if ((typeof legacyEsConfig.ssl.certificate !== 'undefined' && typeof legacyEsConfig.ssl.certificate !== false) && config.get('searchguard.allow_client_certificates') !== true) {
