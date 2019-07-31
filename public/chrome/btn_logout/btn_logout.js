@@ -27,10 +27,12 @@ if (chrome.getInjected('auth.type') != "kerberos" && chrome.getInjected('auth.ty
   side: 'right',
   render(el) {
    // Compiles and adds the logout directive
+   /*
    angular.element(el.parentNode).injector().invoke(function($rootScope, $compile) {
     const $compiled = $compile("<search-guard-logout-button />")($rootScope);
     el.parentNode.prepend($compiled[0]);
    });
+    */
   }
  }));
 }
