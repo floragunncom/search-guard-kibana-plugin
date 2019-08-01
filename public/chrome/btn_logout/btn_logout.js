@@ -18,7 +18,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import chrome from 'ui/chrome';
 import { chromeHeaderNavControlsRegistry } from 'ui/registry/chrome_header_nav_controls';
-import { EuiButtonEmpty } from '@elastic/eui';
+import { EuiButtonEmpty, EuiToolTip } from '@elastic/eui';
 import { logoutText, loginText } from '../../apps/configuration-react/utils/i18n/common';
 
 if (chrome.getInjected('auth.type') !== 'kerberos' && chrome.getInjected('auth.type') !== 'proxy') {
@@ -33,22 +33,30 @@ if (chrome.getInjected('auth.type') !== 'kerberos' && chrome.getInjected('auth.t
 
       const chromeInjected = chrome.getInjected();
       let logoutButtonLabel = logoutText;
+      let logoutTooltip = logoutText;
       if (chromeInjected && chromeInjected.sgDynamic && chromeInjected.sgDynamic.user) {
         if (!chromeInjected.sgDynamic.user.isAnonymousAuth) {
           logoutButtonLabel = chromeInjected.sgDynamic.user.username;
+          logoutTooltip = `Logout ${chromeInjected.sgDynamic.user.username}`;
         } else {
           logoutButtonLabel = loginText;
+          logoutTooltip = loginText;
         }
       }
 
       ReactDOM.render(
-        <EuiButtonEmpty
-          style={{ paddingTop: '8px' }}
-          onClick={onClick}
-          iconType="exit"
+        <EuiToolTip
+          position="bottom"
+          content={logoutTooltip}
         >
-          {logoutButtonLabel}
-        </EuiButtonEmpty>,
+          <EuiButtonEmpty
+            style={{ paddingTop: '8px' }}
+            onClick={onClick}
+            iconType="exit"
+          >
+            {logoutButtonLabel}
+          </EuiButtonEmpty>
+        </EuiToolTip>,
         el
       );
 
