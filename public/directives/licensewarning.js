@@ -1,5 +1,6 @@
 import { uiModules } from 'ui/modules';
 import chrome from 'ui/chrome';
+import template from './licensewarning.html';
 
 require ('../apps/configuration/systemstate/systemstate');
 
@@ -13,7 +14,7 @@ app.directive('sgLicenseWarning', function (systemstate) {
         scope: {
             "errorMessage": "@errormessage",
         },
-        template: require('./licensewarning.html'),
+        template,
 
         link: function($scope, elem, attrs) {
 
