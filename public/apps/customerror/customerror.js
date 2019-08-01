@@ -21,8 +21,9 @@ import 'ui/autoload/styles';
  */
 import 'plugins/searchguard/apps/customerror/customerror.less';
 import PageController from './page_controller';
+import template from 'plugins/searchguard/apps/customerror/customerror.html';
 
 chrome
 .setVisible(false)
-.setRootTemplate(require('plugins/searchguard/apps/customerror/customerror.html'))
+.setRootTemplate(template)
 .setRootController('ui', PageController);
