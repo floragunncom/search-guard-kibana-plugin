@@ -18,8 +18,9 @@ import chrome from 'ui/chrome';
 import 'ui/autoload/styles';
 import 'plugins/searchguard/apps/login/login.less';
 import LoginController from './login_controller';
+import template from 'plugins/searchguard/apps/login/login.html';
 
 chrome
 .setVisible(false)
-.setRootTemplate(require('plugins/searchguard/apps/login/login.html'))
+.setRootTemplate(require(template)
 .setRootController('ui', LoginController);

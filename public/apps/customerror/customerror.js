@@ -24,5 +24,5 @@ import PageController from './page_controller';
 
 chrome
 .setVisible(false)
-.setRootTemplate(require('plugins/searchguard/apps/customerror/customerror.html'))
+.setRootTemplate(require('plugins/searchguard/apps/customerror/customerror.html').default)
 .setRootController('ui', PageController);
