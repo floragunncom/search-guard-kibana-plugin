@@ -20,12 +20,12 @@ import { uiModules } from 'ui/modules';
 import { FeatureCatalogueRegistryProvider, FeatureCatalogueCategory } from 'ui/registry/feature_catalogue';
 import { EuiIcon } from '@elastic/eui';
 import {parse} from "url";
+import { chromeWrapper } from "../../services/chrome_wrapper";
 
 
 
 export function enableMultiTenancy(Private) {
     const sgDynamic = chrome.getInjected().sgDynamic;
-    var enabled = chrome.getInjected('multitenancy_enabled');
 
     let appAllowedByRbac = true;
     if (sgDynamic && sgDynamic.rbac) {
@@ -36,7 +36,9 @@ export function enableMultiTenancy(Private) {
 
     var enabled = (chrome.getInjected('multitenancy_enabled') && appAllowedByRbac);
 
-    chrome.getNavLinkById("searchguard-multitenancy").hidden = !enabled;
+
+    chromeWrapper.hideNavLink('searchguard-multitenancy', !enabled);
+
     if (enabled) {
       FeatureCatalogueRegistryProvider.register(() => {
           return {

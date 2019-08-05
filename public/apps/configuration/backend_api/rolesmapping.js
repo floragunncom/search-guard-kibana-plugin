@@ -30,8 +30,8 @@ uiModules.get('apps/searchguard/configuration', [])
             return backendAPI.getSilent(RESOURCE, id);
         };
 
-        this.save = (actiongroupname, data) => {
-            var data = this.preSave(data);
+        this.save = (actiongroupname, data, doPreSave = true) => {
+            var data = doPreSave ? this.preSave(data) : data;
             return backendAPI.save(RESOURCE, actiongroupname, data);
         };
 

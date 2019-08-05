@@ -1,6 +1,6 @@
 {
   "name": "searchguard",
-  "version": "7.0.1-35.0.0-SNAPSHOT",
+  "version": "7.3.0-36.0.0",
   "description": "Search Guard features for kibana",
   "main": "index.js",
   "homepage": "https://search-guard.com",
@@ -9,16 +9,51 @@
     "type": "git",
     "url": "https://github.com/floragunncom/search-guard-kibana-plugin"
   },
+  "scripts": {
+    "lint": "./node_modules/.bin/eslint .",
+    "kbn": "node ../../scripts/kbn",
+    "test:browser": "./node_modules/.bin/jest --config ./tests/jest.config.js"
+  },
   "dependencies": {
+    "@elastic/eui": "^12.2.0",
     "@elastic/kibana-ui-framework": "0.0.11",
-    "@elastic/eui": "^9.8.0",
+    "@types/react": "^16.8.14",
+    "@types/react-dom": "^16.8.4",
     "bell": "9.4.0",
+    "brace": "^0.11.1",
+    "formik": "1.5.8",
+    "formik-effect": "^1.2.0",
     "hapi-auth-cookie": "^9.1.0",
     "joi": "10.6.0",
+    "js-yaml": "^3.7.0",
+    "lodash": "^4.17.14",
+    "moment": "^2.24.0",
+    "prop-types": "^15.7.2",
+    "query-string": "^6.5.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-router-dom": "^5.0.0",
     "requirefrom": "^0.2.0",
+    "typescript": "^3.5.1",
+    "uuid": "^3.3.2",
     "wreck": "14.x.x"
   },
   "devDependencies": {
-    "ui-select": "^0.19.8"
+    "@babel/core": "^7.4.5",
+    "@babel/polyfill": "^7.4.4",
+    "@babel/preset-env": "^7.4.5",
+    "@babel/preset-react": "^7.0.0",
+    "babel-eslint": "^9.0.0",
+    "eslint": "^5.6.0",
+    "eslint-config-airbnb": "^17.1.1",
+    "eslint-plugin-babel": "^5.2.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jest": "^21.26.2",
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-mocha": "^5.2.0",
+    "eslint-plugin-no-unsanitized": "^3.0.2",
+    "eslint-plugin-prefer-object-spread": "^1.2.1",
+    "eslint-plugin-react": "^7.11.1",
+    "jest": "^24.8.0"
   }
 }
