@@ -1,4 +1,5 @@
 const pluginRoot = require('requirefrom')('');
+import _ from 'lodash';
 import { resolve, join, sep } from 'path';
 import { has } from 'lodash';
 import indexTemplate from './lib/elasticsearch/setup_index_template';
@@ -6,6 +7,8 @@ import { migrateTenants } from './lib/multitenancy/migrate_tenants';
 import { version as sgVersion } from './package.json';
 import SearchguardSavedObjectsClient from './lib/rbac/searchguard_saved_objects_client';
 import { first } from 'rxjs/operators';
+import RbacAppPermissions from './lib/rbac/RbacAppPermissions';
+import registerRbacLiteExtension from './lib/rbac/rbaclite_extension';
 
 export default function (kibana) {
 
@@ -512,9 +515,8 @@ export default function (kibana) {
 
 
             if (config.get('searchguard.rbac.enabled')) {
-                const rbacAppPermissionsClass = require('./lib/rbac/RbacAppPermissions');
-                require('./lib/rbac/rbaclite_extension')(pluginRoot, server, new rbacAppPermissionsClass(server, server.plugins.searchguard.getSearchGuardBackend()));
-                this.status.yellow('Role-based access control enabled.');
+
+
             }
 
             // create index template for tenant indices
@@ -540,6 +542,32 @@ export default function (kibana) {
             }
 
             if (config.get('searchguard.rbac.enabled')) {
+                let rbacAppPermissions = new RbacAppPermissions(server, server.plugins.searchguard.getSearchGuardBackend());
+
+
+                server.registerCapabilitiesModifier(async (request, uiCapabilities) => {
+
+
+                    const capabilities = _.cloneDeep(uiCapabilities);
+
+                    let navLinkIds = [];
+                    for (let navLinkId in capabilities.navLinks) {
+                        navLinkIds.push(navLinkId);
+                    }
+
+                    let appPermissionsResult = await rbacAppPermissions.getPermissionsResult(request, navLinkIds);
+
+                    appPermissionsResult.missing
+                      .forEach((navLinkId) => {
+                        capabilities.navLinks[navLinkId] = false;
+                    });
+
+                    return capabilities;
+                });
+
+                // @todo Add back
+                //registerRbacLiteExtension(pluginRoot, server);
+
                 const { savedObjects } = server;
 
                 savedObjects.setScopedSavedObjectsClientFactory(({request}) => {
@@ -555,9 +583,8 @@ export default function (kibana) {
                         savedObjects
                     );
                 });
+
                 this.status.green("Search Guard RBAC enabled");
-            } else {
-                this.status.yellow("Search Guard RBAC not enabled");
             }
 
             // Using an admin certificate may lead to unintended consequences
