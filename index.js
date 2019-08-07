@@ -547,6 +547,10 @@ export default function (kibana) {
 
                 server.registerCapabilitiesModifier(async (request, uiCapabilities) => {
 
+                    // We need to have an authenticated user to perform the hasPermissions check
+                    if (! request.path.startsWith('/app')) {
+                        return uiCapabilities;
+                    }
 
                     const capabilities = _.cloneDeep(uiCapabilities);
 
@@ -562,11 +566,39 @@ export default function (kibana) {
                         capabilities.navLinks[navLinkId] = false;
                     });
 
+                    const id = request.params.id;
+                    const app = server.getUiAppById(id) || server.getHiddenUiAppById(id);
+
+                    if (app) {
+                        // Make sure we can pass the result back to the frontend.
+                        // Checking the injectedAppVars is a bit overkill right now,
+                        // but I wanted to make sure we don't overwrite anything in the future.
+                        // This code is executed before the replaceInjectedVars()
+                        // in the plugin definition.
+                        let sgDynamic = {
+                            rbac: {}
+                        };
+                        let injectedAppVars = await server.getInjectedUiAppVars(app.getId());
+                        if (injectedAppVars && injectedAppVars.sgDynamic) {
+                            sgDynamic = injectedAppVars.sgDynamic;
+                        }
+
+                        sgDynamic.rbac = {
+                            ...sgDynamic.rbac,
+                            allowedNavLinkIds: appPermissionsResult.allowed
+                        }
+
+                        server.injectUiAppVars(app.getId(), (server) => {
+                            return {
+                                sgDynamic
+                            }
+                        });
+                    }
+
                     return capabilities;
                 });
 
-                // @todo Add back
-                //registerRbacLiteExtension(pluginRoot, server);
+                registerRbacLiteExtension(pluginRoot, server);
 
                 const { savedObjects } = server;
 

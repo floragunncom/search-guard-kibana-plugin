@@ -136,14 +136,12 @@ export function enableConfiguration($http, $window, systemstate) {
         return;
     }
 
-    /* @todo Add back
+
     if (searchguardRequestConfig && searchguardRequestConfig.rbac) {
         if (searchguardRequestConfig.rbac.allowedNavLinkIds && searchguardRequestConfig.rbac.allowedNavLinkIds.indexOf('searchguard-configuration') === -1) {
             appAllowedByRbac = false;
         }
     }
-
-     */
 
     // make sure all infos are loaded since sessionStorage might
     // get cleared sporadically, especially on mobile
