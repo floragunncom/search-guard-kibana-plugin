@@ -42,7 +42,7 @@ uiModules.get('apps/searchguard/configuration', [])
                     } else {
                         toastNotifications.addDanger({
                             title: 'Unable to load data.',
-                            text: error.message,
+                            text: error.message || error.statusText
                         });
                     }
                     throw error;
@@ -73,7 +73,7 @@ uiModules.get('apps/searchguard/configuration', [])
                         searchGuardAccessControl.logout();
                     } else {
                         toastNotifications.addDanger({
-                            text: error.message
+                            text: error.message || error.statusText
                         });
                     }
                     throw error;
@@ -93,7 +93,7 @@ uiModules.get('apps/searchguard/configuration', [])
                     } else {
                         toastNotifications.addDanger({
                             title: 'Unable to delete data.',
-                            text: error.message,
+                            text: error.message || error.statusText
                         });
                     }
                     throw error;
@@ -110,12 +110,12 @@ uiModules.get('apps/searchguard/configuration', [])
                         searchGuardAccessControl.logout();
                     } else {
                         toastNotifications.addDanger({
-                            text: error.message
+                            text: error.message || error.statusText
                         });
                     }
                     toastNotifications.addDanger({
                         title: 'Unable to load data.',
-                        text: error.message,
+                        text: error.message || error.statusText
                     });
                 });
         };
@@ -153,7 +153,7 @@ uiModules.get('apps/searchguard/configuration', [])
                     } else {
                         toastNotifications.addDanger({
                             title: 'Unable to clear cache.',
-                            text: error.message,
+                            text: error.message || error.statusText
                         });
                     }
                     throw error;
