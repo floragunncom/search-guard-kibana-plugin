@@ -13,12 +13,10 @@ import {
   TableDeleteAction,
   TableCloneAction,
   TableMultiDeleteButton,
-  TableSwitchSystemItems
-} from '../../components';
-import {
+  TableSwitchSystemItems,
   CreateButton,
   CancelButton
-} from '../../components/ContentPanel/components';
+} from '../../components';
 import { resourcesToUiResources, uiResourceToResource } from './utils';
 import { APP_PATH, ROLES_ACTIONS } from '../../utils/constants';
 import {

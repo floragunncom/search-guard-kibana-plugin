@@ -1,0 +1,90 @@
+{
+  "trigger": {
+    "schedule": {
+      "cron": [
+        "0 */1 * * * ?"
+      ]
+    }
+  },
+  "checks": [
+    {
+      "type": "static",
+      "name": "constants",
+      "target": "constants",
+      "value": {
+        "max_num_of_flights": 100,
+        "threshold": 0,
+        "window": "4h"
+      }
+    },
+    {
+      "type": "search",
+      "name": "bad_weather_flights",
+      "target": "bad_weather_flights",
+      "request": {
+        "indices": [
+          "kibana_sample_data_flights"
+        ],
+        "body": {
+          "size": "{{data.constants.max_num_of_flights}}",
+          "query": {
+            "bool": {
+              "must": [
+                {
+                  "query_string": {
+                    "default_field": "DestWeather",
+                    "query": "*hunder* OR *ightning*"
+                  }
+                },
+                {
+                  "range": {
+                    "timestamp": {
+                      "gte": "now-{{data.constants.window}}",
+                      "lte": "now"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "_source": [
+            "FlightNum",
+            "DestAirportID",
+            "OriginAirportID",
+            "timestamp"
+          ],
+          "sort": [
+            {
+              "timestamp": {
+                "order": "desc"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "condition.script",
+      "name": "mycondition",
+      "source": "data.bad_weather_flights.hits.hits.length > data.constants.threshold"
+    }
+  ],
+  "actions": [
+    {
+      "type": "webhook",
+      "name": "myslack",
+      "throttle_period": "1s",
+      "request": {
+        "method": "POST",
+        "url": "https://hooks.slack.com/services/tockens",
+        "body": "{\"text\": \"\nBad destination weather for {{data.bad_weather_flights.hits.total.value}} flights over last {{data.constants.window}}!\n{{#data.bad_weather_flights.hits.hits}}\n  ---\n  Time: {{_source.timestamp}}\n  Flight Number: {{_source.FlightNum}}\n  Origin: {{_source.OriginAirportID}}\n  Destination: {{_source.DestAirportID}}\n{{/data.bad_weather_flights.hits.hits}}\n\"}",
+        "headers": {
+          "Content-type": "application/json"
+        }
+      }
+    }
+  ],
+  "active": true,
+  "log_runtime_data": false,
+  "_id": "bad_weather"
+}

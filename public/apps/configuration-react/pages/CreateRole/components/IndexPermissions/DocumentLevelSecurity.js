@@ -3,11 +3,10 @@ import PropTypes from 'prop-types';
 import { connect } from 'formik';
 import { get } from 'lodash';
 import {
-  TitleSecondary,
+  SubHeader,
   FormikCodeEditor
 } from '../../../../components';
 import {
-  EuiHorizontalRule,
   EuiButton,
   EuiSpacer
 } from '@elastic/eui';
@@ -30,8 +29,8 @@ const DocumentLevelSecurity = ({ index, httpClient, formik }) => {
 
   return (
     <Fragment>
-      <TitleSecondary text={documentLevelSecurityText} />
-      <EuiHorizontalRule />
+      <SubHeader title={<h4>{documentLevelSecurityText}</h4>} />
+      <EuiSpacer />
       <EuiButton
         data-test-subj="sgDLSCheckButton"
         size="s"

@@ -1,0 +1,88 @@
+{
+  "_ui": {
+    "_fieldName": [
+      {
+        "label": "AvgTicketPrice"
+      }
+    ],
+    "_aggregationType": "avg",
+    "_index": [
+      {
+        "health": "green",
+        "label": "kibana_sample_data_flights",
+        "status": "open"
+      }
+    ],
+    "_timeField": "timestamp",
+    "_bucketUnitOfTime": "h",
+    "_bucketValue": 1,
+    "_watchType": "graph",
+    "_thresholdEnum": "BELOW",
+    "_groupedOverFieldName": "bytes",
+    "_groupedOverTop": 5,
+    "_overDocuments": "all documents",
+    "_thresholdValue": 800
+  },
+  "trigger": {
+    "schedule": {
+      "interval": ["1m"]
+    }
+  },
+  "checks": [
+    {
+      "type": "search",
+      "name": "mysearch",
+      "target": "mysearch",
+      "request": {
+        "indices": [
+          "kibana_sample_data_flights"
+        ],
+        "body": {
+          "size": 0,
+          "aggregations": {
+            "when": {
+              "avg": {
+                "field": "AvgTicketPrice"
+              }
+            }
+          },
+          "query": {
+            "bool": {
+              "filter": {
+                "range": {
+                  "timestamp": {
+                    "gte": "now-1h",
+                    "lte": "now"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "condition.script",
+      "name": "mycondition",
+      "source": "data.mysearch.aggregations.when.value < 800"
+    }
+  ],
+  "actions": [
+    {
+      "type": "webhook",
+      "name": "myslack",
+      "throttle_period": "1s",
+      "request": {
+        "method": "POST",
+        "url": "https://hooks.slack.com/services/tockens",
+        "body": "{\"text\": \"Average flight ticket price decreased to {{data.mysearch.aggregations.when.value}} over the last 1 hour\"}",
+        "headers": {
+          "Content-type": "application/json"
+        }
+      }
+    }
+  ],
+  "active": true,
+  "log_runtime_data": false,
+  "_id": "avg_ticket_price_graph"
+}
