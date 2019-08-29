@@ -12,7 +12,7 @@
   "scripts": {
     "lint": "./node_modules/.bin/eslint .",
     "kbn": "node ../../scripts/kbn",
-    "test:browser": "./node_modules/.bin/jest --config ./tests/jest.config.js"
+    "test:browser": "./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest --config ./tests/jest.config.js"
   },
   "dependencies": {
     "@elastic/eui": "^12.2.0",
