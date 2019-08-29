@@ -2,8 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import { EuiFilePicker, EuiFlexGroup, EuiFlexItem, EuiFormRow } from '@elastic/eui';
-import { ContentPanel, FormikCodeEditor } from '../../../../components';
-import { CancelButton, SaveButton } from '../../../../components/ContentPanel/components';
+import {
+  ContentPanel,
+  FormikCodeEditor,
+  CancelButton,
+  SaveButton
+} from '../../../../components';
 import { APP_PATH } from '../../../../utils/constants';
 import { SIDE_NAV } from '../../utils/constants';
 import {

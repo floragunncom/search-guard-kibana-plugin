@@ -8,10 +8,9 @@ import {
   EuiSideNav,
   EuiButton
 } from '@elastic/eui';
-import { ContentPanel } from '../../components';
+import { ContentPanel, CancelButton } from '../../components';
 import { SystemService } from '../../services';
 import { UploadLicense, SystemStatusContent } from './components';
-import { CancelButton } from '../../components/ContentPanel/components';
 import { SELECTED_SIDE_NAV_ITEM_NAME, SIDE_NAV } from './utils/constants';
 import { navigateText } from '../../utils/i18n/common';
 import * as systemStatusI18nLabels from '../../utils/i18n/system_status';
