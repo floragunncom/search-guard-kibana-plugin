@@ -145,7 +145,6 @@ export default function (kibana) {
                 'plugins/searchguard/chrome/readonly/enable_readonly',
                 'plugins/searchguard/chrome/multitenancy/enable_multitenancy',
                 'plugins/searchguard/chrome/accountinfo/enable_accountinfo',
-                'plugins/searchguard/chrome/logout_button',
                 'plugins/searchguard/chrome/configuration/enable_configuration',
                 'plugins/searchguard/services/access_control',
                 'plugins/searchguard/customizations/enable_customizations.js'

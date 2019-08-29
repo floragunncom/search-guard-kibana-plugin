@@ -14,23 +14,53 @@
  limitations under the License.
  */
 
-import { chromeHeaderNavControlsRegistry } from 'ui/registry/chrome_header_nav_controls';
-
+import React from 'react';
+import ReactDOM from 'react-dom';
 import chrome from 'ui/chrome';
+import { chromeHeaderNavControlsRegistry } from 'ui/registry/chrome_header_nav_controls';
+import { EuiButtonEmpty, EuiToolTip } from '@elastic/eui';
+import { logoutText, loginText } from '../../apps/configuration-react/utils/i18n/common';
 
+if (chrome.getInjected('auth.type') !== 'kerberos' && chrome.getInjected('auth.type') !== 'proxy') {
+  chromeHeaderNavControlsRegistry.register((searchGuardAccessControl) => ({
+    name: 'btn-logout',
+    order: 1000,
+    side: 'right',
+    render(el) {
+      function onClick() {
+        searchGuardAccessControl.logout();
+      }
 
-if (chrome.getInjected('auth.type') != "kerberos" && chrome.getInjected('auth.type') != "proxy") {
- chromeHeaderNavControlsRegistry.register(() => ({
-  name: 'btn-logout',
-  template: require('plugins/searchguard/chrome/btn_logout/btn_logout.html'),
-  order: 1000,
-  side: 'right',
-  render(el) {
-   // Compiles and adds the logout directive
-   angular.element(el.parentNode).injector().invoke(function($rootScope, $compile) {
-    const $compiled = $compile("<search-guard-logout-button />")($rootScope);
-    el.parentNode.prepend($compiled[0]);
-   });
-  }
- }));
+      const chromeInjected = chrome.getInjected();
+      let logoutButtonLabel = logoutText;
+      let logoutTooltip = logoutText;
+      if (chromeInjected && chromeInjected.sgDynamic && chromeInjected.sgDynamic.user) {
+        if (!chromeInjected.sgDynamic.user.isAnonymousAuth) {
+          logoutButtonLabel = chromeInjected.sgDynamic.user.username;
+          logoutTooltip = `Logout ${chromeInjected.sgDynamic.user.username}`;
+        } else {
+          logoutButtonLabel = loginText;
+          logoutTooltip = loginText;
+        }
+      }
+
+      ReactDOM.render(
+        <EuiToolTip
+          position="bottom"
+          content={logoutTooltip}
+        >
+          <EuiButtonEmpty
+            style={{ paddingTop: '8px' }}
+            onClick={onClick}
+            iconType="exit"
+          >
+            {logoutButtonLabel}
+          </EuiButtonEmpty>
+        </EuiToolTip>,
+        el
+      );
+
+      return () => ReactDOM.unmountComponentAtNode(el);
+    }
+  }));
 }

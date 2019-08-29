@@ -45,3 +45,5 @@ export const jsonMustNotBeEmptyText = (<EuiI18n token="sg.common.jsonMustNotBeEm
 export const occupiedText = (<EuiI18n token="sg.common.occupied.text" default="Occupied" />);
 export const availableText = (<EuiI18n token="sg.common.available.text" default="Available" />);
 export const systemItemsText = (<EuiI18n token="sg.common.systemItems.text" default="System Items" />);
+export const logoutText = (<EuiI18n token="sg.common.logout.text" default="Logout" />);
+export const loginText = (<EuiI18n token="sg.common.login.text" default="Login" />);

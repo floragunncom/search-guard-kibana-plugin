@@ -1,6 +1,6 @@
 {
   "name": "searchguard",
-  "version": "7.2.0-35.2.0-SNAPSHOT",
+  "version": "7.3.0-36.0.0-SNAPSHOT",
   "description": "Search Guard features for kibana",
   "main": "index.js",
   "homepage": "https://search-guard.com",
@@ -12,7 +12,7 @@
   "scripts": {
     "lint": "./node_modules/.bin/eslint .",
     "kbn": "node ../../scripts/kbn",
-    "test:browser": "./node_modules/.bin/jest --config ./tests/jest.config.js"
+    "test:browser": "./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest --config ./tests/jest.config.js"
   },
   "dependencies": {
     "@elastic/eui": "^12.2.0",
@@ -39,11 +39,12 @@
     "wreck": "14.x.x"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.5",
+    "@babel/core": "^7.5.5",
     "@babel/polyfill": "^7.4.4",
-    "@babel/preset-env": "^7.4.5",
+    "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
     "babel-eslint": "^9.0.0",
+    "babel-jest": "^24.9.0",
     "eslint": "^5.6.0",
     "eslint-config-airbnb": "^17.1.1",
     "eslint-plugin-babel": "^5.2.0",
@@ -54,6 +55,7 @@
     "eslint-plugin-no-unsanitized": "^3.0.2",
     "eslint-plugin-prefer-object-spread": "^1.2.1",
     "eslint-plugin-react": "^7.11.1",
-    "jest": "^24.8.0"
+    "jest": "^24.9.0",
+    "react-test-renderer": "^16.9.0"
   }
 }
