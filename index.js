@@ -5,6 +5,11 @@ import indexTemplate from './lib/elasticsearch/setup_index_template';
 import { migrateTenants } from './lib/multitenancy/migrate_tenants';
 import { version as sgVersion } from './package.json';
 import { first } from 'rxjs/operators';
+import registerSignalsRoutes from './lib/signals/routes/register_routes';
+import {
+  APP_NAME as signalsName,
+  APP_DESCRIPTION as signalsDescription
+} from './utils/signals/constants';
 
 export default function (kibana) {
 
@@ -260,9 +265,19 @@ export default function (kibana) {
                     main: 'plugins/searchguard/apps/configuration-react',
                     order: 9010,
                     auth: true,
-                    icon: 'plugins/searchguard/assets/logo_left_navbar.svg',
+                    icon: 'plugins/searchguard/assets/searchguard_logo_left_navbar.svg',
                     linkToLastSubUrl: false,
                     url: '/app/searchguard-configuration#/'
+                },
+                {
+                    id: signalsName,
+                    title: signalsDescription,
+                    main: 'plugins/searchguard/apps/signals',
+                    order: 9030,
+                    auth: true,
+                    icon: 'plugins/searchguard/apps/signals/assets/signals_logo_64.svg',
+                    linkToLastSubUrl: false,
+                    url: `/app/${signalsName}#/`
                 }
             ],
             chromeNavControls: [
@@ -502,6 +517,8 @@ export default function (kibana) {
             if ((typeof legacyEsConfig.ssl.certificate !== 'undefined' && typeof legacyEsConfig.ssl.certificate !== false) && config.get('searchguard.allow_client_certificates') !== true) {
                 this.status.red("'elasticsearch.ssl.certificate' can not be used without setting 'searchguard.allow_client_certificates' to 'true' in kibana.yml. Please refer to the documentation for more information about the implications of doing so.");
             }
+
+          registerSignalsRoutes(server);
         }
     });
 };

@@ -25,7 +25,7 @@ import {
   noMappedHostsFoundText
 } from '../../../../utils/i18n/roles';
 import { formikToRole } from '../../utils';
-import { FormikFieldText, TitleSecondary } from '../../../../components';
+import { FormikFieldText, SubHeader } from '../../../../components';
 import { hasError, isInvalid, validateName } from '../../../../utils/validation';
 
 const Overview = ({ values, titleText, onTriggerInspectJsonFlyout, rolesService, isUpdatingName }) => {
@@ -73,13 +73,14 @@ const Overview = ({ values, titleText, onTriggerInspectJsonFlyout, rolesService,
         name="_name"
       />
 
-      <EuiTitle size="s"><h3>{membersText}</h3></EuiTitle>
-      <EuiSpacer />
+      <SubHeader title={<h4>{membersText}</h4>} />
       {['users', 'backend_roles', 'hosts'].map((sectionName, i) => (
         <Fragment key={i}>
           <EuiFlexGroup>
             <EuiFlexItem>
-              <TitleSecondary text={sectionText[sectionName]} />
+              <EuiTitle size="xs">
+                <h5>{sectionText[sectionName]}</h5>
+              </EuiTitle>
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiFlexGroup>

@@ -1,0 +1,73 @@
+{
+  "trigger": {
+    "schedule": {
+      "interval": ["1m"]
+    }
+  },
+  "checks": [
+    {
+      "type": "static",
+      "name": "constants",
+      "target": "constants",
+      "value": {
+        "ticket_price": 800,
+        "window": "1h"
+      }
+    },
+    {
+      "type": "search",
+      "name": "avg_ticket_price",
+      "target": "avg_ticket_price",
+      "request": {
+        "indices": [
+          "kibana_sample_data_flights"
+        ],
+        "body": {
+          "size": 0,
+          "aggregations": {
+            "when": {
+              "avg": {
+                "field": "AvgTicketPrice"
+              }
+            }
+          },
+          "query": {
+            "bool": {
+              "filter": {
+                "range": {
+                  "timestamp": {
+                    "gte": "now-{{data.constants.window}}",
+                    "lte": "now"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "condition.script",
+      "name": "low_price",
+      "source": "data.avg_ticket_price.aggregations.when.value < data.constants.ticket_price"
+    }
+  ],
+  "actions": [
+    {
+      "type": "webhook",
+      "name": "myslack",
+      "throttle_period": "1s",
+      "request": {
+        "method": "POST",
+        "url": "https://hooks.slack.com/services/tockens",
+        "body": "{\"text\": \"Average flight ticket price decreased to {{data.avg_ticket_price.aggregations.when.value}} over last {{data.constants.window}}\"}",
+        "headers": {
+          "Content-type": "application/json"
+        }
+      }
+    }
+  ],
+  "active": true,
+  "log_runtime_data": false,
+  "_id": "avg_ticket_price"
+}

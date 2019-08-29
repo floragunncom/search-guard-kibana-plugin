@@ -26,5 +26,5 @@ module.exports = {
     '!<rootDir>/gather-info.js',
     '!**/vendor/**'
   ],
-  modulePathIgnorePatterns: ['<rootDir>/build_stage/', '<rootDir>/node_modules/']
+  modulePathIgnorePatterns: ['<rootDir>/build_stage/', '<rootDir>/build/', '<rootDir>/node_modules/']
 };

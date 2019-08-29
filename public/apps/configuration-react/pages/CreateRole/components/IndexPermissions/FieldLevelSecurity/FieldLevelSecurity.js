@@ -6,10 +6,13 @@ import {
   EuiSpacer,
   EuiFlexItem,
   EuiFlexGroup,
-  EuiCallOut,
-  EuiHorizontalRule
+  EuiCallOut
 } from '@elastic/eui';
-import { FormikRadio, FormikComboBox, TitleSecondary } from '../../../../../components';
+import {
+  FormikRadio,
+  FormikComboBox,
+  SubHeader
+} from '../../../../../components';
 import { FLS_MODES } from '../../../utils/constants';
 import {
   fieldLevelSecurityText,
@@ -82,8 +85,8 @@ class FieldLevelSecurity extends Component {
 
     return (
       <Fragment>
-        <TitleSecondary text={fieldLevelSecurityText} />
-        <EuiHorizontalRule />
+        <SubHeader title={<h4>{fieldLevelSecurityText}</h4>} />
+        <EuiSpacer />
         <EuiFlexGroup>
           <EuiFlexItem grow={false}>
             <FormikRadio

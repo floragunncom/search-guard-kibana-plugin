@@ -64,11 +64,11 @@ See the [kibana contributing guide](https://github.com/elastic/kibana/blob/maste
 
   - `yarn test:browser`
 
-    Run the browser tests in a real web browser.
+    Run UI unit tests.
 
   - `yarn test:server`
 
-    Run the server tests using mocha.
+    Run server unit tests.
 
 For more information about any of these commands run `yarn ${task} --help`. For a full list of tasks checkout the `package.json` file, or run `yarn run`.
 
