@@ -20,9 +20,10 @@ import {
   FormikComboBox,
   FormikSwitch,
   FormikSelect,
-  InspectButton
+  InspectButton,
+  CancelButton,
+  SaveButton
 } from '../../components';
-import { CancelButton, SaveButton } from '../../components/ContentPanel/components';
 import { APP_PATH, ACTION_GROUPS_ACTIONS } from '../../utils/constants';
 import { isInvalid, hasError, validateName, validSinglePermissionOption } from '../../utils/validation';
 import { DEFAULT_ACTION_GROUP, TYPES } from './utils/constants';

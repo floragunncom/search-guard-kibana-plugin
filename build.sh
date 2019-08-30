@@ -118,8 +118,10 @@ cp -a "$WORK_DIR/index.js" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/package.json" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/lib" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/public" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/utils" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/examples" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/tests" "$BUILD_STAGE_PLUGIN_DIR"
-cp -a "$WORK_DIR/.babelrc" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/babel.config.js" "$BUILD_STAGE_PLUGIN_DIR"
 
 cd $BUILD_STAGE_PLUGIN_DIR
 
@@ -130,10 +132,17 @@ if [ $? != 0 ]; then
     exit 1;
 fi
 
-echo "+++ Testing UI +++"
-uiTestsResult=`./node_modules/.bin/jest --config ./tests/jest.config.js --json`
-if [[ ! $uiTestsResult =~ .*\"numFailedTests\":0.* ]]; then
-  echo "Browser tests failed"
+echo "+++ Testing (unit) UI +++"
+testsResult=`./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest public --config ./tests/jest.config.js --json`
+if [[ ! $testsResult =~ .*\"numFailedTests\":0.* ]]; then
+  echo "Browser unit tests failed"
+  exit 1
+fi
+
+echo "+++ Testing (unit) Server +++"
+testsResult=`./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest lib --config ./tests/jest.config.js --json`
+if [[ ! $testsResult =~ .*\"numFailedTests\":0.* ]]; then
+  echo "Server unit tests failed"
   exit 1
 fi
 
@@ -157,6 +166,8 @@ cp -a "$BUILD_STAGE_PLUGIN_DIR/package.json" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/node_modules" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/lib" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/public" "$COPYPATH"
+cp -a "$BUILD_STAGE_PLUGIN_DIR/utils" "$COPYPATH"
+cp -a "$BUILD_STAGE_PLUGIN_DIR/examples" "$COPYPATH"
 
 # Replace pom version
 rm -f pom.xml

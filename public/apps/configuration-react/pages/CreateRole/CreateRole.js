@@ -7,8 +7,11 @@ import {
   EuiTab,
   EuiSpacer
 } from '@elastic/eui';
-import { ContentPanel } from '../../components';
-import { CancelButton, SaveButton } from '../../components/ContentPanel/components';
+import {
+  ContentPanel,
+  CancelButton,
+  SaveButton
+} from '../../components';
 import {
   createRoleText,
   clusterPermissionsText,

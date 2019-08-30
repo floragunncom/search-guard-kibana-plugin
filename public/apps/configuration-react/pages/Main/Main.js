@@ -38,6 +38,7 @@ import {
 import { API_ACCESS_STATE } from './utils/constants';
 import '../../less/main.less';
 import { LocalStorageService } from '../../services';
+import getBreadcrumb from './utils/getBreadcrumb';
 
 class Main extends Component {
   constructor(props) {
@@ -248,7 +249,7 @@ class Main extends Component {
           <Flyout flyout={flyout} onClose={() => this.handleTriggerFlyout(null)} />
 
           <EuiPageHeader>
-            <Breadcrumbs history={history} {...rest} />
+            <Breadcrumbs history={history} onGetBreadcrumb={getBreadcrumb} {...rest} />
           </EuiPageHeader>
 
           <EuiPageContent>

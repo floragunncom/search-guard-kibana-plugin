@@ -1,0 +1,90 @@
+{
+  "_ui": {
+    "_fieldName": [
+      {
+        "label": "products.price"
+      }
+    ],
+    "_aggregationType": "min",
+    "_index": [
+      {
+        "health": "green",
+        "label": "kibana_sample_data_ecommerce",
+        "status": "open"
+      }
+    ],
+    "_timeField": "order_date",
+    "_bucketUnitOfTime": "d",
+    "_bucketValue": 1,
+    "_watchType": "graph",
+    "_thresholdEnum": "BELOW",
+    "_groupedOverFieldName": "bytes",
+    "_groupedOverTop": 5,
+    "_overDocuments": "all documents",
+    "_thresholdValue": 10
+  },
+  "trigger": {
+    "schedule": {
+      "cron": [
+        "0 */1 * * * ?"
+      ]
+    }
+  },
+  "checks": [
+    {
+      "type": "search",
+      "name": "mysearch",
+      "target": "mysearch",
+      "request": {
+        "indices": [
+          "kibana_sample_data_ecommerce"
+        ],
+        "body": {
+          "size": 0,
+          "aggregations": {
+            "when": {
+              "min": {
+                "field": "products.price"
+              }
+            }
+          },
+          "query": {
+            "bool": {
+              "filter": {
+                "range": {
+                  "order_date": {
+                    "gte": "now-1d",
+                    "lte": "now"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "condition.script",
+      "name": "mycondition",
+      "source": "data.mysearch.aggregations.when.value < 10"
+    }
+  ],
+  "actions": [
+    {
+      "type": "webhook",
+      "name": "myslack",
+      "throttle_period": "1s",
+      "request": {
+        "method": "POST",
+        "url": "https://hooks.slack.com/services/tokens",
+        "body": "{\"text\": \"Minimum product price over 1 day among {{data.mysearch.hits.total.value}} products: {{mysearch.aggregations.when.value}}.\"}",
+        "headers": {
+          "Content-type": "application/json"
+        }
+      }
+    }
+  ],
+  "active": true,
+  "log_runtime_data": false,
+  "_id": "min_product_price_graph"
+}
