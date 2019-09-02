@@ -22,7 +22,7 @@ const SlackDestination = ({ httpClient, id, formik: { values } }) => {
 
   return (
     <ContentPanel
-      title={destinationText}
+      title={(<p>{destinationText} {values.type}</p>)}
       titleSize="s"
       bodyStyles={{ padding: 'initial', paddingLeft: '10px' }}
     >

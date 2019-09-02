@@ -24,9 +24,10 @@ import { DestinationsService } from '../../services';
 import { addErrorToast, addSuccessToast } from '../../redux/actions';
 import { updateText, createText, saveText } from '../../utils/i18n/common';
 import { updateDestinationText, createDestinationText } from '../../utils/i18n/destination';
+import { destinationToFormik, formikToDestination } from './utils';
 import { APP_PATH } from '../../utils/constants';
 import { DESTINATION_TYPE } from '../Destinations/utils/constants';
-import * as DESTINATION_DEFAULTS from './utils/destination_defaults';
+import * as DEFAULTS from './utils/defaults';
 
 class DefineDestination extends Component {
   constructor(props) {
@@ -36,10 +37,10 @@ class DefineDestination extends Component {
     const { type } = queryString.parse(location.search);
 
     this.destService = new DestinationsService(httpClient);
-    const initialValues = type ? DESTINATION_DEFAULTS[type] : DESTINATION_DEFAULTS[DESTINATION_TYPE.EMAIL];
+    const initialValues = type ? DEFAULTS[type] : DEFAULTS[DESTINATION_TYPE.EMAIL];
 
     this.state = {
-      initialValues
+      initialValues: destinationToFormik(initialValues)
     };
   }
 
@@ -54,7 +55,7 @@ class DefineDestination extends Component {
     try {
       if (id) {
         const { resp: initialValues } = await this.destService.get(id);
-        this.setState({ initialValues });
+        this.setState({ initialValues: destinationToFormik(initialValues) });
       }
     } catch (error) {
       console.error('DefineDestination -- fetchData', error);
@@ -74,7 +75,7 @@ class DefineDestination extends Component {
     const { _id: id, ...destination } = values;
 
     try {
-      await this.destService.put(destination, id);
+      await this.destService.put(formikToDestination(destination), id);
       setSubmitting(false);
       dispatch(addSuccessToast((<p>{saveText} {id}</p>)));
       this.onCancel();
@@ -86,12 +87,28 @@ class DefineDestination extends Component {
   }
 
   render() {
-    const { location, httpClient } = this.props;
+    const {
+      location,
+      httpClient,
+      onComboBoxChange,
+      onComboBoxOnBlur,
+      onComboBoxCreateOption
+    } = this.props;
+
     const { initialValues } = this.state;
     const { id, type } = queryString.parse(location.search);
     const isEdit = !!id;
 
-    let destination = <EmailDestination httpClient={httpClient} id={id} />;
+    let destination = (
+      <EmailDestination
+        httpClient={httpClient}
+        id={id}
+        onComboBoxChange={onComboBoxChange}
+        onComboBoxOnBlur={onComboBoxOnBlur}
+        onComboBoxCreateOption={onComboBoxCreateOption}
+      />
+    );
+
     if (type === DESTINATION_TYPE.SLACK) {
       destination = <SlackDestination httpClient={httpClient} id={id} />;
     }
@@ -135,7 +152,10 @@ DefineDestination.propTypes = {
   location: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   httpClient: PropTypes.func.isRequired,
-  dispatch: PropTypes.func.isRequired
+  dispatch: PropTypes.func.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired,
+  onComboBoxCreateOption: PropTypes.func.isRequired
 };
 
 export default connectRedux()(DefineDestination);
