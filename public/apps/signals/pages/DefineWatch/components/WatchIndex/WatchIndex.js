@@ -72,8 +72,11 @@ const propTypes = {
   httpClient: PropTypes.func.isRequired,
   indexFieldName: PropTypes.string.isRequired,
   isClearable: PropTypes.bool,
-  singleSelection: PropTypes.bool,
-  dispatch: PropTypes.object
+  singleSelection: PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.object
+  ]),
+  dispatch: PropTypes.func.isRequired
 };
 
 class WatchIndex extends React.Component {
