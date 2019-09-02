@@ -39,7 +39,7 @@ const FormikFieldNumber = ({
     render={({ field, form }) => {
       const fieldNumber = <FieldNumber name={name} form={form} field={field} elementProps={elementProps} />;
       return !formRow
-        ? fieldNumebr
+        ? fieldNumber
         : <FormikFormRow name={name} form={form} rowProps={rowProps}>{fieldNumber}</FormikFormRow>;
     }}
   />
