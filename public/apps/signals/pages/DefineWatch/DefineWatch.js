@@ -95,7 +95,7 @@ class DefineWatch extends Component {
 
   render() {
     const { initialValues, isEdit } = this.state;
-    const { httpClient, location, dispatch } = this.props;
+    const { httpClient, location, dispatch, onTriggerConfirmDeletionModal } = this.props;
 
     return (
       <div>
@@ -118,8 +118,9 @@ class DefineWatch extends Component {
                 name="actions"
                 render={arrayHelpers => (
                   <ActionPanel
-                    arrayHelpers={arrayHelpers}
                     httpClient={httpClient}
+                    arrayHelpers={arrayHelpers}
+                    onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
                   />
                 )}
               />
@@ -131,8 +132,8 @@ class DefineWatch extends Component {
                 <EuiFlexItem grow={false}>
                   <SaveButton
                     isLoading={isSubmitting}
-                    onClick={handleSubmit}
                     value={isEdit ? updateText : createText}
+                    onClick={handleSubmit}
                   />
                 </EuiFlexItem>
               </EuiFlexGroup>
@@ -148,7 +149,8 @@ DefineWatch.propTypes = {
   dispatch: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  httpClient: PropTypes.func.isRequired
+  httpClient: PropTypes.func.isRequired,
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired
 };
 
 export default connect()(DefineWatch);

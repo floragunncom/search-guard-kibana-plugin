@@ -208,17 +208,23 @@ class Main extends Component {
                         <EuiTabs>{this.tabs.map(this.renderTab)}</EuiTabs>
                         <EuiSpacer />
                         <Watches
+                          onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                           onTriggerFlyout={this.handleTriggerFlyout}
                           httpClient={httpClient}
                           {...props}
-                          onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                         />
                       </Fragment>
                     )}
                   />
                   <Route
                     path={APP_PATH.DEFINE_WATCH}
-                    render={props => <DefineWatch httpClient={httpClient} {...props} />}
+                    render={props => (
+                      <DefineWatch
+                        onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
+                        httpClient={httpClient}
+                        {...props}
+                      />
+                    )}
                   />
                   <Route
                     path={APP_PATH.ALERTS}

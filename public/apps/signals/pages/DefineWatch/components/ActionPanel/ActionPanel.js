@@ -71,6 +71,17 @@ class ActionPanel extends Component {
     );
   }
 
+  deleteAction = (actionIndex, actionName, arrayHelpers) => {
+    const { onTriggerConfirmDeletionModal } = this.props;
+    onTriggerConfirmDeletionModal({
+      body: actionName,
+      onConfirm: () => {
+        arrayHelpers.remove(actionIndex);
+        onTriggerConfirmDeletionModal(null);
+      }
+    });
+  }
+
   render() {
     const { httpClient, arrayHelpers, formik: { values: { actions } } } = this.props;
     const hasActions = !isEmpty(actions);
@@ -144,7 +155,7 @@ class ActionPanel extends Component {
                   deleteButton={
                     <DeleteActionButton
                       name={action.name}
-                      onDeleteAction={() => arrayHelpers.remove(index)}
+                      onDeleteAction={() => this.deleteAction(index, action.name, arrayHelpers)}
                     />
                   }
                 />
@@ -160,7 +171,8 @@ class ActionPanel extends Component {
 ActionPanel.propTypes = {
   httpClient: PropTypes.func.isRequired,
   arrayHelpers: PropTypes.object.isRequired,
-  formik: PropTypes.object.isRequired
+  formik: PropTypes.object.isRequired,
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired
 };
 
 export default connectFormik(ActionPanel);
