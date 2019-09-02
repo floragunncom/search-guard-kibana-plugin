@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { differenceBy } from 'lodash';
 import {
   EuiPage,
   EuiPageBody,
@@ -21,6 +22,7 @@ import Destinations from '../Destinations';
 import DefineDestination from '../DefineDestination';
 import { Flyout, Modal, Breadcrumbs } from '../../components';
 import getBreadcrumb from './utils/getBreadcrumb';
+import { comboBoxOptionsToArray } from '../../utils/helpers';
 import { APP_PATH, FLYOUTS, MODALS, APP_NAME } from '../../utils/constants';
 
 const getSelectedTabId = pathname => {
@@ -116,6 +118,59 @@ class Main extends Component {
     this.handleTriggerModal(modal);
   }
 
+  handleComboBoxChange = validationFn => (options, field, form) => {
+    const isValidationRequired = validationFn instanceof Function;
+    if (isValidationRequired) {
+      const error = validationFn(options);
+      if (error instanceof Promise) {
+        error
+          .then(_error => { throw _error; })
+          .catch(_error => form.setFieldError(field.name, _error));
+      } else {
+        form.setFieldError(field.name, error);
+      }
+    }
+
+    const isDeleting = options.length < field.value.length;
+    if (isDeleting) {
+      const optionToDelete = comboBoxOptionsToArray(differenceBy(field.value, options, 'label')).join(', ');
+      this.handleTriggerConfirmDeletionModal({
+        body: optionToDelete,
+        onConfirm: () => {
+          form.setFieldValue(field.name, options);
+          this.handleTriggerConfirmDeletionModal(null);
+        }
+      });
+    } else {
+      form.setFieldValue(field.name, options);
+    }
+  }
+
+  handleComboBoxCreateOption = (validationFn, ...props) => async (label, field, form) => {
+    let isValid = true;
+    const isValidationRequired = validationFn instanceof Function;
+    if (isValidationRequired) {
+      const _isValid = validationFn(label, ...props);
+      if (_isValid instanceof Promise) {
+        await _isValid
+          .then(_error => { throw _error; })
+          .catch(_error => isValid = _error);
+      } else {
+        isValid = _isValid;
+      }
+    }
+
+    if (isValid) {
+      const normalizedSearchValue = label.trim().toLowerCase();
+      if (!normalizedSearchValue) return;
+      form.setFieldValue(field.name, field.value.concat({ label }));
+    }
+  }
+
+  handleComboBoxOnBlur = (e, field, form) => {
+    form.setFieldTouched(field.name, true);
+  }
+
   renderTab = tab => (
     <EuiTab
       data-test-subj={`sgTab-${tab.id}`}
@@ -208,7 +263,15 @@ class Main extends Component {
                   />
                   <Route
                     path={APP_PATH.DEFINE_DESTINATION}
-                    render={props => <DefineDestination httpClient={httpClient} {...props} />}
+                    render={props => (
+                      <DefineDestination
+                        httpClient={httpClient}
+                        onComboBoxChange={this.handleComboBoxChange}
+                        onComboBoxOnBlur={this.handleComboBoxOnBlur}
+                        onComboBoxCreateOption={this.handleComboBoxCreateOption}
+                        {...props}
+                      />
+                    )}
                   />
                   <Redirect to={APP_PATH.DASHBOARD} />
                 </Switch>
