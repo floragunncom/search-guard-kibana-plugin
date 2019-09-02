@@ -33,12 +33,10 @@ class DefineDestination extends Component {
     super(props);
 
     const { location, httpClient } = this.props;
-    const { type, id } = queryString.parse(location.search);
+    const { type } = queryString.parse(location.search);
 
     this.destService = new DestinationsService(httpClient);
-    const initialValues = !id
-      ? cloneDeep(DESTINATION_DEFAULTS[type] || DESTINATION_DEFAULTS[DESTINATION_TYPE.EMAIL])
-      : null;
+    const initialValues = type ? DESTINATION_DEFAULTS[type] : DESTINATION_DEFAULTS[DESTINATION_TYPE.EMAIL];
 
     this.state = {
       initialValues
