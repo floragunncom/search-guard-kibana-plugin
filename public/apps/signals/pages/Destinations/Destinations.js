@@ -48,8 +48,6 @@ class Destinations extends Component {
       isLoading: true,
       destinations: [],
       tableSelection: [],
-      tableSortField: TABLE_SORT_FIELD,
-      tableSortDirection: TABLE_SORT_DIRECTION,
       isAddDestinationPopoverOpen: false
     };
 
@@ -177,8 +175,6 @@ class Destinations extends Component {
 
     const {
       destinations,
-      tableSortField,
-      tableSortDirection,
       isLoading,
       error,
       isAddDestinationPopoverOpen
@@ -251,8 +247,8 @@ class Destinations extends Component {
 
     const sorting = {
       sort: {
-        field: tableSortField,
-        direction: tableSortDirection
+        field: TABLE_SORT_FIELD,
+        direction: TABLE_SORT_DIRECTION
       }
     };
 
