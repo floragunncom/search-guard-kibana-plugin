@@ -39,7 +39,6 @@ import {
 import { APP_PATH, FLYOUTS } from '../../utils/constants';
 import { TABLE_SORT_FIELD, TABLE_SORT_DIRECTION } from './utils/constants';
 
-// TODO: load table items by chunk (pagination)
 class Watches extends Component {
   constructor(props) {
     super(props);
@@ -48,9 +47,7 @@ class Watches extends Component {
       error: null,
       isLoading: true,
       watches: [],
-      tableSelection: [],
-      tableSortField: TABLE_SORT_FIELD,
-      tableSortDirection: TABLE_SORT_DIRECTION
+      tableSelection: []
     };
 
     this.watchService = new WatchService(this.props.httpClient);
@@ -166,18 +163,8 @@ class Watches extends Component {
   }
 
   render() {
-    const {
-      history,
-      onTriggerFlyout
-    } = this.props;
-
-    const {
-      watches,
-      tableSortField,
-      tableSortDirection,
-      isLoading,
-      error
-    } = this.state;
+    const { history, onTriggerFlyout } = this.props;
+    const { watches, isLoading, error } = this.state;
 
     const actions = [
       {
@@ -277,8 +264,8 @@ class Watches extends Component {
 
     const sorting = {
       sort: {
-        field: tableSortField,
-        direction: tableSortDirection
+        field: TABLE_SORT_FIELD,
+        direction: TABLE_SORT_DIRECTION
       }
     };
 
