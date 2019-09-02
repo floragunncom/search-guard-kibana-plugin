@@ -208,9 +208,9 @@ class Main extends Component {
                         <EuiTabs>{this.tabs.map(this.renderTab)}</EuiTabs>
                         <EuiSpacer />
                         <Watches
-                          onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
-                          onTriggerFlyout={this.handleTriggerFlyout}
                           httpClient={httpClient}
+                          onTriggerFlyout={this.handleTriggerFlyout}
+                          onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                           {...props}
                         />
                       </Fragment>
@@ -220,8 +220,11 @@ class Main extends Component {
                     path={APP_PATH.DEFINE_WATCH}
                     render={props => (
                       <DefineWatch
-                        onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                         httpClient={httpClient}
+                        onComboBoxChange={this.handleComboBoxChange}
+                        onComboBoxOnBlur={this.handleComboBoxOnBlur}
+                        onComboBoxCreateOption={this.handleComboBoxCreateOption}
+                        onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                         {...props}
                       />
                     )}

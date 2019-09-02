@@ -95,7 +95,15 @@ class DefineWatch extends Component {
 
   render() {
     const { initialValues, isEdit } = this.state;
-    const { httpClient, location, dispatch, onTriggerConfirmDeletionModal } = this.props;
+    const {
+      httpClient,
+      location,
+      dispatch,
+      onComboBoxChange,
+      onComboBoxOnBlur,
+      onComboBoxCreateOption,
+      onTriggerConfirmDeletionModal
+    } = this.props;
 
     return (
       <div>
@@ -112,7 +120,13 @@ class DefineWatch extends Component {
               <EuiSpacer />
               <GeneralPanel httpClient={httpClient} location={location} />
               <EuiSpacer />
-              <DefinitionPanel dispatch={dispatch} httpClient={httpClient} />
+              <DefinitionPanel
+                dispatch={dispatch}
+                httpClient={httpClient}
+                onComboBoxChange={onComboBoxChange}
+                onComboBoxOnBlur={onComboBoxOnBlur}
+                onComboBoxCreateOption={onComboBoxCreateOption}
+              />
               <EuiSpacer />
               <FieldArray
                 name="actions"
@@ -120,6 +134,9 @@ class DefineWatch extends Component {
                   <ActionPanel
                     httpClient={httpClient}
                     arrayHelpers={arrayHelpers}
+                    onComboBoxChange={onComboBoxChange}
+                    onComboBoxOnBlur={onComboBoxOnBlur}
+                    onComboBoxCreateOption={onComboBoxCreateOption}
                     onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
                   />
                 )}
@@ -150,7 +167,10 @@ DefineWatch.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
   httpClient: PropTypes.func.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired,
+  onComboBoxCreateOption: PropTypes.func.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired
 };
 
 export default connect()(DefineWatch);

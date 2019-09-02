@@ -83,7 +83,15 @@ class ActionPanel extends Component {
   }
 
   render() {
-    const { httpClient, arrayHelpers, formik: { values: { actions } } } = this.props;
+    const {
+      httpClient,
+      arrayHelpers,
+      formik: { values: { actions } },
+      onComboBoxChange,
+      onComboBoxOnBlur,
+      onComboBoxCreateOption
+    } = this.props;
+
     const hasActions = !isEmpty(actions);
     const { isAddActionPopoverOpen } = this.state;
 
@@ -148,8 +156,11 @@ class ActionPanel extends Component {
                   actionBody={(
                     <Body
                       index={index}
-                      arrayHelpers={arrayHelpers}
                       httpClient={httpClient}
+                      arrayHelpers={arrayHelpers}
+                      onComboBoxChange={onComboBoxChange}
+                      onComboBoxOnBlur={onComboBoxOnBlur}
+                      onComboBoxCreateOption={onComboBoxCreateOption}
                     />
                   )}
                   deleteButton={
@@ -172,6 +183,9 @@ ActionPanel.propTypes = {
   httpClient: PropTypes.func.isRequired,
   arrayHelpers: PropTypes.object.isRequired,
   formik: PropTypes.object.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired,
+  onComboBoxCreateOption: PropTypes.func.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired
 };
 
