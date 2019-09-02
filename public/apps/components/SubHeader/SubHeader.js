@@ -9,7 +9,7 @@ const SubHeader = ({
   descriptionProps,
   horizontalRuleProps,
   title,
-  titleProps,
+  titleProps
 }) => (
   <Fragment>
     <EuiTitle {...titleProps}>{title}</EuiTitle>
@@ -23,7 +23,7 @@ SubHeader.propTypes = {
   descriptionProps: PropTypes.object,
   horizontalRuleProps: PropTypes.object,
   title: PropTypes.oneOfType([PropTypes.string, PropTypes.node]).isRequired,
-  titleProps: PropTypes.object,
+  titleProps: PropTypes.object
 };
 
 SubHeader.defaultProps = {

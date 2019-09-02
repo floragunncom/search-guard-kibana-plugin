@@ -11,6 +11,7 @@ const FieldText = ({
   elementProps: { onChange, isInvalid, onFocus, ...props },
 }) => (
   <EuiFieldText
+    name={name}
     {...field}
     {...props}
     id={name}

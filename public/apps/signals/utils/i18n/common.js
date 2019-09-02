@@ -61,3 +61,7 @@ export const validCharsForNameAreText = (
 export const addText = (<EuiI18n token="sg.common.addText.text" default="Add" />);
 export const closeText = (<EuiI18n token="sg.common.close.text" default="Close" />);
 export const invalidJsonText = (<EuiI18n token="sg.common.invalidJson.text" default="Invalid JSON" />);
+export const securityText = (<EuiI18n token="sg.common.security.text" default="Security" />);
+export const userText = (<EuiI18n token="sg.common.user.text" default="User" />);
+export const passwordText = (<EuiI18n token="sg.common.password.text" default="Password" />);
+export const defaultsText = (<EuiI18n token="sg.common.defaults.text" default="Defaults" />);
