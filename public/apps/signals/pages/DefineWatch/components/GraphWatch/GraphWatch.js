@@ -173,7 +173,14 @@ class GraphWatch extends Component {
   }
 
   render() {
-    const { httpClient, formik: { values: { _index, _timeField } } } = this.props;
+    const {
+      httpClient,
+      formik: { values: { _index, _timeField } },
+      onComboBoxChange,
+      onComboBoxOnBlur,
+      onComboBoxCreateOption
+    } = this.props;
+
     const { dataTypes } = this.state;
 
     let content = renderGraphMessage(youMustSpecifyIndexText);
@@ -185,7 +192,13 @@ class GraphWatch extends Component {
 
     return (
       <Fragment>
-        <WatchIndex httpClient={httpClient} indexFieldName="_index" />
+        <WatchIndex
+          httpClient={httpClient}
+          indexFieldName="_index"
+          onComboBoxChange={onComboBoxChange}
+          onComboBoxOnBlur={onComboBoxOnBlur}
+          onComboBoxCreateOption={onComboBoxCreateOption}
+        />
         <WatchTimeField dataTypes={dataTypes} />
         <div style={{ paddingTop: '10px' }}>{content}</div>
         <EuiSpacer />
@@ -197,7 +210,10 @@ class GraphWatch extends Component {
 GraphWatch.propTypes = {
   dispatch: PropTypes.func.isRequired,
   httpClient: PropTypes.func.isRequired,
-  formik: PropTypes.object.isRequired
+  formik: PropTypes.object.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired,
+  onComboBoxCreateOption: PropTypes.func.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired
 };
 
 export default connectFormik(GraphWatch);

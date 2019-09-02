@@ -76,7 +76,10 @@ const propTypes = {
     PropTypes.bool,
     PropTypes.object
   ]),
-  dispatch: PropTypes.func.isRequired
+  dispatch: PropTypes.func.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired,
+  onComboBoxCreateOption: PropTypes.func.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired
 };
 
 class WatchIndex extends React.Component {
@@ -246,7 +249,10 @@ class WatchIndex extends React.Component {
     const {
       indexFieldName,
       isClearable = true,
-      singleSelection = false
+      singleSelection = false,
+      onComboBoxChange,
+      onComboBoxOnBlur,
+      onComboBoxCreateOption
     } = this.props;
 
     return (
@@ -268,15 +274,9 @@ class WatchIndex extends React.Component {
           async: true,
           isLoading,
           options: visibleOptions,
-          onBlur: (e, field, form) => {
-            form.setFieldTouched(field.name, true);
-          },
-          onChange: (options, field, form) => {
-            form.setFieldValue(field.name, options);
-          },
-          onCreateOption: (value, field, form) => {
-            this.onCreateOption(value, field.name, field.value, form.setFieldValue);
-          },
+          onBlur: onComboBoxOnBlur,
+          onChange: onComboBoxChange(),
+          onCreateOption: onComboBoxCreateOption(),
           onSearchChange: this.onSearchChange,
           renderOption: this.renderOption,
           'data-test-subj': 'sgIndicesComboBox',
