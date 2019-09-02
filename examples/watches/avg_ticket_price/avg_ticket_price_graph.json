@@ -74,7 +74,7 @@
       "throttle_period": "1s",
       "request": {
         "method": "POST",
-        "url": "https://hooks.slack.com/services/tockens",
+        "url": "https://hooks.slack.com/services/token",
         "body": "{\"text\": \"Average flight ticket price decreased to {{data.mysearch.aggregations.when.value}} over the last 1 hour\"}",
         "headers": {
           "Content-type": "application/json"

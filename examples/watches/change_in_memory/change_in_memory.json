@@ -89,7 +89,7 @@
       "throttle_period": "1s",
       "request": {
         "method": "POST",
-        "url": "https://hooks.slack.com/services/tokens",
+        "url": "https://hooks.slack.com/services/token",
         "body": "{\"text\": \"\nHosts with memory change less then 0 MB over last 1 month:\n{{#data._value}}\n  {{host}}: {{mem_deriv}}\n{{/data._value}}\n\"}",
         "headers": {
           "Content-type": "application/json"
