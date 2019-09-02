@@ -42,6 +42,8 @@ export const selectConditionToRenderGraphToSeeResultsText = (
 export const watchExamplesText = (<EuiI18n token="sg.watch.watchExamples.text" default="Watch Examples" />);
 export const fromText = (<EuiI18n token="sg.watch.from.text" default="From" />);
 export const toText = (<EuiI18n token="sg.watch.to.text" default="To" />);
+export const ccText = (<EuiI18n token="sg.watch.cc.text" default="Cc" />);
+export const bccText = (<EuiI18n token="sg.watch.bcc.text" default="Bcc" />);
 export const subjectText = (<EuiI18n token="sg.watch.subject.text" default="Subject" />);
 export const iconEmojiText = (<EuiI18n token="sg.watch.iconEmoji.text" default="Icon Emoji" />);
 export const timezoneText = (<EuiI18n token="sg.watch.timezone.text" default="Timezone" />);
