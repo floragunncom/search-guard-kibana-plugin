@@ -57,17 +57,11 @@ const EmailAction = ({
       formRow
       rowProps={{
         label: fromText,
-        isInvalid,
-        error: hasError,
       }}
       elementProps={{
-        isInvalid,
         onFocus: (e, field, form) => {
           form.setFieldError(field.name, undefined);
         },
-      }}
-      formikFieldProps={{
-        validate: validateEmptyField
       }}
     />
     <FormikComboBox
