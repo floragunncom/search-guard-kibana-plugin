@@ -81,7 +81,7 @@
       "throttle_period": "1s",
       "request": {
         "method": "POST",
-        "url": "https://hooks.slack.com/services/tokens",
+        "url": "https://hooks.slack.com/services/token",
         "body": "{\"text\": \"\nHosts with memory usage higher than {{data.constants.threshold}} over last {{data.constants.window}}:\n  {{#data.memory_usage.aggregations.hosts.buckets}}\n    {{key}} {{memory_usage.value}}\n  {{/data.memory_usage.aggregations.hosts.buckets}}\"\n}\n",
         "headers": {
           "Content-type": "application/json"

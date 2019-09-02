@@ -61,7 +61,7 @@
       "throttle_period": "1s",
       "request": {
         "method": "POST",
-        "url": "https://hooks.slack.com/services/tokens",
+        "url": "https://hooks.slack.com/services/token",
         "body": "{\"text\": \"Memory usage encreased to {{data.max_memory.aggregations.when.value}} MB over the last {{data.constants.window}}\"}\n",
         "headers": {
           "Content-type": "application/json"
