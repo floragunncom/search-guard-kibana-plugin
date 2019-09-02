@@ -76,7 +76,7 @@
       "throttle_period": "1s",
       "request": {
         "method": "POST",
-        "url": "https://hooks.slack.com/services/tokens",
+        "url": "https://hooks.slack.com/services/token",
         "body": "{\"text\": \"Minimum product price over 1 day among {{data.mysearch.hits.total.value}} products: {{mysearch.aggregations.when.value}}.\"}",
         "headers": {
           "Content-type": "application/json"
