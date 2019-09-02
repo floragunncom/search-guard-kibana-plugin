@@ -13,6 +13,7 @@ const TextArea = ({
   <EuiTextArea
     {...field}
     {...props}
+    id={name}
     isInvalid={isInvalid instanceof Function ? isInvalid(name, form) : isInvalid}
   />
 );

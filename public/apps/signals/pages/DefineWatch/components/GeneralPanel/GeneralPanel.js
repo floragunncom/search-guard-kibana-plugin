@@ -47,7 +47,12 @@ const GeneralPanel = ({ httpClient, location, formik }) => {
                 hasEmptyLabelSpace: true,
                 style: { paddingLeft: '0px' }
               }}
-              elementProps={{ label: activeText }}
+              elementProps={{
+                label: activeText,
+                onChange: (e, field, form) => {
+                  form.setFieldValue(field.name, e.target.value);
+                }
+              }}
             />
           </EuiFlexItem>
         </EuiFlexGroup>
