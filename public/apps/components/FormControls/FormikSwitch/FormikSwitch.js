@@ -11,10 +11,12 @@ const FieldSwitch = ({
   elementProps: { onChange, ...props }
 }) => (
   <EuiSwitch
+    onChange={e => (onChange instanceof Function ? onChange(e, field, form) : field.onChange(e))}
     name={name}
+    id={name}
+    checked={field.value}
     {...props}
     {...field}
-    onChange={e => (onChange instanceof Function ? onChange(e, field, form) : field.onChange(e))}
   />
 );
 

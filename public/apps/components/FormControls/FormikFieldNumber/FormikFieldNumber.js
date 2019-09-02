@@ -14,6 +14,7 @@ const FieldNumber = ({
   <EuiFieldNumber
     {...field}
     {...props}
+    id={name}
     isInvalid={isInvalid instanceof Function ? isInvalid(name, form) : isInvalid}
     onChange={e => (onChange instanceof Function ? onChange(e, field, form) : field.onChange(e))}
   />
