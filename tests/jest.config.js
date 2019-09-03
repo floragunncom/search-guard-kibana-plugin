@@ -4,7 +4,7 @@ module.exports = {
     '<rootDir>/tests/setup_tests.js',
   ],
   testMatch: ['**/*.test.js'],
-  modulePaths: ['node_modules', `../../node_modules`],
+  modulePaths: ['node_modules', '../../node_modules'],
   snapshotSerializers: ['../../node_modules/enzyme-to-json/serializer'],
   coverageDirectory: './coverage',
   coverageReporters: ['lcov', 'text', 'cobertura'],
@@ -26,5 +26,5 @@ module.exports = {
     '!<rootDir>/gather-info.js',
     '!**/vendor/**'
   ],
-  modulePathIgnorePatterns: ['<rootDir>/build_stage/']
+  modulePathIgnorePatterns: ['<rootDir>/build_stage/', '<rootDir>/node_modules/']
 };
