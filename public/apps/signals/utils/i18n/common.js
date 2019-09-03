@@ -65,3 +65,4 @@ export const securityText = (<EuiI18n token="sg.common.security.text" default="S
 export const userText = (<EuiI18n token="sg.common.user.text" default="User" />);
 export const passwordText = (<EuiI18n token="sg.common.password.text" default="Password" />);
 export const defaultsText = (<EuiI18n token="sg.common.defaults.text" default="Defaults" />);
+export const invalidEmailAddressText = (<EuiI18n token="sg.common.invalidEmailAddress.text" default="Invalid email address" />);
