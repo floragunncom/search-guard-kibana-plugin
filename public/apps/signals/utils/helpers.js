@@ -6,11 +6,15 @@ export function stringifyPretty(obj) {
 
 export const isNameHasProhibitedSpecialChars = (name = '') => (/[^\w\s_-]+/gm).test(name);
 
-export const arrayToComboBoxOptions = (array = []) =>
-  array.map(label => ({ label })).sort((a, b) => a.label.localeCompare(b.label));
+export const arrayToComboBoxOptions = (array = []) => {
+  if (!array) return [];
+  return array.map(label => ({ label })).sort((a, b) => a.label.localeCompare(b.label));
+}
 
-export const comboBoxOptionsToArray = (array = []) =>
-  array.map(({ label }) => label).sort((a, b) => a.localeCompare(b));
+export const comboBoxOptionsToArray = (array = []) => {
+  if (!array) return [];
+  return array.map(({ label }) => label).sort((a, b) => a.localeCompare(b));
+}
 
 export const matchTimeHHMM = timeStr => timeStr.match(/^(0[0-9]|1[0-9]|2[0-3]|[0-9]):[0-5][0-9]$/);
 export const matchDayOfMonth = dayOfMonthStr => (dayOfMonthStr + '').match(/^([1-9]|[12]\d|3[01])$/);
