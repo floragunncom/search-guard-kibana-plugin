@@ -17,6 +17,8 @@ import {
 } from '../../../../utils/i18n/destination';
 import { nameText, urlText } from '../../../../utils/i18n/common';
 
+const STYLE = { paddingLeft: '10px' };
+
 const SlackDestination = ({ httpClient, id, formik: { values } }) => {
   const isUpdatingName = id !== values._id;
 
@@ -24,14 +26,13 @@ const SlackDestination = ({ httpClient, id, formik: { values } }) => {
     <ContentPanel
       title={(<p>{destinationText} {values.type}</p>)}
       titleSize="s"
-      bodyStyles={{ padding: 'initial', paddingLeft: '10px' }}
+      bodyStyles={{ padding: 'initial', ...STYLE }}
     >
       <FormikFieldText
         name="_id"
         formRow
         rowProps={{
           label: nameText,
-          style: { paddingLeft: '10px' },
           isInvalid,
           error: hasError,
         }}
@@ -47,7 +48,6 @@ const SlackDestination = ({ httpClient, id, formik: { values } }) => {
         formRow
         rowProps={{
           label: urlText,
-          style: { paddingLeft: '10px' },
           isInvalid,
           error: hasError,
         }}

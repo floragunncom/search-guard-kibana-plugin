@@ -48,20 +48,64 @@ import {
 
 const STYLE = { paddingLeft: '10px' };
 
-const Security = () => (
+const Debug = () => (
+  <Fragment>
+    <SubHeader
+      title={<h4>{debugText}</h4>}
+    />
+    <EuiSpacer size="s" />
+    <EuiFlexGroup style={{ ...STYLE }}>
+      <EuiFlexItem grow={false}>
+        <FormikSwitch
+          name="debug"
+          formRow
+          rowProps={{
+            hasEmptyLabelSpace: true
+          }}
+          elementProps={{
+            label: debugText,
+            onChange: (e, field, form) => {
+              form.setFieldValue(field.name, e.target.value);
+            }
+          }}
+        />
+      </EuiFlexItem>
+      <EuiFlexItem grow={false}>
+        <FormikSwitch
+          name="simulate"
+          formRow
+          rowProps={{
+            hasEmptyLabelSpace: true
+          }}
+          elementProps={{
+            label: simulateText,
+            onChange: (e, field, form) => {
+              form.setFieldValue(field.name, e.target.value);
+            }
+          }}
+        />
+      </EuiFlexItem>
+    </EuiFlexGroup>
+  </Fragment>
+);
+
+const Security = ({
+  onComboBoxChange,
+  onComboBoxOnBlur,
+  onComboBoxCreateOption
+}) => (
   <Fragment>
     <SubHeader
       title={<h4>{securityText}</h4>}
     />
     <EuiSpacer size="s" />
-    <EuiFlexGroup style={{ maxWidth: '1200px' }}>
+    <EuiFlexGroup style={{ maxWidth: '1200px', ...STYLE }}>
       <EuiFlexItem>
         <FormikFieldText
           name="user"
           formRow
           rowProps={{
             label: userText,
-            style: STYLE,
           }}
         />
         <FormikFieldPassword
@@ -69,7 +113,20 @@ const Security = () => (
           formRow
           rowProps={{
             label: passwordText,
-            style: STYLE,
+          }}
+        />
+        <FormikComboBox
+          name="trusted_hosts"
+          formRow
+          rowProps={{
+            label: trustedHostText,
+          }}
+          elementProps={{
+            options: [],
+            isClearable: true,
+            onBlur: onComboBoxOnBlur,
+            onChange: onComboBoxChange(),
+            onCreateOption: onComboBoxCreateOption()
           }}
         />
       </EuiFlexItem>
@@ -79,7 +136,6 @@ const Security = () => (
           formRow
           rowProps={{
             hasEmptyLabelSpace: true,
-            style: { paddingLeft: '0px' }
           }}
           elementProps={{
             label: tlsText,
@@ -95,7 +151,6 @@ const Security = () => (
           formRow
           rowProps={{
             hasEmptyLabelSpace: true,
-            style: { paddingLeft: '0px' }
           }}
           elementProps={{
             label: starttlsText,
@@ -111,7 +166,6 @@ const Security = () => (
           formRow
           rowProps={{
             hasEmptyLabelSpace: true,
-            style: { paddingLeft: '0px' }
           }}
           elementProps={{
             label: trustAllText,
@@ -131,64 +185,61 @@ const Defaults = ({
   onComboBoxCreateOption
 }) => (
   <Fragment>
-    <EuiSpacer size="s" />
     <SubHeader
       title={<h4>{defaultsText}</h4>}
     />
     <EuiSpacer size="s" />
-    <FormikFieldText
-      name="default_from"
-      formRow
-      rowProps={{
-        label: fromText,
-        style: STYLE,
-      }}
-    />
-    <FormikComboBox
-      name="default_to"
-      formRow
-      rowProps={{
-        label: toText,
-        style: STYLE,
-      }}
-      elementProps={{
-        options: [],
-        isClearable: true,
-        onBlur: onComboBoxOnBlur,
-        onChange: onComboBoxChange(),
-        onCreateOption: onComboBoxCreateOption()
-      }}
-    />
-    <FormikComboBox
-      name="default_cc"
-      formRow
-      rowProps={{
-        label: ccText,
-        style: STYLE,
-      }}
-      elementProps={{
-        options: [],
-        isClearable: true,
-        onBlur: onComboBoxOnBlur,
-        onChange: onComboBoxChange(),
-        onCreateOption: onComboBoxCreateOption()
-      }}
-    />
-    <FormikComboBox
-      name="default_bcc"
-      formRow
-      rowProps={{
-        label: bccText,
-        style: STYLE,
-      }}
-      elementProps={{
-        options: [],
-        isClearable: true,
-        onBlur: onComboBoxOnBlur,
-        onChange: onComboBoxChange(),
-        onCreateOption: onComboBoxCreateOption()
-      }}
-    />
+    <div style={STYLE}>
+      <FormikFieldText
+        name="default_from"
+        formRow
+        rowProps={{
+          label: fromText,
+        }}
+      />
+      <FormikComboBox
+        name="default_to"
+        formRow
+        rowProps={{
+          label: toText,
+        }}
+        elementProps={{
+          options: [],
+          isClearable: true,
+          onBlur: onComboBoxOnBlur,
+          onChange: onComboBoxChange(),
+          onCreateOption: onComboBoxCreateOption()
+        }}
+      />
+      <FormikComboBox
+        name="default_cc"
+        formRow
+        rowProps={{
+          label: ccText,
+        }}
+        elementProps={{
+          options: [],
+          isClearable: true,
+          onBlur: onComboBoxOnBlur,
+          onChange: onComboBoxChange(),
+          onCreateOption: onComboBoxCreateOption()
+        }}
+      />
+      <FormikComboBox
+        name="default_bcc"
+        formRow
+        rowProps={{
+          label: bccText,
+        }}
+        elementProps={{
+          options: [],
+          isClearable: true,
+          onBlur: onComboBoxOnBlur,
+          onChange: onComboBoxChange(),
+          onCreateOption: onComboBoxCreateOption()
+        }}
+      />
+    </div>
   </Fragment>
 );
 
@@ -200,43 +251,40 @@ Defaults.propTypes = {
 
 const Proxy = () => (
   <Fragment>
-    <EuiSpacer size="s" />
     <SubHeader
       title={<h4>{proxyText}</h4>}
     />
     <EuiSpacer size="s" />
-    <FormikFieldText
-      name="proxy_host"
-      formRow
-      rowProps={{
-        label: hostText,
-        style: STYLE,
-      }}
-    />
-    <FormikFieldNumber
-      name="proxy_port"
-      formRow
-      rowProps={{
-        label: portText,
-        style: STYLE,
-      }}
-    />
-    <FormikFieldText
-      name="proxy_user"
-      formRow
-      rowProps={{
-        label: userText,
-        style: STYLE,
-      }}
-    />
-    <FormikFieldPassword
-      name="proxy_password"
-      formRow
-      rowProps={{
-        label: passwordText,
-        style: STYLE,
-      }}
-    />
+    <div style={STYLE}>
+      <FormikFieldText
+        name="proxy_host"
+        formRow
+        rowProps={{
+          label: hostText,
+        }}
+      />
+      <FormikFieldNumber
+        name="proxy_port"
+        formRow
+        rowProps={{
+          label: portText,
+        }}
+      />
+      <FormikFieldText
+        name="proxy_user"
+        formRow
+        rowProps={{
+          label: userText,
+        }}
+      />
+      <FormikFieldPassword
+        name="proxy_password"
+        formRow
+        rowProps={{
+          label: passwordText,
+        }}
+      />
+    </div>
   </Fragment>
 );
 
@@ -256,77 +304,83 @@ const EmailDestination = ({
       titleSize="s"
       bodyStyles={{ padding: 'initial', ...STYLE }}
     >
-      <FormikFieldText
-        name="_id"
-        formRow
-        rowProps={{
-          label: nameText,
-          style: STYLE,
-          isInvalid,
-          error: hasError,
-        }}
-        elementProps={{
-          isInvalid,
-        }}
-        formikFieldProps={{
-          validate: validateName(new DestinationsService(httpClient), isUpdatingName)
-        }}
+      <div style={STYLE}>
+        <FormikFieldText
+          name="_id"
+          formRow
+          rowProps={{
+            label: nameText,
+            isInvalid,
+            error: hasError,
+          }}
+          elementProps={{
+            isInvalid,
+          }}
+          formikFieldProps={{
+            validate: validateName(new DestinationsService(httpClient), isUpdatingName)
+          }}
+        />
+        <FormikFieldText
+          name="host"
+          formRow
+          rowProps={{
+            label: hostText,
+            isInvalid,
+            error: hasError,
+          }}
+          elementProps={{
+            isInvalid,
+          }}
+          formikFieldProps={{
+            validate: validateEmptyField
+          }}
+        />
+        <FormikFieldNumber
+          name="port"
+          formRow
+          rowProps={{
+            label: portText,
+            isInvalid,
+            error: hasError,
+          }}
+          elementProps={{
+            isInvalid,
+          }}
+          formikFieldProps={{
+            validate: validateEmptyField
+          }}
+        />
+        <FormikFieldText
+          name="mime_layout"
+          formRow
+          rowProps={{
+            label: mimeLayoutText,
+          }}
+        />
+        <FormikFieldNumber
+          name="session_timeout"
+          formRow
+          rowProps={{
+            label: sessionTimeoutText,
+          }}
+        />
+      </div>
+      <EuiSpacer size="s" />
+      <Security
+        onComboBoxOnBlur={onComboBoxOnBlur}
+        onComboBoxChange={onComboBoxChange}
+        onComboBoxCreateOption={onComboBoxCreateOption}
       />
-      <FormikFieldText
-        name="host"
-        formRow
-        rowProps={{
-          label: hostText,
-          style: STYLE,
-          isInvalid,
-          error: hasError,
-        }}
-        elementProps={{
-          isInvalid,
-        }}
-        formikFieldProps={{
-          validate: validateEmptyField
-        }}
-      />
-      <FormikFieldNumber
-        name="port"
-        formRow
-        rowProps={{
-          label: portText,
-          style: STYLE,
-          isInvalid,
-          error: hasError,
-        }}
-        elementProps={{
-          isInvalid,
-        }}
-        formikFieldProps={{
-          validate: validateEmptyField
-        }}
-      />
-      <FormikFieldText
-        name="mime_layout"
-        formRow
-        rowProps={{
-          label: mimeLayoutText,
-          style: STYLE,
-        }}
-      />
-      <FormikFieldNumber
-        name="session_timeout"
-        formRow
-        rowProps={{
-          label: sessionTimeoutText,
-          style: STYLE,
-        }}
-      />
-      <Security />
+      <EuiSpacer size="s" />
       <Proxy />
+      <EuiSpacer size="s" />
       <Defaults
         onComboBoxOnBlur={onComboBoxOnBlur}
         onComboBoxChange={onComboBoxChange}
         onComboBoxCreateOption={onComboBoxCreateOption}
       />
+      <EuiSpacer size="s" />
+      <Debug />
     </ContentPanel>
   );
 };
