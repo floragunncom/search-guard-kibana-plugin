@@ -53,6 +53,8 @@ export const email = {
   name: 'myemail',
   from: 'signals@localhost',
   to: [],
+  cc: [],
+  bcc: [],
   subject: 'Signals message',
   text_body: 'Total: {{data.mysearch.hits.total.value}}',
   account: []
