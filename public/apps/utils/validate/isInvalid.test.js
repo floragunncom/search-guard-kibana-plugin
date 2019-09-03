@@ -1,6 +1,6 @@
-import { isInvalid } from './is_invalid';
+import { isInvalid } from './isInvalid';
 
-describe('is_invalid', () => {
+describe('isInvalid', () => {
   test('is invalid when field touched and there is error', () => {
     expect(isInvalid('a', {
       touched: { a: true },

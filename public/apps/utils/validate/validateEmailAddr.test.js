@@ -1,7 +1,7 @@
-import { validateEmailAddr } from './validate_email_addr';
+import { validateEmailAddr } from './validateEmailAddr';
 import { invalidEmailAddressText, requiredText } from '../i18n/common';
 
-describe('validate_email_addr', () => {
+describe('validateEmailAddr', () => {
   test('can validate email string', () => {
     expect(validateEmailAddr()('a@b')).toEqual(null);
   });

@@ -1,4 +1,4 @@
-import { validateName } from './validate_name';
+import { validateName } from './validateName';
 import {
   requiredText,
   problemWithValidationTryAgainText,

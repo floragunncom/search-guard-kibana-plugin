@@ -1,7 +1,7 @@
-import { validateInterval } from './validate_interval';
+import { validateInterval } from './validateInterval';
 import { mustBePositiveIntegerText } from '../i18n/common';
 
-describe('validate_interval', () => {
+describe('validateInterval', () => {
   it('can validate positive integer', () => {
     expect(validateInterval(1)).toBe(null);
   });
