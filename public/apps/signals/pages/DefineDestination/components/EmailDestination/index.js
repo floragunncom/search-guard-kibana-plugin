@@ -1,3 +1,3 @@
 import EmailDestination from './EmailDestination';
 
-export default EmailDestination; 
+export default EmailDestination;

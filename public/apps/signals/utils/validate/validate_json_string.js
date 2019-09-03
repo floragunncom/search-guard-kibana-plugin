@@ -10,4 +10,4 @@ export const validateJsonString = value => {
   }
 
   return null;
-}
+};

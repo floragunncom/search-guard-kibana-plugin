@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { flatten, get } from 'lodash';
-import queryString from 'query-string';
 import { EuiBreadcrumbs } from '@elastic/eui';
 
 export const createBreadcrumb = (breadcrumb, history) => {

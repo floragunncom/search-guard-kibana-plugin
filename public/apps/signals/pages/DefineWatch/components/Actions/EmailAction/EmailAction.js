@@ -23,7 +23,6 @@ import {
 import {
   validateEmailAddr,
   validateEmptyField,
-  validateEmptyArray,
   isInvalid,
   hasError
 } from '../../../../../utils/validate';

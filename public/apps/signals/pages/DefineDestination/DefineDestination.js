@@ -3,12 +3,9 @@ import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import { connect as connectRedux } from 'react-redux';
 import queryString from 'query-string';
-import { cloneDeep } from 'lodash';
 import {
   EuiFlexGroup,
   EuiFlexItem,
-  EuiButton,
-  EuiButtonEmpty,
   EuiTitle,
   EuiSpacer
 } from '@elastic/eui';

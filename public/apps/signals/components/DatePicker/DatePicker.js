@@ -1,11 +1,5 @@
-import React, { Component, Fragment } from 'react';
-import {
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiSuperDatePicker,
-  EuiSwitch,
-  EuiSpacer
-} from '@elastic/eui';
+import React, { Component } from 'react';
+import { EuiSuperDatePicker } from '@elastic/eui';
 import PropTypes from 'prop-types';
 
 export default class DatePicker extends Component {

@@ -1,5 +1,3 @@
-import { APP_NAME, ROUTE_PATH } from '../../../../utils/signals/constants';
-
 export {
   APP_NAME,
   ROUTE_PATH,
@@ -28,7 +26,7 @@ export const SEARCH_TYPE = {
 export const DOC_LINKS = {
   REPO: 'https://github.com/floragunncom/search-guard-kibana-plugin',
   CRON_EXPRESSION: 'https://www.freeformatter.com/cron-expression-generator-quartz.html'
-}
+};
 
 export const CODE_EDITOR = {
   TAB_SIZE: 2,

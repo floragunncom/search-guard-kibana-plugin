@@ -8,8 +8,6 @@ import {
   EuiSpacer,
   EuiFlexItem,
   EuiFlexGroup,
-  EuiButtonEmpty,
-  EuiButton
 } from '@elastic/eui';
 import { WatchService } from '../../services';
 import { addErrorToast, addSuccessToast } from '../../redux/actions';
