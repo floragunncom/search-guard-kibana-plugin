@@ -6,7 +6,6 @@ export const nameText = (<EuiI18n token="sg.common.name.text" default="Name" />)
 export const generalText = (<EuiI18n token="sg.common.general.text" default="General" />);
 export const cancelText = (<EuiI18n token="sg.common.cancel.text" default="Cancel" />);
 export const confirmText = (<EuiI18n token="sg.common.confirm.text" default="Confirm" />);
-export const saveText = (<EuiI18n token="sg.common.save.text" default="Save" />);
 export const deleteText = (<EuiI18n token="sg.common.delete.text" default="Delete" />);
 export const urlText = (<EuiI18n token="sg.common.url.text" default="Url" />);
 export const bodyText = (<EuiI18n token="sg.common.body.text" default="Body" />);
@@ -45,7 +44,6 @@ export const validCharsForNameAreText = (
   <EuiI18n token="sg.common.validCharsForNameAre.text" default="Valid characters for name are letter, number, space, underscore and dash" />
 );
 export const addText = (<EuiI18n token="sg.common.addText.text" default="Add" />);
-export const closeText = (<EuiI18n token="sg.common.close.text" default="Close" />);
 export const invalidJsonText = (<EuiI18n token="sg.common.invalidJson.text" default="Invalid JSON" />);
 export const errorText = (<EuiI18n token="sg.common.error.text" default="Error" />);
 export const successText = (<EuiI18n token="sg.common.success.text" default="Success" />);
@@ -56,7 +54,6 @@ export const editText = (<EuiI18n token="sg.common.edit.text" default="Edit" />)
 export const definitionText = (<EuiI18n token="sg.common.definition.text" default="Definition" />);
 export const graphText = (<EuiI18n token="sg.common.graph.text" default="Graph" />);
 export const jsonText = (<EuiI18n token="sg.common.json.text" default="JSON" />);
-export const typeText = (<EuiI18n token="sg.common.type.text" default="Type" />);
 export const responseText = (<EuiI18n token="sg.common.reponse.text" default="Response" />);
 export const actionText = (<EuiI18n token="sg.common.action.text" default="Action" />);
 export const actionsText = (<EuiI18n token="sg.common.actions.text" default="Actions" />);
@@ -68,3 +65,28 @@ export const securityText = (<EuiI18n token="sg.common.security.text" default="S
 export const userText = (<EuiI18n token="sg.common.user.text" default="User" />);
 export const passwordText = (<EuiI18n token="sg.common.password.text" default="Password" />);
 export const defaultsText = (<EuiI18n token="sg.common.defaults.text" default="Defaults" />);
+export const typeText = (<EuiI18n token="sg.common.type.text" default="Type" />);
+export const descriptionText = (<EuiI18n token="sg.common.description.text" default="Description" />);
+export const saveText = (<EuiI18n token="sg.common.save.text" default="Save" />);
+export const removeText = (<EuiI18n token="sg.common.remove.text" default="Remove" />);
+export const noItemsFoundText = (<EuiI18n token="sg.common.noItemsFound.text" default="No items found" />);
+export const closeText = (<EuiI18n token="sg.common.close.text" default="Close" />);
+export const reservedText = (<EuiI18n token="sg.common.reserved.text" default="Reserved" />);
+export const currentUserText = (<EuiI18n token="sg.common.currentUser.text" default="Current User" />);
+export const navigateText = (<EuiI18n token="sg.common.navigate.text" default="Navigate" />);
+export const disabledText = (<EuiI18n token="sg.common.disabled.text" default="Disabled" />);
+export const nameMustNotContainDotsText = (
+  <EuiI18n token="sg.internalUsers.nameMustNotContainDots.text" default="Name must not contain '.'" />
+);
+export const permissionsText = (<EuiI18n token="sg.common.permissions.text" default="Permissions" />);
+export const theOptionIsNotValidText = (<EuiI18n token="sg.common.theOptionIsNotValid.text" default="The option is not valid" />);
+export const advancedText = (<EuiI18n token="sg.common.advanced.text" default="Advanced" />);
+export const includeText = (<EuiI18n token="sg.common.include.text" default="Include" />);
+export const excludeText = (<EuiI18n token="sg.common.exclude.text" default="Exclude" />);
+export const jsonIsInvalidText = (<EuiI18n token="sg.common.jsonIsInvalid.text" default="JSON is invalid" />);
+export const jsonMustNotBeEmptyText = (<EuiI18n token="sg.common.jsonMustNotBeEmpty.text" default="JSON must not be empty" />);
+export const occupiedText = (<EuiI18n token="sg.common.occupied.text" default="Occupied" />);
+export const availableText = (<EuiI18n token="sg.common.available.text" default="Available" />);
+export const systemItemsText = (<EuiI18n token="sg.common.systemItems.text" default="System Items" />);
+export const logoutText = (<EuiI18n token="sg.common.logout.text" default="Logout" />);
+export const loginText = (<EuiI18n token="sg.common.login.text" default="Login" />);

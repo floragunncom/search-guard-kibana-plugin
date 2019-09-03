@@ -4,7 +4,7 @@ const SvgRoles = props => (
   <svg id="roles_svg__ART" viewBox="0 0 48 48" {...props}>
     <defs>
       <style>
-        {".roles_svg__cls-1{fill:#353740}.roles_svg__cls-2{fill:#047268}"}
+        {'.roles_svg__cls-1{fill:#353740}.roles_svg__cls-2{fill:#047268}'}
       </style>
     </defs>
     <path
