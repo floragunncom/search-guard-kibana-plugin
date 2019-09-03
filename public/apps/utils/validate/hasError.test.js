@@ -1,6 +1,6 @@
-import { hasError } from './has_error';
+import { hasError } from './hasError';
 
-describe('has_error', () => {
+describe('hasError', () => {
   it('has error', () => {
     expect(hasError('a', {
       errors: { a: 'error' }

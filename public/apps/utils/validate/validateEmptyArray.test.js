@@ -1,7 +1,7 @@
-import { validateEmptyArray } from './validate_empty_array';
+import { validateEmptyArray } from './validateEmptyArray';
 import { requiredText } from '../i18n/common';
 
-describe('validate_empty_array', () => {
+describe('validateEmptyArray', () => {
   it('can validate', () => {
     expect(validateEmptyArray(['a'])).toBe(null);
   });

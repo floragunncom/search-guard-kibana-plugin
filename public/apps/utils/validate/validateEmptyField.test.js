@@ -1,7 +1,7 @@
-import { validateEmptyField } from './validate_empty_field';
+import { validateEmptyField } from './validateEmptyField';
 import { requiredText } from '../i18n/common';
 
-describe('validate_empty_field', () => {
+describe('validateEmptyField', () => {
   it('can validate text', () => {
     expect(validateEmptyField('abc')).toBe(null);
   });
