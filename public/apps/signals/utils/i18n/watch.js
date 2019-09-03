@@ -48,4 +48,6 @@ export const subjectText = (<EuiI18n token="sg.watch.subject.text" default="Subj
 export const iconEmojiText = (<EuiI18n token="sg.watch.iconEmoji.text" default="Icon Emoji" />);
 export const timezoneText = (<EuiI18n token="sg.watch.timezone.text" default="Timezone" />);
 export const youMustSpecifyIndexText = (<EuiI18n token="sg.watch.youMustSpecifyIndex.text" default="You must specify index" />);
-export const youMustSpecifyATimeFieldText = (<EuiI18n token="sg.watch.youMustSpecifyATimeField.text" default="You must specify a time field" />);
+export const youMustSpecifyATimeFieldText = (
+  <EuiI18n token="sg.watch.youMustSpecifyATimeField.text" default="You must specify a time field" />
+);

@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
- /*
+/*
   * Copyright 2015-2018 _floragunn_ GmbH
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -40,8 +40,8 @@ const Daily = () => (
       <Field
         name="_daily"
         render={({
-          field: { value, onChange, onBlur, ...rest },
-          form: { touched, errors, setFieldValue },
+          field: { value, ...rest },
+          form: { setFieldValue },
         }) => (
           <EuiFormRow label={aroundText} style={{ marginTop: '0px' }}>
             <EuiDatePicker

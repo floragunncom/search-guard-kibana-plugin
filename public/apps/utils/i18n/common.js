@@ -61,3 +61,5 @@ export const validCharsForNameAreText = (
 export const addText = (<EuiI18n token="sg.common.addText.text" default="Add" />);
 export const closeText = (<EuiI18n token="sg.common.close.text" default="Close" />);
 export const invalidJsonText = (<EuiI18n token="sg.common.invalidJson.text" default="Invalid JSON" />);
+export const errorText = (<EuiI18n token="sg.common.error.text" default="Error" />);
+export const successText = (<EuiI18n token="sg.common.success.text" default="Success" />);

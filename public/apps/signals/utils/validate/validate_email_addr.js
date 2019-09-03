@@ -16,4 +16,4 @@ export const validateEmailAddr = (isEmptyInvalid = true) => emailAddr => {
   }
 
   return !/^\S+@\S+$/g.test(emailAddr) ? invalidEmailAddressText : null;
-}
+};

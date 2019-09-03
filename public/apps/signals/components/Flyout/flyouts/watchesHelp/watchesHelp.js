@@ -5,21 +5,18 @@ import {
   EuiTabbedContent,
   EuiCodeEditor,
   EuiSpacer,
-  EuiButton,
-  EuiLink,
   EuiFormRow,
   EuiFlexGroup,
   EuiFlexItem,
   EuiCallOut,
-  EuiText
 } from '@elastic/eui';
-import { LabelAppendLink } from '../../../';
+import { LabelAppendLink, AddButton } from '../../../';
 import { startCase } from 'lodash';
 import { stringifyPretty } from '../../../../utils/helpers';
 import buildWatchExamples from './utils/buildWatchExamples';
-import { AddButton } from '../../../';
+
 import { watchExamplesText } from '../../../../utils/i18n/watch';
-import { seeTheDocumentationText, addText } from '../../../../utils/i18n/common';
+import { addText } from '../../../../utils/i18n/common';
 import { EDITOR_OPTIONS } from './utils/constants';
 import { WATCH_EXAMPLES } from '../../../../utils/constants';
 

@@ -25,7 +25,7 @@ const AddButton = ({
       {value}
     </EuiButton>
   );
-}
+};
 
 AddButton.propTypes = {
   value: PropTypes.oneOfType([
@@ -40,6 +40,6 @@ AddButton.propTypes = {
 AddButton.defaultProps = {
   value: addText,
   name: ''
-}
+};
 
 export default AddButton;

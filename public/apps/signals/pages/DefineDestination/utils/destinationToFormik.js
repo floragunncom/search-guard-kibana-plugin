@@ -1,4 +1,3 @@
-import { omit } from 'lodash';
 import { arrayToComboBoxOptions } from '../../../utils/helpers';
 import { DESTINATION_TYPE } from '../../Destinations/utils/constants';
 import * as DEFAULTS from './defaults';
