@@ -1,5 +1,5 @@
 import React from 'react';
-import { EuiText, EuiLink, EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 import { LabelAppendLink, FormikTextArea } from '../../../../../../components';
 import {
   isInvalid,

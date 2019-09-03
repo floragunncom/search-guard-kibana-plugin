@@ -27,7 +27,6 @@ import {
   cloneText,
   saveText,
   typeText,
-  addText
 } from '../../utils/i18n/common';
 import {
   destinationsText

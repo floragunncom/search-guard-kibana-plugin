@@ -1,4 +1,3 @@
-import { get } from 'lodash';
 import { isInvalid } from './is_invalid';
 
 describe('is_invalid', () => {

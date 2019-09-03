@@ -8,7 +8,6 @@ import {
   buildWhenAggregation,
   buildChecks,
   buildWatch,
-  buildIndexAction,
   buildActions
 } from './formikToWatch';
 import { stringifyPretty } from '../../../utils/helpers';

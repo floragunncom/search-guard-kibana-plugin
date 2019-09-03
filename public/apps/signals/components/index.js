@@ -1,6 +1,5 @@
 export { default as Flyout } from './Flyout';
 export { default as DatePicker } from './DatePicker';
-// export { default as Breadcrumbs } from './Breadcrumbs';
 
 export {
   ContentPanel,

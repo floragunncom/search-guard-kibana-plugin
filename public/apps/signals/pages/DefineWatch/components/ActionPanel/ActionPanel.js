@@ -69,7 +69,7 @@ class ActionPanel extends Component {
   }
 
   getDestinations = async () => {
-    const { dispatch, destinationType } = this.props;
+    const { dispatch } = this.props;
     this.setState({ isLoading: true });
     try {
       const { resp: destinations } = await this.destService.get();

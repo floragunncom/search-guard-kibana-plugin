@@ -7,7 +7,6 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiFormRow,
-  EuiButton,
   EuiFlyout,
   EuiFlyoutHeader,
   EuiFlyoutBody,
@@ -98,7 +97,7 @@ class JsonWatch extends Component {
   }
 
   renderTemplates = category => (
-    map(templates[category], ({ example, link, description, type }, name) => (
+    map(templates[category], ({ example, link, type }, name) => (
       <div key={name}>
         <EuiSpacer />
         <EuiFormRow
@@ -106,8 +105,8 @@ class JsonWatch extends Component {
           labelAppend={<LabelAppendLink href={link} name={`CheckExample-${name}`} />}
         >
           <EuiCodeBlock
-           language="json"
-           data-test-subj={`sgCodeBlock-CheckExample-${name}`}
+            language="json"
+            data-test-subj={`sgCodeBlock-CheckExample-${name}`}
           >
             {example}
           </EuiCodeBlock>
