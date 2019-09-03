@@ -7,3 +7,4 @@ export { isInvalid } from './is_invalid';
 export { hasError } from './has_error';
 export { validateEmptyArray } from './validate_empty_array';
 export { validateJsonString } from './validate_json_string';
+export { validateEmailAddr } from './validate_email_addr';
