@@ -1,9 +1,13 @@
-export { validateName } from './validate_name';
-export { validateEmptyField } from './validate_empty_field';
-export { validateInterval } from './validate_interval';
-export { validateMonthDay } from './validate_month_day';
-export { validateIndex } from './validate_index';
-export { isInvalid } from './is_invalid';
-export { hasError } from './has_error';
-export { validateEmptyArray } from './validate_empty_array';
-export { validateJsonString } from './validate_json_string';
+export {
+  validateEmptyField,
+  validateInterval,
+  validateMonthDay,
+  validateIndex,
+  isInvalid,
+  hasError,
+  validateEmptyArray,
+  validateJsonString,
+  validateEmailAddr
+} from '../../../utils/validate';
+
+export { validateName } from './validateName';

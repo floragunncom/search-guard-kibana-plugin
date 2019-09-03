@@ -29,4 +29,4 @@ export const SLACK = {
   type: DESTINATION_TYPE.SLACK,
   _id: '',
   url: ''
-}
+};

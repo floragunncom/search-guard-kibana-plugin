@@ -21,8 +21,8 @@ import {
   bccText
 } from '../../../../../utils/i18n/watch';
 import {
+  validateEmailAddr,
   validateEmptyField,
-  validateEmptyArray,
   isInvalid,
   hasError
 } from '../../../../../utils/validate';
@@ -84,7 +84,7 @@ const EmailAction = ({
           },
         }}
         formikFieldProps={{
-          validate: !isDefaultFrom ? validateEmptyField : null
+          validate: !isDefaultFrom ? validateEmailAddr() : null
         }}
       />
       <FormikComboBox
@@ -98,43 +98,50 @@ const EmailAction = ({
         elementProps={{
           isClearable: true,
           placeholder: 'Type email addresses',
-          options: actions[index].to,
           onBlur: onComboBoxOnBlur,
           onChange: onComboBoxChange(),
           onCreateOption: onComboBoxCreateOption()
         }}
         formikFieldProps={{
-          validate: !isDefaultTo ? validateEmptyArray : null
+          validate: !isDefaultTo ? validateEmailAddr() : null
         }}
       />
       <FormikComboBox
         name={`actions[${index}].cc`}
         formRow
         rowProps={{
-          label: "Cc",
+          label: ccText,
+          isInvalid,
+          error: hasError,
         }}
         elementProps={{
           isClearable: true,
           placeholder: 'Type email addresses',
-          options: actions[index].to,
           onBlur: onComboBoxOnBlur,
           onChange: onComboBoxChange(),
           onCreateOption: onComboBoxCreateOption()
+        }}
+        formikFieldProps={{
+          validate: validateEmailAddr(false)
         }}
       />
       <FormikComboBox
         name={`actions[${index}].bcc`}
         formRow
         rowProps={{
-          label: "Bcc",
+          label: bccText,
+          isInvalid,
+          error: hasError,
         }}
         elementProps={{
           isClearable: true,
           placeholder: 'Type email addresses',
-          options: actions[index].to,
           onBlur: onComboBoxOnBlur,
           onChange: onComboBoxChange(),
           onCreateOption: onComboBoxCreateOption()
+        }}
+        formikFieldProps={{
+          validate: validateEmailAddr(false)
         }}
       />
       <FormikFieldText

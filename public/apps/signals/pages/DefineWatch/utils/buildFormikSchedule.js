@@ -19,7 +19,7 @@ export default function buildFormikSchedule(watch = {}) {
   let watchSchedule = watch.trigger.schedule[_frequency];
   if (!Array.isArray(watchSchedule) || !watchSchedule.length) {
     return formikSchedule;
-  };
+  }
 
   // Only the first array value is taken to be the schedule value in UI
   // TODO: UI desing must be improved to use multiple values
@@ -65,7 +65,7 @@ export default function buildFormikSchedule(watch = {}) {
     case 'monthly': {
       if (typeof watchSchedule.at !== 'string' || typeof watchSchedule.on !== 'number') break;
 
-      if (matchDayOfMonth(watchSchedule.on+'')) {
+      if (matchDayOfMonth(watchSchedule.on + '')) {
         formikSchedule._monthly.day = watchSchedule.on;
       }
 

@@ -5,7 +5,7 @@ const SvgActionGroupsDark = props => (
     <defs>
       <style>
         {
-          ".action_groups_dark_svg__cls-1{fill:#047268}.action_groups_dark_svg__cls-2{fill:#fff}"
+          '.action_groups_dark_svg__cls-1{fill:#047268}.action_groups_dark_svg__cls-2{fill:#fff}'
         }
       </style>
     </defs>
