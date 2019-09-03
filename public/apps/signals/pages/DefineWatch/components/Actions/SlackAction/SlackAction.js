@@ -22,10 +22,11 @@ import {
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import ActionDestination from '../ActionDestination';
+import { DESTINATION_TYPE } from '../../../../Destinations/utils/constants';
 
 const SlackAction = ({
   index,
-  httpClient,
+  destinations,
   formik: { values: { actions } }
 }) => (
   <Fragment>
@@ -48,7 +49,11 @@ const SlackAction = ({
       }}
     />
     <ActionThrottlePeriod index={index} />
-    <ActionDestination index={index} httpClient={httpClient} />
+    <ActionDestination
+      index={index}
+      destinations={destinations}
+      destinationType={DESTINATION_TYPE.SLACK}
+    />
     <FormikFieldText
       name={`actions[${index}].from`}
       formRow
@@ -121,10 +126,14 @@ const SlackAction = ({
   </Fragment>
 );
 
+SlackAction.defaultProps = {
+  destinations: []
+};
+
 SlackAction.propTypes = {
   index: PropTypes.number.isRequired,
-  httpClient: PropTypes.func.isRequired,
-  formik: PropTypes.object.isRequired
+  formik: PropTypes.object.isRequired,
+  destinations: PropTypes.array
 };
 
 export default connectFormik(SlackAction);
