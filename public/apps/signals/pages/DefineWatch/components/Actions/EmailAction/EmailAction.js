@@ -29,7 +29,10 @@ import ActionDestination from '../ActionDestination';
 const EmailAction = ({
   index,
   httpClient,
-  formik: { values: { actions } }
+  formik: { values: { actions } },
+  onComboBoxChange,
+  onComboBoxOnBlur,
+  onComboBoxCreateOption
 }) => (
   <Fragment>
     <FormikFieldText
@@ -57,17 +60,11 @@ const EmailAction = ({
       formRow
       rowProps={{
         label: fromText,
-        isInvalid,
-        error: hasError,
       }}
       elementProps={{
-        isInvalid,
         onFocus: (e, field, form) => {
           form.setFieldError(field.name, undefined);
         },
-      }}
-      formikFieldProps={{
-        validate: validateEmptyField
       }}
     />
     <FormikComboBox
@@ -84,15 +81,9 @@ const EmailAction = ({
         isClearable: true,
         placeholder: 'Type email addresses',
         options: actions[index].to,
-        onBlur: (e, field, form) => {
-          form.setFieldTouched(field.name, true);
-        },
-        onChange: (options, field, form) => {
-          form.setFieldValue(field.name, options);
-        },
-        onCreateOption: (value, field, form) => {
-          form.setFieldValue(field.name, field.value.concat({ label: value }));
-        }
+        onBlur: onComboBoxOnBlur,
+        onChange: onComboBoxChange(),
+        onCreateOption: onComboBoxCreateOption()
       }}
     />
     <FormikFieldText
@@ -152,7 +143,10 @@ const EmailAction = ({
 EmailAction.propTypes = {
   index: PropTypes.number.isRequired,
   httpClient: PropTypes.func.isRequired,
-  formik: PropTypes.object.isRequired
+  formik: PropTypes.object.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired,
+  onComboBoxCreateOption: PropTypes.func.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired
 };
 
 export default connectFormik(EmailAction);

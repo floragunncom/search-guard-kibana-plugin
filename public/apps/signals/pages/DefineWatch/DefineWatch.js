@@ -95,7 +95,15 @@ class DefineWatch extends Component {
 
   render() {
     const { initialValues, isEdit } = this.state;
-    const { httpClient, location, dispatch } = this.props;
+    const {
+      httpClient,
+      location,
+      dispatch,
+      onComboBoxChange,
+      onComboBoxOnBlur,
+      onComboBoxCreateOption,
+      onTriggerConfirmDeletionModal
+    } = this.props;
 
     return (
       <div>
@@ -112,14 +120,24 @@ class DefineWatch extends Component {
               <EuiSpacer />
               <GeneralPanel httpClient={httpClient} location={location} />
               <EuiSpacer />
-              <DefinitionPanel dispatch={dispatch} httpClient={httpClient} />
+              <DefinitionPanel
+                dispatch={dispatch}
+                httpClient={httpClient}
+                onComboBoxChange={onComboBoxChange}
+                onComboBoxOnBlur={onComboBoxOnBlur}
+                onComboBoxCreateOption={onComboBoxCreateOption}
+              />
               <EuiSpacer />
               <FieldArray
                 name="actions"
                 render={arrayHelpers => (
                   <ActionPanel
-                    arrayHelpers={arrayHelpers}
                     httpClient={httpClient}
+                    arrayHelpers={arrayHelpers}
+                    onComboBoxChange={onComboBoxChange}
+                    onComboBoxOnBlur={onComboBoxOnBlur}
+                    onComboBoxCreateOption={onComboBoxCreateOption}
+                    onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
                   />
                 )}
               />
@@ -131,8 +149,8 @@ class DefineWatch extends Component {
                 <EuiFlexItem grow={false}>
                   <SaveButton
                     isLoading={isSubmitting}
-                    onClick={handleSubmit}
                     value={isEdit ? updateText : createText}
+                    onClick={handleSubmit}
                   />
                 </EuiFlexItem>
               </EuiFlexGroup>
@@ -148,7 +166,11 @@ DefineWatch.propTypes = {
   dispatch: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  httpClient: PropTypes.func.isRequired
+  httpClient: PropTypes.func.isRequired,
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired,
+  onComboBoxCreateOption: PropTypes.func.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired
 };
 
 export default connect()(DefineWatch);

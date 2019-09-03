@@ -60,8 +60,12 @@ class DefinitionPanel extends Component {
     const {
       formik: { values = {} },
       dispatch,
-      httpClient
+      httpClient,
+      onComboBoxChange,
+      onComboBoxOnBlur,
+      onComboBoxCreateOption
     } = this.props;
+
     const isGraphWatch = values._watchType === WATCH_TYPE.GRAPH;
 
     const actions = [];
@@ -91,7 +95,15 @@ class DefinitionPanel extends Component {
             }}
           />
           {isGraphWatch
-            ? <GraphWatch dispatch={dispatch} httpClient={httpClient} />
+            ? (
+              <GraphWatch
+                dispatch={dispatch}
+                httpClient={httpClient}
+                onComboBoxChange={onComboBoxChange}
+                onComboBoxOnBlur={onComboBoxOnBlur}
+                onComboBoxCreateOption={onComboBoxCreateOption}
+              />
+            )
             : <JsonWatch dispatch={dispatch} onChecksResult={this.handleChecksResult} />
           }
         </div>
@@ -103,7 +115,10 @@ class DefinitionPanel extends Component {
 DefinitionPanel.propTypes = {
   dispatch: PropTypes.func.isRequired,
   httpClient: PropTypes.func.isRequired,
-  formik: PropTypes.object.isRequired
+  formik: PropTypes.object.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired,
+  onComboBoxCreateOption: PropTypes.func.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired
 };
 
 export default connectFormik(DefinitionPanel);
