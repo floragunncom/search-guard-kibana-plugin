@@ -39,6 +39,8 @@ export function buildEmailAction(action = {}) {
   return {
     ...action,
     to: comboBoxOptionsToArray(action.to),
+    cc: comboBoxOptionsToArray(action.cc),
+    bcc: comboBoxOptionsToArray(action.bcc),
     account: comboBoxOptionsToArray(action.account)[0]
   };
 }

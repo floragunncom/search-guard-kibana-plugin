@@ -40,6 +40,8 @@ describe('buildActions', () => {
         name: 'myemail',
         from: 'signals@localhost',
         to: ['a', 'b'],
+        cc: ['a', 'b'],
+        bcc: ['a', 'b'],
         subject: 'a',
         text_body: 'Total: {{data.mysearch.hits.total.value}}',
         account: 'a'
@@ -57,6 +59,8 @@ describe('buildActions', () => {
         name: 'myemail',
         from: 'signals@localhost',
         to: [{ label: 'a' }, { label: 'b' }],
+        cc: [{ label: 'a' }, { label: 'b' }],
+        bcc: [{ label: 'a' }, { label: 'b' }],
         subject: 'a',
         text_body: 'Total: {{data.mysearch.hits.total.value}}',
         account: [{ label: 'a' }]

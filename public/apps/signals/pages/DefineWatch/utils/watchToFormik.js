@@ -28,6 +28,8 @@ export function buildFormikEmailAction(action = {}) {
   return {
     ...action,
     to: arrayToComboBoxOptions(action.to),
+    cc: arrayToComboBoxOptions(action.cc),
+    bcc: arrayToComboBoxOptions(action.bcc),
     account: arrayToComboBoxOptions([action.account])
   };
 }

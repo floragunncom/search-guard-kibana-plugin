@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect as connectFormik } from 'formik';
+import { connect as connectRedux } from 'react-redux';
 import PropTypes from 'prop-types';
 import { cloneDeep, isEmpty } from 'lodash';
 import { EuiIcon } from '@elastic/eui';
@@ -13,6 +14,8 @@ import {
   ElasticsearchAction,
   EmailAction
 } from '../Actions';
+import { DestinationsService } from '../../../../services';
+import { addErrorToast } from '../../../../redux/actions';
 import { actionText } from '../../../../utils/i18n/common';
 import { ACTION_TYPE } from './utils/constants';
 import * as ACTION_DEFAULTS from './utils/action_defaults';
@@ -53,8 +56,29 @@ class ActionPanel extends Component {
     super(props);
 
     this.state = {
-      isAddActionPopoverOpen: false
+      isAddActionPopoverOpen: false,
+      isLoading: true,
+      destinations: []
     };
+
+    this.destService = new DestinationsService(this.props.httpClient);
+  }
+
+  componentDidMount() {
+    this.getDestinations();
+  }
+
+  getDestinations = async () => {
+    const { dispatch, destinationType } = this.props;
+    this.setState({ isLoading: true });
+    try {
+      const { resp: destinations } = await this.destService.get();
+      this.setState({ destinations });
+    } catch (error) {
+      console.error('ActionPanel -- getDestinations', error);
+      dispatch(addErrorToast(error));
+    }
+    this.setState({ isLoading: false });
   }
 
   triggerAddActionPopover = () => {
@@ -93,7 +117,7 @@ class ActionPanel extends Component {
     } = this.props;
 
     const hasActions = !isEmpty(actions);
-    const { isAddActionPopoverOpen } = this.state;
+    const { isAddActionPopoverOpen, isLoading, destinations } = this.state;
 
     const addActionContextMenuPanels = [
       {
@@ -140,6 +164,7 @@ class ActionPanel extends Component {
             contextMenuPanels={addActionContextMenuPanels}
             onClick={this.triggerAddActionPopover}
             name="AddWatchAction"
+            isLoading={isLoading}
           />
         )}
       >
@@ -156,6 +181,7 @@ class ActionPanel extends Component {
                   actionBody={(
                     <Body
                       index={index}
+                      destinations={destinations}
                       httpClient={httpClient}
                       arrayHelpers={arrayHelpers}
                       onComboBoxChange={onComboBoxChange}
@@ -180,6 +206,7 @@ class ActionPanel extends Component {
 }
 
 ActionPanel.propTypes = {
+  dispatch: PropTypes.func.isRequired,
   httpClient: PropTypes.func.isRequired,
   arrayHelpers: PropTypes.object.isRequired,
   formik: PropTypes.object.isRequired,
@@ -189,4 +216,4 @@ ActionPanel.propTypes = {
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired
 };
 
-export default connectFormik(ActionPanel);
+export default connectRedux()(connectFormik(ActionPanel));

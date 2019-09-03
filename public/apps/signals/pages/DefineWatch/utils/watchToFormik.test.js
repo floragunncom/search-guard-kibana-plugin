@@ -15,7 +15,7 @@ import {
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
 
 describe('buildFormikActions', () => {
-  test('can build email action', () => {
+  test('can build email formik action', () => {
     const actions = [
       {
         throttle_period: '1s',
@@ -23,6 +23,8 @@ describe('buildFormikActions', () => {
         name: 'myemail',
         from: 'signals@localhost',
         to: ['a', 'b'],
+        cc: ['a', 'b'],
+        bcc: ['a', 'b'],
         subject: 'a',
         text_body: 'Total: {{data.mysearch.hits.total.value}}',
         account: 'a'
@@ -40,6 +42,8 @@ describe('buildFormikActions', () => {
         name: 'myemail',
         from: 'signals@localhost',
         to: [{ label: 'a' }, { label: 'b' }],
+        cc: [{ label: 'a' }, { label: 'b' }],
+        bcc: [{ label: 'a' }, { label: 'b' }],
         subject: 'a',
         text_body: 'Total: {{data.mysearch.hits.total.value}}',
         account: [{ label: 'a' }]
@@ -49,7 +53,7 @@ describe('buildFormikActions', () => {
     expect(buildFormikActions(actions)).toEqual(formik);
   });
 
-  test('can build slack action', () => {
+  test('can build slack formik action', () => {
     const actions = [
       {
         throttle_period: '1s',
@@ -81,7 +85,7 @@ describe('buildFormikActions', () => {
     expect(buildFormikActions(actions)).toEqual(formik);
   });
 
-  test('can build webhook action', () => {
+  test('can build webhook formik action', () => {
     const actions = [
       {
         throttle_period: '1s',
@@ -119,7 +123,7 @@ describe('buildFormikActions', () => {
     expect(buildFormikActions(actions)).toEqual(formik);
   });
 
-  test('can build index action', () => {
+  test('can build index formik action', () => {
     const actions = [
       {
         throttle_period: '1s',
