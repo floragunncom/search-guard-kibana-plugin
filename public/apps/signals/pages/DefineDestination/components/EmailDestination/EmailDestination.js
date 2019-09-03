@@ -16,7 +16,8 @@ import {
   isInvalid,
   hasError,
   validateName,
-  validateEmptyField
+  validateEmptyField,
+  validateEmailAddr
 } from '../../../../utils/validate';
 import {
   destinationText,
@@ -195,6 +196,17 @@ const Defaults = ({
         formRow
         rowProps={{
           label: fromText,
+          isInvalid,
+          error: hasError,
+        }}
+        elementProps={{
+          isInvalid,
+          onFocus: (e, field, form) => {
+            form.setFieldError(field.name, undefined);
+          },
+        }}
+        formikFieldProps={{
+          validate: validateEmailAddr(false)
         }}
       />
       <FormikComboBox
@@ -202,13 +214,17 @@ const Defaults = ({
         formRow
         rowProps={{
           label: toText,
+          isInvalid,
+          error: hasError,
         }}
         elementProps={{
-          options: [],
           isClearable: true,
           onBlur: onComboBoxOnBlur,
           onChange: onComboBoxChange(),
           onCreateOption: onComboBoxCreateOption()
+        }}
+        formikFieldProps={{
+          validate: validateEmailAddr(false)
         }}
       />
       <FormikComboBox
@@ -216,13 +232,17 @@ const Defaults = ({
         formRow
         rowProps={{
           label: ccText,
+          isInvalid,
+          error: hasError,
         }}
         elementProps={{
-          options: [],
           isClearable: true,
           onBlur: onComboBoxOnBlur,
           onChange: onComboBoxChange(),
           onCreateOption: onComboBoxCreateOption()
+        }}
+        formikFieldProps={{
+          validate: validateEmailAddr(false)
         }}
       />
       <FormikComboBox
@@ -230,13 +250,17 @@ const Defaults = ({
         formRow
         rowProps={{
           label: bccText,
+          isInvalid,
+          error: hasError,
         }}
         elementProps={{
-          options: [],
           isClearable: true,
           onBlur: onComboBoxOnBlur,
           onChange: onComboBoxChange(),
           onCreateOption: onComboBoxCreateOption()
+        }}
+        formikFieldProps={{
+          validate: validateEmailAddr(false)
         }}
       />
     </div>
