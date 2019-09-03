@@ -16,7 +16,13 @@ import {
 } from '../../../../../utils/validate';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 
-const ElasticsearchAction = ({ index, httpClient }) => (
+const ElasticsearchAction = ({
+  index,
+  httpClient,
+  onComboBoxChange,
+  onComboBoxOnBlur,
+  onComboBoxCreateOption
+}) => (
   <Fragment>
     <FormikFieldText
       name={`actions[${index}].name`}
@@ -38,10 +44,13 @@ const ElasticsearchAction = ({ index, httpClient }) => (
     />
     <ActionThrottlePeriod index={index} />
     <WatchIndex
+      isClearable={false}
       httpClient={httpClient}
       indexFieldName={`actions[${index}].index`}
-      isClearable={false}
       singleSelection={{ asPlainText: true }}
+      onComboBoxChange={onComboBoxChange}
+      onComboBoxOnBlur={onComboBoxOnBlur}
+      onComboBoxCreateOption={onComboBoxCreateOption}
     />
     <FormikCodeEditor
       name={`actions[${index}].checks`}
@@ -78,7 +87,10 @@ const ElasticsearchAction = ({ index, httpClient }) => (
 
 ElasticsearchAction.propTypes = {
   index: PropTypes.number.isRequired,
-  httpClient: PropTypes.func.isRequired
+  httpClient: PropTypes.func.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired,
+  onComboBoxCreateOption: PropTypes.func.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired
 };
 
 export default ElasticsearchAction;
