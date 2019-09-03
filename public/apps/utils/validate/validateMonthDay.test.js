@@ -1,7 +1,7 @@
-import { validateMonthDay } from './validate_month_day';
+import { validateMonthDay } from './validateMonthDay';
 import { mustBeNumberBetween1And31Text } from '../i18n/common';
 
-describe('validate_month_day', () => {
+describe('validateMonthDay', () => {
   it('can validate number between 1-31', () => {
     expect(validateMonthDay(1)).toBe(null);
     expect(validateMonthDay(31)).toBe(null);

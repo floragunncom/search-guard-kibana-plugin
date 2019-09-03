@@ -1,7 +1,7 @@
-import { validateIndex } from './validate_index';
+import { validateIndex } from './validateIndex';
 import { mustSpecifyIndexText } from '../i18n/common';
 
-describe('validate_index', () => {
+describe('validateIndex', () => {
   it('can validate index', () => {
     expect(validateIndex(['a'])).toBe(null);
     expect(validateIndex(['a', 'b'])).toBe(null);

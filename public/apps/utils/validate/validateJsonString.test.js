@@ -1,7 +1,7 @@
-import { validateJsonString } from './validate_json_string';
+import { validateJsonString } from './validateJsonString';
 import { requiredText, invalidJsonText } from '../i18n/common';
 
-describe('validate_json_string', () => {
+describe('validateJsonString', () => {
   it('can validate JSON', () => {
     expect(validateJsonString('{ "a": 1 }')).toBe(null);
   });
