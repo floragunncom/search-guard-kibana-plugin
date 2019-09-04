@@ -1,6 +1,6 @@
 import { DESTINATION_TYPE } from '../../Destinations/utils/constants';
 
-export const EMAIL = {
+export const email = {
   type: DESTINATION_TYPE.EMAIL,
   host: 'localhost',
   port: 1025,
@@ -25,7 +25,7 @@ export const EMAIL = {
   proxy_password: ''
 };
 
-export const SLACK = {
+export const slack = {
   type: DESTINATION_TYPE.SLACK,
   _id: '',
   url: ''
