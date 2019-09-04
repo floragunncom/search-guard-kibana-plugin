@@ -3,7 +3,7 @@ import { ROUTE_PATH } from '../utils/constants';
 
 export default class WatchService extends SignalsService {
   execute(watch) {
-    return this.httpClient.post(`..${ROUTE_PATH.WATCH_EXECUTE}`, { watch })
+    return this.httpClient.post(`..${ROUTE_PATH.WATCH_EXECUTE}`, { ...watch, actions: [] })
       .then(({ data }) => data);
   }
 
