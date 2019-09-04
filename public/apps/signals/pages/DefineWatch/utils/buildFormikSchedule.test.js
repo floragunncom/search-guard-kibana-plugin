@@ -110,6 +110,22 @@ describe('buildFormikSchedule', () => {
       });
     });
 
+    it('can build weekly if full day name', () => {
+      expect(buildFormikSchedule({
+        trigger: {
+          schedule: {
+            weekly: [{ on: 'friday', at: '8:00' }]
+          }
+        }
+      })).toEqual({
+        ...SCHEDULE_DEFAULTS,
+        _frequency: 'weekly',
+        _weekly: { ...SCHEDULE_DEFAULTS._weekly, fri: true },
+        _daily: 8,
+        _timezone: [{ label: 'Europe/Berlin' }]
+      });
+    });
+
     it('can build weekly if multiple days', () => {
       expect(buildFormikSchedule({
         trigger: {
@@ -126,17 +142,17 @@ describe('buildFormikSchedule', () => {
       });
     });
 
-    it('can build weekly if full day name', () => {
+    it('can build weekly if multiple full days', () => {
       expect(buildFormikSchedule({
         trigger: {
           schedule: {
-            weekly: [{ on: 'friday', at: '8:00' }]
+            weekly: [{ on: ['tuesday', 'thursday'], at: '8:00' }]
           }
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
         _frequency: 'weekly',
-        _weekly: { ...SCHEDULE_DEFAULTS._weekly, fri: true },
+        _weekly: { ...SCHEDULE_DEFAULTS._weekly, tue: true, thu: true },
         _daily: 8,
         _timezone: [{ label: 'Europe/Berlin' }]
       });
