@@ -38,7 +38,7 @@ export const buildFormikChecks = (checks = []) => stringifyPretty(checks);
 
 export const buildFormikMeta = (watch = {}) => {
   return !isEmpty(watch._ui)
-    ? { ...GRAPH_DEFAULTS, ...watch._ui }
+    ? { ...cloneDeep(GRAPH_DEFAULTS), ...watch._ui }
     : { ...GRAPH_DEFAULTS, _watchType: WATCH_TYPE.JSON };
 };
 

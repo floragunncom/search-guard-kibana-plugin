@@ -1,4 +1,4 @@
-import { forEach } from 'lodash';
+import { forEach, cloneDeep } from 'lodash';
 import buildSchedule from './buildSchedule';
 import { comboBoxOptionsToArray } from '../../../utils/helpers';
 import {
@@ -248,7 +248,7 @@ export const buildChecks = ({
 
 export const buildWatch = (formik) => {
   const watch = {};
-  const uiMetadata = { ...GRAPH_DEFAULTS };
+  const uiMetadata = cloneDeep(GRAPH_DEFAULTS);
 
   forEach(formik, (value, key) => {
     if (!META_FIELDS_TO_OMIT.includes(key)) {

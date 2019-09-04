@@ -1,4 +1,4 @@
-import { SCHEDULE_DEFAULTS } from './constants';
+import { cloneDeep } from 'lodash';
 import {
   matchTimeHHMM,
   matchDayOfMonth,
@@ -6,11 +6,12 @@ import {
   matchDayOfWeek,
   arrayToComboBoxOptions
 } from '../../../utils/helpers';
+import { SCHEDULE_DEFAULTS } from './constants';
 
 export default function buildFormikSchedule(watch = {}) {
   const _frequency = Object.keys(watch.trigger.schedule)
     .filter(key => ['interval', 'daily', 'weekly', 'monthly', 'cron'].includes(key)).pop();
-  const formikSchedule = { ...SCHEDULE_DEFAULTS, _frequency };
+  const formikSchedule = { ...cloneDeep(SCHEDULE_DEFAULTS), _frequency };
 
   if (watch.trigger.schedule.timezone) {
     formikSchedule._timezone = arrayToComboBoxOptions([watch.trigger.schedule.timezone]);
