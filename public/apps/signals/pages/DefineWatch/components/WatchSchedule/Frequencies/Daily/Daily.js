@@ -40,7 +40,8 @@ const Daily = () => (
       <Field
         name="_daily"
         render={({
-          field: { value, ...rest },
+          // eslint-disable-next-line no-unused-vars
+          field: { value, onChange, onBlur, ...rest },
           form: { setFieldValue },
         }) => (
           <EuiFormRow label={aroundText} style={{ marginTop: '0px' }}>
