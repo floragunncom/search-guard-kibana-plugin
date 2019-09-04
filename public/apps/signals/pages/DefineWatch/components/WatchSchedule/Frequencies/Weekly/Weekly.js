@@ -52,8 +52,7 @@ const checkboxFlexItem = (day, checked, setFieldValue, setFieldTouched) => (
 );
 
 const validate = value => {
-  const booleans = Object.values(value);
-  if (!booleans.some(bool => bool)) return mustSelectADayText;
+  return !Object.values(value).some(v => v) ? mustSelectADayText : null;
 };
 
 const Weekly = () => (
@@ -61,18 +60,24 @@ const Weekly = () => (
     <Field
       name="_weekly"
       validate={validate}
-      render={({ field: { value }, form: { touched, errors, setFieldValue, setFieldTouched } }) => (
-        <EuiFormRow
-          label={everyText}
-          isInvalid={touched.weekly && !!errors.weekly}
-          error={errors.weekly}
-          style={{ paddingLeft: '10px', marginTop: '5px' }}
-        >
-          <EuiFlexGroup alignItems="center">
-            {DAYS.map(day => checkboxFlexItem(day, value[day], setFieldValue, setFieldTouched))}
-          </EuiFlexGroup>
-        </EuiFormRow>
-      )}
+      render={({
+        field: { value },
+        form: { touched, errors, setFieldValue, setFieldTouched }
+      }) => {
+        return (
+          <EuiFormRow
+            label={everyText}
+            isInvalid={touched._weekly && !!errors._weekly}
+            error={errors._weekly}
+            style={{ paddingLeft: '10px', marginTop: '5px' }}
+          >
+            <EuiFlexGroup alignItems="center">
+              {DAYS.map(day => checkboxFlexItem(day, value[day], setFieldValue, setFieldTouched))}
+            </EuiFlexGroup>
+          </EuiFormRow>
+        );
+      }
+    }
     />
     <Daily />
   </Fragment>
