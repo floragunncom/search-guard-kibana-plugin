@@ -1,4 +1,4 @@
-import { comboBoxOptionsToArray } from '../../../utils/helpers';
+import { comboBoxOptionsToArray, filterEmptyKeys } from '../../../utils/helpers';
 import { DESTINATION_TYPE } from '../../Destinations/utils/constants';
 
 export function buildSlackDestination(formik) {
@@ -30,5 +30,5 @@ export function formikToDestination(formik) {
     }
   }
 
-  return destination;
+  return filterEmptyKeys(destination);
 }
