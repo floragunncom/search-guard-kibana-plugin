@@ -13,5 +13,6 @@ export const matchDayOfWeek = dayOfWeekStr => dayOfWeekStr.match(/\b((mon|tues|w
 
 export {
   arrayToComboBoxOptions,
-  comboBoxOptionsToArray
+  comboBoxOptionsToArray,
+  filterEmptyKeys
 } from '../../utils/helpers';
