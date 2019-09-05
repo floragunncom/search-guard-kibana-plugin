@@ -28,14 +28,16 @@
   * limitations under the License.
   */
 
+
 import React from 'react';
 import { Field } from 'formik';
+import { FormikFieldProps } from '../utils/interfaces';
 
 interface Props {
   name: string;
-  formikFieldProps: object;
-  render: object
-};
+  formikFieldProps: FormikFieldProps;
+  render: Function;
+}
 
 const FormikInputWrapper = ({ name, formikFieldProps, render }: Props) => (
   <Field
