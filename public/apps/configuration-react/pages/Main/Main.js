@@ -133,8 +133,10 @@ class Main extends Component {
   handleTriggerErrorCallout = error => {
     console.error(error);
     error = error.data || error;
-    const payload = error.reason ? error.reason : get(error, 'message', error);
-    this.handleTriggerCallout({ type: CALLOUTS.ERROR_CALLOUT, payload });
+    this.handleTriggerCallout({
+      type: CALLOUTS.ERROR_CALLOUT,
+      payload: get(error, 'message', error)
+    });
   }
 
   handleTriggerSuccessCallout = payload => {
