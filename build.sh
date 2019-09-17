@@ -4,6 +4,7 @@
 KIBANA_VERSION="$1"
 SG_PLUGIN_VERSION="$2"
 COMMAND="$3"
+EXIT_IF_VULNERABILITY=false
 
 # sanity checks for options
 if [ -z "$KIBANA_VERSION" ] || [ -z "$SG_PLUGIN_VERSION" ] || [ -z "$COMMAND" ]; then
@@ -128,13 +129,12 @@ cd $BUILD_STAGE_PLUGIN_DIR
 echo "+++ Checking yarn packages for vulnerabilities +++"
 auditResult=`yarn audit --level 4`
 isNoVulnerability="[^\d]0 vulnerabilities found.*$"
-if [[ ! $auditResult =~ $isNoVulnerability ]]; then
-    echo "Vulnerability found!"
-    let limit=1*10**20
+let limit=1*10**20 # Limit num of chars because the result can be huge
+if [[ ! $auditResult =~ $isNoVulnerability && $EXIT_IF_VULNERABILITY = true ]]; then
     echo ${auditResult::limit}
     exit 1
 fi
-echo $auditResult
+echo ${auditResult::limit}
 
 echo "+++ Installing plugin node modules +++"
 yarn kbn bootstrap
