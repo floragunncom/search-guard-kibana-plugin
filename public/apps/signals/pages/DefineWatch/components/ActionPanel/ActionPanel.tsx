@@ -14,7 +14,7 @@
  */
 
 import React, { Component } from 'react';
-import { connect as connectFormik } from 'formik';
+import { connect as connectFormik, ArrayHelpers } from 'formik';
 import { connect as connectRedux } from 'react-redux';
 import { cloneDeep, isEmpty } from 'lodash';
 import { EuiIcon } from '@elastic/eui';
@@ -68,7 +68,7 @@ const newActions = {
 interface ActionPanelProps {
   dispatch: Function;
   httpClient: Function;
-  arrayHelpers: object;
+  arrayHelpers: ArrayHelpers;
   formik: object;
   onComboBoxOnBlur: Function;
   onComboBoxCreateOption: Funciton;
