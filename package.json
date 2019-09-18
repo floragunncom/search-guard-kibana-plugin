@@ -45,13 +45,13 @@
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
-    "@babel/polyfill": "^7.4.4",
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
     "@types/jest": "^24.0.18",
     "@types/node": "^12.7.4",
     "babel-eslint": "^9.0.0",
     "babel-jest": "^24.9.0",
+    "core-js": "^3.2.1",
     "eslint": "^5.6.0",
     "eslint-plugin-babel": "^5.2.0",
     "eslint-plugin-jest": "^21.26.2",
@@ -61,6 +61,7 @@
     "hapi": "17.5.3",
     "jest": "^24.9.0",
     "react-test-renderer": "^16.9.0",
+    "regenerator-runtime": "^0.13.3",
     "ts-jest": "^24.0.2",
     "typescript": "^3.6.2"
   }
