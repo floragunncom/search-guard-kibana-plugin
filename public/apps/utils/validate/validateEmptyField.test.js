@@ -8,5 +8,6 @@ describe('validateEmptyField', () => {
 
   it('fail to validate if no value', () => {
     expect(validateEmptyField('')).toBe(requiredText);
+    expect(validateEmptyField()).toBe(requiredText);
   });
 });
