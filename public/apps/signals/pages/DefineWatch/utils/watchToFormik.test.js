@@ -3,6 +3,7 @@ import {
   buildFormikThrottle,
   buildFormikIndexAction,
   buildFormikChecks,
+  buildFormikChecksBlocks,
   buildFormikMeta,
   buildFormikActions
 } from './watchToFormik';
@@ -11,6 +12,7 @@ import {
   WATCH_TYPE,
   SCHEDULE_DEFAULTS,
   GRAPH_DEFAULTS,
+  DEFAULT_WATCH,
 } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
 
@@ -170,13 +172,25 @@ describe('buildFormikMeta', () => {
 
 describe('buildFormikChecks', () => {
   test('can create checks formik', () => {
+    const checks = [{ name: 'mySearch', value: { a: 1 } }];
+
+    expect(buildFormikChecks(checks)).toEqual(stringifyPretty(checks));
+  });
+});
+
+describe('buildFormikChecksBlocks', () => {
+  test('can create checks blocks formik', () => {
     const checks = [
-      { name: 'mySearch', value: { a: 1 } }
+      { value: { a: 1 } },
+      { value: { b: 2 } },
     ];
 
-    const formik = stringifyPretty(checks);
-
-    expect(buildFormikChecks(checks)).toEqual(formik);
+    expect(buildFormikChecksBlocks(checks))
+      .toEqual(checks.map((check, index) => ({
+        index,
+        check: stringifyPretty(check),
+        response: '',
+      })));
   });
 });
 
@@ -260,11 +274,34 @@ describe('watchToFormik', () => {
             interval: ['5h']
           }
         },
-        checks: '[\n  {\n    "type": "search",\n    "name": "mysearch",\n    "target": "mysearch",\n    "request": {\n      "indices": [],\n      "body": {\n        "from": 0,\n        "size": 10,\n        "query": {\n          "match_all": {}\n        }\n      }\n    }\n  },\n  {\n    "type": "condition.script",\n    "name": "mycondition",\n    "source": "data.mysearch.hits.hits.length > 0"\n  }\n]',
+        checks: stringifyPretty([
+          {
+            type: 'search',
+            name: 'mysearch',
+            target: 'mysearch',
+            request: {
+              indices: [],
+              body: {
+                from: 0,
+                size: 10,
+                query: {
+                  match_all: {}
+                }
+              }
+            }
+          },
+          {
+            type: 'condition.script',
+            name: 'mycondition',
+            source: 'data.mysearch.hits.hits.length > 0'
+          }
+        ]),
+        _checksBlocks: buildFormikChecksBlocks(DEFAULT_WATCH.checks),
         actions: [],
         ...SCHEDULE_DEFAULTS,
         _frequency: 'interval',
-        _period: { interval: 5, unit: 'h' }
+        _period: { interval: 5, unit: 'h' },
+        _checksGraphResult: {}
       };
 
       expect(watchToFormik(watch)).toEqual(formik);
@@ -375,7 +412,74 @@ describe('watchToFormik', () => {
             cron: ['* */1 * * * ?']
           }
         },
-        checks: '[\n  {\n    "type": "search",\n    "name": "mysearch",\n    "target": "mysearch",\n    "request": {\n      "indices": [\n        "kibana_sample_data_ecommerce",\n        "kibana_sample_data_flights"\n      ],\n      "body": {\n        "size": 0,\n        "aggregations": {},\n        "query": {\n          "bool": {\n            "filter": {\n              "range": {\n                "timestamp": {\n                  "gte": "now-1h",\n                  "lte": "now"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    "type": "condition.script",\n    "name": "mycheck",\n    "source": "data.mysearch.hits.total.value > 1000"\n  }\n]',
+        checks: stringifyPretty([
+          {
+            type: 'search',
+            name: 'mysearch',
+            target: 'mysearch',
+            request: {
+              indices: [
+                'kibana_sample_data_ecommerce',
+                'kibana_sample_data_flights'
+              ],
+              body: {
+                size: 0,
+                aggregations: {},
+                query: {
+                  bool: {
+                    filter: {
+                      range: {
+                        timestamp: {
+                          gte: 'now-1h',
+                          lte: 'now'
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            type: 'condition.script',
+            name: 'mycheck',
+            source: 'data.mysearch.hits.total.value > 1000'
+          }
+        ]),
+        _checksBlocks: buildFormikChecksBlocks([
+          {
+            type: 'search',
+            name: 'mysearch',
+            target: 'mysearch',
+            request: {
+              indices: [
+                'kibana_sample_data_ecommerce',
+                'kibana_sample_data_flights'
+              ],
+              body: {
+                size: 0,
+                aggregations: {},
+                query: {
+                  bool: {
+                    filter: {
+                      range: {
+                        timestamp: {
+                          gte: 'now-1h',
+                          lte: 'now'
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            type: 'condition.script',
+            name: 'mycheck',
+            source: 'data.mysearch.hits.total.value > 1000'
+          }
+        ]),
         actions: [
           {
             _throttle_period: {
@@ -427,7 +531,8 @@ describe('watchToFormik', () => {
         _timeField: 'timestamp',
         ...SCHEDULE_DEFAULTS,
         _frequency: 'cron',
-        _cron: '* */1 * * * ?'
+        _cron: '* */1 * * * ?',
+        _checksGraphResult: {},
       };
 
       expect(watchToFormik(watch)).toEqual(formik);
@@ -497,7 +602,29 @@ describe('watchToFormik', () => {
             cron: ['* */1 * * * ?']
           }
         },
-        checks: '[\n  {\n    "type": "search",\n    "name": "mysearch",\n    "target": "mysearch",\n    "request": {\n      "indices": [],\n      "body": {\n        "from": 0,\n        "size": 10,\n        "query": {\n          "match_all": {}\n        }\n      }\n    }\n  },\n  {\n    "type": "condition.script",\n    "name": "mycondition",\n    "source": "data.mysearch.hits.hits.length > 0"\n  }\n]',
+        checks: stringifyPretty([
+          {
+            type: 'search',
+            name: 'mysearch',
+            target: 'mysearch',
+            request: {
+              indices: [],
+              body: {
+                from: 0,
+                size: 10,
+                query: {
+                  match_all: {}
+                }
+              }
+            }
+          },
+          {
+            type: 'condition.script',
+            name: 'mycondition',
+            source: 'data.mysearch.hits.hits.length > 0'
+          }
+        ]),
+        _checksBlocks: buildFormikChecksBlocks(DEFAULT_WATCH.checks),
         actions: [
           {
             _throttle_period: {
@@ -537,7 +664,8 @@ describe('watchToFormik', () => {
         _watchType: WATCH_TYPE.JSON,
         ...SCHEDULE_DEFAULTS,
         _frequency: 'cron',
-        _cron: '* */1 * * * ?'
+        _cron: '* */1 * * * ?',
+        _checksGraphResult: {},
       };
 
       expect(watchToFormik(watch)).toEqual(formik);

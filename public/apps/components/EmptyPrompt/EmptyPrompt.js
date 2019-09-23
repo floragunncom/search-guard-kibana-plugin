@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { EuiEmptyPrompt, EuiButton } from '@elastic/eui';
+import { addText } from '../../utils/i18n/common';
 
 const EmptyPrompt = ({ titleText, bodyText, createButtonText, onCreate }) => (
   <EuiEmptyPrompt
@@ -19,11 +20,24 @@ const EmptyPrompt = ({ titleText, bodyText, createButtonText, onCreate }) => (
   />
 );
 
+EmptyPrompt.defaultProps = {
+  createButtonText: addText,
+};
+
 EmptyPrompt.propTypes = {
   onCreate: PropTypes.func.isRequired,
-  titleText: PropTypes.node.isRequired,
-  bodyText: PropTypes.node.isRequired,
-  createButtonText: PropTypes.node.isRequired
+  titleText: PropTypes.oneOfType([
+    PropTypes.node,
+    PropTypes.string,
+  ]).isRequired,
+  bodyText: PropTypes.oneOfType([
+    PropTypes.node,
+    PropTypes.string,
+  ]),
+  createButtonText: PropTypes.oneOfType([
+    PropTypes.node,
+    PropTypes.string,
+  ])
 };
 
 export default EmptyPrompt;

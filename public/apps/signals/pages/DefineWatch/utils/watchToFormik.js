@@ -4,7 +4,7 @@ import {
   arrayToComboBoxOptions
 } from '../../../utils/helpers';
 import buildFormikSchedule from './buildFormikSchedule';
-import { GRAPH_DEFAULTS, WATCH_TYPE } from './constants';
+import { GRAPH_DEFAULTS, WATCH_TYPE, DEFAULT_WATCH } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
 
 export function buildFormikWebhookAction(action = {}) {
@@ -34,12 +34,19 @@ export function buildFormikEmailAction(action = {}) {
   };
 }
 
+export const buildFormikChecksBlocks = (checks = []) =>
+  checks.map((check, index) => ({
+    response: '',
+    check: stringifyPretty(check),
+    index,
+  }));
+
 export const buildFormikChecks = (checks = []) => stringifyPretty(checks);
 
 export const buildFormikMeta = (watch = {}) => {
   return !isEmpty(watch._ui)
     ? { ...cloneDeep(GRAPH_DEFAULTS), ...watch._ui }
-    : { ...GRAPH_DEFAULTS, _watchType: WATCH_TYPE.JSON };
+    : { ...cloneDeep(GRAPH_DEFAULTS), _watchType: WATCH_TYPE.JSON };
 };
 
 export const buildFormikThrottle = watch => {
@@ -58,40 +65,44 @@ export const buildFormikIndexAction = (action = {}) => ({
 });
 
 export const buildFormikActions = (actions = []) => actions.map(action => {
-  let _action = buildFormikThrottle(action);
-
   if (action.type === ACTION_TYPE.INDEX) {
-    _action = buildFormikIndexAction(_action);
+    return buildFormikThrottle(buildFormikIndexAction(action));
   }
 
   if (action.type === ACTION_TYPE.EMAIL) {
-    _action = buildFormikEmailAction(_action);
+    return buildFormikThrottle(buildFormikEmailAction(action));
   }
 
   if (action.type === ACTION_TYPE.SLACK) {
-    _action = buildFormikSlackAction(_action);
+    return buildFormikThrottle(buildFormikSlackAction(action));
   }
 
   if (action.type === ACTION_TYPE.WEBHOOK) {
-    _action = buildFormikWebhookAction(_action);
+    return buildFormikThrottle(buildFormikWebhookAction(action));
   }
 
-  return _action;
+  return buildFormikThrottle(action);
 });
 
-export const watchToFormik = watch => {
-  const formik = cloneDeep(watch);
+export const watchToFormik = (watch = {}) => {
+  const formik = {
+    ...cloneDeep(DEFAULT_WATCH),
+    // If watchType is undefined the default type is Json
+    _ui: { ...cloneDeep(DEFAULT_WATCH._ui), _watchType: WATCH_TYPE.JSON },
+    ...cloneDeep(watch)
+  };
+
   const schedule = buildFormikSchedule(formik);
   const uiMetadata = buildFormikMeta(formik);
   const actions = buildFormikActions(formik.actions);
-  const checks = buildFormikChecks(formik.checks);
 
   return {
     ...formik,
+    checks: buildFormikChecks(formik.checks),
+    _checksBlocks: buildFormikChecksBlocks(formik.checks),
     actions,
-    checks,
-    ...uiMetadata,
     _ui: { ...uiMetadata },
+    ...uiMetadata,
     ...schedule
   };
 };
