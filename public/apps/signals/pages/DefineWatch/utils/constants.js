@@ -1,8 +1,9 @@
-import { startCase } from 'lodash';
+import { startCase, cloneDeep } from 'lodash';
 
 export const WATCH_TYPE = {
   GRAPH: 'graph',
-  JSON: 'json'
+  JSON: 'json',
+  BLOCKS: 'blocks'
 };
 
 export const WATCH_CHECK_TYPE = {
@@ -13,7 +14,8 @@ export const WATCH_CHECK_TYPE = {
 
 export const WATCH_TYPE_SELECT = [
   { value: WATCH_TYPE.GRAPH, text: startCase(WATCH_TYPE.GRAPH) },
-  { value: WATCH_TYPE.JSON, text: startCase(WATCH_TYPE.JSON) }
+  { value: WATCH_TYPE.JSON, text: startCase(WATCH_TYPE.JSON) },
+  { value: WATCH_TYPE.BLOCKS, text: startCase(WATCH_TYPE.BLOCKS) }
 ];
 
 export const WATCH_CHECK_SEARCH_NAME_DEFAULT = 'mysearch';
@@ -79,12 +81,12 @@ export const SCHEDULE_DEFAULTS = {
 export const ES_QUERY_RESULT_FIELDS = [
   '_checksResult',
   '_checksGraphResult',
-  '_checkBlocksResult'
 ];
 
 export const META_FIELDS_TO_OMIT = [
   '_id',
   '_ui',
+  '_checksBlocks',
   ...ES_QUERY_RESULT_FIELDS,
   ...Object.keys(SCHEDULE_DEFAULTS)
 ];
@@ -97,8 +99,9 @@ export const DEFAULT_WATCH = {
       interval: ['1m']
     }
   },
-  checks: [...CHECKS_DEFAULTS],
+  checks: cloneDeep(CHECKS_DEFAULTS),
   actions: [],
   // TODO: eliminate graph defaults when graph query builder is ready
-  _ui: { ...GRAPH_DEFAULTS }
+  _ui: { ...GRAPH_DEFAULTS },
+  _checksGraphResult: {}
 };

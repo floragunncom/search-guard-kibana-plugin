@@ -1,9 +1,10 @@
 export {
-  watchToFormik
+  watchToFormik,
+  buildFormikChecksBlocks,
 } from './watchToFormik';
 
 export {
   formikToWatch,
   buildGraphQuery,
-  buildUiGraphQuery
+  buildUiGraphQuery,
 } from './formikToWatch';

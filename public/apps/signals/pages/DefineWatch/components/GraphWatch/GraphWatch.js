@@ -30,6 +30,7 @@
 
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
+import { connect as connectRedux } from 'react-redux';
 import { connect as connectFormik } from 'formik';
 import { EuiSpacer, EuiText } from '@elastic/eui';
 import { cloneDeep, get } from 'lodash';
@@ -153,7 +154,7 @@ class GraphWatch extends Component {
     // and query performance
     const searchRequests = [buildSearchRequest(values)];
     searchRequests.push(buildSearchRequest(values, false));
-    console.log('GraphWatch -- searchRequests', searchRequests);
+    console.debug('GraphWatch -- searchRequests', searchRequests);
 
     try {
       const promises = searchRequests.map(({ request }) =>
@@ -162,7 +163,7 @@ class GraphWatch extends Component {
         { resp: graphQueryResponse },
         { resp: realQueryResponse }
       ] = await Promise.all(promises);
-      console.log('GraphWatch -- searchResponses', [graphQueryResponse, realQueryResponse]);
+      console.debug('GraphWatch -- searchResponses', [graphQueryResponse, realQueryResponse]);
 
       this.setState({ formikSnapshot });
       setFieldValue('_checksGraphResult', graphQueryResponse);
@@ -246,4 +247,4 @@ GraphWatch.propTypes = {
   onComboBoxChange: PropTypes.func.isRequired
 };
 
-export default connectFormik(GraphWatch);
+export default connectRedux()(connectFormik(GraphWatch));

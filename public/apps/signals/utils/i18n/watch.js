@@ -7,6 +7,7 @@ export const updateWatchText = (<EuiI18n token="sg.watch.updateWatch.text" defau
 export const includeDataText = (<EuiI18n token="sg.watch.includeData.text" default="Include Data" />);
 export const savedWatchText = (<EuiI18n token="sg.watch.savedWatch.text" default="saved watch" />);
 export const checksText = (<EuiI18n token="sg.watch.checks.text" default="Checks" />);
+export const checkText = (<EuiI18n token="sg.watch.check.text" default="Check" />);
 export const executionHistoryText = (<EuiI18n token="sg.watch.executionHistory.text" default="Execution History" />);
 export const execStartText = (<EuiI18n token="sg.watch.execStart.text" default="Exec Start" />);
 export const execEndText = (<EuiI18n token="sg.watch.execEnd.text" default="Exec End" />);
@@ -50,4 +51,8 @@ export const timezoneText = (<EuiI18n token="sg.watch.timezone.text" default="Ti
 export const youMustSpecifyIndexText = (<EuiI18n token="sg.watch.youMustSpecifyIndex.text" default="You must specify index" />);
 export const youMustSpecifyATimeFieldText = (
   <EuiI18n token="sg.watch.youMustSpecifyATimeField.text" default="You must specify a time field" />
+);
+export const noChecksText = (<EuiI18n token="sg.watch.noChecks.text" default="No Checks!" />);
+export const looksLikeYouDontHaveAnyCheckText = (
+  <EuiI18n token="sg.watch.emptyChecksBlocks.text" default="Looks like you don&rsquo;t have any check. Let&rsquo;s add some!" />
 );

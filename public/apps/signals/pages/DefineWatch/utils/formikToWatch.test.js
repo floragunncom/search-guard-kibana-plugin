@@ -8,7 +8,8 @@ import {
   buildWhenAggregation,
   buildChecks,
   buildWatch,
-  buildActions
+  buildActions,
+  buildChecksFromChecksBlocks
 } from './formikToWatch';
 import { stringifyPretty } from '../../../utils/helpers';
 import {
@@ -29,6 +30,47 @@ const esQueryResults = ES_QUERY_RESULT_FIELDS.reduce((acc, e) => {
   acc[e] = {};
   return acc;
 }, {});
+
+describe('buildChecksFromChecksBlocks', () => {
+  test('can build checks', () => {
+    const checksBlocks = [
+      {
+        check: JSON.stringify({ a: 1 }),
+        id: 0
+      },
+      {
+        check: JSON.stringify({ b: 1 }),
+        id: 1
+      }
+    ];
+
+    const checks = [
+      { a: 1 },
+      { b: 1 }
+    ];
+
+    expect(buildChecksFromChecksBlocks(checksBlocks)).toEqual(checks);
+  });
+
+  test('throws error if check syntax is invalid', () => {
+    try {
+      const checksBlocks = [
+        {
+          check: '{ a: }',
+          id: 0
+        },
+        {
+          check: JSON.stringify({ b: 1 }),
+          id: 1
+        }
+      ];
+
+      buildChecksFromChecksBlocks(checksBlocks);
+    } catch (error) {
+      expect(error.message).toBe('Invalid checks syntax!');
+    }
+  });
+});
 
 describe('buildActions', () => {
   test('can build email action', () => {
@@ -285,6 +327,13 @@ describe('buildChecks', () => {
     const checks = JSON.stringify({ a: 1 });
 
     expect(buildChecks({ _watchType, checks })).toEqual(JSON.parse(checks));
+  });
+
+  test('can build checks for blocks watch', () => {
+    const _watchType = WATCH_TYPE.BLOCKS;
+    const _checksBlocks = [{ check: JSON.stringify({ a: 1 }), id: 0 }];
+
+    expect(buildChecks({ _watchType, _checksBlocks })).toEqual([{ a: 1 }]);
   });
 
   test('can build avg() checks for graph watch', () => {
