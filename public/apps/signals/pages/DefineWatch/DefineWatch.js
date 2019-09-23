@@ -96,7 +96,6 @@ class DefineWatch extends Component {
     const {
       httpClient,
       location,
-      dispatch,
       onComboBoxChange,
       onComboBoxOnBlur,
       onComboBoxCreateOption,
@@ -119,11 +118,11 @@ class DefineWatch extends Component {
               <GeneralPanel httpClient={httpClient} location={location} />
               <EuiSpacer />
               <DefinitionPanel
-                dispatch={dispatch}
                 httpClient={httpClient}
                 onComboBoxChange={onComboBoxChange}
                 onComboBoxOnBlur={onComboBoxOnBlur}
                 onComboBoxCreateOption={onComboBoxCreateOption}
+                onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
               />
               <EuiSpacer />
               <FieldArray
