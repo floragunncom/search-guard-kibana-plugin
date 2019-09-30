@@ -7,7 +7,12 @@ import { migrateTenants } from './lib/multitenancy/migrate_tenants';
 import { version as sgVersion } from './package.json';
 import SearchguardSavedObjectsClient from './lib/rbac/searchguard_saved_objects_client';
 import { first } from 'rxjs/operators';
-import RbacAppPermissions from './lib/rbac/RbacAppPermissions';
+import {
+    RbacAppPermissions,
+    buildPermissionsFromCapabilities,
+    toggleUiCapabilities,
+    UICAPABILITY_PREFIX
+} from './lib/rbac/RbacAppPermissions';
 import registerRbacLiteExtension from './lib/rbac/rbaclite_extension';
 
 export default function (kibana) {
@@ -514,11 +519,6 @@ export default function (kibana) {
             this.status.yellow('Search Guard system routes registered.');
 
 
-            if (config.get('searchguard.rbac.enabled')) {
-
-
-            }
-
             // create index template for tenant indices
             if(config.get('searchguard.multitenancy.enabled')) {
                 const { setupIndexTemplate, waitForElasticsearchGreen } = indexTemplate(this, server);
@@ -552,20 +552,13 @@ export default function (kibana) {
                         return uiCapabilities;
                     }
 
+
                     const capabilities = _.cloneDeep(uiCapabilities);
+                    let appPermissions = buildPermissionsFromCapabilities(capabilities);
+                    let appPermissionsResult = await rbacAppPermissions.getPermissionsResult(request, appPermissions);
+                    const capabilitiesAfterPermissionsCheck = toggleUiCapabilities(capabilities, appPermissionsResult);
 
-                    let navLinkIds = [];
-                    for (let navLinkId in capabilities.navLinks) {
-                        navLinkIds.push(navLinkId);
-                    }
-
-                    let appPermissionsResult = await rbacAppPermissions.getPermissionsResult(request, navLinkIds);
-
-                    appPermissionsResult.missing
-                      .forEach((navLinkId) => {
-                        capabilities.navLinks[navLinkId] = false;
-                    });
-
+                    // @todo Should this still be in the extension?
                     const id = request.params.id;
                     const app = server.getUiAppById(id) || server.getHiddenUiAppById(id);
 
@@ -575,6 +568,8 @@ export default function (kibana) {
                         // but I wanted to make sure we don't overwrite anything in the future.
                         // This code is executed before the replaceInjectedVars()
                         // in the plugin definition.
+
+                        // @todo This looks like we're overwriting existing sgDynamic, no?
                         let sgDynamic = {
                             rbac: {}
                         };
@@ -586,6 +581,8 @@ export default function (kibana) {
                         sgDynamic.rbac = {
                             ...sgDynamic.rbac,
                             allowedNavLinkIds: appPermissionsResult.allowed
+                              .filter(permissionString => permissionString.indexOf(UICAPABILITY_PREFIX + 'navLinks') === 0)
+                              .map(permissionString => permissionString.replace(UICAPABILITY_PREFIX + 'navLinks/', ''))
                         }
 
                         server.injectUiAppVars(app.getId(), (server) => {
@@ -595,7 +592,7 @@ export default function (kibana) {
                         });
                     }
 
-                    return capabilities;
+                    return capabilitiesAfterPermissionsCheck;
                 });
 
                 registerRbacLiteExtension(pluginRoot, server);

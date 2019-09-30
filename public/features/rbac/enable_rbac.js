@@ -17,6 +17,8 @@
 import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules';
 import uiRoutes from 'ui/routes';
+import {isNavLinkAllowed} from "./rbac";
+import {chromeWrapper} from "../../services/chrome_wrapper";
 
 
 /**
@@ -24,7 +26,7 @@ import uiRoutes from 'ui/routes';
  * in the frontend, at the moment only for the Kibana apps.
  * @param $window
  */
-export function enableRbac($window) {
+function enableRbac($window) {
     const injectedDynamic = chrome.getInjected('sgDynamic');
     const path = chrome.removeBasePath($window.location.pathname);
 
@@ -33,16 +35,19 @@ export function enableRbac($window) {
         return;
     }
 
+    // @todo Don't think we should skip this if allowedNavLinkIds is broken. Probably hide instead?
     if (injectedDynamic && injectedDynamic.rbac && injectedDynamic.rbac.allowedNavLinkIds) {
 
         uiRoutes.addSetupWork((kbnBaseUrl) => {
             // There doesn't seem to be a method for getting the current app in the FE without comparing urls
-            const matchingNavLinks = chrome.getNavLinks().filter(navLink => window.location.href.indexOf(navLink.url) === 0);
+            const matchingNavLinks = chromeWrapper.getNavLinks().filter(navLink => window.location.href.indexOf(navLink.url) === 0);
 
             // Since searchguard-configuration and searchguard-multitenancy manually hide their respective navLinks
             // as a part of the setup process, it's not enough to just check the hidden flag here. We also need to
             // check the allowed navLinkIds passed from the backend.
-            if (matchingNavLinks.length === 1 && matchingNavLinks[0].hidden && injectedDynamic.rbac.allowedNavLinkIds.indexOf(matchingNavLinks[0].id) === -1) {
+            // @todo test if && matchingNavLinks[0].hidden was really needed
+
+            if (matchingNavLinks.length === 1  && !isNavLinkAllowed(matchingNavLinks[0].id, injectedDynamic)) {
                 const url = chrome.addBasePath(`${kbnBaseUrl}#/home`);
                 window.location.href = url;
             }
@@ -51,3 +56,7 @@ export function enableRbac($window) {
 }
 
 uiModules.get('searchguard').run(enableRbac);
+
+
+
+

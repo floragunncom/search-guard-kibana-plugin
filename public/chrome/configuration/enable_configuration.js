@@ -21,10 +21,11 @@ import { uiModules } from 'ui/modules';
 import 'ui/autoload/modules';
 import { FeatureCatalogueRegistryProvider, FeatureCatalogueCategory } from 'ui/registry/feature_catalogue';
 require ('../../apps/configuration/systemstate/systemstate');
+import * as rbac from "../../features/rbac/rbac";
 import { chromeWrapper } from "../../services/chrome_wrapper";
 
-const app = uiModules.get('apps/searchguard/configuration');
 
+const app = uiModules.get('apps/searchguard/configuration');
 
 
 function redirectOnSessionTimeout($window) {
@@ -123,6 +124,7 @@ export function enableConfiguration($http, $window, systemstate) {
 
     const injectedConfig = chrome.getInjected();
     const searchguardRequestConfig = injectedConfig.sgDynamic;
+    console.warn({injectedConfig})
 
     const ROOT = chrome.getBasePath();
     const APP_ROOT = `${ROOT}`;
@@ -138,9 +140,7 @@ export function enableConfiguration($http, $window, systemstate) {
 
 
     if (searchguardRequestConfig && searchguardRequestConfig.rbac) {
-        if (searchguardRequestConfig.rbac.allowedNavLinkIds && searchguardRequestConfig.rbac.allowedNavLinkIds.indexOf('searchguard-configuration') === -1) {
-            appAllowedByRbac = false;
-        }
+        appAllowedByRbac = rbac.isNavLinkAllowed('searchguard-configuration', rbac.getRequestConfig());
     }
 
     // make sure all infos are loaded since sessionStorage might
