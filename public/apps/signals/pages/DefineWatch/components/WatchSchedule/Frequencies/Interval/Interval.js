@@ -28,8 +28,8 @@
   * limitations under the License.
   */
 
-import React from 'react';
-import { EuiFlexItem, EuiFlexGroup } from '@elastic/eui';
+import React, { Fragment } from 'react';
+import { EuiFlexItem, EuiFlexGroup, EuiSpacer } from '@elastic/eui';
 
 import { FormikFieldNumber, FormikSelect } from '../../../../../../components';
 import { isInvalid, hasError, validateInterval } from '../../../../../../utils/validate';
@@ -37,35 +37,38 @@ import { everyText } from '../../../../../../utils/i18n/watch';
 import { UNITOPTIONS } from './utils/constants';
 
 const Interval = () => (
-  <EuiFlexGroup
-    alignItems="flexStart"
-    style={{ paddingLeft: '10px', marginTop: '5px' }}
-    gutterSize="none"
-  >
-    <EuiFlexItem style={{ margin: '0px 10px 0px 0px' }}>
-      <FormikFieldNumber
-        name="_period.interval"
-        formRow
-        formikFieldProps={{ validate: validateInterval }}
-        rowProps={{
-          label: everyText,
-          isInvalid,
-          error: hasError,
-        }}
-        elementProps={{ icon: 'clock' }}
-      />
-    </EuiFlexItem>
-    <EuiFlexItem style={{ marginTop: '2px' }}>
-      <FormikSelect
-        name="_period.unit"
-        formRow
-        rowProps={{
-          hasEmptyLabelSpace: true
-        }}
-        elementProps={{ options: UNITOPTIONS }}
-      />
-    </EuiFlexItem>
-  </EuiFlexGroup>
+  <Fragment>
+    <EuiSpacer size="xs" />
+    <EuiFlexGroup
+      alignItems="flexStart"
+      gutterSize="none"
+      className="sg-flex-group"
+    >
+      <EuiFlexItem style={{ margin: '0 1em 0 0' }}>
+        <FormikFieldNumber
+          name="_period.interval"
+          formRow
+          formikFieldProps={{ validate: validateInterval }}
+          rowProps={{
+            label: everyText,
+            isInvalid,
+            error: hasError,
+          }}
+          elementProps={{ icon: 'clock' }}
+        />
+      </EuiFlexItem>
+      <EuiFlexItem style={{ marginTop: '.1em' }}>
+        <FormikSelect
+          name="_period.unit"
+          formRow
+          rowProps={{
+            hasEmptyLabelSpace: true
+          }}
+          elementProps={{ options: UNITOPTIONS }}
+        />
+      </EuiFlexItem>
+    </EuiFlexGroup>
+  </Fragment>
 );
 
 export default Interval;

@@ -35,8 +35,8 @@ import { EuiFormRow, EuiDatePicker, EuiFlexGroup, EuiFlexItem } from '@elastic/e
 import { aroundText } from '../../../../../../utils/i18n/watch';
 
 const Daily = () => (
-  <EuiFlexGroup direction="column" style={{ paddingLeft: '10px', marginTop: '5px' }}>
-    <EuiFlexItem style={{ marginTop: '0px' }}>
+  <EuiFlexGroup direction="column" className="sg-flex-group">
+    <EuiFlexItem className="sg-flex-item">
       <Field
         name="_daily"
         render={({
@@ -44,7 +44,7 @@ const Daily = () => (
           field: { value, onChange, onBlur, ...rest },
           form: { setFieldValue },
         }) => (
-          <EuiFormRow label={aroundText} style={{ marginTop: '0px' }}>
+          <EuiFormRow label={aroundText}>
             <EuiDatePicker
               showTimeSelect
               showTimeSelectOnly

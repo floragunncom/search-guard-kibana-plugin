@@ -14,8 +14,9 @@ import rootReducer from './redux/reducers';
 import '@elastic/eui/dist/eui_theme_light.css';
 import 'react-vis/dist/style.css';
 import 'ui/autoload/styles';
-import './less/main.less';
 import Main from './pages/Main';
+
+import './css/style.css';
 
 // AngularJS doesn't like "-" char in the app name
 const app = uiModules.get(`apps/${camelCase(APP_NAME)}`);

@@ -17,46 +17,41 @@ const GeneralPanel = ({ httpClient, location, formik }) => {
     <ContentPanel
       title={generalText}
       titleSize="s"
-      bodyStyles={{ padding: 'initial', paddingLeft: '10px' }}
     >
-      <div style={{ maxWidth: '1200px' }}>
-        <EuiFlexGroup>
-          <EuiFlexItem>
-            <FormikFieldText
-              name="_id"
-              formRow
-              rowProps={{
-                label: nameText,
-                style: { paddingLeft: '10px' },
-                isInvalid,
-                error: hasError,
-              }}
-              elementProps={{
-                isInvalid,
-              }}
-              formikFieldProps={{
-                validate: validateName(new WatchService(httpClient), isUpdatingName)
-              }}
-            />
-          </EuiFlexItem>
-          <EuiFlexItem>
-            <FormikSwitch
-              name="active"
-              formRow
-              rowProps={{
-                hasEmptyLabelSpace: true,
-                style: { paddingLeft: '0px' }
-              }}
-              elementProps={{
-                label: activeText,
-                onChange: (e, field, form) => {
-                  form.setFieldValue(field.name, e.target.value);
-                }
-              }}
-            />
-          </EuiFlexItem>
-        </EuiFlexGroup>
-      </div>
+      <EuiFlexGroup className="sg-flex-group" justifyContent="spaceBetween">
+        <EuiFlexItem className="sg-flex-item">
+          <FormikFieldText
+            name="_id"
+            formRow
+            rowProps={{
+              label: nameText,
+              isInvalid,
+              error: hasError,
+            }}
+            elementProps={{
+              isInvalid,
+            }}
+            formikFieldProps={{
+              validate: validateName(new WatchService(httpClient), isUpdatingName)
+            }}
+          />
+        </EuiFlexItem>
+        <EuiFlexItem grow={false} className="sg-flex-item">
+          <FormikSwitch
+            name="active"
+            formRow
+            rowProps={{
+              hasEmptyLabelSpace: true,
+            }}
+            elementProps={{
+              label: activeText,
+              onChange: (e, field, form) => {
+                form.setFieldValue(field.name, e.target.value);
+              }
+            }}
+          />
+        </EuiFlexItem>
+      </EuiFlexGroup>
       <EuiSpacer />
       <WatchSchedule />
     </ContentPanel>

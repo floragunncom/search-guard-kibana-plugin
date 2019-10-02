@@ -10,8 +10,8 @@ import { DOC_LINKS } from '../../../../../../utils/constants';
 import { everyText } from '../../../../../../utils/i18n/watch';
 
 const CustomCron = () => (
-  <EuiFlexGroup direction="column" style={{ paddingLeft: '10px', marginTop: '5px' }}>
-    <EuiFlexItem style={{ marginTop: '0px' }}>
+  <EuiFlexGroup direction="column" className="sg-flex-group">
+    <EuiFlexItem className="sg-flex-item">
       <FormikTextArea
         name="_cron"
         formRow
@@ -20,7 +20,6 @@ const CustomCron = () => (
           labelAppend: <LabelAppendLink href={DOC_LINKS.CRON_EXPRESSION} name="CronDoc" />,
           isInvalid,
           error: hasError,
-          style: { marginTop: '0px' },
         }}
         formikFieldProps={{
           validate: validateEmptyField
