@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { connect as connectFormik } from 'formik';
 import { connect as connectRedux } from 'react-redux';
 import DraggableList from 'react-draggable-list';
@@ -29,6 +29,8 @@ const BlocksWatch = ({
   onTriggerConfirmDeletionModal,
   dispatch,
 }) => {
+  const [isLoading, setLoading] = useState(false);
+
   const { _checksBlocks: checksBlocks = [], _checksResult: checksResult = '' } = values;
   const watchResponse = !isEmpty(checksResult) ? stringifyPretty(checksResult) : null;
 
@@ -57,6 +59,8 @@ const BlocksWatch = ({
       _checksBlocks: { $set: values._checksBlocks.slice(startIndex, endIndex + 1) }
     });
 
+    setLoading(true);
+
     try {
       const { ok, resp } = await watchService.execute(formikToWatch(newFormikValues));
       setFieldValue(`_checksBlocks.${endIndex}.response`, stringifyPretty(resp));
@@ -67,6 +71,8 @@ const BlocksWatch = ({
       console.debug('BlocksWatch -- formik values', newFormikValues);
       console.debug('BlocksWatch -- watch', formikToWatch(newFormikValues));
     }
+
+    setLoading(false);
   };
 
   return (
@@ -89,6 +95,7 @@ const BlocksWatch = ({
           container={() => document.body}
           // The common props are used by Block
           commonProps={{
+            isLoading,
             onDeleteBlock: deleteBlock,
             onExecuteBlocks: (startIndex, endIndex) => executeBlocks(startIndex, endIndex),
           }}

@@ -10,6 +10,7 @@ import {
   EuiCodeEditor,
   EuiFormRow,
   EuiSpacer,
+  EuiLoadingSpinner,
 } from '@elastic/eui';
 import {
   FormikCodeEditor,
@@ -61,17 +62,30 @@ class Block extends Component {
     />
   );
 
-  renderCheckResponse = response => (
-    <EuiFormRow label={responseText} fullWidth>
-      <EuiCodeEditor
-        width="100%"
-        isReadOnly
-        mode={EDITOR_MODE}
-        setOptions={EDITOR_OPTIONS}
-        value={response}
-      />
-    </EuiFormRow>
-  );
+  renderCheckResponse = response => {
+    const { commonProps: { isLoading } } = this.props;
+    if (isLoading) {
+      return (
+        <div style={{ margin: 'auto' }}>
+          <EuiLoadingSpinner size="xl" />
+        </div>
+      );
+    }
+
+    if (!response) return null;
+
+    return (
+      <EuiFormRow label={responseText} fullWidth>
+        <EuiCodeEditor
+          width="100%"
+          isReadOnly
+          mode={EDITOR_MODE}
+          setOptions={EDITOR_OPTIONS}
+          value={response}
+        />
+      </EuiFormRow>
+    );
+  };
 
   render() {
     const {
@@ -143,7 +157,7 @@ class Block extends Component {
             render={() => (
               <EuiFlexGroup>
                 <EuiFlexItem>{this.renderCheckEditor(index)}</EuiFlexItem>
-                <EuiFlexItem>{!!response && this.renderCheckResponse(response)}</EuiFlexItem>
+                <EuiFlexItem>{this.renderCheckResponse(response)}</EuiFlexItem>
               </EuiFlexGroup>
             )}
           />
@@ -168,6 +182,7 @@ Block.propTypes = {
   commonProps: PropTypes.shape({
     onExecuteBlocks: PropTypes.func.isRequired,
     onDeleteBlock: PropTypes.func.isRequired,
+    isLoading: PropTypes.bool.isRequired,
   }),
 };
 
