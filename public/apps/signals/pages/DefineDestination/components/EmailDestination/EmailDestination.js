@@ -47,15 +47,12 @@ import {
   defaultsText
 } from '../../../../utils/i18n/common';
 
-const STYLE = { paddingLeft: '10px' };
-
 const Debug = () => (
   <Fragment>
     <SubHeader
       title={<h4>{debugText}</h4>}
     />
-    <EuiSpacer size="s" />
-    <EuiFlexGroup style={{ ...STYLE }}>
+    <EuiFlexGroup className="sg-flex-group">
       <EuiFlexItem grow={false}>
         <FormikSwitch
           name="debug"
@@ -100,7 +97,7 @@ const Security = ({
       title={<h4>{securityText}</h4>}
     />
     <EuiSpacer size="s" />
-    <EuiFlexGroup style={{ maxWidth: '1200px', ...STYLE }}>
+    <EuiFlexGroup className="sg-flex-group">
       <EuiFlexItem>
         <FormikFieldText
           name="user"
@@ -190,7 +187,7 @@ const Defaults = ({
       title={<h4>{defaultsText}</h4>}
     />
     <EuiSpacer size="s" />
-    <div style={STYLE}>
+    <div className="group">
       <FormikFieldText
         name="default_from"
         formRow
@@ -279,7 +276,7 @@ const Proxy = () => (
       title={<h4>{proxyText}</h4>}
     />
     <EuiSpacer size="s" />
-    <div style={STYLE}>
+    <div className="group">
       <FormikFieldText
         name="proxy_host"
         formRow
@@ -326,9 +323,8 @@ const EmailDestination = ({
     <ContentPanel
       title={(<p>{destinationText} {values.type}</p>)}
       titleSize="s"
-      bodyStyles={{ padding: 'initial', ...STYLE }}
     >
-      <div style={STYLE}>
+      <div className="sg-group">
         <FormikFieldText
           name="_id"
           formRow
@@ -389,21 +385,21 @@ const EmailDestination = ({
           }}
         />
       </div>
-      <EuiSpacer size="s" />
+      <EuiSpacer />
       <Security
         onComboBoxOnBlur={onComboBoxOnBlur}
         onComboBoxChange={onComboBoxChange}
         onComboBoxCreateOption={onComboBoxCreateOption}
       />
-      <EuiSpacer size="s" />
+      <EuiSpacer />
       <Proxy />
-      <EuiSpacer size="s" />
+      <EuiSpacer />
       <Defaults
         onComboBoxOnBlur={onComboBoxOnBlur}
         onComboBoxChange={onComboBoxChange}
         onComboBoxCreateOption={onComboBoxCreateOption}
       />
-      <EuiSpacer size="s" />
+      <EuiSpacer />
       <Debug />
     </ContentPanel>
   );

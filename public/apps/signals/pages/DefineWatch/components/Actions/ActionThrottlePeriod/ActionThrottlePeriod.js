@@ -12,7 +12,7 @@ const ActionThrottlePeriod = ({ index }) => (
       alignItems="flexStart"
       gutterSize="none"
     >
-      <EuiFlexItem style={{ margin: '0px 10px 0px 0px' }}>
+      <EuiFlexItem style={{ margin: '0 .625em 0 0' }}>
         <FormikFieldNumber
           name={`actions[${index}]._throttle_period.interval`}
           formRow
@@ -21,16 +21,18 @@ const ActionThrottlePeriod = ({ index }) => (
             label: throttlePeriodText,
             isInvalid,
             error: hasError,
+            style: { paddingBottom: '0' },
           }}
           elementProps={{ icon: 'clock' }}
         />
       </EuiFlexItem>
-      <EuiFlexItem style={{ margin: '2px' }}>
+      <EuiFlexItem style={{ margin: '.125em' }}>
         <FormikSelect
           name={`actions[${index}]._throttle_period.unit`}
           formRow
           rowProps={{
-            hasEmptyLabelSpace: true
+            hasEmptyLabelSpace: true,
+            style: { paddingBottom: '0' },
           }}
           elementProps={{ options: UNITOPTIONS }}
         />

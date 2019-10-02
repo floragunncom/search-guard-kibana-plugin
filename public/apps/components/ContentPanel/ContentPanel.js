@@ -41,9 +41,9 @@ const ContentPanel = ({
   children,
   isLoading
 }) => (
-  <EuiPanel paddingSize="l" {...panelProps} className="sgContentPanel">
+  <EuiPanel paddingSize="l" {...panelProps}>
     <EuiFlexGroup
-      style={{ padding: '0px 10px', ...headerStyles }}
+      style={{ padding: '0 1em', ...headerStyles }}
       justifyContent="spaceBetween"
       alignItems="center"
     >
@@ -60,7 +60,7 @@ const ContentPanel = ({
       </EuiFlexItem>
     </EuiFlexGroup>
     <EuiHorizontalRule margin="s" {...horizontalRuleProps} />
-    {isLoading ? LoadingPage : <div style={{ padding: '0px 10px', ...bodyStyles }}>{children}</div>}
+    {isLoading ? LoadingPage : <div style={{ padding: '0 1em', ...bodyStyles }}>{children}</div>}
   </EuiPanel>
 );
 

@@ -18,6 +18,8 @@ import '../configuration/backend_api/sgconfiguration';
 import '../configuration/backend_api/tenants';
 import '../configuration/systemstate/systemstate';
 
+import './css/style.css';
+
 const app = uiModules.get('apps/searchguardConfiguration');
 
 app.config($locationProvider => {

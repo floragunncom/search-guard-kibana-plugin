@@ -145,7 +145,6 @@ class DefinitionPanel extends Component {
       <ContentPanel
         title={definitionText}
         titleSize="s"
-        bodyStyles={{ padding: 'initial', paddingLeft: '10px' }}
         actions={actions}
       >
         {isChecksHelpFlyoutOpen && (
@@ -155,7 +154,7 @@ class DefinitionPanel extends Component {
           />
         )}
 
-        <div style={{ paddingLeft: '10px' }}>
+        <div>
           <FormikSelect
             name="_watchType"
             formRow
