@@ -9,25 +9,17 @@ import { scheduleText } from '../../../../utils/i18n/watch';
 const WatchSchedule = ({ formik: { values } }) => {
   return (
     <Fragment>
-      <SubHeader
-        title={<h4>{scheduleText}</h4>}
-      />
+      <SubHeader title={<h4>{scheduleText}</h4>} />
       <EuiSpacer size="s" />
-      <div style={{ maxWidth: '1200px' }}>
-        <EuiFlexGroup>
-          <EuiFlexItem>
-            <div style={{ maxWidth: '400px' }}>
-              <Frequency />
-              <FrequencyPicker />
-            </div>
-          </EuiFlexItem>
-          {values._frequency !== 'interval' && (
-            <EuiFlexItem>
-              <Timezone />
-            </EuiFlexItem>
-          )}
-        </EuiFlexGroup>
-      </div>
+      <EuiFlexGroup className="sg-flex-group" justifyContent="spaceBetween">
+        <EuiFlexItem className="sg-flex-item">
+          <Frequency />
+          <FrequencyPicker />
+        </EuiFlexItem>
+        <EuiFlexItem className="sg-flex-item">
+          {values._frequency !== 'interval' && <Timezone />}
+        </EuiFlexItem>
+      </EuiFlexGroup>
     </Fragment>
   );
 };

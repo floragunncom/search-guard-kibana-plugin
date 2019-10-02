@@ -206,6 +206,17 @@ export const buildCondition = ({
   return getCondition(resultsPath, operator, _thresholdValue);
 };
 
+export const buildChecksFromChecksBlocks = (checks = []) => {
+  try {
+    return checks.reduce((res, { check }) => {
+      res.push(JSON.parse(check));
+      return res;
+    }, []);
+  } catch (err) {
+    throw new Error('Invalid checks syntax!');
+  }
+};
+
 export const buildChecks = ({
   _bucketValue,
   _bucketUnitOfTime,
@@ -216,9 +227,14 @@ export const buildChecks = ({
   _index,
   _thresholdValue,
   _thresholdEnum,
+  _checksBlocks,
   checks = []
 }) => {
-  if (_watchType !== WATCH_TYPE.GRAPH) return JSON.parse(checks);
+  if (_watchType === WATCH_TYPE.JSON) return JSON.parse(checks);
+  // TODO: write tests for Blocks
+  if (_watchType === WATCH_TYPE.BLOCKS) return buildChecksFromChecksBlocks(_checksBlocks);
+
+  // Graph watch checks
   const indices = comboBoxOptionsToArray(_index);
 
   const body = buildGraphQuery({
@@ -246,7 +262,7 @@ export const buildChecks = ({
   ];
 };
 
-export const buildWatch = (formik) => {
+export const buildWatch = formik => {
   const watch = {};
   const uiMetadata = cloneDeep(GRAPH_DEFAULTS);
 

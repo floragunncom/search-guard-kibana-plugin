@@ -1,0 +1,18 @@
+#searchguard-signals-app .sg-container {
+  max-width: 100em;
+  margin: auto;
+}
+
+#searchguard-signals-app .sg-page-content-body {
+  padding: 1.563em 1.563em;
+}
+
+#searchguard-signals-app .sg-flex-group,
+#searchguard-signals-app .sg-group {
+  max-width: 75em;
+  margin-top: 0;
+}
+
+#searchguard-signals-app .sg-flex-item {
+  max-width: 25em;
+}

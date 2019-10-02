@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
-import { EuiSpacer } from '@elastic/eui';
 import { isEmpty } from 'lodash';
+import { EuiSpacer } from '@elastic/eui';
 import {
   FormikCodeEditor,
   FormikFieldText,
@@ -171,6 +171,7 @@ const EmailAction = ({
           fullWidth: true,
           isInvalid,
           error: hasError,
+
         }}
         elementProps={{
           isInvalid,

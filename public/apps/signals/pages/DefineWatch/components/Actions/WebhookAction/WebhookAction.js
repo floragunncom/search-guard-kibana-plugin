@@ -25,90 +25,88 @@ import { METHOD_SELECT } from './utils/constants';
 
 const WebhookAction = ({ index }) => (
   <Fragment>
-    <div style={{ maxWidth: '1200px' }}>
-      <EuiFlexGroup>
-        <EuiFlexItem>
-          <FormikFieldText
-            name={`actions[${index}].name`}
-            formRow
-            rowProps={{
-              label: nameText,
-              isInvalid,
-              error: hasError,
-            }}
-            elementProps={{
-              isInvalid,
-              onFocus: (e, field, form) => {
-                form.setFieldError(field.name, undefined);
-              },
-            }}
-            formikFieldProps={{
-              validate: validateEmptyField
-            }}
-          />
-          <ActionThrottlePeriod index={index} />
-          <FormikSelect
-            name={`actions[${index}].request.method`}
-            formRow
-            rowProps={{
-              label: methodText,
-            }}
-            elementProps={{
-              options: METHOD_SELECT,
-            }}
-          />
-          <FormikFieldText
-            name={`actions[${index}].request.url`}
-            formRow
-            rowProps={{
-              label: urlText,
-              isInvalid,
-              error: hasError,
-            }}
-            elementProps={{
-              isInvalid,
-              onFocus: (e, field, form) => {
-                form.setFieldError(field.name, undefined);
-              },
-            }}
-            formikFieldProps={{
-              validate: validateEmptyField
-            }}
-          />
-        </EuiFlexItem>
-        <EuiFlexItem>
-          <FormikCodeEditor
-            name={`actions[${index}].request.headers`}
-            formRow
-            rowProps={{
-              label: headersText,
-              isInvalid,
-              error: hasError
-            }}
-            elementProps={{
-              isInvalid,
-              setOptions: {
-                tabSize: 2,
-                useSoftTabs: true,
-                maxLines: 10,
-                minLines: 10
-              },
-              mode: 'text',
-              theme: 'github',
-              onChange: (text, field, form) => {
-                form.setFieldValue(field.name, text);
-              },
-              onBlur: (e, field, form) => {
-                form.setFieldTouched(field.name, true);
-              },
-            }}
-            formikFieldProps={{
-              validate: validateJsonString
-            }}
-          />
-        </EuiFlexItem>
-      </EuiFlexGroup>
-    </div>
+    <EuiFlexGroup className="sg-group" justifyContent="spaceBetween">
+      <EuiFlexItem className="sg-item">
+        <FormikFieldText
+          name={`actions[${index}].name`}
+          formRow
+          rowProps={{
+            label: nameText,
+            isInvalid,
+            error: hasError,
+          }}
+          elementProps={{
+            isInvalid,
+            onFocus: (e, field, form) => {
+              form.setFieldError(field.name, undefined);
+            },
+          }}
+          formikFieldProps={{
+            validate: validateEmptyField
+          }}
+        />
+        <ActionThrottlePeriod index={index} />
+        <FormikSelect
+          name={`actions[${index}].request.method`}
+          formRow
+          rowProps={{
+            label: methodText,
+          }}
+          elementProps={{
+            options: METHOD_SELECT,
+          }}
+        />
+        <FormikFieldText
+          name={`actions[${index}].request.url`}
+          formRow
+          rowProps={{
+            label: urlText,
+            isInvalid,
+            error: hasError,
+          }}
+          elementProps={{
+            isInvalid,
+            onFocus: (e, field, form) => {
+              form.setFieldError(field.name, undefined);
+            },
+          }}
+          formikFieldProps={{
+            validate: validateEmptyField
+          }}
+        />
+      </EuiFlexItem>
+      <EuiFlexItem className="sg-item">
+        <FormikCodeEditor
+          name={`actions[${index}].request.headers`}
+          formRow
+          rowProps={{
+            label: headersText,
+            isInvalid,
+            error: hasError
+          }}
+          elementProps={{
+            isInvalid,
+            setOptions: {
+              tabSize: 2,
+              useSoftTabs: true,
+              maxLines: 10,
+              minLines: 10
+            },
+            mode: 'text',
+            theme: 'github',
+            onChange: (text, field, form) => {
+              form.setFieldValue(field.name, text);
+            },
+            onBlur: (e, field, form) => {
+              form.setFieldTouched(field.name, true);
+            },
+          }}
+          formikFieldProps={{
+            validate: validateJsonString
+          }}
+        />
+      </EuiFlexItem>
+    </EuiFlexGroup>
     <EuiSpacer />
     <FormikCodeEditor
       name={`actions[${index}].request.body`}

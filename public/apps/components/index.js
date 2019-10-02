@@ -37,6 +37,8 @@ export { default as PopoverButton } from './Page/PopoverButton';
 export { default as CreateButton } from './Page/CreateButton';
 export { default as CancelButton } from './Page/CancelButton';
 export { default as SaveButton } from './Page/SaveButton';
+export { default as DeleteButtonIcon } from './Page/DeleteButtonIcon';
+export { default as ExecuteButtonIcon } from './Page/ExecuteButtonIcon';
 
 // Form
 export { default as LabelAppendLink } from './Form/LabelAppendLink';

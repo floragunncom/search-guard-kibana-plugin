@@ -187,8 +187,8 @@ class Main extends Component {
     const { flyout, modal } = this.state;
 
     return (
-      <EuiPage id={APP_NAME} >
-        <EuiPageBody>
+      <EuiPage id={APP_NAME}>
+        <EuiPageBody className="sg-container">
           <Flyout flyout={flyout} onClose={() => this.handleTriggerFlyout(null)} />
 
           <EuiPageHeader>
@@ -196,95 +196,93 @@ class Main extends Component {
           </EuiPageHeader>
 
           <EuiPageContent>
-            <EuiPageContentBody>
+            <EuiPageContentBody className="sg-page-content-body">
               <Modal modal={modal} onClose={() => this.handleTriggerModal(null)} />
-              <div style={{ padding: '25px 25px' }}>
-                <Switch>
-                  <Route
-                    exact
-                    path={APP_PATH.WATCHES}
-                    render={props => (
-                      <Fragment>
-                        <EuiTabs>{this.tabs.map(this.renderTab)}</EuiTabs>
-                        <EuiSpacer />
-                        <Watches
-                          httpClient={httpClient}
-                          onTriggerFlyout={this.handleTriggerFlyout}
-                          onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
-                          {...props}
-                        />
-                      </Fragment>
-                    )}
-                  />
-                  <Route
-                    path={APP_PATH.DEFINE_WATCH}
-                    render={props => (
-                      <DefineWatch
+              <Switch>
+                <Route
+                  exact
+                  path={APP_PATH.WATCHES}
+                  render={props => (
+                    <Fragment>
+                      <EuiTabs>{this.tabs.map(this.renderTab)}</EuiTabs>
+                      <EuiSpacer />
+                      <Watches
                         httpClient={httpClient}
-                        onComboBoxChange={this.handleComboBoxChange}
-                        onComboBoxOnBlur={this.handleComboBoxOnBlur}
-                        onComboBoxCreateOption={this.handleComboBoxCreateOption}
+                        onTriggerFlyout={this.handleTriggerFlyout}
                         onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                         {...props}
                       />
-                    )}
-                  />
-                  <Route
-                    path={APP_PATH.ALERTS}
-                    render={props => (
+                    </Fragment>
+                  )}
+                />
+                <Route
+                  path={APP_PATH.DEFINE_WATCH}
+                  render={props => (
+                    <DefineWatch
+                      httpClient={httpClient}
+                      onComboBoxChange={this.handleComboBoxChange}
+                      onComboBoxOnBlur={this.handleComboBoxOnBlur}
+                      onComboBoxCreateOption={this.handleComboBoxCreateOption}
+                      onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
+                      {...props}
+                    />
+                  )}
+                />
+                <Route
+                  path={APP_PATH.ALERTS}
+                  render={props => (
+                    <Alerts
+                      httpClient={httpClient}
+                      onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
+                      onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
+                      {...props}
+                    />
+                  )}
+                />
+                <Route
+                  exact
+                  path={APP_PATH.DASHBOARD}
+                  render={props => (
+                    <Fragment>
+                      <EuiTabs>{this.tabs.map(this.renderTab)}</EuiTabs>
+                      <EuiSpacer />
                       <Alerts
                         httpClient={httpClient}
                         onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
                         onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                         {...props}
                       />
-                    )}
-                  />
-                  <Route
-                    exact
-                    path={APP_PATH.DASHBOARD}
-                    render={props => (
-                      <Fragment>
-                        <EuiTabs>{this.tabs.map(this.renderTab)}</EuiTabs>
-                        <EuiSpacer />
-                        <Alerts
-                          httpClient={httpClient}
-                          onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
-                          onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
-                          {...props}
-                        />
-                      </Fragment>
-                    )}
-                  />
-                  <Route
-                    path={APP_PATH.DESTINATIONS}
-                    render={props => (
-                      <Fragment>
-                        <EuiTabs>{this.tabs.map(this.renderTab)}</EuiTabs>
-                        <EuiSpacer />
-                        <Destinations
-                          httpClient={httpClient}
-                          onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
-                          {...props}
-                        />
-                      </Fragment>
-                    )}
-                  />
-                  <Route
-                    path={APP_PATH.DEFINE_DESTINATION}
-                    render={props => (
-                      <DefineDestination
+                    </Fragment>
+                  )}
+                />
+                <Route
+                  path={APP_PATH.DESTINATIONS}
+                  render={props => (
+                    <Fragment>
+                      <EuiTabs>{this.tabs.map(this.renderTab)}</EuiTabs>
+                      <EuiSpacer />
+                      <Destinations
                         httpClient={httpClient}
-                        onComboBoxChange={this.handleComboBoxChange}
-                        onComboBoxOnBlur={this.handleComboBoxOnBlur}
-                        onComboBoxCreateOption={this.handleComboBoxCreateOption}
+                        onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                         {...props}
                       />
-                    )}
-                  />
-                  <Redirect to={APP_PATH.DASHBOARD} />
-                </Switch>
-              </div>
+                    </Fragment>
+                  )}
+                />
+                <Route
+                  path={APP_PATH.DEFINE_DESTINATION}
+                  render={props => (
+                    <DefineDestination
+                      httpClient={httpClient}
+                      onComboBoxChange={this.handleComboBoxChange}
+                      onComboBoxOnBlur={this.handleComboBoxOnBlur}
+                      onComboBoxCreateOption={this.handleComboBoxCreateOption}
+                      {...props}
+                    />
+                  )}
+                />
+                <Redirect to={APP_PATH.DASHBOARD} />
+              </Switch>
 
               <div style={{ zIndex: 6000 }}>
                 <EuiGlobalToastList

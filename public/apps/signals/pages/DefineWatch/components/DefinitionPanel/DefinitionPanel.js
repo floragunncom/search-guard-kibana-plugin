@@ -1,86 +1,160 @@
 import React, { Component } from 'react';
 import { connect as connectFormik } from 'formik';
+import { connect as connectRedux } from 'react-redux';
 import PropTypes from 'prop-types';
 import { EuiButton } from '@elastic/eui';
-import { FormikSelect, ContentPanel } from '../../../../components';
+import {
+  FormikSelect,
+  ContentPanel,
+  HelpButton
+} from '../../../../components';
 import JsonWatch from '../JsonWatch';
 import GraphWatch from '../GraphWatch';
+import BlocksWatch from '../BlocksWatch';
 import { definitionText, typeText, executeText } from '../../../../utils/i18n/common';
-import { formikToWatch } from '../../utils';
+import { formikToWatch, buildFormikChecksBlocks } from '../../utils';
 import { WatchService } from '../../../../services';
 import { addErrorToast } from '../../../../redux/actions';
+import { stringifyPretty } from '../../../../utils/helpers';
 import { WATCH_TYPE_SELECT, WATCH_TYPE } from '../../utils/constants';
+import ChecksHelpFlyout from '../ChecksHelpFlyout';
 
 class DefinitionPanel extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      isLoading: false
+      isLoading: false,
+      isChecksHelpFlyoutOpen: false
     };
 
     this.watchService = new WatchService(this.props.httpClient);
   }
 
-  handleChecksResult = (result = {}) => {
-    const { formik: { setFieldValue } } = this.props;
-    setFieldValue('_checksResult', result);
-  }
-
-  executeJsonWatch = async values => {
-    const { dispatch } = this.props;
+  // Only for JsonWatch and BlocksWatch
+  executeWatch = async values => {
+    const { dispatch, formik: { setFieldValue } } = this.props;
+    this.setState({ isLoading: true });
 
     try {
-      this.setState({ isLoading: true });
       const { ok, resp } = await this.watchService.execute(formikToWatch(values));
-      this.handleChecksResult(resp);
-      if (!ok) {
-        console.log('!ok', resp);
-        dispatch(addErrorToast(resp));
-      }
+      setFieldValue('_checksResult', resp);
+
+      if (!ok) throw resp;
     } catch (error) {
-      console.error('DefinitionPanel -- executeJsonWatch', error);
+      console.error('DefinitionPanel -- executeWatch', error);
+      console.debug('DefinitionPanel -- formik values', values);
+      console.debug('DefinitionPanel -- watch', formikToWatch(values));
       dispatch(addErrorToast(error));
     }
-    this.setState({ isLoading: false });
-  }
 
-  renderExecuteJsonWatchButton = values => (
+    this.setState({ isLoading: false });
+  };
+
+  // Only for JsonWatch and BlocksWatch
+  addCheckTemplate = (checkTemplate = {}) => {
+    const {
+      formik: {
+        values: {
+          _watchType: watchType,
+          _checksBlocks: checksBlocks,
+          checks,
+        },
+        setFieldValue,
+      },
+      dispatch,
+    } = this.props;
+
+    if (watchType === WATCH_TYPE.BLOCKS) {
+      const checkBlock = buildFormikChecksBlocks([checkTemplate])[0];
+      checkBlock.id = checksBlocks.length;
+
+      setFieldValue('_checksBlocks', [...checksBlocks, checkBlock]);
+    } else { // Json watch
+      try {
+        setFieldValue('checks', stringifyPretty([...JSON.parse(checks), checkTemplate]));
+      } catch (error) {
+        dispatch(addErrorToast(error));
+      }
+    }
+  };
+
+  // Only for JsonWatch and BlocksWatch
+  renderExecuteWatchButton = values => (
     <EuiButton
+      iconType="play"
       isLoading={this.state.isLoading}
       data-test-subj="sgWatch-Execute"
       id="execute"
-      onClick={() => this.executeJsonWatch(values)}
+      onClick={() => this.executeWatch(values)}
     >
       {executeText}
     </EuiButton>
-  )
+  );
 
   render() {
     const {
       formik: { values = {} },
-      dispatch,
       httpClient,
       onComboBoxChange,
       onComboBoxOnBlur,
-      onComboBoxCreateOption
+      onComboBoxCreateOption,
+      onTriggerConfirmDeletionModal,
     } = this.props;
 
-    const isGraphWatch = values._watchType === WATCH_TYPE.GRAPH;
+    const { isChecksHelpFlyoutOpen } = this.state;
 
-    const actions = [];
-    if (!isGraphWatch) {
-      actions.push(this.renderExecuteJsonWatchButton(values));
+    const isGraphWatch = values._watchType === WATCH_TYPE.GRAPH;
+    const isJsonWatch = values._watchType === WATCH_TYPE.JSON;
+
+    let actions = [];
+    let watchDefinition;
+
+    if (isGraphWatch) {
+      watchDefinition = (<GraphWatch
+        httpClient={httpClient}
+        onComboBoxChange={onComboBoxChange}
+        onComboBoxOnBlur={onComboBoxOnBlur}
+        onComboBoxCreateOption={onComboBoxCreateOption}
+      />);
+    } else if (isJsonWatch) {
+      actions = [
+        <HelpButton onClick={() => this.setState({ isChecksHelpFlyoutOpen: true })} />,
+        this.renderExecuteWatchButton(values)
+      ];
+
+      watchDefinition = <JsonWatch httpClient={httpClient} />;
+    } else { // BlocksWatch
+      actions = [
+        <HelpButton onClick={() => this.setState({ isChecksHelpFlyoutOpen: true })} />,
+        this.renderExecuteWatchButton(values)
+      ];
+
+      watchDefinition = (
+        <BlocksWatch
+          httpClient={httpClient}
+          onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
+          onOpenChecksHelpFlyout={() => {
+            this.setState({ isChecksHelpFlyoutOpen: true });
+          }}
+        />
+      );
     }
 
     return (
       <ContentPanel
         title={definitionText}
         titleSize="s"
-        bodyStyles={{ padding: 'initial', paddingLeft: '10px' }}
         actions={actions}
       >
-        <div style={{ paddingLeft: '10px' }}>
+        {isChecksHelpFlyoutOpen && (
+          <ChecksHelpFlyout
+            onClose={() => this.setState({ isChecksHelpFlyoutOpen: false })}
+            onAdd={this.addCheckTemplate}
+          />
+        )}
+
+        <div>
           <FormikSelect
             name="_watchType"
             formRow
@@ -94,18 +168,7 @@ class DefinitionPanel extends Component {
               },
             }}
           />
-          {isGraphWatch
-            ? (
-              <GraphWatch
-                dispatch={dispatch}
-                httpClient={httpClient}
-                onComboBoxChange={onComboBoxChange}
-                onComboBoxOnBlur={onComboBoxOnBlur}
-                onComboBoxCreateOption={onComboBoxCreateOption}
-              />
-            )
-            : <JsonWatch dispatch={dispatch} onChecksResult={this.handleChecksResult} />
-          }
+          {watchDefinition}
         </div>
       </ContentPanel>
     );
@@ -118,7 +181,8 @@ DefinitionPanel.propTypes = {
   formik: PropTypes.object.isRequired,
   onComboBoxOnBlur: PropTypes.func.isRequired,
   onComboBoxCreateOption: PropTypes.func.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired
+  onComboBoxChange: PropTypes.func.isRequired,
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
 };
 
-export default connectFormik(DefinitionPanel);
+export default connectRedux()(connectFormik(DefinitionPanel));

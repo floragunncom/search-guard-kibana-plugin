@@ -69,15 +69,13 @@ const Weekly = () => (
             label={everyText}
             isInvalid={touched._weekly && !!errors._weekly}
             error={errors._weekly}
-            style={{ paddingLeft: '10px', marginTop: '5px' }}
           >
             <EuiFlexGroup alignItems="center">
               {DAYS.map(day => checkboxFlexItem(day, value[day], setFieldValue, setFieldTouched))}
             </EuiFlexGroup>
           </EuiFormRow>
         );
-      }
-    }
+      }}
     />
     <Daily />
   </Fragment>
