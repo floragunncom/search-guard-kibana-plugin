@@ -76,7 +76,6 @@ const JsonWatch = ({
 
 JsonWatch.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  onChecksResult: PropTypes.func.isRequired,
   formik: PropTypes.object.isRequired
 };
 
