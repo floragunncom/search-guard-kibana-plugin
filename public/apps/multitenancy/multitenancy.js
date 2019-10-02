@@ -19,7 +19,6 @@ import chrome from 'ui/chrome';
 import uiRoutes from 'ui/routes';
 import { uiModules } from 'ui/modules';
 import 'ui/autoload/styles';
-import { indexPatternsGetProvider } from 'ui/index_patterns/_get';
 
 import 'plugins/searchguard/apps/configuration/configuration.less';
 
@@ -41,8 +40,6 @@ uiRoutes
 uiModules
     .get('app/searchguard-multitenancy')
     .controller('searchguardMultitenancyController', function ($http, $window, sg_resolvedInfo) {
-
-        indexPatternsGetProvider(chrome.getSavedObjectsClient())('id');
 
         var APP_ROOT = `${chrome.getBasePath()}`;
         var API_ROOT = `${APP_ROOT}/api/v1`;
