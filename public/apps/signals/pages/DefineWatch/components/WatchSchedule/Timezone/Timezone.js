@@ -14,7 +14,6 @@ const Timezone = () => (
       label: timezoneText,
       isInvalid,
       error: hasError,
-      style: { paddingLeft: '0px' },
     }}
     elementProps={{
       isClearable: false,

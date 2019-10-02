@@ -39,8 +39,8 @@ import { MONTHLYTYPES } from './utils/constants';
 
 const Monthly = () => (
   <Fragment>
-    <EuiFlexGroup alignItems="flexEnd" style={{ paddingLeft: '10px', marginTop: '5px' }}>
-      <EuiFlexItem style={{ marginTop: '0px' }}>
+    <EuiFlexGroup alignItems="flexEnd" className="sg-flex-group">
+      <EuiFlexItem className="sg-flex-item">
         <FormikSelect
           name="_monthly.type"
           formRow
@@ -48,7 +48,6 @@ const Monthly = () => (
             label: onText,
             isInvalid,
             error: hasError,
-            style: { marginTop: '0px' },
           }}
           elementProps={{
             options: MONTHLYTYPES,
@@ -58,7 +57,7 @@ const Monthly = () => (
           }}
         />
       </EuiFlexItem>
-      <EuiFlexItem style={{ marginTop: '0px' }}>
+      <EuiFlexItem className="sg-flex-item">
         <FormikFieldNumber
           name="_monthly.day"
           formRow
@@ -66,7 +65,7 @@ const Monthly = () => (
           rowProps={{
             isInvalid,
             error: hasError,
-            style: { marginTop: '0px' },
+            hasEmptyLabelSpace: false,
           }}
         />
       </EuiFlexItem>

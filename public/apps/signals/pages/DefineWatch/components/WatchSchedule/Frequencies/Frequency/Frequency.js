@@ -10,7 +10,6 @@ const Frequency = () => (
     formRow
     rowProps={{
       label: modeText,
-      style: { paddingLeft: '10px' },
       isInvalid,
       error: hasError,
     }}
