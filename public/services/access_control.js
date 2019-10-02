@@ -20,7 +20,7 @@ import { toastNotifications } from 'ui/notify';
 
 uiModules
 .get('kibana')
-.service('searchGuardAccessControl', function ($rootScope, $window, $http, $location, createNotifier) {
+.service('searchGuardAccessControl', function ($rootScope, $window, $http, $location) {
   const APP_ROOT = `${chrome.getBasePath()}`;
   const API_ROOT = `${APP_ROOT}/api/v1/auth`;
 
