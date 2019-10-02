@@ -1,0 +1,29 @@
+variables:
+  SG_JAVA_BUILD_VERSION: "8"
+  NVM_DIR: "~/.nvm"
+  MAVEN_HOME: "/opt/apache-maven"
+  
+  
+image: circleci/openjdk:${SG_JAVA_BUILD_VERSION}-jdk-browsers
+
+cache:
+  key: "$CI_COMMIT_REF_SLUG"
+  paths:
+    - .m2/repository
+ 
+before_script:
+    - | 
+        curl -o https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh| bash > /dev/null 2>&1
+        [ -s "$NVM_DIR/nvm.sh" ]; \. "$NVM_DIR/nvm.sh" 
+        PACKAGE_VERSION=$(cat package.json | jq --raw-output '.version') && echo "PACKAGE_VERSION: $PACKAGE_VERSION"
+        ES_VERSION=$(echo $PACKAGE_VERSION | cut -d'-' -f1) && echo "ES_VERSION: $ES_VERSION"
+        PLUGIN_VERSION=$(echo $PACKAGE_VERSION | cut -d'-' -f2) && echo "PLUGIN_VERSION: $PLUGIN_VERSION"
+        SNAPSHOT=$(echo $PACKAGE_VERSION | cut -d'-' -f3) && echo "SNAPSHOT: $SNAPSHOT"
+
+stages:
+ - build
+
+unittest_and_build:
+  stage: build
+  script: 
+    - if [ "SNAPSHOT" == "SNAPSHOT" ]; then ./build.sh $ES_VERSION $PLUGIN_VERSION-$SNAPSHOT deploy-snapshot; else echo "Can only deploy SNAPSHOT versions" && exit -1; fi
