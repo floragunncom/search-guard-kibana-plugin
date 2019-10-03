@@ -32,6 +32,8 @@ export default function (kibana) {
                 cookie: Joi.object().keys({
                     secure: Joi.boolean().default(false),
                     name: Joi.string().default('searchguard_authentication'),
+                    storage_cookie_name: Joi.string().default('searchguard_storage'),
+                    preferences_cookie_name: Joi.string().default('searchguard_preferences'),
                     password: Joi.string().min(32).default('searchguard_cookie_default_password'),
                     ttl: Joi.number().integer().min(0).default(60 * 60 * 1000),
                     domain: Joi.string(),
@@ -350,7 +352,7 @@ export default function (kibana) {
                 storageCookieConf["domain"] = config.get('searchguard.cookie.domain');
             }
 
-            server.state('searchguard_storage', storageCookieConf);
+            server.state(config.get('searchguard.cookie.storage_cookie_name'), storageCookieConf);
 
 
 
@@ -453,7 +455,7 @@ export default function (kibana) {
                     preferenceCookieConf["domain"] = config.get('searchguard.cookie.domain');
                 }
 
-                server.state('searchguard_preferences', preferenceCookieConf);
+                server.state(config.get('searchguard.cookie.preferences_cookie_name'), preferenceCookieConf);
 
                 this.status.yellow("Search Guard multitenancy registered. This is an Enterprise feature.");
             } else {
