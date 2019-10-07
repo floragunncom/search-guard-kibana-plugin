@@ -35,7 +35,6 @@ class DefineWatch extends Component {
     const { id } = queryString.parse(location.search);
 
     this.state = {
-      id,
       isEdit: !!id,
       initialValues: watchToFormik(DEFAULT_WATCH)
     };
@@ -45,18 +44,10 @@ class DefineWatch extends Component {
     this.fetchData();
   }
 
-  componentWillReceiveProps({ location }) {
-    const { id } = queryString.parse(location.search);
-    const { id: currentId } = this.state;
-    if (id !== currentId) {
-      this.setState({ id }, () => {
-        this.fetchData();
-      });
-    }
-  }
-
   fetchData = async () => {
-    const { id } = this.state;
+    const { location, history, dispatch } = this.props;
+    const { id } = queryString.parse(location.search);
+
     try {
       if (id) {
         const { resp: watch } = await this.watchService.get(id);
@@ -64,7 +55,13 @@ class DefineWatch extends Component {
       }
     } catch (error) {
       console.error('DefineWatch -- fetchData', error);
-      this.props.dispatch(addErrorToast(error));
+
+      if (error.body.status === 404) {
+        this.setState({ isEdit: false });
+        history.push({ search: '' });
+      } else {
+        dispatch(addErrorToast(error));
+      }
     }
   }
 
