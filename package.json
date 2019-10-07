@@ -36,6 +36,7 @@
     "prop-types": "^15.7.2",
     "query-string": "^6.5.0",
     "react": "^16.8.6",
+    "react-ace": "^7.0.4",
     "react-dom": "^16.8.6",
     "react-draggable-list": "^4.0.3",
     "react-motion": "^0.5.2",

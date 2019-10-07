@@ -25,7 +25,12 @@ class DefinitionPanel extends Component {
 
     this.state = {
       isLoading: false,
-      isChecksHelpFlyoutOpen: false
+      isChecksHelpFlyoutOpen: false,
+      insertAceText: {
+        row: undefined,
+        column: undefined,
+        text: undefined,
+      }
     };
 
     this.watchService = new WatchService(this.props.httpClient);
@@ -70,9 +75,16 @@ class DefinitionPanel extends Component {
       checkBlock.id = checksBlocks.length;
 
       setFieldValue('_checksBlocks', [...checksBlocks, checkBlock]);
-    } else { // Json watch
+    } else { // JsonWatch
       try {
-        setFieldValue('checks', stringifyPretty([...JSON.parse(checks), checkTemplate]));
+        const { row, column } = this.state.insertAceText;
+        const isInsertingCheck = Number.isInteger(row) && Number.isInteger(column);
+
+        if (isInsertingCheck) {
+          this.setState({ insertAceText: { row, column, text: stringifyPretty(checkTemplate) } });
+        } else { // Append check
+          setFieldValue('checks', stringifyPretty([...JSON.parse(checks), checkTemplate]));
+        }
       } catch (error) {
         dispatch(addErrorToast(error));
       }
@@ -123,7 +135,16 @@ class DefinitionPanel extends Component {
         this.renderExecuteWatchButton(values)
       ];
 
-      watchDefinition = <JsonWatch httpClient={httpClient} />;
+      watchDefinition = (
+        <JsonWatch
+          httpClient={httpClient}
+          insertAceText={this.state.insertAceText}
+          onInsertAceText={({ row, column }) => {
+            // Text is updated by this.addCheckTemplate
+            this.setState({ insertAceText: { row, column, text: undefined } });
+          }}
+        />
+      );
     } else { // BlocksWatch
       actions = [
         <HelpButton onClick={() => this.setState({ isChecksHelpFlyoutOpen: true })} />,
