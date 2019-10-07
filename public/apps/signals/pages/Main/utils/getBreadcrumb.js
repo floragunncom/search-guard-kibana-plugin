@@ -18,9 +18,9 @@ export default function getBreadcrumb(route) {
   const [ base, queryParams ] = route.split('?');
   if (!base) return null;
 
-  const { id, type } = queryString.parse(queryParams);
+  const { id, destinationType } = queryString.parse(queryParams);
   let urlParams = id ? `?id=${id}` : '';
-  if (id && type) urlParams += `&type=${type}`;
+  if (id && destinationType) urlParams += `&destinationType=${destinationType}`;
 
   const breadcrumb = {
     '#': { text: dashboardText, href: APP_PATH.DASHBOARD },

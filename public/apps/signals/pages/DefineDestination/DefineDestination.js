@@ -31,10 +31,11 @@ class DefineDestination extends Component {
     super(props);
 
     const { location, httpClient } = this.props;
-    const { type } = queryString.parse(location.search);
+    const { destinationType } = queryString.parse(location.search);
 
     this.destService = new DestinationsService(httpClient);
-    const initialValues = type ? DEFAULTS[type] : DEFAULTS[DESTINATION_TYPE.EMAIL];
+    const initialValues = destinationType
+      ? DEFAULTS[destinationType] : DEFAULTS[DESTINATION_TYPE.EMAIL];
 
     this.state = {
       initialValues: destinationToFormik(initialValues)
@@ -93,7 +94,7 @@ class DefineDestination extends Component {
     } = this.props;
 
     const { initialValues } = this.state;
-    const { id, type } = queryString.parse(location.search);
+    const { id, destinationType } = queryString.parse(location.search);
     const isEdit = !!id;
 
     let destination = (
@@ -106,7 +107,7 @@ class DefineDestination extends Component {
       />
     );
 
-    if (type === DESTINATION_TYPE.SLACK) {
+    if (destinationType === DESTINATION_TYPE.SLACK) {
       destination = <SlackDestination httpClient={httpClient} id={id} />;
     }
 
