@@ -20,9 +20,13 @@ import WatchResponse from '../WatchResponse';
 
 const JsonWatch = ({
   formik: {
-    values: { _checksResult = null },
+    values: {
+      _checksResult = null,
+    },
     setFieldValue,
   },
+  insertAceText,
+  onInsertAceText,
 }) => {
   const response = !isEmpty(_checksResult) ? stringifyPretty(_checksResult) : null;
 
@@ -46,8 +50,10 @@ const JsonWatch = ({
         width: '100%',
         height: '500px',
         theme: 'github',
-        onChange: (query, field, form) => {
+        insertText: insertAceText,
+        onChange: (query, field, form, stat) => {
           form.setFieldValue(field.name, query);
+          onInsertAceText(stat.end);
         },
         onBlur: (e, field, form) => {
           form.setFieldTouched(field.name, true);
@@ -76,7 +82,13 @@ const JsonWatch = ({
 
 JsonWatch.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  formik: PropTypes.object.isRequired
+  formik: PropTypes.object.isRequired,
+  insertAceText: PropTypes.shape({
+    row: PropTypes.number,
+    column: PropTypes.column,
+    text: PropTypes.string,
+  }).isRequired,
+  onInsertAceText: PropTypes.func.isRequired,
 };
 
 export default connectRedux()(connectFormik(JsonWatch));

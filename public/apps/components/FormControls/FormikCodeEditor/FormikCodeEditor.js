@@ -30,15 +30,15 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { EuiCodeEditor } from '@elastic/eui';
 import FormikInputWrapper from '../FormikInputWrapper';
 import FormikFormRow from '../FormikFormRow';
+import SgCodeEditor from '../../CodeEditor';
 
 const CodeEditor = ({ name, form, field, elementProps: { onBlur, onChange, ...rest } }) => (
-  <EuiCodeEditor
+  <SgCodeEditor
     id={name}
     value={field.value}
-    onChange={onChange instanceof Function ? string => onChange(string, field, form) : onChange}
+    onChange={onChange instanceof Function ? (string, stat) => onChange(string, field, form, stat) : onChange}
     onBlur={onBlur instanceof Function ? e => onBlur(e, field, form) : onBlur}
     {...rest}
   />

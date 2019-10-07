@@ -268,8 +268,8 @@ export const buildWatch = formik => {
 
   forEach(formik, (value, key) => {
     if (!META_FIELDS_TO_OMIT.includes(key)) {
-      const isMetaFieldExcludingServerMeta = key[0] === '_' && key !== '_meta';
-      if (isMetaFieldExcludingServerMeta) {
+      const isMetaFieldExceptServerMeta = key[0] === '_' && key !== '_meta';
+      if (isMetaFieldExceptServerMeta) {
         uiMetadata[key] = value;
       } else {
         watch[key] = value;
