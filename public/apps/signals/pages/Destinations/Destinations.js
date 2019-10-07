@@ -148,7 +148,7 @@ class Destinations extends Component {
 
   addDestination = destinationType => {
     this.triggerAddDestinationPopover();
-    this.props.history.push(`${APP_PATH.DEFINE_DESTINATION}?type=${destinationType}`);
+    this.props.history.push(`${APP_PATH.DEFINE_DESTINATION}?destinationType=${destinationType}`);
   }
 
   renderToolsLeft = () => {
@@ -211,7 +211,7 @@ class Destinations extends Component {
             name={id}
             value={id}
             onClick={() => {
-              history.push(`${APP_PATH.DEFINE_DESTINATION}?id=${id}&type=${type}`);
+              history.push(`${APP_PATH.DEFINE_DESTINATION}?id=${id}&destinationType=${type}`);
             }}
           />
         )

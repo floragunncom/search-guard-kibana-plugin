@@ -71,9 +71,10 @@ class Breadcrumbs extends Component {
 
     const parseLocationHash = hash => hash.split('/').filter(route => !!route);
     const routes = parseLocationHash(window.location.hash);
-    // let rawBreadcrumbs = routes.map(route => getBreadcrumb(route));
+
     let rawBreadcrumbs = routes.map(route => this.props.onGetBreadcrumb(route));
     rawBreadcrumbs = flatten(rawBreadcrumbs).filter(breadcrumb => !!breadcrumb);
+
     const breadcrumbs = rawBreadcrumbs.map(breadcrumb => createBreadcrumb(breadcrumb, history));
     this.setState({ breadcrumbs });
   }
