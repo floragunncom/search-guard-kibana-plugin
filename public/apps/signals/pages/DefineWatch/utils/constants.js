@@ -86,7 +86,7 @@ export const ES_QUERY_RESULT_FIELDS = [
 export const META_FIELDS_TO_OMIT = [
   '_id',
   '_ui',
-  '_checksBlocks',
+  '_checksBlocks', //BlocksWatch checks
   ...ES_QUERY_RESULT_FIELDS,
   ...Object.keys(SCHEDULE_DEFAULTS)
 ];
