@@ -295,7 +295,8 @@ describe('buildWatch', () => {
       ...SCHEDULE_DEFAULTS,
       _frequency: 'cron',
       _cron: '0 */1 * * *',
-      _ui: { ...GRAPH_DEFAULTS }
+      _ui: { ...GRAPH_DEFAULTS },
+      _tenant: 'admin_tenant'
     };
 
     const watch = {
@@ -314,7 +315,8 @@ describe('buildWatch', () => {
       _ui: {
         ...GRAPH_DEFAULTS,
         _watchType: WATCH_TYPE.JSON
-      }
+      },
+      _tenant: 'admin_tenant'
     };
 
     expect(buildWatch(formik)).toEqual(watch);
@@ -579,7 +581,8 @@ describe('formikToWatch', () => {
         ...GRAPH_DEFAULTS,
         _watchType: WATCH_TYPE.JSON,
         ...SCHEDULE_DEFAULTS,
-        _period: { interval: 5, unit: 'h' }
+        _period: { interval: 5, unit: 'h' },
+        _tenant: 'admin_tenant'
       };
 
       const watch = {
@@ -638,7 +641,8 @@ describe('formikToWatch', () => {
             name: 'mycondition',
             source: 'data.mysearch.hits.hits.length > 0'
           }
-        ]
+        ],
+        _tenant: 'admin_tenant'
       };
 
       expect(formikToWatch(formik)).toEqual(watch);
@@ -705,7 +709,8 @@ describe('formikToWatch', () => {
         _timeField: 'timestamp',
         ...SCHEDULE_DEFAULTS,
         _frequency: 'cron',
-        _cron: '0 */1 * * * ?'
+        _cron: '0 */1 * * * ?',
+        _tenant: 'admin_tenant'
       };
 
       const watch = {
@@ -788,7 +793,8 @@ describe('formikToWatch', () => {
             name: 'mycondition',
             source: 'data.mysearch.hits.total.value > 1000'
           }
-        ]
+        ],
+        _tenant: 'admin_tenant'
       };
 
       expect(formikToWatch(formik)).toEqual(watch);
