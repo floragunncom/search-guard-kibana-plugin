@@ -44,3 +44,5 @@ export const WATCH_EXAMPLES = {
   MEMORY_USAGE: 'memory_usage',
   MIN_PRODUCT_PRICE: 'min_product_price'
 };
+
+export const NO_MULTITENANCY_TENANT = '_main';
