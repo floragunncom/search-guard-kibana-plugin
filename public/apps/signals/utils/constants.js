@@ -24,7 +24,7 @@ export const SEARCH_TYPE = {
 };
 
 export const DOC_LINKS = {
-  REPO: 'https://github.com/floragunncom/search-guard-kibana-plugin',
+  REPO: 'https://git.floragunn.com/search-guard/search-guard-kibana-plugin',
   CRON_EXPRESSION: 'https://www.freeformatter.com/cron-expression-generator-quartz.html'
 };
 
