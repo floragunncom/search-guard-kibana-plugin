@@ -3,7 +3,6 @@ import { EuiSuperDatePicker } from '@elastic/eui';
 import PropTypes from 'prop-types';
 
 export default class DatePicker extends Component {
-
   state = {
     recentlyUsedRanges: [],
     isLoading: false,
@@ -12,35 +11,64 @@ export default class DatePicker extends Component {
   }
 
   onTimeChange = ({ start, end }) => {
+    const { refreshInterval, isPaused, onChange } = this.props;
+
     this.setState((prevState) => {
       const recentlyUsedRanges = prevState.recentlyUsedRanges.filter(recentlyUsedRange => {
         const isDuplicate = recentlyUsedRange.start === start && recentlyUsedRange.end === end;
         return !isDuplicate;
       });
       recentlyUsedRanges.unshift({ start, end });
+
       return {
         recentlyUsedRanges: recentlyUsedRanges.length > 10 ? recentlyUsedRanges.slice(0, 9) : recentlyUsedRanges,
         isLoading: true,
       };
     }, this.startLoading);
-    this.props.fetchDocs({ start, end });
+
+    onChange({
+      start,
+      end,
+      refreshInterval,
+      isPaused,
+    });
   }
 
   onRefresh = ({ start, end, refreshInterval }) => {
+    const { isPaused, onChange } = this.props;
+
     return new Promise((resolve) => {
       setTimeout(resolve, 100);
     }).then(() => {
-      console.log(start, end, refreshInterval);
-      this.props.fetchDocs();
+      onChange({
+        start,
+        end,
+        refreshInterval,
+        isPaused,
+      });
     });
   }
 
   onStartInputChange = e => {
-    this.props.fetchDocs({ start: e.target.value, end: this.props.end });
+    const { end, refreshInterval, isPaused, onChange } = this.props;
+
+    onChange({
+      start: e.target.value,
+      end,
+      refreshInterval,
+      isPaused,
+    });
   };
 
   onEndInputChange = e => {
-    this.props.fetchDocs({ end: e.target.value, start: this.props.start });
+    const { start, refreshInterval, isPaused, onChange } = this.props;
+
+    onChange({
+      end: e.target.value,
+      start,
+      refreshInterval,
+      isPaused,
+    });
   };
 
   startLoading = () => {
@@ -54,9 +82,13 @@ export default class DatePicker extends Component {
   }
 
   onRefreshChange = ({ isPaused, refreshInterval }) => {
-    this.setState({
-      isPaused,
+    const { start, end, onChange } = this.props;
+
+    onChange({
+      start,
+      end,
       refreshInterval,
+      isPaused,
     });
   }
 
@@ -73,7 +105,7 @@ export default class DatePicker extends Component {
   }
 
   render() {
-    const { start, end } = this.props;
+    const { start, end, refreshInterval, isPaused } = this.props;
 
     return (
       <EuiSuperDatePicker
@@ -82,8 +114,8 @@ export default class DatePicker extends Component {
         end={end}
         onTimeChange={this.onTimeChange}
         onRefresh={this.onRefresh}
-        isPaused={this.state.isPaused}
-        refreshInterval={this.state.refreshInterval}
+        isPaused={isPaused}
+        refreshInterval={refreshInterval}
         onRefreshChange={this.onRefreshChange}
         recentlyUsedRanges={this.state.recentlyUsedRanges}
         showUpdateButton={this.state.showUpdateButton}
@@ -94,7 +126,9 @@ export default class DatePicker extends Component {
 }
 
 DatePicker.propTypes = {
-  fetchDocs: PropTypes.func.isRequired,
+  onChange: PropTypes.func.isRequired,
   start: PropTypes.string.isRequired,
   end: PropTypes.string.isRequired,
+  refreshInterval: PropTypes.number.isRequired,
+  isPaused: PropTypes.bool.isRequired,
 };
