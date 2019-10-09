@@ -31,8 +31,10 @@ import {
 import {
   ALERT_STATUS,
   TABLE_SORT_FIELD,
-  TABLE_SORT_DIRECTION
+  TABLE_SORT_DIRECTION,
+  DATE_PICKER,
 } from './utils/constants';
+import { DEFAULT_DATEFIELD } from '../../../../../utils/signals/constants';
 
 class Alerts extends Component {
   constructor(props) {
@@ -43,44 +45,67 @@ class Alerts extends Component {
       isLoading: true,
       error: null,
       tableSelection: [],
-      date: {
-        start: DEFAULT_DATEFIELD_RANGE_QUERY_GTE,
-        end: DEFAULT_DATEFIELD_RANGE_QUERY_LT
-      }
     };
 
     this.alertService = new AlertService(this.props.httpClient);
   }
 
   componentDidMount() {
-    this.getAlerts();
+    const urlParams = queryString.parse(this.props.location.search);
+
+    this.setUrlParameters(urlParams);
+    if (urlParams.dateGte && urlParams.dateLt) {
+      this.getAlerts(urlParams);
+    }
+  }
+
+  componentDidUpdate({ location: prevLocation },) {
+    const prevUrlParams = queryString.parse(prevLocation.search);
+    const urlParams = queryString.parse(this.props.location.search);
+
+    if (JSON.stringify(urlParams) !== JSON.stringify(prevUrlParams)) {
+      this.getAlerts(urlParams);
+    }
   }
 
   componentWillUnmount() {
     this.props.onTriggerInspectJsonFlyout(null);
   }
 
-  getAlerts = async ({
-    start = this.state.date.start,
-    end = this.state.date.end
+  setUrlParameters = ({
+    dateGte = DEFAULT_DATEFIELD_RANGE_QUERY_GTE,
+    dateLt = DEFAULT_DATEFIELD_RANGE_QUERY_LT,
+    refreshInterval = DATE_PICKER.REFRESH_INTERVAL,
+    isPaused = DATE_PICKER.IS_PAUSED,
   } = {}) => {
+    const { location, history } = this.props;
+
+    const currParams = queryString.parse(location.search);
+    const newParams = queryString.parse(queryString.stringify({
+      dateGte,
+      dateLt,
+      refreshInterval,
+      isPaused,
+    }));
+
+    if (JSON.stringify(newParams) !== JSON.stringify(currParams)) {
+      history.push({
+        search: queryString.stringify(Object.assign(currParams, newParams))
+      });
+    }
+  }
+
+  getAlerts = async ({ dateGte, dateLt, watchId }) => {
     this.setState({ isLoading: true });
 
     try {
-      const { watchId: encodedWatchId } = queryString.parse(this.props.location.search);
-      const watchId = !encodedWatchId ? undefined : decodeURI(encodedWatchId);
-
-      const { resp: alerts } = await this.alertService.get({
-        dateGte: start,
-        dateLt: end,
-        watchId
-      });
-
-      this.setState({ alerts, date: { start, end } });
+      const { resp: alerts } = await this.alertService.get({ dateGte, dateLt, watchId });
+      this.setState({ alerts });
     } catch (error) {
       this.setState({ error });
       this.props.dispatch(addErrorToast(error));
-      console.error('Alerts - getAlerts', error);
+      console.error('Alerts -- getAlerts', error);
+      console.debug('Params', { dateGte, dateLt, watchId });
     }
 
     this.setState({ isLoading: false });
@@ -123,6 +148,20 @@ class Alerts extends Component {
     });
   }
 
+  handleDatePickerChange = ({
+    start: dateGte,
+    end: dateLt,
+    refreshInterval,
+    isPaused = true,
+  }) => {
+    this.setUrlParameters({ dateGte, dateLt, refreshInterval, isPaused });
+    // Get alerts if auto refresh is on
+    if (!isPaused) {
+      const { watchId } = queryString.parse(this.props.location.search);
+      this.getAlerts({ dateGte, dateLt, watchId });
+    }
+  }
+
   renderToolsLeft = () => {
     const { tableSelection, isLoading } = this.state;
     if (tableSelection.length === 0) return null;
@@ -142,9 +181,16 @@ class Alerts extends Component {
   }
 
   render() {
-    const { alerts, date, error, isLoading } = this.state;
+    const { alerts, error, isLoading } = this.state;
     const { history, location } = this.props;
-    const { watchId: encodedWatchId } = queryString.parse(location.search);
+    const {
+      watchId: encodedWatchId,
+      dateGte = DEFAULT_DATEFIELD_RANGE_QUERY_GTE,
+      dateLt = DEFAULT_DATEFIELD_RANGE_QUERY_LT,
+      refreshInterval = DATE_PICKER.REFRESH_INTERVAL,
+      isPaused = DATE_PICKER.IS_PAUSED,
+    } = queryString.parse(location.search);
+
     const watchId = !encodedWatchId ? undefined : decodeURI(encodedWatchId);
     const isAlertsAggByWatch = !!watchId;
 
@@ -211,7 +257,7 @@ class Alerts extends Component {
         )
       },
       {
-        field: 'execution_end',
+        field: DEFAULT_DATEFIELD,
         name: execEndText,
         footer: execEndText,
         sortable: true,
@@ -242,7 +288,13 @@ class Alerts extends Component {
     ];
 
     const contentPanelActions = [
-      (<DatePicker start={date.start} end={date.end} fetchDocs={this.getAlerts} />)
+      <DatePicker
+        start={dateGte}
+        end={dateLt}
+        refreshInterval={+refreshInterval}
+        isPaused={isPaused === 'true'}
+        onChange={this.handleDatePickerChange}
+      />
     ];
 
     if (isAlertsAggByWatch) {
