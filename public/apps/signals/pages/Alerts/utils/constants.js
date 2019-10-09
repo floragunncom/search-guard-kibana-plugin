@@ -24,3 +24,8 @@ export const ALERT_STATUS = {
 
 export const TABLE_SORT_FIELD = 'execution_end';
 export const TABLE_SORT_DIRECTION = 'desc';
+
+export const DATE_PICKER = {
+  REFRESH_INTERVAL: 3000, // ms
+  IS_PAUSED: true,
+};
