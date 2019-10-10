@@ -64,7 +64,7 @@ export default class VisualGraph extends Component {
     const xDomain = getXDomain(data);
     const yDomain = getYDomain(data);
     const annotations = getAnnotationData(xDomain, yDomain, thresholdValue);
-    const xTitle = values._timeField;
+    const xTitle = values._ui.timeField;
     const yTitle = getYTitle(values);
     const leftPadding = getLeftPadding(yDomain);
     const markData = getMarkData(data);

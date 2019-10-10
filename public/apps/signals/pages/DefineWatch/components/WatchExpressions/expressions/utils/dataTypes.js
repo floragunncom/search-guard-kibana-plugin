@@ -53,6 +53,6 @@ export function getOptions(dataTypes, formikValues) {
 
 export function formikToAllowedTypes(values) {
   const types = ['number'];
-  if (['min', 'max'].includes(values._aggregationType)) types.push('date');
+  if (['min', 'max'].includes(values._ui.aggregationType)) types.push('date');
   return types;
 }

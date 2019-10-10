@@ -38,7 +38,7 @@ import {
 import { Y_DOMAIN_BUFFER, DEFAULT_MARK_SIZE } from './constants';
 
 export function getYTitle(values) {
-  return _.get(values, '_fieldName[0].label', 'count');
+  return _.get(values, '_ui.fieldName[0].label', 'count');
 }
 
 export function getLeftPadding(yDomain) {
@@ -103,14 +103,14 @@ export function getMarkData(data) {
 }
 
 export function getAggregationTitle(values) {
-  const aggregationType = selectOptionValueToText(values._aggregationType, AGGREGATION_TYPES);
+  const aggregationType = selectOptionValueToText(values._ui.aggregationType, AGGREGATION_TYPES);
   const when = `WHEN ${aggregationType}`;
-  const fieldName = _.get(values, '_fieldName[0].label');
+  const fieldName = _.get(values, '_ui.fieldName[0].label');
   const of = `OF ${fieldName}`;
-  const overDocuments = values._overDocuments;
+  const overDocuments = values._ui.overDocuments;
   const over = `OVER ${overDocuments}`;
-  const value = values._bucketValue;
-  const unit = selectOptionValueToText(values._bucketUnitOfTime, UNITS_OF_TIME);
+  const value = values._ui.bucketValue;
+  const unit = selectOptionValueToText(values._ui.bucketUnitOfTime, UNITS_OF_TIME);
   const forTheLast = `FOR THE LAST ${value} ${unit}`;
 
   if (aggregationType === 'count()') {

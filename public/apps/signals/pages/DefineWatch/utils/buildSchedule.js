@@ -1,35 +1,43 @@
 import { comboBoxOptionsToArray } from '../../../utils/helpers';
 
-export default function buildSchedule(watch) {
-  const { _frequency } = watch;
-
+// export default function buildSchedule(watch) {
+export default function buildSchedule({
+  frequency,
+  period,
+  daily,
+  weekly,
+  monthly,
+  cron,
+  timezone,
+}) {
   let schedule;
-  switch (_frequency) {
+
+  switch (frequency) {
     case 'interval': {
-      schedule = [watch._period.interval + watch._period.unit];
+      schedule = [period.interval + period.unit];
       break;
     }
     case 'daily': {
-      schedule = [{ at: `${watch._daily}:00` }];
+      schedule = [{ at: `${daily}:00` }];
       break;
     }
     case 'weekly': {
-      let daysOfWeek = Object.keys(watch._weekly).reduce((acc, day) => {
-        if (watch._weekly[day]) acc.push(day);
+      let daysOfWeek = Object.keys(weekly).reduce((acc, day) => {
+        if (weekly[day]) acc.push(day);
         return acc;
       }, []);
 
       if (!daysOfWeek.length) daysOfWeek = ['mon'];
 
-      schedule = [{ at: `${watch._daily}:00`, on: daysOfWeek }];
+      schedule = [{ at: `${daily}:00`, on: daysOfWeek }];
       break;
     }
     case 'monthly': {
-      schedule = [{ at: `${watch._daily}:00`, on: +watch._monthly.day }];
+      schedule = [{ at: `${daily}:00`, on: +monthly.day }];
       break;
     }
     default: { // cron
-      schedule = [watch._cron];
+      schedule = [cron];
       break;
     }
   }
@@ -37,8 +45,8 @@ export default function buildSchedule(watch) {
   return {
     trigger: {
       schedule: {
-        [_frequency]: schedule,
-        timezone: comboBoxOptionsToArray(watch._timezone)[0]
+        [frequency]: schedule,
+        timezone: comboBoxOptionsToArray(timezone)[0]
       }
     }
   };

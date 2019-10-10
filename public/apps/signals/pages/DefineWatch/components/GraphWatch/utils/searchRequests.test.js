@@ -3,23 +3,25 @@ import { buildSearchRequest } from './searchRequests';
 describe('build graph watch search requests', () => {
   test('count()', () => {
     const formik = {
-      _fieldName: [],
-      _aggregationType: 'count',
-      _index: [
-        {
-          health: 'green',
-          label: 'kibana_sample_data_ecommerce',
-          status: 'open'
-        },
-        {
-          health: 'green',
-          label: 'kibana_sample_data_flights',
-          status: 'open'
-        }
-      ],
-      _timeField: 'timestamp',
-      _bucketUnitOfTime: 'h',
-      _bucketValue: 1,
+      _ui: {
+        fieldName: [],
+        aggregationType: 'count',
+        index: [
+          {
+            health: 'green',
+            label: 'kibana_sample_data_ecommerce',
+            status: 'open'
+          },
+          {
+            health: 'green',
+            label: 'kibana_sample_data_flights',
+            status: 'open'
+          }
+        ],
+        timeField: 'timestamp',
+        bucketUnitOfTime: 'h',
+        bucketValue: 1,
+      }
     };
 
     const uiSearchRequest = {
@@ -97,27 +99,29 @@ describe('build graph watch search requests', () => {
 
   test('average()', () => {
     const formik = {
-      _fieldName: [
-        {
-          label: 'FlightDelayMin'
-        }
-      ],
-      _aggregationType: 'avg',
-      _index: [
-        {
-          health: 'green',
-          label: 'kibana_sample_data_ecommerce',
-          status: 'open'
-        },
-        {
-          health: 'green',
-          label: 'kibana_sample_data_flights',
-          status: 'open'
-        }
-      ],
-      _timeField: 'timestamp',
-      _bucketUnitOfTime: 'h',
-      _bucketValue: 1,
+      _ui: {
+        fieldName: [
+          {
+            label: 'FlightDelayMin'
+          }
+        ],
+        aggregationType: 'avg',
+        index: [
+          {
+            health: 'green',
+            label: 'kibana_sample_data_ecommerce',
+            status: 'open'
+          },
+          {
+            health: 'green',
+            label: 'kibana_sample_data_flights',
+            status: 'open'
+          }
+        ],
+        timeField: 'timestamp',
+        bucketUnitOfTime: 'h',
+        bucketValue: 1,
+      }
     };
 
     const uiSearchRequest = {
@@ -207,27 +211,29 @@ describe('build graph watch search requests', () => {
 
   test('sum()', () => {
     const formik = {
-      _fieldName: [
-        {
-          label: 'FlightDelayMin'
-        }
-      ],
-      _aggregationType: 'sum',
-      _index: [
-        {
-          health: 'green',
-          label: 'kibana_sample_data_ecommerce',
-          status: 'open'
-        },
-        {
-          health: 'green',
-          label: 'kibana_sample_data_flights',
-          status: 'open'
-        }
-      ],
-      _timeField: 'timestamp',
-      _bucketUnitOfTime: 'h',
-      _bucketValue: 1,
+      _ui: {
+        fieldName: [
+          {
+            label: 'FlightDelayMin'
+          }
+        ],
+        aggregationType: 'sum',
+        index: [
+          {
+            health: 'green',
+            label: 'kibana_sample_data_ecommerce',
+            status: 'open'
+          },
+          {
+            health: 'green',
+            label: 'kibana_sample_data_flights',
+            status: 'open'
+          }
+        ],
+        timeField: 'timestamp',
+        bucketUnitOfTime: 'h',
+        bucketValue: 1,
+      }
     };
 
     const uiSearchRequest = {
@@ -317,27 +323,29 @@ describe('build graph watch search requests', () => {
 
   test('min()', () => {
     const formik = {
-      _fieldName: [
-        {
-          label: 'FlightDelayMin'
-        }
-      ],
-      _aggregationType: 'min',
-      _index: [
-        {
-          health: 'green',
-          label: 'kibana_sample_data_ecommerce',
-          status: 'open'
-        },
-        {
-          health: 'green',
-          label: 'kibana_sample_data_flights',
-          status: 'open'
-        }
-      ],
-      _timeField: 'timestamp',
-      _bucketUnitOfTime: 'h',
-      _bucketValue: 1,
+      _ui: {
+        fieldName: [
+          {
+            label: 'FlightDelayMin'
+          }
+        ],
+        aggregationType: 'min',
+        index: [
+          {
+            health: 'green',
+            label: 'kibana_sample_data_ecommerce',
+            status: 'open'
+          },
+          {
+            health: 'green',
+            label: 'kibana_sample_data_flights',
+            status: 'open'
+          }
+        ],
+        timeField: 'timestamp',
+        bucketUnitOfTime: 'h',
+        bucketValue: 1,
+      }
     };
 
     const uiSearchRequest = {
@@ -427,27 +435,29 @@ describe('build graph watch search requests', () => {
 
   test('max()', () => {
     const formik = {
-      _fieldName: [
-        {
-          label: 'FlightDelayMin'
-        }
-      ],
-      _aggregationType: 'max',
-      _index: [
-        {
-          health: 'green',
-          label: 'kibana_sample_data_ecommerce',
-          status: 'open'
-        },
-        {
-          health: 'green',
-          label: 'kibana_sample_data_flights',
-          status: 'open'
-        }
-      ],
-      _timeField: 'timestamp',
-      _bucketUnitOfTime: 'h',
-      _bucketValue: 1,
+      _ui: {
+        fieldName: [
+          {
+            label: 'FlightDelayMin'
+          }
+        ],
+        aggregationType: 'max',
+        index: [
+          {
+            health: 'green',
+            label: 'kibana_sample_data_ecommerce',
+            status: 'open'
+          },
+          {
+            health: 'green',
+            label: 'kibana_sample_data_flights',
+            status: 'open'
+          }
+        ],
+        timeField: 'timestamp',
+        bucketUnitOfTime: 'h',
+        bucketValue: 1,
+      }
     };
 
     const uiSearchRequest = {

@@ -31,13 +31,13 @@ const BlocksWatch = ({
 }) => {
   const [isLoading, setLoading] = useState(false);
 
-  const { _checksBlocks: checksBlocks = [], _checksResult: checksResult = '' } = values;
+  const { checksBlocks = [], checksResult = '' } = values._ui;
   const watchResponse = !isEmpty(checksResult) ? stringifyPretty(checksResult) : null;
 
   const watchService = new WatchService(httpClient);
 
   const setBlocks = reorderedChecks => {
-    setFieldValue('_checksBlocks', reorderedChecks);
+    setFieldValue('_ui.checksBlocks', reorderedChecks);
   };
 
   const deleteBlock = index => {
@@ -48,7 +48,7 @@ const BlocksWatch = ({
     onTriggerConfirmDeletionModal({
       body: 'the check',
       onConfirm: () => {
-        setFieldValue('_checksBlocks', newChecks);
+        setFieldValue('_ui.checksBlocks', newChecks);
         onTriggerConfirmDeletionModal(null);
       }
     });
@@ -56,14 +56,16 @@ const BlocksWatch = ({
 
   const executeBlocks = async (startIndex, endIndex) => {
     const newFormikValues = update(values, {
-      _checksBlocks: { $set: values._checksBlocks.slice(startIndex, endIndex + 1) }
+      _ui: {
+        checksBlocks: { $set: values._ui.checksBlocks.slice(startIndex, endIndex + 1) }
+      }
     });
 
     setLoading(true);
 
     try {
       const { ok, resp } = await watchService.execute(formikToWatch(newFormikValues));
-      setFieldValue(`_checksBlocks.${endIndex}.response`, stringifyPretty(resp));
+      setFieldValue(`_ui.checksBlocks.${endIndex}.response`, stringifyPretty(resp));
       if (!ok) throw resp;
     } catch (error) {
       dispatch(addErrorToast(error));
@@ -80,7 +82,7 @@ const BlocksWatch = ({
       {!!checksResult && (
         <WatchResponse
           response={watchResponse}
-          onClose={() => setFieldValue('_checksResult', null)}
+          onClose={() => setFieldValue('_ui.checksResult', null)}
         />
       )}
 

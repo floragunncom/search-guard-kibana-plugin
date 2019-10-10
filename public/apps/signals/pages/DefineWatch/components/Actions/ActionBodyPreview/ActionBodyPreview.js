@@ -20,13 +20,13 @@ const ActionBodyPreview = ({
   language = 'html',
   formik: { values }
 }) => {
-  const isGraphWatch = values._watchType === WATCH_TYPE.GRAPH;
+  const isGraphWatch = values._ui.watchType === WATCH_TYPE.GRAPH;
   const previewHelpText = isGraphWatch
     ? selectConditionToRenderGraphToSeeResultsText
     : executeWatchToSeeResultText;
 
   const _template = isEmpty(template) ? get(values, `actions[${index}].request.body`) : template;
-  const _view = isEmpty(view) ? { data: values._checksResult } : { data: view };
+  const _view = isEmpty(view) ? { data: values._ui.checksResult } : { data: view };
 
   let previewBody;
   try {

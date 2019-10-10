@@ -46,7 +46,7 @@ const Interval = () => (
     >
       <EuiFlexItem style={{ margin: '0 1em 0 0' }}>
         <FormikFieldNumber
-          name="_period.interval"
+          name="_ui.period.interval"
           formRow
           formikFieldProps={{ validate: validateInterval }}
           rowProps={{
@@ -59,7 +59,7 @@ const Interval = () => (
       </EuiFlexItem>
       <EuiFlexItem style={{ marginTop: '.1em' }}>
         <FormikSelect
-          name="_period.unit"
+          name="_ui.period.unit"
           formRow
           rowProps={{
             hasEmptyLabelSpace: true
