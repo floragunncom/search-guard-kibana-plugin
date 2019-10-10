@@ -4,9 +4,10 @@ import { ROUTE_PATH } from '../utils/constants';
 
 export default class AlertService extends SignalsService {
   get({ dateGte, dateLt, watchId }) {
-    let path = `..${ROUTE_PATH.ALERTS}`;
     const query = queryString.stringify({ dateGte, dateLt, watchId });
+    let path = `..${ROUTE_PATH.ALERTS}`;
     if (query) path += `?${query}`;
+
     return super.get(path);
   }
 
