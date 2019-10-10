@@ -45,7 +45,7 @@ const components = {
 };
 
 const FrequencyPicker = ({ formik }) => {
-  const type = formik.values._frequency;
+  const type = formik.values._ui.frequency;
   const Component = components[type];
   return <Component />;
 };

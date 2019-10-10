@@ -52,12 +52,12 @@ class ForExpression extends Component {
     <div style={POPOVER_STYLE}>
       <EuiFlexGroup style={{ maxWidth: 600 }}>
         <EuiFlexItem grow={false} style={{ width: 100 }}>
-          <FormikFieldNumber name="_bucketValue" elementProps={{ onChange: this.onChangeWrapper }} />
+          <FormikFieldNumber name="_ui.bucketValue" elementProps={{ onChange: this.onChangeWrapper }} />
         </EuiFlexItem>
 
         <EuiFlexItem grow={false} style={{ width: 150 }}>
           <FormikSelect
-            name="_bucketUnitOfTime"
+            name="_ui.bucketUnitOfTime"
             elementProps={{
               onChange: this.onChangeWrapper,
               options: UNITS_OF_TIME,
@@ -81,8 +81,8 @@ class ForExpression extends Component {
         button={
           <EuiExpression
             description="for the last"
-            value={`${values._bucketValue.toLocaleString()} ${selectOptionValueToText(
-              values._bucketUnitOfTime,
+            value={`${values._ui.bucketValue.toLocaleString()} ${selectOptionValueToText(
+              values._ui.bucketUnitOfTime,
               UNITS_OF_TIME
             )}`}
             isActive={openedStates.FOR_THE_LAST}

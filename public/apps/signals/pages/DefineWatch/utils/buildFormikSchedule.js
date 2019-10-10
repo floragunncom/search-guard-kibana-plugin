@@ -9,15 +9,15 @@ import {
 import { SCHEDULE_DEFAULTS } from './constants';
 
 export default function buildFormikSchedule(watch = {}) {
-  const _frequency = Object.keys(watch.trigger.schedule)
+  const frequency = Object.keys(watch.trigger.schedule)
     .filter(key => ['interval', 'daily', 'weekly', 'monthly', 'cron'].includes(key)).pop();
-  const formikSchedule = { ...cloneDeep(SCHEDULE_DEFAULTS), _frequency };
+  const formikSchedule = { ...cloneDeep(SCHEDULE_DEFAULTS), frequency };
 
   if (watch.trigger.schedule.timezone) {
-    formikSchedule._timezone = arrayToComboBoxOptions([watch.trigger.schedule.timezone]);
+    formikSchedule.timezone = arrayToComboBoxOptions([watch.trigger.schedule.timezone]);
   }
 
-  let watchSchedule = watch.trigger.schedule[_frequency];
+  let watchSchedule = watch.trigger.schedule[frequency];
   if (!Array.isArray(watchSchedule) || !watchSchedule.length) {
     return formikSchedule;
   }
@@ -26,11 +26,11 @@ export default function buildFormikSchedule(watch = {}) {
   // TODO: UI desing must be improved to use multiple values
   watchSchedule = watchSchedule[0];
 
-  switch (_frequency) {
+  switch (frequency) {
     case 'interval': {
       const matched = matchTimePeriod(watchSchedule);
       if (matched) {
-        formikSchedule._period = { interval: +matched[1], unit: matched[2] };
+        formikSchedule.period = { interval: +matched[1], unit: matched[2] };
       }
 
       break;
@@ -40,7 +40,7 @@ export default function buildFormikSchedule(watch = {}) {
 
       const matched = matchTimeHHMM(watchSchedule.at);
       if (matched) {
-        formikSchedule._daily = +matched[1];
+        formikSchedule.daily = +matched[1];
       }
 
       break;
@@ -50,7 +50,7 @@ export default function buildFormikSchedule(watch = {}) {
       daysOfWeek.forEach(day => {
         if (matchDayOfWeek(day)) {
           const shortDay = day.slice(0, 3);
-          formikSchedule._weekly[shortDay] = true;
+          formikSchedule.weekly[shortDay] = true;
         }
       });
 
@@ -58,7 +58,7 @@ export default function buildFormikSchedule(watch = {}) {
 
       const matched = matchTimeHHMM(watchSchedule.at);
       if (matched) {
-        formikSchedule._daily = +matched[1];
+        formikSchedule.daily = +matched[1];
       }
 
       break;
@@ -67,18 +67,18 @@ export default function buildFormikSchedule(watch = {}) {
       if (typeof watchSchedule.at !== 'string' || typeof watchSchedule.on !== 'number') break;
 
       if (matchDayOfMonth(watchSchedule.on + '')) {
-        formikSchedule._monthly.day = watchSchedule.on;
+        formikSchedule.monthly.day = watchSchedule.on;
       }
 
       const matched = matchTimeHHMM(watchSchedule.at);
       if (matched) {
-        formikSchedule._daily = +matched[1];
+        formikSchedule.daily = +matched[1];
       }
 
       break;
     }
     default: { // cron
-      formikSchedule._cron = watchSchedule;
+      formikSchedule.cron = watchSchedule;
     }
   }
 

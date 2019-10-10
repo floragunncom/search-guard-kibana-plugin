@@ -3,28 +3,30 @@ import { buildGraphQuery, buildUiGraphQuery } from '../../../utils';
 import { WATCH_CHECK_TYPE, WATCH_CHECK_SEARCH_NAME_DEFAULT } from '../../../utils/constants';
 
 export function buildSearchRequest({
-  _bucketValue,
-  _bucketUnitOfTime,
-  _timeField,
-  _aggregationType,
-  _fieldName,
-  _index
+  _ui: {
+    bucketValue,
+    bucketUnitOfTime,
+    timeField,
+    aggregationType,
+    fieldName,
+    index
+  }
 }, uiGraphQuery = true) {
-  const indices = comboBoxOptionsToArray(_index);
+  const indices = comboBoxOptionsToArray(index);
   const body = uiGraphQuery
     ? buildUiGraphQuery({
-      _bucketValue,
-      _bucketUnitOfTime,
-      _timeField,
-      _aggregationType,
-      _fieldName
+      bucketValue,
+      bucketUnitOfTime,
+      timeField,
+      aggregationType,
+      fieldName
     })
     : buildGraphQuery({
-      _bucketValue,
-      _bucketUnitOfTime,
-      _timeField,
-      _aggregationType,
-      _fieldName
+      bucketValue,
+      bucketUnitOfTime,
+      timeField,
+      aggregationType,
+      fieldName
     });
 
   return {

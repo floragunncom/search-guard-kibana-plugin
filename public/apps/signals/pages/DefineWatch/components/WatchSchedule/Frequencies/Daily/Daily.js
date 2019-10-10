@@ -38,7 +38,7 @@ const Daily = () => (
   <EuiFlexGroup direction="column" className="sg-flex-group">
     <EuiFlexItem className="sg-flex-item">
       <Field
-        name="_daily"
+        name="_ui.daily"
         render={({
           // eslint-disable-next-line no-unused-vars
           field: { value, onChange, onBlur, ...rest },
@@ -50,7 +50,7 @@ const Daily = () => (
               showTimeSelectOnly
               selected={moment().hours(value).minutes(0)}
               onChange={date => {
-                setFieldValue('_daily', date.hours());
+                setFieldValue('_ui.daily', date.hours());
               }}
               dateFormat="hh:mm A"
               timeIntervals={60}

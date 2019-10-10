@@ -7,7 +7,6 @@ import {
   buildCondition,
   buildWhenAggregation,
   buildChecks,
-  buildWatch,
   buildActions,
   buildChecksFromChecksBlocks
 } from './formikToWatch';
@@ -21,15 +20,10 @@ import {
   WATCH_CHECK_SEARCH_NAME_DEFAULT,
   SCHEDULE_DEFAULTS,
   GRAPH_DEFAULTS,
-  ES_QUERY_RESULT_FIELDS,
-  TIMEZONE_DEFAULT
+  TIMEZONE_DEFAULT,
+  RESULT_FIELD_DEFAULTS
 } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
-
-const esQueryResults = ES_QUERY_RESULT_FIELDS.reduce((acc, e) => {
-  acc[e] = {};
-  return acc;
-}, {});
 
 describe('buildChecksFromChecksBlocks', () => {
   test('can build checks', () => {
@@ -274,80 +268,31 @@ describe('buildActions', () => {
   });
 });
 
-describe('buildWatch', () => {
-  test('can build json watch', () => {
-    const formik = {
-      actions: [],
-      active: true,
-      trigger: {
-        schedule: {
-          cron: '0 */1 * * *',
-        },
-      },
-      checks: JSON.stringify([{ a: 1 }]),
-      ...esQueryResults,
-      _meta: {
-        auth_token: '123',
-        last_edit: {}
-      },
-      ...GRAPH_DEFAULTS,
-      _watchType: WATCH_TYPE.JSON,
-      ...SCHEDULE_DEFAULTS,
-      _frequency: 'cron',
-      _cron: '0 */1 * * *',
-      _ui: { ...GRAPH_DEFAULTS },
-      _tenant: 'admin_tenant'
-    };
-
-    const watch = {
-      actions: [],
-      active: true,
-      trigger: {
-        schedule: {
-          cron: '0 */1 * * *',
-        },
-      },
-      checks: [{ a: 1 }],
-      _meta: {
-        auth_token: '123',
-        last_edit: {}
-      },
-      _ui: {
-        ...GRAPH_DEFAULTS,
-        _watchType: WATCH_TYPE.JSON
-      },
-      _tenant: 'admin_tenant'
-    };
-
-    expect(buildWatch(formik)).toEqual(watch);
-  });
-});
-
 describe('buildChecks', () => {
   test('can build checks for json watch', () => {
-    const _watchType = WATCH_TYPE.JSON;
+    const watchType = WATCH_TYPE.JSON;
     const checks = JSON.stringify({ a: 1 });
 
-    expect(buildChecks({ _watchType, checks })).toEqual(JSON.parse(checks));
+    expect(buildChecks({ _ui: { watchType }, checks })).toEqual(JSON.parse(checks));
   });
 
   test('can build checks for blocks watch', () => {
-    const _watchType = WATCH_TYPE.BLOCKS;
-    const _checksBlocks = [{ check: JSON.stringify({ a: 1 }), id: 0 }];
+    const watchType = WATCH_TYPE.BLOCKS;
+    const checksBlocks = [{ check: JSON.stringify({ a: 1 }), id: 0 }];
 
-    expect(buildChecks({ _watchType, _checksBlocks })).toEqual([{ a: 1 }]);
+    expect(buildChecks({ _ui: { watchType, checksBlocks } })).toEqual([{ a: 1 }]);
   });
 
   test('can build avg() checks for graph watch', () => {
-    const _bucketValue = 1;
-    const _bucketUnitOfTime = 'h';
-    const _timeField = 'timestamp';
-    const _aggregationType = 'avg';
-    const _fieldName = [{ label: 'fieldName' }];
-    const _watchType = WATCH_TYPE.GRAPH;
-    const _index = [{ label: 'indexName' }];
-    const _thresholdValue = 1000;
-    const _thresholdEnum = 'ABOVE';
+    const bucketValue = 1;
+    const bucketUnitOfTime = 'h';
+    const timeField = 'timestamp';
+    const aggregationType = 'avg';
+    const fieldName = [{ label: 'fieldName' }];
+    const watchType = WATCH_TYPE.GRAPH;
+    const index = [{ label: 'indexName' }];
+    const thresholdValue = 1000;
+    const thresholdEnum = 'ABOVE';
     const result = [
       {
         name: WATCH_CHECK_SEARCH_NAME_DEFAULT,
@@ -383,32 +328,34 @@ describe('buildChecks', () => {
       },
       {
         name: WATCH_CHECK_CONDITION_NAME_DEFAULT,
-        source: `${AGGREGATION_RESULTS_PATH} > ${_thresholdValue}`,
+        source: `${AGGREGATION_RESULTS_PATH} > ${thresholdValue}`,
         type: WATCH_CHECK_TYPE.CONDITION_SCRIPT,
       }
     ];
 
     expect(buildChecks({
-      _bucketValue,
-      _bucketUnitOfTime,
-      _timeField,
-      _aggregationType,
-      _fieldName,
-      _watchType,
-      _index,
-      _thresholdValue,
-      _thresholdEnum
+      _ui: {
+        bucketValue,
+        bucketUnitOfTime,
+        timeField,
+        aggregationType,
+        fieldName,
+        watchType,
+        index,
+        thresholdValue,
+        thresholdEnum
+      }
     })).toEqual(result);
   });
 });
 
 describe('buildUiOverAggregation', () => {
   test('can build aggregation', () => {
-    const _bucketValue = 1;
-    const _bucketUnitOfTime = 'h';
-    const _timeField = 'timestamp';
-    const _aggregationType = 'avg';
-    const _fieldName = [{ label: 'fieldName' }];
+    const bucketValue = 1;
+    const bucketUnitOfTime = 'h';
+    const timeField = 'timestamp';
+    const aggregationType = 'avg';
+    const fieldName = [{ label: 'fieldName' }];
     const aggregation = {
       when: {
         avg: {
@@ -418,73 +365,73 @@ describe('buildUiOverAggregation', () => {
     };
 
     expect(buildWhenAggregation({
-      _bucketValue,
-      _bucketUnitOfTime,
-      _timeField,
-      _aggregationType,
-      _fieldName
+      bucketValue,
+      bucketUnitOfTime,
+      timeField,
+      aggregationType,
+      fieldName
     })).toEqual(aggregation);
   });
 });
 
 describe('buildWhenAggregation', () => {
   test('can build aggregation for count()', () => {
-    const _aggregationType = 'count';
-    const _fieldName = [];
+    const aggregationType = 'count';
+    const fieldName = [];
     const aggregation = {};
 
-    expect(buildWhenAggregation({ _aggregationType, _fieldName })).toEqual(aggregation);
+    expect(buildWhenAggregation({ aggregationType, fieldName })).toEqual(aggregation);
   });
 
   test('can build aggregation for average()', () => {
-    const _aggregationType = 'avg';
-    const _fieldName = [{ label: 'fieldName' }];
+    const aggregationType = 'avg';
+    const fieldName = [{ label: 'fieldName' }];
     const aggregation = { when: { avg: { field: 'fieldName' } } };
 
-    expect(buildWhenAggregation({ _aggregationType, _fieldName })).toEqual(aggregation);
+    expect(buildWhenAggregation({ aggregationType, fieldName })).toEqual(aggregation);
   });
 
   test('dont build aggregation for average() if no field', () => {
-    const _aggregationType = 'avg';
-    const _fieldName = [];
+    const aggregationType = 'avg';
+    const fieldName = [];
     const aggregation = {};
 
-    expect(buildWhenAggregation({ _aggregationType, _fieldName })).toEqual(aggregation);
+    expect(buildWhenAggregation({ aggregationType, fieldName })).toEqual(aggregation);
   });
 });
 
 describe('buildCondition', () => {
   test('can build condition for count()', () => {
-    const _thresholdValue = 1000;
-    const _thresholdEnum = 'ABOVE';
-    const _aggregationType = 'count';
+    const thresholdValue = 1000;
+    const thresholdEnum = 'ABOVE';
+    const aggregationType = 'count';
     const condition = {
       type: WATCH_CHECK_TYPE.CONDITION_SCRIPT,
       name: WATCH_CHECK_CONDITION_NAME_DEFAULT,
-      source: `${HITS_TOTAL_RESULTS_PATH} > ${_thresholdValue}`
+      source: `${HITS_TOTAL_RESULTS_PATH} > ${thresholdValue}`
     };
 
     expect(buildCondition({
-      _thresholdEnum,
-      _thresholdValue,
-      _aggregationType
+      thresholdEnum,
+      thresholdValue,
+      aggregationType
     })).toEqual(condition);
   });
 
   test('can build condition for average()', () => {
-    const _thresholdValue = 1000;
-    const _thresholdEnum = 'ABOVE';
-    const _aggregationType = 'avg';
+    const thresholdValue = 1000;
+    const thresholdEnum = 'ABOVE';
+    const aggregationType = 'avg';
     const condition = {
       type: WATCH_CHECK_TYPE.CONDITION_SCRIPT,
       name: WATCH_CHECK_CONDITION_NAME_DEFAULT,
-      source: `${AGGREGATION_RESULTS_PATH} > ${_thresholdValue}`
+      source: `${AGGREGATION_RESULTS_PATH} > ${thresholdValue}`
     };
 
     expect(buildCondition({
-      _thresholdEnum,
-      _thresholdValue,
-      _aggregationType
+      thresholdEnum,
+      thresholdValue,
+      aggregationType
     })).toEqual(condition);
   });
 });
@@ -536,6 +483,16 @@ describe('formikToWatch', () => {
   describe('json watch', () => {
     test('can create watch from formik', () => {
       const formik = {
+        _id: 'w1',
+        _tenant: 'admin_tenant',
+        _meta: {},
+        _ui: {
+          ...GRAPH_DEFAULTS,
+          watchType: WATCH_TYPE.JSON,
+          ...RESULT_FIELD_DEFAULTS,
+          ...SCHEDULE_DEFAULTS,
+          period: { interval: 5, unit: 'h' },
+        },
         trigger: {
           schedule: {
             interval: ['1m']
@@ -576,19 +533,14 @@ describe('formikToWatch', () => {
         ],
         active: true,
         log_runtime_data: false,
-        _id: 'w1',
-        ...esQueryResults,
-        ...GRAPH_DEFAULTS,
-        _watchType: WATCH_TYPE.JSON,
-        ...SCHEDULE_DEFAULTS,
-        _period: { interval: 5, unit: 'h' },
-        _tenant: 'admin_tenant'
       };
 
       const watch = {
+        _tenant: 'admin_tenant',
+        _meta: {},
         _ui: {
           ...GRAPH_DEFAULTS,
-          _watchType: WATCH_TYPE.JSON
+          watchType: WATCH_TYPE.JSON
         },
         trigger: {
           schedule: {
@@ -642,7 +594,6 @@ describe('formikToWatch', () => {
             source: 'data.mysearch.hits.hits.length > 0'
           }
         ],
-        _tenant: 'admin_tenant'
       };
 
       expect(formikToWatch(formik)).toEqual(watch);
@@ -652,6 +603,28 @@ describe('formikToWatch', () => {
   describe('graph watch', () => {
     test('can create watch from formik', () => {
       const formik = {
+        _id: 'mywatch',
+        _meta: {},
+        _tenant: 'admin_tenant',
+        _ui: {
+          ...GRAPH_DEFAULTS,
+          index: [
+            {
+              health: 'green',
+              label: 'kibana_sample_data_ecommerce',
+              status: 'open'
+            },
+            {
+              health: 'green',
+              label: 'kibana_sample_data_flights',
+              status: 'open'
+            }
+          ],
+          timeField: 'timestamp',
+          ...SCHEDULE_DEFAULTS,
+          frequency: 'cron',
+          cron: '0 */1 * * * ?',
+        },
         trigger: {
           schedule: {
             cron: ['0 */1 * * * ?']
@@ -692,31 +665,14 @@ describe('formikToWatch', () => {
         ],
         active: true,
         log_runtime_data: false,
-        _id: 'mywatch',
-        ...GRAPH_DEFAULTS,
-        _index: [
-          {
-            health: 'green',
-            label: 'kibana_sample_data_ecommerce',
-            status: 'open'
-          },
-          {
-            health: 'green',
-            label: 'kibana_sample_data_flights',
-            status: 'open'
-          }
-        ],
-        _timeField: 'timestamp',
-        ...SCHEDULE_DEFAULTS,
-        _frequency: 'cron',
-        _cron: '0 */1 * * * ?',
-        _tenant: 'admin_tenant'
       };
 
       const watch = {
+        _tenant: 'admin_tenant',
+        _meta: {},
         _ui: {
           ...GRAPH_DEFAULTS,
-          _index: [
+          index: [
             {
               health: 'green',
               label: 'kibana_sample_data_ecommerce',
@@ -728,7 +684,7 @@ describe('formikToWatch', () => {
               status: 'open'
             }
           ],
-          _timeField: 'timestamp'
+          timeField: 'timestamp'
         },
         trigger: {
           schedule: {
@@ -794,7 +750,6 @@ describe('formikToWatch', () => {
             source: 'data.mysearch.hits.total.value > 1000'
           }
         ],
-        _tenant: 'admin_tenant'
       };
 
       expect(formikToWatch(formik)).toEqual(watch);

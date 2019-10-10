@@ -13,7 +13,7 @@ const CustomCron = () => (
   <EuiFlexGroup direction="column" className="sg-flex-group">
     <EuiFlexItem className="sg-flex-item">
       <FormikTextArea
-        name="_cron"
+        name="_ui.cron"
         formRow
         rowProps={{
           label: everyText,

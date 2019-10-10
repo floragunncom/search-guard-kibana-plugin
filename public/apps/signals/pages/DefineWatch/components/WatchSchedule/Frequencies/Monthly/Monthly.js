@@ -42,7 +42,7 @@ const Monthly = () => (
     <EuiFlexGroup alignItems="flexEnd" className="sg-flex-group">
       <EuiFlexItem className="sg-flex-item">
         <FormikSelect
-          name="_monthly.type"
+          name="_ui.monthly.type"
           formRow
           rowProps={{
             label: onText,
@@ -52,14 +52,14 @@ const Monthly = () => (
           elementProps={{
             options: MONTHLYTYPES,
             onChange: (e, field, form) => {
-              form.setFieldValue('_monthly.type', e.target.value);
+              form.setFieldValue('_ui.monthly.type', e.target.value);
             },
           }}
         />
       </EuiFlexItem>
       <EuiFlexItem className="sg-flex-item">
         <FormikFieldNumber
-          name="_monthly.day"
+          name="_ui.monthly.day"
           formRow
           formikFieldProps={{ validate: validateMonthDay }}
           rowProps={{

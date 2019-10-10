@@ -1,4 +1,4 @@
-import { forEach, cloneDeep } from 'lodash';
+import { forEach, cloneDeep, omit } from 'lodash';
 import buildSchedule from './buildSchedule';
 import { comboBoxOptionsToArray } from '../../../utils/helpers';
 import {
@@ -10,7 +10,6 @@ import {
   AGGREGATION_RESULTS_PATH,
   META_FIELDS_TO_OMIT,
   WATCH_CHECK_CONDITION_NAME_DEFAULT,
-  GRAPH_DEFAULTS
 } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
 
@@ -67,44 +66,41 @@ export const buildIndexAction = (action = {}) => {
 };
 
 export const buildActions = (actions = []) => actions.map(action => {
-  let _action = buildThrottle(action);
+  const watchAction = buildThrottle(action);
 
   if (action.type === ACTION_TYPE.INDEX) {
-    _action = buildIndexAction(_action);
+    return buildIndexAction(watchAction);
   }
 
   if (action.type === ACTION_TYPE.EMAIL) {
-    _action = buildEmailAction(_action);
+    return buildEmailAction(watchAction);
   }
 
   if (action.type === ACTION_TYPE.SLACK) {
-    _action = buildSlackAction(_action);
+    return buildSlackAction(watchAction);
   }
 
-  if (action.type === ACTION_TYPE.WEBHOOK) {
-    _action = buildWebhookAction(_action);
-  }
-
-  return _action;
+  // if ACTION_TYPE.WEBHOOK
+  return buildWebhookAction(watchAction);
 });
 
 export const buildWhenAggregation = ({
-  _aggregationType,
-  _fieldName: [{ label: field } = {}],
+  aggregationType,
+  fieldName: [{ label: field } = {}],
 }) => {
-  if (_aggregationType === 'count' || !field) return {};
-  return { when: { [_aggregationType]: { field } } };
+  if (aggregationType === 'count' || !field) return {};
+  return { when: { [aggregationType]: { field } } };
 };
 
 export const buildGraphQuery = ({
-  _bucketValue,
-  _bucketUnitOfTime,
-  _timeField,
-  _aggregationType,
-  _fieldName
+  bucketValue,
+  bucketUnitOfTime,
+  timeField,
+  aggregationType,
+  fieldName
 }) => {
-  const whenAggregation = buildWhenAggregation({ _aggregationType, _fieldName });
-  const gte = `now-${Math.round(_bucketValue)}${_bucketUnitOfTime}`;
+  const whenAggregation = buildWhenAggregation({ aggregationType, fieldName });
+  const gte = `now-${Math.round(bucketValue)}${bucketUnitOfTime}`;
   const lte = 'now';
 
   return {
@@ -114,7 +110,7 @@ export const buildGraphQuery = ({
       bool: {
         filter: {
           range: {
-            [_timeField]: { gte, lte },
+            [timeField]: { gte, lte },
           },
         },
       },
@@ -123,15 +119,15 @@ export const buildGraphQuery = ({
 };
 
 export const buildUiOverAggregation = ({
-  _bucketValue,
-  _bucketUnitOfTime,
-  _timeField: field,
-  _aggregationType,
-  _fieldName
+  bucketValue,
+  bucketUnitOfTime,
+  timeField: field,
+  aggregationType,
+  fieldName
 }) => {
-  const interval = _bucketValue + _bucketUnitOfTime;
-  const whenAggregation = buildWhenAggregation({ _aggregationType, _fieldName });
-  const min = `now-${_bucketValue * BUCKET_COUNT}${_bucketUnitOfTime}`;
+  const interval = bucketValue + bucketUnitOfTime;
+  const whenAggregation = buildWhenAggregation({ aggregationType, fieldName });
+  const min = `now-${bucketValue * BUCKET_COUNT}${bucketUnitOfTime}`;
   const max = 'now';
 
   return {
@@ -149,22 +145,22 @@ export const buildUiOverAggregation = ({
 };
 
 export const buildUiGraphQuery = ({
-  _bucketValue,
-  _bucketUnitOfTime,
-  _timeField,
-  _aggregationType,
-  _fieldName
+  bucketValue,
+  bucketUnitOfTime,
+  timeField,
+  aggregationType,
+  fieldName
 }) => {
   const overAggregation = buildUiOverAggregation({
-    _bucketValue,
-    _bucketUnitOfTime,
-    _timeField,
-    _aggregationType,
-    _fieldName
+    bucketValue,
+    bucketUnitOfTime,
+    timeField,
+    aggregationType,
+    fieldName
   });
 
   // default range window to [BUCKET_COUNT] * the date histogram interval
-  const gte = `now-${_bucketValue * BUCKET_COUNT}${_bucketUnitOfTime}`;
+  const gte = `now-${bucketValue * BUCKET_COUNT}${bucketUnitOfTime}`;
   const lte = 'now';
 
   return {
@@ -174,7 +170,7 @@ export const buildUiGraphQuery = ({
       bool: {
         filter: {
           range: {
-            [_timeField]: { gte, lte },
+            [timeField]: { gte, lte },
           },
         },
       },
@@ -197,13 +193,13 @@ export const getOperator = thresholdEnum =>
   ({ ABOVE: '>', BELOW: '<', EXACTLY: '==' }[thresholdEnum]);
 
 export const buildCondition = ({
-  _thresholdValue,
-  _thresholdEnum,
-  _aggregationType
+  thresholdValue,
+  thresholdEnum,
+  aggregationType
 }) => {
-  const resultsPath = getResultsPath(_aggregationType);
-  const operator = getOperator(_thresholdEnum);
-  return getCondition(resultsPath, operator, _thresholdValue);
+  const resultsPath = getResultsPath(aggregationType);
+  const operator = getOperator(thresholdEnum);
+  return getCondition(resultsPath, operator, thresholdValue);
 };
 
 export const buildChecksFromChecksBlocks = (checks = []) => {
@@ -218,37 +214,39 @@ export const buildChecksFromChecksBlocks = (checks = []) => {
 };
 
 export const buildChecks = ({
-  _bucketValue,
-  _bucketUnitOfTime,
-  _timeField,
-  _aggregationType,
-  _fieldName,
-  _watchType,
-  _index,
-  _thresholdValue,
-  _thresholdEnum,
-  _checksBlocks,
-  checks = []
+  _ui: {
+    bucketValue,
+    bucketUnitOfTime,
+    timeField,
+    aggregationType,
+    fieldName,
+    watchType,
+    index,
+    thresholdValue,
+    thresholdEnum,
+    checksBlocks,
+  },
+  checks = [],
 }) => {
-  if (_watchType === WATCH_TYPE.JSON) return JSON.parse(checks);
+  if (watchType === WATCH_TYPE.JSON) return JSON.parse(checks);
   // TODO: write tests for Blocks
-  if (_watchType === WATCH_TYPE.BLOCKS) return buildChecksFromChecksBlocks(_checksBlocks);
+  if (watchType === WATCH_TYPE.BLOCKS) return buildChecksFromChecksBlocks(checksBlocks);
 
   // Graph watch checks
-  const indices = comboBoxOptionsToArray(_index);
+  const indices = comboBoxOptionsToArray(index);
 
   const body = buildGraphQuery({
-    _bucketValue,
-    _bucketUnitOfTime,
-    _timeField,
-    _aggregationType,
-    _fieldName
+    bucketValue,
+    bucketUnitOfTime,
+    timeField,
+    aggregationType,
+    fieldName
   });
 
   const condition = buildCondition({
-    _thresholdValue,
-    _thresholdEnum,
-    _aggregationType
+    thresholdValue,
+    thresholdEnum,
+    aggregationType
   });
 
   return [
@@ -262,29 +260,15 @@ export const buildChecks = ({
   ];
 };
 
-export const buildWatch = formik => {
-  const watch = {};
-  const uiMetadata = cloneDeep(GRAPH_DEFAULTS);
-
-  forEach(formik, (value, key) => {
-    if (!META_FIELDS_TO_OMIT.includes(key)) {
-      const isMetaFieldExceptServerMeta = key[0] === '_' && key !== '_meta' && key !== '_tenant';
-      if (isMetaFieldExceptServerMeta) {
-        uiMetadata[key] = value;
-      } else {
-        watch[key] = value;
-      }
-    }
-  });
-
-  watch.checks = buildChecks(formik);
-  watch._ui = uiMetadata;
-  return watch;
-};
-
 export const formikToWatch = (formik = {}) => {
-  const watch = buildWatch(formik);
-  const actions = buildActions(formik.actions);
-  const schedule = buildSchedule(formik);
-  return { ...watch, ...schedule, actions };
+  const watch = cloneDeep(formik);
+  delete watch._id;
+
+  return {
+    ...watch,
+    ...buildSchedule(watch._ui),
+    _ui: omit(watch._ui, META_FIELDS_TO_OMIT),
+    checks: buildChecks(formik),
+    actions: buildActions(formik.actions),
+  };
 };

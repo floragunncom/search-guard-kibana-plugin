@@ -40,7 +40,7 @@ const WatchTimeField = ({ dataTypes }) => {
   const options = [''].concat(dateFields).map(option => ({ value: option, text: option }));
   return (
     <FormikSelect
-      name="_timeField"
+      name="_ui.timeField"
       formRow
       formikFieldProps={{ validate: validateEmptyField }}
       rowProps={{

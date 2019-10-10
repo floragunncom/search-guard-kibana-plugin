@@ -49,7 +49,7 @@ class OfExpression extends Component {
     <div style={POPOVER_STYLE}>
       <div style={{ width: expressionWidth }}>
         <FormikComboBox
-          name="_fieldName"
+          name="_ui.fieldName"
           elementProps={{
             placeholder: 'Select a field',
             options,
@@ -80,7 +80,7 @@ class OfExpression extends Component {
       ) *
         8 +
       60;
-    const fieldName = _.get(values, '_fieldName[0].label', 'Select a field');
+    const fieldName = _.get(values, '_ui.fieldName[0].label', 'Select a field');
     return (
       <EuiPopover
         id="of-popover"

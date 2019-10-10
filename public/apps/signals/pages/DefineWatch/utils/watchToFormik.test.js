@@ -13,6 +13,7 @@ import {
   SCHEDULE_DEFAULTS,
   GRAPH_DEFAULTS,
   DEFAULT_WATCH,
+  RESULT_FIELD_DEFAULTS
 } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
 
@@ -154,30 +155,6 @@ describe('buildFormikActions', () => {
   });
 });
 
-describe('buildFormikMeta', () => {
-  test('can create UI metadate formik from existing meta', () => {
-    const watch = { _ui: { ...GRAPH_DEFAULTS } };
-    const formik = { ...GRAPH_DEFAULTS };
-
-    expect(buildFormikMeta(watch)).toEqual(formik);
-  });
-
-  test('can create UI metadate formik for a watch added via REST API', () => {
-    const watch = {};
-    const formik = { ...GRAPH_DEFAULTS, _watchType: WATCH_TYPE.JSON };
-
-    expect(buildFormikMeta(watch)).toEqual(formik);
-  });
-});
-
-describe('buildFormikChecks', () => {
-  test('can create checks formik', () => {
-    const checks = [{ name: 'mySearch', value: { a: 1 } }];
-
-    expect(buildFormikChecks(checks)).toEqual(stringifyPretty(checks));
-  });
-});
-
 describe('buildFormikChecksBlocks', () => {
   test('can create checks blocks formik', () => {
     const checks = [
@@ -191,6 +168,38 @@ describe('buildFormikChecksBlocks', () => {
         check: stringifyPretty(check),
         response: '',
       })));
+  });
+});
+
+describe('buildFormikMeta', () => {
+  test('can create UI metadate formik for a watch added via REST API', () => {
+    const watch = {
+      checks: [{ a: 1 }],
+      trigger: {
+        schedule: {
+          interval: ['5h']
+        }
+      },
+    };
+
+    const formik = {
+      ...GRAPH_DEFAULTS,
+      ...RESULT_FIELD_DEFAULTS,
+      watchType: WATCH_TYPE.JSON,
+      checksBlocks: buildFormikChecksBlocks(watch.checks),
+      ...SCHEDULE_DEFAULTS,
+      period: { interval: 5, unit: 'h' },
+    };
+
+    expect(buildFormikMeta(watch)).toEqual(formik);
+  });
+});
+
+describe('buildFormikChecks', () => {
+  test('can create checks formik', () => {
+    const checks = [{ name: 'mySearch', value: { a: 1 } }];
+
+    expect(buildFormikChecks(checks)).toEqual(stringifyPretty(checks));
   });
 });
 
@@ -215,12 +224,12 @@ describe('buildFormikIndexAction', () => {
 describe('buildFormikThrottle', () => {
   test('can create throttle formik from throttle period', () => {
     const watch = {
-      throttle_period: '12m'
+      throttle_period: '14m'
     };
 
     const formik = {
-      _throttle_period: { interval: 12, unit: 'm' },
-      throttle_period: '12m'
+      _throttle_period: { interval: 14, unit: 'm' },
+      throttle_period: '14m'
     };
 
     expect(buildFormikThrottle(watch)).toEqual(formik);
@@ -265,8 +274,14 @@ describe('watchToFormik', () => {
       };
 
       const formik = {
-        ...GRAPH_DEFAULTS,
-        _ui: { ...GRAPH_DEFAULTS },
+        _ui: {
+          ...GRAPH_DEFAULTS,
+          ...RESULT_FIELD_DEFAULTS,
+          checksBlocks: buildFormikChecksBlocks(DEFAULT_WATCH.checks),
+          ...SCHEDULE_DEFAULTS,
+          frequency: 'interval',
+          period: { interval: 5, unit: 'h' },
+        },
         _id: '',
         active: true,
         trigger: {
@@ -296,12 +311,7 @@ describe('watchToFormik', () => {
             source: 'data.mysearch.hits.hits.length > 0'
           }
         ]),
-        _checksBlocks: buildFormikChecksBlocks(DEFAULT_WATCH.checks),
         actions: [],
-        ...SCHEDULE_DEFAULTS,
-        _frequency: 'interval',
-        _period: { interval: 5, unit: 'h' },
-        _checksGraphResult: {}
       };
 
       expect(watchToFormik(watch)).toEqual(formik);
@@ -311,7 +321,7 @@ describe('watchToFormik', () => {
       const watch = {
         _ui: {
           ...GRAPH_DEFAULTS,
-          _index: [
+          index: [
             {
               health: 'green',
               label: 'kibana_sample_data_ecommerce',
@@ -323,7 +333,7 @@ describe('watchToFormik', () => {
               status: 'open'
             }
           ],
-          _timeField: 'timestamp',
+          timeField: 'timestamp',
         },
         trigger: {
           schedule: {
@@ -393,7 +403,7 @@ describe('watchToFormik', () => {
       const formik = {
         _ui: {
           ...GRAPH_DEFAULTS,
-          _index: [
+          index: [
             {
               health: 'green',
               label: 'kibana_sample_data_ecommerce',
@@ -405,7 +415,45 @@ describe('watchToFormik', () => {
               status: 'open'
             }
           ],
-          _timeField: 'timestamp',
+          timeField: 'timestamp',
+          ...RESULT_FIELD_DEFAULTS,
+          checksBlocks: buildFormikChecksBlocks([
+            {
+              type: 'search',
+              name: 'mysearch',
+              target: 'mysearch',
+              request: {
+                indices: [
+                  'kibana_sample_data_ecommerce',
+                  'kibana_sample_data_flights'
+                ],
+                body: {
+                  size: 0,
+                  aggregations: {},
+                  query: {
+                    bool: {
+                      filter: {
+                        range: {
+                          timestamp: {
+                            gte: 'now-1h',
+                            lte: 'now'
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              type: 'condition.script',
+              name: 'mycheck',
+              source: 'data.mysearch.hits.total.value > 1000'
+            }
+          ]),
+          ...SCHEDULE_DEFAULTS,
+          frequency: 'cron',
+          cron: '* */1 * * * ?',
         },
         trigger: {
           schedule: {
@@ -413,40 +461,6 @@ describe('watchToFormik', () => {
           }
         },
         checks: stringifyPretty([
-          {
-            type: 'search',
-            name: 'mysearch',
-            target: 'mysearch',
-            request: {
-              indices: [
-                'kibana_sample_data_ecommerce',
-                'kibana_sample_data_flights'
-              ],
-              body: {
-                size: 0,
-                aggregations: {},
-                query: {
-                  bool: {
-                    filter: {
-                      range: {
-                        timestamp: {
-                          gte: 'now-1h',
-                          lte: 'now'
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          {
-            type: 'condition.script',
-            name: 'mycheck',
-            source: 'data.mysearch.hits.total.value > 1000'
-          }
-        ]),
-        _checksBlocks: buildFormikChecksBlocks([
           {
             type: 'search',
             name: 'mysearch',
@@ -515,24 +529,6 @@ describe('watchToFormik', () => {
         active: true,
         log_runtime_data: false,
         _id: 'mywatch',
-        ...GRAPH_DEFAULTS,
-        _index: [
-          {
-            health: 'green',
-            label: 'kibana_sample_data_ecommerce',
-            status: 'open'
-          },
-          {
-            health: 'green',
-            label: 'kibana_sample_data_flights',
-            status: 'open'
-          }
-        ],
-        _timeField: 'timestamp',
-        ...SCHEDULE_DEFAULTS,
-        _frequency: 'cron',
-        _cron: '* */1 * * * ?',
-        _checksGraphResult: {},
       };
 
       expect(watchToFormik(watch)).toEqual(formik);
@@ -596,7 +592,15 @@ describe('watchToFormik', () => {
       };
 
       const formik = {
-        _ui: { ...GRAPH_DEFAULTS, _watchType: WATCH_TYPE.JSON },
+        _ui: {
+          ...GRAPH_DEFAULTS,
+          watchType: WATCH_TYPE.JSON,
+          ...RESULT_FIELD_DEFAULTS,
+          checksBlocks: buildFormikChecksBlocks(DEFAULT_WATCH.checks),
+          ...SCHEDULE_DEFAULTS,
+          frequency: 'cron',
+          cron: '* */1 * * * ?',
+        },
         trigger: {
           schedule: {
             cron: ['* */1 * * * ?']
@@ -624,7 +628,6 @@ describe('watchToFormik', () => {
             source: 'data.mysearch.hits.hits.length > 0'
           }
         ]),
-        _checksBlocks: buildFormikChecksBlocks(DEFAULT_WATCH.checks),
         actions: [
           {
             _throttle_period: {
@@ -660,12 +663,6 @@ describe('watchToFormik', () => {
         active: true,
         log_runtime_data: false,
         _id: 'w1',
-        ...GRAPH_DEFAULTS,
-        _watchType: WATCH_TYPE.JSON,
-        ...SCHEDULE_DEFAULTS,
-        _frequency: 'cron',
-        _cron: '* */1 * * * ?',
-        _checksGraphResult: {},
       };
 
       expect(watchToFormik(watch)).toEqual(formik);

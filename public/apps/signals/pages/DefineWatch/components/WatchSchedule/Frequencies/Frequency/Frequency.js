@@ -6,7 +6,7 @@ import { FREQUENCIES } from './utils/constants';
 
 const Frequency = () => (
   <FormikSelect
-    name="_frequency"
+    name="_ui.frequency"
     formRow
     rowProps={{
       label: modeText,
