@@ -43,7 +43,7 @@ class DefinitionPanel extends Component {
 
     try {
       const { ok, resp } = await this.watchService.execute(formikToWatch(values));
-      setFieldValue('_checksResult', resp);
+      setFieldValue('_ui.checksResult', resp);
 
       if (!ok) throw resp;
     } catch (error) {
@@ -61,8 +61,10 @@ class DefinitionPanel extends Component {
     const {
       formik: {
         values: {
-          _watchType: watchType,
-          _checksBlocks: checksBlocks,
+          _ui: {
+            watchType,
+            checksBlocks,
+          },
           checks,
         },
         setFieldValue,
@@ -74,7 +76,7 @@ class DefinitionPanel extends Component {
       const checkBlock = buildFormikChecksBlocks([checkTemplate])[0];
       checkBlock.id = checksBlocks.length;
 
-      setFieldValue('_checksBlocks', [...checksBlocks, checkBlock]);
+      setFieldValue('_ui.checksBlocks', [...checksBlocks, checkBlock]);
     } else { // JsonWatch
       try {
         const { row, column } = this.state.insertAceText;
@@ -116,8 +118,8 @@ class DefinitionPanel extends Component {
 
     const { isChecksHelpFlyoutOpen } = this.state;
 
-    const isGraphWatch = values._watchType === WATCH_TYPE.GRAPH;
-    const isJsonWatch = values._watchType === WATCH_TYPE.JSON;
+    const isGraphWatch = values._ui.watchType === WATCH_TYPE.GRAPH;
+    const isJsonWatch = values._ui.watchType === WATCH_TYPE.JSON;
 
     let actions = [];
     let watchDefinition;
@@ -177,7 +179,7 @@ class DefinitionPanel extends Component {
 
         <div>
           <FormikSelect
-            name="_watchType"
+            name="_ui.watchType"
             formRow
             rowProps={{
               label: typeText

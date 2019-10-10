@@ -30,7 +30,7 @@
 
 import React, { Fragment } from 'react';
 import { Field } from 'formik';
-import _ from 'lodash';
+import { startCase, get } from 'lodash';
 import { EuiFormRow, EuiFlexGroup, EuiFlexItem, EuiCheckbox } from '@elastic/eui';
 import Daily from '../Daily';
 import { everyText, mustSelectADayText } from '../../../../../../utils/i18n/watch';
@@ -40,12 +40,12 @@ const checkboxFlexItem = (day, checked, setFieldValue, setFieldTouched) => (
   <EuiFlexItem key={day} grow={false} style={{ marginRight: '0px' }}>
     <EuiCheckbox
       id={day}
-      label={_.startCase(day)}
+      label={startCase(day)}
       checked={checked}
       onChange={e => {
-        setFieldValue(`_weekly.${day}`, e.target.checked);
+        setFieldValue(`_ui.weekly.${day}`, e.target.checked);
       }}
-      onBlur={() => setFieldTouched('_weekly')}
+      onBlur={() => setFieldTouched('_ui.weekly')}
       compressed
     />
   </EuiFlexItem>
@@ -58,7 +58,7 @@ const validate = value => {
 const Weekly = () => (
   <Fragment>
     <Field
-      name="_weekly"
+      name="_ui.weekly"
       validate={validate}
       render={({
         field: { value },
@@ -67,8 +67,8 @@ const Weekly = () => (
         return (
           <EuiFormRow
             label={everyText}
-            isInvalid={touched._weekly && !!errors._weekly}
-            error={errors._weekly}
+            isInvalid={get(touched, '_ui.weekly') && !!get(errors, '_ui.weekly')}
+            error={get(errors, '_ui.weekly')}
           >
             <EuiFlexGroup alignItems="center">
               {DAYS.map(day => checkboxFlexItem(day, value[day], setFieldValue, setFieldTouched))}

@@ -36,7 +36,7 @@ class Block extends Component {
 
   renderCheckEditor = index => (
     <FormikCodeEditor
-      name={`_checksBlocks.${index}.check`}
+      name={`_ui.checksBlocks.${index}.check`}
       formRow
       rowProps={{
         fullWidth: true,
@@ -153,7 +153,7 @@ class Block extends Component {
             </EuiFlexItem>
           </EuiFlexGroup>
           <FieldArray
-            name="_checksBlocks"
+            name="_ui.checksBlocks"
             render={() => (
               <EuiFlexGroup>
                 <EuiFlexItem>{this.renderCheckEditor(index)}</EuiFlexItem>

@@ -7,7 +7,7 @@ import { timezoneText } from '../../../../../utils/i18n/watch';
 
 const Timezone = () => (
   <FormikComboBox
-    name="_timezone"
+    name="_ui.timezone"
     formRow
     formikFieldProps={{ validate: validateEmptyArray }}
     rowProps={{

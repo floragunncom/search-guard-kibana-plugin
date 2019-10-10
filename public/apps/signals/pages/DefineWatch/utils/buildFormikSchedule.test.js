@@ -13,9 +13,9 @@ describe('buildFormikSchedule', () => {
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
-        _frequency: 'interval',
-        _period: { interval: 12, unit: 'h' },
-        _timezone: [{ label: 'Europe/Rome' }]
+        frequency: 'interval',
+        period: { interval: 12, unit: 'h' },
+        timezone: [{ label: 'Europe/Rome' }]
       });
     });
 
@@ -28,8 +28,8 @@ describe('buildFormikSchedule', () => {
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
-        _frequency: 'interval',
-        _timezone: [{ label: 'Europe/Berlin' }]
+        frequency: 'interval',
+        timezone: [{ label: 'Europe/Berlin' }]
       });
     });
   });
@@ -45,9 +45,9 @@ describe('buildFormikSchedule', () => {
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
-        _frequency: 'daily',
-        _daily: 8,
-        _timezone: [{ label: 'Europe/Rome' }]
+        frequency: 'daily',
+        daily: 8,
+        timezone: [{ label: 'Europe/Rome' }]
       });
     });
 
@@ -60,8 +60,8 @@ describe('buildFormikSchedule', () => {
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
-        _frequency: 'daily',
-        _timezone: [{ label: 'Europe/Berlin' }]
+        frequency: 'daily',
+        timezone: [{ label: 'Europe/Berlin' }]
       });
     });
 
@@ -74,8 +74,8 @@ describe('buildFormikSchedule', () => {
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
-        _frequency: 'daily',
-        _timezone: [{ label: 'Europe/Berlin' }]
+        frequency: 'daily',
+        timezone: [{ label: 'Europe/Berlin' }]
       });
 
       expect(buildFormikSchedule({
@@ -86,8 +86,8 @@ describe('buildFormikSchedule', () => {
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
-        _frequency: 'daily',
-        _timezone: [{ label: 'Europe/Berlin' }]
+        frequency: 'daily',
+        timezone: [{ label: 'Europe/Berlin' }]
       });
     });
   });
@@ -103,10 +103,10 @@ describe('buildFormikSchedule', () => {
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
-        _frequency: 'weekly',
-        _weekly: { ...SCHEDULE_DEFAULTS._weekly, fri: true },
-        _daily: 8,
-        _timezone: [{ label: 'Europe/Rome' }]
+        frequency: 'weekly',
+        weekly: { ...SCHEDULE_DEFAULTS.weekly, fri: true },
+        daily: 8,
+        timezone: [{ label: 'Europe/Rome' }]
       });
     });
 
@@ -119,10 +119,10 @@ describe('buildFormikSchedule', () => {
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
-        _frequency: 'weekly',
-        _weekly: { ...SCHEDULE_DEFAULTS._weekly, fri: true },
-        _daily: 8,
-        _timezone: [{ label: 'Europe/Berlin' }]
+        frequency: 'weekly',
+        weekly: { ...SCHEDULE_DEFAULTS.weekly, fri: true },
+        daily: 8,
+        timezone: [{ label: 'Europe/Berlin' }]
       });
     });
 
@@ -135,10 +135,10 @@ describe('buildFormikSchedule', () => {
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
-        _frequency: 'weekly',
-        _weekly: { ...SCHEDULE_DEFAULTS._weekly, fri: true, sat: true },
-        _daily: 8,
-        _timezone: [{ label: 'Europe/Berlin' }]
+        frequency: 'weekly',
+        weekly: { ...SCHEDULE_DEFAULTS.weekly, fri: true, sat: true },
+        daily: 8,
+        timezone: [{ label: 'Europe/Berlin' }]
       });
     });
 
@@ -151,10 +151,10 @@ describe('buildFormikSchedule', () => {
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
-        _frequency: 'weekly',
-        _weekly: { ...SCHEDULE_DEFAULTS._weekly, tue: true, thu: true },
-        _daily: 8,
-        _timezone: [{ label: 'Europe/Berlin' }]
+        frequency: 'weekly',
+        weekly: { ...SCHEDULE_DEFAULTS.weekly, tue: true, thu: true },
+        daily: 8,
+        timezone: [{ label: 'Europe/Berlin' }]
       });
     });
 
@@ -167,8 +167,8 @@ describe('buildFormikSchedule', () => {
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
-        _frequency: 'weekly',
-        _timezone: [{ label: 'Europe/Berlin' }]
+        frequency: 'weekly',
+        timezone: [{ label: 'Europe/Berlin' }]
       });
     });
 
@@ -183,8 +183,8 @@ describe('buildFormikSchedule', () => {
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
-        _frequency: 'weekly',
-        _timezone: [{ label: 'Europe/Berlin' }]
+        frequency: 'weekly',
+        timezone: [{ label: 'Europe/Berlin' }]
       });
     });
   });
@@ -200,10 +200,10 @@ describe('buildFormikSchedule', () => {
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
-        _frequency: 'monthly',
-        _monthly: { ...SCHEDULE_DEFAULTS._monthly, day: 23 },
-        _daily: 8,
-        _timezone: [{ label: 'Europe/Rome' }]
+        frequency: 'monthly',
+        monthly: { ...SCHEDULE_DEFAULTS.monthly, day: 23 },
+        daily: 8,
+        timezone: [{ label: 'Europe/Rome' }]
       });
     });
 
@@ -216,8 +216,8 @@ describe('buildFormikSchedule', () => {
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
-        _frequency: 'monthly',
-        _timezone: [{ label: 'Europe/Berlin' }]
+        frequency: 'monthly',
+        timezone: [{ label: 'Europe/Berlin' }]
       });
 
       expect(buildFormikSchedule({
@@ -228,8 +228,8 @@ describe('buildFormikSchedule', () => {
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
-        _frequency: 'monthly',
-        _timezone: [{ label: 'Europe/Berlin' }]
+        frequency: 'monthly',
+        timezone: [{ label: 'Europe/Berlin' }]
       });
     });
 
@@ -242,8 +242,8 @@ describe('buildFormikSchedule', () => {
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
-        _frequency: 'monthly',
-        _timezone: [{ label: 'Europe/Berlin' }]
+        frequency: 'monthly',
+        timezone: [{ label: 'Europe/Berlin' }]
       });
     });
   });
@@ -259,9 +259,9 @@ describe('buildFormikSchedule', () => {
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
-        _frequency: 'cron',
-        _cron: '0 */5 * * *',
-        _timezone: [{ label: 'Europe/Rome' }]
+        frequency: 'cron',
+        cron: '0 */5 * * *',
+        timezone: [{ label: 'Europe/Rome' }]
       });
     });
 
@@ -274,8 +274,8 @@ describe('buildFormikSchedule', () => {
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
-        _frequency: 'cron',
-        _timezone: [{ label: 'Europe/Berlin' }]
+        frequency: 'cron',
+        timezone: [{ label: 'Europe/Berlin' }]
       });
     });
   });

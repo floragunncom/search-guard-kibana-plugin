@@ -4,7 +4,12 @@ import {
   arrayToComboBoxOptions
 } from '../../../utils/helpers';
 import buildFormikSchedule from './buildFormikSchedule';
-import { GRAPH_DEFAULTS, WATCH_TYPE, DEFAULT_WATCH } from './constants';
+import {
+  GRAPH_DEFAULTS,
+  WATCH_TYPE,
+  DEFAULT_WATCH,
+  RESULT_FIELD_DEFAULTS,
+} from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
 
 export function buildFormikWebhookAction(action = {}) {
@@ -43,10 +48,16 @@ export const buildFormikChecksBlocks = (checks = []) =>
 
 export const buildFormikChecks = (checks = []) => stringifyPretty(checks);
 
-export const buildFormikMeta = (watch = {}) => {
-  return !isEmpty(watch._ui)
-    ? { ...cloneDeep(GRAPH_DEFAULTS), ...watch._ui }
-    : { ...cloneDeep(GRAPH_DEFAULTS), _watchType: WATCH_TYPE.JSON };
+export const buildFormikMeta = ({ _ui = {}, checks = [], trigger } = {}) => {
+  const ui = {
+    ...cloneDeep(GRAPH_DEFAULTS),
+    ...RESULT_FIELD_DEFAULTS,
+    checksBlocks: buildFormikChecksBlocks(checks),
+    ...buildFormikSchedule({ trigger }),
+    ..._ui
+  };
+
+  return !isEmpty(_ui) ? ui : Object.assign(ui, { watchType: WATCH_TYPE.JSON });
 };
 
 export const buildFormikThrottle = watch => {
@@ -87,22 +98,13 @@ export const buildFormikActions = (actions = []) => actions.map(action => {
 export const watchToFormik = (watch = {}) => {
   const formik = {
     ...cloneDeep(DEFAULT_WATCH),
-    // If watchType is undefined the default type is Json
-    _ui: { ...cloneDeep(DEFAULT_WATCH._ui), _watchType: WATCH_TYPE.JSON },
-    ...cloneDeep(watch)
+    ...cloneDeep(watch),
   };
-
-  const schedule = buildFormikSchedule(formik);
-  const uiMetadata = buildFormikMeta(formik);
-  const actions = buildFormikActions(formik.actions);
 
   return {
     ...formik,
+    _ui: buildFormikMeta(watch),
     checks: buildFormikChecks(formik.checks),
-    _checksBlocks: buildFormikChecksBlocks(formik.checks),
-    actions,
-    _ui: { ...uiMetadata },
-    ...uiMetadata,
-    ...schedule
+    actions: buildFormikActions(formik.actions),
   };
 };

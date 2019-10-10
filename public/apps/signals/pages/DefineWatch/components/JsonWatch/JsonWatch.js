@@ -21,14 +21,14 @@ import WatchResponse from '../WatchResponse';
 const JsonWatch = ({
   formik: {
     values: {
-      _checksResult = null,
+      _ui: { checksResult = null }
     },
     setFieldValue,
   },
   insertAceText,
   onInsertAceText,
 }) => {
-  const response = !isEmpty(_checksResult) ? stringifyPretty(_checksResult) : null;
+  const response = !isEmpty(checksResult) ? stringifyPretty(checksResult) : null;
 
   const renderChecksEditor = () => (
     <FormikCodeEditor
@@ -72,7 +72,7 @@ const JsonWatch = ({
         <EuiFlexItem>
           <WatchResponse
             response={response}
-            onClose={() => setFieldValue('_checksResult', null)}
+            onClose={() => setFieldValue('_ui.checksResult', null)}
           />
         </EuiFlexItem>
       )}
