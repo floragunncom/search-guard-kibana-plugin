@@ -112,7 +112,7 @@ class Alerts extends Component {
   }
 
   deleteAlerts = async (alerts = []) => {
-    const { dispatch } = this.props;
+    const { dispatch, location } = this.props;
     const promises = [];
     this.setState({ isLoading: true });
 
@@ -130,7 +130,9 @@ class Alerts extends Component {
 
     await Promise.all(promises);
     this.setState({ isLoading: false });
-    this.getAlerts();
+
+    const urlParams = queryString.parse(location.search);
+    this.getAlerts(urlParams);
   }
 
   handleDeleteAlerts = (alerts = []) => {
