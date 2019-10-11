@@ -49,7 +49,7 @@ class WhenExpression extends Component {
     <div style={POPOVER_STYLE}>
       <div style={{ width: 180 }}>
         <FormikSelect
-          name="_aggregationType"
+          name="_ui.aggregationType"
           elementProps={{
             onChange: this.onChangeWrapper,
             options: AGGREGATION_TYPES,
@@ -72,7 +72,7 @@ class WhenExpression extends Component {
         button={
           <EuiExpression
             description="when"
-            value={selectOptionValueToText(values._aggregationType, AGGREGATION_TYPES)}
+            value={selectOptionValueToText(values._ui.aggregationType, AGGREGATION_TYPES)}
             isActive={openedStates.WHEN}
             onClick={() => openExpression(Expressions.WHEN)}
           />

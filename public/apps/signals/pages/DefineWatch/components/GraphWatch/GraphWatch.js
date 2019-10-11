@@ -46,6 +46,7 @@ import {
   youMustSpecifyIndexText,
   youMustSpecifyATimeFieldText
 } from '../../../../utils/i18n/watch';
+import { comboBoxOptionsToArray } from '../../../../utils/helpers';
 
 function renderGraphMessage(message) {
   return (
@@ -75,9 +76,20 @@ class GraphWatch extends Component {
   }
 
   componentDidMount() {
-    const { formik: { values: { _index, _timeField } } } = this.props;
-    const hasIndices = !!_index.length;
-    const hasTimeField = !!_timeField;
+    const {
+      formik: {
+        values: {
+          _ui: {
+            index,
+            timeField
+          }
+        }
+      }
+    } = this.props;
+
+    const hasIndices = !!index.length;
+    const hasTimeField = !!timeField;
+
     if (hasIndices) {
       this.onQueryMappings();
       if (hasTimeField) this.onRunQuery();
@@ -88,14 +100,27 @@ class GraphWatch extends Component {
     const {
       formik: {
         values: {
-          _watchType: prevWatchType,
-          _index: prevIndex,
-          _timeField: prevTimeField,
+          _ui: {
+            watchType: prevWatchType,
+            index: prevIndex,
+            timeField: prevTimeField,
+          }
         }
       }
     } = prevProps;
-    const { formik: { values: { _index, _timeField } } } = this.props;
-    const hasIndices = !!_index.length;
+
+    const {
+      formik: {
+        values: {
+          _ui: {
+            index,
+            timeField
+          }
+        }
+      }
+    } = this.props;
+
+    const hasIndices = !!index.length;
     // If customer is defining query through extraction query,
     // then they are manually running their own queries
     // Below logic is for customers defining queries through graph/visual way.
@@ -105,7 +130,7 @@ class GraphWatch extends Component {
       // a) previous query type was query (to get the first load of mappings)
       // b) different indices, to get new mappings
       const wasJson = prevWatchType !== WATCH_TYPE.GRAPH;
-      const diffIndices = prevIndex !== _index;
+      const diffIndices = prevIndex !== index;
       if (wasJson || diffIndices) {
         this.onQueryMappings();
       }
@@ -113,8 +138,8 @@ class GraphWatch extends Component {
       // a) previous query type was query (to get first run executed)
       // b) different indices, to get new data
       // c) different time fields, to aggregate on new data/axis
-      const diffTimeFields = prevTimeField !== _timeField;
-      const hasTimeField = !!_timeField;
+      const diffTimeFields = prevTimeField !== timeField;
+      const hasTimeField = !!timeField;
       if (hasTimeField) {
         if (wasJson || diffIndices || diffTimeFields) this.onRunQuery();
       }
@@ -123,9 +148,8 @@ class GraphWatch extends Component {
 
   onQueryMappings = async () => {
     const { formik: { values }, dispatch } = this.props;
-    const index = values._index.map(({ label }) => label);
     try {
-      const mappings = await this.queryMappings(index);
+      const mappings = await this.queryMappings(comboBoxOptionsToArray(values._ui.index));
       const dataTypes = mappingsToFieldNames(mappings);
       this.setState({ dataTypes });
     } catch (err) {
@@ -166,8 +190,8 @@ class GraphWatch extends Component {
       console.debug('GraphWatch -- searchResponses', [graphQueryResponse, realQueryResponse]);
 
       this.setState({ formikSnapshot });
-      setFieldValue('_checksGraphResult', graphQueryResponse);
-      setFieldValue('_checksResult', { [WATCH_CHECK_SEARCH_NAME_DEFAULT]: realQueryResponse });
+      setFieldValue('_ui.checksGraphResult', graphQueryResponse);
+      setFieldValue('_ui.checksResult', { [WATCH_CHECK_SEARCH_NAME_DEFAULT]: realQueryResponse });
     } catch (err) {
       console.error('There was an error running the query', err);
       dispatch(addErrorToast(err));
@@ -177,8 +201,8 @@ class GraphWatch extends Component {
   renderGraph = () => {
     const { dataTypes, formikSnapshot } = this.state;
     const { formik: { values } } = this.props;
-    const response = values._checksGraphResult || {};
-    const fieldName = get(values, '_fieldName[0].label', 'Select a field');
+    const response = values._ui.checksGraphResult || {};
+    const fieldName = get(values, '_ui.fieldName[0].label', 'Select a field');
 
     return (
       <Fragment>
@@ -189,7 +213,7 @@ class GraphWatch extends Component {
         <WatchExpressions
           onRunQuery={this.onRunQuery}
           dataTypes={dataTypes}
-          ofEnabled={values._aggregationType !== 'count'}
+          ofEnabled={values._ui.aggregationType !== 'count'}
         />
         <EuiSpacer size="s" />
         <VisualGraph
@@ -197,7 +221,7 @@ class GraphWatch extends Component {
           values={formikSnapshot}
           fieldName={fieldName}
           response={response}
-          thresholdValue={values._thresholdValue}
+          thresholdValue={values._ui.thresholdValue}
         />
       </Fragment>
     );
@@ -206,7 +230,14 @@ class GraphWatch extends Component {
   render() {
     const {
       httpClient,
-      formik: { values: { _index, _timeField } },
+      formik: {
+        values: {
+          _ui: {
+            index,
+            timeField
+          }
+        }
+      },
       onComboBoxChange,
       onComboBoxOnBlur,
       onComboBoxCreateOption
@@ -215,8 +246,8 @@ class GraphWatch extends Component {
     const { dataTypes } = this.state;
 
     let content = renderGraphMessage(youMustSpecifyIndexText);
-    if (_index.length) {
-      content = _timeField
+    if (index.length) {
+      content = timeField
         ? this.renderGraph()
         : renderGraphMessage(youMustSpecifyATimeFieldText);
     }
@@ -225,7 +256,7 @@ class GraphWatch extends Component {
       <Fragment>
         <WatchIndex
           httpClient={httpClient}
-          indexFieldName="_index"
+          indexFieldName="_ui.index"
           onComboBoxChange={onComboBoxChange}
           onComboBoxOnBlur={onComboBoxOnBlur}
           onComboBoxCreateOption={onComboBoxCreateOption}

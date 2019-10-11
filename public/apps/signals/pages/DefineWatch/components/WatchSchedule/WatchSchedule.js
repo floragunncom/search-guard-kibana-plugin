@@ -17,7 +17,7 @@ const WatchSchedule = ({ formik: { values } }) => {
           <FrequencyPicker />
         </EuiFlexItem>
         <EuiFlexItem className="sg-flex-item">
-          {values._frequency !== 'interval' && <Timezone />}
+          {values._ui.frequency !== 'interval' && <Timezone />}
         </EuiFlexItem>
       </EuiFlexGroup>
     </Fragment>

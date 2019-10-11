@@ -4,9 +4,9 @@ import { SCHEDULE_DEFAULTS } from './constants';
 describe('buildSchedule', () => {
   it('can build interval', () => {
     expect(buildSchedule({
-      _frequency: 'interval',
-      _period: { interval: 12, unit: 'h' },
-      _timezone: [{ label: 'Europe/Berlin' }]
+      frequency: 'interval',
+      period: { interval: 12, unit: 'h' },
+      timezone: [{ label: 'Europe/Berlin' }]
     })).toEqual({
       trigger: {
         schedule: {
@@ -19,9 +19,9 @@ describe('buildSchedule', () => {
 
   it('can build daily', () => {
     expect(buildSchedule({
-      _frequency: 'daily',
-      _daily: 8,
-      _timezone: [{ label: 'Europe/Berlin' }]
+      frequency: 'daily',
+      daily: 8,
+      timezone: [{ label: 'Europe/Berlin' }]
     })).toEqual({
       trigger: {
         schedule: {
@@ -35,10 +35,10 @@ describe('buildSchedule', () => {
   describe('weekly', () => {
     it('can build weekly', () => {
       expect(buildSchedule({
-        _frequency: 'weekly',
-        _weekly: { ...SCHEDULE_DEFAULTS._weekly, fri: true },
-        _daily: 8,
-        _timezone: [{ label: 'Europe/Berlin' }]
+        frequency: 'weekly',
+        weekly: { ...SCHEDULE_DEFAULTS.weekly, fri: true },
+        daily: 8,
+        timezone: [{ label: 'Europe/Berlin' }]
       })).toEqual({
         trigger: {
           schedule: {
@@ -51,10 +51,10 @@ describe('buildSchedule', () => {
 
     it('can build weekly if multiple days', () => {
       expect(buildSchedule({
-        _frequency: 'weekly',
-        _weekly: { ...SCHEDULE_DEFAULTS._weekly, fri: true, sat: true },
-        _daily: 8,
-        _timezone: [{ label: 'Europe/Berlin' }]
+        frequency: 'weekly',
+        weekly: { ...SCHEDULE_DEFAULTS.weekly, fri: true, sat: true },
+        daily: 8,
+        timezone: [{ label: 'Europe/Berlin' }]
       })).toEqual({
         trigger: {
           schedule: {
@@ -67,10 +67,10 @@ describe('buildSchedule', () => {
 
     it('can build weekly if day was not selected', () => {
       expect(buildSchedule({
-        _frequency: 'weekly',
-        _weekly: { ...SCHEDULE_DEFAULTS._weekly },
-        _daily: 8,
-        _timezone: [{ label: 'Europe/Berlin' }]
+        frequency: 'weekly',
+        weekly: { ...SCHEDULE_DEFAULTS.weekly },
+        daily: 8,
+        timezone: [{ label: 'Europe/Berlin' }]
       })).toEqual({
         trigger: {
           schedule: {
@@ -84,10 +84,10 @@ describe('buildSchedule', () => {
 
   it('can build monthly', () => {
     expect(buildSchedule({
-      _frequency: 'monthly',
-      _monthly: { ...SCHEDULE_DEFAULTS._monthly, day: 23 },
-      _daily: 8,
-      _timezone: [{ label: 'Europe/Berlin' }]
+      frequency: 'monthly',
+      monthly: { ...SCHEDULE_DEFAULTS.monthly, day: 23 },
+      daily: 8,
+      timezone: [{ label: 'Europe/Berlin' }]
     })).toEqual({
       trigger: {
         schedule: {
@@ -100,9 +100,9 @@ describe('buildSchedule', () => {
 
   it('can build cron', () => {
     expect(buildSchedule({
-      _frequency: 'cron',
-      _cron: '0 */5 * * *',
-      _timezone: [{ label: 'Europe/Berlin' }]
+      frequency: 'cron',
+      cron: '0 */5 * * *',
+      timezone: [{ label: 'Europe/Berlin' }]
     })).toEqual({
       trigger: {
         schedule: {

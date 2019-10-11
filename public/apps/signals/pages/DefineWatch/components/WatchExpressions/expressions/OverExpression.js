@@ -48,18 +48,18 @@ class OverExpression extends Component {
 
   renderTypeSelect = () => (
     <FormikSelect
-      name="_overDocuments"
+      name="_ui.overDocuments"
       elementProps={{ onChange: this.onChangeWrapper, options: OVER_TYPES }}
     />
   );
 
   renderTopFieldNumber = () => (
-    <FormikFieldNumber name="_groupedOverTop" elementProps={{ onChange: this.onChangeWrapper }} />
+    <FormikFieldNumber name="_ui.groupedOverTop" elementProps={{ onChange: this.onChangeWrapper }} />
   );
 
   renderTermField = (fields = []) => (
     <FormikSelect
-      name="_groupedOverFieldName"
+      name="_ui.groupedOverFieldName"
       elementProps={{ onChange: this.onChangeWrapper, options: fields }}
     />
   );
@@ -95,10 +95,10 @@ class OverExpression extends Component {
       closeExpression,
       openExpression,
     } = this.props;
-    const isGroupedOver = values._overDocuments === 'top';
+    const isGroupedOver = values._ui.overDocuments === 'top';
     const buttonValue = isGroupedOver
-      ? `${values._overDocuments} ${values._groupedOverTop} ${values._groupedOverFieldName}`
-      : values._overDocuments;
+      ? `${values._ui.overDocuments} ${values._ui.groupedOverTop} ${values._ui.groupedOverFieldName}`
+      : values._ui.overDocuments;
     return (
       <EuiPopover
         id="over-popover"

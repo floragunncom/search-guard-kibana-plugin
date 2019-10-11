@@ -54,7 +54,7 @@ class TriggerExpression extends Component {
         <EuiFlexGroup style={{ maxWidth: 600 }}>
           <EuiFlexItem grow={false} style={{ width: 150 }}>
             <FormikSelect
-              name="_thresholdEnum"
+              name="_ui.thresholdEnum"
               elementProps={{
                 options: THRESHOLD_ENUM_OPTIONS,
                 onChange: this.onChangeWrapper
@@ -64,7 +64,7 @@ class TriggerExpression extends Component {
 
           <EuiFlexItem grow={false} style={{ width: 100 }}>
             <FormikFieldNumber
-              name="_thresholdValue"
+              name="_ui.thresholdValue"
               elementProps={{
                 onChange: this.onChangeWrapper
               }}
@@ -80,7 +80,9 @@ class TriggerExpression extends Component {
 
   render() {
     const {
-      formik: { values: { _thresholdEnum, _thresholdValue } },
+      formik: {
+        values: { _ui: { thresholdEnum, thresholdValue } }
+      },
       openedStates,
       closeExpression,
       openExpression,
@@ -92,8 +94,8 @@ class TriggerExpression extends Component {
             id="trigger-popover"
             button={
               <EuiExpression
-                description={`IS ${_thresholdEnum}`}
-                value={`${_thresholdValue.toLocaleString()}`}
+                description={`IS ${thresholdEnum}`}
+                value={`${thresholdValue.toLocaleString()}`}
                 isActive={openedStates.THRESHOLD}
                 onClick={() => openExpression(Expressions.THRESHOLD)}
               />
