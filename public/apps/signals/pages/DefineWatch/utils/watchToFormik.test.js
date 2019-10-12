@@ -36,11 +36,10 @@ describe('buildFormikActions', () => {
 
     const formik = [
       {
-        _throttle_period: {
+        throttle_period: {
           interval: 1,
           unit: 's'
         },
-        throttle_period: '1s',
         type: ACTION_TYPE.EMAIL,
         name: 'myemail',
         from: 'signals@localhost',
@@ -71,11 +70,10 @@ describe('buildFormikActions', () => {
 
     const formik = [
       {
-        _throttle_period: {
+        throttle_period: {
           interval: 1,
           unit: 's'
         },
-        throttle_period: '1s',
         type: ACTION_TYPE.SLACK,
         name: 'myslacksink',
         account: [{ label: 'a' }],
@@ -107,11 +105,10 @@ describe('buildFormikActions', () => {
 
     const formik = [
       {
-        _throttle_period: {
+        throttle_period: {
           interval: 1,
           unit: 's'
         },
-        throttle_period: '1s',
         type: ACTION_TYPE.WEBHOOK,
         name: 'mywebhook',
         request: {
@@ -139,11 +136,10 @@ describe('buildFormikActions', () => {
 
     const formik = [
       {
-        _throttle_period: {
+        throttle_period: {
           interval: 1,
           unit: 's'
         },
-        throttle_period: '1s',
         type: ACTION_TYPE.INDEX,
         name: 'myelasticsearch',
         index: [{ label: 'a' }],
@@ -228,8 +224,7 @@ describe('buildFormikThrottle', () => {
     };
 
     const formik = {
-      _throttle_period: { interval: 14, unit: 'm' },
-      throttle_period: '14m'
+      throttle_period: { interval: 14, unit: 'm' },
     };
 
     expect(buildFormikThrottle(watch)).toEqual(formik);
@@ -496,13 +491,12 @@ describe('watchToFormik', () => {
         ]),
         actions: [
           {
-            _throttle_period: {
+            throttle_period: {
               interval: 1,
               unit: 's',
             },
             type: ACTION_TYPE.INDEX,
             name: 'myelasticsearch',
-            throttle_period: '1s',
             index: [
               {
                 label: 'testindex_alias'
@@ -511,13 +505,12 @@ describe('watchToFormik', () => {
             checks: '[]'
           },
           {
-            _throttle_period: {
+            throttle_period: {
               interval: 1,
               unit: 's',
             },
             type: ACTION_TYPE.WEBHOOK,
             name: 'mywebhook',
-            throttle_period: '1s',
             request: {
               method: 'POST',
               url: 'https://webhook.site/22092e82-bd7b-4c58-9e12-35d9d8f6a549',
@@ -630,13 +623,12 @@ describe('watchToFormik', () => {
         ]),
         actions: [
           {
-            _throttle_period: {
+            throttle_period: {
               interval: 1,
               unit: 's',
             },
             type: ACTION_TYPE.INDEX,
             name: 'myelasticsearch',
-            throttle_period: '1s',
             index: [
               {
                 label: 'testindex_alias'
@@ -645,13 +637,12 @@ describe('watchToFormik', () => {
             checks: '[]'
           },
           {
-            _throttle_period: {
+            throttle_period: {
               interval: 1,
               unit: 's',
             },
             type: ACTION_TYPE.WEBHOOK,
             name: 'mywebhook',
-            throttle_period: '1s',
             request: {
               method: 'POST',
               url: 'https://webhook.site/22092e82-bd7b-4c58-9e12-35d9d8f6a549',

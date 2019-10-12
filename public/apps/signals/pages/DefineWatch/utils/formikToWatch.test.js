@@ -85,11 +85,10 @@ describe('buildActions', () => {
 
     const formik = [
       {
-        _throttle_period: {
+        throttle_period: {
           interval: 1,
           unit: 's'
         },
-        throttle_period: '1s',
         type: ACTION_TYPE.EMAIL,
         name: 'myemail',
         from: 'signals@localhost',
@@ -120,11 +119,10 @@ describe('buildActions', () => {
 
     const formik = [
       {
-        _throttle_period: {
+        throttle_period: {
           interval: 1,
           unit: 's'
         },
-        throttle_period: '1s',
         type: ACTION_TYPE.SLACK,
         name: 'myslacksink',
         account: [{ label: 'a' }],
@@ -156,11 +154,10 @@ describe('buildActions', () => {
 
     const formik = [
       {
-        _throttle_period: {
+        throttle_period: {
           interval: 1,
           unit: 's'
         },
-        throttle_period: '1s',
         type: ACTION_TYPE.WEBHOOK,
         name: 'mywebhook',
         request: {
@@ -192,11 +189,10 @@ describe('buildActions', () => {
 
     const formik = [
       {
-        _throttle_period: {
+        throttle_period: {
           interval: 1,
           unit: 's'
         },
-        throttle_period: '1s',
         type: ACTION_TYPE.WEBHOOK,
         name: 'mywebhook',
         request: {
@@ -224,11 +220,10 @@ describe('buildActions', () => {
 
     const formik = [
       {
-        _throttle_period: {
+        throttle_period: {
           interval: 1,
           unit: 's'
         },
-        throttle_period: '1s',
         type: ACTION_TYPE.INDEX,
         name: 'myelasticsearch',
         index: [{ label: 'a' }],
@@ -252,11 +247,10 @@ describe('buildActions', () => {
 
     const formik = [
       {
-        _throttle_period: {
+        throttle_period: {
           interval: 1,
           unit: 's'
         },
-        throttle_period: '1s',
         type: ACTION_TYPE.INDEX,
         name: 'myelasticsearch',
         index: [{ label: 'a' }],
@@ -469,8 +463,7 @@ describe('getOperator', () => {
 describe('buildThrottle', () => {
   test('can create throttle_period from meta', () => {
     const formik = {
-      _throttle_period: { interval: 12, unit: 'm' },
-      throttle_period: '1s'
+      throttle_period: { interval: 12, unit: 'm' },
     };
     const watch = {
       throttle_period: '12m'
@@ -501,13 +494,12 @@ describe('formikToWatch', () => {
         checks: '[\n  {\n    "type": "search",\n    "name": "mysearch",\n    "target": "mysearch",\n    "request": {\n      "indices": [],\n      "body": {\n        "from": 0,\n        "size": 10,\n        "query": {\n          "match_all": {}\n        }\n      }\n    }\n  },\n  {\n    "type": "condition.script",\n    "name": "mycondition",\n    "source": "data.mysearch.hits.hits.length > 0"\n  }\n]',
         actions: [
           {
-            _throttle_period: {
+            throttle_period: {
               interval: 1,
               unit: 's',
             },
             type: ACTION_TYPE.INDEX,
             name: 'myelasticsearch',
-            throttle_period: '1s',
             index: [
               {
                 label: 'testindex_alias'
@@ -516,13 +508,12 @@ describe('formikToWatch', () => {
             checks: '[]'
           },
           {
-            _throttle_period: {
+            throttle_period: {
               interval: 1,
               unit: 's',
             },
             type: ACTION_TYPE.WEBHOOK,
             name: 'mywebhook',
-            throttle_period: '1s',
             request: {
               method: 'POST',
               url: 'https://webhook.site/22092e82-bd7b-4c58-9e12-35d9d8f6a549',
@@ -633,13 +624,12 @@ describe('formikToWatch', () => {
         checks: '[\n  {\n    "type": "search",\n    "name": "mysearch",\n    "target": "mysearch",\n    "request": {\n      "indices": [\n        "kibana_sample_data_ecommerce",\n        "kibana_sample_data_flights"\n      ],\n      "body": {\n        "size": 0,\n        "aggregations": {},\n        "query": {\n          "bool": {\n            "filter": {\n              "range": {\n                "timestamp": {\n                  "gte": "now-1h",\n                  "lte": "now"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    "type": "condition.script",\n    "name": "mycondition",\n    "source": "data.mysearch.hits.total.value > 1000"\n  }\n]',
         actions: [
           {
-            _throttle_period: {
+            throttle_period: {
               interval: 1,
               unit: 's',
             },
             type: ACTION_TYPE.INDEX,
             name: 'myelasticsearch',
-            throttle_period: '1s',
             index: [
               {
                 label: 'testindex_alias'
@@ -648,13 +638,12 @@ describe('formikToWatch', () => {
             checks: '[]'
           },
           {
-            _throttle_period: {
+            throttle_period: {
               interval: 1,
               unit: 's',
             },
             type: ACTION_TYPE.WEBHOOK,
             name: 'mywebhook',
-            throttle_period: '1s',
             request: {
               method: 'POST',
               url: 'https://webhook.site/22092e82-bd7b-4c58-9e12-35d9d8f6a549',

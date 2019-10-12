@@ -45,10 +45,10 @@ export function buildEmailAction(action = {}) {
 }
 
 export const buildThrottle = (watch = {}) => {
-  const { _throttle_period, ...rest } = watch;
+  const { throttle_period: { interval, unit }, ...rest } = watch;
   return {
     ...rest,
-    throttle_period: _throttle_period.interval + _throttle_period.unit
+    throttle_period: interval + unit
   };
 };
 

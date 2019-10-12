@@ -65,9 +65,25 @@ export const GRAPH_DEFAULTS = {
 
 export const TIMEZONE_DEFAULT = 'Europe/Berlin';
 
+export const TIME_PERIOD_UNITS = {
+  SECONDS: 's',
+  MINUTES: 'm',
+  HOURS: 'h',
+  DAYS: 'd',
+  WEEKS: 'w',
+};
+
+export const TIME_INTERVAL_OPTIONS = [
+  { value: TIME_PERIOD_UNITS.SECONDS, text: 'Seconds' },
+  { value: TIME_PERIOD_UNITS.MINUTES, text: 'Minutes' },
+  { value: TIME_PERIOD_UNITS.HOURS, text: 'Hours' },
+  { value: TIME_PERIOD_UNITS.DAYS, text: 'Days' },
+  { value: TIME_PERIOD_UNITS.WEEKS, text: 'Weeks' },
+];
+
 export const SCHEDULE_DEFAULTS = {
   frequency: 'interval',
-  period: { interval: 1, unit: 'm' },
+  period: { interval: 1, unit: TIME_PERIOD_UNITS.MINUTES },
   cron: '0 */1 * * * ?',
   daily: 0,
   weekly: {
