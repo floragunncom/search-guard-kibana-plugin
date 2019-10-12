@@ -4,7 +4,7 @@ import { EuiFlexItem, EuiFlexGroup, EuiFormRow } from '@elastic/eui';
 import { FormikFieldNumber, FormikSelect } from '../../../../../components';
 import { isInvalid, hasError, validateInterval } from '../../../../../utils/validate';
 import { throttlePeriodText } from '../../../../../utils/i18n/common';
-import { UNITOPTIONS } from './utils/constants';
+import { TIME_INTERVAL_OPTIONS } from '../../../utils/constants';
 
 const ActionThrottlePeriod = ({ index }) => (
   <EuiFormRow>
@@ -14,7 +14,7 @@ const ActionThrottlePeriod = ({ index }) => (
     >
       <EuiFlexItem style={{ margin: '0 .625em 0 0' }}>
         <FormikFieldNumber
-          name={`actions[${index}]._throttle_period.interval`}
+          name={`actions[${index}].throttle_period.interval`}
           formRow
           formikFieldProps={{ validate: validateInterval }}
           rowProps={{
@@ -28,13 +28,13 @@ const ActionThrottlePeriod = ({ index }) => (
       </EuiFlexItem>
       <EuiFlexItem style={{ margin: '.125em' }}>
         <FormikSelect
-          name={`actions[${index}]._throttle_period.unit`}
+          name={`actions[${index}].throttle_period.unit`}
           formRow
           rowProps={{
             hasEmptyLabelSpace: true,
             style: { paddingBottom: '0' },
           }}
-          elementProps={{ options: UNITOPTIONS }}
+          elementProps={{ options: TIME_INTERVAL_OPTIONS }}
         />
       </EuiFlexItem>
     </EuiFlexGroup>
