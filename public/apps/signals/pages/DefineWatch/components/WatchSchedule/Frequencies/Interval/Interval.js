@@ -34,7 +34,7 @@ import { EuiFlexItem, EuiFlexGroup, EuiSpacer } from '@elastic/eui';
 import { FormikFieldNumber, FormikSelect } from '../../../../../../components';
 import { isInvalid, hasError, validateInterval } from '../../../../../../utils/validate';
 import { everyText } from '../../../../../../utils/i18n/watch';
-import { UNITOPTIONS } from './utils/constants';
+import { TIME_INTERVAL_OPTIONS } from '../../../../utils/constants';
 
 const Interval = () => (
   <Fragment>
@@ -64,7 +64,7 @@ const Interval = () => (
           rowProps={{
             hasEmptyLabelSpace: true
           }}
-          elementProps={{ options: UNITOPTIONS }}
+          elementProps={{ options: TIME_INTERVAL_OPTIONS }}
         />
       </EuiFlexItem>
     </EuiFlexGroup>

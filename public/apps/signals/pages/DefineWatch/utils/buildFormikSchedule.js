@@ -2,11 +2,11 @@ import { cloneDeep } from 'lodash';
 import {
   matchTimeHHMM,
   matchDayOfMonth,
-  matchTimePeriod,
   matchDayOfWeek,
   arrayToComboBoxOptions
 } from '../../../utils/helpers';
 import { SCHEDULE_DEFAULTS } from './constants';
+import buildFormikTimePeriod from './buildFormikTimePeriod';
 
 export default function buildFormikSchedule(watch = {}) {
   const frequency = Object.keys(watch.trigger.schedule)
@@ -28,11 +28,7 @@ export default function buildFormikSchedule(watch = {}) {
 
   switch (frequency) {
     case 'interval': {
-      const matched = matchTimePeriod(watchSchedule);
-      if (matched) {
-        formikSchedule.period = { interval: +matched[1], unit: matched[2] };
-      }
-
+      formikSchedule.period = buildFormikTimePeriod(watchSchedule);
       break;
     }
     case 'daily': {
