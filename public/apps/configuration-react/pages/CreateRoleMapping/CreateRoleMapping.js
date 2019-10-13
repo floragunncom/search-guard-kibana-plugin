@@ -54,16 +54,6 @@ class CreateRoleMapping extends Component {
     this.fetchData();
   }
 
-  componentWillReceiveProps({ location }) {
-    const { id } = queryString.parse(location.search);
-    const { id: currentId } = this.state;
-    if (id !== currentId) {
-      this.setState({ id }, () => {
-        this.fetchData();
-      });
-    }
-  }
-
   componentWillUnmount = () => {
     this.props.onTriggerInspectJsonFlyout(null);
   }
