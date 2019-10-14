@@ -41,7 +41,6 @@ import { resourcesToUiResources, uiResourceToResource } from './utils';
 import { SessionStorageService, LocalStorageService } from '../../services';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
 
-// TODO: make this component get API data by chunks (paginations)
 class InternalUsers extends Component {
   constructor(props) {
     super(props);
@@ -64,9 +63,10 @@ class InternalUsers extends Component {
     this.fetchData();
   }
 
-  componentWillUpdate(nextProps, nextState) {
-    const { isShowingTableSystemItems } = nextState;
-    if (isShowingTableSystemItems !== this.state.isShowingTableSystemItems) {
+  componentDidUpdate(prevProps, prevState) {
+    const { prevIsShowingTableSystemItems } = prevState;
+    const { isShowingTableSystemItems } = this.state;
+    if (prevIsShowingTableSystemItems !== isShowingTableSystemItems) {
       this.localStorage.setCacheByPath(APP_PATH.INTERNAL_USERS, { isShowingTableSystemItems });
     }
   }
