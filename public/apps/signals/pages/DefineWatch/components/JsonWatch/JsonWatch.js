@@ -7,15 +7,10 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
 } from '@elastic/eui';
-import 'brace/theme/github';
-import 'brace/mode/json';
-import 'brace/mode/plain_text';
-import 'brace/snippets/javascript';
-import 'brace/ext/language_tools';
 import { FormikCodeEditor } from '../../../../components';
 import { checksText } from '../../../../utils/i18n/watch';
 import { stringifyPretty } from '../../../../utils/helpers';
-import { hasError, isInvalid, validateJsonString } from '../../../../utils/validate';
+import { hasError, isInvalid, validateWatchString } from '../../../../utils/validate';
 import WatchResponse from '../WatchResponse';
 
 const JsonWatch = ({
@@ -25,8 +20,8 @@ const JsonWatch = ({
     },
     setFieldValue,
   },
-  insertAceText,
-  onInsertAceText,
+  insertCheckTemplate,
+  onChange,
 }) => {
   const response = !isEmpty(checksResult) ? stringifyPretty(checksResult) : null;
 
@@ -44,23 +39,26 @@ const JsonWatch = ({
         isInvalid,
         setOptions: {
           tabSize: 2,
-          useSoftTabs: true
+          useSoftTabs: true,
+          enableLiveAutocompletion: true,
+          enableSnippets: true
         },
-        mode: 'json',
+        isCustomMode: true,
+        mode: 'watch_editor',
         width: '100%',
         height: '500px',
         theme: 'github',
-        insertText: insertAceText,
-        onChange: (query, field, form, stat) => {
+        insertText: insertCheckTemplate,
+        onChange: (e, query, field, form) => {
           form.setFieldValue(field.name, query);
-          onInsertAceText(stat.end);
+          onChange(e.end);
         },
         onBlur: (e, field, form) => {
           form.setFieldTouched(field.name, true);
         },
       }}
       formikFieldProps={{
-        validate: validateJsonString
+        validate: validateWatchString
       }}
     />
   );
@@ -83,12 +81,12 @@ const JsonWatch = ({
 JsonWatch.propTypes = {
   dispatch: PropTypes.func.isRequired,
   formik: PropTypes.object.isRequired,
-  insertAceText: PropTypes.shape({
+  insertCheckTemplate: PropTypes.shape({
     row: PropTypes.number,
     column: PropTypes.column,
     text: PropTypes.string,
   }).isRequired,
-  onInsertAceText: PropTypes.func.isRequired,
+  onChange: PropTypes.func.isRequired,
 };
 
 export default connectRedux()(connectFormik(JsonWatch));
