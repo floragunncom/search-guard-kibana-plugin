@@ -39,7 +39,7 @@ const LicenseEditor = () => (
       width: '100%',
       height: '300px',
       theme: 'github',
-      onChange: (license, field, form) => {
+      onChange: (e, license, field, form) => {
         form.setFieldValue('license', license);
       },
       onBlur: (e, field, form) => {

@@ -1,8 +1,11 @@
 import { cloneDeep, isEmpty } from 'lodash';
 import {
   stringifyPretty,
-  arrayToComboBoxOptions
+  arrayToComboBoxOptions,
 } from '../../../utils/helpers';
+import {
+  unfoldMultiLineString,
+} from './unfoldMultiLineString';
 import buildFormikSchedule from './buildFormikSchedule';
 import {
   GRAPH_DEFAULTS,
@@ -43,11 +46,11 @@ export function buildFormikEmailAction(action = {}) {
 export const buildFormikChecksBlocks = (checks = []) =>
   checks.map((check, index) => ({
     response: '',
-    check: stringifyPretty(check),
+    check: unfoldMultiLineString(stringifyPretty(check)),
     index,
   }));
 
-export const buildFormikChecks = (checks = []) => stringifyPretty(checks);
+export const buildFormikChecks = (checks = []) => unfoldMultiLineString(stringifyPretty(checks));
 
 export const buildFormikMeta = ({ _ui = {}, checks = [], trigger } = {}) => {
   const ui = {

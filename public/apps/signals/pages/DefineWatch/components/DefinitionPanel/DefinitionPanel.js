@@ -12,10 +12,14 @@ import JsonWatch from '../JsonWatch';
 import GraphWatch from '../GraphWatch';
 import BlocksWatch from '../BlocksWatch';
 import { definitionText, typeText, executeText } from '../../../../utils/i18n/common';
-import { formikToWatch, buildFormikChecksBlocks } from '../../utils';
+import {
+  formikToWatch,
+  buildFormikChecksBlocks,
+  buildChecks,
+  buildFormikChecks,
+} from '../../utils';
 import { WatchService } from '../../../../services';
 import { addErrorToast } from '../../../../redux/actions';
-import { stringifyPretty } from '../../../../utils/helpers';
 import { WATCH_TYPE_SELECT, WATCH_TYPE } from '../../utils/constants';
 import ChecksHelpFlyout from '../ChecksHelpFlyout';
 
@@ -26,7 +30,7 @@ class DefinitionPanel extends Component {
     this.state = {
       isLoading: false,
       isChecksHelpFlyoutOpen: false,
-      insertAceText: {
+      insertCheckTemplate: {
         row: undefined,
         column: undefined,
         text: undefined,
@@ -58,7 +62,7 @@ class DefinitionPanel extends Component {
   // Only for JsonWatch and BlocksWatch
   addCheckTemplate = (checkTemplate = {}) => {
     const { formik: { values, setFieldValue }, dispatch } = this.props;
-    const { _ui: { watchType, checksBlocks }, checks } = values;
+    const { checks, _ui: { watchType, checksBlocks } } = values;
 
     try {
       if (watchType === WATCH_TYPE.BLOCKS) {
@@ -67,13 +71,19 @@ class DefinitionPanel extends Component {
 
         setFieldValue('_ui.checksBlocks', [...checksBlocks, checkBlock]);
       } else { // JsonWatch
-        const { row, column } = this.state.insertAceText;
+        const { row, column } = this.state.insertCheckTemplate;
         const isInsertingCheck = Number.isInteger(row) && Number.isInteger(column);
 
         if (isInsertingCheck) {
-          this.setState({ insertAceText: { row, column, text: stringifyPretty(checkTemplate) } });
-        } else { // Append check
-          setFieldValue('checks', stringifyPretty([...JSON.parse(checks), checkTemplate]));
+          this.setState({ insertCheckTemplate: {
+            row,
+            column: column - 1,
+            // Add new line to prevent checks nesting
+            text: buildFormikChecks(checkTemplate) + '\n'
+          }});
+        } else { // Append check (works only the first time)
+          const newChecks = buildFormikChecks([ ...buildChecks({ checks }), checkTemplate ]);
+          setFieldValue('checks', newChecks);
         }
       }
     } catch (error) {
@@ -131,10 +141,9 @@ class DefinitionPanel extends Component {
       watchDefinition = (
         <JsonWatch
           httpClient={httpClient}
-          insertAceText={this.state.insertAceText}
-          onInsertAceText={({ row, column }) => {
-            // Text is updated by this.addCheckTemplate
-            this.setState({ insertAceText: { row, column, text: undefined } });
+          insertCheckTemplate={this.state.insertCheckTemplate}
+          onChange={({ row, column }) => {
+            this.setState({ insertCheckTemplate: { row, column, text: undefined } });
           }}
         />
       );

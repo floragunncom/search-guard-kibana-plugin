@@ -94,7 +94,7 @@ const WebhookAction = ({ index }) => (
             },
             mode: 'text',
             theme: 'github',
-            onChange: (text, field, form) => {
+            onChange: (e, text, field, form) => {
               form.setFieldValue(field.name, text);
             },
             onBlur: (e, field, form) => {
@@ -128,7 +128,7 @@ const WebhookAction = ({ index }) => (
         mode: 'text',
         width: '100%',
         theme: 'github',
-        onChange: (text, field, form) => {
+        onChange: (e, text, field, form) => {
           form.setFieldValue(field.name, text);
         },
         onBlur: (e, field, form) => {
