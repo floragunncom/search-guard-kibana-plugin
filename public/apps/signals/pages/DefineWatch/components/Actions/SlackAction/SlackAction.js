@@ -111,7 +111,7 @@ const SlackAction = ({
         mode: 'text',
         width: '100%',
         theme: 'github',
-        onChange: (text, field, form) => {
+        onChange: (e, text, field, form) => {
           form.setFieldValue(field.name, text);
         },
         onBlur: (e, field, form) => {

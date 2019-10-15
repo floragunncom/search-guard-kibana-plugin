@@ -11,3 +11,4 @@ export {
 } from '../../../utils/validate';
 
 export { validateName } from './validateName';
+export { validateWatchString } from './validateWatchString';

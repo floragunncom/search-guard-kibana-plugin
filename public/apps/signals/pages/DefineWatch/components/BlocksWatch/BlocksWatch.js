@@ -71,7 +71,6 @@ const BlocksWatch = ({
       console.error('BlocksWatch -- executeBlocks', error);
       dispatch(addErrorToast(error));
       console.debug('BlocksWatch -- formik values', newFormikValues);
-      console.debug('BlocksWatch -- watch', formikToWatch(newFormikValues));
     }
 
     setLoading(false);

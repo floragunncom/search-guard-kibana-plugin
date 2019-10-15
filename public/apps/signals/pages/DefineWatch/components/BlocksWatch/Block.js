@@ -19,16 +19,16 @@ import {
 } from '../../../../../components';
 import { checkText } from '../../../../utils/i18n/watch';
 import { responseText } from '../../../../utils/i18n/common';
-import { isInvalid, hasError, validateJsonString } from '../../../../../utils/validate';
+import { isInvalid, hasError, validateWatchString } from '../../../../utils/validate';
 
 const EDITOR_OPTIONS = {
   minLines: 15,
   maxLines: 15,
   tabSize: 2,
-  useSoftTabs: true
+  useSoftTabs: true,
+  enableLiveAutocompletion: true,
+  enableSnippets: true
 };
-
-const EDITOR_MODE = 'json';
 
 // This component must be class because react-draggable-list lib requires it
 class Block extends Component {
@@ -45,11 +45,12 @@ class Block extends Component {
         error: hasError,
       }}
       elementProps={{
+        isCustomMode: true,
+        mode: 'watch_editor',
         width: '100%',
         isInvalid,
         setOptions: EDITOR_OPTIONS,
-        mode: EDITOR_MODE,
-        onChange: (query, field, form) => {
+        onChange: (e, query, field, form) => {
           form.setFieldValue(field.name, query);
         },
         onBlur: (e, field, form) => {
@@ -57,7 +58,7 @@ class Block extends Component {
         },
       }}
       formikFieldProps={{
-        validate: validateJsonString,
+        validate: validateWatchString,
       }}
     />
   );
@@ -79,7 +80,7 @@ class Block extends Component {
         <EuiCodeEditor
           width="100%"
           isReadOnly
-          mode={EDITOR_MODE}
+          mode="json"
           setOptions={EDITOR_OPTIONS}
           value={response}
         />

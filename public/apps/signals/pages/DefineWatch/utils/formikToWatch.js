@@ -1,6 +1,11 @@
 import { forEach, cloneDeep, omit } from 'lodash';
 import buildSchedule from './buildSchedule';
-import { comboBoxOptionsToArray } from '../../../utils/helpers';
+import {
+  comboBoxOptionsToArray,
+} from '../../../utils/helpers';
+import {
+  foldMultiLineString,
+} from './foldMultiLineString';
 import {
   WATCH_TYPE,
   WATCH_CHECK_TYPE,
@@ -205,7 +210,7 @@ export const buildCondition = ({
 export const buildChecksFromChecksBlocks = (checks = []) => {
   try {
     return checks.reduce((res, { check }) => {
-      res.push(JSON.parse(check));
+      res.push(JSON.parse(foldMultiLineString(check)));
       return res;
     }, []);
   } catch (err) {
@@ -215,20 +220,21 @@ export const buildChecksFromChecksBlocks = (checks = []) => {
 
 export const buildChecks = ({
   _ui: {
+    watchType = WATCH_TYPE.JSON,
     bucketValue,
     bucketUnitOfTime,
     timeField,
     aggregationType,
     fieldName,
-    watchType,
     index,
     thresholdValue,
     thresholdEnum,
     checksBlocks,
-  },
+  } = {},
   checks = [],
 }) => {
-  if (watchType === WATCH_TYPE.JSON) return JSON.parse(checks);
+  if (watchType === WATCH_TYPE.JSON) return JSON.parse(foldMultiLineString(checks));
+
   // TODO: write tests for Blocks
   if (watchType === WATCH_TYPE.BLOCKS) return buildChecksFromChecksBlocks(checksBlocks);
 

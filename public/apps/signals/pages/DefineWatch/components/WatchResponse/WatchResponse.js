@@ -34,7 +34,6 @@ const WatchResponse = ({ onClose, response }) => {
     >
       <EuiCodeEditor
         mode="json"
-        theme="github"
         width="100%"
         height="500px"
         value={response}
