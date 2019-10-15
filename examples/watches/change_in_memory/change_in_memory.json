@@ -74,12 +74,12 @@
     {
       "type": "condition.script",
       "name": "mycondition",
-      "source": "def hosts=data.change_in_memory.aggregations.per_host.buckets;if(hosts.size()==0)return false;return hosts.stream().anyMatch(h->{def mem_deriv=h.memory_per_day.buckets[h.memory_per_day.buckets.length-1].memory_deriv.value;return mem_deriv<data.constants.mem_threshold});"
+      "source": "   def hosts=data.change_in_memory.aggregations.per_host.buckets;\n   if(hosts.size()==0) return false;\n   return hosts.stream().anyMatch(h->{\n    def mem_deriv=h.memory_per_day.buckets[h.memory_per_day.buckets.length-1].memory_deriv.value;\n    return mem_deriv<data.constants.mem_threshold;\n   });"
     },
     {
       "name": "data_normalization",
       "type": "transform",
-      "source": "def hosts=data.change_in_memory.aggregations.per_host.buckets;return hosts.stream().filter(h->{def mem_per_day=h.memory_per_day.buckets;def mem_deriv=mem_per_day[mem_per_day.length-1].memory_deriv.value;return mem_deriv<data.constants.mem_threshold}).map(h->{def mem_per_day=h.memory_per_day.buckets;def mem_deriv=mem_per_day[mem_per_day.length-1].memory_deriv.value;return['host':h.key,'mem_deriv':mem_deriv]}).collect(Collectors.toList());"
+      "source": "   def hosts=data.change_in_memory.aggregations.per_host.buckets;\n   return hosts.stream().filter(h->{\n    def mem_per_day=h.memory_per_day.buckets;\n    def mem_deriv=mem_per_day[mem_per_day.length-1].memory_deriv.value;\n    return mem_deriv<data.constants.mem_threshold;\n   }).map(h->{\n    def mem_per_day=h.memory_per_day.buckets;\n    def mem_deriv=mem_per_day[mem_per_day.length-1].memory_deriv.value;\n    return['host': h.key, 'mem_deriv': mem_deriv];\n   }).collect(Collectors.toList());"
     }
   ],
   "actions": [

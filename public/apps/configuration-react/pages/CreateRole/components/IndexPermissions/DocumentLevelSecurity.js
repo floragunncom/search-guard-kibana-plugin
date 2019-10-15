@@ -65,7 +65,7 @@ const DocumentLevelSecurity = ({ index, httpClient, formik }) => {
           width: '100%',
           height: '300px',
           theme: 'github',
-          onChange: (dls, field, form) => {
+          onChange: (e, dls, field, form) => {
             form.setFieldValue(field.name, dls);
           },
           onBlur: (e, field, form) => {

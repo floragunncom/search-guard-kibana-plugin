@@ -121,4 +121,5 @@ export const DEFAULT_WATCH = {
     ...RESULT_FIELD_DEFAULTS,
     ...SCHEDULE_DEFAULTS
   },
+  _meta: {} // Server plugin meta 
 };

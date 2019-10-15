@@ -4,7 +4,7 @@ export { default as EmptyPrompt } from './EmptyPrompt';
 export { default as Modal } from './Modal';
 export { default as Callout } from './Callout';
 export { default as Breadcrumbs } from './Breadcrumbs';
-export { default as CodeEditor } from './CodeEditor';
+export { CodeEditor } from './CodeEditor';
 
 // Formik wrappers
 export { default as FormikFormRow } from './FormControls/FormikFormRow';
