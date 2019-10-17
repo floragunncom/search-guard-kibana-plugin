@@ -48,9 +48,8 @@ class DefinitionPanel extends Component {
       if (!ok) throw resp;
     } catch (error) {
       console.error('DefinitionPanel -- executeWatch', error);
-      console.debug('DefinitionPanel -- formik values', values);
-      console.debug('DefinitionPanel -- watch', formikToWatch(values));
       dispatch(addErrorToast(error));
+      console.debug('DefinitionPanel -- formik values', values);
     }
 
     this.setState({ isLoading: false });
@@ -58,27 +57,16 @@ class DefinitionPanel extends Component {
 
   // Only for JsonWatch and BlocksWatch
   addCheckTemplate = (checkTemplate = {}) => {
-    const {
-      formik: {
-        values: {
-          _ui: {
-            watchType,
-            checksBlocks,
-          },
-          checks,
-        },
-        setFieldValue,
-      },
-      dispatch,
-    } = this.props;
+    const { formik: { values, setFieldValue }, dispatch } = this.props;
+    const { _ui: { watchType, checksBlocks }, checks } = values;
 
-    if (watchType === WATCH_TYPE.BLOCKS) {
-      const checkBlock = buildFormikChecksBlocks([checkTemplate])[0];
-      checkBlock.id = checksBlocks.length;
+    try {
+      if (watchType === WATCH_TYPE.BLOCKS) {
+        const checkBlock = buildFormikChecksBlocks([checkTemplate])[0];
+        checkBlock.id = checksBlocks.length;
 
-      setFieldValue('_ui.checksBlocks', [...checksBlocks, checkBlock]);
-    } else { // JsonWatch
-      try {
+        setFieldValue('_ui.checksBlocks', [...checksBlocks, checkBlock]);
+      } else { // JsonWatch
         const { row, column } = this.state.insertAceText;
         const isInsertingCheck = Number.isInteger(row) && Number.isInteger(column);
 
@@ -87,9 +75,12 @@ class DefinitionPanel extends Component {
         } else { // Append check
           setFieldValue('checks', stringifyPretty([...JSON.parse(checks), checkTemplate]));
         }
-      } catch (error) {
-        dispatch(addErrorToast(error));
       }
+    } catch (error) {
+      console.error('DefintionPanel -- addCheckTemplate', error);
+      dispatch(addErrorToast(error));
+      console.debug('DefintionPanel -- formik values', values);
+      console.debug('DefintionPanel -- checkTemplate', checkTemplate);
     }
   };
 

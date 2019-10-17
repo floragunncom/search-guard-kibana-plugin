@@ -65,9 +65,10 @@ class Destinations extends Component {
       dispatch(addSuccessToast((<p>{saveText} {_id}</p>)));
       this.getDestinations();
     } catch (error) {
+      console.error('Destinations -- putDestinations', error);
       dispatch(addErrorToast(error));
       this.setState({ error });
-      console.error('Destinations -- putDestinations', error);
+      console.debug('Destinations -- destination', destination);
     }
     this.setState({ isLoading: false });
   }
@@ -79,9 +80,9 @@ class Destinations extends Component {
       const { resp: destinations } = await this.destService.get();
       this.setState({ destinations });
     } catch (error) {
-      this.setState({ error });
-      dispatch(addErrorToast(error));
       console.error('Destinations -- getDestinations', error);
+      dispatch(addErrorToast(error));
+      this.setState({ error });
     }
     this.setState({ isLoading: false });
   }
@@ -95,9 +96,10 @@ class Destinations extends Component {
       dispatch(addSuccessToast((<p>{cloneText} {id}</p>)));
       this.getDestinations();
     } catch (error) {
-      this.setState({ error });
-      dispatch(addErrorToast(error));
       console.error('Destinations -- cloneDestinations', error);
+      dispatch(addErrorToast(error));
+      this.setState({ error });
+      console.debug('Destiantions -- destination', destination);
     }
     this.setState({ isLoading: false });
   }
@@ -113,9 +115,10 @@ class Destinations extends Component {
           dispatch(addSuccessToast((<p>{deleteText} {id}</p>)));
         })
         .catch(error => {
-          this.setState({ error });
-          dispatch(addErrorToast(error));
           console.error('Destinations -- deleteDestinations', error);
+          dispatch(addErrorToast(error));
+          this.setState({ error });
+          console.debug('Destinations -- destinationsIds', destinationIds);
         });
       promises.push(promise);
     });

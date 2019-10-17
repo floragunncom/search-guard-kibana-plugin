@@ -69,9 +69,10 @@ class Watches extends Component {
       dispatch(addSuccessToast((<p>{saveText} {_id}</p>)));
       this.getWatches();
     } catch (error) {
+      console.error('Watches -- putWatches', error);
       dispatch(addErrorToast(error));
       this.setState({ error });
-      console.error('Watches -- putWatches', error);
+      console.debug('Watches -- watch', watch);
     }
     this.setState({ isLoading: false });
   }
@@ -83,9 +84,9 @@ class Watches extends Component {
       const { resp: watches } = await this.watchService.get();
       this.setState({ watches });
     } catch (error) {
-      this.setState({ error });
-      dispatch(addErrorToast(error));
       console.error('Watches -- getWatches', error);
+      dispatch(addErrorToast(error));
+      this.setState({ error });
     }
     this.setState({ isLoading: false });
   }
@@ -99,9 +100,10 @@ class Watches extends Component {
       dispatch(addSuccessToast((<p>{cloneText} {id}</p>)));
       this.getWatches();
     } catch (error) {
-      this.setState({ error });
-      dispatch(addErrorToast(error));
       console.error('Watches -- cloneWatches', error);
+      dispatch(addErrorToast(error));
+      this.setState({ error });
+      console.debug('Watches -- watch', watch);
     }
     this.setState({ isLoading: false });
   }
@@ -117,9 +119,10 @@ class Watches extends Component {
           dispatch(addSuccessToast((<p>{deleteText} {id}</p>)));
         })
         .catch(error => {
-          this.setState({ error });
-          dispatch(addErrorToast(error));
           console.error('Watches -- deleteWatches', error);
+          dispatch(addErrorToast(error));
+          this.setState({ error });
+          console.debug('Watches -- watchIds', watchIds);
         });
       promises.push(promise);
     });
