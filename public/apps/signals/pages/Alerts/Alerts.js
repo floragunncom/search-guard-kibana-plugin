@@ -102,10 +102,10 @@ class Alerts extends Component {
       const { resp: alerts } = await this.alertService.get({ dateGte, dateLt, watchId });
       this.setState({ alerts });
     } catch (error) {
+      console.error('Alerts -- getAlerts', error);
       this.setState({ error });
       this.props.dispatch(addErrorToast(error));
-      console.error('Alerts -- getAlerts', error);
-      console.debug('Params', { dateGte, dateLt, watchId });
+      console.debug('Alerts -- params', { dateGte, dateLt, watchId });
     }
 
     this.setState({ isLoading: false });
@@ -122,8 +122,8 @@ class Alerts extends Component {
           dispatch(addSuccessToast((<p>{deleteText} {id}</p>)));
         })
         .catch(error => {
+          console.error('Alerts -- deleteAlert', error);
           dispatch(addErrorToast(error));
-          console.error('Alerts - deleteAlert', error);
         });
       promises.push(promise);
     });

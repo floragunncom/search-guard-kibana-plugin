@@ -159,8 +159,9 @@ class WatchIndex extends React.Component {
       const { resp = [] } = await this.elasticsearchService.getIndices(index);
       return indicesToUiIndices(resp);
     } catch (err) {
-      console.error(err);
+      console.error('WatchIndex -- handleQueryIndices', err);
       this.props.dispatch(addErrorToast(err));
+      console.debug('WatchIndex -- index', index);
       return [];
     }
   }
@@ -180,8 +181,9 @@ class WatchIndex extends React.Component {
       const { resp = [] } = await this.elasticsearchService.getAliases(alias);
       return aliasesToUiAliases(resp);
     } catch (err) {
-      console.error(err);
+      console.error('WatchIndex -- handleQueryAliases', err);
       this.props.dispatch(addErrorToast(err));
+      console.debug('WatchIndex -- alias', alias);
       return [];
     }
   }

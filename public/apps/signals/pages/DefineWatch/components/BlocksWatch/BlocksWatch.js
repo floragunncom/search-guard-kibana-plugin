@@ -68,8 +68,8 @@ const BlocksWatch = ({
       setFieldValue(`_ui.checksBlocks.${endIndex}.response`, stringifyPretty(resp));
       if (!ok) throw resp;
     } catch (error) {
-      dispatch(addErrorToast(error));
       console.error('BlocksWatch -- executeBlocks', error);
+      dispatch(addErrorToast(error));
       console.debug('BlocksWatch -- formik values', newFormikValues);
       console.debug('BlocksWatch -- watch', formikToWatch(newFormikValues));
     }
