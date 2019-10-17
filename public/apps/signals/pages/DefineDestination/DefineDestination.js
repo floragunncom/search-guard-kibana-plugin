@@ -58,6 +58,7 @@ class DefineDestination extends Component {
     } catch (error) {
       console.error('DefineDestination -- fetchData', error);
       dispatch(addErrorToast(error));
+      console.debug('DefineDestination -- id', id);
     }
   }
 
@@ -81,6 +82,7 @@ class DefineDestination extends Component {
       console.error('DefineDestination -- onSubmit', error);
       setSubmitting(false);
       dispatch(addErrorToast(error));
+      console.debug('DefineDestination -- formik values', values);
     }
   }
 

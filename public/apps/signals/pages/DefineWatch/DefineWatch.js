@@ -48,9 +48,11 @@ class DefineWatch extends Component {
     const { location, history, dispatch } = this.props;
     const { id } = queryString.parse(location.search);
 
+    let watch;
     try {
       if (id) {
-        const { resp: watch } = await this.watchService.get(id);
+        const { resp } = await this.watchService.get(id);
+        watch = resp;
         this.setState({ initialValues: watchToFormik(watch) });
       }
     } catch (error) {
@@ -62,6 +64,9 @@ class DefineWatch extends Component {
       } else {
         dispatch(addErrorToast(error));
       }
+
+      console.debug('DefineWatch -- id', id);
+      console.debug('DefineWatch -- watch', watch);
     }
   }
 
@@ -85,6 +90,7 @@ class DefineWatch extends Component {
       console.error('DefineWatch -- onSubmit', error);
       setSubmitting(false);
       dispatch(addErrorToast(error));
+      console.debug('DefineWatch -- formik values', values);
     }
   }
 
