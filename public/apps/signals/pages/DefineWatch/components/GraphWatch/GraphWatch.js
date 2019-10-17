@@ -153,8 +153,9 @@ class GraphWatch extends Component {
       const dataTypes = mappingsToFieldNames(mappings);
       this.setState({ dataTypes });
     } catch (err) {
+      console.error('GraphWatch -- Fail getting mappings for query', err);
       dispatch(addErrorToast(err));
-      console.error('There was an error getting mappings for query', err);
+      console.debug('GraphWatch -- values', values);
     }
   }
 
@@ -193,8 +194,9 @@ class GraphWatch extends Component {
       setFieldValue('_ui.checksGraphResult', graphQueryResponse);
       setFieldValue('_ui.checksResult', { [WATCH_CHECK_SEARCH_NAME_DEFAULT]: realQueryResponse });
     } catch (err) {
-      console.error('There was an error running the query', err);
+      console.error('GraphWatch -- Fail running the query', err);
       dispatch(addErrorToast(err));
+      console.debug('GraphWatch -- values', values);
     }
   }
 
