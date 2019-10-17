@@ -12,8 +12,8 @@
   "scripts": {
     "lint": "./node_modules/.bin/eslint .",
     "kbn": "node ../../scripts/kbn",
-    "test:browser": "./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest public --config ./tests/jest.config.js",
-    "test:server": "./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest lib --config ./tests/jest.config.js"
+    "test:browser": "./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest public --config ./tests/jest.config.js --silent",
+    "test:server": "./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest lib --config ./tests/jest.config.js --silent"
   },
   "dependencies": {
     "@elastic/eui": "^13.7.0",
