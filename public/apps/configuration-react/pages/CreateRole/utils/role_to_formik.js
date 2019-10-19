@@ -40,7 +40,8 @@ export const tenantPermissionToUiTenantPermission = tenantPermission => {
   } = tenantPermission;
 
   return {
-    allowed_actions: arrayToComboBoxOptions(allowedActions),
+    //allowed_actions: arrayToComboBoxOptions(allowedActions),
+    allowed_actions: allowedActions,
     tenant_patterns: arrayToComboBoxOptions(tenantPatterns)
   };
 };

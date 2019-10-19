@@ -27,6 +27,7 @@ const addTenantPermission = (arrayHelpers, isMultiTenancyEnabled) => {
 
 const TenantPermissions = ({
   allTenants,
+  originalActionGroups,
   allAppActionGroups,
   tenantPermissions,
   isMultiTenancyEnabled,
@@ -66,6 +67,7 @@ const TenantPermissions = ({
               isMultiTenancyEnabled={isMultiTenancyEnabled}
               allTenants={allTenants}
               tenantPermissions={tenantPermissions}
+              originalActionGroups={originalActionGroups}
               allAppActionGroups={allAppActionGroups}
               arrayHelpers={arrayHelpers}
               onComboBoxChange={onComboBoxChange}
@@ -90,6 +92,7 @@ TenantPermissions.propTypes = {
       allowed_actions: PropTypes.array.isRequired
     })
   ).isRequired,
+  originalActionGroups: PropTypes.object.isRequired,
   allAppActionGroups: PropTypes.array.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,
   onComboBoxOnBlur: PropTypes.func.isRequired,

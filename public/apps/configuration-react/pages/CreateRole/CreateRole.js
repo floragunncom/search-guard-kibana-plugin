@@ -51,6 +51,7 @@ class CreateRole extends Component {
       selectedTabId: TABS.OVERVIEW,
       allIndexPermissions: getAllUiIndexPermissions(),
       allClusterPermissions: getAllUiClusterPermissions(),
+      originalActionGroups: [],
       allIndexActionGroups: [],
       allClusterActionGroups: [],
       allTenantActionGroups: [],
@@ -130,6 +131,7 @@ class CreateRole extends Component {
       const isAnonymizedFieldsEnabled = systemstateService.complianceFeaturesEnabled();
 
       this.setState({
+        originalActionGroups: actionGroups,
         allClusterActionGroups,
         allIndexActionGroups,
         allTenantActionGroups,
@@ -203,6 +205,7 @@ class CreateRole extends Component {
       isAnonymizedFieldsEnabled,
       allIndexPermissions,
       allClusterPermissions,
+      originalActionGroups,
       allIndexActionGroups,
       allClusterActionGroups,
       allTenantActionGroups,
@@ -280,6 +283,7 @@ class CreateRole extends Component {
               {isTenantPermissionsTab &&
                 <TenantPermissions
                   allTenants={allTenants}
+                  originalActionGroups={originalActionGroups}
                   allAppActionGroups={allTenantActionGroups}
                   tenantPermissions={values._tenantPermissions}
                   values={values}

@@ -19,6 +19,7 @@ export const emptyRolesTableMessageText = (
 export const clusterPermissionsText = (<EuiI18n token="sg.roles.clusterPermissions.text" default="Cluster Permissions" />);
 export const indexPatternsText = (<EuiI18n token="sg.roles.indexPatterns.text" default="Index Patterns" />);
 export const tenantPatternsText = (<EuiI18n token="sg.roles.tenantPatterns.text" default="Tenant Patterns" />);
+export const tenantPatternsPermissionText = (<EuiI18n token="sg.roles.tenantPatternsPermission.text" default="Permissions" />);
 export const noMappedUsersFoundText = (<EuiI18n token="sg.roles.noMappedUsersFound.text" default="No mapped users found" />);
 export const noMappedBackendRolesFoundText = (
   <EuiI18n token="sg.roles.noMappedBackendRolesFound.text" default="No mapped backend roles found" />

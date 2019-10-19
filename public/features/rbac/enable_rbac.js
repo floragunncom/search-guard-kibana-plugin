@@ -21,6 +21,12 @@ import {isNavLinkAllowed} from "./rbac";
 import {chromeWrapper} from "../../services/chrome_wrapper";
 
 
+// @todo THIS MAY BE REDUNDANT NOW - see requireUICapabilities on the routes
+// Depends on the backporting needed
+
+
+
+
 /**
  * Most of RBAC lite is handled on the backend side, but there are still some links that we need to change
  * in the frontend, at the moment only for the Kibana apps.

@@ -5,7 +5,7 @@ import {
   EuiSpacer,
   EuiFlexItem,
   EuiFlexGroup,
-  EuiAccordion
+  EuiAccordion, EuiErrorBoundary
 } from '@elastic/eui';
 import {
   AccordionButtonContent,
@@ -13,25 +13,37 @@ import {
   FormikComboBox,
   Icon
 } from '../../../../components';
-import { actionGroupsText } from '../../../../utils/i18n/action_groups';
-import { tenantPatternsText } from '../../../../utils/i18n/roles';
+
+import {tenantPatternsPermissionText, tenantPatternsText} from '../../../../utils/i18n/roles';
 import { comboBoxOptionsToArray } from '../../../../utils/helpers';
 import { GLOBAL_TENANT } from '../../utils/constants';
 
 const tenantPatternNames = (options = []) => comboBoxOptionsToArray(options).join(', ');
 
+import { TenantRBAC } from "./TenantRBAC";
+import FormikInputWrapper from "../../../../components/FormControls/FormikInputWrapper";
+import FormikFormRow from "../../../../components/FormControls/FormikFormRow";
+
+
+
+
+
 const TenantPatterns = ({
   allTenants,
   isMultiTenancyEnabled,
   tenantPermissions,
+  originalActionGroups,
   allAppActionGroups,
   arrayHelpers,
   onComboBoxChange,
   onComboBoxOnBlur,
   onComboBoxCreateOption,
-  onTriggerConfirmDeletionModal
+  onTriggerConfirmDeletionModal,
+  form,
+  values
 }) => (
   tenantPermissions.map((tenantPermission, index) => {
+    console.log({form, values})
     const hideTenantPattern = !isMultiTenancyEnabled
       && isEmpty(tenantPermission.tenant_patterns.filter(({ label }) => label === GLOBAL_TENANT));
 
@@ -83,19 +95,29 @@ const TenantPatterns = ({
                   }
                 }}
               />
-              <FormikComboBox
-                name={`_tenantPermissions[${index}].allowed_actions`}
-                formRow
-                rowProps={{
-                  label: actionGroupsText,
-                }}
-                elementProps={{
-                  options: allAppActionGroups,
-                  isClearable: true,
-                  onBlur: onComboBoxOnBlur,
-                  onChange: onComboBoxChange()
-                }}
-              />
+
+              <EuiErrorBoundary>
+                <FormikInputWrapper
+                  name={`_tenantPermissions[${index}].allowed_actions`}
+                  formikFieldProps={{}}
+                  render={({ field, form }) => {
+                    const RBAC = (<TenantRBAC actionGroups={originalActionGroups}
+                      roleActionGroups={field.value}
+                      onPermissionsChange={(values) => {form.setFieldValue(field.name, values);}} />)
+
+                    return <FormikFormRow
+                      name={`_tenantPermissions[${index}].allowed_actions`}
+                      form={form}
+                      rowProps={{
+                        label: tenantPatternsPermissionText,
+                        fullWidth: true
+                      }}>
+                      {RBAC}
+                    </FormikFormRow>
+
+                  }}
+                />
+              </EuiErrorBoundary>
               <EuiSpacer size="xl" />
             </EuiAccordion>
           </EuiFlexItem>
@@ -110,6 +132,7 @@ TenantPatterns.propTypes = {
   isMultiTenancyEnabled: PropTypes.bool.isRequired,
   tenantPermissions: PropTypes.array.isRequired,
   arrayHelpers: PropTypes.object.isRequired,
+  originalActionGroups: PropTypes.object.isRequired,
   allAppActionGroups: PropTypes.array.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,
   onComboBoxOnBlur: PropTypes.func.isRequired,
