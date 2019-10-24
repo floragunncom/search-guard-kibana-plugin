@@ -28,11 +28,6 @@ export const DOC_LINKS = {
   CRON_EXPRESSION: 'https://www.freeformatter.com/cron-expression-generator-quartz.html'
 };
 
-export const CODE_EDITOR = {
-  TAB_SIZE: 2,
-  USE_SOFT_TABS: true
-};
-
 export const FLYOUTS = {
   INSPECT_JSON: 'inspectJson',
   CUSTOM: 'customFlyout',

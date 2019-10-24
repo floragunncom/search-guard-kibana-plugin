@@ -1,123 +1,156 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import AceEditor from 'react-ace';
+import ace from 'brace';
+import 'brace/ext/language_tools';
+import Modes from './modes';
 
-class CodeEditor extends Component {
-  aceEditorRef = aceEditor => {
-    if (aceEditor) {
-      this.aceEditor = aceEditor;
+export class CodeEditor extends Component {
+  constructor(props) {
+    super(props);
+    this.refEditor;
+
+    this.state = {
+      isSilent: false
+    };
+  }
+
+  componentDidMount() {
+    const {
+      mode,
+      theme,
+      value,
+      isCustomMode,
+      insertText,
+      foldStyle,
+      setOptions: options,
+    } = this.props;
+
+    this.editor = ace.edit(this.refEditor);
+    this.editor.$blockScrolling = Infinity;
+
+    if (isCustomMode) {
+      this.editor.getSession().setMode(new Modes[mode]);
+    } else {
+      require(`brace/mode/${mode}`);
+      this.editor.getSession().setMode(`ace/mode/${mode}`);
     }
-  };
 
-  isCustomMode = () => typeof this.props.mode === 'object';
+    require(`brace/theme/${theme}`);
+    this.editor.setTheme(`ace/theme/${theme}`);
 
-  setCustomMode = () => {
-    this.aceEditor.editor.getSession().setMode(this.props.mode);
-  };
+    this.editor.getSession().setValue(value);
+    this.editor.getSession().setFoldStyle(foldStyle);
+    this.editor.on('change', this.onChange);
+    this.editor.on('blur', this.onBlur);
+
+    Object.keys(options).forEach(option => {
+      if (this.editor.$options.hasOwnProperty(option)) {
+        this.editor.setOption(option, options[option]);
+      } else if (options[option]) {
+        console.warn(`CodeEditor -- ace option '${option}' not found`);
+      }
+    });
+
+    this.insertText(insertText);
+  }
+
+  componentDidUpdate({ insertText: prevInsertText }) {
+    const { insertText: { row, column, text }, value } = this.props;
+
+    if (this.editor && this.editor.getValue() !== value) {
+      this.setState({ isSilent: true });
+      this.editor.getSession().setValue(value);
+      this.setState({ isSilent: false });
+    }
+
+    const { row: prevRow, column: prevColumn, text: prevText } = prevInsertText;
+    if (row !== prevRow || column !== prevColumn || text !== prevText) {
+      this.insertText({ row, column, text });
+    }
+  }
+
+  onChange = e => {
+    if (typeof this.props.onChange === 'function' && !this.state.isSilent) {
+      const value = this.editor.getValue();
+      this.props.onChange(e, value);
+    }
+  }
+
+  onBlur = e => {
+    if (typeof this.props.onBlur === 'function') {
+      this.props.onBlur(e, this.editor);
+    }
+  }
 
   insertText = ({ row, column, text } = {}) => {
     const isInsertAllowed = Number.isInteger(row) && Number.isInteger(column)
       && typeof text === 'string' && text;
 
     if (isInsertAllowed) {
-      this.aceEditor.editor.session.insert({ row, column }, text);
-    } else {
-      console.debug('CodeEditor -- text insert is not allowed', { row, column, text });
-    }
-  };
-
-  componentDidMount() {
-    const { insertText = {} } = this.props;
-    this.insertText(insertText);
-
-    if (this.isCustomMode()) {
-      this.setCustomMode();
+      this.editor.session.insert({ row, column }, text);
     }
   }
 
-  componentDidUpdate({
-    mode: prevMode,
-    insertText: prevInsertText = {},
-  }) {
-    const { mode, insertText = {} } = this.props;
-
-    if (mode !== prevMode && this.isCustomMode()) {
-      this.setCustomMode();
-    }
-
-    const { row, column, text } = insertText;
-    const {
-      row: prevRow,
-      column: prevColumn,
-      text: prevText,
-    } = prevInsertText;
-
-    if (row !== prevRow || column !== prevColumn || text !== prevText) {
-      this.insertText({ row, column, text });
-    }
-  }
+  updateRef = item => this.refEditor = item;
 
   render() {
-    const {
-      width,
-      height,
-      isReadOnly,
-      setOptions,
-      editorProps,
-      mode,
-      theme,
-      ...rest
-    } = this.props;
+    const { id, width, height, style } = this.props;
 
-    const options = {
-      ...setOptions,
-      readOnly: isReadOnly,
-      theme: `ace/theme/${theme}`
-    };
-
-    if (this.isCustomMode()) {
-      delete rest.mode;
-    } else {
-      options.mode = `ace/mode/${mode}`;
-    }
-
-    return (
-      <AceEditor
-        ref={this.aceEditorRef}
-        setOptions={options}
-        width={width}
-        height={height}
-        editorProps={editorProps}
-        {...rest}
-      />
-    );
+    return <div
+      id={id}
+      ref={this.updateRef}
+      style={{ width, height, ...style }}
+    />;
   }
-}
+} 
 
 CodeEditor.propTypes = {
+  id: PropTypes.string,
+  mode: PropTypes.string,
+  theme: PropTypes.string,
+  isCustomMode: PropTypes.bool,
+  foldStyle: PropTypes.string,
   width: PropTypes.string,
   height: PropTypes.string,
-  isReadOnly: PropTypes.bool,
-  mode: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-  theme: PropTypes.string,
-  setOptions: PropTypes.object,
+  style: PropTypes.object,
+  value: PropTypes.string,
   onChange: PropTypes.func,
+  onBlur: PropTypes.func,
   insertText: PropTypes.shape({
     row: PropTypes.number,
     column: PropTypes.number,
     text: PropTypes.string
   }),
-  editorProps: PropTypes.object,
+  setOptions: PropTypes.shape({
+    tabSize: PropTypes.number,
+    useSoftTabs: PropTypes.bool,
+    readOnly: PropTypes.bool,
+    highlightActiveLine: PropTypes.bool,
+    highlightSelectedWord: PropTypes.bool,
+    enableBasicAutocompletion: PropTypes.bool,
+    enableLiveAutocompletion: PropTypes.bool,
+    enableSnippets: PropTypes.bool
+  })
 };
 
 CodeEditor.defaultProps = {
-  isReadOnly: false,
-  setOptions: {},
+  id: 'ace-code-editor',
+  mode: 'text',
   theme: 'github',
-  mode: 'json',
-  editorProps: {
-    $blockScrolling: Infinity
-  },
+  isCustomMode: false,
+  foldStyle: 'markbeginend',
+  width: '100%',
+  height: '200px',
+  style: {},
+  insertText: {},
+  setOptions: {
+    tabSize: 2,
+    useSoftTabs: true,
+    readOnly: false,
+    highlightActiveLine: true,
+    highlightSelectedWord: true,
+    enableBasicAutocompletion: false,
+    enableLiveAutocompletion: false,
+    enableSnippets: false
+  }
 };
-
-export default CodeEditor;

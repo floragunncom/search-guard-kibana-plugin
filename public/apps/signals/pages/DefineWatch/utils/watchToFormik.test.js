@@ -269,6 +269,7 @@ describe('watchToFormik', () => {
       };
 
       const formik = {
+        _meta: {},
         _ui: {
           ...GRAPH_DEFAULTS,
           ...RESULT_FIELD_DEFAULTS,
@@ -396,6 +397,7 @@ describe('watchToFormik', () => {
       };
 
       const formik = {
+        _meta: {},
         _ui: {
           ...GRAPH_DEFAULTS,
           index: [
@@ -585,6 +587,7 @@ describe('watchToFormik', () => {
       };
 
       const formik = {
+        _meta: {},
         _ui: {
           ...GRAPH_DEFAULTS,
           watchType: WATCH_TYPE.JSON,

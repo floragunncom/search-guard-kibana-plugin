@@ -9,7 +9,7 @@ import {
 } from '../../../../../utils/i18n/common';
 import WatchIndex from '../../WatchIndex';
 import {
-  validateJsonString,
+  validateWatchString,
   validateEmptyField,
   isInvalid,
   hasError
@@ -62,6 +62,7 @@ const ElasticsearchAction = ({
         error: hasError,
       }}
       elementProps={{
+        isUseWorker: false,
         isInvalid,
         setOptions: {
           tabSize: 2,
@@ -71,7 +72,7 @@ const ElasticsearchAction = ({
         width: '100%',
         height: '500px',
         theme: 'github',
-        onChange: (text, field, form) => {
+        onChange: (e, text, field, form) => {
           form.setFieldValue(field.name, text);
         },
         onBlur: (e, field, form) => {
@@ -79,7 +80,7 @@ const ElasticsearchAction = ({
         },
       }}
       formikFieldProps={{
-        validate: validateJsonString
+        validate: validateWatchString
       }}
     />
   </Fragment>

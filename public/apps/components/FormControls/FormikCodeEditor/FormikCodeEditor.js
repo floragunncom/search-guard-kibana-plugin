@@ -32,13 +32,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import FormikInputWrapper from '../FormikInputWrapper';
 import FormikFormRow from '../FormikFormRow';
-import SgCodeEditor from '../../CodeEditor';
+import { CodeEditor as SgCodeEditor } from '../../CodeEditor';
 
 const CodeEditor = ({ name, form, field, elementProps: { onBlur, onChange, ...rest } }) => (
   <SgCodeEditor
     id={name}
     value={field.value}
-    onChange={onChange instanceof Function ? (string, stat) => onChange(string, field, form, stat) : onChange}
+    onChange={onChange instanceof Function ? (e, string) => onChange(e, string, field, form) : onChange}
     onBlur={onBlur instanceof Function ? e => onBlur(e, field, form) : onBlur}
     {...rest}
   />
