@@ -5,5 +5,5 @@ export { comboBoxOptionsToArray } from './comboBoxOptionsToArray';
 export { filterEmptyKeys } from './filterEmptyKeys';
 
 export function stringifyPretty(obj) {
-  return JSON.stringify(obj || '', null, CODE_EDITOR.TAB_SIZE);
+  return JSON.stringify(obj || '', null, CODE_EDITOR.tabSize);
 }

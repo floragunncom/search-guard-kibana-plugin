@@ -11,7 +11,6 @@ import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 import rootReducer from './redux/reducers';
 
-import '@elastic/eui/dist/eui_theme_light.css';
 import 'react-vis/dist/style.css';
 import 'ui/autoload/styles';
 import Main from './pages/Main';

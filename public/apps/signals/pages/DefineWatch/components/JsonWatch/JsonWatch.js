@@ -12,6 +12,9 @@ import { checksText } from '../../../../utils/i18n/watch';
 import { stringifyPretty } from '../../../../utils/helpers';
 import { hasError, isInvalid, validateWatchString } from '../../../../utils/validate';
 import WatchResponse from '../WatchResponse';
+import { CODE_EDITOR } from '../../../../../utils/constants';
+
+const { theme, ...setOptions } = CODE_EDITOR;
 
 const JsonWatch = ({
   formik: {
@@ -38,8 +41,7 @@ const JsonWatch = ({
       elementProps={{
         isInvalid,
         setOptions: {
-          tabSize: 2,
-          useSoftTabs: true,
+          ...setOptions,
           enableLiveAutocompletion: true,
           enableSnippets: true
         },
@@ -47,7 +49,7 @@ const JsonWatch = ({
         mode: 'watch_editor',
         width: '100%',
         height: '500px',
-        theme: 'github',
+        theme,
         insertText: insertCheckTemplate,
         onChange: (e, query, field, form) => {
           form.setFieldValue(field.name, query);

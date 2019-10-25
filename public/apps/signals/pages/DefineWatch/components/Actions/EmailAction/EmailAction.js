@@ -30,6 +30,7 @@ import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import ActionDestination from '../ActionDestination';
 import { DESTINATION_TYPE } from '../../../../Destinations/utils/constants';
+import { CODE_EDITOR } from '../../../../../../utils/constants';
 
 const EmailAction = ({
   index,
@@ -42,6 +43,7 @@ const EmailAction = ({
   const currDestination = getCurrentAccount(destinations, actions[index].account);
   const isDefaultFrom = !!currDestination && !isEmpty(currDestination.default_from);
   const isDefaultTo = !!currDestination && !isEmpty(currDestination.default_to);
+  const { theme, ...setOptions } = CODE_EDITOR;
 
   return (
     <Fragment>
@@ -176,14 +178,13 @@ const EmailAction = ({
         elementProps={{
           isInvalid,
           setOptions: {
-            tabSize: 2,
-            useSoftTabs: true,
+            ...setOptions,
             maxLines: 10,
             minLines: 10
           },
           mode: 'text',
           width: '100%',
-          theme: 'github',
+          theme,
           onChange: (e, text, field, form) => {
             form.setFieldValue(field.name, text);
           },
