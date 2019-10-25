@@ -15,6 +15,9 @@ import {
   hasError
 } from '../../../../../utils/validate';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
+import { CODE_EDITOR } from '../../../../../../utils/constants';
+
+const { theme, ...setOptions } = CODE_EDITOR;
 
 const ElasticsearchAction = ({
   index,
@@ -64,14 +67,11 @@ const ElasticsearchAction = ({
       elementProps={{
         isUseWorker: false,
         isInvalid,
-        setOptions: {
-          tabSize: 2,
-          useSoftTabs: true
-        },
+        setOptions,
         mode: 'text',
         width: '100%',
         height: '500px',
-        theme: 'github',
+        theme,
         onChange: (e, text, field, form) => {
           form.setFieldValue(field.name, text);
         },

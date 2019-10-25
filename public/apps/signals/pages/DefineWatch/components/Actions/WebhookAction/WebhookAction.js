@@ -22,6 +22,9 @@ import {
   validateJsonString
 } from '../../../../../utils/validate';
 import { METHOD_SELECT } from './utils/constants';
+import { CODE_EDITOR } from '../../../../../../utils/constants';
+
+const { theme, ...setOptions } = CODE_EDITOR;
 
 const WebhookAction = ({ index }) => (
   <Fragment>
@@ -87,13 +90,12 @@ const WebhookAction = ({ index }) => (
           elementProps={{
             isInvalid,
             setOptions: {
-              tabSize: 2,
-              useSoftTabs: true,
+              ...setOptions,
               maxLines: 10,
               minLines: 10
             },
             mode: 'text',
-            theme: 'github',
+            theme,
             onChange: (e, text, field, form) => {
               form.setFieldValue(field.name, text);
             },
@@ -120,14 +122,13 @@ const WebhookAction = ({ index }) => (
       elementProps={{
         isInvalid,
         setOptions: {
-          tabSize: 2,
-          useSoftTabs: true,
+          ...setOptions,
           maxLines: 10,
           minLines: 10
         },
         mode: 'text',
         width: '100%',
-        theme: 'github',
+        theme,
         onChange: (e, text, field, form) => {
           form.setFieldValue(field.name, text);
         },
