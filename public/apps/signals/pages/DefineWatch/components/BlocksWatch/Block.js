@@ -20,15 +20,9 @@ import {
 import { checkText } from '../../../../utils/i18n/watch';
 import { responseText } from '../../../../utils/i18n/common';
 import { isInvalid, hasError, validateWatchString } from '../../../../utils/validate';
+import { CODE_EDITOR } from '../../../../../utils/constants';
 
-const EDITOR_OPTIONS = {
-  minLines: 15,
-  maxLines: 15,
-  tabSize: 2,
-  useSoftTabs: true,
-  enableLiveAutocompletion: true,
-  enableSnippets: true
-};
+const { theme, ...setOptions } =  CODE_EDITOR;
 
 // This component must be class because react-draggable-list lib requires it
 class Block extends Component {
@@ -49,7 +43,14 @@ class Block extends Component {
         mode: 'watch_editor',
         width: '100%',
         isInvalid,
-        setOptions: EDITOR_OPTIONS,
+        setOptions: {
+          ...setOptions,
+          minLines: 15,
+          maxLines: 15,
+          enableLiveAutocompletion: true,
+          enableSnippets: true
+        },
+        theme,
         onChange: (e, query, field, form) => {
           form.setFieldValue(field.name, query);
         },

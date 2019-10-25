@@ -22,6 +22,9 @@ import {
 import { validateTextField, isInvalid, hasError } from '../../../../utils/validation';
 import { SystemService } from '../../../../services';
 import { readFileAsText } from '../../../../utils/helpers';
+import { CODE_EDITOR } from '../../../../../utils/constants';
+
+const { theme, ...setOptions } = CODE_EDITOR;
 
 const LicenseEditor = () => (
   <FormikCodeEditor
@@ -38,7 +41,8 @@ const LicenseEditor = () => (
       mode: 'text',
       width: '100%',
       height: '300px',
-      theme: 'github',
+      theme,
+      setOptions,
       onChange: (e, license, field, form) => {
         form.setFieldValue('license', license);
       },
