@@ -82,7 +82,7 @@ class Block extends Component {
           width="100%"
           isReadOnly
           mode="json"
-          setOptions={EDITOR_OPTIONS}
+          setOptions={setOptions}
           value={response}
         />
       </EuiFormRow>
