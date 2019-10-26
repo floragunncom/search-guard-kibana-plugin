@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react';
+import chrome from 'ui/chrome';
 import PropTypes from 'prop-types';
 import {
   FormikCodeEditor,
@@ -17,7 +18,9 @@ import {
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import { CODE_EDITOR } from '../../../../../../utils/constants';
 
-const { theme, ...setOptions } = CODE_EDITOR;
+const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
+let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
+theme = !IS_DARK_THEME ? theme : darkTheme;
 
 const ElasticsearchAction = ({
   index,
@@ -65,10 +68,14 @@ const ElasticsearchAction = ({
         error: hasError,
       }}
       elementProps={{
-        isUseWorker: false,
+        isCustomMode: true,
+        mode: 'watch_editor',
         isInvalid,
-        setOptions,
-        mode: 'text',
+        setOptions: {
+          ...setOptions,
+          enableLiveAutocompletion: true,
+          enableSnippets: true
+        },
         width: '100%',
         height: '500px',
         theme,

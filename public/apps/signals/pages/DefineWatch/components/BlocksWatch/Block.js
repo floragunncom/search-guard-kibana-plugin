@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import chrome from 'ui/chrome';
 import { FieldArray } from 'formik';
 import PropTypes from 'prop-types';
 import {
@@ -22,7 +23,9 @@ import { responseText } from '../../../../utils/i18n/common';
 import { isInvalid, hasError, validateWatchString } from '../../../../utils/validate';
 import { CODE_EDITOR } from '../../../../../utils/constants';
 
-const { theme, ...setOptions } =  CODE_EDITOR;
+const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
+let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
+theme = !IS_DARK_THEME ? theme : darkTheme;
 
 // This component must be class because react-draggable-list lib requires it
 class Block extends Component {
@@ -82,7 +85,7 @@ class Block extends Component {
           width="100%"
           isReadOnly
           mode="json"
-          setOptions={EDITOR_OPTIONS}
+          setOptions={setOptions}
           value={response}
         />
       </EuiFormRow>

@@ -31,12 +31,20 @@ export class CodeEditor extends Component {
     if (isCustomMode) {
       this.editor.getSession().setMode(new Modes[mode]);
     } else {
-      require(`brace/mode/${mode}`);
-      this.editor.getSession().setMode(`ace/mode/${mode}`);
+      try {
+        require(`brace/mode/${mode}`);
+        this.editor.getSession().setMode(`ace/mode/${mode}`);
+      } catch (error) {
+        console.error(`CodeEditor -- ace mode '${mode}' not found`);
+      }
     }
 
-    require(`brace/theme/${theme}`);
-    this.editor.setTheme(`ace/theme/${theme}`);
+    try {
+      require(`brace/theme/${theme}`);
+      this.editor.setTheme(`ace/theme/${theme}`);
+    } catch (error) {
+      console.error(`CodeEditor -- ace theme '${theme}' not found`);
+    }
 
     this.editor.getSession().setValue(value);
     this.editor.getSession().setFoldStyle(foldStyle);
