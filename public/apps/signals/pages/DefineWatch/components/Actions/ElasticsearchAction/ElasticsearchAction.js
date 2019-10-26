@@ -68,10 +68,14 @@ const ElasticsearchAction = ({
         error: hasError,
       }}
       elementProps={{
-        isUseWorker: false,
+        isCustomMode: true,
+        mode: 'watch_editor',
         isInvalid,
-        setOptions,
-        mode: 'text',
+        setOptions: {
+          ...setOptions,
+          enableLiveAutocompletion: true,
+          enableSnippets: true
+        },
         width: '100%',
         height: '500px',
         theme,
