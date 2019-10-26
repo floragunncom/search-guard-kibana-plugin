@@ -1,6 +1,8 @@
 import React from 'react';
 import { EuiI18n } from '@elastic/eui';
 
+export * from '../../../utils/i18n/common';
+
 export const watchesText = (<EuiI18n token="sg.watch.watches.text" default="Watches" />);
 export const createWatchText = (<EuiI18n token="sg.watch.createWatch.text" default="Create Watch" />);
 export const updateWatchText = (<EuiI18n token="sg.watch.updateWatch.text" default="Update Watch" />);
@@ -55,4 +57,10 @@ export const youMustSpecifyATimeFieldText = (
 export const noChecksText = (<EuiI18n token="sg.watch.noChecks.text" default="No Checks!" />);
 export const looksLikeYouDontHaveAnyCheckText = (
   <EuiI18n token="sg.watch.emptyChecksBlocks.text" default="Looks like you don&rsquo;t have any check. Let&rsquo;s add some!" />
+);
+export const executeOnlyThisBlockText = (
+  <EuiI18n token="sg.watch.executeOnlyThisBlock.text" default="Execute only this block" />
+);
+export const executeBlocksAboveAndThisBlockText = (
+  <EuiI18n token="sg.watch.executeBlocksAboveAndThisBlock.text" default="Execute blocks above and this block" />
 );
