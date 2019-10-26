@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import chrome from 'ui/chrome';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import { EuiFilePicker, EuiFlexGroup, EuiFlexItem, EuiFormRow } from '@elastic/eui';
@@ -24,7 +25,9 @@ import { SystemService } from '../../../../services';
 import { readFileAsText } from '../../../../utils/helpers';
 import { CODE_EDITOR } from '../../../../../utils/constants';
 
-const { theme, ...setOptions } = CODE_EDITOR;
+const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
+let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
+theme = !IS_DARK_THEME ? theme : darkTheme;
 
 const LicenseEditor = () => (
   <FormikCodeEditor
