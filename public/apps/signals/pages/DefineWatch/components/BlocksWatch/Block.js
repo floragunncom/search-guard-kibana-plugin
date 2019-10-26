@@ -18,7 +18,12 @@ import {
   DeleteButtonIcon,
   ExecuteButtonIcon,
 } from '../../../../../components';
-import { checkText } from '../../../../utils/i18n/watch';
+import {
+  checkText,
+  executeOnlyThisBlockText,
+  executeBlocksAboveAndThisBlockText,
+  executeText,
+} from '../../../../utils/i18n/watch';
 import { responseText } from '../../../../utils/i18n/common';
 import { isInvalid, hasError, validateWatchString } from '../../../../utils/validate';
 import { CODE_EDITOR } from '../../../../../utils/constants';
@@ -112,12 +117,20 @@ class Block extends Component {
       <ExecuteButtonIcon
         isDisabled={dragged}
         onClick={() => onExecuteBlocks(0, index)}
+        tooltipProps={{
+          content: executeBlocksAboveAndThisBlockText,
+          title: executeText
+        }}
       />,
       <ExecuteButtonIcon
         name={`single-${index}`}
         iconType="bullseye"
         isDisabled={dragged}
         onClick={() => onExecuteBlocks(index, index)}
+        tooltipProps={{
+          content: executeOnlyThisBlockText,
+          title: executeText
+        }}
       />,
       <DeleteButtonIcon
         isDisabled={dragged}
