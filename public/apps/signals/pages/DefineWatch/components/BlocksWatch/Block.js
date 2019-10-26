@@ -18,6 +18,7 @@ import {
   DeleteButtonIcon,
   ExecuteButtonIcon,
 } from '../../../../../components';
+import { getCheckBlockTitle } from './utils';
 import {
   checkText,
   executeOnlyThisBlockText,
@@ -111,7 +112,6 @@ class Block extends Component {
     const scale = itemSelected * 0.05 + 1;
     const shadow = itemSelected * 15 + 1;
     const dragged = itemSelected !== 0;
-    const title = `${check.slice(0, 142)}...`;
 
     const actions = [
       <ExecuteButtonIcon
@@ -162,7 +162,7 @@ class Block extends Component {
               <EuiIcon type="grab" size="l" {...dragHandleProps}/>
             </EuiFlexItem>
             <EuiFlexItem>
-              <EuiText color="subdued" size="s"><p>{title}</p></EuiText>
+              <EuiText color="subdued" size="s"><p>{getCheckBlockTitle(check)}</p></EuiText>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <EuiFlexGroup justifyContent="spaceBetween" alignItems="center">
