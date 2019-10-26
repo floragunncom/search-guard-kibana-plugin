@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react';
+import chrome from 'ui/chrome';
 import PropTypes from 'prop-types';
 import { connect } from 'formik';
 import { get } from 'lodash';
@@ -22,12 +23,15 @@ import {
 import { stringifyPretty } from '../../../../utils/helpers';
 import { CODE_EDITOR } from '../../../../../utils/constants';
 
+const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
+let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
+theme = !IS_DARK_THEME ? theme : darkTheme;
+
 const DocumentLevelSecurity = ({ index, httpClient, formik }) => {
   const { values, validateField, setFieldValue } = formik;
   const fieldPath = `_indexPermissions[${index}]._dls`;
   // TODO: should we validate all indexes? This logic was taken from the old app
   const firstIndexPattern = get(values, `_indexPermissions[${index}].index_patterns[0].label`);
-  const { theme, ...setOptions } = CODE_EDITOR;
 
   return (
     <Fragment>

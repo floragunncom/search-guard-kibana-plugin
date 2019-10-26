@@ -1,4 +1,5 @@
 import React from 'react';
+import chrome from 'ui/chrome';
 import { connect as connectRedux } from 'react-redux';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
@@ -14,7 +15,9 @@ import { hasError, isInvalid, validateWatchString } from '../../../../utils/vali
 import WatchResponse from '../WatchResponse';
 import { CODE_EDITOR } from '../../../../../utils/constants';
 
-const { theme, ...setOptions } = CODE_EDITOR;
+const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
+let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
+theme = !IS_DARK_THEME ? theme : darkTheme;
 
 const JsonWatch = ({
   formik: {

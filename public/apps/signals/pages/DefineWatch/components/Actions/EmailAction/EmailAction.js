@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react';
+import chrome from 'ui/chrome';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
@@ -32,6 +33,10 @@ import ActionDestination from '../ActionDestination';
 import { DESTINATION_TYPE } from '../../../../Destinations/utils/constants';
 import { CODE_EDITOR } from '../../../../../../utils/constants';
 
+const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
+let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
+theme = !IS_DARK_THEME ? theme : darkTheme;
+
 const EmailAction = ({
   index,
   destinations,
@@ -43,7 +48,6 @@ const EmailAction = ({
   const currDestination = getCurrentAccount(destinations, actions[index].account);
   const isDefaultFrom = !!currDestination && !isEmpty(currDestination.default_from);
   const isDefaultTo = !!currDestination && !isEmpty(currDestination.default_to);
-  const { theme, ...setOptions } = CODE_EDITOR;
 
   return (
     <Fragment>
