@@ -30,8 +30,8 @@ export const TabContent = ({ watchName, onPutWatch, isLoading }) => {
     watchJson = error.toString();
   }
 
-  const addJsonWatchText = (<p>{addText} JSON watch</p>);
-  const addGraphWatchText = (<p>{addText} Graph watch</p>);
+  const addJsonWatchText = (<p>{addText} JSON</p>);
+  const addGraphWatchText = (<p>{addText} Graph</p>);
 
   return (
     <div>
@@ -53,6 +53,7 @@ export const TabContent = ({ watchName, onPutWatch, isLoading }) => {
       <EuiFlexGroup>
         <EuiFlexItem grow={false}>
           <AddButton
+            iconType="document"
             name="JsonWatch"
             isLoading={isLoading}
             onClick={() => onPutWatch(watchExamples[watchName].json)}
@@ -62,6 +63,7 @@ export const TabContent = ({ watchName, onPutWatch, isLoading }) => {
         {watchExamples[watchName].graph && (
           <EuiFlexItem grow={false}>
             <AddButton
+              iconType="visArea"
               name="GraphWatch"
               isLoading={isLoading}
               onClick={() => onPutWatch(watchExamples[watchName].graph)}

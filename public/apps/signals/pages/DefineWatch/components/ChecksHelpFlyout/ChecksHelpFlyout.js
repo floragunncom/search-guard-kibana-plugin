@@ -11,7 +11,7 @@ import {
   EuiCodeBlock,
 } from '@elastic/eui';
 import { startCase, map, includes } from 'lodash';
-import { helpText } from '../../../../utils/i18n/common';
+import { checkExamplesText } from '../../../../utils/i18n/watch';
 import templates from './utils/templates';
 import { AddButton, LabelAppendLink } from '../../../../../components';
 import { QUERIES } from './utils/constants';
@@ -72,7 +72,7 @@ const ChecksHelpFlyout = ({ onClose, onAdd }) => {
     <EuiFlyout size="l" onClose={onClose}>
       <EuiFlyoutHeader size="m" hasBorder>
         <EuiTitle>
-          <h2 id="flyoutTitle">{helpText}</h2>
+          <h2 id="flyoutTitle">{checkExamplesText}</h2>
         </EuiTitle>
       </EuiFlyoutHeader>
       <EuiFlyoutBody>
