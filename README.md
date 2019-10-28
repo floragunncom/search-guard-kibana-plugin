@@ -70,6 +70,10 @@ See the [kibana contributing guide](https://github.com/elastic/kibana/blob/maste
 
     Run server unit tests.
 
+  - `yarn test:prepare_integration_test`
+
+    Run script for integration tests when Elasticsearch and Kibana should have different version in the same cluster: eliminate Kibana version check error and install required packages.
+
 For more information about any of these commands run `yarn ${task} --help`. For a full list of tasks checkout the `package.json` file, or run `yarn run`.
 
 ## License
