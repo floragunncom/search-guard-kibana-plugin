@@ -19,7 +19,7 @@ import {
   TableMultiDeleteButton,
   TableIdCell,
   TableTextCell,
-  HelpButton,
+  AddButton,
   CreateButton
 } from '../../components';
 import { addSuccessToast, addErrorToast } from '../../redux/actions';
@@ -29,7 +29,7 @@ import {
   deleteText,
   cloneText,
   saveText,
-  addText
+  addExampleText
 } from '../../utils/i18n/common';
 import {
   numOfChecksText,
@@ -277,7 +277,8 @@ class Watches extends Component {
         title="Watches"
         actions={[
           (
-            <HelpButton
+            <AddButton
+              value={addExampleText}
               onClick={() => {
                 onTriggerFlyout({
                   type: FLYOUTS.WATCHES_HELP,
@@ -288,7 +289,6 @@ class Watches extends Component {
           ),
           (
             <CreateButton
-              value={addText}
               onClick={() => history.push(APP_PATH.DEFINE_WATCH)}
             />
           )

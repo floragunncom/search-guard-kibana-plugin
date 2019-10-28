@@ -9,17 +9,19 @@ const AddButton = ({
   onClick,
   value,
   name,
-  isLoading
+  isLoading,
+  iconType,
+  size
 }) => {
   const id = name ? `${ID}-${name}` : ID;
 
   return (
     <EuiButton
-      iconType="plusInCircle"
+      iconType={iconType}
       data-test-subj={id}
       id={id}
       onClick={onClick}
-      size="s"
+      size={size}
       isLoading={isLoading}
     >
       {value}
@@ -34,12 +36,16 @@ AddButton.propTypes = {
   ]),
   onClick: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
-  name: PropTypes.string
+  name: PropTypes.string,
+  iconType: PropTypes.string,
+  size: PropTypes.string
 };
 
 AddButton.defaultProps = {
   value: addText,
-  name: ''
+  name: '',
+  iconType: 'empty',
+  size: 'm'
 };
 
 export default AddButton;
