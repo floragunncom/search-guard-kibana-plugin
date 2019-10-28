@@ -2,10 +2,8 @@ import { forEach, cloneDeep, omit } from 'lodash';
 import buildSchedule from './buildSchedule';
 import {
   comboBoxOptionsToArray,
-} from '../../../utils/helpers';
-import {
   foldMultiLineString,
-} from './foldMultiLineString';
+} from '../../../utils/helpers';
 import {
   WATCH_TYPE,
   WATCH_CHECK_TYPE,

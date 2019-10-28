@@ -10,6 +10,3 @@ export {
   buildUiGraphQuery,
   buildChecks,
 } from './formikToWatch';
-
-export { foldMultiLineString } from './foldMultiLineString';
-export { unfoldMultiLineString } from './unfoldMultiLineString';
