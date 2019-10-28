@@ -3,6 +3,7 @@ import { EuiI18n } from '@elastic/eui';
 
 export * from '../../../utils/i18n/common';
 
+export const checkExamplesText = (<EuiI18n token="sg.watch.checkExamples.text" default="Check Examples" />);
 export const watchesText = (<EuiI18n token="sg.watch.watches.text" default="Watches" />);
 export const createWatchText = (<EuiI18n token="sg.watch.createWatch.text" default="Create Watch" />);
 export const updateWatchText = (<EuiI18n token="sg.watch.updateWatch.text" default="Update Watch" />);

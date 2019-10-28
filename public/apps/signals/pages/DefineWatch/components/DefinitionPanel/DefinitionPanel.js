@@ -6,7 +6,7 @@ import { EuiButton } from '@elastic/eui';
 import {
   FormikSelect,
   ContentPanel,
-  HelpButton
+  AddButton
 } from '../../../../components';
 import JsonWatch from '../JsonWatch';
 import GraphWatch from '../GraphWatch';
@@ -134,7 +134,7 @@ class DefinitionPanel extends Component {
       />);
     } else if (isJsonWatch) {
       actions = [
-        <HelpButton onClick={() => this.setState({ isChecksHelpFlyoutOpen: true })} />,
+        <AddButton onClick={() => this.setState({ isChecksHelpFlyoutOpen: true })} />,
         this.renderExecuteWatchButton(values)
       ];
 
@@ -149,7 +149,7 @@ class DefinitionPanel extends Component {
       );
     } else { // BlocksWatch
       actions = [
-        <HelpButton onClick={() => this.setState({ isChecksHelpFlyoutOpen: true })} />,
+        <AddButton onClick={() => this.setState({ isChecksHelpFlyoutOpen: true })} />,
         this.renderExecuteWatchButton(values)
       ];
 
