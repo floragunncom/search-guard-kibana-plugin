@@ -6,10 +6,10 @@ import {
   transformFeatureMapForUI,
   serializeFeaturesIntoActionGroups,
   getFeaturesMap,
-  readWriteActionGroupName,
-  readOnlyActionGroupName,
-  PATTERN_ACCESS_LEVELS, getPatternAccessLevel
-} from "../../../../../../features/rbac/rbac_features";
+  READ_WRITE_ACTION_GROUP_NAME,
+  READ_ONLY_ACTION_GROUP_NAME,
+  PATTERN_ACCESS_LEVELS, getPatternAccessLevel, getActionGroupsBasedOnPatternAccessLevel
+} from "../../utils/rbac_features";
 import {featureColText, permissionColText} from "../../../../utils/i18n/rbac";
 
 
@@ -89,7 +89,7 @@ export class TenantRBAC extends Component {
                label={''}
                data-test-subj={feature.id}
                data-test-selected={(feature.selected) ? true : false}
-               checked={feature.selected}
+               checked={(feature.selected) ? true : false}
                onChange={(event) => this.onSwitchChange(event, feature)}/>
             )}
           </div>
@@ -100,16 +100,8 @@ export class TenantRBAC extends Component {
   }
 
   updateParent() {
-    if (this.state.patternAccessLevel === PATTERN_ACCESS_LEVELS.RBAC) {
-      const serializedActionGroups = serializeFeaturesIntoActionGroups([...this.state.features]);
-      this.props.onPermissionsChange(serializedActionGroups);
-    } else {
-      const actionGroup = (this.state.patternAccessLevel === PATTERN_ACCESS_LEVELS.READ_WRITE)
-        ? readWriteActionGroupName
-        : readOnlyActionGroupName;
-
-      this.props.onPermissionsChange([actionGroup]);
-    }
+    const actionGroups = getActionGroupsBasedOnPatternAccessLevel(this.state.patternAccessLevel, [...this.state.features]);
+    this.props.onPermissionsChange(actionGroups);
   }
 
   onPatternAccessLevelChange = (value) => {

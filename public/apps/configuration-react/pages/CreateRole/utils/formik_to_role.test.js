@@ -82,10 +82,7 @@ describe('UI role to role ', () => {
           { label: 'a' },
           { label: 'b' }
         ],
-        allowed_actions: [
-          { label: 'c' },
-          { label: 'd' }
-        ]
+        allowed_actions: ['c', 'd']
       }
     ];
 
@@ -278,20 +275,14 @@ describe('UI role to role ', () => {
             { label: 'a' },
             { label: 'b' }
           ],
-          allowed_actions: [
-            { label: 'c' },
-            { label: 'd' }
-          ]
+          allowed_actions: ['c', 'd']
         },
         {
           tenant_patterns: [
             { label: 'e' },
             { label: 'f' }
           ],
-          allowed_actions: [
-            { label: 'g' },
-            { label: 'h' }
-          ]
+          allowed_actions: ['g', 'h']
         }
       ]
     };

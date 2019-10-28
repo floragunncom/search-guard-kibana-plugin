@@ -73,10 +73,7 @@ describe('role to UI role ', () => {
         { label: 'a' },
         { label: 'b' }
       ],
-      allowed_actions: [
-        { label: 'c' },
-        { label: 'd' }
-      ]
+      allowed_actions: ['d', 'c']
     };
 
     expect(tenantPermissionToUiTenantPermission(resource)).toEqual(uiResource);
@@ -327,20 +324,14 @@ describe('role to UI role ', () => {
             { label: 'a' },
             { label: 'b' }
           ],
-          allowed_actions: [
-            { label: 'c' },
-            { label: 'd' }
-          ]
+          allowed_actions: ['d', 'c']
         },
         {
           tenant_patterns: [
             { label: 'e' },
             { label: 'f' }
           ],
-          allowed_actions: [
-            { label: 'g' },
-            { label: 'h' }
-          ]
+          allowed_actions: ['h', 'g']
         }
       ]
     };
