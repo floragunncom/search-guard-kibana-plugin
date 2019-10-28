@@ -1,53 +1,146 @@
-import { stringifyPretty } from '../../../../../utils/helpers';
 import { DOC_LINKS } from '../../../../../utils/constants';
-import { QUERIES } from './constants';
+import { CHECKS } from './constants';
 
-// TODO: fix lint errors
-const templates = {
-  [QUERIES.FULL_TEXT]: {
+const staticExamples = {
+  [CHECKS.STATIC]: {
+    constants: {
+      example: {
+        type: 'static',
+        name: 'constants',
+        target: 'constants',
+        value: {
+          threshold: 0
+        }
+      },
+      link: `${DOC_LINKS.REPO}/tree/master/examples/watches`,
+      type: 'static'
+    }
+  }
+};
+
+const conditionExamples = {
+  [CHECKS.CONDITION]: {
+    comparison: {
+      example: {
+        type: 'condition.script',
+        name: 'greater_then_threshold',
+        source: 'data.mysearch.hits.total.value > data.constants.threshold'
+      },
+      link: `${DOC_LINKS.REPO}/tree/master/examples/watches`,
+      type: 'condition'
+    }
+  }
+};
+
+const transformExamples = {
+  [CHECKS.TRANSFORM]: {
+    reduce_payload_to_one_value: {
+      example: {
+        type: 'transform',
+        name: 'total_4_dials_time',
+        source: `  long total_hits = data.mysearch.hits.total.value;
+  long dials = 4;
+  long total_4dials = 0;
+  for (long i = 0; i < total_hits; i++) {
+    total_4dials += i%dials;
+  }
+  return total_4dials;`
+      },
+      link: `${DOC_LINKS.REPO}/tree/master/examples/watches`,
+      type: 'transform'
+    },
+  }
+};
+
+const calcExamples = {
+  [CHECKS.CALC]: {
+    calculate_new_field_value: {
+      example: {
+        type: 'calc',
+        name: 'calc_mean_amount',
+        source: 'data.mysearch.hits.total100 = data.mysearch.hits.total.value * 100'
+      },
+      link: `${DOC_LINKS.REPO}/tree/master/examples/watches`,
+      type: 'calc'
+    },
+  }
+};
+
+const inputExamples = {
+  [CHECKS.HTTP]: {
+    call_external_service_with_basic_auth: {
+      example: {
+        type: 'http',
+        request: {
+          method: 'GET',
+          url: 'https://localhost:9200/_cluster/stats',
+          auth: {
+            type: 'basic',
+            username: 'admin',
+            password: 'admin'
+          }
+        }
+      },
+      link: `${DOC_LINKS.REPO}/tree/master/examples/watches`,
+      type: 'http'
+    },
+    call_external_service_with_params: {
+      example: {
+        type: 'http',
+        request: {
+          method: 'POST',
+          url: 'https://webhook.site/a663a74a-592b-4efd-ad22-54a6da966e47',
+          query_params: '{ "lat": "45.692783", "long": "9.673531" }'
+        }
+      },
+      link: `${DOC_LINKS.REPO}/tree/master/examples/watches`,
+      type: 'http'
+    },
+  },
+  [CHECKS.FULL_TEXT]: {
     match: {
-      example: stringifyPretty({
+      example: {
         query: {
           match: {
             message: 'this is a test'
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html',
     },
     match_phrase: {
-      example: stringifyPretty({
+      example: {
         query: {
           match_phrase: {
             message: 'this is a test'
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query-phrase.html',
     },
     match_phrase_prefix: {
-      example: stringifyPretty({
+      example: {
         query: {
           match_phrase_prefix: {
             message: 'quick brown f'
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query-phrase-prefix.html',
     },
     multi_match: {
-      example: stringifyPretty({
+      example: {
         query: {
           multi_match: {
             query: 'this is a test',
             fields: [ 'subject', 'message' ]
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-multi-match-query.html',
     },
     common_terms: {
-      example: stringifyPretty({
+      example: {
         query: {
           common: {
             body: {
@@ -56,22 +149,22 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-common-terms-query.html',
     },
     query_string: {
-      example: stringifyPretty({
+      example: {
         query: {
           query_string: {
             default_field: 'content',
             query: 'this AND that OR thus'
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html',
     },
     simple_query_string: {
-      example: stringifyPretty({
+      example: {
         query: {
           simple_query_string: {
             query: '\fried eggs\ +(eggplant | potato) -frittata',
@@ -79,11 +172,11 @@ const templates = {
             default_operator: 'and'
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html',
     },
     intervals: {
-      example: stringifyPretty({
+      example: {
         query: {
           intervals: {
             my_text: {
@@ -111,13 +204,13 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-intervals-query.html',
     },
   },
-  [QUERIES.TERM_LEVEL]: {
+  [CHECKS.TERM_LEVEL]: {
     term: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'term': {
             'user': {
@@ -126,22 +219,22 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-term-query.html',
     },
     terms: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'terms': {
             'user': ['kimchy', 'elasticsearch'],
             'boost': 1.0
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-terms-query.html',
     },
     terms_set: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'terms_set': {
             'codes': {
@@ -150,11 +243,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-terms-set-query.html',
     },
     range: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'range': {
             'age': {
@@ -164,29 +257,29 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html',
     },
     exists: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'exists': {
             'field': 'user'
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-exists-query.html',
     },
     prefix: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'prefix': { 'user': 'ki' }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-prefix-query.html',
     },
     wildcard: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'wildcard': {
             'user': {
@@ -196,41 +289,41 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-wildcard-query.html',
     },
     regexp: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'regexp': {
             'name.first': 's.*y'
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-regexp-query.html',
     },
     fuzzy: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'fuzzy': { 'user': 'ki' }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-fuzzy-query.html',
     },
     ids: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'ids': {
             'values': ['1', '4', '100']
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-ids-query.html',
     },
   },
-  [QUERIES.COMPOUND]: {
+  [CHECKS.COMPOUND]: {
     constant_score: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'constant_score': {
             'filter': {
@@ -239,11 +332,11 @@ const templates = {
             'boost': 1.2
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-constant-score-query.html',
     },
     bool: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'bool': {
             'must': {
@@ -265,11 +358,11 @@ const templates = {
             'boost': 1.0
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html',
     },
     dis_max: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'dis_max': {
             'tie_breaker': 0.7,
@@ -284,11 +377,11 @@ const templates = {
             ]
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-dis-max-query.html',
     },
     function_score: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'function_score': {
             'query': { 'match_all': {} },
@@ -297,11 +390,11 @@ const templates = {
             'boost_mode': 'multiply'
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html',
     },
     boosting: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'boosting': {
             'positive': {
@@ -317,13 +410,13 @@ const templates = {
             'negative_boost': 0.2
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-boosting-query.html',
     },
   },
-  [QUERIES.JOIN]: {
+  [CHECKS.JOIN]: {
     nested: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'nested': {
             'path': 'obj1',
@@ -338,11 +431,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-nested-query.html',
     },
     has_child: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'has_child': {
             'type': 'blog_tag',
@@ -353,11 +446,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-has-child-query.html',
     },
     has_parent: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'has_parent': {
             'parent_type': 'blog',
@@ -368,24 +461,24 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-has-parent-query.html',
     },
     parent_id: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'parent_id': {
             'type': 'my_child',
             'id': '1'
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-parent-id-query.html',
     },
   },
-  [QUERIES.GEO_QUERIES]: {
+  [CHECKS.GEO_QUERIES]: {
     geoShape: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'bool': {
             'must': {
@@ -404,11 +497,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-shape-query.html',
     },
     geo_bounding: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'bool': {
             'must': {
@@ -430,11 +523,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-bounding-box-query.html',
     },
     geo_distance: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'bool': {
             'must': {
@@ -451,11 +544,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-distance-query.html',
     },
     geo_polygon: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'bool': {
             'must': {
@@ -474,13 +567,13 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-polygon-query.html',
     },
   },
-  [QUERIES.SPECIALIZED]: {
+  [CHECKS.SPECIALIZED]: {
     more_like_this: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'more_like_this': {
             'fields': ['title', 'description'],
@@ -489,11 +582,11 @@ const templates = {
             'max_query_terms': 12
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-mlt-query.html',
     },
     script: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'bool': {
             'filter': {
@@ -506,11 +599,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-script-query.html',
     },
     script_score: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'script_score': {
             'query': {
@@ -521,11 +614,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-script-score-query.html',
     },
     percolate: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'percolate': {
             'field': 'query',
@@ -534,11 +627,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-percolate-query.html',
     },
     rank_feature: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'bool': {
             'must': [
@@ -569,31 +662,31 @@ const templates = {
             ]
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-rank-feature-query.html',
     },
     wrapper: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'wrapper': {
             'query': 'eyJ0ZXJtIiA6IHsgInVzZXIiIDogIktpbWNoeSIgfX0='
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-wrapper-query.html',
     },
   },
-  [QUERIES.SPAN]: {
+  [CHECKS.SPAN]: {
     span_term: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'span_term': { 'user': 'kimchy' }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-span-term-query.html',
     },
     span_multi_term: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'span_multi': {
             'match': {
@@ -601,11 +694,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-span-multi-term-query.html',
     },
     span_first: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'span_first': {
             'match': {
@@ -614,11 +707,11 @@ const templates = {
             'end': 3
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-span-first-query.html',
     },
     span_near: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'span_near': {
             'clauses': [
@@ -630,11 +723,11 @@ const templates = {
             'in_order': false
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-span-near-query.html',
     },
     span_or: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'span_or': {
             'clauses': [
@@ -644,11 +737,11 @@ const templates = {
             ]
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-span-or-query.html',
     },
     span_not: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'span_not': {
             'include': {
@@ -666,11 +759,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-span-not-query.html',
     },
     span_containing: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'span_containing': {
             'little': {
@@ -688,11 +781,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-span-containing-query.html',
     },
     span_within: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'span_within': {
             'little': {
@@ -710,11 +803,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-span-within-query.html',
     },
     span_field_masking: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'span_near': {
             'clauses': [
@@ -738,21 +831,21 @@ const templates = {
             'in_order': false
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-span-field-masking-query.html',
     },
   },
-  [QUERIES.METRICS_AGGREGATIONS]: {
+  [CHECKS.METRICS_AGGREGATIONS]: {
     avg: {
-      example: stringifyPretty({
+      example: {
         'aggs': {
           'avg_grade': { 'avg': { 'field': 'grade' } }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-avg-aggregation.html#search-aggregations-metrics-avg-aggregation',
     },
     weighted_avg: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'weighted_grade': {
@@ -766,11 +859,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-weight-avg-aggregation.html',
     },
     cardinality: {
-      example: stringifyPretty({
+      example: {
         'aggs': {
           'type_count': {
             'cardinality': {
@@ -778,20 +871,20 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-cardinality-aggregation.html',
     },
     extended_stats: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'grades_stats': { 'extended_stats': { 'field': 'grade' } }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-extendedstats-aggregation.html',
     },
     geo_bounds: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'match': { 'name': 'musée' }
         },
@@ -803,11 +896,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-geobounds-aggregation.html',
     },
     geo_centroid: {
-      example: stringifyPretty({
+      example: {
         'aggs': {
           'centroid': {
             'geo_centroid': {
@@ -815,27 +908,27 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-geocentroid-aggregation.html',
     },
     max: {
-      example: stringifyPretty({
+      example: {
         'aggs': {
           'max_price': { 'max': { 'field': 'price' } }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-max-aggregation.html',
     },
     min: {
-      example: stringifyPretty({
+      example: {
         'aggs': {
           'min_price': { 'min': { 'field': 'price' } }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-min-aggregation.html',
     },
     percentiles: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'load_time_outlier': {
@@ -844,11 +937,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-percentile-aggregation.html',
     },
     percentile_ranks: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'load_time_ranks': {
@@ -858,11 +951,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-percentile-rank-aggregation.html',
     },
     scripted_metric: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'match_all': {}
         },
@@ -876,19 +969,19 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-scripted-metric-aggregation.html',
     },
     stats: {
-      example: stringifyPretty({
+      example: {
         'aggs': {
           'grades_stats': { 'stats': { 'field': 'grade' } }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-stats-aggregation.html',
     },
     sum: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'constant_score': {
             'filter': {
@@ -899,11 +992,11 @@ const templates = {
         'aggs': {
           'hat_prices': { 'sum': { 'field': 'price' } }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-sum-aggregation.html',
     },
     top_hits: {
-      example: stringifyPretty({
+      example: {
         'aggs': {
           'top_tags': {
             'terms': {
@@ -929,19 +1022,19 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-top-hits-aggregation.html',
     },
     value_count: {
-      example: stringifyPretty({
+      example: {
         'aggs': {
           'types_count': { 'value_count': { 'field': 'type' } }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-valuecount-aggregation.html',
     },
     median_absolute_deviation: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'review_average': {
@@ -955,13 +1048,13 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-median-absolute-deviation-aggregation.html',
     },
   },
-  [QUERIES.BUCKET_AGGREGATIONS]: {
+  [CHECKS.BUCKET_AGGREGATIONS]: {
     adjacency_matrix: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'interactions': {
@@ -974,11 +1067,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-adjacency-matrix-aggregation.html',
     },
     auto_interval_date_histogram: {
-      example: stringifyPretty({
+      example: {
         'aggs': {
           'sales_over_time': {
             'auto_date_histogram': {
@@ -987,11 +1080,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-autodatehistogram-aggregation.html',
     },
     children: {
-      example: stringifyPretty({
+      example: {
         'aggs': {
           'top-tags': {
             'terms': {
@@ -1015,11 +1108,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-children-aggregation.html',
     },
     composite: {
-      example: stringifyPretty({
+      example: {
         'aggs': {
           'my_buckets': {
             'composite': {
@@ -1029,11 +1122,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-composite-aggregation.html',
     },
     date_histogram: {
-      example: stringifyPretty({
+      example: {
         'aggs': {
           'sales_over_time': {
             'date_histogram': {
@@ -1042,11 +1135,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-datehistogram-aggregation.html',
     },
     date_range: {
-      example: stringifyPretty({
+      example: {
         'aggs': {
           'range': {
             'date_range': {
@@ -1059,11 +1152,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html',
     },
     diversified_sampler: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'query_string': {
             'query': 'tags:elasticsearch'
@@ -1085,11 +1178,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-diversified-sampler-aggregation.html',
     },
     filter: {
-      example: stringifyPretty({
+      example: {
         'aggs': {
           't_shirts': {
             'filter': { 'term': { 'type': 't-shirt' } },
@@ -1098,11 +1191,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-filter-aggregation.html',
     },
     filters: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'messages': {
@@ -1114,11 +1207,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-filters-aggregation.html',
     },
     geo_distance: {
-      example: stringifyPretty({
+      example: {
         'aggs': {
           'rings_around_amsterdam': {
             'geo_distance': {
@@ -1132,11 +1225,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-geodistance-aggregation.html',
     },
     geoHash_grid: {
-      example: stringifyPretty({
+      example: {
         'aggregations': {
           'large-grid': {
             'geohash_grid': {
@@ -1145,11 +1238,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-geohashgrid-aggregation.html',
     },
     geoTile_grid: {
-      example: stringifyPretty({
+      example: {
         'aggregations': {
           'large-grid': {
             'geotile_grid': {
@@ -1158,11 +1251,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-geotilegrid-aggregation.html',
     },
     global: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'match': { 'type': 't-shirt' }
         },
@@ -1175,11 +1268,11 @@ const templates = {
           },
           't_shirts': { 'avg': { 'field': 'price' } }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-global-aggregation.html',
     },
     histogram: {
-      example: stringifyPretty({
+      example: {
         'aggs': {
           'prices': {
             'histogram': {
@@ -1188,11 +1281,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-histogram-aggregation.html',
     },
     ip_range: {
-      example: stringifyPretty({
+      example: {
         'size': 10,
         'aggs': {
           'ip_ranges': {
@@ -1205,21 +1298,21 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-iprange-aggregation.html',
     },
     missing: {
-      example: stringifyPretty({
+      example: {
         'aggs': {
           'products_without_a_price': {
             'missing': { 'field': 'price' }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-missing-aggregation.html',
     },
     nested: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'match': { 'name': 'led tv' }
         },
@@ -1233,11 +1326,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-nested-aggregation.html',
     },
     parent: {
-      example: stringifyPretty({
+      example: {
         'aggs': {
           'top-names': {
             'terms': {
@@ -1261,11 +1354,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-parent-aggregation.html',
     },
     range: {
-      example: stringifyPretty({
+      example: {
         'aggs': {
           'price_ranges': {
             'range': {
@@ -1278,11 +1371,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-range-aggregation.html',
     },
     reverse_nested: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'match_all': {}
         },
@@ -1312,11 +1405,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-reverse-nested-aggregation.html',
     },
     sampler: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'query_string': {
             'query': 'tags:kibana OR tags:javascript'
@@ -1337,11 +1430,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-sampler-aggregation.html',
     },
     significant_terms: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'terms': { 'force': [ 'British Transport Police' ] }
         },
@@ -1350,11 +1443,11 @@ const templates = {
             'significant_terms': { 'field': 'crime_type' }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-significantterms-aggregation.html',
     },
     significant_text: {
-      example: stringifyPretty({
+      example: {
         'query': {
           'match': { 'content': 'Bird flu' }
         },
@@ -1370,23 +1463,23 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-significanttext-aggregation.html',
     },
     terms: {
-      example: stringifyPretty({
+      example: {
         'aggs': {
           'genres': {
             'terms': { 'field': 'genre' }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html',
     },
   },
-  [QUERIES.PIPELINE_AGGREGATIONS]: {
+  [CHECKS.PIPELINE_AGGREGATIONS]: {
     avg_bucket: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'sales_per_month': {
@@ -1408,11 +1501,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-avg-bucket-aggregation.html',
     },
     derivative: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'sales_per_month': {
@@ -1434,11 +1527,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-derivative-aggregation.html',
     },
     max_bucket: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'sales_per_month': {
@@ -1460,11 +1553,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-max-bucket-aggregation.html',
     },
     min_bucket: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'sales_per_month': {
@@ -1486,11 +1579,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-min-bucket-aggregation.html',
     },
     sum_bucket: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'sales_per_month': {
@@ -1512,11 +1605,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-sum-bucket-aggregation.html',
     },
     stats_bucket: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'sales_per_month': {
@@ -1538,11 +1631,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-stats-bucket-aggregation.html',
     },
     extended_stats_bucket: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'sales_per_month': {
@@ -1564,11 +1657,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-extended-stats-bucket-aggregation.html',
     },
     percentiles_bucket: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'sales_per_month': {
@@ -1591,11 +1684,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-percentiles-bucket-aggregation.html',
     },
     moving_average: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'my_date_histo': {
@@ -1613,11 +1706,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-movavg-aggregation.html',
     },
     moving_function: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'my_date_histo': {
@@ -1639,11 +1732,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-movfn-aggregation.html',
     },
     cumulative_sum: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'sales_per_month': {
@@ -1665,11 +1758,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-cumulative-sum-aggregation.html',
     },
     bucket_script: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'sales_per_month': {
@@ -1709,11 +1802,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-bucket-script-aggregation.html',
     },
     bucket_selector: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'sales_per_month': {
@@ -1738,11 +1831,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-bucket-selector-aggregation.html',
     },
     bucket_sort: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'sales_per_month': {
@@ -1767,11 +1860,11 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-bucket-sort-aggregation.html',
     },
     serial_differencing: {
-      example: stringifyPretty({
+      example: {
         'size': 0,
         'aggs': {
           'my_date_histo': {
@@ -1794,13 +1887,13 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-serialdiff-aggregation.html',
     },
   },
-  [QUERIES.MATRIX_AGGREGATIONS]: {
+  [CHECKS.MATRIX_AGGREGATIONS]: {
     matrix_stats: {
-      example: stringifyPretty({
+      example: {
         'aggs': {
           'statistics': {
             'matrix_stats': {
@@ -1808,21 +1901,16 @@ const templates = {
             }
           }
         }
-      }),
+      },
       link: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-matrix-stats-aggregation.html',
-    },
-  },
-  [QUERIES.CONDITIONS]: {
-    script: {
-      example: stringifyPretty({
-        'type': 'condition.script',
-        'name': 'newcondition',
-        'source': 'data.mysearch.aggregations.when.value > 2'
-      }),
-      link: `${DOC_LINKS.REPO}/tree/master/examples/watches`,
-      type: 'condition'
     },
   },
 };
 
-export default templates;
+export default {
+  staticExamples,
+  inputExamples,
+  conditionExamples,
+  transformExamples,
+  calcExamples
+};

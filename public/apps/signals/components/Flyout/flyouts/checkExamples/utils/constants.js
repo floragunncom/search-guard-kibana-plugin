@@ -1,4 +1,5 @@
-export const QUERIES = {
+export const CHECKS = {
+  HTTP: 'http',
   FULL_TEXT: 'full_text',
   TERM_LEVEL: 'term_level',
   COMPOUND: 'compound',
@@ -10,5 +11,8 @@ export const QUERIES = {
   BUCKET_AGGREGATIONS: 'bucket_aggs',
   PIPELINE_AGGREGATIONS: 'pipeline_aggs',
   MATRIX_AGGREGATIONS: 'matrix_aggs',
-  CONDITIONS: 'conditions'
+  CONDITION: 'condition',
+  STATIC: 'static',
+  TRANSFORM: 'transform',
+  CALC: 'calc',
 };

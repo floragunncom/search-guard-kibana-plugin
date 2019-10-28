@@ -1,4 +1,4 @@
-import { foldMultiLineString } from '../../pages/DefineWatch/utils';
+import { foldMultiLineString } from '../helpers';
 import { requiredText, invalidJsonText } from '../i18n/common';
 
 export const validateWatchString = value => {
