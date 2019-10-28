@@ -31,7 +31,8 @@ export const DOC_LINKS = {
 export const FLYOUTS = {
   INSPECT_JSON: 'inspectJson',
   CUSTOM: 'customFlyout',
-  WATCHES_HELP: 'watchesHelp'
+  WATCHES_HELP: 'watchesHelp',
+  CHECK_EXAMPLES: 'checkExamples'
 };
 
 export const MODALS = {
