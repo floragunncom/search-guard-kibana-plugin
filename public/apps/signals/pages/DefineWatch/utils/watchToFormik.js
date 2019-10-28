@@ -2,10 +2,8 @@ import { cloneDeep, isEmpty } from 'lodash';
 import {
   stringifyPretty,
   arrayToComboBoxOptions,
-} from '../../../utils/helpers';
-import {
   unfoldMultiLineString,
-} from './unfoldMultiLineString';
+} from '../../../utils/helpers';
 import buildFormikSchedule from './buildFormikSchedule';
 import {
   GRAPH_DEFAULTS,

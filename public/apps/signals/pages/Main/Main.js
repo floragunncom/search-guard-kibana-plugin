@@ -223,6 +223,7 @@ class Main extends Component {
                       onComboBoxChange={this.handleComboBoxChange}
                       onComboBoxOnBlur={this.handleComboBoxOnBlur}
                       onComboBoxCreateOption={this.handleComboBoxCreateOption}
+                      onTriggerFlyout={this.handleTriggerFlyout}
                       onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                       {...props}
                     />

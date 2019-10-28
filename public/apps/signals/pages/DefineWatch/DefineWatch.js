@@ -99,6 +99,7 @@ class DefineWatch extends Component {
     const {
       httpClient,
       location,
+      onTriggerFlyout,
       onComboBoxChange,
       onComboBoxOnBlur,
       onComboBoxCreateOption,
@@ -122,6 +123,7 @@ class DefineWatch extends Component {
               <EuiSpacer />
               <DefinitionPanel
                 httpClient={httpClient}
+                onTriggerFlyout={onTriggerFlyout}
                 onComboBoxChange={onComboBoxChange}
                 onComboBoxOnBlur={onComboBoxOnBlur}
                 onComboBoxCreateOption={onComboBoxCreateOption}
@@ -168,6 +170,7 @@ DefineWatch.propTypes = {
   location: PropTypes.object.isRequired,
   httpClient: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
+  onTriggerFlyout: PropTypes.func.isRequired,
   onComboBoxOnBlur: PropTypes.func.isRequired,
   onComboBoxCreateOption: PropTypes.func.isRequired,
   onComboBoxChange: PropTypes.func.isRequired
