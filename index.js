@@ -1,19 +1,15 @@
+import {handleUICapabilities} from "./lib/rbac/rbac_uicapabilities";
+
 const pluginRoot = require('requirefrom')('');
-import _ from 'lodash';
 import { resolve, join, sep } from 'path';
 import { has } from 'lodash';
 import indexTemplate from './lib/elasticsearch/setup_index_template';
 import { migrateTenants } from './lib/multitenancy/migrate_tenants';
 import { version as sgVersion } from './package.json';
-import SearchguardSavedObjectsClient from './lib/rbac/searchguard_saved_objects_client';
 import { first } from 'rxjs/operators';
-import {
-    RbacAppPermissions,
-    buildPermissionsFromCapabilities,
-    toggleUiCapabilities,
-    UICAPABILITY_PREFIX
-} from './lib/rbac/RbacAppPermissions';
-import registerRbacLiteExtension from './lib/rbac/rbaclite_extension';
+import registerRBACAppExtension from './lib/rbac/rbac_app_extension';
+import registerRBACApiExtension from './lib/rbac/rbac_api_extension';
+import {registerSavedObjectClient} from "./lib/rbac/rbac_saved_objects";
 
 export default function (kibana) {
 
@@ -542,78 +538,11 @@ export default function (kibana) {
             }
 
             if (config.get('searchguard.rbac.enabled')) {
-                let rbacAppPermissions = new RbacAppPermissions(server, server.plugins.searchguard.getSearchGuardBackend());
-
-
-                server.registerCapabilitiesModifier(async (request, uiCapabilities) => {
-
-                    // We need to have an authenticated user to perform the hasPermissions check
-                    if (! request.path.startsWith('/app')) {
-                        return uiCapabilities;
-                    }
-
-
-                    const capabilities = _.cloneDeep(uiCapabilities);
-                    let appPermissions = buildPermissionsFromCapabilities(capabilities);
-                    let appPermissionsResult = await rbacAppPermissions.getPermissionsResult(request, appPermissions);
-                    const capabilitiesAfterPermissionsCheck = toggleUiCapabilities(capabilities, appPermissionsResult);
-
-                    // @todo Should this still be in the extension?
-                    const id = request.params.id;
-                    const app = server.getUiAppById(id) || server.getHiddenUiAppById(id);
-
-                    if (app) {
-                        // Make sure we can pass the result back to the frontend.
-                        // Checking the injectedAppVars is a bit overkill right now,
-                        // but I wanted to make sure we don't overwrite anything in the future.
-                        // This code is executed before the replaceInjectedVars()
-                        // in the plugin definition.
-
-                        // @todo This looks like we're overwriting existing sgDynamic, no?
-                        let sgDynamic = {
-                            rbac: {}
-                        };
-                        let injectedAppVars = await server.getInjectedUiAppVars(app.getId());
-                        if (injectedAppVars && injectedAppVars.sgDynamic) {
-                            sgDynamic = injectedAppVars.sgDynamic;
-                        }
-
-                        sgDynamic.rbac = {
-                            ...sgDynamic.rbac,
-                            allowedNavLinkIds: appPermissionsResult.allowed
-                              .filter(permissionString => permissionString.indexOf(UICAPABILITY_PREFIX + 'navLinks') === 0)
-                              .map(permissionString => permissionString.replace(UICAPABILITY_PREFIX + 'navLinks/', ''))
-                        }
-
-                        server.injectUiAppVars(app.getId(), (server) => {
-                            return {
-                                sgDynamic
-                            }
-                        });
-                    }
-
-                    return capabilitiesAfterPermissionsCheck;
-                });
-
-                registerRbacLiteExtension(pluginRoot, server);
-
-                const { savedObjects } = server;
-
-                savedObjects.setScopedSavedObjectsClientFactory(({request}) => {
-                    const adminCluster = server.plugins.elasticsearch.getCluster('admin');
-                    const {callWithRequest} = adminCluster;
-                    const callCluster = (...args) => callWithRequest(request, ...args);
-                    const callWithRequestRepository = savedObjects.getSavedObjectsRepository(callCluster);
-
-                    return new SearchguardSavedObjectsClient(
-                        request,
-                        searchguardBackend,
-                        callWithRequestRepository,
-                        savedObjects
-                    );
-                });
-
-                this.status.green("Search Guard RBAC enabled");
+                handleUICapabilities(server, searchguardBackend);
+                registerRBACAppExtension(pluginRoot, server, searchguardBackend);
+                registerRBACApiExtension(pluginRoot, server, searchguardBackend);
+                registerSavedObjectClient(server, searchguardBackend);
+                //this.status.green("Search Guard RBAC enabled");
             }
 
             // Using an admin certificate may lead to unintended consequences

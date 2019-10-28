@@ -124,7 +124,6 @@ export function enableConfiguration($http, $window, systemstate) {
 
     const injectedConfig = chrome.getInjected();
     const searchguardRequestConfig = injectedConfig.sgDynamic;
-    console.warn({injectedConfig})
 
     const ROOT = chrome.getBasePath();
     const APP_ROOT = `${ROOT}`;

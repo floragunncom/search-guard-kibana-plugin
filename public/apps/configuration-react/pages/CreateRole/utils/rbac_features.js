@@ -2,10 +2,10 @@ import {
   permissionAllLabelText,
   permissionNoneLabelText,
   permissionReadLabelText
-} from "../../apps/configuration-react/utils/i18n/rbac";
+} from "../../../utils/i18n/rbac";
 
-export const readWriteActionGroupName = "SGS_KIBANA_ALL_WRITE";
-export const readOnlyActionGroupName = "SGS_KIBANA_ALL_READ";
+export const READ_WRITE_ACTION_GROUP_NAME = "SGS_KIBANA_ALL_WRITE";
+export const READ_ONLY_ACTION_GROUP_NAME = "SGS_KIBANA_ALL_READ";
 
 export const PATTERN_ACCESS_LEVELS = {
   READ_WRITE: 'ReadWrite',
@@ -15,25 +15,25 @@ export const PATTERN_ACCESS_LEVELS = {
 
 
 function roleHasReadWrite(roleActionGroups) {
-  return roleActionGroups.indexOf(readWriteActionGroupName) > -1;
+  return roleActionGroups.indexOf(READ_WRITE_ACTION_GROUP_NAME) > -1;
 }
 
 function roleHasReadOnlyActionGroup(roleActionGroups) {
-  return roleActionGroups.indexOf(readOnlyActionGroupName) > -1;
+  return roleActionGroups.indexOf(READ_ONLY_ACTION_GROUP_NAME) > -1;
 }
 
 function roleHasRBACActionGroups(roleActionGroups) {
-  let rbacActionGroups = roleActionGroups.filter(actionGroup => [readWriteActionGroupName, readOnlyActionGroupName].indexOf(actionGroup) === -1);
+  let rbacActionGroups = roleActionGroups.filter(actionGroup => [READ_WRITE_ACTION_GROUP_NAME, READ_ONLY_ACTION_GROUP_NAME].indexOf(actionGroup) === -1);
   return (rbacActionGroups.length === 0) ? false : true;
 }
 
 export function getPatternAccessLevel(roleActionGroups) {
-  if (roleHasRBACActionGroups(roleActionGroups)) {
-    return PATTERN_ACCESS_LEVELS.RBAC;
-  } else if (roleHasReadWrite(roleActionGroups)) {
+  if (roleHasReadWrite(roleActionGroups)) {
     return PATTERN_ACCESS_LEVELS.READ_WRITE;
-  } else {
+  } else if (roleHasReadOnlyActionGroup(roleActionGroups)) {
     return PATTERN_ACCESS_LEVELS.READ_ONLY
+  } else if (roleHasRBACActionGroups(roleActionGroups)) {
+    return PATTERN_ACCESS_LEVELS.RBAC;
   }
 }
 
@@ -46,7 +46,6 @@ export function getPatternAccessLevel(roleActionGroups) {
  * @param roleActionGroups
  */
 export function getFeaturesMap(originalActionGroups, roleActionGroups) {
-
   // Filter out non Kibana action groups, as well as the
   // WRITE_ALL and READ_ALL action groups
   const actionGroups = Object.keys(originalActionGroups)
@@ -58,7 +57,7 @@ export function getFeaturesMap(originalActionGroups, roleActionGroups) {
         return false;
       }
 
-      if ([readWriteActionGroupName, readOnlyActionGroupName].indexOf(actionGroupName) !== -1) {
+      if ([READ_WRITE_ACTION_GROUP_NAME, READ_ONLY_ACTION_GROUP_NAME].indexOf(actionGroupName) !== -1) {
         return false;
       }
 
@@ -192,13 +191,27 @@ export function transformFeatureMapForUI(featuresMap) {
   return featureItems;
 }
 
+export function getActionGroupsBasedOnPatternAccessLevel(patternAccessLevel, featureItems = null) {
+  let actionGroups = [];
+  if (patternAccessLevel === PATTERN_ACCESS_LEVELS.RBAC) {
+    actionGroups = serializeFeaturesIntoActionGroups([...featureItems]);
+  } else {
+    const actionGroup = (patternAccessLevel === PATTERN_ACCESS_LEVELS.READ_WRITE)
+      ? READ_WRITE_ACTION_GROUP_NAME
+      : READ_ONLY_ACTION_GROUP_NAME;
+    actionGroups = [actionGroup];
+  }
+
+  return actionGroups;
+}
+
 /**
  * Transform the UI values into an array of action groups
  * @param features
  * @returns {*[]}
  */
-export function serializeFeaturesIntoActionGroups(features) {
-  const actionGroups = Object.values(features)
+export function serializeFeaturesIntoActionGroups(featureItems) {
+  const actionGroups = Object.values(featureItems)
     .filter(feature => feature.selected && feature.selected !== '_none')
     .map(feature => feature.selected)
     ;
