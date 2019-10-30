@@ -2,6 +2,7 @@ import React from 'react';
 import { EuiI18n } from '@elastic/eui';
 
 export const helpText = (<EuiI18n token="sg.common.help.text" default="Help" />);
+export const newText = (<EuiI18n token="sg.common.new.text" default="New" />);
 export const nameText = (<EuiI18n token="sg.common.name.text" default="Name" />);
 export const generalText = (<EuiI18n token="sg.common.general.text" default="General" />);
 export const cancelText = (<EuiI18n token="sg.common.cancel.text" default="Cancel" />);
@@ -90,3 +91,4 @@ export const availableText = (<EuiI18n token="sg.common.available.text" default=
 export const systemItemsText = (<EuiI18n token="sg.common.systemItems.text" default="System Items" />);
 export const logoutText = (<EuiI18n token="sg.common.logout.text" default="Logout" />);
 export const loginText = (<EuiI18n token="sg.common.login.text" default="Login" />);
+export const addExampleText = (<EuiI18n token="sg.common.addExample.text" default="Add Example" />);

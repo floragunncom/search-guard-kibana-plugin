@@ -6,7 +6,7 @@ import { EuiButton } from '@elastic/eui';
 import {
   FormikSelect,
   ContentPanel,
-  HelpButton
+  AddButton
 } from '../../../../components';
 import JsonWatch from '../JsonWatch';
 import GraphWatch from '../GraphWatch';
@@ -21,7 +21,7 @@ import {
 import { WatchService } from '../../../../services';
 import { addErrorToast } from '../../../../redux/actions';
 import { WATCH_TYPE_SELECT, WATCH_TYPE } from '../../utils/constants';
-import ChecksHelpFlyout from '../ChecksHelpFlyout';
+import { FLYOUTS } from '../../../../utils/constants';
 
 class DefinitionPanel extends Component {
   constructor(props) {
@@ -29,7 +29,6 @@ class DefinitionPanel extends Component {
 
     this.state = {
       isLoading: false,
-      isChecksHelpFlyoutOpen: false,
       insertCheckTemplate: {
         row: undefined,
         column: undefined,
@@ -60,7 +59,7 @@ class DefinitionPanel extends Component {
   };
 
   // Only for JsonWatch and BlocksWatch
-  addCheckTemplate = (checkTemplate = {}) => {
+  addCheckExample = (checkTemplate = {}) => {
     const { formik: { values, setFieldValue }, dispatch } = this.props;
     const { checks, _ui: { watchType, checksBlocks } } = values;
 
@@ -87,7 +86,7 @@ class DefinitionPanel extends Component {
         }
       }
     } catch (error) {
-      console.error('DefintionPanel -- addCheckTemplate', error);
+      console.error('DefintionPanel -- addCheckExample', error);
       dispatch(addErrorToast(error));
       console.debug('DefintionPanel -- formik values', values);
       console.debug('DefintionPanel -- checkTemplate', checkTemplate);
@@ -111,13 +110,12 @@ class DefinitionPanel extends Component {
     const {
       formik: { values = {} },
       httpClient,
+      onTriggerFlyout,
       onComboBoxChange,
       onComboBoxOnBlur,
       onComboBoxCreateOption,
       onTriggerConfirmDeletionModal,
     } = this.props;
-
-    const { isChecksHelpFlyoutOpen } = this.state;
 
     const isGraphWatch = values._ui.watchType === WATCH_TYPE.GRAPH;
     const isJsonWatch = values._ui.watchType === WATCH_TYPE.JSON;
@@ -134,7 +132,12 @@ class DefinitionPanel extends Component {
       />);
     } else if (isJsonWatch) {
       actions = [
-        <HelpButton onClick={() => this.setState({ isChecksHelpFlyoutOpen: true })} />,
+        <AddButton onClick={() => {
+          onTriggerFlyout({
+            type: FLYOUTS.CHECK_EXAMPLES,
+            payload: { onAdd: this.addCheckExample }
+          });
+        }} />,
         this.renderExecuteWatchButton(values)
       ];
 
@@ -149,7 +152,12 @@ class DefinitionPanel extends Component {
       );
     } else { // BlocksWatch
       actions = [
-        <HelpButton onClick={() => this.setState({ isChecksHelpFlyoutOpen: true })} />,
+        <AddButton onClick={() => {
+          onTriggerFlyout({
+            type: FLYOUTS.CHECK_EXAMPLES,
+            payload: { onAdd: this.addCheckExample }
+          });
+        }} />,
         this.renderExecuteWatchButton(values)
       ];
 
@@ -158,7 +166,10 @@ class DefinitionPanel extends Component {
           httpClient={httpClient}
           onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
           onOpenChecksHelpFlyout={() => {
-            this.setState({ isChecksHelpFlyoutOpen: true });
+            onTriggerFlyout({
+              type: FLYOUTS.CHECK_EXAMPLES,
+              payload: { onAdd: this.addCheckExample }
+            });
           }}
         />
       );
@@ -170,13 +181,6 @@ class DefinitionPanel extends Component {
         titleSize="s"
         actions={actions}
       >
-        {isChecksHelpFlyoutOpen && (
-          <ChecksHelpFlyout
-            onClose={() => this.setState({ isChecksHelpFlyoutOpen: false })}
-            onAdd={this.addCheckTemplate}
-          />
-        )}
-
         <div>
           <FormikSelect
             name="_ui.watchType"
@@ -206,6 +210,7 @@ DefinitionPanel.propTypes = {
   onComboBoxCreateOption: PropTypes.func.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
+  onTriggerFlyout: PropTypes.func.isRequired,
 };
 
 export default connectRedux()(connectFormik(DefinitionPanel));

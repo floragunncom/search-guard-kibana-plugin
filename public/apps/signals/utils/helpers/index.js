@@ -12,3 +12,6 @@ export {
   filterEmptyKeys,
   stringifyPretty
 } from '../../../utils/helpers';
+
+export { foldMultiLineString } from './foldMultiLineString';
+export { unfoldMultiLineString } from './unfoldMultiLineString';

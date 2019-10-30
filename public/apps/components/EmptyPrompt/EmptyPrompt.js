@@ -1,28 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { EuiEmptyPrompt, EuiButton } from '@elastic/eui';
-import { addText } from '../../utils/i18n/common';
+import { EuiEmptyPrompt } from '@elastic/eui';
+import AddButton from '../Page/AddButton';
 
-const EmptyPrompt = ({ titleText, bodyText, createButtonText, onCreate }) => (
+const EmptyPrompt = ({
+  titleText,
+  titleSize,
+  bodyText,
+  onCreate
+}) => (
   <EuiEmptyPrompt
     title={<h3>{titleText}</h3>}
-    titleSize="xs"
+    titleSize={titleSize}
     body={bodyText}
-    actions={(
-      <EuiButton
-        size="s"
-        iconType="plusInCircle"
-        onClick={onCreate}
-      >
-        {createButtonText}
-      </EuiButton>
-    )}
+    actions={<AddButton onClick={onCreate} />}
   />
 );
-
-EmptyPrompt.defaultProps = {
-  createButtonText: addText,
-};
 
 EmptyPrompt.propTypes = {
   onCreate: PropTypes.func.isRequired,
@@ -33,11 +26,11 @@ EmptyPrompt.propTypes = {
   bodyText: PropTypes.oneOfType([
     PropTypes.node,
     PropTypes.string,
-  ]),
-  createButtonText: PropTypes.oneOfType([
-    PropTypes.node,
-    PropTypes.string,
   ])
+};
+
+EmptyPrompt.defaultProps = {
+  titleSize: 'xs'
 };
 
 export default EmptyPrompt;
