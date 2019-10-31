@@ -12,6 +12,7 @@ Make sure you have correct Slack webhook URL in the action's `url`.
 
 # References
 
+* [Signals Alerting](https://docs.search-guard.com/latest/elasticsearch-alerting-getting-started)
 * [Query String Query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html)
 * [Range Query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html)
 * [Field _source](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-source-field.html#include-exclude)

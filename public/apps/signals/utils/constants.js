@@ -25,7 +25,16 @@ export const SEARCH_TYPE = {
 
 export const DOC_LINKS = {
   REPO: 'https://git.floragunn.com/search-guard/search-guard-kibana-plugin',
-  CRON_EXPRESSION: 'https://www.freeformatter.com/cron-expression-generator-quartz.html'
+  INPUTS: {
+    STATIC: 'https://docs.search-guard.com/latest/elasticsearch-alerting-inputs-static',
+    HTTP: 'https://docs.search-guard.com/latest/elasticsearch-alerting-inputs-http'
+  },
+  CONDITIONS: 'https://docs.search-guard.com/latest/elasticsearch-alerting-conditions-script',
+  TRANSFORMS: 'https://docs.search-guard.com/latest/elasticsearch-alerting-transformations',
+  CALCS: 'https://docs.search-guard.com/latest/elasticsearch-alerting-calculations',
+  TRIGGERS: {
+    SCHEDULE: 'https://docs.search-guard.com/latest/elasticsearch-alerting-triggers-schedule'
+  }
 };
 
 export const FLYOUTS = {
