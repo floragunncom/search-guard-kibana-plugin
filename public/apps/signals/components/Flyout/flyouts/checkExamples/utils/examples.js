@@ -12,7 +12,7 @@ const staticExamples = {
           threshold: 0
         }
       },
-      link: `${DOC_LINKS.REPO}/tree/master/examples/watches`,
+      link: DOC_LINKS.INPUTS.STATIC,
       type: 'static'
     }
   }
@@ -26,7 +26,7 @@ const conditionExamples = {
         name: 'greater_then_threshold',
         source: 'data.mysearch.hits.total.value > data.constants.threshold'
       },
-      link: `${DOC_LINKS.REPO}/tree/master/examples/watches`,
+      link: DOC_LINKS.CONDITIONS,
       type: 'condition'
     }
   }
@@ -46,7 +46,7 @@ const transformExamples = {
   }
   return total_4dials;`
       },
-      link: `${DOC_LINKS.REPO}/tree/master/examples/watches`,
+      link: DOC_LINKS.TRANSFORMS,
       type: 'transform'
     },
   }
@@ -60,7 +60,7 @@ const calcExamples = {
         name: 'calc_mean_amount',
         source: 'data.mysearch.hits.total100 = data.mysearch.hits.total.value * 100'
       },
-      link: `${DOC_LINKS.REPO}/tree/master/examples/watches`,
+      link: DOC_LINKS.CALCS,
       type: 'calc'
     },
   }
@@ -81,7 +81,7 @@ const inputExamples = {
           }
         }
       },
-      link: `${DOC_LINKS.REPO}/tree/master/examples/watches`,
+      link: DOC_LINKS.INPUTS.HTTP,
       type: 'http'
     },
     call_external_service_with_params: {
@@ -93,7 +93,7 @@ const inputExamples = {
           query_params: '{ "lat": "45.692783", "long": "9.673531" }'
         }
       },
-      link: `${DOC_LINKS.REPO}/tree/master/examples/watches`,
+      link: DOC_LINKS.INPUTS.HTTP,
       type: 'http'
     },
   },

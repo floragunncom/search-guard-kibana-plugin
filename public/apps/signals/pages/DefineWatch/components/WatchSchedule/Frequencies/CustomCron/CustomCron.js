@@ -17,7 +17,7 @@ const CustomCron = () => (
         formRow
         rowProps={{
           label: everyText,
-          labelAppend: <LabelAppendLink href={DOC_LINKS.CRON_EXPRESSION} name="CronDoc" />,
+          labelAppend: <LabelAppendLink href={DOC_LINKS.TRIGGERS.SCHEDULE} name="CronDoc" />,
           isInvalid,
           error: hasError,
         }}
