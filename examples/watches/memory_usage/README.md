@@ -12,6 +12,7 @@ Make sure you have correct Slack webhook URL in the action's `url`.
 
 # References
 
+* [Signals Alerting](https://docs.search-guard.com/latest/elasticsearch-alerting-getting-started)
 * [Max Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-max-aggregation.html)
 * [Terms Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html)
 * [Bool Query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html)
