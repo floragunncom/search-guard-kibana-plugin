@@ -7,9 +7,9 @@ export {
 } from '../../../../utils/signals/constants';
 
 export const APP_PATH = {
-  DESTINATIONS: '/destinations',
-  DESTINATION: '/destination',
-  DEFINE_DESTINATION: '/define-destination',
+  ACCOUNTS: '/accounts',
+  ACCOUNT: '/account',
+  DEFINE_ACCOUNT: '/define-account',
   DASHBOARD: '/dashboard',
   WATCHES: '/watches',
   WATCH: '/watch',

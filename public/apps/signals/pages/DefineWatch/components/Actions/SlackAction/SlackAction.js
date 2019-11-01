@@ -22,8 +22,8 @@ import {
 } from '../../../../../utils/validate';
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
-import ActionDestination from '../ActionDestination';
-import { DESTINATION_TYPE } from '../../../../Destinations/utils/constants';
+import ActionAccount from '../ActionAccount';
+import { ACCOUNT_TYPE } from '../../../../Accounts/utils/constants';
 import { CODE_EDITOR } from '../../../../../../utils/constants';
 
 const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
@@ -32,7 +32,7 @@ theme = !IS_DARK_THEME ? theme : darkTheme;
 
 const SlackAction = ({
   index,
-  destinations,
+  accounts,
   formik: { values: { actions } }
 }) => (
   <Fragment>
@@ -55,10 +55,10 @@ const SlackAction = ({
       }}
     />
     <ActionThrottlePeriod index={index} />
-    <ActionDestination
+    <ActionAccount
       index={index}
-      destinations={destinations}
-      destinationType={DESTINATION_TYPE.SLACK}
+      accounts={accounts}
+      accountType={ACCOUNT_TYPE.SLACK}
     />
     <FormikFieldText
       name={`actions[${index}].from`}
@@ -132,13 +132,13 @@ const SlackAction = ({
 );
 
 SlackAction.defaultProps = {
-  destinations: []
+  accounts: []
 };
 
 SlackAction.propTypes = {
   index: PropTypes.number.isRequired,
   formik: PropTypes.object.isRequired,
-  destinations: PropTypes.array
+  accounts: PropTypes.array
 };
 
 export default connectFormik(SlackAction);
