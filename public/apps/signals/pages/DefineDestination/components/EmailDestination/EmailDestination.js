@@ -46,6 +46,7 @@ import {
   securityText,
   defaultsText
 } from '../../../../utils/i18n/common';
+import { DESTINATION_TYPE } from '../../../Destinations/utils/constants';
 
 const Debug = () => (
   <Fragment>
@@ -337,7 +338,10 @@ const EmailDestination = ({
             isInvalid,
           }}
           formikFieldProps={{
-            validate: validateName(new DestinationsService(httpClient), isUpdatingName)
+            validate: validateName(
+              new DestinationsService(httpClient, DESTINATION_TYPE.EMAIL),
+              isUpdatingName
+            )
           }}
         />
         <FormikFieldText
