@@ -33,7 +33,7 @@ class DefineDestination extends Component {
     const { location, httpClient } = this.props;
     const { destinationType } = queryString.parse(location.search);
 
-    this.destService = new DestinationsService(httpClient);
+    this.destService = new DestinationsService(httpClient, destinationType);
     const initialValues = destinationType
       ? DEFAULTS[destinationType] : DEFAULTS[DESTINATION_TYPE.EMAIL];
 
