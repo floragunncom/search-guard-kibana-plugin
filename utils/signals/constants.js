@@ -14,8 +14,8 @@ export const BASE_URI = `/api/${APP_NAME}`;
 export const ROUTE_PATH = {
   WATCH: `${BASE_URI}/watch`,
   WATCHES: `${BASE_URI}/watches`,
-  DESTINATION: `${BASE_URI}/destination`,
-  DESTINATIONS: `${BASE_URI}/destinations`,
+  ACCOUNT: `${BASE_URI}/account`,
+  ACCOUNTS: `${BASE_URI}/accounts`,
   WATCH_EXECUTE: `${BASE_URI}/watch/_execute`,
   WATCH_EXECUTE_GRAPH: `${BASE_URI}/watch/_execute_graph`,
   ALERT: `${BASE_URI}/alert`,
