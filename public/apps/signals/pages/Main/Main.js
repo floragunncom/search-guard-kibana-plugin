@@ -18,8 +18,8 @@ import { removeToast } from '../../redux/actions';
 import Alerts from '../Alerts';
 import Watches from '../Watches';
 import DefineWatch from '../DefineWatch';
-import Destinations from '../Destinations';
-import DefineDestination from '../DefineDestination';
+import Accounts from '../Accounts';
+import DefineAccount from '../DefineAccount';
 import { Flyout, Modal, Breadcrumbs } from '../../components';
 import getBreadcrumb from './utils/getBreadcrumb';
 import { comboBoxOptionsToArray } from '../../utils/helpers';
@@ -27,7 +27,7 @@ import { APP_PATH, FLYOUTS, MODALS, APP_NAME } from '../../utils/constants';
 
 const getSelectedTabId = pathname => {
   if (pathname.includes(APP_PATH.WATCHES)) return APP_PATH.WATCHES;
-  if (pathname.includes(APP_PATH.DESTINATIONS)) return APP_PATH.DESTINATIONS;
+  if (pathname.includes(APP_PATH.ACCOUNTS)) return APP_PATH.ACCOUNTS;
   return APP_PATH.DASHBOARD;
 };
 
@@ -57,9 +57,9 @@ class Main extends Component {
         route: APP_PATH.WATCHES,
       },
       {
-        id: APP_PATH.DESTINATIONS,
-        name: 'Destinations',
-        route: APP_PATH.DESTINATIONS,
+        id: APP_PATH.ACCOUNTS,
+        name: 'Accounts',
+        route: APP_PATH.ACCOUNTS,
       }
     ];
   }
@@ -257,12 +257,12 @@ class Main extends Component {
                   )}
                 />
                 <Route
-                  path={APP_PATH.DESTINATIONS}
+                  path={APP_PATH.ACCOUNTS}
                   render={props => (
                     <Fragment>
                       <EuiTabs>{this.tabs.map(this.renderTab)}</EuiTabs>
                       <EuiSpacer />
-                      <Destinations
+                      <Accounts
                         httpClient={httpClient}
                         onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                         {...props}
@@ -271,9 +271,9 @@ class Main extends Component {
                   )}
                 />
                 <Route
-                  path={APP_PATH.DEFINE_DESTINATION}
+                  path={APP_PATH.DEFINE_ACCOUNT}
                   render={props => (
-                    <DefineDestination
+                    <DefineAccount
                       httpClient={httpClient}
                       onComboBoxChange={this.handleComboBoxChange}
                       onComboBoxOnBlur={this.handleComboBoxOnBlur}
