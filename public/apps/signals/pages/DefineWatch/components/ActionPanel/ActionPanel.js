@@ -14,7 +14,7 @@ import {
   ElasticsearchAction,
   EmailAction
 } from '../Actions';
-import { DestinationsService } from '../../../../services';
+import { AccountsService } from '../../../../services';
 import { addErrorToast } from '../../../../redux/actions';
 import { actionText } from '../../../../utils/i18n/common';
 import { ACTION_TYPE } from './utils/constants';
@@ -58,24 +58,24 @@ class ActionPanel extends Component {
     this.state = {
       isAddActionPopoverOpen: false,
       isLoading: true,
-      destinations: []
+      accounts: []
     };
 
-    this.destService = new DestinationsService(this.props.httpClient);
+    this.destService = new AccountsService(this.props.httpClient);
   }
 
   componentDidMount() {
-    this.getDestinations();
+    this.getAccounts();
   }
 
-  getDestinations = async () => {
+  getAccounts = async () => {
     const { dispatch } = this.props;
     this.setState({ isLoading: true });
     try {
-      const { resp: destinations } = await this.destService.get();
-      this.setState({ destinations });
+      const { resp: accounts } = await this.destService.get();
+      this.setState({ accounts });
     } catch (error) {
-      console.error('ActionPanel -- getDestinations', error);
+      console.error('ActionPanel -- getAccounts', error);
       dispatch(addErrorToast(error));
     }
     this.setState({ isLoading: false });
@@ -117,12 +117,12 @@ class ActionPanel extends Component {
     } = this.props;
 
     const hasActions = !isEmpty(actions);
-    const { isAddActionPopoverOpen, isLoading, destinations } = this.state;
+    const { isAddActionPopoverOpen, isLoading, accounts } = this.state;
 
     const addActionContextMenuPanels = [
       {
         id: 0,
-        title: 'Destinations',
+        title: 'Accounts',
         items: [
           {
             name: 'Email',
@@ -181,7 +181,7 @@ class ActionPanel extends Component {
                   actionBody={(
                     <Body
                       index={index}
-                      destinations={destinations}
+                      accounts={accounts}
                       httpClient={httpClient}
                       arrayHelpers={arrayHelpers}
                       onComboBoxChange={onComboBoxChange}

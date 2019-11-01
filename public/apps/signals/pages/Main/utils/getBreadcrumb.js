@@ -5,10 +5,10 @@ import {
   watchesText
 } from '../../../utils/i18n/watch';
 import {
-  createDestinationText,
-  updateDestinationText,
-  destinationsText
-} from '../../../utils/i18n/destination';
+  createAccountText,
+  updateAccountText,
+  accountsText
+} from '../../../utils/i18n/account';
 import { dashboardText } from '../../../utils/i18n/dashboard';
 import { APP_PATH } from '../../../utils/constants';
 
@@ -18,9 +18,9 @@ export default function getBreadcrumb(route) {
   const [ base, queryParams ] = route.split('?');
   if (!base) return null;
 
-  const { id, destinationType } = queryString.parse(queryParams);
+  const { id, accountType } = queryString.parse(queryParams);
   let urlParams = id ? `?id=${id}` : '';
-  if (id && destinationType) urlParams += `&destinationType=${destinationType}`;
+  if (id && accountType) urlParams += `&accountType=${accountType}`;
 
   const breadcrumb = {
     '#': { text: dashboardText, href: APP_PATH.DASHBOARD },
@@ -35,15 +35,15 @@ export default function getBreadcrumb(route) {
         href: APP_PATH.DEFINE_WATCH + urlParams
       }
     ],
-    [removePrefixSlash(APP_PATH.DESTINATIONS)]: {
-      text: destinationsText,
-      href: APP_PATH.DESTINATIONS
+    [removePrefixSlash(APP_PATH.ACCOUNTS)]: {
+      text: accountsText,
+      href: APP_PATH.ACCOUNTS
     },
-    [removePrefixSlash(APP_PATH.DEFINE_DESTINATION)]: [
-      { text: destinationsText, href: APP_PATH.DESTINATIONS },
+    [removePrefixSlash(APP_PATH.DEFINE_ACCOUNT)]: [
+      { text: accountsText, href: APP_PATH.ACCOUNTS },
       {
-        text: id ? updateDestinationText : createDestinationText,
-        href: APP_PATH.DEFINE_DESTINATION + urlParams
+        text: id ? updateAccountText : createAccountText,
+        href: APP_PATH.DEFINE_ACCOUNT + urlParams
       }
     ],
   }[base];

@@ -29,8 +29,8 @@ import {
 } from '../../../../../utils/validate';
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
-import ActionDestination from '../ActionDestination';
-import { DESTINATION_TYPE } from '../../../../Destinations/utils/constants';
+import ActionAccount from '../ActionAccount';
+import { ACCOUNT_TYPE } from '../../../../Accounts/utils/constants';
 import { CODE_EDITOR } from '../../../../../../utils/constants';
 
 const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
@@ -39,15 +39,15 @@ theme = !IS_DARK_THEME ? theme : darkTheme;
 
 const EmailAction = ({
   index,
-  destinations,
+  accounts,
   formik: { values: { actions } },
   onComboBoxChange,
   onComboBoxOnBlur,
   onComboBoxCreateOption
 }) => {
-  const currDestination = getCurrentAccount(destinations, actions[index].account);
-  const isDefaultFrom = !!currDestination && !isEmpty(currDestination.default_from);
-  const isDefaultTo = !!currDestination && !isEmpty(currDestination.default_to);
+  const currAccount = getCurrentAccount(accounts, actions[index].account);
+  const isDefaultFrom = !!currAccount && !isEmpty(currAccount.default_from);
+  const isDefaultTo = !!currAccount && !isEmpty(currAccount.default_to);
 
   return (
     <Fragment>
@@ -70,10 +70,10 @@ const EmailAction = ({
         }}
       />
       <ActionThrottlePeriod index={index} />
-      <ActionDestination
+      <ActionAccount
         index={index}
-        destinations={destinations}
-        destinationType={DESTINATION_TYPE.EMAIL}
+        accounts={accounts}
+        accountType={ACCOUNT_TYPE.EMAIL}
       />
       <FormikFieldText
         name={`actions[${index}].from`}
@@ -206,13 +206,13 @@ const EmailAction = ({
 };
 
 EmailAction.defaultProps = {
-  destinations: []
+  accounts: []
 };
 
 EmailAction.propTypes = {
   index: PropTypes.number.isRequired,
   formik: PropTypes.object.isRequired,
-  destinations: PropTypes.array,
+  accounts: PropTypes.array,
   onComboBoxOnBlur: PropTypes.func.isRequired,
   onComboBoxCreateOption: PropTypes.func.isRequired,
   onComboBoxChange: PropTypes.func.isRequired
