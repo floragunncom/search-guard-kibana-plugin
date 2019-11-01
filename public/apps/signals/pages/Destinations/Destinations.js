@@ -61,7 +61,7 @@ class Destinations extends Component {
     const { dispatch } = this.props;
     this.setState({ isLoading: true, error: null });
     try {
-      await this.destService.put(destination, _id);
+      await this.destService.put(destination, _id, destination.type);
       dispatch(addSuccessToast((<p>{saveText} {_id}</p>)));
       this.getDestinations();
     } catch (error) {
@@ -92,7 +92,7 @@ class Destinations extends Component {
     this.setState({ isLoading: true, error: null });
     try {
       const { _id: id, ...rest } = destination;
-      await this.destService.put(cloneDeep({ ...rest }), `${id}_copy`);
+      await this.destService.put(cloneDeep({ ...rest }), `${id}_copy`, destination.type);
       dispatch(addSuccessToast((<p>{cloneText} {id}</p>)));
       this.getDestinations();
     } catch (error) {
@@ -104,13 +104,13 @@ class Destinations extends Component {
     this.setState({ isLoading: false });
   }
 
-  deleteDestinations = async (destinationIds = []) => {
+  deleteDestinations = async (destinations = []) => {
     const { dispatch } = this.props;
     const promises = [];
 
     this.setState({ isLoading: true, error: null });
-    destinationIds.forEach(id => {
-      const promise = this.destService.delete(id)
+    destinations.forEach(({ _id: id, type }) => {
+      const promise = this.destService.delete(id, type)
         .then(() => {
           dispatch(addSuccessToast((<p>{deleteText} {id}</p>)));
         })
@@ -118,7 +118,7 @@ class Destinations extends Component {
           console.error('Destinations -- deleteDestinations', error);
           dispatch(addErrorToast(error));
           this.setState({ error });
-          console.debug('Destinations -- destinationsIds', destinationIds);
+          console.debug('Destinations -- destinationsIds', destinations.map(({ _id }) => _id));
         });
       promises.push(promise);
     });
@@ -131,7 +131,7 @@ class Destinations extends Component {
   handleDeleteDestinations = (destinations = []) => {
     const { onTriggerConfirmDeletionModal } = this.props;
     onTriggerConfirmDeletionModal({
-      body: destinations.join(', '),
+      body: destinations.map(({ _id }) => _id).join(', '),
       onConfirm: () => {
         this.deleteDestinations(destinations);
         onTriggerConfirmDeletionModal(null);
@@ -159,7 +159,8 @@ class Destinations extends Component {
     if (tableSelection.length === 0) return null;
 
     const handleMultiDelete = () => {
-      this.handleDeleteDestinations(tableSelection.map(item => item._id));
+      this.handleDeleteDestinations(tableSelection);
+      // this.handleDeleteDestinations(tableSelection.map(({ _id, type }) => ({ id: _id, type })));
       this.setState({ tableSelection: [] });
     };
 
@@ -192,10 +193,10 @@ class Destinations extends Component {
         )
       },
       {
-        render: ({ _id }) => (
+        render: destination => (
           <TableDeleteAction
-            name={_id}
-            onClick={() => this.handleDeleteDestinations([_id])}
+            name={destination._id}
+            onClick={() => this.handleDeleteDestinations([destination])}
           />
         )
       }

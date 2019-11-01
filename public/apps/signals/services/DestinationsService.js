@@ -2,15 +2,23 @@ import SignalsService from './SignalsService';
 import { ROUTE_PATH } from '../utils/constants';
 
 export default class DestinationsService extends SignalsService {
-  put(destination, id) {
-    return super.put(`..${ROUTE_PATH.DESTINATION}/${id}`, destination);
+  constructor(httpClient, type) {
+    super(httpClient);
+    this.type = type;
   }
 
-  get(id) {
-    return super.get(id ? `..${ROUTE_PATH.DESTINATION}/${id}` : `..${ROUTE_PATH.DESTINATIONS}`);
+  put(destination, id, type = this.type) {
+    return super.put(`..${ROUTE_PATH.DESTINATION}/${type}/${id}`, destination);
   }
 
-  delete(id) {
-    return super.delete(`..${ROUTE_PATH.DESTINATION}/${id}`);
+  get(id, type = this.type) {
+    const path = id
+      ? `..${ROUTE_PATH.DESTINATION}/${type}/${id}`
+      : `..${ROUTE_PATH.DESTINATIONS}`;
+    return super.get(path);
+  }
+
+  delete(id, type = this.type) {
+    return super.delete(`..${ROUTE_PATH.DESTINATION}/${type}/${id}`);
   }
 }
