@@ -1,12 +1,16 @@
 export const unfoldMultiLineString = (string = '') => {
-  const regexJSONKeysAndValues = new RegExp('("(?:[^"])*?")', 'g');
+  try {
+    return string.replace(/("(?:\\"|[^"])*?")/g, (match, value) => {
+      const areNewLines = /\\r|\\n/.exec(value);
+      if (areNewLines) {
+        return `"""\n${JSON.parse(value.replace(/^\s*\n|\s*$/g, ''))}\n"""`;
+      }
 
-  return string.replace(regexJSONKeysAndValues, (match, value) => {
-    const areNewLines = value.includes('\\n');
-    if (areNewLines) {
-      return `"""\n${JSON.parse(value)}\n"""`;
-    }
-
-    return value;
-  });
+      return value;
+    });
+  } catch (error) {
+    console.error('unfoldMultiLineString -- Fail to unfold multi-line string', error);
+  }
+  
+  return string;
 };
