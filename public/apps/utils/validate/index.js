@@ -1,7 +1,4 @@
 export { validateEmptyField } from './validateEmptyField';
-export { validateInterval } from './validateInterval';
-export { validateMonthDay } from './validateMonthDay';
-export { validateIndex } from './validateIndex';
 export { isInvalid } from './isInvalid';
 export { hasError } from './hasError';
 export { validateEmptyArray } from './validateEmptyArray';

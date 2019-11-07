@@ -11,7 +11,7 @@ import {
 import { FormikCodeEditor } from '../../../../components';
 import { checksText } from '../../../../utils/i18n/watch';
 import { stringifyPretty } from '../../../../utils/helpers';
-import { hasError, isInvalid, validateWatchString } from '../../../../utils/validate';
+import { hasError, isInvalid, validateWatchString } from '../../utils/validate';
 import WatchResponse from '../WatchResponse';
 import { CODE_EDITOR } from '../../../../../utils/constants';
 

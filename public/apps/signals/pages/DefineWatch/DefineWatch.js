@@ -82,7 +82,9 @@ class DefineWatch extends Component {
     const { history, dispatch } = this.props;
     const { _id: id } = values;
     try {
-      await this.watchService.put(formikToWatch(values), id);
+      const watch = formikToWatch(values);
+      await this.watchService.put(watch, id);
+      console.debug('DefineWatch -- saved watch', watch);
       setSubmitting(false);
       dispatch(addSuccessToast((<p>{saveText} {id}</p>)));
       history.push(APP_PATH.WATCHES);

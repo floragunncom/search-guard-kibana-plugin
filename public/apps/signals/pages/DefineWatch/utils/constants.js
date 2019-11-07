@@ -65,25 +65,35 @@ export const GRAPH_DEFAULTS = {
 
 export const TIMEZONE_DEFAULT = 'Europe/Berlin';
 
+// ATTENTION! Unit order here is important for match and validation
 export const TIME_PERIOD_UNITS = {
-  SECONDS: 's',
-  MINUTES: 'm',
-  HOURS: 'h',
-  DAYS: 'd',
   WEEKS: 'w',
+  DAYS: 'd',
+  HOURS: 'h',
+  MINUTES: 'm',
+  SECONDS: 's',
+  MILLISECONDS: 'ms',
 };
 
+// for example, 1h30m or 1h30m**2|2d12h for exponential throttle period
+export const ADVANCED_TIME_PERIOD_UNIT = 'advanced';
+
 export const TIME_INTERVAL_OPTIONS = [
-  { value: TIME_PERIOD_UNITS.SECONDS, text: 'Seconds' },
+  { value: TIME_PERIOD_UNITS.MILLISECONDS, text: 'Milliseconds' },
   { value: TIME_PERIOD_UNITS.MINUTES, text: 'Minutes' },
   { value: TIME_PERIOD_UNITS.HOURS, text: 'Hours' },
   { value: TIME_PERIOD_UNITS.DAYS, text: 'Days' },
   { value: TIME_PERIOD_UNITS.WEEKS, text: 'Weeks' },
+  { value: ADVANCED_TIME_PERIOD_UNIT, text: 'Advanced' },
 ];
 
 export const SCHEDULE_DEFAULTS = {
   frequency: 'interval',
-  period: { interval: 1, unit: TIME_PERIOD_UNITS.MINUTES },
+  period: {
+    interval: 1,
+    advInterval: '1h30m15s',
+    unit: TIME_PERIOD_UNITS.MINUTES,
+  },
   cron: '0 */1 * * * ?',
   daily: 0,
   weekly: {

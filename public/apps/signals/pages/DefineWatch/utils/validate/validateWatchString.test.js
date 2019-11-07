@@ -1,5 +1,5 @@
 import { validateWatchString } from './validateWatchString';
-import { requiredText, invalidJsonText } from '../i18n/common';
+import { requiredText, invalidJsonText } from '../../../../utils/i18n/common';
 
 describe('validateWatchString', () => {
   it('can validate JSON', () => {

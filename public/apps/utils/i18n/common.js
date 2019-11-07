@@ -29,9 +29,6 @@ export const mustBePositiveIntegerText = (
 export const mustBeNumberBetween1And31Text = (
   <EuiI18n token="sg.common.mustBeNumberBetween1And31.text" default="Must be number between 1 and 31" />
 );
-export const mustSpecifyIndexText = (
-  <EuiI18n token="sg.common.mustSpecifyIndex.text" default="Must specify index" />
-);
 export const mustSpecifyValueText = (
   <EuiI18n token="sg.common.mustSpecifyValue.text" default="Must specify value" />
 );
@@ -92,3 +89,4 @@ export const systemItemsText = (<EuiI18n token="sg.common.systemItems.text" defa
 export const logoutText = (<EuiI18n token="sg.common.logout.text" default="Logout" />);
 export const loginText = (<EuiI18n token="sg.common.login.text" default="Login" />);
 export const addExampleText = (<EuiI18n token="sg.common.addExample.text" default="Add Example" />);
+export const invalidText = (<EuiI18n token="sg.common.invalid.text" default="Invalid" />);
