@@ -1,44 +1,58 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { EuiFlexItem, EuiFlexGroup, EuiFormRow } from '@elastic/eui';
-import { FormikFieldNumber, FormikSelect } from '../../../../../components';
-import { isInvalid, hasError, validateInterval } from '../../../../../utils/validate';
-import { throttlePeriodText } from '../../../../../utils/i18n/common';
-import { TIME_INTERVAL_OPTIONS } from '../../../utils/constants';
+import {
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiSpacer,
+} from '@elastic/eui';
+import Interval from '../../WatchSchedule/Frequencies/Interval';
+import { LabelAppendLink } from '../../../../../../components';
+import {
+  isInvalid,
+  hasError,
+  validateInterval,
+  validateThrottleAdvancedInterval,
+} from '../../../utils/validate';
+import { throttlePeriodText } from '../../../../../utils/i18n/watch';
+import { DOC_LINKS } from '../../../../../utils/constants';
 
 const ActionThrottlePeriod = ({ index }) => (
-  <EuiFormRow>
-    <EuiFlexGroup
-      alignItems="flexStart"
-      gutterSize="none"
-    >
-      <EuiFlexItem style={{ margin: '0 .625em 0 0' }}>
-        <FormikFieldNumber
-          name={`actions[${index}].throttle_period.interval`}
-          formRow
-          formikFieldProps={{ validate: validateInterval }}
-          rowProps={{
+  <EuiFlexGroup className="sg-flex-group" justifyContent="spaceBetween">
+    <EuiFlexItem className="sg-flex-item">
+      <Interval
+        propsInterval={{
+          name: `actions[${index}].throttle_period.interval`,
+          rowProps: {
             label: throttlePeriodText,
             isInvalid,
             error: hasError,
-            style: { paddingBottom: '0' },
-          }}
-          elementProps={{ icon: 'clock' }}
-        />
-      </EuiFlexItem>
-      <EuiFlexItem style={{ margin: '.125em' }}>
-        <FormikSelect
-          name={`actions[${index}].throttle_period.unit`}
-          formRow
-          rowProps={{
+          },   
+          formikFieldProps: {
+            validate: validateInterval,
+          },
+        }}
+        propsAdvInterval={{
+          name: `actions[${index}].throttle_period.advInterval`,
+          rowProps: {
+            label: throttlePeriodText,
+            labelAppend: <LabelAppendLink href={DOC_LINKS.TRIGGERS.SCHEDULE} name="ScheduleDoc" />,
+            isInvalid,
+            error: hasError,
+          },   
+          formikFieldProps: {
+            validate: validateThrottleAdvancedInterval,
+          }
+        }}
+        propsUnit={{
+          name: `actions[${index}].throttle_period.unit`,
+          rowProps: {
             hasEmptyLabelSpace: true,
-            style: { paddingBottom: '0' },
-          }}
-          elementProps={{ options: TIME_INTERVAL_OPTIONS }}
-        />
-      </EuiFlexItem>
-    </EuiFlexGroup>
-  </EuiFormRow>
+          },
+        }}
+      />
+      <EuiSpacer />
+    </EuiFlexItem>
+  </EuiFlexGroup>
 );
 
 ActionThrottlePeriod.propTypes = {

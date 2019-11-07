@@ -1,6 +1,5 @@
 import {
   formikToWatch,
-  buildThrottle,
   getOperator,
   getResultsPath,
   getCondition,
@@ -21,7 +20,7 @@ import {
   SCHEDULE_DEFAULTS,
   GRAPH_DEFAULTS,
   TIMEZONE_DEFAULT,
-  RESULT_FIELD_DEFAULTS
+  RESULT_FIELD_DEFAULTS,
 } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
 
@@ -457,18 +456,6 @@ describe('getOperator', () => {
     expect(getOperator('ABOVE')).toBe('>');
     expect(getOperator('BELOW')).toBe('<');
     expect(getOperator('EXACTLY')).toBe('==');
-  });
-});
-
-describe('buildThrottle', () => {
-  test('can create throttle_period from meta', () => {
-    const formik = {
-      throttle_period: { interval: 12, unit: 'm' },
-    };
-    const watch = {
-      throttle_period: '12m'
-    };
-    expect(buildThrottle(formik)).toEqual(watch);
   });
 });
 

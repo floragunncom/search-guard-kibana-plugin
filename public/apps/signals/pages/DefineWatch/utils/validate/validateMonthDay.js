@@ -1,4 +1,4 @@
-import { mustBeNumberBetween1And31Text } from '../i18n/common';
+import { mustBeNumberBetween1And31Text } from '../../../../utils/i18n/common';
 
 export const validateMonthDay = value => {
   if (!Number.isInteger(value) || (value < 1 || value > 31)) {

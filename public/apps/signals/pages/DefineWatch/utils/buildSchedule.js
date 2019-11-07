@@ -1,6 +1,6 @@
 import { comboBoxOptionsToArray } from '../../../utils/helpers';
+import { ADVANCED_TIME_PERIOD_UNIT } from './constants';
 
-// export default function buildSchedule(watch) {
 export default function buildSchedule({
   frequency,
   period,
@@ -14,7 +14,11 @@ export default function buildSchedule({
 
   switch (frequency) {
     case 'interval': {
-      schedule = [period.interval + period.unit];
+      if (period.unit === ADVANCED_TIME_PERIOD_UNIT) {
+        schedule = [period.advInterval];
+      } else {
+        schedule = [period.interval + period.unit];
+      }
       break;
     }
     case 'daily': {
@@ -37,7 +41,7 @@ export default function buildSchedule({
       break;
     }
     default: { // cron
-      schedule = [cron];
+      schedule = cron.split('\n');
       break;
     }
   }

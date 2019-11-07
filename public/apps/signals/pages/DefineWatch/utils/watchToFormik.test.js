@@ -1,6 +1,5 @@
 import {
   watchToFormik,
-  buildFormikThrottle,
   buildFormikIndexAction,
   buildFormikChecks,
   buildFormikChecksBlocks,
@@ -13,7 +12,7 @@ import {
   SCHEDULE_DEFAULTS,
   GRAPH_DEFAULTS,
   DEFAULT_WATCH,
-  RESULT_FIELD_DEFAULTS
+  RESULT_FIELD_DEFAULTS,
 } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
 
@@ -37,6 +36,7 @@ describe('buildFormikActions', () => {
     const formik = [
       {
         throttle_period: {
+          advInterval: SCHEDULE_DEFAULTS.period.advInterval,
           interval: 1,
           unit: 's'
         },
@@ -71,6 +71,7 @@ describe('buildFormikActions', () => {
     const formik = [
       {
         throttle_period: {
+          advInterval: SCHEDULE_DEFAULTS.period.advInterval,
           interval: 1,
           unit: 's'
         },
@@ -106,6 +107,7 @@ describe('buildFormikActions', () => {
     const formik = [
       {
         throttle_period: {
+          advInterval: SCHEDULE_DEFAULTS.period.advInterval,
           interval: 1,
           unit: 's'
         },
@@ -137,6 +139,7 @@ describe('buildFormikActions', () => {
     const formik = [
       {
         throttle_period: {
+          advInterval: SCHEDULE_DEFAULTS.period.advInterval,
           interval: 1,
           unit: 's'
         },
@@ -184,7 +187,11 @@ describe('buildFormikMeta', () => {
       watchType: WATCH_TYPE.JSON,
       checksBlocks: buildFormikChecksBlocks(watch.checks),
       ...SCHEDULE_DEFAULTS,
-      period: { interval: 5, unit: 'h' },
+      period: {
+        advInterval: SCHEDULE_DEFAULTS.period.advInterval,
+        interval: 5,
+        unit: 'h',
+      },
     };
 
     expect(buildFormikMeta(watch)).toEqual(formik);
@@ -214,20 +221,6 @@ describe('buildFormikIndexAction', () => {
     };
 
     expect(buildFormikIndexAction(action)).toEqual(formik);
-  });
-});
-
-describe('buildFormikThrottle', () => {
-  test('can create throttle formik from throttle period', () => {
-    const watch = {
-      throttle_period: '14m'
-    };
-
-    const formik = {
-      throttle_period: { interval: 14, unit: 'm' },
-    };
-
-    expect(buildFormikThrottle(watch)).toEqual(formik);
   });
 });
 
@@ -276,7 +269,11 @@ describe('watchToFormik', () => {
           checksBlocks: buildFormikChecksBlocks(DEFAULT_WATCH.checks),
           ...SCHEDULE_DEFAULTS,
           frequency: 'interval',
-          period: { interval: 5, unit: 'h' },
+          period: {
+            advInterval: SCHEDULE_DEFAULTS.period.advInterval,
+            interval: 5,
+            unit: 'h',
+          },
         },
         _id: '',
         active: true,
@@ -494,6 +491,7 @@ describe('watchToFormik', () => {
         actions: [
           {
             throttle_period: {
+              advInterval: SCHEDULE_DEFAULTS.period.advInterval,
               interval: 1,
               unit: 's',
             },
@@ -508,6 +506,7 @@ describe('watchToFormik', () => {
           },
           {
             throttle_period: {
+              advInterval: SCHEDULE_DEFAULTS.period.advInterval,
               interval: 1,
               unit: 's',
             },
@@ -627,6 +626,7 @@ describe('watchToFormik', () => {
         actions: [
           {
             throttle_period: {
+              advInterval: SCHEDULE_DEFAULTS.period.advInterval,
               interval: 1,
               unit: 's',
             },
@@ -641,6 +641,7 @@ describe('watchToFormik', () => {
           },
           {
             throttle_period: {
+              advInterval: SCHEDULE_DEFAULTS.period.advInterval,
               interval: 1,
               unit: 's',
             },

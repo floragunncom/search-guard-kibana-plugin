@@ -1,5 +1,5 @@
 import { validateIndex } from './validateIndex';
-import { mustSpecifyIndexText } from '../i18n/common';
+import { mustSpecifyIndexText } from '../../../../utils/i18n/watch';
 
 describe('validateIndex', () => {
   it('can validate index', () => {

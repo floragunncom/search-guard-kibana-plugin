@@ -3,7 +3,7 @@ import { SCHEDULE_DEFAULTS } from './constants';
 
 describe('buildFormikSchedule', () => {
   describe('interval', () => {
-    it('can build interval', () => {
+    it('can build interval from array', () => {
       expect(buildFormikSchedule({
         trigger: {
           schedule: {
@@ -14,90 +14,101 @@ describe('buildFormikSchedule', () => {
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
         frequency: 'interval',
-        period: { interval: 12, unit: 'h' },
+        period: {
+          interval: 12,
+          unit: 'h',
+          advInterval: SCHEDULE_DEFAULTS.period.advInterval,
+        },
         timezone: [{ label: 'Europe/Rome' }]
       });
     });
 
-    it('can build interval defaults if interval is not array', () => {
+    it('can build interval from string', () => {
       expect(buildFormikSchedule({
         trigger: {
           schedule: {
-            interval: {}
+            interval: '12h',
+            timezone: 'Europe/Rome'
           }
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
         frequency: 'interval',
-        timezone: [{ label: 'Europe/Berlin' }]
+        period: {
+          interval: 12,
+          unit: 'h',
+          advInterval: SCHEDULE_DEFAULTS.period.advInterval,
+        },
+        timezone: [{ label: 'Europe/Rome' }]
       });
     });
   });
 
   describe('daily', () => {
-    it('can build daily', () => {
+    it('can build daily from array of objects', () => {
       expect(buildFormikSchedule({
         trigger: {
           schedule: {
-            daily: [{ at: '8:00' }],
+            daily: [
+              { at: '14:00:00' }
+            ]
+          }
+        }
+      })).toEqual({
+        ...SCHEDULE_DEFAULTS,
+        frequency: 'daily',
+        daily: 14,
+        timezone: [{ label: 'Europe/Berlin' }]
+      });
+    });
+
+    it('can build daily from array', () => {
+      expect(buildFormikSchedule({
+        trigger: {
+          schedule: {
+            daily: {
+              at: [
+                '14:00:00',
+                '17:00:00',
+              ]
+            }
+          }
+        }
+      })).toEqual({
+        ...SCHEDULE_DEFAULTS,
+        frequency: 'daily',
+        daily: 14,
+        timezone: [{ label: 'Europe/Berlin' }]
+      });
+    });
+
+    it('can build daily from string', () => {
+      expect(buildFormikSchedule({
+        trigger: {
+          schedule: {
+            daily: {
+              at: '14:00:00'
+            },
             timezone: 'Europe/Rome'
           }
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
         frequency: 'daily',
-        daily: 8,
+        daily: 14,
         timezone: [{ label: 'Europe/Rome' }]
-      });
-    });
-
-    it('can build daily defaults if daily is not array', () => {
-      expect(buildFormikSchedule({
-        trigger: {
-          schedule: {
-            daily: {}
-          }
-        }
-      })).toEqual({
-        ...SCHEDULE_DEFAULTS,
-        frequency: 'daily',
-        timezone: [{ label: 'Europe/Berlin' }]
-      });
-    });
-
-    it('can build daily defaults if daily at is not string', () => {
-      expect(buildFormikSchedule({
-        trigger: {
-          schedule: {
-            daily: [{ at: [] }]
-          }
-        }
-      })).toEqual({
-        ...SCHEDULE_DEFAULTS,
-        frequency: 'daily',
-        timezone: [{ label: 'Europe/Berlin' }]
-      });
-
-      expect(buildFormikSchedule({
-        trigger: {
-          schedule: {
-            daily: [{ at: {} }]
-          }
-        }
-      })).toEqual({
-        ...SCHEDULE_DEFAULTS,
-        frequency: 'daily',
-        timezone: [{ label: 'Europe/Berlin' }]
       });
     });
   });
 
   describe('weekly', () => {
-    it('can build weekly', () => {
+    it('can build weekly from array', () => {
       expect(buildFormikSchedule({
         trigger: {
           schedule: {
-            weekly: [{ on: 'fri', at: '8:00' }],
+            weekly: [
+              { on: 'friday', at: '8:00:00' }
+            ],
             timezone: 'Europe/Rome'
           }
         }
@@ -110,27 +121,15 @@ describe('buildFormikSchedule', () => {
       });
     });
 
-    it('can build weekly if full day name', () => {
+    it('can build weekly from object', () => {
       expect(buildFormikSchedule({
         trigger: {
           schedule: {
-            weekly: [{ on: 'friday', at: '8:00' }]
-          }
-        }
-      })).toEqual({
-        ...SCHEDULE_DEFAULTS,
-        frequency: 'weekly',
-        weekly: { ...SCHEDULE_DEFAULTS.weekly, fri: true },
-        daily: 8,
-        timezone: [{ label: 'Europe/Berlin' }]
-      });
-    });
-
-    it('can build weekly if multiple days', () => {
-      expect(buildFormikSchedule({
-        trigger: {
-          schedule: {
-            weekly: [{ on: ['fri', 'sat'], at: '8:00' }]
+            weekly: {
+              on: ['friday', 'saturday'],
+              at: ['8:00:00', '17:00:00'],
+            },
+            timezone: 'Europe/Rome'
           }
         }
       })).toEqual({
@@ -138,112 +137,7 @@ describe('buildFormikSchedule', () => {
         frequency: 'weekly',
         weekly: { ...SCHEDULE_DEFAULTS.weekly, fri: true, sat: true },
         daily: 8,
-        timezone: [{ label: 'Europe/Berlin' }]
-      });
-    });
-
-    it('can build weekly if multiple full days', () => {
-      expect(buildFormikSchedule({
-        trigger: {
-          schedule: {
-            weekly: [{ on: ['tuesday', 'thursday'], at: '8:00' }]
-          }
-        }
-      })).toEqual({
-        ...SCHEDULE_DEFAULTS,
-        frequency: 'weekly',
-        weekly: { ...SCHEDULE_DEFAULTS.weekly, tue: true, thu: true },
-        daily: 8,
-        timezone: [{ label: 'Europe/Berlin' }]
-      });
-    });
-
-    it('can build weekly defaults if weekly is not array', () => {
-      expect(buildFormikSchedule({
-        trigger: {
-          schedule: {
-            weekly: ''
-          }
-        }
-      })).toEqual({
-        ...SCHEDULE_DEFAULTS,
-        frequency: 'weekly',
-        timezone: [{ label: 'Europe/Berlin' }]
-      });
-    });
-
-    it('can build weekly defaults if weekly at and on are not strings', () => {
-      expect(buildFormikSchedule({
-        trigger: {
-          schedule: {
-            weekly: [
-              { on: [], at: [] }
-            ]
-          }
-        }
-      })).toEqual({
-        ...SCHEDULE_DEFAULTS,
-        frequency: 'weekly',
-        timezone: [{ label: 'Europe/Berlin' }]
-      });
-    });
-  });
-
-  describe('monthly', () => {
-    it('can build monthly', () => {
-      expect(buildFormikSchedule({
-        trigger: {
-          schedule: {
-            monthly: [{ on: 23, at: '8:00' }],
-            timezone: 'Europe/Rome'
-          }
-        }
-      })).toEqual({
-        ...SCHEDULE_DEFAULTS,
-        frequency: 'monthly',
-        monthly: { ...SCHEDULE_DEFAULTS.monthly, day: 23 },
-        daily: 8,
         timezone: [{ label: 'Europe/Rome' }]
-      });
-    });
-
-    it('can build monthly defaults if monthly is not array', () => {
-      expect(buildFormikSchedule({
-        trigger: {
-          schedule: {
-            monthly: ''
-          }
-        }
-      })).toEqual({
-        ...SCHEDULE_DEFAULTS,
-        frequency: 'monthly',
-        timezone: [{ label: 'Europe/Berlin' }]
-      });
-
-      expect(buildFormikSchedule({
-        trigger: {
-          schedule: {
-            monthly: {}
-          }
-        }
-      })).toEqual({
-        ...SCHEDULE_DEFAULTS,
-        frequency: 'monthly',
-        timezone: [{ label: 'Europe/Berlin' }]
-      });
-    });
-
-    it('can build monthly defaults if monthly at and on are not strings', () => {
-      expect(buildFormikSchedule({
-        trigger: {
-          schedule: {
-            monthly: [{ at: [], on: [] }]
-          }
-        }
-      })).toEqual({
-        ...SCHEDULE_DEFAULTS,
-        frequency: 'monthly',
-        timezone: [{ label: 'Europe/Berlin' }]
       });
     });
   });
@@ -265,17 +159,93 @@ describe('buildFormikSchedule', () => {
       });
     });
 
-    it('can build cron defaults if cron is not array', () => {
+    it('can build cron multiple cron expressions', () => {
       expect(buildFormikSchedule({
         trigger: {
           schedule: {
-            cron: ''
+            cron: [
+              '0 0/2 * ? * MON-FRI',
+              '0 1-59/2 * ? * SAT-SUN'
+            ]
           }
         }
       })).toEqual({
         ...SCHEDULE_DEFAULTS,
         frequency: 'cron',
+        cron: '0 0/2 * ? * MON-FRI\n0 1-59/2 * ? * SAT-SUN',
         timezone: [{ label: 'Europe/Berlin' }]
+      });
+    });
+
+    it('can build cron from string', () => {
+      expect(buildFormikSchedule({
+        trigger: {
+          schedule: {
+            cron: '0 */5 * * *',
+            timezone: 'Europe/Rome'
+          }
+        }
+      })).toEqual({
+        ...SCHEDULE_DEFAULTS,
+        frequency: 'cron',
+        cron: '0 */5 * * *',
+        timezone: [{ label: 'Europe/Rome' }]
+      });
+    });
+  });
+
+  describe('monthly', () => {
+    it('can build monthly from object', () => {
+      expect(buildFormikSchedule({
+        trigger: {
+          schedule: {
+            monthly: { on: 23, at: '8:00:00' },
+            timezone: 'Europe/Rome'
+          }
+        }
+      })).toEqual({
+        ...SCHEDULE_DEFAULTS,
+        frequency: 'monthly',
+        monthly: { ...SCHEDULE_DEFAULTS.monthly, day: 23 },
+        daily: 8,
+        timezone: [{ label: 'Europe/Rome' }]
+      });
+    });
+
+    it('can build monthly from array', () => {
+      expect(buildFormikSchedule({
+        trigger: {
+          schedule: {
+            monthly: [{ on: 23, at: '8:00:00' }],
+            timezone: 'Europe/Rome'
+          }
+        }
+      })).toEqual({
+        ...SCHEDULE_DEFAULTS,
+        frequency: 'monthly',
+        monthly: { ...SCHEDULE_DEFAULTS.monthly, day: 23 },
+        daily: 8,
+        timezone: [{ label: 'Europe/Rome' }]
+      });
+    });
+
+    it('can build monthly from object with arrays', () => {
+      expect(buildFormikSchedule({
+        trigger: {
+          schedule: {
+            monthly: {
+              on: [23, 24],
+              at: ['8:00:00', '12:00:00']
+            },
+            timezone: 'Europe/Rome'
+          }
+        }
+      })).toEqual({
+        ...SCHEDULE_DEFAULTS,
+        frequency: 'monthly',
+        monthly: { ...SCHEDULE_DEFAULTS.monthly, day: 23 },
+        daily: 8,
+        timezone: [{ label: 'Europe/Rome' }]
       });
     });
   });
