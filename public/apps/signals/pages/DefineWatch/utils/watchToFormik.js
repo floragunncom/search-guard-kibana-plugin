@@ -5,6 +5,7 @@ import {
   unfoldMultiLineString,
 } from '../../../utils/helpers';
 import buildFormikSchedule from './buildFormikSchedule';
+import { buildFormikThrottle } from './buildFormikThrottle';
 import {
   GRAPH_DEFAULTS,
   WATCH_TYPE,
@@ -12,7 +13,6 @@ import {
   RESULT_FIELD_DEFAULTS,
 } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
-import buildFormikTimePeriod from './buildFormikTimePeriod';
 
 export function buildFormikWebhookAction(action = {}) {
   return {
@@ -61,11 +61,6 @@ export const buildFormikMeta = ({ _ui = {}, checks = [], trigger } = {}) => {
 
   return !isEmpty(_ui) ? ui : Object.assign(ui, { watchType: WATCH_TYPE.JSON });
 };
-
-export const buildFormikThrottle = watch => ({
-  ...watch,
-  throttle_period: buildFormikTimePeriod(watch.throttle_period),
-});
 
 export const buildFormikIndexAction = (action = {}) => ({
   ...action,

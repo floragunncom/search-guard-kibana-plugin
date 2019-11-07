@@ -34,7 +34,7 @@ import { connect } from 'react-redux';
 import { EuiHealth, EuiHighlight } from '@elastic/eui';
 
 import { FormikComboBox } from '../../../../components';
-import { validateIndex, hasError, isInvalid } from '../../../../utils/validate';
+import { validateIndex, hasError, isInvalid } from '../../utils/validate';
 import {
   canAppendWildcard,
   createReasonableWait,
