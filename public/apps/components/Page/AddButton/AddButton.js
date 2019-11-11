@@ -44,7 +44,7 @@ AddButton.propTypes = {
 AddButton.defaultProps = {
   value: addText,
   name: '',
-  iconType: 'empty',
+  iconType: 'plusInCircle',
   size: 'm'
 };
 
