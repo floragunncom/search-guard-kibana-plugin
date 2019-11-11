@@ -22,4 +22,4 @@ stages:
 unittest_and_build:
   stage: build
   script: 
-    - if [ "SNAPSHOT" == "SNAPSHOT" ]; then ./build.sh $ES_VERSION $PLUGIN_VERSION-$SNAPSHOT deploy-snapshot; else echo "Can only deploy SNAPSHOT versions" && exit -1; fi
+    - if [ "$SNAPSHOT" == "SNAPSHOT" ]; then ./build.sh $ES_VERSION $PLUGIN_VERSION-$SNAPSHOT deploy-snapshot; else echo "Can only deploy SNAPSHOT versions" && exit -1; fi
