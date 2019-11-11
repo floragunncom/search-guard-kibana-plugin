@@ -108,7 +108,7 @@ class DefinitionPanel extends Component {
 
   render() {
     const {
-      formik: { values = {} },
+      formik: { values },
       httpClient,
       onTriggerFlyout,
       onComboBoxChange,
@@ -192,6 +192,7 @@ class DefinitionPanel extends Component {
               options: WATCH_TYPE_SELECT,
               onChange: (e, field, form) => {
                 form.setFieldValue(field.name, e.target.value);
+                form.setFieldValue('_ui.checksResult', null);
               },
             }}
           />
