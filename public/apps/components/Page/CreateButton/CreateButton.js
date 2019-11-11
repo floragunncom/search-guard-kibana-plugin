@@ -24,7 +24,7 @@ CreateButton.propTypes = {
 
 CreateButton.defaultProps = {
   value: newText,
-  iconType: 'empty'
+  iconType: 'plusInCircle'
 };
 
 export default CreateButton;
