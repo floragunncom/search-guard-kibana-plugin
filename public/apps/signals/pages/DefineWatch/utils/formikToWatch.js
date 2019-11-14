@@ -1,5 +1,6 @@
-import { forEach, cloneDeep, omit } from 'lodash';
+import { cloneDeep, omit } from 'lodash';
 import buildSchedule from './buildSchedule';
+import { buildThrottle } from './buildThrottle';
 import {
   comboBoxOptionsToArray,
   foldMultiLineString,
@@ -13,6 +14,7 @@ import {
   AGGREGATION_RESULTS_PATH,
   META_FIELDS_TO_OMIT,
   WATCH_CHECK_CONDITION_NAME_DEFAULT,
+  TIME_PERIOD_UNITS,
 } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
 
@@ -46,14 +48,6 @@ export function buildEmailAction(action = {}) {
     account: comboBoxOptionsToArray(action.account)[0]
   };
 }
-
-export const buildThrottle = (watch = {}) => {
-  const { throttle_period: { interval, unit }, ...rest } = watch;
-  return {
-    ...rest,
-    throttle_period: interval + unit
-  };
-};
 
 export const buildIndexAction = (action = {}) => {
   let checks = [];

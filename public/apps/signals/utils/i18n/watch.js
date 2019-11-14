@@ -65,3 +65,12 @@ export const executeOnlyThisBlockText = (
 export const executeBlocksAboveAndThisBlockText = (
   <EuiI18n token="sg.watch.executeBlocksAboveAndThisBlock.text" default="Execute blocks above and this block" />
 );
+export const mustSpecifyIndexText = (
+  <EuiI18n token="sg.common.mustSpecifyIndex.text" default="Must specify index" />
+);
+export const invalidTimeIntervalText = (
+  <EuiI18n token="sg.common.invalidTimeInterval.text" default="Invalid time interval, check the units order" />
+);
+export const invalidThrottleTimeIntervalText = (
+  <EuiI18n token="sg.common.invalidThrottleTimeInterval.text" default="Invalid throttle time interval, check the units order" />
+);

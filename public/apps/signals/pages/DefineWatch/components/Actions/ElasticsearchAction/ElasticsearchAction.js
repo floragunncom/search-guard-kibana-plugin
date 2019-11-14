@@ -14,7 +14,7 @@ import {
   validateEmptyField,
   isInvalid,
   hasError
-} from '../../../../../utils/validate';
+} from '../../../utils/validate';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import { CODE_EDITOR } from '../../../../../../utils/constants';
 

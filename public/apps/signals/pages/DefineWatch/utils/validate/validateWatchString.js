@@ -1,5 +1,5 @@
-import { foldMultiLineString } from '../helpers';
-import { requiredText, invalidJsonText } from '../i18n/common';
+import { foldMultiLineString } from '../../../../utils/helpers';
+import { requiredText, invalidJsonText } from '../../../../utils/i18n/common';
 
 export const validateWatchString = value => {
   if (!value) return requiredText;

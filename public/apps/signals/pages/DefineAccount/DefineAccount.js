@@ -71,10 +71,12 @@ class DefineAccount extends Component {
 
   onSubmit = async (values, { setSubmitting }) => {
     const { dispatch } = this.props;
-    const { _id: id, ...account } = values;
+    const { _id: id, ...rest } = values;
 
     try {
-      await this.destService.put(formikToAccount(account), id);
+      const account = formikToAccount(rest);
+      await this.destService.put(account, id);
+      console.debug('DefineAccount -- account saved', account);
       setSubmitting(false);
       dispatch(addSuccessToast((<p>{saveText} {id}</p>)));
       this.onCancel();

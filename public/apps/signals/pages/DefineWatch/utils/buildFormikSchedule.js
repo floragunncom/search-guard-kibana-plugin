@@ -1,14 +1,13 @@
 import { cloneDeep } from 'lodash';
-import {
-  matchTimeHHMM,
-  matchDayOfMonth,
-  matchDayOfWeek,
-  arrayToComboBoxOptions
-} from '../../../utils/helpers';
+import { arrayToComboBoxOptions } from '../../../utils/helpers';
 import { SCHEDULE_DEFAULTS } from './constants';
-import buildFormikTimePeriod from './buildFormikTimePeriod';
+import { buildTimePeriod } from './helpers';
 
 export default function buildFormikSchedule(watch = {}) {
+  const matchTimeHHMM = timeStr => timeStr.match(/^(0[0-9]|1[0-9]|2[0-3]|[0-9]):[0-5][0-9](?::[0-5][0-9])?$/);
+  const matchDayOfMonth = dayOfMonthStr => (dayOfMonthStr + '').match(/^([1-9]|[12]\d|3[01])$/);
+  const matchDayOfWeek = dayOfWeekStr => dayOfWeekStr.match(/\b((mon|tues|wed(nes)?|thu(rs)?|fri|sat(ur)?|sun)(day)?)\b/);
+
   const frequency = Object.keys(watch.trigger.schedule)
     .filter(key => ['interval', 'daily', 'weekly', 'monthly', 'cron'].includes(key)).pop();
   const formikSchedule = { ...cloneDeep(SCHEDULE_DEFAULTS), frequency };
@@ -17,32 +16,30 @@ export default function buildFormikSchedule(watch = {}) {
     formikSchedule.timezone = arrayToComboBoxOptions([watch.trigger.schedule.timezone]);
   }
 
-  let watchSchedule = watch.trigger.schedule[frequency];
-  if (!Array.isArray(watchSchedule) || !watchSchedule.length) {
-    return formikSchedule;
-  }
+  const watchSchedule = watch.trigger.schedule[frequency];
 
-  // Only the first array value is taken to be the schedule value in UI
-  // TODO: UI desing must be improved to use multiple values
-  watchSchedule = watchSchedule[0];
-
+  // ATTENTION! Only the first array value is taken to be the schedule value in UI
+  // TODO: UI design must be improved to use multiple values
   switch (frequency) {
     case 'interval': {
-      formikSchedule.period = buildFormikTimePeriod(watchSchedule);
+      const interval = Array.isArray(watchSchedule) ? watchSchedule[0] : watchSchedule;
+      formikSchedule.period = buildTimePeriod(interval);
       break;
     }
     case 'daily': {
-      if (typeof watchSchedule.at !== 'string') break;
-
-      const matched = matchTimeHHMM(watchSchedule.at);
-      if (matched) {
-        formikSchedule.daily = +matched[1];
+      const daily = Array.isArray(watchSchedule) ? watchSchedule[0] : watchSchedule;
+      const atHour = Array.isArray(daily.at) ? daily.at[0] : daily.at;
+      const [, hours] = matchTimeHHMM(atHour);
+      if (hours) {
+        formikSchedule.daily = +hours;
       }
 
       break;
     }
     case 'weekly': {
-      const daysOfWeek = Array.isArray(watchSchedule.on) ? watchSchedule.on : [watchSchedule.on];
+      const weekly = Array.isArray(watchSchedule) ? watchSchedule[0] : watchSchedule;
+      const daysOfWeek = Array.isArray(weekly.on) ? weekly.on : [weekly.on];
+
       daysOfWeek.forEach(day => {
         if (matchDayOfWeek(day)) {
           const shortDay = day.slice(0, 3);
@@ -50,31 +47,33 @@ export default function buildFormikSchedule(watch = {}) {
         }
       });
 
-      if (typeof watchSchedule.at !== 'string') break;
-
-      const matched = matchTimeHHMM(watchSchedule.at);
-      if (matched) {
-        formikSchedule.daily = +matched[1];
+      const daily = Array.isArray(weekly.at) ? weekly.at[0] : weekly.at;
+      const [, hours] = matchTimeHHMM(daily);
+      if (hours) {
+        formikSchedule.daily = +hours;
       }
 
       break;
     }
     case 'monthly': {
-      if (typeof watchSchedule.at !== 'string' || typeof watchSchedule.on !== 'number') break;
+      const monthly = Array.isArray(watchSchedule) ? watchSchedule[0] : watchSchedule;
+      const onDay = Array.isArray(monthly.on) ? monthly.on[0] : monthly.on;
+      const atHour = Array.isArray(monthly.at) ? monthly.at[0] : monthly.at;
 
-      if (matchDayOfMonth(watchSchedule.on + '')) {
-        formikSchedule.monthly.day = watchSchedule.on;
+      if (matchDayOfMonth(onDay + '')) {
+        formikSchedule.monthly.day = onDay;
       }
 
-      const matched = matchTimeHHMM(watchSchedule.at);
-      if (matched) {
-        formikSchedule.daily = +matched[1];
+      const [, daily] = matchTimeHHMM(atHour);
+      if (daily) {
+        formikSchedule.daily = +daily;
       }
 
       break;
     }
     default: { // cron
-      formikSchedule.cron = watchSchedule;
+      const cron = Array.isArray(watchSchedule) ? watchSchedule.join('\n') : watchSchedule;
+      formikSchedule.cron = cron;
     }
   }
 

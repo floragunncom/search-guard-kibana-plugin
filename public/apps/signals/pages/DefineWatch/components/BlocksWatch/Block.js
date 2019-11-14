@@ -26,7 +26,7 @@ import {
   executeText,
 } from '../../../../utils/i18n/watch';
 import { responseText } from '../../../../utils/i18n/common';
-import { isInvalid, hasError, validateWatchString } from '../../../../utils/validate';
+import { isInvalid, hasError, validateWatchString } from '../../utils/validate';
 import { CODE_EDITOR } from '../../../../../utils/constants';
 
 const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');

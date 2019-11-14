@@ -33,7 +33,7 @@ import { EuiFlexItem, EuiFlexGroup } from '@elastic/eui';
 
 import Daily from '../Daily';
 import { FormikFieldNumber, FormikSelect } from '../../../../../../components';
-import { isInvalid, hasError, validateMonthDay } from '../../../../../../utils/validate';
+import { isInvalid, hasError, validateMonthDay } from '../../../../utils/validate';
 import { onText } from '../../../../../../utils/i18n/watch';
 import { MONTHLYTYPES } from './utils/constants';
 
