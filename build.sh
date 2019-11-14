@@ -78,7 +78,7 @@ mkdir -p $BUILD_STAGE_DIR
 cd $BUILD_STAGE_DIR
 
 echo "+++ Cloning https://github.com/elastic/kibana.git +++"
-git clone https://github.com/elastic/kibana.git || true > /dev/null 2>&1
+git clone https://github.com/elastic/kibana.git
 if [ $? != 0 ]; then
     echo "Got clone Kibana repository failed"
     exit 1
