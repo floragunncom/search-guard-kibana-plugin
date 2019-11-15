@@ -16,7 +16,6 @@ import { AddButton, LabelAppendLink } from '../../../../../components';
 import {
   stringifyPretty,
   unfoldMultiLineString,
-  foldMultiLineString,
 } from '../../../../utils/helpers';
 import { checkExamplesText } from '../../../../utils/i18n/watch';
 import examples from './utils/examples';
@@ -27,7 +26,7 @@ export const TabContent = ({ examples, tabName, onAdd }) => {
 
   useEffect(() => {
     setSelectedItemName(Object.keys(examples)[0]);
-  }, [tabName]);
+  }, [tabName, examples]);
 
   const toggleOpenOnMobile = () => {
     setSideNavOpenOnMobile(!isSideNavOpenOnMobile);
@@ -42,8 +41,6 @@ export const TabContent = ({ examples, tabName, onAdd }) => {
   });
 
   const handleOnAdd = (body, type) => {
-    // const normalizedBody = JSON.parse(foldMultiLineString(JSON.stringify(body))); 
-
     const newCheck = type
       ? body
       : {
@@ -64,7 +61,7 @@ export const TabContent = ({ examples, tabName, onAdd }) => {
 
   const renderExamples = () => {
     if (!examples[selectedItemName]) return null;
-  
+
     return Object.keys(examples[selectedItemName]).map(subItemName => {
       const { example, link, type } = examples[selectedItemName][subItemName];
       return (
@@ -92,7 +89,7 @@ export const TabContent = ({ examples, tabName, onAdd }) => {
   };
 
   return (
-    <Fragment> 
+    <Fragment>
       <EuiSpacer />
       <EuiFlexGroup>
         <EuiFlexItem grow={false}>
@@ -108,7 +105,7 @@ export const TabContent = ({ examples, tabName, onAdd }) => {
           {renderExamples()}
         </EuiFlexItem>
       </EuiFlexGroup>
-    </Fragment> 
+    </Fragment>
   );
 };
 
@@ -152,7 +149,7 @@ export const checkExamples = ({
       </div>
     )
   };
-}
+};
 
 checkExamples.propTypes = {
   flyoutProps: PropTypes.object,
@@ -163,5 +160,5 @@ checkExamples.propTypes = {
 
 checkExamples.defaultProps = {
   flyoutProps: { size: 'l' },
-  headerProps: { hasBorder: true }  
+  headerProps: { hasBorder: true }
 };

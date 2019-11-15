@@ -11,7 +11,6 @@ import {
 import JsonWatch from '../JsonWatch';
 import GraphWatch from '../GraphWatch';
 import BlocksWatch from '../BlocksWatch';
-import { definitionText, typeText, executeText } from '../../../../utils/i18n/common';
 import {
   formikToWatch,
   buildFormikChecksBlocks,
@@ -19,9 +18,11 @@ import {
   buildFormikChecks,
 } from '../../utils';
 import { WatchService } from '../../../../services';
-import { addErrorToast } from '../../../../redux/actions';
+import { addErrorToast, addSuccessToast } from '../../../../redux/actions';
 import { WATCH_TYPE_SELECT, WATCH_TYPE } from '../../utils/constants';
 import { FLYOUTS } from '../../../../utils/constants';
+import { definitionText, typeText, executeText } from '../../../../utils/i18n/common';
+import { addedCheckTemplateText } from '../../../../utils/i18n/watch';
 
 class DefinitionPanel extends Component {
   constructor(props) {
@@ -74,17 +75,20 @@ class DefinitionPanel extends Component {
         const isInsertingCheck = Number.isInteger(row) && Number.isInteger(column);
 
         if (isInsertingCheck) {
-          this.setState({ insertCheckTemplate: {
-            row,
-            column: column - 1,
-            // Add new line to prevent checks nesting
-            text: buildFormikChecks(checkTemplate) + '\n'
-          }});
+          this.setState({
+            insertCheckTemplate: {
+              row,
+              column: column - 1,
+              // Add new line to prevent checks nesting
+              text: buildFormikChecks(checkTemplate) + '\n'
+            }
+          });
         } else { // Append check (works only the first time)
           const newChecks = buildFormikChecks([ ...buildChecks({ checks }), checkTemplate ]);
           setFieldValue('checks', newChecks);
         }
       }
+      dispatch(addSuccessToast(<p>{addedCheckTemplateText}</p>));
     } catch (error) {
       console.error('DefintionPanel -- addCheckExample', error);
       dispatch(addErrorToast(error));
@@ -132,12 +136,14 @@ class DefinitionPanel extends Component {
       />);
     } else if (isJsonWatch) {
       actions = [
-        <AddButton onClick={() => {
-          onTriggerFlyout({
-            type: FLYOUTS.CHECK_EXAMPLES,
-            payload: { onAdd: this.addCheckExample }
-          });
-        }} />,
+        <AddButton
+          onClick={() => {
+            onTriggerFlyout({
+              type: FLYOUTS.CHECK_EXAMPLES,
+              payload: { onAdd: this.addCheckExample }
+            });
+          }}
+        />,
         this.renderExecuteWatchButton(values)
       ];
 
@@ -152,12 +158,14 @@ class DefinitionPanel extends Component {
       );
     } else { // BlocksWatch
       actions = [
-        <AddButton onClick={() => {
-          onTriggerFlyout({
-            type: FLYOUTS.CHECK_EXAMPLES,
-            payload: { onAdd: this.addCheckExample }
-          });
-        }} />,
+        <AddButton
+          onClick={() => {
+            onTriggerFlyout({
+              type: FLYOUTS.CHECK_EXAMPLES,
+              payload: { onAdd: this.addCheckExample }
+            });
+          }}
+        />,
         this.renderExecuteWatchButton(values)
       ];
 
