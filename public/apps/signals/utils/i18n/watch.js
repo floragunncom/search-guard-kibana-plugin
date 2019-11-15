@@ -74,3 +74,6 @@ export const invalidTimeIntervalText = (
 export const invalidThrottleTimeIntervalText = (
   <EuiI18n token="sg.common.invalidThrottleTimeInterval.text" default="Invalid throttle time interval, check the units order" />
 );
+export const addedCheckTemplateText = (
+  <EuiI18n token="sg.common.addedCheckTemplate.text" default="Added check template" />
+);
