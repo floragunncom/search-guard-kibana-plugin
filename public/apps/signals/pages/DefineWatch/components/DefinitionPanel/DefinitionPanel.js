@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect as connectFormik } from 'formik';
 import { connect as connectRedux } from 'react-redux';
 import PropTypes from 'prop-types';
-import { EuiButton } from '@elastic/eui';
+import { EuiButton, EuiSpacer } from '@elastic/eui';
 import {
   FormikSelect,
   ContentPanel,
@@ -11,6 +11,7 @@ import {
 import JsonWatch from '../JsonWatch';
 import GraphWatch from '../GraphWatch';
 import BlocksWatch from '../BlocksWatch';
+import QueryStat from '../QueryStat';
 import {
   formikToWatch,
   buildFormikChecksBlocks,
@@ -205,6 +206,12 @@ class DefinitionPanel extends Component {
             }}
           />
           {watchDefinition}
+          {(isGraphWatch || isJsonWatch) && (
+            <>
+              <EuiSpacer />
+              <QueryStat />
+            </>
+          )}
         </div>
       </ContentPanel>
     );
