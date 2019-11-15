@@ -37,7 +37,7 @@ import { everyText, mustSelectADayText } from '../../../../../../utils/i18n/watc
 import { DAYS } from './utils/constants';
 
 const checkboxFlexItem = (day, checked, setFieldValue, setFieldTouched) => (
-  <EuiFlexItem key={day} grow={false} style={{ marginRight: '0px' }}>
+  <EuiFlexItem key={day} grow={false} style={{ marginRight: '0px', zIndex: 0 }}>
     <EuiCheckbox
       id={day}
       label={startCase(day)}
