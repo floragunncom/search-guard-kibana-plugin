@@ -92,9 +92,6 @@ const SlackAction = ({
           form.setFieldError(field.name, undefined);
         },
       }}
-      formikFieldProps={{
-        validate: validateEmptyField
-      }}
     />
     <EuiSpacer />
     <FormikCodeEditor
