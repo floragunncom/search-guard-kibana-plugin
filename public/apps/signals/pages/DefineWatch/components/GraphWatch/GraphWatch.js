@@ -186,7 +186,7 @@ class GraphWatch extends Component {
         this.watchService.executeGraph(request));
       const [
         { resp: graphQueryResponse },
-        { resp: realQueryResponse }
+        { resp: realQueryResponse },
       ] = await Promise.all(promises);
       console.debug('GraphWatch -- searchResponses', [graphQueryResponse, realQueryResponse]);
 
@@ -265,7 +265,6 @@ class GraphWatch extends Component {
         />
         <WatchTimeField dataTypes={dataTypes} />
         <div style={{ paddingTop: '10px' }}>{content}</div>
-        <EuiSpacer />
       </Fragment>
     );
   }

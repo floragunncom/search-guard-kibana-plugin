@@ -4,6 +4,7 @@ import { connect as connectRedux } from 'react-redux';
 import DraggableList from 'react-draggable-list';
 import PropTypes from 'prop-types';
 import update from 'immutability-helper';
+import { EuiSpacer } from '@elastic/eui';
 import { isEmpty } from 'lodash';
 import { EmptyPrompt } from '../../../../../components';
 import { WatchService } from '../../../../services';
@@ -14,6 +15,7 @@ import {
   noChecksText,
 } from '../../../../utils/i18n/watch';
 import WatchResponse from '../WatchResponse';
+import QueryStat from '../QueryStat';
 import { addErrorToast } from '../../../../redux/actions';
 import Block from './Block';
 
@@ -79,10 +81,14 @@ const BlocksWatch = ({
   return (
     <div>
       {!!checksResult && (
-        <WatchResponse
-          response={watchResponse}
-          onClose={() => setFieldValue('_ui.checksResult', null)}
-        />
+        <>
+          <WatchResponse
+            response={watchResponse}
+            onClose={() => setFieldValue('_ui.checksResult', null)}
+          />
+          <EuiSpacer size="s" />
+          <QueryStat />
+        </>
       )}
 
       <div className="blocksWatch-blocks-list">
