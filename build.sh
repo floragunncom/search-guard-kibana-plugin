@@ -94,7 +94,7 @@ rm -f "$WORK_DIR/build.log"
 echo "Logfile: $WORK_DIR/build.log"
 
 echo "+++ Cloning https://github.com/elastic/kibana.git +++"
-git clone https://github.com/elastic/kibana.git >>"$WORK_DIR/build.log" 2>&1
+git clone https://github.com/elastic/kibana.git #>>"$WORK_DIR/build.log" 2>&1
 
 cd "kibana"
 git fetch
