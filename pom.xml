@@ -13,14 +13,14 @@
   <parent>
     <groupId>com.floragunn</groupId>
     <artifactId>search-guard-parent</artifactId>
-    <version>6.22.0</version>
+    <version>7.35.1</version>
   </parent>
 
   <groupId>com.floragunn</groupId>
   <artifactId>search-guard-kibana-plugin</artifactId>
   <packaging>pom</packaging>
-  <version>RPLC_PLUGIN_VERSION</version>
-  <!-- <version>6.7.0-18.1-SNAPSHOT</version> -->
+  <!-- https://maven.apache.org/maven-ci-friendly.html -->
+  <version>${revision}</version>
   <name>Search Guard Kibana Plugin</name>
   <description>Search Guard Kibana Plugin for Elasticsearch 6</description>
   <url>https://github.com/floragunncom/search-guard</url>
