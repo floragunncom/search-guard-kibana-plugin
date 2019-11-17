@@ -43,6 +43,8 @@ fi
 
 echo "+++ Sourcing nvm +++"
 [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+
 
 echo "+++ Checking nvm installed +++"
 NVM_VERSION=$(nvm version)
