@@ -25,14 +25,4 @@ unittest_and_build:
   stage: build
   script: 
     - if [ "$SNAPSHOT" == "SNAPSHOT" ]; then ./build.sh $ES_VERSION $PLUGIN_VERSION-$SNAPSHOT deploy-snapshot; else echo "Can only deploy SNAPSHOT versions" && exit -1; fi
-
-kibana_nightly_test:
-  stage: test
-  variables:
-    BRANCH: $CI_COMMIT_REF_NAME
-    SG_CIRCLE_JOB: "kibana_nightly_test"
-  script:
-    - "curl --request POST --form token=${CI_JOB_TOKEN} --form ref=kibana_nightly_builds https://git.floragunn.com/api/v4/projects/7/trigger/pipeline"
-  only:
-    variables:
-      - $NIGHTLY_BUILD == "true"
+    
