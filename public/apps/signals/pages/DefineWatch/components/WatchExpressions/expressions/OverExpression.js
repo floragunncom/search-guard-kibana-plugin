@@ -36,9 +36,10 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
 } from '@elastic/eui';
-
-import { POPOVER_STYLE, Expressions, OVER_TYPES } from './utils/constants';
-import { FormikSelect, FormikFieldNumber } from '../../../../../components';
+import { FormikComboBox, FormikSelect, FormikFieldNumber } from '../../../../../components';
+import { getOptions } from './utils/dataTypes';
+import { POPOVER_STYLE, Expressions, OVER_TYPES, ORDER_TYPES } from './utils/constants';
+import { AGGREGATIONS_TYPES } from '../../../utils/constants';
 
 class OverExpression extends Component {
   onChangeWrapper = (e, field) => {
@@ -49,18 +50,49 @@ class OverExpression extends Component {
   renderTypeSelect = () => (
     <FormikSelect
       name="_ui.overDocuments"
-      elementProps={{ onChange: this.onChangeWrapper, options: OVER_TYPES }}
+      elementProps={{
+        'data-test-subj': 'overAggType',
+        options: OVER_TYPES,
+        onChange: this.onChangeWrapper,
+      }}
     />
   );
 
-  renderTopFieldNumber = () => (
-    <FormikFieldNumber name="_ui.groupedOverTop" elementProps={{ onChange: this.onChangeWrapper }} />
+  renderTopHitsOrderSelect = () => (
+    <FormikSelect
+      name="_ui.topHitsAgg.order"
+      elementProps={{
+        'data-test-subj': 'topHitsAggOrderField',
+        options: ORDER_TYPES,
+        onChange: this.onChangeWrapper,
+      }}
+    />
   );
 
-  renderTermField = (fields = []) => (
-    <FormikSelect
-      name="_ui.groupedOverFieldName"
-      elementProps={{ onChange: this.onChangeWrapper, options: fields }}
+  renderTopHitsSizeField = () => (
+    <FormikFieldNumber
+      name="_ui.topHitsAgg.size"
+      elementProps={{
+        'data-test-subj': 'topHitsAggSizeField',
+        onChange: this.onChangeWrapper,
+      }}
+    />
+  );
+
+  renderTopHitsTermField = (options = []) => (
+    <FormikComboBox
+      name="_ui.topHitsAgg.field"
+      elementProps={{
+        'data-test-subj': 'topHitsAggTermField',
+        placeholder: 'Select a field',
+        options,
+        isClearable: false,
+        singleSelection: { asPlainText: true },
+        onChange: (options, field, form) => {
+          this.props.onMadeChanges();
+          form.setFieldValue(field.name, options);
+        },
+      }}
     />
   );
 
@@ -70,7 +102,7 @@ class OverExpression extends Component {
     </div>
   );
 
-  renderGroupedPopover = () => (
+  renderTopHitsPopover = ({ termFieldOptions, termFieldWidth }) => (
     <div style={POPOVER_STYLE}>
       <EuiFlexGroup style={{ maxWidth: 600 }}>
         <EuiFlexItem grow={false} style={{ width: 100 }}>
@@ -78,11 +110,15 @@ class OverExpression extends Component {
         </EuiFlexItem>
 
         <EuiFlexItem grow={false} style={{ width: 100 }}>
-          {this.renderTopFieldNumber()}
+          {this.renderTopHitsSizeField()}
         </EuiFlexItem>
 
-        <EuiFlexItem grow={false} style={{ width: 180 }}>
-          {this.renderTermField()}
+        <EuiFlexItem grow={false} style={{ width: 100 }}>
+          {this.renderTopHitsOrderSelect()}
+        </EuiFlexItem>
+
+        <EuiFlexItem grow={false} style={{ width: termFieldWidth }}>
+          {this.renderTopHitsTermField(termFieldOptions)}
         </EuiFlexItem>
       </EuiFlexGroup>
     </div>
@@ -94,17 +130,33 @@ class OverExpression extends Component {
       openedStates,
       closeExpression,
       openExpression,
+      dataTypes,
     } = this.props;
-    const isGroupedOver = values._ui.overDocuments === 'top';
-    const buttonValue = isGroupedOver
-      ? `${values._ui.overDocuments} ${values._ui.groupedOverTop} ${values._ui.groupedOverFieldName}`
+
+    const isTopHits = values._ui.overDocuments === AGGREGATIONS_TYPES.TOP_HITS;
+    const { size: topHitsSize, field: [{ label: topHitsField } = {}] } = values._ui.topHitsAgg;
+    const buttonValue = isTopHits
+      ? `${values._ui.overDocuments} ${topHitsSize} ${topHitsField || 'Select a field'}`
       : values._ui.overDocuments;
+
+    let termFieldOptions = [];
+    let termFieldWidth = 180;
+    if (isTopHits) {
+      termFieldOptions = getOptions(dataTypes, values, ['keyword', 'number']);
+      termFieldWidth =
+        Math.max(
+          ...termFieldOptions.map(({ options }) =>
+            options.reduce((accu, curr) => Math.max(accu, curr.label.length), 0)
+          )
+        ) * 8 + 60;
+    }
+
     return (
       <EuiPopover
         id="over-popover"
         button={
           <EuiExpression
-            description={isGroupedOver ? 'grouped over' : 'over'}
+            description={isTopHits ? 'grouped over' : 'over'}
             value={buttonValue}
             isActive={openedStates.OVER}
             onClick={() => openExpression(Expressions.OVER)}
@@ -117,7 +169,7 @@ class OverExpression extends Component {
         withTitle
         anchorPosition="downLeft"
       >
-        {this.renderOverPopover()}
+        {isTopHits ? this.renderTopHitsPopover({ termFieldOptions, termFieldWidth }) : this.renderOverPopover()}
       </EuiPopover>
     );
   }

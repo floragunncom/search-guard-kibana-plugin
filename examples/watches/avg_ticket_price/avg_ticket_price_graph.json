@@ -21,6 +21,11 @@
     "groupedOverFieldName": "bytes",
     "groupedOverTop": 5,
     "overDocuments": "all documents",
+    "topHitsAgg": {
+      "field": [],
+      "size": 5,
+      "order": "asc"
+    },
     "thresholdValue": 800
   },
   "trigger": {
@@ -40,7 +45,7 @@
         "body": {
           "size": 0,
           "aggregations": {
-            "when": {
+            "metricAgg": {
               "avg": {
                 "field": "AvgTicketPrice"
               }
@@ -64,7 +69,7 @@
     {
       "type": "condition.script",
       "name": "mycondition",
-      "source": "data.mysearch.aggregations.when.value < 800"
+      "source": "data.mysearch.aggregations.metricAgg.value < 800"
     }
   ],
   "actions": [
@@ -75,7 +80,7 @@
       "request": {
         "method": "POST",
         "url": "https://hooks.slack.com/services/token",
-        "body": "{\"text\": \"Average flight ticket price decreased to {{data.mysearch.aggregations.when.value}} over the last 1 hour\"}",
+        "body": "{\"text\": \"Average flight ticket price decreased to {{data.mysearch.aggregations.metricAgg.value}} over the last 1 hour\"}",
         "headers": {
           "Content-type": "application/json"
         }

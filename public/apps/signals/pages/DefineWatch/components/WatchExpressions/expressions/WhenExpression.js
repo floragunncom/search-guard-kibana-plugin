@@ -35,7 +35,7 @@ import {
   EuiExpression,
 } from '@elastic/eui';
 
-import { Expressions, POPOVER_STYLE, AGGREGATION_TYPES } from './utils/constants';
+import { Expressions, POPOVER_STYLE, AGGREGATION_TYPES_OPTIONS } from './utils/constants';
 import { selectOptionValueToText } from './utils/helpers';
 import { FormikSelect } from '../../../../../components';
 
@@ -52,7 +52,7 @@ class WhenExpression extends Component {
           name="_ui.aggregationType"
           elementProps={{
             onChange: this.onChangeWrapper,
-            options: AGGREGATION_TYPES,
+            options: AGGREGATION_TYPES_OPTIONS,
           }}
         />
       </div>
@@ -66,13 +66,19 @@ class WhenExpression extends Component {
       closeExpression,
       openExpression,
     } = this.props;
+
+    const fieldName = selectOptionValueToText(
+      values._ui.aggregationType,
+      AGGREGATION_TYPES_OPTIONS
+    );
+
     return (
       <EuiPopover
         id="when-popover"
         button={
           <EuiExpression
             description="when"
-            value={selectOptionValueToText(values._ui.aggregationType, AGGREGATION_TYPES)}
+            value={fieldName}
             isActive={openedStates.WHEN}
             onClick={() => openExpression(Expressions.WHEN)}
           />

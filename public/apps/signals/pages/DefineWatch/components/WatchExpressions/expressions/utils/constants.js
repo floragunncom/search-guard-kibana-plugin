@@ -28,7 +28,11 @@
   * limitations under the License.
   */
 
+import { lowerCase } from 'lodash';
+import { ALL_DOCUMENTS, AGGREGATIONS_TYPES } from '../../../../utils/constants';
+
 export const POPOVER_STYLE = { zIndex: '200', padding: '20px' };
+
 export const Expressions = {
   THRESHOLD: 'THRESHOLD',
   WHEN: 'WHEN',
@@ -36,6 +40,7 @@ export const Expressions = {
   OVER: 'OVER',
   FOR_THE_LAST: 'FOR_THE_LAST',
 };
+
 export const NUMBER_TYPES = [
   'long',
   'integer',
@@ -46,21 +51,33 @@ export const NUMBER_TYPES = [
   'half_float',
   'scaled_float',
 ];
+
 export const UNITS_OF_TIME = [
   { value: 'm', text: 'minute(s)' },
   { value: 'h', text: 'hour(s)' },
   { value: 'd', text: 'day(s)' },
 ];
-export const OVER_TYPES = [{ value: 'all documents', text: 'all documents' }];
-export const AGGREGATION_TYPES = [
-  { value: 'avg', text: 'average()' },
-  { value: 'count', text: 'count()' },
-  { value: 'sum', text: 'sum()' },
-  { value: 'min', text: 'min()' },
-  { value: 'max', text: 'max()' },
+
+export const OVER_TYPES = [
+  { value: ALL_DOCUMENTS, text: ALL_DOCUMENTS },
+  { value: AGGREGATIONS_TYPES.TOP_HITS, text: lowerCase(AGGREGATIONS_TYPES.TOP_HITS) },
 ];
+
+export const AGGREGATION_TYPES_OPTIONS = [
+  { value: AGGREGATIONS_TYPES.AVG, text: 'average()' },
+  { value: AGGREGATIONS_TYPES.COUNT, text: 'count()' },
+  { value: AGGREGATIONS_TYPES.SUM, text: 'sum()' },
+  { value: AGGREGATIONS_TYPES.MIN, text: 'min()' },
+  { value: AGGREGATIONS_TYPES.MAX, text: 'max()' },
+];
+
 export const THRESHOLD_ENUM_OPTIONS = [
   { value: 'ABOVE', text: 'IS ABOVE' },
   { value: 'BELOW', text: 'IS BELOW' },
   { value: 'EXACTLY', text: 'IS EXACTLY' },
+];
+
+export const ORDER_TYPES = [
+  { value: 'asc', text: 'asc' },
+  { value: 'desc', text: 'desc' }
 ];

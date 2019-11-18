@@ -1,3 +1,5 @@
+import { from } from 'rxjs';
+
 export {
   watchToFormik,
   buildFormikChecksBlocks,
@@ -6,7 +8,10 @@ export {
 
 export {
   formikToWatch,
-  buildGraphQuery,
-  buildUiGraphQuery,
   buildChecks,
 } from './formikToWatch';
+
+export {
+  buildGraphQuery,
+  buildUiGraphQuery,
+} from './graphWatch';

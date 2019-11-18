@@ -50,7 +50,7 @@
                 "memory_per_day": {
                   "date_histogram": {
                     "field": "timestamp",
-                    "interval": "{{data.constants.interval}}"
+                    "fixed_interval": "{{data.constants.interval}}"
                   },
                   "aggs": {
                     "memory": {

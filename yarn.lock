@@ -719,6 +719,13 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@elastic/datemath@^5.0.2":
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/@elastic/datemath/-/datemath-5.0.2.tgz#1e62fe7137acd6ebcde9a794ef22b91820c9e6cf"
+  integrity sha512-MYU7KedGPMYu3ljgrO3tY8I8rD73lvBCltd78k5avDIv/6gMbuhKXsMhkEPbb9angs9hR/2ADk0QcGbVxUBXUw==
+  dependencies:
+    tslib "^1.9.3"
+
 "@elastic/eui@^13.7.0":
   version "13.8.2"
   resolved "https://registry.yarnpkg.com/@elastic/eui/-/eui-13.8.2.tgz#4509fb319f0c8b16fbc91d208c7c70d6d565d11f"

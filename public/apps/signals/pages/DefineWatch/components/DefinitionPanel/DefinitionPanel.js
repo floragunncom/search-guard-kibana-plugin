@@ -20,7 +20,7 @@ import {
 } from '../../utils';
 import { WatchService } from '../../../../services';
 import { addErrorToast, addSuccessToast } from '../../../../redux/actions';
-import { WATCH_TYPE_SELECT, WATCH_TYPE } from '../../utils/constants';
+import { WATCH_TYPES_OPTIONS, WATCH_TYPES } from '../../utils/constants';
 import { FLYOUTS } from '../../../../utils/constants';
 import { definitionText, typeText, executeText } from '../../../../utils/i18n/common';
 import { addedCheckTemplateText } from '../../../../utils/i18n/watch';
@@ -66,7 +66,7 @@ class DefinitionPanel extends Component {
     const { checks, _ui: { watchType, checksBlocks } } = values;
 
     try {
-      if (watchType === WATCH_TYPE.BLOCKS) {
+      if (watchType === WATCH_TYPES.BLOCKS) {
         const checkBlock = buildFormikChecksBlocks([checkTemplate])[0];
         checkBlock.id = checksBlocks.length;
 
@@ -122,8 +122,8 @@ class DefinitionPanel extends Component {
       onTriggerConfirmDeletionModal,
     } = this.props;
 
-    const isGraphWatch = values._ui.watchType === WATCH_TYPE.GRAPH;
-    const isJsonWatch = values._ui.watchType === WATCH_TYPE.JSON;
+    const isGraphWatch = values._ui.watchType === WATCH_TYPES.GRAPH;
+    const isJsonWatch = values._ui.watchType === WATCH_TYPES.JSON;
 
     let actions = [];
     let watchDefinition;
@@ -198,7 +198,7 @@ class DefinitionPanel extends Component {
               label: typeText
             }}
             elementProps={{
-              options: WATCH_TYPE_SELECT,
+              options: WATCH_TYPES_OPTIONS,
               onChange: (e, field, form) => {
                 form.setFieldValue(field.name, e.target.value);
                 form.setFieldValue('_ui.checksResult', null);

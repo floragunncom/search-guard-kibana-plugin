@@ -8,7 +8,7 @@ import buildFormikSchedule from './buildFormikSchedule';
 import { buildFormikThrottle } from './buildFormikThrottle';
 import {
   GRAPH_DEFAULTS,
-  WATCH_TYPE,
+  WATCH_TYPES,
   DEFAULT_WATCH,
   RESULT_FIELD_DEFAULTS,
 } from './constants';
@@ -59,7 +59,7 @@ export const buildFormikMeta = ({ _ui = {}, checks = [], trigger } = {}) => {
     ..._ui
   };
 
-  return !isEmpty(_ui) ? ui : Object.assign(ui, { watchType: WATCH_TYPE.JSON });
+  return !isEmpty(_ui) ? ui : Object.assign(ui, { watchType: WATCH_TYPES.JSON });
 };
 
 export const buildFormikIndexAction = (action = {}) => ({

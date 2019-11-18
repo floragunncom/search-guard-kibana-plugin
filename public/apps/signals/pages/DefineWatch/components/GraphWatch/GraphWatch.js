@@ -32,8 +32,8 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect as connectRedux } from 'react-redux';
 import { connect as connectFormik } from 'formik';
-import { EuiSpacer, EuiText } from '@elastic/eui';
-import { cloneDeep, get } from 'lodash';
+import { EuiSpacer, EuiText, EuiLoadingChart } from '@elastic/eui';
+import { cloneDeep, get, pick } from 'lodash';
 import WatchIndex from '../WatchIndex';
 import WatchTimeField from '../WatchTimeField';
 import VisualGraph from '../VisualGraph';
@@ -41,7 +41,7 @@ import WatchExpressions from '../WatchExpressions';
 import { mappingsToFieldNames, buildSearchRequest } from './utils';
 import { addErrorToast } from '../../../../redux/actions';
 import { ElasticsearchService, WatchService } from '../../../../services';
-import { WATCH_TYPE, WATCH_CHECK_SEARCH_NAME_DEFAULT } from '../../utils/constants';
+import { WATCH_TYPES, CHECK_MYSEARCH } from '../../utils/constants';
 import {
   youMustSpecifyIndexText,
   youMustSpecifyATimeFieldText
@@ -68,7 +68,8 @@ class GraphWatch extends Component {
 
     this.state = {
       dataTypes: {},
-      formikSnapshot: cloneDeep(values)
+      formikSnapshot: cloneDeep(values),
+      isLoading: false
     };
 
     this.elasticsearchService = new ElasticsearchService(httpClient);
@@ -97,28 +98,17 @@ class GraphWatch extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const {
-      formik: {
-        values: {
-          _ui: {
-            watchType: prevWatchType,
-            index: prevIndex,
-            timeField: prevTimeField,
-          }
-        }
-      }
-    } = prevProps;
+    const prevWatchType = get(prevProps, 'formik.values._ui.watchType');
+    const timeField = get(this.props, 'formik.values._ui.timeField');
+    const prevIndex = get(prevProps, 'formik.values._ui.index');
+    const index = get(this.props, 'formik.values._ui.index');
 
-    const {
-      formik: {
-        values: {
-          _ui: {
-            index,
-            timeField
-          }
-        }
-      }
-    } = this.props;
+    const queryOptions = [
+      'overDocuments', 'timeField', 'aggregationType',
+      'fieldName', 'topHitsAgg', 'bucketValue', 'bucketUnitOfTime'
+    ];
+    const prevGraphQuery = JSON.stringify(pick(get(prevProps, 'formik.values._ui', {}), queryOptions));
+    const graphQuery = JSON.stringify(pick(get(this.props, 'formik.values._ui', {}), queryOptions));
 
     const hasIndices = !!index.length;
     // If customer is defining query through extraction query,
@@ -129,7 +119,7 @@ class GraphWatch extends Component {
       // then we want to query new index mappings if
       // a) previous query type was query (to get the first load of mappings)
       // b) different indices, to get new mappings
-      const wasJson = prevWatchType !== WATCH_TYPE.GRAPH;
+      const wasJson = prevWatchType !== WATCH_TYPES.GRAPH;
       const diffIndices = prevIndex !== index;
       if (wasJson || diffIndices) {
         this.onQueryMappings();
@@ -137,11 +127,13 @@ class GraphWatch extends Component {
       // If there is a timeField selected, then we want to run the query if
       // a) previous query type was query (to get first run executed)
       // b) different indices, to get new data
-      // c) different time fields, to aggregate on new data/axis
-      const diffTimeFields = prevTimeField !== timeField;
+      // c) different query values
+      const diffGraphQuery = prevGraphQuery !== graphQuery;
       const hasTimeField = !!timeField;
       if (hasTimeField) {
-        if (wasJson || diffIndices || diffTimeFields) this.onRunQuery();
+        if (wasJson || diffIndices || diffGraphQuery) {
+          this.onRunQuery();
+        }
       }
     }
   }
@@ -181,9 +173,11 @@ class GraphWatch extends Component {
     searchRequests.push(buildSearchRequest(values, false));
     console.debug('GraphWatch -- searchRequests', searchRequests);
 
+    this.setState({ isLoading: true });
     try {
       const promises = searchRequests.map(({ request }) =>
         this.watchService.executeGraph(request));
+
       const [
         { resp: graphQueryResponse },
         { resp: realQueryResponse },
@@ -192,22 +186,23 @@ class GraphWatch extends Component {
 
       this.setState({ formikSnapshot });
       setFieldValue('_ui.checksGraphResult', graphQueryResponse);
-      setFieldValue('_ui.checksResult', { [WATCH_CHECK_SEARCH_NAME_DEFAULT]: realQueryResponse });
+      setFieldValue('_ui.checksResult', { [CHECK_MYSEARCH]: realQueryResponse });
     } catch (err) {
       console.error('GraphWatch -- Fail running the query', err);
       dispatch(addErrorToast(err));
       console.debug('GraphWatch -- values', values);
     }
+    this.setState({ isLoading: false });
   }
 
   renderGraph = () => {
-    const { dataTypes, formikSnapshot } = this.state;
+    const { dataTypes, formikSnapshot, isLoading } = this.state;
     const { formik: { values } } = this.props;
     const response = values._ui.checksGraphResult || {};
     const fieldName = get(values, '_ui.fieldName[0].label', 'Select a field');
 
     return (
-      <Fragment>
+      <>
         <EuiText size="xs">
           <strong>Match condition</strong>
         </EuiText>
@@ -218,14 +213,18 @@ class GraphWatch extends Component {
           ofEnabled={values._ui.aggregationType !== 'count'}
         />
         <EuiSpacer size="s" />
-        <VisualGraph
-          annotation
-          values={formikSnapshot}
-          fieldName={fieldName}
-          response={response}
-          thresholdValue={values._ui.thresholdValue}
-        />
-      </Fragment>
+        {
+          isLoading
+            ? <div style={{ margin: 'auto' }}><EuiLoadingChart size="xl" /></div>
+            : <VisualGraph
+              annotation
+              values={formikSnapshot}
+              fieldName={fieldName}
+              response={response}
+              thresholdValue={values._ui.thresholdValue}
+            />
+        }
+      </>
     );
   }
 
