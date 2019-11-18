@@ -2,6 +2,16 @@ import { buildFormikThrottle } from './buildFormikThrottle';
 import { SCHEDULE_DEFAULTS, ADVANCED_TIME_PERIOD_UNIT } from './constants';
 
 describe('buildFormikThrottle', () => {
+  test('can create throttle formik period if no throttle period', () => {
+    const watch = {};
+
+    const formik = {
+      throttle_period: SCHEDULE_DEFAULTS.period,
+    };
+
+    expect(buildFormikThrottle(watch)).toEqual(formik);
+  });
+
   test('can create throttle formik period from throttle period', () => {
     const watch = {
       throttle_period: '2m'

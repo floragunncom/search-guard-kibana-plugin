@@ -1,38 +1,17 @@
 import { comboBoxOptionsToArray } from '../../../../../utils/helpers';
 import { buildGraphQuery, buildUiGraphQuery } from '../../../utils';
-import { WATCH_CHECK_TYPE, WATCH_CHECK_SEARCH_NAME_DEFAULT } from '../../../utils/constants';
+import { CHECK_TYPES, CHECK_MYSEARCH } from '../../../utils/constants';
 
-export function buildSearchRequest({
-  _ui: {
-    bucketValue,
-    bucketUnitOfTime,
-    timeField,
-    aggregationType,
-    fieldName,
-    index
-  }
-}, uiGraphQuery = true) {
-  const indices = comboBoxOptionsToArray(index);
-  const body = uiGraphQuery
-    ? buildUiGraphQuery({
-      bucketValue,
-      bucketUnitOfTime,
-      timeField,
-      aggregationType,
-      fieldName
-    })
-    : buildGraphQuery({
-      bucketValue,
-      bucketUnitOfTime,
-      timeField,
-      aggregationType,
-      fieldName
-    });
+export function buildSearchRequest({ _ui: ui }, isUiGraphQuery = true) {
+  const indices = comboBoxOptionsToArray(ui.index);
 
   return {
-    type: WATCH_CHECK_TYPE.SEARCH,
-    name: WATCH_CHECK_SEARCH_NAME_DEFAULT,
-    target: WATCH_CHECK_SEARCH_NAME_DEFAULT,
-    request: { indices, body }
+    type: CHECK_TYPES.SEARCH,
+    name: CHECK_MYSEARCH,
+    target: CHECK_MYSEARCH,
+    request: {
+      indices,
+      body: isUiGraphQuery ? buildUiGraphQuery(ui) : buildGraphQuery(ui),
+    },
   };
 }

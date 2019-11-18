@@ -6,7 +6,7 @@ import {
 } from '../constants';
 
 describe('buildTimePeriod', () => {
-  test('can build time interval', () => {
+  describe('can build time interval', () => {
     const intervals = Object.values(TIME_PERIOD_UNITS)
       .map(unit => ({
         input: `10${unit}`,
@@ -26,12 +26,12 @@ describe('buildTimePeriod', () => {
       },
     });
 
-    for (let i = 0; i < intervals.length; i++) {
-      expect(buildTimePeriod(intervals[i].input)).toEqual(intervals[i].output);
-    }
+    test.each(intervals)('build interval', ({ input, output }) => {
+      expect(buildTimePeriod(input)).toEqual(output);
+    });
   });
-  
-  test('can build advanced time interval', () => {
+
+  describe('can build advanced time interval', () => {
     const advInterval = Object.values(TIME_PERIOD_UNITS).map(unit => `1${unit}`).join('');
     const intervals = [
       {
@@ -44,8 +44,8 @@ describe('buildTimePeriod', () => {
       },
     ];
 
-    for (let i = 0; i < intervals.length; i++) {
-      expect(buildTimePeriod(intervals[i].input)).toEqual(intervals[i].output);
-    }
+    test.each(intervals)('build advanced interval', ({ input, output }) => {
+      expect(buildTimePeriod(input)).toEqual(output);
+    });
   });
 });

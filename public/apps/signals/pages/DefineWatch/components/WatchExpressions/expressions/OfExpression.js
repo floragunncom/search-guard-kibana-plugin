@@ -71,6 +71,7 @@ class OfExpression extends Component {
       openExpression,
       dataTypes,
     } = this.props;
+
     const options = getOptions(dataTypes, values);
     const expressionWidth =
       Math.max(

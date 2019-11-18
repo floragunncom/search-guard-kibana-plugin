@@ -9,7 +9,7 @@ import {
   executeWatchToSeeResultText,
   previewText
 } from '../../../../../utils/i18n/watch';
-import { WATCH_TYPE } from '../../../utils/constants';
+import { WATCH_TYPES } from '../../../utils/constants';
 
 const ActionBodyPreview = ({
   index,
@@ -20,7 +20,7 @@ const ActionBodyPreview = ({
   language = 'html',
   formik: { values }
 }) => {
-  const isGraphWatch = values._ui.watchType === WATCH_TYPE.GRAPH;
+  const isGraphWatch = values._ui.watchType === WATCH_TYPES.GRAPH;
   const previewHelpText = isGraphWatch
     ? selectConditionToRenderGraphToSeeResultsText
     : executeWatchToSeeResultText;
