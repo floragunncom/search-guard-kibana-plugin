@@ -101,7 +101,7 @@ export default class WatchExpressions extends Component {
         )}
 
         <EuiFlexItem grow={false}>
-          <OverExpression {...this.getExpressionProps()} />
+          <OverExpression {...this.getExpressionProps()} dataTypes={dataTypes} />
         </EuiFlexItem>
 
         <EuiFlexItem grow={false}>

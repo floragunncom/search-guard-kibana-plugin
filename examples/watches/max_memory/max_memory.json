@@ -27,7 +27,7 @@
         "body": {
           "size": 0,
           "aggregations": {
-            "when": {
+            "metricAgg": {
               "max": {
                 "field": "memory"
               }
@@ -51,7 +51,7 @@
     {
       "type": "condition.script",
       "name": "mycondition",
-      "source": "data.max_memory.aggregations.when.value > data.constants.threshold"
+      "source": "data.max_memory.aggregations.metricAgg.value > data.constants.threshold"
     }
   ],
   "actions": [
@@ -62,7 +62,7 @@
       "request": {
         "method": "POST",
         "url": "https://hooks.slack.com/services/token",
-        "body": "{\"text\": \"Memory usage encreased to {{data.max_memory.aggregations.when.value}} MB over the last {{data.constants.window}}\"}\n",
+        "body": "{\"text\": \"Memory usage encreased to {{data.max_memory.aggregations.metricAgg.value}} MB over the last {{data.constants.window}}\"}\n",
         "headers": {
           "Content-type": "application/json"
         }

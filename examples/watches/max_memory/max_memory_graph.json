@@ -21,6 +21,11 @@
     "groupedOverFieldName": "bytes",
     "groupedOverTop": 5,
     "overDocuments": "all documents",
+    "topHitsAgg": {
+      "field": [],
+      "size": 5,
+      "order": "asc"
+    },
     "thresholdValue": 10000
   },
   "trigger": {
@@ -42,7 +47,7 @@
         "body": {
           "size": 0,
           "aggregations": {
-            "when": {
+            "metricAgg": {
               "max": {
                 "field": "memory"
               }
@@ -66,7 +71,7 @@
     {
       "type": "condition.script",
       "name": "mycondition",
-      "source": "data.mysearch.aggregations.when.value > 10000"
+      "source": "data.mysearch.aggregations.metricAgg.value > 10000"
     }
   ],
   "actions": [
@@ -77,7 +82,7 @@
       "request": {
         "method": "POST",
         "url": "https://hooks.slack.com/services/token",
-        "body": "{\"text\": \"Memory usage encreased over the last 12h: {{data.mysearch.aggregations.when.value}}\"}",
+        "body": "{\"text\": \"Memory usage encreased over the last 12h: {{data.mysearch.aggregations.metricAgg.value}}\"}",
         "headers": {
           "Content-type": "application/json"
         }

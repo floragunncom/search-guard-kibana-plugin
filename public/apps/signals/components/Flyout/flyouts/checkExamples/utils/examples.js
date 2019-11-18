@@ -838,7 +838,7 @@ const inputExamples = {
   [CHECKS.METRICS_AGGREGATIONS]: {
     avg: {
       example: {
-        'aggs': {
+        'aggregations': {
           'avg_grade': { 'avg': { 'field': 'grade' } }
         }
       },
@@ -847,7 +847,7 @@ const inputExamples = {
     weighted_avg: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'weighted_grade': {
             'weighted_avg': {
               'value': {
@@ -864,7 +864,7 @@ const inputExamples = {
     },
     cardinality: {
       example: {
-        'aggs': {
+        'aggregations': {
           'type_count': {
             'cardinality': {
               'field': 'type'
@@ -877,7 +877,7 @@ const inputExamples = {
     extended_stats: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'grades_stats': { 'extended_stats': { 'field': 'grade' } }
         }
       },
@@ -888,7 +888,7 @@ const inputExamples = {
         'query': {
           'match': { 'name': 'musée' }
         },
-        'aggs': {
+        'aggregations': {
           'viewport': {
             'geo_bounds': {
               'field': 'location',
@@ -901,7 +901,7 @@ const inputExamples = {
     },
     geo_centroid: {
       example: {
-        'aggs': {
+        'aggregations': {
           'centroid': {
             'geo_centroid': {
               'field': 'location'
@@ -913,7 +913,7 @@ const inputExamples = {
     },
     max: {
       example: {
-        'aggs': {
+        'aggregations': {
           'max_price': { 'max': { 'field': 'price' } }
         }
       },
@@ -921,7 +921,7 @@ const inputExamples = {
     },
     min: {
       example: {
-        'aggs': {
+        'aggregations': {
           'min_price': { 'min': { 'field': 'price' } }
         }
       },
@@ -930,7 +930,7 @@ const inputExamples = {
     percentiles: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'load_time_outlier': {
             'percentiles': {
               'field': 'load_time'
@@ -943,7 +943,7 @@ const inputExamples = {
     percentile_ranks: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'load_time_ranks': {
             'percentile_ranks': {
               'field': 'load_time',
@@ -959,7 +959,7 @@ const inputExamples = {
         'query': {
           'match_all': {}
         },
-        'aggs': {
+        'aggregations': {
           'profit': {
             'scripted_metric': {
               'init_script': 'state.transactions = []',
@@ -974,7 +974,7 @@ const inputExamples = {
     },
     stats: {
       example: {
-        'aggs': {
+        'aggregations': {
           'grades_stats': { 'stats': { 'field': 'grade' } }
         }
       },
@@ -989,7 +989,7 @@ const inputExamples = {
             }
           }
         },
-        'aggs': {
+        'aggregations': {
           'hat_prices': { 'sum': { 'field': 'price' } }
         }
       },
@@ -997,13 +997,13 @@ const inputExamples = {
     },
     top_hits: {
       example: {
-        'aggs': {
+        'aggregations': {
           'top_tags': {
             'terms': {
               'field': 'type',
               'size': 3
             },
-            'aggs': {
+            'aggregations': {
               'top_sales_hits': {
                 'top_hits': {
                   'sort': [
@@ -1027,7 +1027,7 @@ const inputExamples = {
     },
     value_count: {
       example: {
-        'aggs': {
+        'aggregations': {
           'types_count': { 'value_count': { 'field': 'type' } }
         }
       },
@@ -1036,7 +1036,7 @@ const inputExamples = {
     median_absolute_deviation: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'review_average': {
             'avg': {
               'field': 'rating'
@@ -1056,7 +1056,7 @@ const inputExamples = {
     adjacency_matrix: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'interactions': {
             'adjacency_matrix': {
               'filters': {
@@ -1072,7 +1072,7 @@ const inputExamples = {
     },
     auto_interval_date_histogram: {
       example: {
-        'aggs': {
+        'aggregations': {
           'sales_over_time': {
             'auto_date_histogram': {
               'field': 'date',
@@ -1085,18 +1085,18 @@ const inputExamples = {
     },
     children: {
       example: {
-        'aggs': {
+        'aggregations': {
           'top-tags': {
             'terms': {
               'field': 'tags.keyword',
               'size': 10
             },
-            'aggs': {
+            'aggregations': {
               'to-answers': {
                 'children': {
                   'type': 'answer'
                 },
-                'aggs': {
+                'aggregations': {
                   'top-names': {
                     'terms': {
                       'field': 'owner.display_name.keyword',
@@ -1113,7 +1113,7 @@ const inputExamples = {
     },
     composite: {
       example: {
-        'aggs': {
+        'aggregations': {
           'my_buckets': {
             'composite': {
               'sources': [
@@ -1127,11 +1127,11 @@ const inputExamples = {
     },
     date_histogram: {
       example: {
-        'aggs': {
+        'aggregations': {
           'sales_over_time': {
             'date_histogram': {
               'field': 'date',
-              'interval': 'month'
+              'fixed_interval': 'month'
             }
           }
         }
@@ -1140,7 +1140,7 @@ const inputExamples = {
     },
     date_range: {
       example: {
-        'aggs': {
+        'aggregations': {
           'range': {
             'date_range': {
               'field': 'date',
@@ -1162,13 +1162,13 @@ const inputExamples = {
             'query': 'tags:elasticsearch'
           }
         },
-        'aggs': {
+        'aggregations': {
           'my_unbiased_sample': {
             'diversified_sampler': {
               'shard_size': 200,
               'field': 'author'
             },
-            'aggs': {
+            'aggregations': {
               'keywords': {
                 'significant_terms': {
                   'field': 'tags',
@@ -1183,10 +1183,10 @@ const inputExamples = {
     },
     filter: {
       example: {
-        'aggs': {
+        'aggregations': {
           't_shirts': {
             'filter': { 'term': { 'type': 't-shirt' } },
-            'aggs': {
+            'aggregations': {
               'avg_price': { 'avg': { 'field': 'price' } }
             }
           }
@@ -1197,7 +1197,7 @@ const inputExamples = {
     filters: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'messages': {
             'filters': {
               'filters': {
@@ -1212,7 +1212,7 @@ const inputExamples = {
     },
     geo_distance: {
       example: {
-        'aggs': {
+        'aggregations': {
           'rings_around_amsterdam': {
             'geo_distance': {
               'field': 'location',
@@ -1259,10 +1259,10 @@ const inputExamples = {
         'query': {
           'match': { 'type': 't-shirt' }
         },
-        'aggs': {
+        'aggregations': {
           'all_products': {
             'global': {},
-            'aggs': {
+            'aggregations': {
               'avg_price': { 'avg': { 'field': 'price' } }
             }
           },
@@ -1273,7 +1273,7 @@ const inputExamples = {
     },
     histogram: {
       example: {
-        'aggs': {
+        'aggregations': {
           'prices': {
             'histogram': {
               'field': 'price',
@@ -1287,7 +1287,7 @@ const inputExamples = {
     ip_range: {
       example: {
         'size': 10,
-        'aggs': {
+        'aggregations': {
           'ip_ranges': {
             'ip_range': {
               'field': 'ip',
@@ -1303,7 +1303,7 @@ const inputExamples = {
     },
     missing: {
       example: {
-        'aggs': {
+        'aggregations': {
           'products_without_a_price': {
             'missing': { 'field': 'price' }
           }
@@ -1316,12 +1316,12 @@ const inputExamples = {
         'query': {
           'match': { 'name': 'led tv' }
         },
-        'aggs': {
+        'aggregations': {
           'resellers': {
             'nested': {
               'path': 'resellers'
             },
-            'aggs': {
+            'aggregations': {
               'min_price': { 'min': { 'field': 'resellers.price' } }
             }
           }
@@ -1331,18 +1331,18 @@ const inputExamples = {
     },
     parent: {
       example: {
-        'aggs': {
+        'aggregations': {
           'top-names': {
             'terms': {
               'field': 'owner.display_name.keyword',
               'size': 10
             },
-            'aggs': {
+            'aggregations': {
               'to-questions': {
                 'parent': {
                   'type': 'answer'
                 },
-                'aggs': {
+                'aggregations': {
                   'top-tags': {
                     'terms': {
                       'field': 'tags.keyword',
@@ -1359,7 +1359,7 @@ const inputExamples = {
     },
     range: {
       example: {
-        'aggs': {
+        'aggregations': {
           'price_ranges': {
             'range': {
               'field': 'price',
@@ -1379,20 +1379,20 @@ const inputExamples = {
         'query': {
           'match_all': {}
         },
-        'aggs': {
+        'aggregations': {
           'comments': {
             'nested': {
               'path': 'comments'
             },
-            'aggs': {
+            'aggregations': {
               'top_usernames': {
                 'terms': {
                   'field': 'comments.username'
                 },
-                'aggs': {
+                'aggregations': {
                   'comment_to_issue': {
                     'reverse_nested': {},
-                    'aggs': {
+                    'aggregations': {
                       'top_tags_per_comment': {
                         'terms': {
                           'field': 'tags'
@@ -1415,12 +1415,12 @@ const inputExamples = {
             'query': 'tags:kibana OR tags:javascript'
           }
         },
-        'aggs': {
+        'aggregations': {
           'sample': {
             'sampler': {
               'shard_size': 200
             },
-            'aggs': {
+            'aggregations': {
               'keywords': {
                 'significant_terms': {
                   'field': 'tags',
@@ -1468,7 +1468,7 @@ const inputExamples = {
     },
     terms: {
       example: {
-        'aggs': {
+        'aggregations': {
           'genres': {
             'terms': { 'field': 'genre' }
           }
@@ -1481,13 +1481,13 @@ const inputExamples = {
     avg_bucket: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'sales_per_month': {
             'date_histogram': {
               'field': 'date',
-              'interval': 'month'
+              'fixed_interval': 'month'
             },
-            'aggs': {
+            'aggregations': {
               'sales': {
                 'sum': {
                   'field': 'price'
@@ -1507,13 +1507,13 @@ const inputExamples = {
     derivative: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'sales_per_month': {
             'date_histogram': {
               'field': 'date',
-              'interval': 'month'
+              'fixed_interval': 'month'
             },
-            'aggs': {
+            'aggregations': {
               'sales': {
                 'sum': {
                   'field': 'price'
@@ -1533,13 +1533,13 @@ const inputExamples = {
     max_bucket: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'sales_per_month': {
             'date_histogram': {
               'field': 'date',
-              'interval': 'month'
+              'fixed_interval': 'month'
             },
-            'aggs': {
+            'aggregations': {
               'sales': {
                 'sum': {
                   'field': 'price'
@@ -1559,13 +1559,13 @@ const inputExamples = {
     min_bucket: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'sales_per_month': {
             'date_histogram': {
               'field': 'date',
-              'interval': 'month'
+              'fixed_interval': 'month'
             },
-            'aggs': {
+            'aggregations': {
               'sales': {
                 'sum': {
                   'field': 'price'
@@ -1585,13 +1585,13 @@ const inputExamples = {
     sum_bucket: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'sales_per_month': {
             'date_histogram': {
               'field': 'date',
-              'interval': 'month'
+              'fixed_interval': 'month'
             },
-            'aggs': {
+            'aggregations': {
               'sales': {
                 'sum': {
                   'field': 'price'
@@ -1611,13 +1611,13 @@ const inputExamples = {
     stats_bucket: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'sales_per_month': {
             'date_histogram': {
               'field': 'date',
-              'interval': 'month'
+              'fixed_interval': 'month'
             },
-            'aggs': {
+            'aggregations': {
               'sales': {
                 'sum': {
                   'field': 'price'
@@ -1637,13 +1637,13 @@ const inputExamples = {
     extended_stats_bucket: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'sales_per_month': {
             'date_histogram': {
               'field': 'date',
-              'interval': 'month'
+              'fixed_interval': 'month'
             },
-            'aggs': {
+            'aggregations': {
               'sales': {
                 'sum': {
                   'field': 'price'
@@ -1663,13 +1663,13 @@ const inputExamples = {
     percentiles_bucket: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'sales_per_month': {
             'date_histogram': {
               'field': 'date',
-              'interval': 'month'
+              'fixed_interval': 'month'
             },
-            'aggs': {
+            'aggregations': {
               'sales': {
                 'sum': {
                   'field': 'price'
@@ -1690,13 +1690,13 @@ const inputExamples = {
     moving_average: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'my_date_histo': {
             'date_histogram': {
               'field': 'date',
-              'interval': '1M'
+              'fixed_interval': '1M'
             },
-            'aggs': {
+            'aggregations': {
               'the_sum': {
                 'sum': { 'field': 'price' }
               },
@@ -1712,13 +1712,13 @@ const inputExamples = {
     moving_function: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'my_date_histo': {
             'date_histogram': {
               'field': 'date',
-              'interval': '1M'
+              'fixed_interval': '1M'
             },
-            'aggs': {
+            'aggregations': {
               'the_sum': {
                 'sum': { 'field': 'price' }
               },
@@ -1738,13 +1738,13 @@ const inputExamples = {
     cumulative_sum: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'sales_per_month': {
             'date_histogram': {
               'field': 'date',
-              'interval': 'month'
+              'fixed_interval': 'month'
             },
-            'aggs': {
+            'aggregations': {
               'sales': {
                 'sum': {
                   'field': 'price'
@@ -1764,13 +1764,13 @@ const inputExamples = {
     bucket_script: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'sales_per_month': {
             'date_histogram': {
               'field': 'date',
-              'interval': 'month'
+              'fixed_interval': 'month'
             },
-            'aggs': {
+            'aggregations': {
               'total_sales': {
                 'sum': {
                   'field': 'price'
@@ -1782,7 +1782,7 @@ const inputExamples = {
                     'type': 't-shirt'
                   }
                 },
-                'aggs': {
+                'aggregations': {
                   'sales': {
                     'sum': {
                       'field': 'price'
@@ -1808,13 +1808,13 @@ const inputExamples = {
     bucket_selector: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'sales_per_month': {
             'date_histogram': {
               'field': 'date',
-              'interval': 'month'
+              'fixed_interval': 'month'
             },
-            'aggs': {
+            'aggregations': {
               'total_sales': {
                 'sum': {
                   'field': 'price'
@@ -1837,13 +1837,13 @@ const inputExamples = {
     bucket_sort: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'sales_per_month': {
             'date_histogram': {
               'field': 'date',
-              'interval': 'month'
+              'fixed_interval': 'month'
             },
-            'aggs': {
+            'aggregations': {
               'total_sales': {
                 'sum': {
                   'field': 'price'
@@ -1866,13 +1866,13 @@ const inputExamples = {
     serial_differencing: {
       example: {
         'size': 0,
-        'aggs': {
+        'aggregations': {
           'my_date_histo': {
             'date_histogram': {
               'field': 'timestamp',
-              'interval': 'day'
+              'fixed_interval': 'day'
             },
-            'aggs': {
+            'aggregations': {
               'the_sum': {
                 'sum': {
                   'field': 'lemmings'
@@ -1894,7 +1894,7 @@ const inputExamples = {
   [CHECKS.MATRIX_AGGREGATIONS]: {
     matrix_stats: {
       example: {
-        'aggs': {
+        'aggregations': {
           'statistics': {
             'matrix_stats': {
               'fields': ['poverty', 'income']
