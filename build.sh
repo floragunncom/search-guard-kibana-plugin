@@ -33,6 +33,8 @@ echo "+++ Checking maven installed +++"
 if ! [ -x "$(command -v $MAVEN_HOME/bin/mvn)" ]; then
     echo "Checking maven version failed"
     exit 1
+else
+    echo "    -> $($MAVEN_HOME/bin/mvn --version | grep "Apache Maven" | cut -d ' ' -f 3) with Java $($MAVEN_HOME/bin/mvn --version | grep "Java version" | cut -d ' ' -f 3 | tr -d ',')"
 fi
 
 # sanity checks for nvm
@@ -41,17 +43,21 @@ if [ -z "$NVM_DIR" ]; then
     exit 1
 fi
 
-echo "+++ Sourcing nvm +++"
-[ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
+echo "+++ Sourcing nvm ($NVM_DIR) +++"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 
 
 echo "+++ Checking nvm installed +++"
-NVM_VERSION=$(nvm version)
+NVM_VERSION=$(nvm --version)
 if [ "$?" != 0 ]; then
     echo "Checking nvm version failed ($NVM_VERSION)"
     exit 1
+else
+    echo "    ->  $NVM_VERSION"
 fi
+
+echo "+++ Checking npm installed +++"
+echo "    -> $(npm -v)"
 
 # check for snapshot
 WORK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -72,7 +78,7 @@ if [ $SNAPSHOT != "SNAPSHOT" ]; then
     exit 1
 fi
 
-# cleanup any leftovers
+echo "+++ Cleanup any leftovers +++"
 ./clean.sh
 if [ $? != 0 ]; then
     echo "Cleaning leftovers failed"
@@ -94,10 +100,10 @@ rm -f "$WORK_DIR/build.log"
 echo "Logfile: $WORK_DIR/build.log"
 
 echo "+++ Cloning https://github.com/elastic/kibana.git +++"
-git clone https://github.com/elastic/kibana.git #>>"$WORK_DIR/build.log" 2>&1
+git clone https://github.com/elastic/kibana.git >>"$WORK_DIR/build.log" 2>&1
 
 cd "kibana"
-git fetch
+git fetch >>"$WORK_DIR/build.log" 2>&1
 
 echo "+++ Change to tags/v$KIBANA_VERSION +++"
 git checkout "tags/v$KIBANA_VERSION" >>"$WORK_DIR/build.log" 2>&1
@@ -112,6 +118,8 @@ nvm install "$(cat .node-version)" >>"$WORK_DIR/build.log" 2>&1
 if [ $? != 0 ]; then
     echo "Installing node $(cat .node-version) failed"
     exit 1
+else
+    echo "    -> $(cat .node-version)"
 fi
 
 echo "+++ Sourcing Yarn +++"
@@ -119,11 +127,13 @@ export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 
 if ! [ -x "$(command -v yarn)" ]; then
     echo "+++ Installing Yarn +++"
-    curl -Ss -o- -L https://yarnpkg.com/install.sh | bash
+    curl -Ss -o- -L https://yarnpkg.com/install.sh | bash >>"$WORK_DIR/build.log" 2>&1
     if [ $? != 0 ]; then
         echo "Installing Yarn failed"
         exit 1
     fi
+else
+echo "    -> $(yarn -v)"
 fi
 
 
