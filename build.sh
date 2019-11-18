@@ -43,6 +43,13 @@ if [ -z "$NVM_DIR" ]; then
     exit 1
 fi
 
+echo "+++ Checking npm installed (optional) +++"
+if ! [ -x "$(command -v npm)" ]; then
+    echo "    -> not installed"
+else
+    echo "    -> $(npm -v)"
+fi
+
 echo "+++ Sourcing nvm ($NVM_DIR) +++"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 
@@ -55,9 +62,6 @@ if [ "$?" != 0 ]; then
 else
     echo "    ->  $NVM_VERSION"
 fi
-
-echo "+++ Checking npm installed +++"
-echo "    -> $(npm -v)"
 
 # check for snapshot
 WORK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
