@@ -92,6 +92,9 @@ class Alerts extends Component {
       history.push({
         search: queryString.stringify(Object.assign(currParams, newParams))
       });
+    } else { // Get the fresh alerts anyways
+      const { watchId } = queryString.parse(this.props.location.search);
+      this.getAlerts({ dateGte, dateLt, watchId });
     }
   }
 
@@ -148,20 +151,6 @@ class Alerts extends Component {
         onTriggerConfirmDeletionModal(null);
       }
     });
-  }
-
-  handleDatePickerChange = ({
-    start: dateGte,
-    end: dateLt,
-    refreshInterval,
-    isPaused = true,
-  }) => {
-    this.setUrlParameters({ dateGte, dateLt, refreshInterval, isPaused });
-    // Get alerts if auto refresh is on
-    if (!isPaused) {
-      const { watchId } = queryString.parse(this.props.location.search);
-      this.getAlerts({ dateGte, dateLt, watchId });
-    }
   }
 
   renderToolsLeft = () => {
@@ -295,7 +284,14 @@ class Alerts extends Component {
         end={dateLt}
         refreshInterval={+refreshInterval}
         isPaused={isPaused === 'true'}
-        onChange={this.handleDatePickerChange}
+        onChange={({
+          start: dateGte,
+          end: dateLt,
+          refreshInterval,
+          isPaused = true,
+        }) => {
+          this.setUrlParameters({ dateGte, dateLt, refreshInterval, isPaused });
+        }}
       />
     ];
 
