@@ -21,6 +21,11 @@
     "groupedOverFieldName": "bytes",
     "groupedOverTop": 5,
     "overDocuments": "all documents",
+    "topHitsAgg": {
+      "field": [],
+      "size": 5,
+      "order": "asc"
+    },
     "thresholdValue": 10
   },
   "trigger": {
@@ -42,7 +47,7 @@
         "body": {
           "size": 0,
           "aggregations": {
-            "when": {
+            "metricAgg": {
               "min": {
                 "field": "products.price"
               }
@@ -66,7 +71,7 @@
     {
       "type": "condition.script",
       "name": "mycondition",
-      "source": "data.mysearch.aggregations.when.value < 10"
+      "source": "data.mysearch.aggregations.metricAgg.value < 10"
     }
   ],
   "actions": [
@@ -77,7 +82,7 @@
       "request": {
         "method": "POST",
         "url": "https://hooks.slack.com/services/token",
-        "body": "{\"text\": \"Minimum product price over 1 day among {{data.mysearch.hits.total.value}} products: {{mysearch.aggregations.when.value}}.\"}",
+        "body": "{\"text\": \"Minimum product price over 1 day among {{data.mysearch.hits.total.value}} products: {{mysearch.aggregations.metricAgg.value}}.\"}",
         "headers": {
           "Content-type": "application/json"
         }

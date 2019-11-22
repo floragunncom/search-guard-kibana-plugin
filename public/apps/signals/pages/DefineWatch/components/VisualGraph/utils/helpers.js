@@ -32,10 +32,11 @@ import _ from 'lodash';
 
 import { selectOptionValueToText } from '../../WatchExpressions/expressions/utils/helpers';
 import {
-  AGGREGATION_TYPES,
+  AGGREGATION_TYPES_OPTIONS,
   UNITS_OF_TIME,
 } from '../../WatchExpressions/expressions/utils/constants';
 import { Y_DOMAIN_BUFFER, DEFAULT_MARK_SIZE } from './constants';
+import { ALL_DOCUMENTS, AGGREGATIONS_TYPES } from '../../../utils/constants';
 
 export function getYTitle(values) {
   return _.get(values, '_ui.fieldName[0].label', 'count');
@@ -83,13 +84,26 @@ export function getAnnotationData(xDomain, yDomain, thresholdValue) {
 
 export function getDataFromResponse(response) {
   if (!response) return [];
-  const buckets = _.get(response, 'aggregations.over.buckets', []);
-  return buckets.map(getXYValues).filter(filterInvalidYValues);
+
+  // top hits agg
+  if (_.get(response, 'aggregations.bucketAgg')) {
+    const buckets = _.get(response, 'aggregations.bucketAgg.buckets', []);
+    return buckets.reduce((acc, bucket) => {
+      const dateAggBuckets = _.get(bucket, 'dateAgg.buckets', []);
+      acc[bucket.key] = dateAggBuckets.map(getXYValues).filter(filterInvalidYValues);
+      return acc;
+    }, {});
+  }
+
+  const buckets = _.get(response, 'aggregations.dateAgg.buckets', []);
+  return {
+    [ALL_DOCUMENTS]: buckets.map(getXYValues).filter(filterInvalidYValues)
+  };
 }
 
 export function getXYValues(bucket) {
   const x = new Date(bucket.key_as_string);
-  const path = bucket.when ? 'when.value' : 'doc_count';
+  const path = bucket.metricAgg ? 'metricAgg.value' : 'doc_count';
   const y = _.get(bucket, path, null);
   return { x, y };
 }
@@ -103,19 +117,32 @@ export function getMarkData(data) {
 }
 
 export function getAggregationTitle(values) {
-  const aggregationType = selectOptionValueToText(values._ui.aggregationType, AGGREGATION_TYPES);
+  const aggregationType = selectOptionValueToText(values._ui.aggregationType, AGGREGATION_TYPES_OPTIONS);
   const when = `WHEN ${aggregationType}`;
   const fieldName = _.get(values, '_ui.fieldName[0].label');
   const of = `OF ${fieldName}`;
   const overDocuments = values._ui.overDocuments;
-  const over = `OVER ${overDocuments}`;
+  const over = `OVER ${_.lowerCase(overDocuments)}`;
   const value = values._ui.bucketValue;
   const unit = selectOptionValueToText(values._ui.bucketUnitOfTime, UNITS_OF_TIME);
   const forTheLast = `FOR THE LAST ${value} ${unit}`;
+
+  if (overDocuments === AGGREGATIONS_TYPES.TOP_HITS) {
+    const topHitsAggSize = _.get(values, '_ui.topHitsAgg.size');
+    const topHitsAggField = _.get(values, '_ui.topHitsAgg.field[0].label');
+    const topHitsAggOrder = _.get(values, '_ui.topHitsAgg.order');
+    const topHitsNumberAndTerm = `${topHitsAggSize} ${topHitsAggField} ${topHitsAggOrder}`;
+    return `${when} ${of} ${over} ${topHitsNumberAndTerm} ${forTheLast}`;
+  }
 
   if (aggregationType === 'count()') {
     return `${when} ${over} ${forTheLast}`;
   }
 
   return `${when} ${of} ${over} ${forTheLast}`;
+}
+
+export function isGraphDataEmpty(data) {
+  if (!data) return true;
+  return Object.values(data).every(buckets => !buckets.length);
 }

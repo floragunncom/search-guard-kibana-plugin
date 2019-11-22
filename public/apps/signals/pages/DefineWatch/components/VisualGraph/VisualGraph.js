@@ -30,9 +30,15 @@
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Hint, XAxis, YAxis, MarkSeries, LineSeries, FlexibleXYPlot } from 'react-vis';
-
-import { SIZE_RANGE, ANNOTATION_STYLES, HINT_STYLES, LINE_STYLES } from './utils/constants';
+import {
+  Hint,
+  XAxis,
+  YAxis,
+  LineSeries,
+  FlexibleXYPlot,
+  LineMarkSeries,
+  DiscreteColorLegend
+} from 'react-vis';
 import {
   getLeftPadding,
   getYTitle,
@@ -41,17 +47,31 @@ import {
   formatYAxisTick,
   getAnnotationData,
   getDataFromResponse,
-  getMarkData,
   getAggregationTitle,
+  isGraphDataEmpty,
 } from './utils/helpers';
+import {
+  ANNOTATION_STYLES,
+  HINT_STYLES,
+  LINE_STYLES,
+  HOVERED_LINE_STYLES,
+  DEFAULT_MARK_SIZE
+} from './utils/constants';
 
 export default class VisualGraph extends Component {
   static defaultProps = { annotation: false };
 
-  state = { hint: null };
+  state = {
+    hint: null,
+    hoveredLineSeriesName: null
+  };
 
-  onNearestX = value => {
-    this.setState({ hint: value });
+  onNearestXY = hint => {
+    this.setState({ hint });
+  };
+
+  onLegendItemMouseEnter = hoveredLineSeriesName => {
+    this.setState({ hoveredLineSeriesName });
   };
 
   resetHint = () => {
@@ -60,43 +80,91 @@ export default class VisualGraph extends Component {
 
   renderXYPlot = data => {
     const { annotation, thresholdValue, values } = this.props;
-    const { hint } = this.state;
-    const xDomain = getXDomain(data);
-    const yDomain = getYDomain(data);
+    const { hint, hoveredLineSeriesName } = this.state;
+
+    const getLineSeriesStyle = lineSeriesName => lineSeriesName === hoveredLineSeriesName
+      ? HOVERED_LINE_STYLES
+      : LINE_STYLES;
+
+    const getXYDomains = data => {
+      let xDomain = [];
+      let yDomain = [];
+
+      Object.keys(data).forEach(bucketsName => {
+        xDomain = xDomain.concat(getXDomain(data[bucketsName]));
+        yDomain = yDomain.concat(getYDomain(data[bucketsName]));
+      });
+
+      xDomain = xDomain.sort((x, y) => x - y);
+      yDomain = yDomain.sort((x, y) => x - y);
+
+      return {
+        xDomain: [xDomain[0], xDomain[xDomain.length - 1]],
+        yDomain: [yDomain[0], yDomain[yDomain.length - 1]]
+      };
+    };
+
+    const { xDomain, yDomain } = getXYDomains(data);
     const annotations = getAnnotationData(xDomain, yDomain, thresholdValue);
     const xTitle = values._ui.timeField;
     const yTitle = getYTitle(values);
     const leftPadding = getLeftPadding(yDomain);
-    const markData = getMarkData(data);
     const aggregationTitle = getAggregationTitle(values);
+
+    const legendItems = Object.keys(data).map((bucketsName, key) => {
+      if (bucketsName === hoveredLineSeriesName) {
+        return (
+          <div key={key}>
+            <p><b>{bucketsName}</b></p>
+          </div>
+        );
+      }
+      return bucketsName;
+    });
+
     return (
-      <FlexibleXYPlot
-        height={400}
-        xType="time"
-        margin={{ top: 20, right: 20, bottom: 70, left: leftPadding }}
-        xDomain={xDomain}
-        yDomain={yDomain}
-        onMouseLeave={this.resetHint}
-      >
-        <XAxis title={xTitle} />
-        <XAxis
-          title={aggregationTitle}
-          position="middle"
-          orientation="top"
-          tickTotal={0}
-          top={-25}
-          style={{ strokeWidth: '0px' }}
+      <>
+        <FlexibleXYPlot
+          height={400}
+          xType="time"
+          margin={{ top: 20, right: 20, bottom: 70, left: leftPadding }}
+          xDomain={xDomain}
+          yDomain={yDomain}
+          onMouseLeave={this.resetHint}
+        >
+          <XAxis title={xTitle} />
+          <XAxis
+            title={aggregationTitle}
+            position="middle"
+            orientation="top"
+            tickTotal={0}
+            top={-25}
+            style={{ strokeWidth: '0px' }}
+          />
+          <YAxis title={yTitle} tickFormat={formatYAxisTick} />
+          {Object.keys(data).map((bucketsName, key) => (
+            <LineMarkSeries
+              key={key}
+              style={getLineSeriesStyle(bucketsName)}
+              size={DEFAULT_MARK_SIZE}
+              data={data[bucketsName]}
+              onNearestXY={this.onNearestXY}
+            />
+          ))}
+          {annotation && <LineSeries data={annotations} style={ANNOTATION_STYLES} />}
+          {hint && (
+            <Hint value={hint}>
+              <div style={HINT_STYLES}>({hint.y.toLocaleString()})</div>
+            </Hint>
+          )}
+        </FlexibleXYPlot>
+        <DiscreteColorLegend
+          orientation="horizontal"
+          onItemMouseEnter={this.onLegendItemMouseEnter}
+          onItemMouseLeave={() => this.onLegendItemMouseEnter(null)}
+          items={legendItems}
         />
-        <YAxis title={yTitle} tickFormat={formatYAxisTick} />
-        <LineSeries data={data} style={LINE_STYLES} />
-        <MarkSeries data={markData} sizeRange={SIZE_RANGE} onNearestX={this.onNearestX} />
-        {annotation && <LineSeries data={annotations} style={ANNOTATION_STYLES} />}
-        {hint && (
-          <Hint value={hint}>
-            <div style={HINT_STYLES}>({hint.y.toLocaleString()})</div>
-          </Hint>
-        )}
-      </FlexibleXYPlot>
+      </>
     );
   };
 
@@ -111,9 +179,10 @@ export default class VisualGraph extends Component {
   render() {
     const { response } = this.props;
     const data = getDataFromResponse(response);
+
     return (
       <div style={{ padding: '20px', border: '1px solid #D9D9D9', borderRadius: '5px' }}>
-        {data.length ? this.renderXYPlot(data) : this.renderEmptyData()}
+        {!isGraphDataEmpty(data) ? this.renderXYPlot(data) : this.renderEmptyData()}
       </div>
     );
   }

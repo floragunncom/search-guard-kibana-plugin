@@ -1,35 +1,43 @@
 import { startCase, cloneDeep } from 'lodash';
 
-export const WATCH_TYPE = {
+export const WATCH_TYPES = {
   GRAPH: 'graph',
   JSON: 'json',
   BLOCKS: 'blocks'
 };
 
-export const WATCH_CHECK_TYPE = {
+export const CHECK_TYPES = {
   STATIC: 'static',
   SEARCH: 'search',
   CONDITION_SCRIPT: 'condition.script'
 };
 
-export const WATCH_TYPE_SELECT = [
-  { value: WATCH_TYPE.GRAPH, text: startCase(WATCH_TYPE.GRAPH) },
-  { value: WATCH_TYPE.JSON, text: startCase(WATCH_TYPE.JSON) },
-  { value: WATCH_TYPE.BLOCKS, text: startCase(WATCH_TYPE.BLOCKS) }
+export const ALL_DOCUMENTS = 'all documents';
+
+export const AGGREGATIONS_TYPES = {
+  TOP_HITS: 'top_hits',
+  COUNT: 'count',
+  AVG: 'avg',
+  SUM: 'sum',
+  MIN: 'min',
+  MAX: 'max'
+};
+
+export const WATCH_TYPES_OPTIONS = [
+  { value: WATCH_TYPES.GRAPH, text: startCase(WATCH_TYPES.GRAPH) },
+  { value: WATCH_TYPES.JSON, text: startCase(WATCH_TYPES.JSON) },
+  { value: WATCH_TYPES.BLOCKS, text: startCase(WATCH_TYPES.BLOCKS) }
 ];
 
-export const WATCH_CHECK_SEARCH_NAME_DEFAULT = 'mysearch';
-export const WATCH_CHECK_CONDITION_NAME_DEFAULT = 'mycondition';
-export const BUCKET_COUNT = 5;
-export const PAYLOAD_PATH = `data.${WATCH_CHECK_SEARCH_NAME_DEFAULT}`;
-export const HITS_TOTAL_RESULTS_PATH = `${PAYLOAD_PATH}.hits.total.value`;
-export const AGGREGATION_RESULTS_PATH = `${PAYLOAD_PATH}.aggregations.when.value`;
+export const CHECK_MYSEARCH = 'mysearch';
+export const CHECK_MYCONDITION = 'mycondition';
+export const PAYLOAD_PATH = `data.${CHECK_MYSEARCH}`;
 
 const CHECKS_DEFAULTS = [
   {
-    type: WATCH_CHECK_TYPE.SEARCH,
-    name: WATCH_CHECK_SEARCH_NAME_DEFAULT,
-    target: WATCH_CHECK_SEARCH_NAME_DEFAULT,
+    type: CHECK_TYPES.SEARCH,
+    name: CHECK_MYSEARCH,
+    target: CHECK_MYSEARCH,
     request: {
       indices: [],
       body: {
@@ -42,21 +50,24 @@ const CHECKS_DEFAULTS = [
     }
   },
   {
-    type: WATCH_CHECK_TYPE.CONDITION_SCRIPT,
-    name: WATCH_CHECK_CONDITION_NAME_DEFAULT,
+    type: CHECK_TYPES.CONDITION_SCRIPT,
+    name: CHECK_MYCONDITION,
     source: `${PAYLOAD_PATH}.hits.hits.length > 0`
   },
 ];
 
 export const GRAPH_DEFAULTS = {
-  watchType: WATCH_TYPE.GRAPH,
+  watchType: WATCH_TYPES.GRAPH,
   index: [],
   timeField: '',
-  aggregationType: 'count',
+  aggregationType: AGGREGATIONS_TYPES.COUNT,
   fieldName: [],
-  overDocuments: 'all documents',
-  groupedOverTop: 5,
-  groupedOverFieldName: 'bytes',
+  topHitsAgg: {
+    field: [],
+    size: 3,
+    order: 'asc',
+  },
+  overDocuments: ALL_DOCUMENTS,
   bucketValue: 1,
   bucketUnitOfTime: 'h', // m = minute, h = hour, d = day
   thresholdValue: 1000,
@@ -131,5 +142,5 @@ export const DEFAULT_WATCH = {
     ...RESULT_FIELD_DEFAULTS,
     ...SCHEDULE_DEFAULTS
   },
-  _meta: {} // Server plugin meta 
+  _meta: {} // Server plugin meta
 };
