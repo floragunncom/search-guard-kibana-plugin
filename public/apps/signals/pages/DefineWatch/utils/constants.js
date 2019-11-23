@@ -91,6 +91,7 @@ export const ADVANCED_TIME_PERIOD_UNIT = 'advanced';
 
 export const TIME_INTERVAL_OPTIONS = [
   { value: TIME_PERIOD_UNITS.MILLISECONDS, text: 'Milliseconds' },
+  { value: TIME_PERIOD_UNITS.SECONDS, text: 'Seconds' },
   { value: TIME_PERIOD_UNITS.MINUTES, text: 'Minutes' },
   { value: TIME_PERIOD_UNITS.HOURS, text: 'Hours' },
   { value: TIME_PERIOD_UNITS.DAYS, text: 'Days' },
