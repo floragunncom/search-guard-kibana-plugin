@@ -1,10 +1,18 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import queryString from 'query-string';
+import PropTypes from 'prop-types';
 import { LEFT_ALIGNMENT } from '@elastic/eui/lib/services';
-import { EuiInMemoryTable, EuiBadge } from '@elastic/eui';
-import { get } from 'lodash';
+import {
+  EuiInMemoryTable,
+  EuiBadge,
+  EuiFlexItem,
+  EuiFlexGroup,
+  EuiIcon,
+  EuiHealth,
+  EuiSearchBar,
+} from '@elastic/eui';
+import { get, isEqual, defaults } from 'lodash';
 import moment from 'moment';
 import { AlertService } from '../../services';
 import {
@@ -17,6 +25,7 @@ import {
   CancelButton
 } from '../../components';
 import { addSuccessToast, addErrorToast } from '../../redux/actions';
+import { buildAlertsESQuery } from './utils/helpers';
 import {
   execEndText,
   statusText,
@@ -25,97 +34,95 @@ import {
 import { deleteText } from '../../utils/i18n/common';
 import {
   APP_PATH,
-  DEFAULT_DATEFIELD_RANGE_QUERY_GTE,
-  DEFAULT_DATEFIELD_RANGE_QUERY_LT
+  DEFAULT_DATEFIELD,
+  WATCH_ACTION_STATUS,
+  WATCH_STATUS
 } from '../../utils/constants';
 import {
   ALERT_STATUS,
   TABLE_SORT_FIELD,
   TABLE_SORT_DIRECTION,
-  DATE_PICKER,
+  DEFAULT_URL_PARAMS,
+  SEARCH_TIMEOUT
 } from './utils/constants';
-import { DEFAULT_DATEFIELD } from '../../../../../utils/signals/constants';
+
+const initialQuery = EuiSearchBar.Query.MATCH_ALL;
 
 class Alerts extends Component {
   constructor(props) {
     super(props);
 
+    this.timer = null;
     this.state = {
+      query: initialQuery,
       alerts: [],
       isLoading: true,
       error: null,
-      tableSelection: [],
+      tableSelection: []
     };
 
     this.alertService = new AlertService(this.props.httpClient);
   }
 
   componentDidMount() {
-    const urlParams = queryString.parse(this.props.location.search);
-
-    this.setUrlParameters(urlParams);
-    if (urlParams.dateGte && urlParams.dateLt) {
-      this.getAlerts(urlParams);
-    }
+    this.getAlerts();
   }
 
-  componentDidUpdate({ location: prevLocation },) {
-    const prevUrlParams = queryString.parse(prevLocation.search);
+  componentDidUpdate(prevProps, prevState) {
+    const prevUrlParams = queryString.parse(prevProps.location.search);
     const urlParams = queryString.parse(this.props.location.search);
+    const { query: prevQuery } = prevState;
+    const { query } = this.state;
 
-    if (JSON.stringify(urlParams) !== JSON.stringify(prevUrlParams)) {
+    if (!isEqual(urlParams, prevUrlParams) || !isEqual(query, prevQuery)) {
       this.getAlerts(urlParams);
     }
   }
 
   componentWillUnmount() {
     this.props.onTriggerInspectJsonFlyout(null);
-  }
-
-  setUrlParameters = ({
-    dateGte = DEFAULT_DATEFIELD_RANGE_QUERY_GTE,
-    dateLt = DEFAULT_DATEFIELD_RANGE_QUERY_LT,
-    refreshInterval = DATE_PICKER.REFRESH_INTERVAL,
-    isPaused = DATE_PICKER.IS_PAUSED,
-  } = {}) => {
-    const { location, history } = this.props;
-
-    const currParams = queryString.parse(location.search);
-    const newParams = queryString.parse(queryString.stringify({
-      dateGte,
-      dateLt,
-      refreshInterval,
-      isPaused,
-    }));
-
-    if (JSON.stringify(newParams) !== JSON.stringify(currParams)) {
-      history.push({
-        search: queryString.stringify(Object.assign(currParams, newParams))
-      });
-    } else { // Get the fresh alerts anyways
-      const { watchId } = queryString.parse(this.props.location.search);
-      this.getAlerts({ dateGte, dateLt, watchId });
+    if (this.timer) {
+      clearTimeout(this.timer);
     }
   }
 
-  getAlerts = async ({ dateGte, dateLt, watchId }) => {
+  getAlerts = async (params = {}) => {
+    const { history, location } = this.props;
+    const newParams = defaults(params, DEFAULT_URL_PARAMS);
+
+    const prevUrlParams = queryString.parse(location.search);
+    if (!isEqual(newParams, prevUrlParams)) {
+      history.push({ search: queryString.stringify(params) });
+    }
+
     this.setState({ isLoading: true });
 
+    let esQuery;
     try {
-      const { resp: alerts } = await this.alertService.get({ dateGte, dateLt, watchId });
-      this.setState({ alerts });
+      esQuery = buildAlertsESQuery({
+        query: EuiSearchBar.Query.toESQuery(this.state.query),
+        gte: newParams.dateGte,
+        lte: newParams.dateLt
+      });
+
+      try {
+        const { resp: alerts } = await this.alertService.getByQuery(esQuery);
+        this.setState({ alerts });
+      } catch (error) {
+        console.error('Alerts -- getAlerts', error);
+        this.setState({ error });
+        this.props.dispatch(addErrorToast(error));
+      }
     } catch (error) {
-      console.error('Alerts -- getAlerts', error);
-      this.setState({ error });
-      this.props.dispatch(addErrorToast(error));
-      console.debug('Alerts -- params', { dateGte, dateLt, watchId });
+      console.error('Alerts -- build ES query', error);
     }
 
+    console.debug('Alerts -- esQuery', esQuery);
     this.setState({ isLoading: false });
   }
 
   deleteAlerts = async (alerts = []) => {
-    const { dispatch, location } = this.props;
+    const { dispatch } = this.props;
     const promises = [];
     this.setState({ isLoading: true });
 
@@ -134,8 +141,7 @@ class Alerts extends Component {
     await Promise.all(promises);
     this.setState({ isLoading: false });
 
-    const urlParams = queryString.parse(location.search);
-    this.getAlerts(urlParams);
+    this.getAlerts();
   }
 
   handleDeleteAlerts = (alerts = []) => {
@@ -153,12 +159,21 @@ class Alerts extends Component {
     });
   }
 
-  renderToolsLeft = () => {
+  handleSearchChange = ({ query, error }) => {
+    this.timer = setTimeout(() => {
+      this.setState({ query, error });
+    }, SEARCH_TIMEOUT);
+  };
+
+  renderSearchToolsLeft = () => {
     const { tableSelection, isLoading } = this.state;
     if (tableSelection.length === 0) return null;
 
     const handleMultiDelete = () => {
-      this.handleDeleteAlerts(tableSelection.map(item => ({ id: item._id, index: item._index })));
+      this.handleDeleteAlerts(tableSelection.map(item => ({
+        id: item._id,
+        index: item._index
+      })));
       this.setState({ tableSelection: [] });
     };
 
@@ -171,38 +186,95 @@ class Alerts extends Component {
     );
   }
 
+  renderActionsColumns = (actions = [], { status: watchStatus, watch_id: watchId }) => {
+    if (!actions || !actions.length) {
+      const {
+        color = 'warning',
+        iconType = 'alert'
+      } = ALERT_STATUS[watchStatus.code] || {};
+
+      return (
+        <EuiBadge
+          color={color}
+          iconType={iconType}
+          data-test-subj={`sgTableCol-Status-${watchId}`}
+        >
+          {watchStatus.code}
+        </EuiBadge>
+      );
+    }
+
+    return (
+      <div>
+        {actions.map((action, key) => {
+          const {
+            color = 'warning',
+            iconType = 'alert'
+          } = ALERT_STATUS[action.status.code] || {};
+
+          return (
+            <EuiFlexGroup key={key}>
+              <EuiFlexItem grow={false}>
+                <EuiIcon
+                  color={color}
+                  type={iconType}
+                  data-test-subj={`sgTableCol-Status-${action.name}`}
+                />
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                {action.name}
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          );
+        })}
+      </div>
+    );
+  };
+
+  renderSearchFilterOptions = (values = []) =>
+    values.map(status => ({
+      value: status,
+      view: <EuiHealth color={ALERT_STATUS[status].color}>{status}</EuiHealth>
+    }));
+
   render() {
     const { alerts, error, isLoading } = this.state;
     const { history, location } = this.props;
+
     const {
       watchId: encodedWatchId,
-      dateGte = DEFAULT_DATEFIELD_RANGE_QUERY_GTE,
-      dateLt = DEFAULT_DATEFIELD_RANGE_QUERY_LT,
-      refreshInterval = DATE_PICKER.REFRESH_INTERVAL,
-      isPaused = DATE_PICKER.IS_PAUSED,
-    } = queryString.parse(location.search);
+      dateGte,
+      dateLt,
+      refreshInterval,
+      isPaused
+    } = defaults(queryString.parse(location.search), DEFAULT_URL_PARAMS);
 
     const watchId = !encodedWatchId ? undefined : decodeURI(encodedWatchId);
     const isAlertsAggByWatch = !!watchId;
 
     const search = {
-      toolsLeft: this.renderToolsLeft(),
+      toolsLeft: this.renderSearchToolsLeft(),
       box: {
         incremental: true,
-      }
-    };
-
-    if (alerts.length) {
-      search.filters = [
+      },
+      onChange: this.handleSearchChange,
+      filters: [
         {
           type: 'field_value_selection',
           field: 'status.code',
-          name: 'Status',
+          name: 'Watch Status',
           multiSelect: 'or',
-          options: Object.keys(ALERT_STATUS).map(value => ({ value }))
+          options: this.renderSearchFilterOptions(Object.values(WATCH_STATUS))
+        },
+        {
+          type: 'field_value_selection',
+          field: 'actions.status.code',
+          name: 'Action Status',
+          multiSelect: 'or',
+          options: this.renderSearchFilterOptions(Object.values(WATCH_ACTION_STATUS))
         }
-      ];
-    }
+      ]
+    };
 
     const selection = {
       selectable: doc => doc._id,
@@ -260,21 +332,10 @@ class Alerts extends Component {
         )
       },
       {
-        field: 'status.code',
+        field: 'actions',
         name: statusText,
         footer: statusText,
-        render: (statusCode, { _id }) => {
-          const { color = 'warning', iconType = 'alert' } = ALERT_STATUS[statusCode] || {};
-          return (
-            <EuiBadge
-              color={color}
-              iconType={iconType}
-              data-test-subj={`sgTableCol-Status-${_id}`}
-            >
-              {statusCode}
-            </EuiBadge>
-          );
-        }
+        render: this.renderActionsColumns
       }
     ];
 
@@ -290,7 +351,7 @@ class Alerts extends Component {
           refreshInterval,
           isPaused = true,
         }) => {
-          this.setUrlParameters({ dateGte, dateLt, refreshInterval, isPaused });
+          this.getAlerts({ dateGte, dateLt, refreshInterval, isPaused });
         }}
       />
     ];
