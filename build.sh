@@ -154,6 +154,7 @@ cp -a "$WORK_DIR/utils" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/examples" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/tests" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/babel.config.js" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/__mocks__" "$BUILD_STAGE_PLUGIN_DIR"
 
 cd $BUILD_STAGE_PLUGIN_DIR
 
@@ -181,7 +182,6 @@ if [[ ! $uitestsResult =~ .*\"numFailedTests\":0.* ]]; then
   exit 1
 fi
 echo $uitestsResult >>"$WORK_DIR/build.log" 2>&1
-
 
 echo "+++ Testing UI Server +++"
 srvtestsResult=`./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest lib --config ./tests/jest.config.js --passWithNoTests --silent --json`
