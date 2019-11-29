@@ -184,12 +184,15 @@ export const buildTopHitsAgg = ({
 }) => {
   const metricAggField = get(fieldName, '[0].label', null);
   const topHitsField = get(topHitsAgg, 'field[0].label', null);
-
-  if (!metricAggField || !topHitsField) return {};
+  if (aggregationType !== 'count' && (!metricAggField || !topHitsField)) {
+    return {};
+  }
 
   const { size, order } = topHitsAgg;
 
-  if (aggregationType === 'count' || !metricAggField || !topHitsField) {
+  if (aggregationType === 'count') {
+    if (!topHitsField) return {};
+
     return {
       bucketAgg: {
         terms: {
@@ -234,9 +237,7 @@ export const buildUiTopHitsAgg = ({
   const metricAggField = get(fieldName, '[0].label', null);
   const topHitsField = get(topHitsAgg, 'field[0].label', null);
 
-  if (!metricAggField || !topHitsField) return {};
-
-  const { bucketAgg: { terms, aggregations } } = buildTopHitsAgg({
+  const { bucketAgg: { terms, aggregations } = {} } = buildTopHitsAgg({
     aggregationType,
     fieldName,
     topHitsAgg,
@@ -249,6 +250,8 @@ export const buildUiTopHitsAgg = ({
   });
 
   if (aggregationType === 'count' || !metricAggField || !topHitsField) {
+    if (!terms) return {};
+
     return {
       bucketAgg: {
         terms,
@@ -260,6 +263,8 @@ export const buildUiTopHitsAgg = ({
       },
     };
   }
+
+  if (!aggregations) return {};
 
   aggregations.dateAgg = {
     date_histogram: dateHistogram,
