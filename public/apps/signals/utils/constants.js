@@ -12,6 +12,7 @@ export {
 } from '../../../../utils/signals/constants';
 
 export const APP_PATH = {
+  HOME: '/',
   ACCOUNTS: '/accounts',
   ACCOUNT: '/account',
   DEFINE_ACCOUNT: '/define-account',
