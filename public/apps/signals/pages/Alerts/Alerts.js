@@ -91,26 +91,26 @@ class Alerts extends Component {
     }
   }
 
-  getAlerts = async ({ dateGte, dateLt } = {}) => {
+  getAlerts = async () => {
     const { query } = this.state;
     const { location } = this.props;
 
-    if (!dateGte || !dateLt) {
-      const urlParams = defaults(queryString.parse(location.search), DEFAULT_URL_PARAMS);
-      dateGte = urlParams.dateGte;
-      dateLt = urlParams.dateLt;
-    }
-
-    this.setState({ isLoading: true });
+    const {
+      dateGte,
+      dateLt,
+      watchId
+    } = defaults(queryString.parse(location.search), DEFAULT_URL_PARAMS);
 
     let esQuery;
     try {
       esQuery = buildAlertsESQuery({
         query: EuiSearchBar.Query.toESQuery(query),
         gte: dateGte,
-        lte: dateLt
+        lte: dateLt,
+        watchId
       });
 
+      this.setState({ isLoading: true });
       try {
         const { resp: alerts } = await this.alertService.getByQuery(esQuery);
         this.setState({ alerts });
@@ -175,7 +175,8 @@ class Alerts extends Component {
     start: dateGte,
     end: dateLt,
     refreshInterval,
-    isPaused
+    isPaused,
+    isRefreshingWithNoChange
   }) => {
     const { location, history } = this.props;
     const prevUrlParams = queryString.parse(location.search);
@@ -184,7 +185,9 @@ class Alerts extends Component {
       history.push({ search: queryString.stringify(urlParams) });
     }
 
-    this.getAlerts({ dateGte, dateLt });
+    if (isRefreshingWithNoChange) {
+      this.getAlerts();
+    }
   };
 
   renderSearchToolsLeft = () => {

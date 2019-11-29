@@ -45,6 +45,7 @@ export default class DatePicker extends Component {
         end,
         refreshInterval,
         isPaused,
+        isRefreshingWithNoChange: true
       });
     });
   }
