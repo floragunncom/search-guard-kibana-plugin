@@ -123,6 +123,7 @@ cp -a "$WORK_DIR/utils" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/examples" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/tests" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/babel.config.js" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/__mocks__" "$BUILD_STAGE_PLUGIN_DIR"
 
 cd $BUILD_STAGE_PLUGIN_DIR
 
@@ -144,14 +145,14 @@ if [ $? != 0 ]; then
 fi
 
 echo "+++ Testing (unit) UI +++"
-testsResult=`./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest public --config ./tests/jest.config.js --json`
+testsResult=`./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest public --config ./tests/jest.config.js --silent --json`
 if [[ ! $testsResult =~ .*\"numFailedTests\":0.* ]]; then
     echo "Browser unit tests failed"
     exit 1
 fi
 
 echo "+++ Testing (unit) Server +++"
-testsResult=`./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest lib --config ./tests/jest.config.js --json`
+testsResult=`./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest lib --config ./tests/jest.config.js --silent --json`
 if [[ ! $testsResult =~ .*\"numFailedTests\":0.* ]]; then
     echo "Server unit tests failed"
     exit 1
