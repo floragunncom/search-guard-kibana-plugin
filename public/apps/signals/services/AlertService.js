@@ -12,7 +12,7 @@ export default class AlertService extends SignalsService {
   }
 
   getByQuery(query) {
-    return super.post(`..${ROUTE_PATH.ALERTS}`, { query });
+    return super.post(`..${ROUTE_PATH.ALERTS}`, { ...query });
   }
 
   delete({ id, index }) {
