@@ -12,18 +12,39 @@ import {
 import { dashboardText } from '../../../utils/i18n/dashboard';
 import { APP_PATH } from '../../../utils/constants';
 
+// TODO: unit test this
 export default function getBreadcrumb(route) {
   const removePrefixSlash = path => path.slice(1);
 
   const [ base, queryParams ] = route.split('?');
   if (!base) return null;
 
-  const { id, accountType } = queryString.parse(queryParams);
-  let urlParams = id ? `?id=${id}` : '';
-  if (id && accountType) urlParams += `&accountType=${accountType}`;
+  const { id, watchId, accountType } = queryString.parse(queryParams);
+  let urlParams = '';
+  if (id && accountType) {
+    urlParams = `?${queryString.stringify({ id, accountType })}`;
+  } else if (id) {
+    urlParams = `?${queryString.stringify({ id })}`;
+  } else if (watchId) { // Alerts (execution history) by watch id
+    urlParams = `?${queryString.stringify({ watchId })}`;
+  }
+
+  let alertsBreadcrumbs = [];
+
+  if (watchId) {
+    alertsBreadcrumbs = [
+      ...alertsBreadcrumbs,
+      {
+        text: watchId,
+        href: APP_PATH.ALERTS + urlParams
+      }
+    ];
+  }
 
   const breadcrumb = {
-    '#': { text: dashboardText, href: APP_PATH.DASHBOARD },
+    '#': { text: dashboardText, href: APP_PATH.HOME },
+    [removePrefixSlash(APP_PATH.DASHBOARD)]: alertsBreadcrumbs,
+    [removePrefixSlash(APP_PATH.ALERTS)]: alertsBreadcrumbs,
     [removePrefixSlash(APP_PATH.WATCHES)]: {
       text: watchesText,
       href: APP_PATH.WATCHES
