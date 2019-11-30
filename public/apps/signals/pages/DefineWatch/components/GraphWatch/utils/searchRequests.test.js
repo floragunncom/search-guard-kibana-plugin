@@ -87,7 +87,7 @@ describe('searchRequests', () => {
                 "date_histogram": {
                   "field": "timestamp",
                   "fixed_interval": "1h",
-                  "time_zone": "Europe/Rome",
+                  "time_zone": expect.any(String),
                   "min_doc_count": 0,
                   "extended_bounds": {
                     "min": "now-5h",
@@ -245,7 +245,7 @@ describe('searchRequests', () => {
                     "date_histogram": {
                       "field": "timestamp",
                       "fixed_interval": "1h",
-                      "time_zone": "Europe/Rome",
+                      "time_zone": expect.any(String),
                       "min_doc_count": 0,
                       "extended_bounds": {
                         "min": "now-5h",
@@ -405,7 +405,7 @@ describe('searchRequests', () => {
                 "date_histogram": {
                   "field": "timestamp",
                   "fixed_interval": "1h",
-                  "time_zone": "Europe/Rome",
+                  "time_zone": expect.any(String),
                   "min_doc_count": 0,
                   "extended_bounds": {
                     "min": "now-5h",
@@ -584,7 +584,7 @@ describe('searchRequests', () => {
                     "date_histogram": {
                       "field": "timestamp",
                       "fixed_interval": "1h",
-                      "time_zone": "Europe/Rome",
+                      "time_zone": expect.any(String),
                       "min_doc_count": 0,
                       "extended_bounds": {
                         "min": "now-5h",
@@ -758,7 +758,7 @@ describe('searchRequests', () => {
                 "date_histogram": {
                   "field": "timestamp",
                   "fixed_interval": "1h",
-                  "time_zone": "Europe/Rome",
+                  "time_zone": expect.any(String),
                   "min_doc_count": 0,
                   "extended_bounds": {
                     "min": "now-5h",
@@ -937,7 +937,7 @@ describe('searchRequests', () => {
                     "date_histogram": {
                       "field": "timestamp",
                       "fixed_interval": "1h",
-                      "time_zone": "Europe/Rome",
+                      "time_zone": expect.any(String),
                       "min_doc_count": 0,
                       "extended_bounds": {
                         "min": "now-5h",
@@ -1111,7 +1111,7 @@ describe('searchRequests', () => {
                 "date_histogram": {
                   "field": "timestamp",
                   "fixed_interval": "1h",
-                  "time_zone": "Europe/Rome",
+                  "time_zone": expect.any(String),
                   "min_doc_count": 0,
                   "extended_bounds": {
                     "min": "now-5h",
@@ -1290,7 +1290,7 @@ describe('searchRequests', () => {
                     "date_histogram": {
                       "field": "timestamp",
                       "fixed_interval": "1h",
-                      "time_zone": "Europe/Rome",
+                      "time_zone": expect.any(String),
                       "min_doc_count": 0,
                       "extended_bounds": {
                         "min": "now-5h",
@@ -1464,7 +1464,7 @@ describe('searchRequests', () => {
                 "date_histogram": {
                   "field": "timestamp",
                   "fixed_interval": "1h",
-                  "time_zone": "Europe/Rome",
+                  "time_zone": expect.any(String),
                   "min_doc_count": 0,
                   "extended_bounds": {
                     "min": "now-5h",
@@ -1643,7 +1643,7 @@ describe('searchRequests', () => {
                     "date_histogram": {
                       "field": "timestamp",
                       "fixed_interval": "1h",
-                      "time_zone": "Europe/Rome",
+                      "time_zone": expect.any(String),
                       "min_doc_count": 0,
                       "extended_bounds": {
                         "min": "now-5h",
