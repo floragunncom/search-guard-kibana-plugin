@@ -5,37 +5,6 @@ import {
   DEFAULT_DATEFIELD_RANGE_QUERY_LT
 } from '../../../utils/constants';
 
-const { NO_ACTION, EXECUTION_FAILED } = WATCH_STATUS;
-
-const {
-  ACTION_FAILED,
-  ACTION_THROTTLED,
-  ACTION_TRIGGERED,
-} = WATCH_ACTION_STATUS;
-
-export const ALERT_STATUS = {
-  [EXECUTION_FAILED]: {
-    iconType: 'faceSad',
-    color: 'danger'
-  },
-  [NO_ACTION]: {
-    iconType: 'alert',
-    color: 'warning'
-  },
-  [ACTION_FAILED]: {
-    iconType: 'faceSad',
-    color: 'danger'
-  },
-  [ACTION_THROTTLED]: {
-    iconType: 'alert',
-    color: 'warning'
-  },
-  [ACTION_TRIGGERED]: {
-    iconType: 'faceHappy',
-    color: 'secondary'
-  }
-};
-
 export const TABLE_SORT_FIELD = 'execution_end';
 export const TABLE_SORT_DIRECTION = 'desc';
 
