@@ -69,13 +69,18 @@ class Alerts extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const { location, history } = this.props;
     const prevUrlParams = queryString.parse(prevProps.location.search);
-    const urlParams = queryString.parse(this.props.location.search);
+    const urlParams = queryString.parse(location.search);
     const { query: prevQuery } = prevState;
     const { query } = this.state;
 
+    if (!isEqual(urlParams, prevUrlParams)) {
+      history.push({ search: queryString.stringify(urlParams) });
+    }
+
     if (!isEqual(urlParams, prevUrlParams) || !isEqual(query, prevQuery)) {
-      this.getAlerts(urlParams);
+      this.getAlerts();
     }
   }
 
@@ -86,25 +91,26 @@ class Alerts extends Component {
     }
   }
 
-  getAlerts = async (params = {}) => {
-    const { history, location } = this.props;
-    const newParams = defaults(params, DEFAULT_URL_PARAMS);
+  getAlerts = async () => {
+    const { query } = this.state;
+    const { location } = this.props;
 
-    const prevUrlParams = queryString.parse(location.search);
-    if (!isEqual(newParams, prevUrlParams)) {
-      history.push({ search: queryString.stringify(params) });
-    }
-
-    this.setState({ isLoading: true });
+    const {
+      dateGte,
+      dateLt,
+      watchId
+    } = defaults(queryString.parse(location.search), DEFAULT_URL_PARAMS);
 
     let esQuery;
     try {
       esQuery = buildAlertsESQuery({
-        query: EuiSearchBar.Query.toESQuery(this.state.query),
-        gte: newParams.dateGte,
-        lte: newParams.dateLt
+        query: EuiSearchBar.Query.toESQuery(query),
+        gte: dateGte,
+        lte: dateLt,
+        watchId
       });
 
+      this.setState({ isLoading: true });
       try {
         const { resp: alerts } = await this.alertService.getByQuery(esQuery);
         this.setState({ alerts });
@@ -163,6 +169,25 @@ class Alerts extends Component {
     this.timer = setTimeout(() => {
       this.setState({ query, error });
     }, SEARCH_TIMEOUT);
+  };
+
+  handleDatePickerChange = ({
+    start: dateGte,
+    end: dateLt,
+    refreshInterval,
+    isPaused,
+    isRefreshingWithNoChange
+  }) => {
+    const { location, history } = this.props;
+    const prevUrlParams = queryString.parse(location.search);
+    const urlParams = { ...prevUrlParams, refreshInterval, isPaused, dateGte, dateLt };
+    if (!isEqual(prevUrlParams, urlParams)) {
+      history.push({ search: queryString.stringify(urlParams) });
+    }
+
+    if (isRefreshingWithNoChange) {
+      this.getAlerts();
+    }
   };
 
   renderSearchToolsLeft = () => {
@@ -345,14 +370,7 @@ class Alerts extends Component {
         end={dateLt}
         refreshInterval={+refreshInterval}
         isPaused={isPaused === 'true'}
-        onChange={({
-          start: dateGte,
-          end: dateLt,
-          refreshInterval,
-          isPaused = true,
-        }) => {
-          this.getAlerts({ dateGte, dateLt, refreshInterval, isPaused });
-        }}
+        onChange={this.handleDatePickerChange}
       />
     ];
 
