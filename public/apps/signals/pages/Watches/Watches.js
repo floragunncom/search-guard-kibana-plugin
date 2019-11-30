@@ -3,9 +3,16 @@ import { connect } from 'react-redux';
 import {
   EuiFlexGroup,
   EuiFlexItem,
-  EuiInMemoryTable
+  EuiInMemoryTable,
+  EuiLink,
+  EuiIcon,
+  EuiButton,
+  EuiToolTip,
+  EuiTitle,
+  EuiText,
+  EuiBadge
 } from '@elastic/eui';
-import { cloneDeep, get } from 'lodash';
+import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import {
   LEFT_ALIGNMENT,
@@ -13,8 +20,6 @@ import {
 import { WatchService } from '../../services';
 import {
   ContentPanel,
-  TableDeleteAction,
-  TableCloneAction,
   TableInspectAction,
   TableMultiDeleteButton,
   TableIdCell,
@@ -29,15 +34,38 @@ import {
   deleteText,
   cloneText,
   saveText,
-  addExampleText
+  addExampleText,
+  confirmText,
+  onText,
+  byText
 } from '../../utils/i18n/common';
 import {
-  numOfChecksText,
-  numOfActionsText,
-  isActiveText
+  watchToFormik,
+  formikToWatch,
+  dateFormat,
+  actionAndWatchStatusToIconProps
+} from './utils';
+import {
+  checksText,
+  actionsText,
+  isActiveText,
+  noActionsText,
+  acknowledgeText,
+  acknowledgedText,
+  acknowledgeActionText,
+  executionHistoryText,
+  lastStatusText,
+  lastExecutionText
 } from '../../utils/i18n/watch';
-import { APP_PATH, FLYOUTS } from '../../utils/constants';
-import { TABLE_SORT_FIELD, TABLE_SORT_DIRECTION } from './utils/constants';
+import {
+  APP_PATH,
+  FLYOUTS,
+  WATCH_STATUS
+} from '../../utils/constants';
+import {
+  TABLE_SORT_FIELD,
+  TABLE_SORT_DIRECTION,
+} from './utils/constants';
 
 class Watches extends Component {
   constructor(props) {
@@ -63,26 +91,60 @@ class Watches extends Component {
 
   putWatch = async ({ _id, ...watch }) => {
     const { dispatch } = this.props;
-    this.setState({ isLoading: true, error: null });
+    const watchToSubmit = formikToWatch(watch);
+
     try {
-      await this.watchService.put(watch, _id);
+      this.setState({ isLoading: true, error: null });
+      await this.watchService.put(watchToSubmit, _id);
       dispatch(addSuccessToast((<p>{saveText} {_id}</p>)));
       this.getWatches();
     } catch (error) {
       console.error('Watches -- putWatches', error);
       dispatch(addErrorToast(error));
       this.setState({ error });
-      console.debug('Watches -- watch', watch);
+      console.debug('Watches -- watch', watchToSubmit);
     }
     this.setState({ isLoading: false });
   }
 
+  fetchWatchesState = async () => {
+    const { watches } = this.state;
+    const { dispatch } = this.props;
+    const promises = [];
+
+    try {
+      watches.forEach((watch, i) => {
+        const promise = this.watchService.state(watch._id)
+          .then(({ resp: state = {} } = {}) => {
+            watches[i] = watchToFormik(watch, state);
+          })
+          .catch(error => {
+            console.error('Watches -- fetchWatchesState', watch._id, error);
+            // Default to empty state
+            watches[i] = watchToFormik(watch);
+          });
+
+        promises.push(promise);
+      });
+
+      await Promise.all(promises);
+      this.setState({ watches });
+      console.debug('Watches -- fetchWatchesState', watches);
+    } catch (error) {
+      console.error('Watches -- fetchWatchesState', error);
+      dispatch(addErrorToast(error));
+    }
+  };
+
   getWatches = async () => {
     const { dispatch } = this.props;
     this.setState({ isLoading: true, error: null });
+
     try {
       const { resp: watches } = await this.watchService.get();
       this.setState({ watches });
+      this.fetchWatchesState();
+      console.debug('Watches -- getWatches', watches);
     } catch (error) {
       console.error('Watches -- getWatches', error);
       dispatch(addErrorToast(error));
@@ -91,19 +153,20 @@ class Watches extends Component {
     this.setState({ isLoading: false });
   }
 
-  handleCloneWatch = async watch => {
+  handleCloneWatch = async ({ _id: id, ...watch }) => {
     const { dispatch } = this.props;
-    this.setState({ isLoading: true, error: null });
+    const watchToSubmit = formikToWatch(watch);
+
     try {
-      const { _id: id, ...rest } = watch;
-      await this.watchService.put(cloneDeep({ ...rest }), `${id}_copy`);
+      this.setState({ isLoading: true, error: null });
+      await this.watchService.put(watchToSubmit, `${id}_copy`);
       dispatch(addSuccessToast((<p>{cloneText} {id}</p>)));
       this.getWatches();
     } catch (error) {
       console.error('Watches -- cloneWatches', error);
       dispatch(addErrorToast(error));
       this.setState({ error });
-      console.debug('Watches -- watch', watch);
+      console.debug('Watches -- watch', watchToSubmit);
     }
     this.setState({ isLoading: false });
   }
@@ -147,7 +210,49 @@ class Watches extends Component {
     });
   }
 
-  renderToolsLeft = () => {
+  handleAck = (watchIds = [], actionId) => {
+    const { dispatch, onTriggerConfirmModal } = this.props;
+
+    const doAck = async () => {
+      this.setState({ isLoading: true });
+
+      try {
+        const promises = [];
+        watchIds.forEach(id => {
+          promises.push(this.watchService.ack(id, actionId));
+        });
+
+        await Promise.all(promises);
+
+        watchIds.forEach(id => {
+          const successMsg = !actionId
+            ? <EuiText>{acknowledgeText} watch {id}</EuiText>
+            : <EuiText>{acknowledgeActionText} {actionId}</EuiText>;
+          dispatch(addSuccessToast(successMsg));
+        });
+      } catch (error) {
+        console.error('Watches -- acknowledge watch', error);
+        dispatch(addErrorToast(error));
+      }
+
+      this.setState({ isLoading: false });
+      this.getWatches();
+    };
+
+    onTriggerConfirmModal({
+      title: <EuiTitle><h2>{confirmText} {acknowledgeText}</h2></EuiTitle>,
+      body: watchIds.join(', '),
+      onConfirm: () => {
+        onTriggerConfirmModal(null);
+        doAck();
+      },
+      onCancel: () => {
+        onTriggerConfirmModal(null);
+      }
+    });
+  };
+
+  renderSearchBarToolsLeft = () => {
     const { tableSelection, isLoading } = this.state;
     if (tableSelection.length === 0) return null;
 
@@ -156,14 +261,175 @@ class Watches extends Component {
       this.setState({ tableSelection: [] });
     };
 
+    const handleMultiAcknowledge = () => {
+      this.handleAck(tableSelection.map(item => item._id));
+      this.setState({ tableSelection: [] });
+    };
+
     return (
-      <TableMultiDeleteButton
-        onClick={handleMultiDelete}
-        numOfSelections={tableSelection.length}
-        isLoading={isLoading}
-      />
+      <EuiFlexGroup>
+        <EuiFlexItem>
+          <TableMultiDeleteButton
+            onClick={handleMultiDelete}
+            numOfSelections={tableSelection.length}
+            isLoading={isLoading}
+          />
+        </EuiFlexItem>
+        <EuiFlexItem>
+          <EuiButton
+            iconType="check"
+            onClick={handleMultiAcknowledge}
+            isDisabled={isLoading}
+            isLoading={isLoading}
+          >
+            {acknowledgeText} {tableSelection.length}
+          </EuiButton>
+        </EuiFlexItem>
+      </EuiFlexGroup>
     );
   }
+
+  renderActionsColumn = (actions = [], watch) => {
+    if (!actions.length) {
+      const {
+        nodeText,
+        ...iconProps
+      } = actionAndWatchStatusToIconProps(WATCH_STATUS.NO_ACTION);
+
+      return (
+        <div>
+          <EuiFlexGroup>
+            <EuiFlexItem grow={false}>
+              <EuiToolTip content={nodeText}>
+                <EuiIcon
+                  data-test-subj={`sgTable-Actions-${watch._id}-NoAction`}
+                  {...iconProps}
+                />
+              </EuiToolTip>
+            </EuiFlexItem>
+            <EuiFlexItem>{noActionsText}</EuiFlexItem>
+          </EuiFlexGroup>
+        </div>
+      );
+    }
+
+    return (
+      <div>
+        {actions.map((action, key) => {
+          const wasAcked = get(watch, `_ui.state.actions[${action.name}].acked`, false);
+          const ackedBy = get(watch, `_ui.state.actions[${action.name}].acked.by`, 'admin');
+          const ackedOn = get(watch, `_ui.state.actions[${action.name}].acked.on`);
+
+          const ackLinkContent = wasAcked
+            ? (
+              <EuiText size="s">
+                {acknowledgedText} {byText} {ackedBy} {onText} {dateFormat(ackedOn)}
+              </EuiText>
+            )
+            : acknowledgeText;
+
+          const ackLink = (
+            <EuiFlexGroup key={key}>
+              <EuiFlexItem grow={false}>
+                <EuiToolTip
+                  content={wasAcked ? acknowledgedText : acknowledgeText}
+                >
+                  <EuiLink
+                    color={wasAcked ? 'subdued' : 'primary'}
+                    disabled={wasAcked}
+                    onClick={() => this.handleAck([watch._id], action.name)}
+                    data-test-subj={`sgTableCol-Actions-ackbtn-${watch._id}-${action.name}`}
+                  >
+                    {ackLinkContent}
+                  </EuiLink>
+                </EuiToolTip>
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          );
+
+          const statusCode = get(watch, `_ui.state.actions[${action.name}].last_status.code`);
+          const {
+            nodeText,
+            ...iconProps
+          } = actionAndWatchStatusToIconProps(statusCode);
+
+          return (
+            <EuiFlexGroup key={key}>
+              <EuiFlexItem grow={false}>
+                <EuiToolTip content={nodeText}>
+                  <EuiIcon
+                    data-test-subj={`sgTableCol-Actions-icon-${watch._id}-${action.name}`}
+                    {...iconProps}
+                  />
+                </EuiToolTip>
+              </EuiFlexItem>
+              <EuiFlexItem>{ackLink} {action.name}</EuiFlexItem>
+            </EuiFlexGroup>
+          );
+        })}
+      </div>
+    );
+  };
+
+  renderLastExecutionColumn = ({ actions = [], _ui = {} } = {}) => {
+    if (!actions.length) return null;
+
+    return (
+      <div>
+        {actions.map((action, key) => {
+          let lastExecution = get(_ui, `state.actions[${action.name}].last_execution`);
+          lastExecution = dateFormat(lastExecution);
+
+          return (
+            <EuiFlexGroup key={key}>
+              <EuiFlexItem>
+                <EuiText
+                  size="s"
+                  grow={false}
+                >
+                  <p>{lastExecution}</p>
+                </EuiText>
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          );
+        })}
+      </div>
+    );
+  };
+
+  renderExecutionHistoryBtn = ({ _id }) => {
+    return (
+      <EuiToolTip content={executionHistoryText}>
+        <TableInspectAction
+          name={_id}
+          onClick={() => {
+            this.props.history.push(`${APP_PATH.ALERTS}?watchId=${_id}`);
+          }}
+        />
+      </EuiToolTip>
+    );
+  };
+
+  renderLastStatusColumn = (field, watch) => {
+    const lastStatus = get(watch, '_ui.state.last_status.code');
+    const {
+      type: iconType,
+      nodeText,
+      ...badgeProps
+    } = actionAndWatchStatusToIconProps(lastStatus);
+
+    return (
+      <EuiToolTip content={nodeText}>
+        <EuiBadge
+          className="sg-watches-lastStatus-col-badge"
+          iconType={iconType}
+          {...badgeProps}
+        >
+          {nodeText}
+        </EuiBadge>
+      </EuiToolTip>
+    );
+  };
 
   render() {
     const { history, onTriggerFlyout } = this.props;
@@ -171,33 +437,48 @@ class Watches extends Component {
 
     const actions = [
       {
-        render: watch => (
-          <TableCloneAction
-            name={watch._id}
-            onClick={() => this.handleCloneWatch(watch)}
-          />
-        )
+        'data-test-subj': 'sgTableCol-ActionAcknowledge',
+        name: acknowledgeText,
+        description: 'Acknowledge the watch',
+        icon: 'check',
+        type: 'icon',
+        color: 'success',
+        onClick: watch => this.handleAck([watch._id])
       },
       {
-        render: ({ _id }) => (
-          <TableDeleteAction
-            name={_id}
-            onClick={() => this.handleDeleteWatches([_id])}
-          />
-        )
+        'data-test-subj': 'sgTableCol-ActionClone',
+        name: cloneText,
+        description: 'Clone the watch',
+        icon: 'copy',
+        type: 'icon',
+        onClick: this.handleCloneWatch
+      },
+      {
+        'data-test-subj': 'sgTableCol-ActionDelete',
+        name: deleteText,
+        description: 'Delete the watch',
+        icon: 'trash',
+        type: 'icon',
+        color: 'danger',
+        onClick: watch => this.handleDeleteWatches([watch._id])
       }
     ];
 
     const columns = [
       {
         width: '5%',
-        alignment: LEFT_ALIGNMENT,
-        render: ({ _id }) => (
-          <TableInspectAction
-            name={_id}
-            onClick={() => history.push(`${APP_PATH.ALERTS}?watchId=${_id}`)}
-          />
-        )
+        actions: [
+          {
+            render: this.renderExecutionHistoryBtn
+          }
+        ]
+      },
+      {
+        field: '_ui.state.last_status.code',
+        width: '15%',
+        name: lastStatusText,
+        footer: lastStatusText,
+        render: this.renderLastStatusColumn
       },
       {
         field: '_id',
@@ -216,6 +497,7 @@ class Watches extends Component {
       },
       {
         field: 'active',
+        width: '5%',
         name: isActiveText,
         footer: isActiveText,
         render: (active, { _id }) => (
@@ -227,8 +509,9 @@ class Watches extends Component {
       },
       {
         field: 'checks',
-        name: numOfChecksText,
-        footer: numOfChecksText,
+        width: '5%',
+        name: checksText,
+        footer: checksText,
         render: (checks = [], { _id }) => (
           <TableTextCell
             value={checks.length}
@@ -237,16 +520,16 @@ class Watches extends Component {
         )
       },
       {
+        width: '25%',
         field: 'actions',
-        name: numOfActionsText,
-        footer: numOfActionsText,
-        render: (actions = [], { _id }) => (
-          <TableTextCell
-            key="numOfActions"
-            value={actions.length}
-            name={`NumOfActions-${_id}`}
-          />
-        )
+        name: actionsText,
+        footer: actionsText,
+        render: this.renderActionsColumn
+      },
+      {
+        name: lastExecutionText,
+        footer: lastExecutionText,
+        render: this.renderLastExecutionColumn
       },
       {
         actions
@@ -254,15 +537,17 @@ class Watches extends Component {
     ];
 
     const search = {
-      toolsLeft: this.renderToolsLeft(),
+      toolsLeft: this.renderSearchBarToolsLeft(),
       box: {
         incremental: true,
       }
     };
 
     const selection = {
-      selectable: (doc) => doc._id,
-      onSelectionChange: (tableSelection) => this.setState({ tableSelection })
+      selectable: doc => doc._id,
+      onSelectionChange: tableSelection => {
+        this.setState({ tableSelection });
+      }
     };
 
     const sorting = {
@@ -297,6 +582,7 @@ class Watches extends Component {
         <EuiFlexGroup>
           <EuiFlexItem>
             <EuiInMemoryTable
+              hasActions
               error={get(error, 'message')}
               items={watches}
               itemId="_id"
@@ -319,6 +605,7 @@ Watches.propTypes = {
   httpClient: PropTypes.func.isRequired,
   dispatch: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
+  onTriggerConfirmModal: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
   onTriggerFlyout: PropTypes.func.isRequired,
 };

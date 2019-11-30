@@ -1,3 +1,4 @@
 import confirmDeletion from './confirmDeletion';
+import confirm from './confirm';
 
-export default { confirmDeletion };
+export default { confirmDeletion, confirm };
