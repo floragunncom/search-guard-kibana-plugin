@@ -1,5 +1,6 @@
 import SignalsService from './SignalsService';
 import { ROUTE_PATH } from '../utils/constants';
+import { action } from 'mobx';
 
 export default class WatchService extends SignalsService {
   execute(watch) {
@@ -21,5 +22,18 @@ export default class WatchService extends SignalsService {
 
   delete(id) {
     return super.delete(`..${ROUTE_PATH.WATCH}/${id}`);
+  }
+
+  ack(watchId, actionId) {
+    let url = `..${ROUTE_PATH.WATCH}/${watchId}/_ack`;
+    if (actionId) {
+      url += `/${actionId}`;
+    }
+
+    return super.put(url);
+  }
+
+  state(id) {
+    return super.get(`..${ROUTE_PATH.WATCH}/${id}/_state`);
   }
 }

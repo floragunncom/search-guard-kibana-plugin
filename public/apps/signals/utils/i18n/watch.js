@@ -3,6 +3,16 @@ import { EuiI18n } from '@elastic/eui';
 
 export * from '../../../utils/i18n/common';
 
+export const lastStatusText = (<EuiI18n token="sg.watch.lastStatus.text" default="Last Status" />);
+export const failedText = (<EuiI18n token="sg.watch.failed.text" default="Failed" />);
+export const triggeredText = (<EuiI18n token="sg.watch.triggered.text" default="Triggered" />);
+export const throttledText = (<EuiI18n token="sg.watch.throttled.text" default="Throttled" />);
+export const lastExecutionText = (<EuiI18n token="sg.watch.lastExecution.text" default="Last Execution" />);
+export const executedText = (<EuiI18n token="sg.watch.executed.text" default="Executed" />);
+export const acknowledgeText = (<EuiI18n token="sg.watch.acknowledge.text" default="Acknowledge" />);
+export const acknowledgeActionText = (<EuiI18n token="sg.watch.acknowledgeAction.text" default="Acknowledge action" />);
+export const acknowledgedText = (<EuiI18n token="sg.watch.acknowledged.text" default="Acknowledged" />);
+export const noActionsText = (<EuiI18n token="sg.watch.noActions.text" default="No actions" />);
 export const checkExamplesText = (<EuiI18n token="sg.watch.checkExamples.text" default="Check Examples" />);
 export const watchesText = (<EuiI18n token="sg.watch.watches.text" default="Watches" />);
 export const createWatchText = (<EuiI18n token="sg.watch.createWatch.text" default="Create Watch" />);
@@ -32,7 +42,6 @@ export const everyText = (<EuiI18n token="sg.watch.every.text" default="Every" /
 export const aroundText = (<EuiI18n token="sg.watch.around.text" default="Around" />);
 export const modeText = (<EuiI18n token="sg.watch.mode.text" default="Mode" />);
 export const byIntervalText = (<EuiI18n token="sg.watch.byInterval.text" default="By interval" />);
-export const onText = (<EuiI18n token="sg.watch.on.text" default="On" />);
 export const mustSelectADayText = (<EuiI18n token="sg.watch.mustSelectADay.text" default="Must select a day" />);
 export const timeFieldText = (<EuiI18n token="sg.watch.timeField.text" default="Time field" />);
 export const theFieldUsedFotXAxisText = (<EuiI18n token="sg.watch.theFieldUsedFotXAxis.text" default="The field used for X-Axis" />);

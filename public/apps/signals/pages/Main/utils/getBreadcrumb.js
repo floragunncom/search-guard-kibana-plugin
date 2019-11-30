@@ -2,14 +2,15 @@ import queryString from 'query-string';
 import {
   createWatchText,
   updateWatchText,
-  watchesText
+  watchesText,
+  executionHistoryText
 } from '../../../utils/i18n/watch';
 import {
   createAccountText,
   updateAccountText,
   accountsText
 } from '../../../utils/i18n/account';
-import { dashboardText } from '../../../utils/i18n/dashboard';
+import { homeText } from '../../../utils/i18n/common';
 import { APP_PATH } from '../../../utils/constants';
 
 // TODO: unit test this
@@ -29,28 +30,27 @@ export default function getBreadcrumb(route) {
     urlParams = `?${queryString.stringify({ watchId })}`;
   }
 
-  let alertsBreadcrumbs = [];
-
-  if (watchId) {
-    alertsBreadcrumbs = [
-      ...alertsBreadcrumbs,
+  const breadcrumb = {
+    '#': { text: homeText, href: APP_PATH.HOME },
+    [removePrefixSlash(APP_PATH.ALERTS)]: [
       {
-        text: watchId,
+        text: watchesText,
+        href: APP_PATH.WATCHES
+      },
+      {
+        text: executionHistoryText,
         href: APP_PATH.ALERTS + urlParams
       }
-    ];
-  }
-
-  const breadcrumb = {
-    '#': { text: dashboardText, href: APP_PATH.HOME },
-    [removePrefixSlash(APP_PATH.DASHBOARD)]: alertsBreadcrumbs,
-    [removePrefixSlash(APP_PATH.ALERTS)]: alertsBreadcrumbs,
+    ],
     [removePrefixSlash(APP_PATH.WATCHES)]: {
       text: watchesText,
       href: APP_PATH.WATCHES
     },
     [removePrefixSlash(APP_PATH.DEFINE_WATCH)]: [
-      { text: watchesText, href: APP_PATH.WATCHES },
+      {
+        text: watchesText,
+        href: APP_PATH.WATCHES
+      },
       {
         text: id ? updateWatchText : createWatchText,
         href: APP_PATH.DEFINE_WATCH + urlParams
@@ -61,7 +61,10 @@ export default function getBreadcrumb(route) {
       href: APP_PATH.ACCOUNTS
     },
     [removePrefixSlash(APP_PATH.DEFINE_ACCOUNT)]: [
-      { text: accountsText, href: APP_PATH.ACCOUNTS },
+      {
+        text: accountsText,
+        href: APP_PATH.ACCOUNTS
+      },
       {
         text: id ? updateAccountText : createAccountText,
         href: APP_PATH.DEFINE_ACCOUNT + urlParams
