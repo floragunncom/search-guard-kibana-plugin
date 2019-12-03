@@ -53,6 +53,7 @@ export default function (kibana) {
                     enabled: Joi.boolean().default(true),
                     unauthenticated_routes: Joi.array().default(["/api/status"]),
                     forbidden_usernames: Joi.array().default([]),
+                    allowed_usernames: Joi.array().allow(null).default(null),
                     header_trumps_session: Joi.boolean().default(false),
                     alternative_login: Joi.object().keys({
                         headers: Joi.array().default([]),
