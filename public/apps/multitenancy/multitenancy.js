@@ -118,7 +118,7 @@ uiModules
             {
                 toastNotifications.addDanger({
                     title: 'Unable to load multitenancy info.',
-                    text: error.message,
+                    text: error.data.message,
                 });
             }
         );
@@ -169,7 +169,7 @@ uiModules
                     },
                     (error) => {
                         toastNotifications.addDanger({
-                            text: error.message,
+                            text: error.data.message,
                         });
                     }
                 );
@@ -178,7 +178,7 @@ uiModules
             {
                 toastNotifications.addDanger({
                     title: 'Unable to load authentication info.',
-                    text: error.message,
+                    text: error.data.message,
                 });
             }
         );
@@ -229,22 +229,31 @@ uiModules
                             text: "Selected tenant is now " + resolveTenantName(response.data, this.username),
                         });
 
-                        // We may need to redirect the user if they are in a non default space
-                        // before switching tenants
-                        try {
-                            const injected = chrome.getInjected();
-                            if (injected.spacesEnabled && injected.activeSpace && injected.activeSpace.id !== 'default') {
-                                $window.location.href = "/app/searchguard-multitenancy";
-                            }
-                        } catch(error) {
-                            // Ignore
+                      // We may need to redirect the user if they are in a non default space
+                      // before switching tenants
+                      const injected = chrome.getInjected()
+                      const reload = injected.spacesEnabled;
+                      let basePath = chrome.getBasePath();
+
+                      try {
+                        const space = injected.activeSpace.space;
+                        if (space && space.id !== 'default') {
+                          // Remove the spaces url part to avoid a Kibana redirect
+                          basePath = basePath.replace('/s/' + space.id, '');
                         }
+                      } catch(error) {
+                        // Ignore
+                      }
+
+                      if (reload) {
+                        $window.location.href = basePath + "/app/searchguard-multitenancy";
+                      }
                     }
                 },
                 (error) =>
                 {
                     toastNotifications.addDanger({
-                        text: error.message
+                        text: error.data.message
                     });
                 }
             );
