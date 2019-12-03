@@ -47,7 +47,7 @@ uiModules
                 },
                 (error) => {
                     toastNotifications.addDanger({
-                        text: error.message,
+                        text: error.data.message,
                     });
                 }
             );
