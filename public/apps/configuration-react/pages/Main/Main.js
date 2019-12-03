@@ -131,12 +131,12 @@ class Main extends Component {
   }
 
   handleTriggerErrorCallout = error => {
+    console.error(error);
     error = error.data || error;
     this.handleTriggerCallout({
       type: CALLOUTS.ERROR_CALLOUT,
       payload: get(error, 'message', error)
     });
-    console.error(error);
   }
 
   handleTriggerSuccessCallout = payload => {

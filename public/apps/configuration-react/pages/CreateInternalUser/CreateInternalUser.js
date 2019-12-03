@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
-import { EuiSpacer } from '@elastic/eui';
+import { EuiCallOut, EuiSpacer } from '@elastic/eui';
 import queryString from 'query-string';
 import { createInternalUserText, updateInternalUserText } from '../../utils/i18n/internal_users';
 import {
@@ -29,6 +29,7 @@ class CreateInternalUser extends Component {
       resource: userToFormik(DEFAULT_USER, id),
       allBackendRoles: [],
       isLoading: true,
+      errorMessage: null
     };
   }
 
@@ -66,9 +67,10 @@ class CreateInternalUser extends Component {
   }
 
   onSubmit = async (values, { setSubmitting }) => {
-    const { internalUsersService, history, onTriggerErrorCallout } = this.props;
+    const { internalUsersService, history } = this.props;
     const { _username } = values;
     try {
+      this.setState({ errorMessage: null });
       const user = formikToUser(values);
       const doPreSave = false;
       await internalUsersService.save(_username, user, doPreSave);
@@ -76,7 +78,7 @@ class CreateInternalUser extends Component {
       history.push(APP_PATH.INTERNAL_USERS);
     } catch (error) {
       setSubmitting(false);
-      onTriggerErrorCallout(error);
+      this.setState({ errorMessage: error.data.message });
     }
   }
 
@@ -90,7 +92,7 @@ class CreateInternalUser extends Component {
       onComboBoxOnBlur,
       onComboBoxCreateOption
     } = this.props;
-    const { resource, isEdit, allBackendRoles, isLoading } = this.state;
+    const { resource, isEdit, allBackendRoles, isLoading, errorMessage } = this.state;
     const { action, id } = queryString.parse(location.search);
     const updateUser = action === INTERNAL_USERS_ACTIONS.UPDATE_USER;
     const titleText = updateUser ? updateInternalUserText : createInternalUserText;
@@ -122,6 +124,18 @@ class CreateInternalUser extends Component {
                 }}
               />
               <EuiSpacer />
+
+              {errorMessage &&
+                <Fragment>
+                  <EuiCallOut
+                    size="s"
+                    color="danger"
+                    title={errorMessage}
+                    iconType="alert"
+                  />
+                  <EuiSpacer />
+                </Fragment>
+              }
 
               <UserCredentials
                 isEdit={isEdit}
