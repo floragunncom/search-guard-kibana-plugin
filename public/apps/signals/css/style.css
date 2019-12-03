@@ -17,6 +17,10 @@
   max-width: 25em;
 }
 
+#searchguard-signals-app .sg-watches-lastStatus-col-badge {
+  width: 140px;
+}
+
 /*
 Prevent scrolling up when clicking at Ace editor input the first time
 https://github.com/ajaxorg/ace/issues/2963#issuecomment-297122112

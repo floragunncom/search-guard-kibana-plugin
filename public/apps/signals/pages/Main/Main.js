@@ -28,7 +28,7 @@ import { APP_PATH, FLYOUTS, MODALS, APP_NAME } from '../../utils/constants';
 const getSelectedTabId = pathname => {
   if (pathname.includes(APP_PATH.WATCHES)) return APP_PATH.WATCHES;
   if (pathname.includes(APP_PATH.ACCOUNTS)) return APP_PATH.ACCOUNTS;
-  return APP_PATH.DASHBOARD;
+  return APP_PATH.WATCHES;
 };
 
 class Main extends Component {
@@ -46,11 +46,6 @@ class Main extends Component {
     };
 
     this.tabs = [
-      {
-        id: APP_PATH.DASHBOARD,
-        name: 'Dashboard',
-        route: APP_PATH.DASHBOARD,
-      },
       {
         id: APP_PATH.WATCHES,
         name: 'Watches',
@@ -111,6 +106,11 @@ class Main extends Component {
 
   handleTriggerModal = modal => {
     this.setState({ modal });
+  }
+
+  handleTriggerConfirmModal = payload => {
+    const modal = payload === null ? null : { type: MODALS.CONFIRM, payload };
+    this.handleTriggerModal(modal);
   }
 
   handleTriggerConfirmDeletionModal = payload => {
@@ -209,6 +209,7 @@ class Main extends Component {
                       <Watches
                         httpClient={httpClient}
                         onTriggerFlyout={this.handleTriggerFlyout}
+                        onTriggerConfirmModal={this.handleTriggerConfirmModal}
                         onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                         {...props}
                       />
@@ -282,7 +283,7 @@ class Main extends Component {
                     />
                   )}
                 />
-                <Redirect to={APP_PATH.DASHBOARD} />
+                <Redirect to={APP_PATH.WATCHES} />
               </Switch>
 
               <div style={{ zIndex: 6000 }}>

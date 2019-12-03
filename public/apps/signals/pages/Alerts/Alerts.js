@@ -11,6 +11,7 @@ import {
   EuiIcon,
   EuiHealth,
   EuiSearchBar,
+  EuiToolTip
 } from '@elastic/eui';
 import { get, isEqual, defaults } from 'lodash';
 import moment from 'moment';
@@ -26,6 +27,7 @@ import {
 } from '../../components';
 import { addSuccessToast, addErrorToast } from '../../redux/actions';
 import { buildAlertsESQuery } from './utils/helpers';
+import { actionAndWatchStatusToIconProps } from '../Watches/utils';
 import {
   execEndText,
   statusText,
@@ -39,7 +41,6 @@ import {
   WATCH_STATUS
 } from '../../utils/constants';
 import {
-  ALERT_STATUS,
   TABLE_SORT_FIELD,
   TABLE_SORT_DIRECTION,
   DEFAULT_URL_PARAMS,
@@ -211,21 +212,27 @@ class Alerts extends Component {
     );
   }
 
-  renderActionsColumns = (actions = [], { status: watchStatus, watch_id: watchId }) => {
+  renderActionsColumns = (
+    actions = [],
+    { status: watchStatus, watch_id: watchId }
+  ) => {
     if (!actions || !actions.length) {
       const {
-        color = 'warning',
-        iconType = 'alert'
-      } = ALERT_STATUS[watchStatus.code] || {};
+        nodeText,
+        type: iconType,
+        ...iconProps
+      } = actionAndWatchStatusToIconProps(watchStatus.code);
 
       return (
-        <EuiBadge
-          color={color}
-          iconType={iconType}
-          data-test-subj={`sgTableCol-Status-${watchId}`}
-        >
-          {watchStatus.code}
-        </EuiBadge>
+        <EuiToolTip content={nodeText}>
+          <EuiBadge
+            data-test-subj={`sgTableCol-Status-${watchId}`}
+            iconType={iconType}
+            {...iconProps}
+          >
+            {watchStatus.code}
+          </EuiBadge>
+        </EuiToolTip>
       );
     }
 
@@ -233,18 +240,19 @@ class Alerts extends Component {
       <div>
         {actions.map((action, key) => {
           const {
-            color = 'warning',
-            iconType = 'alert'
-          } = ALERT_STATUS[action.status.code] || {};
+            nodeText,
+            ...iconProps
+          } = actionAndWatchStatusToIconProps(action.status.code);
 
           return (
             <EuiFlexGroup key={key}>
               <EuiFlexItem grow={false}>
-                <EuiIcon
-                  color={color}
-                  type={iconType}
-                  data-test-subj={`sgTableCol-Status-${action.name}`}
-                />
+                <EuiToolTip content={nodeText}>
+                  <EuiIcon
+                    data-test-subj={`sgTableCol-Status-${action.name}`}
+                    {...iconProps}
+                  />
+                </EuiToolTip>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
                 {action.name}
@@ -257,10 +265,13 @@ class Alerts extends Component {
   };
 
   renderSearchFilterOptions = (values = []) =>
-    values.map(status => ({
-      value: status,
-      view: <EuiHealth color={ALERT_STATUS[status].color}>{status}</EuiHealth>
-    }));
+    values.map(status => {
+      const { color } = actionAndWatchStatusToIconProps(status);
+      return {
+        value: status,
+        view: <EuiHealth color={color}>{status}</EuiHealth>
+      };
+    });
 
   render() {
     const { alerts, error, isLoading } = this.state;

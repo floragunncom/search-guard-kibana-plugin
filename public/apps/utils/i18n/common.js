@@ -1,6 +1,11 @@
 import React from 'react';
 import { EuiI18n } from '@elastic/eui';
 
+export const homeText = (<EuiI18n token="sg.common.home.text" default="Home" />);
+export const byText = (<EuiI18n token="sg.common.by.text" default="by" />);
+export const onText = (<EuiI18n token="sg.common.on.text" default="on" />);
+export const unknownStatusText = (<EuiI18n token="sg.common.unknownStatus.text" default="Unknown Status" />);
+export const warningText = (<EuiI18n token="sg.common.warning.text" default="Warning" />);
 export const helpText = (<EuiI18n token="sg.common.help.text" default="Help" />);
 export const newText = (<EuiI18n token="sg.common.new.text" default="New" />);
 export const nameText = (<EuiI18n token="sg.common.name.text" default="Name" />);
