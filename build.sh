@@ -4,36 +4,37 @@
 KIBANA_VERSION="$1"
 SG_PLUGIN_VERSION="$2"
 COMMAND="$3"
+EXIT_IF_VULNERABILITY=false
 
 # sanity checks for options
 if [ -z "$KIBANA_VERSION" ] || [ -z "$SG_PLUGIN_VERSION" ] || [ -z "$COMMAND" ]; then
     echo "Usage: ./build.sh <kibana_version> <sg_plugin_version> <install|deploy>"
-    exit 1;
+    exit 1
 fi
 
 if [ "$COMMAND" != "deploy" ] && [ "$COMMAND" != "deploy-snapshot" ] && [ "$COMMAND" != "install" ]; then
     echo "Usage: ./build.sh <kibana_version> <sg_plugin_version> <install|deploy>"
     echo "Unknown command: $COMMAND"
-    exit 1;
+    exit 1
 fi
 
 # sanity checks for maven
 if [ -z "$MAVEN_HOME" ]; then
     echo "MAVEN_HOME not set"
-    exit 1;
+    exit 1
 fi
 
 echo "+++ Checking Maven version +++"
 $MAVEN_HOME/bin/mvn -version
 if [ $? != 0 ]; then
-    echo "Checking maven version failed";
-    exit 1;
+    echo "Checking maven version failed"
+    exit 1
 fi
 
 # sanity checks for nvm
 if [ -z "$NVM_HOME" ]; then
     echo "NVM_HOME not set"
-    exit 1;
+    exit 1
 fi
 
 echo "+++ Sourcing nvm +++"
@@ -42,8 +43,8 @@ echo "+++ Sourcing nvm +++"
 echo "+++ Checking nvm version +++"
 nvm version
 if [ $? != 0 ]; then
-    echo "Checking mvn version failed";
-    exit 1;
+    echo "Checking mvn version failed"
+    exit 1
 fi
 
 # check version matches
@@ -54,7 +55,7 @@ do
     if [[ "$line" =~ ^\"version\".* ]]; then
       if [[ "$line" != "\"version\": \"$1-$2\"," ]]; then
         echo "Provided version \"version\": \"$1-$2\" does not match Kibana version: $line"
-        exit 1;
+        exit 1
       fi
     fi
 done < "package.json"
@@ -62,8 +63,8 @@ done < "package.json"
 # cleanup any leftovers
 ./clean.sh
 if [ $? != 0 ]; then
-    echo "Cleaning leftovers failed";
-    exit 1;
+    echo "Cleaning leftovers failed"
+    exit 1
 fi
 
 # prepare artefacts
@@ -79,8 +80,8 @@ cd $BUILD_STAGE_DIR
 echo "+++ Cloning https://github.com/elastic/kibana.git +++"
 git clone https://github.com/elastic/kibana.git || true > /dev/null 2>&1
 if [ $? != 0 ]; then
-    echo "Got clone Kibana repository failed";
-    exit 1;
+    echo "Got clone Kibana repository failed"
+    exit 1
 fi
 
 cd "kibana"
@@ -90,22 +91,22 @@ echo "+++ Change to tags/v$KIBANA_VERSION +++"
 git checkout "tags/v$KIBANA_VERSION"
 
 if [ $? != 0 ]; then
-    echo "Switching to Kibana tags/v$KIBANA_VERSION failed";
-    exit 1;
+    echo "Switching to Kibana tags/v$KIBANA_VERSION failed"
+    exit 1
 fi
 
 echo "+++ Installing node version $(cat .node-version) +++"
 nvm install "$(cat .node-version)"
 if [ $? != 0 ]; then
-    echo "Installing node $(cat .node-version) failed";
-    exit 1;
+    echo "Installing node $(cat .node-version) failed"
+    exit 1
 fi
 
 echo "+++ Installing Yarn +++"
 curl -o- -L https://yarnpkg.com/install.sh | bash
 if [ $? != 0 ]; then
-    echo "Installing Yarn failed";
-    exit 1;
+    echo "Installing Yarn failed"
+    exit 1
 fi
 
 echo "+++ Sourcing Yarn +++"
@@ -119,15 +120,25 @@ cp -a "$WORK_DIR/package.json" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/lib" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/public" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/tests" "$BUILD_STAGE_PLUGIN_DIR"
-cp -a "$WORK_DIR/.babelrc" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/babel.config.js" "$BUILD_STAGE_PLUGIN_DIR"
 
 cd $BUILD_STAGE_PLUGIN_DIR
+
+echo "+++ Checking yarn packages for vulnerabilities +++"
+auditResult=`yarn audit --level 4`
+isNoVulnerability="[^\d]0 vulnerabilities found.*$"
+let limit=1*10**20 # Limit num of chars because the result can be huge
+if [[ ! $auditResult =~ $isNoVulnerability && $EXIT_IF_VULNERABILITY = true ]]; then
+    echo ${auditResult::limit}
+    exit 1
+fi
+echo ${auditResult::limit}
 
 echo "+++ Installing plugin node modules +++"
 yarn kbn bootstrap
 if [ $? != 0 ]; then
-    echo "Installing node modules failed";
-    exit 1;
+    echo "Installing node modules failed"
+    exit 1
 fi
 
 echo "+++ Testing UI +++"
@@ -141,8 +152,8 @@ echo "+++ Installing plugin node modules for production +++"
 rm -rf "node_modules"
 yarn install --production --pure-lockfile
 if [ $? != 0 ]; then
-    echo "Installing node modules failed";
-    exit 1;
+    echo "Installing node modules failed"
+    exit 1
 fi
 
 cd "$WORK_DIR"
@@ -163,16 +174,16 @@ rm -f pom.xml
 
 sed -e "s/RPLC_PLUGIN_VERSION/$KIBANA_VERSION-$SG_PLUGIN_VERSION/" ./pom.template.xml > ./pom.xml
 if [ $? != 0 ]; then
-    echo "sed failed";
-    exit 1;
+    echo "sed failed"
+    exit 1
 fi
 
 if [ "$COMMAND" = "deploy" ] ; then
     echo "+++ mvn clean deploy -Prelease +++"
     $MAVEN_HOME/bin/mvn clean deploy -Prelease
     if [ $? != 0 ]; then
-        echo "$MAVEN_HOME/bin/mvn clean deploy -Prelease failed";
-        exit 1;
+        echo "$MAVEN_HOME/bin/mvn clean deploy -Prelease failed"
+        exit 1
     fi
 fi
 
@@ -181,8 +192,8 @@ if [ "$COMMAND" = "deploy-snapshot" ] ; then
     echo "+++ mvn clean deploy +++"
     $MAVEN_HOME/bin/mvn clean deploy -s settings.xml
     if [ $? != 0 ]; then
-        echo "$MAVEN_HOME/bin/mvn clean deploy -s settings.xml failed";
-        exit 1;
+        echo "$MAVEN_HOME/bin/mvn clean deploy -s settings.xml failed"
+        exit 1
     fi
 fi
 
@@ -190,7 +201,7 @@ if [ "$COMMAND" = "install" ] ; then
     echo "+++ mvn clean install +++"
     $MAVEN_HOME/bin/mvn clean install
     if [ $? != 0 ]; then
-        echo "$MAVEN_HOME/bin/mvn clean install failed";
-        exit 1;
+        echo "$MAVEN_HOME/bin/mvn clean install failed"
+        exit 1
     fi
 fi
