@@ -35,7 +35,7 @@ function redirectOnSessionTimeout($window) {
     // Don't run on login or logout. We shouldn't have any Ajax requests here,
     // but if other plugins are active, we would get a redirect loop.
     if(path === '/login' || path === '/logout' || path === '/customerror') {
-        return $q.reject(response);
+        return;
     }
 
     let auth = injectedConfig.auth;
@@ -63,9 +63,14 @@ app.factory('errorInterceptor', function ($q, $window) {
 
     return {
         responseError: function (response) {
+            const injectedConfig = chrome.getInjected();
+            const auth = injectedConfig.auth;
 
             // Handles 401s, but only if we've explicitly set the redirect property on the response.
-            if (response.status == 401 && response.data && response.data.redirectTo === 'login') {
+            if (response.status === 401 && response.data && response.data.redirectTo === 'login') {
+                redirectOnSessionTimeout($window);
+            } else if (response.status === 401 && auth && auth.type && auth.type === 'basicauth') {
+                // For basic auth it's safe to just redirect directly here
                 redirectOnSessionTimeout($window);
             }
 
