@@ -86,7 +86,7 @@ describe('searchRequests', () => {
               "dateAgg": {
                 "date_histogram": {
                   "field": "timestamp",
-                  "fixed_interval": "1h",
+                  "fixed_interval": "900s",
                   "time_zone": expect.any(String),
                   "min_doc_count": 0,
                   "extended_bounds": {
@@ -244,7 +244,7 @@ describe('searchRequests', () => {
                   "dateAgg": {
                     "date_histogram": {
                       "field": "timestamp",
-                      "fixed_interval": "1h",
+                      "fixed_interval": "900s",
                       "time_zone": expect.any(String),
                       "min_doc_count": 0,
                       "extended_bounds": {
@@ -404,7 +404,7 @@ describe('searchRequests', () => {
               "dateAgg": {
                 "date_histogram": {
                   "field": "timestamp",
-                  "fixed_interval": "1h",
+                  "fixed_interval": "900s",
                   "time_zone": expect.any(String),
                   "min_doc_count": 0,
                   "extended_bounds": {
@@ -583,7 +583,7 @@ describe('searchRequests', () => {
                   "dateAgg": {
                     "date_histogram": {
                       "field": "timestamp",
-                      "fixed_interval": "1h",
+                      "fixed_interval": "900s",
                       "time_zone": expect.any(String),
                       "min_doc_count": 0,
                       "extended_bounds": {
@@ -757,7 +757,7 @@ describe('searchRequests', () => {
               "dateAgg": {
                 "date_histogram": {
                   "field": "timestamp",
-                  "fixed_interval": "1h",
+                  "fixed_interval": "900s",
                   "time_zone": expect.any(String),
                   "min_doc_count": 0,
                   "extended_bounds": {
@@ -936,7 +936,7 @@ describe('searchRequests', () => {
                   "dateAgg": {
                     "date_histogram": {
                       "field": "timestamp",
-                      "fixed_interval": "1h",
+                      "fixed_interval": "900s",
                       "time_zone": expect.any(String),
                       "min_doc_count": 0,
                       "extended_bounds": {
@@ -1110,7 +1110,7 @@ describe('searchRequests', () => {
               "dateAgg": {
                 "date_histogram": {
                   "field": "timestamp",
-                  "fixed_interval": "1h",
+                  "fixed_interval": "900s",
                   "time_zone": expect.any(String),
                   "min_doc_count": 0,
                   "extended_bounds": {
@@ -1289,7 +1289,7 @@ describe('searchRequests', () => {
                   "dateAgg": {
                     "date_histogram": {
                       "field": "timestamp",
-                      "fixed_interval": "1h",
+                      "fixed_interval": "900s",
                       "time_zone": expect.any(String),
                       "min_doc_count": 0,
                       "extended_bounds": {
@@ -1463,7 +1463,7 @@ describe('searchRequests', () => {
               "dateAgg": {
                 "date_histogram": {
                   "field": "timestamp",
-                  "fixed_interval": "1h",
+                  "fixed_interval": "900s",
                   "time_zone": expect.any(String),
                   "min_doc_count": 0,
                   "extended_bounds": {
@@ -1642,7 +1642,7 @@ describe('searchRequests', () => {
                   "dateAgg": {
                     "date_histogram": {
                       "field": "timestamp",
-                      "fixed_interval": "1h",
+                      "fixed_interval": "900s",
                       "time_zone": expect.any(String),
                       "min_doc_count": 0,
                       "extended_bounds": {

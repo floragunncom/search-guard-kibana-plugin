@@ -6,10 +6,12 @@ import { EuiSpacer } from '@elastic/eui';
 import {
   FormikCodeEditor,
   FormikFieldText,
+  FormikComboBox
 } from '../../../../../components';
 import {
   fromText,
-  iconEmojiText
+  iconEmojiText,
+  severityText
 } from '../../../../../utils/i18n/watch';
 import {
   nameText,
@@ -25,6 +27,7 @@ import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import ActionAccount from '../ActionAccount';
 import { ACCOUNT_TYPE } from '../../../../Accounts/utils/constants';
 import { CODE_EDITOR } from '../../../../../../utils/constants';
+import { SEVERITY_OPTIONS } from '../../../utils/constants';
 
 const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
 let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
@@ -33,7 +36,10 @@ theme = !IS_DARK_THEME ? theme : darkTheme;
 const SlackAction = ({
   index,
   accounts,
-  formik: { values: { actions } }
+  formik: { values: { actions } },
+  onComboBoxChange,
+  onComboBoxOnBlur,
+  onComboBoxCreateOption
 }) => (
   <Fragment>
     <FormikFieldText
@@ -52,6 +58,23 @@ const SlackAction = ({
       }}
       formikFieldProps={{
         validate: validateEmptyField
+      }}
+    />
+    <FormikComboBox
+      name={`actions[${index}].severity`}
+      formRow
+      rowProps={{
+        label: severityText,
+        isInvalid,
+        error: hasError,
+      }}
+      elementProps={{
+        options: SEVERITY_OPTIONS,
+        isClearable: true,
+        placeholder: 'Select severity',
+        onBlur: onComboBoxOnBlur,
+        onChange: onComboBoxChange(),
+        onCreateOption: onComboBoxCreateOption()
       }}
     />
     <ActionThrottlePeriod index={index} />
@@ -135,7 +158,10 @@ SlackAction.defaultProps = {
 SlackAction.propTypes = {
   index: PropTypes.number.isRequired,
   formik: PropTypes.object.isRequired,
-  accounts: PropTypes.array
+  accounts: PropTypes.array,
+  onComboBoxOnBlur: PropTypes.func.isRequired,
+  onComboBoxCreateOption: PropTypes.func.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired
 };
 
 export default connectFormik(SlackAction);

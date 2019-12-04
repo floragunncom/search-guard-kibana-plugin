@@ -1,6 +1,6 @@
-import moment from 'moment-timezone';
+import momentTimezone from 'moment-timezone';
+import moment from 'moment';
 import { get } from 'lodash';
-import { TimeBuckets } from 'ui/time_buckets';
 import dateMath from '@elastic/datemath';
 import {
   CHECK_TYPES,
@@ -21,29 +21,19 @@ const getDateHistogramOptions = ({
   bucketUnitOfTime,
   timeField
 }) => {
-  const fromExpression = `now-${bucketValue * BUCKET_COUNT}${bucketUnitOfTime}`;
-  const toExpression = 'now';
+  const min = `now-${bucketValue * BUCKET_COUNT}${bucketUnitOfTime}`;
+  const max = 'now';
 
-  const fromMoment = dateMath.parse(fromExpression);
-  const toMoment = dateMath.parse(toExpression);
-  const domain = {
-    min: fromMoment ? fromMoment.valueOf() : 0,
-    max: toMoment ? toMoment.valueOf() : 0
-  };
-
-  const timeBuckets = new TimeBuckets();
-  timeBuckets.setBounds(domain);
-  const interval = timeBuckets.getInterval().expression;
+  const minDate = dateMath.parse(min);
+  const maxDate = dateMath.parse(max);
+  const numberOfBuckets = moment(maxDate.diff(minDate, 'seconds')) * 0.05 + 's';
 
   return {
     field: timeField,
-    fixed_interval: interval,
-    time_zone: moment.tz.guess(),
+    fixed_interval: numberOfBuckets,
+    time_zone: momentTimezone.tz.guess(),
     min_doc_count: 0,
-    extended_bounds: {
-      min: fromExpression,
-      max: toExpression
-    }
+    extended_bounds: { min, max }
   };
 };
 

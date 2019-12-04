@@ -1,11 +1,16 @@
 import React from 'react';
 import { EuiI18n } from '@elastic/eui';
 
+export const orderText = (<EuiI18n token="sg.common.order.text" default="Order" />);
+export const fieldText = (<EuiI18n token="sg.common.field.text" default="Field" />);
 export const homeText = (<EuiI18n token="sg.common.home.text" default="Home" />);
 export const byText = (<EuiI18n token="sg.common.by.text" default="by" />);
 export const onText = (<EuiI18n token="sg.common.on.text" default="on" />);
 export const unknownStatusText = (<EuiI18n token="sg.common.unknownStatus.text" default="Unknown Status" />);
+export const infoText = (<EuiI18n token="sg.common.info.text" default="Info" />);
 export const warningText = (<EuiI18n token="sg.common.warning.text" default="Warning" />);
+export const errorText = (<EuiI18n token="sg.common.error.text" default="Error" />);
+export const criticalText = (<EuiI18n token="sg.common.critical.text" default="Critical" />);
 export const helpText = (<EuiI18n token="sg.common.help.text" default="Help" />);
 export const newText = (<EuiI18n token="sg.common.new.text" default="New" />);
 export const nameText = (<EuiI18n token="sg.common.name.text" default="Name" />);
@@ -48,7 +53,6 @@ export const validCharsForNameAreText = (
 );
 export const addText = (<EuiI18n token="sg.common.addText.text" default="Add" />);
 export const invalidJsonText = (<EuiI18n token="sg.common.invalidJson.text" default="Invalid JSON" />);
-export const errorText = (<EuiI18n token="sg.common.error.text" default="Error" />);
 export const successText = (<EuiI18n token="sg.common.success.text" default="Success" />);
 export const invalidEmailAddressText = (<EuiI18n token="sg.common.invalidEmailAddress.text" default="Invalid email address" />);
 export const updateText = (<EuiI18n token="sg.common.update.text" default="Update" />);

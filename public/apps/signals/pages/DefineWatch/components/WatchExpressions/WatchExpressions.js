@@ -43,7 +43,7 @@ export const DEFAULT_CLOSED_STATES = {
   OF_FIELD: false,
   THRESHOLD: false,
   OVER: false,
-  FOR_THE_LAST: false,
+  FOR_THE_LAST: false
 };
 
 export default class WatchExpressions extends Component {
@@ -87,7 +87,7 @@ export default class WatchExpressions extends Component {
   });
 
   render() {
-    const { dataTypes, ofEnabled } = this.props;
+    const { dataTypes, payloadFields, ofEnabled } = this.props;
     return (
       <EuiFlexGroup alignItems="center">
         <EuiFlexItem grow={false}>
@@ -109,7 +109,7 @@ export default class WatchExpressions extends Component {
         </EuiFlexItem>
 
         <EuiFlexItem grow={false}>
-          <TriggerExpression {...this.getExpressionProps()} />
+          <TriggerExpression {...this.getExpressionProps()} payloadFields={payloadFields} />
         </EuiFlexItem>
       </EuiFlexGroup>
     );

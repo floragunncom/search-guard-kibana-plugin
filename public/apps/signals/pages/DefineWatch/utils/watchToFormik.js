@@ -11,8 +11,52 @@ import {
   WATCH_TYPES,
   DEFAULT_WATCH,
   RESULT_FIELD_DEFAULTS,
+  SEVERITY_META_DEFAULTS,
+  SEVERITY_ORDER,
+  SEVERITY,
+  SEVERITY_COLORS
 } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
+
+export function buildFormikSeverity(watch = {}) {
+  const newWatch = cloneDeep(watch);
+
+  if (!newWatch.severity) {
+    newWatch._ui = { ...newWatch._ui, ...SEVERITY_META_DEFAULTS };
+    newWatch.actions.forEach(action => {
+      action.severity = [];
+    });
+    return newWatch;
+  }
+
+  const { severity: { value = '', order = SEVERITY_ORDER.ASCENDING } = {} } = newWatch;
+
+  const severity = {
+    value: [{ label: value }],
+    order,
+    thresholds: {
+      [SEVERITY.INFO]: undefined,
+      [SEVERITY.WARNING]: undefined,
+      [SEVERITY.ERROR]: undefined,
+      [SEVERITY.CRITICAL]: undefined
+    }
+  };
+
+  newWatch.severity.mapping.forEach(mapping => {
+    severity.thresholds[mapping.level.toLowerCase()] = mapping.threshold;
+  });
+
+  newWatch._ui = { ...newWatch._ui, severity, isSeverity: true };
+
+  newWatch.actions.forEach(action => {
+    action.severity = action.severity.map(label => ({
+      label,
+      color: SEVERITY_COLORS[label]
+    }));
+  });
+
+  return newWatch;
+}
 
 export function buildFormikWebhookAction(action = {}) {
   return {
@@ -91,13 +135,16 @@ export const buildFormikActions = (actions = []) => actions.map(action => {
 export const watchToFormik = (watch = {}) => {
   const formik = {
     ...cloneDeep(DEFAULT_WATCH),
-    ...cloneDeep(watch),
+    ...cloneDeep(watch)
   };
 
+  const uiMeta = buildFormikMeta(watch);
+  const { actions, _ui, ...rest } = buildFormikSeverity({ ...formik, _ui: uiMeta });
+
   return {
-    ...formik,
-    _ui: buildFormikMeta(watch),
+    ...rest,
+    _ui,
     checks: buildFormikChecks(formik.checks),
-    actions: buildFormikActions(formik.actions),
+    actions: buildFormikActions(actions)
   };
 };

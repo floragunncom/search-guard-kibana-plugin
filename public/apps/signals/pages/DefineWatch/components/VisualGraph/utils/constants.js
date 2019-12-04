@@ -31,7 +31,7 @@
 export const SIZE_RANGE = [3, 3];
 export const LINE_STYLES = { strokeWidth: '1px' };
 export const HOVERED_LINE_STYLES = { strokeWidth: '3px' };
-export const ANNOTATION_STYLES = { strokeWidth: 1, stroke: 'red' };
+export const ANNOTATION_STYLES = { strokeWidth: 2 };
 export const HINT_STYLES = {
   background: '#3a3a48',
   borderRadius: '5px',

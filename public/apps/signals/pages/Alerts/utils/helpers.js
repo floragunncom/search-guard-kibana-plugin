@@ -6,7 +6,6 @@ import {
 } from '../../../utils/constants';
 
 export const buildAlertsESQuery = ({ query, gte, lte, order = 'desc', watchId }) => {
-  console.log('buildAlertsESQuery -- args', { query, gte, lte, order, watchId });
   const boolQuery = cloneDeep(query);
 
   if (boolQuery.match_all) {
@@ -29,20 +28,6 @@ export const buildAlertsESQuery = ({ query, gte, lte, order = 'desc', watchId })
   boolQuery.bool.must.push({
     range: {
       [DEFAULT_DATEFIELD]: { gte, lte }
-    }
-  });
-
-  console.log('es query res', {
-    index: INDEX.ALERTS,
-    scroll: ES_SCROLL_SETTINGS.KEEPALIVE,
-    body: {
-      size: ES_SCROLL_SETTINGS.PAGE_SIZE,
-      sort: [
-        {
-          [DEFAULT_DATEFIELD]: order
-        }
-      ],
-      query: boolQuery
     }
   });
 

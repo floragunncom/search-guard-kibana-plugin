@@ -57,6 +57,7 @@ import {
   HOVERED_LINE_STYLES,
   DEFAULT_MARK_SIZE
 } from './utils/constants';
+import { SEVERITY_COLORS } from '../../utils/constants';
 
 export default class VisualGraph extends Component {
   static defaultProps = { annotation: false };
@@ -80,6 +81,8 @@ export default class VisualGraph extends Component {
 
   renderXYPlot = data => {
     const { annotation, thresholdValue, values } = this.props;
+    const isSeverity = values._ui.isSeverity;
+    const severityThresholds = values._ui.severity.thresholds;
     const { hint, hoveredLineSeriesName } = this.state;
 
     const getLineSeriesStyle = lineSeriesName => lineSeriesName === hoveredLineSeriesName
@@ -105,11 +108,29 @@ export default class VisualGraph extends Component {
     };
 
     const { xDomain, yDomain } = getXYDomains(data);
-    const annotations = getAnnotationData(xDomain, yDomain, thresholdValue);
     const xTitle = values._ui.timeField;
     const yTitle = getYTitle(values);
     const leftPadding = getLeftPadding(yDomain);
     const aggregationTitle = getAggregationTitle(values);
+
+    let annotations = [
+      {
+        data: getAnnotationData(xDomain, yDomain, thresholdValue),
+        color: SEVERITY_COLORS.error
+      }
+    ];
+
+    if (isSeverity) {
+      annotations = [];
+      Object.keys(severityThresholds).forEach(thresholdName => {
+        if (severityThresholds[thresholdName]) {
+          annotations.push({
+            data: getAnnotationData(xDomain, yDomain, severityThresholds[thresholdName]),
+            color: SEVERITY_COLORS[thresholdName]
+          });
+        }
+      });
+    }
 
     const legendItems = Object.keys(data).map((bucketsName, key) => {
       if (bucketsName === hoveredLineSeriesName) {
@@ -151,7 +172,9 @@ export default class VisualGraph extends Component {
               onNearestXY={this.onNearestXY}
             />
           ))}
-          {annotation && <LineSeries data={annotations} style={ANNOTATION_STYLES} />}
+          {annotation && annotations.map(({ data, color }, key) => {
+            return <LineSeries key={key} data={data} color={color} style={ANNOTATION_STYLES} />;
+          })}
           {hint && (
             <Hint value={hint}>
               <div style={HINT_STYLES}>({hint.y.toLocaleString()})</div>
