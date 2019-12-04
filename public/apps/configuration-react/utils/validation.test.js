@@ -13,8 +13,7 @@ import {
 } from './i18n/common';
 import { dlsQuerySyntaxIsInvalidText } from './i18n/roles';
 import {
-  passwordsDontMatchText,
-  passwordMustBeAtLeast5CharsText
+  passwordsDontMatchText
 } from './i18n/internal_users';
 
 describe('validation', () => {
@@ -41,13 +40,6 @@ describe('validation', () => {
       expect(
         validatePassword(password)(password)
       ).toEqual(requiredText);
-    });
-
-    test('fail to validate due to password too short', () => {
-      const password = 'abcd';
-      expect(
-        validatePassword(password)(password)
-      ).toEqual(passwordMustBeAtLeast5CharsText);
     });
   });
 
