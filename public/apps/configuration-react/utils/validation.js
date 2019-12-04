@@ -1,8 +1,7 @@
 import { get, isEmpty } from 'lodash';
 import {
   nameMustNotContainDotsAndAsterisksText,
-  passwordsDontMatchText,
-  passwordMustBeAtLeast5CharsText
+  passwordsDontMatchText
 } from './i18n/internal_users';
 import {
   requiredText,
@@ -16,7 +15,6 @@ import { API } from './constants';
 
 export const validatePassword = passwordConfirmation => password => {
   if (!password) return requiredText;
-  if (password.length < 5) return passwordMustBeAtLeast5CharsText;
   if (password !== passwordConfirmation) return passwordsDontMatchText;
 };
 
