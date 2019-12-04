@@ -28,7 +28,7 @@ uiModules.get('apps/searchguard/configuration', [])
 
         this.save = (username, data, doPreSave = true) => {
             const newData = doPreSave ? this.preSave(data) : data;
-            return backendAPI.save(RESOURCE, username, newData);
+            return backendAPI.save(RESOURCE, username, newData, false);
         };
 
         this.delete = (username) => {
