@@ -48,26 +48,25 @@ class DefineWatch extends Component {
     const { location, history, dispatch } = this.props;
     const { id } = queryString.parse(location.search);
 
-    let watch;
+    let initialValues;
     try {
       if (id) {
         const { resp } = await this.watchService.get(id);
-        watch = resp;
-        this.setState({ initialValues: watchToFormik(watch) });
+        initialValues = watchToFormik(resp);
+        this.setState({ initialValues });
       }
     } catch (error) {
       console.error('DefineWatch -- fetchData', error);
-
       if (error.statusCode === 404) {
         this.setState({ isEdit: false });
         history.push({ search: '' });
       } else {
         dispatch(addErrorToast(error));
       }
-
-      console.debug('DefineWatch -- id', id);
-      console.debug('DefineWatch -- watch', watch);
     }
+
+    console.debug('DefineWatch -- fetchWatch -- id', id);
+    console.debug('DefineWatch -- fetchWatch -- watch', initialValues);
   }
 
   onCancel = () => {
@@ -81,10 +80,12 @@ class DefineWatch extends Component {
   onSubmit = async (values, { setSubmitting }) => {
     const { history, dispatch } = this.props;
     const { _id: id } = values;
+
+    let watch;
     try {
-      const watch = formikToWatch(values);
+      watch = formikToWatch(values);
       await this.watchService.put(watch, id);
-      console.debug('DefineWatch -- saved watch', watch);
+
       setSubmitting(false);
       dispatch(addSuccessToast((<p>{saveText} {id}</p>)));
       history.push(APP_PATH.WATCHES);
@@ -92,8 +93,10 @@ class DefineWatch extends Component {
       console.error('DefineWatch -- onSubmit', error);
       setSubmitting(false);
       dispatch(addErrorToast(error));
-      console.debug('DefineWatch -- formik values', values);
     }
+
+    console.debug('DefineWatch -- onSubmit -- values', values);
+    console.debug('DefineWatch -- onSubmit -- watch', watch);
   }
 
   render() {

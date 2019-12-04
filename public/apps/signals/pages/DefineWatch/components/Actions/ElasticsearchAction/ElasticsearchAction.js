@@ -4,10 +4,14 @@ import PropTypes from 'prop-types';
 import {
   FormikCodeEditor,
   FormikFieldText,
+  FormikComboBox
 } from '../../../../../components';
 import {
   nameText
 } from '../../../../../utils/i18n/common';
+import {
+  severityText
+} from '../../../../../utils/i18n/watch';
 import WatchIndex from '../../WatchIndex';
 import {
   validateWatchString,
@@ -17,6 +21,7 @@ import {
 } from '../../../utils/validate';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import { CODE_EDITOR } from '../../../../../../utils/constants';
+import { SEVERITY_OPTIONS } from '../../../utils/constants';
 
 const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
 let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
@@ -46,6 +51,23 @@ const ElasticsearchAction = ({
       }}
       formikFieldProps={{
         validate: validateEmptyField
+      }}
+    />
+    <FormikComboBox
+      name={`actions[${index}].severity`}
+      formRow
+      rowProps={{
+        label: severityText,
+        isInvalid,
+        error: hasError,
+      }}
+      elementProps={{
+        options: SEVERITY_OPTIONS,
+        isClearable: true,
+        placeholder: 'Select severity',
+        onBlur: onComboBoxOnBlur,
+        onChange: onComboBoxChange(),
+        onCreateOption: onComboBoxCreateOption()
       }}
     />
     <ActionThrottlePeriod index={index} />

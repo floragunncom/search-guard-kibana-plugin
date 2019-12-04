@@ -5,7 +5,8 @@ import { EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
 import {
   FormikCodeEditor,
   FormikFieldText,
-  FormikSelect
+  FormikSelect,
+  FormikComboBox
 } from '../../../../../components';
 import {
   nameText,
@@ -14,6 +15,9 @@ import {
   headersText,
   methodText
 } from '../../../../../utils/i18n/common';
+import {
+  severityText
+} from '../../../../../utils/i18n/watch';
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import {
@@ -24,12 +28,18 @@ import {
 } from '../../../../../utils/validate';
 import { METHOD_SELECT } from './utils/constants';
 import { CODE_EDITOR } from '../../../../../../utils/constants';
+import { SEVERITY_OPTIONS } from '../../../utils/constants';
 
 const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
 let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
 theme = !IS_DARK_THEME ? theme : darkTheme;
 
-const WebhookAction = ({ index }) => (
+const WebhookAction = ({
+  index,
+  onComboBoxChange,
+  onComboBoxOnBlur,
+  onComboBoxCreateOption
+}) => (
   <Fragment>
     <EuiFlexGroup className="sg-group" justifyContent="spaceBetween">
       <EuiFlexItem className="sg-item">
@@ -49,6 +59,23 @@ const WebhookAction = ({ index }) => (
           }}
           formikFieldProps={{
             validate: validateEmptyField
+          }}
+        />
+        <FormikComboBox
+          name={`actions[${index}].severity`}
+          formRow
+          rowProps={{
+            label: severityText,
+            isInvalid,
+            error: hasError,
+          }}
+          elementProps={{
+            options: SEVERITY_OPTIONS,
+            isClearable: true,
+            placeholder: 'Select severity',
+            onBlur: onComboBoxOnBlur,
+            onChange: onComboBoxChange(),
+            onCreateOption: onComboBoxCreateOption()
           }}
         />
         <ActionThrottlePeriod index={index} />
@@ -148,7 +175,10 @@ const WebhookAction = ({ index }) => (
 );
 
 WebhookAction.propTypes = {
-  index: PropTypes.number.isRequired
+  index: PropTypes.number.isRequired,
+  onComboBoxOnBlur: PropTypes.func.isRequired,
+  onComboBoxCreateOption: PropTypes.func.isRequired,
+  onComboBoxChange: PropTypes.func.isRequired
 };
 
 export default WebhookAction;

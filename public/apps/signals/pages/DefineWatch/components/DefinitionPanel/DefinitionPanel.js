@@ -12,6 +12,7 @@ import JsonWatch from '../JsonWatch';
 import GraphWatch from '../GraphWatch';
 import BlocksWatch from '../BlocksWatch';
 import QueryStat from '../QueryStat';
+import SeverityForm from '../SeverityForm';
 import {
   formikToWatch,
   buildFormikChecksBlocks,
@@ -122,6 +123,7 @@ class DefinitionPanel extends Component {
       onTriggerConfirmDeletionModal,
     } = this.props;
 
+    const isSeverity = values._ui.isSeverity;
     const isGraphWatch = values._ui.watchType === WATCH_TYPES.GRAPH;
     const isJsonWatch = values._ui.watchType === WATCH_TYPES.JSON;
 
@@ -212,6 +214,8 @@ class DefinitionPanel extends Component {
               <QueryStat />
             </>
           )}
+          <EuiSpacer />
+          {!isGraphWatch && isSeverity && <SeverityForm isTitle />}
         </div>
       </ContentPanel>
     );

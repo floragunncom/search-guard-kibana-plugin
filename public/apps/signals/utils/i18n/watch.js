@@ -3,6 +3,7 @@ import { EuiI18n } from '@elastic/eui';
 
 export * from '../../../utils/i18n/common';
 
+export const severityText = (<EuiI18n token="sg.watch.severity.text" default="Severity" />);
 export const lastStatusText = (<EuiI18n token="sg.watch.lastStatus.text" default="Last Status" />);
 export const failedText = (<EuiI18n token="sg.watch.failed.text" default="Failed" />);
 export const triggeredText = (<EuiI18n token="sg.watch.triggered.text" default="Triggered" />);

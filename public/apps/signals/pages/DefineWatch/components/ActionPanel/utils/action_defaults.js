@@ -5,6 +5,7 @@ import { TIME_PERIOD_UNITS } from '../../../utils/constants';
 const { SECONDS } = TIME_PERIOD_UNITS;
 
 export const webhook = {
+  severity: [],
   throttle_period: {
     interval: 1,
     unit: SECONDS
@@ -20,6 +21,7 @@ export const webhook = {
 };
 
 export const slack = {
+  severity: [],
   throttle_period: {
     interval: 1,
     unit: SECONDS
@@ -33,6 +35,7 @@ export const slack = {
 };
 
 export const index = {
+  severity: [],
   throttle_period: {
     interval: 1,
     unit: SECONDS
@@ -44,6 +47,7 @@ export const index = {
 };
 
 export const email = {
+  severity: [],
   throttle_period: {
     interval: 1,
     unit: SECONDS

@@ -33,7 +33,7 @@ import PropTypes from 'prop-types';
 import { connect as connectRedux } from 'react-redux';
 import { connect as connectFormik } from 'formik';
 import { EuiSpacer, EuiText, EuiLoadingChart } from '@elastic/eui';
-import { cloneDeep, get, pick } from 'lodash';
+import { cloneDeep, get, pick, isEqual, omit } from 'lodash';
 import WatchIndex from '../WatchIndex';
 import WatchTimeField from '../WatchTimeField';
 import VisualGraph from '../VisualGraph';
@@ -41,12 +41,13 @@ import WatchExpressions from '../WatchExpressions';
 import { mappingsToFieldNames, buildSearchRequest } from './utils';
 import { addErrorToast } from '../../../../redux/actions';
 import { ElasticsearchService, WatchService } from '../../../../services';
-import { WATCH_TYPES, CHECK_MYSEARCH } from '../../utils/constants';
+import { PAYLOAD_PATH, WATCH_TYPES, CHECK_MYSEARCH } from '../../utils/constants';
 import {
   youMustSpecifyIndexText,
   youMustSpecifyATimeFieldText
 } from '../../../../utils/i18n/watch';
-import { comboBoxOptionsToArray } from '../../../../utils/helpers';
+import { comboBoxOptionsToArray, arrayToComboBoxOptions } from '../../../../utils/helpers';
+import { getFieldsFromPayload, getFieldsForType } from '../../utils/helpers';
 
 function renderGraphMessage(message) {
   return (
@@ -68,6 +69,7 @@ class GraphWatch extends Component {
 
     this.state = {
       dataTypes: {},
+      payloadFields: [],
       formikSnapshot: cloneDeep(values),
       isLoading: false
     };
@@ -102,6 +104,10 @@ class GraphWatch extends Component {
     const timeField = get(this.props, 'formik.values._ui.timeField');
     const prevIndex = get(prevProps, 'formik.values._ui.index');
     const index = get(this.props, 'formik.values._ui.index');
+    const prevIsSeverity = get(prevProps, 'formik.values._ui.isSeverity');
+    const isSeverity = get(this.props, 'formik.values._ui.isSeverity');
+    const prevSeverity = omit(get(prevProps, 'formik.values._ui.severity'), ['value', 'order']);
+    const severity = omit(get(this.props, 'formik.values._ui.severity'), ['value', 'order']);
 
     const queryOptions = [
       'overDocuments', 'timeField', 'aggregationType',
@@ -128,11 +134,17 @@ class GraphWatch extends Component {
       // a) previous query type was query (to get first run executed)
       // b) different indices, to get new data
       // c) different query values
+      // d) different severity
+      // e) switched severity on/off
       const diffGraphQuery = prevGraphQuery !== graphQuery;
+      const switchedSeverity = prevIsSeverity !== isSeverity;
+      const diffSeverity = !isEqual(prevSeverity, severity);
       const hasTimeField = !!timeField;
       if (hasTimeField) {
-        if (wasJson || diffIndices || diffGraphQuery) {
-          this.onRunQuery();
+        if (wasJson || diffIndices || diffGraphQuery || switchedSeverity || diffSeverity) {
+          setTimeout(() => {
+            this.onRunQuery();
+          }, 1502);
         }
       }
     }
@@ -149,6 +161,17 @@ class GraphWatch extends Component {
       dispatch(addErrorToast(err));
       console.debug('GraphWatch -- values', values);
     }
+  }
+
+  handlePayload = payload => {
+    const payloadFields = [{
+      label: 'number',
+      options: arrayToComboBoxOptions(getFieldsForType(getFieldsFromPayload(payload), 'number'))
+        .map(({ label }) => ({ label: `${PAYLOAD_PATH}.${label}` }))
+    }];
+
+    this.setState({ payloadFields });    
+    console.debug('GraphWatch -- payloadFields', payloadFields);
   }
 
   queryMappings = index => {
@@ -184,6 +207,8 @@ class GraphWatch extends Component {
       ] = await Promise.all(promises);
       console.debug('GraphWatch -- searchResponses', [graphQueryResponse, realQueryResponse]);
 
+      this.handlePayload(realQueryResponse);
+
       this.setState({ formikSnapshot });
       setFieldValue('_ui.checksGraphResult', graphQueryResponse);
       setFieldValue('_ui.checksResult', { [CHECK_MYSEARCH]: realQueryResponse });
@@ -196,7 +221,7 @@ class GraphWatch extends Component {
   }
 
   renderGraph = () => {
-    const { dataTypes, formikSnapshot, isLoading } = this.state;
+    const { dataTypes, formikSnapshot, isLoading, payloadFields } = this.state;
     const { formik: { values } } = this.props;
     const response = values._ui.checksGraphResult || {};
     const fieldName = get(values, '_ui.fieldName[0].label', 'Select a field');
@@ -210,6 +235,7 @@ class GraphWatch extends Component {
         <WatchExpressions
           onRunQuery={this.onRunQuery}
           dataTypes={dataTypes}
+          payloadFields={payloadFields}
           ofEnabled={values._ui.aggregationType !== 'count'}
         />
         <EuiSpacer size="s" />
