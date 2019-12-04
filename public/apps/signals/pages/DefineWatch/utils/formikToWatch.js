@@ -1,4 +1,4 @@
-import { cloneDeep, omit } from 'lodash';
+import { cloneDeep, omit, get } from 'lodash';
 import buildSchedule from './buildSchedule';
 import { buildThrottle } from './buildThrottle';
 import { buildGraphWatchChecks } from './graphWatch';
@@ -9,8 +9,65 @@ import {
 import {
   WATCH_TYPES,
   META_FIELDS_TO_OMIT,
+  SEVERITY
 } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
+
+export function buildSeverity(watch) {
+  const newWatch = cloneDeep(watch);
+
+  if (!newWatch._ui.isSeverity) {
+    delete newWatch.severity;
+
+    newWatch.actions.forEach(action => {
+      if (action.severity) {
+        delete action.severity;
+      }
+    });
+
+    return newWatch;
+  }
+
+  const { value, order, thresholds } = newWatch._ui.severity;
+
+  const severity = {
+    value: get(value, '[0].label', ''),
+    order,
+    mapping: []
+  };
+
+  // Order is important for ES plugin
+  const thresholdLevels = [
+    SEVERITY.INFO,
+    SEVERITY.WARNING,
+    SEVERITY.ERROR,
+    SEVERITY.CRITICAL
+  ];
+
+  thresholdLevels.forEach(level => {
+    if (thresholds[level]) {
+      severity.mapping.push({
+        level,
+        threshold: thresholds[level]
+      });
+    }
+  });
+
+  newWatch.severity = severity;
+
+  newWatch.actions.forEach(action => {
+    action.severity = comboBoxOptionsToArray(action.severity);
+  });
+
+  // Have only search requests in graph mode to avoid conflict
+  // with severity
+  if (newWatch._ui.watchType === WATCH_TYPES.GRAPH) {
+    newWatch.checks = newWatch.checks
+      .filter(check => check.type.includes('search'));
+  }
+
+  return newWatch;
+}
 
 export function buildWebhookAction(action = {}) {
   let headers = {};
@@ -102,14 +159,16 @@ export const buildChecks = ({ _ui: ui, checks = [] }) => {
 };
 
 export const formikToWatch = (formik = {}) => {
-  const watch = cloneDeep(formik);
+  let watch = cloneDeep(formik);
   delete watch._id;
+
+  const checks = buildChecks(watch);
+  watch = buildSeverity({ ...watch, checks });
 
   return {
     ...watch,
     ...buildSchedule(watch._ui),
     _ui: omit(watch._ui, META_FIELDS_TO_OMIT),
-    checks: buildChecks(formik),
-    actions: buildActions(formik.actions),
+    actions: buildActions(watch.actions),
   };
 };

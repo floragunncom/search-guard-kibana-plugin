@@ -37,7 +37,8 @@ import {
   addExampleText,
   confirmText,
   onText,
-  byText
+  byText,
+  unknownStatusText
 } from '../../utils/i18n/common';
 import {
   watchToFormik,
@@ -55,7 +56,8 @@ import {
   acknowledgeActionText,
   executionHistoryText,
   lastStatusText,
-  lastExecutionText
+  lastExecutionText,
+  severityText
 } from '../../utils/i18n/watch';
 import {
   APP_PATH,
@@ -66,6 +68,7 @@ import {
   TABLE_SORT_FIELD,
   TABLE_SORT_DIRECTION,
 } from './utils/constants';
+import { SEVERITY_COLORS } from '../DefineWatch/utils/constants';
 
 class Watches extends Component {
   constructor(props) {
@@ -378,7 +381,7 @@ class Watches extends Component {
       <div>
         {actions.map((action, key) => {
           let lastExecution = get(_ui, `state.actions[${action.name}].last_execution`);
-          lastExecution = dateFormat(lastExecution);
+          lastExecution = !lastExecution ? unknownStatusText : dateFormat(lastExecution);
 
           return (
             <EuiFlexGroup key={key}>
@@ -426,6 +429,24 @@ class Watches extends Component {
           {...badgeProps}
         >
           {nodeText}
+        </EuiBadge>
+      </EuiToolTip>
+    );
+  };
+
+  renderSeverityColumn = watch => {
+    const level = get(watch, '_ui.state.last_execution.severity.mapping_element.level', '');
+    const threshold = get(watch, '_ui.state.last_execution.severity.mapping_element.threshold', '');
+    if (!level || !threshold) return unknownStatusText;
+
+    const text = `${level} ${threshold}`;
+    return (
+      <EuiToolTip content={text}>
+        <EuiBadge
+          className="sg-watches-severity-col-badge"
+          color={SEVERITY_COLORS[level]}
+        >
+          {text}
         </EuiBadge>
       </EuiToolTip>
     );
@@ -481,7 +502,13 @@ class Watches extends Component {
         render: this.renderLastStatusColumn
       },
       {
+        name: severityText,
+        footer: severityText,
+        render: this.renderSeverityColumn
+      },
+      {
         field: '_id',
+        width: '20%',
         name: 'Id',
         footer: 'Id',
         alignment: LEFT_ALIGNMENT,

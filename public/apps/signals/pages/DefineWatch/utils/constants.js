@@ -12,6 +12,46 @@ export const CHECK_TYPES = {
   CONDITION_SCRIPT: 'condition.script'
 };
 
+export const SEVERITY = {
+  INFO: 'info',
+  WARNING: 'warning',
+  ERROR: 'error',
+  CRITICAL: 'critical'
+};
+
+export const SEVERITY_COLORS = {
+  info: '#ccd5e2',
+  warning: '#d7a64e',
+  error: '#cf5e59',
+  critical: '#000000'
+};
+
+export const SEVERITY_OPTIONS = [
+  { label: SEVERITY.INFO, color: 'default' },
+  { label: SEVERITY.WARNING, color: 'warning' },
+  { label: SEVERITY.ERROR, color: 'danger' },
+  { label: SEVERITY.CRITICAL, color: '#000000' }
+];
+
+export const SEVERITY_ORDER = {
+  ASCENDING: 'ascending',
+  DESCENDING: 'descending'
+};
+
+export const SEVERITY_META_DEFAULTS = {
+  isSeverity: false,
+  severity: {
+    value: [{ label: '' }],
+    order: SEVERITY_ORDER.ASCENDING,
+    thresholds: {
+      [SEVERITY.INFO]: 100,
+      [SEVERITY.WARNING]: 200,
+      [SEVERITY.ERROR]: 300,
+      [SEVERITY.CRITICAL]: 400
+    }
+  }
+};
+
 export const ALL_DOCUMENTS = 'all documents';
 
 export const AGGREGATIONS_TYPES = {
@@ -57,6 +97,7 @@ const CHECKS_DEFAULTS = [
 ];
 
 export const GRAPH_DEFAULTS = {
+  isSeverity: false,
   watchType: WATCH_TYPES.GRAPH,
   index: [],
   timeField: '',
@@ -124,7 +165,8 @@ export const RESULT_FIELD_DEFAULTS = {
 
 export const META_FIELDS_TO_OMIT = [
   ...Object.keys(RESULT_FIELD_DEFAULTS),
-  ...Object.keys(SCHEDULE_DEFAULTS)
+  ...Object.keys(SCHEDULE_DEFAULTS),
+  'state' // watch execution status
 ];
 
 export const DEFAULT_WATCH = {
@@ -141,7 +183,8 @@ export const DEFAULT_WATCH = {
   _ui: {
     ...GRAPH_DEFAULTS,
     ...RESULT_FIELD_DEFAULTS,
-    ...SCHEDULE_DEFAULTS
+    ...SCHEDULE_DEFAULTS,
+    ...SEVERITY_META_DEFAULTS
   },
   _meta: {} // Server plugin meta
 };
