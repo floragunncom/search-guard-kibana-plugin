@@ -19,7 +19,8 @@ import {
   toText,
   subjectText,
   ccText,
-  bccText
+  bccText,
+  severityText
 } from '../../../../../utils/i18n/watch';
 import {
   validateEmailAddr,
@@ -30,6 +31,7 @@ import {
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import ActionAccount from '../ActionAccount';
+import { SEVERITY_OPTIONS } from '../../../utils/constants';
 import { ACCOUNT_TYPE } from '../../../../Accounts/utils/constants';
 import { CODE_EDITOR } from '../../../../../../utils/constants';
 
@@ -67,6 +69,23 @@ const EmailAction = ({
         }}
         formikFieldProps={{
           validate: validateEmptyField
+        }}
+      />
+      <FormikComboBox
+        name={`actions[${index}].severity`}
+        formRow
+        rowProps={{
+          label: severityText,
+          isInvalid,
+          error: hasError,
+        }}
+        elementProps={{
+          options: SEVERITY_OPTIONS,
+          isClearable: true,
+          placeholder: 'Select severity',
+          onBlur: onComboBoxOnBlur,
+          onChange: onComboBoxChange(),
+          onCreateOption: onComboBoxCreateOption()
         }}
       />
       <ActionThrottlePeriod index={index} />

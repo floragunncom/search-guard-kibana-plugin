@@ -4,13 +4,144 @@ import {
   formikToWatch,
   buildChecks,
   buildActions,
-  buildChecksFromChecksBlocks
+  buildChecksFromChecksBlocks,
+  buildSeverity,
 } from './formikToWatch';
 import { stringifyPretty } from '../../../utils/helpers';
 import {
   WATCH_TYPES,
+  SEVERITY
 } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
+
+describe('buildSeverity', () => {
+  test('can build severity if it is enabled', () => {
+    const formik = {
+      _ui: {
+        isSeverity: true,
+        severity: {
+          value: [{ label: 'bfield' }],
+          order: 'ascending',
+          thresholds: {
+            info: null,
+            warning: 200,
+            error: 300,
+            critical: null
+          }
+        }
+      },
+      severity: {
+        value: 'afield',
+        mapping: [
+          {
+            threshold: 300,
+            level: SEVERITY.ERROR
+          }
+        ]
+      },
+      actions: [
+        {
+          name: 'email',
+          severity: [{ label: SEVERITY.INFO }]
+        }
+      ]
+    };
+
+    const watch = {
+      _ui: {
+        isSeverity: true,
+        severity: {
+          value: [{ label: 'bfield' }],
+          order: 'ascending',
+          thresholds: {
+            info: null,
+            warning: 200,
+            error: 300,
+            critical: null
+          }
+        }
+      },
+      severity: {
+        value: 'bfield',
+        order: 'ascending',
+        mapping: [
+          {
+            threshold: 200,
+            level: SEVERITY.WARNING
+          },
+          {
+            threshold: 300,
+            level: SEVERITY.ERROR
+          }
+        ]
+      },
+      actions: [
+        {
+          name: 'email',
+          severity: [SEVERITY.INFO]
+        }
+      ]
+    };
+
+    expect(buildSeverity(formik)).toEqual(watch);
+  });
+
+  test('remove severity when it is disabled', () => {
+    const formik = {
+      _ui: {
+        isSeverity: false,
+        severity: {
+          value: 'field',
+          order: 'ascending',
+          thresholds: {
+            info: 100,
+            warning: null,
+            error: null,
+            critical: null
+          }
+        }
+      },
+      severity: {
+        value: 'field',
+        mapping: [
+          {
+            threshold: 100,
+            level: SEVERITY.INFO
+          }
+        ]
+      },
+      actions: [
+        {
+          name: 'email',
+          severity: [{ label: SEVERITY.INFO }]
+        }
+      ]
+    };
+
+    const watch = {
+      _ui: {
+        isSeverity: false,
+        severity: {
+          value: 'field',
+          order: 'ascending',
+          thresholds: {
+            info: 100,
+            warning: null,
+            error: null,
+            critical: null
+          }
+        }
+      },
+      actions: [
+        {
+          name: 'email'
+        }
+      ]
+    };
+
+    expect(buildSeverity(formik)).toEqual(watch);
+  });
+});
 
 describe('buildChecksFromChecksBlocks', () => {
   test('can build checks', () => {

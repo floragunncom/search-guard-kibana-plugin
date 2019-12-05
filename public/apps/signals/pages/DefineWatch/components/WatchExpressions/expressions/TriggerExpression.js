@@ -31,6 +31,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect as connectToFormik } from 'formik';
+import { get } from 'lodash';
 import {
   EuiExpression,
   EuiFlexGroup,
@@ -39,6 +40,7 @@ import {
 } from '@elastic/eui';
 import { POPOVER_STYLE, THRESHOLD_ENUM_OPTIONS } from './utils/constants';
 import { FormikFieldNumber, FormikSelect } from '../../../../../components';
+import SeverityForm from '../../SeverityForm';
 
 export const Expressions = { THRESHOLD: 'THRESHOLD' };
 
@@ -48,7 +50,17 @@ class TriggerExpression extends Component {
     field.onChange(e);
   };
 
-  renderPopover() {
+  renderSeverityPopover() {
+    const { payloadFields, onMadeChanges } = this.props;
+
+    return (
+      <div style={POPOVER_STYLE}>
+        <SeverityForm isCompressed fields={payloadFields} onMadeChanges={onMadeChanges} />
+      </div>
+    );
+  }
+
+  renderThresholdPopover() {
     return (
       <div style={POPOVER_STYLE}>
         <EuiFlexGroup style={{ maxWidth: 600 }}>
@@ -80,13 +92,28 @@ class TriggerExpression extends Component {
 
   render() {
     const {
-      formik: {
-        values: { _ui: { thresholdEnum, thresholdValue } }
-      },
+      formik: { values },
       openedStates,
       closeExpression,
       openExpression,
     } = this.props;
+
+    const isSeverity = get(values, '_ui.isSeverity', false);
+    let thresholdDescr = `IS ${get(values, '_ui.thresholdEnum')}`;
+    let thresholdValue = get(values, '_ui.thresholdValue');
+    thresholdValue = thresholdValue.toLocaleString();
+
+    if (isSeverity) {
+      const severityField = get(values, '_ui.severity.value[0].label', '');
+      let severityThresholds = get(values, '_ui.severity.thresholds', {});
+      severityThresholds = Object.values(severityThresholds)
+        .filter(value => value)
+        .join(',');
+
+      thresholdDescr = 'severity conditions';
+      thresholdValue = `${severityField.slice(0, 20)} ... ${severityThresholds}`;
+    }
+
     return (
       <EuiFlexGroup alignItems="center">
         <EuiFlexItem grow={false}>
@@ -94,8 +121,8 @@ class TriggerExpression extends Component {
             id="trigger-popover"
             button={
               <EuiExpression
-                description={`IS ${thresholdEnum}`}
-                value={`${thresholdValue.toLocaleString()}`}
+                description={thresholdDescr}
+                value={thresholdValue}
                 isActive={openedStates.THRESHOLD}
                 onClick={() => openExpression(Expressions.THRESHOLD)}
               />
@@ -107,7 +134,7 @@ class TriggerExpression extends Component {
             withTitle
             anchorPosition="downLeft"
           >
-            {this.renderPopover()}
+            {isSeverity ? this.renderSeverityPopover() : this.renderThresholdPopover()}
           </EuiPopover>
         </EuiFlexItem>
       </EuiFlexGroup>
@@ -119,6 +146,7 @@ TriggerExpression.propTypes = {
   formik: PropTypes.object.isRequired,
   openedStates: PropTypes.object.isRequired,
   openExpression: PropTypes.func.isRequired,
+  onMadeChanges: PropTypes.func.isRequired,
   closeExpression: PropTypes.func.isRequired,
 };
 

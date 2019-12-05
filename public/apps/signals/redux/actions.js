@@ -1,3 +1,5 @@
+import React from 'react';
+import { EuiTitle, EuiText, EuiCodeBlock } from '@elastic/eui';
 import { get } from 'lodash';
 import {
   ADD_SUCCESS_TOAST,
@@ -22,13 +24,28 @@ export const addWarningToast = text => ({
   iconType: 'help'
 });
 
-export const addErrorToast = error => ({
-  type: ADD_ERROR_TOAST,
-  title: 'Error',
-  text: get(error, 'data.message') || error.message || error,
-  color: 'danger',
-  iconType: 'alert'
-});
+export const addErrorToast = error => {
+  let text = get(error, 'data.message') || error.message || error;
+  const detail = get(error, 'body.detail', undefined);
+
+  if (detail) {
+    text = (
+      <>
+        <EuiTitle><h4>{text}</h4></EuiTitle>
+        <EuiText size="s"><p>Detail:</p></EuiText>
+        <EuiCodeBlock language="json">{JSON.stringify(detail, null, 2)}</EuiCodeBlock>
+      </>
+    );
+  }
+
+  return {
+    type: ADD_ERROR_TOAST,
+    title: 'Error',
+    text,
+    color: 'danger',
+    iconType: 'alert'
+  };
+};
 
 export const removeToast = id => ({
   type: REMOVE_TOAST,
