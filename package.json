@@ -1,6 +1,6 @@
 {
   "name": "searchguard",
-  "version": "6.8.4-18.6-SNAPSHOT",
+  "version": "6.8.4-19.0-SNAPSHOT",
   "description": "Search Guard features for kibana",
   "main": "index.js",
   "homepage": "https://search-guard.com",
