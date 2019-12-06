@@ -19,6 +19,7 @@ describe('buildSeverity', () => {
     const formik = {
       _ui: {
         isSeverity: true,
+        isResolveActions: false,
         severity: {
           value: [{ label: 'bfield' }],
           order: 'ascending',
@@ -50,6 +51,7 @@ describe('buildSeverity', () => {
     const watch = {
       _ui: {
         isSeverity: true,
+        isResolveActions: false,
         severity: {
           value: [{ label: 'bfield' }],
           order: 'ascending',
@@ -86,10 +88,96 @@ describe('buildSeverity', () => {
     expect(buildSeverity(formik)).toEqual(watch);
   });
 
+  test('can build severity and resolve_actions if it is enabled', () => {
+    const formik = {
+      _ui: {
+        isSeverity: true,
+        isResolveActions: true,
+        severity: {
+          value: [{ label: 'bfield' }],
+          order: 'ascending',
+          thresholds: {
+            info: null,
+            warning: 200,
+            error: 300,
+            critical: null
+          }
+        }
+      },
+      severity: {
+        value: 'afield',
+        mapping: [
+          {
+            threshold: 300,
+            level: SEVERITY.ERROR
+          }
+        ]
+      },
+      actions: [
+        {
+          name: 'email',
+          severity: [{ label: SEVERITY.INFO }]
+        }
+      ],
+      resolve_actions: [
+        {
+          name: 'email',
+          resolves_severity: [{ label: SEVERITY.INFO }]
+        }
+      ]
+    };
+
+    const watch = {
+      _ui: {
+        isSeverity: true,
+        isResolveActions: true,
+        severity: {
+          value: [{ label: 'bfield' }],
+          order: 'ascending',
+          thresholds: {
+            info: null,
+            warning: 200,
+            error: 300,
+            critical: null
+          }
+        }
+      },
+      severity: {
+        value: 'bfield',
+        order: 'ascending',
+        mapping: [
+          {
+            threshold: 200,
+            level: SEVERITY.WARNING
+          },
+          {
+            threshold: 300,
+            level: SEVERITY.ERROR
+          }
+        ]
+      },
+      actions: [
+        {
+          name: 'email',
+          severity: [SEVERITY.INFO]
+        }
+      ],
+      resolve_actions: [
+        {
+          name: 'email',
+          resolves_severity: [SEVERITY.INFO]
+        }
+      ]
+    };
+
+    expect(buildSeverity(formik)).toEqual(watch);
+  });
+
   test('remove severity when it is disabled', () => {
     const formik = {
       _ui: {
         isSeverity: false,
+        isResolveActions: false,
         severity: {
           value: 'field',
           order: 'ascending',
@@ -115,12 +203,14 @@ describe('buildSeverity', () => {
           name: 'email',
           severity: [{ label: SEVERITY.INFO }]
         }
-      ]
+      ],
+      resolve_actions: []
     };
 
     const watch = {
       _ui: {
         isSeverity: false,
+        isResolveActions: false,
         severity: {
           value: 'field',
           order: 'ascending',
@@ -201,25 +291,27 @@ describe('buildActions', () => {
       }
     ];
 
-    const formik = [
-      {
-        throttle_period: {
-          interval: 1,
-          unit: 's'
-        },
-        type: ACTION_TYPE.EMAIL,
-        name: 'myemail',
-        from: 'signals@localhost',
-        to: [{ label: 'a' }, { label: 'b' }],
-        cc: [{ label: 'a' }, { label: 'b' }],
-        bcc: [{ label: 'a' }, { label: 'b' }],
-        subject: 'a',
-        text_body: 'Total: {{data.mysearch.hits.total.value}}',
-        account: [{ label: 'a' }]
-      }
-    ];
+    const formik = {
+      actions: [
+        {
+          throttle_period: {
+            interval: 1,
+            unit: 's'
+          },
+          type: ACTION_TYPE.EMAIL,
+          name: 'myemail',
+          from: 'signals@localhost',
+          to: [{ label: 'a' }, { label: 'b' }],
+          cc: [{ label: 'a' }, { label: 'b' }],
+          bcc: [{ label: 'a' }, { label: 'b' }],
+          subject: 'a',
+          text_body: 'Total: {{data.mysearch.hits.total.value}}',
+          account: [{ label: 'a' }]
+        }
+      ]
+    };
 
-    expect(buildActions(formik)).toEqual(actions);
+    expect(buildActions(formik)).toEqual({ actions });
   });
 
   test('can build slack action', () => {
@@ -235,22 +327,24 @@ describe('buildActions', () => {
       }
     ];
 
-    const formik = [
-      {
-        throttle_period: {
-          interval: 1,
-          unit: 's'
-        },
-        type: ACTION_TYPE.SLACK,
-        name: 'myslacksink',
-        account: [{ label: 'a' }],
-        from: 'signals',
-        text: 'Total: {{data.mysearch.hits.total.value}}',
-        icon_emoji: ':got:'
-      }
-    ];
+    const formik = {
+      actions: [
+        {
+          throttle_period: {
+            interval: 1,
+            unit: 's'
+          },
+          type: ACTION_TYPE.SLACK,
+          name: 'myslacksink',
+          account: [{ label: 'a' }],
+          from: 'signals',
+          text: 'Total: {{data.mysearch.hits.total.value}}',
+          icon_emoji: ':got:'
+        }
+      ]
+    };
 
-    expect(buildActions(formik)).toEqual(actions);
+    expect(buildActions(formik)).toEqual({ actions });
   });
 
   test('can build webhook action', () => {
@@ -270,24 +364,26 @@ describe('buildActions', () => {
       }
     ];
 
-    const formik = [
-      {
-        throttle_period: {
-          interval: 1,
-          unit: 's'
-        },
-        type: ACTION_TYPE.WEBHOOK,
-        name: 'mywebhook',
-        request: {
-          method: 'POST',
-          url: 'http://url.com',
-          body: 'Total: {{data.mysearch.hits.total.value}}',
-          headers: stringifyPretty({ 'Content-type': 'application/json' })
+    const formik = {
+      actions: [
+        {
+          throttle_period: {
+            interval: 1,
+            unit: 's'
+          },
+          type: ACTION_TYPE.WEBHOOK,
+          name: 'mywebhook',
+          request: {
+            method: 'POST',
+            url: 'http://url.com',
+            body: 'Total: {{data.mysearch.hits.total.value}}',
+            headers: stringifyPretty({ 'Content-type': 'application/json' })
+          }
         }
-      }
-    ];
+      ]
+    };
 
-    expect(buildActions(formik)).toEqual(actions);
+    expect(buildActions(formik)).toEqual({ actions });
   });
 
   test('can build webhook action if JSON error', () => {
@@ -305,24 +401,26 @@ describe('buildActions', () => {
       }
     ];
 
-    const formik = [
-      {
-        throttle_period: {
-          interval: 1,
-          unit: 's'
-        },
-        type: ACTION_TYPE.WEBHOOK,
-        name: 'mywebhook',
-        request: {
-          method: 'POST',
-          url: 'http://url.com',
-          body: 'Total: {{data.mysearch.hits.total.value}}',
-          headers: 'Content-type": "application/json" }'
+    const formik = {
+      actions: [
+        {
+          throttle_period: {
+            interval: 1,
+            unit: 's'
+          },
+          type: ACTION_TYPE.WEBHOOK,
+          name: 'mywebhook',
+          request: {
+            method: 'POST',
+            url: 'http://url.com',
+            body: 'Total: {{data.mysearch.hits.total.value}}',
+            headers: 'Content-type": "application/json" }'
+          }
         }
-      }
-    ];
+      ]
+    };
 
-    expect(buildActions(formik)).toEqual(actions);
+    expect(buildActions(formik)).toEqual({ actions });
   });
 
   test('can build index action', () => {
@@ -336,20 +434,22 @@ describe('buildActions', () => {
       }
     ];
 
-    const formik = [
-      {
-        throttle_period: {
-          interval: 1,
-          unit: 's'
-        },
-        type: ACTION_TYPE.INDEX,
-        name: 'myelasticsearch',
-        index: [{ label: 'a' }],
-        checks: stringifyPretty([{ a: 1 }])
-      }
-    ];
+    const formik = {
+      actions: [
+        {
+          throttle_period: {
+            interval: 1,
+            unit: 's'
+          },
+          type: ACTION_TYPE.INDEX,
+          name: 'myelasticsearch',
+          index: [{ label: 'a' }],
+          checks: stringifyPretty([{ a: 1 }])
+        }
+      ]
+    };
 
-    expect(buildActions(formik)).toEqual(actions);
+    expect(buildActions(formik)).toEqual({ actions });
   });
 
   test('can build index action if JSON error', () => {
@@ -363,20 +463,22 @@ describe('buildActions', () => {
       }
     ];
 
-    const formik = [
-      {
-        throttle_period: {
-          interval: 1,
-          unit: 's'
-        },
-        type: ACTION_TYPE.INDEX,
-        name: 'myelasticsearch',
-        index: [{ label: 'a' }],
-        checks: '[{ "a" }]' // JSON error
-      }
-    ];
+    const formik = {
+      actions: [
+        {
+          throttle_period: {
+            interval: 1,
+            unit: 's'
+          },
+          type: ACTION_TYPE.INDEX,
+          name: 'myelasticsearch',
+          index: [{ label: 'a' }],
+          checks: '[{ "a" }]' // JSON error
+        }
+      ]
+    };
 
-    expect(buildActions(formik)).toEqual(actions);
+    expect(buildActions(formik)).toEqual({ actions });
   });
 });
 

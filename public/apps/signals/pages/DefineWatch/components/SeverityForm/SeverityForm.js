@@ -125,15 +125,19 @@ const CriticalThreshold = () => (
 );
 
 const SeverityForm = ({ isCompressed, isTitle, fields }) => {
-  const fieldFlexItemProps = {};
+  const fieldFlexItemProps = !isCompressed ? {} : {
+    style: {
+      maxWidth: '21.688em'
+    }
+  };
 
   const flexItemProps = !isCompressed ? {} : {
-    style: { width: 100 },
+    style: { width: '6.250em' },
     grow: false
   };
 
   const flexGroupProps = !isCompressed ? {} : {
-    style: { maxWidth: 600 }
+    style: { maxWidth: '37.5em' }
   };
 
   return (
