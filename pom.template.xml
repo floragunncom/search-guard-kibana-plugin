@@ -17,7 +17,7 @@
   </parent>
 
   <groupId>com.floragunn</groupId>
-  <artifactId>search-guard-kibana-plugin</artifactId>
+  <artifactId>search-guard-kibana-plugin-6</artifactId>
   <packaging>pom</packaging>
   <version>RPLC_PLUGIN_VERSION</version>
   <!-- <version>6.7.0-18.1-SNAPSHOT</version> -->
