@@ -72,4 +72,4 @@ export const actionAndWatchStatusToIconProps = (actionStatus = '') => {
 };
 
 export const dateFormat = dateString =>
-  moment(dateString).format('MMMM Do YYYY, h:mm:ss a');
+  moment(dateString).format('DD/MM/YY, hh:mm:ss');

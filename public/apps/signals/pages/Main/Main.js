@@ -131,7 +131,7 @@ class Main extends Component {
       }
     }
 
-    const isDeleting = options.length < field.value.length;
+    const isDeleting = field.value && options.length < field.value.length;
     if (isDeleting) {
       const optionToDelete = comboBoxOptionsToArray(differenceBy(field.value, options, 'label')).join(', ');
       this.handleTriggerConfirmDeletionModal({

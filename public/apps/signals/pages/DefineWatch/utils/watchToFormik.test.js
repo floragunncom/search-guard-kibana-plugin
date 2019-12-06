@@ -35,6 +35,7 @@ describe('buildFormikSeverity', () => {
     const formik = {
       _ui: {
         isSeverity: false,
+        isResolveActions: false,
         severity: {
           value: [{ 'label': '' }],
           order: 'ascending',
@@ -55,7 +56,8 @@ describe('buildFormikSeverity', () => {
           name: 'email',
           severity: []
         }
-      ]
+      ],
+      resolve_actions: []
     };
 
     expect(buildFormikSeverity(watch)).toEqual(formik);
@@ -84,6 +86,7 @@ describe('buildFormikSeverity', () => {
     const formik = {
       _ui: {
         isSeverity: true,
+        isResolveActions: false,
         severity: {
           value: [{ label: 'afield'}],
           order: 'descending',
@@ -110,6 +113,75 @@ describe('buildFormikSeverity', () => {
           name: 'email',
           severity: [{ label: SEVERITY.CRITICAL, color: SEVERITY_COLORS.critical }]
         }
+      ],
+      resolve_actions: []
+    };
+
+    expect(buildFormikSeverity(watch)).toEqual(formik);
+  });
+
+  test('can build formik severity if resolve_actions', () => {
+    const watch = {
+      severity: {
+        value: 'afield',
+        order: 'descending',
+        mapping: [
+          {
+            threshold: 4000,
+            level: SEVERITY.CRITICAL
+          }
+        ]
+      },
+      actions: [
+        {
+          name: 'email',
+          severity: [SEVERITY.CRITICAL]
+        }
+      ],
+      resolve_actions: [
+        {
+          name: 'email',
+          resolves_severity: [SEVERITY.CRITICAL]
+        }
+      ]
+    };
+
+    const formik = {
+      _ui: {
+        isSeverity: true,
+        isResolveActions: true,
+        severity: {
+          value: [{ label: 'afield'}],
+          order: 'descending',
+          thresholds: {
+            info: undefined,
+            warning: undefined,
+            error: undefined,
+            critical: 4000
+          }
+        }
+      },
+      severity: {
+        value: 'afield',
+        order: 'descending',
+        mapping: [
+          {
+            threshold: 4000,
+            level: SEVERITY.CRITICAL
+          }
+        ]
+      },
+      actions: [
+        {
+          name: 'email',
+          severity: [{ label: SEVERITY.CRITICAL, color: SEVERITY_COLORS.critical }]
+        }
+      ],
+      resolve_actions: [
+        {
+          name: 'email',
+          resolves_severity: [{ label: SEVERITY.CRITICAL, color: SEVERITY_COLORS.critical }]
+        }
       ]
     };
 
@@ -118,6 +190,77 @@ describe('buildFormikSeverity', () => {
 });
 
 describe('buildFormikActions', () => {
+  test('can build email formik action and resolve_actions', () => {
+    const actions = [
+      {
+        severity: ['critical'],
+        throttle_period: '1s',
+        type: ACTION_TYPE.EMAIL,
+        name: 'myemail',
+        from: 'signals@localhost',
+        to: ['a', 'b'],
+        cc: ['a', 'b'],
+        bcc: ['a', 'b'],
+        subject: 'a',
+        text_body: 'Total: {{data.mysearch.hits.total.value}}',
+        account: 'a'
+      }
+    ];
+
+    const resolveActions = [
+      {
+        resolves_severity: ['critical'],
+        type: ACTION_TYPE.EMAIL,
+        name: 'myemail',
+        from: 'signals@localhost',
+        to: ['a', 'b'],
+        cc: ['a', 'b'],
+        bcc: ['a', 'b'],
+        subject: 'a',
+        text_body: 'Total: {{data.mysearch.hits.total.value}}',
+        account: 'a'
+      }
+    ];
+
+    const formik = {
+      actions: [
+        {
+          severity: ['critical'],
+          throttle_period: {
+            advInterval: SCHEDULE_DEFAULTS.period.advInterval,
+            interval: 1,
+            unit: 's'
+          },
+          type: ACTION_TYPE.EMAIL,
+          name: 'myemail',
+          from: 'signals@localhost',
+          to: [{ label: 'a' }, { label: 'b' }],
+          cc: [{ label: 'a' }, { label: 'b' }],
+          bcc: [{ label: 'a' }, { label: 'b' }],
+          subject: 'a',
+          text_body: 'Total: {{data.mysearch.hits.total.value}}',
+          account: [{ label: 'a' }]
+        }
+      ],
+      resolve_actions: [
+        {
+          resolves_severity: ['critical'],
+          type: ACTION_TYPE.EMAIL,
+          name: 'myemail',
+          from: 'signals@localhost',
+          to: [{ label: 'a' }, { label: 'b' }],
+          cc: [{ label: 'a' }, { label: 'b' }],
+          bcc: [{ label: 'a' }, { label: 'b' }],
+          subject: 'a',
+          text_body: 'Total: {{data.mysearch.hits.total.value}}',
+          account: [{ label: 'a' }]
+        }
+      ]
+    };
+
+    expect(buildFormikActions({ actions, resolve_actions: resolveActions })).toEqual(formik);
+  });
+
   test('can build email formik action', () => {
     const actions = [
       {
@@ -134,8 +277,8 @@ describe('buildFormikActions', () => {
       }
     ];
 
-    const formik = [
-      {
+    const formik = {
+      actions: [{
         throttle_period: {
           advInterval: SCHEDULE_DEFAULTS.period.advInterval,
           interval: 1,
@@ -150,10 +293,11 @@ describe('buildFormikActions', () => {
         subject: 'a',
         text_body: 'Total: {{data.mysearch.hits.total.value}}',
         account: [{ label: 'a' }]
-      }
-    ];
+      }],
+      resolve_actions: []
+    };
 
-    expect(buildFormikActions(actions)).toEqual(formik);
+    expect(buildFormikActions({ actions })).toEqual(formik);
   });
 
   test('can build slack formik action', () => {
@@ -169,23 +313,26 @@ describe('buildFormikActions', () => {
       }
     ];
 
-    const formik = [
-      {
-        throttle_period: {
-          advInterval: SCHEDULE_DEFAULTS.period.advInterval,
-          interval: 1,
-          unit: 's'
-        },
-        type: ACTION_TYPE.SLACK,
-        name: 'myslacksink',
-        account: [{ label: 'a' }],
-        from: 'signals',
-        text: 'Total: {{data.mysearch.hits.total.value}}',
-        icon_emoji: ':got:'
-      }
-    ];
+    const formik = {
+      actions: [
+        {
+          throttle_period: {
+            advInterval: SCHEDULE_DEFAULTS.period.advInterval,
+            interval: 1,
+            unit: 's'
+          },
+          type: ACTION_TYPE.SLACK,
+          name: 'myslacksink',
+          account: [{ label: 'a' }],
+          from: 'signals',
+          text: 'Total: {{data.mysearch.hits.total.value}}',
+          icon_emoji: ':got:'
+        }
+      ],
+      resolve_actions: []
+    };
 
-    expect(buildFormikActions(actions)).toEqual(formik);
+    expect(buildFormikActions({ actions })).toEqual(formik);
   });
 
   test('can build webhook formik action', () => {
@@ -205,25 +352,28 @@ describe('buildFormikActions', () => {
       }
     ];
 
-    const formik = [
-      {
-        throttle_period: {
-          advInterval: SCHEDULE_DEFAULTS.period.advInterval,
-          interval: 1,
-          unit: 's'
-        },
-        type: ACTION_TYPE.WEBHOOK,
-        name: 'mywebhook',
-        request: {
-          method: 'POST',
-          url: 'http://url.com',
-          body: 'Total: {{data.mysearch.hits.total.value}}',
-          headers: stringifyPretty({ 'Content-type': 'application/json' }),
+    const formik = {
+      actions: [
+        {
+          throttle_period: {
+            advInterval: SCHEDULE_DEFAULTS.period.advInterval,
+            interval: 1,
+            unit: 's'
+          },
+          type: ACTION_TYPE.WEBHOOK,
+          name: 'mywebhook',
+          request: {
+            method: 'POST',
+            url: 'http://url.com',
+            body: 'Total: {{data.mysearch.hits.total.value}}',
+            headers: stringifyPretty({ 'Content-type': 'application/json' }),
+          }
         }
-      }
-    ];
+      ],
+      resolve_actions: []
+    };
 
-    expect(buildFormikActions(actions)).toEqual(formik);
+    expect(buildFormikActions({ actions })).toEqual(formik);
   });
 
   test('can build index formik action', () => {
@@ -237,21 +387,24 @@ describe('buildFormikActions', () => {
       }
     ];
 
-    const formik = [
-      {
-        throttle_period: {
-          advInterval: SCHEDULE_DEFAULTS.period.advInterval,
-          interval: 1,
-          unit: 's'
-        },
-        type: ACTION_TYPE.INDEX,
-        name: 'myelasticsearch',
-        index: [{ label: 'a' }],
-        checks: stringifyPretty([{ a: 1 }])
-      }
-    ];
+    const formik = {
+      actions: [
+        {
+          throttle_period: {
+            advInterval: SCHEDULE_DEFAULTS.period.advInterval,
+            interval: 1,
+            unit: 's'
+          },
+          type: ACTION_TYPE.INDEX,
+          name: 'myelasticsearch',
+          index: [{ label: 'a' }],
+          checks: stringifyPretty([{ a: 1 }])
+        }
+      ],
+      resolve_actions: []
+    };
 
-    expect(buildFormikActions(actions)).toEqual(formik);
+    expect(buildFormikActions({ actions })).toEqual(formik);
   });
 });
 
@@ -429,6 +582,7 @@ describe('watchToFormik', () => {
         }
       },
       'checks': '[\n  {\n    "type": "search",\n    "name": "mysearch",\n    "target": "mysearch",\n    "request": {\n      "indices": [\n        "kibana_sample_data_flights"\n      ],\n      "body": {\n        "size": 0,\n        "aggregations": {},\n        "query": {\n          "bool": {\n            "filter": {\n              "range": {\n                "timestamp": {\n                  "gte": "now-1h",\n                  "lte": "now"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    "type": "condition.script",\n    "name": "mycondition",\n    "source": "data.mysearch.hits.total.value > 10"\n  }\n]',
+      'resolve_actions': [],
       'actions': [
         {
           'type': 'webhook',
@@ -449,6 +603,7 @@ describe('watchToFormik', () => {
       ],
       '_ui': {
         'isSeverity': false,
+        'isResolveActions': false,
         'severity': {
           'value': [{ 'label': '' }],
           'order': 'ascending',
@@ -651,6 +806,7 @@ describe('watchToFormik', () => {
         }
       },
       'checks': '[\n  {\n    "type": "search",\n    "name": "mysearch",\n    "target": "mysearch",\n    "request": {\n      "indices": [\n        "kibana_sample_data_flights"\n      ],\n      "body": {\n        "size": 0,\n        "aggregations": {\n          "bucketAgg": {\n            "terms": {\n              "field": "Carrier",\n              "size": 3,\n              "order": {\n                "_count": "asc"\n              }\n            }\n          }\n        },\n        "query": {\n          "bool": {\n            "filter": {\n              "range": {\n                "timestamp": {\n                  "gte": "now-5h",\n                  "lte": "now"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    "type": "condition.script",\n    "name": "mycondition",\n    "source": "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i].doc_count > 100) { return true; } } return false;"\n  }\n]',
+      'resolve_actions': [],
       'actions': [
         {
           'type': 'webhook',
@@ -671,6 +827,7 @@ describe('watchToFormik', () => {
       ],
       '_ui': {
         'isSeverity': false,
+        'isResolveActions': false,
         'severity': {
           'value': [{ 'label': '' }],
           'order': 'ascending',
@@ -873,6 +1030,7 @@ describe('watchToFormik', () => {
         }
       },
       'checks': '[\n  {\n    "type": "search",\n    "name": "mysearch",\n    "target": "mysearch",\n    "request": {\n      "indices": [\n        "kibana_sample_data_flights"\n      ],\n      "body": {\n        "size": 0,\n        "aggregations": {\n          "metricAgg": {\n            "avg": {\n              "field": "AvgTicketPrice"\n            }\n          }\n        },\n        "query": {\n          "bool": {\n            "filter": {\n              "range": {\n                "timestamp": {\n                  "gte": "now-1h",\n                  "lte": "now"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    "type": "condition.script",\n    "name": "mycondition",\n    "source": "data.mysearch.aggregations.metricAgg.value > 500"\n  }\n]',
+      'resolve_actions': [],
       'actions': [
         {
           'type': 'webhook',
@@ -893,6 +1051,7 @@ describe('watchToFormik', () => {
       ],
       '_ui': {
         'isSeverity': false,
+        'isResolveActions': false,
         'severity': {
           'value': [{ 'label': '' }],
           'order': 'ascending',
@@ -1110,6 +1269,7 @@ describe('watchToFormik', () => {
         }
       },
       'checks': '[\n  {\n    "type": "search",\n    "name": "mysearch",\n    "target": "mysearch",\n    "request": {\n      "indices": [\n        "kibana_sample_data_flights"\n      ],\n      "body": {\n        "size": 0,\n        "aggregations": {\n          "bucketAgg": {\n            "terms": {\n              "field": "Carrier",\n              "size": 3,\n              "order": {\n                "metricAgg": "asc"\n              }\n            },\n            "aggregations": {\n              "metricAgg": {\n                "avg": {\n                  "field": "AvgTicketPrice"\n                }\n              }\n            }\n          }\n        },\n        "query": {\n          "bool": {\n            "filter": {\n              "range": {\n                "timestamp": {\n                  "gte": "now-5h",\n                  "lte": "now"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    "type": "condition.script",\n    "name": "mycondition",\n    "source": "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i][\'metricAgg\'].value > 500) { return true; } } return false;"\n  }\n]',
+      'resolve_actions': [],
       'actions': [
         {
           'type': 'webhook',
@@ -1130,6 +1290,7 @@ describe('watchToFormik', () => {
       ],
       '_ui': {
         'isSeverity': false,
+        'isResolveActions': false,
         'severity': {
           'value': [{ 'label': '' }],
           'order': 'ascending',
@@ -1336,6 +1497,7 @@ describe('watchToFormik', () => {
         }
       },
       'checks': '[\n  {\n    "type": "search",\n    "name": "mysearch",\n    "target": "mysearch",\n    "request": {\n      "indices": [\n        "kibana_sample_data_flights"\n      ],\n      "body": {\n        "size": 0,\n        "aggregations": {\n          "metricAgg": {\n            "sum": {\n              "field": "AvgTicketPrice"\n            }\n          }\n        },\n        "query": {\n          "bool": {\n            "filter": {\n              "range": {\n                "timestamp": {\n                  "gte": "now-1h",\n                  "lte": "now"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    "type": "condition.script",\n    "name": "mycondition",\n    "source": "data.mysearch.aggregations.metricAgg.value > 500"\n  }\n]',
+      'resolve_actions': [],
       'actions': [
         {
           'type': 'webhook',
@@ -1356,6 +1518,7 @@ describe('watchToFormik', () => {
       ],
       '_ui': {
         'isSeverity': false,
+        'isResolveActions': false,
         'severity': {
           'value': [{ 'label': '' }],
           'order': 'ascending',
@@ -1573,6 +1736,7 @@ describe('watchToFormik', () => {
         }
       },
       'checks': '[\n  {\n    "type": "search",\n    "name": "mysearch",\n    "target": "mysearch",\n    "request": {\n      "indices": [\n        "kibana_sample_data_flights"\n      ],\n      "body": {\n        "size": 0,\n        "aggregations": {\n          "bucketAgg": {\n            "terms": {\n              "field": "Carrier",\n              "size": 3,\n              "order": {\n                "metricAgg": "asc"\n              }\n            },\n            "aggregations": {\n              "metricAgg": {\n                "sum": {\n                  "field": "AvgTicketPrice"\n                }\n              }\n            }\n          }\n        },\n        "query": {\n          "bool": {\n            "filter": {\n              "range": {\n                "timestamp": {\n                  "gte": "now-5h",\n                  "lte": "now"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    "type": "condition.script",\n    "name": "mycondition",\n    "source": "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i][\'metricAgg\'].value > 500) { return true; } } return false;"\n  }\n]',
+      'resolve_actions': [],
       'actions': [
         {
           'type': 'webhook',
@@ -1593,6 +1757,7 @@ describe('watchToFormik', () => {
       ],
       '_ui': {
         'isSeverity': false,
+        'isResolveActions': false,
         'severity': {
           'value': [{ 'label': '' }],
           'order': 'ascending',
@@ -1799,6 +1964,7 @@ describe('watchToFormik', () => {
         }
       },
       'checks': '[\n  {\n    "type": "search",\n    "name": "mysearch",\n    "target": "mysearch",\n    "request": {\n      "indices": [\n        "kibana_sample_data_flights"\n      ],\n      "body": {\n        "size": 0,\n        "aggregations": {\n          "metricAgg": {\n            "min": {\n              "field": "AvgTicketPrice"\n            }\n          }\n        },\n        "query": {\n          "bool": {\n            "filter": {\n              "range": {\n                "timestamp": {\n                  "gte": "now-1h",\n                  "lte": "now"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    "type": "condition.script",\n    "name": "mycondition",\n    "source": "data.mysearch.aggregations.metricAgg.value > 500"\n  }\n]',
+      'resolve_actions': [],
       'actions': [
         {
           'type': 'webhook',
@@ -1819,6 +1985,7 @@ describe('watchToFormik', () => {
       ],
       '_ui': {
         'isSeverity': false,
+        'isResolveActions': false,
         'severity': {
           'value': [{ 'label': '' }],
           'order': 'ascending',
@@ -2036,6 +2203,7 @@ describe('watchToFormik', () => {
         }
       },
       'checks': '[\n  {\n    "type": "search",\n    "name": "mysearch",\n    "target": "mysearch",\n    "request": {\n      "indices": [\n        "kibana_sample_data_flights"\n      ],\n      "body": {\n        "size": 0,\n        "aggregations": {\n          "bucketAgg": {\n            "terms": {\n              "field": "Carrier",\n              "size": 3,\n              "order": {\n                "metricAgg": "asc"\n              }\n            },\n            "aggregations": {\n              "metricAgg": {\n                "min": {\n                  "field": "AvgTicketPrice"\n                }\n              }\n            }\n          }\n        },\n        "query": {\n          "bool": {\n            "filter": {\n              "range": {\n                "timestamp": {\n                  "gte": "now-5h",\n                  "lte": "now"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    "type": "condition.script",\n    "name": "mycondition",\n    "source": "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i][\'metricAgg\'].value > 500) { return true; } } return false;"\n  }\n]',
+      'resolve_actions': [],
       'actions': [
         {
           'type': 'webhook',
@@ -2056,6 +2224,7 @@ describe('watchToFormik', () => {
       ],
       '_ui': {
         'isSeverity': false,
+        'isResolveActions': false,
         'severity': {
           'value': [{ 'label': '' }],
           'order': 'ascending',
@@ -2262,6 +2431,7 @@ describe('watchToFormik', () => {
         }
       },
       'checks': '[\n  {\n    "type": "search",\n    "name": "mysearch",\n    "target": "mysearch",\n    "request": {\n      "indices": [\n        "kibana_sample_data_flights"\n      ],\n      "body": {\n        "size": 0,\n        "aggregations": {\n          "metricAgg": {\n            "max": {\n              "field": "AvgTicketPrice"\n            }\n          }\n        },\n        "query": {\n          "bool": {\n            "filter": {\n              "range": {\n                "timestamp": {\n                  "gte": "now-1h",\n                  "lte": "now"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    "type": "condition.script",\n    "name": "mycondition",\n    "source": "data.mysearch.aggregations.metricAgg.value > 500"\n  }\n]',
+      'resolve_actions': [],
       'actions': [
         {
           'type': 'webhook',
@@ -2282,6 +2452,7 @@ describe('watchToFormik', () => {
       ],
       '_ui': {
         'isSeverity': false,
+        'isResolveActions': false,
         'severity': {
           'value': [{ 'label': '' }],
           'order': 'ascending',
@@ -2499,6 +2670,7 @@ describe('watchToFormik', () => {
         }
       },
       'checks': '[\n  {\n    "type": "search",\n    "name": "mysearch",\n    "target": "mysearch",\n    "request": {\n      "indices": [\n        "kibana_sample_data_flights"\n      ],\n      "body": {\n        "size": 0,\n        "aggregations": {\n          "bucketAgg": {\n            "terms": {\n              "field": "Carrier",\n              "size": 3,\n              "order": {\n                "metricAgg": "asc"\n              }\n            },\n            "aggregations": {\n              "metricAgg": {\n                "max": {\n                  "field": "AvgTicketPrice"\n                }\n              }\n            }\n          }\n        },\n        "query": {\n          "bool": {\n            "filter": {\n              "range": {\n                "timestamp": {\n                  "gte": "now-5h",\n                  "lte": "now"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    "type": "condition.script",\n    "name": "mycondition",\n    "source": "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i][\'metricAgg\'].value > 500) { return true; } } return false;"\n  }\n]',
+      'resolve_actions': [],
       'actions': [
         {
           'type': 'webhook',
@@ -2519,6 +2691,7 @@ describe('watchToFormik', () => {
       ],
       '_ui': {
         'isSeverity': false,
+        'isResolveActions': false,
         'severity': {
           'value': [{ 'label': '' }],
           'order': 'ascending',
@@ -2693,6 +2866,7 @@ describe('watchToFormik', () => {
         }
       },
       'checks': '[\n  {\n    "type": "search",\n    "name": "testsearch",\n    "target": "testsearch",\n    "request": {\n      "indices": [\n        "kibana_sample_data_ecommerce"\n      ],\n      "body": {\n        "from": 0,\n        "size": 10,\n        "query": {\n          "range": {\n            "taxful_total_price": {\n              "gte": 100\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    "type": "condition.script",\n    "name": "testcondition",\n    "source": "ctx.testsearch.hits.hits.length > 0"\n  }\n]',
+      'resolve_actions': [],
       'actions': [
         {
           'type': 'index',
@@ -2729,6 +2903,7 @@ describe('watchToFormik', () => {
       ],
       '_ui': {
         'isSeverity': false,
+        'isResolveActions': false,
         'severity': {
           'value': [{ 'label': '' }],
           'order': 'ascending',
@@ -2908,6 +3083,7 @@ describe('watchToFormik', () => {
         }
       },
       'checks': '[\n  {\n    "type": "search",\n    "name": "testsearch",\n    "target": "testsearch",\n    "request": {\n      "indices": [\n        "kibana_sample_data_ecommerce"\n      ],\n      "body": {\n        "from": 0,\n        "size": 10,\n        "query": {\n          "range": {\n            "taxful_total_price": {\n              "gte": 100\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    "type": "condition.script",\n    "name": "testcondition",\n    "source": "ctx.testsearch.hits.hits.length > 0"\n  }\n]',
+      'resolve_actions': [],
       'actions': [
         {
           'type': 'index',
@@ -2944,6 +3120,7 @@ describe('watchToFormik', () => {
       ],
       '_ui': {
         'isSeverity': false,
+        'isResolveActions': false,
         'severity': {
           'value': [{ 'label': '' }],
           'order': 'ascending',

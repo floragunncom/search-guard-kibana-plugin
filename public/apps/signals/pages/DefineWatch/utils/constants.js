@@ -23,14 +23,15 @@ export const SEVERITY_COLORS = {
   info: '#ccd5e2',
   warning: '#d7a64e',
   error: '#cf5e59',
-  critical: '#000000'
+  critical: '#000000',
+  none: '#ffffff'
 };
 
 export const SEVERITY_OPTIONS = [
-  { label: SEVERITY.INFO, color: 'default' },
-  { label: SEVERITY.WARNING, color: 'warning' },
-  { label: SEVERITY.ERROR, color: 'danger' },
-  { label: SEVERITY.CRITICAL, color: '#000000' }
+  { label: SEVERITY.INFO, color: SEVERITY_COLORS.info },
+  { label: SEVERITY.WARNING, color: SEVERITY_COLORS.warning },
+  { label: SEVERITY.ERROR, color: SEVERITY_COLORS.error },
+  { label: SEVERITY.CRITICAL, color: SEVERITY_COLORS.critical }
 ];
 
 export const SEVERITY_ORDER = {
@@ -40,6 +41,7 @@ export const SEVERITY_ORDER = {
 
 export const SEVERITY_META_DEFAULTS = {
   isSeverity: false,
+  isResolveActions: false,
   severity: {
     value: [{ label: '' }],
     order: SEVERITY_ORDER.ASCENDING,

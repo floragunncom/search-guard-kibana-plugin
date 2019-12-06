@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect as connectFormik } from 'formik';
 import { connect as connectRedux } from 'react-redux';
 import PropTypes from 'prop-types';
-import { cloneDeep, isEmpty } from 'lodash';
+import { get, cloneDeep, isEmpty } from 'lodash';
 import { EuiIcon } from '@elastic/eui';
 import { ContentPanel, PopoverButton } from '../../../../components';
 import {
@@ -16,43 +16,15 @@ import {
 } from '../Actions';
 import { AccountsService } from '../../../../services';
 import { addErrorToast } from '../../../../redux/actions';
-import { actionText } from '../../../../utils/i18n/common';
 import { resolveActionText } from '../../../../utils/i18n/watch';
 import { ACTION_TYPE } from './utils/constants';
-import * as ACTION_DEFAULTS from './utils/action_defaults';
+import { webhook, slack, index, email } from './utils/action_defaults';
 
-const newActions = {
-  [ACTION_TYPE.WEBHOOK]: {
-    Body: WebhookAction,
-    headerProps: {
-      iconType: 'logoWebhook',
-      description: 'Sends HTTP request'
-    }
-  },
-  [ACTION_TYPE.SLACK]: {
-    Body: SlackAction,
-    headerProps: {
-      iconType: 'logoSlack',
-      description: 'Sends message on Slack'
-    }
-  },
-  [ACTION_TYPE.INDEX]: {
-    Body: ElasticsearchAction,
-    headerProps: {
-      iconType: 'logoElasticsearch',
-      description: 'Puts data to index'
-    }
-  },
-  [ACTION_TYPE.EMAIL]: {
-    Body: EmailAction,
-    headerProps: {
-      iconType: 'logoGmail',
-      description: 'Sends email'
-    }
-  }
-};
+const ACTION_DEFAULTS = { webhook, slack, index, email };
 
-class ActionPanel extends Component {
+// TODO: This component duplicates code of ActionPanel.
+// Have a single unified component instead.
+class ResolveActionPanel extends Component {
   constructor(props) {
     super(props);
 
@@ -89,16 +61,14 @@ class ActionPanel extends Component {
   }
 
   addAction = actionType => {
-    const { arrayHelpers, isResolveActions } = this.props;
+    const { arrayHelpers } = this.props;
     this.triggerAddActionPopover();
 
     const newAction = cloneDeep(ACTION_DEFAULTS[actionType] || ACTION_DEFAULTS[ACTION_TYPE.EMAIL]);
-    if (isResolveActions) {
-      delete newAction.severity;
-      newAction.resolves_severity = [];
-    }
+    newAction.resolves_severity = [];
+    delete newAction.throttle_period;
+    delete newAction.severity;
 
-    console.debug('ActionPanel -- addAction', newAction);
     arrayHelpers.unshift(newAction);
   }
 
@@ -113,18 +83,88 @@ class ActionPanel extends Component {
     });
   }
 
+  renderActions = (
+    actions,
+    accounts,
+    httpClient,
+    arrayHelpers,
+    onComboBoxChange,
+    onComboBoxOnBlur,
+    onComboBoxCreateOption
+  ) => {
+    return isEmpty(actions)
+      ? null
+      : actions.map((action, index) => {
+        let ActionBody = null;
+        let headerProps = {};
+        switch (action.type) {
+          case ACTION_TYPE.EMAIL:
+            ActionBody = EmailAction;
+            headerProps = {
+              iconType: 'email',
+              description: 'Sends email'
+            };
+            break;
+          case ACTION_TYPE.WEBHOOK:
+            ActionBody = WebhookAction;
+            headerProps = {
+              description: 'Sends HTTP request'
+            };
+            break;
+          case ACTION_TYPE.SLACK:
+            ActionBody = SlackAction;
+            headerProps = {
+              description: 'Sends message on Slack'
+            };
+            break;
+          case ACTION_TYPE.INDEX:
+            ActionBody = ElasticsearchAction;
+            headerProps = {
+              description: 'Puts data to a Elasticsearch index'
+            };
+            break;
+        }
+
+        return !ActionBody
+          ? null
+          : <Action
+            name={action.name}
+            key={index}
+            id={index.toString(2)}
+            actionHeader={<Header actionName={action.name} {...headerProps} />}
+            actionBody={
+              <ActionBody
+                isResolveActions
+                index={index}
+                accounts={accounts}
+                httpClient={httpClient}
+                arrayHelpers={arrayHelpers}
+                onComboBoxChange={onComboBoxChange}
+                onComboBoxOnBlur={onComboBoxOnBlur}
+                onComboBoxCreateOption={onComboBoxCreateOption}
+              />
+            }
+            deleteButton={
+              <DeleteActionButton
+                name={action.name}
+                onDeleteAction={() => this.deleteAction(index, action.name, arrayHelpers)}
+              />
+            }
+          />;
+      });
+  };
+
   render() {
     const {
-      isResolveActions,
       httpClient,
       arrayHelpers,
-      formik: { values: { actions } },
+      formik: { values },
       onComboBoxChange,
       onComboBoxOnBlur,
       onComboBoxCreateOption
     } = this.props;
 
-    const hasActions = !isEmpty(actions);
+    const actions = get(values, 'resolve_actions', []);
     const { isAddActionPopoverOpen, isLoading, accounts } = this.state;
 
     const addActionContextMenuPanels = [
@@ -134,22 +174,22 @@ class ActionPanel extends Component {
         items: [
           {
             name: 'Email',
-            icon: (<EuiIcon type="logoGmail" size="m" />),
+            icon: (<EuiIcon type="email" size="m" />),
             onClick: () => this.addAction(ACTION_TYPE.EMAIL)
           },
           {
             name: 'Slack',
-            icon: (<EuiIcon type="logoSlack" size="m" />),
+            icon: (<EuiIcon type="empty" size="m" />),
             onClick: () => this.addAction(ACTION_TYPE.SLACK)
           },
           {
             name: 'Webhook',
-            icon: (<EuiIcon type="logoWebhook" size="m" />),
+            icon: (<EuiIcon type="empty" size="m" />),
             onClick: () => this.addAction(ACTION_TYPE.WEBHOOK)
           },
           {
             name: 'Elasticsearch',
-            icon: (<EuiIcon type="logoElasticsearch" size="m" />),
+            icon: (<EuiIcon type="empty" size="m" />),
             onClick: () => this.addAction(ACTION_TYPE.INDEX)
           },
           {
@@ -163,7 +203,7 @@ class ActionPanel extends Component {
 
     return (
       <ContentPanel
-        title={isResolveActions ? resolveActionText : actionText}
+        title={resolveActionText}
         titleSize="s"
         bodyStyles={{ padding: 'initial', paddingLeft: '10px' }}
         actions={(
@@ -177,49 +217,22 @@ class ActionPanel extends Component {
         )}
       >
         <div style={{ paddingLeft: '10px' }}>
-          {hasActions ? (
-            actions.map((action, index) => {
-              const { Body, headerProps } = newActions[action.type];
-              return (
-                <Action
-                  name={action.name}
-                  key={index}
-                  id={index.toString(2)}
-                  actionHeader={<Header actionName={action.name} {...headerProps} />}
-                  actionBody={(
-                    <Body
-                      isResolveActions={isResolveActions}
-                      index={index}
-                      accounts={accounts}
-                      httpClient={httpClient}
-                      arrayHelpers={arrayHelpers}
-                      onComboBoxChange={onComboBoxChange}
-                      onComboBoxOnBlur={onComboBoxOnBlur}
-                      onComboBoxCreateOption={onComboBoxCreateOption}
-                    />
-                  )}
-                  deleteButton={
-                    <DeleteActionButton
-                      name={action.name}
-                      onDeleteAction={() => this.deleteAction(index, action.name, arrayHelpers)}
-                    />
-                  }
-                />
-              );
-            })
-          ) : null}
+          {this.renderActions(
+            actions,
+            accounts,
+            httpClient,
+            arrayHelpers,
+            onComboBoxChange,
+            onComboBoxOnBlur,
+            onComboBoxCreateOption
+          )}
         </div>
       </ContentPanel>
     );
   }
 }
 
-ActionPanel.defaultProps = {
-  isResolveActions: false
-};
-
-ActionPanel.propTypes = {
-  isResolveActions: PropTypes.bool,
+ResolveActionPanel.propTypes = {
   dispatch: PropTypes.func.isRequired,
   httpClient: PropTypes.func.isRequired,
   arrayHelpers: PropTypes.object.isRequired,
@@ -230,4 +243,4 @@ ActionPanel.propTypes = {
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired
 };
 
-export default connectRedux()(connectFormik(ActionPanel));
+export default connectRedux()(connectFormik(ResolveActionPanel));
