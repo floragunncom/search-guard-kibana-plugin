@@ -1,6 +1,8 @@
 import React, { Fragment } from 'react';
 import chrome from 'ui/chrome';
 import PropTypes from 'prop-types';
+import { connect as connectFormik } from 'formik';
+import { get } from 'lodash';
 import { EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
 import {
   FormikCodeEditor,
@@ -16,7 +18,8 @@ import {
   methodText
 } from '../../../../../utils/i18n/common';
 import {
-  severityText
+  severityText,
+  resolvesSeverityText
 } from '../../../../../utils/i18n/watch';
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
@@ -35,150 +38,175 @@ let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
 theme = !IS_DARK_THEME ? theme : darkTheme;
 
 const WebhookAction = ({
+  isResolveActions,
+  formik: { values },
   index,
   onComboBoxChange,
   onComboBoxOnBlur,
   onComboBoxCreateOption
-}) => (
-  <Fragment>
-    <EuiFlexGroup className="sg-group" justifyContent="spaceBetween">
-      <EuiFlexItem className="sg-item">
-        <FormikFieldText
-          name={`actions[${index}].name`}
-          formRow
-          rowProps={{
-            label: nameText,
-            isInvalid,
-            error: hasError,
-          }}
-          elementProps={{
-            isInvalid,
-            onFocus: (e, field, form) => {
-              form.setFieldError(field.name, undefined);
-            },
-          }}
-          formikFieldProps={{
-            validate: validateEmptyField
-          }}
-        />
-        <FormikComboBox
-          name={`actions[${index}].severity`}
-          formRow
-          rowProps={{
-            label: severityText,
-            isInvalid,
-            error: hasError,
-          }}
-          elementProps={{
-            options: SEVERITY_OPTIONS,
-            isClearable: true,
-            placeholder: 'Select severity',
-            onBlur: onComboBoxOnBlur,
-            onChange: onComboBoxChange(),
-            onCreateOption: onComboBoxCreateOption()
-          }}
-        />
-        <ActionThrottlePeriod index={index} />
-        <FormikSelect
-          name={`actions[${index}].request.method`}
-          formRow
-          rowProps={{
-            label: methodText,
-          }}
-          elementProps={{
-            options: METHOD_SELECT,
-          }}
-        />
-        <FormikFieldText
-          name={`actions[${index}].request.url`}
-          formRow
-          rowProps={{
-            label: urlText,
-            isInvalid,
-            error: hasError,
-          }}
-          elementProps={{
-            isInvalid,
-            onFocus: (e, field, form) => {
-              form.setFieldError(field.name, undefined);
-            },
-          }}
-          formikFieldProps={{
-            validate: validateEmptyField
-          }}
-        />
-      </EuiFlexItem>
-      <EuiFlexItem className="sg-item">
-        <FormikCodeEditor
-          name={`actions[${index}].request.headers`}
-          formRow
-          rowProps={{
-            label: headersText,
-            isInvalid,
-            error: hasError
-          }}
-          elementProps={{
-            isInvalid,
-            setOptions: {
-              ...setOptions,
-              maxLines: 10,
-              minLines: 10
-            },
-            mode: 'text',
-            theme,
-            onChange: (e, text, field, form) => {
-              form.setFieldValue(field.name, text);
-            },
-            onBlur: (e, field, form) => {
-              form.setFieldTouched(field.name, true);
-            },
-          }}
-          formikFieldProps={{
-            validate: validateJsonString
-          }}
-        />
-      </EuiFlexItem>
-    </EuiFlexGroup>
-    <EuiSpacer />
-    <FormikCodeEditor
-      name={`actions[${index}].request.body`}
-      formRow
-      rowProps={{
-        label: bodyText,
-        fullWidth: true,
-        isInvalid,
-        error: hasError,
-      }}
-      elementProps={{
-        isInvalid,
-        setOptions: {
-          ...setOptions,
-          maxLines: 10,
-          minLines: 10
-        },
-        mode: 'text',
-        width: '100%',
-        theme,
-        onChange: (e, text, field, form) => {
-          form.setFieldValue(field.name, text);
-        },
-        onBlur: (e, field, form) => {
-          form.setFieldTouched(field.name, true);
-        },
-      }}
-      formikFieldProps={{
-        validate: validateEmptyField
-      }}
-    />
-    <ActionBodyPreview index={index} />
-  </Fragment>
-);
+}) => {
+  const isSeverity = get(values, '_ui.isSeverity', false);
+
+  const severityLabel = isResolveActions ? resolvesSeverityText : severityText;
+  const severityPath = isResolveActions
+    ? `resolve_actions[${index}].resolves_severity`
+    : `actions[${index}].severity`;
+
+  const actionsRootPath = isResolveActions ? 'resolve_actions' : 'actions';
+  const namePath = `${actionsRootPath}[${index}].name`;
+  const requestMethodPath = `${actionsRootPath}[${index}].request.method`;
+  const requestUrlPath = `${actionsRootPath}[${index}].request.url`;
+  const requestHeadersPath = `${actionsRootPath}[${index}].request.headers`;
+  const requestBodyPath = `${actionsRootPath}[${index}].request.body`;
+  const requestBodyPreviewTemplate = get(values, `${actionsRootPath}[${index}].request.body`, '');
+
+  return (
+    <Fragment>
+      <EuiFlexGroup className="sg-group" justifyContent="spaceBetween">
+        <EuiFlexItem className="sg-item">
+          <FormikFieldText
+            name={namePath}
+            formRow
+            rowProps={{
+              label: nameText,
+              isInvalid,
+              error: hasError,
+            }}
+            elementProps={{
+              isInvalid,
+              onFocus: (e, field, form) => {
+                form.setFieldError(field.name, undefined);
+              },
+            }}
+            formikFieldProps={{
+              validate: validateEmptyField
+            }}
+          />
+          {isSeverity && <FormikComboBox
+            name={severityPath}
+            formRow
+            rowProps={{
+              label: severityLabel,
+              isInvalid,
+              error: hasError,
+            }}
+            elementProps={{
+              options: SEVERITY_OPTIONS,
+              isClearable: true,
+              placeholder: 'Select severity',
+              onBlur: onComboBoxOnBlur,
+              onChange: onComboBoxChange(),
+              onCreateOption: onComboBoxCreateOption()
+            }}
+          />}
+          {!isResolveActions && <ActionThrottlePeriod index={index} />}
+          <FormikSelect
+            name={requestMethodPath}
+            formRow
+            rowProps={{
+              label: methodText,
+            }}
+            elementProps={{
+              options: METHOD_SELECT,
+            }}
+          />
+          <FormikFieldText
+            name={requestUrlPath}
+            formRow
+            rowProps={{
+              label: urlText,
+              isInvalid,
+              error: hasError,
+            }}
+            elementProps={{
+              isInvalid,
+              onFocus: (e, field, form) => {
+                form.setFieldError(field.name, undefined);
+              },
+            }}
+            formikFieldProps={{
+              validate: validateEmptyField
+            }}
+          />
+        </EuiFlexItem>
+        <EuiFlexItem className="sg-item">
+          <FormikCodeEditor
+            name={requestHeadersPath}
+            formRow
+            rowProps={{
+              label: headersText,
+              isInvalid,
+              error: hasError
+            }}
+            elementProps={{
+              isInvalid,
+              setOptions: {
+                ...setOptions,
+                maxLines: 10,
+                minLines: 10
+              },
+              mode: 'text',
+              theme,
+              onChange: (e, text, field, form) => {
+                form.setFieldValue(field.name, text);
+              },
+              onBlur: (e, field, form) => {
+                form.setFieldTouched(field.name, true);
+              },
+            }}
+            formikFieldProps={{
+              validate: validateJsonString
+            }}
+          />
+        </EuiFlexItem>
+      </EuiFlexGroup>
+      <EuiSpacer />
+      <FormikCodeEditor
+        name={requestBodyPath}
+        formRow
+        rowProps={{
+          label: bodyText,
+          fullWidth: true,
+          isInvalid,
+          error: hasError,
+        }}
+        elementProps={{
+          isInvalid,
+          setOptions: {
+            ...setOptions,
+            maxLines: 10,
+            minLines: 10
+          },
+          mode: 'text',
+          width: '100%',
+          theme,
+          onChange: (e, text, field, form) => {
+            form.setFieldValue(field.name, text);
+          },
+          onBlur: (e, field, form) => {
+            form.setFieldTouched(field.name, true);
+          },
+        }}
+        formikFieldProps={{
+          validate: validateEmptyField
+        }}
+      />
+      <ActionBodyPreview index={index} template={requestBodyPreviewTemplate} />
+    </Fragment>
+  );
+};
+
+WebhookAction.defaultProps = {
+  isResolveActions: false
+};
 
 WebhookAction.propTypes = {
+  isResolveActions: PropTypes.bool,
+  formik: PropTypes.object.isRequired,
   index: PropTypes.number.isRequired,
   onComboBoxOnBlur: PropTypes.func.isRequired,
   onComboBoxCreateOption: PropTypes.func.isRequired,
   onComboBoxChange: PropTypes.func.isRequired
 };
 
-export default WebhookAction;
+export default connectFormik(WebhookAction);

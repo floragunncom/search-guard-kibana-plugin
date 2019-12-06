@@ -40,6 +40,12 @@ import {
   DiscreteColorLegend
 } from 'react-vis';
 import {
+  EuiText,
+  EuiSpacer,
+  EuiFlexGroup,
+  EuiFlexItem
+} from '@elastic/eui';
+import {
   getLeftPadding,
   getYTitle,
   getXDomain,
@@ -52,6 +58,7 @@ import {
 } from './utils/helpers';
 import {
   ANNOTATION_STYLES,
+  HOVERED_ANNOTATION_STYLES,
   HINT_STYLES,
   LINE_STYLES,
   HOVERED_LINE_STYLES,
@@ -64,15 +71,24 @@ export default class VisualGraph extends Component {
 
   state = {
     hint: null,
-    hoveredLineSeriesName: null
+    hoveredLineSeriesName: null,
+    hoveredThresholdName: null
   };
 
   onNearestXY = hint => {
     this.setState({ hint });
   };
 
-  onLegendItemMouseEnter = hoveredLineSeriesName => {
+  onLineSeriesLegendItemMouseEnter = hoveredLineSeriesName => {
     this.setState({ hoveredLineSeriesName });
+  };
+
+  onThresholdLegendItemMouseEnter = hoveredThresholdName => {
+    if (hoveredThresholdName == null) {
+      this.setState({ hoveredThresholdName });
+    } else {
+      this.setState({ hoveredThresholdName: hoveredThresholdName.title });
+    }
   };
 
   resetHint = () => {
@@ -83,11 +99,17 @@ export default class VisualGraph extends Component {
     const { annotation, thresholdValue, values } = this.props;
     const isSeverity = values._ui.isSeverity;
     const severityThresholds = values._ui.severity.thresholds;
-    const { hint, hoveredLineSeriesName } = this.state;
+    const { hint, hoveredLineSeriesName, hoveredThresholdName } = this.state;
 
-    const getLineSeriesStyle = lineSeriesName => lineSeriesName === hoveredLineSeriesName
-      ? HOVERED_LINE_STYLES
-      : LINE_STYLES;
+    const getLineSeriesStyle = lineSeriesName =>
+      lineSeriesName === hoveredLineSeriesName
+        ? HOVERED_LINE_STYLES
+        : LINE_STYLES;
+
+    const getThresholdStyle = thresholdName =>
+      thresholdName === hoveredThresholdName
+        ? HOVERED_ANNOTATION_STYLES
+        : ANNOTATION_STYLES;
 
     const getXYDomains = data => {
       let xDomain = [];
@@ -116,76 +138,109 @@ export default class VisualGraph extends Component {
     let annotations = [
       {
         data: getAnnotationData(xDomain, yDomain, thresholdValue),
-        color: SEVERITY_COLORS.error
+        color: SEVERITY_COLORS.error,
+        name: 'threshold'
       }
     ];
 
     if (isSeverity) {
       annotations = [];
-      Object.keys(severityThresholds).forEach(thresholdName => {
-        if (severityThresholds[thresholdName]) {
+      Object.keys(severityThresholds).forEach(name => {
+        if (severityThresholds[name]) {
           annotations.push({
-            data: getAnnotationData(xDomain, yDomain, severityThresholds[thresholdName]),
-            color: SEVERITY_COLORS[thresholdName]
+            data: getAnnotationData(xDomain, yDomain, severityThresholds[name]),
+            color: SEVERITY_COLORS[name],
+            name
           });
         }
       });
     }
 
-    const legendItems = Object.keys(data).map((bucketsName, key) => {
-      if (bucketsName === hoveredLineSeriesName) {
+    const lineSeriesLegendItems = Object.keys(data).map((name, key) => {
+      if (name === hoveredLineSeriesName) {
         return (
           <div key={key}>
-            <p><b>{bucketsName}</b></p>
+            <p><b>{name}</b></p>
           </div>
         );
       }
-      return bucketsName;
+      return name;
+    });
+
+    const thresholdLegendItems = annotations.map(({ name, color }, key) => {
+      if (name === hoveredThresholdName) {
+        return {
+          title: (
+            <div key={key}>
+              <p><b>{name}</b></p>
+            </div>
+          ),
+          color
+        };
+      }
+      return { title: name, color };
     });
 
     return (
       <>
-        <FlexibleXYPlot
-          height={400}
-          xType="time"
-          margin={{ top: 20, right: 20, bottom: 70, left: leftPadding }}
-          xDomain={xDomain}
-          yDomain={yDomain}
-          onMouseLeave={this.resetHint}
-        >
-          <XAxis title={xTitle} />
-          <XAxis
-            title={aggregationTitle}
-            position="middle"
-            orientation="top"
-            tickTotal={0}
-            top={-25}
-            style={{ strokeWidth: '0px' }}
-          />
-          <YAxis title={yTitle} tickFormat={formatYAxisTick} />
-          {Object.keys(data).map((bucketsName, key) => (
-            <LineMarkSeries
-              key={key}
-              style={getLineSeriesStyle(bucketsName)}
-              size={DEFAULT_MARK_SIZE}
-              data={data[bucketsName]}
-              onNearestXY={this.onNearestXY}
+        <EuiFlexGroup>
+          <EuiFlexItem>
+            <FlexibleXYPlot
+              height={400}
+              xType="time"
+              margin={{ top: 20, right: 20, bottom: 70, left: leftPadding }}
+              xDomain={xDomain}
+              yDomain={yDomain}
+              onMouseLeave={this.resetHint}
+            >
+              <XAxis title={xTitle} />
+              <XAxis
+                title={aggregationTitle}
+                position="middle"
+                orientation="top"
+                tickTotal={0}
+                top={-25}
+                style={{ strokeWidth: '0px' }}
+              />
+              <YAxis title={yTitle} tickFormat={formatYAxisTick} />
+              {Object.keys(data).map((name, key) => (
+                <LineMarkSeries
+                  key={key}
+                  style={getLineSeriesStyle(name)}
+                  size={DEFAULT_MARK_SIZE}
+                  data={data[name]}
+                  onNearestXY={this.onNearestXY}
+                />
+              ))}
+              {annotation && annotations.map(({ data, color, name }, key) => (
+                <LineSeries
+                  name={name}
+                  key={key}
+                  data={data}
+                  color={color}
+                  style={getThresholdStyle(name)}
+                />
+              ))}
+              {hint && (
+                <Hint value={hint}>
+                  <div style={HINT_STYLES}>({hint.y.toLocaleString()})</div>
+                </Hint>
+              )}
+            </FlexibleXYPlot>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <DiscreteColorLegend
+              onItemMouseEnter={this.onThresholdLegendItemMouseEnter}
+              onItemMouseLeave={() => this.onThresholdLegendItemMouseEnter(null)}
+              items={thresholdLegendItems}
             />
-          ))}
-          {annotation && annotations.map(({ data, color }, key) => {
-            return <LineSeries key={key} data={data} color={color} style={ANNOTATION_STYLES} />;
-          })}
-          {hint && (
-            <Hint value={hint}>
-              <div style={HINT_STYLES}>({hint.y.toLocaleString()})</div>
-            </Hint>
-          )}
-        </FlexibleXYPlot>
+          </EuiFlexItem>
+        </EuiFlexGroup>
         <DiscreteColorLegend
           orientation="horizontal"
-          onItemMouseEnter={this.onLegendItemMouseEnter}
-          onItemMouseLeave={() => this.onLegendItemMouseEnter(null)}
-          items={legendItems}
+          onItemMouseEnter={this.onLineSeriesLegendItemMouseEnter}
+          onItemMouseLeave={() => this.onLineSeriesLegendItemMouseEnter(null)}
+          items={lineSeriesLegendItems}
         />
       </>
     );

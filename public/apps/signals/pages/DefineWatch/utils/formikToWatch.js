@@ -16,6 +16,10 @@ import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
 export function buildSeverity(watch) {
   const newWatch = cloneDeep(watch);
 
+  if (!newWatch._ui.isResolveActions) {
+    delete newWatch.resolve_actions;
+  }
+
   if (!newWatch._ui.isSeverity) {
     delete newWatch.severity;
 
@@ -66,6 +70,12 @@ export function buildSeverity(watch) {
       .filter(check => check.type.includes('search'));
   }
 
+  if (newWatch._ui.isResolveActions) {
+    newWatch.resolve_actions.forEach(action => {
+      action.resolves_severity = comboBoxOptionsToArray(action.resolves_severity);
+    });
+  }
+
   return newWatch;
 }
 
@@ -113,24 +123,44 @@ export const buildIndexAction = (action = {}) => {
   return { ...action, index, checks };
 };
 
-export const buildActions = (actions = []) => actions.map(action => {
-  const watchAction = buildThrottle(action);
+export const buildActions = ({ actions = [], resolve_actions: resolveActions }) => {
+  const buildHelper = actions => {
+    const newActions = cloneDeep(actions);
 
-  if (action.type === ACTION_TYPE.INDEX) {
-    return buildIndexAction(watchAction);
+    return newActions.map(action => {
+      // resolve_actions don't have throttle_period
+      // TODO: add test for the absence of resolve_actions throttle_period
+      const watchAction = action.resolves_severity
+        ? action
+        : buildThrottle(action);
+
+      if (action.type === ACTION_TYPE.INDEX) {
+        return buildIndexAction(watchAction);
+      }
+
+      if (action.type === ACTION_TYPE.EMAIL) {
+        return buildEmailAction(watchAction);
+      }
+
+      if (action.type === ACTION_TYPE.SLACK) {
+        return buildSlackAction(watchAction);
+      }
+
+      // if ACTION_TYPE.WEBHOOK
+      return buildWebhookAction(watchAction);
+    });
+  };
+
+  const result = {
+    actions: buildHelper(actions)
+  };
+
+  if (resolveActions) {
+    result.resolve_actions = buildHelper(resolveActions);
   }
 
-  if (action.type === ACTION_TYPE.EMAIL) {
-    return buildEmailAction(watchAction);
-  }
-
-  if (action.type === ACTION_TYPE.SLACK) {
-    return buildSlackAction(watchAction);
-  }
-
-  // if ACTION_TYPE.WEBHOOK
-  return buildWebhookAction(watchAction);
-});
+  return result;
+};
 
 export const buildChecksFromChecksBlocks = (checks = []) => {
   try {
@@ -169,6 +199,6 @@ export const formikToWatch = (formik = {}) => {
     ...watch,
     ...buildSchedule(watch._ui),
     _ui: omit(watch._ui, META_FIELDS_TO_OMIT),
-    actions: buildActions(watch.actions),
+    ...buildActions(watch),
   };
 };

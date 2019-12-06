@@ -46,7 +46,10 @@ export class CodeEditor extends Component {
       console.error(`CodeEditor -- ace theme '${theme}' not found`);
     }
 
-    this.editor.getSession().setValue(value);
+    if (typeof value === 'string') {
+      this.editor.getSession().setValue(value);
+    }
+
     this.editor.getSession().setFoldStyle(foldStyle);
     this.editor.on('change', this.onChange);
     this.editor.on('blur', this.onBlur);
@@ -65,14 +68,14 @@ export class CodeEditor extends Component {
   componentDidUpdate({ insertText: prevInsertText }) {
     const { insertText: { row, column, text }, value } = this.props;
 
-    if (this.editor && this.editor.getValue() !== value) {
+    if (this.editor && this.editor.getValue() !== value && typeof value === 'string') {
       this.setState({ isSilent: true });
       this.editor.getSession().setValue(value);
       this.setState({ isSilent: false });
     }
 
     const { row: prevRow, column: prevColumn, text: prevText } = prevInsertText;
-    if (row !== prevRow || column !== prevColumn || text !== prevText) {
+    if (typeof text === 'string' && (row !== prevRow || column !== prevColumn || text !== prevText)) {
       this.insertText({ row, column, text });
     }
   }
