@@ -13,7 +13,7 @@ export const email = {
   default_to: [],
   default_cc: [],
   default_bcc: [],
-  enable_tls: true,
+  enable_tls: false,
   enable_start_tls: false,
   trust_all: false,
   trusted_hosts: [],
