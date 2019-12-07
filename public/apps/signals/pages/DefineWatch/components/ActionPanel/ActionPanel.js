@@ -25,28 +25,26 @@ const newActions = {
   [ACTION_TYPE.WEBHOOK]: {
     Body: WebhookAction,
     headerProps: {
-      iconType: 'logoWebhook',
       description: 'Sends HTTP request'
     }
   },
   [ACTION_TYPE.SLACK]: {
     Body: SlackAction,
     headerProps: {
-      iconType: 'logoSlack',
       description: 'Sends message on Slack'
     }
   },
   [ACTION_TYPE.INDEX]: {
     Body: ElasticsearchAction,
     headerProps: {
-      iconType: 'logoElasticsearch',
+      iconType: 'database',
       description: 'Puts data to index'
     }
   },
   [ACTION_TYPE.EMAIL]: {
     Body: EmailAction,
     headerProps: {
-      iconType: 'logoGmail',
+      iconType: 'email',
       description: 'Sends email'
     }
   }
@@ -134,26 +132,26 @@ class ActionPanel extends Component {
         items: [
           {
             name: 'Email',
-            icon: (<EuiIcon type="logoGmail" size="m" />),
+            icon: (<EuiIcon type="email" size="m" />),
             onClick: () => this.addAction(ACTION_TYPE.EMAIL)
           },
           {
             name: 'Slack',
-            icon: (<EuiIcon type="logoSlack" size="m" />),
+            icon: (<EuiIcon type="empty" size="m" />),
             onClick: () => this.addAction(ACTION_TYPE.SLACK)
           },
           {
             name: 'Webhook',
-            icon: (<EuiIcon type="logoWebhook" size="m" />),
+            icon: (<EuiIcon type="empty" size="m" />),
             onClick: () => this.addAction(ACTION_TYPE.WEBHOOK)
           },
           {
             name: 'Elasticsearch',
-            icon: (<EuiIcon type="logoElasticsearch" size="m" />),
+            icon: (<EuiIcon type="database" size="m" />),
             onClick: () => this.addAction(ACTION_TYPE.INDEX)
           },
           {
-            name: 'PagerDuty (comming soon)',
+            name: 'PagerDuty (coming soon)',
             icon: (<EuiIcon type="empty" size="m" />),
             onClick: () => null
           }

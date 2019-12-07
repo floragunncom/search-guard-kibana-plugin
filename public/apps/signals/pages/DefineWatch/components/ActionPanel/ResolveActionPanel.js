@@ -120,6 +120,7 @@ class ResolveActionPanel extends Component {
           case ACTION_TYPE.INDEX:
             ActionBody = ElasticsearchAction;
             headerProps = {
+              iconType: 'database',
               description: 'Puts data to a Elasticsearch index'
             };
             break;
@@ -189,11 +190,11 @@ class ResolveActionPanel extends Component {
           },
           {
             name: 'Elasticsearch',
-            icon: (<EuiIcon type="empty" size="m" />),
+            icon: (<EuiIcon type="database" size="m" />),
             onClick: () => this.addAction(ACTION_TYPE.INDEX)
           },
           {
-            name: 'PagerDuty (comming soon)',
+            name: 'PagerDuty (coming soon)',
             icon: (<EuiIcon type="empty" size="m" />),
             onClick: () => null
           }
