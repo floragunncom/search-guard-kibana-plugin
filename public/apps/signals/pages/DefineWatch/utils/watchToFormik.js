@@ -23,6 +23,7 @@ export function buildFormikSeverity(watch = {}) {
 
   if (!newWatch.severity) {
     newWatch._ui = { ...newWatch._ui, ...SEVERITY_META_DEFAULTS };
+    newWatch.resolve_actions = [];
     newWatch.actions.forEach(action => {
       action.severity = [];
     });
@@ -33,7 +34,7 @@ export function buildFormikSeverity(watch = {}) {
 
   const severity = {
     value: [{ label: value }],
-    order,
+    order: order.toLowerCase(),
     thresholds: {
       [SEVERITY.INFO]: undefined,
       [SEVERITY.WARNING]: undefined,
@@ -50,6 +51,20 @@ export function buildFormikSeverity(watch = {}) {
 
   newWatch.actions.forEach(action => {
     action.severity = action.severity.map(label => ({
+      label,
+      color: SEVERITY_COLORS[label]
+    }));
+  });
+
+  if (isEmpty(newWatch.resolve_actions)) {
+    newWatch._ui.isResolveActions = false;
+    newWatch.resolve_actions = [];
+  } else {
+    newWatch._ui.isResolveActions = true;
+  }
+
+  newWatch.resolve_actions.forEach(action => {
+    action.resolves_severity = action.resolves_severity.map(label => ({
       label,
       color: SEVERITY_COLORS[label]
     }));
@@ -112,25 +127,39 @@ export const buildFormikIndexAction = (action = {}) => ({
   checks: stringifyPretty(action.checks || [])
 });
 
-export const buildFormikActions = (actions = []) => actions.map(action => {
-  if (action.type === ACTION_TYPE.INDEX) {
-    return buildFormikThrottle(buildFormikIndexAction(action));
-  }
+export const buildFormikActions = ({ actions = [], resolve_actions: resolveActions = [] }) => {
+  const buildHelper = actions => {
+    const newActions = cloneDeep(actions);
+    return newActions.map(action => {
+      // resolve_actions don't have throttle_period
+      // TODO: add tests for this
+      const newAction = action.resolves_severity ? action : buildFormikThrottle(action);
 
-  if (action.type === ACTION_TYPE.EMAIL) {
-    return buildFormikThrottle(buildFormikEmailAction(action));
-  }
+      if (newAction.type === ACTION_TYPE.INDEX) {
+        return buildFormikIndexAction(newAction);
+      }
 
-  if (action.type === ACTION_TYPE.SLACK) {
-    return buildFormikThrottle(buildFormikSlackAction(action));
-  }
+      if (newAction.type === ACTION_TYPE.EMAIL) {
+        return buildFormikEmailAction(newAction);
+      }
 
-  if (action.type === ACTION_TYPE.WEBHOOK) {
-    return buildFormikThrottle(buildFormikWebhookAction(action));
-  }
+      if (newAction.type === ACTION_TYPE.SLACK) {
+        return buildFormikSlackAction(newAction);
+      }
 
-  return buildFormikThrottle(action);
-});
+      if (newAction.type === ACTION_TYPE.WEBHOOK) {
+        return buildFormikWebhookAction(newAction);
+      }
+
+      return newAction;
+    });
+  };
+
+  return {
+    actions: buildHelper(actions),
+    resolve_actions: buildHelper(resolveActions)
+  };
+};
 
 export const watchToFormik = (watch = {}) => {
   const formik = {
@@ -139,12 +168,17 @@ export const watchToFormik = (watch = {}) => {
   };
 
   const uiMeta = buildFormikMeta(watch);
-  const { actions, _ui, ...rest } = buildFormikSeverity({ ...formik, _ui: uiMeta });
+  const {
+    actions,
+    resolve_actions: resolveActions,
+    _ui,
+    ...rest
+  } = buildFormikSeverity({ ...formik, _ui: uiMeta });
 
   return {
     ...rest,
     _ui,
     checks: buildFormikChecks(formik.checks),
-    actions: buildFormikActions(actions)
+    ...buildFormikActions({ actions, resolve_actions: resolveActions })
   };
 };

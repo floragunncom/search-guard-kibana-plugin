@@ -38,7 +38,7 @@ import {
   confirmText,
   onText,
   byText,
-  unknownStatusText
+  unknownText
 } from '../../utils/i18n/common';
 import {
   watchToFormik,
@@ -57,7 +57,7 @@ import {
   executionHistoryText,
   lastStatusText,
   lastExecutionText,
-  severityText
+  severityText,
 } from '../../utils/i18n/watch';
 import {
   APP_PATH,
@@ -357,17 +357,22 @@ class Watches extends Component {
           } = actionAndWatchStatusToIconProps(statusCode);
 
           return (
-            <EuiFlexGroup key={key}>
-              <EuiFlexItem grow={false}>
-                <EuiToolTip content={nodeText}>
-                  <EuiIcon
-                    data-test-subj={`sgTableCol-Actions-icon-${watch._id}-${action.name}`}
-                    {...iconProps}
-                  />
-                </EuiToolTip>
-              </EuiFlexItem>
-              <EuiFlexItem>{ackLink} {action.name}</EuiFlexItem>
-            </EuiFlexGroup>
+            <div key={key}>
+              <EuiFlexGroup>
+                <EuiFlexItem grow={false}>
+                  <EuiToolTip content={nodeText}>
+                    <EuiIcon
+                      data-test-subj={`sgTableCol-Actions-icon-${watch._id}-${action.name}`}
+                      {...iconProps}
+                    />
+                  </EuiToolTip>
+                </EuiFlexItem>
+                <EuiFlexItem>{action.name}</EuiFlexItem>
+              </EuiFlexGroup>
+              <EuiFlexGroup>
+                <EuiFlexItem>{ackLink}</EuiFlexItem>
+              </EuiFlexGroup>
+            </div>
           );
         })}
       </div>
@@ -381,7 +386,9 @@ class Watches extends Component {
       <div>
         {actions.map((action, key) => {
           let lastExecution = get(_ui, `state.actions[${action.name}].last_execution`);
-          lastExecution = !lastExecution ? unknownStatusText : dateFormat(lastExecution);
+          lastExecution = !lastExecution
+            ? unknownText
+            : dateFormat(lastExecution);
 
           return (
             <EuiFlexGroup key={key}>
@@ -424,7 +431,6 @@ class Watches extends Component {
     return (
       <EuiToolTip content={nodeText}>
         <EuiBadge
-          className="sg-watches-lastStatus-col-badge"
           iconType={iconType}
           {...badgeProps}
         >
@@ -434,14 +440,39 @@ class Watches extends Component {
     );
   };
 
-  renderSeverityColumn = watch => {
-    const level = get(watch, '_ui.state.last_execution.severity.mapping_element.level', '');
+  renderSeverityColumn = (field, watch) => {
+    const severityLevel = get(watch, '_ui.state.last_execution.severity.level', '');
+    const severityMappingLevel = get(watch, '_ui.state.last_execution.severity.mapping_element.level', '');
+    const level = severityMappingLevel || severityLevel;
     const threshold = get(watch, '_ui.state.last_execution.severity.mapping_element.threshold', '');
-    if (!level || !threshold) return unknownStatusText;
+    const value = get(watch, '_ui.state.last_execution.severity.value', '');
 
-    const text = `${level} ${threshold}`;
+    let text = '';
+    if (level) {
+      text += `${level}`;
+    }
+    if (threshold) {
+      text += ` ${threshold}`;
+    }
+    if (value) {
+      text += ` ${value}`;
+    }
+
+    if (!text) return null;
+
+    let tooltipText = '';
+    if (level) {
+      tooltipText += ` ${level}`;
+    }
+    if (threshold) {
+      tooltipText += ` threshold=${threshold}`;
+    }
+    if (value) {
+      tooltipText += ` value=${value}`;
+    }
+
     return (
-      <EuiToolTip content={text}>
+      <EuiToolTip content={tooltipText}>
         <EuiBadge
           className="sg-watches-severity-col-badge"
           color={SEVERITY_COLORS[level]}
@@ -496,14 +527,16 @@ class Watches extends Component {
       },
       {
         field: '_ui.state.last_status.code',
-        width: '15%',
         name: lastStatusText,
         footer: lastStatusText,
+        sortable: true,
         render: this.renderLastStatusColumn
       },
       {
+        field: '_ui.state.last_execution.severity',
         name: severityText,
         footer: severityText,
+        sortable: true,
         render: this.renderSeverityColumn
       },
       {
@@ -547,7 +580,7 @@ class Watches extends Component {
         )
       },
       {
-        width: '25%',
+        width: '20%',
         field: 'actions',
         name: actionsText,
         footer: actionsText,

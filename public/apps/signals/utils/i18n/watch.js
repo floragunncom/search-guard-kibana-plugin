@@ -3,6 +3,10 @@ import { EuiI18n } from '@elastic/eui';
 
 export * from '../../../utils/i18n/common';
 
+export const resolvesSeverityText = (<EuiI18n token="sg.watch.resolvesSeverity.text" default="Resolves Severity" />);
+export const resolvedText = (<EuiI18n token="sg.watch.resolved.text" default="Resolved" />);
+export const resolveText = (<EuiI18n token="sg.watch.resolve.text" default="Resolve" />);
+export const resolveActionText = (<EuiI18n token="sg.watch.resolveAction.text" default="Resolve Action" />);
 export const severityText = (<EuiI18n token="sg.watch.severity.text" default="Severity" />);
 export const lastStatusText = (<EuiI18n token="sg.watch.lastStatus.text" default="Last Status" />);
 export const failedText = (<EuiI18n token="sg.watch.failed.text" default="Failed" />);

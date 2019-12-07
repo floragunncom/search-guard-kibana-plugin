@@ -6,6 +6,7 @@ export const fieldText = (<EuiI18n token="sg.common.field.text" default="Field" 
 export const homeText = (<EuiI18n token="sg.common.home.text" default="Home" />);
 export const byText = (<EuiI18n token="sg.common.by.text" default="by" />);
 export const onText = (<EuiI18n token="sg.common.on.text" default="on" />);
+export const unknownText = (<EuiI18n token="sg.common.unknown.text" default="Unknown" />);
 export const unknownStatusText = (<EuiI18n token="sg.common.unknownStatus.text" default="Unknown Status" />);
 export const infoText = (<EuiI18n token="sg.common.info.text" default="Info" />);
 export const warningText = (<EuiI18n token="sg.common.warning.text" default="Warning" />);

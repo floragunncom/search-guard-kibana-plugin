@@ -9,6 +9,7 @@ import {
   EuiFlexItem,
   EuiFlexGroup,
 } from '@elastic/eui';
+import { get } from 'lodash';
 import { WatchService } from '../../services';
 import { addErrorToast, addSuccessToast } from '../../redux/actions';
 import { watchToFormik, formikToWatch } from './utils';
@@ -16,7 +17,8 @@ import { DEFAULT_WATCH } from './utils/constants';
 import {
   GeneralPanel,
   DefinitionPanel,
-  ActionPanel
+  ActionPanel,
+  ResolveActionPanel
 } from './components';
 import {
   CancelButton,
@@ -118,51 +120,85 @@ class DefineWatch extends Component {
           onSubmit={this.onSubmit}
           validateOnChange={false}
           enableReinitialize
-          render={({ handleSubmit, isSubmitting }) => (
-            <Fragment>
-              <EuiTitle size="l">
-                <h1>{isEdit ? updateWatchText : createWatchText}</h1>
-              </EuiTitle>
-              <EuiSpacer />
-              <GeneralPanel httpClient={httpClient} location={location} />
-              <EuiSpacer />
-              <DefinitionPanel
-                httpClient={httpClient}
-                onTriggerFlyout={onTriggerFlyout}
-                onComboBoxChange={onComboBoxChange}
-                onComboBoxOnBlur={onComboBoxOnBlur}
-                onComboBoxCreateOption={onComboBoxCreateOption}
-                onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
-              />
-              <EuiSpacer />
-              <FieldArray
-                name="actions"
-                render={arrayHelpers => (
-                  <ActionPanel
-                    httpClient={httpClient}
-                    arrayHelpers={arrayHelpers}
-                    onComboBoxChange={onComboBoxChange}
-                    onComboBoxOnBlur={onComboBoxOnBlur}
-                    onComboBoxCreateOption={onComboBoxCreateOption}
-                    onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
-                  />
+          render={({ handleSubmit, isSubmitting, values }) => {
+            const isResolveActions = get(values, '_ui.isResolveActions', false);
+
+            return (
+              <Fragment>
+                <EuiTitle size="l">
+                  <h1>{isEdit ? updateWatchText : createWatchText}</h1>
+                </EuiTitle>
+                <EuiFlexGroup alignItems="center" justifyContent="flexEnd">
+                  <EuiFlexItem grow={false}>
+                    <CancelButton onClick={this.onCancel} />
+                  </EuiFlexItem>
+                  <EuiFlexItem grow={false}>
+                    <SaveButton
+                      isLoading={isSubmitting}
+                      value={isEdit ? updateText : createText}
+                      onClick={handleSubmit}
+                    />
+                  </EuiFlexItem>
+                </EuiFlexGroup>
+                <EuiSpacer />
+                <GeneralPanel httpClient={httpClient} location={location} />
+                <EuiSpacer />
+                <DefinitionPanel
+                  httpClient={httpClient}
+                  onTriggerFlyout={onTriggerFlyout}
+                  onComboBoxChange={onComboBoxChange}
+                  onComboBoxOnBlur={onComboBoxOnBlur}
+                  onComboBoxCreateOption={onComboBoxCreateOption}
+                  onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
+                />
+                <EuiSpacer />
+                <FieldArray
+                  name="actions"
+                  render={arrayHelpers => (
+                    <ActionPanel
+                      httpClient={httpClient}
+                      arrayHelpers={arrayHelpers}
+                      onComboBoxChange={onComboBoxChange}
+                      onComboBoxOnBlur={onComboBoxOnBlur}
+                      onComboBoxCreateOption={onComboBoxCreateOption}
+                      onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
+                    />
+                  )}
+                />
+                {isResolveActions && (
+                  <>
+                    <EuiSpacer />
+                    <FieldArray
+                      name="resolve_actions"
+                      render={arrayHelpers => (
+                        <ResolveActionPanel
+                          httpClient={httpClient}
+                          arrayHelpers={arrayHelpers}
+                          onComboBoxChange={onComboBoxChange}
+                          onComboBoxOnBlur={onComboBoxOnBlur}
+                          onComboBoxCreateOption={onComboBoxCreateOption}
+                          onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
+                        />
+                      )}
+                    />
+                  </>
                 )}
-              />
-              <EuiSpacer />
-              <EuiFlexGroup alignItems="center" justifyContent="flexEnd">
-                <EuiFlexItem grow={false}>
-                  <CancelButton onClick={this.onCancel} />
-                </EuiFlexItem>
-                <EuiFlexItem grow={false}>
-                  <SaveButton
-                    isLoading={isSubmitting}
-                    value={isEdit ? updateText : createText}
-                    onClick={handleSubmit}
-                  />
-                </EuiFlexItem>
-              </EuiFlexGroup>
-            </Fragment>
-          )}
+                <EuiSpacer />
+                <EuiFlexGroup alignItems="center" justifyContent="flexEnd">
+                  <EuiFlexItem grow={false}>
+                    <CancelButton onClick={this.onCancel} />
+                  </EuiFlexItem>
+                  <EuiFlexItem grow={false}>
+                    <SaveButton
+                      isLoading={isSubmitting}
+                      value={isEdit ? updateText : createText}
+                      onClick={handleSubmit}
+                    />
+                  </EuiFlexItem>
+                </EuiFlexGroup>
+              </Fragment>
+            );
+          }}
         />
       </div>
     );

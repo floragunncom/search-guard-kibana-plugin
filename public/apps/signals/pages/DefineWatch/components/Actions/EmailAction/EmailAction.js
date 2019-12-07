@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import chrome from 'ui/chrome';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
-import { isEmpty } from 'lodash';
+import { isEmpty, get } from 'lodash';
 import { EuiSpacer } from '@elastic/eui';
 import {
   FormikCodeEditor,
@@ -20,7 +20,8 @@ import {
   subjectText,
   ccText,
   bccText,
-  severityText
+  severityText,
+  resolvesSeverityText
 } from '../../../../../utils/i18n/watch';
 import {
   validateEmailAddr,
@@ -36,25 +37,43 @@ import { ACCOUNT_TYPE } from '../../../../Accounts/utils/constants';
 import { CODE_EDITOR } from '../../../../../../utils/constants';
 
 const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
-let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
+const { darkTheme, ...setOptions } = CODE_EDITOR;
+let { theme } = CODE_EDITOR;
 theme = !IS_DARK_THEME ? theme : darkTheme;
 
 const EmailAction = ({
+  isResolveActions,
   index,
   accounts,
-  formik: { values: { actions } },
+  formik: { values },
   onComboBoxChange,
   onComboBoxOnBlur,
   onComboBoxCreateOption
 }) => {
-  const currAccount = getCurrentAccount(accounts, actions[index].account);
+  const actionsRootPath = isResolveActions ? 'resolve_actions' : 'actions';
+  const currAccount = getCurrentAccount(accounts, get(values, `${actionsRootPath}[${index}].account`));
   const isDefaultFrom = !!currAccount && !isEmpty(currAccount.default_from);
   const isDefaultTo = !!currAccount && !isEmpty(currAccount.default_to);
+  const isSeverity = get(values, '_ui.isSeverity', false);
+
+  const severityLabel = isResolveActions ? resolvesSeverityText : severityText;
+  const severityPath = isResolveActions
+    ? `resolve_actions[${index}].resolves_severity`
+    : `actions[${index}].severity`;
+
+  const namePath = `${actionsRootPath}[${index}].name`;
+  const fromPath = `${actionsRootPath}[${index}].from`;
+  const toPath = `${actionsRootPath}[${index}].to`;
+  const ccPath = `${actionsRootPath}[${index}].cc`;
+  const bccPath = `${actionsRootPath}[${index}].bcc`;
+  const subjectPath = `${actionsRootPath}[${index}].subject`;
+  const textBodyPath = `${actionsRootPath}[${index}].text_body`;
+  const bodyPreviewTemplate = get(values, `${actionsRootPath}[${index}].text_body`, '');
 
   return (
     <Fragment>
       <FormikFieldText
-        name={`actions[${index}].name`}
+        name={namePath}
         formRow
         rowProps={{
           label: nameText,
@@ -71,11 +90,11 @@ const EmailAction = ({
           validate: validateEmptyField
         }}
       />
-      <FormikComboBox
-        name={`actions[${index}].severity`}
+      {isSeverity && <FormikComboBox
+        name={severityPath}
         formRow
         rowProps={{
-          label: severityText,
+          label: severityLabel,
           isInvalid,
           error: hasError,
         }}
@@ -87,15 +106,16 @@ const EmailAction = ({
           onChange: onComboBoxChange(),
           onCreateOption: onComboBoxCreateOption()
         }}
-      />
-      <ActionThrottlePeriod index={index} />
+      />}
+      {!isResolveActions && <ActionThrottlePeriod index={index} />}
       <ActionAccount
+        isResolveActions={isResolveActions}
         index={index}
         accounts={accounts}
         accountType={ACCOUNT_TYPE.EMAIL}
       />
       <FormikFieldText
-        name={`actions[${index}].from`}
+        name={fromPath}
         formRow
         rowProps={{
           label: fromText,
@@ -113,7 +133,7 @@ const EmailAction = ({
         }}
       />
       <FormikComboBox
-        name={`actions[${index}].to`}
+        name={toPath}
         formRow
         rowProps={{
           label: toText,
@@ -132,7 +152,7 @@ const EmailAction = ({
         }}
       />
       <FormikComboBox
-        name={`actions[${index}].cc`}
+        name={ccPath}
         formRow
         rowProps={{
           label: ccText,
@@ -151,7 +171,7 @@ const EmailAction = ({
         }}
       />
       <FormikComboBox
-        name={`actions[${index}].bcc`}
+        name={bccPath}
         formRow
         rowProps={{
           label: bccText,
@@ -170,7 +190,7 @@ const EmailAction = ({
         }}
       />
       <FormikFieldText
-        name={`actions[${index}].subject`}
+        name={subjectPath}
         formRow
         rowProps={{
           label: subjectText,
@@ -189,7 +209,7 @@ const EmailAction = ({
       />
       <EuiSpacer />
       <FormikCodeEditor
-        name={`actions[${index}].text_body`}
+        name={textBodyPath}
         formRow
         rowProps={{
           label: bodyText,
@@ -219,16 +239,18 @@ const EmailAction = ({
           validate: validateEmptyField
         }}
       />
-      <ActionBodyPreview index={index} template={actions[index].text_body} />
+      <ActionBodyPreview index={index} template={bodyPreviewTemplate} />
     </Fragment>
   );
 };
 
 EmailAction.defaultProps = {
-  accounts: []
+  accounts: [],
+  isResolveActions: false
 };
 
 EmailAction.propTypes = {
+  isResolveActions: PropTypes.bool,
   index: PropTypes.number.isRequired,
   formik: PropTypes.object.isRequired,
   accounts: PropTypes.array,

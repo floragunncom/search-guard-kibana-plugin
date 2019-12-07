@@ -2,11 +2,12 @@ import React from 'react';
 import { connect } from 'formik';
 import PropTypes from 'prop-types';
 import queryString from 'query-string';
+import { get } from 'lodash';
 import { EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
 import { FormikFieldText, FormikSwitch, ContentPanel } from '../../../../components';
 import WatchSchedule from '../WatchSchedule';
 import { nameText, generalText, activeText } from '../../../../utils/i18n/common';
-import { severityText } from '../../../../utils/i18n/watch';
+import { severityText, resolveText } from '../../../../utils/i18n/watch';
 import { isInvalid, hasError, validateName } from '../../../../utils/validate';
 import { WatchService } from '../../../../services';
 
@@ -46,6 +47,24 @@ const SeveritySwitch = () => (
   </EuiFlexItem>
 );
 
+const ResolveActionsSwitch = () => (
+  <EuiFlexItem grow={false}>
+    <FormikSwitch
+      name="_ui.isResolveActions"
+      formRow
+      rowProps={{
+        hasEmptyLabelSpace: true,
+      }}
+      elementProps={{
+        label: resolveText,
+        onChange: (e, field, form) => {
+          form.setFieldValue(field.name, e.target.value);
+        }
+      }}
+    />
+  </EuiFlexItem>
+);
+
 const WatchName = ({ httpClient, isUpdatingName }) => (
   <EuiFlexItem>
     <FormikFieldText
@@ -71,9 +90,10 @@ WatchName.propTypes = {
   isUpdatingName: PropTypes.bool.isRequired
 };
 
-const GeneralPanel = ({ httpClient, location, formik }) => {
+const GeneralPanel = ({ httpClient, location, formik: { values } }) => {
   const { id } = queryString.parse(location.search);
-  const isUpdatingName = id !== formik.values._id;
+  const isUpdatingName = id !== values._id;
+  const isSeverity = get(values, '_ui.isSeverity', false);
 
   return (
     <ContentPanel
@@ -89,6 +109,7 @@ const GeneralPanel = ({ httpClient, location, formik }) => {
           <EuiFlexGroup>
             <ActiveSwitch />
             <SeveritySwitch />
+            {isSeverity && <ResolveActionsSwitch />}
           </EuiFlexGroup>
         </EuiFlexItem>
       </EuiFlexGroup>
