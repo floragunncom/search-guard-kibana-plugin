@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect as connectFormik } from 'formik';
 import { connect as connectRedux } from 'react-redux';
 import PropTypes from 'prop-types';
+import { get } from 'lodash';
 import { EuiButton, EuiSpacer } from '@elastic/eui';
 import {
   FormikSelect,
@@ -63,8 +64,11 @@ class DefinitionPanel extends Component {
 
   // Only for JsonWatch and BlocksWatch
   addCheckExample = (checkTemplate = {}) => {
-    const { formik: { values, setFieldValue }, dispatch } = this.props;
-    const { checks, _ui: { watchType, checksBlocks } } = values;
+    const { formik: { values = {}, setFieldValue } = {}, dispatch } = this.props;
+    const ui = values._ui;
+    const checks = values.checks;
+    const watchType = get(values, '_ui.watchType');
+    const checksBlocks = get(values, '_ui.checksBlocks');
 
     try {
       if (watchType === WATCH_TYPES.BLOCKS) {
@@ -86,7 +90,7 @@ class DefinitionPanel extends Component {
             }
           });
         } else { // Append check (works only the first time)
-          const newChecks = buildFormikChecks([ ...buildChecks({ checks }), checkTemplate ]);
+          const newChecks = buildFormikChecks([ ...buildChecks({ checks, _ui: ui }), checkTemplate ]);
           setFieldValue('checks', newChecks);
         }
       }
@@ -94,8 +98,8 @@ class DefinitionPanel extends Component {
     } catch (error) {
       console.error('DefintionPanel -- addCheckExample', error);
       dispatch(addErrorToast(error));
-      console.debug('DefintionPanel -- formik values', values);
-      console.debug('DefintionPanel -- checkTemplate', checkTemplate);
+      console.debug('DefintionPanel -- addCheckExample -- formik values', values);
+      console.debug('DefintionPanel -- addCheckExample -- checkTemplate', checkTemplate);
     }
   };
 
