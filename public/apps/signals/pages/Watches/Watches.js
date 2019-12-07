@@ -452,10 +452,10 @@ class Watches extends Component {
       text += `${level}`;
     }
     if (threshold) {
-      text += ` ${threshold}`;
+      text += ` ${Math.floor(threshold)}`;
     }
     if (value) {
-      text += ` ${value}`;
+      text += ` ${Math.floor(value)}`;
     }
 
     if (!text) return null;
