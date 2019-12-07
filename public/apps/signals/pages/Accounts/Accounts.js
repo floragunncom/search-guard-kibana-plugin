@@ -262,16 +262,16 @@ class Accounts extends Component {
         items: [
           {
             name: 'Email',
-            icon: (<EuiIcon type="logoGmail" size="m" />),
+            icon: (<EuiIcon type="email" size="m" />),
             onClick: () => this.addAccount(ACCOUNT_TYPE.EMAIL)
           },
           {
             name: 'Slack',
-            icon: (<EuiIcon type="logoSlack" size="m" />),
+            icon: (<EuiIcon type="empty" size="m" />),
             onClick: () => this.addAccount(ACCOUNT_TYPE.SLACK)
           },
           {
-            name: 'PagerDuty (comming soon)',
+            name: 'PagerDuty (coming soon)',
             icon: (<EuiIcon type="empty" size="m" />),
             onClick: () => null
           }

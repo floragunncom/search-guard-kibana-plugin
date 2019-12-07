@@ -12,10 +12,11 @@ import {
 const Header = ({ actionName, description, iconType }) => (
   <div>
     <EuiFlexGroup gutterSize="s" alignItems="center">
+      {iconType &&
       <EuiFlexItem grow={false}>
         <EuiIcon type={iconType} size="l" />
       </EuiFlexItem>
-
+      }
       <EuiFlexItem>
         <EuiTitle size="s" className="euiAccordionForm__title">
           <h6>{actionName}</h6>
@@ -36,7 +37,7 @@ const Header = ({ actionName, description, iconType }) => (
 Header.propTypes = {
   actionName: PropTypes.oneOfType([PropTypes.node, PropTypes.string]).isRequired,
   description: PropTypes.oneOfType([PropTypes.node, PropTypes.string]).isRequired,
-  iconType: PropTypes.string.isRequired
+  iconType: PropTypes.string
 };
 
 export default Header;
