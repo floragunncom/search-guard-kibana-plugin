@@ -5,6 +5,7 @@ export default function buildSchedule({
   frequency,
   period,
   daily,
+  hourly,
   weekly,
   monthly,
   cron,
@@ -21,6 +22,13 @@ export default function buildSchedule({
       }
       break;
     }
+
+    //TODO: add hourly test
+    case 'hourly': {
+      schedule = [{ minute: hourly.map(hour => parseInt(hour.label, 10)) }];
+      break;
+    }
+
     case 'daily': {
       schedule = [{ at: `${daily}:00` }];
       break;

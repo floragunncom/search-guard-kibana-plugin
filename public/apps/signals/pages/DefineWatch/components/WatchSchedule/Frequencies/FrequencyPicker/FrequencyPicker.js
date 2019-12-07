@@ -32,11 +32,13 @@ import React from 'react';
 import { connect } from 'formik';
 import CustomCron from '../CustomCron';
 import Daily from '../Daily';
+import Hourly from '../Hourly';
 import Interval from '../Interval';
 import Monthly from '../Monthly';
 import Weekly from '../Weekly';
 
 const components = {
+  hourly: Hourly,
   daily: Daily,
   weekly: Weekly,
   monthly: Monthly,
