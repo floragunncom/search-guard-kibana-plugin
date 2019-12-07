@@ -9,7 +9,7 @@ export default function buildFormikSchedule(watch = {}) {
   const matchDayOfWeek = dayOfWeekStr => dayOfWeekStr.match(/\b((mon|tues|wed(nes)?|thu(rs)?|fri|sat(ur)?|sun)(day)?)\b/);
 
   const frequency = Object.keys(watch.trigger.schedule)
-    .filter(key => ['interval', 'daily', 'weekly', 'monthly', 'cron'].includes(key)).pop();
+    .filter(key => ['interval', 'hourly', 'daily', 'weekly', 'monthly', 'cron'].includes(key)).pop();
   const formikSchedule = { ...cloneDeep(SCHEDULE_DEFAULTS), frequency };
 
   if (watch.trigger.schedule.timezone) {
@@ -26,6 +26,18 @@ export default function buildFormikSchedule(watch = {}) {
       formikSchedule.period = buildTimePeriod(interval);
       break;
     }
+
+    //TODO: add hourly test
+    case 'hourly': {
+      const hourly = Array.isArray(watchSchedule) ? watchSchedule[0] : watchSchedule;
+      const minutes = Array.isArray(hourly.minute) ? hourly.minute : [hourly.minute];
+      // arrayToComboBox sorts the integer values wrong, hence the "duplication" here
+      formikSchedule.hourly = minutes
+        .sort((a, b) => a - b)
+        .map(minute => ({ label: minute.toString() }));
+      break;
+    }
+
     case 'daily': {
       const daily = Array.isArray(watchSchedule) ? watchSchedule[0] : watchSchedule;
       const atHour = Array.isArray(daily.at) ? daily.at[0] : daily.at;
