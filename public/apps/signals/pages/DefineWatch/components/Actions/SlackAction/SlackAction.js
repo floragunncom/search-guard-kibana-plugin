@@ -9,6 +9,7 @@ import {
   FormikFieldText,
   FormikComboBox
 } from '../../../../../components';
+import JsonChecksForm from '../../JsonChecksForm';
 import {
   fromText,
   iconEmojiText,
@@ -29,7 +30,7 @@ import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import ActionAccount from '../ActionAccount';
 import { ACCOUNT_TYPE } from '../../../../Accounts/utils/constants';
 import { CODE_EDITOR } from '../../../../../../utils/constants';
-import { SEVERITY_OPTIONS } from '../../../utils/constants';
+import { SEVERITY_OPTIONS, WATCH_TYPES } from '../../../utils/constants';
 
 const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
 let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
@@ -44,6 +45,8 @@ const SlackAction = ({
   onComboBoxOnBlur,
   onComboBoxCreateOption
 }) => {
+  const watchType = get(values, '_ui.watchType');
+  const isGraphWatch = watchType === WATCH_TYPES.GRAPH;
   const isSeverity = get(values, '_ui.isSeverity', false);
 
   const severityLabel = isResolveActions ? resolvesSeverityText : severityText;
@@ -57,6 +60,7 @@ const SlackAction = ({
   const iconEmojiPath = `${actionsRootPath}[${index}].icon_emoji`;
   const textPath = `${actionsRootPath}[${index}].text`;
   const bodyPreviewTemplate = get(values, `${actionsRootPath}[${index}].text`, '');
+  const checksPath = `${actionsRootPath}[${index}].checks`;
 
   return (
     <Fragment>
@@ -167,6 +171,7 @@ const SlackAction = ({
         }}
       />
       <ActionBodyPreview index={index} template={bodyPreviewTemplate} />
+      {!isGraphWatch && <JsonChecksForm checksPath={checksPath} />}
     </Fragment>
   );
 };

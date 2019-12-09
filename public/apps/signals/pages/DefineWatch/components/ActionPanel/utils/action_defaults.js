@@ -5,6 +5,7 @@ import { TIME_PERIOD_UNITS } from '../../../utils/constants';
 const { SECONDS } = TIME_PERIOD_UNITS;
 
 export const webhook = {
+  checks: '[]',
   severity: [],
   throttle_period: {
     interval: 1,
@@ -21,6 +22,7 @@ export const webhook = {
 };
 
 export const slack = {
+  checks: '[]',
   severity: [],
   throttle_period: {
     interval: 1,
@@ -35,6 +37,7 @@ export const slack = {
 };
 
 export const index = {
+  checks: '[]',
   severity: [],
   throttle_period: {
     interval: 1,
@@ -43,10 +46,10 @@ export const index = {
   type: ACTION_TYPE.INDEX,
   name: 'myelasticsearch',
   index: [],
-  checks: stringifyPretty([])
 };
 
 export const email = {
+  checks: '[]',
   severity: [],
   throttle_period: {
     interval: 1,

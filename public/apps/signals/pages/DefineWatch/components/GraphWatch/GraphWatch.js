@@ -106,8 +106,6 @@ class GraphWatch extends Component {
     const index = get(this.props, 'formik.values._ui.index');
     const prevIsSeverity = get(prevProps, 'formik.values._ui.isSeverity');
     const isSeverity = get(this.props, 'formik.values._ui.isSeverity');
-    const prevSeverity = omit(get(prevProps, 'formik.values._ui.severity'), ['value', 'order']);
-    const severity = omit(get(this.props, 'formik.values._ui.severity'), ['value', 'order']);
 
     const queryOptions = [
       'overDocuments', 'timeField', 'aggregationType',
@@ -134,14 +132,12 @@ class GraphWatch extends Component {
       // a) previous query type was query (to get first run executed)
       // b) different indices, to get new data
       // c) different query values
-      // d) different severity
       // e) switched severity on/off
       const diffGraphQuery = prevGraphQuery !== graphQuery;
       const switchedSeverity = prevIsSeverity !== isSeverity;
-      const diffSeverity = !isEqual(prevSeverity, severity);
       const hasTimeField = !!timeField;
       if (hasTimeField) {
-        if (wasJson || diffIndices || diffGraphQuery || switchedSeverity || diffSeverity) {
+        if (wasJson || diffIndices || diffGraphQuery || switchedSeverity) {
           setTimeout(() => {
             this.onRunQuery();
           }, 1502);
@@ -248,6 +244,7 @@ class GraphWatch extends Component {
               fieldName={fieldName}
               response={response}
               thresholdValue={values._ui.thresholdValue}
+              severityThresholds={values._ui.severity.thresholds}
             />
         }
       </>

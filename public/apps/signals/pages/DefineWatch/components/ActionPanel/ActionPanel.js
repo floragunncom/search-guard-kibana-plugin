@@ -17,7 +17,6 @@ import {
 import { AccountsService } from '../../../../services';
 import { addErrorToast } from '../../../../redux/actions';
 import { actionText } from '../../../../utils/i18n/common';
-import { resolveActionText } from '../../../../utils/i18n/watch';
 import { ACTION_TYPE } from './utils/constants';
 import * as ACTION_DEFAULTS from './utils/action_defaults';
 
@@ -87,16 +86,10 @@ class ActionPanel extends Component {
   }
 
   addAction = actionType => {
-    const { arrayHelpers, isResolveActions } = this.props;
+    const { arrayHelpers } = this.props;
     this.triggerAddActionPopover();
 
     const newAction = cloneDeep(ACTION_DEFAULTS[actionType] || ACTION_DEFAULTS[ACTION_TYPE.EMAIL]);
-    if (isResolveActions) {
-      delete newAction.severity;
-      newAction.resolves_severity = [];
-    }
-
-    console.debug('ActionPanel -- addAction', newAction);
     arrayHelpers.unshift(newAction);
   }
 
@@ -113,13 +106,17 @@ class ActionPanel extends Component {
 
   render() {
     const {
-      isResolveActions,
       httpClient,
       arrayHelpers,
       formik: { values: { actions } },
       onComboBoxChange,
       onComboBoxOnBlur,
-      onComboBoxCreateOption
+      onComboBoxCreateOption,
+      onChecksChange,
+      onAddCheckTemplate,
+      onExecuteChecks,
+      onTriggerFlyout,
+      insertCheckTemplate
     } = this.props;
 
     const hasActions = !isEmpty(actions);
@@ -161,7 +158,7 @@ class ActionPanel extends Component {
 
     return (
       <ContentPanel
-        title={isResolveActions ? resolveActionText : actionText}
+        title={actionText}
         titleSize="s"
         bodyStyles={{ padding: 'initial', paddingLeft: '10px' }}
         actions={(
@@ -186,7 +183,6 @@ class ActionPanel extends Component {
                   actionHeader={<Header actionName={action.name} {...headerProps} />}
                   actionBody={(
                     <Body
-                      isResolveActions={isResolveActions}
                       index={index}
                       accounts={accounts}
                       httpClient={httpClient}
@@ -194,6 +190,11 @@ class ActionPanel extends Component {
                       onComboBoxChange={onComboBoxChange}
                       onComboBoxOnBlur={onComboBoxOnBlur}
                       onComboBoxCreateOption={onComboBoxCreateOption}
+                      onChecksChange={onChecksChange}
+                      onAddCheckTemplate={onAddCheckTemplate}
+                      onExecuteChecks={onExecuteChecks}
+                      onTriggerFlyout={onTriggerFlyout}
+                      insertCheckTemplate={insertCheckTemplate}
                     />
                   )}
                   deleteButton={
@@ -212,12 +213,8 @@ class ActionPanel extends Component {
   }
 }
 
-ActionPanel.defaultProps = {
-  isResolveActions: false
-};
-
 ActionPanel.propTypes = {
-  isResolveActions: PropTypes.bool,
+  isLoading: PropTypes.bool,
   dispatch: PropTypes.func.isRequired,
   httpClient: PropTypes.func.isRequired,
   arrayHelpers: PropTypes.object.isRequired,
@@ -225,7 +222,16 @@ ActionPanel.propTypes = {
   onComboBoxOnBlur: PropTypes.func.isRequired,
   onComboBoxCreateOption: PropTypes.func.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
+  onChecksChange: PropTypes.func.isRequired,
+  onAddCheckTemplate: PropTypes.func.isRequired,
+  onExecuteChecks: PropTypes.func.isRequired,
+  onTriggerFlyout: PropTypes.func.isRequired,
+  insertCheckTemplate: PropTypes.shape({
+    row: PropTypes.number,
+    column: PropTypes.column,
+    text: PropTypes.string,
+  }).isRequired,
 };
 
 export default connectRedux()(connectFormik(ActionPanel));
