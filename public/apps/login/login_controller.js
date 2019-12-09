@@ -17,7 +17,7 @@
 import chrome from 'ui/chrome';
 import {parse} from 'url';
 import _ from 'lodash';
-import {getNextUrl} from './get_next_url';
+import { sanitizeNextUrlFromFullUrl } from "./sanitize_next_url";
 
 require ('../../directives/licensewarning');
 require ('../configuration/systemstate/systemstate');
@@ -93,7 +93,7 @@ export default function LoginController(kbnUrl, $scope, $http, $window, systemst
     }
 
     // honor last request URL
-    let nextUrl = getNextUrl($window.location.href, ROOT);
+    let nextUrl = sanitizeNextUrlFromFullUrl($window.location.href, ROOT);
 
     this.submit =  () => {
 
