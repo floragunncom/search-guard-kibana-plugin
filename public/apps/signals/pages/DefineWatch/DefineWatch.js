@@ -12,8 +12,13 @@ import {
 import { get } from 'lodash';
 import { WatchService } from '../../services';
 import { addErrorToast, addSuccessToast } from '../../redux/actions';
-import { watchToFormik, formikToWatch } from './utils';
-import { DEFAULT_WATCH } from './utils/constants';
+import {
+  watchToFormik,
+  formikToWatch,
+  buildChecks,
+  buildFormikChecks
+} from './utils';
+import { DEFAULT_WATCH, WATCH_TYPES } from './utils/constants';
 import {
   GeneralPanel,
   DefinitionPanel,
@@ -37,8 +42,14 @@ class DefineWatch extends Component {
     const { id } = queryString.parse(location.search);
 
     this.state = {
+      isLoading: false,
       isEdit: !!id,
-      initialValues: watchToFormik(DEFAULT_WATCH)
+      initialValues: watchToFormik(DEFAULT_WATCH),
+      insertCheckTemplate: {
+        row: undefined,
+        column: undefined,
+        text: undefined,
+      }
     };
   }
 
@@ -101,8 +112,30 @@ class DefineWatch extends Component {
     console.debug('DefineWatch -- onSubmit -- watch', watch);
   }
 
+  handleChecksChange = () => {
+    // TODO: rise state handling here
+  };
+
+  handleAddCheckTemplate = () => {
+    // TODO: rise state handling here
+  };
+
+  handleExecuteChecks = () => {
+    // TODO: rise state handling here
+  };
+
+  handleTriggerFlyout = () => {
+    // TODO: rise state handling here
+  };
+
   render() {
-    const { initialValues, isEdit } = this.state;
+    const {
+      initialValues,
+      isEdit,
+      isLoading,
+      insertCheckTemplate
+    } = this.state;
+
     const {
       httpClient,
       location,
@@ -120,7 +153,7 @@ class DefineWatch extends Component {
           onSubmit={this.onSubmit}
           validateOnChange={false}
           enableReinitialize
-          render={({ handleSubmit, isSubmitting, values }) => {
+          render={({ handleSubmit, isSubmitting, values, setFieldValue }) => {
             const isResolveActions = get(values, '_ui.isResolveActions', false);
 
             return (
@@ -156,12 +189,20 @@ class DefineWatch extends Component {
                   name="actions"
                   render={arrayHelpers => (
                     <ActionPanel
+                      isLoading={isLoading}
                       httpClient={httpClient}
                       arrayHelpers={arrayHelpers}
                       onComboBoxChange={onComboBoxChange}
                       onComboBoxOnBlur={onComboBoxOnBlur}
                       onComboBoxCreateOption={onComboBoxCreateOption}
                       onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
+                      onChecksChange={this.handleChecksChange}
+                      onAddCheckTemplate={checkTemplate => {
+                        this.handleAddCheckTemplate(checkTemplate, values, setFieldValue);
+                      }}
+                      onExecuteChecks={this.handleExecuteChecks}
+                      onTriggerFlyout={this.handleTriggerFlyout}
+                      insertCheckTemplate={insertCheckTemplate}
                     />
                   )}
                 />
@@ -172,12 +213,18 @@ class DefineWatch extends Component {
                       name="resolve_actions"
                       render={arrayHelpers => (
                         <ResolveActionPanel
+                          isLoading={isLoading}
                           httpClient={httpClient}
                           arrayHelpers={arrayHelpers}
                           onComboBoxChange={onComboBoxChange}
                           onComboBoxOnBlur={onComboBoxOnBlur}
                           onComboBoxCreateOption={onComboBoxCreateOption}
                           onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
+                          onChecksChange={this.handleChecksChange}
+                          onAddCheckTemplate={this.handleAddCheckTemplate}
+                          onExecuteChecks={this.handleExecuteChecks}
+                          onTriggerFlyout={this.handleTriggerFlyout}
+                          insertCheckTemplate={insertCheckTemplate}
                         />
                       )}
                     />

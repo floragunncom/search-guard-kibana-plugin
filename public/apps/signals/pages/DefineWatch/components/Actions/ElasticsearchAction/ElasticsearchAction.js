@@ -4,10 +4,10 @@ import { connect as connectFormik } from 'formik';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import {
-  FormikCodeEditor,
   FormikFieldText,
   FormikComboBox
 } from '../../../../../components';
+import JsonChecksForm from '../../JsonChecksForm';
 import {
   nameText
 } from '../../../../../utils/i18n/common';
@@ -17,14 +17,13 @@ import {
 } from '../../../../../utils/i18n/watch';
 import WatchIndex from '../../WatchIndex';
 import {
-  validateWatchString,
   validateEmptyField,
   isInvalid,
   hasError
 } from '../../../utils/validate';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import { CODE_EDITOR } from '../../../../../../utils/constants';
-import { SEVERITY_OPTIONS } from '../../../utils/constants';
+import { SEVERITY_OPTIONS, WATCH_TYPES } from '../../../utils/constants';
 
 const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
 let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
@@ -49,6 +48,7 @@ const ElasticsearchAction = ({
   const actionsRootPath = isResolveActions ? 'resolve_actions' : 'actions';
   const namePath = `${actionsRootPath}[${index}].name`;
   const checksPath = `${actionsRootPath}[${index}].checks`;
+  const indexPath = `${actionsRootPath}[${index}].index`;
 
   return (
     <Fragment>
@@ -91,44 +91,13 @@ const ElasticsearchAction = ({
       <WatchIndex
         isClearable={false}
         httpClient={httpClient}
-        indexFieldName={`actions[${index}].index`}
+        indexFieldName={indexPath}
         singleSelection={{ asPlainText: true }}
         onComboBoxChange={onComboBoxChange}
         onComboBoxOnBlur={onComboBoxOnBlur}
         onComboBoxCreateOption={onComboBoxCreateOption}
       />
-      <FormikCodeEditor
-        name={checksPath}
-        formRow
-        rowProps={{
-          label: 'Checks',
-          fullWidth: true,
-          isInvalid,
-          error: hasError,
-        }}
-        elementProps={{
-          isCustomMode: true,
-          mode: 'watch_editor',
-          isInvalid,
-          setOptions: {
-            ...setOptions,
-            enableLiveAutocompletion: true,
-            enableSnippets: true
-          },
-          width: '100%',
-          height: '500px',
-          theme,
-          onChange: (e, text, field, form) => {
-            form.setFieldValue(field.name, text);
-          },
-          onBlur: (e, field, form) => {
-            form.setFieldTouched(field.name, true);
-          },
-        }}
-        formikFieldProps={{
-          validate: validateWatchString
-        }}
-      />
+      <JsonChecksForm checksPath={checksPath} />
     </Fragment>
   );
 };
