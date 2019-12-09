@@ -18,6 +18,8 @@ import {
 } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
 
+export const buildFormikChecks = (checks = []) => unfoldMultiLineString(stringifyPretty(checks));
+
 export function buildFormikSeverity(watch = {}) {
   const newWatch = cloneDeep(watch);
 
@@ -103,11 +105,9 @@ export function buildFormikEmailAction(action = {}) {
 export const buildFormikChecksBlocks = (checks = []) =>
   checks.map((check, index) => ({
     response: '',
-    check: unfoldMultiLineString(stringifyPretty(check)),
+    check: buildFormikChecks(check),
     index,
   }));
-
-export const buildFormikChecks = (checks = []) => unfoldMultiLineString(stringifyPretty(checks));
 
 export const buildFormikMeta = ({ _ui = {}, checks = [], trigger } = {}) => {
   const ui = {
@@ -124,16 +124,26 @@ export const buildFormikMeta = ({ _ui = {}, checks = [], trigger } = {}) => {
 export const buildFormikIndexAction = (action = {}) => ({
   ...action,
   index: [{ label: action.index }],
-  checks: stringifyPretty(action.checks || [])
+  // checks: stringifyPretty(action.checks || [])
 });
 
-export const buildFormikActions = ({ actions = [], resolve_actions: resolveActions = [] }) => {
+export const buildFormikActions = ({
+  actions = [],
+  resolve_actions: resolveActions = [],
+  _ui = {}
+}) => {
   const buildHelper = actions => {
     const newActions = cloneDeep(actions);
     return newActions.map(action => {
       // resolve_actions don't have throttle_period
       // TODO: add tests for this
       const newAction = action.resolves_severity ? action : buildFormikThrottle(action);
+
+      if (!newAction.checks) {
+        newAction.checks = [];
+      }
+
+      newAction.checks = stringifyPretty(newAction.checks);
 
       if (newAction.type === ACTION_TYPE.INDEX) {
         return buildFormikIndexAction(newAction);
@@ -179,6 +189,6 @@ export const watchToFormik = (watch = {}) => {
     ...rest,
     _ui,
     checks: buildFormikChecks(formik.checks),
-    ...buildFormikActions({ actions, resolve_actions: resolveActions })
+    ...buildFormikActions({ actions, resolve_actions: resolveActions, _ui })
   };
 };

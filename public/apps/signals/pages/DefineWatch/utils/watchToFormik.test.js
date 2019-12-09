@@ -225,6 +225,7 @@ describe('buildFormikActions', () => {
     const formik = {
       actions: [
         {
+          checks: '[]',
           severity: ['critical'],
           throttle_period: {
             advInterval: SCHEDULE_DEFAULTS.period.advInterval,
@@ -244,6 +245,7 @@ describe('buildFormikActions', () => {
       ],
       resolve_actions: [
         {
+          checks: '[]',
           resolves_severity: ['critical'],
           type: ACTION_TYPE.EMAIL,
           name: 'myemail',
@@ -279,6 +281,7 @@ describe('buildFormikActions', () => {
 
     const formik = {
       actions: [{
+        checks: '[]',
         throttle_period: {
           advInterval: SCHEDULE_DEFAULTS.period.advInterval,
           interval: 1,
@@ -316,6 +319,7 @@ describe('buildFormikActions', () => {
     const formik = {
       actions: [
         {
+          checks: '[]',
           throttle_period: {
             advInterval: SCHEDULE_DEFAULTS.period.advInterval,
             interval: 1,
@@ -355,6 +359,7 @@ describe('buildFormikActions', () => {
     const formik = {
       actions: [
         {
+          checks: '[]',
           throttle_period: {
             advInterval: SCHEDULE_DEFAULTS.period.advInterval,
             interval: 1,
@@ -457,24 +462,6 @@ describe('buildFormikChecks', () => {
     const checks = [{ name: 'mySearch', value: { a: 1 } }];
 
     expect(buildFormikChecks(checks)).toEqual(stringifyPretty(checks));
-  });
-});
-
-describe('buildFormikIndexAction', () => {
-  test('can create index action formik from index action', () => {
-    const action = {
-      type: WATCH_TYPES.INDEX,
-      index: 'a',
-      checks: [{ a: { b: 1 } }]
-    };
-
-    const formik = {
-      type: WATCH_TYPES.INDEX,
-      index: [{ label: 'a' }],
-      checks: stringifyPretty(action.checks)
-    };
-
-    expect(buildFormikIndexAction(action)).toEqual(formik);
   });
 });
 
@@ -585,6 +572,7 @@ describe('watchToFormik', () => {
       'resolve_actions': [],
       'actions': [
         {
+          'checks': '[]',
           'type': 'webhook',
           'name': 'mywebhook',
           'throttle_period': {
@@ -809,6 +797,7 @@ describe('watchToFormik', () => {
       'resolve_actions': [],
       'actions': [
         {
+          'checks': '[]',
           'type': 'webhook',
           'name': 'mywebhook',
           'throttle_period': {
@@ -1033,6 +1022,7 @@ describe('watchToFormik', () => {
       'resolve_actions': [],
       'actions': [
         {
+          'checks': '[]',
           'type': 'webhook',
           'name': 'mywebhook',
           'throttle_period': {
@@ -1272,6 +1262,7 @@ describe('watchToFormik', () => {
       'resolve_actions': [],
       'actions': [
         {
+          'checks': '[]',
           'type': 'webhook',
           'name': 'mywebhook',
           'throttle_period': {
@@ -1500,6 +1491,7 @@ describe('watchToFormik', () => {
       'resolve_actions': [],
       'actions': [
         {
+          'checks': '[]',
           'type': 'webhook',
           'name': 'mywebhook',
           'throttle_period': {
@@ -1739,6 +1731,7 @@ describe('watchToFormik', () => {
       'resolve_actions': [],
       'actions': [
         {
+          'checks': '[]',
           'type': 'webhook',
           'name': 'mywebhook',
           'throttle_period': {
@@ -1967,6 +1960,7 @@ describe('watchToFormik', () => {
       'resolve_actions': [],
       'actions': [
         {
+          'checks': '[]',
           'type': 'webhook',
           'name': 'mywebhook',
           'throttle_period': {
@@ -2206,6 +2200,7 @@ describe('watchToFormik', () => {
       'resolve_actions': [],
       'actions': [
         {
+          'checks': '[]',
           'type': 'webhook',
           'name': 'mywebhook',
           'throttle_period': {
@@ -2434,6 +2429,7 @@ describe('watchToFormik', () => {
       'resolve_actions': [],
       'actions': [
         {
+          'checks': '[]',
           'type': 'webhook',
           'name': 'mywebhook',
           'throttle_period': {
@@ -2673,6 +2669,7 @@ describe('watchToFormik', () => {
       'resolve_actions': [],
       'actions': [
         {
+          'checks': '[]',
           'type': 'webhook',
           'name': 'mywebhook',
           'throttle_period': {
@@ -2869,6 +2866,7 @@ describe('watchToFormik', () => {
       'resolve_actions': [],
       'actions': [
         {
+          'checks': '[]',
           'type': 'index',
           'name': 'my_index',
           'index': [
@@ -2876,7 +2874,6 @@ describe('watchToFormik', () => {
               'label': 'testsink'
             }
           ],
-          'checks': '[]',
           'severity': [],
           'throttle_period': {
             'interval': 1,
@@ -2885,6 +2882,7 @@ describe('watchToFormik', () => {
           }
         },
         {
+          'checks': '[]',
           'type': 'webhook',
           'name': 'my_webhook',
           'severity': [],
@@ -3086,6 +3084,7 @@ describe('watchToFormik', () => {
       'resolve_actions': [],
       'actions': [
         {
+          'checks': '[]',
           'type': 'index',
           'name': 'my_index',
           'throttle_period': {
@@ -3099,9 +3098,9 @@ describe('watchToFormik', () => {
               'label': 'testsink'
             }
           ],
-          'checks': '[]'
         },
         {
+          'checks': '[]',
           'type': 'webhook',
           'name': 'my_webhook',
           'throttle_period': {

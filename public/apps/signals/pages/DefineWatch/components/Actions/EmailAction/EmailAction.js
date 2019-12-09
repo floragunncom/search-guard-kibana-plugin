@@ -9,6 +9,7 @@ import {
   FormikFieldText,
   FormikComboBox
 } from '../../../../../components';
+import JsonChecksForm from '../../JsonChecksForm';
 import { getCurrentAccount } from '../utils';
 import {
   nameText,
@@ -32,7 +33,7 @@ import {
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import ActionAccount from '../ActionAccount';
-import { SEVERITY_OPTIONS } from '../../../utils/constants';
+import { SEVERITY_OPTIONS, WATCH_TYPES } from '../../../utils/constants';
 import { ACCOUNT_TYPE } from '../../../../Accounts/utils/constants';
 import { CODE_EDITOR } from '../../../../../../utils/constants';
 
@@ -50,6 +51,8 @@ const EmailAction = ({
   onComboBoxOnBlur,
   onComboBoxCreateOption
 }) => {
+  const watchType = get(values, '_ui.watchType');
+  const isGraphWatch = watchType === WATCH_TYPES.GRAPH;
   const actionsRootPath = isResolveActions ? 'resolve_actions' : 'actions';
   const currAccount = getCurrentAccount(accounts, get(values, `${actionsRootPath}[${index}].account`));
   const isDefaultFrom = !!currAccount && !isEmpty(currAccount.default_from);
@@ -69,6 +72,7 @@ const EmailAction = ({
   const subjectPath = `${actionsRootPath}[${index}].subject`;
   const textBodyPath = `${actionsRootPath}[${index}].text_body`;
   const bodyPreviewTemplate = get(values, `${actionsRootPath}[${index}].text_body`, '');
+  const checksPath = `${actionsRootPath}[${index}].checks`;
 
   return (
     <Fragment>
@@ -240,6 +244,7 @@ const EmailAction = ({
         }}
       />
       <ActionBodyPreview index={index} template={bodyPreviewTemplate} />
+      {!isGraphWatch && <JsonChecksForm checksPath={checksPath} />}
     </Fragment>
   );
 };

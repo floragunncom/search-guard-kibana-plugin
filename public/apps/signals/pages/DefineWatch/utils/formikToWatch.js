@@ -111,22 +111,50 @@ export function buildEmailAction(action = {}) {
 }
 
 export const buildIndexAction = (action = {}) => {
-  let checks = [];
-  const index = comboBoxOptionsToArray(action.index)[0];
-
-  try {
-    checks = JSON.parse(action.checks || '[]');
-  } catch (err) {
-    console.error('Fail to parse index action checks');
-  }
-
-  return { ...action, index, checks };
+  return {
+    ...action,
+    index: get(action, 'index[0].label', '')
+  };
 };
 
-export const buildActions = ({ actions = [], resolve_actions: resolveActions }) => {
+export const buildChecksFromChecksBlocks = (checks = []) => checks
+  .reduce((res, { check }) => {
+    res.push(JSON.parse(foldMultiLineString(check)));
+    return res;
+  }, []);
+
+export const buildChecks = ({ _ui: ui = {}, checks = [] }) => {
+  const { watchType, checksBlocks } = ui;
+
+  if (watchType === WATCH_TYPES.JSON) {
+    try {
+      return JSON.parse(foldMultiLineString(checks));
+    } catch (err) {
+      console.error('Fail to parse checks for Json watch');
+      return [];
+    }
+  }
+
+  // TODO: write tests for Blocks
+  if (watchType === WATCH_TYPES.BLOCKS) {
+    try {
+      return buildChecksFromChecksBlocks(checksBlocks);
+    } catch (err) {
+      console.error('Fail to parse checks for Blocks watch');
+      return [];
+    }
+  }
+
+  return buildGraphWatchChecks(ui);
+};
+
+export const buildActions = ({
+  actions = [],
+  resolve_actions: resolveActions,
+  _ui = {}
+}) => {
   const buildHelper = actions => {
     const newActions = cloneDeep(actions);
-
     return newActions.map(action => {
       // resolve_actions don't have throttle_period
       // TODO: add test for the absence of resolve_actions throttle_period
@@ -134,20 +162,32 @@ export const buildActions = ({ actions = [], resolve_actions: resolveActions }) 
         ? action
         : buildThrottle(action);
 
+      try {
+        if (_ui.watchType === WATCH_TYPES.GRAPH && action.type !== ACTION_TYPE.INDEX) {
+          // Graph watch has no checks
+          watchAction.checks = [];
+        } else {
+          watchAction.checks = JSON.parse(foldMultiLineString(watchAction.checks));
+        }
+      } catch (err) {
+        console.error(`Fail to parse action "${action.name}" checks`);
+        watchAction.checks = [];
+      }
+
       if (action.type === ACTION_TYPE.INDEX) {
-        return buildIndexAction(watchAction);
+        return omit(buildIndexAction(watchAction), ['_checksBlocks']);
       }
 
       if (action.type === ACTION_TYPE.EMAIL) {
-        return buildEmailAction(watchAction);
+        return omit(buildEmailAction(watchAction), ['_checksBlocks']);
       }
 
       if (action.type === ACTION_TYPE.SLACK) {
-        return buildSlackAction(watchAction);
+        return omit(buildSlackAction(watchAction), ['_checksBlocks']);
       }
 
       // if ACTION_TYPE.WEBHOOK
-      return buildWebhookAction(watchAction);
+      return omit(buildWebhookAction(watchAction), ['_checksBlocks']);
     });
   };
 
@@ -160,32 +200,6 @@ export const buildActions = ({ actions = [], resolve_actions: resolveActions }) 
   }
 
   return result;
-};
-
-export const buildChecksFromChecksBlocks = (checks = []) => {
-  try {
-    return checks.reduce((res, { check }) => {
-      res.push(JSON.parse(foldMultiLineString(check)));
-      return res;
-    }, []);
-  } catch (err) {
-    throw new Error('Invalid checks syntax!');
-  }
-};
-
-export const buildChecks = ({ _ui: ui, checks = [] }) => {
-  const { watchType, checksBlocks } = ui;
-
-  if (watchType === WATCH_TYPES.JSON) {
-    return JSON.parse(foldMultiLineString(checks));
-  }
-
-  // TODO: write tests for Blocks
-  if (watchType === WATCH_TYPES.BLOCKS) {
-    return buildChecksFromChecksBlocks(checksBlocks);
-  }
-
-  return buildGraphWatchChecks(ui);
 };
 
 export const formikToWatch = (formik = {}) => {
