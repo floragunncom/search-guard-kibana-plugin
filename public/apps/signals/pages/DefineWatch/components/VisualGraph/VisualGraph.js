@@ -40,8 +40,6 @@ import {
   DiscreteColorLegend
 } from 'react-vis';
 import {
-  EuiText,
-  EuiSpacer,
   EuiFlexGroup,
   EuiFlexItem
 } from '@elastic/eui';
@@ -96,9 +94,8 @@ export default class VisualGraph extends Component {
   };
 
   renderXYPlot = data => {
-    const { annotation, thresholdValue, values } = this.props;
+    const { annotation, thresholdValue, severityThresholds, values } = this.props;
     const isSeverity = values._ui.isSeverity;
-    const severityThresholds = values._ui.severity.thresholds;
     const { hint, hoveredLineSeriesName, hoveredThresholdName } = this.state;
 
     const getLineSeriesStyle = lineSeriesName =>
@@ -269,6 +266,12 @@ export default class VisualGraph extends Component {
 VisualGraph.propTypes = {
   response: PropTypes.object,
   annotation: PropTypes.bool.isRequired,
-  thresholdValue: PropTypes.number,
+  thresholdValue: PropTypes.number.isRequired,
+  severityThresholds: PropTypes.shape({
+    info: PropTypes.number,
+    warning: PropTypes.number,
+    error: PropTypes.number,
+    critical: PropTypes.number
+  }).isRequired,
   values: PropTypes.object.isRequired,
 };
