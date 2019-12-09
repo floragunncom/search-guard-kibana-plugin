@@ -650,6 +650,7 @@ describe('watchToFormik', () => {
           }
         ],
         'frequency': 'interval',
+        'hourly': [],
         'period': {
           'interval': 1,
           'advInterval': '1h30m15s',
@@ -878,6 +879,7 @@ describe('watchToFormik', () => {
           }
         ],
         'frequency': 'interval',
+        'hourly': [],
         'period': {
           'interval': 1,
           'advInterval': '1h30m15s',
@@ -1102,6 +1104,7 @@ describe('watchToFormik', () => {
           }
         ],
         'frequency': 'interval',
+        'hourly': [],
         'period': {
           'interval': 1,
           'advInterval': '1h30m15s',
@@ -1345,6 +1348,7 @@ describe('watchToFormik', () => {
           }
         ],
         'frequency': 'interval',
+        'hourly': [],
         'period': {
           'interval': 1,
           'advInterval': '1h30m15s',
@@ -1569,6 +1573,7 @@ describe('watchToFormik', () => {
           }
         ],
         'frequency': 'interval',
+        'hourly': [],
         'period': {
           'interval': 1,
           'advInterval': '1h30m15s',
@@ -1812,6 +1817,7 @@ describe('watchToFormik', () => {
           }
         ],
         'frequency': 'interval',
+        'hourly': [],
         'period': {
           'interval': 1,
           'advInterval': '1h30m15s',
@@ -2036,6 +2042,7 @@ describe('watchToFormik', () => {
           }
         ],
         'frequency': 'interval',
+        'hourly': [],
         'period': {
           'interval': 1,
           'advInterval': '1h30m15s',
@@ -2279,6 +2286,7 @@ describe('watchToFormik', () => {
           }
         ],
         'frequency': 'interval',
+        'hourly': [],
         'period': {
           'interval': 1,
           'advInterval': '1h30m15s',
@@ -2503,6 +2511,7 @@ describe('watchToFormik', () => {
           }
         ],
         'frequency': 'interval',
+        'hourly': [],
         'period': {
           'interval': 1,
           'advInterval': '1h30m15s',
@@ -2746,6 +2755,7 @@ describe('watchToFormik', () => {
           }
         ],
         'frequency': 'interval',
+        'hourly': [],
         'period': {
           'interval': 1,
           'advInterval': '1h30m15s',
@@ -2944,6 +2954,7 @@ describe('watchToFormik', () => {
           }
         ],
         'frequency': 'cron',
+        'hourly': [],
         'period': {
           'interval': 1,
           'advInterval': '1h30m15s',
@@ -3161,6 +3172,7 @@ describe('watchToFormik', () => {
           }
         ],
         'frequency': 'cron',
+        'hourly': [],
         'period': {
           'interval': 1,
           'advInterval': '1h30m15s',

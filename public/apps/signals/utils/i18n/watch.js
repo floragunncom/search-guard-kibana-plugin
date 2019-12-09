@@ -43,6 +43,9 @@ export const putAsteriskToQueryIndicesUsingWildcardText = (
   />
 );
 export const cronExpressionText = (<EuiI18n token="sg.watch.cronExpression.text" default="Cron expression" />);
+export const minutesText = (<EuiI18n token="sg.watch.minutes.text" default="at minute(s)" />);
+export const mustSelectAMinuteText = (<EuiI18n token="sg.watch.mustSelectAMinute.text" default="At least one minute is required for the hourly schedule" />);
+export const invalidMinuteValuesText = (<EuiI18n token="sg.watch.mustSelectAMinute.text" default="Minutes must be a number between 0 and 59" />);
 export const everyText = (<EuiI18n token="sg.watch.every.text" default="Every" />);
 export const aroundText = (<EuiI18n token="sg.watch.around.text" default="Around" />);
 export const modeText = (<EuiI18n token="sg.watch.mode.text" default="Mode" />);
