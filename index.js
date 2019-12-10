@@ -412,6 +412,7 @@ export default function (kibana) {
                     plugin: pluginRoot('lib/session/sessionPlugin'),
                     options: {
                         authType: null,
+                        storageCookieName: config.get('searchguard.cookie.storage_cookie_name')
                     }
                 })
             }
