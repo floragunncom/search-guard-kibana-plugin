@@ -3,6 +3,9 @@ import mappingsToFieldNames from './mappings_to_field_names';
 describe('Elasticsearch mappings to field names', () => {
   test(`can build field names aggregated by type`, () => {
     const mappings = {
+      no_mappings_index: {
+        mappings: {}
+      },
       kibana_sample_data_ecommerce: {
         mappings: {
           properties: {
