@@ -1,6 +1,7 @@
 export const TYPES = [
   { value: 'cluster', text: 'Cluster' },
-  { value: 'index', text: 'Index' }
+  { value: 'index', text: 'Index' },
+  { value: 'signals', text: 'Signals' }
 ];
 
 export const DEFAULT_ACTION_GROUP = {
