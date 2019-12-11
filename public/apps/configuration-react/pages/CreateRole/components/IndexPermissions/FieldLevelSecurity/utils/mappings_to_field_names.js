@@ -30,7 +30,7 @@ export default function mappingsToFieldNames(mappings = {}) {
   const dataTypes = {};
 
   Object.entries(mappings).map(mappings => {
-    const { mappings: { properties } } = mappings.pop();
+    const { mappings: { properties = {} } = {} } = mappings.pop();
     return properties;
   }).forEach(docMappings => {
     Object.entries(docMappings).forEach(([field, mappings]) => {
