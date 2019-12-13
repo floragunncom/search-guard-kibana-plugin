@@ -17,12 +17,12 @@
   </parent>
 
   <groupId>com.floragunn</groupId>
-  <artifactId>search-guard-kibana-plugin</artifactId>
+  <artifactId>search-guard-kibana-plugin-7</artifactId>
   <packaging>pom</packaging>
   <!-- https://maven.apache.org/maven-ci-friendly.html -->
   <version>${revision}</version>
   <name>Search Guard Kibana Plugin</name>
-  <description>Search Guard Kibana Plugin for Elasticsearch 6</description>
+  <description>Search Guard Kibana Plugin for Elasticsearch 7</description>
   <url>https://github.com/floragunncom/search-guard</url>
   <inceptionYear>2016</inceptionYear>
 
