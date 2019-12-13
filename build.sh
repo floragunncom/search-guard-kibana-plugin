@@ -1,19 +1,18 @@
 #!/bin/bash
 
+start=`date +%s`
 # WARNING! Do not use jq here, only bash.
-KIBANA_VERSION="$1"
-SG_PLUGIN_VERSION="$2"
-COMMAND="$3"
-EXIT_IF_VULNERABILITY=false
+COMMAND="$1"
+EXIT_IF_VULNERABILITY=true
 
 # sanity checks for options
-if [ -z "$KIBANA_VERSION" ] || [ -z "$SG_PLUGIN_VERSION" ] || [ -z "$COMMAND" ]; then
-    echo "Usage: ./build.sh <kibana_version> <sg_plugin_version> <install|deploy>"
+if [ -z "$COMMAND" ]; then
+    echo "Usage: ./build.sh <install-local|deploy-snapshot-maven>"
     exit 1
 fi
 
-if [ "$COMMAND" != "deploy" ] && [ "$COMMAND" != "deploy-snapshot" ] && [ "$COMMAND" != "install" ]; then
-    echo "Usage: ./build.sh <kibana_version> <sg_plugin_version> <install|deploy>"
+if [ "$COMMAND" != "deploy-snapshot-maven" ] && [ "$COMMAND" != "install-local" ]; then
+    echo "Usage: ./build.sh <install|deploy>"
     echo "Unknown command: $COMMAND"
     exit 1
 fi
@@ -24,43 +23,66 @@ if [ -z "$MAVEN_HOME" ]; then
     exit 1
 fi
 
-echo "+++ Checking Maven version +++"
-$MAVEN_HOME/bin/mvn -version
-if [ $? != 0 ]; then
+# sanity checks for nvm
+if [ -z "$NVM_DIR" ]; then
+    echo "NVM_DIR not set"
+    exit 1
+fi
+
+echo "+++ Checking maven installed +++"
+if ! [ -x "$(command -v $MAVEN_HOME/bin/mvn)" ]; then
     echo "Checking maven version failed"
     exit 1
+else
+    echo "    -> $($MAVEN_HOME/bin/mvn --version | grep "Apache Maven" | cut -d ' ' -f 3) with Java $($MAVEN_HOME/bin/mvn --version | grep "Java version" | cut -d ' ' -f 3 | tr -d ',')"
 fi
 
 # sanity checks for nvm
-if [ -z "$NVM_HOME" ]; then
-    echo "NVM_HOME not set"
+if [ -z "$NVM_DIR" ]; then
+    echo "NVM_DIR not set"
     exit 1
 fi
 
-echo "+++ Sourcing nvm +++"
-[ -s "$NVM_HOME/nvm.sh" ] && \. "$NVM_HOME/nvm.sh"
-
-echo "+++ Checking nvm version +++"
-nvm version
-if [ $? != 0 ]; then
-    echo "Checking mvn version failed"
-    exit 1
+echo "+++ Checking npm installed (optional) +++"
+if ! [ -x "$(command -v npm)" ]; then
+    echo "    -> not installed"
+else
+    echo "    -> $(npm -v)"
 fi
 
-# check version matches
+echo "+++ Sourcing nvm ($NVM_DIR) +++"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+
+
+echo "+++ Checking nvm installed +++"
+NVM_VERSION=$(nvm --version)
+if [ "$?" != 0 ]; then
+    echo "Checking nvm version failed ($NVM_VERSION)"
+    exit 1
+else
+    echo "    ->  $NVM_VERSION"
+fi
+
+# check for snapshot
 WORK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $WORK_DIR
-while read -r line
-do
-    if [[ "$line" =~ ^\"version\".* ]]; then
-      if [[ "$line" != "\"version\": \"$1-$2\"," ]]; then
-        echo "Provided version \"version\": \"$1-$2\" does not match Kibana version: $line"
-        exit 1
-      fi
-    fi
-done < "package.json"
+grep "\-SNAPSHOT" package.json > /dev/null 2>&1
+if [ $? != 0 ]; then
+    echo "Not a snapshot version in package.json"
+    exit 1
+fi
 
-# cleanup any leftovers
+VERSION=$(cat package.json | tr -d '"' | tr -d ',' | grep version: | tr -d ' ' | tr -d 'version:')
+KIBANA_VERSION=$(echo $VERSION | cut -d "-" -f 1)
+SG_PLUGIN_VERSION=$(echo $VERSION | cut -d "-" -f 2)
+SNAPSHOT=$(echo $VERSION | cut -d "-" -f 3)
+
+if [ $SNAPSHOT != "SNAPSHOT" ]; then
+    echo "$KIBANA_VERSION-$SG_PLUGIN_VERSION is not a SNAPSHOT version"
+    exit 1
+fi
+
+echo "+++ Cleanup any leftovers +++"
 ./clean.sh
 if [ $? != 0 ]; then
     echo "Cleaning leftovers failed"
@@ -77,18 +99,18 @@ BUILD_STAGE_DIR="$WORK_DIR/build_stage"
 mkdir -p $BUILD_STAGE_DIR
 cd $BUILD_STAGE_DIR
 
+rm -f "$WORK_DIR/build.log"
+
+echo "Logfile: $WORK_DIR/build.log"
+
 echo "+++ Cloning https://github.com/elastic/kibana.git +++"
-git clone https://github.com/elastic/kibana.git || true > /dev/null 2>&1
-if [ $? != 0 ]; then
-    echo "Got clone Kibana repository failed"
-    exit 1
-fi
+git clone https://github.com/elastic/kibana.git >>"$WORK_DIR/build.log" 2>&1
 
 cd "kibana"
-git fetch
+git fetch >>"$WORK_DIR/build.log" 2>&1
 
 echo "+++ Change to tags/v$KIBANA_VERSION +++"
-git checkout "tags/v$KIBANA_VERSION"
+git checkout "tags/v$KIBANA_VERSION" >>"$WORK_DIR/build.log" 2>&1
 
 if [ $? != 0 ]; then
     echo "Switching to Kibana tags/v$KIBANA_VERSION failed"
@@ -96,21 +118,28 @@ if [ $? != 0 ]; then
 fi
 
 echo "+++ Installing node version $(cat .node-version) +++"
-nvm install "$(cat .node-version)"
+nvm install "$(cat .node-version)" >>"$WORK_DIR/build.log" 2>&1
 if [ $? != 0 ]; then
     echo "Installing node $(cat .node-version) failed"
     exit 1
-fi
-
-echo "+++ Installing Yarn +++"
-curl -o- -L https://yarnpkg.com/install.sh | bash
-if [ $? != 0 ]; then
-    echo "Installing Yarn failed"
-    exit 1
+else
+    echo "    -> $(cat .node-version)"
 fi
 
 echo "+++ Sourcing Yarn +++"
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+
+if ! [ -x "$(command -v yarn)" ]; then
+    echo "+++ Installing Yarn +++"
+    curl -Ss -o- -L https://yarnpkg.com/install.sh | bash >>"$WORK_DIR/build.log" 2>&1
+    if [ $? != 0 ]; then
+        echo "Installing Yarn failed"
+        exit 1
+    fi
+else
+echo "    -> $(yarn -v)"
+fi
+
 
 echo "+++ Copy plugin contents to build stage +++"
 BUILD_STAGE_PLUGIN_DIR="$BUILD_STAGE_DIR/kibana/plugins/search-guard-kibana-plugin"
@@ -127,39 +156,43 @@ cp -a "$WORK_DIR/babel.config.js" "$BUILD_STAGE_PLUGIN_DIR"
 cd $BUILD_STAGE_PLUGIN_DIR
 
 echo "+++ Checking yarn packages for vulnerabilities +++"
-auditResult=`yarn audit --level 4`
+auditResult=`yarn audit --level 4 2>&1`
 isNoVulnerability="[^\d]0 vulnerabilities found.*$"
 let limit=1*10**20 # Limit num of chars because the result can be huge
 if [[ ! $auditResult =~ $isNoVulnerability && $EXIT_IF_VULNERABILITY = true ]]; then
     echo ${auditResult::limit}
-    exit 1
+#    exit 1
 fi
-echo ${auditResult::limit}
+echo ${auditResult::limit} >>"$WORK_DIR/build.log" 2>&1
 
 echo "+++ Installing plugin node modules +++"
-yarn kbn bootstrap
+yarn kbn bootstrap >>"$WORK_DIR/build.log" 2>&1
 if [ $? != 0 ]; then
     echo "Installing node modules failed"
     exit 1
 fi
 
-echo "+++ Testing (unit) UI +++"
-testsResult=`./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest public --config ./tests/jest.config.js --silent --json`
-if [[ ! $testsResult =~ .*\"numFailedTests\":0.* ]]; then
-    echo "Browser unit tests failed"
-    exit 1
+echo "+++ Testing UI +++"
+uitestsResult=`./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest public --config ./tests/jest.config.js --silent --json`
+if [[ ! $uitestsResult =~ .*\"numFailedTests\":0.* ]]; then
+  echo "Browser tests failed"
+  exit 1
 fi
+echo $uitestsResult >>"$WORK_DIR/build.log" 2>&1
 
-echo "+++ Testing (unit) Server +++"
-testsResult=`./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest lib --config ./tests/jest.config.js --silent --json`
-if [[ ! $testsResult =~ .*\"numFailedTests\":0.* ]]; then
+
+echo "+++ Testing UI Server +++"
+srvtestsResult=`./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest lib --config ./tests/jest.config.js --silent --json`
+if [[ ! $srvtestsResult =~ .*\"numFailedTests\":0.* ]]; then
     echo "Server unit tests failed"
     exit 1
 fi
 
+echo $srvtestsResult >>"$WORK_DIR/build.log" 2>&1
+
 echo "+++ Installing plugin node modules for production +++"
 rm -rf "node_modules"
-yarn install --production --pure-lockfile
+yarn install --production --pure-lockfile >>"$WORK_DIR/build.log" 2>&1
 if [ $? != 0 ]; then
     echo "Installing node modules failed"
     exit 1
@@ -180,39 +213,26 @@ cp -a "$BUILD_STAGE_PLUGIN_DIR/public" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/utils" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/examples" "$COPYPATH"
 
-# Replace pom version
-rm -f pom.xml
+end=`date +%s`
+echo "Build time: $((end-start)) sec"
 
-sed -e "s/RPLC_PLUGIN_VERSION/$KIBANA_VERSION-$SG_PLUGIN_VERSION/" ./pom.template.xml > ./pom.xml
-if [ $? != 0 ]; then
-    echo "sed failed"
-    exit 1
-fi
-
-if [ "$COMMAND" = "deploy" ] ; then
-    echo "+++ mvn clean deploy -Prelease +++"
-    $MAVEN_HOME/bin/mvn clean deploy -Prelease
-    if [ $? != 0 ]; then
-        echo "$MAVEN_HOME/bin/mvn clean deploy -Prelease failed"
-        exit 1
-    fi
-fi
-
-#-s settings.xml is needed on circleci only
-if [ "$COMMAND" = "deploy-snapshot" ] ; then
+if [ "$COMMAND" == "deploy-snapshot-maven" ] ; then
     echo "+++ mvn clean deploy +++"
-    $MAVEN_HOME/bin/mvn clean deploy -s settings.xml
+    $MAVEN_HOME/bin/mvn clean deploy -s settings.xml -Drevision="$KIBANA_VERSION-$SG_PLUGIN_VERSION"
     if [ $? != 0 ]; then
-        echo "$MAVEN_HOME/bin/mvn clean deploy -s settings.xml failed"
+        echo "$MAVEN_HOME/bin/mvn clean deploy failed"
         exit 1
     fi
 fi
 
-if [ "$COMMAND" = "install" ] ; then
+if [ "$COMMAND" == "install-local" ] ; then
     echo "+++ mvn clean install +++"
-    $MAVEN_HOME/bin/mvn clean install
+    $MAVEN_HOME/bin/mvn clean install -Drevision="$KIBANA_VERSION-$SG_PLUGIN_VERSION"
     if [ $? != 0 ]; then
         echo "$MAVEN_HOME/bin/mvn clean install failed"
         exit 1
     fi
 fi
+
+end=`date +%s`
+echo "Overall time: $((end-start)) sec"
