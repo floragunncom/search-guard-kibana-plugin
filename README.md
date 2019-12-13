@@ -58,9 +58,9 @@ See the [kibana contributing guide](https://github.com/elastic/kibana/blob/maste
       yarn start --elasticsearch.hosts http://localhost:9220
       ```
 
-  - `./build.sh <kibana_version> <sg_plugin_version> <install|deploy>`
+  - `./build.sh <install-local|deploy-snapshot-maven>`
 
-    Build a distributable archive of your plugin.
+    Build locally a distributable archive of your plugin or deploy snapshot to maven repository.
 
   - `yarn test:browser`
 
