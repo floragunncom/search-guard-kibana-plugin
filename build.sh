@@ -17,6 +17,8 @@ if [ "$COMMAND" != "deploy-snapshot-maven" ] && [ "$COMMAND" != "install-local" 
     exit 1
 fi
 
+echo "COMMAND: $COMMAND"
+
 # sanity checks for maven
 if [ -z "$MAVEN_HOME" ]; then
     echo "MAVEN_HOME not set"
