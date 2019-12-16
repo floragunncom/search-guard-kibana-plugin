@@ -128,92 +128,25 @@ else
     echo "    -> $(cat .node-version)"
 fi
 
-echo "+++ Sourcing Yarn +++"
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-
-if ! [ -x "$(command -v yarn)" ]; then
-    echo "+++ Installing Yarn +++"
-    curl -Ss -o- -L https://yarnpkg.com/install.sh | bash >>"$WORK_DIR/build.log" 2>&1
-    if [ $? != 0 ]; then
-        echo "Installing Yarn failed"
-        exit 1
-    fi
-else
-echo "    -> $(yarn -v)"
-fi
-
-
-echo "+++ Copy plugin contents to build stage +++"
-BUILD_STAGE_PLUGIN_DIR="$BUILD_STAGE_DIR/kibana/plugins/search-guard-kibana-plugin"
-mkdir -p $BUILD_STAGE_PLUGIN_DIR
-cp -a "$WORK_DIR/index.js" "$BUILD_STAGE_PLUGIN_DIR"
-cp -a "$WORK_DIR/package.json" "$BUILD_STAGE_PLUGIN_DIR"
-cp -a "$WORK_DIR/lib" "$BUILD_STAGE_PLUGIN_DIR"
-cp -a "$WORK_DIR/public" "$BUILD_STAGE_PLUGIN_DIR"
-cp -a "$WORK_DIR/utils" "$BUILD_STAGE_PLUGIN_DIR"
-cp -a "$WORK_DIR/examples" "$BUILD_STAGE_PLUGIN_DIR"
-cp -a "$WORK_DIR/tests" "$BUILD_STAGE_PLUGIN_DIR"
-cp -a "$WORK_DIR/babel.config.js" "$BUILD_STAGE_PLUGIN_DIR"
-
-cd $BUILD_STAGE_PLUGIN_DIR
-
-echo "+++ Checking yarn packages for vulnerabilities +++"
-auditResult=`yarn audit --level 4 2>&1`
-isNoVulnerability="[^\d]0 vulnerabilities found.*$"
-let limit=1*10**20 # Limit num of chars because the result can be huge
-if [[ ! $auditResult =~ $isNoVulnerability && $EXIT_IF_VULNERABILITY = true ]]; then
-    echo ${auditResult::limit}
-#    exit 1
-fi
-echo ${auditResult::limit} >>"$WORK_DIR/build.log" 2>&1
-
-echo "+++ Installing plugin node modules +++"
-yarn kbn bootstrap >>"$WORK_DIR/build.log" 2>&1
-if [ $? != 0 ]; then
-    echo "Installing node modules failed"
-    exit 1
-fi
-
-echo "+++ Testing UI +++"
-uitestsResult=`./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest public --config ./tests/jest.config.js --silent --json`
-if [[ ! $uitestsResult =~ .*\"numFailedTests\":0.* ]]; then
-  echo "Browser tests failed"
-  exit 1
-fi
-echo $uitestsResult >>"$WORK_DIR/build.log" 2>&1
-
-
-echo "+++ Testing UI Server +++"
-srvtestsResult=`./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest lib --config ./tests/jest.config.js --passWithNoTests --silent --json`
-if [[ ! $srvtestsResult =~ .*\"numFailedTests\":0.* ]]; then
-    echo "Server unit tests failed"
-    exit 1
-fi
-
-echo $srvtestsResult >>"$WORK_DIR/build.log" 2>&1
-
-echo "+++ Installing plugin node modules for production +++"
-rm -rf "node_modules"
-yarn install --production --pure-lockfile >>"$WORK_DIR/build.log" 2>&1
-if [ $? != 0 ]; then
-    echo "Installing node modules failed"
-    exit 1
-fi
-
 cd "$WORK_DIR"
 rm -rf build/
 rm -rf node_modules/
 
-echo "+++ Copy plugin contents to finalize build +++"
+echo "+++ Installing node modules +++"
+npm install >>"$WORK_DIR/build.log" 2>&1
+if [ $? != 0 ]; then
+    echo "Installing node modules failed";
+    exit 1;
+fi
+
+echo "+++ Copy plugin contents +++"
 COPYPATH="build/kibana/$PLUGIN_NAME"
 mkdir -p "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/index.js" "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/package.json" "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/node_modules" "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/lib" "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/public" "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/utils" "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/examples" "$COPYPATH"
+cp -a "$WORK_DIR/index.js" "$COPYPATH"
+cp -a "$WORK_DIR/package.json" "$COPYPATH"
+cp -a "$WORK_DIR/lib" "$COPYPATH"
+cp -a "$WORK_DIR/node_modules" "$COPYPATH"
+cp -a "$WORK_DIR/public" "$COPYPATH"
 
 end=`date +%s`
 echo "Build time: $((end-start)) sec"
