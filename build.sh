@@ -17,6 +17,8 @@ if [ "$COMMAND" != "deploy-snapshot-maven" ] && [ "$COMMAND" != "install-local" 
     exit 1
 fi
 
+echo "COMMAND: $COMMAND"
+
 # sanity checks for maven
 if [ -z "$MAVEN_HOME" ]; then
     echo "MAVEN_HOME not set"
@@ -90,7 +92,7 @@ if [ $? != 0 ]; then
 fi
 
 # prepare artefacts
-PLUGIN_NAME="searchguard-kibana-$KIBANA_VERSION-$SG_PLUGIN_VERSION"
+PLUGIN_NAME="searchguard-kibana-$KIBANA_VERSION-$SG_PLUGIN_VERSION-SNAPSHOT"
 echo "+++ Building $PLUGIN_NAME.zip +++"
 
 WORK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -182,7 +184,7 @@ echo $uitestsResult >>"$WORK_DIR/build.log" 2>&1
 
 
 echo "+++ Testing UI Server +++"
-srvtestsResult=`./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest lib --config ./tests/jest.config.js --silent --json`
+srvtestsResult=`./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest lib --config ./tests/jest.config.js --passWithNoTests --silent --json`
 if [[ ! $srvtestsResult =~ .*\"numFailedTests\":0.* ]]; then
     echo "Server unit tests failed"
     exit 1
@@ -218,7 +220,7 @@ echo "Build time: $((end-start)) sec"
 
 if [ "$COMMAND" == "deploy-snapshot-maven" ] ; then
     echo "+++ mvn clean deploy +++"
-    $MAVEN_HOME/bin/mvn clean deploy -s settings.xml -Drevision="$KIBANA_VERSION-$SG_PLUGIN_VERSION"
+    $MAVEN_HOME/bin/mvn clean deploy -s settings.xml -Drevision="$KIBANA_VERSION-$SG_PLUGIN_VERSION-SNAPSHOT"
     if [ $? != 0 ]; then
         echo "$MAVEN_HOME/bin/mvn clean deploy failed"
         exit 1
@@ -227,7 +229,7 @@ fi
 
 if [ "$COMMAND" == "install-local" ] ; then
     echo "+++ mvn clean install +++"
-    $MAVEN_HOME/bin/mvn clean install -Drevision="$KIBANA_VERSION-$SG_PLUGIN_VERSION"
+    $MAVEN_HOME/bin/mvn clean install -Drevision="$KIBANA_VERSION-$SG_PLUGIN_VERSION-SNAPSHOT"
     if [ $? != 0 ]; then
         echo "$MAVEN_HOME/bin/mvn clean install failed"
         exit 1
