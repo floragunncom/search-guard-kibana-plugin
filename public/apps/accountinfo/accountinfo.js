@@ -42,12 +42,11 @@ uiModules
         $http.get(`${API_ROOT}/auth/authinfo`)
             .then(
                 (response) => {
-
                     this.sg_user = response.data;
                 },
                 (error) => {
                     toastNotifications.addDanger({
-                        text: error.message,
+                        text: error.data.message,
                     });
                 }
             );
