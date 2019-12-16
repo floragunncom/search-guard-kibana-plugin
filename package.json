@@ -19,7 +19,6 @@
     "hapi-auth-cookie": "^3.1.0",
     "hapi-authorization": "^3.0.2",
     "joi": "10.6.0",
-    "js-yaml": "^3.7.0",
     "requirefrom": "^0.2.0",
     "wreck": "10.x.x"
   },
