@@ -139,7 +139,7 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
             (error) => {
                 toastNotifications.addDanger({
                     title: 'Unable to load indices.',
-                    text: error.message,
+                    text: error.data.message,
                 });
             }
         );
@@ -472,7 +472,7 @@ app.controller('sgEditRolesController', function ($rootScope, $scope, $element, 
             },
             (error) => {
                 toastNotifications.addDanger({
-                    text: error.message
+                    text: error.data.message
                 });
             }
         );
