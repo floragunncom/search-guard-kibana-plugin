@@ -27,7 +27,7 @@ app.controller('sgSystemController', function ($scope, $http, $route, $element, 
         (error) => {
             toastNotifications.addDanger({
                 title: "Could not retrieve system info.",
-                text: error.message
+                text: error.data.message
             });
         }
     );
