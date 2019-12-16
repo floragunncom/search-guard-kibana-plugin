@@ -8,3 +8,4 @@ rm -rf ./releases
 rm -rf ./node_modules
 rm -rf ./build
 rm -f *.log
+rm -rf build_stage/kibana/plugins/* || true
