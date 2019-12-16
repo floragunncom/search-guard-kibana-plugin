@@ -184,7 +184,7 @@ echo $uitestsResult >>"$WORK_DIR/build.log" 2>&1
 
 
 echo "+++ Testing UI Server +++"
-srvtestsResult=`./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest lib --config ./tests/jest.config.js --silent --json`
+srvtestsResult=`./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest lib --config ./tests/jest.config.js --passWithNoTests --silent --json`
 if [[ ! $srvtestsResult =~ .*\"numFailedTests\":0.* ]]; then
     echo "Server unit tests failed"
     exit 1
