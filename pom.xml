@@ -20,9 +20,8 @@
   <artifactId>search-guard-kibana-plugin-7</artifactId>
   <packaging>pom</packaging>
   <version>${revision}</version>
-  <!-- <version>6.7.0-18.1-SNAPSHOT</version> -->
   <name>Search Guard Kibana Plugin</name>
-  <description>Search Guard Kibana Plugin for Elasticsearch 6</description>
+  <description>Search Guard Kibana Plugin for Elasticsearch 7</description>
   <url>https://github.com/floragunncom/search-guard</url>
   <inceptionYear>2016</inceptionYear>
 
