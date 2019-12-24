@@ -10,7 +10,8 @@ import {
   EuiToolTip,
   EuiTitle,
   EuiText,
-  EuiBadge
+  EuiBadge,
+  EuiButtonEmpty
 } from '@elastic/eui';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
@@ -483,37 +484,51 @@ class Watches extends Component {
     );
   };
 
+  renderAckAction = watch => (
+    <EuiButtonEmpty
+      data-test-subj={`sgTableCol-ActionAck-${watch._id}`}
+      iconType="check"
+      onClick={() => this.handleAck([watch._id])}
+    >
+      {acknowledgeText}
+    </EuiButtonEmpty>
+  );
+
+  renderCloneAction = watch => (
+    <EuiButtonEmpty
+      data-test-subj={`sgTableCol-ActionClone-${watch._id}`}
+      iconType="copy"
+      onClick={this.handleCloneWatch}
+    >
+      {cloneText}
+    </EuiButtonEmpty>
+  );
+
+  renderDeleteAction = watch => (
+    <EuiButtonEmpty
+      data-test-subj={`sgTableCol-ActionDelete-${watch._id}`}
+      iconType="trash"
+      color="danger"
+      onClick={() => this.handleDeleteWatches([watch._id])}
+    >
+      {deleteText}
+    </EuiButtonEmpty>
+  );
+
   render() {
     const { history, onTriggerFlyout } = this.props;
     const { watches, isLoading, error } = this.state;
 
     const actions = [
       {
-        'data-test-subj': 'sgTableCol-ActionAcknowledge',
-        name: acknowledgeText,
-        description: 'Acknowledge the watch',
-        icon: 'check',
-        type: 'icon',
-        color: 'success',
-        onClick: watch => this.handleAck([watch._id])
+        render: this.renderAckAction,
       },
       {
-        'data-test-subj': 'sgTableCol-ActionClone',
-        name: cloneText,
-        description: 'Clone the watch',
-        icon: 'copy',
-        type: 'icon',
-        onClick: this.handleCloneWatch
+        render: this.renderCloneAction,
       },
       {
-        'data-test-subj': 'sgTableCol-ActionDelete',
-        name: deleteText,
-        description: 'Delete the watch',
-        icon: 'trash',
-        type: 'icon',
-        color: 'danger',
-        onClick: watch => this.handleDeleteWatches([watch._id])
-      }
+        render: this.renderDeleteAction,
+      },
     ];
 
     const columns = [
@@ -592,8 +607,8 @@ class Watches extends Component {
         render: this.renderLastExecutionColumn
       },
       {
-        actions
-      }
+        actions,
+      },
     ];
 
     const search = {
