@@ -135,8 +135,8 @@ fi
 echo ${auditResult::limit}
 
 echo "+++ Installing plugin node modules +++"
-yarn kbn bootstrap
-yarn # This is required to build all plugin's packages if Kibana v7[0-1].x
+# 'yarn kbn bootstrap' fails if Kibana v7[0-1].x
+yarn
 if [ $? != 0 ]; then
     echo "Installing node modules failed"
     exit 1
