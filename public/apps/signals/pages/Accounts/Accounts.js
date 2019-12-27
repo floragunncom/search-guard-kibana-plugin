@@ -261,16 +261,19 @@ class Accounts extends Component {
         title: 'Accounts',
         items: [
           {
+            'data-test-subj': 'sgAddAccount-Email',
             name: 'Email',
             icon: (<EuiIcon type="email" size="m" />),
             onClick: () => this.addAccount(ACCOUNT_TYPE.EMAIL)
           },
           {
+            'data-test-subj': 'sgAddAccount-Slack',
             name: 'Slack',
             icon: (<EuiIcon type="empty" size="m" />),
             onClick: () => this.addAccount(ACCOUNT_TYPE.SLACK)
           },
           {
+            'data-test-subj': 'sgAddAccount-PagerDuty',
             name: 'PagerDuty (coming soon)',
             icon: (<EuiIcon type="empty" size="m" />),
             onClick: () => null
