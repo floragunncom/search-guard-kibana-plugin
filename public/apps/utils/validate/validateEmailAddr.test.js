@@ -3,7 +3,7 @@ import { invalidEmailAddressText, requiredText } from '../i18n/common';
 
 describe('validateEmailAddr', () => {
   test('can validate email string', () => {
-    expect(validateEmailAddr()('a@b')).toEqual(null);
+    expect(validateEmailAddr()('a@b')).toEqual(undefined);
   });
 
   test('fail to validate email', () => {
@@ -17,7 +17,7 @@ describe('validateEmailAddr', () => {
     expect(validateEmailAddr()([
       { label: 'a@b' },
       { label: 'c@d' }
-    ])).toEqual(null);
+    ])).toEqual(undefined);
   });
 
   test('fail to validate email comboBox if some of the emails are wrong', () => {
@@ -33,7 +33,7 @@ describe('validateEmailAddr', () => {
   });
 
   test('dont require if email is empty', () => {
-    expect(validateEmailAddr(false)('')).toEqual(null);
-    expect(validateEmailAddr(false)([])).toEqual(null);
+    expect(validateEmailAddr(false)('')).toEqual(undefined);
+    expect(validateEmailAddr(false)([])).toEqual(undefined);
   });
 });

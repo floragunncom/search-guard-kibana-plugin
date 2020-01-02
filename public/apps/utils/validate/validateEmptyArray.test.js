@@ -3,7 +3,7 @@ import { requiredText } from '../i18n/common';
 
 describe('validateEmptyArray', () => {
   it('can validate', () => {
-    expect(validateEmptyArray(['a'])).toBe(null);
+    expect(validateEmptyArray(['a'])).toBe(undefined);
   });
 
   it('fail to validate if array is empty', () => {

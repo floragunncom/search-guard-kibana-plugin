@@ -15,9 +15,9 @@ export const validateName = (Service, isUpdatingName = false) => async (name) =>
     const newNameAlreadyExists = isUpdatingName && (_id === name);
     if (newNameAlreadyExists) return nameAlreadyExistsText;
   } catch (error) {
-    if (error.statusCode === 404) return null;
+    if (error.statusCode === 404) return undefined;
     throw problemWithValidationTryAgainText;
   }
 
-  return null;
+  return undefined;
 };

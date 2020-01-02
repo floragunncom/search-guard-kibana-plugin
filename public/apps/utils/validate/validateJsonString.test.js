@@ -3,7 +3,7 @@ import { requiredText, invalidJsonText } from '../i18n/common';
 
 describe('validateJsonString', () => {
   it('can validate JSON', () => {
-    expect(validateJsonString('{ "a": 1 }')).toBe(null);
+    expect(validateJsonString('{ "a": 1 }')).toBe(undefined);
   });
 
   it('fail to validate if no value', () => {
