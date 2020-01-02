@@ -128,26 +128,31 @@ class ActionPanel extends Component {
         title: 'Accounts',
         items: [
           {
+            'data-test-subj': 'sgPopoverButton-AddWatchAction-Email',
             name: 'Email',
             icon: (<EuiIcon type="email" size="m" />),
             onClick: () => this.addAction(ACTION_TYPE.EMAIL)
           },
           {
+            'data-test-subj': 'sgPopoverButton-AddWatchAction-Slack',
             name: 'Slack',
             icon: (<EuiIcon type="empty" size="m" />),
             onClick: () => this.addAction(ACTION_TYPE.SLACK)
           },
           {
+            'data-test-subj': 'sgPopoverButton-AddWatchAction-Webhook',
             name: 'Webhook',
             icon: (<EuiIcon type="empty" size="m" />),
             onClick: () => this.addAction(ACTION_TYPE.WEBHOOK)
           },
           {
+            'data-test-subj': 'sgPopoverButton-AddWatchAction-Elasticsearch',
             name: 'Elasticsearch',
             icon: (<EuiIcon type="database" size="m" />),
             onClick: () => this.addAction(ACTION_TYPE.INDEX)
           },
           {
+            'data-test-subj': 'sgPopoverButton-AddWatchAction-PagerDuty',
             name: 'PagerDuty (coming soon)',
             icon: (<EuiIcon type="empty" size="m" />),
             onClick: () => null
