@@ -9,5 +9,5 @@ export const validateJsonString = value => {
     return invalidJsonText;
   }
 
-  return null;
+  return undefined;
 };

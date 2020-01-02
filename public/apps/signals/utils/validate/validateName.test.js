@@ -14,7 +14,7 @@ describe('validate_name', () => {
 
     await expect(
       validateName(Service)('newName')
-    ).resolves.toBe(null);
+    ).resolves.toBe(undefined);
   });
 
   it('fail to validate empty name', async () => {

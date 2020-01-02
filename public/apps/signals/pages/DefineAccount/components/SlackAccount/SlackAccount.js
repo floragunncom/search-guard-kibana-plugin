@@ -36,6 +36,9 @@ const SlackAccount = ({ httpClient, id, formik: { values } }) => {
         }}
         elementProps={{
           isInvalid,
+          onFocus: (e, field, form) => {
+            form.setFieldError(field.name, undefined);
+          },
         }}
         formikFieldProps={{
           validate: validateName(
@@ -54,6 +57,9 @@ const SlackAccount = ({ httpClient, id, formik: { values } }) => {
         }}
         elementProps={{
           isInvalid,
+          onFocus: (e, field, form) => {
+            form.setFieldError(field.name, undefined);
+          },
         }}
         formikFieldProps={{
           validate: validateEmptyField

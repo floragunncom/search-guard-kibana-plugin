@@ -3,7 +3,7 @@ import { requiredText } from '../i18n/common';
 
 describe('validateEmptyField', () => {
   it('can validate text', () => {
-    expect(validateEmptyField('abc')).toBe(null);
+    expect(validateEmptyField('abc')).toBe(undefined);
   });
 
   it('fail to validate if no value', () => {
