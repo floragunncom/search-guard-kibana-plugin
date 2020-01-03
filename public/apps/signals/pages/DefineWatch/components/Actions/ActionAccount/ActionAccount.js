@@ -31,7 +31,6 @@ const ActionAccount = ({
         isClearable: false,
         singleSelection: { asPlainText: true },
         placeholder: 'Select account',
-        async: true,
         options: buildActionAccounts(accounts, accountType),
         onBlur: (e, field, form) => {
           form.setFieldTouched(field.name, true);
