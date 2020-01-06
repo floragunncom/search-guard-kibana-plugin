@@ -5,7 +5,7 @@ module.exports = {
   ],
   testMatch: ['**/*.test.js'],
   modulePaths: ['node_modules', '../../node_modules'],
-  snapshotSerializers: ['../../node_modules/enzyme-to-json/serializer'],
+  snapshotSerializers: ['./node_modules/enzyme-to-json/serializer'],
   coverageDirectory: './coverage',
   coverageReporters: ['lcov', 'text', 'cobertura'],
   transform: {
