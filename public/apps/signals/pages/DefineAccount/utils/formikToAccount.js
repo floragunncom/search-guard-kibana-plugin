@@ -1,6 +1,14 @@
 import { comboBoxOptionsToArray, filterEmptyKeys } from '../../../utils/helpers';
 import { ACCOUNT_TYPE } from '../../Accounts/utils/constants';
 
+export function buildPagerdutyAccount(formik) {
+  return { ...formik };
+}
+
+export function buildJiraAccount(formik) {
+  return { ...formik };
+}
+
 export function buildSlackAccount(formik) {
   return { ...formik };
 }
@@ -23,6 +31,14 @@ export function formikToAccount(formik) {
   switch (formik.type) {
     case ACCOUNT_TYPE.SLACK: {
       account = buildSlackAccount(formik);
+      break;
+    }
+    case ACCOUNT_TYPE.JIRA: {
+      account = buildJiraAccount(formik);
+      break;
+    }
+    case ACCOUNT_TYPE.PAGERDUTY: {
+      account = buildPagerdutyAccount(formik);
       break;
     }
     default: {

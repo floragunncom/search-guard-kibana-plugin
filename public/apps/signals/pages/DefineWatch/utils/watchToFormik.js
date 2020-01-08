@@ -92,6 +92,20 @@ export function buildFormikSlackAction(action = {}) {
   };
 }
 
+export function buildFormikJiraAction(action = {}) {
+  return {
+    ...action,
+    account: arrayToComboBoxOptions([action.account]),
+  };
+}
+
+export function buildFormikPagerdutyAction(action = {}) {
+  return {
+    ...action,
+    account: arrayToComboBoxOptions([action.account]),
+  };
+}
+
 export function buildFormikEmailAction(action = {}) {
   return {
     ...action,
@@ -159,6 +173,14 @@ export const buildFormikActions = ({
 
       if (newAction.type === ACTION_TYPE.WEBHOOK) {
         return buildFormikWebhookAction(newAction);
+      }
+
+      if (newAction.type === ACTION_TYPE.JIRA) {
+        return buildFormikJiraAction(newAction);
+      }
+
+      if (newAction.type === ACTION_TYPE.PAGERDUTY) {
+        return buildFormikPagerdutyAction(newAction);
       }
 
       return newAction;

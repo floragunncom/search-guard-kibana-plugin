@@ -3,20 +3,9 @@ import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import { connect as connectRedux } from 'react-redux';
 import queryString from 'query-string';
-import {
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiTitle,
-  EuiSpacer
-} from '@elastic/eui';
-import {
-  EmailAccount,
-  SlackAccount
-} from './components';
-import {
-  CancelButton,
-  SaveButton
-} from '../../components';
+import { EuiFlexGroup, EuiFlexItem, EuiTitle, EuiSpacer } from '@elastic/eui';
+import { EmailAccount, SlackAccount, JiraAccount, PagerdutyAccount } from './components';
+import { CancelButton, SaveButton } from '../../components';
 import { AccountsService } from '../../services';
 import { addErrorToast, addSuccessToast } from '../../redux/actions';
 import { updateText, createText, saveText } from '../../utils/i18n/common';
@@ -40,6 +29,8 @@ class DefineAccount extends Component {
     this.state = {
       initialValues: accountToFormik(initialValues)
     };
+
+    console.debug('DefineAccount -- constructor -- values', this.state.initialValues);
   }
 
   componentDidMount() {
@@ -49,17 +40,24 @@ class DefineAccount extends Component {
   fetchData = async () => {
     const { dispatch, location } = this.props;
     const { id } = queryString.parse(location.search);
+    if (!id) return;
 
+    let account;
+    let initialValues;
     try {
-      if (id) {
-        const { resp: initialValues } = await this.destService.get(id);
-        this.setState({ initialValues: accountToFormik(initialValues) });
-      }
+      const { resp } = await this.destService.get(id);
+      account = resp;
+      console.debug('DefineAccount -- fetchData -- account', account);
+
+      initialValues = accountToFormik(account);
+      this.setState({ initialValues });
     } catch (error) {
       console.error('DefineAccount -- fetchData', error);
       dispatch(addErrorToast(error));
-      console.debug('DefineAccount -- id', id);
     }
+
+    console.debug('DefineAccount -- fetchData -- id', id);
+    console.debug('DefineAccount -- fetchData -- values', initialValues);
   }
 
   onCancel = () => {
@@ -72,11 +70,12 @@ class DefineAccount extends Component {
   onSubmit = async (values, { setSubmitting }) => {
     const { dispatch } = this.props;
     const { _id: id, ...rest } = values;
+    console.debug('DefineAccount -- onSubmit - values', values);
 
+    let account;
     try {
-      const account = formikToAccount(rest);
+      account = formikToAccount(rest);
       await this.destService.put(account, id);
-      console.debug('DefineAccount -- account saved', account);
       setSubmitting(false);
       dispatch(addSuccessToast((<p>{saveText} {id}</p>)));
       this.onCancel();
@@ -84,8 +83,9 @@ class DefineAccount extends Component {
       console.error('DefineAccount -- onSubmit', error);
       setSubmitting(false);
       dispatch(addErrorToast(error));
-      console.debug('DefineAccount -- formik values', values);
     }
+
+    console.debug('DefineAccount -- onSubmit - account', account);
   }
 
   render() {
@@ -113,6 +113,14 @@ class DefineAccount extends Component {
 
     if (accountType === ACCOUNT_TYPE.SLACK) {
       account = <SlackAccount httpClient={httpClient} id={id} />;
+    }
+
+    if (accountType === ACCOUNT_TYPE.JIRA) {
+      account = <JiraAccount id={id} />;
+    }
+
+    if (accountType === ACCOUNT_TYPE.PAGERDUTY) {
+      account = <PagerdutyAccount id={id} />;
     }
 
     return (

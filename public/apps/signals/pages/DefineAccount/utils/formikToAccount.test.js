@@ -1,6 +1,6 @@
 import {
   buildEmailAccount,
-  formikToAccount
+  formikToAccount,
 } from './formikToAccount';
 import { ACCOUNT_TYPE } from '../../Accounts/utils/constants';
 

@@ -91,7 +91,7 @@ const ActionChecks = ({
   return (
     <>
       <EuiSpacer />
-      <ControlledContent title={checksText} titleSize="xs" actions={actions}>
+      <ControlledContent title={checksText} titleProps={{ size: 'xs' }} actions={actions}>
         <JsonWatch
           checksPath={checksPath}
           isResultVisible={isResultVisible}

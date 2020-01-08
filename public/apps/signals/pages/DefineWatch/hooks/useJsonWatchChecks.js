@@ -16,23 +16,25 @@ const useJsonWatchChecks = ({ setFieldValue, isResultVisibleDefault = false } = 
   const closeResult = () => setResultVisible(false);
 
   const executeWatch = async ({ values, simulate = false, skipActions = true } = {}) => {
+    console.debug('useJsonWatchChecks -- executeWatch -- values', values);
+
     setIsLoading(true);
 
+    let watch;
     try {
-      const { ok, resp } = await watchService.execute({
-        watch: formikToWatch(values),
-        simulate,
-        skipActions,
-      });
+      watch = formikToWatch(values);
+      const { ok, resp } = await watchService.execute({ watch, simulate, skipActions });
 
       setFieldValue('_ui.checksResult', resp);
       setEditorResult(stringifyPretty(resp));
+
       if (!ok) throw resp;
     } catch (error) {
-      console.error('useJsonWatchChecks', error);
-      console.debug('useJsonWatchChecks -- values', values);
+      console.error('useJsonWatchChecks -- executeWatch', error);
       addErrorToast(error);
     }
+
+    console.debug('useJsonWatchChecks -- executeWatch -- watch', watch);
 
     setIsLoading(false);
     setResultVisible(true);
