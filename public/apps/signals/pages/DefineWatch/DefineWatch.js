@@ -28,6 +28,8 @@ class DefineWatch extends Component {
       isEdit: !!id,
       initialValues: watchToFormik(DEFAULT_WATCH),
     };
+
+    console.debug('DefineWatch -- constructor -- values', this.state.initialValues);
   }
 
   componentDidMount() {
@@ -37,16 +39,20 @@ class DefineWatch extends Component {
   fetchData = async () => {
     const { location, history, dispatch } = this.props;
     const { id } = queryString.parse(location.search);
+    if (!id) return;
 
     let initialValues;
+    let watch;
     try {
-      if (id) {
-        const { resp } = await this.watchService.get(id);
-        initialValues = watchToFormik(resp);
-        this.setState({ initialValues });
-      }
+      const { resp } = await this.watchService.get(id);
+      watch = resp;
+      console.debug('DefineWatch -- fetchWatch -- watch', watch);
+
+      initialValues = watchToFormik(watch);
+      this.setState({ initialValues });
     } catch (error) {
       console.error('DefineWatch -- fetchData', error);
+
       if (error.statusCode === 404) {
         this.setState({ isEdit: false });
         history.push({ search: '' });
@@ -56,7 +62,7 @@ class DefineWatch extends Component {
     }
 
     console.debug('DefineWatch -- fetchWatch -- id', id);
-    console.debug('DefineWatch -- fetchWatch -- watch', initialValues);
+    console.debug('DefineWatch -- fetchWatch -- values', initialValues);
   };
 
   onCancel = () => {
@@ -70,6 +76,7 @@ class DefineWatch extends Component {
   onSubmit = async (values, { setSubmitting }) => {
     const { history, dispatch } = this.props;
     const { _id: id } = values;
+    console.debug('DefineWatch -- onSubmit -- values', values);
 
     let watch;
     try {
@@ -85,22 +92,12 @@ class DefineWatch extends Component {
       dispatch(addErrorToast(error));
     }
 
-    console.debug('DefineWatch -- onSubmit -- values', values);
     console.debug('DefineWatch -- onSubmit -- watch', watch);
   };
 
   render() {
     const { initialValues, isEdit, isLoading } = this.state;
-
-    const {
-      httpClient,
-      location,
-      onTriggerFlyout,
-      onComboBoxChange,
-      onComboBoxOnBlur,
-      onComboBoxCreateOption,
-      onTriggerConfirmDeletionModal,
-    } = this.props;
+    const { httpClient, location, onTriggerConfirmDeletionModal } = this.props;
 
     return (
       <div>
@@ -141,11 +138,7 @@ class DefineWatch extends Component {
                       isLoading={isLoading}
                       httpClient={httpClient}
                       arrayHelpers={arrayHelpers}
-                      onComboBoxChange={onComboBoxChange}
-                      onComboBoxOnBlur={onComboBoxOnBlur}
-                      onComboBoxCreateOption={onComboBoxCreateOption}
                       onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
-                      onTriggerFlyout={onTriggerFlyout}
                     />
                   )}
                 />
@@ -159,9 +152,6 @@ class DefineWatch extends Component {
                           isLoading={isLoading}
                           httpClient={httpClient}
                           arrayHelpers={arrayHelpers}
-                          onComboBoxChange={onComboBoxChange}
-                          onComboBoxOnBlur={onComboBoxOnBlur}
-                          onComboBoxCreateOption={onComboBoxCreateOption}
                           onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
                         />
                       )}
@@ -196,10 +186,6 @@ DefineWatch.propTypes = {
   location: PropTypes.object.isRequired,
   httpClient: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
-  onTriggerFlyout: PropTypes.func.isRequired,
-  onComboBoxOnBlur: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired,
 };
 
 export default connect()(DefineWatch);

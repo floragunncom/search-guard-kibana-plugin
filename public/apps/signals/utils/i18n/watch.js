@@ -83,14 +83,27 @@ export const executeBlocksAboveAndThisBlockText = (
   <EuiI18n token="sg.watch.executeBlocksAboveAndThisBlock.text" default="Execute blocks above and this block" />
 );
 export const mustSpecifyIndexText = (
-  <EuiI18n token="sg.common.mustSpecifyIndex.text" default="Must specify index" />
+  <EuiI18n token="sg.watch.mustSpecifyIndex.text" default="Must specify index" />
 );
 export const invalidTimeIntervalText = (
-  <EuiI18n token="sg.common.invalidTimeInterval.text" default="Invalid time interval, check the units order" />
+  <EuiI18n token="sg.watch.invalidTimeInterval.text" default="Invalid time interval, check the units order" />
 );
 export const invalidThrottleTimeIntervalText = (
-  <EuiI18n token="sg.common.invalidThrottleTimeInterval.text" default="Invalid throttle time interval, check the units order" />
+  <EuiI18n token="sg.watch.invalidThrottleTimeInterval.text" default="Invalid throttle time interval, check the units order" />
 );
 export const addedCheckTemplateText = (
-  <EuiI18n token="sg.common.addedCheckTemplate.text" default="Added check template" />
+  <EuiI18n token="sg.watch.addedCheckTemplate.text" default="Added check template" />
+);
+export const issueText = <EuiI18n token="sg.watch.issueType.text" default="Issue" />;
+export const summaryText = <EuiI18n token="sg.watch.summary.text" default="Summary" />;
+export const projectText = <EuiI18n token="sg.watch.project.text" default="Project" />;
+export const labelText = <EuiI18n token="sg.watch.label.text" default="Label" />;
+export const priorityText = <EuiI18n token="sg.watch.priority.text" default="Priority" />;
+export const parentText = <EuiI18n token="sg.watch.parent.text" default="Parent" />;
+export const componentText = <EuiI18n token="sg.watch.component.text" default="Component" />;
+export const dedupKeyText = <EuiI18n token="sg.watch.dedupKey.text" default="Dedup Key" />;
+export const sourceText = <EuiI18n token="sg.watch.source.text" default="Source" />;
+export const eventText = <EuiI18n token="sg.watch.event.text" default="Event" />;
+export const customDetailsText = (
+  <EuiI18n token="sg.watch.customDetails.text" default="Custom Details" />
 );

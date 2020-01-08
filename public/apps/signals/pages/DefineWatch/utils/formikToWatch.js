@@ -100,6 +100,42 @@ export function buildSlackAction(action = {}) {
   };
 }
 
+export function buildJiraAction(action = {}) {
+  const newAction = {
+    ...action,
+    account: comboBoxOptionsToArray(action.account)[0],
+  };
+
+  Object.keys(newAction.issue).forEach(key => {
+    if (!newAction.issue[key]) {
+      delete newAction.issue[key];
+    }
+  });
+
+  return newAction;
+}
+
+export function buildPagerdutyAction(action = {}) {
+  const newAction = {
+    ...action,
+    account: comboBoxOptionsToArray(action.account)[0],
+  };
+
+  Object.keys(action.event).forEach(key => {
+    if (!action.event[key]) {
+      delete action.event[key];
+    }
+  });
+
+  Object.keys(action.event.payload).forEach(key => {
+    if (!action.event.payload[key]) {
+      delete action.event.payload[key];
+    }
+  });
+
+  return newAction;
+}
+
 export function buildEmailAction(action = {}) {
   return {
     ...action,
@@ -148,19 +184,14 @@ export const buildChecks = ({ _ui: ui = {}, checks = [] }) => {
   return buildGraphWatchChecks(ui);
 };
 
-export const buildActions = ({
-  actions = [],
-  resolve_actions: resolveActions,
-  _ui = {}
-}) => {
+export const buildActions = ({ actions = [], resolve_actions: resolveActions, _ui = {} }) => {
   const buildHelper = actions => {
     const newActions = cloneDeep(actions);
+
     return newActions.map(action => {
       // resolve_actions don't have throttle_period
       // TODO: add test for the absence of resolve_actions throttle_period
-      const watchAction = action.resolves_severity
-        ? action
-        : buildThrottle(action);
+      const watchAction = action.resolves_severity ? action : buildThrottle(action);
 
       try {
         if (_ui.watchType === WATCH_TYPES.GRAPH && action.type !== ACTION_TYPE.INDEX) {
@@ -186,14 +217,20 @@ export const buildActions = ({
         return omit(buildSlackAction(watchAction), ['_checksBlocks']);
       }
 
+      if (action.type === ACTION_TYPE.JIRA) {
+        return omit(buildJiraAction(watchAction), ['_checksBlocks']);
+      }
+
+      if (action.type === ACTION_TYPE.PAGERDUTY) {
+        return omit(buildPagerdutyAction(watchAction), ['_checksBlocks']);
+      }
+
       // if ACTION_TYPE.WEBHOOK
       return omit(buildWebhookAction(watchAction), ['_checksBlocks']);
     });
   };
 
-  const result = {
-    actions: buildHelper(actions)
-  };
+  const result = { actions: buildHelper(actions) };
 
   if (resolveActions) {
     result.resolve_actions = buildHelper(resolveActions);

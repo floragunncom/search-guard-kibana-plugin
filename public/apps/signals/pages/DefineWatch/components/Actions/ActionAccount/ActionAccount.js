@@ -51,8 +51,10 @@ ActionAccount.propTypes = {
   accounts: PropTypes.array.isRequired,
   accountType: PropTypes.oneOf([
     ACCOUNT_TYPE.SLACK,
-    ACCOUNT_TYPE.EMAIL
-  ]).isRequired
+    ACCOUNT_TYPE.EMAIL,
+    ACCOUNT_TYPE.JIRA,
+    ACCOUNT_TYPE.PAGERDUTY,
+  ]).isRequired,
 };
 
 export default ActionAccount;

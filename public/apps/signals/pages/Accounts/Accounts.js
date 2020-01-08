@@ -1,15 +1,8 @@
 import React, { Component } from 'react';
 import { connect as connectRedux } from 'react-redux';
 import PropTypes from 'prop-types';
-import {
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiInMemoryTable,
-  EuiIcon
-} from '@elastic/eui';
-import {
-  LEFT_ALIGNMENT,
-} from '@elastic/eui/lib/services';
+import { EuiFlexGroup, EuiFlexItem, EuiInMemoryTable, EuiIcon } from '@elastic/eui';
+import { LEFT_ALIGNMENT } from '@elastic/eui/lib/services';
 import { cloneDeep, get } from 'lodash';
 import { AccountsService } from '../../services';
 import { addSuccessToast, addErrorToast } from '../../redux/actions';
@@ -20,22 +13,11 @@ import {
   TableMultiDeleteButton,
   TableIdCell,
   TableTextCell,
-  PopoverButton
+  PopoverButton,
 } from '../../components';
-import {
-  deleteText,
-  cloneText,
-  saveText,
-  typeText,
-} from '../../utils/i18n/common';
-import {
-  accountsText
-} from '../../utils/i18n/account';
-import {
-  TABLE_SORT_FIELD,
-  TABLE_SORT_DIRECTION,
-  ACCOUNT_TYPE
-} from './utils/constants';
+import { deleteText, cloneText, saveText, typeText } from '../../utils/i18n/common';
+import { accountsText } from '../../utils/i18n/account';
+import { TABLE_SORT_FIELD, TABLE_SORT_DIRECTION, ACCOUNT_TYPE } from './utils/constants';
 import { APP_PATH } from '../../utils/constants';
 
 class Accounts extends Component {
@@ -262,21 +244,26 @@ class Accounts extends Component {
         items: [
           {
             name: 'Email',
-            icon: (<EuiIcon type="email" size="m" />),
-            onClick: () => this.addAccount(ACCOUNT_TYPE.EMAIL)
+            icon: <EuiIcon type="email" size="m" />,
+            onClick: () => this.addAccount(ACCOUNT_TYPE.EMAIL),
           },
           {
             name: 'Slack',
-            icon: (<EuiIcon type="empty" size="m" />),
-            onClick: () => this.addAccount(ACCOUNT_TYPE.SLACK)
+            icon: <EuiIcon type="empty" size="m" />,
+            onClick: () => this.addAccount(ACCOUNT_TYPE.SLACK),
           },
           {
-            name: 'PagerDuty (coming soon)',
-            icon: (<EuiIcon type="empty" size="m" />),
-            onClick: () => null
-          }
-        ]
-      }
+            name: 'Jira',
+            icon: <EuiIcon type="empty" size="m" />,
+            onClick: () => this.addAccount(ACCOUNT_TYPE.JIRA),
+          },
+          {
+            name: 'PagerDuty',
+            icon: <EuiIcon type="empty" size="m" />,
+            onClick: () => this.addAccount(ACCOUNT_TYPE.PAGERDUTY),
+          },
+        ],
+      },
     ];
 
     return (
