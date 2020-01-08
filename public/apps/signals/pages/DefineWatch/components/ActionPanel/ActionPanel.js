@@ -12,7 +12,7 @@ import {
   SlackAction,
   DeleteActionButton,
   ElasticsearchAction,
-  EmailAction
+  EmailAction,
 } from '../Actions';
 import { AccountsService } from '../../../../services';
 import { addErrorToast } from '../../../../redux/actions';
@@ -56,7 +56,7 @@ class ActionPanel extends Component {
     this.state = {
       isAddActionPopoverOpen: false,
       isLoading: true,
-      accounts: []
+      accounts: [],
     };
 
     this.destService = new AccountsService(this.props.httpClient);
@@ -80,9 +80,7 @@ class ActionPanel extends Component {
   }
 
   triggerAddActionPopover = () => {
-    this.setState(prevState => ({
-      isAddActionPopoverOpen: !prevState.isAddActionPopoverOpen
-    }));
+    this.setState(prevState => ({ isAddActionPopoverOpen: !prevState.isAddActionPopoverOpen }));
   }
 
   addAction = actionType => {
@@ -108,15 +106,13 @@ class ActionPanel extends Component {
     const {
       httpClient,
       arrayHelpers,
-      formik: { values: { actions } },
+      formik: {
+        values: { actions },
+      },
       onComboBoxChange,
       onComboBoxOnBlur,
       onComboBoxCreateOption,
-      onChecksChange,
-      onAddCheckTemplate,
-      onExecuteChecks,
       onTriggerFlyout,
-      insertCheckTemplate
     } = this.props;
 
     const hasActions = !isEmpty(actions);
@@ -129,28 +125,28 @@ class ActionPanel extends Component {
         items: [
           {
             name: 'Email',
-            icon: (<EuiIcon type="email" size="m" />),
-            onClick: () => this.addAction(ACTION_TYPE.EMAIL)
+            icon: <EuiIcon type="email" size="m" />,
+            onClick: () => this.addAction(ACTION_TYPE.EMAIL),
           },
           {
             name: 'Slack',
-            icon: (<EuiIcon type="empty" size="m" />),
-            onClick: () => this.addAction(ACTION_TYPE.SLACK)
+            icon: <EuiIcon type="empty" size="m" />,
+            onClick: () => this.addAction(ACTION_TYPE.SLACK),
           },
           {
             name: 'Webhook',
-            icon: (<EuiIcon type="empty" size="m" />),
-            onClick: () => this.addAction(ACTION_TYPE.WEBHOOK)
+            icon: <EuiIcon type="empty" size="m" />,
+            onClick: () => this.addAction(ACTION_TYPE.WEBHOOK),
           },
           {
             name: 'Elasticsearch',
-            icon: (<EuiIcon type="database" size="m" />),
-            onClick: () => this.addAction(ACTION_TYPE.INDEX)
+            icon: <EuiIcon type="database" size="m" />,
+            onClick: () => this.addAction(ACTION_TYPE.INDEX),
           },
           {
             name: 'PagerDuty (coming soon)',
-            icon: (<EuiIcon type="empty" size="m" />),
-            onClick: () => null
+            icon: <EuiIcon type="empty" size="m" />,
+            onClick: () => null,
           }
         ]
       }
@@ -190,11 +186,7 @@ class ActionPanel extends Component {
                       onComboBoxChange={onComboBoxChange}
                       onComboBoxOnBlur={onComboBoxOnBlur}
                       onComboBoxCreateOption={onComboBoxCreateOption}
-                      onChecksChange={onChecksChange}
-                      onAddCheckTemplate={onAddCheckTemplate}
-                      onExecuteChecks={onExecuteChecks}
                       onTriggerFlyout={onTriggerFlyout}
-                      insertCheckTemplate={insertCheckTemplate}
                     />
                   )}
                   deleteButton={
@@ -223,15 +215,7 @@ ActionPanel.propTypes = {
   onComboBoxCreateOption: PropTypes.func.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
-  onChecksChange: PropTypes.func.isRequired,
-  onAddCheckTemplate: PropTypes.func.isRequired,
-  onExecuteChecks: PropTypes.func.isRequired,
   onTriggerFlyout: PropTypes.func.isRequired,
-  insertCheckTemplate: PropTypes.shape({
-    row: PropTypes.number,
-    column: PropTypes.column,
-    text: PropTypes.string,
-  }).isRequired,
 };
 
 export default connectRedux()(connectFormik(ActionPanel));

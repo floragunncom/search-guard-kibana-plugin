@@ -4,17 +4,10 @@ import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { isEmpty, get } from 'lodash';
 import { EuiSpacer } from '@elastic/eui';
-import {
-  FormikCodeEditor,
-  FormikFieldText,
-  FormikComboBox
-} from '../../../../../components';
-import JsonChecksForm from '../../JsonChecksForm';
+import { FormikCodeEditor, FormikFieldText, FormikComboBox } from '../../../../../components';
 import { getCurrentAccount } from '../utils';
-import {
-  nameText,
-  bodyText
-} from '../../../../../utils/i18n/common';
+import { nameText, bodyText } from '../../../../../utils/i18n/common';
+import ActionChecks from '../ActionChecks';
 import {
   fromText,
   toText,
@@ -22,13 +15,13 @@ import {
   ccText,
   bccText,
   severityText,
-  resolvesSeverityText
+  resolvesSeverityText,
 } from '../../../../../utils/i18n/watch';
 import {
   validateEmailAddr,
   validateEmptyField,
   isInvalid,
-  hasError
+  hasError,
 } from '../../../../../utils/validate';
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
@@ -43,13 +36,15 @@ let { theme } = CODE_EDITOR;
 theme = !IS_DARK_THEME ? theme : darkTheme;
 
 const EmailAction = ({
+  httpClient,
+  onTriggerFlyout,
   isResolveActions,
   index,
   accounts,
   formik: { values },
   onComboBoxChange,
   onComboBoxOnBlur,
-  onComboBoxCreateOption
+  onComboBoxCreateOption,
 }) => {
   const watchType = get(values, '_ui.watchType');
   const isGraphWatch = watchType === WATCH_TYPES.GRAPH;
@@ -72,7 +67,6 @@ const EmailAction = ({
   const subjectPath = `${actionsRootPath}[${index}].subject`;
   const textBodyPath = `${actionsRootPath}[${index}].text_body`;
   const bodyPreviewTemplate = get(values, `${actionsRootPath}[${index}].text_body`, '');
-  const checksPath = `${actionsRootPath}[${index}].checks`;
 
   return (
     <Fragment>
@@ -91,26 +85,28 @@ const EmailAction = ({
           },
         }}
         formikFieldProps={{
-          validate: validateEmptyField
+          validate: validateEmptyField,
         }}
       />
-      {isSeverity && <FormikComboBox
-        name={severityPath}
-        formRow
-        rowProps={{
-          label: severityLabel,
-          isInvalid,
-          error: hasError,
-        }}
-        elementProps={{
-          options: SEVERITY_OPTIONS,
-          isClearable: true,
-          placeholder: 'Select severity',
-          onBlur: onComboBoxOnBlur,
-          onChange: onComboBoxChange(),
-          onCreateOption: onComboBoxCreateOption()
-        }}
-      />}
+      {isSeverity && (
+        <FormikComboBox
+          name={severityPath}
+          formRow
+          rowProps={{
+            label: severityLabel,
+            isInvalid,
+            error: hasError,
+          }}
+          elementProps={{
+            options: SEVERITY_OPTIONS,
+            isClearable: true,
+            placeholder: 'Select severity',
+            onBlur: onComboBoxOnBlur,
+            onChange: onComboBoxChange(),
+            onCreateOption: onComboBoxCreateOption()
+          }}
+        />
+      )}
       {!isResolveActions && <ActionThrottlePeriod index={index} />}
       <ActionAccount
         isResolveActions={isResolveActions}
@@ -124,7 +120,7 @@ const EmailAction = ({
         rowProps={{
           label: fromText,
           isInvalid,
-          error: hasError
+          error: hasError,
         }}
         elementProps={{
           isInvalid,
@@ -133,7 +129,7 @@ const EmailAction = ({
           },
         }}
         formikFieldProps={{
-          validate: !isDefaultFrom ? validateEmailAddr() : null
+          validate: !isDefaultFrom ? validateEmailAddr() : null,
         }}
       />
       <FormikComboBox
@@ -152,7 +148,7 @@ const EmailAction = ({
           onCreateOption: onComboBoxCreateOption()
         }}
         formikFieldProps={{
-          validate: !isDefaultTo ? validateEmailAddr() : null
+          validate: !isDefaultTo ? validateEmailAddr() : null,
         }}
       />
       <FormikComboBox
@@ -171,7 +167,7 @@ const EmailAction = ({
           onCreateOption: onComboBoxCreateOption()
         }}
         formikFieldProps={{
-          validate: validateEmailAddr(false)
+          validate: validateEmailAddr(false),
         }}
       />
       <FormikComboBox
@@ -190,7 +186,7 @@ const EmailAction = ({
           onCreateOption: onComboBoxCreateOption()
         }}
         formikFieldProps={{
-          validate: validateEmailAddr(false)
+          validate: validateEmailAddr(false),
         }}
       />
       <FormikFieldText
@@ -208,7 +204,7 @@ const EmailAction = ({
           },
         }}
         formikFieldProps={{
-          validate: validateEmptyField
+          validate: validateEmptyField,
         }}
       />
       <EuiSpacer />
@@ -240,28 +236,36 @@ const EmailAction = ({
           },
         }}
         formikFieldProps={{
-          validate: validateEmptyField
+          validate: validateEmptyField,
         }}
       />
       <ActionBodyPreview index={index} template={bodyPreviewTemplate} />
-      {!isGraphWatch && <JsonChecksForm checksPath={checksPath} />}
+      {!isGraphWatch && (
+        <ActionChecks
+          actionIndex={index}
+          httpClient={httpClient}
+          onTriggerFlyout={onTriggerFlyout}
+        />
+      )}
     </Fragment>
   );
 };
 
 EmailAction.defaultProps = {
   accounts: [],
-  isResolveActions: false
+  isResolveActions: false,
 };
 
 EmailAction.propTypes = {
+  httpClient: PropTypes.func.isRequired,
   isResolveActions: PropTypes.bool,
   index: PropTypes.number.isRequired,
   formik: PropTypes.object.isRequired,
   accounts: PropTypes.array,
   onComboBoxOnBlur: PropTypes.func.isRequired,
   onComboBoxCreateOption: PropTypes.func.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired
+  onComboBoxChange: PropTypes.func.isRequired,
+  onTriggerFlyout: PropTypes.func.isRequired,
 };
 
 export default connectFormik(EmailAction);

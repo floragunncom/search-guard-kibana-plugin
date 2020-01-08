@@ -27,7 +27,7 @@ const BlocksWatch = ({
     setFieldValue,
   },
   httpClient,
-  onOpenChecksHelpFlyout,
+  onOpenChecksTemplatesFlyout,
   onTriggerConfirmDeletionModal,
   dispatch,
 }) => {
@@ -66,7 +66,7 @@ const BlocksWatch = ({
     setLoading(true);
 
     try {
-      const { ok, resp } = await watchService.execute(formikToWatch(newFormikValues));
+      const { ok, resp } = await watchService.execute({ watch: formikToWatch(newFormikValues) });
       setFieldValue(`_ui.checksBlocks.${endIndex}.response`, stringifyPretty(resp));
       if (!ok) throw resp;
     } catch (error) {
@@ -113,7 +113,7 @@ const BlocksWatch = ({
         <EmptyPrompt
           titleText={noChecksText}
           bodyText={looksLikeYouDontHaveAnyCheckText}
-          onCreate={onOpenChecksHelpFlyout}
+          onCreate={onOpenChecksTemplatesFlyout}
         />
       )}
     </div>
@@ -123,7 +123,7 @@ const BlocksWatch = ({
 BlocksWatch.propTypes = {
   formik: PropTypes.object.isRequired,
   httpClient: PropTypes.func.isRequired,
-  onOpenChecksHelpFlyout: PropTypes.func.isRequired,
+  onOpenChecksTemplatesFlyout: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
   dispatch: PropTypes.func.isRequired,
 };
