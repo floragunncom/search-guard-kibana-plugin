@@ -1,27 +1,65 @@
-import React, { Fragment, useContext } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { connect as connectFormik } from 'formik';
 import { get } from 'lodash';
 import { EuiSpacer } from '@elastic/eui';
-import { FormikCodeEditor, FormikFieldText, FormikComboBox } from '../../../../../components';
-import ActionChecks from '../ActionChecks';
 import {
-  fromText,
-  iconEmojiText,
-  severityText,
-  resolvesSeverityText,
-} from '../../../../../utils/i18n/watch';
-import { nameText, bodyText } from '../../../../../utils/i18n/common';
+  FormikCodeEditor,
+  FormikFieldText,
+  FormikComboBox,
+  SubHeader,
+} from '../../../../../components';
+import ActionChecks from '../ActionChecks';
 import { validateEmptyField, isInvalid, hasError } from '../../../../../utils/validate';
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import ActionAccount from '../ActionAccount';
 import { ACCOUNT_TYPE } from '../../../../Accounts/utils/constants';
+import { nameText } from '../../../../../utils/i18n/common';
+import {
+  severityText,
+  resolvesSeverityText,
+  descriptionText,
+  summaryText,
+  typeText,
+  projectText,
+  labelText,
+  priorityText,
+  issueText,
+  parentText,
+} from '../../../../../utils/i18n/watch';
 import { SEVERITY_OPTIONS, WATCH_TYPES } from '../../../utils/constants';
 
 import { Context } from '../../../../../Context';
 
-const SlackAction = ({ isResolveActions, index, accounts, formik: { values } }) => {
+const renderTextField = (path, label, validate) => {
+  const formikProps = {};
+
+  if (typeof validate === 'function') {
+    formikProps.validate = validate;
+  }
+
+  return (
+    <FormikFieldText
+      name={path}
+      formRow
+      rowProps={{
+        label,
+        isInvalid,
+        error: hasError,
+      }}
+      elementProps={{
+        isInvalid,
+        onFocus: (e, field, form) => {
+          form.setFieldError(field.name, undefined);
+        },
+      }}
+      formikFieldProps={{ ...formikProps }}
+    />
+  );
+};
+
+const JiraAction = ({ isResolveActions, index, accounts, formik: { values } }) => {
   const {
     editorTheme,
     editorOptions,
@@ -41,31 +79,18 @@ const SlackAction = ({ isResolveActions, index, accounts, formik: { values } }) 
 
   const actionsRootPath = isResolveActions ? 'resolve_actions' : 'actions';
   const namePath = `${actionsRootPath}[${index}].name`;
-  const fromPath = `${actionsRootPath}[${index}].from`;
-  const iconEmojiPath = `${actionsRootPath}[${index}].icon_emoji`;
-  const textPath = `${actionsRootPath}[${index}].text`;
-  const bodyPreviewTemplate = get(values, `${actionsRootPath}[${index}].text`, '');
+  const projectPath = `${actionsRootPath}[${index}].project`;
+  const issueTypePath = `${actionsRootPath}[${index}].issue.type`;
+  const issueSummaryPath = `${actionsRootPath}[${index}].issue.summary`;
+  const issueParentPath = `${actionsRootPath}[${index}].issue.parent`;
+  const issueDescriptionPath = `${actionsRootPath}[${index}].issue.description`;
+  const issueLabelPath = `${actionsRootPath}[${index}].issue.label`;
+  const issuePriorityPath = `${actionsRootPath}[${index}].issue.priority`;
+  const descrPreviewTemplate = get(values, issueDescriptionPath, '');
 
   return (
-    <Fragment>
-      <FormikFieldText
-        name={namePath}
-        formRow
-        rowProps={{
-          label: nameText,
-          isInvalid,
-          error: hasError,
-        }}
-        elementProps={{
-          isInvalid,
-          onFocus: (e, field, form) => {
-            form.setFieldError(field.name, undefined);
-          },
-        }}
-        formikFieldProps={{
-          validate: validateEmptyField,
-        }}
-      />
+    <>
+      {renderTextField(namePath, nameText, validateEmptyField)}
       {isSeverity && (
         <FormikComboBox
           name={severityPath}
@@ -90,47 +115,22 @@ const SlackAction = ({ isResolveActions, index, accounts, formik: { values } }) 
         isResolveActions={isResolveActions}
         index={index}
         accounts={accounts}
-        accountType={ACCOUNT_TYPE.SLACK}
+        accountType={ACCOUNT_TYPE.JIRA}
       />
-      <FormikFieldText
-        name={fromPath}
-        formRow
-        rowProps={{
-          label: fromText,
-          isInvalid,
-          error: hasError,
-        }}
-        elementProps={{
-          isInvalid,
-          onFocus: (e, field, form) => {
-            form.setFieldError(field.name, undefined);
-          },
-        }}
-        formikFieldProps={{
-          validate: validateEmptyField,
-        }}
-      />
-      <FormikFieldText
-        name={iconEmojiPath}
-        formRow
-        rowProps={{
-          label: iconEmojiText,
-          isInvalid,
-          error: hasError,
-        }}
-        elementProps={{
-          isInvalid,
-          onFocus: (e, field, form) => {
-            form.setFieldError(field.name, undefined);
-          },
-        }}
-      />
+      {renderTextField(projectPath, projectText, validateEmptyField)}
+      <EuiSpacer />
+      <SubHeader title={<h4>{issueText}</h4>} />
+      {renderTextField(issueTypePath, typeText, validateEmptyField)}
+      {renderTextField(issueSummaryPath, summaryText, validateEmptyField)}
+      {renderTextField(issueParentPath, parentText)}
+      {renderTextField(issueLabelPath, labelText)}
+      {renderTextField(issuePriorityPath, priorityText)}
       <EuiSpacer />
       <FormikCodeEditor
-        name={textPath}
+        name={issueDescriptionPath}
         formRow
         rowProps={{
-          label: bodyText,
+          label: descriptionText,
           fullWidth: true,
           isInvalid,
           error: hasError,
@@ -156,22 +156,22 @@ const SlackAction = ({ isResolveActions, index, accounts, formik: { values } }) 
           validate: validateEmptyField,
         }}
       />
-      <ActionBodyPreview index={index} template={bodyPreviewTemplate} />
+      <ActionBodyPreview index={index} template={descrPreviewTemplate} />
       {!isGraphWatch && <ActionChecks actionIndex={index} />}
-    </Fragment>
+    </>
   );
 };
 
-SlackAction.defaultProps = {
+JiraAction.defaultProps = {
   accounts: [],
   isResolveActions: false,
 };
 
-SlackAction.propTypes = {
+JiraAction.propTypes = {
   isResolveActions: PropTypes.bool,
   index: PropTypes.number.isRequired,
   formik: PropTypes.object.isRequired,
   accounts: PropTypes.array,
 };
 
-export default connectFormik(SlackAction);
+export default connectFormik(JiraAction);

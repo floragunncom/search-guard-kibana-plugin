@@ -3,32 +3,14 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Formik, FieldArray } from 'formik';
 import queryString from 'query-string';
-import {
-  EuiTitle,
-  EuiSpacer,
-  EuiFlexItem,
-  EuiFlexGroup,
-} from '@elastic/eui';
+import { EuiTitle, EuiSpacer, EuiFlexItem, EuiFlexGroup } from '@elastic/eui';
 import { get } from 'lodash';
 import { WatchService } from '../../services';
 import { addErrorToast, addSuccessToast } from '../../redux/actions';
-import {
-  watchToFormik,
-  formikToWatch,
-  buildChecks,
-  buildFormikChecks
-} from './utils';
-import { DEFAULT_WATCH, WATCH_TYPES } from './utils/constants';
-import {
-  GeneralPanel,
-  DefinitionPanel,
-  ActionPanel,
-  ResolveActionPanel
-} from './components';
-import {
-  CancelButton,
-  SaveButton
-} from '../../components';
+import { watchToFormik, formikToWatch } from './utils';
+import { DEFAULT_WATCH } from './utils/constants';
+import { GeneralPanel, DefinitionPanel, ActionPanel, ResolveActionPanel } from './components';
+import { CancelButton, SaveButton } from '../../components';
 import { APP_PATH } from '../../utils/constants';
 import { createWatchText, updateWatchText } from '../../utils/i18n/watch';
 import { updateText, createText, saveText } from '../../utils/i18n/common';
@@ -45,12 +27,9 @@ class DefineWatch extends Component {
       isLoading: false,
       isEdit: !!id,
       initialValues: watchToFormik(DEFAULT_WATCH),
-      insertCheckTemplate: {
-        row: undefined,
-        column: undefined,
-        text: undefined,
-      }
     };
+
+    console.debug('DefineWatch -- constructor -- values', this.state.initialValues);
   }
 
   componentDidMount() {
@@ -60,16 +39,20 @@ class DefineWatch extends Component {
   fetchData = async () => {
     const { location, history, dispatch } = this.props;
     const { id } = queryString.parse(location.search);
+    if (!id) return;
 
     let initialValues;
+    let watch;
     try {
-      if (id) {
-        const { resp } = await this.watchService.get(id);
-        initialValues = watchToFormik(resp);
-        this.setState({ initialValues });
-      }
+      const { resp } = await this.watchService.get(id);
+      watch = resp;
+      console.debug('DefineWatch -- fetchWatch -- watch', watch);
+
+      initialValues = watchToFormik(watch);
+      this.setState({ initialValues });
     } catch (error) {
       console.error('DefineWatch -- fetchData', error);
+
       if (error.statusCode === 404) {
         this.setState({ isEdit: false });
         history.push({ search: '' });
@@ -79,8 +62,8 @@ class DefineWatch extends Component {
     }
 
     console.debug('DefineWatch -- fetchWatch -- id', id);
-    console.debug('DefineWatch -- fetchWatch -- watch', initialValues);
-  }
+    console.debug('DefineWatch -- fetchWatch -- values', initialValues);
+  };
 
   onCancel = () => {
     const { history } = this.props;
@@ -88,11 +71,12 @@ class DefineWatch extends Component {
       history.goBack();
     }
     history.push(APP_PATH.WATCHES);
-  }
+  };
 
   onSubmit = async (values, { setSubmitting }) => {
     const { history, dispatch } = this.props;
     const { _id: id } = values;
+    console.debug('DefineWatch -- onSubmit -- values', values);
 
     let watch;
     try {
@@ -108,43 +92,12 @@ class DefineWatch extends Component {
       dispatch(addErrorToast(error));
     }
 
-    console.debug('DefineWatch -- onSubmit -- values', values);
     console.debug('DefineWatch -- onSubmit -- watch', watch);
-  }
-
-  handleChecksChange = () => {
-    // TODO: rise state handling here
-  };
-
-  handleAddCheckTemplate = () => {
-    // TODO: rise state handling here
-  };
-
-  handleExecuteChecks = () => {
-    // TODO: rise state handling here
-  };
-
-  handleTriggerFlyout = () => {
-    // TODO: rise state handling here
   };
 
   render() {
-    const {
-      initialValues,
-      isEdit,
-      isLoading,
-      insertCheckTemplate
-    } = this.state;
-
-    const {
-      httpClient,
-      location,
-      onTriggerFlyout,
-      onComboBoxChange,
-      onComboBoxOnBlur,
-      onComboBoxCreateOption,
-      onTriggerConfirmDeletionModal
-    } = this.props;
+    const { initialValues, isEdit, isLoading } = this.state;
+    const { httpClient, location, onTriggerConfirmDeletionModal } = this.props;
 
     return (
       <div>
@@ -153,7 +106,7 @@ class DefineWatch extends Component {
           onSubmit={this.onSubmit}
           validateOnChange={false}
           enableReinitialize
-          render={({ handleSubmit, isSubmitting, values, setFieldValue }) => {
+          render={({ handleSubmit, isSubmitting, values }) => {
             const isResolveActions = get(values, '_ui.isResolveActions', false);
 
             return (
@@ -176,14 +129,7 @@ class DefineWatch extends Component {
                 <EuiSpacer />
                 <GeneralPanel httpClient={httpClient} location={location} />
                 <EuiSpacer />
-                <DefinitionPanel
-                  httpClient={httpClient}
-                  onTriggerFlyout={onTriggerFlyout}
-                  onComboBoxChange={onComboBoxChange}
-                  onComboBoxOnBlur={onComboBoxOnBlur}
-                  onComboBoxCreateOption={onComboBoxCreateOption}
-                  onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
-                />
+                <DefinitionPanel />
                 <EuiSpacer />
                 <FieldArray
                   name="actions"
@@ -192,17 +138,7 @@ class DefineWatch extends Component {
                       isLoading={isLoading}
                       httpClient={httpClient}
                       arrayHelpers={arrayHelpers}
-                      onComboBoxChange={onComboBoxChange}
-                      onComboBoxOnBlur={onComboBoxOnBlur}
-                      onComboBoxCreateOption={onComboBoxCreateOption}
                       onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
-                      onChecksChange={this.handleChecksChange}
-                      onAddCheckTemplate={checkTemplate => {
-                        this.handleAddCheckTemplate(checkTemplate, values, setFieldValue);
-                      }}
-                      onExecuteChecks={this.handleExecuteChecks}
-                      onTriggerFlyout={this.handleTriggerFlyout}
-                      insertCheckTemplate={insertCheckTemplate}
                     />
                   )}
                 />
@@ -216,15 +152,7 @@ class DefineWatch extends Component {
                           isLoading={isLoading}
                           httpClient={httpClient}
                           arrayHelpers={arrayHelpers}
-                          onComboBoxChange={onComboBoxChange}
-                          onComboBoxOnBlur={onComboBoxOnBlur}
-                          onComboBoxCreateOption={onComboBoxCreateOption}
                           onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
-                          onChecksChange={this.handleChecksChange}
-                          onAddCheckTemplate={this.handleAddCheckTemplate}
-                          onExecuteChecks={this.handleExecuteChecks}
-                          onTriggerFlyout={this.handleTriggerFlyout}
-                          insertCheckTemplate={insertCheckTemplate}
                         />
                       )}
                     />
@@ -258,10 +186,6 @@ DefineWatch.propTypes = {
   location: PropTypes.object.isRequired,
   httpClient: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
-  onTriggerFlyout: PropTypes.func.isRequired,
-  onComboBoxOnBlur: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired
 };
 
 export default connect()(DefineWatch);

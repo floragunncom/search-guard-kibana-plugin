@@ -30,23 +30,14 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiHorizontalRule,
-  EuiTitle,
-  EuiPanel,
-  EuiTextColor
-} from '@elastic/eui';
-import LoadingPage from '../Page/LoadingPage';
+import { EuiFlexGroup, EuiFlexItem, EuiHorizontalRule, EuiTitle, EuiTextColor } from '@elastic/eui';
 
-const handleRenderActions = actions => (
+const handleRenderActions = actions =>
   Array.isArray(actions) ? (
     actions.map((action, i) => <EuiFlexItem key={i}>{action}</EuiFlexItem>)
   ) : (
     <EuiFlexItem>{actions}</EuiFlexItem>
-  )
-);
+  );
 
 const handleRenderSecondTitle = (secondTitle, secondTitleProps) => (
   <EuiFlexItem>
@@ -58,7 +49,7 @@ const handleRenderSecondTitle = (secondTitle, secondTitleProps) => (
   </EuiFlexItem>
 );
 
-const ContentPanel = ({
+const ControlledContent = ({
   title,
   secondTitle,
   titleProps,
@@ -69,9 +60,8 @@ const ContentPanel = ({
   headerStyles,
   actions,
   children,
-  isLoading,
 }) => (
-  <EuiPanel paddingSize="l" {...panelProps}>
+  <div {...panelProps}>
     <EuiFlexGroup
       style={{ padding: '0 1em', ...headerStyles }}
       justifyContent="spaceBetween"
@@ -90,11 +80,11 @@ const ContentPanel = ({
       </EuiFlexItem>
     </EuiFlexGroup>
     <EuiHorizontalRule margin="s" {...horizontalRuleProps} />
-    {isLoading ? LoadingPage : <div style={{ padding: '0 1em', ...bodyStyles }}>{children}</div>}
-  </EuiPanel>
+    <div style={{ ...bodyStyles }}>{children}</div>
+  </div>
 );
 
-ContentPanel.propTypes = {
+ControlledContent.propTypes = {
   title: PropTypes.oneOfType([PropTypes.node, PropTypes.string]).isRequired,
   titleProps: PropTypes.object,
   secondTitle: PropTypes.oneOfType([PropTypes.node, PropTypes.string]),
@@ -105,17 +95,15 @@ ContentPanel.propTypes = {
   headerStyles: PropTypes.object,
   actions: PropTypes.oneOfType([PropTypes.node, PropTypes.arrayOf([PropTypes.node])]),
   children: PropTypes.oneOfType([PropTypes.node, PropTypes.arrayOf([PropTypes.node])]).isRequired,
-  isLoading: PropTypes.bool
 };
 
-ContentPanel.defaultProps = {
+ControlledContent.defaultProps = {
   titleProps: {},
   secondTitleProps: {},
   horizontalRuleProps: {},
   bodyStyles: {},
   panelProps: {},
   headerStyles: {},
-  isLoading: false
 };
 
-export default ContentPanel;
+export default ControlledContent;

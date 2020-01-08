@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import {
   EuiTitle,
@@ -17,12 +17,15 @@ import buildWatchExamples from './utils/buildWatchExamples';
 
 import { watchExamplesText } from '../../../../utils/i18n/watch';
 import { addText } from '../../../../utils/i18n/common';
-import { EDITOR_OPTIONS } from './utils/constants';
 import { WATCH_EXAMPLES } from '../../../../utils/constants';
+
+import { Context } from '../../../../Context';
 
 const watchExamples = buildWatchExamples();
 
 export const TabContent = ({ watchName, onPutWatch, isLoading }) => {
+  const { editorTheme, editorOptions } = useContext(Context);
+
   let watchJson;
   try {
     watchJson = stringifyPretty(watchExamples[watchName].json);
@@ -42,9 +45,10 @@ export const TabContent = ({ watchName, onPutWatch, isLoading }) => {
         labelAppend={<LabelAppendLink href={watchExamples[watchName].doc_link} name="WatchDoc" />}
       >
         <EuiCodeEditor
+          theme={editorTheme}
           width="100%"
           value={watchJson}
-          setOptions={EDITOR_OPTIONS}
+          setOptions={editorOptions}
           isReadOnly
           data-test-subj={`sgWatch-ExampleCode-${watchName}`}
           id={`watch-example-${watchName}`}

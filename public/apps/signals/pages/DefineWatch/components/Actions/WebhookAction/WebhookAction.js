@@ -1,55 +1,45 @@
-import React, { Fragment } from 'react';
-import chrome from 'ui/chrome';
+import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { connect as connectFormik } from 'formik';
 import { get } from 'lodash';
-import {
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiSpacer,
-} from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
 import {
   FormikCodeEditor,
   FormikFieldText,
   FormikSelect,
   FormikComboBox,
 } from '../../../../../components';
-import JsonChecksForm from '../../JsonChecksForm';
 import {
   nameText,
   urlText,
   bodyText,
   headersText,
-  methodText
+  methodText,
 } from '../../../../../utils/i18n/common';
-import {
-  severityText,
-  resolvesSeverityText,
-} from '../../../../../utils/i18n/watch';
+import { severityText, resolvesSeverityText } from '../../../../../utils/i18n/watch';
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import {
   hasError,
   isInvalid,
   validateEmptyField,
-  validateJsonString
+  validateJsonString,
 } from '../../../../../utils/validate';
+import ActionChecks from '../ActionChecks';
 import { METHOD_SELECT } from './utils/constants';
-import { CODE_EDITOR } from '../../../../../../utils/constants';
 import { SEVERITY_OPTIONS, WATCH_TYPES } from '../../../utils/constants';
 
-const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
-let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
-theme = !IS_DARK_THEME ? theme : darkTheme;
+import { Context } from '../../../../../Context';
 
-const WebhookAction = ({
-  isResolveActions,
-  formik: { values },
-  index,
-  onComboBoxChange,
-  onComboBoxOnBlur,
-  onComboBoxCreateOption,
-}) => {
+const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
+  const {
+    editorTheme,
+    editorOptions,
+    onComboBoxChange,
+    onComboBoxCreateOption,
+    onComboBoxOnBlur,
+  } = useContext(Context);
+
   const watchType = get(values, '_ui.watchType');
   const isGraphWatch = watchType === WATCH_TYPES.GRAPH;
   const isSeverity = get(values, '_ui.isSeverity', false);
@@ -66,7 +56,6 @@ const WebhookAction = ({
   const requestHeadersPath = `${actionsRootPath}[${index}].request.headers`;
   const requestBodyPath = `${actionsRootPath}[${index}].request.body`;
   const requestBodyPreviewTemplate = get(values, `${actionsRootPath}[${index}].request.body`, '');
-  const checksPath = `${actionsRootPath}[${index}].checks`;
 
   return (
     <Fragment>
@@ -87,26 +76,28 @@ const WebhookAction = ({
               },
             }}
             formikFieldProps={{
-              validate: validateEmptyField
+              validate: validateEmptyField,
             }}
           />
-          {isSeverity && <FormikComboBox
-            name={severityPath}
-            formRow
-            rowProps={{
-              label: severityLabel,
-              isInvalid,
-              error: hasError,
-            }}
-            elementProps={{
-              options: SEVERITY_OPTIONS,
-              isClearable: true,
-              placeholder: 'Select severity',
-              onBlur: onComboBoxOnBlur,
-              onChange: onComboBoxChange(),
-              onCreateOption: onComboBoxCreateOption()
-            }}
-          />}
+          {isSeverity && (
+            <FormikComboBox
+              name={severityPath}
+              formRow
+              rowProps={{
+                label: severityLabel,
+                isInvalid,
+                error: hasError,
+              }}
+              elementProps={{
+                options: SEVERITY_OPTIONS,
+                isClearable: true,
+                placeholder: 'Select severity',
+                onBlur: onComboBoxOnBlur,
+                onChange: onComboBoxChange(),
+                onCreateOption: onComboBoxCreateOption()
+              }}
+            />
+          )}
           {!isResolveActions && <ActionThrottlePeriod index={index} />}
           <FormikSelect
             name={requestMethodPath}
@@ -133,7 +124,7 @@ const WebhookAction = ({
               },
             }}
             formikFieldProps={{
-              validate: validateEmptyField
+              validate: validateEmptyField,
             }}
           />
         </EuiFlexItem>
@@ -144,17 +135,17 @@ const WebhookAction = ({
             rowProps={{
               label: headersText,
               isInvalid,
-              error: hasError
+              error: hasError,
             }}
             elementProps={{
               isInvalid,
               setOptions: {
-                ...setOptions,
+                ...editorOptions,
                 maxLines: 10,
-                minLines: 10
+                minLines: 10,
               },
               mode: 'text',
-              theme,
+              theme: editorTheme,
               onChange: (e, text, field, form) => {
                 form.setFieldValue(field.name, text);
               },
@@ -163,7 +154,7 @@ const WebhookAction = ({
               },
             }}
             formikFieldProps={{
-              validate: validateJsonString
+              validate: validateJsonString,
             }}
           />
         </EuiFlexItem>
@@ -181,13 +172,13 @@ const WebhookAction = ({
         elementProps={{
           isInvalid,
           setOptions: {
-            ...setOptions,
+            ...editorOptions,
             maxLines: 10,
-            minLines: 10
+            minLines: 10,
           },
           mode: 'text',
           width: '100%',
-          theme,
+          theme: editorTheme,
           onChange: (e, text, field, form) => {
             form.setFieldValue(field.name, text);
           },
@@ -196,18 +187,18 @@ const WebhookAction = ({
           },
         }}
         formikFieldProps={{
-          validate: validateEmptyField
+          validate: validateEmptyField,
         }}
       />
       <ActionBodyPreview index={index} template={requestBodyPreviewTemplate} />
-      {!isGraphWatch && <JsonChecksForm checksPath={checksPath} />}
+      {!isGraphWatch && <ActionChecks actionIndex={index} />}
     </Fragment>
   );
 };
 
 WebhookAction.defaultProps = {
   isLoading: false,
-  isResolveActions: false
+  isResolveActions: false,
 };
 
 WebhookAction.propTypes = {
@@ -215,18 +206,6 @@ WebhookAction.propTypes = {
   isResolveActions: PropTypes.bool,
   formik: PropTypes.object.isRequired,
   index: PropTypes.number.isRequired,
-  onComboBoxOnBlur: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired,
-  onChecksChange: PropTypes.func,
-  onAddCheckTemplate: PropTypes.func,
-  onExecuteChecks: PropTypes.func,
-  onTriggerFlyout: PropTypes.func,
-  insertCheckTemplate: PropTypes.shape({
-    row: PropTypes.number,
-    column: PropTypes.column,
-    text: PropTypes.string,
-  }),
 };
 
 export default connectFormik(WebhookAction);
