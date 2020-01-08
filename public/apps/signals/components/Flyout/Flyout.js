@@ -30,18 +30,13 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  EuiFlyout,
-  EuiFlyoutBody,
-  EuiFlyoutHeader,
-  EuiFlyoutFooter
-} from '@elastic/eui';
+import { EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader, EuiFlyoutFooter } from '@elastic/eui';
 import Flyouts from './flyouts';
 
-const getFlyoutProps = ({ type, payload }) => {
+const getFlyoutProps = ({ type, payload, onChange }) => {
   const flyout = Flyouts[type];
   if (!flyout || !(flyout instanceof Function)) return null;
-  return flyout(payload);
+  return flyout(payload, onChange);
 };
 
 const Flyout = ({ flyout, onClose }) => {
@@ -55,7 +50,7 @@ const Flyout = ({ flyout, onClose }) => {
     flyoutProps = {},
     headerProps = {},
     bodyProps = {},
-    footerProps = {}
+    footerProps = {},
   } = flyoutData;
 
   return (
@@ -70,7 +65,8 @@ const Flyout = ({ flyout, onClose }) => {
 Flyout.propTypes = {
   flyout: PropTypes.shape({
     type: PropTypes.string.isRequired,
-    payload: PropTypes.any
+    payload: PropTypes.any,
+    onChange: PropTypes.func,
   }),
   onClose: PropTypes.func.isRequired,
 };

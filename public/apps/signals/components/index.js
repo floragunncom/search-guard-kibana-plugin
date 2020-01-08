@@ -3,6 +3,7 @@ export { default as DatePicker } from './DatePicker';
 
 export {
   ContentPanel,
+  ControlledContent,
   SubHeader,
   EmptyPrompt,
   Modal,
@@ -32,5 +33,5 @@ export {
   CreateButton,
   SaveButton,
   CancelButton,
-  Breadcrumbs
+  Breadcrumbs,
 } from '../../components';

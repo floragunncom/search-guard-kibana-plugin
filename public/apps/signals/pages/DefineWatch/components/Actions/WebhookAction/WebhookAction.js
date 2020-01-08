@@ -3,37 +3,30 @@ import chrome from 'ui/chrome';
 import PropTypes from 'prop-types';
 import { connect as connectFormik } from 'formik';
 import { get } from 'lodash';
-import {
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiSpacer,
-} from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
 import {
   FormikCodeEditor,
   FormikFieldText,
   FormikSelect,
   FormikComboBox,
 } from '../../../../../components';
-import JsonChecksForm from '../../JsonChecksForm';
 import {
   nameText,
   urlText,
   bodyText,
   headersText,
-  methodText
+  methodText,
 } from '../../../../../utils/i18n/common';
-import {
-  severityText,
-  resolvesSeverityText,
-} from '../../../../../utils/i18n/watch';
+import { severityText, resolvesSeverityText } from '../../../../../utils/i18n/watch';
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import {
   hasError,
   isInvalid,
   validateEmptyField,
-  validateJsonString
+  validateJsonString,
 } from '../../../../../utils/validate';
+import ActionChecks from '../ActionChecks';
 import { METHOD_SELECT } from './utils/constants';
 import { CODE_EDITOR } from '../../../../../../utils/constants';
 import { SEVERITY_OPTIONS, WATCH_TYPES } from '../../../utils/constants';
@@ -49,6 +42,8 @@ const WebhookAction = ({
   onComboBoxChange,
   onComboBoxOnBlur,
   onComboBoxCreateOption,
+  httpClient,
+  onTriggerFlyout,
 }) => {
   const watchType = get(values, '_ui.watchType');
   const isGraphWatch = watchType === WATCH_TYPES.GRAPH;
@@ -66,7 +61,6 @@ const WebhookAction = ({
   const requestHeadersPath = `${actionsRootPath}[${index}].request.headers`;
   const requestBodyPath = `${actionsRootPath}[${index}].request.body`;
   const requestBodyPreviewTemplate = get(values, `${actionsRootPath}[${index}].request.body`, '');
-  const checksPath = `${actionsRootPath}[${index}].checks`;
 
   return (
     <Fragment>
@@ -87,26 +81,28 @@ const WebhookAction = ({
               },
             }}
             formikFieldProps={{
-              validate: validateEmptyField
+              validate: validateEmptyField,
             }}
           />
-          {isSeverity && <FormikComboBox
-            name={severityPath}
-            formRow
-            rowProps={{
-              label: severityLabel,
-              isInvalid,
-              error: hasError,
-            }}
-            elementProps={{
-              options: SEVERITY_OPTIONS,
-              isClearable: true,
-              placeholder: 'Select severity',
-              onBlur: onComboBoxOnBlur,
-              onChange: onComboBoxChange(),
-              onCreateOption: onComboBoxCreateOption()
-            }}
-          />}
+          {isSeverity && (
+            <FormikComboBox
+              name={severityPath}
+              formRow
+              rowProps={{
+                label: severityLabel,
+                isInvalid,
+                error: hasError,
+              }}
+              elementProps={{
+                options: SEVERITY_OPTIONS,
+                isClearable: true,
+                placeholder: 'Select severity',
+                onBlur: onComboBoxOnBlur,
+                onChange: onComboBoxChange(),
+                onCreateOption: onComboBoxCreateOption()
+              }}
+            />
+          )}
           {!isResolveActions && <ActionThrottlePeriod index={index} />}
           <FormikSelect
             name={requestMethodPath}
@@ -133,7 +129,7 @@ const WebhookAction = ({
               },
             }}
             formikFieldProps={{
-              validate: validateEmptyField
+              validate: validateEmptyField,
             }}
           />
         </EuiFlexItem>
@@ -144,14 +140,14 @@ const WebhookAction = ({
             rowProps={{
               label: headersText,
               isInvalid,
-              error: hasError
+              error: hasError,
             }}
             elementProps={{
               isInvalid,
               setOptions: {
                 ...setOptions,
                 maxLines: 10,
-                minLines: 10
+                minLines: 10,
               },
               mode: 'text',
               theme,
@@ -163,7 +159,7 @@ const WebhookAction = ({
               },
             }}
             formikFieldProps={{
-              validate: validateJsonString
+              validate: validateJsonString,
             }}
           />
         </EuiFlexItem>
@@ -183,7 +179,7 @@ const WebhookAction = ({
           setOptions: {
             ...setOptions,
             maxLines: 10,
-            minLines: 10
+            minLines: 10,
           },
           mode: 'text',
           width: '100%',
@@ -196,21 +192,28 @@ const WebhookAction = ({
           },
         }}
         formikFieldProps={{
-          validate: validateEmptyField
+          validate: validateEmptyField,
         }}
       />
       <ActionBodyPreview index={index} template={requestBodyPreviewTemplate} />
-      {!isGraphWatch && <JsonChecksForm checksPath={checksPath} />}
+      {!isGraphWatch && (
+        <ActionChecks
+          actionIndex={index}
+          httpClient={httpClient}
+          onTriggerFlyout={onTriggerFlyout}
+        />
+      )}
     </Fragment>
   );
 };
 
 WebhookAction.defaultProps = {
   isLoading: false,
-  isResolveActions: false
+  isResolveActions: false,
 };
 
 WebhookAction.propTypes = {
+  httpClient: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
   isResolveActions: PropTypes.bool,
   formik: PropTypes.object.isRequired,
@@ -218,15 +221,7 @@ WebhookAction.propTypes = {
   onComboBoxOnBlur: PropTypes.func.isRequired,
   onComboBoxCreateOption: PropTypes.func.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,
-  onChecksChange: PropTypes.func,
-  onAddCheckTemplate: PropTypes.func,
-  onExecuteChecks: PropTypes.func,
-  onTriggerFlyout: PropTypes.func,
-  insertCheckTemplate: PropTypes.shape({
-    row: PropTypes.number,
-    column: PropTypes.column,
-    text: PropTypes.string,
-  }),
+  onTriggerFlyout: PropTypes.func.isRequired,
 };
 
 export default connectFormik(WebhookAction);

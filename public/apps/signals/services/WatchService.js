@@ -3,8 +3,13 @@ import { ROUTE_PATH } from '../utils/constants';
 import { action } from 'mobx';
 
 export default class WatchService extends SignalsService {
-  execute(watch) {
-    return this.httpClient.post(`..${ROUTE_PATH.WATCH_EXECUTE}`, { ...watch, actions: [] })
+  execute({ watch, simulate = false, skipActions = true } = {}) {
+    return this.httpClient
+      .post(`..${ROUTE_PATH.WATCH_EXECUTE}`, {
+        watch,
+        simulate,
+        skipActions,
+      })
       .then(({ data }) => data);
   }
 
