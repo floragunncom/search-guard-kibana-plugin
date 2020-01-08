@@ -7,7 +7,7 @@ import { EuiCodeBlock, EuiFormRow } from '@elastic/eui';
 import {
   selectConditionToRenderGraphToSeeResultsText,
   executeWatchToSeeResultText,
-  previewText
+  previewText,
 } from '../../../../../utils/i18n/watch';
 import { WATCH_TYPES } from '../../../utils/constants';
 
@@ -18,7 +18,7 @@ const ActionBodyPreview = ({
   fullWidth = true,
   fontSize = 'm',
   language = 'html',
-  formik: { values }
+  formik: { values },
 }) => {
   const isGraphWatch = values._ui.watchType === WATCH_TYPES.GRAPH;
   const previewHelpText = isGraphWatch
@@ -26,7 +26,7 @@ const ActionBodyPreview = ({
     : executeWatchToSeeResultText;
 
   const _template = isEmpty(template) ? get(values, `actions[${index}].request.body`) : template;
-  const _view = isEmpty(view) ? { data: values._ui.checksResult } : { data: view };
+  const _view = isEmpty(view) ? values._ui.checksResult : view;
 
   let previewBody;
   try {
@@ -36,11 +36,7 @@ const ActionBodyPreview = ({
   }
 
   return (
-    <EuiFormRow
-      fullWidth={fullWidth}
-      label={previewText}
-      helpText={previewHelpText}
-    >
+    <EuiFormRow fullWidth={fullWidth} label={previewText} helpText={previewHelpText}>
       <EuiCodeBlock
         fontSize={fontSize}
         language={language}
@@ -59,7 +55,7 @@ ActionBodyPreview.propTypes = {
   fontSize: PropTypes.string,
   fullWidth: PropTypes.bool,
   index: PropTypes.number.isRequired,
-  formik: PropTypes.object.isRequired
+  formik: PropTypes.object.isRequired,
 };
 
 export default connectFormik(ActionBodyPreview);

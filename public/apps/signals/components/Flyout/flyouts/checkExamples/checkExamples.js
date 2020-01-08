@@ -9,14 +9,11 @@ import {
   EuiCodeBlock,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiSideNav
+  EuiSideNav,
 } from '@elastic/eui';
 import { startCase } from 'lodash';
 import { AddButton, LabelAppendLink } from '../../../../../components';
-import {
-  stringifyPretty,
-  unfoldMultiLineString,
-} from '../../../../utils/helpers';
+import { stringifyPretty, unfoldMultiLineString } from '../../../../utils/helpers';
 import { checkExamplesText } from '../../../../utils/i18n/watch';
 import examples from './utils/examples';
 
@@ -44,20 +41,20 @@ export const TabContent = ({ examples, tabName, onAdd }) => {
     const newCheck = type
       ? body
       : {
-        type: 'search',
-        name: 'mysearch',
-        target: 'mysearch',
-        request: {
-          indices: [],
-          body,
-        },
-      };
+          type: 'search',
+          name: 'mysearch',
+          target: 'mysearch',
+          request: {
+            indices: [],
+            body,
+          },
+        };
 
     onAdd(newCheck);
   };
 
-  const buildSideNav = (data = {}) => Object.keys(data)
-    .map(categoryName => createNavItem(categoryName));
+  const buildSideNav = (data = {}) =>
+    Object.keys(data).map(categoryName => createNavItem(categoryName));
 
   const renderExamples = () => {
     if (!examples[selectedItemName]) return null;
@@ -101,9 +98,7 @@ export const TabContent = ({ examples, tabName, onAdd }) => {
             style={{ width: 192 }}
           />
         </EuiFlexItem>
-        <EuiFlexItem>
-          {renderExamples()}
-        </EuiFlexItem>
+        <EuiFlexItem>{renderExamples()}</EuiFlexItem>
       </EuiFlexGroup>
     </Fragment>
   );
@@ -112,20 +107,18 @@ export const TabContent = ({ examples, tabName, onAdd }) => {
 TabContent.propTypes = {
   onAdd: PropTypes.func.isRequired,
   tabName: PropTypes.string.isRequired,
-  examples: PropTypes.object.isRequired
+  examples: PropTypes.object.isRequired,
 };
 
-export const checkExamples = ({
-  flyoutProps,
-  headerProps,
-  onAdd,
-  error
-}) => {
+export const checkExamples = ({ flyoutProps, headerProps, onChange }) => {
   const tabs = Object.keys(examples).map(name => ({
     id: name,
     name: startCase(name.replace(/Examples/, '')),
-    content: <TabContent examples={examples[name]} tabName={name} onAdd={onAdd} />
+    content: <TabContent examples={examples[name]} tabName={name} onAdd={onChange} />,
   }));
+
+  flyoutProps = flyoutProps || { size: 'l' };
+  headerProps = headerProps || { hasBorder: true };
 
   return {
     flyoutProps,
@@ -135,30 +128,6 @@ export const checkExamples = ({
         <h2 id="flyoutTitle">{checkExamplesText}</h2>
       </EuiTitle>
     ),
-    body: (
-      <div>
-        {error && (
-          <EuiCallOut color="danger" iconType="alert">
-            {error.message}
-          </EuiCallOut>
-        )}
-        <EuiTabbedContent
-          tabs={tabs}
-          initialSelectedTab={tabs[0]}
-        />
-      </div>
-    )
+    body: <EuiTabbedContent tabs={tabs} initialSelectedTab={tabs[0]} />,
   };
-};
-
-checkExamples.propTypes = {
-  flyoutProps: PropTypes.object,
-  headerProps: PropTypes.object,
-  onAdd: PropTypes.func.isRequired,
-  error: PropTypes.object
-};
-
-checkExamples.defaultProps = {
-  flyoutProps: { size: 'l' },
-  headerProps: { hasBorder: true }
 };

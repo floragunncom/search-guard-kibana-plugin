@@ -3,27 +3,15 @@ import chrome from 'ui/chrome';
 import { connect as connectFormik } from 'formik';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
-import {
-  FormikFieldText,
-  FormikComboBox
-} from '../../../../../components';
-import JsonChecksForm from '../../JsonChecksForm';
-import {
-  nameText
-} from '../../../../../utils/i18n/common';
-import {
-  severityText,
-  resolvesSeverityText
-} from '../../../../../utils/i18n/watch';
+import { FormikFieldText, FormikComboBox } from '../../../../../components';
+import ActionChecks from '../ActionChecks';
+import { nameText } from '../../../../../utils/i18n/common';
+import { severityText, resolvesSeverityText } from '../../../../../utils/i18n/watch';
 import WatchIndex from '../../WatchIndex';
-import {
-  validateEmptyField,
-  isInvalid,
-  hasError
-} from '../../../utils/validate';
+import { validateEmptyField, isInvalid, hasError } from '../../../utils/validate';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import { CODE_EDITOR } from '../../../../../../utils/constants';
-import { SEVERITY_OPTIONS, WATCH_TYPES } from '../../../utils/constants';
+import { SEVERITY_OPTIONS } from '../../../utils/constants';
 
 const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
 let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
@@ -36,7 +24,8 @@ const ElasticsearchAction = ({
   httpClient,
   onComboBoxChange,
   onComboBoxOnBlur,
-  onComboBoxCreateOption
+  onComboBoxCreateOption,
+  onTriggerFlyout,
 }) => {
   const isSeverity = get(values, '_ui.isSeverity', false);
 
@@ -47,7 +36,6 @@ const ElasticsearchAction = ({
 
   const actionsRootPath = isResolveActions ? 'resolve_actions' : 'actions';
   const namePath = `${actionsRootPath}[${index}].name`;
-  const checksPath = `${actionsRootPath}[${index}].checks`;
   const indexPath = `${actionsRootPath}[${index}].index`;
 
   return (
@@ -67,26 +55,28 @@ const ElasticsearchAction = ({
           },
         }}
         formikFieldProps={{
-          validate: validateEmptyField
+          validate: validateEmptyField,
         }}
       />
-      {isSeverity && <FormikComboBox
-        name={severityPath}
-        formRow
-        rowProps={{
-          label: severityLabel,
-          isInvalid,
-          error: hasError,
-        }}
-        elementProps={{
-          options: SEVERITY_OPTIONS,
-          isClearable: true,
-          placeholder: 'Select severity',
-          onBlur: onComboBoxOnBlur,
-          onChange: onComboBoxChange(),
-          onCreateOption: onComboBoxCreateOption()
-        }}
-      />}
+      {isSeverity && (
+        <FormikComboBox
+          name={severityPath}
+          formRow
+          rowProps={{
+            label: severityLabel,
+            isInvalid,
+            error: hasError,
+          }}
+          elementProps={{
+            options: SEVERITY_OPTIONS,
+            isClearable: true,
+            placeholder: 'Select severity',
+            onBlur: onComboBoxOnBlur,
+            onChange: onComboBoxChange(),
+            onCreateOption: onComboBoxCreateOption()
+          }}
+        />
+      )}
       <ActionThrottlePeriod index={index} />
       <WatchIndex
         isClearable={false}
@@ -97,13 +87,13 @@ const ElasticsearchAction = ({
         onComboBoxOnBlur={onComboBoxOnBlur}
         onComboBoxCreateOption={onComboBoxCreateOption}
       />
-      <JsonChecksForm checksPath={checksPath} />
+      <ActionChecks actionIndex={index} httpClient={httpClient} onTriggerFlyout={onTriggerFlyout} />
     </Fragment>
   );
 };
 
 ElasticsearchAction.defaultProps = {
-  isResolveActions: false
+  isResolveActions: false,
 };
 
 ElasticsearchAction.propTypes = {
@@ -113,7 +103,8 @@ ElasticsearchAction.propTypes = {
   httpClient: PropTypes.func.isRequired,
   onComboBoxOnBlur: PropTypes.func.isRequired,
   onComboBoxCreateOption: PropTypes.func.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired
+  onComboBoxChange: PropTypes.func.isRequired,
+  onTriggerFlyout: PropTypes.func.isRequired,
 };
 
 export default connectFormik(ElasticsearchAction);
