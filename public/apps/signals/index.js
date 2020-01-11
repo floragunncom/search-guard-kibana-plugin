@@ -11,6 +11,8 @@ import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 import rootReducer from './redux/reducers';
 
+import { ContextProvider } from './Context';
+
 import 'react-vis/dist/style.css';
 import 'ui/autoload/styles';
 import Main from './pages/Main';
@@ -43,11 +45,14 @@ function RootController($scope, $element, $http) {
   render(
     <I18nProvider>
       <Router>
-        <Route render={props => (
-          <Provider store={store}>
-            <Main title={camelCase(APP_NAME)} httpClient={$http} {...props} />
-          </Provider>
-        )}
+        <Route
+          render={props => (
+            <Provider store={store}>
+              <ContextProvider httpClient={$http}>
+                <Main title={camelCase(APP_NAME)} httpClient={$http} {...props} />
+              </ContextProvider>
+            </Provider>
+          )}
         />
       </Router>
     </I18nProvider>,

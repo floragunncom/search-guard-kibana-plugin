@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { connect as connectFormik } from 'formik';
 import { connect as connectRedux } from 'react-redux';
@@ -12,13 +12,15 @@ import { addText, pleaseFillOutAllRequiredFieldsText } from '../../../../../util
 import { executeText, checksText } from '../../../../../utils/i18n/watch';
 import { ControlledContent } from '../../../../../components';
 
+import { Context } from '../../../../../Context';
+
 const ActionChecks = ({
   actionIndex,
   formik: { values, setFieldValue, validateForm, submitForm },
   dispatch,
-  httpClient,
-  onTriggerFlyout,
 }) => {
+  const { httpClient, triggerFlyout } = useContext(Context);
+
   const checksPath = `actions[${actionIndex}].checks`;
 
   const { addTemplate } = useCheckTemplates({
@@ -68,7 +70,7 @@ const ActionChecks = ({
     <EuiButton
       data-test-subj="sgAddButton-AddActionChecks"
       onClick={() => {
-        onTriggerFlyout({
+        triggerFlyout({
           type: FLYOUTS.CHECK_EXAMPLES,
           payload: { onChange: template => addTemplate({ template, values }) },
         });
@@ -105,8 +107,6 @@ ActionChecks.propTypes = {
   actionIndex: PropTypes.number.isRequired,
   formik: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired,
-  httpClient: PropTypes.func.isRequired,
-  onTriggerFlyout: PropTypes.func.isRequired,
 };
 
 export default connectRedux()(connectFormik(ActionChecks));

@@ -132,14 +132,7 @@ class DefineWatch extends Component {
                 <EuiSpacer />
                 <GeneralPanel httpClient={httpClient} location={location} />
                 <EuiSpacer />
-                <DefinitionPanel
-                  httpClient={httpClient}
-                  onTriggerFlyout={onTriggerFlyout}
-                  onComboBoxChange={onComboBoxChange}
-                  onComboBoxOnBlur={onComboBoxOnBlur}
-                  onComboBoxCreateOption={onComboBoxCreateOption}
-                  onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
-                />
+                <DefinitionPanel />
                 <EuiSpacer />
                 <FieldArray
                   name="actions"

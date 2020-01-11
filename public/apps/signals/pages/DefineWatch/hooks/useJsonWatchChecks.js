@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { WatchService } from '../../../services';
 import { formikToWatch } from '../utils';
-import { addErrorToast } from '../../../redux/actions';
 import { stringifyPretty } from '../../../utils/helpers';
 
-const useJsonWatchChecks = ({ setFieldValue, httpClient, dispatch, isResultVisibleDefault }) => {
-  isResultVisibleDefault = isResultVisibleDefault || false;
+import { Context } from '../../../Context';
+
+const useJsonWatchChecks = ({ setFieldValue, isResultVisibleDefault = false } = {}) => {
+  const { httpClient, addErrorToast } = useContext(Context);
   const watchService = new WatchService(httpClient);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +31,7 @@ const useJsonWatchChecks = ({ setFieldValue, httpClient, dispatch, isResultVisib
     } catch (error) {
       console.error('useJsonWatchChecks', error);
       console.debug('useJsonWatchChecks -- values', values);
-      dispatch(addErrorToast(error));
+      addErrorToast(error);
     }
 
     setIsLoading(false);

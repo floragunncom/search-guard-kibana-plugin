@@ -86,6 +86,8 @@ class Main extends Component {
     }
   };
 
+  // TODO. Deprecate and use a method from ContextProvider
+  // when all children components are functional components
   handleTriggerFlyout = flyout => {
     const { flyout: current } = this.state;
     const isSameFlyout = current && flyout && current.type === flyout.type;
@@ -96,6 +98,8 @@ class Main extends Component {
     }
   }
 
+  // TODO. Deprecate and use a method from ContextProvider
+  // when all children components are functional components
   handleTriggerInspectJsonFlyout = payload => {
     if (payload === null) {
       this.handleTriggerFlyout(null);
@@ -104,20 +108,28 @@ class Main extends Component {
     }
   }
 
+  // TODO. Deprecate and use a method from ContextProvider
+  // when all children components are functional components
   handleTriggerModal = modal => {
     this.setState({ modal });
   }
 
+  // TODO. Deprecate and use a method from ContextProvider
+  // when all children components are functional components
   handleTriggerConfirmModal = payload => {
     const modal = payload === null ? null : { type: MODALS.CONFIRM, payload };
     this.handleTriggerModal(modal);
   }
 
+  // TODO. Deprecate and use a method from ContextProvider
+  // when all children components are functional components
   handleTriggerConfirmDeletionModal = payload => {
     const modal = payload === null ? null : { type: MODALS.CONFIRM_DELETION, payload };
     this.handleTriggerModal(modal);
   }
 
+  // TODO. Deprecate and use a method from ContextProvider
+  // when all children components are functional components
   handleComboBoxChange = validationFn => (options, field, form) => {
     const isValidationRequired = validationFn instanceof Function;
     if (isValidationRequired) {
@@ -146,6 +158,8 @@ class Main extends Component {
     }
   }
 
+  // TODO. Deprecate and use a method from ContextProvider
+  // when all children components are functional components
   handleComboBoxCreateOption = (validationFn, ...props) => async (label, field, form) => {
     let isValid = true;
     const isValidationRequired = validationFn instanceof Function;
@@ -167,6 +181,8 @@ class Main extends Component {
     }
   }
 
+  // TODO. Deprecate and use a method from ContextProvider
+  // when all children components are functional components
   handleComboBoxOnBlur = (e, field, form) => {
     form.setFieldTouched(field.name, true);
   }
@@ -180,7 +196,7 @@ class Main extends Component {
     >
       {tab.name}
     </EuiTab>
-  );
+  )
 
   render() {
     const { httpClient, globalToastList, history, ...props } = this.props;

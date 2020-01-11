@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { get } from 'lodash';
 import { buildFormikChecks, buildChecks, buildFormikChecksBlocks } from '../utils';
-import { addErrorToast, addSuccessToast } from '../../../redux/actions';
 import { addedCheckTemplateText } from '../../../utils/i18n/watch';
 import { WATCH_TYPES } from '../utils/constants';
 
-const useCheckTemplates = ({ setFieldValue, dispatch, checksPath = 'checks' } = {}) => {
+import { Context } from '../../../Context';
+
+const useCheckTemplates = ({ setFieldValue, checksPath = 'checks' } = {}) => {
+  const { addSuccessToast, addErrorToast } = useContext(Context);
+
   // Template insert works only in JsonWatch
   const [templateToInsert, setTemplateToInsert] = useState({
     text: undefined, // Template is not inserted if at least one value is undefined
@@ -47,11 +50,11 @@ const useCheckTemplates = ({ setFieldValue, dispatch, checksPath = 'checks' } = 
         }
       }
 
-      dispatch(addSuccessToast(<p>{addedCheckTemplateText}</p>));
+      addSuccessToast(<p>{addedCheckTemplateText}</p>);
     } catch (error) {
       console.error('useCheckTemplates', error);
       console.debug('useChecktemplates -- template', template);
-      dispatch(addErrorToast(error));
+      addErrorToast(error);
     }
   };
 

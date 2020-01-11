@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { connect as connectFormik } from 'formik';
-import { connect as connectRedux } from 'react-redux';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
 import { EuiButton, EuiSpacer } from '@elastic/eui';
@@ -13,20 +12,19 @@ import { FLYOUTS } from '../../../../utils/constants';
 import { WATCH_TYPES_OPTIONS, WATCH_TYPES } from '../../utils/constants';
 import { definitionText, typeText, executeText, addText } from '../../../../utils/i18n/common';
 
-const DefinitionPanel = ({
-  onTriggerFlyout,
-  formik: { values, setFieldValue },
-  dispatch,
-  httpClient,
-  onTriggerConfirmDeletionModal,
-  onComboBoxChange,
-  onComboBoxOnBlur,
-  onComboBoxCreateOption,
-}) => {
-  const { addTemplate } = useCheckTemplates({
-    dispatch,
-    setFieldValue,
-  });
+import { Context } from '../../../../Context';
+
+const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
+  const {
+    httpClient,
+    triggerFlyout,
+    onComboBoxChange,
+    onComboBoxCreateOption,
+    onComboBoxOnBlur,
+    triggerConfirmDeletionModal,
+  } = useContext(Context);
+
+  const { addTemplate } = useCheckTemplates({ setFieldValue });
 
   const {
     isResultVisible,
@@ -34,14 +32,10 @@ const DefinitionPanel = ({
     editorResult,
     isLoading,
     executeWatch,
-  } = useJsonWatchChecks({
-    dispatch,
-    httpClient,
-    setFieldValue,
-  });
+  } = useJsonWatchChecks({ setFieldValue });
 
   const handleAddTemplate = () => {
-    onTriggerFlyout({
+    triggerFlyout({
       type: FLYOUTS.CHECK_EXAMPLES,
       payload: { onChange: template => addTemplate({ template, values }) },
     });
@@ -88,7 +82,7 @@ const DefinitionPanel = ({
       watch = (
         <BlocksWatch
           httpClient={httpClient}
-          onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
+          onTriggerConfirmDeletionModal={triggerConfirmDeletionModal}
           onOpenChecksTemplatesFlyout={handleAddTemplate}
         />
       );
@@ -131,12 +125,6 @@ const DefinitionPanel = ({
 
 DefinitionPanel.propTypes = {
   formik: PropTypes.object.isRequired,
-  dispatch: PropTypes.func.isRequired,
-  httpClient: PropTypes.func.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired,
-  onComboBoxOnBlur: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired,
 };
 
-export default connectRedux()(connectFormik(DefinitionPanel));
+export default connectFormik(DefinitionPanel);
