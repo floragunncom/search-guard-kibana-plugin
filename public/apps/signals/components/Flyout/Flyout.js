@@ -33,16 +33,18 @@ import PropTypes from 'prop-types';
 import { EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader, EuiFlyoutFooter } from '@elastic/eui';
 import Flyouts from './flyouts';
 
-const getFlyoutProps = ({ type, payload, onChange }) => {
+const getFlyoutProps = ({ type, payload }) => {
   const flyout = Flyouts[type];
   if (!flyout || !(flyout instanceof Function)) return null;
-  return flyout(payload, onChange);
+  return flyout(payload);
 };
 
 const Flyout = ({ flyout, onClose }) => {
   if (!flyout) return null;
+
   const flyoutData = getFlyoutProps(flyout);
   if (!flyoutData) return null;
+
   const {
     header = null,
     body = null,

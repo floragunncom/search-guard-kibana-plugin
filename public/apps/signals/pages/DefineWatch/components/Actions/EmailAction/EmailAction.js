@@ -1,5 +1,4 @@
-import React, { Fragment } from 'react';
-import chrome from 'ui/chrome';
+import React, { Fragment, useContext } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { isEmpty, get } from 'lodash';
@@ -28,28 +27,25 @@ import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import ActionAccount from '../ActionAccount';
 import { SEVERITY_OPTIONS, WATCH_TYPES } from '../../../utils/constants';
 import { ACCOUNT_TYPE } from '../../../../Accounts/utils/constants';
-import { CODE_EDITOR } from '../../../../../../utils/constants';
 
-const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
-const { darkTheme, ...setOptions } = CODE_EDITOR;
-let { theme } = CODE_EDITOR;
-theme = !IS_DARK_THEME ? theme : darkTheme;
+import { Context } from '../../../../../Context';
 
-const EmailAction = ({
-  httpClient,
-  onTriggerFlyout,
-  isResolveActions,
-  index,
-  accounts,
-  formik: { values },
-  onComboBoxChange,
-  onComboBoxOnBlur,
-  onComboBoxCreateOption,
-}) => {
+const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) => {
+  const {
+    editorTheme,
+    editorOptions,
+    onComboBoxChange,
+    onComboBoxOnBlur,
+    onComboBoxCreateOption,
+  } = useContext(Context);
+
   const watchType = get(values, '_ui.watchType');
   const isGraphWatch = watchType === WATCH_TYPES.GRAPH;
   const actionsRootPath = isResolveActions ? 'resolve_actions' : 'actions';
-  const currAccount = getCurrentAccount(accounts, get(values, `${actionsRootPath}[${index}].account`));
+  const currAccount = getCurrentAccount(
+    accounts,
+    get(values, `${actionsRootPath}[${index}].account`)
+  );
   const isDefaultFrom = !!currAccount && !isEmpty(currAccount.default_from);
   const isDefaultTo = !!currAccount && !isEmpty(currAccount.default_to);
   const isSeverity = get(values, '_ui.isSeverity', false);
@@ -216,18 +212,17 @@ const EmailAction = ({
           fullWidth: true,
           isInvalid,
           error: hasError,
-
         }}
         elementProps={{
           isInvalid,
           setOptions: {
-            ...setOptions,
+            ...editorOptions,
             maxLines: 10,
             minLines: 10
           },
           mode: 'text',
           width: '100%',
-          theme,
+          theme: editorTheme,
           onChange: (e, text, field, form) => {
             form.setFieldValue(field.name, text);
           },
@@ -240,13 +235,7 @@ const EmailAction = ({
         }}
       />
       <ActionBodyPreview index={index} template={bodyPreviewTemplate} />
-      {!isGraphWatch && (
-        <ActionChecks
-          actionIndex={index}
-          httpClient={httpClient}
-          onTriggerFlyout={onTriggerFlyout}
-        />
-      )}
+      {!isGraphWatch && <ActionChecks actionIndex={index} />}
     </Fragment>
   );
 };
@@ -257,15 +246,10 @@ EmailAction.defaultProps = {
 };
 
 EmailAction.propTypes = {
-  httpClient: PropTypes.func.isRequired,
   isResolveActions: PropTypes.bool,
   index: PropTypes.number.isRequired,
   formik: PropTypes.object.isRequired,
   accounts: PropTypes.array,
-  onComboBoxOnBlur: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired,
-  onTriggerFlyout: PropTypes.func.isRequired,
 };
 
 export default connectFormik(EmailAction);
