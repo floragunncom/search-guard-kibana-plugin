@@ -90,6 +90,7 @@ class Block extends Component {
         <EuiCodeEditor
           width="100%"
           isReadOnly
+          theme={theme}
           mode="json"
           setOptions={setOptions}
           value={response}

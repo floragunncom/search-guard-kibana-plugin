@@ -1,5 +1,4 @@
-import React, { Fragment } from 'react';
-import chrome from 'ui/chrome';
+import React, { Fragment, useContext } from 'react';
 import { connect as connectFormik } from 'formik';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
@@ -10,23 +9,15 @@ import { severityText, resolvesSeverityText } from '../../../../../utils/i18n/wa
 import WatchIndex from '../../WatchIndex';
 import { validateEmptyField, isInvalid, hasError } from '../../../utils/validate';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
-import { CODE_EDITOR } from '../../../../../../utils/constants';
 import { SEVERITY_OPTIONS } from '../../../utils/constants';
 
-const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
-let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
-theme = !IS_DARK_THEME ? theme : darkTheme;
+import { Context } from '../../../../../Context';
 
-const ElasticsearchAction = ({
-  isResolveActions,
-  formik: { values },
-  index,
-  httpClient,
-  onComboBoxChange,
-  onComboBoxOnBlur,
-  onComboBoxCreateOption,
-  onTriggerFlyout,
-}) => {
+const ElasticsearchAction = ({ isResolveActions, formik: { values }, index }) => {
+  const { httpClient, onComboBoxChange, onComboBoxOnBlur, onComboBoxCreateOption } = useContext(
+    Context
+  );
+
   const isSeverity = get(values, '_ui.isSeverity', false);
 
   const severityLabel = isResolveActions ? resolvesSeverityText : severityText;
@@ -87,7 +78,7 @@ const ElasticsearchAction = ({
         onComboBoxOnBlur={onComboBoxOnBlur}
         onComboBoxCreateOption={onComboBoxCreateOption}
       />
-      <ActionChecks actionIndex={index} httpClient={httpClient} onTriggerFlyout={onTriggerFlyout} />
+      <ActionChecks actionIndex={index} />
     </Fragment>
   );
 };
@@ -100,11 +91,6 @@ ElasticsearchAction.propTypes = {
   isResolveActions: PropTypes.bool,
   formik: PropTypes.object.isRequired,
   index: PropTypes.number.isRequired,
-  httpClient: PropTypes.func.isRequired,
-  onComboBoxOnBlur: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired,
-  onTriggerFlyout: PropTypes.func.isRequired,
 };
 
 export default connectFormik(ElasticsearchAction);

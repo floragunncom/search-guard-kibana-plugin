@@ -1,5 +1,4 @@
-import React from 'react';
-import chrome from 'ui/chrome';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import {
   EuiFlexGroup,
@@ -13,11 +12,8 @@ import { FormikCodeEditor } from '../../../../components';
 import { hasError, isInvalid, validateWatchString } from '../../utils/validate';
 import { checksText } from '../../../../utils/i18n/watch';
 import { closeText, responseText } from '../../../../utils/i18n/common';
-import { CODE_EDITOR } from '../../../../../utils/constants';
 
-const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
-let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
-theme = !IS_DARK_THEME ? theme : darkTheme;
+import { Context } from '../../../../Context';
 
 const JsonWatch = ({
   onCloseResult,
@@ -27,6 +23,8 @@ const JsonWatch = ({
   onCursorPositionUpdate,
   checksPath,
 }) => {
+  const { editorTheme, editorOptions } = useContext(Context);
+
   const renderChecksEditor = () => {
     const props = {};
 
@@ -47,7 +45,7 @@ const JsonWatch = ({
         elementProps={{
           isInvalid,
           setOptions: {
-            ...setOptions,
+            ...editorOptions,
             enableLiveAutocompletion: true,
             enableSnippets: true,
           },
@@ -55,7 +53,7 @@ const JsonWatch = ({
           mode: 'watch_editor',
           width: '100%',
           height: '500px',
-          theme,
+          theme: editorTheme,
           ...props,
           onChange: (e, query, field, form) => {
             form.setFieldValue(field.name, query);
@@ -88,7 +86,7 @@ const JsonWatch = ({
         }
       >
         <EuiCodeEditor
-          theme="github"
+          theme={editorTheme}
           mode="json"
           width="100%"
           height="500px"
