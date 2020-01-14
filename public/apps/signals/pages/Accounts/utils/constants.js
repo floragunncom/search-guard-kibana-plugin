@@ -3,5 +3,7 @@ export const TABLE_SORT_DIRECTION = 'asc';
 
 export const ACCOUNT_TYPE = {
   EMAIL: 'email',
-  SLACK: 'slack'
+  SLACK: 'slack',
+  JIRA: 'jira',
+  PAGERDUTY: 'pagerduty',
 };

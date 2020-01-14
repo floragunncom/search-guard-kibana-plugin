@@ -106,3 +106,8 @@ export const pleaseFillOutAllRequiredFieldsText = (
     default="Please fill out all required fields"
   />
 );
+export const usernameText = <EuiI18n token="sg.common.username.text" default="Username" />;
+export const authtokenText = <EuiI18n token="sg.common.authtoken.text" default="Auth Token" />;
+export const integrationkeyText = (
+  <EuiI18n token="sg.common.integrationkey.text" default="Integration Key" />
+);

@@ -277,6 +277,104 @@ describe('buildChecksFromChecksBlocks', () => {
 });
 
 describe('buildActions', () => {
+  test('can build pagerduty action', () => {
+    const actions = [
+      {
+        type: ACTION_TYPE.PAGERDUTY,
+        name: 'PD issue',
+        checks: [],
+        account: 'fgunn pd',
+        throttle_period: '1s',
+        event: {
+          dedup_key: 'x',
+          payload: {
+            summary: 'My summary',
+            source: 'My source',
+            custom_details: 'Total: {{data.mysearch.hits.total.value}}',
+          },
+        },
+      },
+    ];
+
+    const formik = {
+      _ui: {
+        watchType: 'json',
+      },
+      actions: [
+        {
+          type: ACTION_TYPE.PAGERDUTY,
+          name: 'PD issue',
+          checks: [],
+          account: [{ label: 'fgunn pd' }],
+          throttle_period: {
+            interval: 1,
+            unit: 's',
+          },
+          event: {
+            a: '',
+            dedup_key: 'x',
+            payload: {
+              b: '',
+              summary: 'My summary',
+              source: 'My source',
+              custom_details: 'Total: {{data.mysearch.hits.total.value}}',
+            },
+          },
+        },
+      ],
+    };
+
+    expect(buildActions(formik)).toEqual({ actions });
+  });
+
+  test('can build jira action', () => {
+    const actions = [
+      {
+        type: ACTION_TYPE.JIRA,
+        name: 'jira issue',
+        project: 'LRT',
+        issue: {
+          type: 'Bug',
+          summary: 'Test',
+          description: 'Total: {{data.mysearch.hits.total.value}}',
+        },
+        checks: [],
+        account: 'fgunn jira',
+        throttle_period: '1s',
+      },
+    ];
+
+    const formik = {
+      _ui: {
+        watchType: 'json',
+      },
+      actions: [
+        {
+          type: ACTION_TYPE.JIRA,
+          name: 'jira issue',
+          project: 'LRT',
+          issue: {
+            type: 'Bug',
+            summary: 'Test',
+            description: 'Total: {{data.mysearch.hits.total.value}}',
+            parent: '',
+            component: '',
+            label: '',
+            priority: '',
+          },
+          checks: [],
+          account: [{ label: 'fgunn jira' }],
+          throttle_period: {
+            interval: 1,
+            unit: 's',
+          },
+        },
+      ],
+    };
+
+    expect(buildActions(formik)).toEqual({ actions });
+  });
+
   test('can build email action', () => {
     const actions = [
       {
