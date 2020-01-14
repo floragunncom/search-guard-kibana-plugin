@@ -100,14 +100,12 @@ export const logoutText = (<EuiI18n token="sg.common.logout.text" default="Logou
 export const loginText = (<EuiI18n token="sg.common.login.text" default="Login" />);
 export const addExampleText = (<EuiI18n token="sg.common.addExample.text" default="Add Example" />);
 export const invalidText = (<EuiI18n token="sg.common.invalid.text" default="Invalid" />);
-
 export const pleaseFillOutAllRequiredFieldsText = (
   <EuiI18n
     token="sg.common.pleaseFillOutAllRequiredFields.text"
     default="Please fill out all required fields"
   />
 );
-
 export const usernameText = <EuiI18n token="sg.common.username.text" default="Username" />;
 export const authtokenText = <EuiI18n token="sg.common.authtoken.text" default="Auth Token" />;
 export const integrationkeyText = (
