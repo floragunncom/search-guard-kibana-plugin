@@ -11,7 +11,8 @@ import {
   EuiIcon,
   EuiHealth,
   EuiSearchBar,
-  EuiToolTip
+  EuiToolTip,
+  EuiSpacer,
 } from '@elastic/eui';
 import { get, isEqual, defaults } from 'lodash';
 import moment from 'moment';
@@ -23,29 +24,20 @@ import {
   TableDeleteAction,
   TableIdCell,
   TableTextCell,
-  CancelButton
+  CancelButton,
 } from '../../components';
 import { addSuccessToast, addErrorToast } from '../../redux/actions';
-import { buildAlertsESQuery } from './utils/helpers';
+import { buildESQuery } from './utils/helpers';
 import { actionAndWatchStatusToIconProps } from '../Watches/utils';
-import {
-  execEndText,
-  statusText,
-  executionHistoryText
-} from '../../utils/i18n/watch';
+import { execEndText, statusText, executionHistoryText } from '../../utils/i18n/watch';
 import { deleteText } from '../../utils/i18n/common';
 import {
   APP_PATH,
   DEFAULT_DATEFIELD,
   WATCH_ACTION_STATUS,
-  WATCH_STATUS
+  WATCH_STATUS,
 } from '../../utils/constants';
-import {
-  TABLE_SORT_FIELD,
-  TABLE_SORT_DIRECTION,
-  DEFAULT_URL_PARAMS,
-  SEARCH_TIMEOUT
-} from './utils/constants';
+import { TABLE_SORT_FIELD, TABLE_SORT_DIRECTION, DEFAULT_URL_PARAMS } from './utils/constants';
 
 const initialQuery = EuiSearchBar.Query.MATCH_ALL;
 
@@ -96,24 +88,23 @@ class Alerts extends Component {
     const { query } = this.state;
     const { location } = this.props;
 
-    const {
-      dateGte,
-      dateLt,
-      watchId
-    } = defaults(queryString.parse(location.search), DEFAULT_URL_PARAMS);
+    const { dateGte, dateLt, watchId } = defaults(
+      queryString.parse(location.search),
+      DEFAULT_URL_PARAMS
+    );
 
-    let esQuery;
     try {
-      esQuery = buildAlertsESQuery({
+      const esQuery = buildESQuery({
         query: EuiSearchBar.Query.toESQuery(query),
         gte: dateGte,
         lte: dateLt,
-        watchId
+        watchId,
       });
+      console.debug('Alerts -- getAlerts -- esQuery', esQuery);
 
       this.setState({ isLoading: true });
       try {
-        const { resp: alerts } = await this.alertService.getByQuery(esQuery);
+        const { resp: alerts } = await this.alertService.search(esQuery);
         this.setState({ alerts });
       } catch (error) {
         console.error('Alerts -- getAlerts', error);
@@ -124,7 +115,6 @@ class Alerts extends Component {
       console.error('Alerts -- build ES query', error);
     }
 
-    console.debug('Alerts -- esQuery', esQuery);
     this.setState({ isLoading: false });
   }
 
@@ -167,9 +157,42 @@ class Alerts extends Component {
   }
 
   handleSearchChange = ({ query, error }) => {
-    this.timer = setTimeout(() => {
-      this.setState({ query, error });
-    }, SEARCH_TIMEOUT);
+    if (error) {
+      this.setState({ error });
+    } else {
+      this.setState({ error: null, query });
+    }
+  };
+
+  // TODO: have search in URL params too
+  renderSearchBar = () => {
+    const areRowsSelected = !!this.state.tableSelection.length;
+
+    const filters = [
+      {
+        type: 'field_value_selection',
+        field: 'status.code',
+        name: 'Watch Status',
+        multiSelect: 'or',
+        options: this.renderSearchFilterOptions(Object.values(WATCH_STATUS)),
+      },
+      {
+        type: 'field_value_selection',
+        field: 'actions.status.code',
+        name: 'Action Status',
+        multiSelect: 'or',
+        options: this.renderSearchFilterOptions(Object.values(WATCH_ACTION_STATUS)),
+      }
+    ];
+
+    return (
+      <EuiFlexGroup>
+        {areRowsSelected && <EuiFlexItem grow={false}>{this.renderSearchToolsLeft()}</EuiFlexItem>}
+        <EuiFlexItem>
+          <EuiSearchBar onChange={this.handleSearchChange} filters={filters} />
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    );
   };
 
   handleDatePickerChange = ({
@@ -288,30 +311,6 @@ class Alerts extends Component {
     const watchId = !encodedWatchId ? undefined : decodeURI(encodedWatchId);
     const isAlertsAggByWatch = !!watchId;
 
-    const search = {
-      toolsLeft: this.renderSearchToolsLeft(),
-      box: {
-        incremental: true,
-      },
-      onChange: this.handleSearchChange,
-      filters: [
-        {
-          type: 'field_value_selection',
-          field: 'status.code',
-          name: 'Watch Status',
-          multiSelect: 'or',
-          options: this.renderSearchFilterOptions(Object.values(WATCH_STATUS))
-        },
-        {
-          type: 'field_value_selection',
-          field: 'actions.status.code',
-          name: 'Action Status',
-          multiSelect: 'or',
-          options: this.renderSearchFilterOptions(Object.values(WATCH_ACTION_STATUS))
-        }
-      ]
-    };
-
     const selection = {
       selectable: doc => doc._id,
       onSelectionChange: tableSelection => this.setState({ tableSelection })
@@ -415,12 +414,13 @@ class Alerts extends Component {
           secondTitle={watchId}
           actions={contentPanelActions}
         >
+          {this.renderSearchBar()}
+          <EuiSpacer />
           <EuiInMemoryTable
             error={get(error, 'message')}
             items={alerts}
             itemId="_id"
             columns={columns}
-            search={search}
             selection={selection}
             sorting={sorting}
             loading={isLoading}
@@ -439,7 +439,7 @@ Alerts.propTypes = {
   location: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
 };
 
 export default connect()(Alerts);

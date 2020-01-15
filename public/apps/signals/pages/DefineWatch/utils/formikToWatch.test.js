@@ -636,7 +636,7 @@ describe('formikToWatch', () => {
           ]
         }
       },
-      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"mysearch\",\n    \"target\": \"mysearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_flights\"\n      ],\n      \"body\": {\n        \"size\": 0,\n        \"aggregations\": {},\n        \"query\": {\n          \"bool\": {\n            \"filter\": {\n              \"range\": {\n                \"timestamp\": {\n                  \"gte\": \"now-1h\",\n                  \"lte\": \"now\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition.script\",\n    \"name\": \"mycondition\",\n    \"source\": \"data.mysearch.hits.total.value > 10\"\n  }\n]",
+      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"mysearch\",\n    \"target\": \"mysearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_flights\"\n      ],\n      \"body\": {\n        \"size\": 0,\n        \"aggregations\": {},\n        \"query\": {\n          \"bool\": {\n            \"filter\": {\n              \"range\": {\n                \"timestamp\": {\n                  \"gte\": \"now-1h\",\n                  \"lte\": \"now\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition\",\n    \"name\": \"mycondition\",\n    \"source\": \"data.mysearch.hits.total.value > 10\"\n  }\n]",
       "actions": [
         {
           "type": "webhook",
@@ -738,7 +738,7 @@ describe('formikToWatch', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"mycondition\",\n  \"source\": \"data.mysearch.hits.total.value > 10\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"mycondition\",\n  \"source\": \"data.mysearch.hits.total.value > 10\"\n}",
             "index": 1
           }
         ],
@@ -817,7 +817,7 @@ describe('formikToWatch', () => {
           }
         },
         {
-          "type": "condition.script",
+          "type": "condition",
           "name": "mycondition",
           "source": "data.mysearch.hits.total.value > 10"
         }
@@ -885,7 +885,7 @@ describe('formikToWatch', () => {
           ]
         }
       },
-      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"mysearch\",\n    \"target\": \"mysearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_flights\"\n      ],\n      \"body\": {\n        \"size\": 0,\n        \"aggregations\": {\n          \"bucketAgg\": {\n            \"terms\": {\n              \"field\": \"Carrier\",\n              \"size\": 3,\n              \"order\": {\n                \"_count\": \"asc\"\n              }\n            }\n          }\n        },\n        \"query\": {\n          \"bool\": {\n            \"filter\": {\n              \"range\": {\n                \"timestamp\": {\n                  \"gte\": \"now-5h\",\n                  \"lte\": \"now\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition.script\",\n    \"name\": \"mycondition\",\n    \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i].doc_count > 100) { return true; } } return false;\"\n  }\n]",
+      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"mysearch\",\n    \"target\": \"mysearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_flights\"\n      ],\n      \"body\": {\n        \"size\": 0,\n        \"aggregations\": {\n          \"bucketAgg\": {\n            \"terms\": {\n              \"field\": \"Carrier\",\n              \"size\": 3,\n              \"order\": {\n                \"_count\": \"asc\"\n              }\n            }\n          }\n        },\n        \"query\": {\n          \"bool\": {\n            \"filter\": {\n              \"range\": {\n                \"timestamp\": {\n                  \"gte\": \"now-5h\",\n                  \"lte\": \"now\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition\",\n    \"name\": \"mycondition\",\n    \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i].doc_count > 100) { return true; } } return false;\"\n  }\n]",
       "actions": [
         {
           "type": "webhook",
@@ -1057,7 +1057,7 @@ describe('formikToWatch', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"mycondition\",\n  \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i].doc_count > 100) { return true; } } return false;\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"mycondition\",\n  \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i].doc_count > 100) { return true; } } return false;\"\n}",
             "index": 1
           }
         ],
@@ -1146,7 +1146,7 @@ describe('formikToWatch', () => {
           }
         },
         {
-          "type": "condition.script",
+          "type": "condition",
           "name": "mycondition",
           "source": "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i].doc_count > 100) { return true; } } return false;"
         }
@@ -1218,7 +1218,7 @@ describe('formikToWatch', () => {
           ]
         }
       },
-      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"mysearch\",\n    \"target\": \"mysearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_flights\"\n      ],\n      \"body\": {\n        \"size\": 0,\n        \"aggregations\": {\n          \"metricAgg\": {\n            \"avg\": {\n              \"field\": \"AvgTicketPrice\"\n            }\n          }\n        },\n        \"query\": {\n          \"bool\": {\n            \"filter\": {\n              \"range\": {\n                \"timestamp\": {\n                  \"gte\": \"now-1h\",\n                  \"lte\": \"now\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition.script\",\n    \"name\": \"mycondition\",\n    \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n  }\n]",
+      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"mysearch\",\n    \"target\": \"mysearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_flights\"\n      ],\n      \"body\": {\n        \"size\": 0,\n        \"aggregations\": {\n          \"metricAgg\": {\n            \"avg\": {\n              \"field\": \"AvgTicketPrice\"\n            }\n          }\n        },\n        \"query\": {\n          \"bool\": {\n            \"filter\": {\n              \"range\": {\n                \"timestamp\": {\n                  \"gte\": \"now-1h\",\n                  \"lte\": \"now\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition\",\n    \"name\": \"mycondition\",\n    \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n  }\n]",
       "actions": [
         {
           "type": "webhook",
@@ -1335,7 +1335,7 @@ describe('formikToWatch', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"mycondition\",\n  \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"mycondition\",\n  \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n}",
             "index": 1
           }
         ],
@@ -1420,7 +1420,7 @@ describe('formikToWatch', () => {
           }
         },
         {
-          "type": "condition.script",
+          "type": "condition",
           "name": "mycondition",
           "source": "data.mysearch.aggregations.metricAgg.value > 500"
         }
@@ -1492,7 +1492,7 @@ describe('formikToWatch', () => {
           ]
         }
       },
-      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"mysearch\",\n    \"target\": \"mysearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_flights\"\n      ],\n      \"body\": {\n        \"size\": 0,\n        \"aggregations\": {\n          \"bucketAgg\": {\n            \"terms\": {\n              \"field\": \"Carrier\",\n              \"size\": 3,\n              \"order\": {\n                \"metricAgg\": \"asc\"\n              }\n            },\n            \"aggregations\": {\n              \"metricAgg\": {\n                \"avg\": {\n                  \"field\": \"AvgTicketPrice\"\n                }\n              }\n            }\n          }\n        },\n        \"query\": {\n          \"bool\": {\n            \"filter\": {\n              \"range\": {\n                \"timestamp\": {\n                  \"gte\": \"now-5h\",\n                  \"lte\": \"now\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition.script\",\n    \"name\": \"mycondition\",\n    \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n  }\n]",
+      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"mysearch\",\n    \"target\": \"mysearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_flights\"\n      ],\n      \"body\": {\n        \"size\": 0,\n        \"aggregations\": {\n          \"bucketAgg\": {\n            \"terms\": {\n              \"field\": \"Carrier\",\n              \"size\": 3,\n              \"order\": {\n                \"metricAgg\": \"asc\"\n              }\n            },\n            \"aggregations\": {\n              \"metricAgg\": {\n                \"avg\": {\n                  \"field\": \"AvgTicketPrice\"\n                }\n              }\n            }\n          }\n        },\n        \"query\": {\n          \"bool\": {\n            \"filter\": {\n              \"range\": {\n                \"timestamp\": {\n                  \"gte\": \"now-5h\",\n                  \"lte\": \"now\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition\",\n    \"name\": \"mycondition\",\n    \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n  }\n]",
       "actions": [
         {
           "type": "webhook",
@@ -1704,7 +1704,7 @@ describe('formikToWatch', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"mycondition\",\n  \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"mycondition\",\n  \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n}",
             "index": 1
           }
         ],
@@ -1800,7 +1800,7 @@ describe('formikToWatch', () => {
           }
         },
         {
-          "type": "condition.script",
+          "type": "condition",
           "name": "mycondition",
           "source": "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;"
         }
@@ -1876,7 +1876,7 @@ describe('formikToWatch', () => {
           ]
         }
       },
-      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"mysearch\",\n    \"target\": \"mysearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_flights\"\n      ],\n      \"body\": {\n        \"size\": 0,\n        \"aggregations\": {\n          \"metricAgg\": {\n            \"sum\": {\n              \"field\": \"AvgTicketPrice\"\n            }\n          }\n        },\n        \"query\": {\n          \"bool\": {\n            \"filter\": {\n              \"range\": {\n                \"timestamp\": {\n                  \"gte\": \"now-1h\",\n                  \"lte\": \"now\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition.script\",\n    \"name\": \"mycondition\",\n    \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n  }\n]",
+      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"mysearch\",\n    \"target\": \"mysearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_flights\"\n      ],\n      \"body\": {\n        \"size\": 0,\n        \"aggregations\": {\n          \"metricAgg\": {\n            \"sum\": {\n              \"field\": \"AvgTicketPrice\"\n            }\n          }\n        },\n        \"query\": {\n          \"bool\": {\n            \"filter\": {\n              \"range\": {\n                \"timestamp\": {\n                  \"gte\": \"now-1h\",\n                  \"lte\": \"now\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition\",\n    \"name\": \"mycondition\",\n    \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n  }\n]",
       "actions": [
         {
           "type": "webhook",
@@ -1993,7 +1993,7 @@ describe('formikToWatch', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"mycondition\",\n  \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"mycondition\",\n  \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n}",
             "index": 1
           }
         ],
@@ -2078,7 +2078,7 @@ describe('formikToWatch', () => {
           }
         },
         {
-          "type": "condition.script",
+          "type": "condition",
           "name": "mycondition",
           "source": "data.mysearch.aggregations.metricAgg.value > 500"
         }
@@ -2150,7 +2150,7 @@ describe('formikToWatch', () => {
           ]
         }
       },
-      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"mysearch\",\n    \"target\": \"mysearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_flights\"\n      ],\n      \"body\": {\n        \"size\": 0,\n        \"aggregations\": {\n          \"bucketAgg\": {\n            \"terms\": {\n              \"field\": \"Carrier\",\n              \"size\": 3,\n              \"order\": {\n                \"metricAgg\": \"asc\"\n              }\n            },\n            \"aggregations\": {\n              \"metricAgg\": {\n                \"sum\": {\n                  \"field\": \"AvgTicketPrice\"\n                }\n              }\n            }\n          }\n        },\n        \"query\": {\n          \"bool\": {\n            \"filter\": {\n              \"range\": {\n                \"timestamp\": {\n                  \"gte\": \"now-5h\",\n                  \"lte\": \"now\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition.script\",\n    \"name\": \"mycondition\",\n    \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n  }\n]",
+      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"mysearch\",\n    \"target\": \"mysearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_flights\"\n      ],\n      \"body\": {\n        \"size\": 0,\n        \"aggregations\": {\n          \"bucketAgg\": {\n            \"terms\": {\n              \"field\": \"Carrier\",\n              \"size\": 3,\n              \"order\": {\n                \"metricAgg\": \"asc\"\n              }\n            },\n            \"aggregations\": {\n              \"metricAgg\": {\n                \"sum\": {\n                  \"field\": \"AvgTicketPrice\"\n                }\n              }\n            }\n          }\n        },\n        \"query\": {\n          \"bool\": {\n            \"filter\": {\n              \"range\": {\n                \"timestamp\": {\n                  \"gte\": \"now-5h\",\n                  \"lte\": \"now\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition\",\n    \"name\": \"mycondition\",\n    \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n  }\n]",
       "actions": [
         {
           "type": "webhook",
@@ -2362,7 +2362,7 @@ describe('formikToWatch', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"mycondition\",\n  \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"mycondition\",\n  \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n}",
             "index": 1
           }
         ],
@@ -2458,7 +2458,7 @@ describe('formikToWatch', () => {
           }
         },
         {
-          "type": "condition.script",
+          "type": "condition",
           "name": "mycondition",
           "source": "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;"
         }
@@ -2534,7 +2534,7 @@ describe('formikToWatch', () => {
           ]
         }
       },
-      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"mysearch\",\n    \"target\": \"mysearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_flights\"\n      ],\n      \"body\": {\n        \"size\": 0,\n        \"aggregations\": {\n          \"metricAgg\": {\n            \"min\": {\n              \"field\": \"AvgTicketPrice\"\n            }\n          }\n        },\n        \"query\": {\n          \"bool\": {\n            \"filter\": {\n              \"range\": {\n                \"timestamp\": {\n                  \"gte\": \"now-1h\",\n                  \"lte\": \"now\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition.script\",\n    \"name\": \"mycondition\",\n    \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n  }\n]",
+      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"mysearch\",\n    \"target\": \"mysearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_flights\"\n      ],\n      \"body\": {\n        \"size\": 0,\n        \"aggregations\": {\n          \"metricAgg\": {\n            \"min\": {\n              \"field\": \"AvgTicketPrice\"\n            }\n          }\n        },\n        \"query\": {\n          \"bool\": {\n            \"filter\": {\n              \"range\": {\n                \"timestamp\": {\n                  \"gte\": \"now-1h\",\n                  \"lte\": \"now\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition\",\n    \"name\": \"mycondition\",\n    \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n  }\n]",
       "actions": [
         {
           "type": "webhook",
@@ -2651,7 +2651,7 @@ describe('formikToWatch', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"mycondition\",\n  \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"mycondition\",\n  \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n}",
             "index": 1
           }
         ],
@@ -2736,7 +2736,7 @@ describe('formikToWatch', () => {
           }
         },
         {
-          "type": "condition.script",
+          "type": "condition",
           "name": "mycondition",
           "source": "data.mysearch.aggregations.metricAgg.value > 500"
         }
@@ -2808,7 +2808,7 @@ describe('formikToWatch', () => {
           ]
         }
       },
-      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"mysearch\",\n    \"target\": \"mysearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_flights\"\n      ],\n      \"body\": {\n        \"size\": 0,\n        \"aggregations\": {\n          \"bucketAgg\": {\n            \"terms\": {\n              \"field\": \"Carrier\",\n              \"size\": 3,\n              \"order\": {\n                \"metricAgg\": \"asc\"\n              }\n            },\n            \"aggregations\": {\n              \"metricAgg\": {\n                \"min\": {\n                  \"field\": \"AvgTicketPrice\"\n                }\n              }\n            }\n          }\n        },\n        \"query\": {\n          \"bool\": {\n            \"filter\": {\n              \"range\": {\n                \"timestamp\": {\n                  \"gte\": \"now-5h\",\n                  \"lte\": \"now\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition.script\",\n    \"name\": \"mycondition\",\n    \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n  }\n]",
+      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"mysearch\",\n    \"target\": \"mysearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_flights\"\n      ],\n      \"body\": {\n        \"size\": 0,\n        \"aggregations\": {\n          \"bucketAgg\": {\n            \"terms\": {\n              \"field\": \"Carrier\",\n              \"size\": 3,\n              \"order\": {\n                \"metricAgg\": \"asc\"\n              }\n            },\n            \"aggregations\": {\n              \"metricAgg\": {\n                \"min\": {\n                  \"field\": \"AvgTicketPrice\"\n                }\n              }\n            }\n          }\n        },\n        \"query\": {\n          \"bool\": {\n            \"filter\": {\n              \"range\": {\n                \"timestamp\": {\n                  \"gte\": \"now-5h\",\n                  \"lte\": \"now\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition\",\n    \"name\": \"mycondition\",\n    \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n  }\n]",
       "actions": [
         {
           "type": "webhook",
@@ -3020,7 +3020,7 @@ describe('formikToWatch', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"mycondition\",\n  \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"mycondition\",\n  \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n}",
             "index": 1
           }
         ],
@@ -3116,7 +3116,7 @@ describe('formikToWatch', () => {
           }
         },
         {
-          "type": "condition.script",
+          "type": "condition",
           "name": "mycondition",
           "source": "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;"
         }
@@ -3192,7 +3192,7 @@ describe('formikToWatch', () => {
           ]
         }
       },
-      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"mysearch\",\n    \"target\": \"mysearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_flights\"\n      ],\n      \"body\": {\n        \"size\": 0,\n        \"aggregations\": {\n          \"metricAgg\": {\n            \"max\": {\n              \"field\": \"AvgTicketPrice\"\n            }\n          }\n        },\n        \"query\": {\n          \"bool\": {\n            \"filter\": {\n              \"range\": {\n                \"timestamp\": {\n                  \"gte\": \"now-1h\",\n                  \"lte\": \"now\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition.script\",\n    \"name\": \"mycondition\",\n    \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n  }\n]",
+      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"mysearch\",\n    \"target\": \"mysearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_flights\"\n      ],\n      \"body\": {\n        \"size\": 0,\n        \"aggregations\": {\n          \"metricAgg\": {\n            \"max\": {\n              \"field\": \"AvgTicketPrice\"\n            }\n          }\n        },\n        \"query\": {\n          \"bool\": {\n            \"filter\": {\n              \"range\": {\n                \"timestamp\": {\n                  \"gte\": \"now-1h\",\n                  \"lte\": \"now\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition\",\n    \"name\": \"mycondition\",\n    \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n  }\n]",
       "actions": [
         {
           "type": "webhook",
@@ -3309,7 +3309,7 @@ describe('formikToWatch', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"mycondition\",\n  \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"mycondition\",\n  \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n}",
             "index": 1
           }
         ],
@@ -3394,7 +3394,7 @@ describe('formikToWatch', () => {
           }
         },
         {
-          "type": "condition.script",
+          "type": "condition",
           "name": "mycondition",
           "source": "data.mysearch.aggregations.metricAgg.value > 500"
         }
@@ -3466,7 +3466,7 @@ describe('formikToWatch', () => {
           ]
         }
       },
-      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"mysearch\",\n    \"target\": \"mysearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_flights\"\n      ],\n      \"body\": {\n        \"size\": 0,\n        \"aggregations\": {\n          \"bucketAgg\": {\n            \"terms\": {\n              \"field\": \"Carrier\",\n              \"size\": 3,\n              \"order\": {\n                \"metricAgg\": \"asc\"\n              }\n            },\n            \"aggregations\": {\n              \"metricAgg\": {\n                \"max\": {\n                  \"field\": \"AvgTicketPrice\"\n                }\n              }\n            }\n          }\n        },\n        \"query\": {\n          \"bool\": {\n            \"filter\": {\n              \"range\": {\n                \"timestamp\": {\n                  \"gte\": \"now-5h\",\n                  \"lte\": \"now\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition.script\",\n    \"name\": \"mycondition\",\n    \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n  }\n]",
+      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"mysearch\",\n    \"target\": \"mysearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_flights\"\n      ],\n      \"body\": {\n        \"size\": 0,\n        \"aggregations\": {\n          \"bucketAgg\": {\n            \"terms\": {\n              \"field\": \"Carrier\",\n              \"size\": 3,\n              \"order\": {\n                \"metricAgg\": \"asc\"\n              }\n            },\n            \"aggregations\": {\n              \"metricAgg\": {\n                \"max\": {\n                  \"field\": \"AvgTicketPrice\"\n                }\n              }\n            }\n          }\n        },\n        \"query\": {\n          \"bool\": {\n            \"filter\": {\n              \"range\": {\n                \"timestamp\": {\n                  \"gte\": \"now-5h\",\n                  \"lte\": \"now\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition\",\n    \"name\": \"mycondition\",\n    \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n  }\n]",
       "actions": [
         {
           "type": "webhook",
@@ -3678,7 +3678,7 @@ describe('formikToWatch', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"mycondition\",\n  \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"mycondition\",\n  \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n}",
             "index": 1
           }
         ],
@@ -3774,7 +3774,7 @@ describe('formikToWatch', () => {
           }
         },
         {
-          "type": "condition.script",
+          "type": "condition",
           "name": "mycondition",
           "source": "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;"
         }
@@ -3851,7 +3851,7 @@ describe('formikToWatch', () => {
           ]
         }
       },
-      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"testsearch\",\n    \"target\": \"testsearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_ecommerce\"\n      ],\n      \"body\": {\n        \"from\": 0,\n        \"size\": 10,\n        \"query\": {\n          \"range\": {\n            \"taxful_total_price\": {\n              \"gte\": 100\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition.script\",\n    \"name\": \"testcondition\",\n    \"source\": \"ctx.testsearch.hits.hits.length > 0\"\n  }\n]",
+      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"testsearch\",\n    \"target\": \"testsearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_ecommerce\"\n      ],\n      \"body\": {\n        \"from\": 0,\n        \"size\": 10,\n        \"query\": {\n          \"range\": {\n            \"taxful_total_price\": {\n              \"gte\": 100\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition\",\n    \"name\": \"testcondition\",\n    \"source\": \"ctx.testsearch.hits.hits.length > 0\"\n  }\n]",
       "actions": [
         {
           "type": "index",
@@ -3910,7 +3910,7 @@ describe('formikToWatch', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"testcondition\",\n  \"source\": \"ctx.testsearch.hits.hits.length > 0\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"testcondition\",\n  \"source\": \"ctx.testsearch.hits.hits.length > 0\"\n}",
             "index": 1
           }
         ],
@@ -3984,7 +3984,7 @@ describe('formikToWatch', () => {
           }
         },
         {
-          "type": "condition.script",
+          "type": "condition",
           "name": "testcondition",
           "source": "ctx.testsearch.hits.hits.length > 0"
         }
@@ -4054,7 +4054,7 @@ describe('formikToWatch', () => {
           ]
         }
       },
-      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"testsearch\",\n    \"target\": \"testsearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_ecommerce\"\n      ],\n      \"body\": {\n        \"from\": 0,\n        \"size\": 10,\n        \"query\": {\n          \"range\": {\n            \"taxful_total_price\": {\n              \"gte\": 100\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition.script\",\n    \"name\": \"testcondition\",\n    \"source\": \"ctx.testsearch.hits.hits.length > 0\"\n  }\n]",
+      "checks": "[\n  {\n    \"type\": \"search\",\n    \"name\": \"testsearch\",\n    \"target\": \"testsearch\",\n    \"request\": {\n      \"indices\": [\n        \"kibana_sample_data_ecommerce\"\n      ],\n      \"body\": {\n        \"from\": 0,\n        \"size\": 10,\n        \"query\": {\n          \"range\": {\n            \"taxful_total_price\": {\n              \"gte\": 100\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"type\": \"condition\",\n    \"name\": \"testcondition\",\n    \"source\": \"ctx.testsearch.hits.hits.length > 0\"\n  }\n]",
       "actions": [
         {
           "type": "index",
@@ -4113,7 +4113,7 @@ describe('formikToWatch', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"testcondition\",\n  \"source\": \"ctx.testsearch.hits.hits.length > 0\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"testcondition\",\n  \"source\": \"ctx.testsearch.hits.hits.length > 0\"\n}",
             "index": 1
           }
         ],
@@ -4187,7 +4187,7 @@ describe('formikToWatch', () => {
           }
         },
         {
-          "type": "condition.script",
+          "type": "condition",
           "name": "testcondition",
           "source": "ctx.testsearch.hits.hits.length > 0"
         }
