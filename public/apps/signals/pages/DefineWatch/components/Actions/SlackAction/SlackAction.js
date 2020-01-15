@@ -13,6 +13,7 @@ import {
 } from '../../../../../utils/i18n/watch';
 import { nameText, bodyText } from '../../../../../utils/i18n/common';
 import { validateEmptyField, isInvalid, hasError } from '../../../../../utils/validate';
+import ActionBodyHelpText from '../ActionBodyHelpText';
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import ActionAccount from '../ActionAccount';
@@ -33,6 +34,7 @@ const SlackAction = ({ isResolveActions, index, accounts, formik: { values } }) 
   const watchType = get(values, '_ui.watchType');
   const isGraphWatch = watchType === WATCH_TYPES.GRAPH;
   const isSeverity = get(values, '_ui.isSeverity', false);
+  const checksResult = get(values, '_ui.checksResult', null);
 
   const severityLabel = isResolveActions ? resolvesSeverityText : severityText;
   const severityPath = isResolveActions
@@ -134,6 +136,9 @@ const SlackAction = ({ isResolveActions, index, accounts, formik: { values } }) 
           fullWidth: true,
           isInvalid,
           error: hasError,
+          helpText: (isGraphWatch && checksResult)
+            ? (<ActionBodyHelpText watchResultData={checksResult} />)
+            : null
         }}
         elementProps={{
           isInvalid,

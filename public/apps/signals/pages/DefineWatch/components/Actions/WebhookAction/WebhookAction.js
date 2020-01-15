@@ -17,6 +17,7 @@ import {
   methodText,
 } from '../../../../../utils/i18n/common';
 import { severityText, resolvesSeverityText } from '../../../../../utils/i18n/watch';
+import ActionBodyHelpText from '../ActionBodyHelpText';
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import {
@@ -43,6 +44,7 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
   const watchType = get(values, '_ui.watchType');
   const isGraphWatch = watchType === WATCH_TYPES.GRAPH;
   const isSeverity = get(values, '_ui.isSeverity', false);
+  const checksResult = get(values, '_ui.checksResult', null);
 
   const severityLabel = isResolveActions ? resolvesSeverityText : severityText;
   const severityPath = isResolveActions
@@ -168,6 +170,9 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
           fullWidth: true,
           isInvalid,
           error: hasError,
+          helpText: (isGraphWatch && checksResult)
+            ? (<ActionBodyHelpText watchResultData={checksResult} />)
+            : null
         }}
         elementProps={{
           isInvalid,
