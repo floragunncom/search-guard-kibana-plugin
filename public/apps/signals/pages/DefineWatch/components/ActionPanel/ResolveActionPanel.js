@@ -45,7 +45,7 @@ class ResolveActionPanel extends Component {
     const { dispatch } = this.props;
     this.setState({ isLoading: true });
     try {
-      const { resp: accounts } = await this.destService.get();
+      const { resp: accounts } = await this.destService.search();
       this.setState({ accounts });
     } catch (error) {
       console.error('ActionPanel -- getAccounts', error);

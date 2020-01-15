@@ -32,7 +32,7 @@ const attributeMap = {
   'check.condition': {
     meta: 'Condition to check on',
     snippet: `{
-  "type": "condition.script",
+  "type": "condition",
   "name": "mycondition",
   "source": "data.mysearch.hits.hits.length > 0"
 }`
