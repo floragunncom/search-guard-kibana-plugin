@@ -60,7 +60,6 @@ export const jira = {
   type: ACTION_TYPE.JIRA,
   name: 'myjira',
   project: 'SD',
-  name: 'jira issue',
   issue: {
     type: 'Bug',
     summary: 'Test',

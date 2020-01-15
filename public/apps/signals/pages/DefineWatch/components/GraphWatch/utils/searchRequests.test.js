@@ -38,7 +38,7 @@ describe('searchRequests', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"mycondition\",\n  \"source\": \"data.mysearch.hits.total.value > 10\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"mycondition\",\n  \"source\": \"data.mysearch.hits.total.value > 10\"\n}",
             "index": 1
           }
         ],
@@ -187,7 +187,7 @@ describe('searchRequests', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"mycondition\",\n  \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i].doc_count > 100) { return true; } } return false;\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"mycondition\",\n  \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i].doc_count > 100) { return true; } } return false;\"\n}",
             "index": 1
           }
         ],
@@ -356,7 +356,7 @@ describe('searchRequests', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"mycondition\",\n  \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"mycondition\",\n  \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n}",
             "index": 1
           }
         ],
@@ -521,7 +521,7 @@ describe('searchRequests', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"mycondition\",\n  \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"mycondition\",\n  \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n}",
             "index": 1
           }
         ],
@@ -709,7 +709,7 @@ describe('searchRequests', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"mycondition\",\n  \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"mycondition\",\n  \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n}",
             "index": 1
           }
         ],
@@ -874,7 +874,7 @@ describe('searchRequests', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"mycondition\",\n  \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"mycondition\",\n  \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n}",
             "index": 1
           }
         ],
@@ -1062,7 +1062,7 @@ describe('searchRequests', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"mycondition\",\n  \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"mycondition\",\n  \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n}",
             "index": 1
           }
         ],
@@ -1227,7 +1227,7 @@ describe('searchRequests', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"mycondition\",\n  \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"mycondition\",\n  \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n}",
             "index": 1
           }
         ],
@@ -1415,7 +1415,7 @@ describe('searchRequests', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"mycondition\",\n  \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"mycondition\",\n  \"source\": \"data.mysearch.aggregations.metricAgg.value > 500\"\n}",
             "index": 1
           }
         ],
@@ -1579,7 +1579,7 @@ describe('searchRequests', () => {
           },
           {
             "response": "",
-            "check": "{\n  \"type\": \"condition.script\",\n  \"name\": \"mycondition\",\n  \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n}",
+            "check": "{\n  \"type\": \"condition\",\n  \"name\": \"mycondition\",\n  \"source\": \"ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;\"\n}",
             "index": 1
           }
         ],

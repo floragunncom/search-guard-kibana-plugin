@@ -12,10 +12,11 @@ export default class AccountsService extends SignalsService {
   }
 
   get(id, type = this.type) {
-    const path = id
-      ? `..${ROUTE_PATH.ACCOUNT}/${type}/${id}`
-      : `..${ROUTE_PATH.ACCOUNTS}`;
-    return super.get(path);
+    return super.get(`..${ROUTE_PATH.ACCOUNT}/${type}/${id}`);
+  }
+
+  search(query = {}) {
+    return super.post(`..${ROUTE_PATH.ACCOUNTS}`, { query });
   }
 
   delete(id, type = this.type) {

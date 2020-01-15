@@ -22,7 +22,11 @@ export default class WatchService extends SignalsService {
   }
 
   get(id) {
-    return super.get(id ? `..${ROUTE_PATH.WATCH}/${id}` : `..${ROUTE_PATH.WATCHES}`);
+    return super.get(`..${ROUTE_PATH.WATCH}/${id}`);
+  }
+
+  search(query = {}) {
+    return super.post(`..${ROUTE_PATH.WATCHES}`, { query });
   }
 
   delete(id) {

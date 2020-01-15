@@ -4,7 +4,7 @@ describe('foldMultiLineString', () => {
   test('can fold string', () => {
     const unfolded = `
 {
-  "type": "condition.script",
+  "type": "condition",
   "name": "mycondition",
   "source": """
   def hosts=data.change_in_memory.aggregations.per_host.buckets;
@@ -17,7 +17,7 @@ describe('foldMultiLineString', () => {
 `;
 
     const folded = '\n{\n' +
-'  "type": "condition.script",\n' +
+'  "type": "condition",\n' +
 '  "name": "mycondition",\n' +
 '  "source": "  def hosts=data.change_in_memory.aggregations.per_host.buckets;\\n' +
 '  if(hosts.size()==0) return false;\\n  return hosts.stream().anyMatch(h->{\\n' +

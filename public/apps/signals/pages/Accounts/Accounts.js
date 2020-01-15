@@ -1,7 +1,14 @@
 import React, { Component } from 'react';
 import { connect as connectRedux } from 'react-redux';
 import PropTypes from 'prop-types';
-import { EuiFlexGroup, EuiFlexItem, EuiInMemoryTable, EuiIcon } from '@elastic/eui';
+import {
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiInMemoryTable,
+  EuiIcon,
+  EuiSearchBar,
+  EuiSpacer,
+} from '@elastic/eui';
 import { LEFT_ALIGNMENT } from '@elastic/eui/lib/services';
 import { cloneDeep, get } from 'lodash';
 import { AccountsService } from '../../services';
@@ -15,11 +22,13 @@ import {
   TableTextCell,
   PopoverButton,
 } from '../../components';
+import { buildESQuery } from './utils/helpers';
 import { deleteText, cloneText, saveText, typeText } from '../../utils/i18n/common';
 import { accountsText } from '../../utils/i18n/account';
 import { TABLE_SORT_FIELD, TABLE_SORT_DIRECTION, ACCOUNT_TYPE } from './utils/constants';
 import { APP_PATH } from '../../utils/constants';
 
+const initialQuery = EuiSearchBar.Query.MATCH_ALL;
 class Accounts extends Component {
   constructor(props) {
     super(props);
@@ -29,7 +38,8 @@ class Accounts extends Component {
       isLoading: true,
       accounts: [],
       tableSelection: [],
-      isAddAccountPopoverOpen: false
+      isAddAccountPopoverOpen: false,
+      query: initialQuery,
     };
 
     this.destService = new AccountsService(this.props.httpClient);
@@ -37,6 +47,14 @@ class Accounts extends Component {
 
   componentDidMount() {
     this.getAccounts();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { query: prevQuery } = prevState;
+    const { query } = this.state;
+    if (JSON.stringify(prevQuery) !== JSON.stringify(query)) {
+      this.getAccounts();
+    }
   }
 
   putAccount = async ({ _id, ...account }) => {
@@ -56,16 +74,22 @@ class Accounts extends Component {
   }
 
   getAccounts = async () => {
+    const { query } = this.state;
     const { dispatch } = this.props;
-    this.setState({ isLoading: true, error: null });
+    this.setState({ isLoading: true });
+
     try {
-      const { resp: accounts } = await this.destService.get();
-      this.setState({ accounts });
+      const esQuery = buildESQuery(EuiSearchBar.Query.toESQuery(query));
+      console.debug('Accounts -- getAccounts -- esQuery', esQuery);
+
+      const { resp: accounts } = await this.destService.search(esQuery);
+      this.setState({ accounts, error: null });
     } catch (error) {
       console.error('Accounts -- getAccounts', error);
       dispatch(addErrorToast(error));
       this.setState({ error });
     }
+
     this.setState({ isLoading: false });
   }
 
@@ -142,7 +166,6 @@ class Accounts extends Component {
 
     const handleMultiDelete = () => {
       this.handleDeleteAccounts(tableSelection);
-      // this.handleDeleteAccounts(tableSelection.map(({ _id, type }) => ({ id: _id, type })));
       this.setState({ tableSelection: [] });
     };
 
@@ -155,15 +178,34 @@ class Accounts extends Component {
     );
   }
 
+  handleSearchChange = ({ query, error }) => {
+    if (error) {
+      this.setState({ error });
+    } else {
+      this.setState({
+        error: null,
+        query: query.text ? query : initialQuery,
+      });
+    }
+  };
+
+  // TODO: have search in URL params too
+  renderSearchBar = () => {
+    const areRowsSelected = !!this.state.tableSelection.length;
+
+    return (
+      <EuiFlexGroup>
+        {areRowsSelected && <EuiFlexItem grow={false}>{this.renderToolsLeft()}</EuiFlexItem>}
+        <EuiFlexItem>
+          <EuiSearchBar onChange={this.handleSearchChange} />
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    );
+  };
+
   render() {
     const { history } = this.props;
-
-    const {
-      accounts,
-      isLoading,
-      error,
-      isAddAccountPopoverOpen
-    } = this.state;
+    const { accounts, isLoading, error, isAddAccountPopoverOpen } = this.state;
 
     const actions = [
       {
@@ -217,13 +259,6 @@ class Accounts extends Component {
         actions
       }
     ];
-
-    const search = {
-      toolsLeft: this.renderToolsLeft(),
-      box: {
-        incremental: true,
-      }
-    };
 
     const selection = {
       selectable: (doc) => doc._id,
@@ -280,6 +315,8 @@ class Accounts extends Component {
           )
         ]}
       >
+        {this.renderSearchBar()}
+        <EuiSpacer />
         <EuiFlexGroup>
           <EuiFlexItem>
             <EuiInMemoryTable
@@ -287,7 +324,6 @@ class Accounts extends Component {
               items={accounts}
               itemId="_id"
               columns={columns}
-              search={search}
               selection={selection}
               sorting={sorting}
               loading={isLoading}

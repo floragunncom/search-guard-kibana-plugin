@@ -1,225 +1,90 @@
-import { buildAlertsESQuery } from './helpers';
+import { buildESQuery, SIMPLE_QUERY_FIELDS } from './helpers';
 
-describe('buildAlertsESQuery', () => {
-  test('can produce query to match action status and watch id using wildcard', () => {
+describe('buildESQuery', () => {
+  test('can enrich ES query', () => {
     const input = {
-      'query': {
-        'bool': {
-          'must': [
-            {
-              'simple_query_string': {
-                'query': 'avg*'
-              }
+      query: {
+        match_all: {},
+      },
+      gte: 'now-30m',
+      lte: 'now',
+      watchId: 'jirawatch',
+    };
+
+    const output = {
+      bool: {
+        must: [
+          {
+            match_all: {},
+          },
+          {
+            term: {
+              'watch_id.keyword': {
+                value: 'jirawatch',
+              },
             },
+          },
+          {
+            range: {
+              execution_end: {
+                gte: 'now-30m',
+                lte: 'now',
+              },
+            },
+          },
+        ],
+      },
+    };
+
+    expect(buildESQuery(input)).toEqual(output);
+  });
+
+  test('can enrich ES query if match_all', () => {
+    const input = {
+      query: {
+        bool: {
+          must: [
             {
-              'match': {
-                'actions.status.code': {
-                  'query': 'ACTION_TRIGGERED',
-                  'operator': 'or'
-                }
-              }
-            }
-          ]
-        }
+              simple_query_string: {
+                query: 'failed',
+              },
+            },
+          ],
+        },
       },
-      'gte': 'now-30m',
-      'lte': 'now',
-      'order': 'desc'
+      gte: 'now-15d',
+      lte: 'now',
+      watchId: 'jirawatch',
     };
 
     const output = {
-      'index': '.signals_log_*',
-      'scroll': '25s',
-      'body': {
-        'size': 10,
-        'sort': [
+      bool: {
+        must: [
           {
-            'execution_end': 'desc'
-          }
+            simple_query_string: {
+              fields: SIMPLE_QUERY_FIELDS,
+              query: 'failed*',
+            },
+          },
+          {
+            term: {
+              'watch_id.keyword': {
+                value: 'jirawatch',
+              },
+            },
+          },
+          {
+            range: {
+              execution_end: {
+                gte: 'now-15d',
+                lte: 'now',
+              },
+            },
+          },
         ],
-        'query': {
-          'bool': {
-            'must': [
-              {
-                'simple_query_string': {
-                  'query': 'avg*'
-                }
-              },
-              {
-                'match': {
-                  'actions.status.code': {
-                    'query': 'ACTION_TRIGGERED',
-                    'operator': 'or'
-                  }
-                }
-              },
-              {
-                'range': {
-                  'execution_end': {
-                    'gte': 'now-30m',
-                    'lte': 'now'
-                  }
-                }
-              }
-            ]
-          }
-        }
-      }
-    };
-
-    expect(buildAlertsESQuery(input)).toEqual(output);
-  });
-
-  test('can produce query to match watch status no_action or failed', () => {
-    const input = {
-      'query': {
-        'bool': {
-          'must': [
-            {
-              'match': {
-                'status.code': {
-                  'query': 'EXECUTION_FAILED NO_ACTION',
-                  'operator': 'or'
-                }
-              }
-            }
-          ]
-        }
       },
-      'gte': 'now-30m',
-      'lte': 'now',
-      'order': 'desc'
     };
 
-    const output = {
-      'index': '.signals_log_*',
-      'scroll': '25s',
-      'body': {
-        'size': 10,
-        'sort': [
-          {
-            'execution_end': 'desc'
-          }
-        ],
-        'query': {
-          'bool': {
-            'must': [
-              {
-                'match': {
-                  'status.code': {
-                    'query': 'EXECUTION_FAILED NO_ACTION',
-                    'operator': 'or'
-                  }
-                }
-              },
-              {
-                'range': {
-                  'execution_end': {
-                    'gte': 'now-30m',
-                    'lte': 'now'
-                  }
-                }
-              }
-            ]
-          }
-        }
-      }
-    };
-
-    expect(buildAlertsESQuery(input)).toEqual(output);
-  });
-
-  test('can produce query to match all alerts in a time range', () => {
-    const input = {
-      'query': {
-        'match_all': {}
-      },
-      'gte': 'now-30m',
-      'lte': 'now',
-      'order': 'desc'
-    };
-
-    const output = {
-      'index': '.signals_log_*',
-      'scroll': '25s',
-      'body': {
-        'size': 10,
-        'sort': [
-          {
-            'execution_end': 'desc'
-          }
-        ],
-        'query': {
-          'bool': {
-            'must': [
-              {
-                'match_all': {}
-              },
-              {
-                'range': {
-                  'execution_end': {
-                    'gte': 'now-30m',
-                    'lte': 'now'
-                  }
-                }
-              }
-            ]
-          }
-        }
-      }
-    };
-
-    expect(buildAlertsESQuery(input)).toEqual(output);
-  });
-
-  test('can produce query to get all alerts by watch id', () => {
-    const input = {
-      'query': {
-        'match_all': {}
-      },
-      'gte': 'now-30m',
-      'lte': 'now',
-      'order': 'desc',
-      'watchId': 'awatch'
-    };
-
-    const output = {
-      'index': '.signals_log_*',
-      'scroll': '25s',
-      'body': {
-        'size': 10,
-        'sort': [
-          {
-            'execution_end': 'desc'
-          }
-        ],
-        'query': {
-          'bool': {
-            'must': [
-              {
-                'match_all': {}
-              },
-              {
-                'term': {
-                  'watch_id.keyword': {
-                    'value': 'awatch'
-                  }
-                }
-              },
-              {
-                'range': {
-                  'execution_end': {
-                    'gte': 'now-30m',
-                    'lte': 'now'
-                  }
-                }
-              }
-            ]
-          }
-        }
-      }
-    };
-
-    expect(buildAlertsESQuery(input)).toEqual(output);
+    expect(buildESQuery(input)).toEqual(output);
   });
 });

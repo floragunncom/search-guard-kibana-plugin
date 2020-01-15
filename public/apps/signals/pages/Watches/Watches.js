@@ -10,13 +10,13 @@ import {
   EuiToolTip,
   EuiTitle,
   EuiText,
-  EuiBadge
+  EuiBadge,
+  EuiSearchBar,
+  EuiSpacer,
 } from '@elastic/eui';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
-import {
-  LEFT_ALIGNMENT,
-} from '@elastic/eui/lib/services';
+import { LEFT_ALIGNMENT } from '@elastic/eui/lib/services';
 import { WatchService } from '../../services';
 import {
   ContentPanel,
@@ -25,7 +25,7 @@ import {
   TableIdCell,
   TableTextCell,
   AddButton,
-  CreateButton
+  CreateButton,
 } from '../../components';
 import { addSuccessToast, addErrorToast } from '../../redux/actions';
 import {
@@ -38,14 +38,9 @@ import {
   confirmText,
   onText,
   byText,
-  unknownText
+  unknownText,
 } from '../../utils/i18n/common';
-import {
-  watchToFormik,
-  formikToWatch,
-  dateFormat,
-  actionAndWatchStatusToIconProps
-} from './utils';
+import { watchToFormik, formikToWatch, dateFormat, actionAndWatchStatusToIconProps } from './utils';
 import {
   checksText,
   actionsText,
@@ -59,16 +54,12 @@ import {
   lastExecutionText,
   severityText,
 } from '../../utils/i18n/watch';
-import {
-  APP_PATH,
-  FLYOUTS,
-  WATCH_STATUS
-} from '../../utils/constants';
-import {
-  TABLE_SORT_FIELD,
-  TABLE_SORT_DIRECTION,
-} from './utils/constants';
+import { buildESQuery } from './utils/helpers';
+import { APP_PATH, FLYOUTS, WATCH_STATUS } from '../../utils/constants';
+import { TABLE_SORT_FIELD, TABLE_SORT_DIRECTION } from './utils/constants';
 import { SEVERITY_COLORS } from '../DefineWatch/utils/constants';
+
+const initialQuery = EuiSearchBar.Query.MATCH_ALL;
 
 class Watches extends Component {
   constructor(props) {
@@ -78,7 +69,8 @@ class Watches extends Component {
       error: null,
       isLoading: true,
       watches: [],
-      tableSelection: []
+      tableSelection: [],
+      query: initialQuery,
     };
 
     this.watchService = new WatchService(this.props.httpClient);
@@ -88,8 +80,17 @@ class Watches extends Component {
     this.getWatches();
   }
 
-  componentWillUnmount = () => {
+  componentWillUnmount() {
     this.props.onTriggerFlyout(null);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { query: prevQuery } = prevState;
+    const { query } = this.state;
+
+    if (JSON.stringify(query) !== JSON.stringify(prevQuery)) {
+      this.getWatches();
+    }
   }
 
   putWatch = async ({ _id, ...watch }) => {
@@ -97,7 +98,7 @@ class Watches extends Component {
     const watchToSubmit = formikToWatch(watch);
 
     try {
-      this.setState({ isLoading: true, error: null });
+      this.setState({ isLoading: true });
       await this.watchService.put(watchToSubmit, _id);
       dispatch(addSuccessToast((<p>{saveText} {_id}</p>)));
       this.getWatches();
@@ -107,8 +108,9 @@ class Watches extends Component {
       this.setState({ error });
       console.debug('Watches -- watch', watchToSubmit);
     }
+
     this.setState({ isLoading: false });
-  }
+  };
 
   fetchWatchesState = async () => {
     const { watches } = this.state;
@@ -117,7 +119,8 @@ class Watches extends Component {
 
     try {
       watches.forEach((watch, i) => {
-        const promise = this.watchService.state(watch._id)
+        const promise = this.watchService
+          .state(watch._id)
           .then(({ resp: state = {} } = {}) => {
             watches[i] = watchToFormik(watch, state);
           })
@@ -131,21 +134,26 @@ class Watches extends Component {
       });
 
       await Promise.all(promises);
-      this.setState({ watches });
+      this.setState({ watches, error: null });
       console.debug('Watches -- fetchWatchesState', watches);
     } catch (error) {
       console.error('Watches -- fetchWatchesState', error);
+      this.setState({ error });
       dispatch(addErrorToast(error));
     }
   };
 
   getWatches = async () => {
     const { dispatch } = this.props;
+    const { query } = this.state;
     this.setState({ isLoading: true, error: null });
 
     try {
-      const { resp: watches } = await this.watchService.get();
-      this.setState({ watches });
+      const esQuery = buildESQuery(EuiSearchBar.Query.toESQuery(query));
+      console.debug('Watches -- getWatches -- esQuery', esQuery);
+
+      const { resp: watches } = await this.watchService.search(esQuery);
+      this.setState({ watches, error: null });
       this.fetchWatchesState();
       console.debug('Watches -- getWatches', watches);
     } catch (error) {
@@ -153,8 +161,10 @@ class Watches extends Component {
       dispatch(addErrorToast(error));
       this.setState({ error });
     }
+
     this.setState({ isLoading: false });
-  }
+    console.debug('Watches -- getWatches -- query', query);
+  };
 
   handleCloneWatch = async ({ _id: id, ...watch }) => {
     const { dispatch } = this.props;
@@ -483,6 +493,33 @@ class Watches extends Component {
     );
   };
 
+  handleSearchChange = ({ query, error }) => {
+    if (error) {
+      this.setState({ error });
+    } else {
+      this.setState({
+        error: null,
+        query: query.text ? query : initialQuery,
+      });
+    }
+  };
+
+  // TODO: have search in URL params too
+  renderSearchBar = () => {
+    const areRowsSelected = !!this.state.tableSelection.length;
+
+    return (
+      <EuiFlexGroup>
+        {areRowsSelected && (
+          <EuiFlexItem grow={false}>{this.renderSearchBarToolsLeft()}</EuiFlexItem>
+        )}
+        <EuiFlexItem>
+          <EuiSearchBar onChange={this.handleSearchChange} />
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    );
+  };
+
   render() {
     const { history, onTriggerFlyout } = this.props;
     const { watches, isLoading, error } = this.state;
@@ -596,13 +633,6 @@ class Watches extends Component {
       }
     ];
 
-    const search = {
-      toolsLeft: this.renderSearchBarToolsLeft(),
-      box: {
-        incremental: true,
-      }
-    };
-
     const selection = {
       selectable: doc => doc._id,
       onSelectionChange: tableSelection => {
@@ -614,7 +644,7 @@ class Watches extends Component {
       sort: {
         field: TABLE_SORT_FIELD,
         direction: TABLE_SORT_DIRECTION
-      }
+      },
     };
 
     return (
@@ -639,6 +669,8 @@ class Watches extends Component {
           )
         ]}
       >
+        {this.renderSearchBar()}
+        <EuiSpacer />
         <EuiFlexGroup>
           <EuiFlexItem>
             <EuiInMemoryTable
@@ -647,7 +679,6 @@ class Watches extends Component {
               items={watches}
               itemId="_id"
               columns={columns}
-              search={search}
               selection={selection}
               sorting={sorting}
               loading={isLoading}
