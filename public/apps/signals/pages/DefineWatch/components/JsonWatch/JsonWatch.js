@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   EuiFlexGroup,
@@ -24,6 +24,11 @@ const JsonWatch = ({
   checksPath,
 }) => {
   const { editorTheme, editorOptions } = useContext(Context);
+
+  useEffect(() => {
+    onCloseResult();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const renderChecksEditor = () => {
     const props = {};

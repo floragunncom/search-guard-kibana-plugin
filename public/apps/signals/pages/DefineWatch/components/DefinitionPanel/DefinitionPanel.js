@@ -8,6 +8,7 @@ import { FormikSelect, ContentPanel } from '../../../../components';
 import JsonWatch from '../JsonWatch';
 import BlocksWatch from '../BlocksWatch';
 import GraphWatch from '../GraphWatch';
+import QueryStat from '../QueryStat';
 import { FLYOUTS } from '../../../../utils/constants';
 import { WATCH_TYPES_OPTIONS, WATCH_TYPES } from '../../utils/constants';
 import { definitionText, typeText, executeText, addText } from '../../../../utils/i18n/common';
@@ -21,7 +22,6 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
     onComboBoxChange,
     onComboBoxCreateOption,
     onComboBoxOnBlur,
-    triggerConfirmDeletionModal,
   } = useContext(Context);
 
   const { addTemplate } = useCheckTemplates({ setFieldValue });
@@ -45,21 +45,26 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
   let contentPanleActions = [];
   let watch;
 
+  const addChecksBtn = (
+    <EuiButton data-test-subj="sgAddButton-AddChecks" onClick={handleAddTemplate}>
+      {addText}
+    </EuiButton>
+  );
+
+  const execChecksBtn = (
+    <EuiButton
+      isLoading={isLoading}
+      isDisabled={isLoading}
+      data-test-subj="sgAddButton-ExecuteChecks"
+      onClick={() => executeWatch({ values })}
+    >
+      {executeText}
+    </EuiButton>
+  );
+
   switch (watchType) {
     case WATCH_TYPES.JSON:
-      contentPanleActions = [
-        <EuiButton data-test-subj="sgAddButton-AddChecks" onClick={handleAddTemplate}>
-          {addText}
-        </EuiButton>,
-        <EuiButton
-          isLoading={isLoading}
-          isDisabled={isLoading}
-          data-test-subj="sgAddButton-ExecuteChecks"
-          onClick={() => executeWatch({ values })}
-        >
-          {executeText}
-        </EuiButton>,
-      ];
+      contentPanleActions = [addChecksBtn, execChecksBtn];
 
       watch = (
         <>
@@ -69,32 +74,36 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
             editorResult={editorResult}
             onCloseResult={closeResult}
           />
+          <EuiSpacer />
+          <QueryStat />
         </>
       );
       break;
     case WATCH_TYPES.BLOCKS:
-      contentPanleActions = [
-        <EuiButton data-test-subj="sgAddButton-AddChecks" onClick={handleAddTemplate}>
-          {addText}
-        </EuiButton>,
-      ];
+      contentPanleActions = [addChecksBtn, execChecksBtn];
 
       watch = (
         <BlocksWatch
-          httpClient={httpClient}
-          onTriggerConfirmDeletionModal={triggerConfirmDeletionModal}
+          isResultVisible={isResultVisible}
+          editorResult={editorResult}
+          onCloseResult={closeResult}
           onOpenChecksTemplatesFlyout={handleAddTemplate}
         />
       );
       break;
     default:
       watch = (
-        <GraphWatch
-          httpClient={httpClient}
-          onComboBoxChange={onComboBoxChange}
-          onComboBoxOnBlur={onComboBoxOnBlur}
-          onComboBoxCreateOption={onComboBoxCreateOption}
-        />
+        <>
+          <GraphWatch
+            isResultVisible={isResultVisible}
+            httpClient={httpClient}
+            onComboBoxChange={onComboBoxChange}
+            onComboBoxOnBlur={onComboBoxOnBlur}
+            onComboBoxCreateOption={onComboBoxCreateOption}
+          />
+          <EuiSpacer />
+          <QueryStat />
+        </>
       );
       break;
   }

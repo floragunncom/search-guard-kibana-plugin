@@ -53,7 +53,7 @@ const useCheckTemplates = ({ setFieldValue, checksPath = 'checks' } = {}) => {
       addSuccessToast(<p>{addedCheckTemplateText}</p>);
     } catch (error) {
       console.error('useCheckTemplates', error);
-      console.debug('useChecktemplates -- template', template);
+      console.debug('useChecktemplates -- addTemplate -- template', template);
       addErrorToast(error);
     }
   };
