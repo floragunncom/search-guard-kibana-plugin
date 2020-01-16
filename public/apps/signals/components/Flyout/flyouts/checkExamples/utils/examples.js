@@ -22,7 +22,7 @@ const conditionExamples = {
   [CHECKS.CONDITION]: {
     comparison: {
       example: {
-        type: 'condition.script',
+        type: 'condition',
         name: 'greater_then_threshold',
         source: 'data.mysearch.hits.total.value > data.constants.threshold'
       },

@@ -1,47 +1,54 @@
-import { cloneDeep } from 'lodash';
-import {
-  DEFAULT_DATEFIELD,
-  INDEX,
-  ES_SCROLL_SETTINGS
-} from '../../../utils/constants';
+import { get } from 'lodash';
+import { DEFAULT_DATEFIELD } from '../../../utils/constants';
 
-export const buildAlertsESQuery = ({ query, gte, lte, order = 'desc', watchId }) => {
-  const boolQuery = cloneDeep(query);
+export const SIMPLE_QUERY_FIELDS = [
+  'watch_id^3',
+  'tenant',
+  'status.code',
+  'status.detail',
+  'node',
+  'actions.name',
+  'actions.status.code',
+  'actions.status.detail',
+  'actions.error.message',
+];
 
-  if (boolQuery.match_all) {
-    delete boolQuery.match_all;
-    boolQuery.bool = {
-      must: [{ match_all: {} }]
+export const buildESQuery = ({ query, gte, lte, watchId }) => {
+  if (query.match_all) {
+    delete query.match_all;
+    query.bool = {
+      must: [{ match_all: {} }],
     };
   }
 
   if (watchId) {
-    boolQuery.bool.must.push({
+    query.bool.must.push({
       term: {
         'watch_id.keyword': {
-          value: watchId
-        }
-      }
+          value: watchId,
+        },
+      },
     });
   }
 
-  boolQuery.bool.must.push({
+  query.bool.must.push({
     range: {
-      [DEFAULT_DATEFIELD]: { gte, lte }
-    }
+      [DEFAULT_DATEFIELD]: { gte, lte },
+    },
   });
 
-  return {
-    index: INDEX.ALERTS,
-    scroll: ES_SCROLL_SETTINGS.KEEPALIVE,
-    body: {
-      size: ES_SCROLL_SETTINGS.PAGE_SIZE,
-      sort: [
-        {
-          [DEFAULT_DATEFIELD]: order
-        }
-      ],
-      query: boolQuery
+  const must = get(query, 'bool.must', []);
+
+  if (!!must.length) {
+    const index = must.findIndex(clause => clause.simple_query_string);
+
+    if (index !== -1) {
+      query.bool.must[index].simple_query_string.fields = SIMPLE_QUERY_FIELDS;
+      if (query.bool.must[index].simple_query_string.query.slice(-1) !== '*') {
+        query.bool.must[index].simple_query_string.query += '*';
+      }
     }
-  };
+  }
+
+  return query;
 };

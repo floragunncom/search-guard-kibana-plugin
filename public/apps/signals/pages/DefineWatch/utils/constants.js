@@ -9,7 +9,7 @@ export const WATCH_TYPES = {
 export const CHECK_TYPES = {
   STATIC: 'static',
   SEARCH: 'search',
-  CONDITION_SCRIPT: 'condition.script'
+  CONDITION_SCRIPT: 'condition'
 };
 
 export const SEVERITY = {

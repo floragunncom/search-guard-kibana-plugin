@@ -69,7 +69,7 @@
       }
     },
     {
-      "type": "condition.script",
+      "type": "condition",
       "name": "mycondition",
       "source": "data.mysearch.aggregations.metricAgg.value < 10"
     }

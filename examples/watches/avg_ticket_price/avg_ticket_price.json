@@ -47,7 +47,7 @@
       }
     },
     {
-      "type": "condition.script",
+      "type": "condition",
       "name": "low_price",
       "source": "data.avg_ticket_price.aggregations.metricAgg.value < data.constants.ticket_price"
     }

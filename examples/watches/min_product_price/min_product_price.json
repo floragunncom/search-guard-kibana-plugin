@@ -49,7 +49,7 @@
       }
     },
     {
-      "type": "condition.script",
+      "type": "condition",
       "name": "mycondition",
       "source": "data.min_price.aggregations.metricAgg.value < data.constants.threshold"
     }
