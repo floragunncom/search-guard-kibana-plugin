@@ -194,20 +194,17 @@ class GraphWatch extends Component {
 
     this.setState({ isLoading: true });
     try {
-      const promises = searchRequests.map(({ request }) =>
-        this.watchService.executeGraph(request));
-
-      const [
-        { resp: graphQueryResponse },
-        { resp: realQueryResponse },
-      ] = await Promise.all(promises);
+      const promises = searchRequests.map(({ request }) => this.watchService.executeGraph(request));
+      const [{ resp: graphQueryResponse }, { resp: realQueryResponse }] = await Promise.all(
+        promises
+      );
       console.debug('GraphWatch -- searchResponses', [graphQueryResponse, realQueryResponse]);
 
       this.handlePayload(realQueryResponse);
 
       this.setState({ formikSnapshot });
       setFieldValue('_ui.checksGraphResult', graphQueryResponse);
-      setFieldValue('_ui.checksResult', { [CHECK_MYSEARCH]: realQueryResponse });
+      setFieldValue('_ui.checksResult', { data: { [CHECK_MYSEARCH]: realQueryResponse } });
     } catch (err) {
       console.error('GraphWatch -- Fail running the query', err);
       dispatch(addErrorToast(err));
@@ -218,7 +215,9 @@ class GraphWatch extends Component {
 
   renderGraph = () => {
     const { dataTypes, formikSnapshot, isLoading, payloadFields } = this.state;
-    const { formik: { values } } = this.props;
+    const {
+      formik: { values },
+    } = this.props;
     const response = values._ui.checksGraphResult || {};
     const fieldName = get(values, '_ui.fieldName[0].label', 'Select a field');
 
@@ -256,24 +255,19 @@ class GraphWatch extends Component {
       httpClient,
       formik: {
         values: {
-          _ui: {
-            index,
-            timeField
-          }
-        }
+          _ui: { index, timeField },
+        },
       },
       onComboBoxChange,
       onComboBoxOnBlur,
-      onComboBoxCreateOption
+      onComboBoxCreateOption,
     } = this.props;
 
     const { dataTypes } = this.state;
 
     let content = renderGraphMessage(youMustSpecifyIndexText);
     if (index.length) {
-      content = timeField
-        ? this.renderGraph()
-        : renderGraphMessage(youMustSpecifyATimeFieldText);
+      content = timeField ? this.renderGraph() : renderGraphMessage(youMustSpecifyATimeFieldText);
     }
 
     return (
@@ -298,7 +292,7 @@ GraphWatch.propTypes = {
   formik: PropTypes.object.isRequired,
   onComboBoxOnBlur: PropTypes.func.isRequired,
   onComboBoxCreateOption: PropTypes.func.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired
+  onComboBoxChange: PropTypes.func.isRequired,
 };
 
 export default connectRedux()(connectFormik(GraphWatch));
