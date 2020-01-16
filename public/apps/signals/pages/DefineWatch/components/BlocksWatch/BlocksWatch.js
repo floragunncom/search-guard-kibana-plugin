@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
+import { get } from 'lodash';
 import { connect as connectFormik } from 'formik';
 import { connect as connectRedux } from 'react-redux';
 import DraggableList from 'react-draggable-list';
 import PropTypes from 'prop-types';
 import update from 'immutability-helper';
-import { EuiSpacer } from '@elastic/eui';
-import { isEmpty } from 'lodash';
+import { EuiSpacer, EuiCodeEditor, EuiFormRow, EuiText, EuiLink } from '@elastic/eui';
 import { EmptyPrompt } from '../../../../../components';
 import { WatchService } from '../../../../services';
 import { formikToWatch } from '../../utils';
@@ -13,29 +13,35 @@ import { stringifyPretty } from '../../../../utils/helpers';
 import {
   looksLikeYouDontHaveAnyCheckText,
   noChecksText,
+  responseText,
+  closeText,
 } from '../../../../utils/i18n/watch';
-import WatchResponse from '../WatchResponse';
 import QueryStat from '../QueryStat';
-import { addErrorToast } from '../../../../redux/actions';
 import Block from './Block';
+
+import { Context } from '../../../../Context';
 
 import './styles.css';
 
 const BlocksWatch = ({
-  formik: {
-    values,
-    setFieldValue,
-  },
-  httpClient,
+  formik: { values, setFieldValue },
+  isResultVisible,
+  editorResult,
+  onCloseResult,
   onOpenChecksTemplatesFlyout,
-  onTriggerConfirmDeletionModal,
-  dispatch,
 }) => {
+  const { editorTheme, httpClient, triggerConfirmDeletionModal, addErrorToast } = useContext(
+    Context
+  );
+
   const [isLoading, setLoading] = useState(false);
 
-  const { checksBlocks = [], checksResult = '' } = values._ui;
-  const watchResponse = !isEmpty(checksResult) ? stringifyPretty(checksResult) : null;
+  useEffect(() => {
+    onCloseResult();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+  const checksBlocks = get(values, '_ui.checksBlocks', []);
   const watchService = new WatchService(httpClient);
 
   const setBlocks = reorderedChecks => {
@@ -43,54 +49,70 @@ const BlocksWatch = ({
   };
 
   const deleteBlock = index => {
-    const newChecks = update(checksBlocks, {
-      $splice: [[index, 1]]
-    });
+    const newChecks = update(checksBlocks, { $splice: [[index, 1]] });
 
-    onTriggerConfirmDeletionModal({
+    triggerConfirmDeletionModal({
       body: 'the check',
       onConfirm: () => {
         setFieldValue('_ui.checksBlocks', newChecks);
-        onTriggerConfirmDeletionModal(null);
-      }
+        triggerConfirmDeletionModal(null);
+      },
     });
   };
 
   const executeBlocks = async (startIndex, endIndex) => {
+    console.debug('BlocksWatch -- executeBlocks -- prev values', values);
     const newFormikValues = update(values, {
-      _ui: {
-        checksBlocks: { $set: values._ui.checksBlocks.slice(startIndex, endIndex + 1) }
-      }
+      _ui: { checksBlocks: { $set: checksBlocks.slice(startIndex, endIndex + 1) } },
     });
 
     setLoading(true);
 
     try {
+      console.debug('BlocksWatch -- executeBlocks -- current values', newFormikValues);
       const { ok, resp } = await watchService.execute({ watch: formikToWatch(newFormikValues) });
       setFieldValue(`_ui.checksBlocks.${endIndex}.response`, stringifyPretty(resp));
+
       if (!ok) throw resp;
     } catch (error) {
       console.error('BlocksWatch -- executeBlocks', error);
-      dispatch(addErrorToast(error));
-      console.debug('BlocksWatch -- formik values', newFormikValues);
+      addErrorToast(error);
     }
 
     setLoading(false);
   };
 
+  const renderWatchResponse = () => (
+    <>
+      <EuiSpacer />
+      <EuiFormRow
+        fullWidth
+        label={responseText}
+        labelAppend={
+          <EuiText size="xs" onClick={onCloseResult}>
+            <EuiLink id="close-response" data-test-subj="sgWatch-CloseResponse">
+              {closeText} X
+            </EuiLink>
+          </EuiText>
+        }
+      >
+        <EuiCodeEditor
+          theme={editorTheme}
+          mode="json"
+          width="100%"
+          height="500px"
+          value={editorResult}
+          readOnly
+        />
+      </EuiFormRow>
+      <EuiSpacer />
+      <QueryStat />
+    </>
+  );
+
   return (
     <div>
-      {!!checksResult && (
-        <>
-          <WatchResponse
-            response={watchResponse}
-            onClose={() => setFieldValue('_ui.checksResult', null)}
-          />
-          <EuiSpacer size="s" />
-          <QueryStat />
-        </>
-      )}
-
+      {isResultVisible && renderWatchResponse()}
       <div className="blocksWatch-blocks-list">
         <DraggableList
           itemKey="index"
@@ -122,10 +144,10 @@ const BlocksWatch = ({
 
 BlocksWatch.propTypes = {
   formik: PropTypes.object.isRequired,
-  httpClient: PropTypes.func.isRequired,
+  onCloseResult: PropTypes.func.isRequired,
+  editorResult: PropTypes.string,
+  isResultVisible: PropTypes.bool,
   onOpenChecksTemplatesFlyout: PropTypes.func.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
-  dispatch: PropTypes.func.isRequired,
 };
 
 export default connectRedux()(connectFormik(BlocksWatch));

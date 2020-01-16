@@ -1,7 +1,10 @@
 import { useState, useContext } from 'react';
+import { get } from 'lodash';
+import update from 'immutability-helper';
 import { WatchService } from '../../../services';
 import { formikToWatch } from '../utils';
 import { stringifyPretty } from '../../../utils/helpers';
+import { WATCH_TYPES } from '../utils/constants';
 
 import { Context } from '../../../Context';
 
@@ -17,12 +20,24 @@ const useJsonWatchChecks = ({ setFieldValue, isResultVisibleDefault = false } = 
 
   const executeWatch = async ({ values, simulate = false, skipActions = true } = {}) => {
     console.debug('useJsonWatchChecks -- executeWatch -- values', values);
+    const watchType = get(values, '_ui.watchType', WATCH_TYPES.GRAPH);
+    const checksBlocks = get(values, '_ui.checksBlocks', []);
 
     setIsLoading(true);
 
     let watch;
     try {
-      watch = formikToWatch(values);
+      let newValues;
+      if (watchType === WATCH_TYPES.BLOCKS) {
+        newValues = update(values, {
+          _ui: { checksBlocks: { $set: checksBlocks.slice(0, checksBlocks.length + 1) } },
+        });
+      } else {
+        newValues = values;
+      }
+
+      console.debug('useJsonWatchChecks -- executeWatch -- newValues', newValues);
+      watch = formikToWatch(newValues);
       const { ok, resp } = await watchService.execute({ watch, simulate, skipActions });
 
       setFieldValue('_ui.checksResult', resp);
@@ -40,7 +55,7 @@ const useJsonWatchChecks = ({ setFieldValue, isResultVisibleDefault = false } = 
     setResultVisible(true);
   };
 
-  return { isLoading, isResultVisible, closeResult, executeWatch, editorResult };
+  return { isLoading, isResultVisible, setResultVisible, closeResult, executeWatch, editorResult };
 };
 
 export default useJsonWatchChecks;
