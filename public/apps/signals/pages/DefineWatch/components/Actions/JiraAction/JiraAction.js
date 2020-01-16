@@ -136,9 +136,7 @@ const JiraAction = ({ isResolveActions, index, accounts, formik: { values } }) =
           fullWidth: true,
           isInvalid,
           error: hasError,
-          helpText: (isGraphWatch && checksResult)
-            ? (<ActionBodyHelpText watchResultData={checksResult} />)
-            : null
+          helpText: (<ActionBodyHelpText watchResultData={checksResult} />)
         }}
         elementProps={{
           isInvalid,

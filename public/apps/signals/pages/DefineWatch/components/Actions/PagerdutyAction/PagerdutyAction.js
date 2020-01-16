@@ -57,7 +57,7 @@ const renderTextField = (path, label, validate) => {
   );
 };
 
-const renderCodeEditor = (path, label, editorTheme, editorOptions, validate, isGraphWatch, checksResult) => {
+const renderCodeEditor = (path, label, editorTheme, editorOptions, checksResult, validate) => {
   const formikProps = {};
 
   if (typeof validate === 'function') {
@@ -73,9 +73,7 @@ const renderCodeEditor = (path, label, editorTheme, editorOptions, validate, isG
         fullWidth: true,
         isInvalid,
         error: hasError,
-        helpText: (isGraphWatch && checksResult)
-          ? (<ActionBodyHelpText watchResultData={checksResult} />)
-          : null
+        helpText: (<ActionBodyHelpText watchResultData={checksResult} />)
       }}
       elementProps={{
         isInvalid,
@@ -165,7 +163,6 @@ const PagerdutyAction = ({ isResolveActions, index, accounts, formik: { values }
         customDetailsText,
         editorTheme,
         editorOptions,
-        isGraphWatch,
         checksResult
       )}
       {renderCodeEditor(
@@ -173,9 +170,8 @@ const PagerdutyAction = ({ isResolveActions, index, accounts, formik: { values }
         summaryText,
         editorTheme,
         editorOptions,
+        checksResult,
         validateEmptyField,
-        isGraphWatch,
-        checksResult
       )}
       <ActionBodyPreview index={index} template={descrPreviewTemplate} />
       {!isGraphWatch && <ActionChecks actionIndex={index} />}

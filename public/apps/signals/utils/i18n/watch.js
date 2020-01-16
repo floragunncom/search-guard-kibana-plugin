@@ -64,9 +64,23 @@ export const mustacheLinkLabel = (
   <EuiI18n token="sg.watch.mustacheLinkLabel.text" default="Mustache"/>
 );
 export const watchResultsLinkLabel = (
-  <EuiI18n token="sg.watch.watachResultsLinkLabel.text" default="watch results"/>
+  <EuiI18n token="sg.watch.watchResultsLinkLabel.text" default="watch results"/>
 );
-export const actionBodyHelpLabel = (watchResultsLink, mustacheLink) => {
+
+export const watchResultsFlyoutTitle = (
+  <EuiI18n token="sg.watch.watchResultsFlyoutTitle.text" default="Properties available to the template"/>
+);
+export const actionBodyHelpLabelWithoutResults = (mustacheLink) => {
+  return (
+    <EuiI18n
+      token="sg.watch.actionBodyHelpTextWithoutResults.text"
+      default="You can create a template using {mustacheLink}"
+      values={{ mustacheLink }}
+    />
+  );
+}
+
+export const actionBodyHelpLabelWithResults = (watchResultsLink, mustacheLink) => {
   return (
     <EuiI18n
       token="sg.watch.actionBodyHelpText.text"
