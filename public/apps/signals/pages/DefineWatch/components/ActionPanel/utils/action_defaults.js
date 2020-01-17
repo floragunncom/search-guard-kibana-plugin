@@ -9,6 +9,7 @@ const COMMON = {
   checks: '[]',
   severity: [],
   throttle_period: {
+    advInterval: '1h30m15s',
     interval: 1,
     unit: SECONDS,
   },

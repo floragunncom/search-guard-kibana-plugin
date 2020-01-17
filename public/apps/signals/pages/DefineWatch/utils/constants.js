@@ -150,7 +150,7 @@ export const SCHEDULE_DEFAULTS = {
     unit: TIME_PERIOD_UNITS.MINUTES,
   },
   cron: '0 */1 * * * ?',
-  hourly: [],
+  hourly: [{ label: '1' }],
   daily: 0,
   weekly: {
     mon: false, tue: false, wed: false,
