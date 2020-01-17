@@ -9,6 +9,7 @@ import JsonWatch from '../JsonWatch';
 import BlocksWatch from '../BlocksWatch';
 import GraphWatch from '../GraphWatch';
 import QueryStat from '../QueryStat';
+import SeverityForm from '../SeverityForm';
 import { FLYOUTS } from '../../../../utils/constants';
 import { WATCH_TYPES_OPTIONS, WATCH_TYPES } from '../../utils/constants';
 import { definitionText, typeText, executeText, addText } from '../../../../utils/i18n/common';
@@ -42,6 +43,7 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
   };
 
   const watchType = get(values, '_ui.watchType', WATCH_TYPES.GRAPH);
+  const isSeverity = get(values, '_ui.isSeverity', false);
   let contentPanleActions = [];
   let watch;
 
@@ -76,6 +78,7 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
           />
           <EuiSpacer />
           <QueryStat />
+          {isSeverity && <SeverityForm isTitle />}
         </>
       );
       break;
@@ -83,12 +86,15 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
       contentPanleActions = [addChecksBtn, execChecksBtn];
 
       watch = (
-        <BlocksWatch
-          isResultVisible={isResultVisible}
-          editorResult={editorResult}
-          onCloseResult={closeResult}
-          onOpenChecksTemplatesFlyout={handleAddTemplate}
-        />
+        <>
+          <BlocksWatch
+            isResultVisible={isResultVisible}
+            editorResult={editorResult}
+            onCloseResult={closeResult}
+            onOpenChecksTemplatesFlyout={handleAddTemplate}
+          />
+          {isSeverity && <SeverityForm isTitle />}
+        </>
       );
       break;
     default:
