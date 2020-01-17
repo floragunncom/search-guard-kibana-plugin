@@ -22,6 +22,7 @@ import {
   isInvalid,
   hasError,
 } from '../../../../../utils/validate';
+import ActionBodyHelpText from '../ActionBodyHelpText';
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import ActionAccount from '../ActionAccount';
@@ -41,6 +42,7 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
 
   const watchType = get(values, '_ui.watchType');
   const isGraphWatch = watchType === WATCH_TYPES.GRAPH;
+  const checksResult = get(values, '_ui.checksResult', null);
   const actionsRootPath = isResolveActions ? 'resolve_actions' : 'actions';
   const currAccount = getCurrentAccount(
     accounts,
@@ -212,6 +214,7 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
           fullWidth: true,
           isInvalid,
           error: hasError,
+          helpText: (<ActionBodyHelpText watchResultData={checksResult} />)
         }}
         elementProps={{
           isInvalid,
