@@ -31,36 +31,32 @@
 import React from 'react';
 import { Field } from 'formik';
 import moment from 'moment';
-import { EuiFormRow, EuiDatePicker, EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
+import { EuiFormRow, EuiDatePicker } from '@elastic/eui';
 import { aroundText } from '../../../../../../utils/i18n/watch';
 
 const Daily = () => (
-  <EuiFlexGroup direction="column" className="sg-flex-group">
-    <EuiFlexItem className="sg-flex-item">
-      <Field
-        name="_ui.daily"
-        render={({
-          // eslint-disable-next-line no-unused-vars
-          field: { value, onChange, onBlur, ...rest },
-          form: { setFieldValue },
-        }) => (
-          <EuiFormRow label={aroundText}>
-            <EuiDatePicker
-              showTimeSelect
-              showTimeSelectOnly
-              selected={moment().hours(value).minutes(0)}
-              onChange={date => {
-                setFieldValue('_ui.daily', date.hours());
-              }}
-              dateFormat="hh:mm A"
-              timeIntervals={60}
-              {...rest}
-            />
-          </EuiFormRow>
-        )}
-      />
-    </EuiFlexItem>
-  </EuiFlexGroup>
+  <Field
+    name="_ui.daily"
+    render={({
+      // eslint-disable-next-line no-unused-vars
+      field: { value, onChange, onBlur, ...rest },
+      form: { setFieldValue },
+    }) => (
+      <EuiFormRow label={aroundText}>
+        <EuiDatePicker
+          showTimeSelect
+          showTimeSelectOnly
+          selected={moment().hours(value).minutes(0)}
+          onChange={date => {
+            setFieldValue('_ui.daily', date.hours());
+          }}
+          dateFormat="hh:mm A"
+          timeIntervals={60}
+          {...rest}
+        />
+      </EuiFormRow>
+    )}
+  />
 );
 
 export default Daily;

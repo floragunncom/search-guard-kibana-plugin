@@ -7,16 +7,6 @@
   padding: 1.563em 1.563em;
 }
 
-#searchguard-signals-app .sg-flex-group,
-#searchguard-signals-app .sg-group {
-  max-width: 75em;
-  margin-top: 0;
-}
-
-#searchguard-signals-app .sg-flex-item {
-  max-width: 25em;
-}
-
 /*
 Prevent scrolling up when clicking at Ace editor input the first time
 https://github.com/ajaxorg/ace/issues/2963#issuecomment-297122112

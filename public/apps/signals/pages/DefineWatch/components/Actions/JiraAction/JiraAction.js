@@ -120,14 +120,15 @@ const JiraAction = ({ isResolveActions, index, accounts, formik: { values } }) =
         accountType={ACCOUNT_TYPE.JIRA}
       />
       {renderTextField(projectPath, projectText, validateEmptyField)}
+
       <EuiSpacer />
       <SubHeader title={<h4>{issueText}</h4>} />
+      <EuiSpacer size="s" />
       {renderTextField(issueTypePath, typeText, validateEmptyField)}
       {renderTextField(issueSummaryPath, summaryText, validateEmptyField)}
       {renderTextField(issueParentPath, parentText)}
       {renderTextField(issueLabelPath, labelText)}
       {renderTextField(issuePriorityPath, priorityText)}
-      <EuiSpacer />
       <FormikCodeEditor
         name={issueDescriptionPath}
         formRow
@@ -160,6 +161,8 @@ const JiraAction = ({ isResolveActions, index, accounts, formik: { values } }) =
         }}
       />
       <ActionBodyPreview index={index} template={descrPreviewTemplate} />
+
+      <EuiSpacer />
       {!isGraphWatch && <ActionChecks actionIndex={index} />}
     </>
   );
