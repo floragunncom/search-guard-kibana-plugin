@@ -11,6 +11,7 @@ import {
 } from '../../../../../components';
 import ActionChecks from '../ActionChecks';
 import { validateEmptyField, isInvalid, hasError } from '../../../../../utils/validate';
+import ActionBodyHelpText from '../ActionBodyHelpText';
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import ActionAccount from '../ActionAccount';
@@ -56,7 +57,7 @@ const renderTextField = (path, label, validate) => {
   );
 };
 
-const renderCodeEditor = (path, label, editorTheme, editorOptions, validate) => {
+const renderCodeEditor = (path, label, editorTheme, editorOptions, checksResult, validate) => {
   const formikProps = {};
 
   if (typeof validate === 'function') {
@@ -72,6 +73,7 @@ const renderCodeEditor = (path, label, editorTheme, editorOptions, validate) => 
         fullWidth: true,
         isInvalid,
         error: hasError,
+        helpText: (<ActionBodyHelpText watchResultData={checksResult} />)
       }}
       elementProps={{
         isInvalid,
@@ -107,6 +109,7 @@ const PagerdutyAction = ({ isResolveActions, index, accounts, formik: { values }
   const watchType = get(values, '_ui.watchType');
   const isGraphWatch = watchType === WATCH_TYPES.GRAPH;
   const isSeverity = get(values, '_ui.isSeverity', false);
+  const checksResult = get(values, '_ui.checksResult', null);
 
   const severityLabel = isResolveActions ? resolvesSeverityText : severityText;
   const severityPath = isResolveActions
@@ -159,14 +162,16 @@ const PagerdutyAction = ({ isResolveActions, index, accounts, formik: { values }
         eventPayloadCustomDetailsPath,
         customDetailsText,
         editorTheme,
-        editorOptions
+        editorOptions,
+        checksResult
       )}
       {renderCodeEditor(
         eventPayloadSummaryPath,
         summaryText,
         editorTheme,
         editorOptions,
-        validateEmptyField
+        checksResult,
+        validateEmptyField,
       )}
       <ActionBodyPreview index={index} template={descrPreviewTemplate} />
       {!isGraphWatch && <ActionChecks actionIndex={index} />}
