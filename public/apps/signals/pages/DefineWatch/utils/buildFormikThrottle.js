@@ -9,7 +9,7 @@ export const buildFormikThrottle = (watch = {}) => {
     };
   }
 
-  const [ advInterval ] = matchExponentialThrottleInterval(watch.throttle_period) || [];
+  const [advInterval] = matchExponentialThrottleInterval(watch.throttle_period) || [];
 
   if (advInterval) {
     return {
