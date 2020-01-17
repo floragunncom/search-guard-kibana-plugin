@@ -1,9 +1,10 @@
 import React, { Fragment, useContext } from 'react';
 import { Context } from '../../../../../Context';
-import { EuiCodeEditor, EuiLink } from '@elastic/eui';
+import {EuiCodeEditor, EuiFormRow, EuiLink} from '@elastic/eui';
 import { FLYOUTS } from '../../../../../utils/constants';
 import { stringifyPretty } from '../../../../../../utils/helpers';
 import {
+  responseText,
   watchResultsFlyoutTitle,
   actionBodyHelpLabelWithResults,
   actionBodyHelpLabelWithoutResults,
@@ -11,8 +12,10 @@ import {
   watchResultsLinkLabel
 } from '../../../../../utils/i18n/watch';
 
+
 export default ({ watchResultData }) => {
   const {
+    editorTheme,
     triggerFlyout
   } = useContext(Context);
 
@@ -33,12 +36,21 @@ export default ({ watchResultData }) => {
             type: FLYOUTS.CUSTOM,
             payload: {
               title: watchResultsFlyoutTitle,
-              body: (<EuiCodeEditor
-                mode="json"
-                width="100%"
-                value={stringifyPretty({ data: watchResultData })}
-                readOnly
-              />),
+              body: (
+                <EuiFormRow
+                  fullWidth
+                  label={responseText}
+                >
+                  <EuiCodeEditor
+                    theme={editorTheme}
+                    mode="json"
+                    width="100%"
+                    height="500px"
+                    value={stringifyPretty(watchResultData)}
+                    readOnly
+                  />
+                </EuiFormRow>
+              ),
             }
           });
         }}
