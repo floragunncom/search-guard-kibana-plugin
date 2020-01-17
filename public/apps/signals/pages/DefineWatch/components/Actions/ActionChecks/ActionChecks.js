@@ -89,17 +89,14 @@ const ActionChecks = ({
   ];
 
   return (
-    <>
-      <EuiSpacer />
-      <ControlledContent title={checksText} titleProps={{ size: 'xs' }} actions={actions}>
-        <JsonWatch
-          checksPath={checksPath}
-          isResultVisible={isResultVisible}
-          editorResult={editorResult}
-          onCloseResult={closeResult}
-        />
-      </ControlledContent>
-    </>
+    <ControlledContent title={checksText} titleProps={{ size: 'xs' }} actions={actions}>
+      <JsonWatch
+        checksPath={checksPath}
+        isResultVisible={isResultVisible}
+        editorResult={editorResult}
+        onCloseResult={closeResult}
+      />
+    </ControlledContent>
   );
 };
 

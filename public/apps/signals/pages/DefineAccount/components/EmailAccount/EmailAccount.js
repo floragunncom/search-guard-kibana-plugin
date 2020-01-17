@@ -53,7 +53,7 @@ const Debug = () => (
     <SubHeader
       title={<h4>{debugText}</h4>}
     />
-    <EuiFlexGroup className="sg-flex-group">
+    <EuiFlexGroup>
       <EuiFlexItem grow={false}>
         <FormikSwitch
           name="debug"
@@ -98,7 +98,7 @@ const Security = ({
       title={<h4>{securityText}</h4>}
     />
     <EuiSpacer size="s" />
-    <EuiFlexGroup className="sg-flex-group">
+    <EuiFlexGroup>
       <EuiFlexItem>
         <FormikFieldText
           name="user"
@@ -325,84 +325,86 @@ const EmailAccount = ({
       title={(<p>{accountText} {values.type}</p>)}
       titleSize="s"
     >
-      <div className="sg-group">
-        <FormikFieldText
-          name="_id"
-          formRow
-          rowProps={{
-            label: nameText,
-            isInvalid,
-            error: hasError,
-          }}
-          elementProps={{
-            isInvalid,
-          }}
-          formikFieldProps={{
-            validate: validateName(
-              new AccountsService(httpClient, ACCOUNT_TYPE.EMAIL),
-              isUpdatingName
-            )
-          }}
-        />
-        <FormikFieldText
-          name="host"
-          formRow
-          rowProps={{
-            label: hostText,
-            isInvalid,
-            error: hasError,
-          }}
-          elementProps={{
-            isInvalid,
-          }}
-          formikFieldProps={{
-            validate: validateEmptyField
-          }}
-        />
-        <FormikFieldNumber
-          name="port"
-          formRow
-          rowProps={{
-            label: portText,
-            isInvalid,
-            error: hasError,
-          }}
-          elementProps={{
-            isInvalid,
-          }}
-          formikFieldProps={{
-            validate: validateEmptyField
-          }}
-        />
-        <FormikFieldText
-          name="mime_layout"
-          formRow
-          rowProps={{
-            label: mimeLayoutText,
-          }}
-        />
-        <FormikFieldNumber
-          name="session_timeout"
-          formRow
-          rowProps={{
-            label: sessionTimeoutText,
-          }}
-        />
-      </div>
+      <FormikFieldText
+        name="_id"
+        formRow
+        rowProps={{
+          label: nameText,
+          isInvalid,
+          error: hasError,
+        }}
+        elementProps={{
+          isInvalid,
+        }}
+        formikFieldProps={{
+          validate: validateName(
+            new AccountsService(httpClient, ACCOUNT_TYPE.EMAIL),
+            isUpdatingName
+          )
+        }}
+      />
+      <FormikFieldText
+        name="host"
+        formRow
+        rowProps={{
+          label: hostText,
+          isInvalid,
+          error: hasError,
+        }}
+        elementProps={{
+          isInvalid,
+        }}
+        formikFieldProps={{
+          validate: validateEmptyField
+        }}
+      />
+      <FormikFieldNumber
+        name="port"
+        formRow
+        rowProps={{
+          label: portText,
+          isInvalid,
+          error: hasError,
+        }}
+        elementProps={{
+          isInvalid,
+        }}
+        formikFieldProps={{
+          validate: validateEmptyField
+        }}
+      />
+      <FormikFieldText
+        name="mime_layout"
+        formRow
+        rowProps={{
+          label: mimeLayoutText,
+        }}
+      />
+      <FormikFieldNumber
+        name="session_timeout"
+        formRow
+        rowProps={{
+          label: sessionTimeoutText,
+        }}
+      />
+
       <EuiSpacer />
       <Security
         onComboBoxOnBlur={onComboBoxOnBlur}
         onComboBoxChange={onComboBoxChange}
         onComboBoxCreateOption={onComboBoxCreateOption}
       />
+
       <EuiSpacer />
       <Proxy />
+
       <EuiSpacer />
       <Defaults
         onComboBoxOnBlur={onComboBoxOnBlur}
         onComboBoxChange={onComboBoxChange}
         onComboBoxCreateOption={onComboBoxCreateOption}
       />
+
       <EuiSpacer />
       <Debug />
     </ContentPanel>

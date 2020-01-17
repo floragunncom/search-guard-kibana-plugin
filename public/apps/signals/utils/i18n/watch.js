@@ -137,3 +137,6 @@ export const eventText = <EuiI18n token="sg.watch.event.text" default="Event" />
 export const customDetailsText = (
   <EuiI18n token="sg.watch.customDetails.text" default="Custom Details" />
 );
+export const matchConditionText = (
+  <EuiI18n token="sg.watch.matchCondition.text" default="Match condition" />
+);
