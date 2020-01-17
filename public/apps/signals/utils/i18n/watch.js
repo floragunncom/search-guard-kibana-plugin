@@ -60,6 +60,36 @@ export const executeWatchToSeeResultText = (
 export const selectConditionToRenderGraphToSeeResultsText = (
   <EuiI18n token="sg.watch.selectConditionToRenderGraphToSeeResultsText.text" default="Select condition to render graph to see results" />
 );
+export const mustacheLinkLabel = (
+  <EuiI18n token="sg.watch.mustacheLinkLabel.text" default="Mustache"/>
+);
+export const watchResultsLinkLabel = (
+  <EuiI18n token="sg.watch.watchResultsLinkLabel.text" default="watch results"/>
+);
+
+export const watchResultsFlyoutTitle = (
+  <EuiI18n token="sg.watch.watchResultsFlyoutTitle.text" default="Properties available to the template"/>
+);
+export const actionBodyHelpLabelWithoutResults = (mustacheLink) => {
+  return (
+    <EuiI18n
+      token="sg.watch.actionBodyHelpTextWithoutResults.text"
+      default="You can create a template using {mustacheLink}"
+      values={{ mustacheLink }}
+    />
+  );
+}
+
+export const actionBodyHelpLabelWithResults = (watchResultsLink, mustacheLink) => {
+  return (
+    <EuiI18n
+      token="sg.watch.actionBodyHelpText.text"
+      default="You can create a template using the {watchResultsLink} and {mustacheLink}"
+      values={{ watchResultsLink, mustacheLink }}
+    />
+  );
+}
+
 export const watchExamplesText = (<EuiI18n token="sg.watch.watchExamples.text" default="Watch Examples" />);
 export const fromText = (<EuiI18n token="sg.watch.from.text" default="From" />);
 export const toText = (<EuiI18n token="sg.watch.to.text" default="To" />);
