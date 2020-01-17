@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
 import {
   EuiSpacer,
@@ -124,7 +125,8 @@ const CriticalThreshold = () => (
   />
 );
 
-const SeverityForm = ({ isCompressed, isTitle, fields }) => {
+const SeverityForm = ({ isCompressed, isTitle, fields, formik: { values } }) => {
+  console.debug('SeverityForm -- values', values);
   const fieldFlexItemProps = !isCompressed ? {} : {
     style: {
       maxWidth: '21.688em'
@@ -186,4 +188,4 @@ SeverityForm.propTypes = {
   isTitle: PropTypes.bool,
 };
 
-export default SeverityForm;
+export default connectFormik(SeverityForm);

@@ -32,11 +32,7 @@ import React, { Fragment } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types'; 
 import { get } from 'lodash';
-import {
-  EuiFlexItem,
-  EuiFlexGroup,
-  EuiSpacer,
-} from '@elastic/eui';
+import { EuiFlexItem, EuiFlexGroup, EuiSpacer } from '@elastic/eui';
 import {
   FormikFieldNumber,
   FormikSelect,
@@ -49,10 +45,7 @@ import {
   validateInterval,
   validateAdvancedInterval,
 } from '../../../../utils/validate';
-import {
-  TIME_INTERVAL_OPTIONS,
-  ADVANCED_TIME_PERIOD_UNIT,
-} from '../../../../utils/constants';
+import { TIME_INTERVAL_OPTIONS, ADVANCED_TIME_PERIOD_UNIT } from '../../../../utils/constants';
 import { DOC_LINKS } from '../../../../../../utils/constants';
 import { everyText } from '../../../../../../utils/i18n/watch';
 
@@ -62,34 +55,24 @@ const Interval = ({ propsInterval, propsAdvInterval, propsUnit, formik: { values
 
   return (
     <Fragment>
-      <EuiSpacer size="xs" />
-      <EuiFlexGroup
-        alignItems="flexStart"
-        gutterSize="none"
-        className="sg-flex-group"
-      >
-        <EuiFlexItem style={{ margin: '0 1em 0 0' }}>
-          {!isAdvanced
-            ? (
-              <FormikFieldNumber
-                formRow
-                elementProps={{ icon: 'clock' }}
-                {...propsInterval}
-              />
-            )
-            : (
-              <FormikFieldText
-                formRow
-                formikFieldProps={{ validate: validateInterval }}
-                elementProps={{ icon: 'clock' }}
-                {...propsAdvInterval}
-              />
-            )
-          }
+      <EuiSpacer size="m" />
+      <EuiFlexGroup alignItems="flexStart" style={{ maxWidth: '425px' }}>
+        <EuiFlexItem>
+          {!isAdvanced ? (
+            <FormikFieldNumber formRow elementProps={{ icon: 'clock' }} {...propsInterval} />
+          ) : (
+            <FormikFieldText
+              formRow
+              formikFieldProps={{ validate: validateInterval }}
+              elementProps={{ icon: 'clock' }}
+              {...propsAdvInterval}
+            />
+          )}
         </EuiFlexItem>
-        <EuiFlexItem style={{ marginTop: '.1em' }}>
+        <EuiFlexItem style={{ marginTop: '8px' }}>
           <FormikSelect
             formRow
+            rowProps={{ hasEmptyLabelSpace: true }}
             elementProps={{ options: TIME_INTERVAL_OPTIONS }}
             {...propsUnit}
           />
@@ -103,10 +86,7 @@ Interval.propTypes = {
   propsInterval: PropTypes.shape({
     name: PropTypes.string.isRequired,
     rowProps: PropTypes.shape({
-      label: PropTypes.oneOfType([
-        PropTypes.node,
-        PropTypes.string,
-      ]).isRequired,
+      label: PropTypes.oneOfType([PropTypes.node, PropTypes.string]).isRequired,
       isInvalid: PropTypes.func.isRequired,
       error: PropTypes.func.isRequired,
     }).isRequired,
@@ -117,14 +97,8 @@ Interval.propTypes = {
   propsAdvInterval: PropTypes.shape({
     name: PropTypes.string.isRequired,
     rowProps: PropTypes.shape({
-      label: PropTypes.oneOfType([
-        PropTypes.node,
-        PropTypes.string,
-      ]).isRequired,
-      labelAppend: PropTypes.oneOfType([
-        PropTypes.node,
-        PropTypes.string,
-      ]),
+      label: PropTypes.oneOfType([PropTypes.node, PropTypes.string]).isRequired,
+      labelAppend: PropTypes.oneOfType([PropTypes.node, PropTypes.string]),
       isInvalid: PropTypes.func.isRequired,
       error: PropTypes.func.isRequired,
     }),
@@ -147,7 +121,7 @@ Interval.defaultProps = {
       label: everyText,
       isInvalid,
       error: hasError,
-    },   
+    },
     formikFieldProps: {
       validate: validateInterval,
     },
@@ -159,7 +133,7 @@ Interval.defaultProps = {
       labelAppend: <LabelAppendLink href={DOC_LINKS.TRIGGERS.SCHEDULE} name="ScheduleDoc" />,
       isInvalid,
       error: hasError,
-    },   
+    },
     formikFieldProps: {
       validate: validateAdvancedInterval,
     },

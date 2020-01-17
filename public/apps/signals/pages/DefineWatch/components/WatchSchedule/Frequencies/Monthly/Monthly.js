@@ -29,7 +29,7 @@
   */
 
 import React, { Fragment } from 'react';
-import { EuiFlexItem, EuiFlexGroup } from '@elastic/eui';
+import { EuiFlexItem, EuiFlexGroup, EuiSpacer } from '@elastic/eui';
 
 import Daily from '../Daily';
 import { FormikFieldNumber, FormikSelect } from '../../../../../../components';
@@ -39,8 +39,9 @@ import { MONTHLYTYPES } from './utils/constants';
 
 const Monthly = () => (
   <Fragment>
-    <EuiFlexGroup alignItems="flexEnd" className="sg-flex-group">
-      <EuiFlexItem className="sg-flex-item">
+    <EuiSpacer size="m" />
+    <EuiFlexGroup alignItems="flexEnd" style={{ maxWidth: '425px' }}>
+      <EuiFlexItem>
         <FormikSelect
           name="_ui.monthly.type"
           formRow
@@ -57,7 +58,7 @@ const Monthly = () => (
           }}
         />
       </EuiFlexItem>
-      <EuiFlexItem className="sg-flex-item">
+      <EuiFlexItem>
         <FormikFieldNumber
           name="_ui.monthly.day"
           formRow
@@ -70,6 +71,8 @@ const Monthly = () => (
         />
       </EuiFlexItem>
     </EuiFlexGroup>
+
+    <EuiSpacer size="m" />
     <Daily />
   </Fragment>
 );

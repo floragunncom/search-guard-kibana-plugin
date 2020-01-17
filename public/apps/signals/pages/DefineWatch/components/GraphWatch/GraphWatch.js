@@ -32,8 +32,9 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect as connectRedux } from 'react-redux';
 import { connect as connectFormik } from 'formik';
-import { EuiSpacer, EuiText, EuiLoadingChart } from '@elastic/eui';
-import { cloneDeep, get, pick, isEqual, omit } from 'lodash';
+import { EuiSpacer, EuiLoadingChart } from '@elastic/eui';
+import { cloneDeep, get, pick } from 'lodash';
+import { SubHeader } from '../../../../components';
 import WatchIndex from '../WatchIndex';
 import WatchTimeField from '../WatchTimeField';
 import VisualGraph from '../VisualGraph';
@@ -44,7 +45,8 @@ import { ElasticsearchService, WatchService } from '../../../../services';
 import { PAYLOAD_PATH, WATCH_TYPES, CHECK_MYSEARCH } from '../../utils/constants';
 import {
   youMustSpecifyIndexText,
-  youMustSpecifyATimeFieldText
+  youMustSpecifyATimeFieldText,
+  matchConditionText,
 } from '../../../../utils/i18n/watch';
 import { comboBoxOptionsToArray, arrayToComboBoxOptions } from '../../../../utils/helpers';
 import { getFieldsFromPayload, getFieldsForType } from '../../utils/helpers';
@@ -223,10 +225,8 @@ class GraphWatch extends Component {
 
     return (
       <>
-        <EuiText size="xs">
-          <strong>Match condition</strong>
-        </EuiText>
-        <EuiSpacer size="s" />
+        <SubHeader title={<h4>{matchConditionText}</h4>} />
+        <EuiSpacer size="m" />
         <WatchExpressions
           onRunQuery={this.onRunQuery}
           dataTypes={dataTypes}
@@ -280,6 +280,8 @@ class GraphWatch extends Component {
           onComboBoxCreateOption={onComboBoxCreateOption}
         />
         <WatchTimeField dataTypes={dataTypes} />
+
+        <EuiSpacer />
         <div style={{ paddingTop: '10px' }}>{content}</div>
       </Fragment>
     );
