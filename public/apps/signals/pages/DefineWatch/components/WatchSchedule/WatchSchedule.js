@@ -41,15 +41,9 @@ const WatchSchedule = ({ formik: { values } }) => {
     <Fragment>
       <SubHeader title={<h4>{scheduleText}</h4>} />
       <EuiSpacer size="s" />
-      <EuiFlexGroup className="sg-flex-group" justifyContent="spaceBetween">
-        <EuiFlexItem className="sg-flex-item">
-          <Frequency />
-          <FrequencyPicker />
-        </EuiFlexItem>
-        <EuiFlexItem className="sg-flex-item">
-          {['interval', 'hourly'].indexOf(values._ui.frequency) === -1 && <Timezone />}
-        </EuiFlexItem>
-      </EuiFlexGroup>
+      <Frequency />
+      <FrequencyPicker />
+      {['interval', 'hourly'].indexOf(values._ui.frequency) === -1 && <Timezone />}
     </Fragment>
   );
 };

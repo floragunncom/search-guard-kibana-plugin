@@ -153,11 +153,12 @@ const PagerdutyAction = ({ isResolveActions, index, accounts, formik: { values }
         accounts={accounts}
         accountType={ACCOUNT_TYPE.PAGERDUTY}
       />
+
       <EuiSpacer />
       <SubHeader title={<h4>{eventText}</h4>} />
+      <EuiSpacer size="s" />
       {renderTextField(eventDedupKeyPath, dedupKeyText)}
       {renderTextField(eventPayloadSourcePath, sourceText, validateEmptyField)}
-      <EuiSpacer />
       {renderCodeEditor(
         eventPayloadCustomDetailsPath,
         customDetailsText,
@@ -174,6 +175,8 @@ const PagerdutyAction = ({ isResolveActions, index, accounts, formik: { values }
         validateEmptyField,
       )}
       <ActionBodyPreview index={index} template={descrPreviewTemplate} />
+
+      <EuiSpacer />
       {!isGraphWatch && <ActionChecks actionIndex={index} />}
     </>
   );

@@ -61,8 +61,8 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
 
   return (
     <Fragment>
-      <EuiFlexGroup className="sg-group" justifyContent="spaceBetween">
-        <EuiFlexItem className="sg-item">
+      <EuiFlexGroup justifyContent="spaceBetween">
+        <EuiFlexItem>
           <FormikFieldText
             name={namePath}
             formRow
@@ -130,7 +130,7 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
             }}
           />
         </EuiFlexItem>
-        <EuiFlexItem className="sg-item">
+        <EuiFlexItem>
           <FormikCodeEditor
             name={requestHeadersPath}
             formRow
@@ -161,7 +161,7 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
           />
         </EuiFlexItem>
       </EuiFlexGroup>
-      <EuiSpacer />
+      <EuiSpacer size="m" />
       <FormikCodeEditor
         name={requestBodyPath}
         formRow
@@ -194,6 +194,8 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
         }}
       />
       <ActionBodyPreview index={index} template={requestBodyPreviewTemplate} />
+
+      <EuiSpacer />
       {!isGraphWatch && <ActionChecks actionIndex={index} />}
     </Fragment>
   );

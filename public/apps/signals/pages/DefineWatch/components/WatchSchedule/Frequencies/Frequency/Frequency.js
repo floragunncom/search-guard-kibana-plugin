@@ -29,6 +29,7 @@
   */
 
 import React from 'react';
+import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 import { FormikSelect } from '../../../../../../components';
 import { isInvalid, hasError } from '../../../../../../utils/validate';
 import { modeText } from '../../../../../../utils/i18n/watch';

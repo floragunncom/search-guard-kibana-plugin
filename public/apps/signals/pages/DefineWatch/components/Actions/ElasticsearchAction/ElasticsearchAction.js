@@ -2,6 +2,7 @@ import React, { Fragment, useContext } from 'react';
 import { connect as connectFormik } from 'formik';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
+import { EuiSpacer } from '@elastic/eui';
 import { FormikFieldText, FormikComboBox } from '../../../../../components';
 import ActionChecks from '../ActionChecks';
 import { nameText } from '../../../../../utils/i18n/common';
@@ -78,6 +79,8 @@ const ElasticsearchAction = ({ isResolveActions, formik: { values }, index }) =>
         onComboBoxOnBlur={onComboBoxOnBlur}
         onComboBoxCreateOption={onComboBoxCreateOption}
       />
+
+      <EuiSpacer />
       <ActionChecks actionIndex={index} />
     </Fragment>
   );

@@ -14,10 +14,13 @@
  limitations under the License.
  */
 
-import React, { Fragment } from 'react';
-import { EuiFlexItem, EuiFlexGroup } from '@elastic/eui';
+import React from 'react';
 import { FormikComboBox } from '../../../../../../components';
-import { minutesText, mustSelectAMinuteText, invalidMinuteValuesText } from '../../../../../../utils/i18n/watch';
+import {
+  minutesText,
+  mustSelectAMinuteText,
+  invalidMinuteValuesText,
+} from '../../../../../../utils/i18n/watch';
 import { isInvalid, hasError } from '../../../../utils/validate';
 
 const validateMinutes = values => {
@@ -27,10 +30,10 @@ const validateMinutes = values => {
 
   const invalidValues = values
     .map(value => value.label)
-    .filter((value) => {
+    .filter(value => {
       try {
         value = parseInt(value, 10);
-      } catch(error) {
+      } catch (error) {
         // Ignore
       }
 
@@ -47,42 +50,35 @@ const validateMinutes = values => {
   return null;
 };
 
-
 const Hourly = () => {
   // arrayToComboBox sorts the integer values wrong, hence the "duplication" here
-  const options = [...Array(60).keys()]
-    .map(key => ({ label: key.toString() }));
+  const options = [...Array(60).keys()].map(key => ({ label: key.toString() }));
 
   return (
-    <Fragment>
-      <EuiFlexGroup alignItems="flexEnd" className="sg-flex-group">
-        <EuiFlexItem className="sg-flex-item">
-          <FormikComboBox
-            name="_ui.hourly"
-            formRow
-            rowProps={{
-              label: minutesText,
-              isInvalid,
-              error: hasError,
-            }}
-            formikFieldProps={{
-              validate: validateMinutes
-            }}
-            elementProps={{
-              noSuggestions: false,
-              options: options,
-              isClearable: true,
-              onBlur: (e, field, form) => {
-                form.setFieldTouched(field.name, true);
-              },
-              onChange: (options, field, form) => {
-                form.setFieldValue(field.name, options);
-              },
-            }}
-          />
-        </EuiFlexItem>
-      </EuiFlexGroup>
-    </Fragment>
-  )};
+    <FormikComboBox
+      name="_ui.hourly"
+      formRow
+      rowProps={{
+        label: minutesText,
+        isInvalid,
+        error: hasError,
+      }}
+      formikFieldProps={{
+        validate: validateMinutes,
+      }}
+      elementProps={{
+        noSuggestions: false,
+        options: options,
+        isClearable: true,
+        onBlur: (e, field, form) => {
+          form.setFieldTouched(field.name, true);
+        },
+        onChange: (options, field, form) => {
+          form.setFieldValue(field.name, options);
+        },
+      }}
+    />
+  );
+};
 
 export default Hourly;

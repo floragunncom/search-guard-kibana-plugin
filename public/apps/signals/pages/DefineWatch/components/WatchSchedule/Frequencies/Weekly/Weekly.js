@@ -60,10 +60,7 @@ const Weekly = () => (
     <Field
       name="_ui.weekly"
       validate={validate}
-      render={({
-        field: { value },
-        form: { touched, errors, setFieldValue, setFieldTouched }
-      }) => {
+      render={({ field: { value }, form: { touched, errors, setFieldValue, setFieldTouched } }) => {
         return (
           <EuiFormRow
             label={everyText}

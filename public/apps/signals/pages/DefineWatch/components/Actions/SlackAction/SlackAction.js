@@ -127,7 +127,7 @@ const SlackAction = ({ isResolveActions, index, accounts, formik: { values } }) 
           },
         }}
       />
-      <EuiSpacer />
+      <EuiSpacer size="m" />
       <FormikCodeEditor
         name={textPath}
         formRow
@@ -160,6 +160,8 @@ const SlackAction = ({ isResolveActions, index, accounts, formik: { values } }) 
         }}
       />
       <ActionBodyPreview index={index} template={bodyPreviewTemplate} />
+
+      <EuiSpacer />
       {!isGraphWatch && <ActionChecks actionIndex={index} />}
     </Fragment>
   );

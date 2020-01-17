@@ -205,7 +205,6 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
           validate: validateEmptyField,
         }}
       />
-      <EuiSpacer />
       <FormikCodeEditor
         name={textBodyPath}
         formRow
@@ -238,6 +237,8 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
         }}
       />
       <ActionBodyPreview index={index} template={bodyPreviewTemplate} />
+
+      <EuiSpacer />
       {!isGraphWatch && <ActionChecks actionIndex={index} />}
     </Fragment>
   );

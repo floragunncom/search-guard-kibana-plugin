@@ -54,6 +54,8 @@ export const TabContent = ({ watchName, onPutWatch, isLoading }) => {
           id={`watch-example-${watchName}`}
         />
       </EuiFormRow>
+
+      <EuiSpacer size="m" />
       <EuiFlexGroup>
         <EuiFlexItem grow={false}>
           <AddButton
