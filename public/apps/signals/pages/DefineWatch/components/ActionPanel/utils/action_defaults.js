@@ -60,6 +60,7 @@ export const jira = {
   type: ACTION_TYPE.JIRA,
   name: 'myjira',
   project: 'SD',
+  account: [],
   issue: {
     type: 'Bug',
     summary: 'Test',
@@ -75,6 +76,7 @@ export const jira = {
 export const pagerduty = {
   type: ACTION_TYPE.PAGERDUTY,
   name: 'mypagerduty',
+  account: [],
   event: {
     dedup_key: 'x',
     payload: {
