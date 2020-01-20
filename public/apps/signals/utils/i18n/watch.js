@@ -8,6 +8,8 @@ export const resolvedText = (<EuiI18n token="sg.watch.resolved.text" default="Re
 export const resolveText = (<EuiI18n token="sg.watch.resolve.text" default="Resolve" />);
 export const resolveActionText = (<EuiI18n token="sg.watch.resolveAction.text" default="Resolve Action" />);
 export const severityText = (<EuiI18n token="sg.watch.severity.text" default="Severity" />);
+export const severityThresholdsInvalidAscending = (<EuiI18n token="sg.watch.severityThresholdsInvalidAscending.text" default="Thresholds must be in ascending order and may not contain any duplicate values" />);
+export const severityThresholdsInvalidDescending = (<EuiI18n token="sg.watch.severityThresholdsInvalidDescending.text" default="Thresholds must be in descending order and may not contain any duplicate values" />);
 export const lastStatusText = (<EuiI18n token="sg.watch.lastStatus.text" default="Last Status" />);
 export const failedText = (<EuiI18n token="sg.watch.failed.text" default="Failed" />);
 export const triggeredText = (<EuiI18n token="sg.watch.triggered.text" default="Triggered" />);
@@ -139,4 +141,10 @@ export const customDetailsText = (
 );
 export const matchConditionText = (
   <EuiI18n token="sg.watch.matchCondition.text" default="Match condition" />
+);
+export const leaveInputEmptyToOmitThresholdLevelText = (
+  <EuiI18n
+    token="sg.watch.leaveInputEmptyToOmitThresholdLevel.text"
+    default="Leave input empty to omit threshold level"
+  />
 );
