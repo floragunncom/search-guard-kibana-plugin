@@ -60,3 +60,7 @@ export const WATCH_ACTION_STATUS = {
   ACTION_EXECUTED: 'ACTION_EXECUTED',
   ACKED: 'ACKED',
 };
+
+export const PERMISSIONS_FOR_ACCESS = [
+  'cluster:admin:searchguard:tenant:signals:watch/get'
+];
