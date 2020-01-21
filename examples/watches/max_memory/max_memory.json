@@ -1,0 +1,75 @@
+{
+  "trigger": {
+    "schedule": {
+      "monthly": [
+        { "on": 23, "at": "12:00" }
+      ]
+    }
+  },
+  "checks": [
+    {
+      "type": "static",
+      "name": "constants",
+      "target": "constants",
+      "value": {
+        "threshold": 10000,
+        "window": "12h"
+      }
+    },
+    {
+      "type": "search",
+      "name": "max_memory",
+      "target": "max_memory",
+      "request": {
+        "indices": [
+          "kibana_sample_data_logs"
+        ],
+        "body": {
+          "size": 0,
+          "aggregations": {
+            "metricAgg": {
+              "max": {
+                "field": "memory"
+              }
+            }
+          },
+          "query": {
+            "bool": {
+              "filter": {
+                "range": {
+                  "timestamp": {
+                    "gte": "now-{{data.constants.window}}",
+                    "lte": "now"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "condition",
+      "name": "mycondition",
+      "source": "data.max_memory.aggregations.metricAgg.value > data.constants.threshold"
+    }
+  ],
+  "actions": [
+    {
+      "type": "webhook",
+      "name": "myslack",
+      "throttle_period": "1s",
+      "request": {
+        "method": "POST",
+        "url": "https://hooks.slack.com/services/token",
+        "body": "{\"text\": \"Memory usage encreased to {{data.max_memory.aggregations.metricAgg.value}} MB over the last {{data.constants.window}}\"}\n",
+        "headers": {
+          "Content-type": "application/json"
+        }
+      }
+    }
+  ],
+  "active": true,
+  "log_runtime_data": false,
+  "_id": "max_memory"
+}

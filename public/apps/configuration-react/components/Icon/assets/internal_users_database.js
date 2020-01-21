@@ -5,7 +5,7 @@ const SvgInternalUsersDatabase = props => (
     <defs>
       <style>
         {
-          ".internal_users_database_svg__cls-1{fill:#047268}.internal_users_database_svg__cls-2{fill:#353740}"
+          '.internal_users_database_svg__cls-1{fill:#047268}.internal_users_database_svg__cls-2{fill:#353740}'
         }
       </style>
     </defs>

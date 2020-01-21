@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
-import { EuiHorizontalRule } from '@elastic/eui';
 import PropTypes from 'prop-types';
+import { EuiSpacer } from '@elastic/eui';
 import { FieldArray } from 'formik';
-import { FormikFieldText, DynamicValuesForm, TitleSecondary } from '../../../../components';
+import { FormikFieldText, DynamicValuesForm, SubHeader } from '../../../../components';
 import { hasError, isInvalid, validateTextField } from '../../../../utils/validation';
 import { userAttributesText } from '../../../../utils/i18n/internal_users';
 
@@ -42,8 +42,8 @@ const renderKeyField = fieldName => (
 
 const UserAttributes = ({ attributes, onTriggerConfirmDeletionModal }) => (
   <Fragment>
-    <TitleSecondary text={userAttributesText} />
-    <EuiHorizontalRule />
+    <SubHeader title={<h4>{userAttributesText}</h4>} />
+    <EuiSpacer size="s" />
     <FieldArray
       name="_attributes"
       validateOnChange={false}
