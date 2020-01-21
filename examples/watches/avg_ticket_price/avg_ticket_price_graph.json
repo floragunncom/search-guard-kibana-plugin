@@ -1,0 +1,93 @@
+{
+  "_ui": {
+    "fieldName": [
+      {
+        "label": "AvgTicketPrice"
+      }
+    ],
+    "aggregationType": "avg",
+    "index": [
+      {
+        "health": "green",
+        "label": "kibana_sample_data_flights",
+        "status": "open"
+      }
+    ],
+    "timeField": "timestamp",
+    "bucketUnitOfTime": "h",
+    "bucketValue": 1,
+    "watchType": "graph",
+    "thresholdEnum": "BELOW",
+    "groupedOverFieldName": "bytes",
+    "groupedOverTop": 5,
+    "overDocuments": "all documents",
+    "topHitsAgg": {
+      "field": [],
+      "size": 5,
+      "order": "asc"
+    },
+    "thresholdValue": 800
+  },
+  "trigger": {
+    "schedule": {
+      "interval": ["1m"]
+    }
+  },
+  "checks": [
+    {
+      "type": "search",
+      "name": "mysearch",
+      "target": "mysearch",
+      "request": {
+        "indices": [
+          "kibana_sample_data_flights"
+        ],
+        "body": {
+          "size": 0,
+          "aggregations": {
+            "metricAgg": {
+              "avg": {
+                "field": "AvgTicketPrice"
+              }
+            }
+          },
+          "query": {
+            "bool": {
+              "filter": {
+                "range": {
+                  "timestamp": {
+                    "gte": "now-1h",
+                    "lte": "now"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "condition",
+      "name": "mycondition",
+      "source": "data.mysearch.aggregations.metricAgg.value < 800"
+    }
+  ],
+  "actions": [
+    {
+      "type": "webhook",
+      "name": "myslack",
+      "throttle_period": "1s",
+      "request": {
+        "method": "POST",
+        "url": "https://hooks.slack.com/services/token",
+        "body": "{\"text\": \"Average flight ticket price decreased to {{data.mysearch.aggregations.metricAgg.value}} over the last 1 hour\"}",
+        "headers": {
+          "Content-type": "application/json"
+        }
+      }
+    }
+  ],
+  "active": true,
+  "log_runtime_data": false,
+  "_id": "avg_ticket_price_graph"
+}

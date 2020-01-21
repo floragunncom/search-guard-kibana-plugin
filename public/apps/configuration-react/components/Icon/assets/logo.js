@@ -3,7 +3,7 @@ import React from 'react';
 const SvgLogo = props => (
   <svg id="logo_svg__ART" viewBox="0 0 48 48" {...props}>
     <defs>
-      <style>{".logo_svg__cls-1{fill:#353740}"}</style>
+      <style>{'.logo_svg__cls-1{fill:#353740}'}</style>
     </defs>
     <path
       className="logo_svg__cls-1"

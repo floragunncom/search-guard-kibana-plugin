@@ -9,7 +9,7 @@ const SvgInternalUsersDatabaseDark = props => (
     <defs>
       <style>
         {
-          ".internal_users_database_dark_svg__cls-1{fill:#047268}.internal_users_database_dark_svg__cls-2{fill:#fff}"
+          '.internal_users_database_dark_svg__cls-1{fill:#047268}.internal_users_database_dark_svg__cls-2{fill:#fff}'
         }
       </style>
     </defs>

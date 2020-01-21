@@ -36,8 +36,8 @@ import {
   sgLicenseNotValidText
 } from '../../utils/i18n/main';
 import { API_ACCESS_STATE } from './utils/constants';
-import '../../less/main.less';
 import { LocalStorageService } from '../../services';
+import getBreadcrumb from './utils/getBreadcrumb';
 
 class Main extends Component {
   constructor(props) {
@@ -244,11 +244,11 @@ class Main extends Component {
 
     return (
       <EuiPage id="searchGuardKibanaPlugin">
-        <EuiPageBody>
+        <EuiPageBody className="container">
           <Flyout flyout={flyout} onClose={() => this.handleTriggerFlyout(null)} />
 
           <EuiPageHeader>
-            <Breadcrumbs history={history} {...rest} />
+            <Breadcrumbs history={history} onGetBreadcrumb={getBreadcrumb} {...rest} />
           </EuiPageHeader>
 
           <EuiPageContent>

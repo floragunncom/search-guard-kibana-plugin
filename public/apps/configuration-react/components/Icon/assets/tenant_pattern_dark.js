@@ -5,7 +5,7 @@ const SvgTenantPatternDark = props => (
     <defs>
       <style>
         {
-          ".tenant_pattern_dark_svg__cls-1{fill:#047268}.tenant_pattern_dark_svg__cls-2{fill:#fff}"
+          '.tenant_pattern_dark_svg__cls-1{fill:#047268}.tenant_pattern_dark_svg__cls-2{fill:#fff}'
         }
       </style>
     </defs>
