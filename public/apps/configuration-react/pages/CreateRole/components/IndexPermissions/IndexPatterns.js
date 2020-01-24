@@ -147,7 +147,6 @@ const IndexPatterns = ({
                 onComboBoxCreateOption={onComboBoxCreateOption}
                 onTriggerErrorCallout={onTriggerErrorCallout}
               />
-              <EuiSpacer />
             </Fragment>
           )}
           {!isDlsEnabled

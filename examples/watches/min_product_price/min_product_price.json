@@ -1,0 +1,75 @@
+{
+  "trigger": {
+    "schedule": {
+      "cron": [
+        "0 */1 * * * ?"
+      ]
+    }
+  },
+  "checks": [
+    {
+      "type": "static",
+      "name": null,
+      "target": "constants",
+      "value": {
+        "threshold": 10,
+        "window": "1d"
+      }
+    },
+    {
+      "type": "search",
+      "name": "min_price",
+      "target": "min_price",
+      "request": {
+        "indices": [
+          "kibana_sample_data_ecommerce"
+        ],
+        "body": {
+          "size": 0,
+          "aggregations": {
+            "metricAgg": {
+              "min": {
+                "field": "products.price"
+              }
+            }
+          },
+          "query": {
+            "bool": {
+              "filter": {
+                "range": {
+                  "order_date": {
+                    "gte": "now-{{data.constants.window}}",
+                    "lte": "now"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "condition",
+      "name": "mycondition",
+      "source": "data.min_price.aggregations.metricAgg.value < data.constants.threshold"
+    }
+  ],
+  "actions": [
+    {
+      "type": "webhook",
+      "name": "myslack",
+      "throttle_period": "1s",
+      "request": {
+        "method": "POST",
+        "url": "https://hooks.slack.com/services/token",
+        "body": "{\"text\": \"Minimal price is {{data.min_price.aggregations.metricAgg.value}} for last {{data.constants.window}}. Total number of products {{data.min_price.hits.total.value}}\"}\n",
+        "headers": {
+          "Content-type": "application/json"
+        }
+      }
+    }
+  ],
+  "active": true,
+  "log_runtime_data": false,
+  "_id": "min_product_price"
+}

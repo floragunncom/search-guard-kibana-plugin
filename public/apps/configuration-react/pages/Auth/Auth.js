@@ -10,8 +10,7 @@ import {
   EuiCodeEditor,
   EuiText
 } from '@elastic/eui';
-import { ContentPanel } from '../../components';
-import { CancelButton } from '../../components/ContentPanel/components';
+import { ContentPanel, CancelButton } from '../../components';
 import { get, isEmpty, map, forEach, toString } from 'lodash';
 import { APP_PATH } from '../../utils/constants';
 import { stringifyPretty, sideNavItem } from '../../utils/helpers';
