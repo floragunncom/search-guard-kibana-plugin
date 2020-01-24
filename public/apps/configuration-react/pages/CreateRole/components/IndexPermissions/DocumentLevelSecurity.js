@@ -1,13 +1,13 @@
 import React, { Fragment } from 'react';
+import chrome from 'ui/chrome';
 import PropTypes from 'prop-types';
 import { connect } from 'formik';
 import { get } from 'lodash';
 import {
-  TitleSecondary,
+  SubHeader,
   FormikCodeEditor
 } from '../../../../components';
 import {
-  EuiHorizontalRule,
   EuiButton,
   EuiSpacer
 } from '@elastic/eui';
@@ -21,6 +21,11 @@ import {
   validateESDLSQuery
 } from '../../../../utils/validation';
 import { stringifyPretty } from '../../../../utils/helpers';
+import { CODE_EDITOR } from '../../../../../utils/constants';
+
+const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
+let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
+theme = !IS_DARK_THEME ? theme : darkTheme;
 
 const DocumentLevelSecurity = ({ index, httpClient, formik }) => {
   const { values, validateField, setFieldValue } = formik;
@@ -30,8 +35,8 @@ const DocumentLevelSecurity = ({ index, httpClient, formik }) => {
 
   return (
     <Fragment>
-      <TitleSecondary text={documentLevelSecurityText} />
-      <EuiHorizontalRule />
+      <SubHeader title={<h4>{documentLevelSecurityText}</h4>} />
+      <EuiSpacer />
       <EuiButton
         data-test-subj="sgDLSCheckButton"
         size="s"
@@ -65,8 +70,9 @@ const DocumentLevelSecurity = ({ index, httpClient, formik }) => {
           mode: 'text',
           width: '100%',
           height: '300px',
-          theme: 'github',
-          onChange: (dls, field, form) => {
+          setOptions,
+          theme,
+          onChange: (e, dls, field, form) => {
             form.setFieldValue(field.name, dls);
           },
           onBlur: (e, field, form) => {

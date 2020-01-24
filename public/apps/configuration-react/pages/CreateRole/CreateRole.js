@@ -7,8 +7,11 @@ import {
   EuiTab,
   EuiSpacer
 } from '@elastic/eui';
-import { ContentPanel } from '../../components';
-import { CancelButton, SaveButton } from '../../components/ContentPanel/components';
+import {
+  ContentPanel,
+  CancelButton,
+  SaveButton
+} from '../../components';
 import {
   createRoleText,
   clusterPermissionsText,
@@ -84,16 +87,6 @@ class CreateRole extends Component {
 
   componentDidMount() {
     this.fetchData();
-  }
-
-  componentWillReceiveProps({ location }) {
-    const { id } = queryString.parse(location.search);
-    const { id: currentId } = this.state;
-    if (id !== currentId) {
-      this.setState({ id }, () => {
-        this.fetchData();
-      });
-    }
   }
 
   componentWillUnmount = () => {

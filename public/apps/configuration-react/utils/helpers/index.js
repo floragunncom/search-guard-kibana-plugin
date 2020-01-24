@@ -22,7 +22,10 @@ export const readFileAsText = (file, FileReader = window.FileReader) => {
 };
 
 export const isSinglePermission = (permission = '') => {
-  return permission.startsWith('cluster:') || permission.startsWith('indices:') || permission.startsWith('kibana:');
+  return permission.startsWith('cluster:')
+    || permission.startsWith('indices:')
+    || permission.startsWith('kibana:')
+    || permission.startsWith('signals:');
 };
 
 export const isClusterActionGroup = (permission = '') => {
