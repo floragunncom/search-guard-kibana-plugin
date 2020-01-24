@@ -3,14 +3,23 @@ module.exports = {
   setupFiles: [
     '<rootDir>/tests/setup_tests.js',
   ],
-  testMatch: ['**/*.test.js'],
+  globals: {
+    'ts-jest': {
+      'tsConfig': 'tsconfig.json',
+      'diagnostics': true
+    }
+  },
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
+  testMatch: ['**/*.test.js', '**/*.test.ts'],
   modulePaths: ['node_modules', '../../node_modules'],
-  snapshotSerializers: ['../../node_modules/enzyme-to-json/serializer'],
+  snapshotSerializers: ['./node_modules/enzyme-to-json/serializer'],
   coverageDirectory: './coverage',
   coverageReporters: ['lcov', 'text', 'cobertura'],
   transform: {
     '^.+\\.jsx$': 'babel-jest',
-    '^.+\\.js$': 'babel-jest'
+    '^.+\\.js$': 'babel-jest',
+    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.ts?$': 'ts-jest'
   },
   collectCoverageFrom: [
     '**/*.{js}',
@@ -26,5 +35,9 @@ module.exports = {
     '!<rootDir>/gather-info.js',
     '!**/vendor/**'
   ],
-  modulePathIgnorePatterns: ['<rootDir>/build_stage/', '<rootDir>/node_modules/']
+  modulePathIgnorePatterns: [
+    '<rootDir>/build_stage/',
+    '<rootDir>/build/',
+    '<rootDir>/node_modules/'
+  ]
 };

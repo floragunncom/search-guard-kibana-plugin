@@ -1,9 +1,14 @@
 import React, { Component } from 'react';
+import chrome from 'ui/chrome';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import { EuiFilePicker, EuiFlexGroup, EuiFlexItem, EuiFormRow } from '@elastic/eui';
-import { ContentPanel, FormikCodeEditor } from '../../../../components';
-import { CancelButton, SaveButton } from '../../../../components/ContentPanel/components';
+import {
+  ContentPanel,
+  FormikCodeEditor,
+  CancelButton,
+  SaveButton
+} from '../../../../components';
 import { APP_PATH } from '../../../../utils/constants';
 import { SIDE_NAV } from '../../utils/constants';
 import {
@@ -18,6 +23,11 @@ import {
 import { validateTextField, isInvalid, hasError } from '../../../../utils/validation';
 import { SystemService } from '../../../../services';
 import { readFileAsText } from '../../../../utils/helpers';
+import { CODE_EDITOR } from '../../../../../utils/constants';
+
+const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
+let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
+theme = !IS_DARK_THEME ? theme : darkTheme;
 
 const LicenseEditor = () => (
   <FormikCodeEditor
@@ -34,8 +44,9 @@ const LicenseEditor = () => (
       mode: 'text',
       width: '100%',
       height: '300px',
-      theme: 'github',
-      onChange: (license, field, form) => {
+      theme,
+      setOptions,
+      onChange: (e, license, field, form) => {
         form.setFieldValue('license', license);
       },
       onBlur: (e, field, form) => {

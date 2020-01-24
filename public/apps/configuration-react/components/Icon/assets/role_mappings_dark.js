@@ -5,7 +5,7 @@ const SvgRoleMappingsDark = props => (
     <defs>
       <style>
         {
-          ".role_mappings_dark_svg__cls-1{fill:#047268}.role_mappings_dark_svg__cls-2{fill:#fff}"
+          '.role_mappings_dark_svg__cls-1{fill:#047268}.role_mappings_dark_svg__cls-2{fill:#fff}'
         }
       </style>
     </defs>
