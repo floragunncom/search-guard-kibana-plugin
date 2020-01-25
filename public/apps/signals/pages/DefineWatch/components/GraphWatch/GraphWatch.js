@@ -33,7 +33,7 @@ import PropTypes from 'prop-types';
 import { connect as connectRedux } from 'react-redux';
 import { connect as connectFormik } from 'formik';
 import { EuiSpacer, EuiLoadingChart } from '@elastic/eui';
-import { cloneDeep, get, pick } from 'lodash';
+import { cloneDeep, get, pick, isEqual } from 'lodash';
 import { SubHeader } from '../../../../components';
 import WatchIndex from '../WatchIndex';
 import WatchTimeField from '../WatchTimeField';
@@ -102,12 +102,24 @@ class GraphWatch extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    const {
+      formik: { setFieldValue },
+    } = this.props;
+
     const prevWatchType = get(prevProps, 'formik.values._ui.watchType');
     const timeField = get(this.props, 'formik.values._ui.timeField');
     const prevIndex = get(prevProps, 'formik.values._ui.index');
     const index = get(this.props, 'formik.values._ui.index');
     const prevIsSeverity = get(prevProps, 'formik.values._ui.isSeverity');
     const isSeverity = get(this.props, 'formik.values._ui.isSeverity');
+
+    // Having the old value in the fieldName prevents user seeing new field options
+    // for a newly selected indices if there is only one option available.
+    // Issue: https://floragunn.atlassian.net/browse/LRT-766
+    const wereAllIndicesRemoved = !isEqual(index, prevIndex) && !index.length;
+    if (wereAllIndicesRemoved) {
+      setFieldValue('_ui.fieldName', []);
+    }
 
     const queryOptions = [
       'overDocuments', 'timeField', 'aggregationType',
