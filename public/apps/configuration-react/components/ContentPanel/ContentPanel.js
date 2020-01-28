@@ -6,7 +6,7 @@ import {
   EuiHorizontalRule,
   EuiTitle
 } from '@elastic/eui';
-import LoadingPage from '../Page/LoadingPage';
+import { LoadingPage } from '../';
 
 const handleRenderActions = actions => (
   Array.isArray(actions) ? (

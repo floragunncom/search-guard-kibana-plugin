@@ -5,6 +5,12 @@ import indexTemplate from './lib/elasticsearch/setup_index_template';
 import { migrateTenants } from './lib/multitenancy/migrate_tenants';
 import { version as sgVersion } from './package.json';
 import { first } from 'rxjs/operators';
+import registerSignalsRoutes from './lib/signals/routes/register_routes';
+import {
+  APP_NAME as signalsName,
+  APP_DESCRIPTION as signalsDescription
+} from './utils/signals/constants';
+import { handleSignalsAppAccess } from './lib/signals/lib/access/handleSignalsAppAccess';
 
 export default function (kibana) {
 
@@ -263,9 +269,19 @@ export default function (kibana) {
                     main: 'plugins/searchguard/apps/configuration-react',
                     order: 9010,
                     auth: true,
-                    icon: 'plugins/searchguard/assets/logo_left_navbar.svg',
+                    icon: 'plugins/searchguard/assets/searchguard_logo_left_navbar.svg',
                     linkToLastSubUrl: false,
                     url: '/app/searchguard-configuration#/'
+                },
+                {
+                    id: signalsName,
+                    title: signalsDescription,
+                    main: 'plugins/searchguard/apps/signals',
+                    order: 9030,
+                    auth: true,
+                    icon: 'plugins/searchguard/apps/signals/assets/signals_logo_64.svg',
+                    linkToLastSubUrl: false,
+                    url: `/app/${signalsName}#/`
                 }
             ],
             chromeNavControls: [
@@ -517,6 +533,9 @@ export default function (kibana) {
                     this.status.red("'elasticsearch.ssl.alwaysPresentCertificate' may lead to requests being executed as the user attached to the certificate configured in 'elasticsearch.ssl.certificate'.");
                 }
             }
+
+          handleSignalsAppAccess(server, searchguardBackend);
+          registerSignalsRoutes(server);
         }
     });
 };

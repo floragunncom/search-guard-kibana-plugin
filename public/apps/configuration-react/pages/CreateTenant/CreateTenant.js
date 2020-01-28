@@ -8,8 +8,13 @@ import {
   descriptionText
 } from '../../utils/i18n/common';
 import { createTenantText, updateTenantText } from '../../utils/i18n/tenants';
-import { ContentPanel, FormikFieldText, InspectButton } from '../../components';
-import { CancelButton, SaveButton } from '../../components/ContentPanel/components';
+import {
+  ContentPanel,
+  FormikFieldText,
+  InspectButton,
+  CancelButton,
+  SaveButton
+} from '../../components';
 import { APP_PATH, TENANTS_ACTIONS } from '../../utils/constants';
 import { isInvalid, hasError, validateName } from '../../utils/validation';
 import { DEFAULT_TENANT } from './utils/constants';
@@ -33,16 +38,6 @@ class CreateTenant extends Component {
 
   componentDidMount() {
     this.fetchData();
-  }
-
-  componentWillReceiveProps({ location }) {
-    const { id } = queryString.parse(location.search);
-    const { id: currentId } = this.state;
-    if (id !== currentId) {
-      this.setState({ id }, () => {
-        this.fetchData();
-      });
-    }
   }
 
   componentWillUnmount = () => {

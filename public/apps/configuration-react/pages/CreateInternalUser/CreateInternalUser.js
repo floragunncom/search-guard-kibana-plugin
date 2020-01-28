@@ -4,8 +4,12 @@ import PropTypes from 'prop-types';
 import { EuiCallOut, EuiSpacer } from '@elastic/eui';
 import queryString from 'query-string';
 import { createInternalUserText, updateInternalUserText } from '../../utils/i18n/internal_users';
-import { ContentPanel, InspectButton } from '../../components';
-import { CancelButton, SaveButton } from '../../components/ContentPanel/components';
+import {
+  ContentPanel,
+  InspectButton,
+  CancelButton,
+  SaveButton
+} from '../../components';
 import { BackendRoles, UserAttributes, UserCredentials } from './components';
 import { APP_PATH, INTERNAL_USERS_ACTIONS } from '../../utils/constants';
 import { DEFAULT_USER } from './utils/constants';
@@ -31,16 +35,6 @@ class CreateInternalUser extends Component {
 
   componentDidMount() {
     this.fetchData();
-  }
-
-  componentWillReceiveProps({ location }) {
-    const { id } = queryString.parse(location.search);
-    const { id: currentId } = this.state;
-    if (id !== currentId) {
-      this.setState({ id }, () => {
-        this.fetchData();
-      });
-    }
   }
 
   componentWillUnmount = () => {
