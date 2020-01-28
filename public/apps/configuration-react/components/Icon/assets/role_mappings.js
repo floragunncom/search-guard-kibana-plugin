@@ -3,7 +3,7 @@ import React from 'react';
 const SvgRoleMappings = props => (
   <svg id="role_mappings_svg__ART" viewBox="0 0 48 48" {...props}>
     <defs>
-      <style>{".role_mappings_svg__cls-2{fill:#353740}"}</style>
+      <style>{'.role_mappings_svg__cls-2{fill:#353740}'}</style>
     </defs>
     <path
       d="M31.14 36.89h-4.76a1 1 0 0 1-.95-1V12.06a1 1 0 0 1 .95-1h4.76a1 1 0 0 0 1-1v-.84a1 1 0 0 0-1-1h-4.76a3.82 3.82 0 0 0-3.81 3.82v10a.51.51 0 0 1-.51.51h-5.2a1 1 0 0 0-1 1v.92a1 1 0 0 0 1 1h5.2a.51.51 0 0 1 .51.51v10a3.82 3.82 0 0 0 3.81 3.82h4.76a1 1 0 0 0 1-1v-.91a1 1 0 0 0-1-1z"

@@ -15,8 +15,13 @@ import {
   hostsText,
   createRoleText
 } from '../../utils/i18n/roles';
-import { ContentPanel, FormikComboBox, InspectButton } from '../../components';
-import { CancelButton, SaveButton } from '../../components/ContentPanel/components';
+import {
+  ContentPanel,
+  FormikComboBox,
+  InspectButton,
+  CancelButton,
+  SaveButton
+} from '../../components';
 import { APP_PATH, ROLE_MAPPINGS_ACTIONS } from '../../utils/constants';
 import { DEFAULT_ROLE_MAPPING } from './utils/constants';
 import {
@@ -47,16 +52,6 @@ class CreateRoleMapping extends Component {
 
   componentDidMount() {
     this.fetchData();
-  }
-
-  componentWillReceiveProps({ location }) {
-    const { id } = queryString.parse(location.search);
-    const { id: currentId } = this.state;
-    if (id !== currentId) {
-      this.setState({ id }, () => {
-        this.fetchData();
-      });
-    }
   }
 
   componentWillUnmount = () => {

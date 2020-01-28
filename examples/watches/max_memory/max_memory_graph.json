@@ -1,0 +1,95 @@
+{
+  "_ui": {
+    "fieldName": [
+      {
+        "label": "memory"
+      }
+    ],
+    "aggregationType": "max",
+    "index": [
+      {
+        "health": "green",
+        "label": "kibana_sample_data_logs",
+        "status": "open"
+      }
+    ],
+    "timeField": "timestamp",
+    "bucketUnitOfTime": "h",
+    "bucketValue": 12,
+    "watchType": "graph",
+    "thresholdEnum": "ABOVE",
+    "groupedOverFieldName": "bytes",
+    "groupedOverTop": 5,
+    "overDocuments": "all documents",
+    "topHitsAgg": {
+      "field": [],
+      "size": 5,
+      "order": "asc"
+    },
+    "thresholdValue": 10000
+  },
+  "trigger": {
+    "schedule": {
+      "monthly": [
+        { "on": 23, "at": "12:00" }
+      ]
+    }
+  },
+  "checks": [
+    {
+      "type": "search",
+      "name": "mysearch",
+      "target": "mysearch",
+      "request": {
+        "indices": [
+          "kibana_sample_data_logs"
+        ],
+        "body": {
+          "size": 0,
+          "aggregations": {
+            "metricAgg": {
+              "max": {
+                "field": "memory"
+              }
+            }
+          },
+          "query": {
+            "bool": {
+              "filter": {
+                "range": {
+                  "timestamp": {
+                    "gte": "now-12h",
+                    "lte": "now"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "condition",
+      "name": "mycondition",
+      "source": "data.mysearch.aggregations.metricAgg.value > 10000"
+    }
+  ],
+  "actions": [
+    {
+      "type": "webhook",
+      "name": "myslack",
+      "throttle_period": "1s",
+      "request": {
+        "method": "POST",
+        "url": "https://hooks.slack.com/services/token",
+        "body": "{\"text\": \"Memory usage encreased over the last 12h: {{data.mysearch.aggregations.metricAgg.value}}\"}",
+        "headers": {
+          "Content-type": "application/json"
+        }
+      }
+    }
+  ],
+  "active": true,
+  "log_runtime_data": false,
+  "_id": "max_memory_graph"
+}
