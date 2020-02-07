@@ -148,3 +148,4 @@ export const leaveInputEmptyToOmitThresholdLevelText = (
     default="Leave input empty to omit threshold level"
   />
 );
+export const targetText = <EuiI18n token="sg.watch.target.text" default="Target" />;

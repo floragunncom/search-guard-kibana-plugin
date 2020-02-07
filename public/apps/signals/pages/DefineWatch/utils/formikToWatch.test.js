@@ -235,45 +235,66 @@ describe('buildSeverity', () => {
 
 describe('buildChecksFromChecksBlocks', () => {
   test('can build checks', () => {
-    const checksBlocks = [
+    const formikChecks = [
       {
-        check: JSON.stringify({ a: 1 }),
-        id: 0
+        type: 'static',
+        name: 'constants',
+        value: {
+          a: 1,
+        },
+        valueForCodeEditor: stringifyPretty({
+          a: 1,
+        }),
+        id: 0,
+        response: '',
+        target: '',
       },
       {
-        check: JSON.stringify({ b: 1 }),
-        id: 1
-      }
+        type: 'search',
+        name: 'search',
+        request: {
+          indices: [{ label: 'a' }, { label: 'b' }],
+          body: {
+            query: {
+              match_all: {},
+            },
+          },
+        },
+        valueForCodeEditor: stringifyPretty({
+          query: {
+            match_all: {},
+          },
+        }),
+        id: 1,
+        response: '',
+        target: '',
+      },
     ];
 
     const checks = [
-      { a: 1 },
-      { b: 1 }
+      {
+        type: 'static',
+        name: 'constants',
+        value: {
+          a: 1,
+        },
+      },
+      {
+        type: 'search',
+        name: 'search',
+        request: {
+          indices: ['a', 'b'],
+          body: {
+            query: {
+              match_all: {},
+            },
+          },
+        },
+      },
     ];
 
-    expect(buildChecksFromChecksBlocks(checksBlocks)).toEqual(checks);
+    expect(buildChecksFromChecksBlocks(formikChecks)).toEqual(checks);
   });
-
-  /*
-  test('throws error if check syntax is invalid', () => {
-    try {
-      const checksBlocks = [
-        {
-          check: '{ a: }',
-          id: 0
-        },
-        {
-          check: JSON.stringify({ b: 1 }),
-          id: 1
-        }
-      ];
-
-      buildChecksFromChecksBlocks(checksBlocks);
-    } catch (error) {
-      expect(error.message).toBe('Fail to parse checks for Json watch');
-    }
-  });
-  */
 });
 
 describe('buildActions', () => {

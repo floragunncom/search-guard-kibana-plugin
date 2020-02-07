@@ -1,4 +1,4 @@
-import { cloneDeep, isEmpty } from 'lodash';
+import { cloneDeep, isEmpty, get } from 'lodash';
 import {
   stringifyPretty,
   arrayToComboBoxOptions,
@@ -117,11 +117,31 @@ export function buildFormikEmailAction(action = {}) {
 }
 
 export const buildFormikChecksBlocks = (checks = []) =>
-  checks.map((check, index) => ({
-    response: '',
-    check: buildFormikChecks(check),
-    index,
-  }));
+  checks.map(({ type = '', name = '', target = '', ...rest }, idx) => {
+    const result = {
+      type,
+      name,
+      target,
+      id: idx,
+      response: '',
+      ...rest,
+    };
+
+    switch (type) {
+      case 'static':
+        result.valueForCodeEditor = stringifyPretty(rest.value);
+        break;
+      case 'search':
+        result.valueForCodeEditor = stringifyPretty(get(rest, 'request.body', {}));
+        result.request.indices = arrayToComboBoxOptions(result.request.indices);
+        break;
+      // TODO: add more cases
+      default:
+        break;
+    }
+
+    return result;
+  });
 
 export const buildFormikMeta = ({ _ui = {}, checks = [], trigger } = {}) => {
   const ui = {

@@ -1,72 +1,65 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { get } from 'lodash';
+import React, { useState, useContext } from 'react';
 import { connect as connectFormik } from 'formik';
-import { connect as connectRedux } from 'react-redux';
-import DraggableList from 'react-draggable-list';
-import PropTypes from 'prop-types';
-import update from 'immutability-helper';
-import { EuiSpacer, EuiCodeEditor, EuiFormRow, EuiText, EuiLink } from '@elastic/eui';
-import { EmptyPrompt } from '../../../../../components';
+import { get, cloneDeep } from 'lodash';
+import {
+  EuiDragDropContext,
+  EuiDraggable,
+  EuiDroppable,
+  EuiPanel,
+  EuiTitle,
+  EuiSpacer,
+  EuiAccordion,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiIcon,
+  EuiButtonIcon,
+  EuiToolTip,
+  EuiLoadingSpinner,
+} from '@elastic/eui';
+import Block from './Block';
+import {
+  checksText,
+  executeText,
+  deleteText,
+  executeBlocksAboveAndThisBlockText,
+  executeOnlyThisBlockText,
+} from '../../../../utils/i18n/watch';
 import { WatchService } from '../../../../services';
 import { formikToWatch } from '../../utils';
 import { stringifyPretty } from '../../../../utils/helpers';
-import {
-  looksLikeYouDontHaveAnyCheckText,
-  noChecksText,
-  responseText,
-  closeText,
-} from '../../../../utils/i18n/watch';
-import QueryStat from '../QueryStat';
-import Block from './Block';
 
 import { Context } from '../../../../Context';
 
-import './styles.css';
+const Blocks = ({ formik: { values, setFieldValue } }) => {
+  const { httpClient, addErrorToast } = useContext(Context);
+  const [isLoading, setIsLoading] = useState(false);
 
-const BlocksWatch = ({
-  formik: { values, setFieldValue },
-  isResultVisible,
-  editorResult,
-  onCloseResult,
-  onOpenChecksTemplatesFlyout,
-}) => {
-  const { editorTheme, httpClient, triggerConfirmDeletionModal, addErrorToast } = useContext(
-    Context
-  );
-
-  const [isLoading, setLoading] = useState(false);
-
-  useEffect(() => {
-    onCloseResult();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const checksBlocks = get(values, '_ui.checksBlocks', []);
   const watchService = new WatchService(httpClient);
+  const blocks = get(values, '_ui.checksBlocks', []);
 
-  const setBlocks = reorderedChecks => {
-    setFieldValue('_ui.checksBlocks', reorderedChecks);
+  const onDragEnd = ({ source, destination }) => {
+    if (source && destination) {
+      const newBlocks = cloneDeep(blocks);
+      const [removed] = newBlocks.splice(source.index, 1);
+      newBlocks.splice(destination.index, 0, removed);
+      setFieldValue('_ui.checksBlocks', newBlocks);
+    }
   };
 
   const deleteBlock = index => {
-    const newChecks = update(checksBlocks, { $splice: [[index, 1]] });
-
-    triggerConfirmDeletionModal({
-      body: 'the check',
-      onConfirm: () => {
-        setFieldValue('_ui.checksBlocks', newChecks);
-        triggerConfirmDeletionModal(null);
-      },
-    });
+    const newBlocks = cloneDeep(blocks);
+    newBlocks.splice(index, 1);
+    setFieldValue('_ui.checksBlocks', newBlocks);
   };
 
   const executeBlocks = async (startIndex, endIndex) => {
     console.debug('BlocksWatch -- executeBlocks -- prev values', values);
-    const newFormikValues = update(values, {
-      _ui: { checksBlocks: { $set: checksBlocks.slice(startIndex, endIndex + 1) } },
+    const newFormikValues = cloneDeep({
+      ...values,
+      _ui: { ...values._ui, checksBlocks: blocks.slice(startIndex, endIndex + 1) },
     });
 
-    setLoading(true);
+    setIsLoading(true);
 
     try {
       console.debug('BlocksWatch -- executeBlocks -- current values', newFormikValues);
@@ -79,75 +72,110 @@ const BlocksWatch = ({
       addErrorToast(error);
     }
 
-    setLoading(false);
+    setIsLoading(false);
   };
 
-  const renderWatchResponse = () => (
-    <>
-      <EuiSpacer />
-      <EuiFormRow
-        fullWidth
-        label={responseText}
-        labelAppend={
-          <EuiText size="xs" onClick={onCloseResult}>
-            <EuiLink id="close-response" data-test-subj="sgWatch-CloseResponse">
-              {closeText} X
-            </EuiLink>
-          </EuiText>
-        }
-      >
-        <EuiCodeEditor
-          theme={editorTheme}
-          mode="json"
-          width="100%"
-          height="500px"
-          value={editorResult}
-          readOnly
-        />
-      </EuiFormRow>
-      <EuiSpacer />
-      <QueryStat />
-    </>
+  const renderActions = idx => (
+    <EuiFlexGroup>
+      <EuiFlexItem>
+        <EuiToolTip content={executeBlocksAboveAndThisBlockText} title={executeText}>
+          {isLoading ? (
+            <EuiLoadingSpinner size="m" />
+          ) : (
+            <EuiButtonIcon
+              aria-label="execute-cascade"
+              data-test-subj={`sgBlocks-execute-cascade-block-${idx}`}
+              iconType="play"
+              onClick={() => executeBlocks(0, idx)}
+            />
+          )}
+        </EuiToolTip>
+      </EuiFlexItem>
+      <EuiFlexItem>
+        <EuiToolTip content={executeOnlyThisBlockText} title={executeText}>
+          {isLoading ? (
+            <EuiLoadingSpinner size="m" />
+          ) : (
+            <EuiButtonIcon
+              aria-label="execute"
+              data-test-subj={`sgBlocks-execute-single-block-${idx}`}
+              iconType="bullseye"
+              onClick={() => executeBlocks(idx, idx)}
+            />
+          )}
+        </EuiToolTip>
+      </EuiFlexItem>
+      <EuiFlexItem>
+        <EuiToolTip title={deleteText}>
+          {isLoading ? (
+            <EuiLoadingSpinner size="m" />
+          ) : (
+            <EuiButtonIcon
+              aria-label="delete"
+              data-test-subj={`sgBlocks-delete-block-${idx}`}
+              iconType="trash"
+              color="danger"
+              onClick={() => deleteBlock(idx)}
+            />
+          )}
+        </EuiToolTip>
+      </EuiFlexItem>
+    </EuiFlexGroup>
   );
 
   return (
-    <div>
-      {isResultVisible && renderWatchResponse()}
-      <div className="blocksWatch-blocks-list">
-        <DraggableList
-          itemKey="index"
-          template={Block}
-          // The 'index' prop must be recalculated because
-          // react-draggable-list maintains its own state of items
-          list={checksBlocks.map((block, index) => ({ ...block, index }))}
-          onMoveEnd={reorderedChecks => setBlocks(reorderedChecks)}
-          container={() => document.body}
-          // The common props are used by Block
-          commonProps={{
-            isLoading,
-            onDeleteBlock: deleteBlock,
-            onExecuteBlocks: (startIndex, endIndex) => executeBlocks(startIndex, endIndex),
-          }}
-        />
-      </div>
-
-      {!checksBlocks.length && (
-        <EmptyPrompt
-          titleText={noChecksText}
-          bodyText={looksLikeYouDontHaveAnyCheckText}
-          onCreate={onOpenChecksTemplatesFlyout}
-        />
-      )}
+    <div style={{ overflowX: 'hidden' }}>
+      <EuiDragDropContext onDragEnd={onDragEnd}>
+        <EuiPanel paddingSize="s">
+          <EuiTitle size="xs">
+            <h3>{checksText}</h3>
+          </EuiTitle>
+          <EuiSpacer size="s" />
+          <EuiDroppable droppableId="sgBlocks-droppable" spacing="m">
+            <>
+              {blocks.map((check, idx) => (
+                <EuiDraggable
+                  spacing="m"
+                  key={check.id}
+                  index={idx}
+                  draggableId={`sgBlocks-draggable-${check.id}`}
+                  customDragHandle={true}
+                >
+                  {(provided, state) => (
+                    <EuiPanel hasShadow={state.isDragging}>
+                      <EuiFlexGroup>
+                        <EuiFlexItem grow={false}>
+                          <div
+                            {...provided.dragHandleProps}
+                            data-test-subject={`sgBlocks-grab-block-${check.id}`}
+                          >
+                            <EuiIcon type="grab" />
+                          </div>
+                        </EuiFlexItem>
+                        <EuiFlexItem>
+                          <EuiAccordion
+                            buttonContent={check.name || check.type}
+                            id={`sgBlocks-accordion-${check.id}`}
+                            data-test-subj={`sgBlocks-accordion-block-${check.id}`}
+                            extraAction={renderActions(idx)}
+                          >
+                            <div>
+                              <EuiSpacer />
+                              <Block check={check} idx={idx} />
+                            </div>
+                          </EuiAccordion>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                    </EuiPanel>
+                  )}
+                </EuiDraggable>
+              ))}
+            </>
+          </EuiDroppable>
+        </EuiPanel>
+      </EuiDragDropContext>
     </div>
   );
 };
 
-BlocksWatch.propTypes = {
-  formik: PropTypes.object.isRequired,
-  onCloseResult: PropTypes.func.isRequired,
-  editorResult: PropTypes.string,
-  isResultVisible: PropTypes.bool,
-  onOpenChecksTemplatesFlyout: PropTypes.func.isRequired,
-};
-
-export default connectRedux()(connectFormik(BlocksWatch));
+export default connectFormik(Blocks);

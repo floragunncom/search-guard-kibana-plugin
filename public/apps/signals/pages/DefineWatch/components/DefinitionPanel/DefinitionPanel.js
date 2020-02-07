@@ -1,8 +1,8 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
-import { EuiButton, EuiSpacer } from '@elastic/eui';
+import { EuiButton, EuiSpacer, EuiFormRow, EuiText, EuiLink, EuiCodeEditor } from '@elastic/eui';
 import { useCheckTemplates, useJsonWatchChecks } from '../../hooks';
 import { FormikSelect, ContentPanel } from '../../../../components';
 import JsonWatch from '../JsonWatch';
@@ -12,12 +12,15 @@ import QueryStat from '../QueryStat';
 import SeverityForm from '../SeverityForm';
 import { FLYOUTS } from '../../../../utils/constants';
 import { WATCH_TYPES_OPTIONS, WATCH_TYPES } from '../../utils/constants';
+import { responseText, closeText } from '../../../../utils/i18n/watch';
 import { definitionText, typeText, executeText, addText } from '../../../../utils/i18n/common';
 
 import { Context } from '../../../../Context';
 
 const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
   const {
+    editorTheme,
+    editorOptions,
     httpClient,
     triggerFlyout,
     onComboBoxChange,
@@ -35,10 +38,28 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
     executeWatch,
   } = useJsonWatchChecks({ setFieldValue });
 
+  const [templateCounter, setTemplateCounter] = useState(0);
+  const [template, setTemplate] = useState(null);
+
+  useEffect(() => {
+    if (template) {
+      addTemplate({ template, values });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [templateCounter]);
+
+  const addTemplateHelper = template => {
+    setTemplate(template);
+    setTemplateCounter(prevState => prevState + 1);
+  };
+
   const handleAddTemplate = () => {
     triggerFlyout({
       type: FLYOUTS.CHECK_EXAMPLES,
-      payload: { onChange: template => addTemplate({ template, values }) },
+      // We use addTemplateHelper here to avoid closure.
+      // We don't get new "values" in the onChange callback function
+      // without this helper.
+      payload: { onChange: addTemplateHelper },
     });
   };
 
@@ -76,7 +97,6 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
             editorResult={editorResult}
             onCloseResult={closeResult}
           />
-          <EuiSpacer />
           <QueryStat />
           {isSeverity && <SeverityForm isTitle />}
         </>
@@ -87,12 +107,38 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
 
       watch = (
         <>
-          <BlocksWatch
-            isResultVisible={isResultVisible}
-            editorResult={editorResult}
-            onCloseResult={closeResult}
-            onOpenChecksTemplatesFlyout={handleAddTemplate}
-          />
+          {isResultVisible && (
+            <>
+              <EuiSpacer />
+              <EuiFormRow
+                fullWidth
+                label={responseText}
+                labelAppend={
+                  <EuiText size="xs" onClick={closeResult}>
+                    <EuiLink id="close-response" data-test-subj="sgBlocks-closeAllChecksResponse">
+                      {closeText} X
+                    </EuiLink>
+                  </EuiText>
+                }
+              >
+                <EuiCodeEditor
+                  theme={editorTheme}
+                  setOptions={editorOptions}
+                  mode="json"
+                  width="100%"
+                  height="500px"
+                  value={editorResult}
+                  readOnly
+                />
+              </EuiFormRow>
+              <QueryStat />
+            </>
+          )}
+
+          <EuiSpacer />
+          <BlocksWatch />
+
+          <EuiSpacer />
           {isSeverity && <SeverityForm isTitle />}
         </>
       );
@@ -107,7 +153,6 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
             onComboBoxOnBlur={onComboBoxOnBlur}
             onComboBoxCreateOption={onComboBoxCreateOption}
           />
-          <EuiSpacer />
           <QueryStat />
         </>
       );

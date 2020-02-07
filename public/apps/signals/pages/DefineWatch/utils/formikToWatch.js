@@ -153,11 +153,40 @@ export const buildIndexAction = (action = {}) => {
   };
 };
 
-export const buildChecksFromChecksBlocks = (checks = []) => checks
-  .reduce((res, { check }) => {
-    res.push(JSON.parse(foldMultiLineString(check)));
-    return res;
+export const buildChecksFromChecksBlocks = (formikChecks = []) => {
+  const checks = cloneDeep(formikChecks);
+
+  return checks.reduce((acc, check) => {
+    if (!check.name) delete check.name;
+    if (!check.target) delete check.target;
+    delete check.response;
+    delete check.id;
+
+    switch (check.type) {
+      case 'static':
+        check.value = JSON.parse(foldMultiLineString(check.valueForCodeEditor));
+        break;
+      case 'search':
+        check.request.body = JSON.parse(foldMultiLineString(check.valueForCodeEditor));
+        check.request.indices = comboBoxOptionsToArray(check.request.indices);
+        break;
+      // TODO: add more cases
+      default:
+        break;
+    }
+
+    delete check.valueForCodeEditor;
+
+    acc.push(check);
+    return acc;
   }, []);
+};
+
+// export const buildChecksFromChecksBlocks = (checks = []) => checks
+//   .reduce((res, { check }) => {
+//     res.push(JSON.parse(foldMultiLineString(check)));
+//     return res;
+//   }, []);
 
 export const buildChecks = ({ _ui: ui = {}, checks = [] }) => {
   const { watchType, checksBlocks } = ui;

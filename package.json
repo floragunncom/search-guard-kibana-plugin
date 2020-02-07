@@ -17,7 +17,8 @@
     "test:prepare_integration_test": "yarn && ./tests/patch_kibana.sh"
   },
   "dependencies": {
-    "@elastic/eui": "^13.7.0",
+    "@elastic/datemath": "^5.0.2",
+    "@elastic/eui": "13.7.0",
     "@elastic/kibana-ui-framework": "0.0.11",
     "@types/react": "^16.9.2",
     "@types/react-dom": "^16.9.0",

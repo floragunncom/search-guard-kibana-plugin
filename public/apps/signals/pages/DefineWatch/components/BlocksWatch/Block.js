@@ -1,45 +1,30 @@
-import React, { Component } from 'react';
-import chrome from 'ui/chrome';
-import { FieldArray } from 'formik';
-import PropTypes from 'prop-types';
+import React, { useContext, useRef } from 'react';
+import { connect as connectFormik } from 'formik';
 import {
-  EuiPanel,
+  EuiSpacer,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiIcon,
-  EuiText,
-  EuiCodeEditor,
   EuiFormRow,
-  EuiSpacer,
-  EuiLoadingSpinner,
+  EuiCodeEditor,
+  EuiText,
+  EuiLink,
 } from '@elastic/eui';
-import {
-  FormikCodeEditor,
-  DeleteButtonIcon,
-  ExecuteButtonIcon,
-} from '../../../../../components';
-import { getCheckBlockTitle } from './utils';
-import {
-  checkText,
-  executeOnlyThisBlockText,
-  executeBlocksAboveAndThisBlockText,
-  executeText,
-} from '../../../../utils/i18n/watch';
-import { responseText } from '../../../../utils/i18n/common';
+import { FormikCodeEditor } from '../../../../../components';
+import { checkText, responseText, closeText } from '../../../../utils/i18n/watch';
 import { isInvalid, hasError, validateWatchString } from '../../utils/validate';
-import { CODE_EDITOR } from '../../../../../utils/constants';
+import { StaticBlock } from './Views';
 
-const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
-let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
-theme = !IS_DARK_THEME ? theme : darkTheme;
+import { Context } from '../../../../Context';
 
-// This component must be class because react-draggable-list lib requires it
-class Block extends Component {
-  getDragHeight = () => this.props.item.subtitle ? 112 : 56;
+const CODE_EDITOR_NUM_OF_LINES = 15;
 
-  renderCheckEditor = index => (
+const GenericBlock = ({ formik: { setFieldValue }, check, idx }) => {
+  const { editorTheme, editorOptions } = useContext(Context);
+
+  const renderCheckEditor = idx => (
     <FormikCodeEditor
-      name={`_ui.checksBlocks.${index}.check`}
+      data-test-subj={`sgBlocks-checkEditor-block-${idx}`}
+      name={`_ui.checksBlocks.${idx}.valueForCodeEditor`}
       formRow
       rowProps={{
         fullWidth: true,
@@ -53,13 +38,13 @@ class Block extends Component {
         width: '100%',
         isInvalid,
         setOptions: {
-          ...setOptions,
-          minLines: 15,
-          maxLines: 15,
+          ...editorOptions,
+          minLines: CODE_EDITOR_NUM_OF_LINES,
+          maxLines: CODE_EDITOR_NUM_OF_LINES,
           enableLiveAutocompletion: true,
-          enableSnippets: true
+          enableSnippets: true,
         },
-        theme,
+        theme: editorTheme,
         onChange: (e, query, field, form) => {
           form.setFieldValue(field.name, query);
         },
@@ -73,136 +58,61 @@ class Block extends Component {
     />
   );
 
-  renderCheckResponse = response => {
-    const { commonProps: { isLoading } } = this.props;
-    if (isLoading) {
-      return (
-        <div style={{ margin: 'auto' }}>
-          <EuiLoadingSpinner size="xl" />
-        </div>
-      );
-    }
-
-    if (!response) return null;
-
+  const renderCheckResponse = (response, idx) => {
     return (
-      <EuiFormRow label={responseText} fullWidth>
+      <EuiFormRow
+        fullWidth
+        label={responseText}
+        labelAppend={
+          <EuiText
+            size="xs"
+            onClick={() => {
+              setFieldValue(`_ui.checksBlocks[${idx}].response`, '');
+            }}
+          >
+            <EuiLink id="close-response" data-test-subj={`sgBlocks-closeResponse-block-${idx}`}>
+              {closeText} X
+            </EuiLink>
+          </EuiText>
+        }
+      >
         <EuiCodeEditor
+          data-test-subj={`sgBlocks-responseEditor-block-${idx}`}
           width="100%"
           isReadOnly
-          theme={theme}
+          theme={editorTheme}
           mode="json"
-          setOptions={setOptions}
+          setOptions={{
+            ...editorOptions,
+            minLines: CODE_EDITOR_NUM_OF_LINES,
+            maxLines: CODE_EDITOR_NUM_OF_LINES,
+          }}
           value={response}
         />
       </EuiFormRow>
     );
   };
 
-  render() {
-    const {
-      item: { index, check, response },
-      itemSelected,
-      dragHandleProps,
-      commonProps: {
-        onExecuteBlocks,
-        onDeleteBlock,
-      },
-    } = this.props;
-
-    const scale = itemSelected * 0.05 + 1;
-    const shadow = itemSelected * 15 + 1;
-    const dragged = itemSelected !== 0;
-
-    const actions = [
-      <ExecuteButtonIcon
-        isDisabled={dragged}
-        onClick={() => onExecuteBlocks(0, index)}
-        tooltipProps={{
-          content: executeBlocksAboveAndThisBlockText,
-          title: executeText
-        }}
-      />,
-      <ExecuteButtonIcon
-        name={`single-${index}`}
-        iconType="bullseye"
-        isDisabled={dragged}
-        onClick={() => onExecuteBlocks(index, index)}
-        tooltipProps={{
-          content: executeOnlyThisBlockText,
-          title: executeText
-        }}
-      />,
-      <DeleteButtonIcon
-        isDisabled={dragged}
-        onClick={() => onDeleteBlock(index)}
-      />
-    ];
-
-    const renderActions = (actions = []) =>
-      actions.map((action, id) => (
-        <EuiFlexItem grow={false} key={id}>{action}</EuiFlexItem>
-      ));
-
-    const style = {
-      transform: `scale(${scale})`,
-    };
-
-    if (dragged) {
-      style.boxShadow = `rgba(0, 0, 0, 0.3) 0px ${shadow}px ${2 * shadow}px 0px`;
-    }
-
-    return (
-      <div
-        className="blocksWatch-blocks-list-item"
-        style={style}
-      >
-        <EuiPanel>
-          <EuiFlexGroup justifyContent="spaceBetween" alignItems="center">
-            <EuiFlexItem grow={false} className="drag-handle">
-              <EuiIcon type="grab" size="l" {...dragHandleProps}/>
-            </EuiFlexItem>
-            <EuiFlexItem>
-              <EuiText color="subdued" size="s"><p>{getCheckBlockTitle(check)}</p></EuiText>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiFlexGroup justifyContent="spaceBetween" alignItems="center">
-                {renderActions(actions)}
-              </EuiFlexGroup>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-          <FieldArray
-            name="_ui.checksBlocks"
-            render={() => (
-              <EuiFlexGroup>
-                <EuiFlexItem>{this.renderCheckEditor(index)}</EuiFlexItem>
-                <EuiFlexItem>{this.renderCheckResponse(response)}</EuiFlexItem>
-              </EuiFlexGroup>
-            )}
-          />
-          <EuiSpacer />
-        </EuiPanel>
-      </div>
-    );
+  let block;
+  switch (check.type) {
+    case 'static':
+      block = <StaticBlock idx={idx} />;
+      break;
+    default:
+      break;
   }
-}
 
-Block.propTypes = {
-  item: PropTypes.shape({
-    index: PropTypes.number.isRequired,
-    check: PropTypes.string.isRequired,
-    response: PropTypes.string.isRequired,
-  }),
-  itemSelected: PropTypes.number.isRequired,
-  dragHandleProps: PropTypes.shape({
-    onMouseDown: PropTypes.func.isRequired,
-    onTouchStart: PropTypes.func.isRequired,
-  }),
-  commonProps: PropTypes.shape({
-    onExecuteBlocks: PropTypes.func.isRequired,
-    onDeleteBlock: PropTypes.func.isRequired,
-    isLoading: PropTypes.bool.isRequired,
-  }),
+  return (
+    <>
+      {block}
+
+      <EuiSpacer />
+      <EuiFlexGroup>
+        <EuiFlexItem>{renderCheckEditor(idx)}</EuiFlexItem>
+        {check.response && <EuiFlexItem>{renderCheckResponse(check.response, idx)}</EuiFlexItem>}
+      </EuiFlexGroup>
+    </>
+  );
 };
 
-export default Block;
+export default connectFormik(GenericBlock);

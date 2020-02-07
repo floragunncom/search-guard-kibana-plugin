@@ -83,15 +83,7 @@ class ResolveActionPanel extends Component {
     });
   }
 
-  renderActions = (
-    actions,
-    accounts,
-    httpClient,
-    arrayHelpers,
-    onComboBoxChange,
-    onComboBoxOnBlur,
-    onComboBoxCreateOption
-  ) => {
+  renderActions = (actions, accounts, httpClient, arrayHelpers) => {
     return isEmpty(actions)
       ? null
       : actions.map((action, index) => {
@@ -160,9 +152,6 @@ class ResolveActionPanel extends Component {
       httpClient,
       arrayHelpers,
       formik: { values },
-      onComboBoxChange,
-      onComboBoxOnBlur,
-      onComboBoxCreateOption
     } = this.props;
 
     const actions = get(values, 'resolve_actions', []);
@@ -218,15 +207,7 @@ class ResolveActionPanel extends Component {
         )}
       >
         <div style={{ paddingLeft: '10px' }}>
-          {this.renderActions(
-            actions,
-            accounts,
-            httpClient,
-            arrayHelpers,
-            onComboBoxChange,
-            onComboBoxOnBlur,
-            onComboBoxCreateOption
-          )}
+          {this.renderActions(actions, accounts, httpClient, arrayHelpers)}
         </div>
       </ContentPanel>
     );
@@ -238,9 +219,6 @@ ResolveActionPanel.propTypes = {
   httpClient: PropTypes.func.isRequired,
   arrayHelpers: PropTypes.object.isRequired,
   formik: PropTypes.object.isRequired,
-  onComboBoxOnBlur: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired
 };
 
