@@ -1,6 +1,5 @@
 import SignalsService from './SignalsService';
 import { ROUTE_PATH } from '../utils/constants';
-import { action } from 'mobx';
 
 export default class WatchService extends SignalsService {
   execute({ watch, simulate = false, skipActions = true } = {}) {
