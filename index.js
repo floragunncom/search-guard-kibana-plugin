@@ -20,7 +20,7 @@ export default function (kibana) {
     let searchGuardConfiguration;
 
 
-    return new kibana.Plugin({
+    const corePlugin = new kibana.Plugin({
         name: 'searchguard',
         id: 'searchguard',
         require: ['kibana', 'elasticsearch'],
@@ -241,48 +241,7 @@ export default function (kibana) {
                     hidden: true,
                     auth: false
                 },
-                {
-                    id: 'searchguard-multitenancy',
-                    title: 'Tenants',
-                    main: 'plugins/searchguard/apps/multitenancy/multitenancy',
-                    hidden: false,
-                    auth: true,
-                    order: 9010,
-                    icon: 'plugins/searchguard/assets/networking.svg',
-                    linkToLastSubUrl: false,
-                    url: '/app/searchguard-multitenancy#/'
-                },
-                {
-                    id: 'searchguard-accountinfo',
-                    title: 'Account',
-                    main: 'plugins/searchguard/apps/accountinfo/accountinfo',
-                    hidden: false,
-                    auth: true,
-                    order: 9020,
-                    icon: 'plugins/searchguard/assets/info.svg',
-                    linkToLastSubUrl: false,
-                    url: '/app/searchguard-accountinfo#/'
-                },
-                {
-                    id: 'searchguard-configuration',
-                    title: 'Search Guard Configuration',
-                    main: 'plugins/searchguard/apps/configuration-react',
-                    order: 9010,
-                    auth: true,
-                    icon: 'plugins/searchguard/assets/searchguard_logo_left_navbar.svg',
-                    linkToLastSubUrl: false,
-                    url: '/app/searchguard-configuration#/'
-                },
-                {
-                    id: signalsName,
-                    title: signalsDescription,
-                    main: 'plugins/searchguard/apps/signals',
-                    order: 9030,
-                    auth: true,
-                    icon: 'plugins/searchguard/apps/signals/assets/signals_logo_64.svg',
-                    linkToLastSubUrl: false,
-                    url: `/app/${signalsName}#/`
-                }
+
             ],
             chromeNavControls: [
                 'plugins/searchguard/chrome/btn_logout/btn_logout.js'
@@ -539,4 +498,61 @@ export default function (kibana) {
           registerSignalsRoutes(server);
         }
     });
+
+    const apps = [corePlugin];
+
+    const pluginApps = [
+        {
+            id: 'searchguard-configuration',
+            title: 'Search Guard Configuration',
+            main: 'plugins/searchguard/apps/configuration-react',
+            order: 9010,
+            auth: true,
+            icon: 'plugins/searchguard/assets/searchguard_logo_left_navbar.svg',
+            linkToLastSubUrl: false,
+            url: '/app/searchguard-configuration#/'
+        },
+        {
+            id: 'searchguard-multitenancy',
+            title: 'Tenants',
+            main: 'plugins/searchguard/apps/multitenancy/multitenancy',
+            auth: true,
+            order: 9010,
+            icon: 'plugins/searchguard/assets/networking.svg',
+            linkToLastSubUrl: false,
+            url: '/app/searchguard-multitenancy#/'
+        },
+        {
+            id: 'searchguard-accountinfo',
+            title: 'Account',
+            main: 'plugins/searchguard/apps/accountinfo/accountinfo',
+            auth: true,
+            order: 9020,
+            icon: 'plugins/searchguard/assets/info.svg',
+            linkToLastSubUrl: false,
+            url: '/app/searchguard-accountinfo#/'
+        },
+        {
+            id: signalsName,
+            title: signalsDescription,
+            main: 'plugins/searchguard/apps/signals',
+            order: 9030,
+            auth: true,
+            icon: 'plugins/searchguard/apps/signals/assets/signals_logo_64.svg',
+            linkToLastSubUrl: false,
+            url: `/app/${signalsName}#/`
+        }
+    ]
+
+    pluginApps.forEach(app => {
+        let plugin = new kibana.Plugin({
+            id: app.id,
+            uiExports: {
+                app
+            }
+        });
+        apps.push(plugin);
+    });
+
+    return apps;
 };
