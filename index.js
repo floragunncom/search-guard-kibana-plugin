@@ -10,7 +10,7 @@ import {
   APP_NAME as signalsName,
   APP_DESCRIPTION as signalsDescription
 } from './utils/signals/constants';
-// import { handleSignalsAppAccess } from './lib/signals/lib/access/handleSignalsAppAccess';
+import { handleSignalsAppAccess } from './lib/signals/lib/access/handleSignalsAppAccess';
 
 export default function (kibana) {
 
@@ -535,7 +535,7 @@ export default function (kibana) {
                 }
             }
 
-          // handleSignalsAppAccess(server, searchguardBackend);
+          handleSignalsAppAccess(server, searchguardBackend);
           registerSignalsRoutes(server);
         }
     });
