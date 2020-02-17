@@ -507,7 +507,6 @@ export default function (kibana) {
             title: 'Search Guard Configuration',
             main: 'plugins/searchguard/apps/configuration-react',
             order: 9010,
-
             auth: true,
             icon: 'plugins/searchguard/assets/searchguard_logo_left_navbar.svg',
             linkToLastSubUrl: false,
