@@ -1,17 +1,8 @@
 /* eslint-disable quotes */
 /* eslint-disable max-len */
-import {
-  formikToWatch,
-  buildChecks,
-  buildActions,
-  buildChecksFromChecksBlocks,
-  buildSeverity,
-} from './formikToWatch';
+import { formikToWatch, buildChecks, buildActions, buildSeverity } from './formikToWatch';
 import { stringifyPretty } from '../../../utils/helpers';
-import {
-  WATCH_TYPES,
-  SEVERITY
-} from './constants';
+import { WATCH_TYPES, SEVERITY } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
 
 describe('buildSeverity', () => {
@@ -230,70 +221,6 @@ describe('buildSeverity', () => {
     };
 
     expect(buildSeverity(formik)).toEqual(watch);
-  });
-});
-
-describe('buildChecksFromChecksBlocks', () => {
-  test('can build checks', () => {
-    const formikChecks = [
-      {
-        type: 'static',
-        name: 'constants',
-        value: {
-          a: 1,
-        },
-        value_string: stringifyPretty({
-          a: 1,
-        }),
-        id: 0,
-        response: '',
-        target: '',
-      },
-      {
-        type: 'search',
-        name: 'search',
-        request: {
-          indices: [{ label: 'a' }, { label: 'b' }],
-          body: {
-            query: {
-              match_all: {},
-            },
-          },
-        },
-        value_string: stringifyPretty({
-          query: {
-            match_all: {},
-          },
-        }),
-        id: 1,
-        response: '',
-        target: '',
-      },
-    ];
-
-    const checks = [
-      {
-        type: 'static',
-        name: 'constants',
-        value: {
-          a: 1,
-        },
-      },
-      {
-        type: 'search',
-        name: 'search',
-        request: {
-          indices: ['a', 'b'],
-          body: {
-            query: {
-              match_all: {},
-            },
-          },
-        },
-      },
-    ];
-
-    expect(buildChecksFromChecksBlocks(formikChecks)).toEqual(checks);
   });
 });
 

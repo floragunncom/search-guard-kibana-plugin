@@ -6,6 +6,7 @@ import {
 } from '../../../utils/helpers';
 import buildFormikSchedule from './buildFormikSchedule';
 import { buildFormikThrottle } from './buildFormikThrottle';
+import { buildFormikChecksBlocks } from '../components/BlocksWatch/utils';
 import {
   GRAPH_DEFAULTS,
   WATCH_TYPES,
@@ -115,28 +116,6 @@ export function buildFormikEmailAction(action = {}) {
     account: arrayToComboBoxOptions([action.account])
   };
 }
-
-export const buildFormikChecksBlocks = (checks = []) =>
-  checks.map(({ type = '', name = '', target = '', ...rest }, idx) => {
-    const result = {
-      type,
-      name,
-      target,
-      id: idx,
-      response: '',
-      ...rest,
-    };
-
-    switch (type) {
-      case 'static':
-        result.value_string = stringifyPretty(rest.value);
-        break;
-      default:
-        break;
-    }
-
-    return result;
-  });
 
 export const buildFormikMeta = ({ _ui = {}, checks = [], trigger } = {}) => {
   const ui = {

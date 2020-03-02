@@ -2,6 +2,7 @@ import { cloneDeep, omit, get } from 'lodash';
 import buildSchedule from './buildSchedule';
 import { buildThrottle } from './buildThrottle';
 import { buildGraphWatchChecks } from './graphWatch';
+import { buildChecksFromChecksBlocks } from '../components/BlocksWatch/utils';
 import { comboBoxOptionsToArray, foldMultiLineString } from '../../../utils/helpers';
 import { WATCH_TYPES, META_FIELDS_TO_OMIT, SEVERITY } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
@@ -144,30 +145,6 @@ export const buildIndexAction = (action = {}) => {
     ...action,
     index: get(action, 'index[0].label', '')
   };
-};
-
-export const buildChecksFromChecksBlocks = (formikChecks = []) => {
-  const checks = cloneDeep(formikChecks);
-
-  return checks.reduce((acc, check) => {
-    if (!check.name) delete check.name;
-    if (!check.target) delete check.target;
-    delete check.response;
-    delete check.id;
-
-    switch (check.type) {
-      case 'static':
-        check.value = JSON.parse(check.value_string);
-        break;
-      default:
-        break;
-    }
-
-    delete check.value_string;
-
-    acc.push(check);
-    return acc;
-  }, []);
 };
 
 export const buildChecks = ({ _ui: ui = {}, checks = [] }) => {

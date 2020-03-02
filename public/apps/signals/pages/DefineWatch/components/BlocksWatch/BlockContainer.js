@@ -13,19 +13,20 @@ import {
 import { FormikCodeEditor } from '../../../../../components';
 import { checkText, responseText, closeText } from '../../../../utils/i18n/watch';
 import { isInvalid, hasError, validateWatchString } from '../../utils/validate';
-import { StaticBlock } from './Views';
+import { StaticBlock } from './utils/Blocks';
+import { StaticBlockForm } from './Forms';
 
 import { Context } from '../../../../Context';
 
 const CODE_EDITOR_NUM_OF_LINES = 15;
 
-const Block = ({ formik: { setFieldValue }, check, idx }) => {
+const BlockContainer = ({ formik: { setFieldValue }, block, idx }) => {
   const { editorTheme, editorOptions } = useContext(Context);
 
   const renderCheckEditor = idx => (
     <FormikCodeEditor
       data-test-subj={`sgBlocks-checkEditor-block-${idx}`}
-      name={`_ui.checksBlocks.${idx}.value_string`}
+      name={`_ui.checksBlocks.${idx}.value`}
       formRow
       rowProps={{
         fullWidth: true,
@@ -94,10 +95,10 @@ const Block = ({ formik: { setFieldValue }, check, idx }) => {
     );
   };
 
-  let block;
-  switch (check.type) {
-    case 'static':
-      block = <StaticBlock idx={idx} />;
+  let form;
+  switch (block.type) {
+    case StaticBlock.type:
+      form = <StaticBlockForm idx={idx} />;
       break;
     default:
       break;
@@ -105,29 +106,28 @@ const Block = ({ formik: { setFieldValue }, check, idx }) => {
 
   return (
     <>
-      {block}
+      {form}
 
       <EuiSpacer />
       <EuiFlexGroup>
         <EuiFlexItem>{renderCheckEditor(idx)}</EuiFlexItem>
-        {check.response && <EuiFlexItem>{renderCheckResponse(check.response, idx)}</EuiFlexItem>}
+        {block.response && <EuiFlexItem>{renderCheckResponse(block.response, idx)}</EuiFlexItem>}
       </EuiFlexGroup>
     </>
   );
 };
 
-Block.propTypes = {
+BlockContainer.propTypes = {
   formik: PropTypes.object.isRequired,
   idx: PropTypes.number.isRequired,
-  check: PropTypes.shape({
+  block: PropTypes.shape({
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
     response: PropTypes.string.isRequired,
     type: PropTypes.string.isRequired,
-    value: PropTypes.object.isRequired,
-    value_string: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
     target: PropTypes.string,
   }),
 };
 
-export default connectFormik(Block);
+export default connectFormik(BlockContainer);

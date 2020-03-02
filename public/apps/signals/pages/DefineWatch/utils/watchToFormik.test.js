@@ -1,13 +1,12 @@
 /* eslint-disable max-len */
 import {
   watchToFormik,
-  buildFormikIndexAction,
   buildFormikChecks,
-  buildFormikChecksBlocks,
   buildFormikMeta,
   buildFormikActions,
-  buildFormikSeverity
+  buildFormikSeverity,
 } from './watchToFormik';
+import { buildFormikChecksBlocks } from '../components/BlocksWatch/utils';
 import { stringifyPretty } from '../../../utils/helpers';
 import {
   WATCH_TYPES,
@@ -15,7 +14,7 @@ import {
   GRAPH_DEFAULTS,
   RESULT_FIELD_DEFAULTS,
   SEVERITY,
-  SEVERITY_COLORS
+  SEVERITY_COLORS,
 } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
 
@@ -410,70 +409,6 @@ describe('buildFormikActions', () => {
     };
 
     expect(buildFormikActions({ actions })).toEqual(formik);
-  });
-});
-
-describe('buildFormikChecksBlocks', () => {
-  test('can create checks blocks formik', () => {
-    const checks = [
-      {
-        type: 'static',
-        name: 'constants',
-        value: {
-          a: 1,
-        },
-      },
-      {
-        type: 'search',
-        name: 'search',
-        request: {
-          indices: ['a', 'b'],
-          body: {
-            query: {
-              match_all: {},
-            },
-          },
-        },
-      },
-    ];
-
-    const formikChecks = [
-      {
-        type: 'static',
-        name: 'constants',
-        value: {
-          a: 1,
-        },
-        value_string: stringifyPretty({
-          a: 1,
-        }),
-        id: 0,
-        response: '',
-        target: '',
-      },
-      {
-        type: 'search',
-        name: 'search',
-        request: {
-          indices: [{ label: 'a' }, { label: 'b' }],
-          body: {
-            query: {
-              match_all: {},
-            },
-          },
-        },
-        value_string: stringifyPretty({
-          query: {
-            match_all: {},
-          },
-        }),
-        id: 1,
-        response: '',
-        target: '',
-      },
-    ];
-
-    expect(buildFormikChecksBlocks(checks)).toEqual(formikChecks);
   });
 });
 

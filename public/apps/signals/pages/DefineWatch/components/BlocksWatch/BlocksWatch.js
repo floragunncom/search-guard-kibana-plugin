@@ -19,7 +19,7 @@ import {
   EuiEmptyPrompt,
   EuiButton,
 } from '@elastic/eui';
-import Block from './Block';
+import BlockContainer from './BlockContainer';
 import {
   checksText,
   executeText,
@@ -129,12 +129,12 @@ const BlocksWatch = ({ formik: { values, setFieldValue }, onAddTemplate }) => {
   );
 
   const renderBlocks = () =>
-    blocks.map((check, idx) => (
+    blocks.map((block, idx) => (
       <EuiDraggable
         spacing="m"
-        key={check.id}
+        key={block.id}
         index={idx}
-        draggableId={`sgBlocks-draggable-${check.id}`}
+        draggableId={`sgBlocks-draggable-${block.id}`}
         customDragHandle={true}
       >
         {(provided, state) => (
@@ -143,21 +143,21 @@ const BlocksWatch = ({ formik: { values, setFieldValue }, onAddTemplate }) => {
               <EuiFlexItem grow={false}>
                 <div
                   {...provided.dragHandleProps}
-                  data-test-subject={`sgBlocks-grab-block-${check.id}`}
+                  data-test-subject={`sgBlocks-grab-block-${block.id}`}
                 >
                   <EuiIcon type="grab" />
                 </div>
               </EuiFlexItem>
               <EuiFlexItem>
                 <EuiAccordion
-                  buttonContent={check.name || check.type}
-                  id={`sgBlocks-accordion-${check.id}`}
-                  data-test-subj={`sgBlocks-accordion-block-${check.id}`}
+                  buttonContent={block.name || block.type}
+                  id={`sgBlocks-accordion-${block.id}`}
+                  data-test-subj={`sgBlocks-accordion-block-${block.id}`}
                   extraAction={renderActions(idx)}
                 >
                   <div>
                     <EuiSpacer />
-                    <Block check={check} idx={idx} />
+                    <BlockContainer block={block} idx={idx} />
                   </div>
                 </EuiAccordion>
               </EuiFlexItem>

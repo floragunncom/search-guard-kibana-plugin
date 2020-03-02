@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { get } from 'lodash';
-import { buildFormikChecks, buildChecks, buildFormikChecksBlocks } from '../utils';
+import { buildFormikChecks, buildChecks } from '../utils';
+import { buildFormikChecksBlocks } from '../components/BlocksWatch/utils';
 import { addedCheckTemplateText } from '../../../utils/i18n/watch';
 import { WATCH_TYPES } from '../utils/constants';
 
