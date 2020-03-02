@@ -444,7 +444,7 @@ describe('buildFormikChecksBlocks', () => {
         value: {
           a: 1,
         },
-        valueForCodeEditor: stringifyPretty({
+        value_string: stringifyPretty({
           a: 1,
         }),
         id: 0,
@@ -462,7 +462,7 @@ describe('buildFormikChecksBlocks', () => {
             },
           },
         },
-        valueForCodeEditor: stringifyPretty({
+        value_string: stringifyPretty({
           query: {
             match_all: {},
           },

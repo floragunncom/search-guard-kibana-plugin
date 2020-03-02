@@ -1,5 +1,6 @@
 import React, { useContext, useRef } from 'react';
 import { connect as connectFormik } from 'formik';
+import PropTypes from 'prop-types';
 import {
   EuiSpacer,
   EuiFlexGroup,
@@ -18,13 +19,13 @@ import { Context } from '../../../../Context';
 
 const CODE_EDITOR_NUM_OF_LINES = 15;
 
-const GenericBlock = ({ formik: { setFieldValue }, check, idx }) => {
+const Block = ({ formik: { setFieldValue }, check, idx }) => {
   const { editorTheme, editorOptions } = useContext(Context);
 
   const renderCheckEditor = idx => (
     <FormikCodeEditor
       data-test-subj={`sgBlocks-checkEditor-block-${idx}`}
-      name={`_ui.checksBlocks.${idx}.valueForCodeEditor`}
+      name={`_ui.checksBlocks.${idx}.value_string`}
       formRow
       rowProps={{
         fullWidth: true,
@@ -115,4 +116,18 @@ const GenericBlock = ({ formik: { setFieldValue }, check, idx }) => {
   );
 };
 
-export default connectFormik(GenericBlock);
+Block.propTypes = {
+  formik: PropTypes.object.isRequired,
+  idx: PropTypes.number.isRequired,
+  check: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+    response: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
+    value: PropTypes.object.isRequired,
+    value_string: PropTypes.string.isRequired,
+    target: PropTypes.string,
+  }),
+};
+
+export default connectFormik(Block);

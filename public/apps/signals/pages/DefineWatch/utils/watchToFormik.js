@@ -14,7 +14,7 @@ import {
   SEVERITY_META_DEFAULTS,
   SEVERITY_ORDER,
   SEVERITY,
-  SEVERITY_COLORS
+  SEVERITY_COLORS,
 } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
 
@@ -129,13 +129,8 @@ export const buildFormikChecksBlocks = (checks = []) =>
 
     switch (type) {
       case 'static':
-        result.valueForCodeEditor = stringifyPretty(rest.value);
+        result.value_string = stringifyPretty(rest.value);
         break;
-      case 'search':
-        result.valueForCodeEditor = stringifyPretty(get(rest, 'request.body', {}));
-        result.request.indices = arrayToComboBoxOptions(result.request.indices);
-        break;
-      // TODO: add more cases
       default:
         break;
     }

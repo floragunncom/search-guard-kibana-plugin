@@ -2,15 +2,8 @@ import { cloneDeep, omit, get } from 'lodash';
 import buildSchedule from './buildSchedule';
 import { buildThrottle } from './buildThrottle';
 import { buildGraphWatchChecks } from './graphWatch';
-import {
-  comboBoxOptionsToArray,
-  foldMultiLineString,
-} from '../../../utils/helpers';
-import {
-  WATCH_TYPES,
-  META_FIELDS_TO_OMIT,
-  SEVERITY
-} from './constants';
+import { comboBoxOptionsToArray, foldMultiLineString } from '../../../utils/helpers';
+import { WATCH_TYPES, META_FIELDS_TO_OMIT, SEVERITY } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
 
 export function buildSeverity(watch) {
@@ -164,29 +157,18 @@ export const buildChecksFromChecksBlocks = (formikChecks = []) => {
 
     switch (check.type) {
       case 'static':
-        check.value = JSON.parse(foldMultiLineString(check.valueForCodeEditor));
+        check.value = JSON.parse(check.value_string);
         break;
-      case 'search':
-        check.request.body = JSON.parse(foldMultiLineString(check.valueForCodeEditor));
-        check.request.indices = comboBoxOptionsToArray(check.request.indices);
-        break;
-      // TODO: add more cases
       default:
         break;
     }
 
-    delete check.valueForCodeEditor;
+    delete check.value_string;
 
     acc.push(check);
     return acc;
   }, []);
 };
-
-// export const buildChecksFromChecksBlocks = (checks = []) => checks
-//   .reduce((res, { check }) => {
-//     res.push(JSON.parse(foldMultiLineString(check)));
-//     return res;
-//   }, []);
 
 export const buildChecks = ({ _ui: ui = {}, checks = [] }) => {
   const { watchType, checksBlocks } = ui;

@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { connect as connectFormik } from 'formik';
+import PropTypes from 'prop-types';
 import { get, cloneDeep } from 'lodash';
 import {
   EuiDragDropContext,
@@ -15,6 +16,8 @@ import {
   EuiButtonIcon,
   EuiToolTip,
   EuiLoadingSpinner,
+  EuiEmptyPrompt,
+  EuiButton,
 } from '@elastic/eui';
 import Block from './Block';
 import {
@@ -23,6 +26,8 @@ import {
   deleteText,
   executeBlocksAboveAndThisBlockText,
   executeOnlyThisBlockText,
+  looksLikeYouDontHaveAnyCheckText,
+  addText,
 } from '../../../../utils/i18n/watch';
 import { WatchService } from '../../../../services';
 import { formikToWatch } from '../../utils';
@@ -30,7 +35,7 @@ import { stringifyPretty } from '../../../../utils/helpers';
 
 import { Context } from '../../../../Context';
 
-const Blocks = ({ formik: { values, setFieldValue } }) => {
+const BlocksWatch = ({ formik: { values, setFieldValue }, onAddTemplate }) => {
   const { httpClient, addErrorToast } = useContext(Context);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -123,6 +128,56 @@ const Blocks = ({ formik: { values, setFieldValue } }) => {
     </EuiFlexGroup>
   );
 
+  const renderBlocks = () =>
+    blocks.map((check, idx) => (
+      <EuiDraggable
+        spacing="m"
+        key={check.id}
+        index={idx}
+        draggableId={`sgBlocks-draggable-${check.id}`}
+        customDragHandle={true}
+      >
+        {(provided, state) => (
+          <EuiPanel hasShadow={state.isDragging}>
+            <EuiFlexGroup>
+              <EuiFlexItem grow={false}>
+                <div
+                  {...provided.dragHandleProps}
+                  data-test-subject={`sgBlocks-grab-block-${check.id}`}
+                >
+                  <EuiIcon type="grab" />
+                </div>
+              </EuiFlexItem>
+              <EuiFlexItem>
+                <EuiAccordion
+                  buttonContent={check.name || check.type}
+                  id={`sgBlocks-accordion-${check.id}`}
+                  data-test-subj={`sgBlocks-accordion-block-${check.id}`}
+                  extraAction={renderActions(idx)}
+                >
+                  <div>
+                    <EuiSpacer />
+                    <Block check={check} idx={idx} />
+                  </div>
+                </EuiAccordion>
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          </EuiPanel>
+        )}
+      </EuiDraggable>
+    ));
+
+  const renderEmptyPrompt = () => (
+    <EuiEmptyPrompt
+      body={<p>{looksLikeYouDontHaveAnyCheckText}</p>}
+      actions={
+        <EuiButton data-test-subj={`sgBlocks-emptyPrompt-add-block`} onClick={onAddTemplate}>
+          {addText}
+        </EuiButton>
+      }
+    />
+  );
+
   return (
     <div style={{ overflowX: 'hidden' }}>
       <EuiDragDropContext onDragEnd={onDragEnd}>
@@ -132,45 +187,7 @@ const Blocks = ({ formik: { values, setFieldValue } }) => {
           </EuiTitle>
           <EuiSpacer size="s" />
           <EuiDroppable droppableId="sgBlocks-droppable" spacing="m">
-            <>
-              {blocks.map((check, idx) => (
-                <EuiDraggable
-                  spacing="m"
-                  key={check.id}
-                  index={idx}
-                  draggableId={`sgBlocks-draggable-${check.id}`}
-                  customDragHandle={true}
-                >
-                  {(provided, state) => (
-                    <EuiPanel hasShadow={state.isDragging}>
-                      <EuiFlexGroup>
-                        <EuiFlexItem grow={false}>
-                          <div
-                            {...provided.dragHandleProps}
-                            data-test-subject={`sgBlocks-grab-block-${check.id}`}
-                          >
-                            <EuiIcon type="grab" />
-                          </div>
-                        </EuiFlexItem>
-                        <EuiFlexItem>
-                          <EuiAccordion
-                            buttonContent={check.name || check.type}
-                            id={`sgBlocks-accordion-${check.id}`}
-                            data-test-subj={`sgBlocks-accordion-block-${check.id}`}
-                            extraAction={renderActions(idx)}
-                          >
-                            <div>
-                              <EuiSpacer />
-                              <Block check={check} idx={idx} />
-                            </div>
-                          </EuiAccordion>
-                        </EuiFlexItem>
-                      </EuiFlexGroup>
-                    </EuiPanel>
-                  )}
-                </EuiDraggable>
-              ))}
-            </>
+            {blocks.length ? renderBlocks() : renderEmptyPrompt()}
           </EuiDroppable>
         </EuiPanel>
       </EuiDragDropContext>
@@ -178,4 +195,9 @@ const Blocks = ({ formik: { values, setFieldValue } }) => {
   );
 };
 
-export default connectFormik(Blocks);
+BlocksWatch.propTypes = {
+  formik: PropTypes.object.isRequired,
+  onAddTemplate: PropTypes.func.isRequired,
+};
+
+export default connectFormik(BlocksWatch);
