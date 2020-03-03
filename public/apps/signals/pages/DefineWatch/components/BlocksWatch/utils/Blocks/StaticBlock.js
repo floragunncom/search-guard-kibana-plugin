@@ -22,7 +22,6 @@ export class StaticBlock extends Block {
       name: this.name,
       target: this.target,
       response: this.response,
-      value: this.value,
     };
 
     let value = '';
@@ -49,7 +48,7 @@ export class StaticBlock extends Block {
       value = JSON.parse(this.value);
     } catch (error) {
       // We expect we get valid JSON string after the Formik form validated and we never have this error.
-      console.log(`StaticBlock - Fail to parse block value`, error);
+      console.log(`StaticBlock - Fail to parse JSON string block value`, error);
     }
 
     check.value = value;

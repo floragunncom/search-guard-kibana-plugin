@@ -120,14 +120,7 @@ const BlockContainer = ({ formik: { setFieldValue }, block, idx }) => {
 BlockContainer.propTypes = {
   formik: PropTypes.object.isRequired,
   idx: PropTypes.number.isRequired,
-  block: PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    name: PropTypes.string.isRequired,
-    response: PropTypes.string.isRequired,
-    type: PropTypes.string.isRequired,
-    value: PropTypes.string.isRequired,
-    target: PropTypes.string,
-  }),
+  block: PropTypes.oneOfType([PropTypes.object]),
 };
 
 export default connectFormik(BlockContainer);

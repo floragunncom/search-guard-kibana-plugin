@@ -3,12 +3,11 @@ export class Block {
     return 'block';
   }
 
-  constructor({ id, name = '', target = '', response = '', value = {} }) {
+  constructor({ id, name = '', target = '', response = '' }) {
     this.id = id;
     this.name = name;
     this.target = target;
     this.response = response;
-    this.value = value;
   }
 
   get type() {
