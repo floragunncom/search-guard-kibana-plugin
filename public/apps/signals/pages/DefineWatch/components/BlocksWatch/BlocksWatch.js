@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { get, cloneDeep } from 'lodash';
@@ -32,17 +32,22 @@ import { WatchService } from '../../../../services';
 import { formikToWatch } from '../../utils';
 import { stringifyPretty } from '../../../../utils/helpers';
 
-import { StaticBlock, ScriptBlock } from './utils/Blocks';
+import { StaticBlock } from './utils/Blocks';
 import { StaticBlockForm, ScriptBlockForm } from './Forms';
 
 import { Context } from '../../../../Context';
 
-const BlocksWatch = ({ formik: { values, setFieldValue }, onAddTemplate }) => {
+const BlocksWatch = ({ formik: { values, setFieldValue }, onAddTemplate, onCloseResult }) => {
   const { httpClient, addErrorToast } = useContext(Context);
   const [isLoading, setIsLoading] = useState(false);
 
   const watchService = new WatchService(httpClient);
   const blocks = get(values, '_ui.checksBlocks', []);
+
+  useEffect(() => {
+    onCloseResult();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onDragEnd = ({ source, destination }) => {
     if (source && destination) {
@@ -215,6 +220,7 @@ const BlocksWatch = ({ formik: { values, setFieldValue }, onAddTemplate }) => {
 BlocksWatch.propTypes = {
   formik: PropTypes.object.isRequired,
   onAddTemplate: PropTypes.func.isRequired,
+  onCloseResult: PropTypes.func.isRequired,
 };
 
 export default connectFormik(BlocksWatch);

@@ -136,7 +136,7 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
           )}
 
           <EuiSpacer />
-          <BlocksWatch onAddTemplate={handleAddTemplate} />
+          <BlocksWatch onAddTemplate={handleAddTemplate} onCloseResult={closeResult} />
 
           <EuiSpacer />
           {isSeverity && <SeverityForm isTitle />}
