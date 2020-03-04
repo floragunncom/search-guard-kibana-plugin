@@ -22,10 +22,11 @@ import {
 import { isInvalid, hasError, validateWatchString } from '../../../utils/validate';
 import { CODE_EDITOR_NUM_OF_LINES } from '../utils/constants';
 import { DOC_LINKS } from '../../../../../utils/constants';
+import { StaticBlock } from '../utils/Blocks';
 
 import { Context } from '../../../../../Context';
 
-const StaticBlock = ({ idx, block, formik: { setFieldValue } }) => {
+const StaticBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
   const { editorTheme, editorOptions } = useContext(Context);
 
   const renderCheckEditor = idx => (
@@ -141,11 +142,11 @@ const StaticBlock = ({ idx, block, formik: { setFieldValue } }) => {
   );
 };
 
-StaticBlock.propTypes = {
+StaticBlockForm.propTypes = {
   idx: PropTypes.number.isRequired,
   formik: PropTypes.object.isRequired,
   block: PropTypes.shape({
-    type: PropTypes.oneOf(['static']).isRequired,
+    type: PropTypes.oneOf([StaticBlock.type]).isRequired,
     name: PropTypes.string.isRequired,
     value: PropTypes.string.isRequired,
     id: PropTypes.number.isRequired,
@@ -154,4 +155,4 @@ StaticBlock.propTypes = {
   }).isRequired,
 };
 
-export default connectFormik(StaticBlock);
+export default connectFormik(StaticBlockForm);

@@ -32,8 +32,8 @@ import { WatchService } from '../../../../services';
 import { formikToWatch } from '../../utils';
 import { stringifyPretty } from '../../../../utils/helpers';
 
-import { StaticBlock, SearchBlock } from './utils/Blocks';
-import { StaticBlockForm, ScriptBlockForm, SearchBlockForm } from './Forms';
+import { StaticBlock, SearchBlock, HttpBlock } from './utils/Blocks';
+import { StaticBlockForm, ScriptBlockForm, SearchBlockForm, HttpBlockForm } from './Forms';
 
 import { Context } from '../../../../Context';
 
@@ -144,6 +144,9 @@ const BlocksWatch = ({ formik: { values, setFieldValue }, onAddTemplate, onClose
         break;
       case SearchBlock.type:
         form = <SearchBlockForm idx={idx} block={block} />;
+        break;
+      case HttpBlock.type:
+        form = <HttpBlockForm idx={idx} block={block} />;
         break;
       default:
         form = <ScriptBlockForm idx={idx} block={block} />;

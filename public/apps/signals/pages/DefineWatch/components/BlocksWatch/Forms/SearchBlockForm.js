@@ -16,7 +16,6 @@ import {
   nameText,
   responseText,
   closeText,
-  valueText,
   documentationText,
   elasticsearchQueryDSLText,
 } from '../../../../../utils/i18n/watch';
@@ -24,10 +23,11 @@ import WatchIndex from '../../WatchIndex';
 import { isInvalid, hasError, validateEmptyField } from '../../../utils/validate';
 import { CODE_EDITOR_NUM_OF_LINES } from '../utils/constants';
 import { DOC_LINKS } from '../../../../../utils/constants';
+import { SearchBlock } from '../utils/Blocks';
 
 import { Context } from '../../../../../Context';
 
-const SearchBlock = ({ idx, block, formik: { setFieldValue } }) => {
+const SearchBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
   const {
     editorTheme,
     editorOptions,
@@ -161,11 +161,11 @@ const SearchBlock = ({ idx, block, formik: { setFieldValue } }) => {
   );
 };
 
-SearchBlock.propTypes = {
+SearchBlockForm.propTypes = {
   idx: PropTypes.number.isRequired,
   formik: PropTypes.object.isRequired,
   block: PropTypes.shape({
-    type: PropTypes.oneOf(['search']).isRequired,
+    type: PropTypes.oneOf([SearchBlock.type]).isRequired,
     name: PropTypes.string.isRequired,
     id: PropTypes.number.isRequired,
     response: PropTypes.string.isRequired,
@@ -181,4 +181,4 @@ SearchBlock.propTypes = {
   }).isRequired,
 };
 
-export default connectFormik(SearchBlock);
+export default connectFormik(SearchBlockForm);

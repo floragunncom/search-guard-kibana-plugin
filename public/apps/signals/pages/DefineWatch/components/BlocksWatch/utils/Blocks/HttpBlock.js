@@ -3,6 +3,7 @@ import { defaultsDeep } from 'lodash';
 import { Block } from './Block';
 
 export const REQUEST_METHODS = ['GET', 'PUT', 'POST', 'DELETE'];
+export const REQUEST_AUTH_TYPES = ['basic'];
 
 export const REQUEST_AUTH_DEFAULTS = {
   type: 'basic',

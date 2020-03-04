@@ -1,1 +1,1 @@
-export const CODE_EDITOR_NUM_OF_LINES = 15;
+export const CODE_EDITOR_NUM_OF_LINES = 20;
