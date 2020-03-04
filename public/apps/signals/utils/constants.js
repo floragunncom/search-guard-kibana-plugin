@@ -31,6 +31,7 @@ export const SEARCH_TYPE = {
 
 export const DOC_LINKS = {
   REPO: 'https://git.floragunn.com/search-guard/search-guard-kibana-plugin',
+  GETTING_STARTED: 'https://docs.search-guard.com/latest/elasticsearch-alerting-getting-started',
   INPUTS: {
     STATIC: 'https://docs.search-guard.com/latest/elasticsearch-alerting-inputs-static',
     HTTP: 'https://docs.search-guard.com/latest/elasticsearch-alerting-inputs-http'
@@ -40,7 +41,7 @@ export const DOC_LINKS = {
   CALCS: 'https://docs.search-guard.com/latest/elasticsearch-alerting-calculations',
   TRIGGERS: {
     SCHEDULE: 'https://docs.search-guard.com/latest/elasticsearch-alerting-triggers-schedule'
-  }
+  },
 };
 
 export const FLYOUTS = {

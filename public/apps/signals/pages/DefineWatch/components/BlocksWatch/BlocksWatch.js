@@ -19,7 +19,6 @@ import {
   EuiEmptyPrompt,
   EuiButton,
 } from '@elastic/eui';
-import BlockContainer from './BlockContainer';
 import {
   checksText,
   executeText,
@@ -32,6 +31,9 @@ import {
 import { WatchService } from '../../../../services';
 import { formikToWatch } from '../../utils';
 import { stringifyPretty } from '../../../../utils/helpers';
+
+import { StaticBlock, ScriptBlock } from './utils/Blocks';
+import { StaticBlockForm, ScriptBlockForm } from './Forms';
 
 import { Context } from '../../../../Context';
 
@@ -128,6 +130,21 @@ const BlocksWatch = ({ formik: { values, setFieldValue }, onAddTemplate }) => {
     </EuiFlexGroup>
   );
 
+  const renderBlockForm = ({ block, idx }) => {
+    let form;
+
+    switch (block.type) {
+      case StaticBlock.type:
+        form = <StaticBlockForm idx={idx} block={block} />;
+        break;
+      default:
+        form = <ScriptBlockForm idx={idx} block={block} />;
+        break;
+    }
+
+    return form;
+  };
+
   const renderBlocks = () =>
     blocks.map((block, idx) => (
       <EuiDraggable
@@ -157,7 +174,7 @@ const BlocksWatch = ({ formik: { values, setFieldValue }, onAddTemplate }) => {
                 >
                   <div>
                     <EuiSpacer />
-                    <BlockContainer block={block} idx={idx} />
+                    {renderBlockForm({ idx, block })}
                   </div>
                 </EuiAccordion>
               </EuiFlexItem>

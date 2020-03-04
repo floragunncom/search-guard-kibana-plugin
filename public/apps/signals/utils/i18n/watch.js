@@ -149,3 +149,4 @@ export const leaveInputEmptyToOmitThresholdLevelText = (
   />
 );
 export const targetText = <EuiI18n token="sg.watch.target.text" default="Target" />;
+export const valueText = <EuiI18n token="sg.watch.value.text" default="Value" />;

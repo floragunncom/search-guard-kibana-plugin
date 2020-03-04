@@ -11,6 +11,7 @@ import {
   EuiLink,
 } from '@elastic/eui';
 import { FormikCodeEditor, FormikFieldText } from '../../../../../components';
+import { ConditionBlock, TransformBlock, CalcBlock } from '../utils/Blocks';
 import {
   targetText,
   nameText,
@@ -19,19 +20,28 @@ import {
   valueText,
   documentationText,
 } from '../../../../../utils/i18n/watch';
-import { isInvalid, hasError, validateWatchString } from '../../../utils/validate';
+import { isInvalid, hasError, validateEmptyField } from '../../../utils/validate';
 import { CODE_EDITOR_NUM_OF_LINES } from '../utils/constants';
 import { DOC_LINKS } from '../../../../../utils/constants';
 
 import { Context } from '../../../../../Context';
 
-const StaticBlock = ({ idx, block, formik: { setFieldValue } }) => {
+const ScriptBlock = ({ idx, block, formik: { setFieldValue } }) => {
   const { editorTheme, editorOptions } = useContext(Context);
+
+  let docLink = DOC_LINKS.GETTING_STARTED;
+  if (block.type === TransformBlock.type) {
+    docLink = DOC_LINKS.TRANSFORMS;
+  } else if (block.type === CalcBlock.type) {
+    docLink = DOC_LINKS.CALCS;
+  } else if (block.type === ConditionBlock.type || block.type === ConditionBlock.legacyType) {
+    docLink = DOC_LINKS.CONDITIONS;
+  }
 
   const renderCheckEditor = idx => (
     <FormikCodeEditor
       data-test-subj={`sgBlocks-checkEditor-block-${idx}`}
-      name={`_ui.checksBlocks.${idx}.value`}
+      name={`_ui.checksBlocks.${idx}.source`}
       formRow
       rowProps={{
         fullWidth: true,
@@ -40,21 +50,25 @@ const StaticBlock = ({ idx, block, formik: { setFieldValue } }) => {
         error: hasError,
         labelAppend: (
           <EuiText size="xs">
-            <EuiLink data-test-subj="document-link" href={DOC_LINKS.INPUTS.STATIC} target="_blank">
+            <EuiLink data-test-subj="document-link" href={docLink} target="_blank">
               {documentationText}
             </EuiLink>
           </EuiText>
         ),
       }}
       elementProps={{
+        // TODO: develop a custom mode to support painless
         isCustomMode: false,
-        mode: 'json',
+        mode: 'text',
         width: '100%',
         isInvalid,
         setOptions: {
           ...editorOptions,
           minLines: CODE_EDITOR_NUM_OF_LINES,
           maxLines: CODE_EDITOR_NUM_OF_LINES,
+          // TODO: add snippets and autocomplition when painless mode is ready to use
+          enableLiveAutocompletion: false,
+          enableSnippets: false,
         },
         theme: editorTheme,
         onChange: (e, query, field, form) => {
@@ -65,7 +79,7 @@ const StaticBlock = ({ idx, block, formik: { setFieldValue } }) => {
         },
       }}
       formikFieldProps={{
-        validate: validateWatchString,
+        validate: validateEmptyField,
       }}
     />
   );
@@ -141,17 +155,17 @@ const StaticBlock = ({ idx, block, formik: { setFieldValue } }) => {
   );
 };
 
-StaticBlock.propTypes = {
+ScriptBlock.propTypes = {
   idx: PropTypes.number.isRequired,
   formik: PropTypes.object.isRequired,
   block: PropTypes.shape({
-    type: PropTypes.oneOf(['static']).isRequired,
+    type: PropTypes.oneOf(['condition', 'condition.script', 'transform', 'calc']).isRequired,
     name: PropTypes.string.isRequired,
-    value: PropTypes.string.isRequired,
+    source: PropTypes.string.isRequired,
     id: PropTypes.number.isRequired,
     response: PropTypes.string.isRequired,
     target: PropTypes.string.isRequired,
   }).isRequired,
 };
 
-export default connectFormik(StaticBlock);
+export default connectFormik(ScriptBlock);
