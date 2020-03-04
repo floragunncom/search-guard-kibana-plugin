@@ -34,7 +34,8 @@ export const DOC_LINKS = {
   GETTING_STARTED: 'https://docs.search-guard.com/latest/elasticsearch-alerting-getting-started',
   INPUTS: {
     STATIC: 'https://docs.search-guard.com/latest/elasticsearch-alerting-inputs-static',
-    HTTP: 'https://docs.search-guard.com/latest/elasticsearch-alerting-inputs-http'
+    HTTP: 'https://docs.search-guard.com/latest/elasticsearch-alerting-inputs-http',
+    SEARCH: 'https://docs.search-guard.com/latest/elasticsearch-alerting-inputs-elasticsearch',
   },
   CONDITIONS: 'https://docs.search-guard.com/latest/elasticsearch-alerting-conditions-script',
   TRANSFORMS: 'https://docs.search-guard.com/latest/elasticsearch-alerting-transformations',

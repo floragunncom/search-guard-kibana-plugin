@@ -11,64 +11,61 @@ import {
   EuiLink,
 } from '@elastic/eui';
 import { FormikCodeEditor, FormikFieldText } from '../../../../../components';
-import { ConditionBlock, TransformBlock, CalcBlock } from '../utils/Blocks';
 import {
   targetText,
   nameText,
   responseText,
   closeText,
-  sourceText,
+  valueText,
   documentationText,
+  elasticsearchQueryDSLText,
 } from '../../../../../utils/i18n/watch';
+import WatchIndex from '../../WatchIndex';
 import { isInvalid, hasError, validateEmptyField } from '../../../utils/validate';
 import { CODE_EDITOR_NUM_OF_LINES } from '../utils/constants';
 import { DOC_LINKS } from '../../../../../utils/constants';
 
 import { Context } from '../../../../../Context';
 
-const ScriptBlock = ({ idx, block, formik: { setFieldValue } }) => {
-  const { editorTheme, editorOptions } = useContext(Context);
-
-  let docLink = DOC_LINKS.GETTING_STARTED;
-  if (block.type === TransformBlock.type) {
-    docLink = DOC_LINKS.TRANSFORMS;
-  } else if (block.type === CalcBlock.type) {
-    docLink = DOC_LINKS.CALCS;
-  } else if (block.type === ConditionBlock.type || block.type === ConditionBlock.legacyType) {
-    docLink = DOC_LINKS.CONDITIONS;
-  }
+const SearchBlock = ({ idx, block, formik: { setFieldValue } }) => {
+  const {
+    editorTheme,
+    editorOptions,
+    httpClient,
+    onComboBoxChange,
+    onComboBoxOnBlur,
+    onComboBoxCreateOption,
+  } = useContext(Context);
 
   const renderCheckEditor = idx => (
     <FormikCodeEditor
       data-test-subj={`sgBlocks-checkEditor-block-${idx}`}
-      name={`_ui.checksBlocks.${idx}.source`}
+      name={`_ui.checksBlocks.${idx}.request.body`}
       formRow
       rowProps={{
         fullWidth: true,
-        label: sourceText,
+        label: elasticsearchQueryDSLText,
         isInvalid,
         error: hasError,
         labelAppend: (
           <EuiText size="xs">
-            <EuiLink data-test-subj="document-link" href={docLink} target="_blank">
+            <EuiLink data-test-subj="document-link" href={DOC_LINKS.INPUTS.SEARCH} target="_blank">
               {documentationText}
             </EuiLink>
           </EuiText>
         ),
       }}
       elementProps={{
-        // TODO: develop a custom mode to support painless
-        isCustomMode: false,
-        mode: 'text',
+        isCustomMode: true,
+        mode: 'watch_editor',
         width: '100%',
         isInvalid,
         setOptions: {
           ...editorOptions,
           minLines: CODE_EDITOR_NUM_OF_LINES,
           maxLines: CODE_EDITOR_NUM_OF_LINES,
-          // TODO: add snippets and autocomplition when painless mode is ready to use
-          enableLiveAutocompletion: false,
-          enableSnippets: false,
+          enableLiveAutocompletion: true,
+          enableSnippets: true,
         },
         theme: editorTheme,
         onChange: (e, query, field, form) => {
@@ -146,6 +143,15 @@ const ScriptBlock = ({ idx, block, formik: { setFieldValue } }) => {
         }}
       />
 
+      <WatchIndex
+        isClearable={false}
+        httpClient={httpClient}
+        indexFieldName={`_ui.checksBlocks[${idx}].request.indices`}
+        onComboBoxChange={onComboBoxChange}
+        onComboBoxOnBlur={onComboBoxOnBlur}
+        onComboBoxCreateOption={onComboBoxCreateOption}
+      />
+
       <EuiSpacer />
       <EuiFlexGroup>
         <EuiFlexItem>{renderCheckEditor(idx)}</EuiFlexItem>
@@ -155,17 +161,24 @@ const ScriptBlock = ({ idx, block, formik: { setFieldValue } }) => {
   );
 };
 
-ScriptBlock.propTypes = {
+SearchBlock.propTypes = {
   idx: PropTypes.number.isRequired,
   formik: PropTypes.object.isRequired,
   block: PropTypes.shape({
-    type: PropTypes.oneOf(['condition', 'condition.script', 'transform', 'calc']).isRequired,
+    type: PropTypes.oneOf(['search']).isRequired,
     name: PropTypes.string.isRequired,
-    source: PropTypes.string.isRequired,
     id: PropTypes.number.isRequired,
     response: PropTypes.string.isRequired,
     target: PropTypes.string.isRequired,
+    request: PropTypes.shape({
+      indices: PropTypes.arrayOf(
+        PropTypes.shape({
+          label: PropTypes.string,
+        })
+      ).isRequired,
+      body: PropTypes.object.isRequired,
+    }).isRequired,
   }).isRequired,
 };
 
-export default connectFormik(ScriptBlock);
+export default connectFormik(SearchBlock);
