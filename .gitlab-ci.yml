@@ -1,32 +1,66 @@
 variables:
   SG_JAVA_BUILD_VERSION: "8"
-  
+
 image: circleci/openjdk:${SG_JAVA_BUILD_VERSION}-jdk-browsers
 
 
 before_script:
-    - | 
-        curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh| bash
-        export NVM_HOME=~/.nvm
-        export NVM_DIR="$HOME/.nvm"
-        [ -s "$NVM_DIR/nvm.sh" ]; \. "$NVM_DIR/nvm.sh" 
-        export MAVEN_HOME=/opt/apache-maven
-        PACKAGE_VERSION=$(cat package.json | jq --raw-output '.version') && echo "PACKAGE_VERSION: $PACKAGE_VERSION"
-        ES_VERSION=$(echo $PACKAGE_VERSION | cut -d'-' -f1) && echo "ES_VERSION: $ES_VERSION"
-        PLUGIN_VERSION=$(echo $PACKAGE_VERSION | cut -d'-' -f2) && echo "PLUGIN_VERSION: $PLUGIN_VERSION"
-        SNAPSHOT=$(echo $PACKAGE_VERSION | cut -d'-' -f3) && echo "SNAPSHOT: $SNAPSHOT"
+  - |
+    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh| bash
+    export NVM_HOME=~/.nvm
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ]; \. "$NVM_DIR/nvm.sh"
+    export MAVEN_HOME=/opt/apache-maven
+    PACKAGE_VERSION=$(cat package.json | jq --raw-output '.version') && echo "PACKAGE_VERSION: $PACKAGE_VERSION"
+    ES_VERSION=$(echo $PACKAGE_VERSION | cut -d'-' -f1) && echo "ES_VERSION: $ES_VERSION"
+    PLUGIN_VERSION=$(echo $PACKAGE_VERSION | cut -d'-' -f2) && echo "PLUGIN_VERSION: $PLUGIN_VERSION"
+    SNAPSHOT=$(echo $PACKAGE_VERSION | cut -d'-' -f3) && echo "SNAPSHOT: $SNAPSHOT"
 
 stages:
- - build
- - test
+  - build
 
 
 unittest_and_build:
   stage: build
-  script: 
+  script:
     - if [ "$SNAPSHOT" == "SNAPSHOT" ]; then ./build.sh deploy-snapshot-maven; else echo "Can only deploy SNAPSHOT versions" && exit -1; fi
+  except:
+    - merge_requests
   artifacts:
     when: always
     paths:
-    - build.log
+      - build.log
+    expire_in: 30 days
+
+
+unit_build_and_int_tests:
+  stage: build
+  script:
+    - |
+       sg_release=$(curl -Ss -F "token=$SG_RELEASE_TOKEN" -F "variables[CIP]=AWS" -F "variables[KIBANA_BUILD]=true" -F "variables[KIBANA_BRANCH]=$CI_COMMIT_REF_NAME" -F "variables[SG_CIRCLE_JOB]=kibanabuild" -F "ref=master" "https://git.floragunn.com/api/v4/projects/7/trigger/pipeline" --fail)
+       sg_release_buildnum=$(jq --raw-output '.id' <<< $sg_release )
+       echo "Executing build and integration tests in scope of https://git.floragunn.com/floragunncom/devops/release-support/pipelines/$sg_release_buildnum"
+       while true
+       do
+         sleep 30
+         sg_release_status=$(curl -Ss --header "PRIVATE-TOKEN: $CIRUNNER_TOKEN" "https://git.floragunn.com/api/v4/projects/7/pipelines/$sg_release_buildnum" | jq --raw-output '.status')
+
+         echo "Build and Integration tests status: $sg_release_status"
+
+         if [ "$sg_release_status" == "canceled" ] || [ "$sg_release_status" == "failed" ] || [ "$sg_release_status" == "skipped" ]; then
+           echo "Kibana Build and Integration tests failed. Check the reason here: https://git.floragunn.com/floragunncom/devops/release-support/pipelines/$sg_release_buildnum"
+           exit 1
+         fi
+
+         if [ "$sg_release_status" == "success" ]; then
+          echo "Kibana Build and Integration tests succeeded"
+          exit
+         fi
+        done
+  only:
+    - merge_requests
+  artifacts:
+    when: always
+    paths:
+      - build.log
     expire_in: 30 days
