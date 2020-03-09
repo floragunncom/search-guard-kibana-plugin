@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React from 'react';
 import { HashRouter as Router, Route } from 'react-router-dom';
 import { uiModules } from 'ui/modules';
@@ -7,16 +8,6 @@ import { I18nProvider } from '@kbn/i18n/react';
 
 import 'ui/autoload/styles';
 import Main from './pages/Main';
-
-// TODO: delete these services imports after they are refactored to JS/React
-import '../configuration/backend_api/actiongroups';
-import '../configuration/backend_api/client';
-import '../configuration/backend_api/internalusers';
-import '../configuration/backend_api/roles';
-import '../configuration/backend_api/rolesmapping';
-import '../configuration/backend_api/sgconfiguration';
-import '../configuration/backend_api/tenants';
-import '../configuration/systemstate/systemstate';
 
 import './css/style.css';
 
@@ -30,49 +21,16 @@ app.config($locationProvider => {
   });
 });
 
-app.config(stateManagementConfigProvider =>
-  stateManagementConfigProvider.disable()
-);
+app.config(stateManagementConfigProvider => stateManagementConfigProvider.disable());
 
-function RootController(
-  $scope,
-  $element,
-  $http,
-  backendInternalUsers,
-  backendRoles,
-  sgConfiguration,
-  backendAPI,
-  backendTenants,
-  backendActionGroups,
-  backendrolesmapping,
-  systemstate
-) {
+function RootController($scope, $element, $http) {
   const domNode = $element[0];
-
-  const angularServices = {
-    internalUsersService: backendInternalUsers,
-    rolesService: backendRoles,
-    configurationService: sgConfiguration,
-    backendApiService: backendAPI,
-    tenantsService: backendTenants,
-    actionGroupsService: backendActionGroups,
-    roleMappingsService: backendrolesmapping,
-    systemstateService: systemstate
-  };
 
   // render react to DOM
   render(
     <I18nProvider>
       <Router>
-        <Route render={props => (
-          <Main
-            title="Search Guard"
-            httpClient={$http}
-            angularServices={angularServices}
-            {...props}
-          />
-        )}
-        />
+        <Route render={props => <Main title="Search Guard" httpClient={$http} {...props} />} />
       </Router>
     </I18nProvider>,
     domNode

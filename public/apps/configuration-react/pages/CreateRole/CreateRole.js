@@ -36,7 +36,14 @@ import {
 } from './utils';
 import { TABS, ROLE, ROLE_MAPPING } from './utils/constants';
 import { getAllUiIndexPermissions, getAllUiClusterPermissions } from '../../utils/helpers';
-import { ElasticsearchService } from '../../services';
+import {
+  ElasticsearchService,
+  RolesService,
+  RolesMappingService,
+  ActionGroupsService,
+  TenantsService,
+  SystemService,
+} from '../../services';
 
 class CreateRole extends Component {
   constructor(props) {
@@ -45,6 +52,11 @@ class CreateRole extends Component {
     const { location, httpClient } = this.props;
     const { id } = queryString.parse(location.search);
     this.esService = new ElasticsearchService(httpClient);
+    this.rolesService = new RolesService(httpClient);
+    this.rolesMappingService = new RolesMappingService(httpClient);
+    this.actionGroupsService = new ActionGroupsService(httpClient);
+    this.tenantsService = new TenantsService(httpClient);
+    this.systemService = new SystemService(httpClient);
 
     this.state = {
       id,
@@ -95,32 +107,26 @@ class CreateRole extends Component {
 
   fetchData = async () => {
     const { id } = this.state;
-    const {
-      onTriggerErrorCallout,
-      roleMappingsService,
-      actionGroupsService,
-      systemstateService,
-      rolesService,
-      tenantsService
-    } = this.props;
+    const { onTriggerErrorCallout } = this.props;
 
     try {
       this.setState({ isLoading: true });
-      const { data: actionGroups } = await actionGroupsService.list();
+      const { data: actionGroups } = await this.actionGroupsService.list();
       const {
         allClusterActionGroups,
         allIndexActionGroups,
-        allTenantActionGroups
+        allTenantActionGroups,
       } = actionGroupsToUiClusterIndexTenantActionGroups(actionGroups);
+
       const { data: allIndices } = await this.esService.getIndices();
-      const { data: allTenants } = await tenantsService.list();
+      const { data: allTenants } = await this.tenantsService.list();
 
       // TODO: Refactor this to get stuff without side effects
-      await systemstateService.loadSystemInfo();
-      const isDlsEnabled = systemstateService.dlsFlsEnabled();
+      await this.systemService.loadSystemInfo();
+      const isDlsEnabled = this.systemService.dlsFlsEnabled();
       const isFlsEnabled = isDlsEnabled;
-      const isMultiTenancyEnabled = systemstateService.multiTenancyEnabled();
-      const isAnonymizedFieldsEnabled = systemstateService.complianceFeaturesEnabled();
+      const isMultiTenancyEnabled = this.systemService.multiTenancyEnabled();
+      const isAnonymizedFieldsEnabled = this.systemService.complianceFeaturesEnabled();
 
       this.setState({
         allClusterActionGroups,
@@ -135,8 +141,8 @@ class CreateRole extends Component {
       });
 
       if (id) {
-        const resource = await rolesService.get(id);
-        const roleMapping = await roleMappingsService.getSilent(id, false);
+        const resource = await this.rolesService.get(id);
+        const roleMapping = await this.rolesMappingService.getSilent(id);
         this.setState({ resource: roleToFormik({ resource, id, roleMapping }) });
       } else {
         this.setState({ resource: roleToFormik({ resource: ROLE, roleMapping: ROLE_MAPPING }), isEdit: !!id });
@@ -148,11 +154,11 @@ class CreateRole extends Component {
   }
 
   onSubmit = async (values, { setSubmitting }) => {
-    const { history, onTriggerErrorCallout, rolesService } = this.props;
+    const { history, onTriggerErrorCallout } = this.props;
     const { _name } = values;
     try {
       const doPreSave = false;
-      await rolesService.save(_name, formikToRole(values), doPreSave);
+      await this.rolesService.save(_name, formikToRole(values), doPreSave);
       setSubmitting(false);
       history.goBack();
     } catch (error) {
@@ -296,18 +302,13 @@ class CreateRole extends Component {
 CreateRole.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  rolesService: PropTypes.object.isRequired,
-  roleMappingsService: PropTypes.object.isRequired,
-  actionGroupsService: PropTypes.object.isRequired,
-  systemstateService: PropTypes.object.isRequired,
-  tenantsService: PropTypes.object.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
   httpClient: PropTypes.func.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,
   onComboBoxCreateOption: PropTypes.func.isRequired,
-  onComboBoxOnBlur: PropTypes.func.isRequired
+  onComboBoxOnBlur: PropTypes.func.isRequired,
 };
 
 export default CreateRole;

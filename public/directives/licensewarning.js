@@ -1,14 +1,14 @@
 import { uiModules } from 'ui/modules';
 import chrome from 'ui/chrome';
 import template from './licensewarning.html';
-
-require ('../apps/configuration/systemstate/systemstate');
+import { SystemStateService } from '../services';
 
 const app = uiModules.get('apps/searchguard/configuration', []);
 
+app.directive('sgLicenseWarning', function ($http) {
+    console.log($http);
+    const systemStateService = new SystemStateService($http);
 
-
-app.directive('sgLicenseWarning', function (systemstate) {
     return {
         restrict: 'EA',
         scope: {
@@ -21,9 +21,9 @@ app.directive('sgLicenseWarning', function (systemstate) {
             $scope.licensevalid = true;
             $scope.message = "";
 
-            systemstate.loadSystemInfo().then(function(){
+            systemStateService.loadSystemInfo().then(function(){
 
-                if (!systemstate.stateLoaded()) {
+                if (!systemStateService.stateLoaded()) {
                     $scope.message = "The Search Guard license information could not be loaded. Please contact your system administrator.";
                     $scope.licensevalid = false;
                     $scope.$apply('message');
@@ -31,12 +31,12 @@ app.directive('sgLicenseWarning', function (systemstate) {
                 }
 
 
-                if (!systemstate.licenseRequired()) {
+                if (!systemStateService.licenseRequired()) {
                     $scope.licensevalid = true;
                     return;
                 }
 
-                $scope.licensevalid = systemstate.licenseValid();
+                $scope.licensevalid = systemStateService.licenseValid();
 
                 if ($scope.errorMessage) {
                     $scope.message = $scope.errorMessage;
@@ -44,13 +44,13 @@ app.directive('sgLicenseWarning', function (systemstate) {
                     $scope.message = "The Search Guard license key is not valid for this cluster. Please contact your system administrator.";
                 }
 
-                if (systemstate.licenseValid()) {
-                    if (systemstate.isTrialLicense() && systemstate.expiresIn() <= 10) {
-                        $scope.hint = "Your trial license expires in " + systemstate.expiresIn() + " days.";
+                if (systemStateService.licenseValid()) {
+                    if (systemStateService.isTrialLicense() && systemStateService.expiresIn() <= 10) {
+                        $scope.hint = "Your trial license expires in " + systemStateService.expiresIn() + " days.";
                         $scope.$apply('hint');
                     }
-                    if (!systemstate.isTrialLicense() && systemstate.expiresIn() <= 20) {
-                        $scope.hint = "Your license expires in " + systemstate.expiresIn() + " days.";
+                    if (!systemStateService.isTrialLicense() && systemStateService.expiresIn() <= 20) {
+                        $scope.hint = "Your license expires in " + systemStateService.expiresIn() + " days.";
                         $scope.$apply('hint');
                     }
 
