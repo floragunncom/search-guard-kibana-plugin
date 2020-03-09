@@ -155,7 +155,6 @@ export default function (kibana) {
                 'plugins/searchguard/chrome/multitenancy/enable_multitenancy',
                 'plugins/searchguard/chrome/accountinfo/enable_accountinfo',
                 'plugins/searchguard/chrome/configuration/enable_configuration',
-                'plugins/searchguard/services/access_control',
                 'plugins/searchguard/customizations/enable_customizations.js'
             ],
             replaceInjectedVars: async function(originalInjectedVars, request, server) {
