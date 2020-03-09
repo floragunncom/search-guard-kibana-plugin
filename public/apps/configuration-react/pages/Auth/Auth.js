@@ -18,6 +18,7 @@ import { navigateText, disabledText } from '../../utils/i18n/common';
 import * as authI18nLabels from '../../utils/i18n/auth';
 import { SELECTED_SIDE_NAV_ITEM_NAME, SIDE_NAV } from './utils/constants';
 import { resourcesToUiResources } from './utils';
+import { SgConfigService } from '../../services';
 
 const AuthContent = ({ resource }) => (
   <EuiFlexGrid columns={2} className="sgFixedFormGroupItem">
@@ -51,7 +52,7 @@ class Auth extends Component {
       isSideNavOpenOnMobile: false
     };
 
-    this.backendService = this.props.configurationService;
+    this.backendService = new SgConfigService(this.props.httpClient);
   }
 
   componentDidMount() {
@@ -227,8 +228,7 @@ class Auth extends Component {
 Auth.propTypes = {
   history: PropTypes.object.isRequired,
   httpClient: PropTypes.func,
-  configurationService: PropTypes.object.isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired
+  onTriggerErrorCallout: PropTypes.func.isRequired,
 };
 
 export default Auth;

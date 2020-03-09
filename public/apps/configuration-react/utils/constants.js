@@ -3,10 +3,11 @@ export const DEFAULT_PASSWORD = 'admin';
 export const API_BASE = '../api/v1';
 export const API = {
   SYSTEM_INFO: `${API_BASE}/systeminfo`,
+  REST_API_INFO: `${API_BASE}/restapiinfo`,
   LICENSE: `${API_BASE}/license`,
   INDICES: `${API_BASE}/configuration/indices`,
   VALIDATE_DLS: `${API_BASE}/configuration/validatedls`,
-  INDEX_MAPPINGS: `${API_BASE}/configuration/index_mappings`
+  INDEX_MAPPINGS: `${API_BASE}/configuration/index_mappings`,
 };
 
 export const APP_PATH = {
@@ -69,8 +70,8 @@ export const MODALS = {
   CONFIRM_DELETION: 'confirmDeletion'
 };
 
-export { default as INDEX_PERMISSIONS } from '../../configuration/permissions/indexpermissions';
-export { default as CLUSTER_PERMISSIONS } from '../../configuration/permissions/clusterpermissions';
+export { default as INDEX_PERMISSIONS } from './permissions/indexpermissions';
+export { default as CLUSTER_PERMISSIONS } from './permissions/clusterpermissions';
 
 export const FIELDS_TO_OMIT_BEFORE_SAVE = ['reserved', 'static', 'hidden'];
 

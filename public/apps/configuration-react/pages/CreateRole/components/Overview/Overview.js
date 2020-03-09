@@ -27,8 +27,17 @@ import {
 import { formikToRole } from '../../utils';
 import { FormikFieldText, SubHeader } from '../../../../components';
 import { hasError, isInvalid, validateName } from '../../../../utils/validation';
+import { RolesService } from '../../../../services';
 
-const Overview = ({ values, titleText, onTriggerInspectJsonFlyout, rolesService, isUpdatingName }) => {
+const Overview = ({
+  values,
+  titleText,
+  onTriggerInspectJsonFlyout,
+  isUpdatingName,
+  httpClient,
+}) => {
+  const rolesService = new RolesService(httpClient);
+
   const sectionNoMappedText = {
     users: noMappedUsersFoundText,
     backend_roles: noMappedBackendRolesFoundText,
@@ -107,10 +116,10 @@ const Overview = ({ values, titleText, onTriggerInspectJsonFlyout, rolesService,
 };
 
 Overview.propTypes = {
+  httpClient: PropTypes.func.isRequired,
   values: PropTypes.object.isRequired,
-  rolesService: PropTypes.object.isRequired,
   isUpdatingName: PropTypes.bool.isRequired,
-  onTriggerInspectJsonFlyout: PropTypes.func.isRequired
+  onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
 };
 
 export default Overview;

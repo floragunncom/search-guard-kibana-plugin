@@ -31,13 +31,13 @@ import {
   noTenantsText
 } from '../../utils/i18n/tenants';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
-import { LocalStorageService } from '../../services';
+import { LocalStorageService, TenantsService } from '../../services';
 
 class Tenants extends Component {
   constructor(props) {
     super(props);
 
-    this.backendService = this.props.tenantsService;
+    this.backendService = new TenantsService(this.props.httpClient);
     this.localStorage = new LocalStorageService();
     const { isShowingTableSystemItems = false } = this.localStorage.cache[APP_PATH.TENANTS];
 
@@ -111,8 +111,7 @@ class Tenants extends Component {
     name += '_copy';
     try {
       this.setState({ isLoading: true });
-      const doPreSave = false;
-      await this.backendService.save(name, uiResourceToResource(resource), doPreSave);
+      await this.backendService.save(name, uiResourceToResource(resource));
     } catch(error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
@@ -276,7 +275,6 @@ class Tenants extends Component {
 Tenants.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  tenantsService: PropTypes.object.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired
 };
