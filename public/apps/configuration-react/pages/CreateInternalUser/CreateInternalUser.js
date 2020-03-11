@@ -15,14 +15,17 @@ import { APP_PATH, INTERNAL_USERS_ACTIONS } from '../../utils/constants';
 import { DEFAULT_USER } from './utils/constants';
 import { userToFormik, formikToUser } from './utils';
 import { internalUsersToUiBackendRoles } from '../../utils/helpers';
+import { InternalUsersService } from '../../services';
 
 // TODO: make this component get API data by chunks (paginations)
 class CreateInternalUser extends Component {
   constructor(props) {
     super(props);
 
-    const { location } = this.props;
+    const { location, httpClient } = this.props;
+    this.backendService = new InternalUsersService(httpClient);
     const { id } = queryString.parse(location.search);
+
     this.state = {
       id,
       isEdit: !!id,
@@ -43,16 +46,16 @@ class CreateInternalUser extends Component {
 
   fetchData = async () => {
     const { id } = this.state;
-    const { internalUsersService, onTriggerErrorCallout } = this.props;
+    const { onTriggerErrorCallout } = this.props;
     try {
       this.setState({ isLoading: true });
-      const { data: internalUsers } = await internalUsersService.list();
+      const { data: internalUsers } = await this.backendService.list();
       this.setState({
         allBackendRoles: internalUsersToUiBackendRoles(internalUsers)
       });
 
       if (id) {
-        const resource = await internalUsersService.get(id);
+        const resource = await this.backendService.get(id);
         this.setState({ resource: userToFormik(resource, id) });
       } else {
         this.setState({
@@ -67,13 +70,12 @@ class CreateInternalUser extends Component {
   }
 
   onSubmit = async (values, { setSubmitting }) => {
-    const { internalUsersService, history } = this.props;
+    const { history } = this.props;
     const { _username } = values;
     try {
       this.setState({ errorMessage: null });
       const user = formikToUser(values);
-      const doPreSave = false;
-      await internalUsersService.save(_username, user, doPreSave);
+      await this.backendService.save(_username, user);
       setSubmitting(false);
       history.push(APP_PATH.INTERNAL_USERS);
     } catch (error) {
@@ -165,7 +167,6 @@ CreateInternalUser.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
   httpClient: PropTypes.func,
-  internalUsersService: PropTypes.object.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,

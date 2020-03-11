@@ -29,13 +29,17 @@ import { isInvalid, hasError, validateName, validSinglePermissionOption } from '
 import { DEFAULT_ACTION_GROUP, TYPES } from './utils/constants';
 import { actionGroupToFormik, formikToActionGroup, actionGroupsToUiActionGroups } from './utils';
 import { getAllUiIndexPermissions, getAllUiClusterPermissions } from '../../utils/helpers';
+import { ActionGroupsService } from '../../services';
 
 class CreateActionGroup extends Component {
   constructor(props) {
     super(props);
 
-    const { location } = this.props;
+    const { location, httpClient } = this.props;
+
+    this.backendService = new ActionGroupsService(httpClient);
     const { id } = queryString.parse(location.search);
+
     this.state = {
       id,
       isEdit: !!id,
@@ -44,8 +48,6 @@ class CreateActionGroup extends Component {
       allSinglePermissions: [ ...getAllUiIndexPermissions(), ...getAllUiClusterPermissions() ],
       isLoading: true
     };
-
-    this.backendService = this.props.actionGroupsService;
   }
 
   componentDidMount() {
@@ -81,8 +83,7 @@ class CreateActionGroup extends Component {
     const { history, onTriggerErrorCallout } = this.props;
     const { _name } = values;
     try {
-      const doPreSave = false;
-      await this.backendService.save(_name, formikToActionGroup(values), doPreSave);
+      await this.backendService.save(_name, formikToActionGroup(values));
       setSubmitting(false);
       history.push(APP_PATH.ACTION_GROUPS);
     } catch (error) {
@@ -96,11 +97,11 @@ class CreateActionGroup extends Component {
       history,
       onTriggerInspectJsonFlyout,
       location,
-      actionGroupsService,
       onComboBoxChange,
       onComboBoxOnBlur,
       onComboBoxCreateOption
     } = this.props;
+
     const { resource, isLoading, allSinglePermissions, allActionGroups } = this.state;
     const { action, id } = queryString.parse(location.search);
     const updateActionGroup = action === ACTION_GROUPS_ACTIONS.UPDATE_ACTION_GROUP;
@@ -137,7 +138,7 @@ class CreateActionGroup extends Component {
               <FormikFieldText
                 formRow
                 formikFieldProps={{
-                  validate: validateName(actionGroupsService, isUpdatingName)
+                  validate: validateName(this.backendService, isUpdatingName),
                 }}
                 rowProps={{
                   label: nameText,
@@ -205,14 +206,14 @@ class CreateActionGroup extends Component {
 }
 
 CreateActionGroup.propTypes = {
+  httpClient: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  actionGroupsService: PropTypes.object.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,
   onComboBoxOnBlur: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired
+  onComboBoxCreateOption: PropTypes.func.isRequired,
 };
 
 export default CreateActionGroup;

@@ -20,47 +20,52 @@ import chrome from 'ui/chrome';
 import { chromeHeaderNavControlsRegistry } from 'ui/registry/chrome_header_nav_controls';
 import { EuiButtonEmpty, EuiToolTip } from '@elastic/eui';
 import { logoutText, loginText } from '../../apps/configuration-react/utils/i18n/common';
+import { AccessControlService } from '../../services';
 
 if (chrome.getInjected('auth.type') !== 'kerberos' && chrome.getInjected('auth.type') !== 'proxy') {
-  chromeHeaderNavControlsRegistry.register((searchGuardAccessControl) => ({
-    name: 'btn-logout',
-    order: 1000,
-    side: 'right',
-    render(el) {
-      function onClick() {
-        searchGuardAccessControl.logout();
-      }
+  chromeHeaderNavControlsRegistry.register($http => {
+    const accessControl = new AccessControlService($http);
 
-      const chromeInjected = chrome.getInjected();
-      let logoutButtonLabel = logoutText;
-      let logoutTooltip = logoutText;
-      if (chromeInjected && chromeInjected.sgDynamic && chromeInjected.sgDynamic.user) {
-        if (!chromeInjected.sgDynamic.user.isAnonymousAuth) {
-          logoutButtonLabel = chromeInjected.sgDynamic.user.username;
-          logoutTooltip = `Logout ${chromeInjected.sgDynamic.user.username}`;
-        } else {
-          logoutButtonLabel = loginText;
-          logoutTooltip = loginText;
+    return {
+      name: 'btn-logout',
+      order: 1000,
+      side: 'right',
+      render(el) {
+        function onClick() {
+          accessControl.logout();
         }
-      }
 
-      ReactDOM.render(
-        <EuiToolTip
-          position="bottom"
-          content={logoutTooltip}
-        >
-          <EuiButtonEmpty
-            style={{ paddingTop: '8px' }}
-            onClick={onClick}
-            iconType="exit"
+        const chromeInjected = chrome.getInjected();
+        let logoutButtonLabel = logoutText;
+        let logoutTooltip = logoutText;
+        if (chromeInjected && chromeInjected.sgDynamic && chromeInjected.sgDynamic.user) {
+          if (!chromeInjected.sgDynamic.user.isAnonymousAuth) {
+            logoutButtonLabel = chromeInjected.sgDynamic.user.username;
+            logoutTooltip = `Logout ${chromeInjected.sgDynamic.user.username}`;
+          } else {
+            logoutButtonLabel = loginText;
+            logoutTooltip = loginText;
+          }
+        }
+
+        ReactDOM.render(
+          <EuiToolTip
+            position="bottom"
+            content={logoutTooltip}
           >
-            {logoutButtonLabel}
-          </EuiButtonEmpty>
-        </EuiToolTip>,
-        el
-      );
+            <EuiButtonEmpty
+              style={{ paddingTop: '8px' }}
+              onClick={onClick}
+              iconType="exit"
+            >
+              {logoutButtonLabel}
+            </EuiButtonEmpty>
+          </EuiToolTip>,
+          el
+        );
 
-      return () => ReactDOM.unmountComponentAtNode(el);
-    }
-  }));
+        return () => ReactDOM.unmountComponentAtNode(el);
+      },
+    };
+  });
 }
