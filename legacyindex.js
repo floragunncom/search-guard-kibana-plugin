@@ -19,6 +19,8 @@ export default function (kibana) {
     let authenticationBackend;
     let searchGuardConfiguration;
 
+    return;
+
 
     const corePlugin = new kibana.Plugin({
         name: 'searchguard',
@@ -459,7 +461,7 @@ export default function (kibana) {
             this.status.yellow('Search Guard system routes registered.');
 
             // create index template for tenant indices
-            if(config.get('searchguard.multitenancy.enabled')) {
+            if(0 && config.get('searchguard.multitenancy.enabled')) {
                 const { setupIndexTemplate, waitForElasticsearchGreen } = indexTemplate(this, server);
 
                 waitForElasticsearchGreen().then( () => {
