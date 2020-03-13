@@ -66,6 +66,8 @@ export default function (kibana) {
                         show_for_parameter: Joi.string().allow('').default(''),
                         valid_redirects: Joi.array().default([]),
                         button_text: Joi.string().default('Login with provider'),
+                        // TODO: Do braking change making the buttonstyle object to hold valid React CSS style props 
+                        // Consider allowing user to pass EuiButton props instead
                         buttonstyle: Joi.string().allow('').default("")
                     }).default(),
                     loadbalancer_url: Joi.string().allow('', null).default(null),
@@ -74,6 +76,8 @@ export default function (kibana) {
                         subtitle: Joi.string().allow('').default('If you have forgotten your username or password, please ask your system administrator'),
                         showbrandimage: Joi.boolean().default(true),
                         brandimage: Joi.string().default("/plugins/searchguard/assets/searchguard_logo.svg"),
+                        // TODO: Do braking change making the buttonstyle object to hold valid React CSS style props.
+                        // Consider allowing user to pass EuiButton props instead.
                         buttonstyle: Joi.string().allow('').default("")
                     }).default(),
                 }).default(),
@@ -236,7 +240,7 @@ export default function (kibana) {
                 {
                     id: 'searchguard-customerror',
                     title: 'CustomError',
-                    main: 'plugins/searchguard/apps/customerror/customerror',
+                    main: 'plugins/searchguard/apps/customerror',
                     hidden: true,
                     auth: false
                 },
