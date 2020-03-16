@@ -18,6 +18,18 @@ export class PublicPlugin {
       }
     });
 
+    core.application.register({
+      id: 'multitenancy',
+      title: 'Multitenancy',
+      icon: 'plugins/searchguard/assets/networking.svg',
+      //euiIconType: 'user',
+      mount: async(params) => {
+        const { renderApp } = await import('./applications/multitenancy/npstart');
+
+        return renderApp(core, null, params, this.config);
+      }
+    });
+
     // @todo Do we need to add a basePath here?
     core.http.anonymousPaths.register('/login');
     core.application.register({

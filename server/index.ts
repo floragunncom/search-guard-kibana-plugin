@@ -68,6 +68,7 @@ export const config = {
   //path: 'searchguard',
   exposeToBrowser: {
     username: true,
+    multitenancy: true,
     basicauth: {
       login: true // @todo Seems like this exposes the entire basicauth object
     }
