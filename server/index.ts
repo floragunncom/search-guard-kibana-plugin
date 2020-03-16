@@ -3,7 +3,9 @@ import { Plugin } from './serverPlugin';
 import { schema } from '@kbn/config-schema';
 
 export const ConfigSchema = schema.object({
-
+  readonly_mode: schema.object({
+    roles: schema.arrayOf(schema.string(), { defaultValue: [] })
+  }),
   cookie: schema.object({
     secure: schema.boolean({ defaultValue: false }),
     name: schema.string({ defaultValue: 'searchguard_authentication' }),

@@ -252,13 +252,11 @@ export default class Main extends Component {
           const userName = response.data.user_name;
           const allTenants = response.data.sg_tenants;
           // @todo Add back dynamic values
-          //const globalEnabled = chrome.getInjected('multitenancy.tenants.enable_global');
-          //const privateEnabled = chrome.getInjected('multitenancy.tenants.enable_private');
-          //const readOnlyConfig = chrome.getInjected('readonly_mode');
+          const globalEnabled = this.config.multitenancy.tenants.enable_global;
+          const privateEnabled = this.config.multitenancy.tenants.enable_private;
+          const readOnlyConfig = this.config.readonly_mode;
 
-          const globalEnabled = true;
-          const privateEnabled = true;
-          const readOnlyConfig = {roles: []};
+
           // @todo
           let userHasDashboardOnlyRole = false;
           try {
