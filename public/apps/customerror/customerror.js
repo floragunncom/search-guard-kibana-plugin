@@ -17,6 +17,7 @@
 
 import chrome from 'ui/chrome';
 import React from 'react';
+import { camelCase } from 'lodash';
 import { render } from 'react-dom';
 import { CustomErrorPage } from './CustomErrorPage';
 
@@ -27,7 +28,7 @@ function legacyCSSToReactStyle(style = '') {
   return style.split(';').reduce((acc, style) => {
     const [, key, value] = style.match(/(.+):(.+)/) || [];
     if (key) {
-      acc[key.trim()] = value.trim();
+      acc[camelCase(key.trim())] = value.trim();
     }
     return acc;
   }, {});
