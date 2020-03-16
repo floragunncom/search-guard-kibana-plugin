@@ -4,6 +4,28 @@ import { schema } from '@kbn/config-schema';
 
 export const ConfigSchema = schema.object({
 
+  cookie: schema.object({
+    secure: schema.boolean({ defaultValue: false }),
+    name: schema.string({ defaultValue: 'searchguard_authentication' }),
+    storage_cookie_name: schema.string({ defaultValue: 'searchguard_storage' }),
+    preferences_cookie_name: schema.string({ defaultValue: 'searchguard_preferences' }),
+    password: schema.string({ minLength: 32, defaultValue: 'searchguard_cookie_default_password' }),
+    ttl: schema.number({ defaultValue: 60 * 60 * 1000 }),
+    domain: schema.maybe(schema.string()),
+    isSameSite: schema.oneOf([
+      // @todo Check the changes in Chrome 80 here
+      schema.literal(false),
+      schema.literal('Strict'),
+      schema.literal('Lax')
+      ],
+      { defaultValue: false }
+      ),
+  }),
+  session: schema.object({
+    ttl: schema.number({ min: 0, defaultValue: 60 * 60 * 1000 }),
+    keepalive: schema.boolean({ defaultValue: true })
+  }),
+
   basicauth: schema.object({
     forbidden_usernames: schema.arrayOf(schema.string(), { defaultValue: [] }),
     allowed_usernames: schema.nullable(schema.arrayOf(schema.string())),
@@ -22,6 +44,18 @@ export const ConfigSchema = schema.object({
       showbrandimage: schema.boolean({ defaultValue: true }),
       brandimage: schema.string({ defaultValue: '/plugins/searchguard/assets/searchguard_logo.svg' }),
       buttonstyle: schema.string({ defaultValue: '' })
+    })
+  }),
+
+  multitenancy: schema.object({
+    enabled: schema.boolean({ defaultValue: false }),
+    show_roles: schema.boolean({ defaultValue: false }),
+    enable_filter: schema.boolean({ defaultValue: false }),
+    debug: schema.boolean({ defaultValue: false }),
+    tenants: schema.object({
+      enable_private: schema.boolean({ defaultValue: true }),
+      enable_global: schema.boolean({ defaultValue: true }),
+      preferred: schema.maybe(schema.arrayOf(schema.string()))
     })
   }),
 

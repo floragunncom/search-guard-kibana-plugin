@@ -42,43 +42,6 @@ export class Plugin {
                     'auth.type': 'basicauth',
                     'auth.anonymous_auth_enabled': false,
                     'auth.logout_url': '',
-
-                    // Sessions
-                    'session.ttl': 60 * 60 * 1000,
-                    'session.keepalive': true,
-
-                    // Cookie
-                    'cookie.secure': false,
-                    'cookie.name': 'searchguard_authentication',
-                    'cookie.storage_cookie_name': 'searchguard_storage',
-                    'cookie.preferences_cookie_name': 'searchguard_preferences',
-                    'cookie.password': 'searchguard_cookie_default_password',
-                    'cookie.ttl': 60 * 60 * 1000,
-                    'cookie.domain': null,
-                    'cookie.isSameSite': false,
-
-                    // Basic auth
-                    'basicauth.forbidden_usernames': [],
-                    'basicauth.allowed_usernames': null,
-                    'basicauth.header_trumps_session': false,
-                    'basicauth.loadbalancer_url': null,
-                    'basicauth.alternative_login.headers': [],
-                    // @todo Alternative basic auth login
-
-                    // Multitenancy
-                    'multitenancy.enabled': false,
-
-                },
-                values: {
-                    basicauth: {
-                        forbidden_usernames: ['yihaa'],
-                        allowed_usernames: null,
-                        header_trumps_session: false,
-                        loadbalancer_ur: null,
-                        alternative_login: {
-                            headers: []
-                        }
-                    }
                 },
                 get(configKey, defaultValue = null) {
                     // Remove the searchguard prefix if available
@@ -132,7 +95,7 @@ export class Plugin {
             username: '',
             password: '',
             // @todo Needed for filtering headers in the client
-            requestHeadersWhitelist: ["authorization", "sgtenant", "sg_impersonate_as", "x-forwarded-for", "x-proxy-user", "x-proxy-roles"]
+            requestHeadersWhitelist: ["authorization", 'sgtenant', "sg_impersonate_as", "x-forwarded-for", "x-proxy-user", "x-proxy-roles"]
         }
 
         // @todo Clean this stuff up
@@ -168,8 +131,54 @@ export class Plugin {
 
         const basicAuth = new BasicAuth(null, server, null, APP_ROOT, API_ROOT, core, config)
         await basicAuth.init();
+
+        // @todo
+        const authClass = basicAuth;
+
+        // @todo XFF
+
+        // MT
+        if (config.get('searchguard.multitenancy.enabled')) {
+            const headersWhitelist = legacyEsConfig.requestHeadersWhitelist;
+            if (headersWhitelist.indexOf('sgtenant') == -1) {
+                // @todo Re-implement
+                //throw new Error('No tenant header found in whitelist. Please add sgtenant to elasticsearch.requestHeadersWhitelist in kibana.yml');
+                //this.status.red('No tenant header found in whitelist. Please add sgtenant to elasticsearch.requestHeadersWhitelist in kibana.yml');
+                return;
+            }
+
+            require('../lib/multitenancy/routes')(null, server, this, APP_ROOT, API_ROOT, config);
+            require('../lib/multitenancy/headers')(null, server, this, APP_ROOT, API_ROOT, authClass, config);
+
+            let preferenceCookieConf = {
+                ttl: 2217100485000,
+                path: '/',
+                isSecure: false,
+                isHttpOnly: false,
+                clearInvalid: true, // remove invalid cookies
+                strictHeader: true, // don't allow violations of RFC 6265
+                encoding: 'iron',
+                password: config.get("searchguard.cookie.password"),
+                isSameSite: config.get('searchguard.cookie.isSameSite')
+            };
+
+            if (config.get('searchguard.cookie.domain')) {
+                preferenceCookieConf["domain"] = config.get('searchguard.cookie.domain');
+            }
+
+            server.state(config.get('searchguard.cookie.preferences_cookie_name'), preferenceCookieConf);
+        }
+
+
+
         // @todo Try to refactor this stuff back to onPostAuth, like before 6.5
         basicAuth.registerAssignAuthHeader();
+
+
+
+        // @todo 1. Config routes
+        // @todo 2. System routes
+
 
         return {
             something: 'returned'
