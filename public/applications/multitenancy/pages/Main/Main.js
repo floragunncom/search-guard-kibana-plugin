@@ -575,8 +575,9 @@ export default class Main extends Component {
         field: 'label',
         name: nameHeader,
         render: (label, uiTenant) => {
+          const testSuffix = uiTenant.testLabel || uiTenant.label;
           return (
-            <EuiButtonEmpty onClick={() => { this.selectTenant(uiTenant.id); }}>
+            <EuiButtonEmpty id={'sg.button.link.' + testSuffix} onClick={() => { this.selectTenant(uiTenant.id); }}>
               {label}
             </EuiButtonEmpty>
           );
@@ -586,9 +587,10 @@ export default class Main extends Component {
         field: 'canWrite',
         name: permissionsHeader,
         render: (canWrite, uiTenant) => {
-          const id = 'sg.permission.' + uiTenant.testLabel || uiTenant.label;
+          const testSuffix = uiTenant.testLabel || uiTenant.label;
+
           return (
-            <div id={id}>
+            <div id={'sg.permission.' + testSuffix}>
               {(canWrite) ? readWriteLabel : readOnlyLabel }
             </div>
           );
@@ -597,9 +599,11 @@ export default class Main extends Component {
       {
         name: '',
         render: (uiTenant) => {
+          const testSuffix = uiTenant.testLabel || uiTenant.label;
           return (
             <div style={{ textAlign: 'right' }}>
               <EuiButton
+                id={'sg.button.show_dashboard.' + testSuffix}
                 size="s"
                 fill
                 color="primary"
@@ -618,9 +622,11 @@ export default class Main extends Component {
             return null;
           }
 
+          const testSuffix = uiTenant.testLabel || uiTenant.label;
           return (
             <div style={{ textAlign: 'right' }}>
               <EuiButton
+                id={'sg.button.show_visualization.' + testSuffix}
                 size="s"
                 fill
                 color="primary"
@@ -636,8 +642,10 @@ export default class Main extends Component {
         name: '',
         align: 'right',
         render: (uiTenant) => {
+          const testSuffix = uiTenant.testLabel || uiTenant.label;
           return (
             <EuiButton
+              id={'sg.button.select.' + testSuffix}
               size="s"
               fill
               disabled={(uiTenant.id === currentTenant)}
