@@ -102,10 +102,6 @@ export default class SystemService {
     return false;
   }
 
-  getSystemInfo() {
-    return this._getAndParseFromSessionStorage('systeminfo');
-  }
-
   getRestApiInfo() {
     return this._getAndParseFromSessionStorage('restapiinfo');
   }
