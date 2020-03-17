@@ -1,9 +1,10 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import chrome from 'ui/chrome';
+
+import { sgContext } from "../utils/sgContext";
 
 // TODO: Refactor to the new platform - deprecate ui/chrome lib
-const basePath = chrome.getBasePath();
-const authConfig = chrome.getInjected('auth');
+const basePath = sgContext.getBasePath();
+const authConfig = sgContext.config.get('auth');
 const authType = authConfig.type || null;
 const logoutUrl = authConfig.logout_url || null;
 
@@ -13,7 +14,8 @@ export class AccessControlService {
   }
 
   logout() {
-    return this.httpClient.post(`${basePath}/api/v1/auth/logout`).then(response => {
+    // @todo Make sure the httpClient really adds the basePath automatically
+    return this.httpClient.post(`/api/v1/auth/logout`).then(response => {
       localStorage.clear();
       sessionStorage.clear();
 

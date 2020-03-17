@@ -4,7 +4,7 @@ import { HashRouter as Router, Route } from 'react-router-dom';
 import { uiModules } from 'ui/modules';
 import chrome from 'ui/chrome';
 import { render, unmountComponentAtNode } from 'react-dom';
-import { I18nProvider } from '@kbn/i18n/react';
+import { I18nProvider } from '@kbn/i18n/target/types/react';
 
 import 'ui/autoload/styles';
 import Main from './pages/Main';

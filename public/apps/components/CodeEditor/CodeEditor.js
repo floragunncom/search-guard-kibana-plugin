@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ace from 'brace';
-import 'brace/ext/language_tools';
+//import 'brace/ext/language_tools';
 import Modes from './modes';
 
 export class CodeEditor extends Component {
@@ -29,19 +29,19 @@ export class CodeEditor extends Component {
     this.editor.$blockScrolling = Infinity;
 
     if (isCustomMode) {
-      this.editor.getSession().setMode(new Modes[mode]);
+      //this.editor.getSession().setMode(new Modes[mode]);
     } else {
       try {
-        require(`brace/mode/${mode}`);
-        this.editor.getSession().setMode(`ace/mode/${mode}`);
+        //require(`brace/mode/${mode}`);
+        //this.editor.getSession().setMode(`ace/mode/${mode}`);
       } catch (error) {
         console.error(`CodeEditor -- ace mode '${mode}' not found`);
       }
     }
 
     try {
-      require(`brace/theme/${theme}`);
-      this.editor.setTheme(`ace/theme/${theme}`);
+      //require(`brace/theme/${theme}`);
+      //this.editor.setTheme(`ace/theme/${theme}`);
     } catch (error) {
       console.error(`CodeEditor -- ace theme '${theme}' not found`);
     }
@@ -113,7 +113,7 @@ export class CodeEditor extends Component {
       style={{ width, height, ...style }}
     />;
   }
-} 
+}
 
 CodeEditor.propTypes = {
   id: PropTypes.string,

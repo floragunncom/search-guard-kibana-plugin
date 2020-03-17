@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 
+import {sgContext} from '../../../../utils/sgContext';
 
 import {
   EuiPage,
@@ -19,7 +20,8 @@ import {
   accountPluginVersion,
 } from '../../utils/i18n/accountinfo_labels';
 
-const APP_NAME = 'TODO'
+//@todo APP_NAME used where?
+const APP_NAME = 'Account Info'
 
 export default class Main extends Component {
   static contextType = MainContext;
@@ -27,14 +29,11 @@ export default class Main extends Component {
   constructor(props, context) {
     super(props, context);
 
-    //const APP_ROOT = `${chrome.getBasePath()}`;
-    const APP_ROOT = ``; // @todo
-    this.API_ROOT = `${APP_ROOT}/api/v1`;
+    this.API_ROOT = `/api/v1`;
 
-
+    // @todo sgVersion
     this.state = {
-      //sgVersion: chrome.getInjected('sg_version'),
-      sgVersion: '@todo version from config. Can we access the manifest somehow?',
+      sgVersion: sgContext.pluginVersion,
       sgUser: null,
     };
 
@@ -57,10 +56,9 @@ export default class Main extends Component {
     httpClient.get(`${this.API_ROOT}/auth/authinfo`)
       .then(
         (response) => {
-          console.warn('What is data?', response)
 
           this.setState({
-            sgUser: response
+            sgUser: response.data
           })
         },
         (error) =>

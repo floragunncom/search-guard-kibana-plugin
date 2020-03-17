@@ -10,7 +10,7 @@ import { HttpWrapper } from "../../utils/httpWrapper";
 
 
 export const renderApp = (core, deps, params, config) => {
-  const httpWrapper = new HttpWrapper();
+  const httpWrapper = new HttpWrapper(core.http);
   ReactDOM.render(
 
     <I18nProvider>

@@ -26,7 +26,7 @@ import {
   CreateRole,
   RoleMappings,
   CreateRoleMapping
-} from '../';
+} from '../index';
 import { Breadcrumbs, Flyout, Callout, Modal, LoadingPage } from '../../components';
 import { APP_PATH, CALLOUTS, FLYOUTS, MODALS, LOCAL_STORAGE } from '../../utils/constants';
 import { checkIfLicenseValid, comboBoxOptionsToArray } from '../../utils/helpers';

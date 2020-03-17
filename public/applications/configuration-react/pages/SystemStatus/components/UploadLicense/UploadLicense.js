@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import chrome from 'ui/chrome';
+import { sgContext } from '../../../../../../utils/sgContext';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import { EuiFilePicker, EuiFlexGroup, EuiFlexItem, EuiFormRow } from '@elastic/eui';
@@ -23,9 +23,9 @@ import {
 import { validateTextField, isInvalid, hasError } from '../../../../utils/validation';
 import { SystemService } from '../../../../services';
 import { readFileAsText } from '../../../../utils/helpers';
-import { CODE_EDITOR } from '../../../../../utils/constants';
+import { CODE_EDITOR } from '../../../../../../apps/utils/constants';
 
-const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
+const IS_DARK_THEME = sgContext.isDarkMode;
 let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
 theme = !IS_DARK_THEME ? theme : darkTheme;
 

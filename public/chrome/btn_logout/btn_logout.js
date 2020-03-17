@@ -19,7 +19,7 @@ import ReactDOM from 'react-dom';
 import chrome from 'ui/chrome';
 import { chromeHeaderNavControlsRegistry } from 'ui/registry/chrome_header_nav_controls';
 import { EuiButtonEmpty, EuiToolTip } from '@elastic/eui';
-import { logoutText, loginText } from '../../apps/configuration-react/utils/i18n/common';
+import { logoutText, loginText } from '../../applications/configuration-react/utils/i18n/common';
 import { AccessControlService } from '../../services';
 
 if (chrome.getInjected('auth.type') !== 'kerberos' && chrome.getInjected('auth.type') !== 'proxy') {

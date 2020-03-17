@@ -1,8 +1,7 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { get, isEmpty } from 'lodash';
-import chrome from 'ui/chrome';
 
-const API_ROOT = `${chrome.getBasePath()}/api/v1`;
+let API_ROOT = '/api/v1';
 
 export class SystemStateService {
   constructor(httpClient) {

@@ -3,6 +3,8 @@ import {PluginInitializerContext} from "../../../src/core/server/plugins";
 
 import BasicAuth from '../lib/auth/types/basicauth/BasicAuth';
 import SearchGuardBackend from '../lib/backend/searchguard';
+import SearchGuardConfigurationBackend from '../lib/configuration/backend/searchguard_configuration_backend';
+
 import AuthInfoRoutes from '../lib/auth/routes_authinfo';
 
 export class Plugin {
@@ -29,21 +31,13 @@ export class Plugin {
 
 
         const configValues = await this.config$.pipe(first()).toPromise();
-        // @todo Dummy for development
+
         const config = {
             //return {
                 legacyValues: {
                     'server.basePath': '',
-
-                    // Auth
-                    'auth.unauthenticated_routes': [
-                        '/api/status'
-                    ],
-                    'auth.type': 'basicauth',
-                    'auth.anonymous_auth_enabled': false,
-                    'auth.logout_url': '',
                 },
-                get(configKey, defaultValue = null) {
+                get(configKey, defaultValue = undefined) {
                     // Remove the searchguard prefix if available
                     if (configKey.indexOf('searchguard.') === 0) {
                         configKey = configKey.replace('searchguard.', '');
@@ -77,10 +71,13 @@ export class Plugin {
 
 
         // @todo Come up with a plan for this
+        /*
         const legacyConfig = await this.initContext.config.legacy.globalConfig$
             .pipe(first())
             .toPromise()
             ;
+
+         */
 
 
         // Start auth MVP
@@ -101,10 +98,12 @@ export class Plugin {
         // @todo Clean this stuff up
         new AuthInfoRoutes(null, server, null, APP_ROOT, API_ROOT);
 
-        const backendClass: SearchGuardBackend = new SearchGuardBackend(core, server, config, legacyEsConfig);
+        const searchguardBackend = new SearchGuardBackend(core, server, config, legacyEsConfig);
+        const searchguardConfigurationBackend = new SearchGuardConfigurationBackend(core, server, config, legacyEsConfig);
 
         server.plugins.searchguard = {
-            getSearchGuardBackend: () => backendClass
+            getSearchGuardBackend: () => searchguardBackend,
+            getSearchGuardConfigurationBackend: () => searchguardConfigurationBackend
         };
 
 
@@ -135,7 +134,7 @@ export class Plugin {
         // @todo
         const authClass = basicAuth;
 
-        // @todo XFF
+        // @todo XFF - check legacyindex
 
         // MT
         if (config.get('searchguard.multitenancy.enabled')) {
@@ -174,11 +173,25 @@ export class Plugin {
         // @todo Try to refactor this stuff back to onPostAuth, like before 6.5
         basicAuth.registerAssignAuthHeader();
 
+        if (config.get('searchguard.configuration.enabled')) {
+            require('../lib/configuration/routes/routes')(null, server, APP_ROOT, API_ROOT, config);
+            //this.status.yellow("Routes for Search Guard configuration GUI registered. This is an Enterprise feature.");
+        } else {
+            // @todo Somehow set status yellow?
+            // this.status.yellow("Search Guard configuration GUI disabled");
+        }
+
+        require('../lib/system/routes')(null, server, APP_ROOT, API_ROOT, config);
+        // @todo Status?
+        //this.status.yellow('Search Guard system routes registered.');
 
 
-        // @todo 1. Config routes
-        // @todo 2. System routes
+        // @todo MT Saved Objects Migration
 
+        // @todo Sanity check - do not fail on forbidden
+        // @todo Sanity check - ssl certificates
+        // @todo Signals app access
+        // @todo Register Signals routes
 
         return {
             something: 'returned'

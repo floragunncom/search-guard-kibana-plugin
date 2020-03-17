@@ -1,15 +1,7 @@
-/**
- * @todos
- * - License? Callout etc.
- * - Add references to old issues (JIRA) - history is gone now
- * - All chrome related things, basePath, chromeWrapper, getInjected() etc
- * - Maybe change the usage of $http
- */
-
-
-
 import React, { Component, Fragment } from 'react';
-//import chrome from 'ui/chrome';
+
+import { sgContext } from '../../../../utils/sgContext';
+
 import { APP_NAME } from '../../../../../utils/signals/constants';
 import {
   EuiButton,
@@ -71,10 +63,9 @@ export default class Main extends Component {
     const APP_ROOT = '';
     this.API_ROOT = `${APP_ROOT}/api/v1`;
 
-    this.config = context.config.get();
+    this.config = sgContext.config;
 
-    console.log('What the config in main?', context.config.get('multitenancy'))
-
+    // @todo Add this back? Ask Sergii what it's for
     //this.localStorage = new LocalStorageService();
     //if (isEmpty(this.localStorage.cache)) this.localStorage.cache = LOCAL_STORAGE;
 
@@ -95,41 +86,9 @@ export default class Main extends Component {
       userHasDashboardOnlyRole: false,
       globalUserWriteable: false,
       globalUserVisible: false,
-      showSearch: this.config.multitenancy.enable_filter,
-      showRoles: this.config.multitenancy.show_roles,
+      showSearch: this.config.get('multitenancy.enable_filter'),
+      showRoles: this.config.get('multitenancy.show_roles'),
     };
-
-    // @todo More state things?
-    /*
-
-     this.userHasDashboardOnlyRole = false;
-
-        if (sg_resolvedInfo) {
-            isReadOnly = (sg_resolvedInfo.isReadOnly === true)
-            this.userHasDashboardOnlyRole = (isReadOnly && sg_resolvedInfo.hasDashboardRole === true);
-        }
-
-        this.privateEnabled = chrome.getInjected("multitenancy.tenants.enable_private");
-
-        // Don't show the private tenant if the user is a dashboard only user.
-        if (this.privateEnabled && this.userHasDashboardOnlyRole) {
-            this.privateEnabled = false;
-        }
-
-    this.globalEnabled = chrome.getInjected("multitenancy.tenants.enable_global");
-
-
-    this.GLOBAL_USER_LABEL = "Global";
-        this.GLOBAL_USER_VALUE = "";
-
-        this.PRIVATE_USER_LABEL = "Private";
-        this.PRIVATE_USER_VALUE = "__user__";
-        this.currentTenant = null;
-        this.tenantSearch = "";
-        this.roles = "";
-        this.rolesArray = {};
-        this.showSubmenu = false;
-     */
 
     const { addErrorToast } = context;
 
@@ -198,12 +157,8 @@ export default class Main extends Component {
     httpClient.get(`${this.API_ROOT}/multitenancy/info`)
       .then(
         (response) => {
-          //const kibana_server_user = chrome.getInjected("kibana_server_user");
-          //const kibana_index = chrome.getInjected("kibana_index");
-
-          // @todo Replace with injected values
-          const kibana_server_user = 'kibanaserver';
-          const kibana_index = '.kibana';
+          const kibana_server_user = this.config.get('elasticsearch.username');
+          const kibana_index = this.config.get('kibana.index');
 
           // sanity checks, check that configuration is correct on
           // both ES and KI side
@@ -252,9 +207,9 @@ export default class Main extends Component {
           const userName = response.data.user_name;
           const allTenants = response.data.sg_tenants;
           // @todo Add back dynamic values
-          const globalEnabled = this.config.multitenancy.tenants.enable_global;
-          const privateEnabled = this.config.multitenancy.tenants.enable_private;
-          const readOnlyConfig = this.config.readonly_mode;
+          const globalEnabled = this.config.get('multitenancy.tenants.enable_global');
+          const privateEnabled = this.config.get('multitenancy.tenants.enable_private');
+          const readOnlyConfig = this.config.get('readonly_mode');
 
 
           // @todo
@@ -393,7 +348,7 @@ export default class Main extends Component {
       })
       .then(
         (response) => {
-          const currentTenant = response;
+          const currentTenant = response.data;
           this.setCurrentTenant(currentTenant, userName);
 
           // clear lastUrls from nav links to avoid not found errors.
@@ -435,23 +390,14 @@ export default class Main extends Component {
               window.location.href = chromeWrapper.getNavLinkById("kibana:dashboard").url;
             }
           } else {
-            // @todo Add back toasts
-            console.warn('Label?', this.resolveTenantName(response.data, userName))
             const successText = 'Selected tenant is now ' + this.resolveTenantName(response.data, userName);
-            // @todo Label
             addSuccessToast(successText, 'Tenant changed');
-            /*
-            toastNotifications.addSuccess({
-              title: 'Tenant changed',
-              text: "Selected tenant is now " + resolveTenantName(response.data, this.username),
-            });
-
-             */
 
             // We may need to redirect the user if they are in a non default space
             // before switching tenants
-            //const injected = chrome.getInjected()
             // @todo Replace with dynamic
+            // @todo Maybe this shouldn't be mapped to config - it is kind of
+            // a dynamic state rather than a static config value
             const injected = {spacesEnabled: false, activeSpace: {}};
             const reload = injected.spacesEnabled;
             let basePath = httpClient.getBasePath();
@@ -675,6 +621,7 @@ export default class Main extends Component {
     return (
       <EuiPage id={APP_NAME}>
 
+
         <EuiPageBody className="sg-container">
           <EuiPageHeader>
             <EuiFlexGroup
@@ -694,6 +641,17 @@ export default class Main extends Component {
           </EuiPageHeader>
           <EuiPageContent>
             <EuiPageContentBody className="sg-page-content-body">
+              <div>
+                @Todo
+                <ul>
+                  <li>Spaces</li>
+                  <li>* - License? Callout etc.</li>
+                  <li>* - Add references to old issues (JIRA) - history is gone now</li>
+                  <li>* - All chrome related things, basePath, chromeWrapper, getInjected() etc</li>
+                  <li>* - Maybe change the usage of $http</li>
+                  <li>Injected Spaces stuff - redirect if in non default space</li>
+                </ul>
+              </div>
               {null && <Callout callout={callout} onClose={() => this.handleTriggerCallout(null)} />}
               {this.renderFlyout()}
               <EuiTitle size="m">

@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { isObject } from 'lodash';
 import Empty from './assets/empty';
-import chrome from 'ui/chrome';
+import { sgContext } from '../../../../utils/sgContext';
 
-const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
+const IS_DARK_THEME = sgContext.isDarkMode;
 
 const icons = {
   logo: require('./assets/logo'),

@@ -1,6 +1,7 @@
-import chrome from 'ui/chrome';
 import React from 'react';
 import { isEmpty, pick } from 'lodash';
+
+import { sgContext} from '../../../../../utils/sgContext';
 
 const getResource = (selectSideNavItem, resources) => {
   if (isEmpty(resources)) return {};
@@ -25,7 +26,7 @@ const getResource = (selectSideNavItem, resources) => {
     default:
       return {
         kibanaPlugin: {
-          version: chrome.getInjected('sg_version'),
+          version: sgContext.pluginVersion,
           is_enterprise: false
         },
         auditLogging: pick(resources.modules.AUDITLOG, ['version', 'is_enterprise']),

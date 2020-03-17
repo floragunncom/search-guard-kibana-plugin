@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-//import chrome from 'ui/chrome';
+import { sgContext } from '../../../utils/sgContext';
 import {EuiCodeBlock, EuiGlobalToastList, EuiText, EuiTitle} from '@elastic/eui';
 import uuid from "uuid/v4";
 import {get} from "lodash";
 
 const MainContext = React.createContext();
 
-//const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
+const IS_DARK_THEME = sgContext.isDarkMode;
 
 const MainContextProvider = ({ children, httpClient, config, core }) => {
 

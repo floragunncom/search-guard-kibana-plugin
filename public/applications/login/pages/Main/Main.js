@@ -7,6 +7,8 @@
 
 import React, { Component, Fragment } from 'react';
 
+import { sgContext} from '../../../../utils/sgContext';
+
 import {
   EuiPage,
   EuiPageBody,
@@ -24,15 +26,17 @@ import {
 //import { SystemStateService} from '../../../../services';
 
 import { MainContext } from '../../contexts/MainContextProvider';
+// @todo Add back?
 //import { LocalStorageService} from "../../../../apps/configuration-react/services";
 import { get, isEmpty, map } from 'lodash';
+// @todo Add back?
 //import { CALLOUTS, LOCAL_STORAGE } from '../../../../apps/configuration-react/utils/constants';
 //import { checkIfLicenseValid } from '../../../../apps/configuration-react/utils/helpers';
 import {
   apiAccessStateForbiddenText,
   apiAccessStateNotEnabledText,
   sgLicenseNotValidText
-} from '../../../../apps/configuration-react/utils/i18n/main';
+} from '../../../configuration-react/utils/i18n/main';
 
 //import { Callout } from '../../../components';
 //import { API_ACCESS_STATE } from '../../../../apps/configuration-react/pages/Main/utils/constants';
@@ -53,6 +57,7 @@ export default class Main extends Component {
     const APP_ROOT = ``;
     this.API_ROOT = `${APP_ROOT}/api/v1`;
 
+    // @todo Add back?
     //this.localStorage = new LocalStorageService();
     //if (isEmpty(this.localStorage.cache)) this.localStorage.cache = LOCAL_STORAGE;
 
@@ -80,17 +85,18 @@ export default class Main extends Component {
     this.buttonstyle = chrome.getInjected("basicauth.login.buttonstyle");
      */
 
-    this.logintitle = '@todo Login configurable';
-    this.loginsubtitle = '@todo Login configurable';
+
     //this.showbrandimage = chrome.getInjected("basicauth.login.showbrandimage");
     //this.brandimage = chrome.getInjected("basicauth.login.brandimage");
     //this.buttonstyle = chrome.getInjected("basicauth.login.buttonstyle");
 
+    const loginConfig = sgContext.config.get('basicauth.login');
+
     // @todo No need for the variables above
     this.state = {
-      loginTitle: this.logintitle,
-      loginSubTitle: this.loginsubtitle,
-      brandImage: "/plugins/searchguard/assets/searchguard_logo.svg",
+      loginTitle: loginConfig.title,
+      loginSubTitle: loginConfig.subtitle,
+      brandImage: loginConfig.brandimage,
       userName: '',
       password: ''
     };

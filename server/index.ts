@@ -15,7 +15,7 @@ export const ConfigSchema = schema.object({
     ttl: schema.number({ defaultValue: 60 * 60 * 1000 }),
     domain: schema.maybe(schema.string()),
     isSameSite: schema.oneOf([
-      // @todo Check the changes in Chrome 80 here
+      // @todo Check the changes in Chrome 80 here - more values needed? Compare with hapi-auth-cookie
       schema.literal(false),
       schema.literal('Strict'),
       schema.literal('Lax')
@@ -27,7 +27,25 @@ export const ConfigSchema = schema.object({
     ttl: schema.number({ min: 0, defaultValue: 60 * 60 * 1000 }),
     keepalive: schema.boolean({ defaultValue: true })
   }),
+  auth: schema.object({
+    type: schema.oneOf([
+      schema.literal(''),
+      schema.literal('basicauth'),
+      schema.literal('jwt'),
+      schema.literal('openid'),
+      schema.literal('saml'),
+      schema.literal('proxy'),
+      schema.literal('kerberos'),
+      schema.literal('proxycache'),
+    ], {defaultValue: ''}),
+    anonymous_auth_enabled: schema.boolean({ defaultValue: false }),
+    unauthenticated_routes: schema.arrayOf(schema.string(), { defaultValue: ['/api/status']}),
+    logout_url: schema.string({ defaultValue: '' })
+  }),
 
+  /**
+   * Basic auth
+   */
   basicauth: schema.object({
     forbidden_usernames: schema.arrayOf(schema.string(), { defaultValue: [] }),
     allowed_usernames: schema.nullable(schema.arrayOf(schema.string())),
@@ -49,6 +67,9 @@ export const ConfigSchema = schema.object({
     })
   }),
 
+  /**
+   * Multitenancy
+   */
   multitenancy: schema.object({
     enabled: schema.boolean({ defaultValue: false }),
     show_roles: schema.boolean({ defaultValue: false }),
@@ -61,19 +82,29 @@ export const ConfigSchema = schema.object({
     })
   }),
 
+  configuration: schema.object({
+    enabled: schema.boolean({ defaultValue: true }),
+  }),
+
+  accountinfo: schema.object({
+    enabled: schema.boolean({ defaultValue: false }),
+  }),
+
 
   enabled: schema.boolean({ defaultValue: true }),
-  username: schema.string({ defaultValue: ''}),
 });
 
 export const config = {
   //path: 'searchguard',
   exposeToBrowser: {
-    username: true,
+    auth: true,
     multitenancy: true,
     basicauth: {
       login: true // @todo Seems like this exposes the entire basicauth object
-    }
+    },
+    configuration: true,
+    accountinfo: true,
+    readonly_mode: true,
   },
   schema: ConfigSchema,
 };

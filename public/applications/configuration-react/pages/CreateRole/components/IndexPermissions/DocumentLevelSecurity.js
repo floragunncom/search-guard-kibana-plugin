@@ -1,5 +1,4 @@
 import React, { Fragment } from 'react';
-import chrome from 'ui/chrome';
 import PropTypes from 'prop-types';
 import { connect } from 'formik';
 import { get } from 'lodash';
@@ -21,9 +20,11 @@ import {
   validateESDLSQuery
 } from '../../../../utils/validation';
 import { stringifyPretty } from '../../../../utils/helpers';
-import { CODE_EDITOR } from '../../../../../utils/constants';
+import { CODE_EDITOR } from '../../../../../../apps/utils/constants';
 
-const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
+import { sgContext } from '../../../../../../utils/sgContext';
+
+const IS_DARK_THEME = sgContext.isDarkMode;
 let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
 theme = !IS_DARK_THEME ? theme : darkTheme;
 
