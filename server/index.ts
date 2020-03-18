@@ -3,9 +3,18 @@ import { Plugin } from './serverPlugin';
 import { schema } from '@kbn/config-schema';
 
 export const ConfigSchema = schema.object({
+  enabled: schema.boolean({ defaultValue: true }),
+
+  allow_client_certificates: schema.boolean({ defaultValue: false }),
+
   readonly_mode: schema.object({
     roles: schema.arrayOf(schema.string(), { defaultValue: [] })
   }),
+
+  xff: schema.object({
+    enabled: schema.boolean({ defaultValue: false }),
+  }),
+
   cookie: schema.object({
     secure: schema.boolean({ defaultValue: false }),
     name: schema.string({ defaultValue: 'searchguard_authentication' }),
@@ -50,7 +59,6 @@ export const ConfigSchema = schema.object({
     forbidden_usernames: schema.arrayOf(schema.string(), { defaultValue: [] }),
     allowed_usernames: schema.nullable(schema.arrayOf(schema.string())),
     header_trumps_session: schema.boolean({ defaultValue: false}),
-    loadbalancer_url: schema.nullable(schema.string()),
     alternative_login: schema.object({
       headers: schema.arrayOf(schema.string(), { defaultValue: [] }),
       show_for_parameter: schema.string({ defaultValue: '' }),
@@ -58,6 +66,7 @@ export const ConfigSchema = schema.object({
       button_text: schema.string({ defaultValue: 'Login with provider' }),
       buttonstyle: schema.string({ defaultValue: '' }),
     }),
+    loadbalancer_url: schema.nullable(schema.string()),
     login: schema.object({
       title: schema.string({ defaultValue: 'Please login to Kibana' }),
       subtitle: schema.string({ defaultValue: 'If you have forgotten your username or password, please ask your system administrator' }),
@@ -90,8 +99,47 @@ export const ConfigSchema = schema.object({
     enabled: schema.boolean({ defaultValue: false }),
   }),
 
+  /*
+  // @todo Missing config
+  openid: Joi.object().keys({
+                    connect_url: Joi.string(),
+                    header: Joi.string().default('Authorization'),
+                    client_id: Joi.string(),
+                    client_secret: Joi.string().allow('').default(''),
+                    scope: Joi.string().default('openid profile email address phone'),
+                    base_redirect_url: Joi.string().allow('').default(''),
+                    logout_url: Joi.string().allow('').default(''),
+                    root_ca: Joi.string().allow('').default(''),
+                    verify_hostnames: Joi.boolean().default(true)
+                }).default().when('auth.type', {
+                    is: 'openid',
+                    then: Joi.object({
+                        client_id: Joi.required(),
+                        connect_url: Joi.required()
+                    })
+                }),
+                proxycache: Joi.object().keys({
+                    user_header: Joi.string(),
+                    roles_header: Joi.string(),
+                    proxy_header: Joi.string().default('x-forwarded-for'),
+                    proxy_header_ip: Joi.string(),
+                    login_endpoint: Joi.string().allow('', null).default(null),
+                }).default().when('auth.type', {
+                    is: 'proxycache',
+                    then: Joi.object({
+                        user_header: Joi.required(),
+                        roles_header: Joi.required(),
+                        proxy_header_ip: Joi.required()
+                    })
+                }),
+                jwt: Joi.object().keys({
+                    enabled: Joi.boolean().default(false),
+                    login_endpoint: Joi.string(),
+                    url_param: Joi.string().default('authorization'),
+                    header: Joi.string().default('Authorization')
+                }).default()
+   */
 
-  enabled: schema.boolean({ defaultValue: true }),
 });
 
 export const config = {
