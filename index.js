@@ -518,7 +518,7 @@ export default function (kibana) {
         {
             id: 'searchguard-multitenancy',
             title: 'Tenants',
-            main: 'plugins/searchguard/apps/multitenancy/multitenancy',
+            main: 'plugins/searchguard/apps/multitenancy-react',
             auth: true,
             order: 9010,
             icon: 'plugins/searchguard/assets/networking.svg',
