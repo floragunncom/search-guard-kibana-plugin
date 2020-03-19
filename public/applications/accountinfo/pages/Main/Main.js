@@ -10,6 +10,7 @@ import {
   EuiSpacer,
  EuiText, EuiListGroup, EuiListGroupItem, EuiPageHeader
 } from '@elastic/eui';
+import { LicenseWarningCallout } from '../../../../apps/components';
 
 import { MainContext } from '../../contexts/MainContextProvider';
 
@@ -73,7 +74,6 @@ export default class Main extends Component {
     const {
       sgVersion,
       sgUser,
-      callout,
     } = this.state;
 
     return (
@@ -86,10 +86,8 @@ export default class Main extends Component {
           </EuiPageHeader>
           <EuiPageContent>
             <EuiPageContentBody className="sg-page-content-body">
+              <LicenseWarningCallout httpClient={this.props.httpClient} />
 
-              {callout && (
-                <EuiSpacer size="l"/>
-              )}
               {sgUser && (
                 <EuiText>
                   <h2>Username</h2>

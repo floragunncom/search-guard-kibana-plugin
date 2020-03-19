@@ -1,7 +1,6 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { get, isEmpty } from 'lodash';
-
-let API_ROOT = '/api/v1';
+import { API_ROOT } from '../utils/constants';
 
 export class SystemStateService {
   constructor(httpClient) {
@@ -104,10 +103,11 @@ export class SystemStateService {
     if (!sessionStorage.getItem('systeminfo')) {
       return this.httpClient
         .get(`${API_ROOT}/systeminfo`)
-        .then(function(response) {
-          sessionStorage.setItem('systeminfo', JSON.stringify(response.data));
+        .then(function({ data }) {
+          sessionStorage.setItem('systeminfo', JSON.stringify(data));
         })
-        .catch(function() {
+        .catch(function(error) {
+          console.error('SystemStateService - loadSystemInfo', error);
           sessionStorage.setItem('systeminfo', '{}');
         });
     }
@@ -119,10 +119,11 @@ export class SystemStateService {
     if (!sessionStorage.getItem('restapiinfo') && this.restApiEnabled()) {
       return this.httpClient
         .get(`${API_ROOT}/restapiinfo`)
-        .then(function(response) {
-          sessionStorage.setItem('restapiinfo', JSON.stringify(response.data));
+        .then(function({ data }) {
+          sessionStorage.setItem('restapiinfo', JSON.stringify(data));
         })
-        .catch(function() {
+        .catch(function(error) {
+          console.error('SystemStateService - loadRestInfo', error);
           sessionStorage.setItem('restapiinfo', '{}');
         });
     }

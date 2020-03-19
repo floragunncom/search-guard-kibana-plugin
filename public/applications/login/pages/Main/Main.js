@@ -22,6 +22,7 @@ import {
   EuiFieldPassword,
   EuiForm,
 } from '@elastic/eui';
+import { LicenseWarningCallout } from '../../../../apps/components';
 
 //import { SystemStateService} from '../../../../services';
 
@@ -115,25 +116,6 @@ export default class Main extends Component {
     this.setState({ callout });
   }
 
-  calloutErrorIfLicenseNotValid = () => {
-    const { isValid, messages } = checkIfLicenseValid();
-    if (!isValid) {
-      this.handleTriggerCallout({
-        type: CALLOUTS.ERROR_CALLOUT,
-        payload: (
-          <Fragment>
-            <EuiText>
-              <h3>{sgLicenseNotValidText}</h3>
-            </EuiText>
-            <EuiListGroup>
-              {map(messages, (message, i) => <EuiListGroupItem key={i} label={message} />)}
-            </EuiListGroup>
-          </Fragment>
-        )
-      });
-    }
-  }
-
   handleTriggerErrorCallout = error => {
     console.error(error);
     error = error.data || error;
@@ -164,10 +146,8 @@ export default class Main extends Component {
     try {
       let nextUrl = sanitizeNextUrlFromFullUrl(window.location.href, this.ROOT);
       httpClient.post(`${this.API_ROOT}/auth/login`, {
-        body: JSON.stringify({
-          username: this.state.userName,
-          password: this.state.password
-        })
+        username: this.state.userName,
+        password: this.state.password
       })
         .then(
           (response) => {
@@ -246,6 +226,7 @@ export default class Main extends Component {
             </EuiPageContentHeader>
             <EuiPageContentBody className="sg-page-content-body">
               {this.state.loginSubTitle}
+              <LicenseWarningCallout httpClient={this.props.httpClient} />
 
               <EuiSpacer />
               <EuiForm>

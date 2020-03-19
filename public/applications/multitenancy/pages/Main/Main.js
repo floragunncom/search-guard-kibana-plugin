@@ -51,7 +51,7 @@ import {
   privateTenantLabel,
   selectedTenantButtonLabel, selectTenantButtonLabel, showDashboardLabel, showVisualizationLabel
 } from "../../utils/i18n/multitenancy_labels";
-
+import { LicenseWarningCallout } from '../../../../apps/components';
 
 export default class Main extends Component {
   static contextType = MainContext;
@@ -97,50 +97,10 @@ export default class Main extends Component {
   }
 
   componentDidMount() {
-    //this.checkAPIAccess();
-  }
-
-  checkAPIAccess = async () => {
-    const { systemstateService } = this.props.angularServices;
-    try {
-      await systemstateService.loadSystemInfo();
-      if (!systemstateService.restApiEnabled()) {
-        this.handleTriggerErrorCallout({ message: apiAccessStateNotEnabledText });
-      } else {
-        await systemstateService.loadRestInfo();
-        if (!systemstateService.hasApiAccess()) {
-          this.handleTriggerErrorCallout({ message: apiAccessStateForbiddenText });
-        } else {
-          this.setState({ apiAccessState: API_ACCESS_STATE.OK });
-        }
-      }
-      this.calloutErrorIfLicenseNotValid();
-    } catch (error) {
-      this.handleTriggerErrorCallout(error);
-    }
   }
 
   handleTriggerCallout = callout => {
     this.setState({ callout });
-  }
-
-  calloutErrorIfLicenseNotValid = () => {
-    const { isValid, messages } = checkIfLicenseValid();
-    if (!isValid) {
-      this.handleTriggerCallout({
-        type: CALLOUTS.ERROR_CALLOUT,
-        payload: (
-          <Fragment>
-            <EuiText>
-              <h3>{sgLicenseNotValidText}</h3>
-            </EuiText>
-            <EuiListGroup>
-              {map(messages, (message, i) => <EuiListGroupItem key={i} label={message} />)}
-            </EuiListGroup>
-          </Fragment>
-        )
-      });
-    }
   }
 
   handleTriggerErrorCallout = error => {
@@ -641,11 +601,12 @@ export default class Main extends Component {
           </EuiPageHeader>
           <EuiPageContent>
             <EuiPageContentBody className="sg-page-content-body">
+              <LicenseWarningCallout httpClient={this.props.httpClient} />
               <div>
                 @Todo
                 <ul>
                   <li>Spaces</li>
-                  <li>* - License? Callout etc.</li>
+                  <li>* - Callout etc.</li>
                   <li>* - Add references to old issues (JIRA) - history is gone now</li>
                   <li>* - All chrome related things, basePath, chromeWrapper, getInjected() etc</li>
                   <li>* - Maybe change the usage of $http</li>
