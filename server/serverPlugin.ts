@@ -107,9 +107,7 @@ export class Plugin {
         };
 
 
-        await server.register({
-            plugin: require('hapi-auth-cookie')
-        });
+
 
 
         // Set up the storage cookie
@@ -128,13 +126,102 @@ export class Plugin {
 
         server.state(config.get('searchguard.cookie.storage_cookie_name'), storageCookieConf);
 
-        const basicAuth = new BasicAuth(null, server, null, APP_ROOT, API_ROOT, core, config)
-        await basicAuth.init();
+        const authType = config.get('searchguard.auth.type', null);
+        let authClass = null;
+        let authInstance = null;
+        if (authType && authType !== '' && ['basicauth', 'jwt', 'openid', 'saml', 'proxycache'].indexOf(authType) > -1) {
+            try {
 
-        // @todo
-        const authClass = basicAuth;
+                await server.register({
+                    plugin: require('hapi-auth-cookie')
+                });
 
-        // @todo XFF - check legacyindex
+                // @todo Replacement for status
+                //this.status.yellow('Initialising Search Guard authentication plugin.');
+
+                if (config.get("searchguard.cookie.password") == 'searchguard_cookie_default_password') {
+                    // @todo Replacement for status
+                    //this.status.yellow("Default cookie password detected, please set a password in kibana.yml by setting 'searchguard.cookie.password' (min. 32 characters).");
+                }
+
+                if (!config.get("searchguard.cookie.secure")) {
+                    // @todo Replacement for status
+                    //this.status.yellow("'searchguard.cookie.secure' is set to false, cookies are transmitted over unsecure HTTP connection. Consider using HTTPS and set this key to 'true'");
+                }
+
+
+
+                switch (authType) {
+
+                    case 'openid':
+                        authClass = require('../lib/auth/types/openid/OpenId');
+                        break;
+
+                    case 'basicauth':
+                        authClass = require('../lib/auth/types/basicauth/BasicAuth');
+                        break;
+
+                    case 'jwt':
+                        authClass = require('../lib/auth/types/jwt/Jwt');
+                        break;
+
+                    case 'saml':
+                        authClass = require('../lib/auth/types/saml/Saml');
+                        break;
+
+                    case 'proxycache':
+                        authClass = require('../lib/auth/types/proxycache/ProxyCache');
+                        break;
+
+                }
+
+                if (authClass) {
+                    try {
+                        // Check that one of the auth types didn't already require an authInstance
+                        if (!authInstance) {
+                            // @todo Clean up the null parameters here
+                            authInstance = new authClass(null, server, null, APP_ROOT, API_ROOT, core, config);
+                        }
+
+                        await authInstance.init();
+                        // @todo Replacement for status
+                        //this.status.yellow('Search Guard session management enabled.');
+                    } catch (error) {
+                        server.log(['error', 'searchguard'], `An error occurred while enabling session management: ${error}`);
+                        // @todo Replacement for status.red
+                        //this.status.red('An error occurred during initialisation, please check the logs.');
+                        return;
+                    }
+                }
+            } catch(error) {
+                server.log(['error', 'searchguard'], `An error occurred registering server plugins: ${error}`);
+                // @todo Replacement for status.red
+                //this.status.red('An error occurred during initialisation, please check the logs.');
+                return;
+            }
+        } else {
+            // Register the storage plugin for the other auth types
+            await server.register({
+                plugin: require('../lib/session/sessionPlugin'),
+                options: {
+                    authType: null,
+                    storageCookieName: config.get('searchguard.cookie.storage_cookie_name')
+                }
+            })
+        }
+
+        // @todo We can probably remove this right?
+        if (authType != 'jwt') {
+            // @todo Replacement for status
+            //this.status.yellow("Search Guard copy JWT params disabled");
+        }
+
+        // @todo TEST
+        if (config.get('searchguard.xff.enabled')) {
+            require('../lib/xff/xff')(server);
+            // @todo Replacement for status
+            //this.status.yellow("Search Guard XFF enabled.");
+        }
 
         // MT
         if (config.get('searchguard.multitenancy.enabled')) {
@@ -147,7 +234,7 @@ export class Plugin {
             }
 
             require('../lib/multitenancy/routes')(null, server, this, APP_ROOT, API_ROOT, config);
-            require('../lib/multitenancy/headers')(null, server, this, APP_ROOT, API_ROOT, authClass, config);
+            require('../lib/multitenancy/headers')(null, server, this, APP_ROOT, API_ROOT, authInstance, config);
 
             let preferenceCookieConf = {
                 ttl: 2217100485000,
@@ -170,8 +257,13 @@ export class Plugin {
 
 
 
+
+
         // @todo Try to refactor this stuff back to onPostAuth, like before 6.5
-        basicAuth.registerAssignAuthHeader();
+        if (authInstance) {
+            authInstance.registerAssignAuthHeader();
+        }
+
 
         if (config.get('searchguard.configuration.enabled')) {
             require('../lib/configuration/routes/routes')(null, server, APP_ROOT, API_ROOT, config);

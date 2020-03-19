@@ -2,6 +2,7 @@ import { PluginInitializerContext } from "../../../src/core/server/plugins";
 import { Plugin } from './serverPlugin';
 import { schema } from '@kbn/config-schema';
 
+// @todo We need to go through all of these and double check the default values, nullable, allow empty string etc.
 export const ConfigSchema = schema.object({
   enabled: schema.boolean({ defaultValue: true }),
 
@@ -99,47 +100,51 @@ export const ConfigSchema = schema.object({
     enabled: schema.boolean({ defaultValue: false }),
   }),
 
-  /*
-  // @todo Missing config
-  openid: Joi.object().keys({
-                    connect_url: Joi.string(),
-                    header: Joi.string().default('Authorization'),
-                    client_id: Joi.string(),
-                    client_secret: Joi.string().allow('').default(''),
-                    scope: Joi.string().default('openid profile email address phone'),
-                    base_redirect_url: Joi.string().allow('').default(''),
-                    logout_url: Joi.string().allow('').default(''),
-                    root_ca: Joi.string().allow('').default(''),
-                    verify_hostnames: Joi.boolean().default(true)
-                }).default().when('auth.type', {
+  openid: schema.object({
+    connect_url: schema.string(),
+    header: schema.string({ defaultValue: 'Authorization' }),
+    client_id: schema.string(),
+    client_secret: schema.string({ defaultValue: '' }),
+    scope: schema.string({ defaultValue: 'openid profile email address phone'}),
+    base_redirect_url: schema.string({ defaultValue: ''}),
+    logout_url: schema.string({ defaultValue: ''}),
+    root_ca: schema.string({ defaultValue: ''}),
+    verify_hostnames: schema.boolean({ defaultValue: true }),
+    // @todo CONDITIONALS
+    /*
+     }).default().when('auth.type', {
                     is: 'openid',
                     then: Joi.object({
                         client_id: Joi.required(),
                         connect_url: Joi.required()
                     })
                 }),
-                proxycache: Joi.object().keys({
-                    user_header: Joi.string(),
-                    roles_header: Joi.string(),
-                    proxy_header: Joi.string().default('x-forwarded-for'),
-                    proxy_header_ip: Joi.string(),
-                    login_endpoint: Joi.string().allow('', null).default(null),
-                }).default().when('auth.type', {
+     */
+  }),
+
+  proxycache: schema.object({
+    user_header: schema.string(),
+    roles_header: scheam.string(),
+    proxy_header: schema.string({defaultValue: 'x-forwarded-for'}),
+    proxy_header_ip: schema.string(),
+    login_endpoint: schema.nullable(schema.string({defaultValue: null})),
+    // @todo CONDITIONALS
+    /*
+      }).default().when('auth.type', {
                     is: 'proxycache',
                     then: Joi.object({
                         user_header: Joi.required(),
                         roles_header: Joi.required(),
                         proxy_header_ip: Joi.required()
                     })
-                }),
-                jwt: Joi.object().keys({
-                    enabled: Joi.boolean().default(false),
-                    login_endpoint: Joi.string(),
-                    url_param: Joi.string().default('authorization'),
-                    header: Joi.string().default('Authorization')
-                }).default()
-   */
-
+     */
+  }),
+  jwt: schema.keys({
+    enabled: schema.boolean({ defaultValue: false }),
+    login_endpoint: schema.string(),
+    url_param: schema.string({ defaultValue: 'authorization' }),
+    header: schema.string({ defaultValue: 'Authorization'})
+  })
 });
 
 export const config = {

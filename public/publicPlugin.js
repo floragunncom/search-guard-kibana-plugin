@@ -14,8 +14,6 @@ export class PublicPlugin {
     sgContext.kibanaCore = core;
     sgConfig.injectedValues = this.config.get();
 
-    // Original setup of the chrome/core object
-    console.log('What is sgContext', sgConfig.get('multitenancysomething'))
 
     core.application.register({
       id: 'searchguard-accountinfo',
