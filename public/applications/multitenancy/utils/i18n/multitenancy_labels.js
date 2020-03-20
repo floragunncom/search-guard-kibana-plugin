@@ -10,8 +10,8 @@ export const mtConfigErrorHeader = (<EuiI18n token="sg.mt.configErrorHeader" def
 
 
 // Tenant related
-export const readWriteLabel = (<EuiI18n token="sg.mt.readWrite" default="Read / Write" />);
-export const readOnlyLabel = (<EuiI18n token="sg.mt.readOnly" default="Read only" />);
+export const readWriteLabel = (<EuiI18n token="sg.mt.readWrite" default="read/write" />);
+export const readOnlyLabel = (<EuiI18n token="sg.mt.readOnly" default="read only" />);
 export const globalTenantLabel = (<EuiI18n token="sg.mt.globalLabel" default="Global" />);
 export const privateTenantLabel = (<EuiI18n token="sg.mt.privateLabel" default="Private" />);
 
