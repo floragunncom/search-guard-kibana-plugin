@@ -7,7 +7,8 @@ export class ApiService {
   constructor(httpClient, resourceName) {
     this.httpClient = httpClient;
     this.resourceName = resourceName;
-    this.accessControlService = new AccessControlService(httpClient);
+    // NP TODO: pass authType
+    this.accessControlService = new AccessControlService({ httpClient });
   }
 
   _assertResourceName() {
