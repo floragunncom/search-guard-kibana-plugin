@@ -25,15 +25,9 @@ import {
   EuiSpacer,
   EuiImage,
 } from '@elastic/eui';
-import { messageTypes } from './errormessage_types';
+import { messageTypes } from './errorMessageTypes';
 
-export function CustomErrorPage({
-  basePath,
-  brandImagePath,
-  showBrandImage,
-  backButtonContentPropsStyle,
-  backButtonProps,
-}) {
+export function CustomErrorPage({ basePath, brandImagePath, showBrandImage, backButtonProps }) {
   const buttonHref = basePath + '/app/kibana';
 
   // If session was not terminated by logout, clear any remaining
@@ -95,11 +89,6 @@ export function CustomErrorPage({
                   href={buttonHref}
                   data-test-subj="sg.customError.btn"
                   id="sg.custom.home"
-                  contentProps={{
-                    style: {
-                      ...backButtonContentPropsStyle,
-                    },
-                  }}
                   {...backButtonProps}
                 >
                   Back to Kibana Home
@@ -120,9 +109,7 @@ CustomErrorPage.defaultProps = {
 };
 
 CustomErrorPage.propTypes = {
-  basePath: PropTypes.string.isRequired,
   brandImagePath: PropTypes.string.isRequired,
   showBrandImage: PropTypes.bool.isRequired,
-  backButtonContentPropsStyle: PropTypes.object,
   backButtonProps: PropTypes.object,
 };

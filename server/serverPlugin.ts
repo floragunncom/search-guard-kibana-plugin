@@ -6,6 +6,7 @@ import SearchGuardBackend from '../lib/backend/searchguard';
 import SearchGuardConfigurationBackend from '../lib/configuration/backend/searchguard_configuration_backend';
 
 import AuthInfoRoutes from '../lib/auth/routes_authinfo';
+import { APP_ROOT, API_ROOT } from './utils/constants';
 
 export class Plugin {
 
@@ -83,9 +84,6 @@ export class Plugin {
         // Start auth MVP
 
         // Set up
-        const APP_ROOT = '';
-        const API_ROOT = `${APP_ROOT}/api/v1`;
-
 
         // @todo Come up with a plan for this
         const legacyEsConfig = {

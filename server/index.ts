@@ -65,7 +65,7 @@ export const ConfigSchema = schema.object({
       show_for_parameter: schema.string({ defaultValue: '' }),
       valid_redirects: schema.arrayOf(schema.string(), { defaultValue: [] }),
       button_text: schema.string({ defaultValue: 'Login with provider' }),
-      buttonstyle: schema.string({ defaultValue: '' }),
+      buttonstyle: schema.object({}),
     }),
     loadbalancer_url: schema.nullable(schema.string()),
     login: schema.object({
@@ -73,7 +73,7 @@ export const ConfigSchema = schema.object({
       subtitle: schema.string({ defaultValue: 'If you have forgotten your username or password, please ask your system administrator' }),
       showbrandimage: schema.boolean({ defaultValue: true }),
       brandimage: schema.string({ defaultValue: '/plugins/searchguard/assets/searchguard_logo.svg' }),
-      buttonstyle: schema.string({ defaultValue: '' })
+      buttonstyle: schema.object({})
     })
   }),
 

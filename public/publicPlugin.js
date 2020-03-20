@@ -1,4 +1,5 @@
-import { sgContext, sgConfig } from "./utils/sgContext";
+/* eslint-disable @kbn/eslint/require-license-header */
+import { sgContext, sgConfig } from './utils/sgContext';
 
 export class PublicPlugin {
 
@@ -67,6 +68,22 @@ export class PublicPlugin {
       }
     });
 
+    core.http.anonymousPaths.register('/customerror');
+    core.application.register({
+      id: 'customerror',
+      title: 'SearchGuard Custom Error',
+      chromeless: true,
+      appRoute: '/customerror',
+      mount: async ({ element }) => {
+        const { renderApp } = await import('./applications/customerror');
+
+        return renderApp({
+          element,
+          basePath: core.http.basePath.get(),
+          config: this.config.get(),
+        });
+      },
+    });
   }
 
   start() {
