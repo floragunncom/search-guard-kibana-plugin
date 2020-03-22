@@ -1,4 +1,5 @@
-import React, { useState } from "react"
+/* eslint-disable @kbn/eslint/require-license-header */
+import React, { useState } from 'react';
 import uuid from 'uuid/v4';
 import chrome from 'ui/chrome';
 import { EuiGlobalToastList, EuiTitle, EuiText, EuiCodeBlock } from '@elastic/eui';

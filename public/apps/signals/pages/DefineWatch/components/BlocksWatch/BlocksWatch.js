@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { useState, useContext, useEffect } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
@@ -37,8 +38,10 @@ import { StaticBlockForm, ScriptBlockForm, SearchBlockForm, HttpBlockForm } from
 
 import { Context } from '../../../../Context';
 
+// TODO:
+// 1. Acknowledge blocks deletion
 const BlocksWatch = ({ formik: { values, setFieldValue }, onAddTemplate, onCloseResult }) => {
-  const { httpClient, addErrorToast } = useContext(Context);
+  const { httpClient, addErrorToast, triggerConfirmModal } = useContext(Context);
   const [isLoading, setIsLoading] = useState(false);
 
   const watchService = new WatchService(httpClient);
@@ -59,9 +62,18 @@ const BlocksWatch = ({ formik: { values, setFieldValue }, onAddTemplate, onClose
   };
 
   const deleteBlock = index => {
-    const newBlocks = cloneDeep(blocks);
-    newBlocks.splice(index, 1);
-    setFieldValue('_ui.checksBlocks', newBlocks);
+    triggerConfirmModal({
+      body: <p>{deleteText}?</p>,
+      onConfirm: () => {
+        const newBlocks = cloneDeep(blocks);
+        newBlocks.splice(index, 1);
+        setFieldValue('_ui.checksBlocks', newBlocks);
+        triggerConfirmModal(null);
+      },
+      onCancel: () => {
+        triggerConfirmModal(null);
+      },
+    });
   };
 
   const executeBlocks = async (startIndex, endIndex) => {
