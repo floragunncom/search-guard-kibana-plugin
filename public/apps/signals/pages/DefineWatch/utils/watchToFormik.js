@@ -121,10 +121,10 @@ export function buildFormikEmailAction(action = {}) {
 export const buildFormikMeta = ({ _ui = {}, checks = [], trigger } = {}) => {
   const ui = {
     ...cloneDeep(GRAPH_DEFAULTS),
+    ..._ui,
     ...RESULT_FIELD_DEFAULTS,
     checksBlocks: buildFormikChecksBlocks(checks),
     ...buildFormikSchedule({ trigger }),
-    ..._ui,
   };
 
   return !isEmpty(_ui) ? ui : Object.assign(ui, { watchType: WATCH_TYPES.JSON });
