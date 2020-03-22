@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Component } from 'react';
 import { connect as connectFormik } from 'formik';
 import { connect as connectRedux } from 'react-redux';
@@ -91,11 +92,11 @@ class ActionPanel extends Component {
       dispatch(addErrorToast(error));
     }
     this.setState({ isLoading: false });
-  }
+  };
 
   triggerAddActionPopover = () => {
     this.setState(prevState => ({ isAddActionPopoverOpen: !prevState.isAddActionPopoverOpen }));
-  }
+  };
 
   addAction = actionType => {
     const { arrayHelpers } = this.props;
@@ -103,7 +104,7 @@ class ActionPanel extends Component {
 
     const newAction = cloneDeep(ACTION_DEFAULTS[actionType] || ACTION_DEFAULTS[ACTION_TYPE.EMAIL]);
     arrayHelpers.unshift(newAction);
-  }
+  };
 
   deleteAction = (actionIndex, actionName, arrayHelpers) => {
     const { onTriggerConfirmDeletionModal } = this.props;
@@ -112,9 +113,9 @@ class ActionPanel extends Component {
       onConfirm: () => {
         arrayHelpers.remove(actionIndex);
         onTriggerConfirmDeletionModal(null);
-      }
+      },
     });
-  }
+  };
 
   render() {
     const {
@@ -161,9 +162,9 @@ class ActionPanel extends Component {
             name: 'PagerDuty',
             icon: <EuiIcon type="empty" size="m" />,
             onClick: () => this.addAction(ACTION_TYPE.PAGERDUTY),
-          }
-        ]
-      }
+          },
+        ],
+      },
     ];
 
     const renderActions = () =>
@@ -192,7 +193,7 @@ class ActionPanel extends Component {
         title={actionText}
         titleSize="s"
         bodyStyles={{ padding: 'initial', paddingLeft: '10px' }}
-        actions={(
+        actions={
           <PopoverButton
             isPopoverOpen={isAddActionPopoverOpen}
             contextMenuPanels={addActionContextMenuPanels}
@@ -200,7 +201,7 @@ class ActionPanel extends Component {
             name="AddWatchAction"
             isLoading={isLoading}
           />
-        )}
+        }
       >
         <div style={{ paddingLeft: '10px' }}>{hasActions ? renderActions() : null}</div>
       </ContentPanel>

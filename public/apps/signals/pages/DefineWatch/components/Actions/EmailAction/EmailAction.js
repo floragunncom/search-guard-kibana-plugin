@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Fragment, useContext } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
@@ -101,7 +102,7 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
             placeholder: 'Select severity',
             onBlur: onComboBoxOnBlur,
             onChange: onComboBoxChange(),
-            onCreateOption: onComboBoxCreateOption()
+            onCreateOption: onComboBoxCreateOption(),
           }}
         />
       )}
@@ -143,7 +144,7 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
           placeholder: 'Type email addresses',
           onBlur: onComboBoxOnBlur,
           onChange: onComboBoxChange(),
-          onCreateOption: onComboBoxCreateOption()
+          onCreateOption: onComboBoxCreateOption(),
         }}
         formikFieldProps={{
           validate: !isDefaultTo ? validateEmailAddr() : null,
@@ -162,7 +163,7 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
           placeholder: 'Type email addresses',
           onBlur: onComboBoxOnBlur,
           onChange: onComboBoxChange(),
-          onCreateOption: onComboBoxCreateOption()
+          onCreateOption: onComboBoxCreateOption(),
         }}
         formikFieldProps={{
           validate: validateEmailAddr(false),
@@ -181,7 +182,7 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
           placeholder: 'Type email addresses',
           onBlur: onComboBoxOnBlur,
           onChange: onComboBoxChange(),
-          onCreateOption: onComboBoxCreateOption()
+          onCreateOption: onComboBoxCreateOption(),
         }}
         formikFieldProps={{
           validate: validateEmailAddr(false),
@@ -213,14 +214,14 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
           fullWidth: true,
           isInvalid,
           error: hasError,
-          helpText: (<ActionBodyHelpText watchResultData={checksResult} />)
+          helpText: <ActionBodyHelpText watchResultData={checksResult} />,
         }}
         elementProps={{
           isInvalid,
           setOptions: {
             ...editorOptions,
             maxLines: 10,
-            minLines: 10
+            minLines: 10,
           },
           mode: 'text',
           width: '100%',

@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { useContext, useState, useEffect } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';

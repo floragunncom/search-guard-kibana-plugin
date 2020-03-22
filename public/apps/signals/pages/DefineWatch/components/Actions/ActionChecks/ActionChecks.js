@@ -1,9 +1,10 @@
-import React, { useContext } from 'react';
+/* eslint-disable @kbn/eslint/require-license-header */
+import React, { useContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect as connectFormik } from 'formik';
 import { connect as connectRedux } from 'react-redux';
 import { get, cloneDeep } from 'lodash';
-import { EuiButton, EuiSpacer } from '@elastic/eui';
+import { EuiButton } from '@elastic/eui';
 import JsonWatch from '../../JsonWatch';
 import { useCheckTemplates, useJsonWatchChecks } from '../../../hooks';
 import { addErrorToast } from '../../../../../redux/actions';
@@ -19,9 +20,11 @@ const ActionChecks = ({
   formik: { values, setFieldValue, validateForm, submitForm },
   dispatch,
 }) => {
+  const checksPath = `actions[${actionIndex}].checks`;
   const { httpClient, triggerFlyout } = useContext(Context);
 
-  const checksPath = `actions[${actionIndex}].checks`;
+  const [templateCounter, setTemplateCounter] = useState(0);
+  const [template, setTemplate] = useState(null);
 
   const { addTemplate } = useCheckTemplates({
     dispatch,
@@ -40,6 +43,21 @@ const ActionChecks = ({
     httpClient,
     setFieldValue,
   });
+
+  const addTemplateHelper = template => {
+    setTemplate(template);
+    setTemplateCounter(prevState => prevState + 1);
+  };
+
+  const handleAddTemplate = () => {
+    triggerFlyout({
+      type: FLYOUTS.CHECK_EXAMPLES,
+      // We use addTemplateHelper here to avoid closure.
+      // We don't get new "values" in the onChange callback function
+      // without this helper.
+      payload: { onChange: addTemplateHelper },
+    });
+  };
 
   const handleWatchExecute = async () => {
     try {
@@ -67,15 +85,7 @@ const ActionChecks = ({
   };
 
   const actions = [
-    <EuiButton
-      data-test-subj="sgAddButton-AddActionChecks"
-      onClick={() => {
-        triggerFlyout({
-          type: FLYOUTS.CHECK_EXAMPLES,
-          payload: { onChange: template => addTemplate({ template, values }) },
-        });
-      }}
-    >
+    <EuiButton data-test-subj="sgAddButton-AddActionChecks" onClick={handleAddTemplate}>
       {addText}
     </EuiButton>,
     <EuiButton
@@ -87,6 +97,13 @@ const ActionChecks = ({
       {executeText}
     </EuiButton>,
   ];
+
+  useEffect(() => {
+    if (template) {
+      addTemplate({ template, values });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [templateCounter]);
 
   return (
     <ControlledContent title={checksText} titleProps={{ size: 'xs' }} actions={actions}>

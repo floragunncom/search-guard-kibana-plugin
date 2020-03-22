@@ -38,8 +38,6 @@ import { StaticBlockForm, ScriptBlockForm, SearchBlockForm, HttpBlockForm } from
 
 import { Context } from '../../../../Context';
 
-// TODO:
-// 1. Acknowledge blocks deletion
 const BlocksWatch = ({ formik: { values, setFieldValue }, onAddTemplate, onCloseResult }) => {
   const { httpClient, addErrorToast, triggerConfirmModal } = useContext(Context);
   const [isLoading, setIsLoading] = useState(false);
