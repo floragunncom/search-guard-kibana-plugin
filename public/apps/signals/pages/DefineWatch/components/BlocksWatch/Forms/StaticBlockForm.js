@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { useContext } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
@@ -26,13 +27,18 @@ import { StaticBlock } from '../utils/Blocks';
 
 import { Context } from '../../../../../Context';
 
-const StaticBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
+const StaticBlockForm = ({ idx, block, checksBlocksPath, formik: { setFieldValue } }) => {
   const { editorTheme, editorOptions } = useContext(Context);
+
+  const valuePath = `${checksBlocksPath}[${idx}].value`;
+  const responsePath = `${checksBlocksPath}[${idx}].response`;
+  const namePath = `${checksBlocksPath}[${idx}].name`;
+  const targetPath = `${checksBlocksPath}[${idx}].target`;
 
   const renderCheckEditor = idx => (
     <FormikCodeEditor
       data-test-subj={`sgBlocks-checkEditor-block-${idx}`}
-      name={`_ui.checksBlocks.${idx}.value`}
+      name={valuePath}
       formRow
       rowProps={{
         fullWidth: true,
@@ -80,7 +86,7 @@ const StaticBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
           <EuiText
             size="xs"
             onClick={() => {
-              setFieldValue(`_ui.checksBlocks[${idx}].response`, '');
+              setFieldValue(responsePath, '');
             }}
           >
             <EuiLink id="close-response" data-test-subj={`sgBlocks-closeResponse-block-${idx}`}>
@@ -109,7 +115,7 @@ const StaticBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
   return (
     <>
       <FormikFieldText
-        name={`_ui.checksBlocks[${idx}].name`}
+        name={namePath}
         formRow
         rowProps={{
           label: nameText,
@@ -121,7 +127,7 @@ const StaticBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
         }}
       />
       <FormikFieldText
-        name={`_ui.checksBlocks[${idx}].target`}
+        name={targetPath}
         formRow
         rowProps={{
           label: targetText,
@@ -143,6 +149,7 @@ const StaticBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
 };
 
 StaticBlockForm.propTypes = {
+  checksBlocksPath: PropTypes.string.isRequired,
   idx: PropTypes.number.isRequired,
   formik: PropTypes.object.isRequired,
   block: PropTypes.shape({

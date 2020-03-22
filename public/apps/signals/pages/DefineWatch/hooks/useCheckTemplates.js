@@ -8,7 +8,13 @@ import { WATCH_TYPES } from '../utils/constants';
 
 import { Context } from '../../../Context';
 
-const useCheckTemplates = ({ setFieldValue, checksPath = 'checks' } = {}) => {
+const useCheckTemplates = ({
+  setFieldValue,
+  // Defaults to watch checks
+  // but can accept any checks path, for example, action checks
+  checksPath = 'checks',
+  checksBlocksPath = '_ui.checksBlocks',
+} = {}) => {
   const { addSuccessToast, addErrorToast } = useContext(Context);
 
   // Template insert works only in JsonWatch
@@ -27,11 +33,11 @@ const useCheckTemplates = ({ setFieldValue, checksPath = 'checks' } = {}) => {
 
     try {
       if (watchType === WATCH_TYPES.BLOCKS) {
-        const checksBlocks = get(values, '_ui.checksBlocks', []);
+        const checksBlocks = get(values, checksBlocksPath, []);
         const checkBlock = buildFormikChecksBlocks([template])[0];
         checkBlock.id = checksBlocks.length;
 
-        setFieldValue('_ui.checksBlocks', [...checksBlocks, checkBlock]);
+        setFieldValue(checksBlocksPath, [...checksBlocks, checkBlock]);
       } else {
         const isInserting =
           Number.isInteger(templateToInsert.row) && Number.isInteger(templateToInsert.column);

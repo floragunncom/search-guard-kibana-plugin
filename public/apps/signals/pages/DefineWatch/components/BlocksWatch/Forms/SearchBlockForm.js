@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { useContext } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
@@ -27,7 +28,7 @@ import { SearchBlock } from '../utils/Blocks';
 
 import { Context } from '../../../../../Context';
 
-const SearchBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
+const SearchBlockForm = ({ idx, block, checksBlocksPath, formik: { setFieldValue } }) => {
   const {
     editorTheme,
     editorOptions,
@@ -37,10 +38,16 @@ const SearchBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
     onComboBoxCreateOption,
   } = useContext(Context);
 
+  const requestBodyPath = `${checksBlocksPath}[${idx}].request.body`;
+  const responsePath = `${checksBlocksPath}[${idx}].response`;
+  const namePath = `${checksBlocksPath}[${idx}].name`;
+  const targetPath = `${checksBlocksPath}[${idx}].target`;
+  const requestIndicesPath = `${checksBlocksPath}[${idx}].request.indices`;
+
   const renderCheckEditor = idx => (
     <FormikCodeEditor
       data-test-subj={`sgBlocks-checkEditor-block-${idx}`}
-      name={`_ui.checksBlocks.${idx}.request.body`}
+      name={requestBodyPath}
       formRow
       rowProps={{
         fullWidth: true,
@@ -90,7 +97,7 @@ const SearchBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
           <EuiText
             size="xs"
             onClick={() => {
-              setFieldValue(`_ui.checksBlocks[${idx}].response`, '');
+              setFieldValue(responsePath, '');
             }}
           >
             <EuiLink id="close-response" data-test-subj={`sgBlocks-closeResponse-block-${idx}`}>
@@ -119,7 +126,7 @@ const SearchBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
   return (
     <>
       <FormikFieldText
-        name={`_ui.checksBlocks[${idx}].name`}
+        name={namePath}
         formRow
         rowProps={{
           label: nameText,
@@ -131,7 +138,7 @@ const SearchBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
         }}
       />
       <FormikFieldText
-        name={`_ui.checksBlocks[${idx}].target`}
+        name={targetPath}
         formRow
         rowProps={{
           label: targetText,
@@ -146,7 +153,7 @@ const SearchBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
       <WatchIndex
         isClearable={false}
         httpClient={httpClient}
-        indexFieldName={`_ui.checksBlocks[${idx}].request.indices`}
+        indexFieldName={requestIndicesPath}
         onComboBoxChange={onComboBoxChange}
         onComboBoxOnBlur={onComboBoxOnBlur}
         onComboBoxCreateOption={onComboBoxCreateOption}
@@ -162,6 +169,7 @@ const SearchBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
 };
 
 SearchBlockForm.propTypes = {
+  checksBlocksPath: PropTypes.string.isRequired,
   idx: PropTypes.number.isRequired,
   formik: PropTypes.object.isRequired,
   block: PropTypes.shape({
@@ -176,7 +184,7 @@ SearchBlockForm.propTypes = {
           label: PropTypes.string,
         })
       ).isRequired,
-      body: PropTypes.object.isRequired,
+      body: PropTypes.string.isRequired,
     }).isRequired,
   }).isRequired,
 };

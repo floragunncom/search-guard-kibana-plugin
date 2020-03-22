@@ -37,8 +37,9 @@ const useJsonWatchChecks = ({ setFieldValue, isResultVisibleDefault = false } = 
         newValues = values;
       }
 
-      console.debug('useJsonWatchChecks -- executeWatch -- newValues', newValues);
       watch = formikToWatch(newValues);
+      console.debug('useJsonWatchChecks -- executeWatch -- watch', watch);
+
       const { ok, resp } = await watchService.execute({ watch, simulate, skipActions });
 
       setFieldValue('_ui.checksResult', resp);

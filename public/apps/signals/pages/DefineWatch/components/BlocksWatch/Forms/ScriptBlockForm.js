@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { useContext } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
@@ -26,8 +27,13 @@ import { DOC_LINKS } from '../../../../../utils/constants';
 
 import { Context } from '../../../../../Context';
 
-const ScriptBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
+const ScriptBlockForm = ({ idx, block, checksBlocksPath, formik: { setFieldValue } }) => {
   const { editorTheme, editorOptions } = useContext(Context);
+
+  const sourcePath = `${checksBlocksPath}[${idx}].source`;
+  const responsePath = `${checksBlocksPath}[${idx}].response`;
+  const namePath = `${checksBlocksPath}[${idx}].name`;
+  const targetPath = `${checksBlocksPath}[${idx}].target`;
 
   let docLink = DOC_LINKS.GETTING_STARTED;
   if (block.type === TransformBlock.type) {
@@ -41,7 +47,7 @@ const ScriptBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
   const renderCheckEditor = idx => (
     <FormikCodeEditor
       data-test-subj={`sgBlocks-checkEditor-block-${idx}`}
-      name={`_ui.checksBlocks.${idx}.source`}
+      name={sourcePath}
       formRow
       rowProps={{
         fullWidth: true,
@@ -93,7 +99,7 @@ const ScriptBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
           <EuiText
             size="xs"
             onClick={() => {
-              setFieldValue(`_ui.checksBlocks[${idx}].response`, '');
+              setFieldValue(responsePath, '');
             }}
           >
             <EuiLink id="close-response" data-test-subj={`sgBlocks-closeResponse-block-${idx}`}>
@@ -122,7 +128,7 @@ const ScriptBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
   return (
     <>
       <FormikFieldText
-        name={`_ui.checksBlocks[${idx}].name`}
+        name={namePath}
         formRow
         rowProps={{
           label: nameText,
@@ -134,7 +140,7 @@ const ScriptBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
         }}
       />
       <FormikFieldText
-        name={`_ui.checksBlocks[${idx}].target`}
+        name={targetPath}
         formRow
         rowProps={{
           label: targetText,
@@ -156,6 +162,7 @@ const ScriptBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
 };
 
 ScriptBlockForm.propTypes = {
+  checksBlocksPath: PropTypes.string.isRequired,
   idx: PropTypes.number.isRequired,
   formik: PropTypes.object.isRequired,
   block: PropTypes.shape({

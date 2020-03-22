@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { useContext } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
@@ -9,6 +10,7 @@ import {
   EuiCodeEditor,
   EuiText,
   EuiLink,
+  EuiCallOut,
 } from '@elastic/eui';
 import { FormikCodeEditor, FormikFieldText } from '../../../../../components';
 import {
@@ -19,20 +21,25 @@ import {
   bodyText,
   documentationText,
 } from '../../../../../utils/i18n/watch';
-import { isInvalid, hasError, validateEmptyField } from '../../../utils/validate';
+import { isInvalid, hasError } from '../../../utils/validate';
 import { CODE_EDITOR_NUM_OF_LINES } from '../utils/constants';
 import { DOC_LINKS } from '../../../../../utils/constants';
 import { HttpBlock, REQUEST_METHODS, REQUEST_AUTH_TYPES } from '../utils/Blocks/HttpBlock';
 
 import { Context } from '../../../../../Context';
 
-const HttpBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
+const HttpBlockForm = ({ idx, block, checksBlocksPath, formik: { setFieldValue } }) => {
   const { editorTheme, editorOptions } = useContext(Context);
+
+  const bodyPath = `${checksBlocksPath}[${idx}].body`;
+  const responsePath = `${checksBlocksPath}[${idx}].response`;
+  const namePath = `${checksBlocksPath}[${idx}].name`;
+  const targetPath = `${checksBlocksPath}[${idx}].target`;
 
   const renderCheckEditor = idx => (
     <FormikCodeEditor
       data-test-subj={`sgBlocks-checkEditor-block-${idx}`}
-      name={`_ui.checksBlocks.${idx}.body`}
+      name={bodyPath}
       formRow
       rowProps={{
         fullWidth: true,
@@ -77,7 +84,7 @@ const HttpBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
           <EuiText
             size="xs"
             onClick={() => {
-              setFieldValue(`_ui.checksBlocks[${idx}].response`, '');
+              setFieldValue(responsePath, '');
             }}
           >
             <EuiLink id="close-response" data-test-subj={`sgBlocks-closeResponse-block-${idx}`}>
@@ -105,8 +112,15 @@ const HttpBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
 
   return (
     <>
+      <EuiCallOut
+        title="HTTP block type is under construction! Do not use it!"
+        color="danger"
+        iconType="alert"
+      />
+      <EuiSpacer />
+
       <FormikFieldText
-        name={`_ui.checksBlocks[${idx}].name`}
+        name={namePath}
         formRow
         rowProps={{
           label: nameText,
@@ -118,7 +132,7 @@ const HttpBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
         }}
       />
       <FormikFieldText
-        name={`_ui.checksBlocks[${idx}].target`}
+        name={targetPath}
         formRow
         rowProps={{
           label: targetText,
@@ -140,6 +154,7 @@ const HttpBlockForm = ({ idx, block, formik: { setFieldValue } }) => {
 };
 
 HttpBlockForm.propTypes = {
+  checksBlocksPath: PropTypes.string.isRequired,
   idx: PropTypes.number.isRequired,
   formik: PropTypes.object.isRequired,
   block: PropTypes.shape({

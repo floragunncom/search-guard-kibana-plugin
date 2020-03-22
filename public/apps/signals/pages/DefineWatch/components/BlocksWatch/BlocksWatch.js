@@ -38,12 +38,19 @@ import { StaticBlockForm, ScriptBlockForm, SearchBlockForm, HttpBlockForm } from
 
 import { Context } from '../../../../Context';
 
-const BlocksWatch = ({ formik: { values, setFieldValue }, onAddTemplate, onCloseResult }) => {
+const BlocksWatch = ({
+  checksBlocksPath,
+  droppableId,
+  draggableId,
+  onAddTemplate,
+  onCloseResult,
+  formik: { values, setFieldValue },
+}) => {
   const { httpClient, addErrorToast, triggerConfirmModal } = useContext(Context);
   const [isLoading, setIsLoading] = useState(false);
 
   const watchService = new WatchService(httpClient);
-  const blocks = get(values, '_ui.checksBlocks', []);
+  const blocks = get(values, checksBlocksPath, []);
 
   useEffect(() => {
     onCloseResult();
@@ -55,7 +62,7 @@ const BlocksWatch = ({ formik: { values, setFieldValue }, onAddTemplate, onClose
       const newBlocks = cloneDeep(blocks);
       const [removed] = newBlocks.splice(source.index, 1);
       newBlocks.splice(destination.index, 0, removed);
-      setFieldValue('_ui.checksBlocks', newBlocks);
+      setFieldValue(checksBlocksPath, newBlocks);
     }
   };
 
@@ -65,7 +72,7 @@ const BlocksWatch = ({ formik: { values, setFieldValue }, onAddTemplate, onClose
       onConfirm: () => {
         const newBlocks = cloneDeep(blocks);
         newBlocks.splice(index, 1);
-        setFieldValue('_ui.checksBlocks', newBlocks);
+        setFieldValue(checksBlocksPath, newBlocks);
         triggerConfirmModal(null);
       },
       onCancel: () => {
@@ -86,7 +93,7 @@ const BlocksWatch = ({ formik: { values, setFieldValue }, onAddTemplate, onClose
     try {
       console.debug('BlocksWatch -- executeBlocks -- current values', newFormikValues);
       const { ok, resp } = await watchService.execute({ watch: formikToWatch(newFormikValues) });
-      setFieldValue(`_ui.checksBlocks.${endIndex}.response`, stringifyPretty(resp));
+      setFieldValue(`${checksBlocksPath}.${endIndex}.response`, stringifyPretty(resp));
 
       if (!ok) throw resp;
     } catch (error) {
@@ -150,29 +157,29 @@ const BlocksWatch = ({ formik: { values, setFieldValue }, onAddTemplate, onClose
 
     switch (block.type) {
       case StaticBlock.type:
-        form = <StaticBlockForm idx={idx} block={block} />;
+        form = <StaticBlockForm idx={idx} block={block} checksBlocksPath={checksBlocksPath} />;
         break;
       case SearchBlock.type:
-        form = <SearchBlockForm idx={idx} block={block} />;
+        form = <SearchBlockForm idx={idx} block={block} checksBlocksPath={checksBlocksPath} />;
         break;
       case HttpBlock.type:
-        form = <HttpBlockForm idx={idx} block={block} />;
+        form = <HttpBlockForm idx={idx} block={block} checksBlocksPath={checksBlocksPath} />;
         break;
       default:
-        form = <ScriptBlockForm idx={idx} block={block} />;
+        form = <ScriptBlockForm idx={idx} block={block} checksBlocksPath={checksBlocksPath} />;
         break;
     }
 
     return form;
   };
 
-  const renderBlocks = () =>
-    blocks.map((block, idx) => (
+  const renderBlocks = () => {
+    return blocks.map((block, idx) => (
       <EuiDraggable
         spacing="m"
         key={block.id}
         index={idx}
-        draggableId={`sgBlocks-draggable-${block.id}`}
+        draggableId={`${draggableId}-${block.id}`}
         customDragHandle={true}
       >
         {(provided, state) => (
@@ -189,8 +196,7 @@ const BlocksWatch = ({ formik: { values, setFieldValue }, onAddTemplate, onClose
               <EuiFlexItem>
                 <EuiAccordion
                   buttonContent={block.name || block.type}
-                  id={`sgBlocks-accordion-${block.id}`}
-                  data-test-subj={`sgBlocks-accordion-block-${block.id}`}
+                  id={`${draggableId}-accordion-block-${block.id}`}
                   extraAction={renderActions(idx)}
                 >
                   <div>
@@ -204,6 +210,7 @@ const BlocksWatch = ({ formik: { values, setFieldValue }, onAddTemplate, onClose
         )}
       </EuiDraggable>
     ));
+  };
 
   const renderEmptyPrompt = () => (
     <EuiEmptyPrompt
@@ -224,7 +231,7 @@ const BlocksWatch = ({ formik: { values, setFieldValue }, onAddTemplate, onClose
             <h3>{checksText}</h3>
           </EuiTitle>
           <EuiSpacer size="s" />
-          <EuiDroppable droppableId="sgBlocks-droppable" spacing="m">
+          <EuiDroppable droppableId={droppableId} spacing="m">
             {blocks.length ? renderBlocks() : renderEmptyPrompt()}
           </EuiDroppable>
         </EuiPanel>
@@ -233,7 +240,17 @@ const BlocksWatch = ({ formik: { values, setFieldValue }, onAddTemplate, onClose
   );
 };
 
+BlocksWatch.defaultProps = {
+  // Can accept any check blocks path, for example, action check blocks
+  checksBlocksPath: '_ui.checksBlocks',
+  // Must be unique on a single page
+  droppableId: 'sgBlocks-checksBlocks-droppable',
+  draggableId: 'sgBlocks-checksBlocks-draggable',
+};
+
 BlocksWatch.propTypes = {
+  checksBlocksPath: PropTypes.string,
+  droppableId: PropTypes.string,
   formik: PropTypes.object.isRequired,
   onAddTemplate: PropTypes.func.isRequired,
   onCloseResult: PropTypes.func.isRequired,

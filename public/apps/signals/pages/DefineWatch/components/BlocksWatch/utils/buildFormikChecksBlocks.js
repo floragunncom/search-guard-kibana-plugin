@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import {
   StaticBlock,
   ConditionBlock,
