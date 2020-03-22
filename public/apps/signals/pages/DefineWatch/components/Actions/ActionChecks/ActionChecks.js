@@ -108,7 +108,6 @@ const ActionChecks = ({
   let checksDefinition;
   switch (watchType) {
     case WATCH_TYPES.BLOCKS:
-      // TODO: add <QueryStat />
       checksDefinition = (
         <>
           {isResultVisible && (
@@ -134,6 +133,7 @@ const ActionChecks = ({
                   readOnly
                 />
               </EuiFormRow>
+              <QueryStat />
               <EuiSpacer />
             </>
           )}
@@ -149,8 +149,6 @@ const ActionChecks = ({
       );
       break;
     default:
-      // JSON watch
-      // TODO: add <QueryStat />
       checksDefinition = (
         <>
           <JsonWatch
@@ -159,6 +157,7 @@ const ActionChecks = ({
             editorResult={editorResult}
             onCloseResult={closeResult}
           />
+          <QueryStat />
         </>
       );
   }
