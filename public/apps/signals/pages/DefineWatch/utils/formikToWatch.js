@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import { cloneDeep, omit, get } from 'lodash';
 import buildSchedule from './buildSchedule';
 import { buildThrottle } from './buildThrottle';
@@ -31,22 +32,17 @@ export function buildSeverity(watch) {
   const severity = {
     value: get(value, '[0].label', ''),
     order,
-    mapping: []
+    mapping: [],
   };
 
   // Order is important for ES plugin
-  const thresholdLevels = [
-    SEVERITY.INFO,
-    SEVERITY.WARNING,
-    SEVERITY.ERROR,
-    SEVERITY.CRITICAL
-  ];
+  const thresholdLevels = [SEVERITY.INFO, SEVERITY.WARNING, SEVERITY.ERROR, SEVERITY.CRITICAL];
 
   thresholdLevels.forEach(level => {
     if (thresholds[level]) {
       severity.mapping.push({
         level,
-        threshold: thresholds[level]
+        threshold: thresholds[level],
       });
     }
   });
@@ -60,8 +56,7 @@ export function buildSeverity(watch) {
   // Have only search requests in graph mode to avoid conflict
   // with severity
   if (newWatch._ui.watchType === WATCH_TYPES.GRAPH) {
-    newWatch.checks = newWatch.checks
-      .filter(check => check.type.includes('search'));
+    newWatch.checks = newWatch.checks.filter(check => check.type.includes('search'));
   }
 
   if (newWatch._ui.isResolveActions) {
@@ -83,14 +78,14 @@ export function buildWebhookAction(action = {}) {
 
   return {
     ...action,
-    request: { ...action.request, headers }
+    request: { ...action.request, headers },
   };
 }
 
 export function buildSlackAction(action = {}) {
   return {
     ...action,
-    account: comboBoxOptionsToArray(action.account)[0]
+    account: comboBoxOptionsToArray(action.account)[0],
   };
 }
 
@@ -136,14 +131,14 @@ export function buildEmailAction(action = {}) {
     to: comboBoxOptionsToArray(action.to),
     cc: comboBoxOptionsToArray(action.cc),
     bcc: comboBoxOptionsToArray(action.bcc),
-    account: comboBoxOptionsToArray(action.account)[0]
+    account: comboBoxOptionsToArray(action.account)[0],
   };
 }
 
 export const buildIndexAction = (action = {}) => {
   return {
     ...action,
-    index: get(action, 'index[0].label', '')
+    index: get(action, 'index[0].label', ''),
   };
 };
 
@@ -186,12 +181,18 @@ export const buildActions = ({ actions = [], resolve_actions: resolveActions, _u
           // Graph watch has no checks
           watchAction.checks = [];
         } else {
-          watchAction.checks = JSON.parse(foldMultiLineString(watchAction.checks));
+          if (_ui.watchType === WATCH_TYPES.BLOCKS) {
+            watchAction.checks = buildChecksFromChecksBlocks(watchAction.checksBlocks);
+          } else {
+            watchAction.checks = JSON.parse(foldMultiLineString(watchAction.checks));
+          }
         }
       } catch (err) {
         console.error(`Fail to parse action "${action.name}" checks`);
         watchAction.checks = [];
       }
+
+      delete watchAction.checksBlocks;
 
       if (action.type === ACTION_TYPE.INDEX) {
         return omit(buildIndexAction(watchAction), ['_checksBlocks']);

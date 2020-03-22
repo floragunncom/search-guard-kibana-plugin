@@ -1,5 +1,7 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 /* eslint-disable max-len */
 import { formikToWatch, buildChecks, buildActions, buildSeverity } from './formikToWatch';
+import { StaticBlock, ConditionBlock } from '../components/BlocksWatch/utils/Blocks';
 import { stringifyPretty } from '../../../utils/helpers';
 import { WATCH_TYPES, SEVERITY } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
@@ -252,6 +254,7 @@ describe('buildActions', () => {
           type: ACTION_TYPE.PAGERDUTY,
           name: 'PD issue',
           checks: [],
+          checksBlocks: [],
           account: [{ label: 'fgunn pd' }],
           throttle_period: {
             interval: 1,
@@ -310,6 +313,7 @@ describe('buildActions', () => {
             priority: '',
           },
           checks: [],
+          checksBlocks: [],
           account: [{ label: 'fgunn jira' }],
           throttle_period: {
             interval: 1,
@@ -346,6 +350,7 @@ describe('buildActions', () => {
       actions: [
         {
           checks: '[]',
+          checksBlocks: [],
           throttle_period: {
             interval: 1,
             unit: 's',
@@ -387,6 +392,7 @@ describe('buildActions', () => {
       actions: [
         {
           checks: '[]',
+          checksBlocks: [],
           throttle_period: {
             interval: 1,
             unit: 's',
@@ -429,6 +435,7 @@ describe('buildActions', () => {
       actions: [
         {
           checks: '[]',
+          checksBlocks: [],
           throttle_period: {
             interval: 1,
             unit: 's',
@@ -471,6 +478,7 @@ describe('buildActions', () => {
       actions: [
         {
           checks: [],
+          checksBlocks: [],
           throttle_period: {
             interval: 1,
             unit: 's',
@@ -483,6 +491,69 @@ describe('buildActions', () => {
             body: 'Total: {{data.mysearch.hits.total.value}}',
             headers: 'Content-type": "application/json" }',
           },
+        },
+      ],
+    };
+
+    expect(buildActions(formik)).toEqual({ actions });
+  });
+
+  test('can build index action (plus checks blocks)', () => {
+    const checksBlocks = [
+      {
+        id: 0,
+        name: '',
+        response: '',
+        target: '',
+        type: StaticBlock.type,
+        value: stringifyPretty({ a: 1 }),
+      },
+      {
+        id: 1,
+        name: '',
+        response: '',
+        target: '',
+        type: ConditionBlock.type,
+        lang: 'painless',
+        source: 'int a = 1; return a > 0;',
+      },
+    ];
+
+    const actions = [
+      {
+        throttle_period: '1s',
+        type: ACTION_TYPE.INDEX,
+        name: 'myelasticsearch',
+        index: 'a',
+        checks: [
+          {
+            type: StaticBlock.type,
+            value: { a: 1 },
+          },
+          {
+            type: ConditionBlock.type,
+            lang: 'painless',
+            source: 'int a = 1; return a > 0;',
+          },
+        ],
+      },
+    ];
+
+    const formik = {
+      _ui: {
+        watchType: WATCH_TYPES.BLOCKS,
+      },
+      actions: [
+        {
+          throttle_period: {
+            interval: 1,
+            unit: 's',
+          },
+          type: ACTION_TYPE.INDEX,
+          name: 'myelasticsearch',
+          index: [{ label: 'a' }],
+          checks: '[]',
+          checksBlocks,
         },
       ],
     };
@@ -515,6 +586,7 @@ describe('buildActions', () => {
           name: 'myelasticsearch',
           index: [{ label: 'a' }],
           checks: stringifyPretty([{ a: 1 }]),
+          checksBlocks: [],
         },
       ],
     };
@@ -547,6 +619,7 @@ describe('buildActions', () => {
           name: 'myelasticsearch',
           index: [{ label: 'a' }],
           checks: '[{ "a" }]', // JSON error
+          checksBlocks: [],
         },
       ],
     };

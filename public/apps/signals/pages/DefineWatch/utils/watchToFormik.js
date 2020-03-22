@@ -1,4 +1,5 @@
-import { cloneDeep, isEmpty, get } from 'lodash';
+/* eslint-disable @kbn/eslint/require-license-header */
+import { cloneDeep, isEmpty } from 'lodash';
 import {
   stringifyPretty,
   arrayToComboBoxOptions,
@@ -42,8 +43,8 @@ export function buildFormikSeverity(watch = {}) {
       [SEVERITY.INFO]: undefined,
       [SEVERITY.WARNING]: undefined,
       [SEVERITY.ERROR]: undefined,
-      [SEVERITY.CRITICAL]: undefined
-    }
+      [SEVERITY.CRITICAL]: undefined,
+    },
   };
 
   newWatch.severity.mapping.forEach(mapping => {
@@ -55,7 +56,7 @@ export function buildFormikSeverity(watch = {}) {
   newWatch.actions.forEach(action => {
     action.severity = action.severity.map(label => ({
       label,
-      color: SEVERITY_COLORS[label]
+      color: SEVERITY_COLORS[label],
     }));
   });
 
@@ -69,7 +70,7 @@ export function buildFormikSeverity(watch = {}) {
   newWatch.resolve_actions.forEach(action => {
     action.resolves_severity = action.resolves_severity.map(label => ({
       label,
-      color: SEVERITY_COLORS[label]
+      color: SEVERITY_COLORS[label],
     }));
   });
 
@@ -81,15 +82,15 @@ export function buildFormikWebhookAction(action = {}) {
     ...action,
     request: {
       ...action.request,
-      headers: stringifyPretty(action.request.headers)
-    }
+      headers: stringifyPretty(action.request.headers),
+    },
   };
 }
 
 export function buildFormikSlackAction(action = {}) {
   return {
     ...action,
-    account: arrayToComboBoxOptions([action.account])
+    account: arrayToComboBoxOptions([action.account]),
   };
 }
 
@@ -113,7 +114,7 @@ export function buildFormikEmailAction(action = {}) {
     to: arrayToComboBoxOptions(action.to),
     cc: arrayToComboBoxOptions(action.cc),
     bcc: arrayToComboBoxOptions(action.bcc),
-    account: arrayToComboBoxOptions([action.account])
+    account: arrayToComboBoxOptions([action.account]),
   };
 }
 
@@ -123,7 +124,7 @@ export const buildFormikMeta = ({ _ui = {}, checks = [], trigger } = {}) => {
     ...RESULT_FIELD_DEFAULTS,
     checksBlocks: buildFormikChecksBlocks(checks),
     ...buildFormikSchedule({ trigger }),
-    ..._ui
+    ..._ui,
   };
 
   return !isEmpty(_ui) ? ui : Object.assign(ui, { watchType: WATCH_TYPES.JSON });
@@ -135,11 +136,7 @@ export const buildFormikIndexAction = (action = {}) => ({
   // checks: stringifyPretty(action.checks || [])
 });
 
-export const buildFormikActions = ({
-  actions = [],
-  resolve_actions: resolveActions = [],
-  _ui = {}
-}) => {
+export const buildFormikActions = ({ actions = [], resolve_actions: resolveActions = [] }) => {
   const buildHelper = actions => {
     const newActions = cloneDeep(actions);
     return newActions.map(action => {
@@ -151,6 +148,7 @@ export const buildFormikActions = ({
         newAction.checks = [];
       }
 
+      newAction.checksBlocks = buildFormikChecksBlocks(newAction.checks);
       newAction.checks = stringifyPretty(newAction.checks);
 
       if (newAction.type === ACTION_TYPE.INDEX) {
@@ -183,28 +181,26 @@ export const buildFormikActions = ({
 
   return {
     actions: buildHelper(actions),
-    resolve_actions: buildHelper(resolveActions)
+    resolve_actions: buildHelper(resolveActions),
   };
 };
 
 export const watchToFormik = (watch = {}) => {
   const formik = {
     ...cloneDeep(DEFAULT_WATCH),
-    ...cloneDeep(watch)
+    ...cloneDeep(watch),
   };
 
   const uiMeta = buildFormikMeta(watch);
-  const {
-    actions,
-    resolve_actions: resolveActions,
-    _ui,
-    ...rest
-  } = buildFormikSeverity({ ...formik, _ui: uiMeta });
+  const { actions, resolve_actions: resolveActions, _ui, ...rest } = buildFormikSeverity({
+    ...formik,
+    _ui: uiMeta,
+  });
 
   return {
     ...rest,
     _ui,
     checks: buildFormikChecks(formik.checks),
-    ...buildFormikActions({ actions, resolve_actions: resolveActions, _ui })
+    ...buildFormikActions({ actions, resolve_actions: resolveActions }),
   };
 };
