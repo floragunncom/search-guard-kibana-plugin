@@ -2,6 +2,45 @@ import { PluginInitializerContext } from "../../../src/core/server/plugins";
 import { Plugin } from './serverPlugin';
 import { schema } from '@kbn/config-schema';
 
+const getOpenIdSchema = (isSelectedAuthType) => {
+  return schema.object({
+    connect_url: (isSelectedAuthType)
+      ? schema.string()
+      : schema.maybe(schema.string())
+    ,
+    header: schema.string({ defaultValue: 'Authorization' }),
+    client_id: (isSelectedAuthType)
+      ? schema.string()
+      : schema.maybe(schema.string())
+    ,
+    client_secret: schema.string({ defaultValue: '' }),
+    scope: schema.string({ defaultValue: 'openid profile email address phone'}),
+    base_redirect_url: schema.string({ defaultValue: ''}),
+    logout_url: schema.string({ defaultValue: ''}),
+    root_ca: schema.string({ defaultValue: ''}),
+    verify_hostnames: schema.boolean({ defaultValue: true }),
+  })
+}
+
+const getProxyCacheSchema = (isSelectedAuthType) => {
+  return schema.object({
+    user_header: (isSelectedAuthType)
+      ? schema.string()
+      : schema.maybe(schema.string())
+    ,
+    roles_header: (isSelectedAuthType)
+      ? schema.string()
+      : schema.maybe(schema.string())
+    ,
+    proxy_header: schema.string({defaultValue: 'x-forwarded-for'}),
+    proxy_header_ip: (isSelectedAuthType)
+      ? schema.string()
+      : schema.maybe(schema.string())
+    ,
+    login_endpoint: schema.nullable(schema.string({defaultValue: null})),
+  })
+}
+
 // @todo We need to go through all of these and double check the default values, nullable, allow empty string etc.
 export const ConfigSchema = schema.object({
   enabled: schema.boolean({ defaultValue: true }),
@@ -37,6 +76,10 @@ export const ConfigSchema = schema.object({
     ttl: schema.number({ min: 0, defaultValue: 60 * 60 * 1000 }),
     keepalive: schema.boolean({ defaultValue: true })
   }),
+
+  /**
+   * General auth
+   */
   auth: schema.object({
     type: schema.oneOf([
       schema.literal(''),
@@ -100,51 +143,27 @@ export const ConfigSchema = schema.object({
     enabled: schema.boolean({ defaultValue: false }),
   }),
 
-  openid: schema.object({
-    connect_url: schema.string(),
-    header: schema.string({ defaultValue: 'Authorization' }),
-    client_id: schema.string(),
-    client_secret: schema.string({ defaultValue: '' }),
-    scope: schema.string({ defaultValue: 'openid profile email address phone'}),
-    base_redirect_url: schema.string({ defaultValue: ''}),
-    logout_url: schema.string({ defaultValue: ''}),
-    root_ca: schema.string({ defaultValue: ''}),
-    verify_hostnames: schema.boolean({ defaultValue: true }),
-    // @todo CONDITIONALS
-    /*
-     }).default().when('auth.type', {
-                    is: 'openid',
-                    then: Joi.object({
-                        client_id: Joi.required(),
-                        connect_url: Joi.required()
-                    })
-                }),
-     */
-  }),
+  openid: schema.conditional(
+    schema.siblingRef('auth.type'),
+    'openid',
+    getOpenIdSchema(true),
+    getOpenIdSchema(false)
+  ),
 
-  proxycache: schema.object({
-    user_header: schema.string(),
-    roles_header: scheam.string(),
-    proxy_header: schema.string({defaultValue: 'x-forwarded-for'}),
-    proxy_header_ip: schema.string(),
-    login_endpoint: schema.nullable(schema.string({defaultValue: null})),
-    // @todo CONDITIONALS
-    /*
-      }).default().when('auth.type', {
-                    is: 'proxycache',
-                    then: Joi.object({
-                        user_header: Joi.required(),
-                        roles_header: Joi.required(),
-                        proxy_header_ip: Joi.required()
-                    })
-     */
-  }),
-  jwt: schema.keys({
+  proxycache: schema.conditional(
+    schema.siblingRef('auth.type'),
+    'proxycache',
+    getProxyCacheSchema(true),
+    getProxyCacheSchema(false)
+  ),
+
+  jwt: schema.object({
     enabled: schema.boolean({ defaultValue: false }),
-    login_endpoint: schema.string(),
+    login_endpoint: schema.maybe(schema.string()),
     url_param: schema.string({ defaultValue: 'authorization' }),
     header: schema.string({ defaultValue: 'Authorization'})
   })
+
 });
 
 export const config = {
@@ -152,9 +171,7 @@ export const config = {
   exposeToBrowser: {
     auth: true,
     multitenancy: true,
-    basicauth: {
-      login: true // @todo Seems like this exposes the entire basicauth object
-    },
+    basicauth: true,
     configuration: true,
     accountinfo: true,
     readonly_mode: true,
