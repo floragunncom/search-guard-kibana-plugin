@@ -304,7 +304,7 @@ class InternalUsers extends Component {
 
 InternalUsers.propTypes = {
   history: PropTypes.object.isRequired,
-  httpClient: PropTypes.func,
+  httpClient: PropTypes.object,
   onTriggerErrorCallout: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired
 };

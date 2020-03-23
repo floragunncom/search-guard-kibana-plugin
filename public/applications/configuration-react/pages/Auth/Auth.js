@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 /* eslint import/namespace: ['error', { allowComputed: true }] */
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
@@ -8,7 +9,7 @@ import {
   EuiTextColor,
   EuiFlexGrid,
   EuiCodeEditor,
-  EuiText
+  EuiText,
 } from '@elastic/eui';
 import { ContentPanel, CancelButton } from '../../components';
 import { get, isEmpty, map, forEach, toString } from 'lodash';
@@ -25,9 +26,7 @@ const AuthContent = ({ resource }) => (
     {map(resource, (value, key) => (
       <Fragment key={key}>
         <EuiFlexItem>
-          <EuiText data-test-subj={`sgAuthContentKey-${key}`}>
-            {authI18nLabels[key]}
-          </EuiText>
+          <EuiText data-test-subj={`sgAuthContentKey-${key}`}>{authI18nLabels[key]}</EuiText>
         </EuiFlexItem>
         <EuiFlexItem>
           {React.isValidElement(value) ? (
@@ -49,7 +48,7 @@ class Auth extends Component {
       resources: {},
       isLoading: true,
       selectedSideNavItemName: SELECTED_SIDE_NAV_ITEM_NAME,
-      isSideNavOpenOnMobile: false
+      isSideNavOpenOnMobile: false,
     };
 
     this.backendService = new SgConfigService(this.props.httpClient);
@@ -66,18 +65,18 @@ class Auth extends Component {
       this.setState({
         resources: resourcesToUiResources({
           authc: get(data, 'sg_config.dynamic.authc', {}),
-          authz: get(data, 'sg_config.dynamic.authz', {})
-        })
+          authz: get(data, 'sg_config.dynamic.authz', {}),
+        }),
       });
-    } catch(error) {
+    } catch (error) {
       this.props.onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
-  }
+  };
 
   toggleOpenOnMobile = () => {
     this.setState({
-      isSideNavOpenOnMobile: !this.state.isSideNavOpenOnMobile
+      isSideNavOpenOnMobile: !this.state.isSideNavOpenOnMobile,
     });
   };
 
@@ -96,12 +95,13 @@ class Auth extends Component {
       const isCategory = name === SIDE_NAV.AUTHORIZATION || name === SIDE_NAV.AUTHENTICATION;
       const isActive = this.state.selectedSideNavItemName === name;
       const navItem = sideNavItem({
+        name,
         id: name,
         text: authI18nLabels[name],
         navData: { order },
         isCategory,
         isActive,
-        onClick: () => this.selectSideNavItem(name)
+        onClick: () => this.selectSideNavItem(name),
       });
 
       if (resourceType === 'authc') {
@@ -114,27 +114,29 @@ class Auth extends Component {
     sideNavItems.push(
       sideNavItem({
         id: SIDE_NAV.AUTHENTICATION,
+        name: SIDE_NAV.AUTHENTICATION,
         text: authI18nLabels[SIDE_NAV.AUTHENTICATION],
         navData: {
-          items: authcItems.sort((a, b) => a.order - b.order)
+          items: authcItems.sort((a, b) => a.order - b.order),
         },
-        isCategory: true
+        isCategory: true,
       })
     );
 
     sideNavItems.push(
       sideNavItem({
         id: SIDE_NAV.AUTHORIZATION,
+        name: SIDE_NAV.AUTHORIZATION,
         text: authI18nLabels[SIDE_NAV.AUTHORIZATION],
         navData: {
           items: authzItems.sort((a, b) => a.order - b.order),
         },
-        isCategory: true
+        isCategory: true,
       })
     );
 
     return sideNavItems;
-  }
+  };
 
   getResource = resource => {
     if (isEmpty(resource)) return {};
@@ -148,18 +150,24 @@ class Auth extends Component {
         ...common,
         HTTPAuthenticationType: resource.http_authenticator.type,
         HTTPChallenge: resource.http_authenticator.challenge,
-        HTTPAuthenticatorConfiguration: this.renderCodeEditor(stringifyPretty(resource.http_authenticator.config)),
+        HTTPAuthenticatorConfiguration: this.renderCodeEditor(
+          stringifyPretty(resource.http_authenticator.config)
+        ),
         authenticationBackendType: resource.authentication_backend.type,
-        authenticationBackendConfiguration: this.renderCodeEditor(stringifyPretty(resource.authentication_backend.config))
+        authenticationBackendConfiguration: this.renderCodeEditor(
+          stringifyPretty(resource.authentication_backend.config)
+        ),
       };
     }
 
     return {
       ...common,
       authorizationBackendType: resource.authorization_backend.type,
-      authorizationBackendConfiguration: this.renderCodeEditor(stringifyPretty(resource.authorization_backend.config))
+      authorizationBackendConfiguration: this.renderCodeEditor(
+        stringifyPretty(resource.authorization_backend.config)
+      ),
     };
-  }
+  };
 
   renderCodeEditor = value => (
     <EuiCodeEditor
@@ -168,29 +176,28 @@ class Auth extends Component {
       setOptions={{
         minLines: 10,
         maxLines: 15,
-        fontSize: '12px'
+        fontSize: '12px',
       }}
       value={value}
     />
-  )
+  );
 
   renderPanelTitle = selectedSideNavItemName => {
-    const disabled = !isEmpty(this.state.resources) &&
+    const disabled =
+      !isEmpty(this.state.resources) &&
       !this.state.resources[selectedSideNavItemName].transport_enabled;
 
     return (
       <Fragment>
-        {authI18nLabels[selectedSideNavItemName]} {disabled &&
-          <EuiTextColor
-            data-test-subj="sgAuthContentPanelDisabledTag"
-            color="danger"
-          >
+        {authI18nLabels[selectedSideNavItemName]}{' '}
+        {disabled && (
+          <EuiTextColor data-test-subj="sgAuthContentPanelDisabledTag" color="danger">
             {disabledText}
           </EuiTextColor>
-        }
+        )}
       </Fragment>
     );
-  }
+  };
 
   render() {
     const { history } = this.props;
@@ -213,9 +220,7 @@ class Auth extends Component {
         <EuiFlexItem>
           <ContentPanel
             title={this.renderPanelTitle(selectedSideNavItemName)}
-            actions={[
-              (<CancelButton onClick={() => history.push(APP_PATH.HOME)} />)
-            ]}
+            actions={[<CancelButton onClick={() => history.push(APP_PATH.HOME)} />]}
           >
             <AuthContent resource={resource} />
           </ContentPanel>
@@ -227,7 +232,7 @@ class Auth extends Component {
 
 Auth.propTypes = {
   history: PropTypes.object.isRequired,
-  httpClient: PropTypes.func,
+  httpClient: PropTypes.object,
   onTriggerErrorCallout: PropTypes.func.isRequired,
 };
 

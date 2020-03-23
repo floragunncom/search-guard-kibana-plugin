@@ -3,6 +3,7 @@ import { sgContext, sgConfig } from './utils/sgContext';
 import { LogOutService } from './applications/nav';
 import { HttpWrapper } from './utils/httpWrapper';
 import { SystemStateService } from './services/SystemStateService';
+
 export class PublicPlugin {
   constructor(initializerContext) {
     this.initializerContext = initializerContext;
@@ -36,11 +37,10 @@ export class PublicPlugin {
       id: 'searchguard-configuration',
       title: 'SearchGuard Configuration',
       icon: 'plugins/searchguard/assets/searchguard_logo_left_navbar.svg',
-      //euiIconType: 'user',
-      mount: async params => {
-        const { renderApp } = await import('./applications/configuration-react/npstart');
+      mount: async ({ element }) => {
+        const { renderApp } = await import('./applications/configuration-react');
 
-        return renderApp(core, null, params, this.config);
+        return renderApp({ element, httpClient: this.httpClient });
       },
     });
 

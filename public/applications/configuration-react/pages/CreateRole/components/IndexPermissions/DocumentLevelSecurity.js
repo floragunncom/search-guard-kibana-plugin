@@ -87,7 +87,7 @@ const DocumentLevelSecurity = ({ index, httpClient, formik }) => {
 
 DocumentLevelSecurity.propTypes = {
   index: PropTypes.number.isRequired,
-  httpClient: PropTypes.func.isRequired,
+  httpClient: PropTypes.object.isRequired,
   formik: PropTypes.shape({
     values: PropTypes.object.isRequired,
     validateField: PropTypes.func.isRequired,

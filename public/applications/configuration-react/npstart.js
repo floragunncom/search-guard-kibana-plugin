@@ -1,36 +1,25 @@
-import React, { useState, useEffect } from 'react';
+/* eslint-disable @kbn/eslint/require-license-header */
+import React from 'react';
 import ReactDOM from 'react-dom';
 import Main from './pages/Main';
 
 import { HashRouter as Router, Route } from 'react-router-dom';
 import { I18nProvider } from '@kbn/i18n/react';
 
-import { HttpWrapper } from "../../utils/httpWrapper";
+import './style.scss';
 
-
-export const renderApp = (core, deps, params, config) => {
-  const httpWrapper = new HttpWrapper();
+export const renderApp = ({ httpClient, element }) => {
   ReactDOM.render(
-
     <I18nProvider>
       <Router>
         <Route
-          render={props => (
-
-              <Main
-                title={'Search Guard'}
-                httpClient={httpWrapper.setCoreHttp(core.http)}
-                {...props}
-              >
-              </Main>
-
-          )}
+          render={props => <Main title={'Search Guard'} httpClient={httpClient} {...props} />}
         />
       </Router>
-    </I18nProvider>
+    </I18nProvider>,
 
-    , params.element
-);
+    element
+  );
 
-  return () => ReactDOM.unmountComponentAtNode(params.element);
-}
+  return () => ReactDOM.unmountComponentAtNode(element);
+};

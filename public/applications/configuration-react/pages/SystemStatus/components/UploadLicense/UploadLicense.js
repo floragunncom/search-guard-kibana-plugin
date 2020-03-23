@@ -153,7 +153,7 @@ class UploadLicense extends Component {
 UploadLicense.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  httpClient: PropTypes.func.isRequired,
+  httpClient: PropTypes.object.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
   onTriggerSuccessCallout: PropTypes.func.isRequired,
   onTriggerCustomFlyout: PropTypes.func.isRequired

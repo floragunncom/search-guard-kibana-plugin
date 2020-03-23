@@ -1,13 +1,10 @@
+/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable import/namespace */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { filter, get, toUpper } from 'lodash';
 import queryString from 'query-string';
-import {
-  EuiFlexItem,
-  EuiFlexGroup,
-  EuiSideNav,
-  EuiButton
-} from '@elastic/eui';
+import { EuiFlexItem, EuiFlexGroup, EuiSideNav, EuiButton } from '@elastic/eui';
 import { ContentPanel, CancelButton } from '../../components';
 import { SystemService } from '../../services';
 import { UploadLicense, SystemStatusContent } from './components';
@@ -26,7 +23,7 @@ class SystemStatus extends Component {
       resources: {},
       isLoading: true,
       selectedSideNavItemName: SELECTED_SIDE_NAV_ITEM_NAME,
-      isSideNavOpenOnMobile: false
+      isSideNavOpenOnMobile: false,
     };
 
     this.backendService = new SystemService(this.props.httpClient);
@@ -40,14 +37,18 @@ class SystemStatus extends Component {
     // Select side nav item
     const { selectedSideNavItemName } = get(this.props, 'location.state', {});
     const { selectedSideNavItemName: prevSelectedSideNavItemName } = prevState;
-    if (SIDE_NAV[toUpper(selectedSideNavItemName)] && selectedSideNavItemName !== prevSelectedSideNavItemName) {
+    if (
+      SIDE_NAV[toUpper(selectedSideNavItemName)] &&
+      selectedSideNavItemName !== prevSelectedSideNavItemName
+    ) {
       this.selectSideNavItem(selectedSideNavItemName);
     }
 
     // Fetch data
     const { action: prevAction } = queryString.parse(prevProps.location.search);
     const { action } = queryString.parse(this.props.location.search);
-    const uploadedLicense = prevAction === SYSTEM_STATUS_ACTIONS.UPLOAD_LICENSE && action !== prevAction;
+    const uploadedLicense =
+      prevAction === SYSTEM_STATUS_ACTIONS.UPLOAD_LICENSE && action !== prevAction;
     if (uploadedLicense) this.fetchData();
   }
 
@@ -60,11 +61,11 @@ class SystemStatus extends Component {
       this.props.onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
-  }
+  };
 
   toggleOpenOnMobile = () => {
     this.setState({
-      isSideNavOpenOnMobile: !this.state.isSideNavOpenOnMobile
+      isSideNavOpenOnMobile: !this.state.isSideNavOpenOnMobile,
     });
   };
 
@@ -73,23 +74,26 @@ class SystemStatus extends Component {
   };
 
   getSideNavItems = () => {
-    const items = filter(SIDE_NAV, e => e !== SIDE_NAV.SYSTEM_STATUS)
-      .map(name => sideNavItem({
+    const items = filter(SIDE_NAV, e => e !== SIDE_NAV.SYSTEM_STATUS).map(name =>
+      sideNavItem({
+        name,
         id: name,
         onClick: () => this.selectSideNavItem(name),
         text: systemStatusI18nLabels[name],
-        isActive: this.state.selectedSideNavItemName === name
-      }));
+        isActive: this.state.selectedSideNavItemName === name,
+      })
+    );
 
     return [
       sideNavItem({
         id: SIDE_NAV.SYSTEM_STATUS,
+        name: SIDE_NAV.SYSTEM_STATUS,
         text: systemStatusI18nLabels[SIDE_NAV.SYSTEM_STATUS],
         navData: { items },
-        isCategory: true
-      })
+        isCategory: true,
+      }),
     ];
-  }
+  };
 
   renderUploadLicenseButton = (history, location) => (
     <EuiButton
@@ -97,13 +101,13 @@ class SystemStatus extends Component {
       onClick={() => {
         this.props.history.push({
           ...location,
-          search: `?action=${SYSTEM_STATUS_ACTIONS.UPLOAD_LICENSE}`
+          search: `?action=${SYSTEM_STATUS_ACTIONS.UPLOAD_LICENSE}`,
         });
       }}
     >
       {systemStatusI18nLabels.uploadLicenseText}
     </EuiButton>
-  )
+  );
 
   render() {
     const { history, location } = this.props;
@@ -112,7 +116,7 @@ class SystemStatus extends Component {
     const { action } = queryString.parse(location.search);
     const uploadLicense = action === SYSTEM_STATUS_ACTIONS.UPLOAD_LICENSE;
     if (uploadLicense) {
-      return (<UploadLicense {...this.props} />);
+      return <UploadLicense {...this.props} />;
     }
 
     const sideNavItems = this.getSideNavItems();
@@ -134,8 +138,8 @@ class SystemStatus extends Component {
           <ContentPanel
             title={systemStatusI18nLabels[selectedSideNavItemName]}
             actions={[
-              (<CancelButton onClick={() => history.push(APP_PATH.HOME)} />),
-              this.renderUploadLicenseButton(history, location)
+              <CancelButton onClick={() => history.push(APP_PATH.HOME)} />,
+              this.renderUploadLicenseButton(history, location),
             ]}
           >
             <SystemStatusContent resource={resource} sideNavItemName={selectedSideNavItemName} />
@@ -149,10 +153,10 @@ class SystemStatus extends Component {
 SystemStatus.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  httpClient: PropTypes.func.isRequired,
+  httpClient: PropTypes.object.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
   onTriggerSuccessCallout: PropTypes.func.isRequired,
-  onTriggerCustomFlyout: PropTypes.func.isRequired
+  onTriggerCustomFlyout: PropTypes.func.isRequired,
 };
 
 export default SystemStatus;
