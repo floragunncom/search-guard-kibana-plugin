@@ -19,7 +19,10 @@ export class LogOutService {
     }
 
     if (userName) {
-      props.logoutButtonText = userName;
+      props.userName = userName.slice(0, 20);
+    }
+
+    if (userName) {
       props.logoutTooltipText = (
         <>
           {logoutText} {userName}
