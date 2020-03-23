@@ -70,7 +70,7 @@ const IndexPermissions = ({
 );
 
 IndexPermissions.propTypes = {
-  httpClient: PropTypes.func.isRequired,
+  httpClient: PropTypes.object.isRequired,
   indexPermissions: PropTypes.arrayOf(
     PropTypes.shape({
       index_patterns: PropTypes.array.isRequired,

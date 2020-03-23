@@ -305,7 +305,7 @@ CreateRole.propTypes = {
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
-  httpClient: PropTypes.func.isRequired,
+  httpClient: PropTypes.object.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,
   onComboBoxCreateOption: PropTypes.func.isRequired,
   onComboBoxOnBlur: PropTypes.func.isRequired,

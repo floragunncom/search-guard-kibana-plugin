@@ -170,7 +170,7 @@ class FieldLevelSecurity extends Component {
 }
 
 FieldLevelSecurity.propTypes = {
-  httpClient: PropTypes.func.isRequired,
+  httpClient: PropTypes.object.isRequired,
   index: PropTypes.number.isRequired,
   isAnonymizedFieldsEnabled: PropTypes.bool.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,

@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
@@ -7,7 +8,7 @@ import {
   EuiCard,
   EuiSpacer,
   EuiLoadingSpinner,
-  EuiCallOut
+  EuiCallOut,
 } from '@elastic/eui';
 import { ContentPanel, Icon } from '../../components';
 import { APP_PATH } from '../../utils/constants';
@@ -20,36 +21,24 @@ import {
   permissionsAndRolesText,
   isNoAuthenticationBackendsText,
   isNoPermissionsAndRolesText,
-  isNoSystemText
+  isNoSystemText,
 } from '../../utils/i18n/home';
 import {
   internalUsersDatabaseText,
-  internalUsersDatabaseDescription
+  internalUsersDatabaseDescription,
 } from '../../utils/i18n/internal_users';
 import {
   authenticationAndAuthorizationText,
-  authenticationAndAuthorizationDescription
+  authenticationAndAuthorizationDescription,
 } from '../../utils/i18n/auth';
 import {
   systemStatus as systemStatusText,
-  systemStatusDescription
+  systemStatusDescription,
 } from '../../utils/i18n/system_status';
-import {
-  tenantsText,
-  tenantsDescription
-} from '../../utils/i18n/tenants';
-import {
-  actionGroupsText,
-  actionGroupsDescription
-} from '../../utils/i18n/action_groups';
-import {
-  rolesText,
-  rolesDescription
-} from '../../utils/i18n/roles';
-import {
-  roleMappingsText,
-  roleMappingsDescription
-} from '../../utils/i18n/role_mappings';
+import { tenantsText, tenantsDescription } from '../../utils/i18n/tenants';
+import { actionGroupsText, actionGroupsDescription } from '../../utils/i18n/action_groups';
+import { rolesText, rolesDescription } from '../../utils/i18n/roles';
+import { roleMappingsText, roleMappingsDescription } from '../../utils/i18n/role_mappings';
 import { SystemService } from '../../services';
 
 const Home = ({ httpClient, history, onPurgeCache, purgingCache }) => {
@@ -65,69 +54,69 @@ const Home = ({ httpClient, history, onPurgeCache, purgingCache }) => {
   const authenticationBackendsCards = filterDisabledCards([
     {
       endpoint: ENDPOINTS.INTERNALUSERS,
-      icon: (<Icon size="xxl" type="internalUsersDatabase" />),
+      icon: <Icon size="xxl" type="internalUsersDatabase" />,
       title: internalUsersDatabaseText,
       description: internalUsersDatabaseDescription,
-      onClick: () => history.push(APP_PATH.INTERNAL_USERS)
-    }
+      onClick: () => history.push(APP_PATH.INTERNAL_USERS),
+    },
   ]);
 
   const systemCards = filterDisabledCards([
     {
       endpoint: ENDPOINTS.SGCONFIG,
-      icon: (<Icon size="xxl" type="authcAndAuthz" />),
+      icon: <Icon size="xxl" type="authcAndAuthz" />,
       title: authenticationAndAuthorizationText,
       description: authenticationAndAuthorizationDescription,
-      onClick: () => history.push(APP_PATH.AUTH)
+      onClick: () => history.push(APP_PATH.AUTH),
     },
     {
       endpoint: ENDPOINTS.LICENSE,
-      icon: (<Icon size="xxl" type="systemStatus" />),
+      icon: <Icon size="xxl" type="systemStatus" />,
       title: systemStatusText,
       description: systemStatusDescription,
-      onClick: () => history.push(APP_PATH.SYSTEM_STATUS)
+      onClick: () => history.push(APP_PATH.SYSTEM_STATUS),
     },
     {
       endpoint: ENDPOINTS.CACHE,
-      icon: (<Icon size="xxl" type="purgeCache" />),
+      icon: <Icon size="xxl" type="purgeCache" />,
       title: purgeCacheText,
-      description: (purgingCache ? <EuiLoadingSpinner size="xl" /> : purgeCacheDescription),
-      onClick: () => onPurgeCache()
-    }
+      description: purgingCache ? <EuiLoadingSpinner size="xl" /> : purgeCacheDescription,
+      onClick: () => onPurgeCache(),
+    },
   ]);
 
   const permissionsAndRolesCards = filterDisabledCards([
     {
       endpoint: ENDPOINTS.ROLESMAPPING,
-      icon: (<Icon size="xxl" type="roleMappings" />),
+      icon: <Icon size="xxl" type="roleMappings" />,
       title: roleMappingsText,
       description: roleMappingsDescription,
-      onClick: () => history.push(APP_PATH.ROLE_MAPPINGS)
+      onClick: () => history.push(APP_PATH.ROLE_MAPPINGS),
     },
     {
       endpoint: ENDPOINTS.ROLES,
-      icon: (<Icon size="xxl" type="roles" />),
+      icon: <Icon size="xxl" type="roles" />,
       title: rolesText,
       description: rolesDescription,
-      onClick: () => history.push(APP_PATH.ROLES)
+      onClick: () => history.push(APP_PATH.ROLES),
     },
     {
       endpoint: ENDPOINTS.ACTIONGROUPS,
-      icon: (<Icon size="xxl" type="actionGroups" />),
+      icon: <Icon size="xxl" type="actionGroups" />,
       title: actionGroupsText,
       description: actionGroupsDescription,
-      onClick: () => history.push(APP_PATH.ACTION_GROUPS)
+      onClick: () => history.push(APP_PATH.ACTION_GROUPS),
     },
     {
       endpoint: ENDPOINTS.TENANTS,
-      icon: (<Icon size="xxl" type="tenants" />),
+      icon: <Icon size="xxl" type="tenants" />,
       title: tenantsText,
       description: tenantsDescription,
-      onClick: () => history.push(APP_PATH.TENANTS)
-    }
+      onClick: () => history.push(APP_PATH.TENANTS),
+    },
   ]);
 
-  const renderCards = cards => (
+  const renderCards = cards =>
     cards.map((card, i) => (
       <EuiFlexItem key={i} grow={false} className="sgHomeMenu__card">
         <EuiCard
@@ -138,8 +127,7 @@ const Home = ({ httpClient, history, onPurgeCache, purgingCache }) => {
           onClick={() => card.onClick()}
         />
       </EuiFlexItem>
-    ))
-  );
+    ));
 
   const isNoPermissionsAndRoles = isEmpty(permissionsAndRolesCards);
   const isNoEuthenticationBackends = isEmpty(authenticationBackendsCards);
@@ -154,28 +142,28 @@ const Home = ({ httpClient, history, onPurgeCache, purgingCache }) => {
       </EuiFlexGroup>
 
       {isNoPermissionsAndRoles ? (
-        <EuiCallOut className="sgFixedFormItem" iconType="iInCircle" title={isNoPermissionsAndRolesText} />
+        <EuiCallOut
+          className="sgFixedFormItem"
+          iconType="iInCircle"
+          title={isNoPermissionsAndRolesText}
+        />
       ) : (
-        <ContentPanel
-          title={permissionsAndRolesText}
-        >
-          <EuiFlexGroup>
-            {renderCards(permissionsAndRolesCards)}
-          </EuiFlexGroup>
+        <ContentPanel title={permissionsAndRolesText}>
+          <EuiFlexGroup>{renderCards(permissionsAndRolesCards)}</EuiFlexGroup>
         </ContentPanel>
       )}
 
       <EuiSpacer size="xl" />
 
       {isNoEuthenticationBackends ? (
-        <EuiCallOut className="sgFixedFormItem" iconType="iInCircle" title={isNoAuthenticationBackendsText} />
+        <EuiCallOut
+          className="sgFixedFormItem"
+          iconType="iInCircle"
+          title={isNoAuthenticationBackendsText}
+        />
       ) : (
-        <ContentPanel
-          title={authenticationBackendsText}
-        >
-          <EuiFlexGroup>
-            {renderCards(authenticationBackendsCards)}
-          </EuiFlexGroup>
+        <ContentPanel title={authenticationBackendsText}>
+          <EuiFlexGroup>{renderCards(authenticationBackendsCards)}</EuiFlexGroup>
         </ContentPanel>
       )}
 
@@ -184,21 +172,16 @@ const Home = ({ httpClient, history, onPurgeCache, purgingCache }) => {
       {isNoSystem ? (
         <EuiCallOut className="sgFixedFormItem" iconType="iInCircle" title={isNoSystemText} />
       ) : (
-        <ContentPanel
-          title={systemText}
-        >
-          <EuiFlexGroup>
-            {renderCards(systemCards)}
-          </EuiFlexGroup>
+        <ContentPanel title={systemText}>
+          <EuiFlexGroup>{renderCards(systemCards)}</EuiFlexGroup>
         </ContentPanel>
       )}
-
     </Fragment>
   );
 };
 
 Home.propTypes = {
-  httpClient: PropTypes.func.isRequired,
+  httpClient: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   onPurgeCache: PropTypes.func.isRequired,
   purgingCache: PropTypes.bool.isRequired,

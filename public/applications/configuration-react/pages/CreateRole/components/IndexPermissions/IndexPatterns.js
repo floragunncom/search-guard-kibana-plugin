@@ -1,17 +1,12 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import {
-  EuiAccordion,
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiSpacer,
-  EuiCallOut
-} from '@elastic/eui';
+import { EuiAccordion, EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiCallOut } from '@elastic/eui';
 import { advancedText } from '../../../../utils/i18n/common';
 import {
   indexPatternsText,
   fieldLevelSecurityDisabledText,
-  documentLevelSecurityDisabledText
+  documentLevelSecurityDisabledText,
 } from '../../../../utils/i18n/roles';
 import { actionGroupsText, singlePermissionsText } from '../../../../utils/i18n/action_groups';
 import {
@@ -19,12 +14,10 @@ import {
   AccordionDeleteButton,
   FormikComboBox,
   FormikSwitch,
-  Icon
+  Icon,
 } from '../../../../components';
 import { comboBoxOptionsToArray } from '../../../../utils/helpers';
-import {
-  validIndicesSinglePermissionOption
-} from '../../../../utils/validation';
+import { validIndicesSinglePermissionOption } from '../../../../utils/validation';
 import FieldLevelSecurity from './FieldLevelSecurity';
 import DocumentLevelSecurity from './DocumentLevelSecurity';
 
@@ -44,8 +37,8 @@ const IndexPatterns = ({
   onComboBoxOnBlur,
   onComboBoxCreateOption,
   onTriggerConfirmDeletionModal,
-  onTriggerErrorCallout
-}) => (
+  onTriggerErrorCallout,
+}) =>
   indexPermissions.map((indexPermission, index) => (
     <EuiFlexGroup key={index}>
       <EuiFlexItem>
@@ -62,7 +55,7 @@ const IndexPatterns = ({
                   onConfirm: () => {
                     arrayHelpers.remove(index);
                     onTriggerConfirmDeletionModal(null);
-                  }
+                  },
                 });
               }}
             />
@@ -86,7 +79,7 @@ const IndexPatterns = ({
               isClearable: true,
               onBlur: onComboBoxOnBlur,
               onChange: onComboBoxChange(),
-              onCreateOption: onComboBoxCreateOption()
+              onCreateOption: onComboBoxCreateOption(),
             }}
           />
           <FormikComboBox
@@ -99,18 +92,18 @@ const IndexPatterns = ({
               options: allActionGroups,
               isClearable: true,
               onBlur: onComboBoxOnBlur,
-              onChange: onComboBoxChange()
+              onChange: onComboBoxChange(),
             }}
           />
           <FormikSwitch
             formRow
             elementProps={{
               label: advancedText,
-              checked: indexPermissions[index]._isAdvanced
+              checked: indexPermissions[index]._isAdvanced,
             }}
             name={`_indexPermissions[${index}]._isAdvanced`}
           />
-          {indexPermissions[index]._isAdvanced &&
+          {indexPermissions[index]._isAdvanced && (
             <FormikComboBox
               name={`_indexPermissions[${index}].allowed_actions.permissions`}
               formRow
@@ -122,10 +115,10 @@ const IndexPatterns = ({
                 isClearable: true,
                 onBlur: onComboBoxOnBlur,
                 onCreateOption: onComboBoxCreateOption(validIndicesSinglePermissionOption),
-                onChange: onComboBoxChange()
+                onChange: onComboBoxChange(),
               }}
             />
-          }
+          )}
           {!isFlsEnabled ? (
             <Fragment>
               <EuiSpacer />
@@ -138,6 +131,7 @@ const IndexPatterns = ({
             </Fragment>
           ) : (
             <Fragment>
+              <EuiSpacer />
               <FieldLevelSecurity
                 httpClient={httpClient}
                 index={index}
@@ -149,29 +143,26 @@ const IndexPatterns = ({
               />
             </Fragment>
           )}
-          {!isDlsEnabled
-            ? (
-              <Fragment>
-                <EuiSpacer />
-                <EuiCallOut
-                  data-test-subj="sgDLSDisabledCallout"
-                  className="sgFixedFormItem"
-                  iconType="iInCircle"
-                  title={documentLevelSecurityDisabledText}
-                />
-              </Fragment>
-            )
-            : <DocumentLevelSecurity httpClient={httpClient} index={index} />
-          }
+
+          <EuiSpacer />
+          {!isDlsEnabled ? (
+            <EuiCallOut
+              data-test-subj="sgDLSDisabledCallout"
+              className="sgFixedFormItem"
+              iconType="iInCircle"
+              title={documentLevelSecurityDisabledText}
+            />
+          ) : (
+            <DocumentLevelSecurity httpClient={httpClient} index={index} />
+          )}
           <EuiSpacer />
         </EuiAccordion>
       </EuiFlexItem>
     </EuiFlexGroup>
-  ))
-);
+  ));
 
 IndexPatterns.propTypes = {
-  httpClient: PropTypes.func.isRequired,
+  httpClient: PropTypes.object.isRequired,
   indexPermissions: PropTypes.array.isRequired,
   arrayHelpers: PropTypes.object.isRequired,
   allActionGroups: PropTypes.array.isRequired,
@@ -184,7 +175,7 @@ IndexPatterns.propTypes = {
   onComboBoxOnBlur: PropTypes.func.isRequired,
   onComboBoxCreateOption: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired
+  onTriggerErrorCallout: PropTypes.func.isRequired,
 };
 
 export default IndexPatterns;

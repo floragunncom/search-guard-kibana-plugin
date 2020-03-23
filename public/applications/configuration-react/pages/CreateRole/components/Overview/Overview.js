@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { isEmpty, map } from 'lodash';
@@ -9,12 +10,9 @@ import {
   EuiSpacer,
   EuiListGroup,
   EuiListGroupItem,
-  EuiTitle
+  EuiTitle,
 } from '@elastic/eui';
-import {
-  inspectText,
-  nameText
-} from '../../../../utils/i18n/common';
+import { inspectText, nameText } from '../../../../utils/i18n/common';
 import {
   membersText,
   backendRolesText,
@@ -22,7 +20,7 @@ import {
   hostsText,
   noMappedUsersFoundText,
   noMappedBackendRolesFoundText,
-  noMappedHostsFoundText
+  noMappedHostsFoundText,
 } from '../../../../utils/i18n/roles';
 import { formikToRole } from '../../utils';
 import { FormikFieldText, SubHeader } from '../../../../components';
@@ -41,13 +39,13 @@ const Overview = ({
   const sectionNoMappedText = {
     users: noMappedUsersFoundText,
     backend_roles: noMappedBackendRolesFoundText,
-    hosts: noMappedHostsFoundText
+    hosts: noMappedHostsFoundText,
   };
 
   const sectionText = {
     users: usersText,
     backend_roles: backendRolesText,
-    hosts: hostsText
+    hosts: hostsText,
   };
 
   return (
@@ -58,7 +56,7 @@ const Overview = ({
         onClick={() => {
           onTriggerInspectJsonFlyout({
             json: formikToRole(values),
-            title: titleText
+            title: titleText,
           });
         }}
       >
@@ -69,19 +67,20 @@ const Overview = ({
       <FormikFieldText
         formRow
         formikFieldProps={{
-          validate: validateName(rolesService, isUpdatingName)
+          validate: validateName(rolesService, isUpdatingName),
         }}
         rowProps={{
           label: nameText,
           isInvalid,
-          error: hasError
+          error: hasError,
         }}
         elementProps={{
-          isInvalid
+          isInvalid,
         }}
         name="_name"
       />
 
+      <EuiSpacer />
       <SubHeader title={<h4>{membersText}</h4>} />
       {['users', 'backend_roles', 'hosts'].map((sectionName, i) => (
         <Fragment key={i}>
@@ -101,10 +100,10 @@ const Overview = ({
                   title={sectionNoMappedText[sectionName]}
                 />
               ) : (
-                <EuiListGroup
-                  data-test-subj={`sgRoleMembers-${sectionName}`}
-                >
-                  {map(values._roleMapping[sectionName], (item, i) => <EuiListGroupItem key={i} label={item} />)}
+                <EuiListGroup data-test-subj={`sgRoleMembers-${sectionName}`}>
+                  {map(values._roleMapping[sectionName], (item, i) => (
+                    <EuiListGroupItem key={i} label={item} />
+                  ))}
                 </EuiListGroup>
               )}
             </EuiFlexItem>
@@ -116,7 +115,7 @@ const Overview = ({
 };
 
 Overview.propTypes = {
-  httpClient: PropTypes.func.isRequired,
+  httpClient: PropTypes.object.isRequired,
   values: PropTypes.object.isRequired,
   isUpdatingName: PropTypes.bool.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,

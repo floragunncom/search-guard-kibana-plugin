@@ -240,7 +240,7 @@ class CreateRoleMapping extends Component {
 }
 
 CreateRoleMapping.propTypes = {
-  httpClient: PropTypes.func.isRequired,
+  httpClient: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,

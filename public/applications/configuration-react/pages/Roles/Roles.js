@@ -298,7 +298,7 @@ class Roles extends Component {
 }
 
 Roles.propTypes = {
-  httpClient: PropTypes.func.isRequired,
+  httpClient: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,

@@ -1,15 +1,11 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Component, Fragment } from 'react';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 import { EuiCallOut, EuiSpacer } from '@elastic/eui';
 import queryString from 'query-string';
 import { createInternalUserText, updateInternalUserText } from '../../utils/i18n/internal_users';
-import {
-  ContentPanel,
-  InspectButton,
-  CancelButton,
-  SaveButton
-} from '../../components';
+import { ContentPanel, InspectButton, CancelButton, SaveButton } from '../../components';
 import { BackendRoles, UserAttributes, UserCredentials } from './components';
 import { APP_PATH, INTERNAL_USERS_ACTIONS } from '../../utils/constants';
 import { DEFAULT_USER } from './utils/constants';
@@ -32,7 +28,7 @@ class CreateInternalUser extends Component {
       resource: userToFormik(DEFAULT_USER, id),
       allBackendRoles: [],
       isLoading: true,
-      errorMessage: null
+      errorMessage: null,
     };
   }
 
@@ -42,7 +38,7 @@ class CreateInternalUser extends Component {
 
   componentWillUnmount = () => {
     this.props.onTriggerInspectJsonFlyout(null);
-  }
+  };
 
   fetchData = async () => {
     const { id } = this.state;
@@ -51,7 +47,7 @@ class CreateInternalUser extends Component {
       this.setState({ isLoading: true });
       const { data: internalUsers } = await this.backendService.list();
       this.setState({
-        allBackendRoles: internalUsersToUiBackendRoles(internalUsers)
+        allBackendRoles: internalUsersToUiBackendRoles(internalUsers),
       });
 
       if (id) {
@@ -60,14 +56,14 @@ class CreateInternalUser extends Component {
       } else {
         this.setState({
           resource: userToFormik(DEFAULT_USER),
-          isEdit: !!id
+          isEdit: !!id,
         });
       }
-    } catch(error) {
+    } catch (error) {
       onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
-  }
+  };
 
   onSubmit = async (values, { setSubmitting }) => {
     const { history } = this.props;
@@ -82,7 +78,7 @@ class CreateInternalUser extends Component {
       setSubmitting(false);
       this.setState({ errorMessage: error.data.message });
     }
-  }
+  };
 
   render() {
     const {
@@ -92,7 +88,7 @@ class CreateInternalUser extends Component {
       onTriggerConfirmDeletionModal,
       onComboBoxChange,
       onComboBoxOnBlur,
-      onComboBoxCreateOption
+      onComboBoxCreateOption,
     } = this.props;
     const { resource, isEdit, allBackendRoles, isLoading, errorMessage } = this.state;
     const { action, id } = queryString.parse(location.search);
@@ -113,31 +109,26 @@ class CreateInternalUser extends Component {
               title={titleText}
               isLoading={isLoading}
               actions={[
-                (<CancelButton onClick={() => history.push(APP_PATH.INTERNAL_USERS)} />),
-                (<SaveButton isLoading={isSubmitting} onClick={handleSubmit} />)
+                <CancelButton onClick={() => history.push(APP_PATH.INTERNAL_USERS)} />,
+                <SaveButton isLoading={isSubmitting} onClick={handleSubmit} />,
               ]}
             >
               <InspectButton
                 onClick={() => {
                   onTriggerInspectJsonFlyout({
                     json: formikToUser(values),
-                    title: titleText
+                    title: titleText,
                   });
                 }}
               />
               <EuiSpacer />
 
-              {errorMessage &&
+              {errorMessage && (
                 <Fragment>
-                  <EuiCallOut
-                    size="s"
-                    color="danger"
-                    title={errorMessage}
-                    iconType="alert"
-                  />
+                  <EuiCallOut size="s" color="danger" title={errorMessage} iconType="alert" />
                   <EuiSpacer />
                 </Fragment>
-              }
+              )}
 
               <UserCredentials
                 isEdit={isEdit}
@@ -151,6 +142,8 @@ class CreateInternalUser extends Component {
                 onComboBoxOnBlur={onComboBoxOnBlur}
                 onComboBoxCreateOption={onComboBoxCreateOption}
               />
+
+              <EuiSpacer />
               <UserAttributes
                 attributes={values._attributes}
                 onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
@@ -166,13 +159,13 @@ class CreateInternalUser extends Component {
 CreateInternalUser.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  httpClient: PropTypes.func,
+  httpClient: PropTypes.object,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,
   onComboBoxOnBlur: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired
+  onComboBoxCreateOption: PropTypes.func.isRequired,
 };
 
 export default CreateInternalUser;
