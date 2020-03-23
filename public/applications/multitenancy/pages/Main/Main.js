@@ -523,7 +523,7 @@ export default class Main extends Component {
         render: (label, uiTenant) => {
           const testSuffix = uiTenant.testLabel || uiTenant.label;
           return (
-            <EuiButtonEmpty id={'sg.button.link.' + testSuffix} onClick={() => { this.selectTenant(uiTenant.id); }}>
+            <EuiButtonEmpty id={'sg.link.select.' + testSuffix} onClick={() => { this.selectTenant(uiTenant.id); }}>
               {label}
             </EuiButtonEmpty>
           );
@@ -655,7 +655,7 @@ export default class Main extends Component {
               {null && <Callout callout={callout} onClose={() => this.handleTriggerCallout(null)} />}
               {this.renderFlyout()}
               <EuiTitle size="m">
-                <h2 style={{ textAlign: 'center' }}>
+                <h2 id="tenantLabel" style={{ textAlign: 'center' }}>
                   {currentTenantLabel}
                 </h2>
               </EuiTitle>
