@@ -163,7 +163,6 @@ export const ConfigSchema = schema.object({
     url_param: schema.string({ defaultValue: 'authorization' }),
     header: schema.string({ defaultValue: 'Authorization'})
   })
-
 });
 
 export const config = {

@@ -105,27 +105,39 @@ export class SystemStateService {
         .get(`${API_ROOT}/systeminfo`)
         .then(function({ data }) {
           sessionStorage.setItem('systeminfo', JSON.stringify(data));
+          return data;
         })
         .catch(function(error) {
           console.error('SystemStateService - loadSystemInfo', error);
           sessionStorage.setItem('systeminfo', '{}');
+          return {};
         });
     }
+
+    return this.getSystemInfo();
   }
 
   async loadRestInfo() {
+    if (!this.restApiEnabled()) {
+      return {};
+    }
+
     this._assertHttpClient();
     // load restinfo if not found in cache
-    if (!sessionStorage.getItem('restapiinfo') && this.restApiEnabled()) {
+    if (!sessionStorage.getItem('restapiinfo')) {
       return this.httpClient
         .get(`${API_ROOT}/restapiinfo`)
         .then(function({ data }) {
           sessionStorage.setItem('restapiinfo', JSON.stringify(data));
+          return data;
         })
         .catch(function(error) {
           console.error('SystemStateService - loadRestInfo', error);
           sessionStorage.setItem('restapiinfo', '{}');
+          return {};
         });
     }
+
+    return this.getRestApiInfo();
   }
 }
