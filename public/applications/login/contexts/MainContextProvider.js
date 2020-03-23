@@ -9,7 +9,6 @@ const MainContext = React.createContext();
 //const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
 
 const MainContextProvider = ({ children, httpClient }) => {
-
   const [toasts, setToasts] = useState([]);
 
   const removeToast = ({ id }) =>

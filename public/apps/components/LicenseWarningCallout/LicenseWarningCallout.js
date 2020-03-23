@@ -1,7 +1,7 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { EuiCallOut, EuiText } from '@elastic/eui';
+import { EuiCallOut, EuiText, EuiSpacer } from '@elastic/eui';
 import { SystemStateService } from '../../../services';
 
 export function LicenseWarningCallout({ httpClient, errorMessage }) {
@@ -96,6 +96,6 @@ LicenseWarningCallout.defaultProps = {
 };
 
 LicenseWarningCallout.propTypes = {
-  httpClient: PropTypes.func.isRequired,
-  errorMessage: PropTypes.string.isRequired,
+  httpClient: PropTypes.object.isRequired,
+  errorMessage: PropTypes.string,
 };
