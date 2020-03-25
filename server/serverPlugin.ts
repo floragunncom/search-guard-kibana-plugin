@@ -35,8 +35,11 @@ export class Plugin {
 
         const config = {
             //return {
+                // @todo These values must be replaced!
                 legacyValues: {
                     'server.basePath': '',
+                    'server.host': 'localhost',
+                    'server.port': '5601'
                 },
                 get(configKey, defaultValue = undefined) {
                     // Remove the searchguard prefix if available
