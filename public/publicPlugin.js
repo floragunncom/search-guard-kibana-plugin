@@ -3,6 +3,7 @@ import { sgContext, sgConfig } from './utils/sgContext';
 import { LogOutService } from './applications/nav';
 import { HttpWrapper } from './utils/httpWrapper';
 import { SystemStateService } from './services/SystemStateService';
+import { redirectOnSessionTimeout } from './auth/redirectOnSessionTimeout';
 
 export class PublicPlugin {
   constructor(initializerContext) {
@@ -11,14 +12,23 @@ export class PublicPlugin {
     this.logOutService = new LogOutService();
   }
 
-  setup(core) {
-    console.log('What the config', this.config.get());
+  async setup(core, plugins) {
+    // Set up context
+    // @todo I believe we have to reconsider this. CoreStart is different from CoreSetup
+    sgContext.kibanaCore = core;
+    sgConfig.injectedValues = this.config.get();
+
     this.httpClient = new HttpWrapper(core.http);
     this.systemStateService = new SystemStateService(this.httpClient);
 
-    // Set up context
-    sgContext.kibanaCore = core;
-    sgConfig.injectedValues = this.config.get();
+    await this.systemStateService.loadSystemInfo();
+    const restInfo = await this.systemStateService.loadRestInfo();
+
+    redirectOnSessionTimeout(
+      sgContext.config.get('auth.type'),
+      core.http,
+      restInfo.user_name === 'sg_anonymous'
+    );
 
     core.application.register({
       id: 'searchguard-accountinfo',
@@ -90,7 +100,6 @@ export class PublicPlugin {
   }
 
   async start(core) {
-    await this.systemStateService.loadSystemInfo();
     const restInfo = await this.systemStateService.loadRestInfo();
 
     await this.logOutService.start({
