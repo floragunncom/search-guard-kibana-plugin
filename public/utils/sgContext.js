@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 export const sgConfig = {
   injectedValues: {},
   /**
@@ -90,6 +91,19 @@ export const sgContext = {
     }
 
     return this.kibanaCore.http.basePath.get();
-  }
+  },
 
-}
+  multiTenancy: {
+    currentTenantLabel: 'global',
+    currentTenant: '',
+    setTenant(tenant) {
+      this.currentTenant = tenant;
+      this.currentTenantLabel = tenant;
+      if (tenant === '') {
+        this.currentTenantLabel = 'global';
+      } else if (tenant === '__user__') {
+        this.currentTenantLabel = 'private';
+      }
+    },
+  },
+};

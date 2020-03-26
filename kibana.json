@@ -4,5 +4,8 @@
     "server": true,
     "ui": true,
     "optionalPlugins": ["spaces"],
+    "requiredPlugins": [
+        "home"
+    ],
     "configPath": ["searchguard"]
 }

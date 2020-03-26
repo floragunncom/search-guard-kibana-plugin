@@ -309,6 +309,7 @@ export default class Main extends Component {
       .then(
         (response) => {
           const currentTenant = response.data;
+          sgContext.multiTenancy.setTenant(currentTenant);
           this.setCurrentTenant(currentTenant, userName);
 
           // clear lastUrls from nav links to avoid not found errors.
@@ -317,7 +318,7 @@ export default class Main extends Component {
           // Keeping this to make the merges a bit easier.
           const appsToReset = ['kibana:visualize', 'kibana:dashboard', 'kibana:discover', 'timelion'];
 
-          /* todo Add back
+          /* @todo Add back
           chromeWrapper.getNavLinks().forEach((navLink) => {
             if (appsToReset.indexOf(navLink.id) > -1) {
               chromeWrapper.resetLastSubUrl(navLink.id);
