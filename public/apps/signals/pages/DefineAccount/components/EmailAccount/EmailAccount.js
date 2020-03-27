@@ -1,4 +1,5 @@
-import React, { Fragment } from 'react';
+/* eslint-disable @kbn/eslint/require-license-header */
+import React, { Fragment, useContext } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { EuiSpacer, EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
@@ -9,7 +10,7 @@ import {
   FormikFieldNumber,
   FormikFieldPassword,
   FormikComboBox,
-  FormikSwitch
+  FormikSwitch,
 } from '../../../../components';
 import { AccountsService } from '../../../../services';
 import {
@@ -17,7 +18,7 @@ import {
   hasError,
   validateName,
   validateEmptyField,
-  validateEmailAddr
+  validateEmailAddr,
 } from '../../../../utils/validate';
 import {
   accountText,
@@ -31,41 +32,34 @@ import {
   trustedHostText,
   simulateText,
   debugText,
-  proxyText
+  proxyText,
 } from '../../../../utils/i18n/account';
-import {
-  fromText,
-  toText,
-  ccText,
-  bccText
-} from '../../../../utils/i18n/watch';
+import { fromText, toText, ccText, bccText } from '../../../../utils/i18n/watch';
 import {
   nameText,
   userText,
   passwordText,
   securityText,
-  defaultsText
+  defaultsText,
 } from '../../../../utils/i18n/common';
 import { ACCOUNT_TYPE } from '../../../Accounts/utils/constants';
 
-const Debug = () => (
+import { Context } from '../../../../Context';
+
+const Debug = ({ onSwitchChange }) => (
   <Fragment>
-    <SubHeader
-      title={<h4>{debugText}</h4>}
-    />
+    <SubHeader title={<h4>{debugText}</h4>} />
     <EuiFlexGroup>
       <EuiFlexItem grow={false}>
         <FormikSwitch
           name="debug"
           formRow
           rowProps={{
-            hasEmptyLabelSpace: true
+            hasEmptyLabelSpace: true,
           }}
           elementProps={{
             label: debugText,
-            onChange: (e, field, form) => {
-              form.setFieldValue(field.name, e.target.value);
-            }
+            onChange: onSwitchChange,
           }}
         />
       </EuiFlexItem>
@@ -74,13 +68,11 @@ const Debug = () => (
           name="simulate"
           formRow
           rowProps={{
-            hasEmptyLabelSpace: true
+            hasEmptyLabelSpace: true,
           }}
           elementProps={{
             label: simulateText,
-            onChange: (e, field, form) => {
-              form.setFieldValue(field.name, e.target.value);
-            }
+            onChange: onSwitchChange,
           }}
         />
       </EuiFlexItem>
@@ -91,12 +83,11 @@ const Debug = () => (
 const Security = ({
   onComboBoxChange,
   onComboBoxOnBlur,
-  onComboBoxCreateOption
+  onComboBoxCreateOption,
+  onSwitchChange,
 }) => (
   <Fragment>
-    <SubHeader
-      title={<h4>{securityText}</h4>}
-    />
+    <SubHeader title={<h4>{securityText}</h4>} />
     <EuiSpacer size="s" />
     <EuiFlexGroup>
       <EuiFlexItem>
@@ -125,7 +116,7 @@ const Security = ({
             isClearable: true,
             onBlur: onComboBoxOnBlur,
             onChange: onComboBoxChange(),
-            onCreateOption: onComboBoxCreateOption()
+            onCreateOption: onComboBoxCreateOption(),
           }}
         />
       </EuiFlexItem>
@@ -138,9 +129,7 @@ const Security = ({
           }}
           elementProps={{
             label: tlsText,
-            onChange: (e, field, form) => {
-              form.setFieldValue(field.name, e.target.value);
-            }
+            onChange: onSwitchChange,
           }}
         />
       </EuiFlexItem>
@@ -153,9 +142,7 @@ const Security = ({
           }}
           elementProps={{
             label: starttlsText,
-            onChange: (e, field, form) => {
-              form.setFieldValue(field.name, e.target.value);
-            }
+            onChange: onSwitchChange,
           }}
         />
       </EuiFlexItem>
@@ -168,9 +155,7 @@ const Security = ({
           }}
           elementProps={{
             label: trustAllText,
-            onChange: (e, field, form) => {
-              form.setFieldValue(field.name, e.target.value);
-            }
+            onChange: onSwitchChange,
           }}
         />
       </EuiFlexItem>
@@ -178,15 +163,9 @@ const Security = ({
   </Fragment>
 );
 
-const Defaults = ({
-  onComboBoxChange,
-  onComboBoxOnBlur,
-  onComboBoxCreateOption
-}) => (
+const Defaults = ({ onComboBoxChange, onComboBoxOnBlur, onComboBoxCreateOption }) => (
   <Fragment>
-    <SubHeader
-      title={<h4>{defaultsText}</h4>}
-    />
+    <SubHeader title={<h4>{defaultsText}</h4>} />
     <EuiSpacer size="s" />
     <div className="group">
       <FormikFieldText
@@ -204,7 +183,7 @@ const Defaults = ({
           },
         }}
         formikFieldProps={{
-          validate: validateEmailAddr(false)
+          validate: validateEmailAddr(false),
         }}
       />
       <FormikComboBox
@@ -219,10 +198,10 @@ const Defaults = ({
           isClearable: true,
           onBlur: onComboBoxOnBlur,
           onChange: onComboBoxChange(),
-          onCreateOption: onComboBoxCreateOption()
+          onCreateOption: onComboBoxCreateOption(),
         }}
         formikFieldProps={{
-          validate: validateEmailAddr(false)
+          validate: validateEmailAddr(false),
         }}
       />
       <FormikComboBox
@@ -237,10 +216,10 @@ const Defaults = ({
           isClearable: true,
           onBlur: onComboBoxOnBlur,
           onChange: onComboBoxChange(),
-          onCreateOption: onComboBoxCreateOption()
+          onCreateOption: onComboBoxCreateOption(),
         }}
         formikFieldProps={{
-          validate: validateEmailAddr(false)
+          validate: validateEmailAddr(false),
         }}
       />
       <FormikComboBox
@@ -255,10 +234,10 @@ const Defaults = ({
           isClearable: true,
           onBlur: onComboBoxOnBlur,
           onChange: onComboBoxChange(),
-          onCreateOption: onComboBoxCreateOption()
+          onCreateOption: onComboBoxCreateOption(),
         }}
         formikFieldProps={{
-          validate: validateEmailAddr(false)
+          validate: validateEmailAddr(false),
         }}
       />
     </div>
@@ -268,14 +247,12 @@ const Defaults = ({
 Defaults.propTypes = {
   onComboBoxChange: PropTypes.func.isRequired,
   onComboBoxOnBlur: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired
+  onComboBoxCreateOption: PropTypes.func.isRequired,
 };
 
 const Proxy = () => (
   <Fragment>
-    <SubHeader
-      title={<h4>{proxyText}</h4>}
-    />
+    <SubHeader title={<h4>{proxyText}</h4>} />
     <EuiSpacer size="s" />
     <div className="group">
       <FormikFieldText
@@ -310,19 +287,23 @@ const Proxy = () => (
   </Fragment>
 );
 
-const EmailAccount = ({
-  httpClient,
-  id,
-  formik: { values },
-  onComboBoxChange,
-  onComboBoxOnBlur,
-  onComboBoxCreateOption
-}) => {
+const EmailAccount = ({ id, formik: { values } }) => {
+  const {
+    httpClient,
+    onSwitchChange,
+    onComboBoxChange,
+    onComboBoxOnBlur,
+    onComboBoxCreateOption,
+  } = useContext(Context);
   const isUpdatingName = id !== values._id;
 
   return (
     <ContentPanel
-      title={(<p>{accountText} {values.type}</p>)}
+      title={
+        <p>
+          {accountText} {values.type}
+        </p>
+      }
       titleSize="s"
     >
       <FormikFieldText
@@ -340,7 +321,7 @@ const EmailAccount = ({
           validate: validateName(
             new AccountsService(httpClient, ACCOUNT_TYPE.EMAIL),
             isUpdatingName
-          )
+          ),
         }}
       />
       <FormikFieldText
@@ -355,7 +336,7 @@ const EmailAccount = ({
           isInvalid,
         }}
         formikFieldProps={{
-          validate: validateEmptyField
+          validate: validateEmptyField,
         }}
       />
       <FormikFieldNumber
@@ -370,7 +351,7 @@ const EmailAccount = ({
           isInvalid,
         }}
         formikFieldProps={{
-          validate: validateEmptyField
+          validate: validateEmptyField,
         }}
       />
       <FormikFieldText
@@ -393,6 +374,7 @@ const EmailAccount = ({
         onComboBoxOnBlur={onComboBoxOnBlur}
         onComboBoxChange={onComboBoxChange}
         onComboBoxCreateOption={onComboBoxCreateOption}
+        onSwitchChange={onSwitchChange}
       />
 
       <EuiSpacer />
@@ -406,7 +388,7 @@ const EmailAccount = ({
       />
 
       <EuiSpacer />
-      <Debug />
+      <Debug onSwitchChange={onSwitchChange} />
     </ContentPanel>
   );
 };
@@ -414,10 +396,6 @@ const EmailAccount = ({
 EmailAccount.propTypes = {
   formik: PropTypes.object.isRequired,
   id: PropTypes.string,
-  httpClient: PropTypes.func.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired,
-  onComboBoxOnBlur: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired
 };
 
 export default connectFormik(EmailAccount);
