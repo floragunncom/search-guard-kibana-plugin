@@ -146,6 +146,8 @@ class CreateInternalUser extends Component {
                 onComboBoxOnBlur={onComboBoxOnBlur}
                 onComboBoxCreateOption={onComboBoxCreateOption}
               />
+
+              <EuiSpacer />
               <UserAttributes
                 attributes={values._attributes}
                 onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
