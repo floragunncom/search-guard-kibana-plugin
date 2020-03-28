@@ -137,6 +137,7 @@ const IndexPatterns = ({
             </Fragment>
           ) : (
             <Fragment>
+              <EuiSpacer />
               <FieldLevelSecurity
                 httpClient={httpClient}
                 index={index}
