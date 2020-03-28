@@ -56,6 +56,7 @@ const Debug = ({ onSwitchChange }) => (
           formRow
           rowProps={{
             hasEmptyLabelSpace: true,
+            style: { marginTop: '0px' },
           }}
           elementProps={{
             label: debugText,
@@ -69,6 +70,7 @@ const Debug = ({ onSwitchChange }) => (
           formRow
           rowProps={{
             hasEmptyLabelSpace: true,
+            style: { marginTop: '0px' },
           }}
           elementProps={{
             label: simulateText,

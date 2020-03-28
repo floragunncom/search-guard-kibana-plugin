@@ -9,7 +9,7 @@ import {
   EuiSpacer,
   EuiListGroup,
   EuiListGroupItem,
-  EuiTitle
+  EuiTitle,
 } from '@elastic/eui';
 import {
   inspectText,
@@ -82,6 +82,7 @@ const Overview = ({
         name="_name"
       />
 
+      <EuiSpacer />
       <SubHeader title={<h4>{membersText}</h4>} />
       {['users', 'backend_roles', 'hosts'].map((sectionName, i) => (
         <Fragment key={i}>
