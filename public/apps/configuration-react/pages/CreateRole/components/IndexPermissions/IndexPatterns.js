@@ -1,17 +1,12 @@
-import React, { Fragment } from 'react';
+/* eslint-disable @kbn/eslint/require-license-header */
+import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
-import {
-  EuiAccordion,
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiSpacer,
-  EuiCallOut
-} from '@elastic/eui';
+import { EuiAccordion, EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiCallOut } from '@elastic/eui';
 import { advancedText } from '../../../../utils/i18n/common';
 import {
   indexPatternsText,
   fieldLevelSecurityDisabledText,
-  documentLevelSecurityDisabledText
+  documentLevelSecurityDisabledText,
 } from '../../../../utils/i18n/roles';
 import { actionGroupsText, singlePermissionsText } from '../../../../utils/i18n/action_groups';
 import {
@@ -19,19 +14,18 @@ import {
   AccordionDeleteButton,
   FormikComboBox,
   FormikSwitch,
-  Icon
+  Icon,
 } from '../../../../components';
 import { comboBoxOptionsToArray } from '../../../../utils/helpers';
-import {
-  validIndicesSinglePermissionOption
-} from '../../../../utils/validation';
+import { validIndicesSinglePermissionOption } from '../../../../utils/validation';
 import FieldLevelSecurity from './FieldLevelSecurity';
 import DocumentLevelSecurity from './DocumentLevelSecurity';
+
+import { Context } from '../../../../Context';
 
 const indexPatternNames = (indexPatterns = []) => comboBoxOptionsToArray(indexPatterns).join(', ');
 
 const IndexPatterns = ({
-  httpClient,
   indexPermissions,
   arrayHelpers,
   allActionGroups,
@@ -40,13 +34,18 @@ const IndexPatterns = ({
   isDlsEnabled,
   isFlsEnabled,
   isAnonymizedFieldsEnabled,
-  onComboBoxChange,
-  onComboBoxOnBlur,
-  onComboBoxCreateOption,
-  onTriggerConfirmDeletionModal,
-  onTriggerErrorCallout
-}) => (
-  indexPermissions.map((indexPermission, index) => (
+  onTriggerErrorCallout,
+}) => {
+  const {
+    httpClient,
+    onSwitchChange,
+    onComboBoxChange,
+    onComboBoxOnBlur,
+    onComboBoxCreateOption,
+    triggerConfirmDeletionModal,
+  } = useContext(Context);
+
+  return indexPermissions.map((indexPermission, index) => (
     <EuiFlexGroup key={index}>
       <EuiFlexItem>
         <EuiAccordion
@@ -57,12 +56,12 @@ const IndexPatterns = ({
           extraAction={
             <AccordionDeleteButton
               onClick={() => {
-                onTriggerConfirmDeletionModal({
+                triggerConfirmDeletionModal({
                   body: indexPatternNames(indexPermission.index_patterns),
                   onConfirm: () => {
                     arrayHelpers.remove(index);
-                    onTriggerConfirmDeletionModal(null);
-                  }
+                    triggerConfirmDeletionModal(null);
+                  },
                 });
               }}
             />
@@ -86,7 +85,7 @@ const IndexPatterns = ({
               isClearable: true,
               onBlur: onComboBoxOnBlur,
               onChange: onComboBoxChange(),
-              onCreateOption: onComboBoxCreateOption()
+              onCreateOption: onComboBoxCreateOption(),
             }}
           />
           <FormikComboBox
@@ -99,18 +98,18 @@ const IndexPatterns = ({
               options: allActionGroups,
               isClearable: true,
               onBlur: onComboBoxOnBlur,
-              onChange: onComboBoxChange()
+              onChange: onComboBoxChange(),
             }}
           />
           <FormikSwitch
             formRow
             elementProps={{
               label: advancedText,
-              checked: indexPermissions[index]._isAdvanced
+              onChange: onSwitchChange,
             }}
             name={`_indexPermissions[${index}]._isAdvanced`}
           />
-          {indexPermissions[index]._isAdvanced &&
+          {indexPermissions[index]._isAdvanced && (
             <FormikComboBox
               name={`_indexPermissions[${index}].allowed_actions.permissions`}
               formRow
@@ -122,10 +121,10 @@ const IndexPatterns = ({
                 isClearable: true,
                 onBlur: onComboBoxOnBlur,
                 onCreateOption: onComboBoxCreateOption(validIndicesSinglePermissionOption),
-                onChange: onComboBoxChange()
+                onChange: onComboBoxChange(),
               }}
             />
-          }
+          )}
           {!isFlsEnabled ? (
             <Fragment>
               <EuiSpacer />
@@ -149,29 +148,27 @@ const IndexPatterns = ({
               />
             </Fragment>
           )}
-          {!isDlsEnabled
-            ? (
-              <Fragment>
-                <EuiSpacer />
-                <EuiCallOut
-                  data-test-subj="sgDLSDisabledCallout"
-                  className="sgFixedFormItem"
-                  iconType="iInCircle"
-                  title={documentLevelSecurityDisabledText}
-                />
-              </Fragment>
-            )
-            : <DocumentLevelSecurity httpClient={httpClient} index={index} />
-          }
+          {!isDlsEnabled ? (
+            <Fragment>
+              <EuiSpacer />
+              <EuiCallOut
+                data-test-subj="sgDLSDisabledCallout"
+                className="sgFixedFormItem"
+                iconType="iInCircle"
+                title={documentLevelSecurityDisabledText}
+              />
+            </Fragment>
+          ) : (
+            <DocumentLevelSecurity httpClient={httpClient} index={index} />
+          )}
           <EuiSpacer />
         </EuiAccordion>
       </EuiFlexItem>
     </EuiFlexGroup>
-  ))
-);
+  ));
+};
 
 IndexPatterns.propTypes = {
-  httpClient: PropTypes.func.isRequired,
   indexPermissions: PropTypes.array.isRequired,
   arrayHelpers: PropTypes.object.isRequired,
   allActionGroups: PropTypes.array.isRequired,
@@ -180,11 +177,7 @@ IndexPatterns.propTypes = {
   isDlsEnabled: PropTypes.bool.isRequired,
   isFlsEnabled: PropTypes.bool.isRequired,
   isAnonymizedFieldsEnabled: PropTypes.bool.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired,
-  onComboBoxOnBlur: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired
+  onTriggerErrorCallout: PropTypes.func.isRequired,
 };
 
 export default IndexPatterns;
