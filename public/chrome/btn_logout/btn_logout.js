@@ -17,53 +17,45 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import chrome from 'ui/chrome';
+import { get } from 'lodash';
 import { chromeHeaderNavControlsRegistry } from 'ui/registry/chrome_header_nav_controls';
-import { EuiButtonEmpty, EuiToolTip } from '@elastic/eui';
-import { logoutText, loginText } from '../../apps/configuration-react/utils/i18n/common';
-import { AccessControlService } from '../../services';
+import { logoutText } from './utils/i18n';
+import { HeaderUserMenu } from './header_user_menu';
 
-if (chrome.getInjected('auth.type') !== 'kerberos' && chrome.getInjected('auth.type') !== 'proxy') {
+const authType = chrome.getInjected('auth.type');
+
+if (authType !== 'kerberos' && authType !== 'proxy') {
   chromeHeaderNavControlsRegistry.register($http => {
-    const accessControl = new AccessControlService($http);
-
     return {
       name: 'btn-logout',
       order: 1000,
       side: 'right',
       render(el) {
-        function onClick() {
-          accessControl.logout();
+        const logoutUrl = chrome.getInjected('auth.logout_url');
+
+        let userName = '';
+        const user = get(chrome.getInjected(), 'sgDynamic.user');
+        if (user && !user.isAnonymousAuth) {
+          userName = user.username;
         }
 
-        const chromeInjected = chrome.getInjected();
-        let logoutButtonLabel = logoutText;
-        let logoutTooltip = logoutText;
-        if (chromeInjected && chromeInjected.sgDynamic && chromeInjected.sgDynamic.user) {
-          if (!chromeInjected.sgDynamic.user.isAnonymousAuth) {
-            logoutButtonLabel = chromeInjected.sgDynamic.user.username;
-            logoutTooltip = `Logout ${chromeInjected.sgDynamic.user.username}`;
-          } else {
-            logoutButtonLabel = loginText;
-            logoutTooltip = loginText;
-          }
+        const props = { httpClient: $http };
+
+        if (logoutUrl) {
+          props.logoutUrl = logoutUrl;
         }
 
-        ReactDOM.render(
-          <EuiToolTip
-            position="bottom"
-            content={logoutTooltip}
-          >
-            <EuiButtonEmpty
-              style={{ paddingTop: '8px' }}
-              onClick={onClick}
-              iconType="exit"
-            >
-              {logoutButtonLabel}
-            </EuiButtonEmpty>
-          </EuiToolTip>,
-          el
-        );
+        userName = 'sdfjsjafij  adfh khh kadshkjh alskh sah jksahfjsdhjka hskjhfa jhaskj';
+        if (userName) {
+          props.userName = userName.slice(0, 20);
+          props.userNameTooltipText = (
+            <>
+              {logoutText} {userName}
+            </>
+          );
+        }
 
+        ReactDOM.render(<HeaderUserMenu {...props} />, el);
         return () => ReactDOM.unmountComponentAtNode(el);
       },
     };
