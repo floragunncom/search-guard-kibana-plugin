@@ -1,7 +1,7 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import { connect } from 'react-redux';
 import { differenceBy } from 'lodash';
 import {
   EuiPage,
@@ -11,10 +11,8 @@ import {
   EuiPageContentBody,
   EuiTab,
   EuiTabs,
-  EuiGlobalToastList,
-  EuiSpacer
+  EuiSpacer,
 } from '@elastic/eui';
-import { removeToast } from '../../redux/actions';
 import Alerts from '../Alerts';
 import Watches from '../Watches';
 import DefineWatch from '../DefineWatch';
@@ -25,6 +23,8 @@ import getBreadcrumb from './utils/getBreadcrumb';
 import { comboBoxOptionsToArray } from '../../utils/helpers';
 import { APP_PATH, FLYOUTS, MODALS, APP_NAME } from '../../utils/constants';
 
+import { Context } from '../../Context';
+
 const getSelectedTabId = pathname => {
   if (pathname.includes(APP_PATH.WATCHES)) return APP_PATH.WATCHES;
   if (pathname.includes(APP_PATH.ACCOUNTS)) return APP_PATH.ACCOUNTS;
@@ -32,6 +32,8 @@ const getSelectedTabId = pathname => {
 };
 
 class Main extends Component {
+  static contextType = Context;
+
   constructor(props) {
     super(props);
     const {
@@ -42,7 +44,7 @@ class Main extends Component {
     this.state = {
       modal: null,
       flyout: null,
-      selectedTabId
+      selectedTabId,
     };
 
     this.tabs = [
@@ -55,7 +57,7 @@ class Main extends Component {
         id: APP_PATH.ACCOUNTS,
         name: 'Accounts',
         route: APP_PATH.ACCOUNTS,
-      }
+      },
     ];
   }
 
@@ -73,10 +75,6 @@ class Main extends Component {
     }
   }
 
-  removeToast = ({ id }) => {
-    this.props.dispatch(removeToast(id));
-  };
-
   onSelectedTabChanged = route => {
     const {
       location: { pathname: currPathname },
@@ -87,7 +85,7 @@ class Main extends Component {
   };
 
   // TODO. Deprecate and use a method from ContextProvider
-  // when all children components are functional components
+  // when all children use Context
   handleTriggerFlyout = flyout => {
     const { flyout: current } = this.state;
     const isSameFlyout = current && flyout && current.type === flyout.type;
@@ -96,47 +94,49 @@ class Main extends Component {
     } else {
       this.setState({ flyout });
     }
-  }
+  };
 
   // TODO. Deprecate and use a method from ContextProvider
-  // when all children components are functional components
+  // when all children use Context
   handleTriggerInspectJsonFlyout = payload => {
     if (payload === null) {
       this.handleTriggerFlyout(null);
     } else {
       this.handleTriggerFlyout({ type: FLYOUTS.INSPECT_JSON, payload });
     }
-  }
+  };
 
   // TODO. Deprecate and use a method from ContextProvider
-  // when all children components are functional components
+  // when all children use Context
   handleTriggerModal = modal => {
     this.setState({ modal });
-  }
+  };
 
   // TODO. Deprecate and use a method from ContextProvider
-  // when all children components are functional components
+  // when all children use Context
   handleTriggerConfirmModal = payload => {
     const modal = payload === null ? null : { type: MODALS.CONFIRM, payload };
     this.handleTriggerModal(modal);
-  }
+  };
 
   // TODO. Deprecate and use a method from ContextProvider
-  // when all children components are functional components
+  // when all children use Context
   handleTriggerConfirmDeletionModal = payload => {
     const modal = payload === null ? null : { type: MODALS.CONFIRM_DELETION, payload };
     this.handleTriggerModal(modal);
-  }
+  };
 
   // TODO. Deprecate and use a method from ContextProvider
-  // when all children components are functional components
+  // when all children use Context
   handleComboBoxChange = validationFn => (options, field, form) => {
     const isValidationRequired = validationFn instanceof Function;
     if (isValidationRequired) {
       const error = validationFn(options);
       if (error instanceof Promise) {
         error
-          .then(_error => { throw _error; })
+          .then(_error => {
+            throw _error;
+          })
           .catch(_error => form.setFieldError(field.name, _error));
       } else {
         form.setFieldError(field.name, error);
@@ -145,21 +145,23 @@ class Main extends Component {
 
     const isDeleting = field.value && options.length < field.value.length;
     if (isDeleting) {
-      const optionToDelete = comboBoxOptionsToArray(differenceBy(field.value, options, 'label')).join(', ');
+      const optionToDelete = comboBoxOptionsToArray(
+        differenceBy(field.value, options, 'label')
+      ).join(', ');
       this.handleTriggerConfirmDeletionModal({
         body: optionToDelete,
         onConfirm: () => {
           form.setFieldValue(field.name, options);
           this.handleTriggerConfirmDeletionModal(null);
-        }
+        },
       });
     } else {
       form.setFieldValue(field.name, options);
     }
-  }
+  };
 
   // TODO. Deprecate and use a method from ContextProvider
-  // when all children components are functional components
+  // when all children use Context
   handleComboBoxCreateOption = (validationFn, ...props) => async (label, field, form) => {
     let isValid = true;
     const isValidationRequired = validationFn instanceof Function;
@@ -167,8 +169,10 @@ class Main extends Component {
       const _isValid = validationFn(label, ...props);
       if (_isValid instanceof Promise) {
         await _isValid
-          .then(_error => { throw _error; })
-          .catch(_error => isValid = _error);
+          .then(_error => {
+            throw _error;
+          })
+          .catch(_error => (isValid = _error));
       } else {
         isValid = _isValid;
       }
@@ -179,13 +183,13 @@ class Main extends Component {
       if (!normalizedSearchValue) return;
       form.setFieldValue(field.name, field.value.concat({ label }));
     }
-  }
+  };
 
   // TODO. Deprecate and use a method from ContextProvider
-  // when all children components are functional components
+  // when all children use Context
   handleComboBoxOnBlur = (e, field, form) => {
     form.setFieldTouched(field.name, true);
-  }
+  };
 
   renderTab = tab => (
     <EuiTab
@@ -196,10 +200,10 @@ class Main extends Component {
     >
       {tab.name}
     </EuiTab>
-  )
+  );
 
   render() {
-    const { httpClient, globalToastList, history, ...props } = this.props;
+    const { httpClient, history, ...props } = this.props;
     const { flyout, modal } = this.state;
 
     return (
@@ -301,14 +305,6 @@ class Main extends Component {
                 />
                 <Redirect to={APP_PATH.WATCHES} />
               </Switch>
-
-              <div style={{ zIndex: 6000 }}>
-                <EuiGlobalToastList
-                  toasts={globalToastList}
-                  dismissToast={this.removeToast}
-                  toastLifeTimeMs={6000}
-                />
-              </div>
             </EuiPageContentBody>
           </EuiPageContent>
         </EuiPageBody>
@@ -318,15 +314,9 @@ class Main extends Component {
 }
 
 Main.propTypes = {
-  globalToastList: PropTypes.array.isRequired,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  dispatch: PropTypes.func.isRequired,
-  httpClient: PropTypes.func.isRequired
+  httpClient: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = state => ({
-  globalToastList: state.globalToastList
-});
-
-export default connect(mapStateToProps)(Main);
+export default Main;
