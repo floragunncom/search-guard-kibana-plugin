@@ -1,5 +1,5 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import {
   EuiFlexGroup,
   EuiFlexItem,
@@ -27,7 +27,6 @@ import {
   AddButton,
   CreateButton,
 } from '../../components';
-import { addSuccessToast, addErrorToast } from '../../redux/actions';
 import {
   noText,
   yesText,
@@ -59,9 +58,13 @@ import { APP_PATH, FLYOUTS, WATCH_STATUS } from '../../utils/constants';
 import { TABLE_SORT_FIELD, TABLE_SORT_DIRECTION } from './utils/constants';
 import { SEVERITY_COLORS } from '../DefineWatch/utils/constants';
 
+import { Context } from '../../Context';
+
 const initialQuery = EuiSearchBar.Query.MATCH_ALL;
 
 class Watches extends Component {
+  static contextType = Context;
+
   constructor(props) {
     super(props);
 
@@ -94,17 +97,20 @@ class Watches extends Component {
   }
 
   putWatch = async ({ _id, ...watch }) => {
-    const { dispatch } = this.props;
     const watchToSubmit = formikToWatch(watch);
 
     try {
       this.setState({ isLoading: true });
       await this.watchService.put(watchToSubmit, _id);
-      dispatch(addSuccessToast((<p>{saveText} {_id}</p>)));
+      this.context.addSuccessToast(
+        <p>
+          {saveText} {_id}
+        </p>
+      );
       this.getWatches();
     } catch (error) {
       console.error('Watches -- putWatches', error);
-      dispatch(addErrorToast(error));
+      this.context.addErrorToast(error);
       this.setState({ error });
       console.debug('Watches -- watch', watchToSubmit);
     }
@@ -114,7 +120,6 @@ class Watches extends Component {
 
   fetchWatchesState = async () => {
     const { watches } = this.state;
-    const { dispatch } = this.props;
     const promises = [];
 
     try {
@@ -139,12 +144,11 @@ class Watches extends Component {
     } catch (error) {
       console.error('Watches -- fetchWatchesState', error);
       this.setState({ error });
-      dispatch(addErrorToast(error));
+      this.context.addErrorToast(error);
     }
   };
 
   getWatches = async () => {
-    const { dispatch } = this.props;
     const { query } = this.state;
     this.setState({ isLoading: true, error: null });
 
@@ -158,7 +162,7 @@ class Watches extends Component {
       console.debug('Watches -- getWatches', watches);
     } catch (error) {
       console.error('Watches -- getWatches', error);
-      dispatch(addErrorToast(error));
+      this.context.addErrorToast(error);
       this.setState({ error });
     }
 
@@ -167,36 +171,43 @@ class Watches extends Component {
   };
 
   handleCloneWatch = async ({ _id: id, ...watch }) => {
-    const { dispatch } = this.props;
     const watchToSubmit = formikToWatch(watch);
 
     try {
       this.setState({ isLoading: true, error: null });
       await this.watchService.put(watchToSubmit, `${id}_copy`);
-      dispatch(addSuccessToast((<p>{cloneText} {id}</p>)));
+      this.context.addSuccessToast(
+        <p>
+          {cloneText} {id}
+        </p>
+      );
       this.getWatches();
     } catch (error) {
       console.error('Watches -- cloneWatches', error);
-      dispatch(addErrorToast(error));
+      this.context.addErrorToast(error);
       this.setState({ error });
       console.debug('Watches -- watch', watchToSubmit);
     }
     this.setState({ isLoading: false });
-  }
+  };
 
   deleteWatches = async (watchIds = []) => {
-    const { dispatch } = this.props;
     const promises = [];
 
     this.setState({ isLoading: true, error: null });
     watchIds.forEach(id => {
-      const promise = this.watchService.delete(id)
+      const promise = this.watchService
+        .delete(id)
         .then(() => {
-          dispatch(addSuccessToast((<p>{deleteText} {id}</p>)));
+          this.context.addSuccessToast(
+            <p>
+              {deleteText} {id}
+            </p>
+          );
         })
         .catch(error => {
           console.error('Watches -- deleteWatches', error);
-          dispatch(addErrorToast(error));
+          this.context.addErrorToast(error);
           this.setState({ error });
           console.debug('Watches -- watchIds', watchIds);
         });
@@ -206,7 +217,7 @@ class Watches extends Component {
     await Promise.all(promises);
     this.setState({ isLoading: false });
     this.getWatches();
-  }
+  };
 
   handleDeleteWatches = (watches = []) => {
     const { onTriggerConfirmDeletionModal } = this.props;
@@ -219,12 +230,12 @@ class Watches extends Component {
       onCancel: () => {
         this.setState({ tableSelection: [] });
         onTriggerConfirmDeletionModal(null);
-      }
+      },
     });
-  }
+  };
 
   handleAck = (watchIds = [], actionId) => {
-    const { dispatch, onTriggerConfirmModal } = this.props;
+    const { onTriggerConfirmModal } = this.props;
 
     const doAck = async () => {
       this.setState({ isLoading: true });
@@ -238,14 +249,20 @@ class Watches extends Component {
         await Promise.all(promises);
 
         watchIds.forEach(id => {
-          const successMsg = !actionId
-            ? <EuiText>{acknowledgeText} watch {id}</EuiText>
-            : <EuiText>{acknowledgeActionText} {actionId}</EuiText>;
-          dispatch(addSuccessToast(successMsg));
+          const successMsg = !actionId ? (
+            <EuiText>
+              {acknowledgeText} watch {id}
+            </EuiText>
+          ) : (
+            <EuiText>
+              {acknowledgeActionText} {actionId}
+            </EuiText>
+          );
+          this.context.addSuccessToast(successMsg);
         });
       } catch (error) {
         console.error('Watches -- acknowledge watch', error);
-        dispatch(addErrorToast(error));
+        this.context.addErrorToast(error);
       }
 
       this.setState({ isLoading: false });
@@ -253,7 +270,13 @@ class Watches extends Component {
     };
 
     onTriggerConfirmModal({
-      title: <EuiTitle><h2>{confirmText} {acknowledgeText}</h2></EuiTitle>,
+      title: (
+        <EuiTitle>
+          <h2>
+            {confirmText} {acknowledgeText}
+          </h2>
+        </EuiTitle>
+      ),
       body: watchIds.join(', '),
       onConfirm: () => {
         onTriggerConfirmModal(null);
@@ -261,7 +284,7 @@ class Watches extends Component {
       },
       onCancel: () => {
         onTriggerConfirmModal(null);
-      }
+      },
     });
   };
 
@@ -300,24 +323,18 @@ class Watches extends Component {
         </EuiFlexItem>
       </EuiFlexGroup>
     );
-  }
+  };
 
   renderActionsColumn = (actions = [], watch) => {
     if (!actions.length) {
-      const {
-        nodeText,
-        ...iconProps
-      } = actionAndWatchStatusToIconProps(WATCH_STATUS.NO_ACTION);
+      const { nodeText, ...iconProps } = actionAndWatchStatusToIconProps(WATCH_STATUS.NO_ACTION);
 
       return (
         <div>
           <EuiFlexGroup>
             <EuiFlexItem grow={false}>
               <EuiToolTip content={nodeText}>
-                <EuiIcon
-                  data-test-subj={`sgTable-Actions-${watch._id}-NoAction`}
-                  {...iconProps}
-                />
+                <EuiIcon data-test-subj={`sgTable-Actions-${watch._id}-NoAction`} {...iconProps} />
               </EuiToolTip>
             </EuiFlexItem>
             <EuiFlexItem>{noActionsText}</EuiFlexItem>
@@ -333,20 +350,18 @@ class Watches extends Component {
           const ackedBy = get(watch, `_ui.state.actions[${action.name}].acked.by`, 'admin');
           const ackedOn = get(watch, `_ui.state.actions[${action.name}].acked.on`);
 
-          const ackLinkContent = wasAcked
-            ? (
-              <EuiText size="s">
-                {acknowledgedText} {byText} {ackedBy} {onText} {dateFormat(ackedOn)}
-              </EuiText>
-            )
-            : acknowledgeText;
+          const ackLinkContent = wasAcked ? (
+            <EuiText size="s">
+              {acknowledgedText} {byText} {ackedBy} {onText} {dateFormat(ackedOn)}
+            </EuiText>
+          ) : (
+            acknowledgeText
+          );
 
           const ackLink = (
             <EuiFlexGroup key={key}>
               <EuiFlexItem grow={false}>
-                <EuiToolTip
-                  content={wasAcked ? acknowledgedText : acknowledgeText}
-                >
+                <EuiToolTip content={wasAcked ? acknowledgedText : acknowledgeText}>
                   <EuiLink
                     color={wasAcked ? 'subdued' : 'primary'}
                     disabled={wasAcked}
@@ -361,10 +376,7 @@ class Watches extends Component {
           );
 
           const statusCode = get(watch, `_ui.state.actions[${action.name}].last_status.code`);
-          const {
-            nodeText,
-            ...iconProps
-          } = actionAndWatchStatusToIconProps(statusCode);
+          const { nodeText, ...iconProps } = actionAndWatchStatusToIconProps(statusCode);
 
           return (
             <div key={key}>
@@ -396,17 +408,12 @@ class Watches extends Component {
       <div>
         {actions.map((action, key) => {
           let lastExecution = get(_ui, `state.actions[${action.name}].last_execution`);
-          lastExecution = !lastExecution
-            ? unknownText
-            : dateFormat(lastExecution);
+          lastExecution = !lastExecution ? unknownText : dateFormat(lastExecution);
 
           return (
             <EuiFlexGroup key={key}>
               <EuiFlexItem>
-                <EuiText
-                  size="s"
-                  grow={false}
-                >
+                <EuiText size="s" grow={false}>
                   <p>{lastExecution}</p>
                 </EuiText>
               </EuiFlexItem>
@@ -432,18 +439,11 @@ class Watches extends Component {
 
   renderLastStatusColumn = (field, watch) => {
     const lastStatus = get(watch, '_ui.state.last_status.code');
-    const {
-      type: iconType,
-      nodeText,
-      ...badgeProps
-    } = actionAndWatchStatusToIconProps(lastStatus);
+    const { type: iconType, nodeText, ...badgeProps } = actionAndWatchStatusToIconProps(lastStatus);
 
     return (
       <EuiToolTip content={nodeText}>
-        <EuiBadge
-          iconType={iconType}
-          {...badgeProps}
-        >
+        <EuiBadge iconType={iconType} {...badgeProps}>
           {nodeText}
         </EuiBadge>
       </EuiToolTip>
@@ -452,7 +452,11 @@ class Watches extends Component {
 
   renderSeverityColumn = (field, watch) => {
     const severityLevel = get(watch, '_ui.state.last_execution.severity.level', '');
-    const severityMappingLevel = get(watch, '_ui.state.last_execution.severity.mapping_element.level', '');
+    const severityMappingLevel = get(
+      watch,
+      '_ui.state.last_execution.severity.mapping_element.level',
+      ''
+    );
     const level = severityMappingLevel || severityLevel;
     const threshold = get(watch, '_ui.state.last_execution.severity.mapping_element.threshold', '');
     const value = get(watch, '_ui.state.last_execution.severity.value', '');
@@ -483,10 +487,7 @@ class Watches extends Component {
 
     return (
       <EuiToolTip content={tooltipText}>
-        <EuiBadge
-          className="sg-watches-severity-col-badge"
-          color={SEVERITY_COLORS[level]}
-        >
+        <EuiBadge className="sg-watches-severity-col-badge" color={SEVERITY_COLORS[level]}>
           {text}
         </EuiBadge>
       </EuiToolTip>
@@ -532,7 +533,7 @@ class Watches extends Component {
         icon: 'check',
         type: 'icon',
         color: 'success',
-        onClick: watch => this.handleAck([watch._id])
+        onClick: watch => this.handleAck([watch._id]),
       },
       {
         'data-test-subj': 'sgTableCol-ActionClone',
@@ -540,7 +541,7 @@ class Watches extends Component {
         description: 'Clone the watch',
         icon: 'copy',
         type: 'icon',
-        onClick: this.handleCloneWatch
+        onClick: this.handleCloneWatch,
       },
       {
         'data-test-subj': 'sgTableCol-ActionDelete',
@@ -549,8 +550,8 @@ class Watches extends Component {
         icon: 'trash',
         type: 'icon',
         color: 'danger',
-        onClick: watch => this.handleDeleteWatches([watch._id])
-      }
+        onClick: watch => this.handleDeleteWatches([watch._id]),
+      },
     ];
 
     const columns = [
@@ -558,23 +559,23 @@ class Watches extends Component {
         width: '5%',
         actions: [
           {
-            render: this.renderExecutionHistoryBtn
-          }
-        ]
+            render: this.renderExecutionHistoryBtn,
+          },
+        ],
       },
       {
         field: '_ui.state.last_status.code',
         name: lastStatusText,
         footer: lastStatusText,
         sortable: true,
-        render: this.renderLastStatusColumn
+        render: this.renderLastStatusColumn,
       },
       {
         field: '_ui.state.last_execution.severity',
         name: severityText,
         footer: severityText,
         sortable: true,
-        render: this.renderSeverityColumn
+        render: this.renderSeverityColumn,
       },
       {
         field: '_id',
@@ -590,7 +591,7 @@ class Watches extends Component {
             value={watchId}
             onClick={() => history.push(`${APP_PATH.DEFINE_WATCH}?id=${watchId}`)}
           />
-        )
+        ),
       },
       {
         field: 'active',
@@ -598,11 +599,8 @@ class Watches extends Component {
         name: isActiveText,
         footer: isActiveText,
         render: (active, { _id }) => (
-          <TableTextCell
-            value={active ? yesText : noText}
-            name={`Active-${_id}`}
-          />
-        )
+          <TableTextCell value={active ? yesText : noText} name={`Active-${_id}`} />
+        ),
       },
       {
         field: 'checks',
@@ -610,40 +608,37 @@ class Watches extends Component {
         name: checksText,
         footer: checksText,
         render: (checks = [], { _id }) => (
-          <TableTextCell
-            value={checks.length}
-            name={`NumOfChecks-${_id}`}
-          />
-        )
+          <TableTextCell value={checks.length} name={`NumOfChecks-${_id}`} />
+        ),
       },
       {
         width: '20%',
         field: 'actions',
         name: actionsText,
         footer: actionsText,
-        render: this.renderActionsColumn
+        render: this.renderActionsColumn,
       },
       {
         name: lastExecutionText,
         footer: lastExecutionText,
-        render: this.renderLastExecutionColumn
+        render: this.renderLastExecutionColumn,
       },
       {
-        actions
-      }
+        actions,
+      },
     ];
 
     const selection = {
       selectable: doc => doc._id,
       onSelectionChange: tableSelection => {
         this.setState({ tableSelection });
-      }
+      },
     };
 
     const sorting = {
       sort: {
         field: TABLE_SORT_FIELD,
-        direction: TABLE_SORT_DIRECTION
+        direction: TABLE_SORT_DIRECTION,
       },
     };
 
@@ -651,22 +646,16 @@ class Watches extends Component {
       <ContentPanel
         title="Watches"
         actions={[
-          (
-            <AddButton
-              value={addExampleText}
-              onClick={() => {
-                onTriggerFlyout({
-                  type: FLYOUTS.WATCHES_HELP,
-                  payload: { onPutWatch: this.putWatch, error, isLoading }
-                });
-              }}
-            />
-          ),
-          (
-            <CreateButton
-              onClick={() => history.push(APP_PATH.DEFINE_WATCH)}
-            />
-          )
+          <AddButton
+            value={addExampleText}
+            onClick={() => {
+              onTriggerFlyout({
+                type: FLYOUTS.WATCHES_HELP,
+                payload: { onPutWatch: this.putWatch, error, isLoading },
+              });
+            }}
+          />,
+          <CreateButton onClick={() => history.push(APP_PATH.DEFINE_WATCH)} />,
         ]}
       >
         {this.renderSearchBar()}
@@ -694,11 +683,10 @@ class Watches extends Component {
 
 Watches.propTypes = {
   httpClient: PropTypes.func.isRequired,
-  dispatch: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
   onTriggerConfirmModal: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
   onTriggerFlyout: PropTypes.func.isRequired,
 };
 
-export default connect()(Watches);
+export default Watches;
