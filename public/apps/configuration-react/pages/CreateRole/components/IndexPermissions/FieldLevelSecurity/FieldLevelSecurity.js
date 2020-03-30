@@ -86,7 +86,6 @@ class FieldLevelSecurity extends Component {
     return (
       <Fragment>
         <SubHeader title={<h4>{fieldLevelSecurityText}</h4>} />
-        <EuiSpacer />
         <EuiFlexGroup>
           <EuiFlexItem grow={false}>
             <FormikRadio
