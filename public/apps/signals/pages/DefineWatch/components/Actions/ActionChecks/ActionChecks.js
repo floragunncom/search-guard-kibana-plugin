@@ -1,12 +1,11 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { connect as connectFormik } from 'formik';
-import { connect as connectRedux } from 'react-redux';
 import { get, cloneDeep } from 'lodash';
-import { EuiButton, EuiSpacer } from '@elastic/eui';
+import { EuiButton } from '@elastic/eui';
 import JsonWatch from '../../JsonWatch';
 import { useCheckTemplates, useJsonWatchChecks } from '../../../hooks';
-import { addErrorToast } from '../../../../../redux/actions';
 import { FLYOUTS } from '../../../../../utils/constants';
 import { addText, pleaseFillOutAllRequiredFieldsText } from '../../../../../utils/i18n/common';
 import { executeText, checksText } from '../../../../../utils/i18n/watch';
@@ -17,14 +16,12 @@ import { Context } from '../../../../../Context';
 const ActionChecks = ({
   actionIndex,
   formik: { values, setFieldValue, validateForm, submitForm },
-  dispatch,
 }) => {
-  const { httpClient, triggerFlyout } = useContext(Context);
+  const { httpClient, triggerFlyout, addErrorToast } = useContext(Context);
 
   const checksPath = `actions[${actionIndex}].checks`;
 
   const { addTemplate } = useCheckTemplates({
-    dispatch,
     setFieldValue,
     checksPath,
   });
@@ -36,7 +33,6 @@ const ActionChecks = ({
     editorResult,
     isLoading,
   } = useJsonWatchChecks({
-    dispatch,
     httpClient,
     setFieldValue,
   });
@@ -48,7 +44,7 @@ const ActionChecks = ({
 
       if (isAnyFormError) {
         await submitForm();
-        dispatch(addErrorToast(pleaseFillOutAllRequiredFieldsText));
+        addErrorToast(pleaseFillOutAllRequiredFieldsText);
         return;
       }
     } catch (error) {
@@ -103,7 +99,6 @@ const ActionChecks = ({
 ActionChecks.propTypes = {
   actionIndex: PropTypes.number.isRequired,
   formik: PropTypes.object.isRequired,
-  dispatch: PropTypes.func.isRequired,
 };
 
-export default connectRedux()(connectFormik(ActionChecks));
+export default connectFormik(ActionChecks);
