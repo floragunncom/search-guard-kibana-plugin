@@ -45,7 +45,6 @@ if (authType !== 'kerberos' && authType !== 'proxy') {
           props.logoutUrl = logoutUrl;
         }
 
-        userName = 'sdfjsjafij  adfh khh kadshkjh alskh sah jksahfjsdhjka hskjhfa jhaskj';
         if (userName) {
           props.userName = userName.slice(0, 20);
           props.userNameTooltipText = (
