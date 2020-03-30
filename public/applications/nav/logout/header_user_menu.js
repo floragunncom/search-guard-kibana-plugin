@@ -8,11 +8,14 @@ import {
   EuiAvatar,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiText,
+  EuiLink,
+  EuiSpacer,
 } from '@elastic/eui';
 import { AccessControlService } from '../../../services';
-import { logoutText, logoutUserText } from '../utils/i18n';
+import { logoutText } from '../utils/i18n';
 
-export function LogOutButton({ httpClient, authType, logoutUrl, userName, logoutTooltipText }) {
+export function HeaderUserMenu({ httpClient, logoutUrl, userName, userNameTooltipText, authType }) {
   const [isOpen, setIsOpen] = useState(false);
   const acService = new AccessControlService({ httpClient, authType });
 
@@ -36,6 +39,7 @@ export function LogOutButton({ httpClient, authType, logoutUrl, userName, logout
 
   return (
     <EuiPopover
+      style={{ paddingTop: 2 }}
       data-test-subj="sg.userMenu"
       repositionOnScroll
       isOpen={isOpen}
@@ -47,26 +51,31 @@ export function LogOutButton({ httpClient, authType, logoutUrl, userName, logout
           <EuiAvatar name={userName} />
         </EuiFlexItem>
         <EuiFlexItem>
-          <EuiToolTip position="bottom" content={logoutTooltipText}>
-            <EuiButtonEmpty onClick={logOut} data-test-subj="sg.userMenu.button-logout">
-              {logoutText} {userName}
-            </EuiButtonEmpty>
+          <EuiToolTip position="bottom" content={userNameTooltipText}>
+            <EuiText>
+              <p>{userName}</p>
+            </EuiText>
           </EuiToolTip>
+
+          <EuiSpacer />
+          <EuiLink onClick={logOut} aria-label="logout" data-test-subj="sg.userMenu.button-logout">
+            {logoutText}
+          </EuiLink>
         </EuiFlexItem>
       </EuiFlexGroup>
     </EuiPopover>
   );
 }
 
-LogOutButton.defaultProps = {
+HeaderUserMenu.defaultProps = {
   userName: 'user',
-  logoutTooltipText: logoutUserText,
+  userNameTooltipText: 'user',
 };
 
-LogOutButton.propTypes = {
+HeaderUserMenu.propTypes = {
   httpClient: PropTypes.object.isRequired,
   authType: PropTypes.string.isRequired,
   logoutUrl: PropTypes.string,
   userName: PropTypes.string,
-  logoutTooltipText: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  userNameTooltipText: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
 };

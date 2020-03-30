@@ -326,10 +326,6 @@ class Main extends Component {
                       <CreateActionGroup
                         httpClient={httpClient}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                        onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
-                        onComboBoxChange={this.handleComboBoxChange}
-                        onComboBoxOnBlur={this.handleComboBoxOnBlur}
-                        onComboBoxCreateOption={this.handleComboBoxCreateOption}
                         {...props}
                       />
                     )}

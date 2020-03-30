@@ -1,38 +1,26 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import queryString from 'query-string';
-import {
-  EuiTabs,
-  EuiTab,
-  EuiSpacer
-} from '@elastic/eui';
-import {
-  ContentPanel,
-  CancelButton,
-  SaveButton
-} from '../../components';
+import { EuiTabs, EuiTab, EuiSpacer } from '@elastic/eui';
+import { ContentPanel, CancelButton, SaveButton } from '../../components';
 import {
   createRoleText,
   clusterPermissionsText,
   indexPermissionsText,
   tenantPermissionsText,
   updateRoleText,
-  overviewText
+  overviewText,
 } from '../../utils/i18n/roles';
 import { ROLES_ACTIONS } from '../../utils/constants';
-import {
-  Overview,
-  ClusterPermissions,
-  IndexPermissions,
-  TenantPermissions
-} from './components';
+import { Overview, ClusterPermissions, IndexPermissions, TenantPermissions } from './components';
 import {
   formikToRole,
   roleToFormik,
   indicesToUiIndices,
   actionGroupsToUiClusterIndexTenantActionGroups,
-  tenantsToUiTenants
+  tenantsToUiTenants,
 } from './utils';
 import { TABS, ROLE, ROLE_MAPPING } from './utils/constants';
 import { getAllUiIndexPermissions, getAllUiClusterPermissions } from '../../utils/helpers';
@@ -80,20 +68,20 @@ class CreateRole extends Component {
     this.tabs = [
       {
         id: TABS.OVERVIEW,
-        name: overviewText
+        name: overviewText,
       },
       {
         id: TABS.CLUSTER_PERMISSIONS,
-        name: clusterPermissionsText
+        name: clusterPermissionsText,
       },
       {
         id: TABS.INDEX_PERMISSIONS,
-        name: indexPermissionsText
+        name: indexPermissionsText,
       },
       {
         id: TABS.TENANT_PERMISSIONS,
-        name: tenantPermissionsText
-      }
+        name: tenantPermissionsText,
+      },
     ];
   }
 
@@ -103,7 +91,7 @@ class CreateRole extends Component {
 
   componentWillUnmount = () => {
     this.props.onTriggerInspectJsonFlyout(null);
-  }
+  };
 
   fetchData = async () => {
     const { id } = this.state;
@@ -137,7 +125,7 @@ class CreateRole extends Component {
         isAnonymizedFieldsEnabled,
         isMultiTenancyEnabled,
         allIndices: indicesToUiIndices(allIndices),
-        allTenants: tenantsToUiTenants(allTenants)
+        allTenants: tenantsToUiTenants(allTenants),
       });
 
       if (id) {
@@ -145,13 +133,16 @@ class CreateRole extends Component {
         const roleMapping = await this.rolesMappingService.getSilent(id);
         this.setState({ resource: roleToFormik({ resource, id, roleMapping }) });
       } else {
-        this.setState({ resource: roleToFormik({ resource: ROLE, roleMapping: ROLE_MAPPING }), isEdit: !!id });
+        this.setState({
+          resource: roleToFormik({ resource: ROLE, roleMapping: ROLE_MAPPING }),
+          isEdit: !!id,
+        });
       }
-    } catch(error) {
+    } catch (error) {
       onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
-  }
+  };
 
   onSubmit = async (values, { setSubmitting }) => {
     const { history, onTriggerErrorCallout } = this.props;
@@ -165,31 +156,24 @@ class CreateRole extends Component {
       setSubmitting(false);
       onTriggerErrorCallout(error);
     }
-  }
+  };
 
-  handleSelectedTabChange = selectedTabId => this.setState({ selectedTabId })
+  handleSelectedTabChange = selectedTabId => this.setState({ selectedTabId });
 
-  renderTabs = () => this.tabs.map((tab, i) => (
-    <EuiTab
-      data-test-subj={`sgRoleTab-${tab.id}`}
-      key={i}
-      isSelected={tab.id === this.state.selectedTabId}
-      onClick={() => this.handleSelectedTabChange(tab.id)}
-    >
-      {tab.name}
-    </EuiTab>
-  ))
+  renderTabs = () =>
+    this.tabs.map((tab, i) => (
+      <EuiTab
+        data-test-subj={`sgRoleTab-${tab.id}`}
+        key={i}
+        isSelected={tab.id === this.state.selectedTabId}
+        onClick={() => this.handleSelectedTabChange(tab.id)}
+      >
+        {tab.name}
+      </EuiTab>
+    ));
 
   render() {
-    const {
-      history,
-      location,
-      httpClient,
-      onComboBoxChange,
-      onComboBoxOnBlur,
-      onComboBoxCreateOption,
-      onTriggerConfirmDeletionModal
-    } = this.props;
+    const { history, location } = this.props;
     const {
       isEdit,
       isLoading,
@@ -205,7 +189,7 @@ class CreateRole extends Component {
       allIndexActionGroups,
       allClusterActionGroups,
       allTenantActionGroups,
-      allTenants
+      allTenants,
     } = this.state;
     const { action, id } = queryString.parse(location.search);
     const updateRole = action === ROLES_ACTIONS.UPDATE_ROLE;
@@ -229,15 +213,15 @@ class CreateRole extends Component {
               title={titleText}
               isLoading={isLoading}
               actions={[
-                (<CancelButton onClick={() => history.goBack()} />),
-                (<SaveButton isLoading={isSubmitting} onClick={handleSubmit} />)
+                <CancelButton onClick={() => history.goBack()} />,
+                <SaveButton isLoading={isSubmitting} onClick={handleSubmit} />,
               ]}
             >
               <EuiTabs display="condensed">{this.renderTabs()}</EuiTabs>
 
               <EuiSpacer />
 
-              {isOverviewTab &&
+              {isOverviewTab && (
                 <Overview
                   isUpdatingName={isUpdatingName}
                   values={values}
@@ -245,22 +229,18 @@ class CreateRole extends Component {
                   isEdit={isEdit}
                   {...this.props}
                 />
-              }
-              {isClusterPermissionsTab &&
+              )}
+              {isClusterPermissionsTab && (
                 <ClusterPermissions
                   isAdvanced={values._isClusterPermissionsAdvanced}
                   allActionGroups={allClusterActionGroups}
                   allSinglePermissions={allClusterPermissions}
-                  onComboBoxChange={onComboBoxChange}
-                  onComboBoxOnBlur={onComboBoxOnBlur}
-                  onComboBoxCreateOption={onComboBoxCreateOption}
                   isEdit={isEdit}
                   {...this.props}
                 />
-              }
-              {isIndexPermissionsTab &&
+              )}
+              {isIndexPermissionsTab && (
                 <IndexPermissions
-                  httpClient={httpClient}
                   indexPermissions={values._indexPermissions}
                   allIndices={allIndices}
                   allActionGroups={allIndexActionGroups}
@@ -269,14 +249,10 @@ class CreateRole extends Component {
                   isDlsEnabled={isDlsEnabled}
                   isFlsEnabled={isFlsEnabled}
                   isAnonymizedFieldsEnabled={isAnonymizedFieldsEnabled}
-                  onComboBoxChange={onComboBoxChange}
-                  onComboBoxOnBlur={onComboBoxOnBlur}
-                  onComboBoxCreateOption={onComboBoxCreateOption}
-                  onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
                   {...this.props}
                 />
-              }
-              {isTenantPermissionsTab &&
+              )}
+              {isTenantPermissionsTab && (
                 <TenantPermissions
                   allTenants={allTenants}
                   allAppActionGroups={allTenantActionGroups}
@@ -284,13 +260,9 @@ class CreateRole extends Component {
                   values={values}
                   isEdit={isEdit}
                   isMultiTenancyEnabled={isMultiTenancyEnabled}
-                  onComboBoxChange={onComboBoxChange}
-                  onComboBoxOnBlur={onComboBoxOnBlur}
-                  onComboBoxCreateOption={onComboBoxCreateOption}
-                  onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
                   {...this.props}
                 />
-              }
+              )}
             </ContentPanel>
           );
         }}
@@ -306,9 +278,6 @@ CreateRole.propTypes = {
   onTriggerErrorCallout: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
   httpClient: PropTypes.object.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired,
-  onComboBoxOnBlur: PropTypes.func.isRequired,
 };
 
 export default CreateRole;

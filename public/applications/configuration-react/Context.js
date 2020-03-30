@@ -1,17 +1,17 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import React, { useState } from 'react';
 import uuid from 'uuid/v4';
-import chrome from 'ui/chrome';
 import { EuiGlobalToastList, EuiTitle, EuiText, EuiCodeBlock } from '@elastic/eui';
 import { differenceBy, get } from 'lodash';
 import { Flyout, Modal } from './components';
-import { comboBoxOptionsToArray } from '../utils/helpers';
+import { comboBoxOptionsToArray } from '../../apps/utils/helpers';
 import { FLYOUTS, MODALS } from './utils/constants';
-import { CODE_EDITOR } from '../utils/constants';
+import { CODE_EDITOR } from '../../apps/utils/constants';
 
 const Context = React.createContext();
 
-const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
+// TODO NP: detect dark theme
+const IS_DARK_THEME = false;
 const { darkTheme, theme: lightTheme, ...editorOptionsDefaults } = CODE_EDITOR;
 
 const ContextProvider = ({ children, httpClient }) => {

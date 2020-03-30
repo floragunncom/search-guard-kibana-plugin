@@ -2,10 +2,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { LogOutButton } from './LogOutButton';
+import { HeaderUserMenu } from './header_user_menu';
 import { logoutText } from '../utils/i18n';
 
-export class LogOutService {
+export class HeaderUserMenuService {
   async start({ core, httpClient, config }) {
     const {
       userName,
@@ -20,10 +20,7 @@ export class LogOutService {
 
     if (userName) {
       props.userName = userName.slice(0, 20);
-    }
-
-    if (userName) {
-      props.logoutTooltipText = (
+      props.userNameTooltipText = (
         <>
           {logoutText} {userName}
         </>
@@ -33,7 +30,7 @@ export class LogOutService {
     core.chrome.navControls.registerRight({
       order: 5000,
       mount: element => {
-        ReactDOM.render(<LogOutButton {...props} />, element);
+        ReactDOM.render(<HeaderUserMenu {...props} />, element);
         return () => ReactDOM.unmountComponentAtNode(element);
       },
     });

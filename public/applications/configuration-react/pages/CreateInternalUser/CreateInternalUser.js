@@ -130,12 +130,7 @@ class CreateInternalUser extends Component {
                 </Fragment>
               )}
 
-              <UserCredentials
-                isEdit={isEdit}
-                isUpdatingName={isUpdatingName}
-                values={values}
-                {...this.props}
-              />
+              <UserCredentials isEdit={isEdit} isUpdatingName={isUpdatingName} values={values} />
               <BackendRoles
                 allRoles={allBackendRoles}
                 onComboBoxChange={onComboBoxChange}

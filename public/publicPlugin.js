@@ -1,6 +1,6 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { sgContext, sgConfig } from './utils/sgContext';
-import { LogOutService } from './applications/nav';
+import { HeaderUserMenuService } from './applications/nav';
 import { HttpWrapper } from './utils/httpWrapper';
 import { SystemStateService } from './services/SystemStateService';
 import { FeatureCatalogueCategory } from '../../../src/plugins/home/public/services/feature_catalogue';
@@ -12,7 +12,7 @@ export class PublicPlugin {
   constructor(initializerContext) {
     this.initializerContext = initializerContext;
     this.config = this.initializerContext.config;
-    this.logOutService = new LogOutService();
+    this.headerUserMenuService = new HeaderUserMenuService();
   }
 
   async setup(core, plugins) {
@@ -131,7 +131,7 @@ export class PublicPlugin {
   async start(core) {
     const restInfo = await this.systemStateService.loadRestInfo();
 
-    await this.logOutService.start({
+    await this.headerUserMenuService.start({
       core,
       httpClient: this.httpClient,
       config: { ...this.config.get(), userName: restInfo.user_name },
