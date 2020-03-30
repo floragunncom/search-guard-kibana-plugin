@@ -158,7 +158,7 @@ cp -a "$WORK_DIR/babel.config.js" "$BUILD_STAGE_PLUGIN_DIR"
 cd $BUILD_STAGE_PLUGIN_DIR
 
 echo "+++ Checking yarn packages for vulnerabilities +++"
-auditResult=`yarn audit --level 4 2>&1`
+auditResult=`yarn audit --groups dependencies --level 4 2>&1`
 isNoVulnerability="[^\d]0 vulnerabilities found.*$"
 let limit=1*10**20 # Limit num of chars because the result can be huge
 if [[ ! $auditResult =~ $isNoVulnerability && $EXIT_IF_VULNERABILITY = true ]]; then

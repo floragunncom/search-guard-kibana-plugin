@@ -32,13 +32,13 @@ import {
   tenantPatternsText
 } from '../../utils/i18n/roles';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
-import { LocalStorageService } from '../../services';
+import { LocalStorageService, RolesService } from '../../services';
 
 class Roles extends Component {
   constructor(props) {
     super(props);
 
-    this.backendService = this.props.rolesService;
+    this.backendService = new RolesService(this.props.httpClient);
     this.localStorage = new LocalStorageService();
     const { isShowingTableSystemItems = false } = this.localStorage.cache[APP_PATH.ROLES];
 
@@ -112,8 +112,7 @@ class Roles extends Component {
     name += '_copy';
     try {
       this.setState({ isLoading: true });
-      const doPreSave = false;
-      await this.backendService.save(name, uiResourceToResource(resource), doPreSave);
+      await this.backendService.save(name, uiResourceToResource(resource));
     } catch(error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
@@ -299,9 +298,9 @@ class Roles extends Component {
 }
 
 Roles.propTypes = {
+  httpClient: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  rolesService: PropTypes.object.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired
 };
