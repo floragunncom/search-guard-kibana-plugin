@@ -7,7 +7,7 @@
 
 import React, { Component, Fragment } from 'react';
 
-import { sgContext} from '../../../../utils/sgContext';
+import { sgContext } from '../../../../utils/sgContext';
 
 import {
   EuiPage,
@@ -99,7 +99,8 @@ export default class Main extends Component {
       loginSubTitle: loginConfig.subtitle,
       brandImage: loginConfig.brandimage,
       userName: '',
-      password: ''
+      password: '',
+      alternativeLogin: this.getAlternativeLogin()
     };
   }
 
@@ -123,6 +124,53 @@ export default class Main extends Component {
       type: CALLOUTS.ERROR_CALLOUT,
       payload: get(error, 'message', error)
     });
+  }
+
+  getAlternativeLogin() {
+    const alternativeLoginConfig = sgContext.config.get('basicauth.alternative_login');
+
+    // Prepare alternative login for the view
+    let alternativeLogin = null;
+
+    if (alternativeLoginConfig.show_for_parameter) {
+
+      // Build an object from the query parameters
+      // Strip the first ? from the query parameters, if we have any
+      let queryString = location.search.trim().replace(/^(\?)/, '');
+      let queryObject = {};
+      if (queryString) {
+        queryString.split('&')
+          .map((parameter) => {
+            let parameterParts = parameter.split('=');
+            if (parameterParts[1]) {
+              queryObject[encodeURIComponent(parameterParts[0])] = parameterParts[1]
+            }
+          })
+      }
+
+      let alternativeLoginURL = queryObject[alternativeLoginConfig.show_for_parameter];
+      let validRedirect = false;
+
+      try {
+        alternativeLoginConfig.valid_redirects.forEach((redirect) => {
+          if (new RegExp(redirect).test(alternativeLoginURL)) {
+            validRedirect = true;
+          }
+        });
+      } catch (error) {
+        console.warn(error);
+      }
+
+      if (validRedirect) {
+        alternativeLogin = {
+          url: queryObject[alternativeLoginConfig.show_for_parameter],
+          styles: alternativeLoginConfig.buttonstyle,
+          buttonLabel: alternativeLoginConfig.button_text,
+        };
+      }
+
+      return alternativeLogin;
+    }
   }
 
   onChange = (event) => {
@@ -246,6 +294,15 @@ export default class Main extends Component {
                   onChange={this.onChange}
                 />
                 <input onClick={this.handleSubmit} type="submit" value="Submit" />
+
+                {this.state.alternativeLogin && (
+                  <a href={this.state.alternativeLogin.url}
+                     id="sg.alternative_login"
+                     className="btn btn-default btn-login">
+                    {this.state.alternativeLogin.buttonLabel}
+                  </a>
+                )}
+
               </EuiForm>
 
               <ul>
