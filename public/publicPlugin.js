@@ -33,16 +33,17 @@ export class PublicPlugin {
       restInfo.user_name === 'sg_anonymous'
     );
 
-    core.application.register({
-      id: 'searchguard-accountinfo',
-      title: 'todo',
-      euiIconType: 'user',
-      async mount(params) {
-        const { renderApp } = await import('./applications/accountinfo/npstart');
-
-        return renderApp(core, null, params, 'Account');
-      },
-    });
+    if (sgContext.config.get('searchguard.accountinfo.enabled')) {
+      core.application.register({
+        id: 'searchguard-accountinfo',
+        title: 'Account',
+        icon: 'plugins/searchguard/assets/networking.svg', // @todo
+        async mount(params) {
+          const { renderApp } = await import('./applications/accountinfo/npstart');
+          return renderApp(core, null, params, 'Account');
+        },
+      });
+    }
 
     if (
       sgContext.config.get('searchguard.configuration.enabled') &&
