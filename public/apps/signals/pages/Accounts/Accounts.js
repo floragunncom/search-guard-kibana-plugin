@@ -1,5 +1,5 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Component } from 'react';
-import { connect as connectRedux } from 'react-redux';
 import PropTypes from 'prop-types';
 import {
   EuiFlexGroup,
@@ -12,7 +12,6 @@ import {
 import { LEFT_ALIGNMENT } from '@elastic/eui/lib/services';
 import { cloneDeep, get } from 'lodash';
 import { AccountsService } from '../../services';
-import { addSuccessToast, addErrorToast } from '../../redux/actions';
 import {
   ContentPanel,
   TableDeleteAction,
@@ -28,8 +27,12 @@ import { accountsText } from '../../utils/i18n/account';
 import { TABLE_SORT_FIELD, TABLE_SORT_DIRECTION, ACCOUNT_TYPE } from './utils/constants';
 import { APP_PATH } from '../../utils/constants';
 
+import { Context } from '../../Context';
+
 const initialQuery = EuiSearchBar.Query.MATCH_ALL;
 class Accounts extends Component {
+  static contextType = Context;
+
   constructor(props) {
     super(props);
 
@@ -58,24 +61,26 @@ class Accounts extends Component {
   }
 
   putAccount = async ({ _id, ...account }) => {
-    const { dispatch } = this.props;
     this.setState({ isLoading: true, error: null });
     try {
       await this.destService.put(account, _id, account.type);
-      dispatch(addSuccessToast((<p>{saveText} {_id}</p>)));
+      this.context.addSuccessToast(
+        <p>
+          {saveText} {_id}
+        </p>
+      );
       this.getAccounts();
     } catch (error) {
       console.error('Accounts -- putAccounts', error);
-      dispatch(addErrorToast(error));
+      this.context.addErrorToast(error);
       this.setState({ error });
       console.debug('Accounts -- account', account);
     }
     this.setState({ isLoading: false });
-  }
+  };
 
   getAccounts = async () => {
     const { query } = this.state;
-    const { dispatch } = this.props;
     this.setState({ isLoading: true });
 
     try {
@@ -86,45 +91,55 @@ class Accounts extends Component {
       this.setState({ accounts, error: null });
     } catch (error) {
       console.error('Accounts -- getAccounts', error);
-      dispatch(addErrorToast(error));
+      this.context.addErrorToast(error);
       this.setState({ error });
     }
 
     this.setState({ isLoading: false });
-  }
+  };
 
   handleCloneAccount = async account => {
-    const { dispatch } = this.props;
     this.setState({ isLoading: true, error: null });
     try {
       const { _id: id, ...rest } = account;
       await this.destService.put(cloneDeep({ ...rest }), `${id}_copy`, account.type);
-      dispatch(addSuccessToast((<p>{cloneText} {id}</p>)));
+      this.context.addSuccessToast(
+        <p>
+          {cloneText} {id}
+        </p>
+      );
       this.getAccounts();
     } catch (error) {
       console.error('Accounts -- cloneAccounts', error);
-      dispatch(addErrorToast(error));
+      this.context.addErrorToast(error);
       this.setState({ error });
       console.debug('Destiantions -- account', account);
     }
     this.setState({ isLoading: false });
-  }
+  };
 
   deleteAccounts = async (accounts = []) => {
-    const { dispatch } = this.props;
     const promises = [];
 
     this.setState({ isLoading: true, error: null });
     accounts.forEach(({ _id: id, type }) => {
-      const promise = this.destService.delete(id, type)
+      const promise = this.destService
+        .delete(id, type)
         .then(() => {
-          dispatch(addSuccessToast((<p>{deleteText} {id}</p>)));
+          this.context.addSuccessToast(
+            <p>
+              {deleteText} {id}
+            </p>
+          );
         })
         .catch(error => {
           console.error('Accounts -- deleteAccounts', error);
-          dispatch(addErrorToast(error));
+          this.context.addErrorToast(error);
           this.setState({ error });
-          console.debug('Accounts -- accountsIds', accounts.map(({ _id }) => _id));
+          console.debug(
+            'Accounts -- accountsIds',
+            accounts.map(({ _id }) => _id)
+          );
         });
       promises.push(promise);
     });
@@ -132,7 +147,7 @@ class Accounts extends Component {
     await Promise.all(promises);
     this.setState({ isLoading: false });
     this.getAccounts();
-  }
+  };
 
   handleDeleteAccounts = (accounts = []) => {
     const { onTriggerConfirmDeletionModal } = this.props;
@@ -145,20 +160,20 @@ class Accounts extends Component {
       onCancel: () => {
         this.setState({ tableSelection: [] });
         onTriggerConfirmDeletionModal(null);
-      }
+      },
     });
-  }
+  };
 
   triggerAddAccountPopover = () => {
     this.setState(prevState => ({
-      isAddAccountPopoverOpen: !prevState.isAddAccountPopoverOpen
+      isAddAccountPopoverOpen: !prevState.isAddAccountPopoverOpen,
     }));
-  }
+  };
 
   addAccount = accountType => {
     this.triggerAddAccountPopover();
     this.props.history.push(`${APP_PATH.DEFINE_ACCOUNT}?accountType=${accountType}`);
-  }
+  };
 
   renderToolsLeft = () => {
     const { tableSelection, isLoading } = this.state;
@@ -176,7 +191,7 @@ class Accounts extends Component {
         isLoading={isLoading}
       />
     );
-  }
+  };
 
   handleSearchChange = ({ query, error }) => {
     if (error) {
@@ -210,11 +225,8 @@ class Accounts extends Component {
     const actions = [
       {
         render: account => (
-          <TableCloneAction
-            name={account._id}
-            onClick={() => this.handleCloneAccount(account)}
-          />
-        )
+          <TableCloneAction name={account._id} onClick={() => this.handleCloneAccount(account)} />
+        ),
       },
       {
         render: account => (
@@ -222,8 +234,8 @@ class Accounts extends Component {
             name={account._id}
             onClick={() => this.handleDeleteAccounts([account])}
           />
-        )
-      }
+        ),
+      },
     ];
 
     const columns = [
@@ -242,34 +254,29 @@ class Accounts extends Component {
               history.push(`${APP_PATH.DEFINE_ACCOUNT}?id=${id}&accountType=${type}`);
             }}
           />
-        )
+        ),
       },
       {
         field: 'type',
         name: typeText,
         footer: typeText,
-        render: (type, { _id }) => (
-          <TableTextCell
-            value={type}
-            name={`Type-${_id}`}
-          />
-        )
+        render: (type, { _id }) => <TableTextCell value={type} name={`Type-${_id}`} />,
       },
       {
-        actions
-      }
+        actions,
+      },
     ];
 
     const selection = {
-      selectable: (doc) => doc._id,
-      onSelectionChange: (tableSelection) => this.setState({ tableSelection })
+      selectable: doc => doc._id,
+      onSelectionChange: tableSelection => this.setState({ tableSelection }),
     };
 
     const sorting = {
       sort: {
         field: TABLE_SORT_FIELD,
-        direction: TABLE_SORT_DIRECTION
-      }
+        direction: TABLE_SORT_DIRECTION,
+      },
     };
 
     const addAccountContextMenuPanels = [
@@ -305,14 +312,12 @@ class Accounts extends Component {
       <ContentPanel
         title={accountsText}
         actions={[
-          (
-            <PopoverButton
-              isPopoverOpen={isAddAccountPopoverOpen}
-              contextMenuPanels={addAccountContextMenuPanels}
-              onClick={this.triggerAddAccountPopover}
-              name="AddAccount"
-            />
-          )
+          <PopoverButton
+            isPopoverOpen={isAddAccountPopoverOpen}
+            contextMenuPanels={addAccountContextMenuPanels}
+            onClick={this.triggerAddAccountPopover}
+            name="AddAccount"
+          />,
         ]}
       >
         {this.renderSearchBar()}
@@ -339,9 +344,8 @@ class Accounts extends Component {
 
 Accounts.propTypes = {
   httpClient: PropTypes.func.isRequired,
-  dispatch: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
 };
 
-export default connectRedux()(Accounts);
+export default Accounts;
