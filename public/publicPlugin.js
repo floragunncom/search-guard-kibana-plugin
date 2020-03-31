@@ -25,7 +25,14 @@ export class PublicPlugin {
     this.systemStateService = new SystemStateService(this.httpClient);
 
     await this.systemStateService.loadSystemInfo();
+
+    // @todo Maybe only load this on /app - pages?
     const restInfo = await this.systemStateService.loadRestInfo();
+
+    // @todo Better check for login/customerror page
+    if (restInfo.user_name) {
+      sgContext.isDarkMode = core.uiSettings.get('theme:darkMode');
+    }
 
     redirectOnSessionTimeout(
       sgContext.config.get('auth.type'),

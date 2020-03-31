@@ -73,13 +73,10 @@ export const sgContext = {
   config: sgConfig,
 
   /**
-   * @todo At the moment we use the UISettingsClient in a bunch of places for
-   * dark mode. Need to update that to NP.
+   * Dark mode from the UISettings
    * @returns {boolean}
    */
-  get isDarkMode() {
-    return false;
-  },
+  isDarkMode: false,
 
   /**
    * Retrieve the base path from the injected coreSetup.http sertvice
