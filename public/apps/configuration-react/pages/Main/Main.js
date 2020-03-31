@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Switch, Route } from 'react-router-dom';
@@ -10,7 +11,7 @@ import {
   EuiPageContentBody,
   EuiText,
   EuiListGroup,
-  EuiListGroupItem
+  EuiListGroupItem,
 } from '@elastic/eui';
 import Home from '../Home';
 import {
@@ -25,7 +26,7 @@ import {
   Roles,
   CreateRole,
   RoleMappings,
-  CreateRoleMapping
+  CreateRoleMapping,
 } from '../';
 import { Breadcrumbs, Flyout, Callout, Modal, LoadingPage } from '../../components';
 import { APP_PATH, CALLOUTS, FLYOUTS, MODALS, LOCAL_STORAGE } from '../../utils/constants';
@@ -33,13 +34,17 @@ import { checkIfLicenseValid, comboBoxOptionsToArray } from '../../utils/helpers
 import {
   apiAccessStateForbiddenText,
   apiAccessStateNotEnabledText,
-  sgLicenseNotValidText
+  sgLicenseNotValidText,
 } from '../../utils/i18n/main';
 import { API_ACCESS_STATE } from './utils/constants';
 import { LocalStorageService, ApiService, SystemService } from '../../services';
 import getBreadcrumb from './utils/getBreadcrumb';
 
+import { Context } from '../../Context';
+
 class Main extends Component {
+  static contextType = Context;
+
   constructor(props) {
     super(props);
 
@@ -80,7 +85,7 @@ class Main extends Component {
     } catch (error) {
       this.handleTriggerErrorCallout(error);
     }
-  }
+  };
 
   calloutErrorIfLicenseNotValid = () => {
     const { isValid, messages } = checkIfLicenseValid();
@@ -93,13 +98,15 @@ class Main extends Component {
               <h3>{sgLicenseNotValidText}</h3>
             </EuiText>
             <EuiListGroup>
-              {map(messages, (message, i) => <EuiListGroupItem key={i} label={message} />)}
+              {map(messages, (message, i) => (
+                <EuiListGroupItem key={i} label={message} />
+              ))}
             </EuiListGroup>
           </Fragment>
-        )
+        ),
       });
     }
-  }
+  };
 
   handleTriggerFlyout = flyout => {
     const { flyout: current } = this.state;
@@ -109,15 +116,18 @@ class Main extends Component {
     } else {
       this.setState({ flyout });
     }
-  }
+  };
 
   handleTriggerInspectJsonFlyout = payload => {
     if (payload === null) {
       this.handleTriggerFlyout(null);
     } else {
-      this.handleTriggerFlyout({ type: FLYOUTS.INSPECT_JSON, payload });
+      this.handleTriggerFlyout({
+        type: FLYOUTS.INSPECT_JSON,
+        payload: { ...payload, editorTheme: this.context.editorTheme },
+      });
     }
-  }
+  };
 
   handleTriggerCustomFlyout = payload => {
     if (payload === null) {
@@ -125,33 +135,33 @@ class Main extends Component {
     } else {
       this.handleTriggerFlyout({ type: FLYOUTS.CUSTOM, payload });
     }
-  }
+  };
 
   handleTriggerCallout = callout => {
     this.setState({ callout });
-  }
+  };
 
   handleTriggerErrorCallout = error => {
     console.error(error);
     error = error.data || error;
     this.handleTriggerCallout({
       type: CALLOUTS.ERROR_CALLOUT,
-      payload: get(error, 'message', error)
+      payload: get(error, 'message', error),
     });
-  }
+  };
 
   handleTriggerSuccessCallout = payload => {
     this.handleTriggerCallout({ type: CALLOUTS.SUCCESS_CALLOUT, payload });
-  }
+  };
 
   handleTriggerModal = modal => {
     this.setState({ modal });
-  }
+  };
 
   handleTriggerConfirmDeletionModal = payload => {
     const modal = payload === null ? null : { type: MODALS.CONFIRM_DELETION, payload };
     this.handleTriggerModal(modal);
-  }
+  };
 
   handlePurgeCache = async () => {
     this.setState({ purgingCache: true });
@@ -161,7 +171,7 @@ class Main extends Component {
       this.handleTriggerErrorCallout(error);
     }
     this.setState({ purgingCache: false });
-  }
+  };
 
   handleComboBoxChange = validationFn => (options, field, form) => {
     const isValidationRequired = validationFn instanceof Function;
@@ -169,7 +179,9 @@ class Main extends Component {
       const error = validationFn(options);
       if (error instanceof Promise) {
         error
-          .then(_error => { throw _error; })
+          .then(_error => {
+            throw _error;
+          })
           .catch(_error => form.setFieldError(field.name, _error));
       } else {
         form.setFieldError(field.name, error);
@@ -178,18 +190,20 @@ class Main extends Component {
 
     const isDeleting = options.length < field.value.length;
     if (isDeleting) {
-      const optionToDelete = comboBoxOptionsToArray(differenceBy(field.value, options, 'label')).join(', ');
+      const optionToDelete = comboBoxOptionsToArray(
+        differenceBy(field.value, options, 'label')
+      ).join(', ');
       this.handleTriggerConfirmDeletionModal({
         body: optionToDelete,
         onConfirm: () => {
           form.setFieldValue(field.name, options);
           this.handleTriggerConfirmDeletionModal(null);
-        }
+        },
       });
     } else {
       form.setFieldValue(field.name, options);
     }
-  }
+  };
 
   handleComboBoxCreateOption = (validationFn, ...props) => async (label, field, form) => {
     let isValid = true;
@@ -198,8 +212,10 @@ class Main extends Component {
       const _isValid = validationFn(label, ...props);
       if (_isValid instanceof Promise) {
         await _isValid
-          .then(_error => { throw _error; })
-          .catch(_error => isValid = _error);
+          .then(_error => {
+            throw _error;
+          })
+          .catch(_error => (isValid = _error));
       } else {
         isValid = _isValid;
       }
@@ -210,11 +226,11 @@ class Main extends Component {
       if (!normalizedSearchValue) return;
       form.setFieldValue(field.name, field.value.concat({ label }));
     }
-  }
+  };
 
   handleComboBoxOnBlur = (e, field, form) => {
     form.setFieldTouched(field.name, true);
-  }
+  };
 
   render() {
     const { flyout, callout, purgingCache, modal, apiAccessState } = this.state;
@@ -237,7 +253,7 @@ class Main extends Component {
               <Callout callout={callout} onClose={() => this.handleTriggerCallout(null)} />
               <Modal modal={modal} onClose={() => this.handleTriggerModal(null)} />
               {isAPIAccessPending && LoadingPage}
-              {isAPIAccessOk &&
+              {isAPIAccessOk && (
                 <Switch>
                   <Route
                     path={APP_PATH.CREATE_INTERNAL_USER}
@@ -392,10 +408,9 @@ class Main extends Component {
                     )}
                   />
                 </Switch>
-              }
+              )}
             </EuiPageContentBody>
           </EuiPageContent>
-
         </EuiPageBody>
       </EuiPage>
     );

@@ -98,11 +98,14 @@ class Main extends Component {
 
   // TODO. Deprecate and use a method from ContextProvider
   // when all children use Context
-  handleTriggerInspectJsonFlyout = payload => {
+  handleTriggerInspectJsonFlyout = (payload = {}) => {
     if (payload === null) {
       this.handleTriggerFlyout(null);
     } else {
-      this.handleTriggerFlyout({ type: FLYOUTS.INSPECT_JSON, payload });
+      this.handleTriggerFlyout({
+        type: FLYOUTS.INSPECT_JSON,
+        payload: { ...payload, editorTheme: this.context.editorTheme },
+      });
     }
   };
 
