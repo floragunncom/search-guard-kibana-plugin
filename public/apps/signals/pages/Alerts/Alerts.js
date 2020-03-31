@@ -422,7 +422,7 @@ class Alerts extends Component {
 }
 
 Alerts.propTypes = {
-  httpClient: PropTypes.func.isRequired,
+  httpClient: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,

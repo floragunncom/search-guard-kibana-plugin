@@ -293,15 +293,7 @@ class Main extends Component {
                 />
                 <Route
                   path={APP_PATH.DEFINE_ACCOUNT}
-                  render={props => (
-                    <DefineAccount
-                      httpClient={httpClient}
-                      onComboBoxChange={this.handleComboBoxChange}
-                      onComboBoxOnBlur={this.handleComboBoxOnBlur}
-                      onComboBoxCreateOption={this.handleComboBoxCreateOption}
-                      {...props}
-                    />
-                  )}
+                  render={props => <DefineAccount httpClient={httpClient} {...props} />}
                 />
                 <Redirect to={APP_PATH.WATCHES} />
               </Switch>
@@ -316,7 +308,7 @@ class Main extends Component {
 Main.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  httpClient: PropTypes.func.isRequired,
+  httpClient: PropTypes.object.isRequired,
 };
 
 export default Main;

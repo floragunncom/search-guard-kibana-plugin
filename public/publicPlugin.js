@@ -7,12 +7,14 @@ import { FeatureCatalogueCategory } from '../../../src/plugins/home/public/servi
 import { redirectOnSessionTimeout } from './auth/redirectOnSessionTimeout';
 import { API_ROOT } from './utils/constants';
 import { addTenantToShareURL } from './applications/multitenancy/addTenantToShareURL';
+import { Signals } from './applications/signals';
 
 export class PublicPlugin {
   constructor(initializerContext) {
     this.initializerContext = initializerContext;
     this.config = this.initializerContext.config;
     this.headerUserMenuService = new HeaderUserMenuService();
+    this.signalsApp = new Signals();
   }
 
   async setup(core, plugins) {
@@ -113,7 +115,6 @@ export class PublicPlugin {
           addTenantToShareURL();
         });
       }
-
     }
 
     this.registerAuthApps(core, sgContext.config.get('auth.type'));
@@ -134,6 +135,8 @@ export class PublicPlugin {
         });
       },
     });
+
+    this.signalsApp.setup({ core, httpClient: this.httpClient });
   }
 
   async start(core) {
@@ -175,5 +178,4 @@ export class PublicPlugin {
       });
     }
   }
-
 }

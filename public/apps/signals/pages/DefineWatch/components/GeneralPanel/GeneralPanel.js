@@ -83,12 +83,12 @@ const WatchName = ({ httpClient, isUpdatingName }) => (
 );
 
 WatchName.propTypes = {
-  httpClient: PropTypes.func.isRequired,
+  httpClient: PropTypes.object.isRequired,
   isUpdatingName: PropTypes.bool.isRequired,
 };
 
-const GeneralPanel = ({ httpClient, location, formik: { values } }) => {
-  const { onSwitchChange } = useContext(Context);
+const GeneralPanel = ({ location, formik: { values } }) => {
+  const { onSwitchChange, httpClient } = useContext(Context);
   const { id } = queryString.parse(location.search);
   const isUpdatingName = id !== values._id;
   const isSeverity = get(values, '_ui.isSeverity', false);
@@ -112,7 +112,6 @@ const GeneralPanel = ({ httpClient, location, formik: { values } }) => {
 };
 
 GeneralPanel.propTypes = {
-  httpClient: PropTypes.func.isRequired,
   location: PropTypes.object.isRequired,
 };
 
