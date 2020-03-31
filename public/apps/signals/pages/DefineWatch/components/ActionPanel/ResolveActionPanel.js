@@ -212,7 +212,7 @@ class ResolveActionPanel extends Component {
 }
 
 ResolveActionPanel.propTypes = {
-  httpClient: PropTypes.func.isRequired,
+  httpClient: PropTypes.object.isRequired,
   arrayHelpers: PropTypes.object.isRequired,
   formik: PropTypes.object.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,

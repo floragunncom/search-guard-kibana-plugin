@@ -21,7 +21,7 @@ import Block from './Block';
 
 import { Context } from '../../../../Context';
 
-import './styles.css';
+import './styles.scss';
 
 const BlocksWatch = ({
   formik: { values, setFieldValue },

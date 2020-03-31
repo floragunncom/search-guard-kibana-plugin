@@ -1,9 +1,9 @@
 import { first } from 'rxjs/operators';
 import {PluginInitializerContext} from "../../../src/core/server/plugins";
 
-import BasicAuth from '../lib/auth/types/basicauth/BasicAuth';
 import SearchGuardBackend from '../lib/backend/searchguard';
 import SearchGuardConfigurationBackend from '../lib/configuration/backend/searchguard_configuration_backend';
+import { Signals } from './applications';
 
 import AuthInfoRoutes from '../lib/auth/routes_authinfo';
 import { APP_ROOT, API_ROOT } from './utils/constants';
@@ -16,10 +16,12 @@ export class Plugin {
 
         this.initContext = initializerContext;
         this.config$ = initializerContext.config.create();
-
+        this.signalsApp = new Signals();
     }
 
     async setup(core) {
+        const router = core.http.createRouter();
+
         process.on("unhandledRejection", (error) => {
             console.error(error); // This prints error with stack included (as for normal errors)
             throw error; // Following best practices re-throw error and let the process exit with error code
@@ -284,7 +286,7 @@ export class Plugin {
         // @todo Sanity check - do not fail on forbidden
         // @todo Sanity check - ssl certificates
         // @todo Signals app access
-        // @todo Register Signals routes
+        this.signalsApp.setup({ core, router, hapiServer: hapi.server });
 
         return {
             something: 'returned'
