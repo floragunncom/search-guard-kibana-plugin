@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React from 'react';
 import { uiModules } from 'ui/modules';
 import chrome from 'ui/chrome';
@@ -6,10 +7,6 @@ import { HashRouter as Router, Route } from 'react-router-dom';
 import { camelCase } from 'lodash';
 import { I18nProvider } from '@kbn/i18n/react';
 import { APP_NAME } from './utils/constants';
-
-import { createStore } from 'redux';
-import { Provider } from 'react-redux';
-import rootReducer from './redux/reducers';
 
 import { ContextProvider } from './Context';
 
@@ -30,16 +27,10 @@ app.config($locationProvider => {
   });
 });
 
-app.config(stateManagementConfigProvider =>
-  stateManagementConfigProvider.disable()
-);
+app.config(stateManagementConfigProvider => stateManagementConfigProvider.disable());
 
 function RootController($scope, $element, $http) {
   const domNode = $element[0];
-  const store = createStore(
-    rootReducer,
-    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-  );
 
   // render react to DOM
   render(
@@ -47,11 +38,9 @@ function RootController($scope, $element, $http) {
       <Router>
         <Route
           render={props => (
-            <Provider store={store}>
-              <ContextProvider httpClient={$http}>
-                <Main title={camelCase(APP_NAME)} httpClient={$http} {...props} />
-              </ContextProvider>
-            </Provider>
+            <ContextProvider httpClient={$http}>
+              <Main title={camelCase(APP_NAME)} httpClient={$http} {...props} />
+            </ContextProvider>
           )}
         />
       </Router>

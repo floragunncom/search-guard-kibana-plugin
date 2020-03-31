@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { useState, useContext } from 'react';
 import { get } from 'lodash';
 import { buildFormikChecks, buildChecks, buildFormikChecksBlocks } from '../utils';

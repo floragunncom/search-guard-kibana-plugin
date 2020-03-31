@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import { useState, useContext } from 'react';
 import { get } from 'lodash';
 import update from 'immutability-helper';
