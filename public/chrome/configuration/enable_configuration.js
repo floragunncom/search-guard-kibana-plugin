@@ -20,8 +20,8 @@ import { uiModules } from 'ui/modules';
 // Should be fixed starting from Kibana 6.6.2
 import 'ui/autoload/modules';
 import { FeatureCatalogueRegistryProvider, FeatureCatalogueCategory } from 'ui/registry/feature_catalogue';
-require ('../../apps/configuration/systemstate/systemstate');
 import { chromeWrapper } from "../../services/chrome_wrapper";
+import { SystemStateService } from '../../services';
 
 const app = uiModules.get('apps/searchguard/configuration');
 
@@ -122,7 +122,7 @@ function setupResponseErrorHandler($window) {
 }
 
 
-export function enableConfiguration($http, $window, systemstate) {
+export function enableConfiguration($http, $window) {
 
     setupResponseErrorHandler($window);
 
@@ -131,21 +131,23 @@ export function enableConfiguration($http, $window, systemstate) {
     const API_ROOT = `${APP_ROOT}/api/v1`;
     const path = chrome.removeBasePath($window.location.pathname);
 
+    const systemStateService = new SystemStateService($http);
+
     // don't run on login or logout, we don't have any user on these pages
     if(path === '/login' || path === '/logout' || path === '/customerror') {
         return;
     }
     // make sure all infos are loaded since sessionStorage might
     // get cleared sporadically, especially on mobile
-    systemstate.loadSystemInfo().then(function(){
+    systemStateService.loadSystemInfo().then(function(){
         // if no REST module is installed the restinfo endpoint is not available, so fail fast
-        if (!systemstate.restApiEnabled()) {
+        if (!systemStateService.restApiEnabled()) {
             chromeWrapper.hideNavLink('searchguard-configuration', true);
             return;
         }
         // rest module installed, check if user has access to the API
-        return systemstate.loadRestInfo().then(function(){
-            if (systemstate.hasApiAccess()) {
+        return systemStateService.loadRestInfo().then(function(){
+            if (systemStateService.hasApiAccess()) {
                 chromeWrapper.hideNavLink('searchguard-configuration', false);
                 FeatureCatalogueRegistryProvider.register(() => {
                     return {

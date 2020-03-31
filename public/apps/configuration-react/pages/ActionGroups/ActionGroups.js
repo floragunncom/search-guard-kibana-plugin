@@ -31,13 +31,13 @@ import {
   noActionGroupsText
 } from '../../utils/i18n/action_groups';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
-import { LocalStorageService } from '../../services';
+import { LocalStorageService, ActionGroupsService } from '../../services';
 
 class ActionGroups extends Component {
   constructor(props) {
     super(props);
 
-    this.backendService = this.props.actionGroupsService;
+    this.backendService = new ActionGroupsService(this.props.httpClient);
     this.localStorage = new LocalStorageService();
     const { isShowingTableSystemItems = false } = this.localStorage.cache[APP_PATH.ACTION_GROUPS];
 
@@ -114,8 +114,7 @@ class ActionGroups extends Component {
     name += '_copy';
     try {
       this.setState({ isLoading: true });
-      const doPreSave = false;
-      await this.backendService.save(name, uiResourceToResource(resource), doPreSave);
+      await this.backendService.save(name, uiResourceToResource(resource));
     } catch(error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
@@ -289,11 +288,11 @@ class ActionGroups extends Component {
 }
 
 ActionGroups.propTypes = {
+  httpClient: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  actionGroupsService: PropTypes.object.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired
+  onTriggerErrorCallout: PropTypes.func.isRequired,
 };
 
 export default ActionGroups;
