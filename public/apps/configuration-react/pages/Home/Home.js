@@ -50,13 +50,15 @@ import {
   roleMappingsText,
   roleMappingsDescription
 } from '../../utils/i18n/role_mappings';
+import { SystemService } from '../../services';
 
-const Home = ({ history, systemstateService, onPurgeCache, purgingCache }) => {
+const Home = ({ httpClient, history, onPurgeCache, purgingCache }) => {
   // TODO: use pesonalized Search Guard icons in cards instead of the default ones
+  const systemService = new SystemService(httpClient);
 
   const filterDisabledCards = (cards = []) => {
     return cards.filter(({ endpoint }) => {
-      return systemstateService.endpointAndMethodEnabled(endpoint, METHODS_FOR_ENDPOINTS[endpoint]);
+      return systemService.endpointAndMethodEnabled(endpoint, METHODS_FOR_ENDPOINTS[endpoint]);
     });
   };
 
@@ -196,10 +198,10 @@ const Home = ({ history, systemstateService, onPurgeCache, purgingCache }) => {
 };
 
 Home.propTypes = {
+  httpClient: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
-  systemstateService: PropTypes.object.isRequired,
   onPurgeCache: PropTypes.func.isRequired,
-  purgingCache: PropTypes.bool.isRequired
+  purgingCache: PropTypes.bool.isRequired,
 };
 
 export default Home;

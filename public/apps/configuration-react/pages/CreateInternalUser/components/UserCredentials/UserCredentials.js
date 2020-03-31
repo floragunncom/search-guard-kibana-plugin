@@ -8,6 +8,7 @@ import {
   repeatPasswordText,
   changePasswordText
 } from '../../../../utils/i18n/internal_users';
+import { InternalUsersService } from '../../../../services';
 
 const renderPassword = passwordConfirmation => (
   <Fragment>
@@ -44,12 +45,12 @@ const renderPassword = passwordConfirmation => (
   </Fragment>
 );
 
-const UserCredentials = ({ isEdit = false, isUpdatingName, values, internalUsersService }) => (
+const UserCredentials = ({ isEdit = false, isUpdatingName, values, httpClient }) => (
   <Fragment>
     <FormikFieldText
       formRow
       formikFieldProps={{
-        validate: validateInternalUserName(internalUsersService, isUpdatingName)
+        validate: validateInternalUserName(new InternalUsersService(httpClient), isUpdatingName)
       }}
       rowProps={{
         label: usernameText,
@@ -95,7 +96,6 @@ UserCredentials.propTypes = {
   isEdit: PropTypes.bool.isRequired,
   isUpdatingName: PropTypes.bool.isRequired,
   values: PropTypes.object.isRequired,
-  internalUsersService: PropTypes.object.isRequired
 };
 
 export default UserCredentials;

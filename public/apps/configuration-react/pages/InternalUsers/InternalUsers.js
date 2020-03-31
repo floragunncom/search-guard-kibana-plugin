@@ -38,7 +38,7 @@ import {
   systemItemsText
 } from '../../utils/i18n/common';
 import { resourcesToUiResources, uiResourceToResource } from './utils';
-import { SessionStorageService, LocalStorageService } from '../../services';
+import { SessionStorageService, LocalStorageService, InternalUsersService } from '../../services';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
 
 class InternalUsers extends Component {
@@ -46,7 +46,7 @@ class InternalUsers extends Component {
     super(props);
 
     this.localStorage = new LocalStorageService();
-    this.backendService = this.props.internalUsersService;
+    this.backendService = new InternalUsersService(this.props.httpClient);
     const { isShowingTableSystemItems = false } = this.localStorage.cache[APP_PATH.INTERNAL_USERS];
 
     this.state = {
@@ -119,8 +119,7 @@ class InternalUsers extends Component {
     username += '_copy';
     try {
       this.setState({ isLoading: true });
-      const doPreSave = false;
-      await this.backendService.save(username, uiResourceToResource(resource), doPreSave);
+      await this.backendService.save(username, uiResourceToResource(resource));
     } catch(error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
@@ -306,7 +305,6 @@ class InternalUsers extends Component {
 InternalUsers.propTypes = {
   history: PropTypes.object.isRequired,
   httpClient: PropTypes.func,
-  internalUsersService: PropTypes.object.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired
 };
