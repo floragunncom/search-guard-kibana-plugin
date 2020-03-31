@@ -15,6 +15,7 @@ export {
   FormikSwitch,
   FormikComboBox,
   FormikCodeEditor,
+  FormikCodeEditorSG,
   FormikSelect,
   FormikTextArea,
   TableItemsListCell,

@@ -146,7 +146,7 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
                 maxLines: 10,
                 minLines: 10,
               },
-              mode: 'text',
+              mode: 'json',
               theme: editorTheme,
               onChange: (e, text, field, form) => {
                 form.setFieldValue(field.name, text);
