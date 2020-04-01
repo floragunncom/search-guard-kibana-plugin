@@ -1,5 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect as connectFormik } from 'formik';
 import { get, cloneDeep } from 'lodash';
@@ -17,13 +17,15 @@ const ActionChecks = ({
   actionIndex,
   formik: { values, setFieldValue, validateForm, submitForm },
 }) => {
-  const { httpClient, triggerFlyout, addErrorToast } = useContext(Context);
+  const { triggerFlyout, addErrorToast } = useContext(Context);
 
   const checksPath = `actions[${actionIndex}].checks`;
 
   const { addTemplate } = useCheckTemplates({
     setFieldValue,
     checksPath,
+    // TODO: deprecate the useBlocks when BlocksWatch work in actions
+    useBlocks: false,
   });
 
   const {
@@ -32,10 +34,22 @@ const ActionChecks = ({
     executeWatch,
     editorResult,
     isLoading,
-  } = useJsonWatchChecks({
-    httpClient,
-    setFieldValue,
-  });
+  } = useJsonWatchChecks({ setFieldValue });
+
+  const [templateCounter, setTemplateCounter] = useState(0);
+  const [template, setTemplate] = useState(null);
+
+  useEffect(() => {
+    if (template) {
+      addTemplate({ template, values });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [templateCounter]);
+
+  const addTemplateHelper = template => {
+    setTemplate(template);
+    setTemplateCounter(prevState => prevState + 1);
+  };
 
   const handleWatchExecute = async () => {
     try {
@@ -68,7 +82,7 @@ const ActionChecks = ({
       onClick={() => {
         triggerFlyout({
           type: FLYOUTS.CHECK_EXAMPLES,
-          payload: { onChange: template => addTemplate({ template, values }) },
+          payload: { onChange: addTemplateHelper },
         });
       }}
     >
