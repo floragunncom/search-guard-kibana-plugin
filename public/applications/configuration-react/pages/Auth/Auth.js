@@ -21,6 +21,8 @@ import { SELECTED_SIDE_NAV_ITEM_NAME, SIDE_NAV } from './utils/constants';
 import { resourcesToUiResources } from './utils';
 import { SgConfigService } from '../../services';
 
+import { Context } from '../../Context';
+
 const AuthContent = ({ resource }) => (
   <EuiFlexGrid columns={2} className="sgFixedFormGroupItem">
     {map(resource, (value, key) => (
@@ -41,6 +43,8 @@ const AuthContent = ({ resource }) => (
 );
 
 class Auth extends Component {
+  static contextType = Context;
+
   constructor(props) {
     super(props);
 
@@ -178,6 +182,7 @@ class Auth extends Component {
         maxLines: 15,
         fontSize: '12px',
       }}
+      theme={this.context.editorTheme}
       value={value}
     />
   );

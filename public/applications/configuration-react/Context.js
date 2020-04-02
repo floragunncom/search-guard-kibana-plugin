@@ -8,13 +8,17 @@ import { comboBoxOptionsToArray } from '../../apps/utils/helpers';
 import { FLYOUTS, MODALS } from './utils/constants';
 import { CODE_EDITOR } from '../../apps/utils/constants';
 
+// Themes for EuiCodeEditor
+import 'brace/theme/twilight';
+import 'brace/theme/textmate';
+
 const Context = React.createContext();
 
-// TODO NP: detect dark theme
-const IS_DARK_THEME = false;
 const { darkTheme, theme: lightTheme, ...editorOptionsDefaults } = CODE_EDITOR;
 
-const ContextProvider = ({ children, httpClient }) => {
+const ContextProvider = ({ children, httpClient, core }) => {
+  const IS_DARK_THEME = core.uiSettings.get('theme:darkMode');
+
   const [editorTheme] = useState(IS_DARK_THEME ? darkTheme : lightTheme);
   const [editorOptions] = useState(editorOptionsDefaults);
   const [flyout, setFlyout] = useState(null);
@@ -40,7 +44,7 @@ const ContextProvider = ({ children, httpClient }) => {
       return;
     }
 
-    triggerFlyout({ type: FLYOUTS.INSPECT_JSON, payload });
+    triggerFlyout({ type: FLYOUTS.INSPECT_JSON, payload: { ...payload, editorTheme } });
   };
 
   const closeModal = () => setModal(null);

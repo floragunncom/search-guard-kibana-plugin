@@ -65,7 +65,7 @@ export class PublicPlugin {
         mount: async ({ element }) => {
           const { renderApp } = await import('./applications/configuration-react');
 
-          return renderApp({ element, httpClient: this.httpClient });
+          return renderApp({ element, core, httpClient: this.httpClient });
         },
       });
 

@@ -10,13 +10,13 @@ import { ContextProvider } from './Context';
 
 import './style.scss';
 
-export const renderApp = ({ httpClient, element }) => {
+export const renderApp = ({ httpClient, element, core }) => {
   ReactDOM.render(
     <I18nProvider>
       <Router>
         <Route
           render={props => (
-            <ContextProvider httpClient={httpClient}>
+            <ContextProvider httpClient={httpClient} core={core}>
               <Main title={'Search Guard'} httpClient={httpClient} {...props} />
             </ContextProvider>
           )}

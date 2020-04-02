@@ -13,7 +13,7 @@ import {
   EuiSpacer,
   EuiLoadingSpinner,
 } from '@elastic/eui';
-import { FormikCodeEditor, DeleteButtonIcon, ExecuteButtonIcon } from '../../../../../components';
+import { FormikCodeEditorSG, DeleteButtonIcon, ExecuteButtonIcon } from '../../../../../components';
 import { getCheckBlockTitle } from './utils';
 import {
   checkText,
@@ -33,7 +33,7 @@ class Block extends Component {
   getDragHeight = () => (this.props.item.subtitle ? 112 : 56);
 
   renderCheckEditor = index => (
-    <FormikCodeEditor
+    <FormikCodeEditorSG
       name={`_ui.checksBlocks.${index}.check`}
       formRow
       rowProps={{

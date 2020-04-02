@@ -8,6 +8,10 @@ import { comboBoxOptionsToArray } from '../utils/helpers';
 import { FLYOUTS, MODALS } from './utils/constants';
 import { CODE_EDITOR } from '../utils/constants';
 
+// Themes for EuiCodeEditor
+import 'brace/theme/twilight';
+import 'brace/theme/textmate';
+
 const Context = React.createContext();
 
 const { darkTheme, theme: lightTheme, ...editorOptionsDefaults } = CODE_EDITOR;
@@ -34,13 +38,13 @@ const ContextProvider = ({ children, core, httpClient }) => {
     setFlyout(newFlyout);
   };
 
-  const triggerInspectJsonFlyout = payload => {
+  const triggerInspectJsonFlyout = (payload = {}) => {
     if (payload === null) {
       triggerFlyout(null);
       return;
     }
 
-    triggerFlyout({ type: FLYOUTS.INSPECT_JSON, payload });
+    triggerFlyout({ type: FLYOUTS.INSPECT_JSON, payload: { ...payload, editorTheme } });
   };
 
   const closeModal = () => setModal(null);
