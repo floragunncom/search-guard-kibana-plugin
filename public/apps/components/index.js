@@ -1,6 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 export { default as ContentPanel } from './ContentPanel';
-export { default as ControlledContent } from './ControlledContent';
 export { default as SubHeader } from './SubHeader';
 export { default as EmptyPrompt } from './EmptyPrompt';
 export { default as Modal } from './Modal';
