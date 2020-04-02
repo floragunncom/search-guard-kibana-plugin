@@ -9,7 +9,7 @@ import { useCheckTemplates, useJsonWatchChecks } from '../../../hooks';
 import { FLYOUTS } from '../../../../../utils/constants';
 import { addText, pleaseFillOutAllRequiredFieldsText } from '../../../../../utils/i18n/common';
 import { executeText, checksText } from '../../../../../utils/i18n/watch';
-import { ControlledContent } from '../../../../../components';
+import { ContentPanel } from '../../../../../components';
 
 import { Context } from '../../../../../Context';
 
@@ -99,14 +99,14 @@ const ActionChecks = ({
   ];
 
   return (
-    <ControlledContent title={checksText} titleProps={{ size: 'xs' }} actions={actions}>
+    <ContentPanel actions={actions} isPanel={false}>
       <JsonWatch
         checksPath={checksPath}
         isResultVisible={isResultVisible}
         editorResult={editorResult}
         onCloseResult={closeResult}
       />
-    </ControlledContent>
+    </ContentPanel>
   );
 };
 

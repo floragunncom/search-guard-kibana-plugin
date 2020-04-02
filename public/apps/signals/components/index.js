@@ -1,9 +1,9 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 export { default as Flyout } from './Flyout';
 export { default as DatePicker } from './DatePicker';
 
 export {
   ContentPanel,
-  ControlledContent,
   SubHeader,
   EmptyPrompt,
   Modal,
