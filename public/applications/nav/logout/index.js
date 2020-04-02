@@ -9,7 +9,7 @@ export class HeaderUserMenuService {
   async start({ core, httpClient, config }) {
     const {
       userName,
-      auth: { type: authType, logoout_url: logoutUrl },
+      auth: { type: authType, logout_url: logoutUrl },
     } = config;
 
     const props = { httpClient, authType };
