@@ -33,34 +33,34 @@ unittest_and_build:
     expire_in: 30 days
 
 
-unit_build_and_int_tests:
-  stage: build
-  script:
-    - |
-       sg_release=$(curl -Ss -F "token=$SG_RELEASE_TOKEN" -F "variables[CIP]=AWS" -F "variables[MERGE_ACTION]=true" -F "variables[KIBANA_BUILD]=true" -F "variables[KIBANA_BRANCH]=$CI_COMMIT_REF_NAME" -F "variables[SG_CIRCLE_JOB]=kibanabuild" -F "ref=master" "https://git.floragunn.com/api/v4/projects/7/trigger/pipeline" --fail)
-       sg_release_buildnum=$(jq --raw-output '.id' <<< $sg_release )
-       echo "Executing build and integration tests in scope of https://git.floragunn.com/floragunncom/devops/release-support/pipelines/$sg_release_buildnum"
-       while true
-       do
-         sleep 30
-         sg_release_status=$(curl -Ss --header "PRIVATE-TOKEN: $CIRUNNER_TOKEN" "https://git.floragunn.com/api/v4/projects/7/pipelines/$sg_release_buildnum" | jq --raw-output '.status')
-
-         echo "Build and Integration tests status: $sg_release_status"
-
-         if [ "$sg_release_status" == "canceled" ] || [ "$sg_release_status" == "failed" ] || [ "$sg_release_status" == "skipped" ]; then
-           echo "Kibana Build and Integration tests failed. Check the reason here: https://git.floragunn.com/floragunncom/devops/release-support/pipelines/$sg_release_buildnum"
-           exit 1
-         fi
-
-         if [ "$sg_release_status" == "success" ]; then
-          echo "Kibana Build and Integration tests succeeded"
-          exit
-         fi
-        done
-  only:
-    - merge_requests
-  artifacts:
-    when: always
-    paths:
-      - build.log
-    expire_in: 30 days
+#unit_build_and_int_tests:
+#  stage: build
+#  script:
+#    - |
+#       sg_release=$(curl -Ss -F "token=$SG_RELEASE_TOKEN" -F "variables[CIP]=AWS" -F "variables[MERGE_ACTION]=true" -F "variables[KIBANA_BUILD]=true" -F "variables[KIBANA_BRANCH]=$CI_COMMIT_REF_NAME" -F "variables[SG_CIRCLE_JOB]=kibanabuild" -F "ref=master" "https://git.floragunn.com/api/v4/projects/7/trigger/pipeline" --fail)
+#       sg_release_buildnum=$(jq --raw-output '.id' <<< $sg_release )
+#       echo "Executing build and integration tests in scope of https://git.floragunn.com/floragunncom/devops/release-support/pipelines/$sg_release_buildnum"
+#       while true
+#       do
+#         sleep 30
+#         sg_release_status=$(curl -Ss --header "PRIVATE-TOKEN: $CIRUNNER_TOKEN" "https://git.floragunn.com/api/v4/projects/7/pipelines/$sg_release_buildnum" | jq --raw-output '.status')
+#
+#         echo "Build and Integration tests status: $sg_release_status"
+#
+#         if [ "$sg_release_status" == "canceled" ] || [ "$sg_release_status" == "failed" ] || [ "$sg_release_status" == "skipped" ]; then
+#           echo "Kibana Build and Integration tests failed. Check the reason here: https://git.floragunn.com/floragunncom/devops/release-support/pipelines/$sg_release_buildnum"
+#           exit 1
+#         fi
+#
+#         if [ "$sg_release_status" == "success" ]; then
+#          echo "Kibana Build and Integration tests succeeded"
+#          exit
+#         fi
+#        done
+#  only:
+#    - merge_requests
+#  artifacts:
+#    when: always
+#    paths:
+#      - build.log
+#    expire_in: 30 days
