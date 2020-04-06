@@ -61,31 +61,37 @@ export function LicenseWarningCallout({ httpClient, errorMessage }) {
   return (
     <>
       {!licenseValid && (
-        <EuiCallOut
-          id="sg.label.licensewarning"
-          data-test-subj="sg.callout.licenseWarning"
-          title="Error"
-          color="danger"
-          iconType="alert"
-        >
-          <EuiText>
-            <p>{error}</p>
-          </EuiText>
-        </EuiCallOut>
+        <>
+          <EuiCallOut
+            id="sg.label.licensewarning"
+            data-test-subj="sg.callout.licenseWarning"
+            title="Error"
+            color="danger"
+            iconType="alert"
+          >
+            <EuiText>
+              <p>{error}</p>
+            </EuiText>
+          </EuiCallOut>
+          <EuiSpacer />
+        </>
       )}
 
       {warning && (
-        <EuiCallOut
-          id="sg.label.licensehint"
-          data-test-subj="sg.callout.licenseHint"
-          title="Warning"
-          color="warning"
-          iconType="help"
-        >
-          <EuiText>
-            <p>{warning}</p>
-          </EuiText>
-        </EuiCallOut>
+        <>
+          <EuiCallOut
+            id="sg.label.licensehint"
+            data-test-subj="sg.callout.licenseHint"
+            title="Warning"
+            color="warning"
+            iconType="help"
+          >
+            <EuiText>
+              <p>{warning}</p>
+            </EuiText>
+          </EuiCallOut>
+          <EuiSpacer />
+        </>
       )}
     </>
   );
