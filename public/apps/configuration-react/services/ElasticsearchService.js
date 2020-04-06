@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import { API } from '../utils/constants';
 
 class ElasticsearchService {
@@ -5,8 +6,12 @@ class ElasticsearchService {
     this.httpClient = httpClient;
   }
 
-  getIndices() {
-    return this.httpClient.get(API.INDICES);
+  getIndices(index = []) {
+    return this.httpClient.post(API.INDICES, { index });
+  }
+
+  getAliases(alias = []) {
+    return this.httpClient.post(API.ALIASES, { alias });
   }
 
   getIndexMappings = (index = []) => {

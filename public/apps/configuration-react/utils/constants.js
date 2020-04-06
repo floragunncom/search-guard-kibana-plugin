@@ -6,6 +6,7 @@ export const API = {
   REST_API_INFO: `${API_BASE}/restapiinfo`,
   LICENSE: `${API_BASE}/license`,
   INDICES: `${API_BASE}/configuration/indices`,
+  ALIASES: `${API_BASE}/configuration/aliases`,
   VALIDATE_DLS: `${API_BASE}/configuration/validatedls`,
   INDEX_MAPPINGS: `${API_BASE}/configuration/index_mappings`,
 };
