@@ -22,6 +22,7 @@ export class PublicPlugin {
     // @todo I believe we have to reconsider this. CoreStart is different from CoreSetup
     sgContext.kibanaCore = core;
     sgConfig.injectedValues = this.config.get();
+    sgContext.pluginVersion = sgContext.config.get('sgVersion');
 
     this.httpClient = new HttpWrapper(core.http);
     this.systemStateService = new SystemStateService(this.httpClient);
@@ -49,7 +50,7 @@ export class PublicPlugin {
         icon: 'plugins/searchguard/assets/networking.svg', // @todo
         async mount(params) {
           const { renderApp } = await import('./applications/accountinfo/npstart');
-          return renderApp(core, null, params, 'Account');
+          return renderApp(core, params);
         },
       });
     }

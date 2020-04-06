@@ -1,6 +1,7 @@
 import { PluginInitializerContext } from "../../../src/core/server/plugins";
 import { Plugin } from './serverPlugin';
 import { schema } from '@kbn/config-schema';
+import { version as sgVersion } from '../package.json';
 
 const getOpenIdSchema = (isSelectedAuthType) => {
   return schema.object({
@@ -162,11 +163,12 @@ export const ConfigSchema = schema.object({
     login_endpoint: schema.maybe(schema.string()),
     url_param: schema.string({ defaultValue: 'authorization' }),
     header: schema.string({ defaultValue: 'Authorization'})
-  })
+  }),
+
+  sgVersion: schema.string({ defaultValue: sgVersion }),
 });
 
 export const config = {
-  //path: 'searchguard',
   exposeToBrowser: {
     auth: true,
     multitenancy: true,
@@ -174,6 +176,7 @@ export const config = {
     configuration: true,
     accountinfo: true,
     readonly_mode: true,
+    sgVersion: true,
   },
   schema: ConfigSchema,
 };

@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
 
-import {EuiCodeBlock, EuiGlobalToastList, EuiText, EuiTitle} from '@elastic/eui';
-import uuid from "uuid/v4";
-import {get} from "lodash";
+import { EuiCodeBlock, EuiGlobalToastList, EuiText, EuiTitle } from '@elastic/eui';
+import uuid from 'uuid/v4';
+import { get } from 'lodash';
 
 const MainContext = React.createContext();
 
-const IS_DARK_THEME = false;
-
 const MainContextProvider = ({ children, httpClient }) => {
-
   const [toasts, setToasts] = useState([]);
 
   const removeToast = ({ id }) =>
@@ -91,7 +88,6 @@ const MainContextProvider = ({ children, httpClient }) => {
       <div style={{ zIndex: 9000 }}>
         <EuiGlobalToastList toasts={toasts} dismissToast={removeToast} toastLifeTimeMs={6000} />
       </div>
-
     </>
   );
 };

@@ -1,5 +1,4 @@
-import { first } from 'rxjs/operators';
-import {PluginInitializerContext} from "../../../src/core/server/plugins";
+import { first} from 'rxjs/operators';
 
 import SearchGuardBackend from '../lib/backend/searchguard';
 import SearchGuardConfigurationBackend from '../lib/configuration/backend/searchguard_configuration_backend';
@@ -11,7 +10,7 @@ import { APP_ROOT, API_ROOT } from './utils/constants';
 export class Plugin {
 
 
-    constructor(initializerContext: PluginInitializerContext) {
+    constructor(initializerContext) {
         this.logger = initializerContext.logger.get();
 
         this.initContext = initializerContext;

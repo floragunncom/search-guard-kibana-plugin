@@ -1,36 +1,53 @@
-import React, { Component, Fragment } from 'react';
+/* eslint-disable @kbn/eslint/require-license-header */
+/**
+ *    Copyright 2020 floragunn GmbH
 
-import {sgContext} from '../../../../utils/sgContext';
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+
+import React, { Component, Fragment } from 'react';
+import { API_ROOT } from '../../../../utils/constants';
+
+import { sgContext } from '../../../../utils/sgContext';
 
 import {
   EuiPage,
   EuiPageBody,
   EuiPageContent,
   EuiPageContentBody,
-  EuiSpacer,
- EuiText, EuiListGroup, EuiListGroupItem, EuiPageHeader
+  EuiText,
+  EuiPageHeader,
 } from '@elastic/eui';
 import { LicenseWarningCallout } from '../../../../apps/components';
 
 import { MainContext } from '../../contexts/MainContextProvider';
-
-
-
 import {
-  accountPageHeader,
+  pageHeader,
+  sgRolesHeader,
   accountPluginVersion,
+  userNameHeader,
+  sgRolesEmpty,
+  backendRolesHeader,
+  backendRolesEmpty,
 } from '../../utils/i18n/accountinfo_labels';
 
-//@todo APP_NAME used where?
-const APP_NAME = 'Account Info'
+const APP_NAME = 'Account Info';
 
 export default class Main extends Component {
   static contextType = MainContext;
 
   constructor(props, context) {
     super(props, context);
-
-    this.API_ROOT = `/api/v1`;
 
     // @todo sgVersion
     this.state = {
@@ -43,45 +60,30 @@ export default class Main extends Component {
     this.fetchUser(addErrorToast);
   }
 
-  componentDidMount() {
-
-  }
-
-
-
-
-
   fetchUser(addErrorToast) {
     const { httpClient } = this.props;
 
-    httpClient.get(`${this.API_ROOT}/auth/authinfo`)
-      .then(
-        (response) => {
-
-          this.setState({
-            sgUser: response.data
-          })
-        },
-        (error) =>
-        {
-          addErrorToast(error);
-        }
-      );
+    httpClient.get(`${API_ROOT}/auth/authinfo`).then(
+      response => {
+        this.setState({
+          sgUser: response.data,
+        });
+      },
+      error => {
+        addErrorToast(error);
+      }
+    );
   }
 
-
   render() {
-    const {
-      sgVersion,
-      sgUser,
-    } = this.state;
+    const { sgVersion, sgUser } = this.state;
 
     return (
       <EuiPage id={APP_NAME}>
         <EuiPageBody className="sg-container">
           <EuiPageHeader>
             <EuiText size="s" style={{ fontWeight: 500 }}>
-              {accountPageHeader}
+              {pageHeader}
             </EuiText>
           </EuiPageHeader>
           <EuiPageContent>
@@ -90,29 +92,31 @@ export default class Main extends Component {
 
               {sgUser && (
                 <EuiText>
-                  <h2>Username</h2>
+                  <h2>{userNameHeader}</h2>
+                  <p>{sgUser.user_name}</p>
+
+                  <h2>{sgRolesHeader}</h2>
                   <p>
-                    {sgUser.user_name}
+                    {sgUser.sg_roles.length === 0
+                      ? sgRolesEmpty
+                      : sgUser.sg_roles.map(role => (
+                          <Fragment key={role}>
+                            {role}
+                            <br />
+                          </Fragment>
+                        ))}
                   </p>
 
-                  <h2>Search Guard roles</h2>
+                  <h2>{backendRolesHeader}</h2>
                   <p>
-                    {sgUser.sg_roles.map(role => (
-                      <Fragment key={role}>
-                        {role}
-                        <br/>
-                      </Fragment>
-                    ))}
-                  </p>
-
-                  <h2>Backend roles</h2>
-                  <p>
-                    {sgUser.backend_roles.map(role => (
-                      <Fragment key={role}>
-                        {role}
-                        <br/>
-                      </Fragment>
-                    ))}
+                    {sgUser.backend_roles.length === 0
+                      ? backendRolesEmpty
+                      : sgUser.backend_roles.map(role => (
+                          <Fragment key={role}>
+                            {role}
+                            <br />
+                          </Fragment>
+                        ))}
                   </p>
 
                   <EuiText size="xs" style={{ fontStyle: 'italic' }}>
@@ -124,7 +128,6 @@ export default class Main extends Component {
           </EuiPageContent>
         </EuiPageBody>
       </EuiPage>
-
     );
   }
 }
