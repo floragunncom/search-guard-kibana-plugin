@@ -218,6 +218,7 @@ export class LoginPage extends Component {
               <EuiFormRow label="Username" isInvalid={this.state.errorMessage !== null}>
                 <EuiFieldText
                   id="sg.username"
+                  data-test-subj="sg.username"
                   name="userName"
                   required={true}
                   placeholder="Username"
@@ -234,6 +235,7 @@ export class LoginPage extends Component {
               <EuiFormRow label="Password" isInvalid={this.state.errorMessage !== null}>
                 <EuiFieldPassword
                   id="sg.password"
+                  data-test-subj="sg.password"
                   name="password"
                   required={true}
                   placeholder="Password"
@@ -247,6 +249,7 @@ export class LoginPage extends Component {
 
               <EuiButton
                 id="sg.login"
+                data-test-subj="sg.login"
                 fill
                 fullWidth={true}
                 style={buttonStyle}
@@ -262,6 +265,7 @@ export class LoginPage extends Component {
 
                   <EuiButton
                     id="sg.alternative_login"
+                    data-test-subj="sg.alternative_login"
                     fill
                     fullWidth={true}
                     href={this.state.alternativeLogin.url}
