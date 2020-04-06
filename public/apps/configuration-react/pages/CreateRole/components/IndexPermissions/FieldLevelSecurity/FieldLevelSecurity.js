@@ -54,9 +54,10 @@ class FieldLevelSecurity extends Component {
 
     try {
       this.setState({ isLoading: true });
-      const { data: { mappings } } = await this.esService.getIndexMappings(
-        comboBoxOptionsToArray(currIndexPatterns)
-      );
+      const {
+        data: { mappings },
+      } = await this.esService.getIndexMappings(comboBoxOptionsToArray(currIndexPatterns));
+
       this.setState({
         allFields: fieldNamesToUiFieldNames(mappingsToFieldNames(mappings)),
         prevIndexPatterns: currIndexPatterns
