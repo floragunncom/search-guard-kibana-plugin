@@ -171,10 +171,15 @@ export class PublicPlugin {
         chromeless: true,
         appRoute: '/login',
         euiIconType: 'user',
-        async mount(params) {
+        mount: async(params) => {
           const { renderApp } = await import('./applications/login/npstart');
 
-          return renderApp(core, null, params, 'Login');
+          return renderApp({
+            element: params.element,
+            basePath: core.http.basePath.get(),
+            config: sgContext.config,
+            httpClient: this.httpClient,
+          });
         },
       });
     }

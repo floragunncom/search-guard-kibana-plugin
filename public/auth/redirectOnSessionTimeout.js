@@ -55,7 +55,6 @@ export function redirectOnSessionTimeout(authType, coreHttp, isAnonymousAuth = f
         } else if (authType === 'saml') {
           redirectTarget = `${APP_ROOT}/auth/saml/login`;
         } else {
-          debugger;
           // Handle differently if we were logged in anonymously
           if (isAnonymousAuth && authType === 'basicauth') {
             redirectTarget = `${APP_ROOT}/auth/anonymous`;

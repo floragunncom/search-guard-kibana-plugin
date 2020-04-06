@@ -109,15 +109,15 @@ export const ConfigSchema = schema.object({
       show_for_parameter: schema.string({ defaultValue: '' }),
       valid_redirects: schema.arrayOf(schema.string(), { defaultValue: [] }),
       button_text: schema.string({ defaultValue: 'Login with provider' }),
-      buttonstyle: schema.object({}),
+      buttonstyle: schema.object({}, { unknowns: 'allow' }),
     }),
     loadbalancer_url: schema.nullable(schema.string()),
     login: schema.object({
       title: schema.string({ defaultValue: 'Please login to Kibana' }),
       subtitle: schema.string({ defaultValue: 'If you have forgotten your username or password, please ask your system administrator' }),
       showbrandimage: schema.boolean({ defaultValue: true }),
-      brandimage: schema.string({ defaultValue: '/plugins/searchguard/assets/searchguard_logo.svg' }),
-      buttonstyle: schema.object({})
+      brandimage: schema.string({ defaultValue: 'plugins/searchguard/assets/searchguard_logo.svg' }),
+      buttonstyle: schema.object({}, { unknowns: 'allow' })
     })
   }),
 
