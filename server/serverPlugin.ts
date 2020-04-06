@@ -286,7 +286,12 @@ export class Plugin {
         // @todo Sanity check - do not fail on forbidden
         // @todo Sanity check - ssl certificates
         // @todo Signals app access
-        this.signalsApp.setup({ core, router, hapiServer: hapi.server });
+        this.signalsApp.setup({
+          core,
+          router,
+          hapiServer: hapi.server,
+          searchguardBackendService: searchguardBackend,
+        });
 
         return {
             something: 'returned'
