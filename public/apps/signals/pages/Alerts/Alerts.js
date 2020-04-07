@@ -1,5 +1,5 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Component, Fragment } from 'react';
-import { connect } from 'react-redux';
 import queryString from 'query-string';
 import PropTypes from 'prop-types';
 import { LEFT_ALIGNMENT } from '@elastic/eui/lib/services';
@@ -26,7 +26,6 @@ import {
   TableTextCell,
   CancelButton,
 } from '../../components';
-import { addSuccessToast, addErrorToast } from '../../redux/actions';
 import { buildESQuery } from './utils/helpers';
 import { actionAndWatchStatusToIconProps } from '../Watches/utils';
 import { execEndText, statusText, executionHistoryText } from '../../utils/i18n/watch';
@@ -39,9 +38,13 @@ import {
 } from '../../utils/constants';
 import { TABLE_SORT_FIELD, TABLE_SORT_DIRECTION, DEFAULT_URL_PARAMS } from './utils/constants';
 
+import { Context } from '../../Context';
+
 const initialQuery = EuiSearchBar.Query.MATCH_ALL;
 
 class Alerts extends Component {
+  static contextType = Context;
+
   constructor(props) {
     super(props);
 
@@ -51,7 +54,7 @@ class Alerts extends Component {
       alerts: [],
       isLoading: true,
       error: null,
-      tableSelection: []
+      tableSelection: [],
     };
 
     this.alertService = new AlertService(this.props.httpClient);
@@ -109,28 +112,32 @@ class Alerts extends Component {
       } catch (error) {
         console.error('Alerts -- getAlerts', error);
         this.setState({ error });
-        this.props.dispatch(addErrorToast(error));
+        this.context.addErrorToast(error);
       }
     } catch (error) {
       console.error('Alerts -- build ES query', error);
     }
 
     this.setState({ isLoading: false });
-  }
+  };
 
   deleteAlerts = async (alerts = []) => {
-    const { dispatch } = this.props;
     const promises = [];
     this.setState({ isLoading: true });
 
     alerts.forEach(({ id, index }) => {
-      const promise = this.alertService.delete({ id, index })
+      const promise = this.alertService
+        .delete({ id, index })
         .then(() => {
-          dispatch(addSuccessToast((<p>{deleteText} {id}</p>)));
+          this.context.addSuccessToast(
+            <p>
+              {deleteText} {id}
+            </p>
+          );
         })
         .catch(error => {
           console.error('Alerts -- deleteAlert', error);
-          dispatch(addErrorToast(error));
+          this.context.addErrorToast(error);
         });
       promises.push(promise);
     });
@@ -139,7 +146,7 @@ class Alerts extends Component {
     this.setState({ isLoading: false });
 
     this.getAlerts();
-  }
+  };
 
   handleDeleteAlerts = (alerts = []) => {
     const { onTriggerConfirmDeletionModal } = this.props;
@@ -152,9 +159,9 @@ class Alerts extends Component {
       onCancel: () => {
         this.setState({ tableSelection: [] });
         onTriggerConfirmDeletionModal(null);
-      }
+      },
     });
-  }
+  };
 
   handleSearchChange = ({ query, error }) => {
     if (error) {
@@ -182,7 +189,7 @@ class Alerts extends Component {
         name: 'Action Status',
         multiSelect: 'or',
         options: this.renderSearchFilterOptions(Object.values(WATCH_ACTION_STATUS)),
-      }
+      },
     ];
 
     return (
@@ -200,7 +207,7 @@ class Alerts extends Component {
     end: dateLt,
     refreshInterval,
     isPaused,
-    isRefreshingWithNoChange
+    isRefreshingWithNoChange,
   }) => {
     const { location, history } = this.props;
     const prevUrlParams = queryString.parse(location.search);
@@ -219,10 +226,12 @@ class Alerts extends Component {
     if (tableSelection.length === 0) return null;
 
     const handleMultiDelete = () => {
-      this.handleDeleteAlerts(tableSelection.map(item => ({
-        id: item._id,
-        index: item._index
-      })));
+      this.handleDeleteAlerts(
+        tableSelection.map(item => ({
+          id: item._id,
+          index: item._index,
+        }))
+      );
       this.setState({ tableSelection: [] });
     };
 
@@ -233,18 +242,13 @@ class Alerts extends Component {
         numOfSelections={tableSelection.length}
       />
     );
-  }
+  };
 
-  renderActionsColumns = (
-    actions = [],
-    { status: watchStatus, watch_id: watchId }
-  ) => {
+  renderActionsColumns = (actions = [], { status: watchStatus, watch_id: watchId }) => {
     if (!actions || !actions.length) {
-      const {
-        nodeText,
-        type: iconType,
-        ...iconProps
-      } = actionAndWatchStatusToIconProps(watchStatus.code);
+      const { nodeText, type: iconType, ...iconProps } = actionAndWatchStatusToIconProps(
+        watchStatus.code
+      );
 
       return (
         <EuiToolTip content={nodeText}>
@@ -262,24 +266,16 @@ class Alerts extends Component {
     return (
       <div>
         {actions.map((action, key) => {
-          const {
-            nodeText,
-            ...iconProps
-          } = actionAndWatchStatusToIconProps(action.status.code);
+          const { nodeText, ...iconProps } = actionAndWatchStatusToIconProps(action.status.code);
 
           return (
             <EuiFlexGroup key={key}>
               <EuiFlexItem grow={false}>
                 <EuiToolTip content={nodeText}>
-                  <EuiIcon
-                    data-test-subj={`sgTableCol-Status-${action.name}`}
-                    {...iconProps}
-                  />
+                  <EuiIcon data-test-subj={`sgTableCol-Status-${action.name}`} {...iconProps} />
                 </EuiToolTip>
               </EuiFlexItem>
-              <EuiFlexItem grow={false}>
-                {action.name}
-              </EuiFlexItem>
+              <EuiFlexItem grow={false}>{action.name}</EuiFlexItem>
             </EuiFlexGroup>
           );
         })}
@@ -292,7 +288,7 @@ class Alerts extends Component {
       const { color } = actionAndWatchStatusToIconProps(status);
       return {
         value: status,
-        view: <EuiHealth color={color}>{status}</EuiHealth>
+        view: <EuiHealth color={color}>{status}</EuiHealth>,
       };
     });
 
@@ -300,38 +296,32 @@ class Alerts extends Component {
     const { alerts, error, isLoading } = this.state;
     const { history, location } = this.props;
 
-    const {
-      watchId: encodedWatchId,
-      dateGte,
-      dateLt,
-      refreshInterval,
-      isPaused
-    } = defaults(queryString.parse(location.search), DEFAULT_URL_PARAMS);
+    const { watchId: encodedWatchId, dateGte, dateLt, refreshInterval, isPaused } = defaults(
+      queryString.parse(location.search),
+      DEFAULT_URL_PARAMS
+    );
 
     const watchId = !encodedWatchId ? undefined : decodeURI(encodedWatchId);
     const isAlertsAggByWatch = !!watchId;
 
     const selection = {
       selectable: doc => doc._id,
-      onSelectionChange: tableSelection => this.setState({ tableSelection })
+      onSelectionChange: tableSelection => this.setState({ tableSelection }),
     };
 
     const sorting = {
       sort: {
         field: TABLE_SORT_FIELD,
-        direction: TABLE_SORT_DIRECTION
-      }
+        direction: TABLE_SORT_DIRECTION,
+      },
     };
 
     const actions = [
       {
         render: ({ _id: id, _index: index }) => (
-          <TableDeleteAction
-            name={id}
-            onClick={() => this.handleDeleteAlerts([{ id, index }])}
-          />
-        )
-      }
+          <TableDeleteAction name={id} onClick={() => this.handleDeleteAlerts([{ id, index }])} />
+        ),
+      },
     ];
 
     const columns = [
@@ -348,11 +338,11 @@ class Alerts extends Component {
             onClick={() => {
               this.props.onTriggerInspectJsonFlyout({
                 json: alert,
-                title: id
+                title: id,
               });
             }}
           />
-        )
+        ),
       },
       {
         field: DEFAULT_DATEFIELD,
@@ -364,14 +354,14 @@ class Alerts extends Component {
             value={moment(executionEnd).format('MMMM Do YYYY, h:mm:ss a')}
             name={`ExecEnd-${_id}`}
           />
-        )
+        ),
       },
       {
         field: 'actions',
         name: statusText,
         footer: statusText,
-        render: this.renderActionsColumns
-      }
+        render: this.renderActionsColumns,
+      },
     ];
 
     const contentPanelActions = [
@@ -381,13 +371,11 @@ class Alerts extends Component {
         refreshInterval={+refreshInterval}
         isPaused={isPaused === 'true'}
         onChange={this.handleDatePickerChange}
-      />
+      />,
     ];
 
     if (isAlertsAggByWatch) {
-      contentPanelActions.unshift(
-        (<CancelButton onClick={() => history.push(APP_PATH.WATCHES)} />)
-      );
+      contentPanelActions.unshift(<CancelButton onClick={() => history.push(APP_PATH.WATCHES)} />);
     } else {
       columns.push({
         field: 'watch_id',
@@ -401,7 +389,7 @@ class Alerts extends Component {
             value={watchId}
             onClick={() => this.props.history.push(`${APP_PATH.DEFINE_WATCH}?id=${watchId}`)}
           />
-        )
+        ),
       });
     }
 
@@ -435,11 +423,10 @@ class Alerts extends Component {
 
 Alerts.propTypes = {
   httpClient: PropTypes.func.isRequired,
-  dispatch: PropTypes.func.isRequired,
   location: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
 };
 
-export default connect()(Alerts);
+export default Alerts;

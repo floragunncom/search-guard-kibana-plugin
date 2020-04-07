@@ -1,5 +1,5 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 export { default as ContentPanel } from './ContentPanel';
-export { default as ControlledContent } from './ControlledContent';
 export { default as SubHeader } from './SubHeader';
 export { default as EmptyPrompt } from './EmptyPrompt';
 export { default as Modal } from './Modal';
@@ -16,6 +16,7 @@ export { default as FormikFieldPassword } from './FormControls/FormikFieldPasswo
 export { default as FormikSwitch } from './FormControls/FormikSwitch';
 export { default as FormikComboBox } from './FormControls/FormikComboBox';
 export { default as FormikCodeEditor } from './FormControls/FormikCodeEditor';
+export { default as FormikCodeEditorSG } from './FormControls/FormikCodeEditorSG';
 export { default as FormikSelect } from './FormControls/FormikSelect';
 export { default as FormikTextArea } from './FormControls/FormikTextArea';
 export { default as FormikRadio } from './FormControls/FormikRadio';

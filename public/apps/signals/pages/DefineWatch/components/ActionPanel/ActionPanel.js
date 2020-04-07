@@ -1,6 +1,6 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Component } from 'react';
 import { connect as connectFormik } from 'formik';
-import { connect as connectRedux } from 'react-redux';
 import PropTypes from 'prop-types';
 import { cloneDeep, isEmpty } from 'lodash';
 import { EuiIcon } from '@elastic/eui';
@@ -17,10 +17,11 @@ import {
   PagerdutyAction,
 } from '../Actions';
 import { AccountsService } from '../../../../services';
-import { addErrorToast } from '../../../../redux/actions';
 import { actionText } from '../../../../utils/i18n/common';
 import { ACTION_TYPE } from './utils/constants';
 import * as ACTION_DEFAULTS from './utils/action_defaults';
+
+import { Context } from '../../../../Context';
 
 const newActions = {
   [ACTION_TYPE.WEBHOOK]: {
@@ -64,6 +65,8 @@ const newActions = {
 };
 
 class ActionPanel extends Component {
+  static contextType = Context;
+
   constructor(props) {
     super(props);
 
@@ -81,21 +84,20 @@ class ActionPanel extends Component {
   }
 
   getAccounts = async () => {
-    const { dispatch } = this.props;
     this.setState({ isLoading: true });
     try {
       const { resp: accounts } = await this.destService.search();
       this.setState({ accounts });
     } catch (error) {
       console.error('ActionPanel -- getAccounts', error);
-      dispatch(addErrorToast(error));
+      this.context.addErrorToast(error);
     }
     this.setState({ isLoading: false });
-  }
+  };
 
   triggerAddActionPopover = () => {
     this.setState(prevState => ({ isAddActionPopoverOpen: !prevState.isAddActionPopoverOpen }));
-  }
+  };
 
   addAction = actionType => {
     const { arrayHelpers } = this.props;
@@ -103,7 +105,7 @@ class ActionPanel extends Component {
 
     const newAction = cloneDeep(ACTION_DEFAULTS[actionType] || ACTION_DEFAULTS[ACTION_TYPE.EMAIL]);
     arrayHelpers.unshift(newAction);
-  }
+  };
 
   deleteAction = (actionIndex, actionName, arrayHelpers) => {
     const { onTriggerConfirmDeletionModal } = this.props;
@@ -112,9 +114,9 @@ class ActionPanel extends Component {
       onConfirm: () => {
         arrayHelpers.remove(actionIndex);
         onTriggerConfirmDeletionModal(null);
-      }
+      },
     });
-  }
+  };
 
   render() {
     const {
@@ -161,9 +163,9 @@ class ActionPanel extends Component {
             name: 'PagerDuty',
             icon: <EuiIcon type="empty" size="m" />,
             onClick: () => this.addAction(ACTION_TYPE.PAGERDUTY),
-          }
-        ]
-      }
+          },
+        ],
+      },
     ];
 
     const renderActions = () =>
@@ -192,7 +194,7 @@ class ActionPanel extends Component {
         title={actionText}
         titleSize="s"
         bodyStyles={{ padding: 'initial', paddingLeft: '10px' }}
-        actions={(
+        actions={
           <PopoverButton
             isPopoverOpen={isAddActionPopoverOpen}
             contextMenuPanels={addActionContextMenuPanels}
@@ -200,7 +202,7 @@ class ActionPanel extends Component {
             name="AddWatchAction"
             isLoading={isLoading}
           />
-        )}
+        }
       >
         <div style={{ paddingLeft: '10px' }}>{hasActions ? renderActions() : null}</div>
       </ContentPanel>
@@ -210,11 +212,10 @@ class ActionPanel extends Component {
 
 ActionPanel.propTypes = {
   isLoading: PropTypes.bool,
-  dispatch: PropTypes.func.isRequired,
   httpClient: PropTypes.func.isRequired,
   arrayHelpers: PropTypes.object.isRequired,
   formik: PropTypes.object.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
 };
 
-export default connectRedux()(connectFormik(ActionPanel));
+export default connectFormik(ActionPanel);

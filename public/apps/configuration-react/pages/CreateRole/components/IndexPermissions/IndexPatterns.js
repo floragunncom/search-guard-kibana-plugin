@@ -160,7 +160,10 @@ const IndexPatterns = ({
               />
             </Fragment>
           ) : (
-            <DocumentLevelSecurity httpClient={httpClient} index={index} />
+            <>
+              <EuiSpacer />
+              <DocumentLevelSecurity httpClient={httpClient} index={index} />
+            </>
           )}
           <EuiSpacer />
         </EuiAccordion>
