@@ -96,7 +96,11 @@ export class PublicPlugin {
         mount: async params => {
           const { renderApp } = await import('./applications/multitenancy/npstart');
 
-          return renderApp(core, null, params, this.config);
+          return renderApp({
+            element: params.element,
+            sgContext,
+            httpClient: this.httpClient,
+          });
         },
       });
 

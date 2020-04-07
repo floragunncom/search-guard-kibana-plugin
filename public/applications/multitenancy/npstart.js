@@ -1,40 +1,28 @@
-import React, { useState, useEffect } from 'react';
+/* eslint-disable @kbn/eslint/require-license-header */
+import React from 'react';
 import ReactDOM from 'react-dom';
 import { MainContextProvider } from './contexts/MainContextProvider';
-import Main from './pages/Main';
+import { MultiTenancyPage } from './MultiTenancyPage';
 
 import { HashRouter as Router, Route } from 'react-router-dom';
 import { I18nProvider } from '@kbn/i18n/react';
 
-import { HttpWrapper } from "../../utils/httpWrapper";
-
-
-export const renderApp = (core, deps, params, config) => {
-  const httpWrapper = new HttpWrapper(core.http);
+export const renderApp = ({ element, sgContext, httpClient }) => {
   ReactDOM.render(
-
     <I18nProvider>
       <Router>
         <Route
           render={props => (
-            <MainContextProvider
-              httpClient={httpWrapper.setCoreHttp(core.http)}
-              core={core}
-              config={config}
-            >
-              <Main
-                title={'Testing'}
-                httpClient={httpWrapper}
-                angularServices={{}}
-              >
-              </Main>
+            <MainContextProvider>
+              <MultiTenancyPage httpClient={httpClient} sgContext={sgContext} {...props} />
             </MainContextProvider>
           )}
         />
       </Router>
-    </I18nProvider>
+    </I18nProvider>,
 
-    , params.element);
+    element
+  );
 
-  return () => ReactDOM.unmountComponentAtNode(params.element);
-}
+  return () => ReactDOM.unmountComponentAtNode(element);
+};

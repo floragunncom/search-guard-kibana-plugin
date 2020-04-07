@@ -1,8 +1,6 @@
 import React, { Component, Fragment } from 'react';
 
-import { sgContext } from '../../../../utils/sgContext';
-
-import { APP_NAME } from '../../../../../utils/signals/constants';
+import { APP_NAME } from '../../../utils/signals/constants';
 import {
   EuiButton,
   EuiButtonEmpty,
@@ -22,7 +20,7 @@ import {
 } from '@elastic/eui';
 // @todo Add chromeWrapper back in
 //import { chromeWrapper } from '../../../../services/chrome_wrapper';
-import { MainContext } from '../../contexts/MainContextProvider';
+import { MainContext } from './contexts/MainContextProvider';
 //import { LocalStorageService } from '../../../configuration-react/services';
 import { get, isEmpty, map } from 'lodash';
 /*
@@ -50,10 +48,10 @@ import {
   globalTenantLabel,
   privateTenantLabel,
   selectedTenantButtonLabel, selectTenantButtonLabel, showDashboardLabel, showVisualizationLabel
-} from "../../utils/i18n/multitenancy_labels";
-import { LicenseWarningCallout } from '../../../../apps/components';
+} from "./utils/i18n/multitenancy_labels";
+import { LicenseWarningCallout } from '../../apps/components';
 
-export default class Main extends Component {
+export class MultiTenancyPage extends Component {
   static contextType = MainContext;
 
   constructor(props, context) {
@@ -63,7 +61,7 @@ export default class Main extends Component {
     const APP_ROOT = '';
     this.API_ROOT = `${APP_ROOT}/api/v1`;
 
-    this.config = sgContext.config;
+    this.config = this.props.sgContext.config;
 
     // @todo Add this back? Ask Sergii what it's for
     //this.localStorage = new LocalStorageService();
@@ -294,7 +292,7 @@ export default class Main extends Component {
   }
 
   selectTenant(tenant, redirectTo = null) {
-    const { httpClient } = this.props;
+    const { httpClient, sgContext } = this.props;
     const {
       userName
     } = this.state;

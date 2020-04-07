@@ -8,7 +8,7 @@ const MainContext = React.createContext();
 
 const IS_DARK_THEME = sgContext.isDarkMode;
 
-const MainContextProvider = ({ children, httpClient, config, core }) => {
+const MainContextProvider = ({ children }) => {
 
   const [toasts, setToasts] = useState([]);
 
@@ -79,9 +79,6 @@ const MainContextProvider = ({ children, httpClient, config, core }) => {
     <>
       <MainContext.Provider
         value={{
-          core,
-          config,
-          httpClient,
           addSuccessToast,
           addWarningToast,
           addErrorToast,
