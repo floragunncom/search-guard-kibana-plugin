@@ -215,7 +215,7 @@ export class LoginPage extends Component {
                 type="text"
                 style={{ display: 'none' }}
               />
-              <EuiFormRow label="Username" isInvalid={this.state.errorMessage !== null}>
+              <EuiFormRow id="sg.username" label="Username" isInvalid={this.state.errorMessage !== null}>
                 <EuiFieldText
                   id="sg.username"
                   data-test-subj="sg.username"
@@ -232,7 +232,7 @@ export class LoginPage extends Component {
               </EuiFormRow>
 
               <EuiSpacer />
-              <EuiFormRow label="Password" isInvalid={this.state.errorMessage !== null}>
+              <EuiFormRow id="sg.password" label="Password" isInvalid={this.state.errorMessage !== null}>
                 <EuiFieldPassword
                   id="sg.password"
                   data-test-subj="sg.password"
