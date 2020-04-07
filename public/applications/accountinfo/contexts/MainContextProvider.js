@@ -6,7 +6,7 @@ import { get } from 'lodash';
 
 const MainContext = React.createContext();
 
-const MainContextProvider = ({ children, httpClient }) => {
+const MainContextProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
 
   const removeToast = ({ id }) =>
@@ -76,7 +76,6 @@ const MainContextProvider = ({ children, httpClient }) => {
     <>
       <MainContext.Provider
         value={{
-          httpClient,
           addSuccessToast,
           addWarningToast,
           addErrorToast,

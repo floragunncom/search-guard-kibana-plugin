@@ -48,9 +48,13 @@ export class PublicPlugin {
         id: 'searchguard-accountinfo',
         title: 'Account',
         icon: 'plugins/searchguard/assets/networking.svg', // @todo
-        async mount(params) {
+        mount: async params => {
           const { renderApp } = await import('./applications/accountinfo/npstart');
-          return renderApp(core, params);
+          return renderApp({
+            element: params.element,
+            httpClient: this.httpClient,
+            pluginVersion: sgContext.pluginVersion,
+          });
         },
       });
     }
@@ -171,7 +175,7 @@ export class PublicPlugin {
         chromeless: true,
         appRoute: '/login',
         euiIconType: 'user',
-        mount: async(params) => {
+        mount: async params => {
           const { renderApp } = await import('./applications/login/npstart');
 
           return renderApp({

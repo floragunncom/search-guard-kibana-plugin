@@ -16,9 +16,7 @@
  */
 
 import React, { Component, Fragment } from 'react';
-import { API_ROOT } from '../../../../utils/constants';
-
-import { sgContext } from '../../../../utils/sgContext';
+import { API_ROOT } from '../../utils/constants';
 
 import {
   EuiPage,
@@ -28,9 +26,9 @@ import {
   EuiText,
   EuiPageHeader,
 } from '@elastic/eui';
-import { LicenseWarningCallout } from '../../../../apps/components';
+import { LicenseWarningCallout } from '../../apps/components';
 
-import { MainContext } from '../../contexts/MainContextProvider';
+import { MainContext } from './contexts/MainContextProvider';
 import {
   pageHeader,
   sgRolesHeader,
@@ -39,19 +37,17 @@ import {
   sgRolesEmpty,
   backendRolesHeader,
   backendRolesEmpty,
-} from '../../utils/i18n/accountinfo_labels';
+} from './utils/i18n/accountinfo_labels';
 
 const APP_NAME = 'Account Info';
 
-export default class Main extends Component {
+export class AccountInfoPage extends Component {
   static contextType = MainContext;
 
   constructor(props, context) {
     super(props, context);
 
-    // @todo sgVersion
     this.state = {
-      sgVersion: sgContext.pluginVersion,
       sgUser: null,
     };
 
@@ -76,7 +72,7 @@ export default class Main extends Component {
   }
 
   render() {
-    const { sgVersion, sgUser } = this.state;
+    const { sgUser } = this.state;
 
     return (
       <EuiPage id={APP_NAME}>
@@ -120,7 +116,7 @@ export default class Main extends Component {
                   </p>
 
                   <EuiText size="xs" style={{ fontStyle: 'italic' }}>
-                    {accountPluginVersion(sgVersion)}
+                    {accountPluginVersion(this.props.pluginVersion)}
                   </EuiText>
                 </EuiText>
               )}
