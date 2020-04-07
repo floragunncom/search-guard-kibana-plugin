@@ -1,3 +1,20 @@
+/* eslint-disable @kbn/eslint/require-license-header */
+/**
+ *    Copyright 2020 floragunn GmbH
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+
 import React, { Component, Fragment } from 'react';
 
 import { APP_NAME } from '../../../utils/signals/constants';
@@ -16,7 +33,11 @@ import {
   EuiFlyoutBody,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiCallOut, EuiText, EuiListGroup, EuiListGroupItem, EuiPageHeader
+  EuiCallOut,
+  EuiText,
+  EuiListGroup,
+  EuiListGroupItem,
+  EuiPageHeader,
 } from '@elastic/eui';
 // @todo Add chromeWrapper back in
 //import { chromeWrapper } from '../../../../services/chrome_wrapper';
@@ -47,8 +68,11 @@ import {
   mtRolesFlyoutTitle,
   globalTenantLabel,
   privateTenantLabel,
-  selectedTenantButtonLabel, selectTenantButtonLabel, showDashboardLabel, showVisualizationLabel
-} from "./utils/i18n/multitenancy_labels";
+  selectedTenantButtonLabel,
+  selectTenantButtonLabel,
+  showDashboardLabel,
+  showVisualizationLabel,
+} from './utils/i18n/multitenancy_labels';
 import { LicenseWarningCallout } from '../../apps/components';
 
 export class MultiTenancyPage extends Component {
@@ -94,148 +118,155 @@ export class MultiTenancyPage extends Component {
     this.fetchTenants(addErrorToast);
   }
 
-  componentDidMount() {
-  }
+  componentDidMount() {}
 
   handleTriggerCallout = callout => {
     this.setState({ callout });
-  }
+  };
 
   handleTriggerErrorCallout = error => {
     console.error(error);
     error = error.data || error;
     this.handleTriggerCallout({
       type: CALLOUTS.ERROR_CALLOUT,
-      payload: get(error, 'message', error)
+      payload: get(error, 'message', error),
     });
-  }
+  };
 
   fetchMultiTenancyInfo(addErrorToast) {
     const { httpClient } = this.props;
-    httpClient.get(`${this.API_ROOT}/multitenancy/info`)
-      .then(
-        (response) => {
-          const kibana_server_user = this.config.get('elasticsearch.username');
-          const kibana_index = this.config.get('kibana.index');
+    httpClient.get(`${this.API_ROOT}/multitenancy/info`).then(
+      response => {
+        const kibana_server_user = this.config.get('elasticsearch.username');
+        const kibana_index = this.config.get('kibana.index');
 
-          // sanity checks, check that configuration is correct on
-          // both ES and KI side
-          const mtinfo = response.data;
-          let errorMessage = null;
+        // sanity checks, check that configuration is correct on
+        // both ES and KI side
+        const mtinfo = response.data;
+        let errorMessage = null;
 
-          // this.GLOBAL_USER_WRITEABLE = (!mtinfo.kibana_index_readonly && ! this.userHasDashboardOnlyRole);
+        // this.GLOBAL_USER_WRITEABLE = (!mtinfo.kibana_index_readonly && ! this.userHasDashboardOnlyRole);
 
-          if(!mtinfo.kibana_mt_enabled) {
-            errorMessage = 'It seems that the Multitenancy module is not installed on your Elasticsearch cluster, or it is disabled. Multitenancy will not work, please check your installation.';
-          }
-
-          if(mtinfo.kibana_server_user !== kibana_server_user) {
-            errorMessage = 'Mismatch between the configured Kibana server usernames on Elasticsearch and Kibana, multitenancy will not work! ' +
-                'Configured username on Kibana: "' + kibana_server_user + '", configured username on Elasticsearch: "' + mtinfo.kibana_server_user + '"';
-          }
-
-          if(mtinfo.kibana_index !== kibana_index) {
-            errorMessage = 'Mismatch between the configured Kibana index names on Elasticsearch and Kibana, multitenancy will not work! ' +
-                'Configured index name on Kibana: "'+ kibana_index +'", configured index name on Elasticsearch: "'+ mtinfo.kibana_index + '"';
-          }
-          if (errorMessage) {
-            this.setState({
-              errorMessage
-            });
-          }
-        },
-        (error) =>
-        {
-          addErrorToast(error, 'Unable to load multitenancy info.');
+        if (!mtinfo.kibana_mt_enabled) {
+          errorMessage =
+            'It seems that the Multitenancy module is not installed on your Elasticsearch cluster, or it is disabled. Multitenancy will not work, please check your installation.';
         }
-      );
+
+        if (mtinfo.kibana_server_user !== kibana_server_user) {
+          errorMessage =
+            'Mismatch between the configured Kibana server usernames on Elasticsearch and Kibana, multitenancy will not work! ' +
+            'Configured username on Kibana: "' +
+            kibana_server_user +
+            '", configured username on Elasticsearch: "' +
+            mtinfo.kibana_server_user +
+            '"';
+        }
+
+        if (mtinfo.kibana_index !== kibana_index) {
+          errorMessage =
+            'Mismatch between the configured Kibana index names on Elasticsearch and Kibana, multitenancy will not work! ' +
+            'Configured index name on Kibana: "' +
+            kibana_index +
+            '", configured index name on Elasticsearch: "' +
+            mtinfo.kibana_index +
+            '"';
+        }
+        if (errorMessage) {
+          this.setState({
+            errorMessage,
+          });
+        }
+      },
+      error => {
+        addErrorToast(error, 'Unable to load multitenancy info.');
+      }
+    );
   }
 
   fetchTenants(addErrorToast) {
     const { httpClient } = this.props;
 
+    httpClient.get(`${this.API_ROOT}/auth/authinfo`).then(
+      response => {
+        // @todo Remove this hack
+        console.warn('Got response', response);
+        // remove users own tenant, will be replaced with __user__
+        // since we want to display tenant name with "Private"
+        const userName = response.data.user_name;
+        const allTenants = response.data.sg_tenants;
+        // @todo Add back dynamic values
+        const globalEnabled = this.config.get('multitenancy.tenants.enable_global');
+        const privateEnabled = this.config.get('multitenancy.tenants.enable_private');
+        const readOnlyConfig = this.config.get('readonly_mode');
 
-    httpClient.get(`${this.API_ROOT}/auth/authinfo`)
-      .then(
-        (response) => {
-          // @todo Remove this hack
-          console.warn('Got response', response)
-          // remove users own tenant, will be replaced with __user__
-          // since we want to display tenant name with "Private"
-          const userName = response.data.user_name;
-          const allTenants = response.data.sg_tenants;
-          // @todo Add back dynamic values
-          const globalEnabled = this.config.get('multitenancy.tenants.enable_global');
-          const privateEnabled = this.config.get('multitenancy.tenants.enable_private');
-          const readOnlyConfig = this.config.get('readonly_mode');
+        // @todo
+        let userHasDashboardOnlyRole = false;
+        try {
+          userHasDashboardOnlyRole = response.data.sg_roles.filter(role => {
+            return readOnlyConfig.roles.indexOf(role) > -1;
+          }).length
+            ? true
+            : false;
+        } catch (error) {
+          // Ignore for now
+        }
 
+        // If SGS_GLOBAL_TENANT is not available in tenant list, it needs to be
+        // removed from UI display as well
+        let globalUserWriteable = false;
+        let globalUserVisible = false;
+        delete allTenants[userName];
 
-          // @todo
-          let userHasDashboardOnlyRole = false;
-          try {
-            userHasDashboardOnlyRole = (response.data.sg_roles.filter((role) => {
-              return (readOnlyConfig.roles.indexOf(role) > -1);
-            }).length) ? true : false;
-          } catch(error) {
-            // Ignore for now
+        // delete the SGS_GLOBAL_TENANT for the moment. We fall back the GLOBAL until
+        // RBAC is rolled out completely.
+        if (response.data.sg_tenants.hasOwnProperty('SGS_GLOBAL_TENANT') && globalEnabled) {
+          globalUserWriteable =
+            response.data.sg_tenants.SGS_GLOBAL_TENANT && !userHasDashboardOnlyRole;
+          globalUserVisible = true;
+        }
+        delete response.data.sg_tenants.SGS_GLOBAL_TENANT;
+
+        // sort tenants by putting the keys in an array first
+        const tenantKeys = [];
+        let k;
+
+        for (k in allTenants) {
+          if (allTenants.hasOwnProperty(k)) {
+            tenantKeys.push(k);
           }
+        }
+        tenantKeys.sort();
 
+        const uiTenants = tenantKeys.map(tenant => ({
+          id: tenant,
+          label: tenant,
+          canWrite: userHasDashboardOnlyRole ? false : allTenants[tenant],
+          rowProps: {
+            isSelected: true,
+          },
+        }));
 
-          // If SGS_GLOBAL_TENANT is not available in tenant list, it needs to be
-          // removed from UI display as well
-          let globalUserWriteable = false;
-          let globalUserVisible = false;
-          delete allTenants[userName];
+        // @todo Check labels and rights
+        if (privateEnabled && !userHasDashboardOnlyRole) {
+          uiTenants.unshift({
+            id: '__user__',
+            label: 'Private',
+            testLabel: 'private',
+            canWrite: true,
+          });
+        }
 
-          // delete the SGS_GLOBAL_TENANT for the moment. We fall back the GLOBAL until
-          // RBAC is rolled out completely.
-          if(response.data.sg_tenants.hasOwnProperty("SGS_GLOBAL_TENANT") && globalEnabled) {
-            globalUserWriteable = response.data.sg_tenants.SGS_GLOBAL_TENANT && !userHasDashboardOnlyRole;
-            globalUserVisible = true;
-          }
-          delete response.data.sg_tenants["SGS_GLOBAL_TENANT"];
+        // @todo Why is this called globalUserVisible and not globalTenantVisible?
+        if (globalUserVisible) {
+          uiTenants.unshift({
+            id: '',
+            label: 'Global',
+            testLabel: 'global',
+            canWrite: globalUserWriteable,
+          });
+        }
 
-          // sort tenants by putting the keys in an array first
-          const tenantKeys = [];
-          let k;
-
-          for (k in allTenants) {
-            if (allTenants.hasOwnProperty(k)) {
-              tenantKeys.push(k);
-            }
-          }
-          tenantKeys.sort();
-
-          const uiTenants = tenantKeys.map(tenant => ({
-            id: tenant,
-            label: tenant,
-            canWrite: (userHasDashboardOnlyRole) ? false : allTenants[tenant],
-            rowProps: {
-              isSelected: true,
-            }
-          }));
-
-          // @todo Check labels and rights
-          if (privateEnabled && !userHasDashboardOnlyRole) {
-            uiTenants.unshift({
-              id: '__user__',
-              label: 'Private',
-              testLabel: 'private',
-              canWrite: true
-            });
-          }
-
-          // @todo Why is this called globalUserVisible and not globalTenantVisible?
-          if (globalUserVisible) {
-            uiTenants.unshift({
-              id: '',
-              label: 'Global',
-              testLabel: 'global',
-              canWrite: globalUserWriteable,
-            });
-          }
-
-          /* Moved to state
+        /* Moved to state
           this.tenants = allTenants;
           this.tenantkeys = tenantKeys;
           this.roles = response.data.sg_roles.join(", ");
@@ -243,43 +274,40 @@ export class MultiTenancyPage extends Component {
 
            */
 
-          this.setState({
-            userName,
-            uiTenants,
-            tenants: allTenants,
-            tenantKeys,
-            roles: response.data.sg_roles.join(', '),
-            rolesArray: response.data.sg_roles,
-            userHasDashboardOnlyRole,
-            globalUserWriteable,
-            globalUserVisible,
+        this.setState({
+          userName,
+          uiTenants,
+          tenants: allTenants,
+          tenantKeys,
+          roles: response.data.sg_roles.join(', '),
+          rolesArray: response.data.sg_roles,
+          userHasDashboardOnlyRole,
+          globalUserWriteable,
+          globalUserVisible,
+        });
 
-          })
+        this.setState({
+          isLoading: false,
+        });
 
-          this.setState({
-            isLoading: false,
-          });
+        httpClient.get(`${this.API_ROOT}/multitenancy/tenant`).then(
+          response => {
+            const currentTenant = response.data;
+            this.setCurrentTenant(currentTenant, userName);
+          },
+          error => {
+            addErrorToast(error);
+          }
+        );
+      },
+      error => {
+        this.setState({
+          isLoading: false,
+        });
 
-          httpClient.get(`${this.API_ROOT}/multitenancy/tenant`)
-            .then(
-              (response) => {
-                const currentTenant = response.data;
-                this.setCurrentTenant(currentTenant, userName);
-              },
-              (error) => {
-                addErrorToast(error);
-              }
-            );
-        },
-        (error) =>
-        {
-          this.setState({
-            isLoading: false,
-          });
-
-          addErrorToast(error, 'Unable to load authentication info.');
-        }
-      );
+        addErrorToast(error, 'Unable to load authentication info.');
+      }
+    );
   }
 
   setCurrentTenant(tenant, userName) {
@@ -287,25 +315,22 @@ export class MultiTenancyPage extends Component {
     const currentTenantLabel = mtActiveTenantLabel(tenantName);
     this.setState({
       currentTenant: tenant,
-      currentTenantLabel
+      currentTenantLabel,
     });
   }
 
   selectTenant(tenant, redirectTo = null) {
     const { httpClient, sgContext } = this.props;
-    const {
-      userName
-    } = this.state;
+    const { userName } = this.state;
     const { addSuccessToast, addErrorToast } = this.context;
 
-    httpClient.post(`${this.API_ROOT}/multitenancy/tenant`, {
-
+    httpClient
+      .post(`${this.API_ROOT}/multitenancy/tenant`, {
         tenant: tenant,
-        username: userName
-
+        username: userName,
       })
       .then(
-        (response) => {
+        response => {
           const currentTenant = response.data;
           sgContext.multiTenancy.setTenant(currentTenant);
           this.setCurrentTenant(currentTenant, userName);
@@ -314,7 +339,12 @@ export class MultiTenancyPage extends Component {
           // Make sure that the app is really enabled before accessing.
           // If chromeWrapper.resetLastSubUrl is used, the check for enabled apps is redundant.
           // Keeping this to make the merges a bit easier.
-          const appsToReset = ['kibana:visualize', 'kibana:dashboard', 'kibana:discover', 'timelion'];
+          const appsToReset = [
+            'kibana:visualize',
+            'kibana:dashboard',
+            'kibana:discover',
+            'timelion',
+          ];
 
           /* @todo Add back
           chromeWrapper.getNavLinks().forEach((navLink) => {
@@ -326,10 +356,10 @@ export class MultiTenancyPage extends Component {
            */
 
           // clear last sub urls, but leave our own items untouched. Take safe mutation approach.
-          let lastSubUrls = [];
+          const lastSubUrls = [];
           for (let i = 0; i < sessionStorage.length; i++) {
-            let key = sessionStorage.key(i);
-            if (key.startsWith("lastSubUrl")) {
+            const key = sessionStorage.key(i);
+            if (key.startsWith('lastSubUrl')) {
               lastSubUrls.push(key);
             }
           }
@@ -341,15 +371,16 @@ export class MultiTenancyPage extends Component {
 
           // redirect to either Visualize or Dashboard depending on user selection.
           // @todo Add back
-          if(0 && redirectTo) {
+          if (0 && redirectTo) {
             if (redirectTo === 'vis') {
-              window.location.href = chromeWrapper.getNavLinkById("kibana:visualize").url;
+              window.location.href = chromeWrapper.getNavLinkById('kibana:visualize').url;
             }
             if (redirectTo === 'dash') {
-              window.location.href = chromeWrapper.getNavLinkById("kibana:dashboard").url;
+              window.location.href = chromeWrapper.getNavLinkById('kibana:dashboard').url;
             }
           } else {
-            const successText = 'Selected tenant is now ' + this.resolveTenantName(response.data, userName);
+            const successText =
+              'Selected tenant is now ' + this.resolveTenantName(response.data, userName);
             addSuccessToast(successText, 'Tenant changed');
 
             // We may need to redirect the user if they are in a non default space
@@ -357,7 +388,7 @@ export class MultiTenancyPage extends Component {
             // @todo Replace with dynamic
             // @todo Maybe this shouldn't be mapped to config - it is kind of
             // a dynamic state rather than a static config value
-            const injected = {spacesEnabled: false, activeSpace: {}};
+            const injected = { spacesEnabled: false, activeSpace: {} };
             const reload = injected.spacesEnabled;
             let basePath = httpClient.getBasePath();
 
@@ -367,39 +398,34 @@ export class MultiTenancyPage extends Component {
                 // Remove the spaces url part to avoid a Kibana redirect
                 basePath = basePath.replace('/s/' + space.id, '');
               }
-            } catch(error) {
+            } catch (error) {
               // Ignore
             }
 
             if (reload) {
-              window.location.href = basePath + "/app/searchguard-multitenancy";
+              window.location.href = basePath + '/app/searchguard-multitenancy';
             }
           }
         },
-        (error) =>
-        {
+        error => {
           addErrorToast(error);
         }
       );
-
-
   }
 
   renderFlyout() {
-    const {
-      userName,
-      rolesArray,
-      showRolesFlyout,
-    } = this.state;
-
+    const { userName, rolesArray, showRolesFlyout } = this.state;
 
     if (!showRolesFlyout) {
       return null;
     }
 
-
     return (
-      <EuiFlyout size="s" onClose={() => this.setState({ showRolesFlyout: false })} aria-labelledby="rolesFlyoutTItle">
+      <EuiFlyout
+        size="s"
+        onClose={() => this.setState({ showRolesFlyout: false })}
+        aria-labelledby="rolesFlyoutTItle"
+      >
         <EuiFlyoutHeader hasBorder>
           <EuiTitle size="m">
             <h2 id="rolesFlyoutTItle">{mtRolesFlyoutTitle(userName)}</h2>
@@ -409,21 +435,18 @@ export class MultiTenancyPage extends Component {
           <EuiText>
             <ul>
               {rolesArray.map(role => (
-                <li key={role}>
-                  {role}
-                </li>
+                <li key={role}>{role}</li>
               ))}
             </ul>
           </EuiText>
-
         </EuiFlyoutBody>
       </EuiFlyout>
     );
   }
 
   resolveTenantName(tenant, userName) {
-    console.warn(tenant, userName)
-    if (!tenant || tenant === "undefined") {
+    console.warn(tenant, userName);
+    if (!tenant || tenant === 'undefined') {
       // @todo Label
       return 'Global';
     }
@@ -436,10 +459,7 @@ export class MultiTenancyPage extends Component {
   }
 
   renderRolesButton() {
-    const {
-      showRoles,
-      userName
-    } = this.state;
+    const { showRoles, userName } = this.state;
 
     if (!showRoles) {
       return null;
@@ -461,9 +481,7 @@ export class MultiTenancyPage extends Component {
     );
   }
 
-
   render() {
-
     const {
       isLoading,
       currentTenant,
@@ -473,7 +491,7 @@ export class MultiTenancyPage extends Component {
       callout,
       errorMessage,
       uiTenants,
-    } = this.state
+    } = this.state;
 
     const columns = [
       {
@@ -482,11 +500,16 @@ export class MultiTenancyPage extends Component {
         render: (label, uiTenant) => {
           const testSuffix = uiTenant.testLabel || uiTenant.label;
           return (
-            <EuiButtonEmpty id={'sg.link.select.' + testSuffix} onClick={() => { this.selectTenant(uiTenant.id); }}>
+            <EuiButtonEmpty
+              id={'sg.link.select.' + testSuffix}
+              onClick={() => {
+                this.selectTenant(uiTenant.id);
+              }}
+            >
               {label}
             </EuiButtonEmpty>
           );
-        }
+        },
       },
       {
         field: 'canWrite',
@@ -496,14 +519,14 @@ export class MultiTenancyPage extends Component {
 
           return (
             <div id={'sg.permission.' + testSuffix}>
-              {(canWrite) ? readWriteLabel : readOnlyLabel }
+              {canWrite ? readWriteLabel : readOnlyLabel}
             </div>
           );
-        }
+        },
       },
       {
         name: '',
-        render: (uiTenant) => {
+        render: uiTenant => {
           const testSuffix = uiTenant.testLabel || uiTenant.label;
           return (
             <div style={{ textAlign: 'right' }}>
@@ -518,11 +541,11 @@ export class MultiTenancyPage extends Component {
               </EuiButton>
             </div>
           );
-        }
+        },
       },
       {
         name: '',
-        render: (uiTenant) => {
+        render: uiTenant => {
           if (userHasDashboardOnlyRole) {
             return null;
           }
@@ -541,51 +564,48 @@ export class MultiTenancyPage extends Component {
               </EuiButton>
             </div>
           );
-        }
+        },
       },
       {
         name: '',
         align: 'right',
-        render: (uiTenant) => {
+        render: uiTenant => {
           const testSuffix = uiTenant.testLabel || uiTenant.label;
           return (
             <EuiButton
               id={'sg.button.select.' + testSuffix}
               size="s"
               fill
-              disabled={(uiTenant.id === currentTenant)}
+              disabled={uiTenant.id === currentTenant}
               color="primary"
               onClick={() => this.selectTenant(uiTenant.id)}
             >
-              {(uiTenant.id === currentTenant) ? selectedTenantButtonLabel : selectTenantButtonLabel}
+              {uiTenant.id === currentTenant ? selectedTenantButtonLabel : selectTenantButtonLabel}
             </EuiButton>
           );
-        }
+        },
       },
     ];
 
-    const search = showSearch ? {
-      box: {
-        incremental: true
-      }
-    } : false;
+    const search = showSearch
+      ? {
+          box: {
+            incremental: true,
+          },
+        }
+      : false;
 
     const pagination = {
       initialPageSize: 50,
       pageSizeOptions: [10, 25, 50, 100],
     };
 
-
-
     return (
       <EuiPage id={APP_NAME}>
-
-
         <EuiPageBody className="sg-container">
           <EuiPageHeader>
             <EuiFlexGroup
               style={{ flexWrap: 'nowrap', width: '100%' }}
-
               alignItems="center"
               justifyContent="spaceBetween"
               wrap={false}
@@ -612,7 +632,9 @@ export class MultiTenancyPage extends Component {
                   <li>Injected Spaces stuff - redirect if in non default space</li>
                 </ul>
               </div>
-              {null && <Callout callout={callout} onClose={() => this.handleTriggerCallout(null)} />}
+              {null && (
+                <Callout callout={callout} onClose={() => this.handleTriggerCallout(null)} />
+              )}
               {this.renderFlyout()}
               <EuiTitle size="m">
                 <h2 id="tenantLabel" style={{ textAlign: 'center' }}>
@@ -620,26 +642,23 @@ export class MultiTenancyPage extends Component {
                 </h2>
               </EuiTitle>
 
-              <EuiSpacer size="l"/>
+              <EuiSpacer size="l" />
 
               {errorMessage && (
                 <>
                   <EuiCallOut title={mtConfigErrorHeader} color="danger" iconType="alert">
-                    <p>
-                      {errorMessage}
-                    </p>
+                    <p>{errorMessage}</p>
                   </EuiCallOut>
 
-                  <EuiSpacer size="l"/>
+                  <EuiSpacer size="l" />
                 </>
               )}
 
-
               <EuiInMemoryTable
                 items={uiTenants}
-                rowProps={(uiTenant) => {
+                rowProps={uiTenant => {
                   return {
-                    isSelected: (uiTenant.id === currentTenant)
+                    isSelected: uiTenant.id === currentTenant,
                   };
                 }}
                 itemId="id"
@@ -654,7 +673,6 @@ export class MultiTenancyPage extends Component {
           </EuiPageContent>
         </EuiPageBody>
       </EuiPage>
-
     );
   }
 }
