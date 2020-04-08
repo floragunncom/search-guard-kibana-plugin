@@ -15,9 +15,11 @@
  limitations under the License.
  */
 
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 
-import { APP_NAME } from '../../../utils/signals/constants';
+import { APP_NAME } from './utils/constants';
+import { API_ROOT } from '../../utils/constants';
+
 import {
   EuiButton,
   EuiButtonEmpty,
@@ -35,28 +37,11 @@ import {
   EuiFlexItem,
   EuiCallOut,
   EuiText,
-  EuiListGroup,
-  EuiListGroupItem,
   EuiPageHeader,
 } from '@elastic/eui';
-// @todo Add chromeWrapper back in
-//import { chromeWrapper } from '../../../../services/chrome_wrapper';
+
 import { MainContext } from './contexts/MainContextProvider';
-//import { LocalStorageService } from '../../../configuration-react/services';
-import { get, isEmpty, map } from 'lodash';
-/*
-import { CALLOUTS, LOCAL_STORAGE } from '../../../configuration-react/utils/constants';
-import { checkIfLicenseValid } from '../../../configuration-react/utils/helpers';
-import {
-  apiAccessStateForbiddenText,
-  apiAccessStateNotEnabledText,
-  sgLicenseNotValidText
-} from '../../../configuration-react/utils/i18n/main';
-import { Callout } from '../../../components';
 
-
-import { API_ACCESS_STATE } from '../../../configuration-react/pages/Main/utils/constants';
- */
 import {
   nameHeader,
   permissionsHeader,
@@ -66,8 +51,6 @@ import {
   mtPageHeader,
   mtConfigErrorHeader,
   mtRolesFlyoutTitle,
-  globalTenantLabel,
-  privateTenantLabel,
   selectedTenantButtonLabel,
   selectTenantButtonLabel,
   showDashboardLabel,
@@ -81,15 +64,7 @@ export class MultiTenancyPage extends Component {
   constructor(props, context) {
     super(props, context);
 
-    // @todo It seems like the http client is handling the base path automatically?
-    const APP_ROOT = '';
-    this.API_ROOT = `${APP_ROOT}/api/v1`;
-
     this.config = this.props.sgContext.config;
-
-    // @todo Add this back? Ask Sergii what it's for
-    //this.localStorage = new LocalStorageService();
-    //if (isEmpty(this.localStorage.cache)) this.localStorage.cache = LOCAL_STORAGE;
 
     this.state = {
       isLoading: true,
@@ -118,24 +93,9 @@ export class MultiTenancyPage extends Component {
     this.fetchTenants(addErrorToast);
   }
 
-  componentDidMount() {}
-
-  handleTriggerCallout = callout => {
-    this.setState({ callout });
-  };
-
-  handleTriggerErrorCallout = error => {
-    console.error(error);
-    error = error.data || error;
-    this.handleTriggerCallout({
-      type: CALLOUTS.ERROR_CALLOUT,
-      payload: get(error, 'message', error),
-    });
-  };
-
   fetchMultiTenancyInfo(addErrorToast) {
     const { httpClient } = this.props;
-    httpClient.get(`${this.API_ROOT}/multitenancy/info`).then(
+    httpClient.get(`${API_ROOT}/multitenancy/info`).then(
       response => {
         const kibana_server_user = this.config.get('elasticsearch.username');
         const kibana_index = this.config.get('kibana.index');
@@ -186,20 +146,16 @@ export class MultiTenancyPage extends Component {
   fetchTenants(addErrorToast) {
     const { httpClient } = this.props;
 
-    httpClient.get(`${this.API_ROOT}/auth/authinfo`).then(
+    httpClient.get(`${API_ROOT}/auth/authinfo`).then(
       response => {
-        // @todo Remove this hack
-        console.warn('Got response', response);
         // remove users own tenant, will be replaced with __user__
         // since we want to display tenant name with "Private"
         const userName = response.data.user_name;
         const allTenants = response.data.sg_tenants;
-        // @todo Add back dynamic values
         const globalEnabled = this.config.get('multitenancy.tenants.enable_global');
         const privateEnabled = this.config.get('multitenancy.tenants.enable_private');
         const readOnlyConfig = this.config.get('readonly_mode');
 
-        // @todo
         let userHasDashboardOnlyRole = false;
         try {
           userHasDashboardOnlyRole = response.data.sg_roles.filter(role => {
@@ -290,7 +246,7 @@ export class MultiTenancyPage extends Component {
           isLoading: false,
         });
 
-        httpClient.get(`${this.API_ROOT}/multitenancy/tenant`).then(
+        httpClient.get(`${API_ROOT}/multitenancy/tenant`).then(
           response => {
             const currentTenant = response.data;
             this.setCurrentTenant(currentTenant, userName);
@@ -320,12 +276,12 @@ export class MultiTenancyPage extends Component {
   }
 
   selectTenant(tenant, redirectTo = null) {
-    const { httpClient, sgContext } = this.props;
+    const { httpClient, sgContext, chromeHelper } = this.props;
     const { userName } = this.state;
     const { addSuccessToast, addErrorToast } = this.context;
 
     httpClient
-      .post(`${this.API_ROOT}/multitenancy/tenant`, {
+      .post(`${API_ROOT}/multitenancy/tenant`, {
         tenant: tenant,
         username: userName,
       })
@@ -346,64 +302,48 @@ export class MultiTenancyPage extends Component {
             'timelion',
           ];
 
-          /* @todo Add back
-          chromeWrapper.getNavLinks().forEach((navLink) => {
+          chromeHelper.getNavLinks().forEach(navLink => {
             if (appsToReset.indexOf(navLink.id) > -1) {
-              chromeWrapper.resetLastSubUrl(navLink.id);
+              chromeHelper.resetLastUrl(navLink.id);
             }
           });
 
-           */
-
-          // clear last sub urls, but leave our own items untouched. Take safe mutation approach.
-          const lastSubUrls = [];
+          // clear last urls, but leave our own items untouched. Take safe mutation approach.
+          const lastUrls = [];
           for (let i = 0; i < sessionStorage.length; i++) {
             const key = sessionStorage.key(i);
-            if (key.startsWith('lastSubUrl')) {
-              lastSubUrls.push(key);
+            if (key.startsWith('lastUrl')) {
+              lastUrls.push(key);
             }
           }
-          for (let i = 0; i < lastSubUrls.length; i++) {
-            sessionStorage.removeItem(lastSubUrls[i]);
+          for (let i = 0; i < lastUrls.length; i++) {
+            sessionStorage.removeItem(lastUrls[i]);
           }
           // to be on the safe side for future changes, clear localStorage as well
           localStorage.clear();
 
           // redirect to either Visualize or Dashboard depending on user selection.
-          // @todo Add back
-          if (0 && redirectTo) {
+          if (redirectTo) {
             if (redirectTo === 'vis') {
-              window.location.href = chromeWrapper.getNavLinkById('kibana:visualize').url;
+              window.location.href = chromeHelper.getNavLinkById('kibana:visualize').url;
             }
             if (redirectTo === 'dash') {
-              window.location.href = chromeWrapper.getNavLinkById('kibana:dashboard').url;
+              window.location.href = chromeHelper.getNavLinkById('kibana:dashboard').url;
             }
           } else {
             const successText =
               'Selected tenant is now ' + this.resolveTenantName(response.data, userName);
             addSuccessToast(successText, 'Tenant changed');
 
-            // We may need to redirect the user if they are in a non default space
-            // before switching tenants
-            // @todo Replace with dynamic
-            // @todo Maybe this shouldn't be mapped to config - it is kind of
-            // a dynamic state rather than a static config value
-            const injected = { spacesEnabled: false, activeSpace: {} };
-            const reload = injected.spacesEnabled;
-            let basePath = httpClient.getBasePath();
-
-            try {
-              const space = injected.activeSpace.space;
-              if (space && space.id !== 'default') {
-                // Remove the spaces url part to avoid a Kibana redirect
-                basePath = basePath.replace('/s/' + space.id, '');
-              }
-            } catch (error) {
-              // Ignore
-            }
+            // We may need to redirect the user if they are in
+            // a non default space before switching tenants
+            const pathWithoutSpace =
+              httpClient.basePath.serverBasePath +
+              httpClient.basePath.remove(window.location.pathname);
+            const reload = window.location.pathname !== pathWithoutSpace;
 
             if (reload) {
-              window.location.href = basePath + '/app/searchguard-multitenancy';
+              window.location.href = pathWithoutSpace;
             }
           }
         },
@@ -445,7 +385,6 @@ export class MultiTenancyPage extends Component {
   }
 
   resolveTenantName(tenant, userName) {
-    console.warn(tenant, userName);
     if (!tenant || tenant === 'undefined') {
       // @todo Label
       return 'Global';
@@ -488,7 +427,6 @@ export class MultiTenancyPage extends Component {
       currentTenantLabel,
       userHasDashboardOnlyRole,
       showSearch,
-      callout,
       errorMessage,
       uiTenants,
     } = this.state;
@@ -621,20 +559,7 @@ export class MultiTenancyPage extends Component {
           <EuiPageContent>
             <EuiPageContentBody className="sg-page-content-body">
               <LicenseWarningCallout httpClient={this.props.httpClient} />
-              <div>
-                @Todo
-                <ul>
-                  <li>Spaces</li>
-                  <li>* - Callout etc.</li>
-                  <li>* - Add references to old issues (JIRA) - history is gone now</li>
-                  <li>* - All chrome related things, basePath, chromeWrapper, getInjected() etc</li>
-                  <li>* - Maybe change the usage of $http</li>
-                  <li>Injected Spaces stuff - redirect if in non default space</li>
-                </ul>
-              </div>
-              {null && (
-                <Callout callout={callout} onClose={() => this.handleTriggerCallout(null)} />
-              )}
+
               {this.renderFlyout()}
               <EuiTitle size="m">
                 <h2 id="tenantLabel" style={{ textAlign: 'center' }}>

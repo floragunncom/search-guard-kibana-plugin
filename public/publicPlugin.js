@@ -8,6 +8,7 @@ import { redirectOnSessionTimeout } from './auth/redirectOnSessionTimeout';
 import { API_ROOT } from './utils/constants';
 import { addTenantToShareURL } from './applications/multitenancy/addTenantToShareURL';
 import { Signals } from './applications/signals';
+import { ChromeHelper } from './services/ChromeHelper';
 
 export class PublicPlugin {
   constructor(initializerContext) {
@@ -15,6 +16,7 @@ export class PublicPlugin {
     this.config = this.initializerContext.config;
     this.headerUserMenuService = new HeaderUserMenuService();
     this.signalsApp = new Signals();
+    this.chromeHelper = new ChromeHelper();
   }
 
   async setup(core, plugins) {
@@ -100,6 +102,7 @@ export class PublicPlugin {
             element: params.element,
             sgContext,
             httpClient: this.httpClient,
+            chromeHelper: this.chromeHelper,
           });
         },
       });
@@ -149,6 +152,8 @@ export class PublicPlugin {
   }
 
   async start(core) {
+    // Make sure the chrome helper has access to coreStart.chrome
+    this.chromeHelper.start(core.chrome);
     const restInfo = await this.systemStateService.loadRestInfo();
 
     await this.headerUserMenuService.start({
