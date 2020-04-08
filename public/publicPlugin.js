@@ -27,29 +27,103 @@ export class PublicPlugin {
     sgContext.pluginVersion = sgContext.config.get('sgVersion');
 
     this.httpClient = new HttpWrapper(core.http);
+
     this.systemStateService = new SystemStateService(this.httpClient);
 
-    await this.systemStateService.loadSystemInfo();
+    let restInfo = {};
 
-    // @todo Maybe only load this on /app - pages?
-    const restInfo = await this.systemStateService.loadRestInfo();
+    if (!this.isAnonymousPage(core.http)) {
+      await this.systemStateService.loadSystemInfo();
+      restInfo = await this.systemStateService.loadRestInfo();
 
-    // @todo Better check for login/customerror page
-    if (restInfo.user_name) {
       sgContext.isDarkMode = core.uiSettings.get('theme:darkMode');
+
+      this.registerApps(core, restInfo, plugins);
+
+      redirectOnSessionTimeout(
+        sgContext.config.get('auth.type'),
+        core.http,
+        restInfo.user_name === 'sg_anonymous'
+      );
     }
 
-    redirectOnSessionTimeout(
-      sgContext.config.get('auth.type'),
-      core.http,
-      restInfo.user_name === 'sg_anonymous'
-    );
+    this.registerAnonymousApps(core, sgContext.config.get('auth.type'));
+  }
 
+  async start(core) {
+    // Make sure the chrome helper has access to coreStart.chrome
+    this.chromeHelper.start(core.chrome);
+    if (!this.isAnonymousPage(core.http)) {
+      const restInfo = await this.systemStateService.loadRestInfo();
+
+      window.cc = core;
+
+      await this.headerUserMenuService.start({
+        core,
+        httpClient: this.httpClient,
+        config: { ...this.config.get(), userName: restInfo.user_name },
+      });
+    }
+  }
+
+  stop() {}
+
+  /**
+   * Register the anonymous apps (login and custom error) and paths based on the current auth type
+   * @param core
+   * @param authType
+   * @returns {Function|*}
+   */
+  registerAnonymousApps(core, authType) {
+    // Register a login endpoint if we have an auth type
+    if (authType) {
+      core.http.anonymousPaths.register('/login');
+    }
+
+    if (authType === 'basicauth') {
+      core.application.register({
+        id: 'searchguard-login',
+        title: 'Login',
+        chromeless: true,
+        appRoute: '/login',
+        euiIconType: 'user',
+        mount: async params => {
+          const { renderApp } = await import('./applications/login/npstart');
+
+          return renderApp({
+            element: params.element,
+            basePath: core.http.basePath.get(),
+            config: sgContext.config,
+            httpClient: this.httpClient,
+          });
+        },
+      });
+    }
+
+    core.http.anonymousPaths.register('/customerror');
+    core.application.register({
+      id: 'customerror',
+      title: 'SearchGuard Custom Error',
+      chromeless: true,
+      appRoute: '/customerror',
+      mount: async ({ element }) => {
+        const { renderApp } = await import('./applications/customerror');
+
+        return renderApp({
+          element,
+          basePath: core.http.basePath.get(),
+          config: this.config.get(),
+        });
+      },
+    });
+  }
+
+  registerApps(core, restInfo, plugins) {
     if (sgContext.config.get('searchguard.accountinfo.enabled')) {
       core.application.register({
         id: 'searchguard-accountinfo',
         title: 'Account',
-        icon: 'plugins/searchguard/assets/networking.svg', // @todo
+        icon: 'plugins/searchguard/assets/networking.svg',
         mount: async params => {
           const { renderApp } = await import('./applications/accountinfo/npstart');
           return renderApp({
@@ -120,7 +194,6 @@ export class PublicPlugin {
       }
 
       // Make sure we have the current tenant available
-      // @todo Better check for login/customerror page
       if (restInfo.user_name) {
         this.httpClient.get(`${API_ROOT}/auth/authinfo`).then(response => {
           sgContext.multiTenancy.setTenant(response.data.user_requested_tenant);
@@ -129,72 +202,14 @@ export class PublicPlugin {
       }
     }
 
-    this.registerAuthApps(core, sgContext.config.get('auth.type'));
-
-    core.http.anonymousPaths.register('/customerror');
-    core.application.register({
-      id: 'customerror',
-      title: 'SearchGuard Custom Error',
-      chromeless: true,
-      appRoute: '/customerror',
-      mount: async ({ element }) => {
-        const { renderApp } = await import('./applications/customerror');
-
-        return renderApp({
-          element,
-          basePath: core.http.basePath.get(),
-          config: this.config.get(),
-        });
-      },
-    });
-
     this.signalsApp.setup({ core, httpClient: this.httpClient });
   }
 
-  async start(core) {
-    // Make sure the chrome helper has access to coreStart.chrome
-    this.chromeHelper.start(core.chrome);
-    const restInfo = await this.systemStateService.loadRestInfo();
+  isAnonymousPage(httpService) {
+    window.hh = httpService;
+    const path = httpService.basePath.remove(window.location.pathname);
+    const anonymousPaths = ['/login', '/customerror'];
 
-    await this.headerUserMenuService.start({
-      core,
-      httpClient: this.httpClient,
-      config: { ...this.config.get(), userName: restInfo.user_name },
-    });
-  }
-
-  stop() {}
-
-  /**
-   * Register the login app and paths based on the current auth type
-   * @param core
-   * @param authType
-   * @returns {Function|*}
-   */
-  registerAuthApps(core, authType) {
-    // Register a login endpoint if we have an auth type
-    if (authType) {
-      core.http.anonymousPaths.register('/login');
-    }
-
-    if (authType === 'basicauth') {
-      core.application.register({
-        id: 'searchguard-login',
-        title: 'Login',
-        chromeless: true,
-        appRoute: '/login',
-        euiIconType: 'user',
-        mount: async params => {
-          const { renderApp } = await import('./applications/login/npstart');
-
-          return renderApp({
-            element: params.element,
-            basePath: core.http.basePath.get(),
-            config: sgContext.config,
-            httpClient: this.httpClient,
-          });
-        },
-      });
-    }
+    return anonymousPaths.indexOf(path) > -1;
   }
 }
