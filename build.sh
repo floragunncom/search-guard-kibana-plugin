@@ -3,21 +3,24 @@
 start=`date +%s`
 # WARNING! Do not use jq here, only bash.
 COMMAND="$1"
+KIBANA_BRANCH="$2"
 EXIT_IF_VULNERABILITY=true
 
 # sanity checks for options
 if [ -z "$COMMAND" ]; then
-    echo "Usage: ./build.sh <install-local|deploy-snapshot-maven>"
+    echo "Usage:"
+    echo "    build.sh deploy-snapshot-maven          Deploy snapshot to maven repository."
+    echo "    build.sh install-local                  Build a distributable archive of the plugin locally."
+    echo "    build.sh install-local tags/v7.6.2      Build for a specific Kibana tag."
+    echo "    build.sh install-local master           Build for a specific Kibana branch."
     exit 1
 fi
 
 if [ "$COMMAND" != "deploy-snapshot-maven" ] && [ "$COMMAND" != "install-local" ]; then
-    echo "Usage: ./build.sh <install|deploy>"
+    echo "Usage: ./build.sh <install-local|deploy-snapshot-maven>"
     echo "Unknown command: $COMMAND"
     exit 1
 fi
-
-echo "COMMAND: $COMMAND"
 
 # sanity checks for maven
 if [ -z "$MAVEN_HOME" ]; then
@@ -111,11 +114,15 @@ git clone https://github.com/elastic/kibana.git >>"$WORK_DIR/build.log" 2>&1
 cd "kibana"
 git fetch >>"$WORK_DIR/build.log" 2>&1
 
-echo "+++ Change to tags/v$KIBANA_VERSION +++"
-git checkout "tags/v$KIBANA_VERSION" >>"$WORK_DIR/build.log" 2>&1
+if [ "$KIBANA_BRANCH" == "" ]; then
+  KIBANA_BRANCH="tags/v$KIBANA_VERSION"
+fi
+
+echo "+++ Change to $KIBANA_BRANCH +++"
+git checkout "$KIBANA_BRANCH" >>"$WORK_DIR/build.log" 2>&1
 
 if [ $? != 0 ]; then
-    echo "Switching to Kibana tags/v$KIBANA_VERSION failed"
+    echo "Switching to Kibana $KIBANA_BRANCH failed"
     exit 1
 fi
 
@@ -149,11 +156,14 @@ mkdir -p $BUILD_STAGE_PLUGIN_DIR
 cp -a "$WORK_DIR/index.js" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/package.json" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/lib" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/server" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/public" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/utils" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/examples" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/tests" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/babel.config.js" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/patch_kibana.sh" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/kibana.json" "$BUILD_STAGE_PLUGIN_DIR"
 
 cd $BUILD_STAGE_PLUGIN_DIR
 
@@ -209,9 +219,12 @@ cp -a "$BUILD_STAGE_PLUGIN_DIR/index.js" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/package.json" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/node_modules" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/lib" "$COPYPATH"
+cp -a "$BUILD_STAGE_PLUGIN_DIR/server" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/public" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/utils" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/examples" "$COPYPATH"
+cp -a "$BUILD_STAGE_PLUGIN_DIR/patch_kibana.sh" "$COPYPATH"
+cp -a "$BUILD_STAGE_PLUGIN_DIR/kibana.json" "$COPYPATH"
 
 end=`date +%s`
 echo "Build time: $((end-start)) sec"
