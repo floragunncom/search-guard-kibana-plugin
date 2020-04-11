@@ -15,13 +15,9 @@
  limitations under the License.
  */
 
-import Boom from 'boom';
-import indexTemplate from '../elasticsearch/setup_index_template';
-import { migrateTenant } from './migrate_tenants';
+import { API_ROOT } from '../../../utils/constants';
 
-module.exports = function(searchGuardBackend, server, APP_ROOT, API_ROOT, config) {
-  // @todo Re-implement
-  //const { setupIndexTemplate } = indexTemplate(this, server);
+export function legacyMultitenancyRoutes({ server, searchGuardBackend, config }) {
   const debugEnabled = config.get('searchguard.multitenancy.debug');
   const preferencesCookieName = config.get('searchguard.cookie.preferences_cookie_name');
 
@@ -48,7 +44,7 @@ module.exports = function(searchGuardBackend, server, APP_ROOT, API_ROOT, config
   server.route({
     method: 'GET',
     path: `${API_ROOT}/multitenancy/tenant`,
-    handler: (request, h) => {
+    handler: request => {
       const selectedTenant = request.auth.sgSessionStorage.getStorage('tenant', {}).selected;
 
       if (debugEnabled) {
@@ -67,20 +63,4 @@ module.exports = function(searchGuardBackend, server, APP_ROOT, API_ROOT, config
       return mtinfo;
     },
   });
-
-  server.route({
-    method: 'POST',
-    path: `${API_ROOT}/multitenancy/migrate/{tenantindex}`,
-    handler: async (request, h) => {
-      if (!request.params.tenantindex) {
-        return h.response(Boom.badRequest, 'Please provide a tenant index name.');
-      }
-      let forceMigration = false;
-      if (request.query.force && request.query.force === 'true') {
-        forceMigration = true;
-      }
-      const result = await migrateTenant(request.params.tenantindex, forceMigration, server);
-      return result;
-    },
-  });
-}; //end module
+} //end module

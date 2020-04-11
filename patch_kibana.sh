@@ -41,7 +41,6 @@ for i in $(cat < "$PATH_TO_PLUGIN_CONTEXT.bak"); do
 
   if [[ "$i" == *"return {"* && "$DO_INSERT_IN_FN_createPluginInitializerContext" == true ]]; then
     echo "    configService: coreContext.configService,"
-    echo "    envAll: { ...coreContext.env },"
     DO_INSERT_IN_FN_createPluginInitializerContext=false
   fi
 
