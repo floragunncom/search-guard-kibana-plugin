@@ -300,7 +300,6 @@ export class Plugin {
         server,
         APP_ROOT,
         API_ROOT,
-        config
       );
       // this.status.yellow("Routes for Search Guard configuration GUI registered. This is an Enterprise feature.");
     } else {
