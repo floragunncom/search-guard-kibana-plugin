@@ -1,5 +1,5 @@
-import { PublicPlugin as Plugin } from "./publicPlugin";
+import { PublicPlugin as Plugin } from './publicPlugin';
 
 export function plugin(initializerContext) {
- return new Plugin(initializerContext);
+  return new Plugin(initializerContext);
 }
