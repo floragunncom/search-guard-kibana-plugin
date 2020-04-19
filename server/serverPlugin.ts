@@ -43,8 +43,7 @@ export class Plugin {
     /**
      * The patched values
      */
-    const hapi = core.hapi;
-    const server = hapi.server;
+    const server = core.hapiServer;
 
     const configValues = await this.config$.pipe(first()).toPromise();
 
@@ -319,7 +318,7 @@ export class Plugin {
     this.signalsApp.setup({
       core,
       router,
-      hapiServer: hapi.server,
+      hapiServer: core.hapiServer,
       searchguardBackendService: searchGuardBackend,
     });
 
