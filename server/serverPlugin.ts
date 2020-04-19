@@ -21,7 +21,7 @@ import SearchGuardBackend from '../lib/backend/searchguard';
 import SearchGuardConfigurationBackend from '../lib/configuration/backend/searchguard_configuration_backend';
 import { Signals } from './applications';
 
-import AuthInfoRoutes from '../lib/auth/routes_authinfo';
+import authInfoRoutes from '../lib/auth/routes_authinfo';
 import { APP_ROOT, API_ROOT } from './utils/constants';
 
 export class Plugin {
@@ -112,21 +112,16 @@ export class Plugin {
       ],
     };
 
-    // @todo Clean this stuff up
-    new AuthInfoRoutes(null, server, null, APP_ROOT, API_ROOT);
-
-    const searchguardBackend = new SearchGuardBackend(core, server, config, legacyEsConfig);
-    const searchguardConfigurationBackend = new SearchGuardConfigurationBackend(
+    const searchGuardBackend = new SearchGuardBackend(core, server, config, legacyEsConfig);
+    const searchGuardConfigurationBackend = new SearchGuardConfigurationBackend(
       core,
       server,
       config,
       legacyEsConfig
     );
 
-    server.plugins.searchguard = {
-      getSearchGuardBackend: () => searchguardBackend,
-      getSearchGuardConfigurationBackend: () => searchguardConfigurationBackend,
-    };
+    // Inits the authInfo route
+    authInfoRoutes(searchGuardBackend, server, APP_ROOT, API_ROOT);
 
     // Set up the storage cookie
     const storageCookieConf = {
@@ -197,7 +192,14 @@ export class Plugin {
             // Check that one of the auth types didn't already require an authInstance
             if (!authInstance) {
               // @todo Clean up the null parameters here
-              authInstance = new authClass(null, server, null, APP_ROOT, API_ROOT, core, config);
+              authInstance = new authClass(
+                searchGuardBackend,
+                server,
+                APP_ROOT,
+                API_ROOT,
+                core,
+                config
+              );
             }
 
             await authInstance.init();
@@ -227,6 +229,7 @@ export class Plugin {
       await server.register({
         plugin: require('../lib/session/sessionPlugin'),
         options: {
+          searchGuardBackend: searchGuardBackend,
           authType: null,
           storageCookieName: config.get('searchguard.cookie.storage_cookie_name'),
         },
@@ -256,11 +259,10 @@ export class Plugin {
         return;
       }
 
-      require('../lib/multitenancy/routes')(null, server, this, APP_ROOT, API_ROOT, config);
+      require('../lib/multitenancy/routes')(searchGuardBackend, server, APP_ROOT, API_ROOT, config);
       require('../lib/multitenancy/headers')(
-        null,
+        searchGuardBackend,
         server,
-        this,
         APP_ROOT,
         API_ROOT,
         authInstance,
@@ -292,14 +294,19 @@ export class Plugin {
     }
 
     if (config.get('searchguard.configuration.enabled')) {
-      require('../lib/configuration/routes/routes')(null, server, APP_ROOT, API_ROOT, config);
+      require('../lib/configuration/routes/routes')(
+        searchGuardConfigurationBackend,
+        server,
+        APP_ROOT,
+        API_ROOT,
+      );
       // this.status.yellow("Routes for Search Guard configuration GUI registered. This is an Enterprise feature.");
     } else {
       // @todo Somehow set status yellow?
       // this.status.yellow("Search Guard configuration GUI disabled");
     }
 
-    require('../lib/system/routes')(null, server, APP_ROOT, API_ROOT, config);
+    require('../lib/system/routes')(searchGuardBackend, server, APP_ROOT, API_ROOT, config);
     // @todo Status?
     // this.status.yellow('Search Guard system routes registered.');
 
@@ -312,7 +319,7 @@ export class Plugin {
       core,
       router,
       hapiServer: core.hapiServer,
-      searchguardBackendService: searchguardBackend,
+      searchguardBackendService: searchGuardBackend,
     });
 
     return {
