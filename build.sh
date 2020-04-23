@@ -147,6 +147,7 @@ cp -a "$WORK_DIR/package.json" "$COPYPATH"
 cp -a "$WORK_DIR/lib" "$COPYPATH"
 cp -a "$WORK_DIR/node_modules" "$COPYPATH"
 cp -a "$WORK_DIR/public" "$COPYPATH"
+cp -a "$WORK_DIR/patches" "$COPYPATH"
 
 end=`date +%s`
 echo "Build time: $((end-start)) sec"

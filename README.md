@@ -5,6 +5,7 @@
 </p>
 
 ## About this plugin
+
 This plugin for Kibana adds session management and true multi-tenancy to a [Search Guard](https://search-guard.com) secured cluster. 
 
 For Kibana 6.x it also provides a configuration GUI for Search Guard.
@@ -38,9 +39,19 @@ bin/kibana-plugin install file:///path/to/searchguard-kibana-<version>.zip
 * [Multi Tenancy](http://docs.search-guard.com/v5/kibana-multi-tenancy)
 
 ## Commercial use
+
 This software is licensed under the Apache2 license and can be used freely also for commercial purposes. Some features may require the Search Guard Enterprise Edition or above to function.
 
+## Patches
+
+In some rare cases, when Kibana doesn't provide the required core functionality, we must patch.
+
+  - `npm patch:kibana:samesite`
+
+    The patch makes it possible to work with Kibana, which is embedded in an iframe on a third party website. We must do it because now (Thu Apr 23 2020) Kibana is still using hapi v17. And hapi added support for SameSite=None in hapi v19.0.0. Read more about [SameSite=None](https://www.chromestatus.com/feature/5633521622188032) and [SameSite](https://web.dev/samesite-cookies-explained/).
+
 ## License
+
 Copyright 2015-2018 floragunn GmbH
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
