@@ -60,7 +60,11 @@ See the [kibana contributing guide](https://github.com/elastic/kibana/blob/maste
 
   - `./build.sh <install-local|deploy-snapshot-maven>`
 
-    Build locally a distributable archive of your plugin or deploy snapshot to maven repository.
+    Build a distributable archive of your plugin locally or deploy snapshot to the maven repository. The build is created for the version found in packages.json.
+
+  - `./build.sh <install-local|deploy-snapshot-maven> <master|tags/v7.6.2>`
+
+    Build for a particular Kibana branch or tag, for example, master branch or v7.6.2 tag. 
 
   - `yarn test:browser`
 
