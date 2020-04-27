@@ -17,7 +17,7 @@
 
 import { assign } from 'lodash';
 
-export default function(searchGuardBackend, server, APP_ROOT, API_ROOT, authClass, config) {
+export function requestHeaders({ server, searchGuardBackend, authInstance, config }) {
   const globalEnabled = config.get('searchguard.multitenancy.tenants.enable_global');
   const privateEnabled = config.get('searchguard.multitenancy.tenants.enable_private');
   const preferredTenants = config.get('searchguard.multitenancy.tenants.preferred');
@@ -70,8 +70,8 @@ export default function(searchGuardBackend, server, APP_ROOT, API_ROOT, authClas
     let response;
 
     try {
-      if (authClass) {
-        await authClass.assignAuthHeader(request);
+      if (authInstance) {
+        await authInstance.assignAuthHeader(request);
       }
 
       response = await request.auth.sgSessionStorage.getAuthInfo(request.headers);

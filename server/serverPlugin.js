@@ -19,7 +19,7 @@ import { first } from 'rxjs/operators';
 
 import SearchGuardBackend from '../lib/backend/searchguard';
 import SearchGuardConfigurationBackend from '../lib/configuration/backend/searchguard_configuration_backend';
-import { Signals } from './applications';
+import { Signals, Multitenancy } from './applications';
 
 import authInfoRoutes from '../lib/auth/routes_authinfo';
 import { APP_ROOT, API_ROOT } from './utils/constants';
@@ -27,7 +27,6 @@ import { APP_ROOT, API_ROOT } from './utils/constants';
 export class Plugin {
   constructor(initializerContext) {
     this.logger = initializerContext.logger.get();
-
     this.initContext = initializerContext;
     this.config$ = initializerContext.config.create();
     this.signalsApp = new Signals();
@@ -155,7 +154,7 @@ export class Plugin {
         // @todo Replacement for status
         // this.status.yellow('Initialising Search Guard authentication plugin.');
 
-        if (config.get('searchguard.cookie.password') == 'searchguard_cookie_default_password') {
+        if (config.get('searchguard.cookie.password') === 'searchguard_cookie_default_password') {
           // @todo Replacement for status
           // this.status.yellow("Default cookie password detected, please set a password in kibana.yml by setting 'searchguard.cookie.password' (min. 32 characters).");
         }
@@ -237,7 +236,7 @@ export class Plugin {
     }
 
     // @todo We can probably remove this right?
-    if (authType != 'jwt') {
+    if (authType !== 'jwt') {
       // @todo Replacement for status
       // this.status.yellow("Search Guard copy JWT params disabled");
     }
@@ -251,41 +250,23 @@ export class Plugin {
 
     // MT
     if (config.get('searchguard.multitenancy.enabled')) {
-      const headersWhitelist = legacyEsConfig.requestHeadersWhitelist;
-      if (headersWhitelist.indexOf('sgtenant') == -1) {
-        // @todo Re-implement
-        // throw new Error('No tenant header found in whitelist. Please add sgtenant to elasticsearch.requestHeadersWhitelist in kibana.yml');
-        // this.status.red('No tenant header found in whitelist. Please add sgtenant to elasticsearch.requestHeadersWhitelist in kibana.yml');
-        return;
+      // ATTENTION! We want to make sure the multitenancy app migrates saved objects
+      // in the tenants indices before doing any any operation on indices
+      this.multinenancyApp = new Multitenancy(this.initContext);
+
+      try {
+        await this.multinenancyApp.setup({
+          hapiServer: core.hapiServer,
+          elasticsearch: core.elasticsearch,
+          router,
+          config,
+          authInstance,
+          searchGuardBackend,
+        });
+      } catch (error) {
+        this.logger.error(error);
+        throw new Error(error);
       }
-
-      require('../lib/multitenancy/routes')(searchGuardBackend, server, APP_ROOT, API_ROOT, config);
-      require('../lib/multitenancy/headers')(
-        searchGuardBackend,
-        server,
-        APP_ROOT,
-        API_ROOT,
-        authInstance,
-        config
-      );
-
-      const preferenceCookieConf = {
-        ttl: 2217100485000,
-        path: '/',
-        isSecure: false,
-        isHttpOnly: false,
-        clearInvalid: true, // remove invalid cookies
-        strictHeader: true, // don't allow violations of RFC 6265
-        encoding: 'iron',
-        password: config.get('searchguard.cookie.password'),
-        isSameSite: config.get('searchguard.cookie.isSameSite'),
-      };
-
-      if (config.get('searchguard.cookie.domain')) {
-        preferenceCookieConf.domain = config.get('searchguard.cookie.domain');
-      }
-
-      server.state(config.get('searchguard.cookie.preferences_cookie_name'), preferenceCookieConf);
     }
 
     // @todo Try to refactor this stuff back to onPostAuth, like before 6.5
@@ -298,7 +279,7 @@ export class Plugin {
         searchGuardConfigurationBackend,
         server,
         APP_ROOT,
-        API_ROOT,
+        API_ROOT
       );
       // this.status.yellow("Routes for Search Guard configuration GUI registered. This is an Enterprise feature.");
     } else {
@@ -309,8 +290,6 @@ export class Plugin {
     require('../lib/system/routes')(searchGuardBackend, server, APP_ROOT, API_ROOT, config);
     // @todo Status?
     // this.status.yellow('Search Guard system routes registered.');
-
-    // @todo MT Saved Objects Migration
 
     // @todo Sanity check - do not fail on forbidden
     // @todo Sanity check - ssl certificates
@@ -327,7 +306,20 @@ export class Plugin {
     };
   }
 
-  start(core) {
+  async start(core) {
+    const config = await this.config$.pipe(first()).toPromise();
+
+    try {
+      if (config.multitenancy.enabled) {
+        await this.multinenancyApp.start(core.savedObjects);
+      } else {
+        this.logger.info('Multitenancy is disabled');
+      }
+    } catch (error) {
+      this.logger.error(error);
+      throw new Error(error);
+    }
+
     return {
       something: 'returned',
     };
