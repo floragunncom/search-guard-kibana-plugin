@@ -3,7 +3,7 @@ import Joi from 'joi';
 import { serverError } from '../../lib/errors';
 import { ROUTE_PATH } from '../../../../../utils/signals/constants';
 
-const createAccount = ({ clusterClient }) => async request => {
+const createAccount = ({ clusterClient, logger }) => async request => {
   try {
     const {
       payload: body,
@@ -18,16 +18,16 @@ const createAccount = ({ clusterClient }) => async request => {
 
     return { ok: true, resp };
   } catch (err) {
-    console.error('Signals - createAccount:', err);
+    logger.error(`createAccount: ${err.toString()} ${err.stack}`);
     return { ok: false, resp: serverError(err) };
   }
 };
 
-export function createAccountRoute({ hapiServer, clusterClient }) {
+export function createAccountRoute({ hapiServer, clusterClient, logger }) {
   hapiServer.route({
     path: `${ROUTE_PATH.ACCOUNT}/{type}/{id}`,
     method: 'PUT',
-    handler: createAccount({ clusterClient }),
+    handler: createAccount({ clusterClient, logger }),
     config: {
       validate: {
         options: {

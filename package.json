@@ -13,7 +13,7 @@
     "lint": "./node_modules/.bin/eslint .",
     "kbn": "node ../../scripts/kbn",
     "test:browser": "./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest public --config ./tests/jest.config.js --silent",
-    "test:server": "./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest lib --config ./tests/jest.config.js --silent",
+    "test:server": "./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest server --config ./tests/jest.config.js --silent",
     "test:prepare_integration_test": "yarn && ./tests/patch_kibana.sh",
     "patch:kibana:dev": "./patch_kibana.sh dev",
     "patch:kibana": "./patch_kibana.sh"

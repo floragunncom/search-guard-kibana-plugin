@@ -3,7 +3,30 @@ import { schema } from '@kbn/config-schema';
 import { serverError } from '../../lib/errors';
 import { ROUTE_PATH, NO_MULTITENANCY_TENANT } from '../../../../../utils/signals/constants';
 
-export function executeWatchRoute({ router, clusterClient }) {
+export function executeWatch({ clusterClient, logger }) {
+  return async function(context, request, response) {
+    try {
+      const {
+        body: { watch, simulate, skipActions },
+        headers: { sgtenant = NO_MULTITENANCY_TENANT },
+      } = request;
+
+      const resp = await clusterClient
+        .asScoped(request)
+        .callAsCurrentUser('sgSignals.executeWatch', {
+          body: { watch, simulate, skip_actions: skipActions },
+          sgtenant,
+        });
+
+      return response.ok({ body: { ok: true, resp } });
+    } catch (err) {
+      logger.error(`executeWatch: ${err.toString()} ${err.stack}`);
+      return response.ok({ body: { ok: false, resp: serverError(err) } });
+    }
+  };
+}
+
+export function executeWatchRoute({ router, clusterClient, logger }) {
   router.post(
     {
       path: `${ROUTE_PATH.WATCH}/_execute`,
@@ -23,25 +46,6 @@ export function executeWatchRoute({ router, clusterClient }) {
         }),
       },
     },
-    async function(context, request, response) {
-      try {
-        const {
-          body: { watch, simulate, skipActions },
-          headers: { sgtenant = NO_MULTITENANCY_TENANT },
-        } = request;
-
-        const resp = await clusterClient
-          .asScoped(request)
-          .callAsCurrentUser('sgSignals.executeWatch', {
-            body: { watch, simulate, skip_actions: skipActions },
-            sgtenant,
-          });
-
-        return response.ok({ body: { ok: true, resp } });
-      } catch (err) {
-        console.error('Signals - executeWatch:', err);
-        return response.ok({ body: { ok: false, resp: serverError(err) } });
-      }
-    }
+    executeWatch({ clusterClient, logger })
   );
 }
