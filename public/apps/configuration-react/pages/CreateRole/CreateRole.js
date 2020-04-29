@@ -18,7 +18,6 @@ import { Overview, ClusterPermissions, IndexPermissions, TenantPermissions } fro
 import {
   formikToRole,
   roleToFormik,
-  indicesToUiIndices,
   actionGroupsToUiClusterIndexTenantActionGroups,
   tenantsToUiTenants,
 } from './utils';
@@ -58,7 +57,6 @@ class CreateRole extends Component {
       allClusterActionGroups: [],
       allTenantActionGroups: [],
       allTenants: [],
-      allIndices: [],
       isFlsEnabled: true,
       isDlsEnabled: true,
       isAnonymizedFieldsEnabled: true,
@@ -99,18 +97,19 @@ class CreateRole extends Component {
 
     try {
       this.setState({ isLoading: true });
-      const { data: actionGroups } = await this.actionGroupsService.list();
+
+      const [{ data: actionGroups }, { data: allTenants }] = await Promise.all([
+        this.actionGroupsService.list(),
+        this.tenantsService.list(),
+        this.systemService.loadSystemInfo(),
+      ]);
+
       const {
         allClusterActionGroups,
         allIndexActionGroups,
         allTenantActionGroups,
       } = actionGroupsToUiClusterIndexTenantActionGroups(actionGroups);
 
-      const { data: allIndices } = await this.esService.getIndices();
-      const { data: allTenants } = await this.tenantsService.list();
-
-      // TODO: Refactor this to get stuff without side effects
-      await this.systemService.loadSystemInfo();
       const isDlsEnabled = this.systemService.dlsFlsEnabled();
       const isFlsEnabled = isDlsEnabled;
       const isMultiTenancyEnabled = this.systemService.multiTenancyEnabled();
@@ -124,7 +123,6 @@ class CreateRole extends Component {
         isFlsEnabled,
         isAnonymizedFieldsEnabled,
         isMultiTenancyEnabled,
-        allIndices: indicesToUiIndices(allIndices),
         allTenants: tenantsToUiTenants(allTenants),
       });
 
@@ -179,7 +177,6 @@ class CreateRole extends Component {
       isLoading,
       resource,
       selectedTabId,
-      allIndices,
       isDlsEnabled,
       isFlsEnabled,
       isMultiTenancyEnabled,
@@ -242,7 +239,6 @@ class CreateRole extends Component {
               {isIndexPermissionsTab && (
                 <IndexPermissions
                   indexPermissions={values._indexPermissions}
-                  allIndices={allIndices}
                   allActionGroups={allIndexActionGroups}
                   allSinglePermissions={allIndexPermissions}
                   isEdit={isEdit}
