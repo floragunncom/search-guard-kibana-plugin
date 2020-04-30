@@ -1,4 +1,5 @@
-import React, { useContext } from 'react';
+/* eslint-disable @kbn/eslint/require-license-header */
+import React, { useContext, useState, useEffect } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
@@ -35,10 +36,25 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
     executeWatch,
   } = useJsonWatchChecks({ setFieldValue });
 
+  const [templateCounter, setTemplateCounter] = useState(0);
+  const [template, setTemplate] = useState(null);
+
+  useEffect(() => {
+    if (template) {
+      addTemplate({ template, values });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [templateCounter]);
+
+  const addTemplateHelper = template => {
+    setTemplate(template);
+    setTemplateCounter(prevState => prevState + 1);
+  };
+
   const handleAddTemplate = () => {
     triggerFlyout({
       type: FLYOUTS.CHECK_EXAMPLES,
-      payload: { onChange: template => addTemplate({ template, values }) },
+      payload: { onChange: addTemplateHelper },
     });
   };
 

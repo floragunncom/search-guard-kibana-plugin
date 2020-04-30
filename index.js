@@ -43,7 +43,9 @@ export default function (kibana) {
                     password: Joi.string().min(32).default('searchguard_cookie_default_password'),
                     ttl: Joi.number().integer().min(0).default(60 * 60 * 1000),
                     domain: Joi.string(),
-                    isSameSite: Joi.valid('Strict', 'Lax').allow(false).default(false),
+                    // You must execute a patch to if you need 'SameSite=None' in the cookies:
+                    // https://docs.search-guard.com/latest/kibana-in-iframe
+                    isSameSite: Joi.valid('Strict', 'Lax', 'None').allow(false).default(false),
                 }).default(),
                 session: Joi.object().keys({
                     ttl: Joi.number().integer().min(0).default(60 * 60 * 1000),
@@ -66,6 +68,8 @@ export default function (kibana) {
                         show_for_parameter: Joi.string().allow('').default(''),
                         valid_redirects: Joi.array().default([]),
                         button_text: Joi.string().default('Login with provider'),
+                        // TODO: Do braking change making the buttonstyle object to hold valid React CSS style props 
+                        // Consider allowing user to pass EuiButton props instead
                         buttonstyle: Joi.string().allow('').default("")
                     }).default(),
                     loadbalancer_url: Joi.string().allow('', null).default(null),
@@ -74,6 +78,8 @@ export default function (kibana) {
                         subtitle: Joi.string().allow('').default('If you have forgotten your username or password, please ask your system administrator'),
                         showbrandimage: Joi.boolean().default(true),
                         brandimage: Joi.string().default("/plugins/searchguard/assets/searchguard_logo.svg"),
+                        // TODO: Do braking change making the buttonstyle object to hold valid React CSS style props.
+                        // Consider allowing user to pass EuiButton props instead.
                         buttonstyle: Joi.string().allow('').default("")
                     }).default(),
                 }).default(),
@@ -155,7 +161,6 @@ export default function (kibana) {
                 'plugins/searchguard/chrome/multitenancy/enable_multitenancy',
                 'plugins/searchguard/chrome/accountinfo/enable_accountinfo',
                 'plugins/searchguard/chrome/configuration/enable_configuration',
-                'plugins/searchguard/services/access_control',
                 'plugins/searchguard/customizations/enable_customizations.js'
             ],
             replaceInjectedVars: async function(originalInjectedVars, request, server) {
@@ -237,7 +242,7 @@ export default function (kibana) {
                 {
                     id: 'searchguard-customerror',
                     title: 'CustomError',
-                    main: 'plugins/searchguard/apps/customerror/customerror',
+                    main: 'plugins/searchguard/apps/customerror',
                     hidden: true,
                     auth: false
                 },
@@ -515,7 +520,7 @@ export default function (kibana) {
         {
             id: 'searchguard-multitenancy',
             title: 'Tenants',
-            main: 'plugins/searchguard/apps/multitenancy/multitenancy',
+            main: 'plugins/searchguard/apps/multitenancy-react',
             auth: true,
             order: 9010,
             icon: 'plugins/searchguard/assets/networking.svg',

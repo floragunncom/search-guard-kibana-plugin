@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 /*
  *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
@@ -14,23 +15,22 @@
  */
 
 /*
-  * Copyright 2015-2019 _floragunn_ GmbH
-  * Licensed under the Apache License, Version 2.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  * http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+ * Copyright 2015-2019 _floragunn_ GmbH
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { connect as connectRedux } from 'react-redux';
 import { connect as connectFormik } from 'formik';
 import { EuiSpacer, EuiLoadingChart } from '@elastic/eui';
 import { cloneDeep, get, pick, isEqual } from 'lodash';
@@ -40,7 +40,6 @@ import WatchTimeField from '../WatchTimeField';
 import VisualGraph from '../VisualGraph';
 import WatchExpressions from '../WatchExpressions';
 import { mappingsToFieldNames, buildSearchRequest } from './utils';
-import { addErrorToast } from '../../../../redux/actions';
 import { ElasticsearchService, WatchService } from '../../../../services';
 import { PAYLOAD_PATH, WATCH_TYPES, CHECK_MYSEARCH } from '../../utils/constants';
 import {
@@ -50,6 +49,8 @@ import {
 } from '../../../../utils/i18n/watch';
 import { comboBoxOptionsToArray, arrayToComboBoxOptions } from '../../../../utils/helpers';
 import { getFieldsFromPayload, getFieldsForType } from '../../utils/helpers';
+
+import { Context } from '../../../../Context';
 
 function renderGraphMessage(message) {
   return (
@@ -64,16 +65,21 @@ function renderGraphMessage(message) {
 }
 
 class GraphWatch extends Component {
+  static contextType = Context;
+
   constructor(props) {
     super(props);
 
-    const { httpClient, formik: { values = {} } } = this.props;
+    const {
+      httpClient,
+      formik: { values = {} },
+    } = this.props;
 
     this.state = {
       dataTypes: {},
       payloadFields: [],
       formikSnapshot: cloneDeep(values),
-      isLoading: false
+      isLoading: false,
     };
 
     this.elasticsearchService = new ElasticsearchService(httpClient);
@@ -84,12 +90,9 @@ class GraphWatch extends Component {
     const {
       formik: {
         values: {
-          _ui: {
-            index,
-            timeField
-          }
-        }
-      }
+          _ui: { index, timeField },
+        },
+      },
     } = this.props;
 
     const hasIndices = !!index.length;
@@ -122,10 +125,17 @@ class GraphWatch extends Component {
     }
 
     const queryOptions = [
-      'overDocuments', 'timeField', 'aggregationType',
-      'fieldName', 'topHitsAgg', 'bucketValue', 'bucketUnitOfTime'
+      'overDocuments',
+      'timeField',
+      'aggregationType',
+      'fieldName',
+      'topHitsAgg',
+      'bucketValue',
+      'bucketUnitOfTime',
     ];
-    const prevGraphQuery = JSON.stringify(pick(get(prevProps, 'formik.values._ui', {}), queryOptions));
+    const prevGraphQuery = JSON.stringify(
+      pick(get(prevProps, 'formik.values._ui', {}), queryOptions)
+    );
     const graphQuery = JSON.stringify(pick(get(this.props, 'formik.values._ui', {}), queryOptions));
 
     const hasIndices = !!index.length;
@@ -161,28 +171,33 @@ class GraphWatch extends Component {
   }
 
   onQueryMappings = async () => {
-    const { formik: { values }, dispatch } = this.props;
+    const {
+      formik: { values },
+    } = this.props;
     try {
       const mappings = await this.queryMappings(comboBoxOptionsToArray(values._ui.index));
       const dataTypes = mappingsToFieldNames(mappings);
       this.setState({ dataTypes });
     } catch (err) {
       console.error('GraphWatch -- Fail getting mappings for query', err);
-      dispatch(addErrorToast(err));
+      this.context.addErrorToast(err);
       console.debug('GraphWatch -- values', values);
     }
-  }
+  };
 
   handlePayload = payload => {
-    const payloadFields = [{
-      label: 'number',
-      options: arrayToComboBoxOptions(getFieldsForType(getFieldsFromPayload(payload), 'number'))
-        .map(({ label }) => ({ label: `${PAYLOAD_PATH}.${label}` }))
-    }];
+    const payloadFields = [
+      {
+        label: 'number',
+        options: arrayToComboBoxOptions(
+          getFieldsForType(getFieldsFromPayload(payload), 'number')
+        ).map(({ label }) => ({ label: `${PAYLOAD_PATH}.${label}` })),
+      },
+    ];
 
-    this.setState({ payloadFields });    
+    this.setState({ payloadFields });
     console.debug('GraphWatch -- payloadFields', payloadFields);
-  }
+  };
 
   queryMappings = index => {
     if (!index.length) return {};
@@ -190,10 +205,12 @@ class GraphWatch extends Component {
       if (data.ok) return data.resp;
       return {};
     });
-  }
+  };
 
   onRunQuery = async () => {
-    const { formik: { values, setFieldValue }, dispatch } = this.props;
+    const {
+      formik: { values, setFieldValue },
+    } = this.props;
     const formikSnapshot = cloneDeep(values);
 
     // If we are running a visual graph query, then we need to run two separate queries
@@ -221,11 +238,11 @@ class GraphWatch extends Component {
       setFieldValue('_ui.checksResult', { data: { [CHECK_MYSEARCH]: realQueryResponse } });
     } catch (err) {
       console.error('GraphWatch -- Fail running the query', err);
-      dispatch(addErrorToast(err));
+      this.context.addErrorToast(err);
       console.debug('GraphWatch -- values', values);
     }
     this.setState({ isLoading: false });
-  }
+  };
 
   renderGraph = () => {
     const { dataTypes, formikSnapshot, isLoading, payloadFields } = this.state;
@@ -246,21 +263,23 @@ class GraphWatch extends Component {
           ofEnabled={values._ui.aggregationType !== 'count'}
         />
         <EuiSpacer size="s" />
-        {
-          isLoading
-            ? <div style={{ margin: 'auto' }}><EuiLoadingChart size="xl" /></div>
-            : <VisualGraph
-              annotation
-              values={formikSnapshot}
-              fieldName={fieldName}
-              response={response}
-              thresholdValue={values._ui.thresholdValue}
-              severityThresholds={values._ui.severity.thresholds}
-            />
-        }
+        {isLoading ? (
+          <div style={{ margin: 'auto' }}>
+            <EuiLoadingChart size="xl" />
+          </div>
+        ) : (
+          <VisualGraph
+            annotation
+            values={formikSnapshot}
+            fieldName={fieldName}
+            response={response}
+            thresholdValue={values._ui.thresholdValue}
+            severityThresholds={values._ui.severity.thresholds}
+          />
+        )}
       </>
     );
-  }
+  };
 
   render() {
     const {
@@ -301,7 +320,6 @@ class GraphWatch extends Component {
 }
 
 GraphWatch.propTypes = {
-  dispatch: PropTypes.func.isRequired,
   httpClient: PropTypes.func.isRequired,
   formik: PropTypes.object.isRequired,
   onComboBoxOnBlur: PropTypes.func.isRequired,
@@ -309,4 +327,4 @@ GraphWatch.propTypes = {
   onComboBoxChange: PropTypes.func.isRequired,
 };
 
-export default connectRedux()(connectFormik(GraphWatch));
+export default connectFormik(GraphWatch);
