@@ -31,17 +31,17 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { EuiCodeEditor } from '@elastic/eui';
 import FormikInputWrapper from '../FormikInputWrapper';
 import FormikFormRow from '../FormikFormRow';
+import { CodeEditor as CodeEditorSG } from '../../CodeEditor';
 
 const CodeEditor = ({ name, form, field, elementProps: { onBlur, onChange, ...rest } }) => (
-  <EuiCodeEditor
+  <CodeEditorSG
     id={name}
     value={field.value}
-    onChange={(string, e) => {
-      onChange(e, string, field, form);
-    }}
+    onChange={
+      onChange instanceof Function ? (e, string) => onChange(e, string, field, form) : onChange
+    }
     onBlur={onBlur instanceof Function ? e => onBlur(e, field, form) : onBlur}
     {...rest}
   />
@@ -54,7 +54,7 @@ CodeEditor.propTypes = {
   field: PropTypes.object.isRequired,
 };
 
-const FormikCodeEditor = ({
+const FormikCodeEditorSG = ({
   name,
   formRow = false,
   formikFieldProps = {},
@@ -79,7 +79,7 @@ const FormikCodeEditor = ({
   />
 );
 
-FormikCodeEditor.propTypes = {
+FormikCodeEditorSG.propTypes = {
   name: PropTypes.string.isRequired,
   formRow: PropTypes.bool,
   formikFieldProps: PropTypes.object,
@@ -87,4 +87,4 @@ FormikCodeEditor.propTypes = {
   elementProps: PropTypes.object,
 };
 
-export default FormikCodeEditor;
+export default FormikCodeEditorSG;

@@ -1,33 +1,18 @@
-import React, { Fragment } from 'react';
-import chrome from 'ui/chrome';
+/* eslint-disable @kbn/eslint/require-license-header */
+import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'formik';
 import { get } from 'lodash';
-import {
-  SubHeader,
-  FormikCodeEditor
-} from '../../../../components';
-import {
-  EuiButton,
-  EuiSpacer
-} from '@elastic/eui';
-import {
-  elasticsearhQueryDLSText,
-  documentLevelSecurityText,
-} from '../../../../utils/i18n/roles';
-import {
-  isInvalid,
-  hasError,
-  validateESDLSQuery
-} from '../../../../utils/validation';
+import { SubHeader, FormikCodeEditor } from '../../../../components';
+import { EuiButton, EuiSpacer } from '@elastic/eui';
+import { elasticsearhQueryDLSText, documentLevelSecurityText } from '../../../../utils/i18n/roles';
+import { isInvalid, hasError, validateESDLSQuery } from '../../../../utils/validation';
 import { stringifyPretty } from '../../../../utils/helpers';
-import { CODE_EDITOR } from '../../../../../utils/constants';
 
-const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
-let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
-theme = !IS_DARK_THEME ? theme : darkTheme;
+import { Context } from '../../../../Context';
 
 const DocumentLevelSecurity = ({ index, httpClient, formik }) => {
+  const { editorTheme, editorOptions } = useContext(Context);
   const { values, validateField, setFieldValue } = formik;
   const fieldPath = `_indexPermissions[${index}]._dls`;
   // TODO: should we validate all indexes? This logic was taken from the old app
@@ -36,7 +21,6 @@ const DocumentLevelSecurity = ({ index, httpClient, formik }) => {
   return (
     <Fragment>
       <SubHeader title={<h4>{documentLevelSecurityText}</h4>} />
-      <EuiSpacer />
       <EuiButton
         data-test-subj="sgDLSCheckButton"
         size="s"
@@ -58,7 +42,7 @@ const DocumentLevelSecurity = ({ index, httpClient, formik }) => {
         name={fieldPath}
         formRow
         formikFieldProps={{
-          validate: validateESDLSQuery(firstIndexPattern, httpClient)
+          validate: validateESDLSQuery(firstIndexPattern, httpClient),
         }}
         rowProps={{
           helpText: elasticsearhQueryDLSText,
@@ -70,10 +54,10 @@ const DocumentLevelSecurity = ({ index, httpClient, formik }) => {
           mode: 'text',
           width: '100%',
           height: '300px',
-          setOptions,
-          theme,
-          onChange: (e, dls, field, form) => {
-            form.setFieldValue(field.name, dls);
+          setOptions: editorOptions,
+          theme: editorTheme,
+          onChange: (e, string, field, form) => {
+            form.setFieldValue(field.name, string);
           },
           onBlur: (e, field, form) => {
             form.setFieldTouched(field.name, true);
@@ -90,8 +74,8 @@ DocumentLevelSecurity.propTypes = {
   formik: PropTypes.shape({
     values: PropTypes.object.isRequired,
     validateField: PropTypes.func.isRequired,
-    setFieldValue: PropTypes.func.isRequired
-  }).isRequired
+    setFieldValue: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
 export default connect(DocumentLevelSecurity);
