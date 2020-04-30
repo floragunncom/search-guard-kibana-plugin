@@ -1,7 +1,15 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import React, { Fragment, useContext } from 'react';
+import React, { Fragment, useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { EuiAccordion, EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiCallOut } from '@elastic/eui';
+import {
+  EuiAccordion,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiSpacer,
+  EuiCallOut,
+  EuiHealth,
+  EuiHighlight,
+} from '@elastic/eui';
 import { advancedText } from '../../../../utils/i18n/common';
 import {
   indexPatternsText,
@@ -20,6 +28,8 @@ import { comboBoxOptionsToArray } from '../../../../utils/helpers';
 import { validIndicesSinglePermissionOption } from '../../../../utils/validation';
 import FieldLevelSecurity from './FieldLevelSecurity';
 import DocumentLevelSecurity from './DocumentLevelSecurity';
+import { ElasticsearchService } from '../../../../services';
+import { indicesToUiIndices } from '../../utils/role_to_formik';
 
 import { Context } from '../../../../Context';
 
@@ -30,7 +40,6 @@ const IndexPatterns = ({
   arrayHelpers,
   allActionGroups,
   allSinglePermissions,
-  allIndices,
   isDlsEnabled,
   isFlsEnabled,
   isAnonymizedFieldsEnabled,
@@ -44,6 +53,49 @@ const IndexPatterns = ({
     onComboBoxCreateOption,
     triggerConfirmDeletionModal,
   } = useContext(Context);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [indexOptions, setIndexOptions] = useState([]);
+
+  const esService = new ElasticsearchService(httpClient);
+
+  async function onSearchChange(query = '') {
+    setIsLoading(true);
+
+    try {
+      if (!query.endsWith('*')) query += '*';
+
+      query = query.trim();
+      if (query === '*:' || query === '') return [];
+
+      const [{ data: indices = [] }, { data: aliases = [] }] = await Promise.all([
+        esService.getIndices(query),
+        esService.getAliases(query),
+      ]);
+
+      setIndexOptions(indicesToUiIndices([...indices, ...aliases]));
+    } catch (error) {
+      console.error('IndexPatterns - onSearchChange', error);
+      onTriggerErrorCallout(error);
+    }
+
+    setIsLoading(false);
+  }
+
+  function renderIndexOption({ color, label }, searchValue, contentClassName) {
+    return (
+      <EuiHealth color={color}>
+        <span className={contentClassName}>
+          <EuiHighlight search={searchValue}>{label}</EuiHighlight>
+        </span>
+      </EuiHealth>
+    );
+  }
+
+  useEffect(() => {
+    onSearchChange('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return indexPermissions.map((indexPermission, index) => (
     <EuiFlexGroup key={index}>
@@ -81,8 +133,13 @@ const IndexPatterns = ({
               label: indexPatternsText,
             }}
             elementProps={{
-              options: allIndices,
+              isLoading,
+              onSearchChange,
+              async: true,
               isClearable: true,
+              placeholder: 'Select indices',
+              options: indexOptions,
+              renderOption: renderIndexOption,
               onBlur: onComboBoxOnBlur,
               onChange: onComboBoxChange(),
               onCreateOption: onComboBoxCreateOption(),
@@ -177,7 +234,6 @@ IndexPatterns.propTypes = {
   arrayHelpers: PropTypes.object.isRequired,
   allActionGroups: PropTypes.array.isRequired,
   allSinglePermissions: PropTypes.array.isRequired,
-  allIndices: PropTypes.array.isRequired,
   isDlsEnabled: PropTypes.bool.isRequired,
   isFlsEnabled: PropTypes.bool.isRequired,
   isAnonymizedFieldsEnabled: PropTypes.bool.isRequired,
