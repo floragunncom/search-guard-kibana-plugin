@@ -69,9 +69,17 @@ class CreateRoleMapping extends Component {
 
     try {
       this.setState({ isLoading: true });
-      const { data: allInternalUsers } = await this.internalUsersService.list();
-      const { data: allRoles } = await this.rolesService.list();
-      const { data: allRoleMappings } = await this.rolesMappingService.list();
+
+      const [
+        { data: allInternalUsers },
+        { data: allRoles },
+        { data: allRoleMappings },
+      ] = await Promise.all([
+        this.internalUsersService.list(),
+        this.rolesService.list(),
+        this.rolesMappingService.list(),
+      ]);
+
       this.setState({
         allBackendRoles: internalUsersToUiBackendRoles(allInternalUsers),
         allInternalUsers: internalUsersToUiInternalUsers(allInternalUsers),
@@ -87,7 +95,7 @@ class CreateRoleMapping extends Component {
           isEdit: !!id
         });
       }
-    } catch(error) {
+    } catch (error) {
       onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });

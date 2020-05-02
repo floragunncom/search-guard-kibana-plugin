@@ -9,6 +9,10 @@ import { comboBoxOptionsToArray } from '../utils/helpers';
 import { FLYOUTS, MODALS } from './utils/constants';
 import { CODE_EDITOR } from '../utils/constants';
 
+// Themes for EuiCodeEditor
+import 'brace/theme/twilight';
+import 'brace/theme/textmate';
+
 const Context = React.createContext();
 
 const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
@@ -40,7 +44,7 @@ const ContextProvider = ({ children, httpClient }) => {
       return;
     }
 
-    triggerFlyout({ type: FLYOUTS.INSPECT_JSON, payload });
+    triggerFlyout({ type: FLYOUTS.INSPECT_JSON, payload: { ...payload, editorTheme } });
   };
 
   const closeModal = () => setModal(null);

@@ -1,5 +1,7 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import ace from 'brace';
 import 'brace/mode/json';
+import 'brace/ext/language_tools';
 import { ScriptMode } from './ScriptMode';
 import { WatchHighlightRules } from './WatchHighlightRules';
 import { watchWorker } from './worker';
@@ -25,7 +27,7 @@ export class WatchMode extends TextMode {
     // Delegate all script specific behaviour to the ScriptMode
     // https://github.com/ajaxorg/ace/wiki/Creating-or-Extending-an-Edit-Mode#mode-delegation
     this.createModeDelegates({
-      'script-': ScriptMode
+      'script-': ScriptMode,
     });
   }
 
@@ -59,11 +61,11 @@ export class WatchMode extends TextMode {
 
     worker.attachToDocument(session.getDocument());
 
-    worker.on('error', function (e) {
+    worker.on('error', function(e) {
       session.setAnnotations(e.data);
     });
 
-    worker.on('ok', function (e) {
+    worker.on('ok', function(e) {
       session.setAnnotations(e.data);
     });
 

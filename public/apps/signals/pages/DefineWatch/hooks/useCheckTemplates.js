@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { useState, useContext } from 'react';
 import { get } from 'lodash';
 import { buildFormikChecks, buildChecks, buildFormikChecksBlocks } from '../utils';
@@ -6,7 +7,15 @@ import { WATCH_TYPES } from '../utils/constants';
 
 import { Context } from '../../../Context';
 
-const useCheckTemplates = ({ setFieldValue, checksPath = 'checks' } = {}) => {
+const useCheckTemplates = ({
+  setFieldValue,
+  // Defaults to watch checks
+  // but can accept any checks path, for example, action checks
+  checksPath = 'checks',
+  checksBlocksPath = '_ui.checksBlocks',
+  // TODO: deprecate the useBlocks when BlocksWatch work in actions
+  useBlocks = true,
+} = {}) => {
   const { addSuccessToast, addErrorToast } = useContext(Context);
 
   // Template insert works only in JsonWatch
@@ -24,12 +33,12 @@ const useCheckTemplates = ({ setFieldValue, checksPath = 'checks' } = {}) => {
     const watchType = get(values, '_ui.watchType', WATCH_TYPES.GRAPH);
 
     try {
-      if (watchType === WATCH_TYPES.BLOCKS) {
-        const checksBlocks = get(values, '_ui.checksBlocks', []);
+      if (useBlocks && watchType === WATCH_TYPES.BLOCKS) {
+        const checksBlocks = get(values, checksBlocksPath, []);
         const checkBlock = buildFormikChecksBlocks([template])[0];
         checkBlock.id = checksBlocks.length;
 
-        setFieldValue('_ui.checksBlocks', [...checksBlocks, checkBlock]);
+        setFieldValue(checksBlocksPath, [...checksBlocks, checkBlock]);
       } else {
         const isInserting =
           Number.isInteger(templateToInsert.row) && Number.isInteger(templateToInsert.column);
@@ -42,10 +51,16 @@ const useCheckTemplates = ({ setFieldValue, checksPath = 'checks' } = {}) => {
             text: buildFormikChecks(template) + '\n',
           }));
         } else {
-          const checks = buildFormikChecks([
-            ...buildChecks({ checks: get(values, checksPath, ''), _ui: values._ui }),
-            template,
-          ]);
+          const existingChecks = buildChecks({
+            checks: get(values, checksPath, '[]') || '[]',
+            _ui: { ...values._ui, watchType: WATCH_TYPES.JSON },
+          });
+
+          const checks = buildFormikChecks([...existingChecks, template]);
+          // const existingChecks = JSON.parse(
+          //   foldMultiLineString(get(values, checksPath, '[]') || '[]')
+          // );
+          // const checks = buildFormikChecks([...existingChecks, template]);
           setFieldValue(checksPath, checks);
         }
       }

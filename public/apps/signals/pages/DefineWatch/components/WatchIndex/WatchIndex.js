@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 /*
  *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
@@ -14,23 +15,22 @@
  */
 
 /*
-  * Copyright 2015-2019 _floragunn_ GmbH
-  * Licensed under the Apache License, Version 2.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  * http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+ * Copyright 2015-2019 _floragunn_ GmbH
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { EuiHealth, EuiHighlight } from '@elastic/eui';
 
 import { FormikComboBox } from '../../../../components';
@@ -40,14 +40,15 @@ import {
   createReasonableWait,
   getMatchedOptions,
   aliasesToUiAliases,
-  indicesToUiIndices
+  indicesToUiIndices,
 } from './utils/helpers';
 import { ElasticsearchService } from '../../../../services';
 import {
   indexText,
-  putAsteriskToQueryIndicesUsingWildcardText
+  putAsteriskToQueryIndicesUsingWildcardText,
 } from '../../../../utils/i18n/watch';
-import { addErrorToast } from '../../../../redux/actions';
+
+import { Context } from '../../../../Context';
 
 const CustomOption = ({ option, searchValue, contentClassName }) => {
   const { health, label } = option;
@@ -71,17 +72,15 @@ const propTypes = {
   httpClient: PropTypes.func.isRequired,
   indexFieldName: PropTypes.string.isRequired,
   isClearable: PropTypes.bool,
-  singleSelection: PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.object
-  ]),
-  dispatch: PropTypes.func.isRequired,
+  singleSelection: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),
   onComboBoxOnBlur: PropTypes.func.isRequired,
   onComboBoxCreateOption: PropTypes.func.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired
+  onComboBoxChange: PropTypes.func.isRequired,
 };
 
 class WatchIndex extends React.Component {
+  static contextType = Context;
+
   constructor(props) {
     super(props);
 
@@ -160,7 +159,7 @@ class WatchIndex extends React.Component {
       return indicesToUiIndices(resp);
     } catch (err) {
       console.error('WatchIndex -- handleQueryIndices', err);
-      this.props.dispatch(addErrorToast(err));
+      this.context.addErrorToast(err);
       console.debug('WatchIndex -- index', index);
       return [];
     }
@@ -182,7 +181,7 @@ class WatchIndex extends React.Component {
       return aliasesToUiAliases(resp);
     } catch (err) {
       console.error('WatchIndex -- handleQueryAliases', err);
-      this.props.dispatch(addErrorToast(err));
+      this.context.addErrorToast(err);
       console.debug('WatchIndex -- alias', alias);
       return [];
     }
@@ -223,7 +222,9 @@ class WatchIndex extends React.Component {
   }
 
   renderOption(option, searchValue, contentClassName) {
-    return <CustomOption option={option} searchValue={searchValue} contentClassName={contentClassName}/>;
+    return (
+      <CustomOption option={option} searchValue={searchValue} contentClassName={contentClassName} />
+    );
   }
 
   render() {
@@ -253,7 +254,7 @@ class WatchIndex extends React.Component {
       singleSelection = false,
       onComboBoxChange,
       onComboBoxOnBlur,
-      onComboBoxCreateOption
+      onComboBoxCreateOption,
     } = this.props;
 
     return (
@@ -289,4 +290,4 @@ class WatchIndex extends React.Component {
 
 WatchIndex.propTypes = propTypes;
 
-export default connect()(WatchIndex);
+export default WatchIndex;
