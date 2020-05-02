@@ -116,6 +116,8 @@ export default class SystemService {
           sessionStorage.setItem('systeminfo', '{}');
         });
     }
+
+    return Promise.resolve();
   }
 
   loadRestInfo() {
@@ -131,5 +133,7 @@ export default class SystemService {
           sessionStorage.setItem('restapiinfo', '{}');
         });
     }
+
+    return Promise.resolve();
   }
 }
