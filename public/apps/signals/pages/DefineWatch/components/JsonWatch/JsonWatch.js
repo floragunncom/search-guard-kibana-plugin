@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -8,7 +9,7 @@ import {
   EuiText,
   EuiLink,
 } from '@elastic/eui';
-import { FormikCodeEditor } from '../../../../components';
+import { FormikCodeEditorSG } from '../../../../components';
 import { hasError, isInvalid, validateWatchString } from '../../utils/validate';
 import { checksText } from '../../../../utils/i18n/watch';
 import { closeText, responseText } from '../../../../utils/i18n/common';
@@ -38,7 +39,7 @@ const JsonWatch = ({
     }
 
     return (
-      <FormikCodeEditor
+      <FormikCodeEditorSG
         name={checksPath}
         formRow
         rowProps={{
