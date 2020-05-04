@@ -102,10 +102,6 @@ export default class SystemService {
     return false;
   }
 
-  getSystemInfo() {
-    return this._getAndParseFromSessionStorage('systeminfo');
-  }
-
   getRestApiInfo() {
     return this._getAndParseFromSessionStorage('restapiinfo');
   }
@@ -120,6 +116,8 @@ export default class SystemService {
           sessionStorage.setItem('systeminfo', '{}');
         });
     }
+
+    return Promise.resolve();
   }
 
   loadRestInfo() {
@@ -135,5 +133,7 @@ export default class SystemService {
           sessionStorage.setItem('restapiinfo', '{}');
         });
     }
+
+    return Promise.resolve();
   }
 }

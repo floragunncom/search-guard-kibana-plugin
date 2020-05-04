@@ -1,5 +1,5 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Component } from 'react';
-import chrome from 'ui/chrome';
 import { FieldArray } from 'formik';
 import PropTypes from 'prop-types';
 import {
@@ -13,11 +13,7 @@ import {
   EuiSpacer,
   EuiLoadingSpinner,
 } from '@elastic/eui';
-import {
-  FormikCodeEditor,
-  DeleteButtonIcon,
-  ExecuteButtonIcon,
-} from '../../../../../components';
+import { FormikCodeEditorSG, DeleteButtonIcon, ExecuteButtonIcon } from '../../../../../components';
 import { getCheckBlockTitle } from './utils';
 import {
   checkText,
@@ -27,18 +23,17 @@ import {
 } from '../../../../utils/i18n/watch';
 import { responseText } from '../../../../utils/i18n/common';
 import { isInvalid, hasError, validateWatchString } from '../../utils/validate';
-import { CODE_EDITOR } from '../../../../../utils/constants';
 
-const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
-let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
-theme = !IS_DARK_THEME ? theme : darkTheme;
+import { Context } from '../../../../Context';
 
 // This component must be class because react-draggable-list lib requires it
 class Block extends Component {
-  getDragHeight = () => this.props.item.subtitle ? 112 : 56;
+  static contextType = Context;
+
+  getDragHeight = () => (this.props.item.subtitle ? 112 : 56);
 
   renderCheckEditor = index => (
-    <FormikCodeEditor
+    <FormikCodeEditorSG
       name={`_ui.checksBlocks.${index}.check`}
       formRow
       rowProps={{
@@ -53,13 +48,13 @@ class Block extends Component {
         width: '100%',
         isInvalid,
         setOptions: {
-          ...setOptions,
+          ...this.context.editorOptions,
           minLines: 15,
           maxLines: 15,
           enableLiveAutocompletion: true,
-          enableSnippets: true
+          enableSnippets: true,
         },
-        theme,
+        theme: this.context.editorTheme,
         onChange: (e, query, field, form) => {
           form.setFieldValue(field.name, query);
         },
@@ -74,7 +69,9 @@ class Block extends Component {
   );
 
   renderCheckResponse = response => {
-    const { commonProps: { isLoading } } = this.props;
+    const {
+      commonProps: { isLoading },
+    } = this.props;
     if (isLoading) {
       return (
         <div style={{ margin: 'auto' }}>
@@ -90,9 +87,9 @@ class Block extends Component {
         <EuiCodeEditor
           width="100%"
           isReadOnly
-          theme={theme}
+          theme={this.context.editorTheme}
           mode="json"
-          setOptions={setOptions}
+          setOptions={this.context.editorOptions}
           value={response}
         />
       </EuiFormRow>
@@ -104,10 +101,7 @@ class Block extends Component {
       item: { index, check, response },
       itemSelected,
       dragHandleProps,
-      commonProps: {
-        onExecuteBlocks,
-        onDeleteBlock,
-      },
+      commonProps: { onExecuteBlocks, onDeleteBlock },
     } = this.props;
 
     const scale = itemSelected * 0.05 + 1;
@@ -120,7 +114,7 @@ class Block extends Component {
         onClick={() => onExecuteBlocks(0, index)}
         tooltipProps={{
           content: executeBlocksAboveAndThisBlockText,
-          title: executeText
+          title: executeText,
         }}
       />,
       <ExecuteButtonIcon
@@ -130,18 +124,17 @@ class Block extends Component {
         onClick={() => onExecuteBlocks(index, index)}
         tooltipProps={{
           content: executeOnlyThisBlockText,
-          title: executeText
+          title: executeText,
         }}
       />,
-      <DeleteButtonIcon
-        isDisabled={dragged}
-        onClick={() => onDeleteBlock(index)}
-      />
+      <DeleteButtonIcon isDisabled={dragged} onClick={() => onDeleteBlock(index)} />,
     ];
 
     const renderActions = (actions = []) =>
       actions.map((action, id) => (
-        <EuiFlexItem grow={false} key={id}>{action}</EuiFlexItem>
+        <EuiFlexItem grow={false} key={id}>
+          {action}
+        </EuiFlexItem>
       ));
 
     const style = {
@@ -153,17 +146,16 @@ class Block extends Component {
     }
 
     return (
-      <div
-        className="blocksWatch-blocks-list-item"
-        style={style}
-      >
+      <div className="blocksWatch-blocks-list-item" style={style}>
         <EuiPanel>
           <EuiFlexGroup justifyContent="spaceBetween" alignItems="center">
             <EuiFlexItem grow={false} className="drag-handle">
-              <EuiIcon type="grab" size="l" {...dragHandleProps}/>
+              <EuiIcon type="grab" size="l" {...dragHandleProps} />
             </EuiFlexItem>
             <EuiFlexItem>
-              <EuiText color="subdued" size="s"><p>{getCheckBlockTitle(check)}</p></EuiText>
+              <EuiText color="subdued" size="s">
+                <p>{getCheckBlockTitle(check)}</p>
+              </EuiText>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <EuiFlexGroup justifyContent="spaceBetween" alignItems="center">
