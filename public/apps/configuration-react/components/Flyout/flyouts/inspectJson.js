@@ -1,11 +1,12 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React from 'react';
 import { EuiCodeEditor, EuiText, EuiTitle } from '@elastic/eui';
 import { jsonText } from '../../../utils/i18n/common';
 import { stringifyPretty } from '../../../utils/helpers';
 
-const inspectJson = ({ title, json }) => ({
+const inspectJson = ({ title, json, editorTheme }) => ({
   flyoutProps: {
-    size: 'm'
+    size: 'm',
   },
   headerProps: { hasBorder: true },
   header: (
@@ -18,7 +19,7 @@ const inspectJson = ({ title, json }) => ({
       <EuiText>{jsonText}</EuiText>
       <EuiCodeEditor
         mode="json"
-        theme="github"
+        theme={editorTheme}
         height="600px"
         width="100%"
         readOnly

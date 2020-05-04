@@ -1,6 +1,6 @@
 {
   "name": "searchguard",
-  "version": "7.5.2-40.1.0-SNAPSHOT",
+  "version": "7.5.2-41.0.0-SNAPSHOT",
   "description": "Search Guard features for kibana",
   "main": "index.js",
   "homepage": "https://search-guard.com",
@@ -14,10 +14,12 @@
     "kbn": "node ../../scripts/kbn",
     "test:browser": "./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest public --config ./tests/jest.config.js --silent",
     "test:server": "./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest lib --config ./tests/jest.config.js --silent",
-    "test:prepare_integration_test": "yarn && ./tests/patch_kibana.sh"
+    "test:prepare_integration_test": "yarn && ./patches/patch_kibana_es_version_compatibility.sh",
+    "patch:kibana:samesite": "./patches/patch_to_add_samesite_none_to_cookies.sh",
+    "patch:kibana:dev:es_compatibility": "./patches/patch_kibana_es_version_compatibility.sh"
   },
   "dependencies": {
-    "@elastic/eui": "^13.7.0",
+    "@elastic/eui": "^22.1.0",
     "@elastic/kibana-ui-framework": "0.0.11",
     "@types/react": "^16.9.2",
     "@types/react-dom": "^16.9.0",
@@ -44,7 +46,6 @@
     "react-motion": "^0.5.2",
     "react-router-dom": "^5.0.0",
     "react-vis": "^1.11.7",
-    "redux": "^4.0.4",
     "requirefrom": "^0.2.0",
     "uuid": "^3.3.2",
     "wreck": "14.x.x"

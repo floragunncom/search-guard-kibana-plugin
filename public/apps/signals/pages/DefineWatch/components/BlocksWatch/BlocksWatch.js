@@ -1,7 +1,7 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { useState, useContext, useEffect } from 'react';
 import { get } from 'lodash';
 import { connect as connectFormik } from 'formik';
-import { connect as connectRedux } from 'react-redux';
 import DraggableList from 'react-draggable-list';
 import PropTypes from 'prop-types';
 import update from 'immutability-helper';
@@ -150,4 +150,4 @@ BlocksWatch.propTypes = {
   onOpenChecksTemplatesFlyout: PropTypes.func.isRequired,
 };
 
-export default connectRedux()(connectFormik(BlocksWatch));
+export default connectFormik(BlocksWatch);

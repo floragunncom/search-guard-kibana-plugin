@@ -6,6 +6,8 @@ import chrome from 'ui/chrome';
 import { render, unmountComponentAtNode } from 'react-dom';
 import { I18nProvider } from '@kbn/i18n/react';
 
+import { ContextProvider } from './Context';
+
 import 'ui/autoload/styles';
 import Main from './pages/Main';
 
@@ -30,7 +32,13 @@ function RootController($scope, $element, $http) {
   render(
     <I18nProvider>
       <Router>
-        <Route render={props => <Main title="Search Guard" httpClient={$http} {...props} />} />
+        <Route
+          render={props => (
+            <ContextProvider httpClient={$http}>
+              <Main title="Search Guard" httpClient={$http} {...props} />
+            </ContextProvider>
+          )}
+        />
       </Router>
     </I18nProvider>,
     domNode
