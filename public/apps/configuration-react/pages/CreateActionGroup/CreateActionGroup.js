@@ -1,18 +1,15 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import { EuiSpacer } from '@elastic/eui';
 import queryString from 'query-string';
-import {
-  nameText,
-  advancedText,
-  typeText
-} from '../../utils/i18n/common';
+import { nameText, advancedText, typeText } from '../../utils/i18n/common';
 import {
   createActionGroupText,
   updateActionGroupText,
   actionGroupsText,
-  singlePermissionsText
+  singlePermissionsText,
 } from '../../utils/i18n/action_groups';
 import {
   ContentPanel,
@@ -22,30 +19,41 @@ import {
   FormikSelect,
   InspectButton,
   CancelButton,
-  SaveButton
+  SaveButton,
 } from '../../components';
 import { APP_PATH, ACTION_GROUPS_ACTIONS } from '../../utils/constants';
-import { isInvalid, hasError, validateName, validSinglePermissionOption } from '../../utils/validation';
+import {
+  isInvalid,
+  hasError,
+  validateName,
+  validSinglePermissionOption,
+} from '../../utils/validation';
 import { DEFAULT_ACTION_GROUP, TYPES } from './utils/constants';
 import { actionGroupToFormik, formikToActionGroup, actionGroupsToUiActionGroups } from './utils';
 import { getAllUiIndexPermissions, getAllUiClusterPermissions } from '../../utils/helpers';
+import { ActionGroupsService } from '../../services';
+
+import { Context } from '../../Context';
 
 class CreateActionGroup extends Component {
+  static contextType = Context;
+
   constructor(props) {
     super(props);
 
-    const { location } = this.props;
+    const { location, httpClient } = this.props;
+
+    this.backendService = new ActionGroupsService(httpClient);
     const { id } = queryString.parse(location.search);
+
     this.state = {
       id,
       isEdit: !!id,
       resource: actionGroupToFormik(DEFAULT_ACTION_GROUP, id),
       allActionGroups: [],
-      allSinglePermissions: [ ...getAllUiIndexPermissions(), ...getAllUiClusterPermissions() ],
-      isLoading: true
+      allSinglePermissions: [...getAllUiIndexPermissions(), ...getAllUiClusterPermissions()],
+      isLoading: true,
     };
-
-    this.backendService = this.props.actionGroupsService;
   }
 
   componentDidMount() {
@@ -53,8 +61,8 @@ class CreateActionGroup extends Component {
   }
 
   componentWillUnmount = () => {
-    this.props.onTriggerInspectJsonFlyout(null);
-  }
+    this.context.triggerInspectJsonFlyout(null);
+  };
 
   fetchData = async () => {
     const { id } = this.state;
@@ -62,7 +70,7 @@ class CreateActionGroup extends Component {
     try {
       this.setState({ isLoading: true });
       const { data } = await this.backendService.list();
-      const allActionGroups = actionGroupsToUiActionGroups(data, [ id ]);
+      const allActionGroups = actionGroupsToUiActionGroups(data, [id]);
       this.setState({ allActionGroups });
 
       if (id) {
@@ -71,36 +79,35 @@ class CreateActionGroup extends Component {
       } else {
         this.setState({ resource: actionGroupToFormik(DEFAULT_ACTION_GROUP), isEdit: !!id });
       }
-    } catch(error) {
+    } catch (error) {
       onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
-  }
+  };
 
   onSubmit = async (values, { setSubmitting }) => {
     const { history, onTriggerErrorCallout } = this.props;
     const { _name } = values;
     try {
-      const doPreSave = false;
-      await this.backendService.save(_name, formikToActionGroup(values), doPreSave);
+      await this.backendService.save(_name, formikToActionGroup(values));
       setSubmitting(false);
       history.push(APP_PATH.ACTION_GROUPS);
     } catch (error) {
       setSubmitting(false);
       onTriggerErrorCallout(error);
     }
-  }
+  };
 
   render() {
+    const { history, location } = this.props;
+
     const {
-      history,
-      onTriggerInspectJsonFlyout,
-      location,
-      actionGroupsService,
+      triggerInspectJsonFlyout,
       onComboBoxChange,
+      onComboBoxCreateOption,
       onComboBoxOnBlur,
-      onComboBoxCreateOption
-    } = this.props;
+    } = this.context;
+
     const { resource, isLoading, allSinglePermissions, allActionGroups } = this.state;
     const { action, id } = queryString.parse(location.search);
     const updateActionGroup = action === ACTION_GROUPS_ACTIONS.UPDATE_ACTION_GROUP;
@@ -120,15 +127,15 @@ class CreateActionGroup extends Component {
               title={titleText}
               isLoading={isLoading}
               actions={[
-                (<CancelButton onClick={() => history.push(APP_PATH.ACTION_GROUPS)} />),
-                (<SaveButton isLoading={isSubmitting} onClick={handleSubmit} />)
+                <CancelButton onClick={() => history.push(APP_PATH.ACTION_GROUPS)} />,
+                <SaveButton isLoading={isSubmitting} onClick={handleSubmit} />,
               ]}
             >
               <InspectButton
                 onClick={() => {
-                  onTriggerInspectJsonFlyout({
+                  triggerInspectJsonFlyout({
                     json: formikToActionGroup(values),
-                    title: titleText
+                    title: titleText,
                   });
                 }}
               />
@@ -137,25 +144,25 @@ class CreateActionGroup extends Component {
               <FormikFieldText
                 formRow
                 formikFieldProps={{
-                  validate: validateName(actionGroupsService, isUpdatingName)
+                  validate: validateName(this.backendService, isUpdatingName),
                 }}
                 rowProps={{
                   label: nameText,
                   isInvalid,
-                  error: hasError
+                  error: hasError,
                 }}
                 elementProps={{
-                  isInvalid
+                  isInvalid,
                 }}
                 name="_name"
               />
               <FormikSelect
                 formRow
                 rowProps={{
-                  label: typeText
+                  label: typeText,
                 }}
                 elementProps={{
-                  options: TYPES
+                  options: TYPES,
                 }}
                 name="type"
               />
@@ -169,33 +176,33 @@ class CreateActionGroup extends Component {
                   options: allActionGroups,
                   isClearable: true,
                   onBlur: onComboBoxOnBlur,
-                  onChange: onComboBoxChange()
+                  onChange: onComboBoxChange(),
                 }}
               />
               <FormikSwitch
                 formRow
                 elementProps={{
                   label: advancedText,
-                  checked: values._isAdvanced
+                  checked: values._isAdvanced,
                 }}
                 name="_isAdvanced"
               />
-              {values._isAdvanced &&
+              {values._isAdvanced && (
                 <FormikComboBox
                   name="_permissions"
                   formRow
                   rowProps={{
-                    label: singlePermissionsText
+                    label: singlePermissionsText,
                   }}
                   elementProps={{
                     options: allSinglePermissions,
                     isClearable: true,
                     onBlur: onComboBoxOnBlur,
                     onCreateOption: onComboBoxCreateOption(validSinglePermissionOption),
-                    onChange: onComboBoxChange()
+                    onChange: onComboBoxChange(),
                   }}
                 />
-              }
+              )}
             </ContentPanel>
           );
         }}
@@ -205,14 +212,10 @@ class CreateActionGroup extends Component {
 }
 
 CreateActionGroup.propTypes = {
+  httpClient: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  actionGroupsService: PropTypes.object.isRequired,
-  onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired,
-  onComboBoxOnBlur: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired
 };
 
 export default CreateActionGroup;

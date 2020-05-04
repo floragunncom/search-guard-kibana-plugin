@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Switch, Route } from 'react-router-dom';
@@ -10,7 +11,7 @@ import {
   EuiPageContentBody,
   EuiText,
   EuiListGroup,
-  EuiListGroupItem
+  EuiListGroupItem,
 } from '@elastic/eui';
 import Home from '../Home';
 import {
@@ -25,7 +26,7 @@ import {
   Roles,
   CreateRole,
   RoleMappings,
-  CreateRoleMapping
+  CreateRoleMapping,
 } from '../';
 import { Breadcrumbs, Flyout, Callout, Modal, LoadingPage } from '../../components';
 import { APP_PATH, CALLOUTS, FLYOUTS, MODALS, LOCAL_STORAGE } from '../../utils/constants';
@@ -33,17 +34,23 @@ import { checkIfLicenseValid, comboBoxOptionsToArray } from '../../utils/helpers
 import {
   apiAccessStateForbiddenText,
   apiAccessStateNotEnabledText,
-  sgLicenseNotValidText
+  sgLicenseNotValidText,
 } from '../../utils/i18n/main';
 import { API_ACCESS_STATE } from './utils/constants';
-import { LocalStorageService } from '../../services';
+import { LocalStorageService, ApiService, SystemService } from '../../services';
 import getBreadcrumb from './utils/getBreadcrumb';
 
+import { Context } from '../../Context';
+
 class Main extends Component {
+  static contextType = Context;
+
   constructor(props) {
     super(props);
 
     this.localStorage = new LocalStorageService();
+    this.systemService = new SystemService(this.props.httpClient);
+    this.apiService = new ApiService(this.props.httpClient);
 
     this.state = {
       purgingCache: false,
@@ -52,7 +59,7 @@ class Main extends Component {
       modal: null,
       sideNavItems: [],
       selectedSideNavItemName: undefined,
-      apiAccessState: API_ACCESS_STATE.PENDING
+      apiAccessState: API_ACCESS_STATE.PENDING,
     };
   }
 
@@ -62,14 +69,13 @@ class Main extends Component {
   }
 
   checkAPIAccess = async () => {
-    const { systemstateService } = this.props.angularServices;
     try {
-      await systemstateService.loadSystemInfo();
-      if (!systemstateService.restApiEnabled()) {
+      await this.systemService.loadSystemInfo();
+      if (!this.systemService.restApiEnabled()) {
         this.handleTriggerErrorCallout({ message: apiAccessStateNotEnabledText });
       } else {
-        await systemstateService.loadRestInfo();
-        if (!systemstateService.hasApiAccess()) {
+        await this.systemService.loadRestInfo();
+        if (!this.systemService.hasApiAccess()) {
           this.handleTriggerErrorCallout({ message: apiAccessStateForbiddenText });
         } else {
           this.setState({ apiAccessState: API_ACCESS_STATE.OK });
@@ -79,7 +85,7 @@ class Main extends Component {
     } catch (error) {
       this.handleTriggerErrorCallout(error);
     }
-  }
+  };
 
   calloutErrorIfLicenseNotValid = () => {
     const { isValid, messages } = checkIfLicenseValid();
@@ -92,13 +98,15 @@ class Main extends Component {
               <h3>{sgLicenseNotValidText}</h3>
             </EuiText>
             <EuiListGroup>
-              {map(messages, (message, i) => <EuiListGroupItem key={i} label={message} />)}
+              {map(messages, (message, i) => (
+                <EuiListGroupItem key={i} label={message} />
+              ))}
             </EuiListGroup>
           </Fragment>
-        )
+        ),
       });
     }
-  }
+  };
 
   handleTriggerFlyout = flyout => {
     const { flyout: current } = this.state;
@@ -108,15 +116,18 @@ class Main extends Component {
     } else {
       this.setState({ flyout });
     }
-  }
+  };
 
   handleTriggerInspectJsonFlyout = payload => {
     if (payload === null) {
       this.handleTriggerFlyout(null);
     } else {
-      this.handleTriggerFlyout({ type: FLYOUTS.INSPECT_JSON, payload });
+      this.handleTriggerFlyout({
+        type: FLYOUTS.INSPECT_JSON,
+        payload: { ...payload, editorTheme: this.context.editorTheme },
+      });
     }
-  }
+  };
 
   handleTriggerCustomFlyout = payload => {
     if (payload === null) {
@@ -124,44 +135,43 @@ class Main extends Component {
     } else {
       this.handleTriggerFlyout({ type: FLYOUTS.CUSTOM, payload });
     }
-  }
+  };
 
   handleTriggerCallout = callout => {
     this.setState({ callout });
-  }
+  };
 
   handleTriggerErrorCallout = error => {
     console.error(error);
     error = error.data || error;
     this.handleTriggerCallout({
       type: CALLOUTS.ERROR_CALLOUT,
-      payload: get(error, 'message', error)
+      payload: get(error, 'message', error),
     });
-  }
+  };
 
   handleTriggerSuccessCallout = payload => {
     this.handleTriggerCallout({ type: CALLOUTS.SUCCESS_CALLOUT, payload });
-  }
+  };
 
   handleTriggerModal = modal => {
     this.setState({ modal });
-  }
+  };
 
   handleTriggerConfirmDeletionModal = payload => {
     const modal = payload === null ? null : { type: MODALS.CONFIRM_DELETION, payload };
     this.handleTriggerModal(modal);
-  }
+  };
 
   handlePurgeCache = async () => {
     this.setState({ purgingCache: true });
-    const { backendApiService } = this.props.angularServices;
     try {
-      await backendApiService.clearCache();
+      await this.apiService.clearCache();
     } catch (error) {
       this.handleTriggerErrorCallout(error);
     }
     this.setState({ purgingCache: false });
-  }
+  };
 
   handleComboBoxChange = validationFn => (options, field, form) => {
     const isValidationRequired = validationFn instanceof Function;
@@ -169,7 +179,9 @@ class Main extends Component {
       const error = validationFn(options);
       if (error instanceof Promise) {
         error
-          .then(_error => { throw _error; })
+          .then(_error => {
+            throw _error;
+          })
           .catch(_error => form.setFieldError(field.name, _error));
       } else {
         form.setFieldError(field.name, error);
@@ -178,18 +190,20 @@ class Main extends Component {
 
     const isDeleting = options.length < field.value.length;
     if (isDeleting) {
-      const optionToDelete = comboBoxOptionsToArray(differenceBy(field.value, options, 'label')).join(', ');
+      const optionToDelete = comboBoxOptionsToArray(
+        differenceBy(field.value, options, 'label')
+      ).join(', ');
       this.handleTriggerConfirmDeletionModal({
         body: optionToDelete,
         onConfirm: () => {
           form.setFieldValue(field.name, options);
           this.handleTriggerConfirmDeletionModal(null);
-        }
+        },
       });
     } else {
       form.setFieldValue(field.name, options);
     }
-  }
+  };
 
   handleComboBoxCreateOption = (validationFn, ...props) => async (label, field, form) => {
     let isValid = true;
@@ -198,8 +212,10 @@ class Main extends Component {
       const _isValid = validationFn(label, ...props);
       if (_isValid instanceof Promise) {
         await _isValid
-          .then(_error => { throw _error; })
-          .catch(_error => isValid = _error);
+          .then(_error => {
+            throw _error;
+          })
+          .catch(_error => (isValid = _error));
       } else {
         isValid = _isValid;
       }
@@ -210,34 +226,15 @@ class Main extends Component {
       if (!normalizedSearchValue) return;
       form.setFieldValue(field.name, field.value.concat({ label }));
     }
-  }
+  };
 
   handleComboBoxOnBlur = (e, field, form) => {
     form.setFieldTouched(field.name, true);
-  }
+  };
 
   render() {
-    const {
-      flyout,
-      callout,
-      purgingCache,
-      modal,
-      apiAccessState
-    } = this.state;
-    const {
-      httpClient,
-      angularServices: {
-        internalUsersService,
-        rolesService,
-        configurationService,
-        tenantsService,
-        actionGroupsService,
-        roleMappingsService,
-        systemstateService
-      },
-      history,
-      ...rest
-    } = this.props;
+    const { flyout, callout, purgingCache, modal, apiAccessState } = this.state;
+    const { httpClient, history, ...rest } = this.props;
 
     const isAPIAccessPending = apiAccessState === API_ACCESS_STATE.PENDING;
     const isAPIAccessOk = apiAccessState === API_ACCESS_STATE.OK;
@@ -256,15 +253,13 @@ class Main extends Component {
               <Callout callout={callout} onClose={() => this.handleTriggerCallout(null)} />
               <Modal modal={modal} onClose={() => this.handleTriggerModal(null)} />
               {isAPIAccessPending && LoadingPage}
-              {isAPIAccessOk &&
+              {isAPIAccessOk && (
                 <Switch>
                   <Route
                     path={APP_PATH.CREATE_INTERNAL_USER}
                     render={props => (
                       <CreateInternalUser
                         httpClient={httpClient}
-                        internalUsersService={internalUsersService}
-                        rolesService={rolesService}
                         onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
                         onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
@@ -280,7 +275,6 @@ class Main extends Component {
                     render={props => (
                       <InternalUsers
                         httpClient={httpClient}
-                        internalUsersService={internalUsersService}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
                         onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                         {...props}
@@ -292,7 +286,6 @@ class Main extends Component {
                     render={props => (
                       <Auth
                         httpClient={httpClient}
-                        configurationService={configurationService}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
                         {...props}
                       />
@@ -315,7 +308,6 @@ class Main extends Component {
                     render={props => (
                       <Tenants
                         httpClient={httpClient}
-                        tenantsService={tenantsService}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
                         onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                         {...props}
@@ -327,7 +319,6 @@ class Main extends Component {
                     render={props => (
                       <CreateTenant
                         httpClient={httpClient}
-                        tenantsService={tenantsService}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
                         onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
                         {...props}
@@ -339,7 +330,6 @@ class Main extends Component {
                     render={props => (
                       <ActionGroups
                         httpClient={httpClient}
-                        actionGroupsService={actionGroupsService}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
                         onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                         {...props}
@@ -351,12 +341,7 @@ class Main extends Component {
                     render={props => (
                       <CreateActionGroup
                         httpClient={httpClient}
-                        actionGroupsService={actionGroupsService}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                        onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
-                        onComboBoxChange={this.handleComboBoxChange}
-                        onComboBoxOnBlur={this.handleComboBoxOnBlur}
-                        onComboBoxCreateOption={this.handleComboBoxCreateOption}
                         {...props}
                       />
                     )}
@@ -366,7 +351,6 @@ class Main extends Component {
                     render={props => (
                       <Roles
                         httpClient={httpClient}
-                        rolesService={rolesService}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
                         onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                         {...props}
@@ -378,11 +362,6 @@ class Main extends Component {
                     render={props => (
                       <CreateRole
                         httpClient={httpClient}
-                        rolesService={rolesService}
-                        roleMappingsService={roleMappingsService}
-                        actionGroupsService={actionGroupsService}
-                        systemstateService={systemstateService}
-                        tenantsService={tenantsService}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
                         onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
                         onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
@@ -398,8 +377,6 @@ class Main extends Component {
                     render={props => (
                       <RoleMappings
                         httpClient={httpClient}
-                        rolesService={rolesService}
-                        roleMappingsService={roleMappingsService}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
                         onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
                         {...props}
@@ -411,9 +388,6 @@ class Main extends Component {
                     render={props => (
                       <CreateRoleMapping
                         httpClient={httpClient}
-                        roleMappingsService={roleMappingsService}
-                        internalUsersService={internalUsersService}
-                        rolesService={rolesService}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
                         onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
                         onComboBoxChange={this.handleComboBoxChange}
@@ -426,7 +400,7 @@ class Main extends Component {
                   <Route
                     render={props => (
                       <Home
-                        systemstateService={systemstateService}
+                        httpClient={httpClient}
                         purgingCache={purgingCache}
                         onPurgeCache={this.handlePurgeCache}
                         {...props}
@@ -434,10 +408,9 @@ class Main extends Component {
                     )}
                   />
                 </Switch>
-              }
+              )}
             </EuiPageContentBody>
           </EuiPageContent>
-
         </EuiPageBody>
       </EuiPage>
     );
@@ -446,18 +419,8 @@ class Main extends Component {
 
 Main.propTypes = {
   httpClient: PropTypes.func.isRequired,
-  angularServices: PropTypes.shape({
-    internalUsersService: PropTypes.object.isRequired,
-    rolesService: PropTypes.object.isRequired,
-    configurationService: PropTypes.object.isRequired,
-    backendApiService: PropTypes.object.isRequired,
-    tenantsService: PropTypes.object.isRequired,
-    actionGroupsService: PropTypes.object.isRequired,
-    roleMappingsService: PropTypes.object.isRequired,
-    systemstateService: PropTypes.object.isRequired
-  }),
   history: PropTypes.object.isRequired,
-  location: PropTypes.object.isRequired
+  location: PropTypes.object.isRequired,
 };
 
 export default Main;
