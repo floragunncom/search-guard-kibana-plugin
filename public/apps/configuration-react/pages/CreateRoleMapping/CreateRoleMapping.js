@@ -32,13 +32,18 @@ import {
 } from './utils';
 import { internalUsersToUiBackendRoles } from '../../utils/helpers';
 import { hasError, isInvalid, validateEmptyComboBox } from '../../utils/validation';
+import { RolesService, RolesMappingService, InternalUsersService } from '../../services';
 
 class CreateRoleMapping extends Component {
   constructor(props) {
     super(props);
 
-    const { location } = this.props;
+    const { location, httpClient } = this.props;
+    this.rolesService = new RolesService(httpClient);
+    this.rolesMappingService = new RolesMappingService(httpClient);
+    this.internalUsersService = new InternalUsersService(httpClient);
     const { id } = queryString.parse(location.search);
+
     this.state = {
       id,
       isEdit: !!id,
@@ -60,17 +65,21 @@ class CreateRoleMapping extends Component {
 
   fetchData = async () => {
     const { id } = this.state;
-    const {
-      onTriggerErrorCallout,
-      roleMappingsService,
-      internalUsersService,
-      rolesService
-    } = this.props;
+    const { onTriggerErrorCallout } = this.props;
+
     try {
       this.setState({ isLoading: true });
-      const { data: allInternalUsers } = await internalUsersService.list();
-      const { data: allRoles } = await rolesService.list();
-      const { data: allRoleMappings } = await roleMappingsService.list();
+
+      const [
+        { data: allInternalUsers },
+        { data: allRoles },
+        { data: allRoleMappings },
+      ] = await Promise.all([
+        this.internalUsersService.list(),
+        this.rolesService.list(),
+        this.rolesMappingService.list(),
+      ]);
+
       this.setState({
         allBackendRoles: internalUsersToUiBackendRoles(allInternalUsers),
         allInternalUsers: internalUsersToUiInternalUsers(allInternalUsers),
@@ -78,7 +87,7 @@ class CreateRoleMapping extends Component {
       });
 
       if (id) {
-        const resource = await roleMappingsService.get(id);
+        const resource = await this.rolesMappingService.get(id);
         this.setState({ resource: roleMappingToFormik(resource, id) });
       } else {
         this.setState({
@@ -86,18 +95,17 @@ class CreateRoleMapping extends Component {
           isEdit: !!id
         });
       }
-    } catch(error) {
+    } catch (error) {
       onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
   }
 
   onSubmit = async (values, { setSubmitting }) => {
-    const { history, onTriggerErrorCallout, roleMappingsService } = this.props;
+    const { history, onTriggerErrorCallout } = this.props;
     const { _name: [{ label: name }] } = values;
     try {
-      const doPreSave = false;
-      await roleMappingsService.save(name, formikToRoleMapping(values), doPreSave);
+      await this.rolesMappingService.save(name, formikToRoleMapping(values));
       setSubmitting(false);
       history.push(APP_PATH.ROLE_MAPPINGS);
     } catch (error) {
@@ -240,16 +248,14 @@ class CreateRoleMapping extends Component {
 }
 
 CreateRoleMapping.propTypes = {
+  httpClient: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  roleMappingsService: PropTypes.object.isRequired,
-  internalUsersService: PropTypes.object.isRequired,
-  rolesService: PropTypes.object.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
   onComboBoxChange: PropTypes.func.isRequired,
   onComboBoxCreateOption: PropTypes.func.isRequired,
-  onComboBoxOnBlur: PropTypes.func.isRequired
+  onComboBoxOnBlur: PropTypes.func.isRequired,
 };
 
 export default CreateRoleMapping;

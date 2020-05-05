@@ -37,7 +37,7 @@ unit_build_and_int_tests:
   stage: build
   script:
     - |
-       sg_release=$(curl -Ss -F "token=$SG_RELEASE_TOKEN" -F "variables[CIP]=AWS" -F "variables[KIBANA_BUILD]=true" -F "variables[KIBANA_BRANCH]=$CI_COMMIT_REF_NAME" -F "variables[SG_CIRCLE_JOB]=kibanabuild" -F "ref=master" "https://git.floragunn.com/api/v4/projects/7/trigger/pipeline" --fail)
+       sg_release=$(curl -Ss -F "token=$SG_RELEASE_TOKEN" -F "variables[CIP]=AWS" -F "variables[MERGE_ACTION]=true" -F "variables[KIBANA_BUILD]=true" -F "variables[KIBANA_BRANCH]=$CI_COMMIT_REF_NAME" -F "variables[SG_CIRCLE_JOB]=kibanabuild" -F "ref=master" "https://git.floragunn.com/api/v4/projects/7/trigger/pipeline" --fail)
        sg_release_buildnum=$(jq --raw-output '.id' <<< $sg_release )
        echo "Executing build and integration tests in scope of https://git.floragunn.com/floragunncom/devops/release-support/pipelines/$sg_release_buildnum"
        while true
