@@ -45,6 +45,7 @@ export const TabContent = ({ watchName, onPutWatch, isLoading }) => {
         labelAppend={<LabelAppendLink href={watchExamples[watchName].doc_link} name="WatchDoc" />}
       >
         <EuiCodeEditor
+          mode="json"
           theme={editorTheme}
           width="100%"
           value={watchJson}
