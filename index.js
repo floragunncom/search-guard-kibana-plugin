@@ -36,7 +36,9 @@ export default function (kibana) {
                     password: Joi.string().min(32).default('searchguard_cookie_default_password'),
                     ttl: Joi.number().integer().min(0).default(60 * 60 * 1000),
                     domain: Joi.string(),
-                    isSameSite: Joi.valid('Strict', 'Lax').allow(false).default(false),
+                    // You must execute a patch to if you need 'SameSite=None' in the cookies:
+                    // https://docs.search-guard.com/latest/kibana-in-iframe
+                    isSameSite: Joi.valid('Strict', 'Lax', 'None').allow(false).default(false),
                 }).default(),
                 session: Joi.object().keys({
                     ttl: Joi.number().integer().min(0).default(60 * 60 * 1000),
