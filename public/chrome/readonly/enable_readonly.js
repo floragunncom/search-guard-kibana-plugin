@@ -406,6 +406,13 @@ export function enableReadOnly($rootScope, $http, $window, $timeout, $q, $locati
 
 
     if (!$injector.has('$route')) {
+        const resolveForReactRoutes = async function() {
+            await readOnlyResolver($q, $rootScope, $http, $location, {}, dashboardConfig);
+        }
+
+        //// Read only mode is disabled, developing ...
+        // resolveForReactRoutes();
+
         return;
     }
 
