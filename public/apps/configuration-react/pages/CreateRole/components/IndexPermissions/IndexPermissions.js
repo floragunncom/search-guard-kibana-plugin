@@ -22,14 +22,9 @@ const IndexPermissions = ({
   indexPermissions,
   allActionGroups,
   allSinglePermissions,
-  allIndices,
   isDlsEnabled,
   isFlsEnabled,
   isAnonymizedFieldsEnabled,
-  onComboBoxChange,
-  onComboBoxOnBlur,
-  onComboBoxCreateOption,
-  onTriggerConfirmDeletionModal,
   onTriggerErrorCallout
 }) => (
   <FieldArray
@@ -52,15 +47,10 @@ const IndexPermissions = ({
             indexPermissions={indexPermissions}
             allActionGroups={allActionGroups}
             allSinglePermissions={allSinglePermissions}
-            allIndices={allIndices}
             arrayHelpers={arrayHelpers}
             isDlsEnabled={isDlsEnabled}
             isFlsEnabled={isFlsEnabled}
             isAnonymizedFieldsEnabled={isAnonymizedFieldsEnabled}
-            onComboBoxChange={onComboBoxChange}
-            onComboBoxOnBlur={onComboBoxOnBlur}
-            onComboBoxCreateOption={onComboBoxCreateOption}
-            onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
             onTriggerErrorCallout={onTriggerErrorCallout}
           />
         )}
@@ -84,7 +74,6 @@ IndexPermissions.propTypes = {
   ).isRequired,
   allActionGroups: PropTypes.array.isRequired,
   allSinglePermissions: PropTypes.array.isRequired,
-  allIndices: PropTypes.array.isRequired,
   isDlsEnabled: PropTypes.bool.isRequired,
   isFlsEnabled: PropTypes.bool.isRequired,
   isAnonymizedFieldsEnabled: PropTypes.bool.isRequired,
