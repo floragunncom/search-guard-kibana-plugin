@@ -1,4 +1,5 @@
-import React from 'react';
+/* eslint-disable @kbn/eslint/require-license-header */
+import React, { useContext } from 'react';
 import { connect } from 'formik';
 import PropTypes from 'prop-types';
 import queryString from 'query-string';
@@ -11,7 +12,9 @@ import { severityText, resolveText } from '../../../../utils/i18n/watch';
 import { isInvalid, hasError, validateName } from '../../../../utils/validate';
 import { WatchService } from '../../../../services';
 
-const ActiveSwitch = () => (
+import { Context } from '../../../../Context';
+
+const ActiveSwitch = ({ onSwitchChange: onChange }) => (
   <EuiFlexItem grow={false}>
     <FormikSwitch
       name="active"
@@ -21,15 +24,13 @@ const ActiveSwitch = () => (
       }}
       elementProps={{
         label: activeText,
-        onChange: (e, field, form) => {
-          form.setFieldValue(field.name, e.target.value);
-        }
+        onChange,
       }}
     />
   </EuiFlexItem>
 );
 
-const SeveritySwitch = () => (
+const SeveritySwitch = ({ onSwitchChange: onChange }) => (
   <EuiFlexItem grow={false}>
     <FormikSwitch
       name="_ui.isSeverity"
@@ -39,15 +40,13 @@ const SeveritySwitch = () => (
       }}
       elementProps={{
         label: severityText,
-        onChange: (e, field, form) => {
-          form.setFieldValue(field.name, e.target.value);
-        }
+        onChange,
       }}
     />
   </EuiFlexItem>
 );
 
-const ResolveActionsSwitch = () => (
+const ResolveActionsSwitch = ({ onSwitchChange: onChange }) => (
   <EuiFlexItem grow={false}>
     <FormikSwitch
       name="_ui.isResolveActions"
@@ -57,9 +56,7 @@ const ResolveActionsSwitch = () => (
       }}
       elementProps={{
         label: resolveText,
-        onChange: (e, field, form) => {
-          form.setFieldValue(field.name, e.target.value);
-        }
+        onChange,
       }}
     />
   </EuiFlexItem>
@@ -79,7 +76,7 @@ const WatchName = ({ httpClient, isUpdatingName }) => (
         isInvalid,
       }}
       formikFieldProps={{
-        validate: validateName(new WatchService(httpClient), isUpdatingName)
+        validate: validateName(new WatchService(httpClient), isUpdatingName),
       }}
     />
   </EuiFlexItem>
@@ -87,29 +84,24 @@ const WatchName = ({ httpClient, isUpdatingName }) => (
 
 WatchName.propTypes = {
   httpClient: PropTypes.func.isRequired,
-  isUpdatingName: PropTypes.bool.isRequired
+  isUpdatingName: PropTypes.bool.isRequired,
 };
 
 const GeneralPanel = ({ httpClient, location, formik: { values } }) => {
+  const { onSwitchChange } = useContext(Context);
   const { id } = queryString.parse(location.search);
   const isUpdatingName = id !== values._id;
   const isSeverity = get(values, '_ui.isSeverity', false);
 
   return (
-    <ContentPanel
-      title={generalText}
-      titleSize="s"
-    >
-      <EuiFlexGroup
-        justifyContent="spaceBetween"
-        alignItems="center"
-      >
+    <ContentPanel title={generalText} titleSize="s">
+      <EuiFlexGroup justifyContent="spaceBetween" alignItems="center">
         <WatchName httpClient={httpClient} isUpdatingName={isUpdatingName} />
         <EuiFlexItem grow={false}>
           <EuiFlexGroup>
-            <ActiveSwitch />
-            <SeveritySwitch />
-            {isSeverity && <ResolveActionsSwitch />}
+            <ActiveSwitch onSwitchChange={onSwitchChange} />
+            <SeveritySwitch onSwitchChange={onSwitchChange} />
+            {isSeverity && <ResolveActionsSwitch onSwitchChange={onSwitchChange} />}
           </EuiFlexGroup>
         </EuiFlexItem>
       </EuiFlexGroup>
@@ -121,7 +113,7 @@ const GeneralPanel = ({ httpClient, location, formik: { values } }) => {
 
 GeneralPanel.propTypes = {
   httpClient: PropTypes.func.isRequired,
-  location: PropTypes.object.isRequired
+  location: PropTypes.object.isRequired,
 };
 
 export default connect(GeneralPanel);

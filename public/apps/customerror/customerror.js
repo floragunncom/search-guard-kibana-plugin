@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 /**
  *    Copyright 2019 floragunn GmbH
 
@@ -15,15 +16,47 @@
  */
 
 import chrome from 'ui/chrome';
-import 'ui/autoload/styles';
-/**
- * Reusing the login styles
- */
-import 'plugins/searchguard/apps/customerror/customerror.less';
-import PageController from './page_controller';
-import template from 'plugins/searchguard/apps/customerror/customerror.html';
+import React from 'react';
+import { camelCase } from 'lodash';
+import { render } from 'react-dom';
+import { CustomErrorPage } from './CustomErrorPage';
+
+const PAGEID = 'customerror';
+
+// TODO: Deprecate the reducer below when basicauth.login.buttonstyle is object with valid React CSS style props
+function legacyCSSToReactStyle(style = '') {
+  return style.split(';').reduce((acc, style) => {
+    const [, key, value] = style.match(/(.+):(.+)/) || [];
+    if (key) {
+      acc[camelCase(key.trim())] = value.trim();
+    }
+    return acc;
+  }, {});
+}
 
 chrome
-.setVisible(false)
-.setRootTemplate(template)
-.setRootController('ui', PageController);
+  .setVisible(false)
+  .setRootTemplate(`<div id="${PAGEID}" />`)
+  .setRootController(PAGEID, $scope => {
+    $scope.$$postDigest(() => {
+      const basePath = chrome.getBasePath();
+
+      // Custom styling
+      const brandImagePath = chrome.getInjected('basicauth.login.brandimage');
+      const showBrandImage = chrome.getInjected('basicauth.login.showbrandimage');
+
+      const backButtonContentPropsStyle = legacyCSSToReactStyle(
+        chrome.getInjected('basicauth.login.buttonstyle')
+      );
+
+      render(
+        <CustomErrorPage
+          basePath={basePath}
+          brandImagePath={brandImagePath}
+          showBrandImage={showBrandImage}
+          backButtonContentPropsStyle={backButtonContentPropsStyle}
+        />,
+        document.getElementById(PAGEID)
+      );
+    });
+  });

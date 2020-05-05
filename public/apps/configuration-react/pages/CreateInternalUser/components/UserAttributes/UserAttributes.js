@@ -43,7 +43,6 @@ const renderKeyField = fieldName => (
 const UserAttributes = ({ attributes, onTriggerConfirmDeletionModal }) => (
   <Fragment>
     <SubHeader title={<h4>{userAttributesText}</h4>} />
-    <EuiSpacer size="s" />
     <FieldArray
       name="_attributes"
       validateOnChange={false}

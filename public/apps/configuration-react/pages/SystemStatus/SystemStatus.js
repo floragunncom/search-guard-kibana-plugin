@@ -56,7 +56,7 @@ class SystemStatus extends Component {
       this.setState({ isLoading: true });
       const { data: resources } = await this.backendService.getSystemInfo();
       this.setState({ resources });
-    } catch(error) {
+    } catch (error) {
       this.props.onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
