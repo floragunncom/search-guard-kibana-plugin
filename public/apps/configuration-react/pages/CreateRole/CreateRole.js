@@ -1,42 +1,36 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import queryString from 'query-string';
-import {
-  EuiTabs,
-  EuiTab,
-  EuiSpacer
-} from '@elastic/eui';
-import {
-  ContentPanel,
-  CancelButton,
-  SaveButton
-} from '../../components';
+import { EuiTabs, EuiTab, EuiSpacer } from '@elastic/eui';
+import { ContentPanel, CancelButton, SaveButton } from '../../components';
 import {
   createRoleText,
   clusterPermissionsText,
   indexPermissionsText,
   tenantPermissionsText,
   updateRoleText,
-  overviewText
+  overviewText,
 } from '../../utils/i18n/roles';
 import { ROLES_ACTIONS } from '../../utils/constants';
-import {
-  Overview,
-  ClusterPermissions,
-  IndexPermissions,
-  TenantPermissions
-} from './components';
+import { Overview, ClusterPermissions, IndexPermissions, TenantPermissions } from './components';
 import {
   formikToRole,
   roleToFormik,
-  indicesToUiIndices,
   actionGroupsToUiClusterIndexTenantActionGroups,
-  tenantsToUiTenants
+  tenantsToUiTenants,
 } from './utils';
 import { TABS, ROLE, ROLE_MAPPING } from './utils/constants';
 import { getAllUiIndexPermissions, getAllUiClusterPermissions } from '../../utils/helpers';
-import { ElasticsearchService } from '../../services';
+import {
+  ElasticsearchService,
+  RolesService,
+  RolesMappingService,
+  ActionGroupsService,
+  TenantsService,
+  SystemService,
+} from '../../services';
 
 class CreateRole extends Component {
   constructor(props) {
@@ -45,6 +39,11 @@ class CreateRole extends Component {
     const { location, httpClient } = this.props;
     const { id } = queryString.parse(location.search);
     this.esService = new ElasticsearchService(httpClient);
+    this.rolesService = new RolesService(httpClient);
+    this.rolesMappingService = new RolesMappingService(httpClient);
+    this.actionGroupsService = new ActionGroupsService(httpClient);
+    this.tenantsService = new TenantsService(httpClient);
+    this.systemService = new SystemService(httpClient);
 
     this.state = {
       id,
@@ -58,7 +57,6 @@ class CreateRole extends Component {
       allClusterActionGroups: [],
       allTenantActionGroups: [],
       allTenants: [],
-      allIndices: [],
       isFlsEnabled: true,
       isDlsEnabled: true,
       isAnonymizedFieldsEnabled: true,
@@ -68,20 +66,20 @@ class CreateRole extends Component {
     this.tabs = [
       {
         id: TABS.OVERVIEW,
-        name: overviewText
+        name: overviewText,
       },
       {
         id: TABS.CLUSTER_PERMISSIONS,
-        name: clusterPermissionsText
+        name: clusterPermissionsText,
       },
       {
         id: TABS.INDEX_PERMISSIONS,
-        name: indexPermissionsText
+        name: indexPermissionsText,
       },
       {
         id: TABS.TENANT_PERMISSIONS,
-        name: tenantPermissionsText
-      }
+        name: tenantPermissionsText,
+      },
     ];
   }
 
@@ -91,36 +89,31 @@ class CreateRole extends Component {
 
   componentWillUnmount = () => {
     this.props.onTriggerInspectJsonFlyout(null);
-  }
+  };
 
   fetchData = async () => {
     const { id } = this.state;
-    const {
-      onTriggerErrorCallout,
-      roleMappingsService,
-      actionGroupsService,
-      systemstateService,
-      rolesService,
-      tenantsService
-    } = this.props;
+    const { onTriggerErrorCallout } = this.props;
 
     try {
       this.setState({ isLoading: true });
-      const { data: actionGroups } = await actionGroupsService.list();
+
+      const [{ data: actionGroups }, { data: allTenants }] = await Promise.all([
+        this.actionGroupsService.list(),
+        this.tenantsService.list(),
+        this.systemService.loadSystemInfo(),
+      ]);
+
       const {
         allClusterActionGroups,
         allIndexActionGroups,
-        allTenantActionGroups
+        allTenantActionGroups,
       } = actionGroupsToUiClusterIndexTenantActionGroups(actionGroups);
-      const { data: allIndices } = await this.esService.getIndices();
-      const { data: allTenants } = await tenantsService.list();
 
-      // TODO: Refactor this to get stuff without side effects
-      await systemstateService.loadSystemInfo();
-      const isDlsEnabled = systemstateService.dlsFlsEnabled();
+      const isDlsEnabled = this.systemService.dlsFlsEnabled();
       const isFlsEnabled = isDlsEnabled;
-      const isMultiTenancyEnabled = systemstateService.multiTenancyEnabled();
-      const isAnonymizedFieldsEnabled = systemstateService.complianceFeaturesEnabled();
+      const isMultiTenancyEnabled = this.systemService.multiTenancyEnabled();
+      const isAnonymizedFieldsEnabled = this.systemService.complianceFeaturesEnabled();
 
       this.setState({
         allClusterActionGroups,
@@ -130,66 +123,60 @@ class CreateRole extends Component {
         isFlsEnabled,
         isAnonymizedFieldsEnabled,
         isMultiTenancyEnabled,
-        allIndices: indicesToUiIndices(allIndices),
-        allTenants: tenantsToUiTenants(allTenants)
+        allTenants: tenantsToUiTenants(allTenants),
       });
 
       if (id) {
-        const resource = await rolesService.get(id);
-        const roleMapping = await roleMappingsService.getSilent(id, false);
+        const resource = await this.rolesService.get(id);
+        const roleMapping = await this.rolesMappingService.getSilent(id);
         this.setState({ resource: roleToFormik({ resource, id, roleMapping }) });
       } else {
-        this.setState({ resource: roleToFormik({ resource: ROLE, roleMapping: ROLE_MAPPING }), isEdit: !!id });
+        this.setState({
+          resource: roleToFormik({ resource: ROLE, roleMapping: ROLE_MAPPING }),
+          isEdit: !!id,
+        });
       }
-    } catch(error) {
+    } catch (error) {
       onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
-  }
+  };
 
   onSubmit = async (values, { setSubmitting }) => {
-    const { history, onTriggerErrorCallout, rolesService } = this.props;
+    const { history, onTriggerErrorCallout } = this.props;
     const { _name } = values;
     try {
       const doPreSave = false;
-      await rolesService.save(_name, formikToRole(values), doPreSave);
+      await this.rolesService.save(_name, formikToRole(values), doPreSave);
       setSubmitting(false);
       history.goBack();
     } catch (error) {
       setSubmitting(false);
       onTriggerErrorCallout(error);
     }
-  }
+  };
 
-  handleSelectedTabChange = selectedTabId => this.setState({ selectedTabId })
+  handleSelectedTabChange = selectedTabId => this.setState({ selectedTabId });
 
-  renderTabs = () => this.tabs.map((tab, i) => (
-    <EuiTab
-      data-test-subj={`sgRoleTab-${tab.id}`}
-      key={i}
-      isSelected={tab.id === this.state.selectedTabId}
-      onClick={() => this.handleSelectedTabChange(tab.id)}
-    >
-      {tab.name}
-    </EuiTab>
-  ))
+  renderTabs = () =>
+    this.tabs.map((tab, i) => (
+      <EuiTab
+        data-test-subj={`sgRoleTab-${tab.id}`}
+        key={i}
+        isSelected={tab.id === this.state.selectedTabId}
+        onClick={() => this.handleSelectedTabChange(tab.id)}
+      >
+        {tab.name}
+      </EuiTab>
+    ));
 
   render() {
-    const {
-      history,
-      location,
-      httpClient,
-      onComboBoxChange,
-      onComboBoxOnBlur,
-      onComboBoxCreateOption,
-      onTriggerConfirmDeletionModal
-    } = this.props;
+    const { history, location } = this.props;
     const {
       isEdit,
       isLoading,
       resource,
       selectedTabId,
-      allIndices,
       isDlsEnabled,
       isFlsEnabled,
       isMultiTenancyEnabled,
@@ -199,7 +186,7 @@ class CreateRole extends Component {
       allIndexActionGroups,
       allClusterActionGroups,
       allTenantActionGroups,
-      allTenants
+      allTenants,
     } = this.state;
     const { action, id } = queryString.parse(location.search);
     const updateRole = action === ROLES_ACTIONS.UPDATE_ROLE;
@@ -223,15 +210,15 @@ class CreateRole extends Component {
               title={titleText}
               isLoading={isLoading}
               actions={[
-                (<CancelButton onClick={() => history.goBack()} />),
-                (<SaveButton isLoading={isSubmitting} onClick={handleSubmit} />)
+                <CancelButton onClick={() => history.goBack()} />,
+                <SaveButton isLoading={isSubmitting} onClick={handleSubmit} />,
               ]}
             >
               <EuiTabs display="condensed">{this.renderTabs()}</EuiTabs>
 
               <EuiSpacer />
 
-              {isOverviewTab &&
+              {isOverviewTab && (
                 <Overview
                   isUpdatingName={isUpdatingName}
                   values={values}
@@ -239,38 +226,29 @@ class CreateRole extends Component {
                   isEdit={isEdit}
                   {...this.props}
                 />
-              }
-              {isClusterPermissionsTab &&
+              )}
+              {isClusterPermissionsTab && (
                 <ClusterPermissions
                   isAdvanced={values._isClusterPermissionsAdvanced}
                   allActionGroups={allClusterActionGroups}
                   allSinglePermissions={allClusterPermissions}
-                  onComboBoxChange={onComboBoxChange}
-                  onComboBoxOnBlur={onComboBoxOnBlur}
-                  onComboBoxCreateOption={onComboBoxCreateOption}
                   isEdit={isEdit}
                   {...this.props}
                 />
-              }
-              {isIndexPermissionsTab &&
+              )}
+              {isIndexPermissionsTab && (
                 <IndexPermissions
-                  httpClient={httpClient}
                   indexPermissions={values._indexPermissions}
-                  allIndices={allIndices}
                   allActionGroups={allIndexActionGroups}
                   allSinglePermissions={allIndexPermissions}
                   isEdit={isEdit}
                   isDlsEnabled={isDlsEnabled}
                   isFlsEnabled={isFlsEnabled}
                   isAnonymizedFieldsEnabled={isAnonymizedFieldsEnabled}
-                  onComboBoxChange={onComboBoxChange}
-                  onComboBoxOnBlur={onComboBoxOnBlur}
-                  onComboBoxCreateOption={onComboBoxCreateOption}
-                  onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
                   {...this.props}
                 />
-              }
-              {isTenantPermissionsTab &&
+              )}
+              {isTenantPermissionsTab && (
                 <TenantPermissions
                   allTenants={allTenants}
                   allAppActionGroups={allTenantActionGroups}
@@ -278,13 +256,9 @@ class CreateRole extends Component {
                   values={values}
                   isEdit={isEdit}
                   isMultiTenancyEnabled={isMultiTenancyEnabled}
-                  onComboBoxChange={onComboBoxChange}
-                  onComboBoxOnBlur={onComboBoxOnBlur}
-                  onComboBoxCreateOption={onComboBoxCreateOption}
-                  onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
                   {...this.props}
                 />
-              }
+              )}
             </ContentPanel>
           );
         }}
@@ -296,18 +270,10 @@ class CreateRole extends Component {
 CreateRole.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  rolesService: PropTypes.object.isRequired,
-  roleMappingsService: PropTypes.object.isRequired,
-  actionGroupsService: PropTypes.object.isRequired,
-  systemstateService: PropTypes.object.isRequired,
-  tenantsService: PropTypes.object.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
   httpClient: PropTypes.func.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired,
-  onComboBoxOnBlur: PropTypes.func.isRequired
 };
 
 export default CreateRole;

@@ -13,7 +13,7 @@ import {
 import { FLS_MODES } from './constants';
 
 describe('role to UI role ', () => {
-  test('can build UI tenants and indices', () => {
+  test('can build UI tenants', () => {
     const resource = {
       a: {},
       b: {}
@@ -25,6 +25,21 @@ describe('role to UI role ', () => {
     ];
 
     expect(tenantsToUiTenants(resource)).toEqual(uiResource);
+  });
+
+  test('can build UI indices', () => {
+    const resource = [
+      { index: 'a', health: 'green' },
+      { index: 'b', health: 'red' },
+      { alias: 'c', index: 'b' },
+    ];
+
+    const uiResource = [
+      { label: 'a', color: 'primary' },
+      { label: 'b', color: 'danger' },
+      { label: 'c', color: 'hollow' },
+    ];
+
     expect(indicesToUiIndices(resource)).toEqual(uiResource);
   });
 
