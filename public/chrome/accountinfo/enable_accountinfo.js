@@ -17,9 +17,7 @@
 
 import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules';
-import { FeatureCatalogueRegistryProvider, FeatureCatalogueCategory } from 'ui/registry/feature_catalogue';
 import { EuiIcon } from '@elastic/eui';
-
 import { chromeWrapper } from "../../services/chrome_wrapper";
 
 export function toggleAccountInfoLink(Private) {
