@@ -15,19 +15,20 @@
  */
 
 import chrome from 'ui/chrome';
-import {parse} from 'url';
 import _ from 'lodash';
-import { sanitizeNextUrlFromFullUrl } from "./sanitize_next_url";
+import { sanitizeNextUrlFromFullUrl } from './sanitize_next_url';
+import { SystemStateService } from '../../services';
 
-require ('../../directives/licensewarning');
-require ('../configuration/systemstate/systemstate');
+require('../../directives/licensewarning');
 
-export default function LoginController(kbnUrl, $scope, $http, $window, systemstate) {
+export default function LoginController($http, $window) {
 
     const ROOT = chrome.getBasePath();
     const APP_ROOT = `${ROOT}`;
     const API_ROOT = `${APP_ROOT}/api/v1`;
     const BRANDIMAGE = chrome.getInjected("basicauth.login.brandimage");
+
+    const systemStateService = new SystemStateService($http);
 
     // if session was not terminated by logout, clear any remaining
     // stored paths etc. from previous users, to avoid issues
@@ -106,8 +107,8 @@ export default function LoginController(kbnUrl, $scope, $http, $window, systemst
                         // load and cache systeminfo and rest api info
                         // perform in the callback due to Chrome cancelling the
                         // promises if we navigate away from the page, even if async/await
-                        systemstate.loadSystemInfo().then((response) => {
-                            systemstate.loadRestInfo().then((response) => {
+                        systemStateService.loadSystemInfo().then((response) => {
+                            systemStateService.loadRestInfo().then((response) => {
                                 var user = JSON.parse(sessionStorage.getItem("sg_user"));
                                 $window.location.href = `${nextUrl}`;
                             });

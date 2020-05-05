@@ -41,13 +41,14 @@ import {
   rolesText
 } from '../../utils/i18n/roles';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
-import { LocalStorageService } from '../../services';
+import { LocalStorageService, RolesService, RolesMappingService } from '../../services';
 
 class RoleMappings extends Component {
   constructor(props) {
     super(props);
 
-    this.backendService = this.props.roleMappingsService;
+    this.rolesMappingService = new RolesMappingService(this.props.httpClient);
+    this.rolesService = new RolesService(this.props.httpClient);
     this.localStorage = new LocalStorageService();
     const { isShowingTableSystemItems = false } = this.localStorage.cache[APP_PATH.ROLE_MAPPINGS];
 
@@ -74,11 +75,11 @@ class RoleMappings extends Component {
   }
 
   fetchData = async () => {
-    const { rolesService, onTriggerErrorCallout } = this.props;
+    const { onTriggerErrorCallout } = this.props;
     this.setState({ isLoading: true });
     try {
-      const { data } = await this.backendService.list();
-      const { data: allRoles } = await rolesService.list();
+      const { data } = await this.rolesMappingService.list();
+      const { data: allRoles } = await this.rolesService.list();
       const resources = resourcesToUiResources(data, allRoles);
       const tableResources = filterReservedStaticTableResources(resources, this.state.isShowingTableSystemItems);
       this.setState({ resources, tableResources, error: null });
@@ -108,7 +109,7 @@ class RoleMappings extends Component {
     try {
       this.setState({ isLoading: true });
       for (let i = 0; i < resourceIds.length; i++) {
-        await this.backendService.delete(resourceIds[i]);
+        await this.rolesMappingService.delete(resourceIds[i]);
       }
     } catch(error) {
       this.setState({ error });
@@ -123,8 +124,7 @@ class RoleMappings extends Component {
     name += '_copy';
     try {
       this.setState({ isLoading: true });
-      const doPreSave = false;
-      await this.backendService.save(name, uiResourceToResource(resource), doPreSave);
+      await this.rolesMappingService.save(name, uiResourceToResource(resource));
     } catch(error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
@@ -326,11 +326,10 @@ class RoleMappings extends Component {
 }
 
 RoleMappings.propTypes = {
+  httpClient: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  rolesService: PropTypes.object.isRequired,
-  roleMappingsService: PropTypes.object.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
 };
 
 export default RoleMappings;

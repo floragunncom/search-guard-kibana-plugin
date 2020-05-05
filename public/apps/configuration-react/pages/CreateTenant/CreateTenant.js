@@ -19,21 +19,22 @@ import { APP_PATH, TENANTS_ACTIONS } from '../../utils/constants';
 import { isInvalid, hasError, validateName } from '../../utils/validation';
 import { DEFAULT_TENANT } from './utils/constants';
 import { tenantToFormik, formikToTenant } from './utils';
+import { TenantsService } from '../../services';
 
 class CreateTenant extends Component {
   constructor(props) {
     super(props);
 
-    const { location } = this.props;
+    const { location, httpClient } = this.props;
+    this.backendService = new TenantsService(httpClient);
     const { id } = queryString.parse(location.search);
+
     this.state = {
       id,
       isEdit: !!id,
       resource: tenantToFormik(DEFAULT_TENANT, id),
       isLoading: true
     };
-
-    this.backendService = this.props.tenantsService;
   }
 
   componentDidMount() {
@@ -75,7 +76,7 @@ class CreateTenant extends Component {
   }
 
   render() {
-    const { history, onTriggerInspectJsonFlyout, location, tenantsService } = this.props;
+    const { history, onTriggerInspectJsonFlyout, location } = this.props;
     const { resource, isLoading } = this.state;
     const { action, id } = queryString.parse(location.search);
     const updateTenant = action === TENANTS_ACTIONS.UPDATE_TENANT;
@@ -112,7 +113,7 @@ class CreateTenant extends Component {
               <FormikFieldText
                 formRow
                 formikFieldProps={{
-                  validate: validateName(tenantsService, isUpdatingName)
+                  validate: validateName(this.backendService, isUpdatingName)
                 }}
                 rowProps={{
                   label: nameText,
@@ -145,7 +146,6 @@ class CreateTenant extends Component {
 CreateTenant.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  tenantsService: PropTypes.object.isRequired,
   onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired
 };

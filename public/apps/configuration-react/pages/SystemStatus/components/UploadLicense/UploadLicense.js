@@ -1,14 +1,10 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Component } from 'react';
 import chrome from 'ui/chrome';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import { EuiFilePicker, EuiFlexGroup, EuiFlexItem, EuiFormRow } from '@elastic/eui';
-import {
-  ContentPanel,
-  FormikCodeEditor,
-  CancelButton,
-  SaveButton
-} from '../../../../components';
+import { ContentPanel, FormikCodeEditor, CancelButton, SaveButton } from '../../../../components';
 import { APP_PATH } from '../../../../utils/constants';
 import { SIDE_NAV } from '../../utils/constants';
 import {
@@ -18,18 +14,15 @@ import {
   licenseStringText,
   licenseWasUploadedSuccessfullyText,
   selectOrDragAndDropLicenseFileText,
-  licenseFileCantBeImportedText
+  licenseFileCantBeImportedText,
 } from '../../../../utils/i18n/system_status';
 import { validateTextField, isInvalid, hasError } from '../../../../utils/validation';
 import { SystemService } from '../../../../services';
 import { readFileAsText } from '../../../../utils/helpers';
-import { CODE_EDITOR } from '../../../../../utils/constants';
 
-const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
-let { theme, darkTheme, ...setOptions } = CODE_EDITOR;
-theme = !IS_DARK_THEME ? theme : darkTheme;
+import { Context } from '../../../../Context';
 
-const LicenseEditor = () => (
+const LicenseEditor = ({ editorTheme, editorOptions }) => (
   <FormikCodeEditor
     name="license"
     formRow
@@ -44,8 +37,8 @@ const LicenseEditor = () => (
       mode: 'text',
       width: '100%',
       height: '300px',
-      theme,
-      setOptions,
+      theme: editorTheme,
+      setOptions: editorOptions,
       onChange: (e, license, field, form) => {
         form.setFieldValue('license', license);
       },
@@ -57,14 +50,16 @@ const LicenseEditor = () => (
 );
 
 class UploadLicense extends Component {
+  static contextType = Context;
+
   constructor(props) {
     super(props);
 
     this.state = {
       isLoading: false,
       initialValues: {
-        license: ''
-      }
+        license: '',
+      },
     };
 
     this.backendService = new SystemService(this.props.httpClient);
@@ -72,7 +67,7 @@ class UploadLicense extends Component {
 
   componentWillUnmount = () => {
     this.props.onTriggerCustomFlyout(null);
-  }
+  };
 
   onSubmit = async ({ license }, { setSubmitting }) => {
     const { onTriggerSuccessCallout, onTriggerErrorCallout, history } = this.props;
@@ -82,14 +77,14 @@ class UploadLicense extends Component {
       history.push({
         pathname: APP_PATH.SYSTEM_INFO,
         state: {
-          selectedSideNavItemName: SIDE_NAV.LICENSE
-        }
+          selectedSideNavItemName: SIDE_NAV.LICENSE,
+        },
       });
     } catch (error) {
       onTriggerErrorCallout(error);
     }
     setSubmitting(false);
-  }
+  };
 
   importAndSubmitLicense = async ([licenseFile], isSubmitting, handleSubmit) => {
     if (!licenseFile) {
@@ -105,7 +100,7 @@ class UploadLicense extends Component {
       this.props.onTriggerErrorCallout(licenseFileCantBeImportedText);
     }
     this.setState({ isLoading: false });
-  }
+  };
 
   render() {
     const { history } = this.props;
@@ -122,13 +117,20 @@ class UploadLicense extends Component {
             <ContentPanel
               title={uploadLicenseText}
               actions={[
-                (<CancelButton onClick={() => history.push(APP_PATH.SYSTEM_INFO)} />),
-                (<SaveButton isDisabled={!values.license} isLoading={isSubmitting} onClick={handleSubmit} />)
+                <CancelButton onClick={() => history.push(APP_PATH.SYSTEM_INFO)} />,
+                <SaveButton
+                  isDisabled={!values.license}
+                  isLoading={isSubmitting}
+                  onClick={handleSubmit}
+                />,
               ]}
             >
               <EuiFlexGroup>
                 <EuiFlexItem grow={4}>
-                  <LicenseEditor />
+                  <LicenseEditor
+                    editorTheme={this.context.editorTheme}
+                    editorOptions={this.context.editorOptions}
+                  />
                 </EuiFlexItem>
                 <EuiFlexItem grow={false}>
                   <EuiFormRow label={uploadLicenseFileText} helpText={uploadFileformatsText}>
@@ -136,7 +138,9 @@ class UploadLicense extends Component {
                       data-test-subj="sgImportLicenseFlyoutFilePicker"
                       initialPromptText={selectOrDragAndDropLicenseFileText}
                       disabled={this.state.isLoading}
-                      onChange={event => this.importAndSubmitLicense(event, isSubmitting, handleSubmit)}
+                      onChange={event =>
+                        this.importAndSubmitLicense(event, isSubmitting, handleSubmit)
+                      }
                       accept=".txt,.lic"
                     />
                   </EuiFormRow>
@@ -156,7 +160,7 @@ UploadLicense.propTypes = {
   httpClient: PropTypes.func.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
   onTriggerSuccessCallout: PropTypes.func.isRequired,
-  onTriggerCustomFlyout: PropTypes.func.isRequired
+  onTriggerCustomFlyout: PropTypes.func.isRequired,
 };
 
 export default UploadLicense;
