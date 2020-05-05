@@ -1,4 +1,5 @@
-import React, { useState } from "react"
+/* eslint-disable @kbn/eslint/require-license-header */
+import React, { useState } from 'react';
 import uuid from 'uuid/v4';
 import chrome from 'ui/chrome';
 import { EuiGlobalToastList, EuiTitle, EuiText, EuiCodeBlock } from '@elastic/eui';
@@ -7,6 +8,10 @@ import { Flyout, Modal } from './components';
 import { comboBoxOptionsToArray } from '../utils/helpers';
 import { FLYOUTS, MODALS } from './utils/constants';
 import { CODE_EDITOR } from '../utils/constants';
+
+// Themes for EuiCodeEditor
+import 'brace/theme/twilight';
+import 'brace/theme/textmate';
 
 const Context = React.createContext();
 
@@ -33,13 +38,13 @@ const ContextProvider = ({ children, httpClient }) => {
     setFlyout(newFlyout);
   };
 
-  const triggerInspectJsonFlyout = payload => {
+  const triggerInspectJsonFlyout = (payload = {}) => {
     if (payload === null) {
       triggerFlyout(null);
       return;
     }
 
-    triggerFlyout({ type: FLYOUTS.INSPECT_JSON, payload });
+    triggerFlyout({ type: FLYOUTS.INSPECT_JSON, payload: { ...payload, editorTheme } });
   };
 
   const closeModal = () => setModal(null);
@@ -54,6 +59,12 @@ const ContextProvider = ({ children, httpClient }) => {
   const triggerConfirmDeletionModal = payload => {
     const modal = payload === null ? null : { type: MODALS.CONFIRM_DELETION, payload };
     triggerModal(modal);
+  };
+
+  const onSwitchChange = (e, field, form) => {
+    // We trigger the switch by inverting the input bool value.
+    // Formik passes 'true' or 'false'. But EuiSwitch requires it to be boolean not string, we deal with it here.
+    form.setFieldValue(field.name, !(e.target.value === 'true' || e.target.value === true));
   };
 
   const onComboBoxChange = validationFn => (options, field, form) => {
@@ -186,6 +197,7 @@ const ContextProvider = ({ children, httpClient }) => {
           editorTheme,
           editorOptions,
           httpClient,
+          onSwitchChange,
           onComboBoxChange,
           onComboBoxCreateOption,
           onComboBoxOnBlur,
