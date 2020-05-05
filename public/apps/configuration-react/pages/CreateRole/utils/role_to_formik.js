@@ -1,4 +1,5 @@
-import { cloneDeep, map, defaultsDeep, isEmpty } from 'lodash';
+/* eslint-disable @kbn/eslint/require-license-header */
+import { cloneDeep, map, defaultsDeep, isEmpty, sortBy } from 'lodash';
 import { FLS_MODES, ROLE, ROLE_MAPPING } from './constants';
 import {
   allowedActionsToPermissionsAndActiongroups,
@@ -31,7 +32,21 @@ export const actionGroupsToUiClusterIndexTenantActionGroups = (actionGroups = {}
   return { allClusterActionGroups, allIndexActionGroups, allTenantActionGroups };
 };
 
-export const indicesToUiIndices = indices => arrayToComboBoxOptions(Object.keys(indices));
+export const indicesToUiIndices = indices => {
+  const colors = {
+    red: 'danger',
+    green: 'primary',
+    yellow: 'warning',
+    default: 'hollow',
+  };
+
+  return sortBy(
+    indices.map(({ index, alias, health = 'default' }) => {
+      return { label: alias ? alias : index, color: colors[health] };
+    }),
+    'label'
+  );
+};
 
 export const tenantPermissionToUiTenantPermission = tenantPermission => {
   const {
