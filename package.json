@@ -9,6 +9,9 @@
     "type": "git",
     "url": "https://github.com/floragunncom/search-guard-kibana-plugin"
   },
+  "scripts": {
+    "patch:kibana:samesite": "./patches/patch_to_add_samesite_none_to_cookies.sh"
+  },
   "dependencies": {
     "@elastic/kibana-ui-framework": "0.0.11",
     "bell": "9.4.0",
