@@ -91,7 +91,7 @@ export const ConfigSchema = schema.object({
       schema.literal('proxy'),
       schema.literal('kerberos'),
       schema.literal('proxycache'),
-    ], {defaultValue: ''}),
+    ], { defaultValue: 'basicauth' }),
     anonymous_auth_enabled: schema.boolean({ defaultValue: false }),
     unauthenticated_routes: schema.arrayOf(schema.string(), { defaultValue: ['/api/status']}),
     logout_url: schema.string({ defaultValue: '' })
