@@ -169,14 +169,13 @@ mkdir -p $BUILD_STAGE_PLUGIN_DIR
 cp -a "$WORK_DIR/index.js" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/package.json" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/lib" "$BUILD_STAGE_PLUGIN_DIR"
-cp -a "$WORK_DIR/server" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/public" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/utils" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/examples" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/tests" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/patches" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/babel.config.js" "$BUILD_STAGE_PLUGIN_DIR"
-cp -a "$WORK_DIR/patch_kibana.sh" "$BUILD_STAGE_PLUGIN_DIR"
-cp -a "$WORK_DIR/kibana.json" "$BUILD_STAGE_PLUGIN_DIR"
+
 
 cd $BUILD_STAGE_PLUGIN_DIR
 
@@ -236,8 +235,7 @@ cp -a "$BUILD_STAGE_PLUGIN_DIR/server" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/public" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/utils" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/examples" "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/patch_kibana.sh" "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/kibana.json" "$COPYPATH"
+cp -a "$BUILD_STAGE_PLUGIN_DIR/patches" "$COPYPATH"
 
 end=`date +%s`
 echo "Build time: $((end-start)) sec"
