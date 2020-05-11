@@ -32,7 +32,7 @@ export class Plugin {
     this.signalsApp = new Signals();
   }
 
-  async setup(core) {
+  async setup(core, pluginDependencies) {
     const router = core.http.createRouter();
 
     process.on('unhandledRejection', error => {
@@ -262,6 +262,7 @@ export class Plugin {
           config,
           authInstance,
           searchGuardBackend,
+          spacesPlugin: pluginDependencies.spaces || null,
         });
       } catch (error) {
         this.logger.error(error);

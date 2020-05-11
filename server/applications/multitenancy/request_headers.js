@@ -17,7 +17,14 @@
 
 import { assign } from 'lodash';
 
-export function requestHeaders({ server, searchGuardBackend, authInstance, config }) {
+export function requestHeaders({
+  server,
+  searchGuardBackend,
+  authInstance,
+  config,
+  spacesPlugin = null,
+  elasticsearch,
+}) {
   const globalEnabled = config.get('searchguard.multitenancy.tenants.enable_global');
   const privateEnabled = config.get('searchguard.multitenancy.tenants.enable_private');
   const preferredTenants = config.get('searchguard.multitenancy.tenants.preferred');
@@ -61,8 +68,9 @@ export function requestHeaders({ server, searchGuardBackend, authInstance, confi
       !request.path.startsWith('/elasticsearch') &&
       !request.path.startsWith('/api') &&
       !request.path.startsWith('/app') &&
+      !request.path.startsWith('/spaces') &&
       request.path !== '/' &&
-      !selectedTenant
+      selectedTenant === storedSelectedTenant
     ) {
       return h.continue;
     }
@@ -125,24 +133,19 @@ export function requestHeaders({ server, searchGuardBackend, authInstance, confi
       assign(request.headers, { sgtenant: selectedTenant });
     }
 
-    // Test for default space?
-    if (
-      config.get('xpack.spaces.enabled') &&
-      (request.path === '/' || request.path.startsWith('/app'))
-    ) {
-      // We can't add a default space for RO tenants at the moment
-      if (selectedTenant && response.sg_tenants[selectedTenant] === false) {
-        return h.continue;
-      }
+    // Test for default space if spaces are enabled and we're on an app path
+    const isDefaultSpacesRelevantPath =
+      request.path === '/' || request.path.startsWith('/app') || request.path.startsWith('/spaces');
 
-      const spaces = server.newPlatform.setup.plugins.spaces;
-      const spacesClient = await spaces.spacesService.scopedClient(request);
-
+    if (spacesPlugin && isDefaultSpacesRelevantPath) {
+      const spacesClient = await spacesPlugin.spacesService.scopedClient(request);
       let defaultSpace = null;
 
       try {
         defaultSpace = await spacesClient.get(defaultSpaceId);
+        server.log(['searchguard', 'info'], `Default space exists ${defaultSpace.id}`);
       } catch (error) {
+        server.log(['searchguard', 'info'], `No default space, will try to create`);
         // Most likely not really an error, default space just not found
       }
 
@@ -151,7 +154,7 @@ export function requestHeaders({ server, searchGuardBackend, authInstance, confi
           if (selectedTenant && response.sg_tenants[selectedTenant] === false) {
             await addDefaultSpaceToReadOnlyTenant(
               server,
-              spacesClient,
+              elasticsearch,
               request,
               backend,
               defaultSpaceId,
@@ -181,16 +184,21 @@ async function addDefaultSpaceToWriteTenant(server, spacesClient, defaultSpaceId
       disabledFeatures: [],
       _reserved: true,
     });
+    server.log(['searchguard', 'info'], `Default space created`);
+
     return true;
   } catch (error) {
-    server.log(['searchguard', 'error'], `An error occurred while creating a default space`);
+    server.log(
+      ['searchguard', 'error'],
+      `An error occurred while creating a default space: ${error}`
+    );
     throw error;
   }
 }
 
 async function addDefaultSpaceToReadOnlyTenant(
   server,
-  spacesClient,
+  elasticsearch,
   request,
   backend,
   defaultSpaceId,
@@ -206,7 +214,7 @@ async function addDefaultSpaceToReadOnlyTenant(
       }
     }
 
-    // We have one known issue here. If a read only tenant is completely, the index will not yet have been created.
+    // We have one known issue here. If a read only tenant is completely empty, the index will not yet have been created.
     // Hence, we won't retrieve an index name for that tenant.
     if (!indexName) {
       server.log(
@@ -217,15 +225,14 @@ async function addDefaultSpaceToReadOnlyTenant(
     }
 
     // Call elasticsearch directly without using the Saved Objects Client
-    const adminCluster = server.plugins.elasticsearch.getCluster('admin');
-    const { callWithRequest } = adminCluster;
+    const adminCluster = elasticsearch.adminClient;
 
     const clientParams = {
-      id: `space:${defaultSpaceId}`, // Should this be the default space id?
-      type: 'doc',
+      id: `space:${defaultSpaceId}`,
       index: indexName,
-      refresh: 'wait_for',
+      ignore: 409,
       body: {
+        type: 'space',
         space: {
           name: 'Default',
           description: 'This is your default space!',
@@ -233,18 +240,22 @@ async function addDefaultSpaceToReadOnlyTenant(
           color: '#00bfb3',
           _reserved: true,
         },
-        type: 'space',
         updated_at: new Date().toISOString(),
       },
     };
 
     // Create the space
-    callWithRequest(request, 'create', clientParams);
+    adminCluster.asScoped(request).callAsCurrentUser('create', clientParams);
+    server.log(
+      ['searchguard', 'info'],
+      `Created a default space for a read only tenant: ${tenantName}`
+    );
   } catch (error) {
     server.log(
       ['searchguard', 'error'],
-      `An error occurred while creating a default space for a read only tenant`
+      `An error occurred while creating a default space for a read only tenant ${error}`
     );
+
     throw error;
   }
 }
