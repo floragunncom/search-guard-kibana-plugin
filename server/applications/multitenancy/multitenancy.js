@@ -27,7 +27,15 @@ export class Multitenancy {
     this.tenantsMigration = new TenantsMigrationService(coreContext);
   }
 
-  async setup({ hapiServer, searchGuardBackend, elasticsearch, config, authInstance, router }) {
+  async setup({
+    hapiServer,
+    searchGuardBackend,
+    elasticsearch,
+    config,
+    authInstance,
+    router,
+    spacesPlugin = null,
+  }) {
     this.logger.info('Setup app');
 
     try {
@@ -43,7 +51,14 @@ export class Multitenancy {
       }
 
       defineLegacyRoutes({ server: hapiServer, searchGuardBackend, config });
-      requestHeaders({ server: hapiServer, searchGuardBackend, authInstance, config });
+      requestHeaders({
+        server: hapiServer,
+        searchGuardBackend,
+        authInstance,
+        config,
+        elasticsearch,
+        spacesPlugin,
+      });
 
       const preferenceCookieConf = {
         ttl: 2217100485000,
