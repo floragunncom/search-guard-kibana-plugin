@@ -239,6 +239,7 @@ cp -a "$BUILD_STAGE_PLUGIN_DIR/patches" "$COPYPATH"
 end=`date +%s`
 echo "Build time: $((end-start)) sec"
 
+
 if [ "$COMMAND" == "deploy-snapshot-maven" ] ; then
     echo "+++ mvn clean deploy +++"
     $MAVEN_HOME/bin/mvn clean deploy -s settings.xml -Drevision="$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT"
