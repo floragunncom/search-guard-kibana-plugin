@@ -3,7 +3,7 @@ import Joi from 'joi';
 import { serverError } from '../../lib/errors';
 import { BASE_URI } from '../../../../../utils/signals/constants';
 
-const getAliases = ({ clusterClient }) => async request => {
+const getAliases = ({ clusterClient, logger }) => async request => {
   try {
     const { alias } = request.payload;
     const resp = await clusterClient.asScoped(request).callAsCurrentUser('cat.aliases', {
@@ -14,16 +14,16 @@ const getAliases = ({ clusterClient }) => async request => {
 
     return { ok: true, resp };
   } catch (err) {
-    console.error('Signals - getAliases:', err);
+    logger.error(`getAliases: ${err.toString()} ${err.stack}`);
     return { ok: false, resp: serverError(err) };
   }
 };
 
-export function getAliasesRoute({ hapiServer, clusterClient }) {
+export function getAliasesRoute({ hapiServer, clusterClient, logger }) {
   hapiServer.route({
     path: `${BASE_URI}/_aliases`,
     method: 'POST',
-    handler: getAliases({ clusterClient }),
+    handler: getAliases({ clusterClient, logger }),
     config: {
       validate: {
         payload: {

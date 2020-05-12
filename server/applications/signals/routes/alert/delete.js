@@ -3,7 +3,7 @@ import Joi from 'joi';
 import { serverError } from '../../lib/errors';
 import { ROUTE_PATH, INDEX } from '../../../../../utils/signals/constants';
 
-const deleteAlert = ({ clusterClient }) => async request => {
+const deleteAlert = ({ clusterClient, logger }) => async request => {
   try {
     const { id, index } = request.params;
 
@@ -16,16 +16,16 @@ const deleteAlert = ({ clusterClient }) => async request => {
 
     return { ok: resp.result === 'deleted', resp };
   } catch (err) {
-    console.error('Signals - deleteAlert:', err);
+    logger.error(`deleteAlert: ${err.toString()} ${err.stack}`);
     return { ok: false, resp: serverError(err) };
   }
 };
 
-export function deleteAlertRoute({ hapiServer, clusterClient }) {
+export function deleteAlertRoute({ hapiServer, clusterClient, logger }) {
   hapiServer.route({
     path: `${ROUTE_PATH.ALERT}/{index}/{id}`,
     method: 'DELETE',
-    handler: deleteAlert({ clusterClient }),
+    handler: deleteAlert({ clusterClient, logger }),
     config: {
       validate: {
         params: {

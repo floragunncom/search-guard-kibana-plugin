@@ -3,7 +3,7 @@ import Joi from 'joi';
 import { serverError } from '../../lib/errors';
 import { BASE_URI, MAX_DOC_COUNT_SEARCH } from '../../../../../utils/signals/constants';
 
-const searchEs = ({ clusterClient }) => async request => {
+const searchEs = ({ clusterClient, logger }) => async request => {
   try {
     const { body, index, size } = request.payload;
 
@@ -13,16 +13,16 @@ const searchEs = ({ clusterClient }) => async request => {
 
     return { ok: true, resp };
   } catch (err) {
-    console.error('Signals - searchEs:', err);
+    logger.error(`searchEs: ${err.toString()} ${err.stack}`);
     return { ok: false, resp: serverError(err) };
   }
 };
 
-export function searchEsRoute({ hapiServer, clusterClient }) {
+export function searchEsRoute({ hapiServer, clusterClient, logger }) {
   hapiServer.route({
     path: `${BASE_URI}/_search`,
     method: 'POST',
-    handler: searchEs({ clusterClient }),
+    handler: searchEs({ clusterClient, logger }),
     config: {
       validate: {
         payload: {

@@ -1,6 +1,6 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import Joi from 'joi';
-import { serverError, fetchAllFromScroll } from '../../lib';
+import { serverError } from '../../lib';
 import {
   INDEX,
   ROUTE_PATH,
@@ -9,7 +9,7 @@ import {
   NO_MULTITENANCY_TENANT,
 } from '../../../../../utils/signals/constants';
 
-export const getAlerts = ({ clusterClient }) => async request => {
+export const getAlerts = ({ clusterClient, fetchAllFromScroll, logger }) => async request => {
   try {
     const {
       payload: { query, sort, index, scroll },
@@ -51,16 +51,16 @@ export const getAlerts = ({ clusterClient }) => async request => {
       resp: hits.map(h => ({ ...h._source, _id: h._id, _index: h._index })),
     };
   } catch (err) {
-    console.error('Signals - getAlerts:', err);
+    logger.error(`getAlerts: ${err.toString()} ${err.stack}`);
     return { ok: false, resp: serverError(err) };
   }
 };
 
-export const getAlertsRoute = ({ hapiServer, clusterClient }) => {
+export const getAlertsRoute = ({ hapiServer, clusterClient, fetchAllFromScroll, logger }) => {
   hapiServer.route({
     path: ROUTE_PATH.ALERTS,
     method: 'POST',
-    handler: getAlerts({ clusterClient }),
+    handler: getAlerts({ clusterClient, fetchAllFromScroll, logger }),
     config: {
       validate: {
         options: {

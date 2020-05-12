@@ -29,7 +29,7 @@ export class Plugin {
     this.logger = initializerContext.logger.get();
     this.initContext = initializerContext;
     this.config$ = initializerContext.config.create();
-    this.signalsApp = new Signals();
+    this.signalsApp = new Signals(this.initContext);
   }
 
   async setup(core, pluginDependencies) {

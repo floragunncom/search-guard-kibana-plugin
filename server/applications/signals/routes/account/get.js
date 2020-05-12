@@ -4,7 +4,7 @@ import { serverError } from '../../lib/errors';
 import { getId } from '../../lib/helpers';
 import { ROUTE_PATH } from '../../../../../utils/signals/constants';
 
-const getAccount = ({ clusterClient }) => async request => {
+const getAccount = ({ clusterClient, logger }) => async request => {
   try {
     const { id, type } = request.params;
 
@@ -21,17 +21,17 @@ const getAccount = ({ clusterClient }) => async request => {
     };
   } catch (err) {
     if (err.statusCode !== 404) {
-      console.error('Signals - getAccount:', err);
+      logger.error(`getAccount: ${err.toString()} ${err.stack}`);
     }
     return { ok: false, resp: serverError(err) };
   }
 };
 
-export function getAccountRoute({ hapiServer, clusterClient }) {
+export function getAccountRoute({ hapiServer, clusterClient, logger }) {
   hapiServer.route({
     path: `${ROUTE_PATH.ACCOUNT}/{type}/{id}`,
     method: 'GET',
-    handler: getAccount({ clusterClient }),
+    handler: getAccount({ clusterClient, logger }),
     config: {
       validate: {
         params: {
