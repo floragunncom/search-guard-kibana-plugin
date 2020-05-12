@@ -17,7 +17,7 @@
 
 import { API_ROOT } from '../../../utils/constants';
 
-export function legacyMultitenancyRoutes({ server, searchGuardBackend, config }) {
+export function multitenancyRoutes({ server, searchGuardBackend, config }) {
   const debugEnabled = config.get('searchguard.multitenancy.debug');
   const preferencesCookieName = config.get('searchguard.cookie.preferences_cookie_name');
 

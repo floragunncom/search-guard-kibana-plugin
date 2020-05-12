@@ -1,6 +1,23 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 /* global jest */
 
+export function setupSearchGuardBackendInstMock() {
+  return {
+    getTenantInfoWithInternalUser: jest.fn(),
+  };
+}
+
+export function setupKibanaMigratorMock({ mockRunMigrations } = {}) {
+  let runMigrations = jest.fn();
+  if (mockRunMigrations) runMigrations = mockRunMigrations;
+
+  return jest.fn().mockImplementation(() => {
+    return {
+      runMigrations,
+    };
+  });
+}
+
 function setupRequestMock() {
   return {
     params: {},
@@ -10,9 +27,44 @@ function setupRequestMock() {
   };
 }
 
-function setupResponseMock() {
+function setupResponseImplementationMock({ body, statusCode, ...props }) {
   return {
-    ok: jest.fn(),
+    status: statusCode,
+    payload: body,
+    options: { body, ...props },
+  };
+}
+
+function setupResponseMock({ mockOk, mockBadRequest, mockCustomError, mockInternalError } = {}) {
+  const ok =
+    mockOk ||
+    jest.fn().mockImplementation(options => {
+      return setupResponseImplementationMock({ statusCode: 200, ...options });
+    });
+
+  const badRequest =
+    mockBadRequest ||
+    jest.fn().mockImplementation(options => {
+      return setupResponseImplementationMock({ statusCode: 400, ...options });
+    });
+
+  const customError =
+    mockCustomError ||
+    jest.fn().mockImplementation(options => {
+      return setupResponseImplementationMock(options);
+    });
+
+  const internalError =
+    mockInternalError ||
+    jest.fn().mockImplementation(options => {
+      return setupResponseImplementationMock({ statusCode: 500, ...options });
+    });
+
+  return {
+    ok,
+    badRequest,
+    customError,
+    internalError,
   };
 }
 
