@@ -23,7 +23,7 @@ import { chromeWrapper } from "../../services/chrome_wrapper";
 import { SystemStateService } from '../../services';
 import { npSetup } from 'ui/new_platform';
 import { FeatureCatalogueCategory } from '../../../../../src/plugins/home/public/services/feature_catalogue';
-
+import '../navigationicons.css';
 const app = uiModules.get('apps/searchguard/configuration');
 
 function redirectOnSessionTimeout($window) {
