@@ -71,7 +71,7 @@ cd $WORK_DIR
 grep "\-SNAPSHOT" package.json > /dev/null 2>&1
 if [ $? != 0 ]; then
     echo "Not a snapshot version in package.json"
-    exit 1
+
 fi
 
 VERSION=$(cat package.json | tr -d '"' | tr -d ',' | grep version: | tr -d ' ' | tr -d 'version:')
@@ -163,7 +163,7 @@ fi
 
 if [ "$COMMAND" == "install-local" ] ; then
     echo "+++ mvn clean install +++"
-    $MAVEN_HOME/bin/mvn clean install -Drevision="$KIBANA_VERSION-$SG_PLUGIN_VERSION-SNAPSHOT"
+    $MAVEN_HOME/bin/mvn clean install -Drevision="$KIBANA_VERSION-$SG_PLUGIN_VERSION"
     if [ $? != 0 ]; then
         echo "$MAVEN_HOME/bin/mvn clean install failed"
         exit 1
