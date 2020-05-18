@@ -19,13 +19,12 @@ import { uiModules } from 'ui/modules';
 // This fixes an issue where the app icons would disappear while having a non-Kibana app open.
 // Should be fixed starting from Kibana 6.6.2
 import 'ui/autoload/modules';
-import { FeatureCatalogueRegistryProvider, FeatureCatalogueCategory } from 'ui/registry/feature_catalogue';
 import { chromeWrapper } from "../../services/chrome_wrapper";
 import { SystemStateService } from '../../services';
-
+import { npSetup } from 'ui/new_platform';
+import { FeatureCatalogueCategory } from '../../../../../src/plugins/home/public/services/feature_catalogue';
+import '../navigationicons.css';
 const app = uiModules.get('apps/searchguard/configuration');
-
-
 
 function redirectOnSessionTimeout($window) {
     const APP_ROOT = `${chrome.getBasePath()}`;
@@ -149,16 +148,14 @@ export function enableConfiguration($http, $window) {
         return systemStateService.loadRestInfo().then(function(){
             if (systemStateService.hasApiAccess()) {
                 chromeWrapper.hideNavLink('searchguard-configuration', false);
-                FeatureCatalogueRegistryProvider.register(() => {
-                    return {
-                        id: 'searchguard-configuration',
-                        title: 'Search Guard Configuration',
-                        description: 'Configure users, roles and permissions for Search Guard.',
-                        icon: 'securityApp',
-                        path: '/app/searchguard-configuration',
-                        showOnHomePage: true,
-                        category: FeatureCatalogueCategory.ADMIN
-                    };
+                npSetup.plugins.home.featureCatalogue.register({
+                    id: 'searchguard-configuration',
+                    title: 'Search Guard Configuration',
+                    description: 'Configure users, roles and permissions for Search Guard.',
+                    icon: 'securityApp',
+                    path: '/app/searchguard-configuration',
+                    showOnHomePage: true,
+                    category: FeatureCatalogueCategory.ADMIN,
                 });
             } else {
                 chromeWrapper.hideNavLink('searchguard-configuration', true);
