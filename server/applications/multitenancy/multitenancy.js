@@ -17,7 +17,7 @@
 
 import { first } from 'rxjs/operators';
 import { TenantsMigrationService } from './tenants_migration_service';
-import { defineLegacyRoutes } from './routes';
+import { defineMultitenancyRoutes } from './routes';
 import { requestHeaders } from './request_headers';
 
 export class Multitenancy {
@@ -50,7 +50,8 @@ export class Multitenancy {
         );
       }
 
-      defineLegacyRoutes({ server: hapiServer, searchGuardBackend, config });
+      defineMultitenancyRoutes({ server: hapiServer, searchGuardBackend, config });
+
       requestHeaders({
         server: hapiServer,
         searchGuardBackend,

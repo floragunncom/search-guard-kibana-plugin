@@ -1,12 +1,10 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import Boom from 'boom';
 import { schema } from '@kbn/config-schema';
-import { KibanaMigrator } from '../../../../../../src/core/server/saved_objects/migrations';
 import { API_ROOT } from '../../../utils/constants';
 
-export function migrateRoute({
-  router,
+export function migrateTenants({
   searchGuardBackend,
+  KibanaMigrator,
   migratorDeps: {
     callCluster,
     kibanaConfig,
@@ -17,26 +15,26 @@ export function migrateRoute({
     savedObjectValidations,
   },
 }) {
-  const options = {
-    path: `${API_ROOT}/multitenancy/migrate/{tenantIndex}`,
-    validate: {
-      params: schema.object({
-        tenantIndex: schema.string(),
-      }),
-    },
-  };
-
-  async function handler(context, request, response) {
+  return async function(context, request, response) {
     try {
       const { tenantIndex } = request.params;
       let body;
+
+      if (!tenantIndex) {
+        return response.badRequest({
+          body: new Error('Tenant index name is required as the request parameter.'),
+        });
+      }
 
       let tenantIndices = await searchGuardBackend.getTenantInfoWithInternalUser();
       tenantIndices =
         !tenantIndices || typeof tenantIndices !== 'object' ? [] : Object.keys(tenantIndices);
 
-      if (!!tenantIndices.length) {
-        throw new Error('No tenant indices have been found!');
+      if (!tenantIndices.length) {
+        return response.customError({
+          statusCode: 503,
+          body: new Error('No tenant indices have been found. Migration is not triggered.'),
+        });
       }
 
       if (tenantIndex === '_all') {
@@ -62,9 +60,12 @@ export function migrateRoute({
       const indexToMigrate = tenantIndices.find(index => index === tenantIndex);
 
       if (!indexToMigrate) {
-        throw new Error(
-          `The tenant index "${tenantIndex}" has not been found. Check if the index name is correct.`
-        );
+        return response.customError({
+          statusCode: 503,
+          body: new Error(
+            `The tenant's index "${tenantIndex}" has not been found. Check if the index name is correct.`
+          ),
+        });
       }
 
       const migrator = new KibanaMigrator({
@@ -82,13 +83,21 @@ export function migrateRoute({
       return response.ok({ body });
     } catch (error) {
       logger.error(`migrateRoute - ${error}: ${error.stack}`);
-      return response.customError({
-        body: Boom.boomify(error),
-        statusCode: 500,
-      });
+      return response.internalError({ body: error });
     }
-  }
+  };
+}
 
-  router.post(options, handler);
-  router.get(options, handler);
+export function migrateTenantsRoute({ router, searchGuardBackend, migratorDeps, KibanaMigrator }) {
+  const options = {
+    path: `${API_ROOT}/multitenancy/migrate/{tenantIndex}`,
+    validate: {
+      params: schema.object({
+        tenantIndex: schema.string(),
+      }),
+    },
+  };
+
+  router.post(options, migrateTenants({ searchGuardBackend, migratorDeps, KibanaMigrator }));
+  router.get(options, migrateTenants({ searchGuardBackend, migratorDeps, KibanaMigrator }));
 }

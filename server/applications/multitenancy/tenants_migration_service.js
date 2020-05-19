@@ -22,7 +22,7 @@ import { SavedObjectConfig } from '../../../../../src/core/server/saved_objects/
 import { retryCallCluster } from '../../../../../src/core/server/elasticsearch/retry_call_cluster';
 import { KibanaMigrator } from '../../../../../src/core/server/saved_objects/migrations';
 
-import { defineMigrateRoute } from './routes';
+import { defineMigrateRoutes } from './routes';
 
 export class TenantsMigrationService {
   constructor(coreContext) {
@@ -84,6 +84,13 @@ export class TenantsMigrationService {
         savedObjectValidations: {}, // Kibana NP doesn't have this yet.
       };
 
+      defineMigrateRoutes({
+        KibanaMigrator,
+        migratorDeps,
+        router: this.router,
+        searchGuardBackend: this.searchGuardBackend,
+      });
+
       const migrator = new KibanaMigrator(migratorDeps);
 
       await putTenantIndexTemplate({
@@ -104,12 +111,6 @@ export class TenantsMigrationService {
 
         return;
       }
-
-      defineMigrateRoute({
-        migratorDeps,
-        router: this.router,
-        searchGuardBackend: this.searchGuardBackend,
-      });
 
       const migrators = this.tenantIndices.map(index => {
         return new KibanaMigrator({
