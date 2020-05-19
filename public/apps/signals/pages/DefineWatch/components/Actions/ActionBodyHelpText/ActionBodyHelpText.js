@@ -46,7 +46,7 @@ export default ({ watchResultData }) => {
                     mode="json"
                     width="100%"
                     height="500px"
-                    value={stringifyPretty(watchResultData)}
+                    value={stringifyPretty(watchResultData.runtime_attributes || {})}
                     readOnly
                   />
                 </EuiFormRow>

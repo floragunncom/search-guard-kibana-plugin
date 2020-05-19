@@ -26,7 +26,7 @@ const ActionBodyPreview = ({
     : executeWatchToSeeResultText;
 
   const _template = isEmpty(template) ? get(values, `actions[${index}].request.body`) : template;
-  const _view = isEmpty(view) ? values._ui.checksResult : view;
+  const _view = isEmpty(view) ? get(values, '_ui.checksResult.runtime_attributes', {}) : view;
 
   let previewBody;
   try {

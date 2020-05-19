@@ -73,9 +73,6 @@ const propTypes = {
   indexFieldName: PropTypes.string.isRequired,
   isClearable: PropTypes.bool,
   singleSelection: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),
-  onComboBoxOnBlur: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired,
 };
 
 class WatchIndex extends React.Component {
@@ -248,14 +245,7 @@ class WatchIndex extends React.Component {
       false //isIncludingSystemIndices
     );
 
-    const {
-      indexFieldName,
-      isClearable = true,
-      singleSelection = false,
-      onComboBoxChange,
-      onComboBoxOnBlur,
-      onComboBoxCreateOption,
-    } = this.props;
+    const { indexFieldName, isClearable = true, singleSelection = false } = this.props;
 
     return (
       <FormikComboBox
@@ -276,9 +266,9 @@ class WatchIndex extends React.Component {
           async: true,
           isLoading,
           options: visibleOptions,
-          onBlur: onComboBoxOnBlur,
-          onChange: onComboBoxChange(),
-          onCreateOption: onComboBoxCreateOption(),
+          onBlur: this.context.onComboBoxOnBlur,
+          onChange: this.context.onComboBoxChange(),
+          onCreateOption: this.context.onComboBoxCreateOption(),
           onSearchChange: this.onSearchChange,
           renderOption: this.renderOption,
           'data-test-subj': 'sgIndicesComboBox',
