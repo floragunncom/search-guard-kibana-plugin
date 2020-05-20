@@ -1,6 +1,7 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Fragment, useContext } from 'react';
 import { Context } from '../../../../../Context';
-import {EuiCodeEditor, EuiFormRow, EuiLink} from '@elastic/eui';
+import { EuiCodeEditor, EuiFormRow, EuiLink } from '@elastic/eui';
 import { FLYOUTS } from '../../../../../utils/constants';
 import { stringifyPretty } from '../../../../../../utils/helpers';
 import {
@@ -9,22 +10,25 @@ import {
   actionBodyHelpLabelWithResults,
   actionBodyHelpLabelWithoutResults,
   mustacheLinkLabel,
-  watchResultsLinkLabel
+  watchResultsLinkLabel,
 } from '../../../../../utils/i18n/watch';
 
+export default ({ watchResultData, isHTML = false }) => {
+  const { editorTheme, triggerFlyout } = useContext(Context);
 
-export default ({ watchResultData }) => {
-  const {
-    editorTheme,
-    triggerFlyout
-  } = useContext(Context);
-
-  const hasWatchResultData = (watchResultData !== null && typeof watchResultData === 'object');
+  const hasWatchResultData = watchResultData !== null && typeof watchResultData === 'object';
   let label = '';
 
   const mustacheLink = (
     <EuiLink href="https://mustache.github.io/" target="_blank">
       {mustacheLinkLabel}
+    </EuiLink>
+  );
+
+  // eslint-disable-next-line prettier/prettier
+  const htmlLink = !isHTML ? undefined : (
+    <EuiLink href="https://developer.mozilla.org/en-US/docs/Web/HTML" target="_blank">
+      HTML
     </EuiLink>
   );
 
@@ -37,10 +41,7 @@ export default ({ watchResultData }) => {
             payload: {
               title: watchResultsFlyoutTitle,
               body: (
-                <EuiFormRow
-                  fullWidth
-                  label={responseText}
-                >
+                <EuiFormRow fullWidth label={responseText}>
                   <EuiCodeEditor
                     theme={editorTheme}
                     mode="json"
@@ -51,7 +52,7 @@ export default ({ watchResultData }) => {
                   />
                 </EuiFormRow>
               ),
-            }
+            },
           });
         }}
       >
@@ -59,14 +60,10 @@ export default ({ watchResultData }) => {
       </EuiLink>
     );
 
-    label = actionBodyHelpLabelWithResults(watchResultLink, mustacheLink);
+    label = actionBodyHelpLabelWithResults(watchResultLink, mustacheLink, htmlLink);
   } else {
-    label = actionBodyHelpLabelWithoutResults(mustacheLink)
+    label = actionBodyHelpLabelWithoutResults(mustacheLink, htmlLink);
   }
 
-  return (
-    <Fragment>
-      {label}
-    </Fragment>
-  );
+  return <Fragment>{label}</Fragment>;
 };

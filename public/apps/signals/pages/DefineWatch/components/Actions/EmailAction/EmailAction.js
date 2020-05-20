@@ -5,7 +5,7 @@ import { isEmpty, get } from 'lodash';
 import { EuiSpacer } from '@elastic/eui';
 import { FormikCodeEditor, FormikFieldText, FormikComboBox } from '../../../../../components';
 import { getCurrentAccount } from '../utils';
-import { nameText, bodyText } from '../../../../../utils/i18n/common';
+import { nameText } from '../../../../../utils/i18n/common';
 import ActionChecks from '../ActionChecks';
 import {
   fromText,
@@ -15,6 +15,8 @@ import {
   bccText,
   severityText,
   resolvesSeverityText,
+  textBodyText,
+  htmlBodyText,
 } from '../../../../../utils/i18n/watch';
 import {
   validateEmailAddr,
@@ -64,7 +66,9 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
   const bccPath = `${actionsRootPath}[${index}].bcc`;
   const subjectPath = `${actionsRootPath}[${index}].subject`;
   const textBodyPath = `${actionsRootPath}[${index}].text_body`;
-  const bodyPreviewTemplate = get(values, `${actionsRootPath}[${index}].text_body`, '');
+  const textBodyPreviewTemplate = get(values, `${actionsRootPath}[${index}].text_body`, '');
+  const htmlBodyPath = `${actionsRootPath}[${index}].html_body`;
+  const htmlBodyPreviewTemplate = get(values, `${actionsRootPath}[${index}].html_body`, '');
 
   return (
     <Fragment>
@@ -209,18 +213,18 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
         name={textBodyPath}
         formRow
         rowProps={{
-          label: bodyText,
+          label: textBodyText,
           fullWidth: true,
           isInvalid,
           error: hasError,
-          helpText: (<ActionBodyHelpText watchResultData={checksResult} />)
+          helpText: <ActionBodyHelpText watchResultData={checksResult} />,
         }}
         elementProps={{
           isInvalid,
           setOptions: {
             ...editorOptions,
             maxLines: 10,
-            minLines: 10
+            minLines: 10,
           },
           mode: 'text',
           width: '100%',
@@ -236,7 +240,37 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
           validate: validateEmptyField,
         }}
       />
-      <ActionBodyPreview index={index} template={bodyPreviewTemplate} />
+      <ActionBodyPreview template={textBodyPreviewTemplate} />
+
+      <FormikCodeEditor
+        name={htmlBodyPath}
+        formRow
+        rowProps={{
+          label: htmlBodyText,
+          fullWidth: true,
+          isInvalid,
+          error: hasError,
+          helpText: <ActionBodyHelpText watchResultData={checksResult} isHTML={true} />,
+        }}
+        elementProps={{
+          isInvalid,
+          setOptions: {
+            ...editorOptions,
+            maxLines: 10,
+            minLines: 10,
+          },
+          mode: 'text',
+          width: '100%',
+          theme: editorTheme,
+          onChange: (e, text, field, form) => {
+            form.setFieldValue(field.name, text);
+          },
+          onBlur: (e, field, form) => {
+            form.setFieldTouched(field.name, true);
+          },
+        }}
+      />
+      <ActionBodyPreview template={htmlBodyPreviewTemplate} isHTML={true} />
 
       <EuiSpacer />
       {!isGraphWatch && <ActionChecks actionIndex={index} />}
