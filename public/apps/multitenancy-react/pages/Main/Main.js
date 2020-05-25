@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import chrome from 'ui/chrome';
 import { APP_NAME } from '../../../../../utils/signals/constants';
 import {
@@ -32,21 +32,12 @@ import {
   EuiFlyoutBody,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiCallOut, EuiText, EuiListGroup, EuiListGroupItem, EuiPageHeader
+  EuiCallOut, EuiText, EuiPageHeader
 } from '@elastic/eui';
 import { chromeWrapper } from '../../../../services/chrome_wrapper';
 import { MainContext } from '../../contexts/MainContextProvider';
-import { LocalStorageService } from '../../../configuration-react/services';
-import { get, isEmpty, map } from 'lodash';
-import { CALLOUTS, LOCAL_STORAGE } from '../../../configuration-react/utils/constants';
-import { checkIfLicenseValid } from '../../../configuration-react/utils/helpers';
-import {
-  apiAccessStateForbiddenText,
-  apiAccessStateNotEnabledText,
-  sgLicenseNotValidText
-} from '../../../configuration-react/utils/i18n/main';
-import { Callout } from '../../../components';
-import { API_ACCESS_STATE } from '../../../configuration-react/pages/Main/utils/constants';
+
+import {LicenseWarningCallout} from '../../../components';
 import {
   nameHeader,
   permissionsHeader,
@@ -56,11 +47,8 @@ import {
   mtPageHeader,
   mtConfigErrorHeader,
   mtRolesFlyoutTitle,
-  globalTenantLabel,
-  privateTenantLabel,
   selectedTenantButtonLabel, selectTenantButtonLabel, showDashboardLabel, showVisualizationLabel
 } from "../../utils/i18n/multitenancy_labels";
-import {SystemStateService} from "../../../../services";
 
 
 export default class Main extends Component {
@@ -71,9 +59,6 @@ export default class Main extends Component {
 
     const APP_ROOT = `${chrome.getBasePath()}`;
     this.API_ROOT = `${APP_ROOT}/api/v1`;
-
-    this.localStorage = new LocalStorageService();
-    if (isEmpty(this.localStorage.cache)) this.localStorage.cache = LOCAL_STORAGE;
 
     this.state = {
       isLoading: true,
@@ -100,62 +85,6 @@ export default class Main extends Component {
 
     this.fetchMultiTenancyInfo(addErrorToast);
     this.fetchTenants(addErrorToast);
-  }
-
-  componentDidMount() {
-    this.checkAPIAccess();
-  }
-
-  checkAPIAccess = async () => {
-    const systemstateService = new SystemStateService(this.props.httpClient)
-    try {
-      await systemstateService.loadSystemInfo();
-      if (!systemstateService.restApiEnabled()) {
-        this.handleTriggerErrorCallout({ message: apiAccessStateNotEnabledText });
-      } else {
-        await systemstateService.loadRestInfo();
-        if (!systemstateService.hasApiAccess()) {
-          this.handleTriggerErrorCallout({ message: apiAccessStateForbiddenText });
-        } else {
-          this.setState({ apiAccessState: API_ACCESS_STATE.OK });
-        }
-      }
-      this.calloutErrorIfLicenseNotValid();
-    } catch (error) {
-      this.handleTriggerErrorCallout(error);
-    }
-  }
-
-  handleTriggerCallout = callout => {
-    this.setState({ callout });
-  }
-
-  calloutErrorIfLicenseNotValid = () => {
-    const { isValid, messages } = checkIfLicenseValid();
-    if (!isValid) {
-      this.handleTriggerCallout({
-        type: CALLOUTS.ERROR_CALLOUT,
-        payload: (
-          <Fragment>
-            <EuiText>
-              <h3>{sgLicenseNotValidText}</h3>
-            </EuiText>
-            <EuiListGroup>
-              {map(messages, (message, i) => <EuiListGroupItem key={i} label={message} />)}
-            </EuiListGroup>
-          </Fragment>
-        )
-      });
-    }
-  }
-
-  handleTriggerErrorCallout = error => {
-    console.error(error);
-    error = error.data || error;
-    this.handleTriggerCallout({
-      type: CALLOUTS.ERROR_CALLOUT,
-      payload: get(error, 'message', error)
-    });
   }
 
   fetchMultiTenancyInfo(addErrorToast) {
@@ -201,7 +130,6 @@ export default class Main extends Component {
 
   fetchTenants(addErrorToast) {
     const { httpClient } = this.props;
-
 
     httpClient.get(`${this.API_ROOT}/auth/authinfo`)
       .then(
@@ -382,13 +310,6 @@ export default class Main extends Component {
             const successText = 'Selected tenant is now ' + this.resolveTenantName(response.data, userName);
             // @todo Label
             addSuccessToast(successText, 'Tenant changed');
-            /*
-            toastNotifications.addSuccess({
-              title: 'Tenant changed',
-              text: "Selected tenant is now " + resolveTenantName(response.data, this.username),
-            });
-
-             */
 
             // We may need to redirect the user if they are in a non default space
             // before switching tenants
@@ -634,7 +555,7 @@ export default class Main extends Component {
           </EuiPageHeader>
           <EuiPageContent>
             <EuiPageContentBody className="sg-page-content-body">
-              <Callout callout={callout} onClose={() => this.handleTriggerCallout(null)} />
+              <LicenseWarningCallout httpClient={this.props.httpClient}></LicenseWarningCallout>
               {this.renderFlyout()}
               <EuiTitle size="m">
                 <h2 id="tenantLabel" style={{ textAlign: 'center' }}>
