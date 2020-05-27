@@ -56,6 +56,7 @@ export default function (kibana) {
                     anonymous_auth_enabled: Joi.boolean().default(false),
                     unauthenticated_routes: Joi.array().default(["/api/status"]),
                     logout_url: Joi.string().allow('').default(''),
+                    debug: Joi.boolean().default(false),
                 }).default(),
                 basicauth: Joi.object().keys({
                     enabled: Joi.boolean().default(true),
