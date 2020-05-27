@@ -53,6 +53,11 @@ export const email = {
   bcc: [],
   subject: 'Signals message',
   text_body: 'Total: {{data.mysearch.hits.total.value}}',
+  html_body: `<p>
+  <span style="color:blue;">Total:</span>
+  <span style="color:red;">{{data.avg_ticket_price.aggregations.metricAgg.value}}</span>
+</p>
+`,
   account: [],
   ...cloneDeep(COMMON),
 };
