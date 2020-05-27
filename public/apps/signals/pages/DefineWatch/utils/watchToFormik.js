@@ -1,4 +1,5 @@
-import { cloneDeep, isEmpty } from 'lodash';
+/* eslint-disable @kbn/eslint/require-license-header */
+import { cloneDeep, isEmpty, defaultsDeep } from 'lodash';
 import {
   stringifyPretty,
   arrayToComboBoxOptions,
@@ -17,6 +18,13 @@ import {
   SEVERITY_COLORS
 } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
+import {
+  email as EMAIL_DEFAULTS,
+  pagerduty as PAGERDUTY_DEFAULTS,
+  jira as JIRA_DEFAULTS,
+  slack as SLACK_DEFAULTS,
+  webhook as WEBHOOK_DEFAULTS,
+} from '../../DefineWatch/components/ActionPanel/utils/action_defaults';
 
 export const buildFormikChecks = (checks = []) => unfoldMultiLineString(stringifyPretty(checks));
 
@@ -75,45 +83,56 @@ export function buildFormikSeverity(watch = {}) {
   return newWatch;
 }
 
+function buildFormikResolveAction(action) {
+  // Resolve_actions don't have throttle_period
+  if (action.resolves_severity) {
+    delete action.severity;
+    delete action.throttle_period;
+  }
+  return action;
+}
+
 export function buildFormikWebhookAction(action = {}) {
-  return {
-    ...action,
+  const newAction = defaultsDeep(action, WEBHOOK_DEFAULTS);
+
+  return buildFormikResolveAction({
+    ...newAction,
     request: {
-      ...action.request,
-      headers: stringifyPretty(action.request.headers)
-    }
-  };
+      ...newAction.request,
+      headers: stringifyPretty(action.request.headers),
+    },
+  });
 }
 
 export function buildFormikSlackAction(action = {}) {
-  return {
-    ...action,
-    account: arrayToComboBoxOptions([action.account])
-  };
+  return buildFormikResolveAction({
+    ...defaultsDeep(action, SLACK_DEFAULTS),
+    account: arrayToComboBoxOptions([action.account]),
+  });
 }
 
 export function buildFormikJiraAction(action = {}) {
-  return {
-    ...action,
+  return buildFormikResolveAction({
+    ...defaultsDeep(action, JIRA_DEFAULTS),
     account: arrayToComboBoxOptions([action.account]),
-  };
+  });
 }
 
 export function buildFormikPagerdutyAction(action = {}) {
-  return {
-    ...action,
+  return buildFormikResolveAction({
+    ...defaultsDeep(action, PAGERDUTY_DEFAULTS),
     account: arrayToComboBoxOptions([action.account]),
-  };
+  });
 }
 
 export function buildFormikEmailAction(action = {}) {
-  return {
-    ...action,
+  return buildFormikResolveAction({
+    ...defaultsDeep(action, EMAIL_DEFAULTS),
     to: arrayToComboBoxOptions(action.to),
     cc: arrayToComboBoxOptions(action.cc),
     bcc: arrayToComboBoxOptions(action.bcc),
-    account: arrayToComboBoxOptions([action.account])
-  };
+    account: arrayToComboBoxOptions([action.account]),
+  });
 }
 
 export const buildFormikChecksBlocks = (checks = []) =>
@@ -141,55 +160,50 @@ export const buildFormikIndexAction = (action = {}) => ({
   // checks: stringifyPretty(action.checks || [])
 });
 
-export const buildFormikActions = ({
-  actions = [],
-  resolve_actions: resolveActions = [],
-  _ui = {}
-}) => {
-  const buildHelper = actions => {
-    const newActions = cloneDeep(actions);
-    return newActions.map(action => {
-      // resolve_actions don't have throttle_period
-      // TODO: add tests for this
-      const newAction = action.resolves_severity ? action : buildFormikThrottle(action);
+export const buildFormikActions = ({ actions = [], resolve_actions: resolveActions = [] }) => {
+  const buildHelper = (watchActions = []) => {
+    const actions = cloneDeep(watchActions);
 
-      if (!newAction.checks) {
-        newAction.checks = [];
+    return actions.map(action => {
+      action = buildFormikThrottle(action);
+
+      if (!action.checks) {
+        action.checks = [];
       }
 
-      newAction.checks = stringifyPretty(newAction.checks);
+      action.checks = stringifyPretty(action.checks);
 
-      if (newAction.type === ACTION_TYPE.INDEX) {
-        return buildFormikIndexAction(newAction);
+      if (action.type === ACTION_TYPE.INDEX) {
+        return buildFormikIndexAction(action);
       }
 
-      if (newAction.type === ACTION_TYPE.EMAIL) {
-        return buildFormikEmailAction(newAction);
+      if (action.type === ACTION_TYPE.EMAIL) {
+        return buildFormikEmailAction(action);
       }
 
-      if (newAction.type === ACTION_TYPE.SLACK) {
-        return buildFormikSlackAction(newAction);
+      if (action.type === ACTION_TYPE.SLACK) {
+        return buildFormikSlackAction(action);
       }
 
-      if (newAction.type === ACTION_TYPE.WEBHOOK) {
-        return buildFormikWebhookAction(newAction);
+      if (action.type === ACTION_TYPE.WEBHOOK) {
+        return buildFormikWebhookAction(action);
       }
 
-      if (newAction.type === ACTION_TYPE.JIRA) {
-        return buildFormikJiraAction(newAction);
+      if (action.type === ACTION_TYPE.JIRA) {
+        return buildFormikJiraAction(action);
       }
 
-      if (newAction.type === ACTION_TYPE.PAGERDUTY) {
-        return buildFormikPagerdutyAction(newAction);
+      if (action.type === ACTION_TYPE.PAGERDUTY) {
+        return buildFormikPagerdutyAction(action);
       }
 
-      return newAction;
+      return action;
     });
   };
 
   return {
     actions: buildHelper(actions),
-    resolve_actions: buildHelper(resolveActions)
+    resolve_actions: buildHelper(resolveActions),
   };
 };
 

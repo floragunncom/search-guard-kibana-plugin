@@ -12,7 +12,7 @@ export default class WatchService extends SignalsService {
       .then(({ data }) => data);
   }
 
-  executeGraph(request) {
+  executeESRequest(request) {
     return super.post(`..${ROUTE_PATH.WATCH_EXECUTE_GRAPH}`, { request });
   }
 
