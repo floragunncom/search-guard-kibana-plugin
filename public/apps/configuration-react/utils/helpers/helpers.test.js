@@ -1,8 +1,6 @@
 import {
   internalUsersToUiBackendRoles,
   isSinglePermission,
-  isClusterActionGroup,
-  isGlobalActionGroup,
   arrayToComboBoxOptions,
   comboBoxOptionsToArray,
   attributesToUiAttributes,
@@ -38,18 +36,6 @@ describe('common helpers', () => {
     expect(isSinglePermission('index:/a/b/c')).toBe(false);
     expect(isSinglePermission('CLUSTER:/a/b/c')).toBe(false);
     expect(isSinglePermission('KIBANA:/a/b/c')).toBe(false);
-  });
-
-  test('can verify if cluster action group', () => {
-    expect(isClusterActionGroup('cluster')).toBe(true);
-    expect(isClusterActionGroup('CLUSTER')).toBe(true);
-    expect(isClusterActionGroup('kibana')).toBe(false);
-  });
-
-  test('can verify if global action group', () => {
-    expect(isGlobalActionGroup('kibana')).toBe(true);
-    expect(isGlobalActionGroup('KIBANA')).toBe(true);
-    expect(isGlobalActionGroup('cluster')).toBe(false);
   });
 
   test('can build ComboBox options from array', () => {

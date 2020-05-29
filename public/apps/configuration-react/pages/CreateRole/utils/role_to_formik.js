@@ -5,32 +5,64 @@ import {
   allowedActionsToPermissionsAndActiongroups,
   arrayToComboBoxOptions,
   stringifyPretty,
-  isGlobalActionGroup,
-  isClusterActionGroup
 } from '../../../utils/helpers';
-import { actionGroupsToUiActionGroups } from '../../CreateActionGroup/utils';
 
 export const tenantsToUiTenants = (tenants = {}) => arrayToComboBoxOptions(Object.keys(tenants));
 
-export const actionGroupsToUiClusterIndexTenantActionGroups = (actionGroups = {}) => {
-  const allActionGroups = actionGroupsToUiActionGroups(actionGroups);
-
+export function actionGroupsToUiClusterIndexTenantActionGroups(actionGroups = {}) {
   const allClusterActionGroups = [];
   const allIndexActionGroups = [];
   const allTenantActionGroups = [];
 
-  for (const actionGroup of allActionGroups) {
-    if (isClusterActionGroup(actionGroup.label)) {
-      allClusterActionGroups.push(actionGroup);
-    } else if (isGlobalActionGroup(actionGroup.label)) {
-      allTenantActionGroups.push(actionGroup);
-    } else {
-      allIndexActionGroups.push(actionGroup);
+  function handleSignalsActionGroups(actionGroupName) {
+    switch (actionGroupName) {
+      case 'SGS_SIGNALS_ACCOUNT_READ':
+      case 'SGS_SIGNALS_ACCOUNT_MANAGE':
+        allClusterActionGroups.push({ label: actionGroupName });
+        break;
+      case 'SGS_SIGNALS_WATCH_READ':
+      case 'SGS_SIGNALS_WATCH_MANAGE':
+      case 'SGS_SIGNALS_WATCH_EXECUTE':
+      case 'SGS_SIGNALS_WATCH_ACTIVATE':
+      case 'SGS_SIGNALS_WATCH_ACKNOWLEDGE':
+        allTenantActionGroups.push({ label: actionGroupName });
+        break;
+      default:
+        break;
     }
   }
 
-  return { allClusterActionGroups, allIndexActionGroups, allTenantActionGroups };
-};
+  Object.keys(actionGroups)
+    .sort()
+    .forEach((label) => {
+      switch (actionGroups[label].type) {
+        case 'index':
+          allIndexActionGroups.push({ label });
+          break;
+        case 'cluster':
+          allClusterActionGroups.push({ label });
+          break;
+        case 'kibana':
+          allTenantActionGroups.push({ label });
+          break;
+        case 'all':
+          allIndexActionGroups.push({ label });
+          allClusterActionGroups.push({ label });
+          break;
+        case 'signals':
+          handleSignalsActionGroups(label);
+          break;
+        default:
+          break;
+      }
+    });
+
+  return {
+    allClusterActionGroups,
+    allIndexActionGroups,
+    allTenantActionGroups,
+  };
+}
 
 export const indicesToUiIndices = indices => {
   const colors = {
