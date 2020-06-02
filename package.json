@@ -1,10 +1,14 @@
 {
   "name": "searchguard",
-  "version": "7.7.0-41.0.0-SNAPSHOT",
+  "version": "7.7.1-43.0.0-SNAPSHOT",
   "description": "Search Guard features for kibana",
   "main": "index.js",
   "homepage": "https://search-guard.com",
   "license": "Apache-2.0",
+  "searchguard": {
+    "test_sg_version": "7.7.0-41.0.0-SNAPSHOT",
+    "kibana_branch": "7.7"
+   },
   "repository": {
     "type": "git",
     "url": "https://github.com/floragunncom/search-guard-kibana-plugin"
@@ -26,7 +30,6 @@
     "bell": "9.4.0",
     "boom": "^7.3.0",
     "brace": "^0.11.1",
-    "dompurify": "^2.0.11",
     "formik": "1.5.8",
     "formik-effect": "^1.2.0",
     "hapi-auth-cookie": "^9.1.0",
