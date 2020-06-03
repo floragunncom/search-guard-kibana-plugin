@@ -1,10 +1,14 @@
 {
   "name": "searchguard",
-  "version": "7.7.1-42.0.0-SNAPSHOT",
-  "description": "Search Guard features for kibana",
+  "version": "7.7.2-43.0.0-SNAPSHOT",
+  "description": "Search Guard features for Kibana",
   "main": "index.js",
   "homepage": "https://search-guard.com",
   "license": "Apache-2.0",
+  "searchguard": {
+    "test_sg_version": "7.7.1-SNAPSHOT",
+    "kibana_branch": "7.7"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/floragunncom/search-guard-kibana-plugin"
