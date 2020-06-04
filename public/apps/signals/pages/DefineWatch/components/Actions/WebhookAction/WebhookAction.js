@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { connect as connectFormik } from 'formik';
@@ -20,6 +21,7 @@ import { severityText, resolvesSeverityText } from '../../../../../utils/i18n/wa
 import ActionBodyHelpText from '../ActionBodyHelpText';
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
+import { DragAndDrop } from '../../DragAndDrop';
 import {
   hasError,
   isInvalid,
@@ -61,6 +63,7 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
 
   return (
     <Fragment>
+      <DragAndDrop />
       <EuiFlexGroup justifyContent="spaceBetween">
         <EuiFlexItem>
           <FormikFieldText

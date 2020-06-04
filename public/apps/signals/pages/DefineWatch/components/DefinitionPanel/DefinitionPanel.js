@@ -11,6 +11,7 @@ import BlocksWatch from '../BlocksWatch';
 import GraphWatch from '../GraphWatch';
 import QueryStat from '../QueryStat';
 import SeverityForm from '../SeverityForm';
+import { DragAndDrop } from '../DragAndDrop';
 import { FLYOUTS } from '../../../../utils/constants';
 import { WATCH_TYPES_OPTIONS, WATCH_TYPES } from '../../utils/constants';
 import { definitionText, typeText, executeText, addText } from '../../../../utils/i18n/common';
@@ -136,6 +137,7 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
           }}
         />
 
+        <DragAndDrop />
         {watch}
       </div>
     </ContentPanel>

@@ -16,6 +16,7 @@ import {
   JiraAction,
   PagerdutyAction,
 } from '../Actions';
+import { DragAndDrop } from '../DragAndDrop';
 import { AccountsService } from '../../../../services';
 import { actionText } from '../../../../utils/i18n/common';
 import { ACTION_TYPE } from './utils/constants';
@@ -173,19 +174,22 @@ class ActionPanel extends Component {
         const { Body, headerProps } = newActions[action.type];
 
         return (
-          <Action
-            name={action.name}
-            key={index}
-            id={index.toString(2)}
-            actionHeader={<Header actionName={action.name} {...headerProps} />}
-            actionBody={<Body index={index} accounts={accounts} />}
-            deleteButton={
-              <DeleteActionButton
-                name={action.name}
-                onDeleteAction={() => this.deleteAction(index, action.name, arrayHelpers)}
-              />
-            }
-          />
+          <>
+            <DragAndDrop />
+            <Action
+              name={action.name}
+              key={index}
+              id={index.toString(2)}
+              actionHeader={<Header actionName={action.name} {...headerProps} />}
+              actionBody={<Body index={index} accounts={accounts} />}
+              deleteButton={
+                <DeleteActionButton
+                  name={action.name}
+                  onDeleteAction={() => this.deleteAction(index, action.name, arrayHelpers)}
+                />
+              }
+            />
+          </>
         );
       });
 
