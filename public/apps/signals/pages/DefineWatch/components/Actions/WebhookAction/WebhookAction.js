@@ -17,7 +17,7 @@ import {
   methodText,
 } from '../../../../../utils/i18n/common';
 import { severityText, resolvesSeverityText } from '../../../../../utils/i18n/watch';
-import ActionBodyHelpText from '../ActionBodyHelpText';
+import { RowHelpTextMustacheRuntimeDataField } from '../../RowHelpText';
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import {
@@ -170,7 +170,7 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
           fullWidth: true,
           isInvalid,
           error: hasError,
-          helpText: (<ActionBodyHelpText watchResultData={checksResult} />)
+          helpText: <RowHelpTextMustacheRuntimeDataField />,
         }}
         elementProps={{
           isInvalid,

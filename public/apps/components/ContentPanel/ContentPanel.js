@@ -38,6 +38,7 @@ import {
   EuiTitle,
   EuiPanel,
   EuiTextColor,
+  EuiErrorBoundary,
 } from '@elastic/eui';
 import LoadingPage from '../Page/LoadingPage';
 
@@ -99,7 +100,7 @@ const ContentPanel = ({
   );
 
   return (
-    <>
+    <EuiErrorBoundary>
       {isPanel ? (
         <EuiPanel paddingSize="l" {...panelProps}>
           {body}
@@ -107,7 +108,7 @@ const ContentPanel = ({
       ) : (
         <div>{body}</div>
       )}
-    </>
+    </EuiErrorBoundary>
   );
 };
 

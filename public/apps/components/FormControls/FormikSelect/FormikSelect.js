@@ -30,7 +30,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { EuiSelect } from '@elastic/eui';
+import { EuiSelect, EuiErrorBoundary } from '@elastic/eui';
 import FormikInputWrapper from '../FormikInputWrapper';
 import FormikFormRow from '../FormikFormRow';
 
@@ -64,16 +64,18 @@ const FormikSelect = ({
   rowProps = {},
   elementProps = {},
 }) => (
-  <FormikInputWrapper
-    name={name}
-    formikFieldProps={formikFieldProps}
-    render={({ field, form }) => {
-      const fieldSelect = (<FieldSelect name={name} form={form} field={field} elementProps={elementProps} />);
-      return !formRow ? fieldSelect : (
-        <FormikFormRow name={name} form={form} rowProps={rowProps}>{fieldSelect}</FormikFormRow>
-      );
-    }}
-  />
+  <EuiErrorBoundary>
+    <FormikInputWrapper
+      name={name}
+      formikFieldProps={formikFieldProps}
+      render={({ field, form }) => {
+        const fieldSelect = (<FieldSelect name={name} form={form} field={field} elementProps={elementProps} />);
+        return !formRow ? fieldSelect : (
+          <FormikFormRow name={name} form={form} rowProps={rowProps}>{fieldSelect}</FormikFormRow>
+        );
+      }}
+    />
+  </EuiErrorBoundary>
 );
 
 FormikSelect.propTypes = {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { EuiI18n } from '@elastic/eui';
 
+export const valueText = (<EuiI18n token="sg.common.value.text" default="Value" />);
 export const orderText = (<EuiI18n token="sg.common.order.text" default="Order" />);
 export const fieldText = (<EuiI18n token="sg.common.field.text" default="Field" />);
 export const homeText = (<EuiI18n token="sg.common.home.text" default="Home" />);
