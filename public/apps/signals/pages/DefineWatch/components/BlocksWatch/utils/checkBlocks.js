@@ -29,6 +29,20 @@ export const SEARCH_DEFAULTS = {
 export const TRANSFORM_DEFAULTS = {
   type: 'transform',
   source: '',
+  lang: 'painless',
+  ...COMMON_DEFAULTS,
+};
+
+export const CALC_DEFAULTS = {
+  type: 'calc',
+  source: '',
+  ...COMMON_DEFAULTS,
+};
+
+export const CONDITION_DEFAULTS = {
+  type: 'condition',
+  source: '',
+  lang: 'painless',
   ...COMMON_DEFAULTS,
 };
 
@@ -93,4 +107,28 @@ export function formikHttpToHttp({ value, ...rest }) {
   }
 
   return check;
+}
+
+export function transformToFormikTransform(check = {}) {
+  return defaultsDeep(cloneDeep(check), TRANSFORM_DEFAULTS);
+}
+
+export function formikTransformToTransform(check = {}) {
+  return pickBy(check, identity);
+}
+
+export function calcToFormikCalc(check = {}) {
+  return defaultsDeep(cloneDeep(check), CALC_DEFAULTS);
+}
+
+export function formikCalcToCalc(check = {}) {
+  return pickBy(check, identity);
+}
+
+export function conditionToFormikCondition(check = {}) {
+  return defaultsDeep(cloneDeep(check), CONDITION_DEFAULTS);
+}
+
+export function formikConditionToCondition(check = {}) {
+  return pickBy(check, identity);
 }

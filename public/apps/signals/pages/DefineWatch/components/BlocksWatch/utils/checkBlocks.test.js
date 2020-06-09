@@ -7,6 +7,12 @@ import {
   formikSearchToSearch,
   httpToFormikHttp,
   formikHttpToHttp,
+  transformToFormikTransform,
+  formikTransformToTransform,
+  calcToFormikCalc,
+  formikCalcToCalc,
+  conditionToFormikCondition,
+  formikConditionToCondition,
 } from './checkBlocks';
 
 describe('checkBlocks', () => {
@@ -266,5 +272,117 @@ describe('checkBlocks', () => {
     };
 
     expect(formikHttpToHttp(formikCheck)).toEqual(check);
+  });
+
+  test('transformToFormikTransform', () => {
+    const check = {
+      type: 'transform',
+      target: 'mysearchresult',
+      source: 'return data.logs.hits.hits;',
+    };
+
+    const formikCheck = {
+      type: 'transform',
+      name: '',
+      target: 'mysearchresult',
+      source: 'return data.logs.hits.hits;',
+      lang: 'painless',
+    };
+
+    expect(transformToFormikTransform(check)).toEqual(formikCheck);
+  });
+
+  test('formikTransformToTransform', () => {
+    const formikCheck = {
+      type: 'transform',
+      name: 'extract_search_hits',
+      target: 'mysearchresult',
+      source: 'return data.logs.hits.hits;',
+      lang: 'painless',
+    };
+
+    const check = {
+      type: 'transform',
+      name: 'extract_search_hits',
+      target: 'mysearchresult',
+      source: 'return data.logs.hits.hits;',
+      lang: 'painless',
+    };
+
+    expect(formikTransformToTransform(formikCheck)).toEqual(check);
+  });
+
+  test('calcToFormikCalc', () => {
+    const check = {
+      type: 'calc',
+      source:
+        'int total = 0; for (int i = 0; i < data.logs.hits.hits.length; ++i) { total += data.logs.hits.hits[i]._source.memory; } data.average_memory = total / data.logs.hits.hits.length;',
+    };
+
+    const formikCheck = {
+      type: 'calc',
+      name: '',
+      target: '',
+      source:
+        'int total = 0; for (int i = 0; i < data.logs.hits.hits.length; ++i) { total += data.logs.hits.hits[i]._source.memory; } data.average_memory = total / data.logs.hits.hits.length;',
+    };
+
+    expect(calcToFormikCalc(check)).toEqual(formikCheck);
+  });
+
+  test('formikCalcToCalc', () => {
+    const formikCheck = {
+      type: 'calc',
+      name: 'avg_memory',
+      target: '',
+      source:
+        'int total = 0; for (int i = 0; i < data.logs.hits.hits.length; ++i) { total += data.logs.hits.hits[i]._source.memory; } data.average_memory = total / data.logs.hits.hits.length;',
+    };
+
+    const check = {
+      type: 'calc',
+      name: 'avg_memory',
+      source:
+        'int total = 0; for (int i = 0; i < data.logs.hits.hits.length; ++i) { total += data.logs.hits.hits[i]._source.memory; } data.average_memory = total / data.logs.hits.hits.length;',
+    };
+
+    expect(formikCalcToCalc(formikCheck)).toEqual(check);
+  });
+
+  test('conditionToFormikCondition', () => {
+    const check = {
+      type: 'condition',
+      name: 'mycondition',
+      source: 'data.mysearch.hits.hits.length > 0',
+    };
+
+    const formikCheck = {
+      type: 'condition',
+      name: 'mycondition',
+      target: '',
+      source: 'data.mysearch.hits.hits.length > 0',
+      lang: 'painless',
+    };
+
+    expect(conditionToFormikCondition(check)).toEqual(formikCheck);
+  });
+
+  test('formikConditionToCondition', () => {
+    const formikCheck = {
+      type: 'condition',
+      name: 'mycondition',
+      target: '',
+      source: 'data.mysearch.hits.hits.length > 0',
+      lang: 'painless',
+    };
+
+    const check = {
+      type: 'condition',
+      name: 'mycondition',
+      source: 'data.mysearch.hits.hits.length > 0',
+      lang: 'painless',
+    };
+
+    expect(formikConditionToCondition(formikCheck)).toEqual(check);
   });
 });
