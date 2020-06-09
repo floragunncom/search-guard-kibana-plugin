@@ -30,7 +30,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { EuiTextArea } from '@elastic/eui';
+import { EuiTextArea, EuiErrorBoundary } from '@elastic/eui';
 import FormikInputWrapper from '../FormikInputWrapper';
 import FormikFormRow from '../FormikFormRow';
 
@@ -62,16 +62,18 @@ const FormikTextArea = ({
   rowProps = {},
   elementProps = {},
 }) => (
-  <FormikInputWrapper
-    name={name}
-    formikFieldProps={formikFieldProps}
-    render={({ field, form }) => {
-      const textArea = <TextArea name={name} form={form} field={field} elementProps={elementProps} />;
-      return !formRow
-        ? textArea
-        : <FormikFormRow name={name} form={form} rowProps={rowProps}>{textArea}</FormikFormRow>;
-    }}
-  />
+  <EuiErrorBoundary>
+    <FormikInputWrapper
+      name={name}
+      formikFieldProps={formikFieldProps}
+      render={({ field, form }) => {
+        const textArea = <TextArea name={name} form={form} field={field} elementProps={elementProps} />;
+        return !formRow
+          ? textArea
+          : <FormikFormRow name={name} form={form} rowProps={rowProps}>{textArea}</FormikFormRow>;
+      }}
+    />
+  </EuiErrorBoundary>
 );
 
 FormikTextArea.propTypes = {

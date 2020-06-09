@@ -30,7 +30,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { EuiRadio } from '@elastic/eui';
+import { EuiRadio, EuiErrorBoundary } from '@elastic/eui';
 import FormikInputWrapper from '../FormikInputWrapper';
 import FormikFormRow from '../FormikFormRow';
 
@@ -63,16 +63,18 @@ const FormikRadio = ({
   rowProps = {},
   elementProps = {},
 }) => (
-  <FormikInputWrapper
-    name={name}
-    formikFieldProps={formikFieldProps}
-    render={({ field, form }) => {
-      const fieldRadio = (<FieldRadio name={name} form={form} field={field} elementProps={elementProps} />);
-      return !formRow ? fieldRadio : (
-        <FormikFormRow name={name} form={form} rowProps={rowProps}>{fieldRadio}</FormikFormRow>
-      );
-    }}
-  />
+  <EuiErrorBoundary>
+    <FormikInputWrapper
+      name={name}
+      formikFieldProps={formikFieldProps}
+      render={({ field, form }) => {
+        const fieldRadio = (<FieldRadio name={name} form={form} field={field} elementProps={elementProps} />);
+        return !formRow ? fieldRadio : (
+          <FormikFormRow name={name} form={form} rowProps={rowProps}>{fieldRadio}</FormikFormRow>
+        );
+      }}
+    />
+  </EuiErrorBoundary>
 );
 
 FormikRadio.propTypes = {

@@ -1,15 +1,18 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 module.exports = {
   rootDir: '../',
-  setupFiles: [
-    '<rootDir>/tests/setup_tests.js',
-  ],
+  setupFiles: ['<rootDir>/tests/setup_tests.js'],
   globals: {
     'ts-jest': {
-      'tsConfig': 'tsconfig.json',
-      'diagnostics': true
-    }
+      tsConfig: 'tsconfig.json',
+      diagnostics: true,
+    },
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
+  moduleNameMapper: {
+    '!!raw-loader!./worker.js': '<rootDir>/__mocks__/raw_loader.js',
+    'ui/chrome': '<rootDir>/__mocks__/chrome.js',
+  },
   testMatch: ['**/*.test.js', '**/*.test.ts'],
   modulePaths: ['node_modules', '../../node_modules'],
   snapshotSerializers: ['./node_modules/enzyme-to-json/serializer'],
@@ -19,7 +22,7 @@ module.exports = {
     '^.+\\.jsx$': 'babel-jest',
     '^.+\\.js$': 'babel-jest',
     '^.+\\.tsx?$': 'ts-jest',
-    '^.+\\.ts?$': 'ts-jest'
+    '^.+\\.ts?$': 'ts-jest',
   },
   collectCoverageFrom: [
     '**/*.{js}',
@@ -33,11 +36,11 @@ module.exports = {
     '!<rootDir>/scripts/**',
     '!<rootDir>/build/**',
     '!<rootDir>/gather-info.js',
-    '!**/vendor/**'
+    '!**/vendor/**',
   ],
   modulePathIgnorePatterns: [
     '<rootDir>/build_stage/',
     '<rootDir>/build/',
-    '<rootDir>/node_modules/'
-  ]
+    '<rootDir>/node_modules/',
+  ],
 };

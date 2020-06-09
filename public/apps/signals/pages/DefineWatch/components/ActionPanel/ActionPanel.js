@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { cloneDeep, isEmpty } from 'lodash';
-import { EuiIcon } from '@elastic/eui';
+import { EuiIcon, EuiErrorBoundary } from '@elastic/eui';
 import { ContentPanel, PopoverButton } from '../../../../components';
 import {
   Action,
@@ -96,10 +96,10 @@ class ActionPanel extends Component {
   };
 
   triggerAddActionPopover = () => {
-    this.setState(prevState => ({ isAddActionPopoverOpen: !prevState.isAddActionPopoverOpen }));
+    this.setState((prevState) => ({ isAddActionPopoverOpen: !prevState.isAddActionPopoverOpen }));
   };
 
-  addAction = actionType => {
+  addAction = (actionType) => {
     const { arrayHelpers } = this.props;
     this.triggerAddActionPopover();
 
@@ -204,7 +204,9 @@ class ActionPanel extends Component {
           />
         }
       >
-        <div style={{ paddingLeft: '10px' }}>{hasActions ? renderActions() : null}</div>
+        <EuiErrorBoundary>
+          <div style={{ paddingLeft: '10px' }}>{hasActions ? renderActions() : null}</div>
+        </EuiErrorBoundary>
       </ContentPanel>
     );
   }

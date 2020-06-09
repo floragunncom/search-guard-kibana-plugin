@@ -34,6 +34,7 @@ import PropTypes from 'prop-types';
 import FormikInputWrapper from '../FormikInputWrapper';
 import FormikFormRow from '../FormikFormRow';
 import { CodeEditor as CodeEditorSG } from '../../CodeEditor';
+import { EuiErrorBoundary } from '@elastic/eui';
 
 const CodeEditor = ({ name, form, field, elementProps: { onBlur, onChange, ...rest } }) => (
   <CodeEditorSG
@@ -61,22 +62,24 @@ const FormikCodeEditorSG = ({
   rowProps = {},
   elementProps = {},
 }) => (
-  <FormikInputWrapper
-    name={name}
-    formikFieldProps={formikFieldProps}
-    render={({ field, form }) => {
-      const codeEditor = (
-        <CodeEditor name={name} form={form} field={field} elementProps={elementProps} />
-      );
-      return !formRow ? (
-        codeEditor
-      ) : (
-        <FormikFormRow name={name} form={form} rowProps={rowProps}>
-          {codeEditor}
-        </FormikFormRow>
-      );
-    }}
-  />
+  <EuiErrorBoundary>
+    <FormikInputWrapper
+      name={name}
+      formikFieldProps={formikFieldProps}
+      render={({ field, form }) => {
+        const codeEditor = (
+          <CodeEditor name={name} form={form} field={field} elementProps={elementProps} />
+        );
+        return !formRow ? (
+          codeEditor
+        ) : (
+          <FormikFormRow name={name} form={form} rowProps={rowProps}>
+            {codeEditor}
+          </FormikFormRow>
+        );
+      }}
+    />
+  </EuiErrorBoundary>
 );
 
 FormikCodeEditorSG.propTypes = {
