@@ -198,6 +198,50 @@ describe('checkBlocks', () => {
     expect(httpToFormikHttp(check)).toEqual(formikCheck);
   });
 
+  test('formikHttpToHttp TLS', () => {
+    const formikCheck = {
+      type: 'http',
+      name: 'testhttp',
+      target: 'samplejson',
+      value: stringifyPretty({
+        url: 'https://jsonplaceholder.typicode.com/todos/1',
+        method: 'GET',
+        headers: { 'My-Secret-Token': 'pizza' },
+      }),
+      tls: stringifyPretty({
+        trusted_certs: '-----BEGIN CERTIFICATE-----\n....\n-----END CERTIFICATE-----\n',
+        client_auth: {
+          certs: '-----BEGIN CERTIFICATE-----\n....\n-----END CERTIFICATE-----\n',
+          private_key:
+            '-----BEGIN ENCRYPTED PRIVATE KEY-----\n...\n-----END ENCRYPTED PRIVATE KEY-----\n',
+          private_key_password: 'secret',
+        },
+      }),
+    };
+
+    const check = {
+      type: 'http',
+      name: 'testhttp',
+      target: 'samplejson',
+      request: {
+        url: 'https://jsonplaceholder.typicode.com/todos/1',
+        method: 'GET',
+        headers: { 'My-Secret-Token': 'pizza' },
+      },
+      tls: {
+        trusted_certs: '-----BEGIN CERTIFICATE-----\n....\n-----END CERTIFICATE-----\n',
+        client_auth: {
+          certs: '-----BEGIN CERTIFICATE-----\n....\n-----END CERTIFICATE-----\n',
+          private_key:
+            '-----BEGIN ENCRYPTED PRIVATE KEY-----\n...\n-----END ENCRYPTED PRIVATE KEY-----\n',
+          private_key_password: 'secret',
+        },
+      },
+    };
+
+    expect(formikHttpToHttp(formikCheck)).toEqual(check);
+  });
+
   test('formikHttpToHttp', () => {
     const formikCheck = {
       type: 'http',
