@@ -248,27 +248,6 @@ describe('buildChecksFromChecksBlocks', () => {
 
     expect(buildChecksFromChecksBlocks(checksBlocks)).toEqual(checks);
   });
-
-  /*
-  test('throws error if check syntax is invalid', () => {
-    try {
-      const checksBlocks = [
-        {
-          check: '{ a: }',
-          id: 0
-        },
-        {
-          check: JSON.stringify({ b: 1 }),
-          id: 1
-        }
-      ];
-
-      buildChecksFromChecksBlocks(checksBlocks);
-    } catch (error) {
-      expect(error.message).toBe('Fail to parse checks for Json watch');
-    }
-  });
-  */
 });
 
 describe('buildActions', () => {

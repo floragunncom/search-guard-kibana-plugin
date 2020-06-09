@@ -159,7 +159,6 @@ export const buildChecks = ({ _ui: ui = {}, checks = [] }) => {
     }
   }
 
-  // TODO: write tests for Blocks
   if (watchType === WATCH_TYPES.BLOCKS) {
     try {
       return buildChecksFromChecksBlocks(checksBlocks);

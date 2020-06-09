@@ -38,6 +38,8 @@ describe('checkBlocks', () => {
         admin_lastname: 'Anderson',
         admin_firstname: 'Paul',
       }),
+      response: '',
+      id: expect.any(String),
     };
 
     expect(staticToFormikStatic(check)).toEqual(formikCheck);
@@ -54,6 +56,8 @@ describe('checkBlocks', () => {
         admin_lastname: 'Anderson',
         admin_firstname: 'Paul',
       }),
+      response: 'abc',
+      id: '123',
     };
 
     const check = {
@@ -97,6 +101,8 @@ describe('checkBlocks', () => {
           aggs: {},
         },
       }),
+      response: '',
+      id: expect.any(String),
     };
 
     expect(searchToFormikSearch(check)).toEqual(formikCheck);
@@ -115,6 +121,8 @@ describe('checkBlocks', () => {
           aggs: {},
         },
       }),
+      response: 'abc',
+      id: '123',
     };
 
     const check = {
@@ -155,6 +163,8 @@ describe('checkBlocks', () => {
         headers: { 'My-Secret-Token': 'pizza' },
       }),
       tls: '',
+      response: '',
+      id: expect.any(String),
     };
 
     expect(httpToFormikHttp(check)).toEqual(formikCheck);
@@ -199,6 +209,8 @@ describe('checkBlocks', () => {
           private_key_password: 'secret',
         },
       }),
+      response: '',
+      id: expect.any(String),
     };
 
     expect(httpToFormikHttp(check)).toEqual(formikCheck);
@@ -223,6 +235,8 @@ describe('checkBlocks', () => {
           private_key_password: 'secret',
         },
       }),
+      response: 'abc',
+      id: '123',
     };
 
     const check = {
@@ -259,6 +273,8 @@ describe('checkBlocks', () => {
         headers: { 'My-Secret-Token': 'pizza' },
       }),
       tls: '',
+      response: 'abc',
+      id: '123',
     };
 
     const check = {
@@ -287,6 +303,8 @@ describe('checkBlocks', () => {
       target: 'mysearchresult',
       source: 'return data.logs.hits.hits;',
       lang: 'painless',
+      response: '',
+      id: expect.any(String),
     };
 
     expect(transformToFormikTransform(check)).toEqual(formikCheck);
@@ -299,6 +317,8 @@ describe('checkBlocks', () => {
       target: 'mysearchresult',
       source: 'return data.logs.hits.hits;',
       lang: 'painless',
+      response: 'abc',
+      id: '123',
     };
 
     const check = {
@@ -325,6 +345,8 @@ describe('checkBlocks', () => {
       target: '',
       source:
         'int total = 0; for (int i = 0; i < data.logs.hits.hits.length; ++i) { total += data.logs.hits.hits[i]._source.memory; } data.average_memory = total / data.logs.hits.hits.length;',
+      response: '',
+      id: expect.any(String),
     };
 
     expect(calcToFormikCalc(check)).toEqual(formikCheck);
@@ -337,6 +359,8 @@ describe('checkBlocks', () => {
       target: '',
       source:
         'int total = 0; for (int i = 0; i < data.logs.hits.hits.length; ++i) { total += data.logs.hits.hits[i]._source.memory; } data.average_memory = total / data.logs.hits.hits.length;',
+      response: 'abc',
+      id: '123',
     };
 
     const check = {
@@ -362,6 +386,8 @@ describe('checkBlocks', () => {
       target: '',
       source: 'data.mysearch.hits.hits.length > 0',
       lang: 'painless',
+      response: '',
+      id: expect.any(String),
     };
 
     expect(conditionToFormikCondition(check)).toEqual(formikCheck);
@@ -374,6 +400,8 @@ describe('checkBlocks', () => {
       target: '',
       source: 'data.mysearch.hits.hits.length > 0',
       lang: 'painless',
+      response: 'abc',
+      id: '123',
     };
 
     const check = {
