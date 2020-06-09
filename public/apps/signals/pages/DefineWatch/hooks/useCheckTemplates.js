@@ -46,7 +46,7 @@ const useCheckTemplates = ({
         if (isInserting) {
           // TODO: currently inserting techique is not very convenient
           // Not used now.
-          setTemplateToInsert(prevState => ({
+          setTemplateToInsert((prevState) => ({
             ...prevState,
             text: buildFormikChecks(template) + '\n',
           }));
@@ -57,10 +57,6 @@ const useCheckTemplates = ({
           });
 
           const checks = buildFormikChecks([...existingChecks, template]);
-          // const existingChecks = JSON.parse(
-          //   foldMultiLineString(get(values, checksPath, '[]') || '[]')
-          // );
-          // const checks = buildFormikChecks([...existingChecks, template]);
           setFieldValue(checksPath, checks);
         }
       }
