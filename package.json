@@ -1,7 +1,7 @@
 {
   "name": "searchguard",
   "version": "7.7.1-42.0.0-SNAPSHOT",
-  "description": "Search Guard features for kibana",
+  "description": "Search Guard features for Kibana",
   "main": "index.js",
   "homepage": "https://search-guard.com",
   "license": "Apache-2.0",
