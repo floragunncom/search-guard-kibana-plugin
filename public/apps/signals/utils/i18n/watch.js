@@ -72,7 +72,17 @@ export const watchResultsLinkLabel = (
 export const watchResultsFlyoutTitle = (
   <EuiI18n token="sg.watch.watchResultsFlyoutTitle.text" default="Properties available to the template"/>
 );
-export const actionBodyHelpLabelWithoutResults = (mustacheLink) => {
+export const actionBodyHelpLabelWithoutResults = (mustacheLink, htmlLink) => {
+  if (htmlLink) {
+    return (
+      <EuiI18n
+        token="sg.watch.actionBodyHelpTextWithoutResults.text"
+        default="You can create a template using {mustacheLink} and {htmlLink}"
+        values={{ mustacheLink, htmlLink }}
+      />
+    );
+  }
+
   return (
     <EuiI18n
       token="sg.watch.actionBodyHelpTextWithoutResults.text"
@@ -80,9 +90,19 @@ export const actionBodyHelpLabelWithoutResults = (mustacheLink) => {
       values={{ mustacheLink }}
     />
   );
-}
+};
 
-export const actionBodyHelpLabelWithResults = (watchResultsLink, mustacheLink) => {
+export const actionBodyHelpLabelWithResults = (watchResultsLink, mustacheLink, htmlLink) => {
+  if (htmlLink) {
+    return (
+      <EuiI18n
+        token="sg.watch.actionBodyHelpText.text"
+        default="You can create a template using the {watchResultsLink} and {mustacheLink} and {htmlLink}"
+        values={{ watchResultsLink, mustacheLink, htmlLink }}
+      />
+    );
+  }
+
   return (
     <EuiI18n
       token="sg.watch.actionBodyHelpText.text"
@@ -90,7 +110,7 @@ export const actionBodyHelpLabelWithResults = (watchResultsLink, mustacheLink) =
       values={{ watchResultsLink, mustacheLink }}
     />
   );
-}
+};
 
 export const watchExamplesText = (<EuiI18n token="sg.watch.watchExamples.text" default="Watch Examples" />);
 export const fromText = (<EuiI18n token="sg.watch.from.text" default="From" />);
@@ -148,3 +168,5 @@ export const leaveInputEmptyToOmitThresholdLevelText = (
     default="Leave input empty to omit threshold level"
   />
 );
+export const textBodyText = <EuiI18n token="sg.watch.textBody.text" default="Text Body" />;
+export const htmlBodyText = <EuiI18n token="sg.watch.htmlBody.text" default="HTML Body" />;

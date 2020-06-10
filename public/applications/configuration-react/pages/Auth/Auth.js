@@ -12,13 +12,12 @@ import {
   EuiText,
 } from '@elastic/eui';
 import { ContentPanel, CancelButton } from '../../components';
-import { get, isEmpty, map, forEach, toString } from 'lodash';
+import { get, isEmpty, map, toString, startCase } from 'lodash';
 import { APP_PATH } from '../../utils/constants';
-import { stringifyPretty, sideNavItem } from '../../utils/helpers';
+import { stringifyPretty } from '../../utils/helpers';
 import { navigateText, disabledText } from '../../utils/i18n/common';
-import * as authI18nLabels from '../../utils/i18n/auth';
-import { SELECTED_SIDE_NAV_ITEM_NAME, SIDE_NAV } from './utils/constants';
-import { resourcesToUiResources } from './utils';
+import { SELECTED_SIDE_NAV_ITEM_NAME } from './utils/constants';
+import { resourcesToUiResources, getSideNavItems } from './utils';
 import { SgConfigService } from '../../services';
 
 import { Context } from '../../Context';
@@ -28,7 +27,7 @@ const AuthContent = ({ resource }) => (
     {map(resource, (value, key) => (
       <Fragment key={key}>
         <EuiFlexItem>
-          <EuiText data-test-subj={`sgAuthContentKey-${key}`}>{authI18nLabels[key]}</EuiText>
+          <EuiText data-test-subj={`sgAuthContentKey-${key}`}>{startCase(key)}</EuiText>
         </EuiFlexItem>
         <EuiFlexItem>
           {React.isValidElement(value) ? (
@@ -42,7 +41,7 @@ const AuthContent = ({ resource }) => (
   </EuiFlexGrid>
 );
 
-class Auth extends Component {
+export class Auth extends Component {
   static contextType = Context;
 
   constructor(props) {
@@ -86,60 +85,6 @@ class Auth extends Component {
 
   selectSideNavItem = selectedSideNavItemName => {
     this.setState({ selectedSideNavItemName });
-  };
-
-  getSideNavItems = resources => {
-    const sideNavItems = [];
-    if (isEmpty(resources)) return sideNavItems;
-
-    const authcItems = [];
-    const authzItems = [];
-
-    forEach(resources, ({ name, order, resourceType }) => {
-      const isCategory = name === SIDE_NAV.AUTHORIZATION || name === SIDE_NAV.AUTHENTICATION;
-      const isActive = this.state.selectedSideNavItemName === name;
-      const navItem = sideNavItem({
-        name,
-        id: name,
-        text: authI18nLabels[name],
-        navData: { order },
-        isCategory,
-        isActive,
-        onClick: () => this.selectSideNavItem(name),
-      });
-
-      if (resourceType === 'authc') {
-        authcItems.push(navItem);
-      } else {
-        authzItems.push(navItem);
-      }
-    });
-
-    sideNavItems.push(
-      sideNavItem({
-        id: SIDE_NAV.AUTHENTICATION,
-        name: SIDE_NAV.AUTHENTICATION,
-        text: authI18nLabels[SIDE_NAV.AUTHENTICATION],
-        navData: {
-          items: authcItems.sort((a, b) => a.order - b.order),
-        },
-        isCategory: true,
-      })
-    );
-
-    sideNavItems.push(
-      sideNavItem({
-        id: SIDE_NAV.AUTHORIZATION,
-        name: SIDE_NAV.AUTHORIZATION,
-        text: authI18nLabels[SIDE_NAV.AUTHORIZATION],
-        navData: {
-          items: authzItems.sort((a, b) => a.order - b.order),
-        },
-        isCategory: true,
-      })
-    );
-
-    return sideNavItems;
   };
 
   getResource = resource => {
@@ -194,7 +139,7 @@ class Auth extends Component {
 
     return (
       <Fragment>
-        {authI18nLabels[selectedSideNavItemName]}{' '}
+        {startCase(selectedSideNavItemName)}{' '}
         {disabled && (
           <EuiTextColor data-test-subj="sgAuthContentPanelDisabledTag" color="danger">
             {disabledText}
@@ -207,7 +152,13 @@ class Auth extends Component {
   render() {
     const { history } = this.props;
     const { selectedSideNavItemName, resources, isSideNavOpenOnMobile } = this.state;
-    const sideNavItems = this.getSideNavItems(resources);
+
+    const sideNavItems = getSideNavItems({
+      resources,
+      selectedSideNavItemName: this.state.selectedSideNavItemName,
+      onSelectSideNavItem: this.selectSideNavItem.bind(this),
+    });
+
     const resource = this.getResource(resources[selectedSideNavItemName]);
 
     return (
@@ -240,5 +191,3 @@ Auth.propTypes = {
   httpClient: PropTypes.object,
   onTriggerErrorCallout: PropTypes.func.isRequired,
 };
-
-export default Auth;

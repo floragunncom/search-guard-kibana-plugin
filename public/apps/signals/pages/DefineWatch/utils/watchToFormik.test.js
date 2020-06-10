@@ -218,8 +218,8 @@ describe('buildFormikActions', () => {
         bcc: ['a', 'b'],
         subject: 'a',
         text_body: 'Total: {{data.mysearch.hits.total.value}}',
-        account: 'a'
-      }
+        account: 'a',
+      },
     ];
 
     const formik = {
@@ -230,7 +230,7 @@ describe('buildFormikActions', () => {
           throttle_period: {
             advInterval: SCHEDULE_DEFAULTS.period.advInterval,
             interval: 1,
-            unit: 's'
+            unit: 's',
           },
           type: ACTION_TYPE.EMAIL,
           name: 'myemail',
@@ -240,8 +240,13 @@ describe('buildFormikActions', () => {
           bcc: [{ label: 'a' }, { label: 'b' }],
           subject: 'a',
           text_body: 'Total: {{data.mysearch.hits.total.value}}',
-          account: [{ label: 'a' }]
-        }
+          html_body: `<p>
+  <span style="color:blue;">Total:</span>
+  <span style="color:red;">{{data.avg_ticket_price.aggregations.metricAgg.value}}</span>
+</p>
+`,
+          account: [{ label: 'a' }],
+        },
       ],
       resolve_actions: [
         {
@@ -255,9 +260,14 @@ describe('buildFormikActions', () => {
           bcc: [{ label: 'a' }, { label: 'b' }],
           subject: 'a',
           text_body: 'Total: {{data.mysearch.hits.total.value}}',
-          account: [{ label: 'a' }]
-        }
-      ]
+          html_body: `<p>
+  <span style="color:blue;">Total:</span>
+  <span style="color:red;">{{data.avg_ticket_price.aggregations.metricAgg.value}}</span>
+</p>
+`,
+          account: [{ label: 'a' }],
+        },
+      ],
     };
 
     expect(buildFormikActions({ actions, resolve_actions: resolveActions })).toEqual(formik);
@@ -275,29 +285,37 @@ describe('buildFormikActions', () => {
         bcc: ['a', 'b'],
         subject: 'a',
         text_body: 'Total: {{data.mysearch.hits.total.value}}',
-        account: 'a'
-      }
+        account: 'a',
+      },
     ];
 
     const formik = {
-      actions: [{
-        checks: '[]',
-        throttle_period: {
-          advInterval: SCHEDULE_DEFAULTS.period.advInterval,
-          interval: 1,
-          unit: 's'
+      actions: [
+        {
+          checks: '[]',
+          severity: [],
+          throttle_period: {
+            advInterval: SCHEDULE_DEFAULTS.period.advInterval,
+            interval: 1,
+            unit: 's',
+          },
+          type: ACTION_TYPE.EMAIL,
+          name: 'myemail',
+          from: 'signals@localhost',
+          to: [{ label: 'a' }, { label: 'b' }],
+          cc: [{ label: 'a' }, { label: 'b' }],
+          bcc: [{ label: 'a' }, { label: 'b' }],
+          subject: 'a',
+          text_body: 'Total: {{data.mysearch.hits.total.value}}',
+          html_body: `<p>
+  <span style="color:blue;">Total:</span>
+  <span style="color:red;">{{data.avg_ticket_price.aggregations.metricAgg.value}}</span>
+</p>
+`,
+          account: [{ label: 'a' }],
         },
-        type: ACTION_TYPE.EMAIL,
-        name: 'myemail',
-        from: 'signals@localhost',
-        to: [{ label: 'a' }, { label: 'b' }],
-        cc: [{ label: 'a' }, { label: 'b' }],
-        bcc: [{ label: 'a' }, { label: 'b' }],
-        subject: 'a',
-        text_body: 'Total: {{data.mysearch.hits.total.value}}',
-        account: [{ label: 'a' }]
-      }],
-      resolve_actions: []
+      ],
+      resolve_actions: [],
     };
 
     expect(buildFormikActions({ actions })).toEqual(formik);
@@ -326,6 +344,7 @@ describe('buildFormikActions', () => {
             unit: 's'
           },
           type: ACTION_TYPE.SLACK,
+          severity: [],
           name: 'myslacksink',
           account: [{ label: 'a' }],
           from: 'signals',
@@ -360,6 +379,7 @@ describe('buildFormikActions', () => {
       actions: [
         {
           checks: '[]',
+          severity: [],
           throttle_period: {
             advInterval: SCHEDULE_DEFAULTS.period.advInterval,
             interval: 1,

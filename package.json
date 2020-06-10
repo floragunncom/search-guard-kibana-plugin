@@ -1,6 +1,6 @@
 {
   "name": "searchguard",
-  "version": "8.0.0-40.1.0-SNAPSHOT",
+  "version": "8.0.0-41.0.0-SNAPSHOT",
   "description": "Search Guard features for kibana",
   "main": "index.js",
   "homepage": "https://search-guard.com",
@@ -28,6 +28,7 @@
     "bell": "9.4.0",
     "boom": "^7.3.0",
     "brace": "^0.11.1",
+    "dompurify": "^2.0.11",
     "formik": "1.5.8",
     "formik-effect": "^1.2.0",
     "hapi-auth-cookie": "^9.1.0",

@@ -65,10 +65,10 @@ export function requestHeaders({
 
     // MT is only relevant for these paths
     if (
+      !request.path.startsWith('/internal/spaces') &&
       !request.path.startsWith('/elasticsearch') &&
       !request.path.startsWith('/api') &&
       !request.path.startsWith('/app') &&
-      !request.path.startsWith('/spaces') &&
       request.path !== '/' &&
       selectedTenant === storedSelectedTenant
     ) {

@@ -17,18 +17,18 @@
 
 import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules';
-import { FeatureCatalogueRegistryProvider, FeatureCatalogueCategory } from 'ui/registry/feature_catalogue';
 import { EuiIcon } from '@elastic/eui';
 import {parse} from "url";
 import { chromeWrapper } from "../../services/chrome_wrapper";
+import { npSetup } from 'ui/new_platform';
+import { FeatureCatalogueCategory } from '../../../../../src/plugins/home/public/services/feature_catalogue';
 
 export function enableMultiTenancy(Private) {
     const sgDynamic = chrome.getInjected().sgDynamic;
     var enabled = chrome.getInjected('multitenancy_enabled');
     chromeWrapper.hideNavLink('searchguard-multitenancy', !enabled);
     if (enabled) {
-      FeatureCatalogueRegistryProvider.register(() => {
-          return {
+        npSetup.plugins.home.featureCatalogue.register({
               id: 'searchguard-multitenancy',
               title: 'Search Guard Multi Tenancy',
               description: 'Separate searches, visualizations and dashboards by tenants.',
@@ -36,8 +36,7 @@ export function enableMultiTenancy(Private) {
               path: '/app/searchguard-multitenancy',
               showOnHomePage: true,
               category: FeatureCatalogueCategory.DATA
-          };
-      });
+        });
     }
 
     // Add tenant info to the request

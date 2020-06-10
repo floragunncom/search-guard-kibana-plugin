@@ -18,13 +18,7 @@ import { definitionText, typeText, executeText, addText } from '../../../../util
 import { Context } from '../../../../Context';
 
 const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
-  const {
-    httpClient,
-    triggerFlyout,
-    onComboBoxChange,
-    onComboBoxCreateOption,
-    onComboBoxOnBlur,
-  } = useContext(Context);
+  const { httpClient, triggerFlyout } = useContext(Context);
 
   const { addTemplate } = useCheckTemplates({ setFieldValue });
 
@@ -116,13 +110,7 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
     default:
       watch = (
         <>
-          <GraphWatch
-            isResultVisible={isResultVisible}
-            httpClient={httpClient}
-            onComboBoxChange={onComboBoxChange}
-            onComboBoxOnBlur={onComboBoxOnBlur}
-            onComboBoxCreateOption={onComboBoxCreateOption}
-          />
+          <GraphWatch isResultVisible={isResultVisible} httpClient={httpClient} />
           <EuiSpacer />
           <QueryStat />
         </>

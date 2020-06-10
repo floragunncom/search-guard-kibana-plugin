@@ -7,14 +7,19 @@ export function executeWatch({ clusterClient, logger }) {
   return async function(context, request, response) {
     try {
       const {
-        body: { watch, simulate, skipActions },
+        body: { watch, simulate, skipActions, showAllRuntimeAttributes },
         headers: { sgtenant = NO_MULTITENANCY_TENANT },
       } = request;
 
       const resp = await clusterClient
         .asScoped(request)
         .callAsCurrentUser('sgSignals.executeWatch', {
-          body: { watch, simulate, skip_actions: skipActions },
+          body: {
+            watch,
+            simulate,
+            skip_actions: skipActions,
+            show_all_runtime_attributes: showAllRuntimeAttributes,
+          },
           sgtenant,
         });
 
@@ -43,6 +48,7 @@ export function executeWatchRoute({ router, clusterClient, logger }) {
           ),
           simulate: schema.boolean({ defaultValue: false }),
           skipActions: schema.boolean({ defaultValue: true }),
+          showAllRuntimeAttributes: schema.boolean({ defaultValue: true }),
         }),
       },
     },

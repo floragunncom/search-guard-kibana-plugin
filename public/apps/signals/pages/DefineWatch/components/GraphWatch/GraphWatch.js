@@ -49,6 +49,7 @@ import {
 } from '../../../../utils/i18n/watch';
 import { comboBoxOptionsToArray, arrayToComboBoxOptions } from '../../../../utils/helpers';
 import { getFieldsFromPayload, getFieldsForType } from '../../utils/helpers';
+import { formikToWatch } from '../../utils';
 
 import { Context } from '../../../../Context';
 
@@ -219,28 +220,34 @@ class GraphWatch extends Component {
     // history of query
     // If the query is an extraction query, we can use the same query for results
     // and query performance
-    const searchRequests = [buildSearchRequest(values)];
-    searchRequests.push(buildSearchRequest(values, false));
+    const searchRequests = [buildSearchRequest(values), buildSearchRequest(values, false)];
     console.debug('GraphWatch -- searchRequests', searchRequests);
 
     this.setState({ isLoading: true });
+
     try {
-      const promises = searchRequests.map(({ request }) => this.watchService.executeGraph(request));
       const [{ resp: graphQueryResponse }, { resp: realQueryResponse }] = await Promise.all(
-        promises
+        searchRequests.map(request => {
+          const watch = { ...formikToWatch(values), checks: [request] };
+          return this.watchService.execute({ watch, skipActions: true });
+        })
       );
       console.debug('GraphWatch -- searchResponses', [graphQueryResponse, realQueryResponse]);
 
       this.handlePayload(realQueryResponse);
-
       this.setState({ formikSnapshot });
-      setFieldValue('_ui.checksGraphResult', graphQueryResponse);
-      setFieldValue('_ui.checksResult', { data: { [CHECK_MYSEARCH]: realQueryResponse } });
+
+      setFieldValue(
+        '_ui.checksGraphResult',
+        get(graphQueryResponse, `runtime_attributes.data[${CHECK_MYSEARCH}]`, {})
+      );
+      setFieldValue('_ui.checksResult', realQueryResponse);
     } catch (err) {
       console.error('GraphWatch -- Fail running the query', err);
       this.context.addErrorToast(err);
       console.debug('GraphWatch -- values', values);
     }
+
     this.setState({ isLoading: false });
   };
 
@@ -289,9 +296,6 @@ class GraphWatch extends Component {
           _ui: { index, timeField },
         },
       },
-      onComboBoxChange,
-      onComboBoxOnBlur,
-      onComboBoxCreateOption,
     } = this.props;
 
     const { dataTypes } = this.state;
@@ -303,13 +307,7 @@ class GraphWatch extends Component {
 
     return (
       <Fragment>
-        <WatchIndex
-          httpClient={httpClient}
-          indexFieldName="_ui.index"
-          onComboBoxChange={onComboBoxChange}
-          onComboBoxOnBlur={onComboBoxOnBlur}
-          onComboBoxCreateOption={onComboBoxCreateOption}
-        />
+        <WatchIndex httpClient={httpClient} indexFieldName="_ui.index" />
         <WatchTimeField dataTypes={dataTypes} />
 
         <EuiSpacer />
@@ -322,9 +320,6 @@ class GraphWatch extends Component {
 GraphWatch.propTypes = {
   httpClient: PropTypes.object.isRequired,
   formik: PropTypes.object.isRequired,
-  onComboBoxOnBlur: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired,
 };
 
 export default connectFormik(GraphWatch);
