@@ -36,8 +36,8 @@ export function requestHeaders({
 
   server.ext('onPreAuth', async function(request, h) {
     // default is the tenant stored in the tenants cookie
-    const storedSelectedTenant = request.auth.sgSessionStorage.getStorage('tenant', {}).selected;
-    let selectedTenant = storedSelectedTenant;
+    let selectedTenant = request.auth.sgSessionStorage.getStorage('tenant', {}).selected;
+    let externalTenant = null;
 
     if (debugEnabled) {
       request.log(['info', 'searchguard', 'tenant_storagecookie'], selectedTenant);
@@ -45,37 +45,41 @@ export function requestHeaders({
 
     // check for tenant information in HTTP header. E.g. when using the saved objects API
     if (request.headers.sgtenant || request.headers.sg_tenant) {
-      selectedTenant = request.headers.sgtenant
+      externalTenant = request.headers.sgtenant
         ? request.headers.sgtenant
         : request.headers.sg_tenant;
 
       if (debugEnabled) {
-        request.log(['info', 'searchguard', 'tenant_http_header'], selectedTenant);
+        request.log(['info', 'searchguard', 'tenant_http_header'], externalTenant);
       }
     }
 
     // check for tenant information in GET parameter. E.g. when using a share link. Overwrites the HTTP header.
     if (request.query && (request.query.sg_tenant || request.query.sgtenant)) {
-      selectedTenant = request.query.sg_tenant ? request.query.sg_tenant : request.query.sgtenant;
+      externalTenant = request.query.sg_tenant ? request.query.sg_tenant : request.query.sgtenant;
 
       if (debugEnabled) {
-        request.log(['info', 'searchguard', 'tenant_url_param'], selectedTenant);
+        request.log(['info', 'searchguard', 'tenant_url_param'], externalTenant);
       }
     }
 
     // MT is only relevant for these paths
     if (
       !request.path.startsWith('/internal/spaces') &&
+      !request.path.startsWith('/goto') &&
       !request.path.startsWith('/elasticsearch') &&
       !request.path.startsWith('/api') &&
       !request.path.startsWith('/app') &&
       request.path !== '/' &&
-      selectedTenant === storedSelectedTenant
+      !externalTenant
     ) {
       return h.continue;
     }
 
     let response;
+    if (externalTenant) {
+      selectedTenant = externalTenant;
+    }
 
     try {
       if (authInstance) {
@@ -112,7 +116,7 @@ export function requestHeaders({
       }
     }
 
-    if (selectedTenant !== storedSelectedTenant) {
+    if (selectedTenant !== request.auth.sgSessionStorage.getStorage('tenant', {}).selected) {
       // save validated tenant as preference
       const prefcookie = backend.updateAndGetTenantPreferences(
         request,

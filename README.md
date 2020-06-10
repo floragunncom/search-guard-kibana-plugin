@@ -5,14 +5,10 @@
 </p>
 
 ## About this plugin
+
 This plugin for Kibana adds session management and true multi-tenancy to a [Search Guard](https://search-guard.com) secured cluster.
 
-For Kibana 6.x and 7.x it also provides a configuration GUI for Search Guard.
-
-## Downloads
-
-* Kibana 6.x, 7.x: [Maven Central](https://search.maven.org/search?q=search-guard-kibana-plugin)
-* Kibana 5.x: [GitHub](https://github.com/floragunncom/search-guard-kibana-plugin/releases)
+For Kibana 7.x and 6.x it also provides a configuration GUI for Search Guard.
 
 ## Installation
 
@@ -26,11 +22,17 @@ bin/kibana-plugin install file:///path/to/searchguard-kibana-<version>.zip
 
 ## Documentation
 
-### Kibana 6.x, 7.x
+### Kibana 7.x
 * [Installation](http://docs.search-guard.com/latest/kibana-plugin-installation)
-* [Authentication](http://docs.search-guard.com/latest/kibana-authentication)
+* [Authentication](https://docs.search-guard.com/latest/kibana-authentication-types)
 * [Multi Tenancy](http://docs.search-guard.com/latest/kibana-multi-tenancy)
 * [Configuration GUI](http://docs.search-guard.com/latest/configuration-gui)
+
+### Kibana 6.x
+* [Installation](http://docs.search-guard.com/6.x-25/kibana-plugin-installation)
+* [Authentication](http://docs.search-guard.com/6.x-25/kibana-authentication-types)
+* [Multi Tenancy](http://docs.search-guard.com/6.x-25/kibana-multi-tenancy)
+* [Configuration GUI](http://docs.search-guard.com/6.x-25/configuration-gui)
 
 ### Kibana 5.x
 * [Installation](http://docs.search-guard.com/v5/kibana-plugin-installation)
@@ -38,6 +40,7 @@ bin/kibana-plugin install file:///path/to/searchguard-kibana-<version>.zip
 * [Multi Tenancy](http://docs.search-guard.com/v5/kibana-multi-tenancy)
 
 ## Commercial use
+
 This software is licensed under the Apache2 license and can be used freely also for commercial purposes. Some features may require the Search Guard Enterprise Edition or above to function.
 
 ## Patches
@@ -56,7 +59,7 @@ In some cases, when Kibana doesn't provide the required core functionality, we m
 
     The patch makes it possible to work with Kibana, which is embedded in an iframe on a third party website. We must do it because now (Thu Apr 23 2020) Kibana is still using hapi v17. And hapi added support for SameSite=None in hapi v19.0.0. Read more about [SameSite=None](https://www.chromestatus.com/feature/5633521622188032) and [SameSite](https://web.dev/samesite-cookies-explained/).
 
-  - `patch:kibana:dev:es_compatibility`
+  - `yarn patch:kibana:dev:es_compatibility`
 
     The patch is only for the developers! It doesn't work in a production environment. The patch makes it possible to run Kibana with nodes where an old Elassticsearch version is used.
 
@@ -96,7 +99,25 @@ See the [kibana contributing guide](https://github.com/elastic/kibana/blob/maste
 
 For more information about any of these commands run `yarn ${task} --help`. For a full list of tasks checkout the `package.json` file, or run `yarn run`.
 
+### Integration tests
+#### Custom branch
+  You can make CI to run integration tests against specific Kibana branch or/and specific branch of Search Guard Suite plugin, for example: 
+  **package.json**
+```json  
+    "searchguard": {  
+        "test_sg_version": "7.7.1-SNAPSHOT",
+        "kibana_branch": "7.7"
+    }
+```
+where
+  - `test_sg_version` - is the location of the latest Search Guard Suite Snapshot for ES 7.7.1 in Search Guard maven repository.
+  - `kibana_branch` - is the branch in the official Kibana repository, which should be used for building and testing Search Guard Kibana plugin.
+  
+  These parameters are optional - if you don't specify them, the integration tests will be executed according to standard procedure.
+  > ***IMPORTANT:*** Please, do not use these parameters in production branches of Search Guard Kibana plugin.
+
 ## License
+
 Copyright 2015-2018 floragunn GmbH
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
