@@ -20,9 +20,6 @@ import { Context } from '../../../../Context';
 const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
   const { httpClient, triggerFlyout } = useContext(Context);
 
-  // TODO: make sure addTemplate works with blocks watch:
-  // 1. When checksBlocks in _ui
-  // 2. When checksBlocks in action
   const { addTemplate } = useCheckTemplates({ setFieldValue });
 
   const {
@@ -98,14 +95,22 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
     case WATCH_TYPES.BLOCKS:
       contentPanleActions = [addChecksBtn, execChecksBtn];
 
+      // watch = (
+      //   <>
+      //     <EuiSpacer />
+      //     <BlocksWatch
+      //       isResultVisible={isResultVisible}
+      //       editorResult={editorResult}
+      //       onCloseResult={closeResult}
+      //       onOpenChecksTemplatesFlyout={handleAddTemplate}
+      //     />
+      //     {isSeverity && <SeverityForm isTitle />}
+      //   </>
+      // );
       watch = (
         <>
-          <BlocksWatch
-            isResultVisible={isResultVisible}
-            editorResult={editorResult}
-            onCloseResult={closeResult}
-            onOpenChecksTemplatesFlyout={handleAddTemplate}
-          />
+          <EuiSpacer />
+          <BlocksWatch accordionId="sgBlocksWatch-DefinitionPanel" />
           {isSeverity && <SeverityForm isTitle />}
         </>
       );

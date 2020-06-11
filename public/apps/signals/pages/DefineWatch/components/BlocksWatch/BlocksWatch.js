@@ -12,6 +12,7 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiIcon,
+  EuiCallOut,
 } from '@elastic/eui';
 import {
   STATIC_DEFAULTS,
@@ -21,6 +22,26 @@ import {
   TRANSFORM_DEFAULTS,
   CALC_DEFAULTS,
 } from './utils/checkBlocks';
+
+/*
+TODO:
+  - [x] Develop data model for check blocks.
+  - [x] Add DND skeleton.
+  - [] Block actions: delete.
+  - [] Add check templates from DefinitionPanel.
+  - [] Add BlocksWatch to ActionsPanel. Maybe refactor the ActionsPanel.
+  - [] Check block forms.
+  - [] Slice the check name to deal with long usernames.
+  - [] Deletion confirm.
+  - [] Other block actions: execute (single and waterfall), disable, etc.
+  - [] Execute all blocks. Render stats.
+  - [] Make sure check code is pretty in the code editor in forms.
+  - [] Maybe resize code editor in forms.
+  - [] Unit tests for functions and hooks.
+  - [] Put ids for int tests.
+  - [] Use i18n.
+  - [] Put components in separate files.
+*/
 
 // a little function to help us with reordering the result
 const reorder = (list, startIndex, endIndex) => {
@@ -113,7 +134,7 @@ export function CalcCheckBlockForm({ checkBlock }) {
   );
 }
 
-export function DraggableBlock({ provided, checkBlock }) {
+export function DraggableBlock({ accordionId, index, provided, checkBlock, onDeleteBlock }) {
   let form;
 
   switch (checkBlock.type) {
@@ -136,7 +157,13 @@ export function DraggableBlock({ provided, checkBlock }) {
       form = <CalcCheckBlockForm checkBlock={checkBlock} />;
       break;
     default:
-      form = <p>Unknown check type</p>;
+      form = (
+        <EuiCallOut
+          title={`Wrong check type "${checkBlock.type}"`}
+          color="danger"
+          iconType="alert"
+        />
+      );
       break;
   }
 
@@ -150,8 +177,13 @@ export function DraggableBlock({ provided, checkBlock }) {
         </EuiFlexItem>
         <EuiFlexItem>
           <EuiAccordion
-            buttonContent={'Click to open'}
-            extraAction={<EuiButton size="s">Extra action!</EuiButton>}
+            id={accordionId}
+            buttonContent={checkBlock.name}
+            extraAction={
+              <EuiButton size="s" onClick={() => onDeleteBlock(index)}>
+                Delete
+              </EuiButton>
+            }
             paddingSize="l"
           >
             <div>{form}</div>
@@ -162,9 +194,8 @@ export function DraggableBlock({ provided, checkBlock }) {
   );
 }
 
-function BlocksWatch({ formik: { values } }) {
-  // const [items, setItems] = useState(getItems(10));
-  const [items, setItems] = useState(get(values, '_ui.checksBlocks', []));
+function BlocksWatch({ formik: { values }, accordionId }) {
+  const [checksBlocks, setChecksBlocks] = useState(get(values, '_ui.checksBlocks', []));
 
   function onDragEnd(result) {
     // dropped outside the list
@@ -172,7 +203,13 @@ function BlocksWatch({ formik: { values } }) {
       return;
     }
 
-    setItems(reorder(items, result.source.index, result.destination.index));
+    setChecksBlocks(reorder(checksBlocks, result.source.index, result.destination.index));
+  }
+
+  function deleteBlock(index) {
+    const newCheckBlocks = [...checksBlocks];
+    newCheckBlocks.splice(index, 1);
+    setChecksBlocks(newCheckBlocks);
   }
 
   /*
@@ -201,8 +238,8 @@ function BlocksWatch({ formik: { values } }) {
                 ref={provided.innerRef}
                 style={getListStyle(snapshot.isDraggingOver)}
               >
-                {items.map((item, index) => (
-                  <Draggable key={item.id} draggableId={item.id} index={index}>
+                {checksBlocks.map((checkBlock, index) => (
+                  <Draggable key={checkBlock.id} draggableId={checkBlock.id} index={index}>
                     {(provided, snapshot) => {
                       return openPortal(
                         provided.draggableProps.style,
@@ -212,7 +249,13 @@ function BlocksWatch({ formik: { values } }) {
                           {...provided.dragHandleProps}
                           style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
                         >
-                          <DraggableBlock provided={provided} checkBlock={item} />
+                          <DraggableBlock
+                            accordionId={accordionId}
+                            index={index}
+                            provided={provided}
+                            checkBlock={checkBlock}
+                            onDeleteBlock={deleteBlock}
+                          />
                         </div>
                       );
                     }}
@@ -229,6 +272,7 @@ function BlocksWatch({ formik: { values } }) {
 }
 
 BlocksWatch.propTypes = {
+  accordionId: PropTypes.string.isRequired,
   formik: PropTypes.object.isRequired,
 };
 
