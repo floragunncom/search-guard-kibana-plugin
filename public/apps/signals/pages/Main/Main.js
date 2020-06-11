@@ -209,8 +209,14 @@ class Main extends Component {
     const { httpClient, history, ...props } = this.props;
     const { flyout, modal } = this.state;
 
+    /*
+      Drag And Drop (DND) functionality relies on <div id="searchguardDragAndDropPortalAnchor" />
+      Because Eui accordion item visually brakes DND dragging capability applying transform.
+      https://github.com/elastic/eui/issues/3548
+    */
     return (
       <EuiPage id={APP_NAME}>
+        <div id="searchguardDragAndDropPortalAnchor" />
         <EuiPageBody className="sg-container">
           <Flyout flyout={flyout} onClose={() => this.handleTriggerFlyout(null)} />
 

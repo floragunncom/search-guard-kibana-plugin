@@ -7,7 +7,7 @@ import { EuiButton, EuiSpacer } from '@elastic/eui';
 import { useCheckTemplates, useJsonWatchChecks } from '../../hooks';
 import { FormikSelect, ContentPanel } from '../../../../components';
 import JsonWatch from '../JsonWatch';
-import BlocksWatch from '../BlocksWatch';
+import { BlocksWatch } from '../BlocksWatch';
 import GraphWatch from '../GraphWatch';
 import QueryStat from '../QueryStat';
 import SeverityForm from '../SeverityForm';
@@ -20,6 +20,9 @@ import { Context } from '../../../../Context';
 const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
   const { httpClient, triggerFlyout } = useContext(Context);
 
+  // TODO: make sure addTemplate works with blocks watch:
+  // 1. When checksBlocks in _ui
+  // 2. When checksBlocks in action
   const { addTemplate } = useCheckTemplates({ setFieldValue });
 
   const {
@@ -40,9 +43,9 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templateCounter]);
 
-  const addTemplateHelper = template => {
+  const addTemplateHelper = (template) => {
     setTemplate(template);
-    setTemplateCounter(prevState => prevState + 1);
+    setTemplateCounter((prevState) => prevState + 1);
   };
 
   const handleAddTemplate = () => {

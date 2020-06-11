@@ -140,7 +140,7 @@ class DefineWatch extends Component {
                 <EuiSpacer />
                 <FieldArray
                   name="actions"
-                  render={arrayHelpers => (
+                  render={(arrayHelpers) => (
                     <ActionPanel
                       isLoading={isLoading}
                       httpClient={httpClient}
@@ -154,7 +154,7 @@ class DefineWatch extends Component {
                     <EuiSpacer />
                     <FieldArray
                       name="resolve_actions"
-                      render={arrayHelpers => (
+                      render={(arrayHelpers) => (
                         <ResolveActionPanel
                           isLoading={isLoading}
                           httpClient={httpClient}

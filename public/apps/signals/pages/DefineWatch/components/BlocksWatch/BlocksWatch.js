@@ -1,153 +1,235 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import React, { useState, useContext, useEffect } from 'react';
-import { get } from 'lodash';
+import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import { connect as connectFormik } from 'formik';
-import DraggableList from 'react-draggable-list';
 import PropTypes from 'prop-types';
-import update from 'immutability-helper';
-import { EuiSpacer, EuiCodeEditor, EuiFormRow, EuiText, EuiLink } from '@elastic/eui';
-import { EmptyPrompt } from '../../../../../components';
-import { WatchService } from '../../../../services';
-import { formikToWatch } from '../../utils';
-import { stringifyPretty } from '../../../../utils/helpers';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { get } from 'lodash';
 import {
-  looksLikeYouDontHaveAnyCheckText,
-  noChecksText,
-  responseText,
-  closeText,
-} from '../../../../utils/i18n/watch';
-import QueryStat from '../QueryStat';
-import Block from './Block';
+  EuiAccordion,
+  EuiButton,
+  EuiPanel,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiIcon,
+} from '@elastic/eui';
+import {
+  STATIC_DEFAULTS,
+  SEARCH_DEFAULTS,
+  HTTP_DEFAULTS,
+  CONDITION_DEFAULTS,
+  TRANSFORM_DEFAULTS,
+  CALC_DEFAULTS,
+} from './utils/checkBlocks';
 
-import { Context } from '../../../../Context';
+// a little function to help us with reordering the result
+const reorder = (list, startIndex, endIndex) => {
+  const result = Array.from(list);
+  const [removed] = result.splice(startIndex, 1);
+  result.splice(endIndex, 0, removed);
 
-import './styles.css';
+  return result;
+};
 
-const BlocksWatch = ({
-  formik: { values, setFieldValue },
-  isResultVisible,
-  editorResult,
-  onCloseResult,
-  onOpenChecksTemplatesFlyout,
-}) => {
-  const { editorTheme, httpClient, triggerConfirmDeletionModal, addErrorToast } = useContext(
-    Context
-  );
+const grid = 2;
 
-  const [isLoading, setLoading] = useState(false);
+const getItemStyle = (isDragging, draggableStyle) => ({
+  userSelect: 'none',
+  padding: grid * 2,
+  margin: `0 0 ${grid}px 0`,
+  ...draggableStyle,
+});
 
-  useEffect(() => {
-    onCloseResult();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+const getListStyle = (isDraggingOver) => ({
+  background: isDraggingOver ? '#bfdcd9' : '#ffffff',
+  padding: grid,
+  width: '100%',
+});
 
-  const checksBlocks = get(values, '_ui.checksBlocks', []);
-  const watchService = new WatchService(httpClient);
-
-  const setBlocks = reorderedChecks => {
-    setFieldValue('_ui.checksBlocks', reorderedChecks);
-  };
-
-  const deleteBlock = index => {
-    const newChecks = update(checksBlocks, { $splice: [[index, 1]] });
-
-    triggerConfirmDeletionModal({
-      body: 'the check',
-      onConfirm: () => {
-        setFieldValue('_ui.checksBlocks', newChecks);
-        triggerConfirmDeletionModal(null);
-      },
-    });
-  };
-
-  const executeBlocks = async (startIndex, endIndex) => {
-    console.debug('BlocksWatch -- executeBlocks -- prev values', values);
-    const newFormikValues = update(values, {
-      _ui: { checksBlocks: { $set: checksBlocks.slice(startIndex, endIndex + 1) } },
-    });
-
-    setLoading(true);
-
-    try {
-      console.debug('BlocksWatch -- executeBlocks -- current values', newFormikValues);
-      const { ok, resp } = await watchService.execute({ watch: formikToWatch(newFormikValues) });
-      setFieldValue(`_ui.checksBlocks.${endIndex}.response`, stringifyPretty(resp));
-
-      if (!ok) throw resp;
-    } catch (error) {
-      console.error('BlocksWatch -- executeBlocks', error);
-      addErrorToast(error);
-    }
-
-    setLoading(false);
-  };
-
-  const renderWatchResponse = () => (
+export function StaticCheckBlockForm({ checkBlock }) {
+  return (
     <>
-      <EuiSpacer />
-      <EuiFormRow
-        fullWidth
-        label={responseText}
-        labelAppend={
-          <EuiText size="xs" onClick={onCloseResult}>
-            <EuiLink id="close-response" data-test-subj="sgWatch-CloseResponse">
-              {closeText} X
-            </EuiLink>
-          </EuiText>
-        }
-      >
-        <EuiCodeEditor
-          theme={editorTheme}
-          mode="json"
-          width="100%"
-          height="500px"
-          value={editorResult}
-          readOnly
-        />
-      </EuiFormRow>
-      <EuiSpacer />
-      <QueryStat />
+      <p>Type: {checkBlock.type}</p>
+      <p>Name: {checkBlock.name}</p>
+      <p>Target: {checkBlock.target}</p>
+      <p>Value: {checkBlock.value}</p>
     </>
   );
+}
+
+export function SearchCheckBlockForm({ checkBlock }) {
+  return (
+    <>
+      <p>Type: {checkBlock.type}</p>
+      <p>Name: {checkBlock.name}</p>
+      <p>Target: {checkBlock.target}</p>
+      <p>Request: {checkBlock.request}</p>
+    </>
+  );
+}
+
+export function HttpCheckBlockForm({ checkBlock }) {
+  return (
+    <>
+      <p>Type: {checkBlock.type}</p>
+      <p>Name: {checkBlock.name}</p>
+      <p>Target: {checkBlock.target}</p>
+      <p>Request: {checkBlock.request}</p>
+      <p>TLS: {checkBlock.tls}</p>
+    </>
+  );
+}
+
+export function ConditionCheckBlockForm({ checkBlock }) {
+  return (
+    <>
+      <p>Type: {checkBlock.type}</p>
+      <p>Name: {checkBlock.name}</p>
+      <p>Target: {checkBlock.target}</p>
+      <p>Source: {checkBlock.source}</p>
+    </>
+  );
+}
+
+export function TransformCheckBlockForm({ checkBlock }) {
+  return (
+    <>
+      <p>Type: {checkBlock.type}</p>
+      <p>Name: {checkBlock.name}</p>
+      <p>Target: {checkBlock.target}</p>
+      <p>Source: {checkBlock.source}</p>
+    </>
+  );
+}
+
+export function CalcCheckBlockForm({ checkBlock }) {
+  return (
+    <>
+      <p>Type: {checkBlock.type}</p>
+      <p>Name: {checkBlock.name}</p>
+      <p>Target: {checkBlock.target}</p>
+      <p>Source: {checkBlock.source}</p>
+    </>
+  );
+}
+
+export function DraggableBlock({ provided, checkBlock }) {
+  let form;
+
+  switch (checkBlock.type) {
+    case STATIC_DEFAULTS.type:
+      form = <StaticCheckBlockForm checkBlock={checkBlock} />;
+      break;
+    case SEARCH_DEFAULTS.type:
+      form = <SearchCheckBlockForm checkBlock={checkBlock} />;
+      break;
+    case HTTP_DEFAULTS.type:
+      form = <HttpCheckBlockForm checkBlock={checkBlock} />;
+      break;
+    case CONDITION_DEFAULTS.type:
+      form = <ConditionCheckBlockForm checkBlock={checkBlock} />;
+      break;
+    case TRANSFORM_DEFAULTS.type:
+      form = <TransformCheckBlockForm checkBlock={checkBlock} />;
+      break;
+    case CALC_DEFAULTS.type:
+      form = <CalcCheckBlockForm checkBlock={checkBlock} />;
+      break;
+    default:
+      form = <p>Unknown check type</p>;
+      break;
+  }
 
   return (
-    <div>
-      {isResultVisible && renderWatchResponse()}
-      <div className="blocksWatch-blocks-list">
-        <DraggableList
-          itemKey="index"
-          template={Block}
-          // The 'index' prop must be recalculated because
-          // react-draggable-list maintains its own state of items
-          list={checksBlocks.map((block, index) => ({ ...block, index }))}
-          onMoveEnd={reorderedChecks => setBlocks(reorderedChecks)}
-          container={() => document.body}
-          // The common props are used by Block
-          commonProps={{
-            isLoading,
-            onDeleteBlock: deleteBlock,
-            onExecuteBlocks: (startIndex, endIndex) => executeBlocks(startIndex, endIndex),
-          }}
-        />
-      </div>
+    <EuiPanel>
+      <EuiFlexGroup>
+        <EuiFlexItem grow={false}>
+          <div {...provided.dragHandleProps}>
+            <EuiIcon type="grab" />
+          </div>
+        </EuiFlexItem>
+        <EuiFlexItem>
+          <EuiAccordion
+            buttonContent={'Click to open'}
+            extraAction={<EuiButton size="s">Extra action!</EuiButton>}
+            paddingSize="l"
+          >
+            <div>{form}</div>
+          </EuiAccordion>
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    </EuiPanel>
+  );
+}
 
-      {!checksBlocks.length && (
-        <EmptyPrompt
-          titleText={noChecksText}
-          bodyText={looksLikeYouDontHaveAnyCheckText}
-          onCreate={onOpenChecksTemplatesFlyout}
-        />
-      )}
+function BlocksWatch({ formik: { values } }) {
+  // const [items, setItems] = useState(getItems(10));
+  const [items, setItems] = useState(get(values, '_ui.checksBlocks', []));
+
+  function onDragEnd(result) {
+    // dropped outside the list
+    if (!result.destination) {
+      return;
+    }
+
+    setItems(reorder(items, result.source.index, result.destination.index));
+  }
+
+  /*
+    Drag And Drop (DND) functionality relies on searchguardDragAndDropPortalAnchor"
+    Because Eui accordion item visually brakes DND dragging capability applying transform.
+    https://github.com/elastic/eui/issues/3548
+  */
+  function openPortal(style, element) {
+    if (style.position === 'fixed') {
+      return ReactDOM.createPortal(
+        element,
+        document.getElementById('searchguardDragAndDropPortalAnchor')
+      );
+    }
+    return element;
+  }
+
+  return (
+    <div style={{ overflowX: 'hidden' }}>
+      <EuiPanel paddingSize="none">
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="droppable">
+            {(provided, snapshot) => (
+              <div
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                style={getListStyle(snapshot.isDraggingOver)}
+              >
+                {items.map((item, index) => (
+                  <Draggable key={item.id} draggableId={item.id} index={index}>
+                    {(provided, snapshot) => {
+                      return openPortal(
+                        provided.draggableProps.style,
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
+                        >
+                          <DraggableBlock provided={provided} checkBlock={item} />
+                        </div>
+                      );
+                    }}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+      </EuiPanel>
     </div>
   );
-};
+}
 
 BlocksWatch.propTypes = {
   formik: PropTypes.object.isRequired,
-  onCloseResult: PropTypes.func.isRequired,
-  editorResult: PropTypes.string,
-  isResultVisible: PropTypes.bool,
-  onOpenChecksTemplatesFlyout: PropTypes.func.isRequired,
 };
 
 export default connectFormik(BlocksWatch);
