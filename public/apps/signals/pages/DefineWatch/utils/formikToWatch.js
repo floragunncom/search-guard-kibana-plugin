@@ -3,6 +3,7 @@ import { cloneDeep, omit, get } from 'lodash';
 import buildSchedule from './buildSchedule';
 import { buildThrottle } from './buildThrottle';
 import { buildGraphWatchChecks } from './graphWatch';
+import { buildCheckBlock } from '../components/BlocksWatch/utils/checkBlocks';
 import { comboBoxOptionsToArray, foldMultiLineString } from '../../../utils/helpers';
 import { WATCH_TYPES, META_FIELDS_TO_OMIT, SEVERITY } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
@@ -141,11 +142,7 @@ export const buildIndexAction = (action = {}) => {
   };
 };
 
-export const buildChecksFromChecksBlocks = (checks = []) =>
-  checks.reduce((res, { check }) => {
-    res.push(JSON.parse(foldMultiLineString(check)));
-    return res;
-  }, []);
+export const buildChecksFromChecksBlocks = (checks = []) => checks.map(buildCheckBlock);
 
 export const buildChecks = ({ _ui: ui = {}, checks = [] }) => {
   const { watchType, checksBlocks } = ui;

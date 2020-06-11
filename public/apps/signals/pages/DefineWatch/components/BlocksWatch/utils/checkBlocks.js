@@ -193,7 +193,7 @@ export function buildFormikCheckBlock(check = {}) {
 export function buildCheckBlock(formik = {}) {
   let check;
 
-  switch (check.type) {
+  switch (formik.type) {
     case STATIC_DEFAULTS.type:
       check = formikStaticToStatic(formik);
       break;

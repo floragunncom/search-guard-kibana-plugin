@@ -235,16 +235,61 @@ describe('buildChecksFromChecksBlocks', () => {
   test('can build checks', () => {
     const checksBlocks = [
       {
-        check: JSON.stringify({ a: 1 }),
-        id: 0,
+        type: 'static',
+        name: 'constants',
+        target: 'myconstants',
+        value: stringifyPretty({
+          threshold: 10,
+          time_period: '10s',
+          admin_lastname: 'Anderson',
+          admin_firstname: 'Paul',
+        }),
+        response: 'abc',
+        id: '123',
       },
       {
-        check: JSON.stringify({ b: 1 }),
-        id: 1,
+        type: 'search',
+        name: 'Audit log events',
+        target: 'auditlog',
+        request: stringifyPretty({
+          indices: ['audit*'],
+          body: {
+            size: 5,
+            query: {},
+            aggs: {},
+          },
+        }),
+        response: 'abc',
+        id: '123',
       },
     ];
 
-    const checks = [{ a: 1 }, { b: 1 }];
+    const checks = [
+      {
+        type: 'static',
+        name: 'constants',
+        target: 'myconstants',
+        value: {
+          threshold: 10,
+          time_period: '10s',
+          admin_lastname: 'Anderson',
+          admin_firstname: 'Paul',
+        },
+      },
+      {
+        type: 'search',
+        name: 'Audit log events',
+        target: 'auditlog',
+        request: {
+          indices: ['audit*'],
+          body: {
+            size: 5,
+            query: {},
+            aggs: {},
+          },
+        },
+      },
+    ];
 
     expect(buildChecksFromChecksBlocks(checksBlocks)).toEqual(checks);
   });
@@ -591,10 +636,42 @@ describe('buildChecks', () => {
   });
 
   test('can build checks for blocks watch', () => {
-    const watchType = WATCH_TYPES.BLOCKS;
-    const checksBlocks = [{ check: JSON.stringify({ a: 1 }), id: 0 }];
+    const formik = {
+      _ui: {
+        watchType: WATCH_TYPES.BLOCKS,
+        checksBlocks: [
+          {
+            type: 'static',
+            name: 'constants',
+            target: 'myconstants',
+            value: stringifyPretty({
+              threshold: 10,
+              time_period: '10s',
+              admin_lastname: 'Anderson',
+              admin_firstname: 'Paul',
+            }),
+            response: 'abc',
+            id: '123',
+          },
+        ],
+      },
+    };
 
-    expect(buildChecks({ _ui: { watchType, checksBlocks } })).toEqual([{ a: 1 }]);
+    const checks = [
+      {
+        type: 'static',
+        name: 'constants',
+        target: 'myconstants',
+        value: {
+          threshold: 10,
+          time_period: '10s',
+          admin_lastname: 'Anderson',
+          admin_firstname: 'Paul',
+        },
+      },
+    ];
+
+    expect(buildChecks(formik)).toEqual(checks);
   });
 });
 
@@ -703,20 +780,7 @@ describe('formikToWatch', () => {
             },
           },
         },
-        checksBlocks: [
-          {
-            response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "mysearch",\n  "target": "mysearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_flights"\n    ],\n    "body": {\n      "size": 0,\n      "aggregations": {},\n      "query": {\n        "bool": {\n          "filter": {\n            "range": {\n              "timestamp": {\n                "gte": "now-1h",\n                "lte": "now"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
-          },
-          {
-            response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "mycondition",\n  "source": "data.mysearch.hits.total.value > 10"\n}',
-            index: 1,
-          },
-        ],
+        checksBlocks: [],
         frequency: 'interval',
         period: {
           interval: 1,
@@ -1019,20 +1083,7 @@ describe('formikToWatch', () => {
             },
           },
         },
-        checksBlocks: [
-          {
-            response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "mysearch",\n  "target": "mysearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_flights"\n    ],\n    "body": {\n      "size": 0,\n      "aggregations": {\n        "bucketAgg": {\n          "terms": {\n            "field": "Carrier",\n            "size": 3,\n            "order": {\n              "_count": "asc"\n            }\n          }\n        }\n      },\n      "query": {\n        "bool": {\n          "filter": {\n            "range": {\n              "timestamp": {\n                "gte": "now-5h",\n                "lte": "now"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
-          },
-          {
-            response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "mycondition",\n  "source": "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i].doc_count > 100) { return true; } } return false;"\n}',
-            index: 1,
-          },
-        ],
+        checksBlocks: [],
         frequency: 'interval',
         period: {
           interval: 1,
@@ -1295,20 +1346,7 @@ describe('formikToWatch', () => {
             },
           },
         },
-        checksBlocks: [
-          {
-            response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "mysearch",\n  "target": "mysearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_flights"\n    ],\n    "body": {\n      "size": 0,\n      "aggregations": {\n        "metricAgg": {\n          "avg": {\n            "field": "AvgTicketPrice"\n          }\n        }\n      },\n      "query": {\n        "bool": {\n          "filter": {\n            "range": {\n              "timestamp": {\n                "gte": "now-1h",\n                "lte": "now"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
-          },
-          {
-            response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "mycondition",\n  "source": "data.mysearch.aggregations.metricAgg.value > 500"\n}',
-            index: 1,
-          },
-        ],
+        checksBlocks: [],
         frequency: 'interval',
         period: {
           interval: 1,
@@ -1661,20 +1699,7 @@ describe('formikToWatch', () => {
             },
           },
         },
-        checksBlocks: [
-          {
-            response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "mysearch",\n  "target": "mysearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_flights"\n    ],\n    "body": {\n      "size": 0,\n      "aggregations": {\n        "bucketAgg": {\n          "terms": {\n            "field": "Carrier",\n            "size": 3,\n            "order": {\n              "metricAgg": "asc"\n            }\n          },\n          "aggregations": {\n            "metricAgg": {\n              "avg": {\n                "field": "AvgTicketPrice"\n              }\n            }\n          }\n        }\n      },\n      "query": {\n        "bool": {\n          "filter": {\n            "range": {\n              "timestamp": {\n                "gte": "now-5h",\n                "lte": "now"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
-          },
-          {
-            response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "mycondition",\n  "source": "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i][\'metricAgg\'].value > 500) { return true; } } return false;"\n}',
-            index: 1,
-          },
-        ],
+        checksBlocks: [],
         frequency: 'interval',
         period: {
           interval: 1,
@@ -1948,20 +1973,7 @@ describe('formikToWatch', () => {
             },
           },
         },
-        checksBlocks: [
-          {
-            response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "mysearch",\n  "target": "mysearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_flights"\n    ],\n    "body": {\n      "size": 0,\n      "aggregations": {\n        "metricAgg": {\n          "sum": {\n            "field": "AvgTicketPrice"\n          }\n        }\n      },\n      "query": {\n        "bool": {\n          "filter": {\n            "range": {\n              "timestamp": {\n                "gte": "now-1h",\n                "lte": "now"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
-          },
-          {
-            response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "mycondition",\n  "source": "data.mysearch.aggregations.metricAgg.value > 500"\n}',
-            index: 1,
-          },
-        ],
+        checksBlocks: [],
         frequency: 'interval',
         period: {
           interval: 1,
@@ -2314,20 +2326,7 @@ describe('formikToWatch', () => {
             },
           },
         },
-        checksBlocks: [
-          {
-            response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "mysearch",\n  "target": "mysearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_flights"\n    ],\n    "body": {\n      "size": 0,\n      "aggregations": {\n        "bucketAgg": {\n          "terms": {\n            "field": "Carrier",\n            "size": 3,\n            "order": {\n              "metricAgg": "asc"\n            }\n          },\n          "aggregations": {\n            "metricAgg": {\n              "sum": {\n                "field": "AvgTicketPrice"\n              }\n            }\n          }\n        }\n      },\n      "query": {\n        "bool": {\n          "filter": {\n            "range": {\n              "timestamp": {\n                "gte": "now-5h",\n                "lte": "now"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
-          },
-          {
-            response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "mycondition",\n  "source": "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i][\'metricAgg\'].value > 500) { return true; } } return false;"\n}',
-            index: 1,
-          },
-        ],
+        checksBlocks: [],
         frequency: 'interval',
         period: {
           interval: 1,
@@ -2601,20 +2600,7 @@ describe('formikToWatch', () => {
             },
           },
         },
-        checksBlocks: [
-          {
-            response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "mysearch",\n  "target": "mysearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_flights"\n    ],\n    "body": {\n      "size": 0,\n      "aggregations": {\n        "metricAgg": {\n          "min": {\n            "field": "AvgTicketPrice"\n          }\n        }\n      },\n      "query": {\n        "bool": {\n          "filter": {\n            "range": {\n              "timestamp": {\n                "gte": "now-1h",\n                "lte": "now"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
-          },
-          {
-            response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "mycondition",\n  "source": "data.mysearch.aggregations.metricAgg.value > 500"\n}',
-            index: 1,
-          },
-        ],
+        checksBlocks: [],
         frequency: 'interval',
         period: {
           interval: 1,
@@ -2967,20 +2953,7 @@ describe('formikToWatch', () => {
             },
           },
         },
-        checksBlocks: [
-          {
-            response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "mysearch",\n  "target": "mysearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_flights"\n    ],\n    "body": {\n      "size": 0,\n      "aggregations": {\n        "bucketAgg": {\n          "terms": {\n            "field": "Carrier",\n            "size": 3,\n            "order": {\n              "metricAgg": "asc"\n            }\n          },\n          "aggregations": {\n            "metricAgg": {\n              "min": {\n                "field": "AvgTicketPrice"\n              }\n            }\n          }\n        }\n      },\n      "query": {\n        "bool": {\n          "filter": {\n            "range": {\n              "timestamp": {\n                "gte": "now-5h",\n                "lte": "now"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
-          },
-          {
-            response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "mycondition",\n  "source": "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i][\'metricAgg\'].value > 500) { return true; } } return false;"\n}',
-            index: 1,
-          },
-        ],
+        checksBlocks: [],
         frequency: 'interval',
         period: {
           interval: 1,
@@ -3254,20 +3227,7 @@ describe('formikToWatch', () => {
             },
           },
         },
-        checksBlocks: [
-          {
-            response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "mysearch",\n  "target": "mysearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_flights"\n    ],\n    "body": {\n      "size": 0,\n      "aggregations": {\n        "metricAgg": {\n          "max": {\n            "field": "AvgTicketPrice"\n          }\n        }\n      },\n      "query": {\n        "bool": {\n          "filter": {\n            "range": {\n              "timestamp": {\n                "gte": "now-1h",\n                "lte": "now"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
-          },
-          {
-            response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "mycondition",\n  "source": "data.mysearch.aggregations.metricAgg.value > 500"\n}',
-            index: 1,
-          },
-        ],
+        checksBlocks: [],
         frequency: 'interval',
         period: {
           interval: 1,
@@ -3620,20 +3580,7 @@ describe('formikToWatch', () => {
             },
           },
         },
-        checksBlocks: [
-          {
-            response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "mysearch",\n  "target": "mysearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_flights"\n    ],\n    "body": {\n      "size": 0,\n      "aggregations": {\n        "bucketAgg": {\n          "terms": {\n            "field": "Carrier",\n            "size": 3,\n            "order": {\n              "metricAgg": "asc"\n            }\n          },\n          "aggregations": {\n            "metricAgg": {\n              "max": {\n                "field": "AvgTicketPrice"\n              }\n            }\n          }\n        }\n      },\n      "query": {\n        "bool": {\n          "filter": {\n            "range": {\n              "timestamp": {\n                "gte": "now-5h",\n                "lte": "now"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
-          },
-          {
-            response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "mycondition",\n  "source": "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i][\'metricAgg\'].value > 500) { return true; } } return false;"\n}',
-            index: 1,
-          },
-        ],
+        checksBlocks: [],
         frequency: 'interval',
         period: {
           interval: 1,
@@ -3851,20 +3798,7 @@ describe('formikToWatch', () => {
         thresholdEnum: 'ABOVE',
         checksGraphResult: {},
         checksResult: '',
-        checksBlocks: [
-          {
-            response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "testsearch",\n  "target": "testsearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_ecommerce"\n    ],\n    "body": {\n      "from": 0,\n      "size": 10,\n      "query": {\n        "range": {\n          "taxful_total_price": {\n            "gte": 100\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
-          },
-          {
-            response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "testcondition",\n  "source": "ctx.testsearch.hits.hits.length > 0"\n}',
-            index: 1,
-          },
-        ],
+        checksBlocks: [],
         frequency: 'cron',
         period: {
           interval: 1,
@@ -4055,16 +3989,34 @@ describe('formikToWatch', () => {
         checksResult: '',
         checksBlocks: [
           {
-            response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "testsearch",\n  "target": "testsearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_ecommerce"\n    ],\n    "body": {\n      "from": 0,\n      "size": 10,\n      "query": {\n        "range": {\n          "taxful_total_price": {\n            "gte": 100\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
+            type: 'search',
+            name: 'testsearch',
+            target: 'testsearch',
+            request: stringifyPretty({
+              indices: ['kibana_sample_data_ecommerce'],
+              body: {
+                from: 0,
+                size: 10,
+                query: {
+                  range: {
+                    taxful_total_price: {
+                      gte: 100,
+                    },
+                  },
+                },
+              },
+            }),
+            response: 'abc',
+            id: '123',
           },
           {
-            response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "testcondition",\n  "source": "ctx.testsearch.hits.hits.length > 0"\n}',
-            index: 1,
+            type: 'condition',
+            name: 'testcondition',
+            target: '',
+            source: 'ctx.testsearch.hits.hits.length > 0',
+            lang: 'painless',
+            response: 'abc',
+            id: '456',
           },
         ],
         frequency: 'cron',
@@ -4136,6 +4088,7 @@ describe('formikToWatch', () => {
           type: 'condition',
           name: 'testcondition',
           source: 'ctx.testsearch.hits.hits.length > 0',
+          lang: 'painless',
         },
       ],
       actions: [
