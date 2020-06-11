@@ -84,19 +84,18 @@ export function formikStaticToStatic(check = {}) {
 export function searchToFormikSearch(check = {}) {
   const formik = defaultsDeep(cloneDeep(check), SEARCH_DEFAULTS);
 
-  formik.value = stringifyPretty(formik.request);
-  delete formik.request;
+  formik.request = stringifyPretty(formik.request);
   formik.id = uuid();
   formik.response = '';
 
   return formik;
 }
 
-export function formikSearchToSearch({ value, ...rest }) {
+export function formikSearchToSearch({ request, ...rest }) {
   return pickBy(
     {
       ...omit(rest, FORMIK_FIELDS_TO_OMIT),
-      request: JSON.parse(value),
+      request: JSON.parse(request),
     },
     identity
   );
@@ -106,19 +105,18 @@ export function httpToFormikHttp(check = {}) {
   const formik = defaultsDeep(cloneDeep(check), HTTP_DEFAULTS);
 
   formik.tls = !Object.keys(formik.tls).length ? '' : stringifyPretty(formik.tls);
-  formik.value = stringifyPretty(formik.request);
-  delete formik.request;
+  formik.request = stringifyPretty(formik.request);
   formik.id = uuid();
   formik.response = '';
 
   return formik;
 }
 
-export function formikHttpToHttp({ value, ...rest }) {
+export function formikHttpToHttp({ request, ...rest }) {
   const check = pickBy(
     {
       ...omit(rest, FORMIK_FIELDS_TO_OMIT),
-      request: JSON.parse(value),
+      request: JSON.parse(request),
     },
     identity
   );

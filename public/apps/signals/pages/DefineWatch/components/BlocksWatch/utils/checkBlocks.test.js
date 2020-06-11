@@ -93,7 +93,7 @@ describe('checkBlocks', () => {
       type: 'search',
       name: '',
       target: 'auditlog',
-      value: stringifyPretty({
+      request: stringifyPretty({
         indices: ['audit*'],
         body: {
           size: 5,
@@ -113,7 +113,7 @@ describe('checkBlocks', () => {
       type: 'search',
       name: 'Audit log events',
       target: 'auditlog',
-      value: stringifyPretty({
+      request: stringifyPretty({
         indices: ['audit*'],
         body: {
           size: 5,
@@ -157,7 +157,7 @@ describe('checkBlocks', () => {
       type: 'http',
       name: '',
       target: 'samplejson',
-      value: stringifyPretty({
+      request: stringifyPretty({
         url: 'https://jsonplaceholder.typicode.com/todos/1',
         method: 'GET',
         headers: { 'My-Secret-Token': 'pizza' },
@@ -195,7 +195,7 @@ describe('checkBlocks', () => {
       type: 'http',
       name: 'testhttp',
       target: 'samplejson',
-      value: stringifyPretty({
+      request: stringifyPretty({
         url: 'https://jsonplaceholder.typicode.com/todos/1',
         method: 'GET',
         headers: { 'My-Secret-Token': 'pizza' },
@@ -221,7 +221,7 @@ describe('checkBlocks', () => {
       type: 'http',
       name: 'testhttp',
       target: 'samplejson',
-      value: stringifyPretty({
+      request: stringifyPretty({
         url: 'https://jsonplaceholder.typicode.com/todos/1',
         method: 'GET',
         headers: { 'My-Secret-Token': 'pizza' },
@@ -267,7 +267,7 @@ describe('checkBlocks', () => {
       type: 'http',
       name: '',
       target: 'samplejson',
-      value: stringifyPretty({
+      request: stringifyPretty({
         url: 'https://jsonplaceholder.typicode.com/todos/1',
         method: 'GET',
         headers: { 'My-Secret-Token': 'pizza' },

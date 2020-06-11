@@ -435,23 +435,77 @@ describe('buildFormikActions', () => {
 
 describe('buildFormikChecksBlocks', () => {
   test('can create checks blocks formik', () => {
-    const checks = [{ value: { a: 1 } }, { value: { b: 2 } }];
+    const checks = [
+      {
+        type: 'static',
+        target: 'myconstants',
+        value: {
+          threshold: 10,
+          time_period: '10s',
+          admin_lastname: 'Anderson',
+          admin_firstname: 'Paul',
+        },
+      },
+      {
+        type: 'search',
+        target: 'auditlog',
+        request: {
+          indices: ['audit*'],
+          body: {
+            size: 5,
+            query: {},
+            aggs: {},
+          },
+        },
+      },
+    ];
 
-    expect(buildFormikChecksBlocks(checks)).toEqual(
-      checks.map((check, index) => ({
-        index,
-        id: expect.any(String),
-        check: stringifyPretty(check),
+    const formikChecks = [
+      {
+        type: 'static',
+        name: '',
+        target: 'myconstants',
+        value: stringifyPretty({
+          threshold: 10,
+          time_period: '10s',
+          admin_lastname: 'Anderson',
+          admin_firstname: 'Paul',
+        }),
         response: '',
-      }))
-    );
+        id: expect.any(String),
+      },
+      {
+        type: 'search',
+        name: '',
+        target: 'auditlog',
+        request: stringifyPretty({
+          indices: ['audit*'],
+          body: {
+            size: 5,
+            query: {},
+            aggs: {},
+          },
+        }),
+        response: '',
+        id: expect.any(String),
+      },
+    ];
+
+    expect(buildFormikChecksBlocks(checks)).toEqual(formikChecks);
   });
 });
 
 describe('buildFormikMeta', () => {
   test('can create UI metadate formik for a watch added via REST API', () => {
     const watch = {
-      checks: [{ a: 1 }],
+      checks: [
+        {
+          type: 'static',
+          value: {
+            threshold: 10,
+          },
+        },
+      ],
       trigger: {
         schedule: {
           interval: ['5h'],
@@ -465,10 +519,14 @@ describe('buildFormikMeta', () => {
       watchType: WATCH_TYPES.JSON,
       checksBlocks: [
         {
-          id: expect.any(String),
-          index: 0,
+          type: 'static',
+          name: '',
+          target: '',
+          value: stringifyPretty({
+            threshold: 10,
+          }),
           response: '',
-          check: stringifyPretty({ a: 1 }),
+          id: expect.any(String),
         },
       ],
       ...SCHEDULE_DEFAULTS,
@@ -648,18 +706,39 @@ describe('watchToFormik', () => {
         checksResult: '',
         checksBlocks: [
           {
-            id: expect.any(String),
+            type: 'search',
+            name: 'mysearch',
+            target: 'mysearch',
+            request: stringifyPretty({
+              indices: ['kibana_sample_data_flights'],
+              body: {
+                size: 0,
+                aggregations: {},
+                query: {
+                  bool: {
+                    filter: {
+                      range: {
+                        timestamp: {
+                          gte: 'now-1h',
+                          lte: 'now',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            }),
             response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "mysearch",\n  "target": "mysearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_flights"\n    ],\n    "body": {\n      "size": 0,\n      "aggregations": {},\n      "query": {\n        "bool": {\n          "filter": {\n            "range": {\n              "timestamp": {\n                "gte": "now-1h",\n                "lte": "now"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
+            id: expect.any(String),
           },
           {
-            id: expect.any(String),
+            type: 'condition',
+            name: 'mycondition',
+            target: '',
+            source: 'data.mysearch.hits.total.value > 10',
+            lang: 'painless',
             response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "mycondition",\n  "source": "data.mysearch.hits.total.value > 10"\n}',
-            index: 1,
+            id: expect.any(String),
           },
         ],
         frequency: 'interval',
@@ -882,18 +961,50 @@ describe('watchToFormik', () => {
         checksResult: '',
         checksBlocks: [
           {
-            id: expect.any(String),
+            type: 'search',
+            name: 'mysearch',
+            target: 'mysearch',
+            request: stringifyPretty({
+              indices: ['kibana_sample_data_flights'],
+              body: {
+                size: 0,
+                aggregations: {
+                  bucketAgg: {
+                    terms: {
+                      field: 'Carrier',
+                      size: 3,
+                      order: {
+                        _count: 'asc',
+                      },
+                    },
+                  },
+                },
+                query: {
+                  bool: {
+                    filter: {
+                      range: {
+                        timestamp: {
+                          gte: 'now-5h',
+                          lte: 'now',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            }),
             response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "mysearch",\n  "target": "mysearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_flights"\n    ],\n    "body": {\n      "size": 0,\n      "aggregations": {\n        "bucketAgg": {\n          "terms": {\n            "field": "Carrier",\n            "size": 3,\n            "order": {\n              "_count": "asc"\n            }\n          }\n        }\n      },\n      "query": {\n        "bool": {\n          "filter": {\n            "range": {\n              "timestamp": {\n                "gte": "now-5h",\n                "lte": "now"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
+            id: expect.any(String),
           },
           {
-            id: expect.any(String),
+            type: 'condition',
+            name: 'mycondition',
+            source:
+              'ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i].doc_count > 100) { return true; } } return false;',
+            target: '',
+            lang: 'painless',
             response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "mycondition",\n  "source": "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i].doc_count > 100) { return true; } } return false;"\n}',
-            index: 1,
+            id: expect.any(String),
           },
         ],
         frequency: 'interval',
@@ -1111,18 +1222,45 @@ describe('watchToFormik', () => {
         checksResult: '',
         checksBlocks: [
           {
-            id: expect.any(String),
+            type: 'search',
+            name: 'mysearch',
+            target: 'mysearch',
+            request: stringifyPretty({
+              indices: ['kibana_sample_data_flights'],
+              body: {
+                size: 0,
+                aggregations: {
+                  metricAgg: {
+                    avg: {
+                      field: 'AvgTicketPrice',
+                    },
+                  },
+                },
+                query: {
+                  bool: {
+                    filter: {
+                      range: {
+                        timestamp: {
+                          gte: 'now-1h',
+                          lte: 'now',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            }),
             response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "mysearch",\n  "target": "mysearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_flights"\n    ],\n    "body": {\n      "size": 0,\n      "aggregations": {\n        "metricAgg": {\n          "avg": {\n            "field": "AvgTicketPrice"\n          }\n        }\n      },\n      "query": {\n        "bool": {\n          "filter": {\n            "range": {\n              "timestamp": {\n                "gte": "now-1h",\n                "lte": "now"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
+            id: expect.any(String),
           },
           {
-            id: expect.any(String),
+            type: 'condition',
+            name: 'mycondition',
+            source: 'data.mysearch.aggregations.metricAgg.value > 500',
+            target: '',
+            lang: 'painless',
             response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "mycondition",\n  "source": "data.mysearch.aggregations.metricAgg.value > 500"\n}',
-            index: 1,
+            id: expect.any(String),
           },
         ],
         frequency: 'interval',
@@ -1360,18 +1498,57 @@ describe('watchToFormik', () => {
         checksResult: '',
         checksBlocks: [
           {
-            id: expect.any(String),
+            type: 'search',
+            name: 'mysearch',
+            target: 'mysearch',
+            request: stringifyPretty({
+              indices: ['kibana_sample_data_flights'],
+              body: {
+                size: 0,
+                aggregations: {
+                  bucketAgg: {
+                    terms: {
+                      field: 'Carrier',
+                      size: 3,
+                      order: {
+                        metricAgg: 'asc',
+                      },
+                    },
+                    aggregations: {
+                      metricAgg: {
+                        avg: {
+                          field: 'AvgTicketPrice',
+                        },
+                      },
+                    },
+                  },
+                },
+                query: {
+                  bool: {
+                    filter: {
+                      range: {
+                        timestamp: {
+                          gte: 'now-5h',
+                          lte: 'now',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            }),
             response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "mysearch",\n  "target": "mysearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_flights"\n    ],\n    "body": {\n      "size": 0,\n      "aggregations": {\n        "bucketAgg": {\n          "terms": {\n            "field": "Carrier",\n            "size": 3,\n            "order": {\n              "metricAgg": "asc"\n            }\n          },\n          "aggregations": {\n            "metricAgg": {\n              "avg": {\n                "field": "AvgTicketPrice"\n              }\n            }\n          }\n        }\n      },\n      "query": {\n        "bool": {\n          "filter": {\n            "range": {\n              "timestamp": {\n                "gte": "now-5h",\n                "lte": "now"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
+            id: expect.any(String),
           },
           {
-            id: expect.any(String),
+            type: 'condition',
+            name: 'mycondition',
+            source:
+              "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;",
+            target: '',
+            lang: 'painless',
             response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "mycondition",\n  "source": "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i][\'metricAgg\'].value > 500) { return true; } } return false;"\n}',
-            index: 1,
+            id: expect.any(String),
           },
         ],
         frequency: 'interval',
@@ -1589,18 +1766,45 @@ describe('watchToFormik', () => {
         checksResult: '',
         checksBlocks: [
           {
-            id: expect.any(String),
+            type: 'search',
+            name: 'mysearch',
+            target: 'mysearch',
+            request: stringifyPretty({
+              indices: ['kibana_sample_data_flights'],
+              body: {
+                size: 0,
+                aggregations: {
+                  metricAgg: {
+                    sum: {
+                      field: 'AvgTicketPrice',
+                    },
+                  },
+                },
+                query: {
+                  bool: {
+                    filter: {
+                      range: {
+                        timestamp: {
+                          gte: 'now-1h',
+                          lte: 'now',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            }),
             response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "mysearch",\n  "target": "mysearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_flights"\n    ],\n    "body": {\n      "size": 0,\n      "aggregations": {\n        "metricAgg": {\n          "sum": {\n            "field": "AvgTicketPrice"\n          }\n        }\n      },\n      "query": {\n        "bool": {\n          "filter": {\n            "range": {\n              "timestamp": {\n                "gte": "now-1h",\n                "lte": "now"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
+            id: expect.any(String),
           },
           {
-            id: expect.any(String),
+            type: 'condition',
+            name: 'mycondition',
+            source: 'data.mysearch.aggregations.metricAgg.value > 500',
+            target: '',
+            lang: 'painless',
             response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "mycondition",\n  "source": "data.mysearch.aggregations.metricAgg.value > 500"\n}',
-            index: 1,
+            id: expect.any(String),
           },
         ],
         frequency: 'interval',
@@ -1838,18 +2042,57 @@ describe('watchToFormik', () => {
         checksResult: '',
         checksBlocks: [
           {
-            id: expect.any(String),
+            type: 'search',
+            name: 'mysearch',
+            target: 'mysearch',
+            request: stringifyPretty({
+              indices: ['kibana_sample_data_flights'],
+              body: {
+                size: 0,
+                aggregations: {
+                  bucketAgg: {
+                    terms: {
+                      field: 'Carrier',
+                      size: 3,
+                      order: {
+                        metricAgg: 'asc',
+                      },
+                    },
+                    aggregations: {
+                      metricAgg: {
+                        sum: {
+                          field: 'AvgTicketPrice',
+                        },
+                      },
+                    },
+                  },
+                },
+                query: {
+                  bool: {
+                    filter: {
+                      range: {
+                        timestamp: {
+                          gte: 'now-5h',
+                          lte: 'now',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            }),
             response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "mysearch",\n  "target": "mysearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_flights"\n    ],\n    "body": {\n      "size": 0,\n      "aggregations": {\n        "bucketAgg": {\n          "terms": {\n            "field": "Carrier",\n            "size": 3,\n            "order": {\n              "metricAgg": "asc"\n            }\n          },\n          "aggregations": {\n            "metricAgg": {\n              "sum": {\n                "field": "AvgTicketPrice"\n              }\n            }\n          }\n        }\n      },\n      "query": {\n        "bool": {\n          "filter": {\n            "range": {\n              "timestamp": {\n                "gte": "now-5h",\n                "lte": "now"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
+            id: expect.any(String),
           },
           {
-            id: expect.any(String),
+            type: 'condition',
+            name: 'mycondition',
+            source:
+              "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;",
+            target: '',
+            lang: 'painless',
             response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "mycondition",\n  "source": "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i][\'metricAgg\'].value > 500) { return true; } } return false;"\n}',
-            index: 1,
+            id: expect.any(String),
           },
         ],
         frequency: 'interval',
@@ -2067,18 +2310,45 @@ describe('watchToFormik', () => {
         checksResult: '',
         checksBlocks: [
           {
-            id: expect.any(String),
+            type: 'search',
+            name: 'mysearch',
+            target: 'mysearch',
+            request: stringifyPretty({
+              indices: ['kibana_sample_data_flights'],
+              body: {
+                size: 0,
+                aggregations: {
+                  metricAgg: {
+                    min: {
+                      field: 'AvgTicketPrice',
+                    },
+                  },
+                },
+                query: {
+                  bool: {
+                    filter: {
+                      range: {
+                        timestamp: {
+                          gte: 'now-1h',
+                          lte: 'now',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            }),
             response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "mysearch",\n  "target": "mysearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_flights"\n    ],\n    "body": {\n      "size": 0,\n      "aggregations": {\n        "metricAgg": {\n          "min": {\n            "field": "AvgTicketPrice"\n          }\n        }\n      },\n      "query": {\n        "bool": {\n          "filter": {\n            "range": {\n              "timestamp": {\n                "gte": "now-1h",\n                "lte": "now"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
+            id: expect.any(String),
           },
           {
-            id: expect.any(String),
+            type: 'condition',
+            name: 'mycondition',
+            source: 'data.mysearch.aggregations.metricAgg.value > 500',
+            target: '',
+            lang: 'painless',
             response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "mycondition",\n  "source": "data.mysearch.aggregations.metricAgg.value > 500"\n}',
-            index: 1,
+            id: expect.any(String),
           },
         ],
         frequency: 'interval',
@@ -2316,18 +2586,57 @@ describe('watchToFormik', () => {
         checksResult: '',
         checksBlocks: [
           {
-            id: expect.any(String),
+            type: 'search',
+            name: 'mysearch',
+            target: 'mysearch',
+            request: stringifyPretty({
+              indices: ['kibana_sample_data_flights'],
+              body: {
+                size: 0,
+                aggregations: {
+                  bucketAgg: {
+                    terms: {
+                      field: 'Carrier',
+                      size: 3,
+                      order: {
+                        metricAgg: 'asc',
+                      },
+                    },
+                    aggregations: {
+                      metricAgg: {
+                        min: {
+                          field: 'AvgTicketPrice',
+                        },
+                      },
+                    },
+                  },
+                },
+                query: {
+                  bool: {
+                    filter: {
+                      range: {
+                        timestamp: {
+                          gte: 'now-5h',
+                          lte: 'now',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            }),
             response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "mysearch",\n  "target": "mysearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_flights"\n    ],\n    "body": {\n      "size": 0,\n      "aggregations": {\n        "bucketAgg": {\n          "terms": {\n            "field": "Carrier",\n            "size": 3,\n            "order": {\n              "metricAgg": "asc"\n            }\n          },\n          "aggregations": {\n            "metricAgg": {\n              "min": {\n                "field": "AvgTicketPrice"\n              }\n            }\n          }\n        }\n      },\n      "query": {\n        "bool": {\n          "filter": {\n            "range": {\n              "timestamp": {\n                "gte": "now-5h",\n                "lte": "now"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
+            id: expect.any(String),
           },
           {
-            id: expect.any(String),
+            type: 'condition',
+            name: 'mycondition',
+            source:
+              "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;",
+            target: '',
+            lang: 'painless',
             response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "mycondition",\n  "source": "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i][\'metricAgg\'].value > 500) { return true; } } return false;"\n}',
-            index: 1,
+            id: expect.any(String),
           },
         ],
         frequency: 'interval',
@@ -2545,18 +2854,45 @@ describe('watchToFormik', () => {
         checksResult: '',
         checksBlocks: [
           {
-            id: expect.any(String),
+            type: 'search',
+            name: 'mysearch',
+            target: 'mysearch',
+            request: stringifyPretty({
+              indices: ['kibana_sample_data_flights'],
+              body: {
+                size: 0,
+                aggregations: {
+                  metricAgg: {
+                    max: {
+                      field: 'AvgTicketPrice',
+                    },
+                  },
+                },
+                query: {
+                  bool: {
+                    filter: {
+                      range: {
+                        timestamp: {
+                          gte: 'now-1h',
+                          lte: 'now',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            }),
             response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "mysearch",\n  "target": "mysearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_flights"\n    ],\n    "body": {\n      "size": 0,\n      "aggregations": {\n        "metricAgg": {\n          "max": {\n            "field": "AvgTicketPrice"\n          }\n        }\n      },\n      "query": {\n        "bool": {\n          "filter": {\n            "range": {\n              "timestamp": {\n                "gte": "now-1h",\n                "lte": "now"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
+            id: expect.any(String),
           },
           {
-            id: expect.any(String),
+            type: 'condition',
+            name: 'mycondition',
+            source: 'data.mysearch.aggregations.metricAgg.value > 500',
+            target: '',
+            lang: 'painless',
             response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "mycondition",\n  "source": "data.mysearch.aggregations.metricAgg.value > 500"\n}',
-            index: 1,
+            id: expect.any(String),
           },
         ],
         frequency: 'interval',
@@ -2794,18 +3130,57 @@ describe('watchToFormik', () => {
         checksResult: '',
         checksBlocks: [
           {
-            id: expect.any(String),
+            type: 'search',
+            name: 'mysearch',
+            target: 'mysearch',
+            request: stringifyPretty({
+              indices: ['kibana_sample_data_flights'],
+              body: {
+                size: 0,
+                aggregations: {
+                  bucketAgg: {
+                    terms: {
+                      field: 'Carrier',
+                      size: 3,
+                      order: {
+                        metricAgg: 'asc',
+                      },
+                    },
+                    aggregations: {
+                      metricAgg: {
+                        max: {
+                          field: 'AvgTicketPrice',
+                        },
+                      },
+                    },
+                  },
+                },
+                query: {
+                  bool: {
+                    filter: {
+                      range: {
+                        timestamp: {
+                          gte: 'now-5h',
+                          lte: 'now',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            }),
             response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "mysearch",\n  "target": "mysearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_flights"\n    ],\n    "body": {\n      "size": 0,\n      "aggregations": {\n        "bucketAgg": {\n          "terms": {\n            "field": "Carrier",\n            "size": 3,\n            "order": {\n              "metricAgg": "asc"\n            }\n          },\n          "aggregations": {\n            "metricAgg": {\n              "max": {\n                "field": "AvgTicketPrice"\n              }\n            }\n          }\n        }\n      },\n      "query": {\n        "bool": {\n          "filter": {\n            "range": {\n              "timestamp": {\n                "gte": "now-5h",\n                "lte": "now"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
+            id: expect.any(String),
           },
           {
-            id: expect.any(String),
+            type: 'condition',
+            name: 'mycondition',
+            source:
+              "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value > 500) { return true; } } return false;",
+            target: '',
+            lang: 'painless',
             response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "mycondition",\n  "source": "ArrayList arr = data.mysearch.aggregations.bucketAgg.buckets; for (int i = 0; i < arr.length; i++) { if (arr[i][\'metricAgg\'].value > 500) { return true; } } return false;"\n}',
-            index: 1,
+            id: expect.any(String),
           },
         ],
         frequency: 'interval',
@@ -2999,18 +3374,34 @@ describe('watchToFormik', () => {
         checksResult: '',
         checksBlocks: [
           {
-            id: expect.any(String),
+            type: 'search',
+            name: 'testsearch',
+            target: 'testsearch',
+            request: stringifyPretty({
+              indices: ['kibana_sample_data_ecommerce'],
+              body: {
+                from: 0,
+                size: 10,
+                query: {
+                  range: {
+                    taxful_total_price: {
+                      gte: 100,
+                    },
+                  },
+                },
+              },
+            }),
             response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "testsearch",\n  "target": "testsearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_ecommerce"\n    ],\n    "body": {\n      "from": 0,\n      "size": 10,\n      "query": {\n        "range": {\n          "taxful_total_price": {\n            "gte": 100\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
+            id: expect.any(String),
           },
           {
-            id: expect.any(String),
+            type: 'condition',
+            name: 'testcondition',
+            source: 'ctx.testsearch.hits.hits.length > 0',
+            target: '',
+            lang: 'painless',
             response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "testcondition",\n  "source": "ctx.testsearch.hits.hits.length > 0"\n}',
-            index: 1,
+            id: expect.any(String),
           },
         ],
         frequency: 'cron',
@@ -3223,18 +3614,34 @@ describe('watchToFormik', () => {
         checksResult: '',
         checksBlocks: [
           {
-            id: expect.any(String),
+            type: 'search',
+            name: 'testsearch',
+            target: 'testsearch',
+            request: stringifyPretty({
+              indices: ['kibana_sample_data_ecommerce'],
+              body: {
+                from: 0,
+                size: 10,
+                query: {
+                  range: {
+                    taxful_total_price: {
+                      gte: 100,
+                    },
+                  },
+                },
+              },
+            }),
             response: '',
-            check:
-              '{\n  "type": "search",\n  "name": "testsearch",\n  "target": "testsearch",\n  "request": {\n    "indices": [\n      "kibana_sample_data_ecommerce"\n    ],\n    "body": {\n      "from": 0,\n      "size": 10,\n      "query": {\n        "range": {\n          "taxful_total_price": {\n            "gte": 100\n          }\n        }\n      }\n    }\n  }\n}',
-            index: 0,
+            id: expect.any(String),
           },
           {
-            id: expect.any(String),
+            type: 'condition',
+            name: 'testcondition',
+            source: 'ctx.testsearch.hits.hits.length > 0',
+            target: '',
+            lang: 'painless',
             response: '',
-            check:
-              '{\n  "type": "condition",\n  "name": "testcondition",\n  "source": "ctx.testsearch.hits.hits.length > 0"\n}',
-            index: 1,
+            id: expect.any(String),
           },
         ],
         frequency: 'cron',

@@ -1,6 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { cloneDeep, isEmpty, defaultsDeep } from 'lodash';
-import uuid from 'uuid/v4';
 import {
   stringifyPretty,
   arrayToComboBoxOptions,
@@ -8,6 +7,7 @@ import {
 } from '../../../utils/helpers';
 import buildFormikSchedule from './buildFormikSchedule';
 import { buildFormikThrottle } from './buildFormikThrottle';
+import { buildFormikCheckBlock } from '../components/BlocksWatch/utils/checkBlocks';
 import {
   GRAPH_DEFAULTS,
   WATCH_TYPES,
@@ -136,13 +136,7 @@ export function buildFormikEmailAction(action = {}) {
   });
 }
 
-export const buildFormikChecksBlocks = (checks = []) =>
-  checks.map((check, index) => ({
-    response: '',
-    check: buildFormikChecks(check),
-    id: uuid(),
-    index,
-  }));
+export const buildFormikChecksBlocks = (checks = []) => checks.map(buildFormikCheckBlock);
 
 export const buildFormikMeta = ({ _ui = {}, checks = [], trigger } = {}) => {
   const ui = {
