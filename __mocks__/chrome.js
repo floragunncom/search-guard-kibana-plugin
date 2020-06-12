@@ -1,6 +1,6 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 class Chrome {
-  getBasePath () {
+  getBasePath() {
     return null;
   }
 
@@ -19,4 +19,3 @@ class Chrome {
 }
 
 export default new Chrome();
-
