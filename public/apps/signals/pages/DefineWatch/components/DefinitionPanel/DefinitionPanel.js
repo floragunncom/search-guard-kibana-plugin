@@ -20,7 +20,13 @@ import { Context } from '../../../../Context';
 const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
   const { httpClient, triggerFlyout } = useContext(Context);
 
-  const { addTemplate } = useCheckTemplates({ setFieldValue });
+  const watchType = get(values, '_ui.watchType', WATCH_TYPES.GRAPH);
+  const isSeverity = get(values, '_ui.isSeverity', false);
+
+  const { addTemplate } = useCheckTemplates({
+    setFieldValue,
+    checksPath: watchType === WATCH_TYPES.BLOCKS ? '_ui.checksBlocks' : 'checks',
+  });
 
   const {
     isResultVisible,
@@ -52,11 +58,6 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
     });
   };
 
-  const watchType = get(values, '_ui.watchType', WATCH_TYPES.GRAPH);
-  const isSeverity = get(values, '_ui.isSeverity', false);
-  let contentPanleActions = [];
-  let watch;
-
   const addChecksBtn = (
     <EuiButton data-test-subj="sgAddButton-AddChecks" onClick={handleAddTemplate}>
       {addText}
@@ -73,6 +74,9 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
       {executeText}
     </EuiButton>
   );
+
+  let contentPanleActions = [];
+  let watch;
 
   switch (watchType) {
     case WATCH_TYPES.JSON:

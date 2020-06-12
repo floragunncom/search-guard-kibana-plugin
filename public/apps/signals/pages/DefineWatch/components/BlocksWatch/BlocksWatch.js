@@ -27,8 +27,9 @@ import {
 TODO:
   - [x] Develop data model for check blocks.
   - [x] Add DND skeleton.
-  - [] Block actions: delete.
+  - [x] Block actions: delete.
   - [] Add check templates from DefinitionPanel.
+  - [] Develop data model for check blocks in actions.
   - [] Add BlocksWatch to ActionsPanel. Maybe refactor the ActionsPanel.
   - [] Check block forms.
   - [] Slice the check name to deal with long usernames.
@@ -167,6 +168,14 @@ export function DraggableBlock({ accordionId, index, provided, checkBlock, onDel
       break;
   }
 
+  function renderExtraAction() {
+    return (
+      <EuiButton size="s" onClick={() => onDeleteBlock(index)}>
+        Delete
+      </EuiButton>
+    );
+  }
+
   return (
     <EuiPanel>
       <EuiFlexGroup>
@@ -179,11 +188,7 @@ export function DraggableBlock({ accordionId, index, provided, checkBlock, onDel
           <EuiAccordion
             id={accordionId}
             buttonContent={checkBlock.name}
-            extraAction={
-              <EuiButton size="s" onClick={() => onDeleteBlock(index)}>
-                Delete
-              </EuiButton>
-            }
+            extraAction={renderExtraAction()}
             paddingSize="l"
           >
             <div>{form}</div>

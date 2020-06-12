@@ -1,2 +1,3 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 export { default as useJsonWatchChecks } from './useJsonWatchChecks';
-export { default as useCheckTemplates } from './useCheckTemplates';
+export { useCheckTemplates } from './useCheckTemplates';

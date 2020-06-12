@@ -8,7 +8,7 @@ import JsonWatch from '../../JsonWatch';
 import { useCheckTemplates, useJsonWatchChecks } from '../../../hooks';
 import { FLYOUTS } from '../../../../../utils/constants';
 import { addText, pleaseFillOutAllRequiredFieldsText } from '../../../../../utils/i18n/common';
-import { executeText, checksText } from '../../../../../utils/i18n/watch';
+import { executeText } from '../../../../../utils/i18n/watch';
 import { ContentPanel } from '../../../../../components';
 
 import { Context } from '../../../../../Context';
@@ -25,7 +25,7 @@ const ActionChecks = ({
     setFieldValue,
     checksPath,
     // TODO: deprecate the useBlocks when BlocksWatch work in actions
-    useBlocks: false,
+    // useBlocks: false,
   });
 
   const {

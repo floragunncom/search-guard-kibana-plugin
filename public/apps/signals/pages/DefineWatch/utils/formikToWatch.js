@@ -144,12 +144,14 @@ export const buildIndexAction = (action = {}) => {
 
 export const buildChecksFromChecksBlocks = (checks = []) => checks.map(buildCheckBlock);
 
+export const buildChecksFromChecks = (checks = []) => JSON.parse(foldMultiLineString(checks));
+
 export const buildChecks = ({ _ui: ui = {}, checks = [] }) => {
   const { watchType, checksBlocks } = ui;
 
   if (watchType === WATCH_TYPES.JSON) {
     try {
-      return JSON.parse(foldMultiLineString(checks));
+      return buildChecksFromChecks(checks);
     } catch (err) {
       console.error('Fail to parse checks for Json watch');
       return [];
@@ -190,27 +192,27 @@ export const buildActions = ({ actions = [], resolve_actions: resolveActions, _u
       }
 
       if (action.type === ACTION_TYPE.INDEX) {
-        return omit(buildIndexAction(watchAction), ['_checksBlocks']);
+        return buildIndexAction(watchAction);
       }
 
       if (action.type === ACTION_TYPE.EMAIL) {
-        return omit(buildEmailAction(watchAction), ['_checksBlocks']);
+        return buildEmailAction(watchAction);
       }
 
       if (action.type === ACTION_TYPE.SLACK) {
-        return omit(buildSlackAction(watchAction), ['_checksBlocks']);
+        return buildSlackAction(watchAction);
       }
 
       if (action.type === ACTION_TYPE.JIRA) {
-        return omit(buildJiraAction(watchAction), ['_checksBlocks']);
+        return buildJiraAction(watchAction);
       }
 
       if (action.type === ACTION_TYPE.PAGERDUTY) {
-        return omit(buildPagerdutyAction(watchAction), ['_checksBlocks']);
+        return buildPagerdutyAction(watchAction);
       }
 
       // if ACTION_TYPE.WEBHOOK
-      return omit(buildWebhookAction(watchAction), ['_checksBlocks']);
+      return buildWebhookAction(watchAction);
     });
   };
 
