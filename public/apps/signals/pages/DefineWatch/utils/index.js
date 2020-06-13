@@ -5,6 +5,6 @@ export {
   formikToWatch,
   buildChecks,
   buildChecksFromChecksBlocks,
-  buildChecksFromChecks,
+  buildChecksFromFormikChecks,
 } from './formikToWatch';
 export { buildGraphQuery, buildUiGraphQuery } from './graphWatch';

@@ -27,8 +27,6 @@ import {
   webhook as WEBHOOK_DEFAULTS,
 } from '../../DefineWatch/components/ActionPanel/utils/action_defaults';
 
-export const buildFormikChecks = (checks = []) => unfoldMultiLineString(stringifyPretty(checks));
-
 export function buildFormikSeverity(watch = {}) {
   const newWatch = cloneDeep(watch);
 
@@ -136,7 +134,11 @@ export function buildFormikEmailAction(action = {}) {
   });
 }
 
-export const buildFormikChecksBlocks = (checks = []) => checks.map(buildFormikCheckBlock);
+export const buildFormikChecks = (checks = []) => unfoldMultiLineString(stringifyPretty(checks));
+
+export function buildFormikChecksBlocks(checks = []) {
+  return checks.map(buildFormikCheckBlock);
+}
 
 export const buildFormikMeta = ({ _ui = {}, checks = [], trigger } = {}) => {
   const ui = {
@@ -153,7 +155,6 @@ export const buildFormikMeta = ({ _ui = {}, checks = [], trigger } = {}) => {
 export const buildFormikIndexAction = (action = {}) => ({
   ...action,
   index: [{ label: action.index }],
-  // checks: stringifyPretty(action.checks || [])
 });
 
 export const buildFormikActions = ({ actions = [], resolve_actions: resolveActions = [] }) => {
@@ -167,7 +168,11 @@ export const buildFormikActions = ({ actions = [], resolve_actions: resolveActio
         action.checks = [];
       }
 
-      action.checks = stringifyPretty(action.checks);
+      const checks = buildFormikChecks(action.checks);
+      const checksBlocks = buildFormikChecksBlocks(action.checks);
+
+      action.checks = checks;
+      action.checksBlocks = checksBlocks;
 
       if (action.type === ACTION_TYPE.INDEX) {
         return buildFormikIndexAction(action);

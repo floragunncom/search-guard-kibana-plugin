@@ -5,7 +5,7 @@ import {
   buildFormikChecks,
   buildFormikChecksBlocks,
   buildChecksFromChecksBlocks,
-  buildChecksFromChecks,
+  buildChecksFromFormikChecks,
 } from '../utils';
 import { addedCheckTemplateText } from '../../../utils/i18n/watch';
 import { WATCH_TYPES } from '../utils/constants';
@@ -26,7 +26,7 @@ export function getFormikChecksPlusTemplate({ template, values, checksPath }) {
     const rawChecks = buildChecksFromChecksBlocks(get(values, checksPath, '[]'));
     formikChecks = buildFormikChecksBlocks([...rawChecks, template]);
   } else if (watchType === WATCH_TYPES.JSON) {
-    const rawChecks = buildChecksFromChecks(get(values, checksPath, '[]'));
+    const rawChecks = buildChecksFromFormikChecks(get(values, checksPath, '[]'));
     formikChecks = buildFormikChecks([...rawChecks, template]);
   } else {
     throw new Error(`Wrong watch type "${watchType}"`);

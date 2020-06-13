@@ -144,14 +144,14 @@ export const buildIndexAction = (action = {}) => {
 
 export const buildChecksFromChecksBlocks = (checks = []) => checks.map(buildCheckBlock);
 
-export const buildChecksFromChecks = (checks = []) => JSON.parse(foldMultiLineString(checks));
+export const buildChecksFromFormikChecks = (checks = []) => JSON.parse(foldMultiLineString(checks));
 
 export const buildChecks = ({ _ui: ui = {}, checks = [] }) => {
   const { watchType, checksBlocks } = ui;
 
   if (watchType === WATCH_TYPES.JSON) {
     try {
-      return buildChecksFromChecks(checks);
+      return buildChecksFromFormikChecks(checks);
     } catch (err) {
       console.error('Fail to parse checks for Json watch');
       return [];
@@ -181,10 +181,14 @@ export const buildActions = ({ actions = [], resolve_actions: resolveActions, _u
 
       try {
         if (_ui.watchType === WATCH_TYPES.GRAPH && action.type !== ACTION_TYPE.INDEX) {
-          // Graph watch has no checks
+          // Graph watch actions has no checks. Except the index (Elasticsearch) action.
           watchAction.checks = [];
-        } else {
-          watchAction.checks = JSON.parse(foldMultiLineString(watchAction.checks));
+        } else if (_ui.watchType === WATCH_TYPES.JSON) {
+          // watchAction.checks = JSON.parse(foldMultiLineString(watchAction.checks));
+          watchAction.checks = buildChecksFromFormikChecks(watchAction.checks);
+        } else if (_ui.watchType === WATCH_TYPES.BLOCKS) {
+          watchAction.checks = buildChecksFromChecksBlocks(watchAction.checksBlocks);
+          delete watchAction.checksBlocks;
         }
       } catch (err) {
         console.error(`Fail to parse action "${action.name}" checks`);
