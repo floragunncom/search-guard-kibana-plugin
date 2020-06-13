@@ -184,7 +184,6 @@ export const buildActions = ({ actions = [], resolve_actions: resolveActions, _u
           // Graph watch actions has no checks. Except the index (Elasticsearch) action.
           watchAction.checks = [];
         } else if (_ui.watchType === WATCH_TYPES.JSON) {
-          // watchAction.checks = JSON.parse(foldMultiLineString(watchAction.checks));
           watchAction.checks = buildChecksFromFormikChecks(watchAction.checks);
         } else if (_ui.watchType === WATCH_TYPES.BLOCKS) {
           watchAction.checks = buildChecksFromChecksBlocks(watchAction.checksBlocks);

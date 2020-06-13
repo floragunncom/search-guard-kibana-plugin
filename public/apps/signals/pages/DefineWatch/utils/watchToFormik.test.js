@@ -3560,6 +3560,33 @@ describe('watchToFormik', () => {
           name: 'my_index',
           throttle_period: '1m',
           index: 'testsink',
+          checks: [
+            {
+              type: 'search',
+              name: 'testsearch',
+              target: 'testsearch',
+              request: {
+                indices: ['kibana_sample_data_ecommerce'],
+                body: {
+                  from: 0,
+                  size: 10,
+                  query: {
+                    range: {
+                      taxful_total_price: {
+                        gte: 100,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: 'condition',
+              name: 'testcondition',
+              source: 'ctx.testsearch.hits.hits.length > 0',
+              lang: 'painless',
+            },
+          ],
         },
         {
           type: 'webhook',
@@ -3593,8 +3620,65 @@ describe('watchToFormik', () => {
       resolve_actions: [],
       actions: [
         {
-          checks: '[]',
-          checksBlocks: [],
+          checks: stringifyPretty([
+            {
+              type: 'search',
+              name: 'testsearch',
+              target: 'testsearch',
+              request: {
+                indices: ['kibana_sample_data_ecommerce'],
+                body: {
+                  from: 0,
+                  size: 10,
+                  query: {
+                    range: {
+                      taxful_total_price: {
+                        gte: 100,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: 'condition',
+              name: 'testcondition',
+              source: 'ctx.testsearch.hits.hits.length > 0',
+              lang: 'painless',
+            },
+          ]),
+          checksBlocks: [
+            {
+              type: 'search',
+              name: 'testsearch',
+              target: 'testsearch',
+              request: stringifyPretty({
+                indices: ['kibana_sample_data_ecommerce'],
+                body: {
+                  from: 0,
+                  size: 10,
+                  query: {
+                    range: {
+                      taxful_total_price: {
+                        gte: 100,
+                      },
+                    },
+                  },
+                },
+              }),
+              response: '',
+              id: expect.any(String),
+            },
+            {
+              type: 'condition',
+              name: 'testcondition',
+              target: '',
+              source: 'ctx.testsearch.hits.hits.length > 0',
+              lang: 'painless',
+              response: '',
+              id: expect.any(String),
+            },
+          ],
           type: 'index',
           name: 'my_index',
           throttle_period: {

@@ -3934,8 +3934,32 @@ describe('formikToWatch', () => {
           cron: ['0 0/30 * * * ?'],
         },
       },
-      checks:
-        '[\n  {\n    "type": "search",\n    "name": "testsearch",\n    "target": "testsearch",\n    "request": {\n      "indices": [\n        "kibana_sample_data_ecommerce"\n      ],\n      "body": {\n        "from": 0,\n        "size": 10,\n        "query": {\n          "range": {\n            "taxful_total_price": {\n              "gte": 100\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    "type": "condition",\n    "name": "testcondition",\n    "source": "ctx.testsearch.hits.hits.length > 0"\n  }\n]',
+      checks: stringifyPretty([
+        {
+          type: 'search',
+          name: 'testsearch',
+          target: 'testsearch',
+          request: {
+            indices: ['kibana_sample_data_ecommerce'],
+            body: {
+              from: 0,
+              size: 10,
+              query: {
+                range: {
+                  taxful_total_price: {
+                    gte: 100,
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
+          type: 'condition',
+          name: 'testcondition',
+          source: 'ctx.testsearch.hits.hits.length > 0',
+        },
+      ]),
       actions: [
         {
           type: 'index',
@@ -3951,6 +3975,38 @@ describe('formikToWatch', () => {
             },
           ],
           checks: '[]',
+          checksBlocks: [
+            {
+              type: 'search',
+              name: 'testsearch',
+              target: 'testsearch',
+              request: stringifyPretty({
+                indices: ['kibana_sample_data_ecommerce'],
+                body: {
+                  from: 0,
+                  size: 10,
+                  query: {
+                    range: {
+                      taxful_total_price: {
+                        gte: 100,
+                      },
+                    },
+                  },
+                },
+              }),
+              response: 'abc',
+              id: '123',
+            },
+            {
+              type: 'condition',
+              name: 'testcondition',
+              target: '',
+              source: 'ctx.testsearch.hits.hits.length > 0',
+              lang: 'painless',
+              response: 'abc',
+              id: '456',
+            },
+          ],
         },
         {
           type: 'webhook',
@@ -4093,7 +4149,33 @@ describe('formikToWatch', () => {
       ],
       actions: [
         {
-          checks: [],
+          checks: [
+            {
+              type: 'search',
+              name: 'testsearch',
+              target: 'testsearch',
+              request: {
+                indices: ['kibana_sample_data_ecommerce'],
+                body: {
+                  from: 0,
+                  size: 10,
+                  query: {
+                    range: {
+                      taxful_total_price: {
+                        gte: 100,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: 'condition',
+              name: 'testcondition',
+              source: 'ctx.testsearch.hits.hits.length > 0',
+              lang: 'painless',
+            },
+          ],
           type: 'index',
           name: 'my_index',
           index: 'testsink',
