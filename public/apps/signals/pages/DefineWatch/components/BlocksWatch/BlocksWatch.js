@@ -1,5 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import React, { useState } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
@@ -13,6 +13,7 @@ import {
   EuiFlexItem,
   EuiIcon,
   EuiCallOut,
+  EuiEmptyPrompt,
 } from '@elastic/eui';
 import {
   STATIC_DEFAULTS,
@@ -22,13 +23,23 @@ import {
   TRANSFORM_DEFAULTS,
   CALC_DEFAULTS,
 } from './utils/checkBlocks';
+import { EmptyPrompt } from '../../../../../components';
+import {
+  looksLikeYouDontHaveAnyCheckText,
+  noChecksText,
+  responseText,
+  closeText
+} from '../../../../utils/i18n/watch';
 
 /*
 TODO:
   - [x] Develop data model for check blocks.
   - [x] Add DND skeleton.
   - [x] Block actions: delete.
-  - [] Add check templates from DefinitionPanel.
+  - [x] Add check templates from DefinitionPanel.
+  - [x] Default name for a new block
+  - [] excution works in Json watch
+  - [] execution works in Blocks watch
   - [] Develop data model for check blocks in actions.
   - [] Add BlocksWatch to ActionsPanel. Maybe refactor the ActionsPanel.
   - [] Check block forms.
@@ -199,8 +210,17 @@ export function DraggableBlock({ accordionId, index, provided, checkBlock, onDel
   );
 }
 
-function BlocksWatch({ formik: { values }, accordionId }) {
-  const [checksBlocks, setChecksBlocks] = useState(get(values, '_ui.checksBlocks', []));
+function BlocksWatch({
+  formik: { values, setFieldValue },
+  accordionId,
+  onOpenChecksTemplatesFlyout,
+}) {
+  const checksBlocksPath = '_ui.checksBlocks';
+  const checksBlocks = get(values, checksBlocksPath, []);
+
+  function setChecksBlocks(values) {
+    setFieldValue(checksBlocksPath, values);
+  }
 
   function onDragEnd(result) {
     // dropped outside the list
@@ -232,46 +252,64 @@ function BlocksWatch({ formik: { values }, accordionId }) {
     return element;
   }
 
+  function renderDNDList() {
+    return (
+      <div style={{ overflowX: 'hidden' }}>
+        <EuiPanel paddingSize="none">
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="droppable">
+              {(provided, snapshot) => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  style={getListStyle(snapshot.isDraggingOver)}
+                >
+                  {checksBlocks.map((checkBlock, index) => (
+                    <Draggable key={checkBlock.id} draggableId={checkBlock.id} index={index}>
+                      {(provided, snapshot) => {
+                        return openPortal(
+                          provided.draggableProps.style,
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
+                          >
+                            <DraggableBlock
+                              accordionId={accordionId}
+                              index={index}
+                              provided={provided}
+                              checkBlock={checkBlock}
+                              onDeleteBlock={deleteBlock}
+                            />
+                          </div>
+                        );
+                      }}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </EuiPanel>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ overflowX: 'hidden' }}>
-      <EuiPanel paddingSize="none">
-        <DragDropContext onDragEnd={onDragEnd}>
-          <Droppable droppableId="droppable">
-            {(provided, snapshot) => (
-              <div
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-                style={getListStyle(snapshot.isDraggingOver)}
-              >
-                {checksBlocks.map((checkBlock, index) => (
-                  <Draggable key={checkBlock.id} draggableId={checkBlock.id} index={index}>
-                    {(provided, snapshot) => {
-                      return openPortal(
-                        provided.draggableProps.style,
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-                        >
-                          <DraggableBlock
-                            accordionId={accordionId}
-                            index={index}
-                            provided={provided}
-                            checkBlock={checkBlock}
-                            onDeleteBlock={deleteBlock}
-                          />
-                        </div>
-                      );
-                    }}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
-      </EuiPanel>
+    <div>
+      {!checksBlocks.length ? (
+        <EuiPanel>
+          <EmptyPrompt
+            titleText={noChecksText}
+            bodyText={looksLikeYouDontHaveAnyCheckText}
+            onCreate={onOpenChecksTemplatesFlyout}
+          />
+        </EuiPanel>
+      ) : (
+        renderDNDList()
+      )}
     </div>
   );
 }
@@ -279,6 +317,7 @@ function BlocksWatch({ formik: { values }, accordionId }) {
 BlocksWatch.propTypes = {
   accordionId: PropTypes.string.isRequired,
   formik: PropTypes.object.isRequired,
+  onOpenChecksTemplatesFlyout: PropTypes.func,
 };
 
 export default connectFormik(BlocksWatch);

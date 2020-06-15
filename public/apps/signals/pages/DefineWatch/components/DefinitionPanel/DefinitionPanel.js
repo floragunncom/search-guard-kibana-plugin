@@ -114,7 +114,10 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
       watch = (
         <>
           <EuiSpacer />
-          <BlocksWatch accordionId="sgBlocksWatch-DefinitionPanel" />
+          <BlocksWatch
+            accordionId="sgBlocksWatch-DefinitionPanel"
+            onOpenChecksTemplatesFlyout={handleAddTemplate}
+          />
           {isSeverity && <SeverityForm isTitle />}
         </>
       );

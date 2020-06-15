@@ -12,6 +12,7 @@ export const STATIC_DEFAULTS = {
   id: 0,
   response: '',
   type: 'static',
+  name: 'static',
   value: {},
   ...COMMON_DEFAULTS,
 };
@@ -20,6 +21,7 @@ export const HTTP_DEFAULTS = {
   id: 0,
   response: '',
   type: 'http',
+  name: 'http',
   request: {},
   tls: {},
   ...COMMON_DEFAULTS,
@@ -29,6 +31,7 @@ export const SEARCH_DEFAULTS = {
   id: 0,
   response: '',
   type: 'search',
+  name: 'search',
   request: {},
   ...COMMON_DEFAULTS,
 };
@@ -37,6 +40,7 @@ export const TRANSFORM_DEFAULTS = {
   id: 0,
   response: '',
   type: 'transform',
+  name: 'transform',
   source: '',
   lang: 'painless',
   ...COMMON_DEFAULTS,
@@ -46,6 +50,7 @@ export const CALC_DEFAULTS = {
   id: 0,
   response: '',
   type: 'calc',
+  name: 'calc',
   source: '',
   ...COMMON_DEFAULTS,
 };
@@ -54,6 +59,7 @@ export const CONDITION_DEFAULTS = {
   id: 0,
   response: '',
   type: 'condition',
+  name: 'condition',
   source: '',
   lang: 'painless',
   ...COMMON_DEFAULTS,
