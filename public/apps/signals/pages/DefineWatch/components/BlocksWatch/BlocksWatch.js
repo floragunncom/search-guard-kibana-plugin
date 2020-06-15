@@ -47,8 +47,8 @@ TODO:
   - [x] Default name for a new block
   - [x] excution works in Json watch
   - [x] execution works in Blocks watch
-  - [] Develop data model for check blocks in actions.
-  - [] Add BlocksWatch to ActionsPanel. Maybe refactor the ActionsPanel.
+  - [x] Develop data model for check blocks in actions.
+  - [x] Add BlocksWatch to ActionsPanel. Maybe refactor the ActionsPanel.
   - [] Check block forms.
   - [] Resize form capability https://elastic.github.io/eui/#/layout/resizable-container
   - [] Slice the check name to deal with long usernames.
@@ -62,6 +62,8 @@ TODO:
   - [] Use i18n.
   - [] Put components in separate files.
   - [] Bug. QueryStat. No _shards found in the watch execution response
+  - [] The graph watch doesn't have checks in actions. Make sure you delete the action's checks
+  when switch to the graph mode.
 */
 
 // a little function to help us with reordering the result

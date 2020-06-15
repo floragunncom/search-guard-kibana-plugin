@@ -6,10 +6,12 @@ import { get, cloneDeep } from 'lodash';
 import { EuiButton } from '@elastic/eui';
 import JsonWatch from '../../JsonWatch';
 import { useCheckTemplates, useWatchChecks } from '../../../hooks';
+import { ContentPanel } from '../../../../../components';
+import { BlocksWatch } from '../../BlocksWatch';
 import { FLYOUTS } from '../../../../../utils/constants';
+import { WATCH_TYPES } from '../../../utils/constants';
 import { addText, pleaseFillOutAllRequiredFieldsText } from '../../../../../utils/i18n/common';
 import { executeText } from '../../../../../utils/i18n/watch';
-import { ContentPanel } from '../../../../../components';
 
 import { Context } from '../../../../../Context';
 
@@ -18,23 +20,21 @@ const ActionChecks = ({
   formik: { values, setFieldValue, validateForm, submitForm },
 }) => {
   const { triggerFlyout, addErrorToast } = useContext(Context);
-
-  const checksPath = `actions[${actionIndex}].checks`;
+  const watchType = get(values, '_ui.watchType');
+  const checksPath =
+    watchType === WATCH_TYPES.BLOCKS
+      ? `actions[${actionIndex}].checksBlocks`
+      : `actions[${actionIndex}].checks`;
+  const checksBlocksAccordionId = `sgBlocksWatch-ActionChecks--action_${actionIndex}`;
 
   const { addTemplate } = useCheckTemplates({
     setFieldValue,
     checksPath,
-    // TODO: deprecate the useBlocks when BlocksWatch work in actions
-    // useBlocks: false,
   });
 
-  const {
-    isResultVisible,
-    closeResult,
-    executeWatch,
-    editorResult,
-    isLoading,
-  } = useWatchChecks({ setFieldValue });
+  const { isResultVisible, closeResult, executeWatch, editorResult, isLoading } = useWatchChecks({
+    setFieldValue,
+  });
 
   const [templateCounter, setTemplateCounter] = useState(0);
   const [template, setTemplate] = useState(null);
@@ -46,9 +46,16 @@ const ActionChecks = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templateCounter]);
 
-  const addTemplateHelper = template => {
+  const addTemplateHelper = (template) => {
     setTemplate(template);
-    setTemplateCounter(prevState => prevState + 1);
+    setTemplateCounter((prevState) => prevState + 1);
+  };
+
+  const handleAddTemplate = () => {
+    triggerFlyout({
+      type: FLYOUTS.CHECK_EXAMPLES,
+      payload: { onChange: addTemplateHelper },
+    });
   };
 
   const handleWatchExecute = async () => {
@@ -77,15 +84,7 @@ const ActionChecks = ({
   };
 
   const actions = [
-    <EuiButton
-      data-test-subj="sgAddButton-AddActionChecks"
-      onClick={() => {
-        triggerFlyout({
-          type: FLYOUTS.CHECK_EXAMPLES,
-          payload: { onChange: addTemplateHelper },
-        });
-      }}
-    >
+    <EuiButton data-test-subj="sgAddButton-AddActionChecks" onClick={handleAddTemplate}>
       {addText}
     </EuiButton>,
     <EuiButton
@@ -98,14 +97,26 @@ const ActionChecks = ({
     </EuiButton>,
   ];
 
+  // The graph watch doesn't have checks in actions.
   return (
     <ContentPanel actions={actions} isPanel={false}>
-      <JsonWatch
-        checksPath={checksPath}
-        isResultVisible={isResultVisible}
-        editorResult={editorResult}
-        onCloseResult={closeResult}
-      />
+      {watchType === WATCH_TYPES.BLOCKS ? (
+        <BlocksWatch
+          accordionId={checksBlocksAccordionId}
+          checksBlocksPath={checksPath}
+          isResultVisible={isResultVisible}
+          editorResult={editorResult}
+          onCloseResult={closeResult}
+          onOpenChecksTemplatesFlyout={handleAddTemplate}
+        />
+      ) : (
+        <JsonWatch
+          checksPath={checksPath}
+          isResultVisible={isResultVisible}
+          editorResult={editorResult}
+          onCloseResult={closeResult}
+        />
+      )}
     </ContentPanel>
   );
 };
