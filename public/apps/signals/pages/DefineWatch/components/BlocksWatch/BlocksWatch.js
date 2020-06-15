@@ -46,7 +46,13 @@ TODO:
   - [x] execution works in Blocks watch
   - [x] Develop data model for check blocks in actions.
   - [x] Add BlocksWatch to ActionsPanel. Maybe refactor the ActionsPanel.
-  - [] Check block forms.
+  - [] Check block forms:
+    - [] Static
+    - [] Condition
+    - [] Transform
+    - [] Calc
+    - [] Search
+    - [] HTTP
   - [] Resize form capability https://elastic.github.io/eui/#/layout/resizable-container
   - [] Slice the check name to deal with long usernames.
   - [] Deletion confirm.
@@ -78,27 +84,77 @@ const getListStyle = (isDraggingOver) => ({
   width: '100%',
 });
 
-export function DraggableBlock({ accordionId, index, provided, checkBlock, onDeleteBlock }) {
+export function DraggableBlock({
+  accordionId,
+  index,
+  provided,
+  checkBlock,
+  checksBlocksPath,
+  onDeleteBlock,
+  onCloseResult,
+}) {
   let form;
 
   switch (checkBlock.type) {
     case STATIC_DEFAULTS.type:
-      form = <StaticCheckBlockForm checkBlock={checkBlock} />;
+      form = (
+        <StaticCheckBlockForm
+          index={index}
+          checkBlock={checkBlock}
+          checksBlocksPath={checksBlocksPath}
+          onCloseResult={onCloseResult}
+        />
+      );
       break;
     case SEARCH_DEFAULTS.type:
-      form = <SearchCheckBlockForm checkBlock={checkBlock} />;
+      form = (
+        <SearchCheckBlockForm
+          index={index}
+          checkBlock={checkBlock}
+          checksBlocksPath={checksBlocksPath}
+          onCloseResult={onCloseResult}
+        />
+      );
       break;
     case HTTP_DEFAULTS.type:
-      form = <HttpCheckBlockForm checkBlock={checkBlock} />;
+      form = (
+        <HttpCheckBlockForm
+          index={index}
+          checkBlock={checkBlock}
+          checksBlocksPath={checksBlocksPath}
+          onCloseResult={onCloseResult}
+        />
+      );
       break;
     case CONDITION_DEFAULTS.type:
-      form = <ConditionCheckBlockForm checkBlock={checkBlock} />;
+      form = (
+        <ConditionCheckBlockForm
+          index={index}
+          checkBlock={checkBlock}
+          checksBlocksPath={checksBlocksPath}
+          onCloseResult={onCloseResult}
+        />
+      );
       break;
     case TRANSFORM_DEFAULTS.type:
-      form = <TransformCheckBlockForm checkBlock={checkBlock} />;
+      form = (
+        <TransformCheckBlockForm
+          index={index}
+          checkBlock={checkBlock}
+          checksBlocksPath={checksBlocksPath}
+          onCloseResult={onCloseResult}
+        />
+      );
       break;
     case CALC_DEFAULTS.type:
-      form = <CalcCheckBlockForm checkBlock={checkBlock} />;
+      form = (
+        <CalcCheckBlockForm
+          index={index}
+          checkBlock={checkBlock}
+          checksBlocksPath={checksBlocksPath}
+          onCloseResult={onCloseResult}
+        />
+      );
       break;
     default:
       form = (
@@ -142,6 +198,16 @@ export function DraggableBlock({ accordionId, index, provided, checkBlock, onDel
   );
 }
 
+DraggableBlock.propTypes = {
+  accordionId: PropTypes.string.isRequired,
+  index: PropTypes.number.isRequired,
+  provided: PropTypes.object.isRequired,
+  checkBlock: PropTypes.object.isRequired,
+  checksBlocksPath: PropTypes.string.isRequired,
+  onDeleteBlock: PropTypes.func.isRequired,
+  onCloseResult: PropTypes.func.isRequired,
+};
+
 function BlocksWatch({
   formik: { values, setFieldValue },
   accordionId,
@@ -173,6 +239,10 @@ function BlocksWatch({
 
   function handleDeleteBlock(index) {
     setChecksBlocks(deleteBlock(checksBlocks, index));
+  }
+
+  function clearResponse(index) {
+    setFieldValue(`checksBlocksPath[${index}].response`, '');
   }
 
   /*
@@ -218,7 +288,9 @@ function BlocksWatch({
                               index={index}
                               provided={provided}
                               checkBlock={checkBlock}
+                              checksBlocksPath={checksBlocksPath}
                               onDeleteBlock={handleDeleteBlock}
+                              onCloseResult={() => clearResponse(index)}
                             />
                           </div>
                         );
@@ -267,7 +339,7 @@ BlocksWatch.propTypes = {
   isResultVisible: PropTypes.bool.isRequired,
   onCloseResult: PropTypes.func.isRequired,
   onOpenChecksTemplatesFlyout: PropTypes.func.isRequired,
-  editorResult: PropTypes.string.isRequired,
+  editorResult: PropTypes.string,
 };
 
 export default connectFormik(BlocksWatch);
