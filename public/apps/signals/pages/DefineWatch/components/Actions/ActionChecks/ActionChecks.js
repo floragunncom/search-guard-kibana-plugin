@@ -5,7 +5,7 @@ import { connect as connectFormik } from 'formik';
 import { get, cloneDeep } from 'lodash';
 import { EuiButton } from '@elastic/eui';
 import JsonWatch from '../../JsonWatch';
-import { useCheckTemplates, useJsonWatchChecks } from '../../../hooks';
+import { useCheckTemplates, useWatchChecks } from '../../../hooks';
 import { FLYOUTS } from '../../../../../utils/constants';
 import { addText, pleaseFillOutAllRequiredFieldsText } from '../../../../../utils/i18n/common';
 import { executeText } from '../../../../../utils/i18n/watch';
@@ -34,7 +34,7 @@ const ActionChecks = ({
     executeWatch,
     editorResult,
     isLoading,
-  } = useJsonWatchChecks({ setFieldValue });
+  } = useWatchChecks({ setFieldValue });
 
   const [templateCounter, setTemplateCounter] = useState(0);
   const [template, setTemplate] = useState(null);

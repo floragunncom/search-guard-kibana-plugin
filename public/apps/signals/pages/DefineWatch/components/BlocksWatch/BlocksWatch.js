@@ -1,5 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import React from 'react';
+import React, { useEffect, useContext } from 'react';
 import ReactDOM from 'react-dom';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
@@ -13,7 +13,11 @@ import {
   EuiFlexItem,
   EuiIcon,
   EuiCallOut,
-  EuiEmptyPrompt,
+  EuiSpacer,
+  EuiFormRow,
+  EuiText,
+  EuiLink,
+  EuiCodeEditor,
 } from '@elastic/eui';
 import {
   STATIC_DEFAULTS,
@@ -24,12 +28,15 @@ import {
   CALC_DEFAULTS,
 } from './utils/checkBlocks';
 import { EmptyPrompt } from '../../../../../components';
+import QueryStat from '../QueryStat';
 import {
   looksLikeYouDontHaveAnyCheckText,
   noChecksText,
   responseText,
-  closeText
+  closeText,
 } from '../../../../utils/i18n/watch';
+
+import { Context } from '../../../../Context';
 
 /*
 TODO:
@@ -54,6 +61,7 @@ TODO:
   - [] Put ids for int tests.
   - [] Use i18n.
   - [] Put components in separate files.
+  - [] Bug. QueryStat. No _shards found in the watch execution response
 */
 
 // a little function to help us with reordering the result
@@ -211,13 +219,51 @@ export function DraggableBlock({ accordionId, index, provided, checkBlock, onDel
   );
 }
 
+function WatchResponse({ onCloseResult, editorTheme, editorResult }) {
+  return (
+    <>
+      <EuiFormRow
+        fullWidth
+        label={responseText}
+        labelAppend={
+          <EuiText size="xs" onClick={onCloseResult}>
+            <EuiLink id="close-response" data-test-subj="sgWatch-CloseResponse">
+              {closeText} X
+            </EuiLink>
+          </EuiText>
+        }
+      >
+        <EuiCodeEditor
+          theme={editorTheme}
+          mode="json"
+          width="100%"
+          height="500px"
+          value={editorResult}
+          readOnly
+        />
+      </EuiFormRow>
+      <EuiSpacer />
+      <QueryStat />
+    </>
+  );
+}
+
 function BlocksWatch({
   formik: { values, setFieldValue },
   accordionId,
+  checksBlocksPath,
+  isResultVisible,
+  onCloseResult,
   onOpenChecksTemplatesFlyout,
+  editorResult,
 }) {
-  const checksBlocksPath = '_ui.checksBlocks';
+  const { editorTheme } = useContext(Context);
   const checksBlocks = get(values, checksBlocksPath, []);
+
+  useEffect(() => {
+    onCloseResult();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function setChecksBlocks(values) {
     setFieldValue(checksBlocksPath, values);
@@ -300,6 +346,14 @@ function BlocksWatch({
 
   return (
     <div>
+      {isResultVisible && (
+        <WatchResponse
+          onCloseResult={onCloseResult}
+          editorTheme={editorTheme}
+          editorResult={editorResult}
+        />
+      )}
+
       {!checksBlocks.length ? (
         <EuiPanel>
           <EmptyPrompt
@@ -316,9 +370,13 @@ function BlocksWatch({
 }
 
 BlocksWatch.propTypes = {
-  accordionId: PropTypes.string.isRequired,
   formik: PropTypes.object.isRequired,
-  onOpenChecksTemplatesFlyout: PropTypes.func,
+  accordionId: PropTypes.string.isRequired,
+  checksBlocksPath: PropTypes.string.isRequired,
+  isResultVisible: PropTypes.bool.isRequired,
+  onCloseResult: PropTypes.func.isRequired,
+  onOpenChecksTemplatesFlyout: PropTypes.func.isRequired,
+  editorResult: PropTypes.string.isRequired,
 };
 
 export default connectFormik(BlocksWatch);

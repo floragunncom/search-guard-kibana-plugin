@@ -11,8 +11,8 @@ const getValue = (response, path) => {
 };
 
 const QueryStat = ({ formik: { values } }) => {
-  const checksResult = get(values, '_ui.checksResult.data', {});
-  const response = Object.values(checksResult).filter(value => value._shards)[0];
+  const checksResult = get(values, '_ui.checksResult', {}) || {};
+  const response = Object.values(checksResult).filter((value) => value._shards)[0];
   if (!response) return null;
 
   return (

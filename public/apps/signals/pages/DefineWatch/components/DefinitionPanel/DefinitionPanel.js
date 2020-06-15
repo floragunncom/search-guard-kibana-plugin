@@ -4,7 +4,7 @@ import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
 import { EuiButton, EuiSpacer } from '@elastic/eui';
-import { useCheckTemplates, useJsonWatchChecks } from '../../hooks';
+import { useCheckTemplates, useWatchChecks } from '../../hooks';
 import { FormikSelect, ContentPanel } from '../../../../components';
 import JsonWatch from '../JsonWatch';
 import { BlocksWatch } from '../BlocksWatch';
@@ -28,13 +28,9 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
     checksPath: watchType === WATCH_TYPES.BLOCKS ? '_ui.checksBlocks' : 'checks',
   });
 
-  const {
-    isResultVisible,
-    closeResult,
-    editorResult,
-    isLoading,
-    executeWatch,
-  } = useJsonWatchChecks({ setFieldValue });
+  const { isResultVisible, closeResult, editorResult, isLoading, executeWatch } = useWatchChecks({
+    setFieldValue,
+  });
 
   const [templateCounter, setTemplateCounter] = useState(0);
   const [template, setTemplate] = useState(null);
@@ -99,23 +95,15 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
     case WATCH_TYPES.BLOCKS:
       contentPanleActions = [addChecksBtn, execChecksBtn];
 
-      // watch = (
-      //   <>
-      //     <EuiSpacer />
-      //     <BlocksWatch
-      //       isResultVisible={isResultVisible}
-      //       editorResult={editorResult}
-      //       onCloseResult={closeResult}
-      //       onOpenChecksTemplatesFlyout={handleAddTemplate}
-      //     />
-      //     {isSeverity && <SeverityForm isTitle />}
-      //   </>
-      // );
       watch = (
         <>
           <EuiSpacer />
           <BlocksWatch
             accordionId="sgBlocksWatch-DefinitionPanel"
+            checksBlocksPath="_ui.checksBlocks"
+            isResultVisible={isResultVisible}
+            editorResult={editorResult}
+            onCloseResult={closeResult}
             onOpenChecksTemplatesFlyout={handleAddTemplate}
           />
           {isSeverity && <SeverityForm isTitle />}
