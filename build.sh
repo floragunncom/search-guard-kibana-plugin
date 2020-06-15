@@ -125,7 +125,7 @@ if [ -n "$KIBANA_APP_BRANCH" ]; then
       exit 1
     fi
 else
-  (git checkout "$KIBANA_VERSION" && echo "+++ Changed Kibana repository to $KIBANA_VERSION +++")
+  (git checkout "tags/v$KIBANA_VERSION" && echo "+++ Changed Kibana repository to v$KIBANA_VERSION +++")
     if [ $? != 0 ]; then
       echo "Switching to Kibana  $KIBANA_VERSION failed"
       exit 1
