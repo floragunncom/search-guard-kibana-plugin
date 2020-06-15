@@ -187,12 +187,13 @@ export const buildActions = ({ actions = [], resolve_actions: resolveActions, _u
           watchAction.checks = buildChecksFromFormikChecks(watchAction.checks);
         } else if (_ui.watchType === WATCH_TYPES.BLOCKS) {
           watchAction.checks = buildChecksFromChecksBlocks(watchAction.checksBlocks);
-          delete watchAction.checksBlocks;
         }
       } catch (err) {
         console.error(`Fail to parse action "${action.name}" checks`);
         watchAction.checks = [];
       }
+
+      delete watchAction.checksBlocks;
 
       if (action.type === ACTION_TYPE.INDEX) {
         return buildIndexAction(watchAction);

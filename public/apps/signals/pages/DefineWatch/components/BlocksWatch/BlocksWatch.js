@@ -38,11 +38,12 @@ TODO:
   - [x] Block actions: delete.
   - [x] Add check templates from DefinitionPanel.
   - [x] Default name for a new block
-  - [] excution works in Json watch
+  - [x] excution works in Json watch
   - [] execution works in Blocks watch
   - [] Develop data model for check blocks in actions.
   - [] Add BlocksWatch to ActionsPanel. Maybe refactor the ActionsPanel.
   - [] Check block forms.
+  - [] Resize form capability https://elastic.github.io/eui/#/layout/resizable-container
   - [] Slice the check name to deal with long usernames.
   - [] Deletion confirm.
   - [] Other block actions: execute (single and waterfall), disable, etc.

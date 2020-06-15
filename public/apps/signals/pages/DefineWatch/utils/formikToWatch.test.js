@@ -3762,6 +3762,7 @@ describe('formikToWatch', () => {
             },
           ],
           checks: '[]',
+          checksBlocks: [],
         },
         {
           type: 'webhook',
@@ -3778,6 +3779,8 @@ describe('formikToWatch', () => {
               '{"text": "Goods total: {{testsearch.hits.total.value}}", "attachments": [{"title": "First 10 customers", "text": "{{#testsearch.hits.hits}}{{#_source}}_{{customer_full_name}}_, {{email}}, *price: {{taxful_total_price}}*, {{/_source}}{{/testsearch.hits.hits}}"}]}',
             headers: '{\n  "Content-type": "application/json"\n}',
           },
+          checks: '[]',
+          checksBlocks: [],
         },
       ],
       _ui: {
