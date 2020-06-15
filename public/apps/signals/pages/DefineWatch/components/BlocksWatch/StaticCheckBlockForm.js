@@ -1,5 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   EuiFlexGroup,
   EuiFlexItem,
@@ -8,10 +8,12 @@ import {
   EuiText,
   EuiLink,
   EuiSpacer,
+  EuiButton,
+  EuiResizableContainer,
 } from '@elastic/eui';
 import { ResponseLabelAppend } from './ResponseLabelAppend';
 import { FormikCodeEditor, FormikFieldText } from '../../../../components';
-import { isInvalid, hasError, validateWatchString } from '../../utils/validate';
+import { isInvalid, hasError, validateWatchString, validateEmptyField } from '../../utils/validate';
 import {
   targetText,
   nameText,
@@ -50,11 +52,17 @@ export function CheckName({ namePath }) {
       formRow
       rowProps={{
         label: nameText,
+        isInvalid,
+        error: hasError,
       }}
       elementProps={{
+        isInvalid,
         onFocus: (e, field, form) => {
           form.setFieldError(field.name, undefined);
         },
+      }}
+      formikFieldProps={{
+        validate: validateEmptyField,
       }}
     />
   );
@@ -92,7 +100,6 @@ export function CheckResponse({ editorOptions, editorTheme, checkBlock, onCloseR
         value={checkBlock.response}
         setOptions={{
           ...editorOptions,
-          ...EDITOR_OPTIONS,
         }}
       />
     </EuiFormRow>
@@ -124,7 +131,6 @@ export function CheckCodeEditor({ editorTheme, editorOptions, valuePath, docLink
         isInvalid,
         setOptions: {
           ...editorOptions,
-          ...EDITOR_OPTIONS,
         },
         theme: editorTheme,
         onChange: (e, query, field, form) => {
@@ -160,7 +166,7 @@ export function StaticCheckBlockForm({ index, checkBlock, checksBlocksPath, onCl
         <EuiFlexItem>
           <CheckCodeEditor
             editorTheme={editorTheme}
-            editorOptions={editorOptions}
+            editorOptions={{ ...editorOptions, ...EDITOR_OPTIONS }}
             valuePath={valuePath}
             docLink={DOC_LINKS.INPUTS.STATIC}
           />
@@ -168,8 +174,8 @@ export function StaticCheckBlockForm({ index, checkBlock, checksBlocksPath, onCl
         {checkBlock.response && (
           <EuiFlexItem>
             <CheckResponse
-              editorOptions={editorOptions}
               editorTheme={editorTheme}
+              editorOptions={{ ...editorOptions, ...EDITOR_OPTIONS }}
               checkBlock={checkBlock}
               onCloseResult={onCloseResult}
             />
