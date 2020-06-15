@@ -13,11 +13,6 @@ import {
   EuiFlexItem,
   EuiIcon,
   EuiCallOut,
-  EuiSpacer,
-  EuiFormRow,
-  EuiText,
-  EuiLink,
-  EuiCodeEditor,
 } from '@elastic/eui';
 import {
   STATIC_DEFAULTS,
@@ -27,14 +22,16 @@ import {
   TRANSFORM_DEFAULTS,
   CALC_DEFAULTS,
 } from './utils/checkBlocks';
+import { reorderBlocks, deleteBlock } from './utils/helpers';
 import { EmptyPrompt } from '../../../../../components';
-import QueryStat from '../QueryStat';
-import {
-  looksLikeYouDontHaveAnyCheckText,
-  noChecksText,
-  responseText,
-  closeText,
-} from '../../../../utils/i18n/watch';
+import { StaticCheckBlockForm } from './StaticCheckBlockForm';
+import { SearchCheckBlockForm } from './SearchCheckBlockForm';
+import { HttpCheckBlockForm } from './HttpCheckBlockForm';
+import { ConditionCheckBlockForm } from './ConditionCheckBlockForm';
+import { TransformCheckBlockForm } from './TransformCheckBlockForm';
+import { CalcCheckBlockForm } from './CalcCheckBlockForm';
+import { WatchResponse } from './WatchResponse';
+import { looksLikeYouDontHaveAnyCheckText, noChecksText } from '../../../../utils/i18n/watch';
 
 import { Context } from '../../../../Context';
 
@@ -60,20 +57,11 @@ TODO:
   - [] Unit tests for functions and hooks.
   - [] Put ids for int tests.
   - [] Use i18n.
-  - [] Put components in separate files.
+  - [x] Put components in separate files.
   - [] Bug. QueryStat. No _shards found in the watch execution response
   - [] The graph watch doesn't have checks in actions. Make sure you delete the action's checks
   when switch to the graph mode.
 */
-
-// a little function to help us with reordering the result
-const reorder = (list, startIndex, endIndex) => {
-  const result = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed);
-
-  return result;
-};
 
 const grid = 2;
 
@@ -89,73 +77,6 @@ const getListStyle = (isDraggingOver) => ({
   padding: grid,
   width: '100%',
 });
-
-export function StaticCheckBlockForm({ checkBlock }) {
-  return (
-    <>
-      <p>Type: {checkBlock.type}</p>
-      <p>Name: {checkBlock.name}</p>
-      <p>Target: {checkBlock.target}</p>
-      <p>Value: {checkBlock.value}</p>
-    </>
-  );
-}
-
-export function SearchCheckBlockForm({ checkBlock }) {
-  return (
-    <>
-      <p>Type: {checkBlock.type}</p>
-      <p>Name: {checkBlock.name}</p>
-      <p>Target: {checkBlock.target}</p>
-      <p>Request: {checkBlock.request}</p>
-    </>
-  );
-}
-
-export function HttpCheckBlockForm({ checkBlock }) {
-  return (
-    <>
-      <p>Type: {checkBlock.type}</p>
-      <p>Name: {checkBlock.name}</p>
-      <p>Target: {checkBlock.target}</p>
-      <p>Request: {checkBlock.request}</p>
-      <p>TLS: {checkBlock.tls}</p>
-    </>
-  );
-}
-
-export function ConditionCheckBlockForm({ checkBlock }) {
-  return (
-    <>
-      <p>Type: {checkBlock.type}</p>
-      <p>Name: {checkBlock.name}</p>
-      <p>Target: {checkBlock.target}</p>
-      <p>Source: {checkBlock.source}</p>
-    </>
-  );
-}
-
-export function TransformCheckBlockForm({ checkBlock }) {
-  return (
-    <>
-      <p>Type: {checkBlock.type}</p>
-      <p>Name: {checkBlock.name}</p>
-      <p>Target: {checkBlock.target}</p>
-      <p>Source: {checkBlock.source}</p>
-    </>
-  );
-}
-
-export function CalcCheckBlockForm({ checkBlock }) {
-  return (
-    <>
-      <p>Type: {checkBlock.type}</p>
-      <p>Name: {checkBlock.name}</p>
-      <p>Target: {checkBlock.target}</p>
-      <p>Source: {checkBlock.source}</p>
-    </>
-  );
-}
 
 export function DraggableBlock({ accordionId, index, provided, checkBlock, onDeleteBlock }) {
   let form;
@@ -221,35 +142,6 @@ export function DraggableBlock({ accordionId, index, provided, checkBlock, onDel
   );
 }
 
-function WatchResponse({ onCloseResult, editorTheme, editorResult }) {
-  return (
-    <>
-      <EuiFormRow
-        fullWidth
-        label={responseText}
-        labelAppend={
-          <EuiText size="xs" onClick={onCloseResult}>
-            <EuiLink id="close-response" data-test-subj="sgWatch-CloseResponse">
-              {closeText} X
-            </EuiLink>
-          </EuiText>
-        }
-      >
-        <EuiCodeEditor
-          theme={editorTheme}
-          mode="json"
-          width="100%"
-          height="500px"
-          value={editorResult}
-          readOnly
-        />
-      </EuiFormRow>
-      <EuiSpacer />
-      <QueryStat />
-    </>
-  );
-}
-
 function BlocksWatch({
   formik: { values, setFieldValue },
   accordionId,
@@ -276,14 +168,11 @@ function BlocksWatch({
     if (!result.destination) {
       return;
     }
-
-    setChecksBlocks(reorder(checksBlocks, result.source.index, result.destination.index));
+    setChecksBlocks(reorderBlocks(checksBlocks, result.source.index, result.destination.index));
   }
 
-  function deleteBlock(index) {
-    const newCheckBlocks = [...checksBlocks];
-    newCheckBlocks.splice(index, 1);
-    setChecksBlocks(newCheckBlocks);
+  function handleDeleteBlock(index) {
+    setChecksBlocks(deleteBlock(checksBlocks, index));
   }
 
   /*
@@ -329,7 +218,7 @@ function BlocksWatch({
                               index={index}
                               provided={provided}
                               checkBlock={checkBlock}
-                              onDeleteBlock={deleteBlock}
+                              onDeleteBlock={handleDeleteBlock}
                             />
                           </div>
                         );

@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React from 'react';
 import { get } from 'lodash';
 import { connect as connectFormik } from 'formik';
