@@ -46,7 +46,7 @@ TODO:
   - [x] Add check templates from DefinitionPanel.
   - [x] Default name for a new block
   - [x] excution works in Json watch
-  - [] execution works in Blocks watch
+  - [x] execution works in Blocks watch
   - [] Develop data model for check blocks in actions.
   - [] Add BlocksWatch to ActionsPanel. Maybe refactor the ActionsPanel.
   - [] Check block forms.
