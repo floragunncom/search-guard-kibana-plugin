@@ -1,8 +1,8 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import React from 'react';
 import { EuiFormRow, EuiText, EuiLink, EuiCodeEditor, EuiSpacer } from '@elastic/eui';
-import { responseText, closeText } from '../../../../utils/i18n/watch';
-import QueryStat from '../QueryStat';
+import { responseText, closeText } from '../../../../../utils/i18n/watch';
+import QueryStat from '../../QueryStat';
 
 export function WatchResponse({ onCloseResult, editorTheme, editorResult }) {
   return (

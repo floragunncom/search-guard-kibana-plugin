@@ -7,7 +7,6 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { get, set, cloneDeep } from 'lodash';
 import {
   EuiAccordion,
-  EuiButton,
   EuiPanel,
   EuiFlexGroup,
   EuiFlexItem,
@@ -15,15 +14,18 @@ import {
   EuiCallOut,
   EuiButtonIcon,
   EuiToolTip,
+  EuiLoadingSpinner,
 } from '@elastic/eui';
 import { EmptyPrompt } from '../../../../../components';
-import { StaticCheckBlockForm } from './StaticCheckBlockForm';
-import { SearchCheckBlockForm } from './SearchCheckBlockForm';
-import { HttpCheckBlockForm } from './HttpCheckBlockForm';
-import { ConditionCheckBlockForm } from './ConditionCheckBlockForm';
-import { TransformCheckBlockForm } from './TransformCheckBlockForm';
-import { CalcCheckBlockForm } from './CalcCheckBlockForm';
-import { WatchResponse } from './WatchResponse';
+import {
+  StaticCheckBlockForm,
+  HttpCheckBlockForm,
+  SearchCheckBlockForm,
+  ConditionCheckBlockForm,
+  TransformCheckBlockForm,
+  CalcCheckBlockForm,
+  WatchResponse,
+} from './forms';
 import { WatchService } from '../../../../services';
 import { reorderBlocks, deleteBlock, shorterCheckName } from './utils/helpers';
 import { formikToWatch } from '../../utils';
@@ -58,14 +60,15 @@ TODO:
   - [x] execution works in Blocks watch
   - [x] Develop data model for check blocks in actions.
   - [x] Add BlocksWatch to ActionsPanel. Maybe refactor the ActionsPanel.
-  - [] Check block forms:
-    - [] Static
+  - [x] Check block forms:
+    - [x] Static
     - [] Condition
     - [] Transform
     - [] Calc
     - [] Search
     - [] HTTP
-  - [] Resize form capability https://elastic.github.io/eui/#/layout/resizable-container
+  - [] Resize form capability https://elastic.github.io/eui/#/layout/resizable-container.
+  Better idea - open flyout with code editor.
   - [x] Slice the check name to deal with long usernames.
   - [x] Deletion confirm.
   - [x] Other block actions: execute (single and waterfall), disable, etc.
@@ -181,41 +184,65 @@ export function DraggableBlock({
       break;
   }
 
+  function renderCascadeExecuteButton() {
+    return (
+      <EuiToolTip content={executeBlocksAboveAndThisBlockText} title={executeText}>
+        {isLoading ? (
+          <EuiLoadingSpinner size="m" />
+        ) : (
+          <EuiButtonIcon
+            isLoading={isLoading}
+            aria-label="execute-cascade"
+            iconType="play"
+            onClick={() => onExecuteBlock(0, index)}
+          />
+        )}
+      </EuiToolTip>
+    );
+  }
+
+  function renderExecuteButton() {
+    return (
+      <EuiToolTip content={executeOnlyThisBlockText} title={executeText}>
+        {isLoading ? (
+          <EuiLoadingSpinner size="m" />
+        ) : (
+          <EuiButtonIcon
+            isLoading={isLoading}
+            aria-label="execute"
+            iconType="bullseye"
+            onClick={() => onExecuteBlock(index)}
+          />
+        )}
+      </EuiToolTip>
+    );
+  }
+
+  function renderDeleteButton() {
+    return (
+      <EuiToolTip title={deleteText}>
+        {isLoading ? (
+          <EuiLoadingSpinner size="m" />
+        ) : (
+          <EuiButtonIcon
+            isLoading={isLoading}
+            aria-label="delete"
+            iconType="trash"
+            color="danger"
+            onClick={() => onDeleteBlock(index)}
+          />
+        )}
+      </EuiToolTip>
+    );
+  }
+
   function renderExtraAction() {
     return (
       <EuiFlexGroup>
-        <EuiFlexItem grow={false}>
-          <EuiToolTip content={executeBlocksAboveAndThisBlockText} title={executeText}>
-            <EuiButtonIcon
-              isLoading={isLoading}
-              aria-label="execute-cascade"
-              iconType="play"
-              onClick={() => onExecuteBlock(0, index)}
-            />
-          </EuiToolTip>
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <EuiToolTip content={executeOnlyThisBlockText} title={executeText}>
-            <EuiButtonIcon
-              isLoading={isLoading}
-              aria-label="execute"
-              iconType="bullseye"
-              onClick={() => onExecuteBlock(index)}
-            />
-          </EuiToolTip>
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <EuiToolTip title={deleteText}>
-            <EuiButtonIcon
-              isLoading={isLoading}
-              aria-label="delete"
-              iconType="trash"
-              color="danger"
-              onClick={() => onDeleteBlock(index)}
-            />
-          </EuiToolTip>
-        </EuiFlexItem>
-      </ EuiFlexGroup>
+        <EuiFlexItem grow={false}>{renderCascadeExecuteButton()}</EuiFlexItem>
+        <EuiFlexItem grow={false}>{renderExecuteButton()}</EuiFlexItem>
+        <EuiFlexItem grow={false}>{renderDeleteButton()}</EuiFlexItem>
+      </EuiFlexGroup>
     );
   }
 

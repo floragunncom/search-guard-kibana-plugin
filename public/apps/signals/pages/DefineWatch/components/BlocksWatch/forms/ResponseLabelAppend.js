@@ -1,7 +1,7 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import React from 'react';
 import { EuiLink, EuiText } from '@elastic/eui';
-import { closeText } from '../../../../utils/i18n/watch';
+import { closeText } from '../../../../../utils/i18n/watch';
 
 export function ResponseLabelAppend({ onClick }) {
   return (
