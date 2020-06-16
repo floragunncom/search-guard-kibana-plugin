@@ -1,5 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import { reorderBlocks, deleteBlock } from './helpers';
+import { reorderBlocks, deleteBlock, shorterCheckName } from './helpers';
 
 describe('BlocksWatch helpers', () => {
   test('reorderBlocks', () => {
@@ -17,5 +17,13 @@ describe('BlocksWatch helpers', () => {
     const result = [1, 3];
 
     expect(JSON.stringify(deleteBlock(list, index))).toBe(JSON.stringify(result));
+  });
+
+  test('shorterCheckName', () => {
+    let name = 'aaaa';
+    expect(shorterCheckName(name)).toBe(name);
+
+    name = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab';
+    expect(shorterCheckName(name)).toBe(name.slice(0, name.length - 1));
   });
 });

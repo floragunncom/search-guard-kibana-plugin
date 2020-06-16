@@ -11,3 +11,7 @@ export function deleteBlock(list, index) {
   result.splice(index, 1);
   return result;
 }
+
+export function shorterCheckName(name = '') {
+  return name.slice(0, 64);
+}

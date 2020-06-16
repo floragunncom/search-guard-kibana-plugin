@@ -22,7 +22,7 @@ import {
   TRANSFORM_DEFAULTS,
   CALC_DEFAULTS,
 } from './utils/checkBlocks';
-import { reorderBlocks, deleteBlock } from './utils/helpers';
+import { reorderBlocks, deleteBlock, shorterCheckName } from './utils/helpers';
 import { EmptyPrompt } from '../../../../../components';
 import { StaticCheckBlockForm } from './StaticCheckBlockForm';
 import { SearchCheckBlockForm } from './SearchCheckBlockForm';
@@ -54,7 +54,7 @@ TODO:
     - [] Search
     - [] HTTP
   - [] Resize form capability https://elastic.github.io/eui/#/layout/resizable-container
-  - [] Slice the check name to deal with long usernames.
+  - [x] Slice the check name to deal with long usernames.
   - [] Deletion confirm.
   - [] Other block actions: execute (single and waterfall), disable, etc.
   - [] Execute all blocks. Render stats.
@@ -186,7 +186,7 @@ export function DraggableBlock({
         <EuiFlexItem>
           <EuiAccordion
             id={accordionId}
-            buttonContent={checkBlock.name}
+            buttonContent={shorterCheckName(checkBlock.name)}
             extraAction={renderExtraAction()}
             paddingSize="l"
           >
