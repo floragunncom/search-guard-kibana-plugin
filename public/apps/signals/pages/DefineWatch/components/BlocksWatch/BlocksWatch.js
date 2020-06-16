@@ -1,10 +1,10 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { get } from 'lodash';
+import { get, set, cloneDeep } from 'lodash';
 import {
   EuiAccordion,
   EuiButton,
@@ -13,16 +13,9 @@ import {
   EuiFlexItem,
   EuiIcon,
   EuiCallOut,
+  EuiButtonIcon,
+  EuiToolTip,
 } from '@elastic/eui';
-import {
-  STATIC_DEFAULTS,
-  SEARCH_DEFAULTS,
-  HTTP_DEFAULTS,
-  CONDITION_DEFAULTS,
-  TRANSFORM_DEFAULTS,
-  CALC_DEFAULTS,
-} from './utils/checkBlocks';
-import { reorderBlocks, deleteBlock, shorterCheckName } from './utils/helpers';
 import { EmptyPrompt } from '../../../../../components';
 import { StaticCheckBlockForm } from './StaticCheckBlockForm';
 import { SearchCheckBlockForm } from './SearchCheckBlockForm';
@@ -31,10 +24,25 @@ import { ConditionCheckBlockForm } from './ConditionCheckBlockForm';
 import { TransformCheckBlockForm } from './TransformCheckBlockForm';
 import { CalcCheckBlockForm } from './CalcCheckBlockForm';
 import { WatchResponse } from './WatchResponse';
+import { WatchService } from '../../../../services';
+import { reorderBlocks, deleteBlock, shorterCheckName } from './utils/helpers';
+import { formikToWatch } from '../../utils';
+import {
+  STATIC_DEFAULTS,
+  SEARCH_DEFAULTS,
+  HTTP_DEFAULTS,
+  CONDITION_DEFAULTS,
+  TRANSFORM_DEFAULTS,
+  CALC_DEFAULTS,
+} from './utils/checkBlocks';
+import { stringifyPretty } from '../../../../utils/helpers';
 import {
   looksLikeYouDontHaveAnyCheckText,
   noChecksText,
   deleteText,
+  executeBlocksAboveAndThisBlockText,
+  executeOnlyThisBlockText,
+  executeText,
 } from '../../../../utils/i18n/watch';
 
 import { Context } from '../../../../Context';
@@ -60,8 +68,8 @@ TODO:
   - [] Resize form capability https://elastic.github.io/eui/#/layout/resizable-container
   - [x] Slice the check name to deal with long usernames.
   - [x] Deletion confirm.
-  - [] Other block actions: execute (single and waterfall), disable, etc.
-  - [] Execute all blocks. Render stats.
+  - [x] Other block actions: execute (single and waterfall), disable, etc.
+  - [x] Execute all blocks. Render stats.
   - [] Make sure check code is pretty in the code editor in forms.
   - [] Maybe resize code editor in forms.
   - [] Unit tests for functions and hooks.
@@ -89,6 +97,7 @@ const getListStyle = (isDraggingOver) => ({
 });
 
 export function DraggableBlock({
+  isLoading,
   accordionId,
   index,
   provided,
@@ -96,6 +105,7 @@ export function DraggableBlock({
   checksBlocksPath,
   onDeleteBlock,
   onCloseResult,
+  onExecuteBlock,
 }) {
   let form;
 
@@ -173,9 +183,39 @@ export function DraggableBlock({
 
   function renderExtraAction() {
     return (
-      <EuiButton size="s" onClick={() => onDeleteBlock(index)}>
-        Delete
-      </EuiButton>
+      <EuiFlexGroup>
+        <EuiFlexItem grow={false}>
+          <EuiToolTip content={executeBlocksAboveAndThisBlockText} title={executeText}>
+            <EuiButtonIcon
+              isLoading={isLoading}
+              aria-label="execute-cascade"
+              iconType="play"
+              onClick={() => onExecuteBlock(0, index)}
+            />
+          </EuiToolTip>
+        </EuiFlexItem>
+        <EuiFlexItem grow={false}>
+          <EuiToolTip content={executeOnlyThisBlockText} title={executeText}>
+            <EuiButtonIcon
+              isLoading={isLoading}
+              aria-label="execute"
+              iconType="bullseye"
+              onClick={() => onExecuteBlock(index)}
+            />
+          </EuiToolTip>
+        </EuiFlexItem>
+        <EuiFlexItem grow={false}>
+          <EuiToolTip title={deleteText}>
+            <EuiButtonIcon
+              isLoading={isLoading}
+              aria-label="delete"
+              iconType="trash"
+              color="danger"
+              onClick={() => onDeleteBlock(index)}
+            />
+          </EuiToolTip>
+        </EuiFlexItem>
+      </ EuiFlexGroup>
     );
   }
 
@@ -203,6 +243,7 @@ export function DraggableBlock({
 }
 
 DraggableBlock.propTypes = {
+  isLoading: PropTypes.bool.isRequired,
   accordionId: PropTypes.string.isRequired,
   index: PropTypes.number.isRequired,
   provided: PropTypes.object.isRequired,
@@ -210,6 +251,7 @@ DraggableBlock.propTypes = {
   checksBlocksPath: PropTypes.string.isRequired,
   onDeleteBlock: PropTypes.func.isRequired,
   onCloseResult: PropTypes.func.isRequired,
+  onExecuteBlock: PropTypes.func.isRequired,
 };
 
 function BlocksWatch({
@@ -221,7 +263,9 @@ function BlocksWatch({
   onOpenChecksTemplatesFlyout,
   editorResult,
 }) {
-  const { editorTheme, triggerConfirmModal } = useContext(Context);
+  const { editorTheme, triggerConfirmModal, addErrorToast, httpClient } = useContext(Context);
+  const [isLoading, setIsLoading] = useState(false);
+  const watchService = new WatchService(httpClient);
   const checksBlocks = get(values, checksBlocksPath, []);
 
   useEffect(() => {
@@ -255,7 +299,31 @@ function BlocksWatch({
   }
 
   function clearResponse(index) {
-    setFieldValue(`checksBlocksPath[${index}].response`, '');
+    setFieldValue(`${checksBlocksPath}[${index}].response`, '');
+  }
+
+  async function executeBlocks(startIndex, endIndex) {
+    setIsLoading(true);
+
+    if (!endIndex) {
+      endIndex = startIndex;
+    }
+
+    const formik = cloneDeep(values);
+    try {
+      set(formik, checksBlocksPath, checksBlocks.slice(startIndex, endIndex + 1));
+      const { ok, resp } = await watchService.execute({ watch: formikToWatch(formik) });
+      setFieldValue(`${checksBlocksPath}.${endIndex}.response`, stringifyPretty(resp));
+
+      if (!ok) throw resp;
+    } catch (error) {
+      console.error('BlocksWatch -- executeBlocks', error);
+      console.debug('BlocksWatch -- executeBlocks -- values', values);
+      console.debug('BlocksWatch -- executeBlocks -- values with sliced checks', formik);
+      addErrorToast(error);
+    }
+
+    setIsLoading(false);
   }
 
   /*
@@ -297,6 +365,7 @@ function BlocksWatch({
                             style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
                           >
                             <DraggableBlock
+                              isLoading={isLoading}
                               accordionId={accordionId}
                               index={index}
                               provided={provided}
@@ -304,6 +373,7 @@ function BlocksWatch({
                               checksBlocksPath={checksBlocksPath}
                               onDeleteBlock={handleDeleteBlock}
                               onCloseResult={() => clearResponse(index)}
+                              onExecuteBlock={executeBlocks}
                             />
                           </div>
                         );

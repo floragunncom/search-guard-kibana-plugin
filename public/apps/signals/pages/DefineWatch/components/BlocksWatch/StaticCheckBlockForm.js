@@ -85,12 +85,12 @@ export function CheckTarget({ targetPath }) {
   );
 }
 
-export function CheckResponse({ editorOptions, editorTheme, checkBlock, onCloseResult }) {
+export function CheckResponse({ index, editorOptions, editorTheme, checkBlock, onCloseResult }) {
   return (
     <EuiFormRow
       fullWidth
       label={responseText}
-      labelAppend={<ResponseLabelAppend onClick={() => onCloseResult(checkBlock.id)} />}
+      labelAppend={<ResponseLabelAppend onClick={() => onCloseResult(index)} />}
     >
       <EuiCodeEditor
         isReadOnly
@@ -174,6 +174,7 @@ export function StaticCheckBlockForm({ index, checkBlock, checksBlocksPath, onCl
         {checkBlock.response && (
           <EuiFlexItem>
             <CheckResponse
+              index={index}
               editorTheme={editorTheme}
               editorOptions={{ ...editorOptions, ...EDITOR_OPTIONS }}
               checkBlock={checkBlock}
