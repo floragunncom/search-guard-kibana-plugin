@@ -31,7 +31,11 @@ import { ConditionCheckBlockForm } from './ConditionCheckBlockForm';
 import { TransformCheckBlockForm } from './TransformCheckBlockForm';
 import { CalcCheckBlockForm } from './CalcCheckBlockForm';
 import { WatchResponse } from './WatchResponse';
-import { looksLikeYouDontHaveAnyCheckText, noChecksText } from '../../../../utils/i18n/watch';
+import {
+  looksLikeYouDontHaveAnyCheckText,
+  noChecksText,
+  deleteText,
+} from '../../../../utils/i18n/watch';
 
 import { Context } from '../../../../Context';
 
@@ -55,7 +59,7 @@ TODO:
     - [] HTTP
   - [] Resize form capability https://elastic.github.io/eui/#/layout/resizable-container
   - [x] Slice the check name to deal with long usernames.
-  - [] Deletion confirm.
+  - [x] Deletion confirm.
   - [] Other block actions: execute (single and waterfall), disable, etc.
   - [] Execute all blocks. Render stats.
   - [] Make sure check code is pretty in the code editor in forms.
@@ -217,7 +221,7 @@ function BlocksWatch({
   onOpenChecksTemplatesFlyout,
   editorResult,
 }) {
-  const { editorTheme } = useContext(Context);
+  const { editorTheme, triggerConfirmModal } = useContext(Context);
   const checksBlocks = get(values, checksBlocksPath, []);
 
   useEffect(() => {
@@ -238,7 +242,16 @@ function BlocksWatch({
   }
 
   function handleDeleteBlock(index) {
-    setChecksBlocks(deleteBlock(checksBlocks, index));
+    triggerConfirmModal({
+      body: <p>{deleteText}?</p>,
+      onConfirm: () => {
+        setChecksBlocks(deleteBlock(checksBlocks, index));
+        triggerConfirmModal(null);
+      },
+      onCancel: () => {
+        triggerConfirmModal(null);
+      },
+    });
   }
 
   function clearResponse(index) {
