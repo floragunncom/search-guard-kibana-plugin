@@ -6,13 +6,15 @@ import { CheckType } from './CheckType';
 import { CheckName } from './CheckName';
 import { CheckTarget } from './CheckTarget';
 import { CheckResponse } from './CheckResponse';
+import { ResponseLabelAppend } from './ResponseLabelAppend';
 import { EDITOR_OPTIONS } from '../utils/constants';
+import { validateJsonString } from '../../../utils/validate';
 import { DOC_LINKS } from '../../../../../utils/constants';
 
 import { Context } from '../../../../../Context';
 
 export function StaticCheckBlockForm({ index, checkBlock, checksBlocksPath, onCloseResult }) {
-  const { editorTheme, editorOptions } = useContext(Context);
+  const { editorOptions } = useContext(Context);
 
   const typePath = `${checksBlocksPath}[${index}].type`;
   const namePath = `${checksBlocksPath}[${index}].name`;
@@ -29,18 +31,19 @@ export function StaticCheckBlockForm({ index, checkBlock, checksBlocksPath, onCl
       <EuiFlexGroup>
         <EuiFlexItem>
           <CheckCodeEditor
+            mode="json"
             editorOptions={{ ...editorOptions, ...EDITOR_OPTIONS }}
             valuePath={valuePath}
             docLink={DOC_LINKS.INPUTS.STATIC}
+            validateFn={validateJsonString}
           />
         </EuiFlexItem>
         {checkBlock.response && (
           <EuiFlexItem>
             <CheckResponse
-              index={index}
               editorOptions={{ ...editorOptions, ...EDITOR_OPTIONS }}
-              checkBlock={checkBlock}
-              onCloseResult={onCloseResult}
+              value={checkBlock.response}
+              labelAppend={<ResponseLabelAppend onClick={() => onCloseResult(index)} />}
             />
           </EuiFlexItem>
         )}

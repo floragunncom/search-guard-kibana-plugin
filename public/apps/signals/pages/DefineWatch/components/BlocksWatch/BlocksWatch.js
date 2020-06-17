@@ -74,7 +74,6 @@ TODO:
   - [x] Other block actions: execute (single and waterfall), disable, etc.
   - [x] Execute all blocks. Render stats.
   - [] Make sure check code is pretty in the code editor in forms.
-  - [] Maybe resize code editor in forms.
   - [] Unit tests for functions and hooks.
   - [] Put ids for int tests.
   - [] Use i18n.
@@ -82,6 +81,8 @@ TODO:
   - [] Bug. QueryStat. No _shards found in the watch execution response
   - [] The graph watch doesn't have checks in actions. Make sure you delete the action's checks
   when switch to the graph mode.
+  - [] Drag only if mous is over the hamburger icon. Dragging an the whole accordion item prevents selecting text in a field.
+  - [x] Response code editor background color must have the same color that value code editor has. 
 */
 
 const grid = 2;
@@ -98,6 +99,14 @@ const getListStyle = (isDraggingOver) => ({
   padding: grid,
   width: '100%',
 });
+
+export function DraggableBlockExtraButton({ isLoading, toolTipProps, buttonProps }) {
+  return (
+    <EuiToolTip {...toolTipProps}>
+      {isLoading ? <EuiLoadingSpinner size="m" /> : <EuiButtonIcon {...buttonProps} />}
+    </EuiToolTip>
+  );
+}
 
 export function DraggableBlock({
   isLoading,
@@ -184,64 +193,51 @@ export function DraggableBlock({
       break;
   }
 
-  function renderCascadeExecuteButton() {
-    return (
-      <EuiToolTip content={executeBlocksAboveAndThisBlockText} title={executeText}>
-        {isLoading ? (
-          <EuiLoadingSpinner size="m" />
-        ) : (
-          <EuiButtonIcon
-            isLoading={isLoading}
-            aria-label="execute-cascade"
-            iconType="play"
-            onClick={() => onExecuteBlock(0, index)}
-          />
-        )}
-      </EuiToolTip>
-    );
-  }
-
-  function renderExecuteButton() {
-    return (
-      <EuiToolTip content={executeOnlyThisBlockText} title={executeText}>
-        {isLoading ? (
-          <EuiLoadingSpinner size="m" />
-        ) : (
-          <EuiButtonIcon
-            isLoading={isLoading}
-            aria-label="execute"
-            iconType="bullseye"
-            onClick={() => onExecuteBlock(index)}
-          />
-        )}
-      </EuiToolTip>
-    );
-  }
-
-  function renderDeleteButton() {
-    return (
-      <EuiToolTip title={deleteText}>
-        {isLoading ? (
-          <EuiLoadingSpinner size="m" />
-        ) : (
-          <EuiButtonIcon
-            isLoading={isLoading}
-            aria-label="delete"
-            iconType="trash"
-            color="danger"
-            onClick={() => onDeleteBlock(index)}
-          />
-        )}
-      </EuiToolTip>
-    );
-  }
-
   function renderExtraAction() {
     return (
       <EuiFlexGroup>
-        <EuiFlexItem grow={false}>{renderCascadeExecuteButton()}</EuiFlexItem>
-        <EuiFlexItem grow={false}>{renderExecuteButton()}</EuiFlexItem>
-        <EuiFlexItem grow={false}>{renderDeleteButton()}</EuiFlexItem>
+        <EuiFlexItem grow={false}>
+          <DraggableBlockExtraButton
+            toolTipProps={{
+              title: executeText,
+              content: executeBlocksAboveAndThisBlockText,
+            }}
+            buttonProps={{
+              'aria-label': 'execute-cascade',
+              iconType: 'play',
+              onClick: () => onExecuteBlock(0, index),
+            }}
+            isLoading={isLoading}
+          />
+        </EuiFlexItem>
+        <EuiFlexItem grow={false}>
+          <DraggableBlockExtraButton
+            toolTipProps={{
+              title: executeText,
+              content: executeOnlyThisBlockText,
+            }}
+            buttonProps={{
+              'aria-label': 'execute',
+              iconType: 'bullseye',
+              onClick: () => onExecuteBlock(index),
+            }}
+            isLoading={isLoading}
+          />
+        </EuiFlexItem>
+        <EuiFlexItem grow={false}>
+          <DraggableBlockExtraButton
+            toolTipProps={{
+              title: deleteText,
+            }}
+            buttonProps={{
+              'aria-label': 'delete',
+              iconType: 'trash',
+              color: 'danger',
+              onClick: () => onDeleteBlock(index),
+            }}
+            isLoading={isLoading}
+          />
+        </EuiFlexItem>
       </EuiFlexGroup>
     );
   }
@@ -388,7 +384,6 @@ function BlocksWatch({
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
-                            {...provided.dragHandleProps}
                             style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
                           >
                             <DraggableBlock

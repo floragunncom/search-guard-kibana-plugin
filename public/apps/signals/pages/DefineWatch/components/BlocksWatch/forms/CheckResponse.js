@@ -1,26 +1,39 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import React from 'react';
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
 import { EuiCodeEditor, EuiFormRow } from '@elastic/eui';
-import { ResponseLabelAppend } from './ResponseLabelAppend';
 import { responseText } from '../../../../../utils/i18n/watch';
 
-export function CheckResponse({ index, editorOptions, editorTheme, checkBlock, onCloseResult }) {
+import { Context } from '../../../../../Context';
+
+export function CheckResponse({ editorOptions, value, labelAppend }) {
+  const { editorTheme, editorOptions: defaultEditorOptions } = useContext(Context);
+
+  const formRowProps = {};
+
+  if (labelAppend) {
+    formRowProps.labelAppend = labelAppend;
+  }
+
   return (
-    <EuiFormRow
-      fullWidth
-      label={responseText}
-      labelAppend={<ResponseLabelAppend onClick={() => onCloseResult(index)} />}
-    >
+    <EuiFormRow fullWidth label={responseText} {...formRowProps}>
       <EuiCodeEditor
         isReadOnly
         mode="json"
         theme={editorTheme}
         width="100%"
-        value={checkBlock.response}
+        value={value}
         setOptions={{
+          ...defaultEditorOptions,
           ...editorOptions,
         }}
       />
     </EuiFormRow>
   );
 }
+
+CheckResponse.propTypes = {
+  value: PropTypes.string.isRequired,
+  editorOptions: PropTypes.object,
+  labelAppend: PropTypes.node,
+};
