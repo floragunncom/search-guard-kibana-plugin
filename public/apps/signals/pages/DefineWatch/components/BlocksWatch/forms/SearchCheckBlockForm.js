@@ -1,5 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import React, { useContext } from 'react';
+import React from 'react';
 import { EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
 import { CheckCodeEditor } from './CheckCodeEditor';
 import { CheckType } from './CheckType';
@@ -12,11 +12,7 @@ import { validateJsonString } from '../../../utils/validate';
 import { DOC_LINKS } from '../../../../../utils/constants';
 import { requestText } from '../../../../../utils/i18n/watch';
 
-import { Context } from '../../../../../Context';
-
 export function SearchCheckBlockForm({ index, checkBlock, checksBlocksPath, onCloseResult }) {
-  const { editorOptions } = useContext(Context);
-
   const typePath = `${checksBlocksPath}[${index}].type`;
   const namePath = `${checksBlocksPath}[${index}].name`;
   const targetPath = `${checksBlocksPath}[${index}].target`;
@@ -32,20 +28,30 @@ export function SearchCheckBlockForm({ index, checkBlock, checksBlocksPath, onCl
       <EuiFlexGroup>
         <EuiFlexItem>
           <CheckCodeEditor
-            mode="json"
-            rowLabel={requestText}
-            editorOptions={{ ...editorOptions, ...EDITOR_OPTIONS }}
+            formikFieldProps={{
+              validate: validateJsonString,
+            }}
+            editorProps={{
+              mode: 'json',
+              setOptions: EDITOR_OPTIONS,
+            }}
+            rowProps={{
+              label: requestText,
+            }}
             valuePath={valuePath}
             docLink={DOC_LINKS.INPUTS.SEARCH_REQUEST}
-            validateFn={validateJsonString}
           />
         </EuiFlexItem>
         {checkBlock.response && (
           <EuiFlexItem>
             <CheckResponse
-              editorOptions={{ ...editorOptions, ...EDITOR_OPTIONS }}
               value={checkBlock.response}
-              labelAppend={<ResponseLabelAppend onClick={() => onCloseResult(index)} />}
+              rowProps={{
+                labelAppend: <ResponseLabelAppend onClick={() => onCloseResult(index)} />,
+              }}
+              editorProps={{
+                setOptions: EDITOR_OPTIONS,
+              }}
             />
           </EuiFlexItem>
         )}

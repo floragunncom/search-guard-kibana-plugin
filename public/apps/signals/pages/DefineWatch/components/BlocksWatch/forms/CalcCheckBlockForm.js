@@ -10,6 +10,7 @@ import { ResponseLabelAppend } from './ResponseLabelAppend';
 import { EDITOR_OPTIONS } from '../utils/constants';
 import { validateEmptyField } from '../../../utils/validate';
 import { DOC_LINKS } from '../../../../../utils/constants';
+import { sourceText } from '../../../../../utils/i18n/watch';
 
 import { Context } from '../../../../../Context';
 
@@ -31,19 +32,29 @@ export function CalcCheckBlockForm({ index, checkBlock, checksBlocksPath, onClos
       <EuiFlexGroup>
         <EuiFlexItem>
           <CheckCodeEditor
-            mode="text"
-            editorOptions={{ ...editorOptions, ...EDITOR_OPTIONS }}
+            formikFieldProps={{
+              validate: validateEmptyField,
+            }}
+            editorProps={{
+              setOptions: EDITOR_OPTIONS,
+            }}
+            rowProps={{
+              label: sourceText,
+            }}
             valuePath={valuePath}
             docLink={DOC_LINKS.CALCS}
-            validateFn={validateEmptyField}
           />
         </EuiFlexItem>
         {checkBlock.response && (
           <EuiFlexItem>
             <CheckResponse
-              editorOptions={{ ...editorOptions, ...EDITOR_OPTIONS }}
               value={checkBlock.response}
-              labelAppend={<ResponseLabelAppend onClick={() => onCloseResult(index)} />}
+              rowProps={{
+                labelAppend: <ResponseLabelAppend onClick={() => onCloseResult(index)} />,
+              }}
+              editorProps={{
+                setOptions: EDITOR_OPTIONS,
+              }}
             />
           </EuiFlexItem>
         )}

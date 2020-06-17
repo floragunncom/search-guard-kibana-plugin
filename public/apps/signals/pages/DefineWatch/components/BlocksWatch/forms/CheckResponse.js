@@ -6,18 +6,13 @@ import { responseText } from '../../../../../utils/i18n/watch';
 
 import { Context } from '../../../../../Context';
 
-// TODO: refactor to pass props objects instead of individual props
-export function CheckResponse({ editorOptions, value, labelAppend }) {
+export function CheckResponse({ value, rowProps, editorProps }) {
   const { editorTheme, editorOptions: defaultEditorOptions } = useContext(Context);
 
-  const formRowProps = {};
-
-  if (labelAppend) {
-    formRowProps.labelAppend = labelAppend;
-  }
+  const { setOptions, ...restEditorProps } = editorProps;
 
   return (
-    <EuiFormRow fullWidth label={responseText} {...formRowProps}>
+    <EuiFormRow fullWidth {...rowProps}>
       <EuiCodeEditor
         isReadOnly
         mode="json"
@@ -26,15 +21,30 @@ export function CheckResponse({ editorOptions, value, labelAppend }) {
         value={value}
         setOptions={{
           ...defaultEditorOptions,
-          ...editorOptions,
+          ...setOptions,
         }}
+        {...restEditorProps}
       />
     </EuiFormRow>
   );
 }
 
-CheckResponse.propTypes = {
+CheckResponse.defultProps = {
+  rowProps: {
+    label: responseText,
+  },
+  editorProps: {
+    setOptions: {},
+  },
+};
+
+CheckResponse.protoTypes = {
   value: PropTypes.string.isRequired,
-  editorOptions: PropTypes.object,
-  labelAppend: PropTypes.node,
+  rowProps: PropTypes.shape({
+    label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+    labelAppend: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  }),
+  editorProps: PropTypes.shape({
+    setOptions: PropTypes.object,
+  }),
 };
