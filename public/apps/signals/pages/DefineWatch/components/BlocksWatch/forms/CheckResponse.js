@@ -6,6 +6,7 @@ import { responseText } from '../../../../../utils/i18n/watch';
 
 import { Context } from '../../../../../Context';
 
+// TODO: refactor to pass props objects instead of individual props
 export function CheckResponse({ editorOptions, value, labelAppend }) {
   const { editorTheme, editorOptions: defaultEditorOptions } = useContext(Context);
 

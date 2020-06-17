@@ -8,19 +8,21 @@ import { valueText, documentationText } from '../../../../../utils/i18n/watch';
 
 import { Context } from '../../../../../Context';
 
+// TODO: refactor to pass props objects instead of individual props
 export function CheckCodeEditor({
   editorOptions,
   valuePath,
   docLink,
   mode,
   isCustomMode,
+  rowLabel,
   validateFn,
 }) {
   const { editorTheme, editorOptions: defaultEditorOptions } = useContext(Context);
 
   const rowProps = {
     fullWidth: true,
-    label: valueText,
+    label: rowLabel ? rowLabel : valueText,
     labelAppend: (
       <EuiText size="xs">
         <EuiLink href={docLink} target="_blank">
@@ -79,5 +81,6 @@ CheckCodeEditor.protoTypes = {
   mode: PropTypes.string,
   isCustomMode: PropTypes.bool,
   editorOptions: PropTypes.object,
+  rowLabel: PropTypes.node,
   validateFn: PropTypes.func,
 };

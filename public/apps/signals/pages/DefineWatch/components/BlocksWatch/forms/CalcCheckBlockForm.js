@@ -34,7 +34,7 @@ export function CalcCheckBlockForm({ index, checkBlock, checksBlocksPath, onClos
             mode="text"
             editorOptions={{ ...editorOptions, ...EDITOR_OPTIONS }}
             valuePath={valuePath}
-            docLink={DOC_LINKS.CONDITIONS}
+            docLink={DOC_LINKS.CALCS}
             validateFn={validateEmptyField}
           />
         </EuiFlexItem>

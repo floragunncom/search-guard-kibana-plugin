@@ -34,7 +34,7 @@ export function TransformCheckBlockForm({ index, checkBlock, checksBlocksPath, o
             mode="text"
             editorOptions={{ ...editorOptions, ...EDITOR_OPTIONS }}
             valuePath={valuePath}
-            docLink={DOC_LINKS.CONDITIONS}
+            docLink={DOC_LINKS.TRANSFORMS}
             validateFn={validateEmptyField}
           />
         </EuiFlexItem>
