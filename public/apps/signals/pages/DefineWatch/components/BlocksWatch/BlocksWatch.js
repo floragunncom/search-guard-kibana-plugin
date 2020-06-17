@@ -49,42 +49,6 @@ import {
 
 import { Context } from '../../../../Context';
 
-/*
-TODO:
-  - [x] Develop data model for check blocks.
-  - [x] Add DND skeleton.
-  - [x] Block actions: delete.
-  - [x] Add check templates from DefinitionPanel.
-  - [x] Default name for a new block
-  - [x] excution works in Json watch
-  - [x] execution works in Blocks watch
-  - [x] Develop data model for check blocks in actions.
-  - [x] Add BlocksWatch to ActionsPanel. Maybe refactor the ActionsPanel.
-  - [x] Check block forms:
-    - [x] Static
-    - [x] Condition
-    - [] Transform
-    - [] Calc
-    - [] Search
-    - [] HTTP
-  - [] Resize form capability https://elastic.github.io/eui/#/layout/resizable-container.
-  Better idea - open flyout with code editor.
-  - [x] Slice the check name to deal with long usernames.
-  - [x] Deletion confirm.
-  - [x] Other block actions: execute (single and waterfall), disable, etc.
-  - [x] Execute all blocks. Render stats.
-  - [x] Make sure check code is pretty in the code editor in forms.
-  - [x] Unit tests for functions and hooks.
-  - [] Put ids for int tests.
-  - [] Use i18n.
-  - [x] Put components in separate files.
-  - [] Bug. QueryStat. No _shards found in the watch execution response
-  - [] The graph watch doesn't have checks in actions. Make sure you delete the action's checks
-  when switch to the graph mode.
-  - [x] Drag only if mouse is over the hamburger icon. Dragging an the whole accordion item prevents selecting text in a field.
-  - [x] Response code editor background color must have the same color that value code editor has. 
-*/
-
 const grid = 2;
 
 const getItemStyle = (isDragging, draggableStyle) => ({
