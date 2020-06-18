@@ -3,10 +3,11 @@
  are not scaled correctly
  https://github.com/elastic/kibana/issues/62455
  */
-[data-test-subj="navDrawerAppsMenuLink"][data-name="Search Guard Configuration"] figure,
-[data-test-subj="navDrawerAppsMenuLink"][data-name="Tenants"] figure,
-[data-test-subj="navDrawerAppsMenuLink"][data-name="Account"] figure,
-[data-test-subj="navDrawerAppsMenuLink"][data-name="Search Guard Signals"] figure {
+
+[data-test-subj="collapsibleNavAppLink"][href$="searchguard-configuration#/"] figure,
+[data-test-subj="collapsibleNavAppLink"][href$="searchguard-multitenancy#/"] figure,
+[data-test-subj="collapsibleNavAppLink"][href$="searchguard-accountinfo#/"] figure,
+[data-test-subj="collapsibleNavAppLink"][href$="searchguard-signals#/"] figure {
     min-width: 16px;
     max-width: 16px;
     margin-right: 12px;
