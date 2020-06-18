@@ -21,7 +21,6 @@ export function onHapiPreHandler(clusterClient) {
             allow_partial_search_results: true,
             ignore_throttled: true,
             ignore_unavailable: true,
-            rest_total_hits_as_int: true,
           });
         } else if (req.method.toLowerCase() === 'delete') {
           rawResponse = await clusterClient(req, 'delete', { id: req.params.id });
