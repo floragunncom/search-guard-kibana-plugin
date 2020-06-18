@@ -28,8 +28,9 @@
   * limitations under the License.
   */
 
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { Formik } from 'formik';
 import { EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader, EuiFlyoutFooter } from '@elastic/eui';
 import Flyouts from './flyouts';
 
@@ -40,6 +41,7 @@ const getFlyoutProps = ({ type, payload }) => {
 };
 
 const Flyout = ({ flyout, onClose }) => {
+  const [values, setValues] = useState({});
   if (!flyout) return null;
 
   const flyoutData = getFlyoutProps(flyout);
@@ -53,14 +55,39 @@ const Flyout = ({ flyout, onClose }) => {
     headerProps = {},
     bodyProps = {},
     footerProps = {},
+    formikProps = {},
+    onChange,
   } = flyoutData;
 
   return (
-    <EuiFlyout onClose={onClose} {...flyoutProps} className="sgFlyout">
-      {header && <EuiFlyoutHeader {...headerProps}>{header}</EuiFlyoutHeader>}
-      {body && <EuiFlyoutBody {...bodyProps}>{body}</EuiFlyoutBody>}
-      {footer && <EuiFlyoutFooter {...footerProps}>{footer}</EuiFlyoutFooter>}
-    </EuiFlyout>
+    <Formik
+      {...formikProps}
+      render={({ errors, values, ...restRenderProps }) => {
+        console.log('Flyout, restRenderProps', restRenderProps);
+        console.log('Flyout, errors', errors);
+        console.log('Flyout, values', values);
+
+        const hasNoErrors = !Object.keys(errors).length;
+        console.log('hasNoErrors', hasNoErrors);
+        const didValuesChange = JSON.stringify(values) !== JSON.stringify(values);
+        console.log('didValuesChange', didValuesChange);
+        const isChangingParentValues =
+          typeof onChange === 'function' && didValuesChange && hasNoErrors;
+        console.log('isChangingParentValues', isChangingParentValues);
+
+        if (isChangingParentValues) {
+          onChange(values);
+        }
+
+        return (
+          <EuiFlyout onClose={onClose} {...flyoutProps} className="sgFlyout">
+            {header && <EuiFlyoutHeader {...headerProps}>{header}</EuiFlyoutHeader>}
+            {body && <EuiFlyoutBody {...bodyProps}>{body}</EuiFlyoutBody>}
+            {footer && <EuiFlyoutFooter {...footerProps}>{footer}</EuiFlyoutFooter>}
+          </EuiFlyout>
+        );
+      }}
+    />
   );
 };
 

@@ -17,14 +17,42 @@ function EditorAndResponse({ valuePath, checkBlock, onCloseResult }) {
   return (
     <EuiFlexGroup>
       <EuiFlexItem>
+        <CheckCodeEditor
+          formikFieldProps={{
+            validate: validateJsonString,
+          }}
+          editorProps={{
+            mode: 'json',
+            setOptions: EDITOR_OPTIONS,
+          }}
+          valuePath={valuePath}
+          docLink={DOC_LINKS.INPUTS.STATIC}
+        />
+      </EuiFlexItem>
+      {checkBlock.response && (
+        <EuiFlexItem>
+          <CheckResponse
+            rowProps={{
+              labelAppend: <ResponseLabelAppend onClick={onCloseResult} />,
+            }}
+            editorProps={{
+              setOptions: EDITOR_OPTIONS,
+            }}
+            value={checkBlock.response}
+          />
+        </EuiFlexItem>
+      )}
+    </EuiFlexGroup>
+  );
+}
+/*
+      <EuiFlexItem>
         <CheckResponse value={checkBlock.value} rowProps={{ label: 'value' }} />
       </EuiFlexItem>
       <EuiFlexItem>
         <CheckResponse value={checkBlock.response} rowProps={{ label: 'response' }} />
       </EuiFlexItem>
-    </EuiFlexGroup>
-  );
-}
+*/
 /*
       <EuiFlexItem>
         <CheckCodeEditor
@@ -54,7 +82,7 @@ function EditorAndResponse({ valuePath, checkBlock, onCloseResult }) {
       )}
 */
 
-export function StaticCheckBlockForm({ index, checkBlock, checksBlocksPath, onCloseResult }) {
+export function StaticCheckBlockForm({ index, values, checkBlock, checksBlocksPath, onCloseResult }) {
   const { triggerFlyout } = useContext(Context);
 
   const typePath = `${checksBlocksPath}[${index}].type`;
@@ -67,6 +95,11 @@ export function StaticCheckBlockForm({ index, checkBlock, checksBlocksPath, onCl
       type: FLYOUTS.CUSTOM,
       payload: {
         flyoutProps: { size: 'l' },
+        formikProps: {
+          initialValues: values,
+          validateOnChange: false,
+          enableReinitialize: true,
+        },
         body: (
           <EditorAndResponse
             valuePath={valuePath}
@@ -74,6 +107,9 @@ export function StaticCheckBlockForm({ index, checkBlock, checksBlocksPath, onCl
             onCloseResult={() => onCloseResult(index)}
           />
         ),
+        onChange: (values) => {
+          console.log('StaticCheckBlockForm, editor flyout, onChange, values', values);
+        },
       },
     });
   }

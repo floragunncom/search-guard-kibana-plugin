@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React from 'react';
 import { EuiTitle } from '@elastic/eui';
 
@@ -5,8 +6,11 @@ const customFlyout = ({
   title,
   body,
   flyoutProps = { size: 'm' },
-  headerProps = { hasBorder: true }
+  headerProps = { hasBorder: true },
+  formikProps = {},
+  onChange,
 } = {}) => ({
+  formikProps,
   flyoutProps,
   headerProps,
   header: (
