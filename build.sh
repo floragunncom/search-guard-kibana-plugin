@@ -11,8 +11,8 @@ if [ -z "$COMMAND" ]; then
     exit 1
 fi
 
-if [ "$COMMAND" != "deploy-snapshot-maven" ] && [ "$COMMAND" != "install-local" ]; then
-    echo "Usage: ./build.sh <install-local|deploy-snapshot-maven>"
+if [ "$COMMAND" != "deploy-snapshot-maven" ] && [ "$COMMAND" != "install-local" ] && [ "$COMMAND" != "build-kibana" ]; then
+    echo "Usage: ./build.sh <install-local|deploy-snapshot-maven|build-kibana>"
     echo "Unknown command: $COMMAND"
     exit 1
 fi
@@ -74,13 +74,19 @@ if [ $? != 0 ]; then
     exit 1
 fi
 
-VERSION=$(cat package.json | tr -d '"' | tr -d ',' | grep version: | tr -d ' ' | tr -d 'version:')
+VERSION=$(grep -e '\bversion\b' package.json | tr -d "[:blank:]" | sed -r 's/"version":"(.*)"(.*)/\1/')
+SG_TEST_VERSION=$(grep -e '\btest_sg_version\b' package.json | tr -d "[:blank:]" | sed -r 's/"test_sg_version":"(.*)"(.*)/\1/')
+
+ES_VERSION=$(echo $SG_TEST_VERSION | cut -d "-" -f 1)
+KIBANA_APP_BRANCH=$(grep -e '\bkibana_branch\b' package.json | tr -d "[:blank:]" | sed -r 's/"kibana_branch":"(.*)"(.*)/\1/')
 KIBANA_VERSION=$(echo $VERSION | cut -d "-" -f 1)
-SG_PLUGIN_VERSION=$(echo $VERSION | cut -d "-" -f 2)
+KIBANA_PLUGIN_VERSION=$(echo $VERSION | cut -d "-" -f 2)
+
+
 SNAPSHOT=$(echo $VERSION | cut -d "-" -f 3)
 
 if [ $SNAPSHOT != "SNAPSHOT" ]; then
-    echo "$KIBANA_VERSION-$SG_PLUGIN_VERSION is not a SNAPSHOT version"
+    echo "$VERSION is not a SNAPSHOT version"
     exit 1
 fi
 
@@ -92,7 +98,7 @@ if [ $? != 0 ]; then
 fi
 
 # prepare artefacts
-PLUGIN_NAME="searchguard-kibana-$KIBANA_VERSION-$SG_PLUGIN_VERSION-SNAPSHOT"
+PLUGIN_NAME="searchguard-kibana-$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT"
 echo "+++ Building $PLUGIN_NAME.zip +++"
 
 WORK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -111,14 +117,23 @@ git clone https://github.com/elastic/kibana.git >>"$WORK_DIR/build.log" 2>&1
 cd "kibana"
 git fetch >>"$WORK_DIR/build.log" 2>&1
 
-echo "+++ Change to tags/v$KIBANA_VERSION +++"
-git checkout "tags/v$KIBANA_VERSION" >>"$WORK_DIR/build.log" 2>&1
-
-if [ $? != 0 ]; then
-    echo "Switching to Kibana tags/v$KIBANA_VERSION failed"
-    exit 1
+echo "+++ Going to choose Kibana repo branch +++"
+if [ -n "$KIBANA_APP_BRANCH" ]; then
+  (git checkout "$KIBANA_APP_BRANCH" && echo "+++ Changed to $KIBANA_APP_BRANCH +++")  # >>"$WORK_DIR/build.log" 2>&1
+    if [ $? != 0 ]; then
+      echo "Switching to Kibana $KIBANA_APP_BRANCH failed"
+      exit 1
+    fi
+else
+  (git checkout "tags/v$KIBANA_VERSION" && echo "+++ Changed Kibana repository to v$KIBANA_VERSION +++")
+    if [ $? != 0 ]; then
+      echo "Switching to Kibana  $KIBANA_VERSION failed"
+      exit 1
+    fi
 fi
 
+#This is taken from Kibana GIT
+KIBANA_APP_VERSION=$(grep -e '\bversion\b' package.json | tr -d "[:blank:]" | sed -E 's/"version":"(.*)",/\1/')
 echo "+++ Installing node version $(cat .node-version) +++"
 nvm install "$(cat .node-version)" >>"$WORK_DIR/build.log" 2>&1
 if [ $? != 0 ]; then
@@ -141,7 +156,12 @@ if ! [ -x "$(command -v yarn)" ]; then
 else
 echo "    -> $(yarn -v)"
 fi
-
+if [ "$COMMAND" == "build-kibana" ] ; then
+  echo "Building Kibana package from checkout Kibana branch (see above) "
+  yarn kbn bootstrap && yarn build --skip-os-packages --no-oss
+  mv "/builds/search-guard/search-guard-kibana-plugin/build_stage/kibana/target/kibana-$KIBANA_APP_VERSION-SNAPSHOT-linux-x86_64.tar.gz" /builds/search-guard/search-guard-kibana-plugin/build_stage/kibana/target/kibana-linux-x86_64.tar.gz ||true
+  exit 0
+fi
 
 echo "+++ Copy plugin contents to build stage +++"
 BUILD_STAGE_PLUGIN_DIR="$BUILD_STAGE_DIR/kibana/plugins/search-guard-kibana-plugin"
@@ -149,13 +169,14 @@ mkdir -p $BUILD_STAGE_PLUGIN_DIR
 cp -a "$WORK_DIR/index.js" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/package.json" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/lib" "$BUILD_STAGE_PLUGIN_DIR"
-cp -a "$WORK_DIR/server" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/public" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/utils" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/examples" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/tests" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/patches" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/babel.config.js" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/server" "$BUILD_STAGE_PLUGIN_DIR"
+
 
 cd $BUILD_STAGE_PLUGIN_DIR
 
@@ -211,18 +232,19 @@ cp -a "$BUILD_STAGE_PLUGIN_DIR/index.js" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/package.json" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/node_modules" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/lib" "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/server" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/public" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/utils" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/examples" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/patches" "$COPYPATH"
+cp -a "$BUILD_STAGE_PLUGIN_DIR/server" "$COPYPATH"
 
 end=`date +%s`
 echo "Build time: $((end-start)) sec"
 
+
 if [ "$COMMAND" == "deploy-snapshot-maven" ] ; then
     echo "+++ mvn clean deploy +++"
-    $MAVEN_HOME/bin/mvn clean deploy -s settings.xml -Drevision="$KIBANA_VERSION-$SG_PLUGIN_VERSION-SNAPSHOT"
+    $MAVEN_HOME/bin/mvn clean deploy -s settings.xml -Drevision="$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT"
     if [ $? != 0 ]; then
         echo "$MAVEN_HOME/bin/mvn clean deploy failed"
         exit 1
@@ -231,7 +253,7 @@ fi
 
 if [ "$COMMAND" == "install-local" ] ; then
     echo "+++ mvn clean install +++"
-    $MAVEN_HOME/bin/mvn clean install -Drevision="$KIBANA_VERSION-$SG_PLUGIN_VERSION-SNAPSHOT"
+    $MAVEN_HOME/bin/mvn clean install -Drevision="$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT"
     if [ $? != 0 ]; then
         echo "$MAVEN_HOME/bin/mvn clean install failed"
         exit 1

@@ -3,6 +3,12 @@ variables:
 
 image: circleci/openjdk:${SG_JAVA_BUILD_VERSION}-jdk-browsers
 
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - ./node_modules/
+
+
 
 before_script:
   - |
@@ -31,7 +37,24 @@ unittest_and_build:
     paths:
       - build.log
     expire_in: 30 days
+  only:
+    variables:
+      - $CI_JOB == null || $CI_JOB == ""
 
+kibana_build:
+  stage: build
+  script:
+    - ./build.sh build-kibana
+  except:
+    - merge_requests
+  only:
+    variables:
+      - $CI_JOB == "build_kibana"
+  artifacts:
+    when: always
+    paths:
+      - build_stage/kibana/target/*linux-x86_64.tar.gz
+    expire_in: 7 days
 
 unit_build_and_int_tests:
   stage: build
