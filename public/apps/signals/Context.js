@@ -202,7 +202,6 @@ const ContextProvider = ({ children, httpClient }) => {
           onComboBoxCreateOption,
           onComboBoxOnBlur,
           closeFlyout,
-          flyout,
           triggerFlyout,
           triggerInspectJsonFlyout,
           closeModal,

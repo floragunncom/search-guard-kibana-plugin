@@ -73,7 +73,6 @@ export function DraggableBlockExtraButton({ isLoading, toolTipProps, buttonProps
 }
 
 export function DraggableBlock({
-  values,
   isLoading,
   accordionId,
   index,
@@ -91,7 +90,6 @@ export function DraggableBlock({
       form = (
         <StaticCheckBlockForm
           index={index}
-          values={values}
           checkBlock={checkBlock}
           checksBlocksPath={checksBlocksPath}
           onCloseResult={onCloseResult}
@@ -102,7 +100,6 @@ export function DraggableBlock({
       form = (
         <SearchCheckBlockForm
           index={index}
-          values={values}
           checkBlock={checkBlock}
           checksBlocksPath={checksBlocksPath}
           onCloseResult={onCloseResult}
@@ -113,7 +110,6 @@ export function DraggableBlock({
       form = (
         <HttpCheckBlockForm
           index={index}
-          values={values}
           checkBlock={checkBlock}
           checksBlocksPath={checksBlocksPath}
           onCloseResult={onCloseResult}
@@ -124,7 +120,6 @@ export function DraggableBlock({
       form = (
         <ConditionCheckBlockForm
           index={index}
-          values={values}
           checkBlock={checkBlock}
           checksBlocksPath={checksBlocksPath}
           onCloseResult={onCloseResult}
@@ -135,7 +130,6 @@ export function DraggableBlock({
       form = (
         <TransformCheckBlockForm
           index={index}
-          values={values}
           checkBlock={checkBlock}
           checksBlocksPath={checksBlocksPath}
           onCloseResult={onCloseResult}
@@ -146,7 +140,6 @@ export function DraggableBlock({
       form = (
         <CalcCheckBlockForm
           index={index}
-          values={values}
           checkBlock={checkBlock}
           checksBlocksPath={checksBlocksPath}
           onCloseResult={onCloseResult}
@@ -237,7 +230,6 @@ export function DraggableBlock({
 }
 
 DraggableBlock.propTypes = {
-  values: PropTypes.object.isRequired,
   isLoading: PropTypes.bool.isRequired,
   accordionId: PropTypes.string.isRequired,
   index: PropTypes.number.isRequired,
@@ -359,7 +351,6 @@ function BlocksWatch({
                             style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
                           >
                             <DraggableBlock
-                              values={values}
                               isLoading={isLoading}
                               accordionId={accordionId}
                               index={index}
