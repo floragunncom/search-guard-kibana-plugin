@@ -15,6 +15,7 @@ import {
   EuiButtonIcon,
   EuiToolTip,
   EuiLoadingSpinner,
+  EuiSpacer,
 } from '@elastic/eui';
 import { EmptyPrompt } from '../../../../../components';
 import {
@@ -379,11 +380,14 @@ function BlocksWatch({
   return (
     <div>
       {isResultVisible && (
-        <WatchResponse
-          onCloseResult={onCloseResult}
-          editorTheme={editorTheme}
-          editorResult={editorResult}
-        />
+        <>
+          <WatchResponse
+            onCloseResult={onCloseResult}
+            editorTheme={editorTheme}
+            editorResult={editorResult}
+          />
+          <EuiSpacer />
+        </>
       )}
 
       {!checksBlocks.length ? (

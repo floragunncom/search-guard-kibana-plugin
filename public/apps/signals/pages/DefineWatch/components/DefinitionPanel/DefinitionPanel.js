@@ -88,6 +88,7 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
           />
           <EuiSpacer />
           <QueryStat />
+          <EuiSpacer />
           {isSeverity && <SeverityForm isTitle />}
         </>
       );

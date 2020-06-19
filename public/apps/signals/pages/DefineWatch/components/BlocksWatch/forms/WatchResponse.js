@@ -27,6 +27,7 @@ export function WatchResponse({ onCloseResult, editorTheme, editorResult }) {
           readOnly
         />
       </EuiFormRow>
+
       <EuiSpacer />
       <QueryStat />
     </>

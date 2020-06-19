@@ -3,6 +3,12 @@ import { EuiI18n } from '@elastic/eui';
 
 export * from '../../../utils/i18n/common';
 
+export const tookText = <EuiI18n token="sg.watch.took.text" default="Took" />;
+export const totalText = <EuiI18n token="sg.watch.total.text" default="Total" />;
+export const maxScoreText = <EuiI18n token="sg.watch.maxScore.text" default="Max score" />;
+export const timedOutText = <EuiI18n token="sg.watch.timedOut.text" default="Timed out" />;
+export const checksStatText = <EuiI18n token="sg.watch.checksStat.text" default="Checks stat" />;
+export const queryStatText = <EuiI18n token="sg.watch.queryStat.text" default="Query stat" />;
 export const requestText = (<EuiI18n token="sg.watch.request.text" default="Request" />);
 export const targetText = (<EuiI18n token="sg.watch.target.text" default="Target" />);
 export const resolvesSeverityText = (<EuiI18n token="sg.watch.resolvesSeverity.text" default="Resolves Severity" />);
