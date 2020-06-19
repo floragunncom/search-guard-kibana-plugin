@@ -5,47 +5,18 @@ import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { get, set, cloneDeep } from 'lodash';
-import {
-  EuiAccordion,
-  EuiPanel,
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiIcon,
-  EuiCallOut,
-  EuiButtonIcon,
-  EuiToolTip,
-  EuiLoadingSpinner,
-  EuiSpacer,
-} from '@elastic/eui';
+import { EuiPanel, EuiSpacer } from '@elastic/eui';
 import { EmptyPrompt } from '../../../../../components';
-import {
-  StaticCheckBlockForm,
-  HttpCheckBlockForm,
-  SearchCheckBlockForm,
-  ConditionCheckBlockForm,
-  TransformCheckBlockForm,
-  CalcCheckBlockForm,
-  WatchResponse,
-} from './forms';
+import { CheckBlock } from './CheckBlock';
+import { WatchResponse } from './forms';
 import { WatchService } from '../../../../services';
-import { reorderBlocks, deleteBlock, shorterCheckName } from './utils/helpers';
+import { reorderBlocks, deleteBlock } from './utils/helpers';
 import { formikToWatch } from '../../utils';
-import {
-  STATIC_DEFAULTS,
-  SEARCH_DEFAULTS,
-  HTTP_DEFAULTS,
-  CONDITION_DEFAULTS,
-  TRANSFORM_DEFAULTS,
-  CALC_DEFAULTS,
-} from './utils/checkBlocks';
 import { stringifyPretty } from '../../../../utils/helpers';
 import {
   looksLikeYouDontHaveAnyCheckText,
   noChecksText,
   deleteText,
-  executeBlocksAboveAndThisBlockText,
-  executeOnlyThisBlockText,
-  executeText,
 } from '../../../../utils/i18n/watch';
 
 import { Context } from '../../../../Context';
@@ -65,183 +36,6 @@ const getListStyle = (isDraggingOver) => ({
   width: '100%',
 });
 
-export function DraggableBlockExtraButton({ isLoading, toolTipProps, buttonProps }) {
-  return (
-    <EuiToolTip {...toolTipProps}>
-      {isLoading ? <EuiLoadingSpinner size="m" /> : <EuiButtonIcon {...buttonProps} />}
-    </EuiToolTip>
-  );
-}
-
-export function DraggableBlock({
-  isLoading,
-  accordionId,
-  index,
-  provided,
-  checkBlock,
-  checksBlocksPath,
-  onDeleteBlock,
-  onCloseResult,
-  onExecuteBlock,
-}) {
-  let form;
-
-  switch (checkBlock.type) {
-    case STATIC_DEFAULTS.type:
-      form = (
-        <StaticCheckBlockForm
-          index={index}
-          checkBlock={checkBlock}
-          checksBlocksPath={checksBlocksPath}
-          onCloseResult={onCloseResult}
-        />
-      );
-      break;
-    case SEARCH_DEFAULTS.type:
-      form = (
-        <SearchCheckBlockForm
-          index={index}
-          checkBlock={checkBlock}
-          checksBlocksPath={checksBlocksPath}
-          onCloseResult={onCloseResult}
-        />
-      );
-      break;
-    case HTTP_DEFAULTS.type:
-      form = (
-        <HttpCheckBlockForm
-          index={index}
-          checkBlock={checkBlock}
-          checksBlocksPath={checksBlocksPath}
-          onCloseResult={onCloseResult}
-        />
-      );
-      break;
-    case CONDITION_DEFAULTS.type:
-      form = (
-        <ConditionCheckBlockForm
-          index={index}
-          checkBlock={checkBlock}
-          checksBlocksPath={checksBlocksPath}
-          onCloseResult={onCloseResult}
-        />
-      );
-      break;
-    case TRANSFORM_DEFAULTS.type:
-      form = (
-        <TransformCheckBlockForm
-          index={index}
-          checkBlock={checkBlock}
-          checksBlocksPath={checksBlocksPath}
-          onCloseResult={onCloseResult}
-        />
-      );
-      break;
-    case CALC_DEFAULTS.type:
-      form = (
-        <CalcCheckBlockForm
-          index={index}
-          checkBlock={checkBlock}
-          checksBlocksPath={checksBlocksPath}
-          onCloseResult={onCloseResult}
-        />
-      );
-      break;
-    default:
-      form = (
-        <EuiCallOut
-          title={`Wrong check type "${checkBlock.type}"`}
-          color="danger"
-          iconType="alert"
-        />
-      );
-      break;
-  }
-
-  function renderExtraAction() {
-    return (
-      <EuiFlexGroup>
-        <EuiFlexItem grow={false}>
-          <DraggableBlockExtraButton
-            toolTipProps={{
-              title: executeText,
-              content: executeBlocksAboveAndThisBlockText,
-            }}
-            buttonProps={{
-              'aria-label': 'execute-cascade',
-              iconType: 'play',
-              onClick: () => onExecuteBlock(0, index),
-            }}
-            isLoading={isLoading}
-          />
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <DraggableBlockExtraButton
-            toolTipProps={{
-              title: executeText,
-              content: executeOnlyThisBlockText,
-            }}
-            buttonProps={{
-              'aria-label': 'execute',
-              iconType: 'bullseye',
-              onClick: () => onExecuteBlock(index),
-            }}
-            isLoading={isLoading}
-          />
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <DraggableBlockExtraButton
-            toolTipProps={{
-              title: deleteText,
-            }}
-            buttonProps={{
-              'aria-label': 'delete',
-              iconType: 'trash',
-              color: 'danger',
-              onClick: () => onDeleteBlock(index),
-            }}
-            isLoading={isLoading}
-          />
-        </EuiFlexItem>
-      </EuiFlexGroup>
-    );
-  }
-
-  return (
-    <EuiPanel>
-      <EuiFlexGroup>
-        <EuiFlexItem grow={false}>
-          <div {...provided.dragHandleProps}>
-            <EuiIcon type="grab" />
-          </div>
-        </EuiFlexItem>
-        <EuiFlexItem>
-          <EuiAccordion
-            id={accordionId}
-            buttonContent={shorterCheckName(checkBlock.name)}
-            extraAction={renderExtraAction()}
-            paddingSize="l"
-          >
-            <div>{form}</div>
-          </EuiAccordion>
-        </EuiFlexItem>
-      </EuiFlexGroup>
-    </EuiPanel>
-  );
-}
-
-DraggableBlock.propTypes = {
-  isLoading: PropTypes.bool.isRequired,
-  accordionId: PropTypes.string.isRequired,
-  index: PropTypes.number.isRequired,
-  provided: PropTypes.object.isRequired,
-  checkBlock: PropTypes.object.isRequired,
-  checksBlocksPath: PropTypes.string.isRequired,
-  onDeleteBlock: PropTypes.func.isRequired,
-  onCloseResult: PropTypes.func.isRequired,
-  onExecuteBlock: PropTypes.func.isRequired,
-};
-
 function BlocksWatch({
   formik: { values, setFieldValue },
   accordionId,
@@ -255,6 +49,7 @@ function BlocksWatch({
   const [isLoading, setIsLoading] = useState(false);
   const watchService = new WatchService(httpClient);
   const checksBlocks = get(values, checksBlocksPath, []);
+  const sgBlocksWatchId = `sgBlocksWatch-${checksBlocksPath}`;
 
   useEffect(() => {
     onCloseResult();
@@ -331,12 +126,13 @@ function BlocksWatch({
 
   function renderDNDList() {
     return (
-      <div style={{ overflowX: 'hidden' }}>
+      <div style={{ overflowX: 'hidden' }} id={`${sgBlocksWatchId}-dnd`}>
         <EuiPanel paddingSize="none">
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="droppable">
               {(provided, snapshot) => (
                 <div
+                  id={`${sgBlocksWatchId}-dnd-droppable`}
                   {...provided.droppableProps}
                   ref={provided.innerRef}
                   style={getListStyle(snapshot.isDraggingOver)}
@@ -347,11 +143,13 @@ function BlocksWatch({
                         return openPortal(
                           provided.draggableProps.style,
                           <div
+                            id={`${sgBlocksWatchId}-dnd-draggable`}
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
                           >
-                            <DraggableBlock
+                            <CheckBlock
+                              sgBlocksWatchId={sgBlocksWatchId}
                               isLoading={isLoading}
                               accordionId={accordionId}
                               index={index}
@@ -378,7 +176,7 @@ function BlocksWatch({
   }
 
   return (
-    <div>
+    <div id={sgBlocksWatchId}>
       {isResultVisible && (
         <>
           <WatchResponse
