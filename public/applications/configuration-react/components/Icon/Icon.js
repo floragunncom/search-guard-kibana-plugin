@@ -41,8 +41,7 @@ const sizes = {
 const Icon = ({ type, size = 'xl' }) => {
   const _size = isObject(size) ? size : sizes[size];
   const _type = IS_DARK_THEME ? type + '_dark' : type;
-
-  const Svg = icons[_type] || Empty;
+  const Svg = icons[_type] ? icons[_type].default : Empty;
   return (<Svg {..._size} />);
 };
 

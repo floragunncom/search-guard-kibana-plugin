@@ -68,7 +68,7 @@ export class TenantsMigrationService {
         .toPromise();
 
       const callCluster = retryCallCluster(
-        this.elasticsearch.adminClient.callAsInternalUser,
+        this.elasticsearch.legacy.client.callAsInternalUser,
         this.logger
       );
 
