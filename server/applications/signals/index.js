@@ -10,7 +10,7 @@ export class Signals {
   }
 
   setup({ core, router, hapiServer, searchguardBackendService }) {
-    this.clusterClient = core.elasticsearch.createClient(CLUSTER.ALERTING, {
+    this.clusterClient = core.elasticsearch.legacy.createClient(CLUSTER.ALERTING, {
       plugins: [elasticsearchSignalsPlugin],
     });
 

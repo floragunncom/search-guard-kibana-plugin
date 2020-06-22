@@ -3,7 +3,7 @@ import { sgContext, sgConfig } from './utils/sgContext';
 import { HeaderUserMenuService } from './applications/nav';
 import { HttpWrapper } from './utils/httpWrapper';
 import { SystemStateService } from './services/SystemStateService';
-import { FeatureCatalogueCategory } from '../../../src/plugins/home/public/services/feature_catalogue';
+import { FeatureCatalogueCategory } from '../../../src/plugins/home/public';
 import { redirectOnSessionTimeout } from './auth/redirectOnSessionTimeout';
 import { API_ROOT } from './utils/constants';
 import { addTenantToShareURL } from './applications/multitenancy/addTenantToShareURL';
