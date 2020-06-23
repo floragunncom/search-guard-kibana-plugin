@@ -76,7 +76,7 @@ class CreateInternalUser extends Component {
       history.push(APP_PATH.INTERNAL_USERS);
     } catch (error) {
       setSubmitting(false);
-      this.setState({ errorMessage: error.data.message });
+      this.setState({ errorMessage: error.body.message });
     }
   };
 

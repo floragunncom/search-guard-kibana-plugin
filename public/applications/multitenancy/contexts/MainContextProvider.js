@@ -44,7 +44,7 @@ const MainContextProvider = ({ children }) => {
     });
 
   const addErrorToast = (error, title = null) => {
-    let text = get(error, 'data.message') || error.message || error;
+    let text = get(error, 'data.message') || get(error, 'body.message') || error.message || error;
     const detail = get(error, 'body.detail', undefined);
 
     if (detail) {
