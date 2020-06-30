@@ -7,6 +7,7 @@ import {
 } from '../../../utils/helpers';
 import buildFormikSchedule from './buildFormikSchedule';
 import { buildFormikThrottle } from './buildFormikThrottle';
+import { buildFormikCheckBlock } from '../components/BlocksWatch/utils/checkBlocks';
 import {
   GRAPH_DEFAULTS,
   WATCH_TYPES,
@@ -15,7 +16,7 @@ import {
   SEVERITY_META_DEFAULTS,
   SEVERITY_ORDER,
   SEVERITY,
-  SEVERITY_COLORS
+  SEVERITY_COLORS,
 } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
 import {
@@ -26,15 +27,13 @@ import {
   webhook as WEBHOOK_DEFAULTS,
 } from '../../DefineWatch/components/ActionPanel/utils/action_defaults';
 
-export const buildFormikChecks = (checks = []) => unfoldMultiLineString(stringifyPretty(checks));
-
 export function buildFormikSeverity(watch = {}) {
   const newWatch = cloneDeep(watch);
 
   if (!newWatch.severity) {
     newWatch._ui = { ...newWatch._ui, ...SEVERITY_META_DEFAULTS };
     newWatch.resolve_actions = [];
-    newWatch.actions.forEach(action => {
+    newWatch.actions.forEach((action) => {
       action.severity = [];
     });
     return newWatch;
@@ -49,20 +48,20 @@ export function buildFormikSeverity(watch = {}) {
       [SEVERITY.INFO]: undefined,
       [SEVERITY.WARNING]: undefined,
       [SEVERITY.ERROR]: undefined,
-      [SEVERITY.CRITICAL]: undefined
-    }
+      [SEVERITY.CRITICAL]: undefined,
+    },
   };
 
-  newWatch.severity.mapping.forEach(mapping => {
+  newWatch.severity.mapping.forEach((mapping) => {
     severity.thresholds[mapping.level.toLowerCase()] = mapping.threshold;
   });
 
   newWatch._ui = { ...newWatch._ui, severity, isSeverity: true };
 
-  newWatch.actions.forEach(action => {
-    action.severity = action.severity.map(label => ({
+  newWatch.actions.forEach((action) => {
+    action.severity = action.severity.map((label) => ({
       label,
-      color: SEVERITY_COLORS[label]
+      color: SEVERITY_COLORS[label],
     }));
   });
 
@@ -73,10 +72,10 @@ export function buildFormikSeverity(watch = {}) {
     newWatch._ui.isResolveActions = true;
   }
 
-  newWatch.resolve_actions.forEach(action => {
-    action.resolves_severity = action.resolves_severity.map(label => ({
+  newWatch.resolve_actions.forEach((action) => {
+    action.resolves_severity = action.resolves_severity.map((label) => ({
       label,
-      color: SEVERITY_COLORS[label]
+      color: SEVERITY_COLORS[label],
     }));
   });
 
@@ -135,12 +134,11 @@ export function buildFormikEmailAction(action = {}) {
   });
 }
 
-export const buildFormikChecksBlocks = (checks = []) =>
-  checks.map((check, index) => ({
-    response: '',
-    check: buildFormikChecks(check),
-    index,
-  }));
+export const buildFormikChecks = (checks = []) => unfoldMultiLineString(stringifyPretty(checks));
+
+export function buildFormikChecksBlocks(checks = []) {
+  return checks.map(buildFormikCheckBlock);
+}
 
 export const buildFormikMeta = ({ _ui = {}, checks = [], trigger } = {}) => {
   const ui = {
@@ -148,7 +146,7 @@ export const buildFormikMeta = ({ _ui = {}, checks = [], trigger } = {}) => {
     ...RESULT_FIELD_DEFAULTS,
     checksBlocks: buildFormikChecksBlocks(checks),
     ...buildFormikSchedule({ trigger }),
-    ..._ui
+    ..._ui,
   };
 
   return !isEmpty(_ui) ? ui : Object.assign(ui, { watchType: WATCH_TYPES.JSON });
@@ -157,21 +155,24 @@ export const buildFormikMeta = ({ _ui = {}, checks = [], trigger } = {}) => {
 export const buildFormikIndexAction = (action = {}) => ({
   ...action,
   index: [{ label: action.index }],
-  // checks: stringifyPretty(action.checks || [])
 });
 
 export const buildFormikActions = ({ actions = [], resolve_actions: resolveActions = [] }) => {
   const buildHelper = (watchActions = []) => {
     const actions = cloneDeep(watchActions);
 
-    return actions.map(action => {
+    return actions.map((action) => {
       action = buildFormikThrottle(action);
 
       if (!action.checks) {
         action.checks = [];
       }
 
-      action.checks = stringifyPretty(action.checks);
+      const checks = buildFormikChecks(action.checks);
+      const checksBlocks = buildFormikChecksBlocks(action.checks);
+
+      action.checks = checks;
+      action.checksBlocks = checksBlocks;
 
       if (action.type === ACTION_TYPE.INDEX) {
         return buildFormikIndexAction(action);
@@ -210,21 +211,19 @@ export const buildFormikActions = ({ actions = [], resolve_actions: resolveActio
 export const watchToFormik = (watch = {}) => {
   const formik = {
     ...cloneDeep(DEFAULT_WATCH),
-    ...cloneDeep(watch)
+    ...cloneDeep(watch),
   };
 
   const uiMeta = buildFormikMeta(watch);
-  const {
-    actions,
-    resolve_actions: resolveActions,
-    _ui,
-    ...rest
-  } = buildFormikSeverity({ ...formik, _ui: uiMeta });
+  const { actions, resolve_actions: resolveActions, _ui, ...rest } = buildFormikSeverity({
+    ...formik,
+    _ui: uiMeta,
+  });
 
   return {
     ...rest,
     _ui,
     checks: buildFormikChecks(formik.checks),
-    ...buildFormikActions({ actions, resolve_actions: resolveActions, _ui })
+    ...buildFormikActions({ actions, resolve_actions: resolveActions, _ui }),
   };
 };

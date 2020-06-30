@@ -6,7 +6,8 @@ import {
   EuiTextColor,
   EuiSpacer,
   EuiFlexGroup,
-  EuiFlexItem
+  EuiFlexItem,
+  EuiErrorBoundary,
 } from '@elastic/eui';
 import {
   SubHeader,
@@ -150,60 +151,62 @@ const SeverityForm = ({ isCompressed, isTitle, fields, formik: { values } }) => 
   const containerStyle = isCompressed ? { maxWidth: '550px' } : {};
 
   return (
-    <div style={containerStyle}>
-      {isTitle && (
-        <>
-          <SubHeader title={<h4>{severityText}</h4>} />
-          <EuiSpacer size="m" />
-        </>
-      )}
+    <EuiErrorBoundary>
+      <div style={containerStyle}>
+        {isTitle && (
+          <>
+            <SubHeader title={<h4>{severityText}</h4>} />
+            <EuiSpacer size="m" />
+          </>
+        )}
 
-      {isCompressed ? (
-        <EuiFlexGroup alignItems="center">
-          <EuiFlexItem>
+        {isCompressed ? (
+          <EuiFlexGroup alignItems="center">
+            <EuiFlexItem>
+              <Field fields={fields} />
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <Order />
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        ) : (
+          <>
             <Field fields={fields} />
+            <Order />
+            <EuiSpacer size="m" />
+          </>
+        )}
+
+        <EuiFlexGroup>
+          <EuiFlexItem grow={false}>
+            <InfoThreshold thresholdErrors={thresholdValidation.thresholdErrors} />
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <Order />
+            <WarningThreshold thresholdErrors={thresholdValidation.thresholdErrors} />
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <ErrorThreshold thresholdErrors={thresholdValidation.thresholdErrors}  />
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <CriticalThreshold thresholdErrors={thresholdValidation.thresholdErrors}  />
           </EuiFlexItem>
         </EuiFlexGroup>
-      ) : (
-        <>
-          <Field fields={fields} />
-          <Order />
-          <EuiSpacer size="m" />
-        </>
-      )}
 
-      <EuiFlexGroup>
-        <EuiFlexItem grow={false}>
-          <InfoThreshold thresholdErrors={thresholdValidation.thresholdErrors} />
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <WarningThreshold thresholdErrors={thresholdValidation.thresholdErrors} />
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <ErrorThreshold thresholdErrors={thresholdValidation.thresholdErrors}  />
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <CriticalThreshold thresholdErrors={thresholdValidation.thresholdErrors}  />
-        </EuiFlexItem>
-      </EuiFlexGroup>
+        {thresholdValidation.message && (
+          <>
+            <EuiSpacer size="xs" />
+            <EuiText size="xs" color="danger">
+              {thresholdValidation.message}
+            </EuiText>
+          </>
+        )}
 
-      {thresholdValidation.message && (
-        <>
-          <EuiSpacer size="xs" />
-          <EuiText size="xs" color="danger">
-            {thresholdValidation.message}
-          </EuiText>
-        </>
-      )}
-
-      <EuiSpacer size="xs" />
-      <EuiText size="xs">
-        <EuiTextColor color="subdued">{leaveInputEmptyToOmitThresholdLevelText}</EuiTextColor>
-      </EuiText>
-    </div>
+        <EuiSpacer size="xs" />
+        <EuiText size="xs">
+          <EuiTextColor color="subdued">{leaveInputEmptyToOmitThresholdLevelText}</EuiTextColor>
+        </EuiText>
+      </div>
+    </EuiErrorBoundary>
   );
 };
 

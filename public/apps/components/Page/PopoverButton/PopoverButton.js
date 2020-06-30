@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { EuiButton, EuiPopover, EuiContextMenu } from '@elastic/eui';
+import { EuiButton, EuiPopover, EuiContextMenu, EuiErrorBoundary } from '@elastic/eui';
 import { addText } from '../../../utils/i18n/common';
 
 const ID = 'sgPopoverButton';
@@ -30,20 +30,22 @@ const PopoverButton = ({
   );
 
   return (
-    <EuiPopover
-      id="notFormikContextMenu"
-      button={button}
-      isOpen={isPopoverOpen}
-      panelPaddingSize="none"
-      withTitle
-      anchorPosition="upLeft"
-      closePopover={onClick}
-    >
-      <EuiContextMenu
-        initialPanelId={0}
-        panels={contextMenuPanels}
-      />
-    </EuiPopover>
+    <EuiErrorBoundary>
+      <EuiPopover
+        id="notFormikContextMenu"
+        button={button}
+        isOpen={isPopoverOpen}
+        panelPaddingSize="none"
+        withTitle
+        anchorPosition="upLeft"
+        closePopover={onClick}
+      >
+        <EuiContextMenu
+          initialPanelId={0}
+          panels={contextMenuPanels}
+        />
+      </EuiPopover>
+    </EuiErrorBoundary>
   );
 };
 

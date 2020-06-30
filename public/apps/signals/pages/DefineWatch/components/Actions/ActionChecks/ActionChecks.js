@@ -5,11 +5,13 @@ import { connect as connectFormik } from 'formik';
 import { get, cloneDeep } from 'lodash';
 import { EuiButton } from '@elastic/eui';
 import JsonWatch from '../../JsonWatch';
-import { useCheckTemplates, useJsonWatchChecks } from '../../../hooks';
-import { FLYOUTS } from '../../../../../utils/constants';
-import { addText, pleaseFillOutAllRequiredFieldsText } from '../../../../../utils/i18n/common';
-import { executeText, checksText } from '../../../../../utils/i18n/watch';
+import { useCheckTemplates, useWatchChecks } from '../../../hooks';
 import { ContentPanel } from '../../../../../components';
+import { BlocksWatch } from '../../BlocksWatch';
+import { FLYOUTS } from '../../../../../utils/constants';
+import { WATCH_TYPES } from '../../../utils/constants';
+import { addText, pleaseFillOutAllRequiredFieldsText } from '../../../../../utils/i18n/common';
+import { executeText } from '../../../../../utils/i18n/watch';
 
 import { Context } from '../../../../../Context';
 
@@ -18,23 +20,20 @@ const ActionChecks = ({
   formik: { values, setFieldValue, validateForm, submitForm },
 }) => {
   const { triggerFlyout, addErrorToast } = useContext(Context);
-
-  const checksPath = `actions[${actionIndex}].checks`;
+  const watchType = get(values, '_ui.watchType');
+  const checksPath =
+    watchType === WATCH_TYPES.BLOCKS
+      ? `actions[${actionIndex}].checksBlocks`
+      : `actions[${actionIndex}].checks`;
 
   const { addTemplate } = useCheckTemplates({
     setFieldValue,
     checksPath,
-    // TODO: deprecate the useBlocks when BlocksWatch work in actions
-    useBlocks: false,
   });
 
-  const {
-    isResultVisible,
-    closeResult,
-    executeWatch,
-    editorResult,
-    isLoading,
-  } = useJsonWatchChecks({ setFieldValue });
+  const { isResultVisible, closeResult, executeWatch, editorResult, isLoading } = useWatchChecks({
+    setFieldValue,
+  });
 
   const [templateCounter, setTemplateCounter] = useState(0);
   const [template, setTemplate] = useState(null);
@@ -46,9 +45,16 @@ const ActionChecks = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templateCounter]);
 
-  const addTemplateHelper = template => {
+  const addTemplateHelper = (template) => {
     setTemplate(template);
-    setTemplateCounter(prevState => prevState + 1);
+    setTemplateCounter((prevState) => prevState + 1);
+  };
+
+  const handleAddTemplate = () => {
+    triggerFlyout({
+      type: FLYOUTS.CHECK_EXAMPLES,
+      payload: { onChange: addTemplateHelper },
+    });
   };
 
   const handleWatchExecute = async () => {
@@ -77,35 +83,43 @@ const ActionChecks = ({
   };
 
   const actions = [
-    <EuiButton
-      data-test-subj="sgAddButton-AddActionChecks"
-      onClick={() => {
-        triggerFlyout({
-          type: FLYOUTS.CHECK_EXAMPLES,
-          payload: { onChange: addTemplateHelper },
-        });
-      }}
-    >
+    <EuiButton data-test-subj="sgAddButton-AddActionChecks" onClick={handleAddTemplate}>
       {addText}
     </EuiButton>,
-    <EuiButton
-      isLoading={isLoading}
-      isDisabled={isLoading}
-      data-test-subj="sgAddButton-ExecuteActionChecks"
-      onClick={handleWatchExecute}
-    >
-      {executeText}
-    </EuiButton>,
+    // For now hide the checks execution for the action checks. Because it confuses.
+    // The SG Elasticsearch plugin API is not ready to send the proper response yet.
+    // TODO. Uncomment the code below when the API is ready.
+    // <EuiButton
+    //   isLoading={isLoading}
+    //   isDisabled={isLoading}
+    //   data-test-subj="sgAddButton-ExecuteActionChecks"
+    //   onClick={handleWatchExecute}
+    // >
+    //   {executeText}
+    // </EuiButton>,
   ];
 
+  // The graph watch doesn't have checks in actions.
   return (
     <ContentPanel actions={actions} isPanel={false}>
-      <JsonWatch
-        checksPath={checksPath}
-        isResultVisible={isResultVisible}
-        editorResult={editorResult}
-        onCloseResult={closeResult}
-      />
+      {watchType === WATCH_TYPES.BLOCKS ? (
+        <>
+          <BlocksWatch
+            checksBlocksPath={checksPath}
+            isResultVisible={isResultVisible}
+            editorResult={editorResult}
+            onCloseResult={closeResult}
+            onOpenChecksTemplatesFlyout={handleAddTemplate}
+          />
+        </>
+      ) : (
+        <JsonWatch
+          checksPath={checksPath}
+          isResultVisible={isResultVisible}
+          editorResult={editorResult}
+          onCloseResult={closeResult}
+        />
+      )}
     </ContentPanel>
   );
 };

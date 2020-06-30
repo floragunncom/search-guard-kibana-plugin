@@ -1,1 +1,0 @@
-export { getCheckBlockTitle } from './getCheckBlockTitle';

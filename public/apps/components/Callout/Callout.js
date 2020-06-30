@@ -6,7 +6,8 @@ import {
   EuiFlexItem,
   EuiButton,
   EuiSpacer,
-  EuiText
+  EuiText,
+  EuiErrorBoundary,
 } from '@elastic/eui';
 import Callouts from './callouts';
 import { closeText } from '../../utils/i18n/common';
@@ -31,27 +32,29 @@ const Callout = ({ callout, onClose }) => {
   } = calloutData;
 
   return (
-    <EuiFlexGroup className="sgCallout">
-      <EuiFlexItem>
-        <EuiCallOut
-          title={title}
-          iconType={iconType}
-          color={color}
-          {...calloutProps}
-        >
-          <EuiText className="sgCalloutBody">{text}</EuiText>
-          <EuiSpacer />
-          <EuiButton
-            data-test-subj="sgCalloutCloseButton"
-            size="s"
-            onClick={onClose}
-            {...closeButtonProps}
+    <EuiErrorBoundary>
+      <EuiFlexGroup className="sgCallout">
+        <EuiFlexItem>
+          <EuiCallOut
+            title={title}
+            iconType={iconType}
+            color={color}
+            {...calloutProps}
           >
-            {closeText}
-          </EuiButton>
-        </EuiCallOut>
-      </EuiFlexItem>
-    </EuiFlexGroup>
+            <EuiText className="sgCalloutBody">{text}</EuiText>
+            <EuiSpacer />
+            <EuiButton
+              data-test-subj="sgCalloutCloseButton"
+              size="s"
+              onClick={onClose}
+              {...closeButtonProps}
+            >
+              {closeText}
+            </EuiButton>
+          </EuiCallOut>
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    </EuiErrorBoundary>
   );
 };
 

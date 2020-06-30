@@ -1,8 +1,44 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React from 'react';
 import { EuiI18n } from '@elastic/eui';
 
 export * from '../../../utils/i18n/common';
 
+export const mustacheText = <EuiI18n token="sg.watch.mustache.text" default="{{mustache}}" />;
+export const verifyHostnamesText = (
+  <EuiI18n token="sg.watch.verifyHostnames.text" default="Verify hostnames" />
+);
+export const optionalText = <EuiI18n token="sg.watch.optional.text" default="Optional" />;
+export const connectionTimeoutText = (
+  <EuiI18n token="sg.watch.connectionTimeout.text" default="Connection timeout (sec)" />
+);
+export const readTimeoutText = (
+  <EuiI18n token="sg.watch.readTimeout.text" default="Read timeout (sec)" />
+);
+export const certsText = <EuiI18n token="sg.watch.certs.text" default="Certs (client auth)" />;
+export const trustedCertsText = (
+  <EuiI18n token="sg.watch.trustedCerts.text" default="Trusted certs (CA)" />
+);
+export const privateKeyText = (
+  <EuiI18n token="sg.watch.privateKey.text" default="Private key (client auth)" />
+);
+export const privateKeyPasswordText = (
+  <EuiI18n token="sg.watch.privateKeyPassword.text" default="Private key password (client auth)" />
+);
+export const trustAllText = <EuiI18n token="sg.watch.trustAll.text" default="Trust all" />;
+export const pathText = <EuiI18n token="sg.watch.path.text" default="Path" />;
+export const authText = <EuiI18n token="sg.watch.auth.text" default="Auth" />;
+export const queryParamsText = (
+  <EuiI18n token="sg.watch.requestQueryParams.text" default="Query params" />
+);
+export const tookText = <EuiI18n token="sg.watch.took.text" default="Took" />;
+export const totalText = <EuiI18n token="sg.watch.total.text" default="Total" />;
+export const maxScoreText = <EuiI18n token="sg.watch.maxScore.text" default="Max score" />;
+export const timedOutText = <EuiI18n token="sg.watch.timedOut.text" default="Timed out" />;
+export const checksStatText = <EuiI18n token="sg.watch.checksStat.text" default="Checks stat" />;
+export const queryStatText = <EuiI18n token="sg.watch.queryStat.text" default="Query stat" />;
+export const requestText = (<EuiI18n token="sg.watch.request.text" default="Request" />);
+export const targetText = (<EuiI18n token="sg.watch.target.text" default="Target" />);
 export const resolvesSeverityText = (<EuiI18n token="sg.watch.resolvesSeverity.text" default="Resolves Severity" />);
 export const resolvedText = (<EuiI18n token="sg.watch.resolved.text" default="Resolved" />);
 export const resolveText = (<EuiI18n token="sg.watch.resolve.text" default="Resolve" />);
@@ -62,55 +98,31 @@ export const executeWatchToSeeResultText = (
 export const selectConditionToRenderGraphToSeeResultsText = (
   <EuiI18n token="sg.watch.selectConditionToRenderGraphToSeeResultsText.text" default="Select condition to render graph to see results" />
 );
-export const mustacheLinkLabel = (
-  <EuiI18n token="sg.watch.mustacheLinkLabel.text" default="Mustache"/>
-);
-export const watchResultsLinkLabel = (
-  <EuiI18n token="sg.watch.watchResultsLinkLabel.text" default="watch results"/>
-);
 
-export const watchResultsFlyoutTitle = (
-  <EuiI18n token="sg.watch.watchResultsFlyoutTitle.text" default="Properties available to the template"/>
-);
-export const actionBodyHelpLabelWithoutResults = (mustacheLink, htmlLink) => {
+export function runtimeDataText(isUpperCase = false) {
+  const text = isUpperCase ? 'Runtime data' : 'runtime data';
+  return <EuiI18n token="sg.watch.runtimeDataText.text" default={text} />;
+}
+
+export function rowHelpTextMustacheRuntimeDataFieldText(runtimeDataLink, mustacheLink, htmlLink) {
   if (htmlLink) {
     return (
       <EuiI18n
-        token="sg.watch.actionBodyHelpTextWithoutResults.text"
-        default="You can create a template using {mustacheLink} and {htmlLink}"
-        values={{ mustacheLink, htmlLink }}
+        token="sg.watch.rowHelpTextMustacheField.text"
+        default="Use {mustacheLink} templates and {htmlLink} to insert dynamic {runtimeDataLink}"
+        values={{ runtimeDataLink, htmlLink, mustacheLink }}
       />
     );
   }
 
   return (
     <EuiI18n
-      token="sg.watch.actionBodyHelpTextWithoutResults.text"
-      default="You can create a template using {mustacheLink}"
-      values={{ mustacheLink }}
+      token="sg.watch.rowHelpTextMustacheField.text"
+      default="Use {mustacheLink} templates to insert dynamic {runtimeDataLink}"
+      values={{ runtimeDataLink, mustacheLink }}
     />
   );
-};
-
-export const actionBodyHelpLabelWithResults = (watchResultsLink, mustacheLink, htmlLink) => {
-  if (htmlLink) {
-    return (
-      <EuiI18n
-        token="sg.watch.actionBodyHelpText.text"
-        default="You can create a template using the {watchResultsLink} and {mustacheLink} and {htmlLink}"
-        values={{ watchResultsLink, mustacheLink, htmlLink }}
-      />
-    );
-  }
-
-  return (
-    <EuiI18n
-      token="sg.watch.actionBodyHelpText.text"
-      default="You can create a template using the {watchResultsLink} and {mustacheLink}"
-      values={{ watchResultsLink, mustacheLink }}
-    />
-  );
-};
+}
 
 export const watchExamplesText = (<EuiI18n token="sg.watch.watchExamples.text" default="Watch Examples" />);
 export const fromText = (<EuiI18n token="sg.watch.from.text" default="From" />);
