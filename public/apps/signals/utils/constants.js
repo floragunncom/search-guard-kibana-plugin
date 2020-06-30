@@ -33,7 +33,9 @@ export const DOC_LINKS = {
   REPO: 'https://git.floragunn.com/search-guard/search-guard-kibana-plugin',
   INPUTS: {
     STATIC: 'https://docs.search-guard.com/latest/elasticsearch-alerting-inputs-static',
-    HTTP: 'https://docs.search-guard.com/latest/elasticsearch-alerting-inputs-http'
+    HTTP: 'https://docs.search-guard.com/latest/elasticsearch-alerting-inputs-http',
+    SEARCH_REQUEST:
+      'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html',
   },
   CONDITIONS: 'https://docs.search-guard.com/latest/elasticsearch-alerting-conditions-script',
   TRANSFORMS: 'https://docs.search-guard.com/latest/elasticsearch-alerting-transformations',

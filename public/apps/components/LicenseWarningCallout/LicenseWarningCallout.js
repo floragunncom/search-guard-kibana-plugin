@@ -1,7 +1,7 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { EuiCallOut, EuiText } from '@elastic/eui';
+import { EuiCallOut, EuiText, EuiErrorBoundary } from '@elastic/eui';
 import { SystemStateService } from '../../../services';
 
 export function LicenseWarningCallout({ httpClient, errorMessage }) {
@@ -59,7 +59,7 @@ export function LicenseWarningCallout({ httpClient, errorMessage }) {
   }
 
   return (
-    <>
+    <EuiErrorBoundary>
       {!licenseValid && (
         <EuiCallOut
           id="sg.label.licensewarning"
@@ -87,7 +87,7 @@ export function LicenseWarningCallout({ httpClient, errorMessage }) {
           </EuiText>
         </EuiCallOut>
       )}
-    </>
+    </EuiErrorBoundary>
   );
 }
 

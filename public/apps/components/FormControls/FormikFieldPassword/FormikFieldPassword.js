@@ -30,7 +30,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { EuiFieldPassword } from '@elastic/eui';
+import { EuiFieldPassword, EuiErrorBoundary } from '@elastic/eui';
 import FormikInputWrapper from '../FormikInputWrapper';
 import FormikFormRow from '../FormikFormRow';
 
@@ -64,16 +64,18 @@ const FormikFieldPassword = ({
   rowProps = {},
   elementProps = {},
 }) => (
-  <FormikInputWrapper
-    name={name}
-    formikFieldProps={formikFieldProps}
-    render={({ field, form }) => {
-      const fieldPassword = (<FieldPassword name={name} form={form} field={field} elementProps={elementProps} />);
-      return !formRow ? fieldPassword : (
-        <FormikFormRow name={name} form={form} rowProps={rowProps}>{fieldPassword}</FormikFormRow>
-      );
-    }}
-  />
+  <EuiErrorBoundary>
+    <FormikInputWrapper
+      name={name}
+      formikFieldProps={formikFieldProps}
+      render={({ field, form }) => {
+        const fieldPassword = (<FieldPassword name={name} form={form} field={field} elementProps={elementProps} />);
+        return !formRow ? fieldPassword : (
+          <FormikFormRow name={name} form={form} rowProps={rowProps}>{fieldPassword}</FormikFormRow>
+        );
+      }}
+    />
+  </EuiErrorBoundary>
 );
 
 FormikFieldPassword.propTypes = {
