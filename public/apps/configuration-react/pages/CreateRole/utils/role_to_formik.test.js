@@ -45,33 +45,43 @@ describe('role to UI role ', () => {
 
   test('can build UI action groups', () => {
     const resource = {
-      cluster: {},
-      a_cluster: {},
-      CLUSTER: {},
-      GROUP: {},
-      index: {},
-      a_index: {},
-      kibana: {},
-      a_kibana: {},
-      KIBANA: {}
+      a: { type: 'cluster' },
+      b: { type: 'cluster' },
+      c: { type: 'index' },
+      d: { type: 'index' },
+      e: { type: 'all' },
+      f: { type: 'kibana' },
+      g: { type: 'kibana' },
+      SGS_SIGNALS_ACCOUNT_READ: { type: 'signals' },
+      SGS_SIGNALS_ACCOUNT_MANAGE: { type: 'signals' },
+      SGS_SIGNALS_WATCH_READ: { type: 'signals' },
+      SGS_SIGNALS_WATCH_MANAGE: { type: 'signals' },
+      SGS_SIGNALS_WATCH_EXECUTE: { type: 'signals' },
+      SGS_SIGNALS_WATCH_ACTIVATE: { type: 'signals' },
+      SGS_SIGNALS_WATCH_ACKNOWLEDGE: { type: 'signals' },
+      // We omit the following action group
+      // because it will be deprecated soon.
+      SGS_SIGNALS_ALL: { type: 'signals' },
     };
 
     const uiResource = {
       allClusterActionGroups: [
-        { label: 'CLUSTER' },
-        { label: 'a_cluster' },
-        { label: 'cluster' }
+        { label: 'SGS_SIGNALS_ACCOUNT_MANAGE' },
+        { label: 'SGS_SIGNALS_ACCOUNT_READ' },
+        { label: 'a' },
+        { label: 'b' },
+        { label: 'e' },
       ],
-      allIndexActionGroups: [
-        { label: 'GROUP' },
-        { label: 'a_index' },
-        { label: 'index' }
-      ],
+      allIndexActionGroups: [{ label: 'c' }, { label: 'd' }, { label: 'e' }],
       allTenantActionGroups: [
-        { label: 'KIBANA' },
-        { label: 'a_kibana' },
-        { label: 'kibana' }
-      ]
+        { label: 'SGS_SIGNALS_WATCH_ACKNOWLEDGE' },
+        { label: 'SGS_SIGNALS_WATCH_ACTIVATE' },
+        { label: 'SGS_SIGNALS_WATCH_EXECUTE' },
+        { label: 'SGS_SIGNALS_WATCH_MANAGE' },
+        { label: 'SGS_SIGNALS_WATCH_READ' },
+        { label: 'f' },
+        { label: 'g' },
+      ],
     };
 
     expect(actionGroupsToUiClusterIndexTenantActionGroups(resource)).toEqual(uiResource);

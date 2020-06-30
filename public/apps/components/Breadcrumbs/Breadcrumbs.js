@@ -31,7 +31,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { flatten, get } from 'lodash';
-import { EuiBreadcrumbs } from '@elastic/eui';
+import { EuiBreadcrumbs, EuiErrorBoundary } from '@elastic/eui';
 
 export const createBreadcrumb = (breadcrumb, history) => {
   const { text, href } = breadcrumb;
@@ -82,12 +82,14 @@ class Breadcrumbs extends Component {
   render() {
     const { breadcrumbs } = this.state;
     return (
-      <EuiBreadcrumbs
-        breadcrumbs={breadcrumbs}
-        responsive={false}
-        truncate={true}
-        className="sgBreadcrumbs"
-      />
+      <EuiErrorBoundary>
+        <EuiBreadcrumbs
+          breadcrumbs={breadcrumbs}
+          responsive={false}
+          truncate={true}
+          className="sgBreadcrumbs"
+        />
+      </EuiErrorBoundary>
     );
   }
 }

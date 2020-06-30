@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Fragment, useContext } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
@@ -24,7 +25,7 @@ import {
   isInvalid,
   hasError,
 } from '../../../../../utils/validate';
-import ActionBodyHelpText from '../ActionBodyHelpText';
+import { RowHelpTextMustacheRuntimeDataField } from '../../RowHelpText';
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import ActionAccount from '../ActionAccount';
@@ -217,7 +218,7 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
           fullWidth: true,
           isInvalid,
           error: hasError,
-          helpText: <ActionBodyHelpText watchResultData={checksResult} />,
+          helpText: <RowHelpTextMustacheRuntimeDataField />,
         }}
         elementProps={{
           isInvalid,
@@ -250,7 +251,7 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
           fullWidth: true,
           isInvalid,
           error: hasError,
-          helpText: <ActionBodyHelpText watchResultData={checksResult} isHTML={true} />,
+          helpText: <RowHelpTextMustacheRuntimeDataField isHTML={true} />,
         }}
         elementProps={{
           isInvalid,

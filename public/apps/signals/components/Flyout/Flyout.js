@@ -30,7 +30,13 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader, EuiFlyoutFooter } from '@elastic/eui';
+import {
+  EuiFlyout,
+  EuiFlyoutBody,
+  EuiFlyoutHeader,
+  EuiFlyoutFooter,
+  EuiErrorBoundary,
+} from '@elastic/eui';
 import Flyouts from './flyouts';
 
 const getFlyoutProps = ({ type, payload }) => {
@@ -57,9 +63,11 @@ const Flyout = ({ flyout, onClose }) => {
 
   return (
     <EuiFlyout onClose={onClose} {...flyoutProps} className="sgFlyout">
-      {header && <EuiFlyoutHeader {...headerProps}>{header}</EuiFlyoutHeader>}
-      {body && <EuiFlyoutBody {...bodyProps}>{body}</EuiFlyoutBody>}
-      {footer && <EuiFlyoutFooter {...footerProps}>{footer}</EuiFlyoutFooter>}
+      <EuiErrorBoundary>
+        {header && <EuiFlyoutHeader {...headerProps}>{header}</EuiFlyoutHeader>}
+        {body && <EuiFlyoutBody {...bodyProps}>{body}</EuiFlyoutBody>}
+        {footer && <EuiFlyoutFooter {...footerProps}>{footer}</EuiFlyoutFooter>}
+      </EuiErrorBoundary>
     </EuiFlyout>
   );
 };

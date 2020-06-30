@@ -37,4 +37,5 @@ export default [
   { name: 'cluster:monitor/task' },
   { name: 'cluster:monitor/task/get' },
   { name: 'cluster:monitor/tasks/list' },
+  { name: 'indices:data/read/async_search/*' },
 ];
