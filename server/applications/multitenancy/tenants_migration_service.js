@@ -19,7 +19,7 @@ import { first } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 
 import { SavedObjectConfig } from '../../../../../src/core/server/saved_objects/saved_objects_config';
-import { retryCallCluster } from '../../../../../src/core/server/elasticsearch/retry_call_cluster';
+import { retryCallCluster } from '../../../../../src/core/server/elasticsearch/legacy/retry_call_cluster';
 import { KibanaMigrator } from '../../../../../src/core/server/saved_objects/migrations';
 
 import { defineMigrateRoutes } from './routes';
