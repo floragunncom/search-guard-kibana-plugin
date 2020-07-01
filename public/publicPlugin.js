@@ -5,7 +5,7 @@ import { HttpWrapper } from './utils/httpWrapper';
 import { SystemStateService } from './services/SystemStateService';
 import { FeatureCatalogueCategory } from '../../../src/plugins/home/public';
 import { redirectOnSessionTimeout } from './auth/redirectOnSessionTimeout';
-import { API_ROOT } from './utils/constants';
+import { API_ROOT, SEARCHGUARD_APP_CATEGORY } from './utils/constants';
 import { addTenantToShareURL } from './applications/multitenancy/addTenantToShareURL';
 import { Signals } from './applications/signals';
 import { ChromeHelper } from './services/ChromeHelper';
@@ -49,7 +49,7 @@ export class PublicPlugin {
       core.application.register({
         id: 'searchguard-accountinfo',
         title: 'Account',
-        icon: 'plugins/searchguard/assets/networking.svg', // @todo
+        category: SEARCHGUARD_APP_CATEGORY,
         mount: async params => {
           const { renderApp } = await import('./applications/accountinfo/npstart');
           return renderApp({
@@ -67,8 +67,8 @@ export class PublicPlugin {
     ) {
       core.application.register({
         id: 'searchguard-configuration',
-        title: 'Search Guard Configuration',
-        icon: 'plugins/searchguard/assets/searchguard_logo_left_navbar.svg',
+        title: 'Configuration',
+        category: SEARCHGUARD_APP_CATEGORY,
         mount: async ({ element }) => {
           const { renderApp } = await import('./applications/configuration-react');
 
@@ -93,8 +93,7 @@ export class PublicPlugin {
       core.application.register({
         id: 'searchguard-multitenancy',
         title: 'Multitenancy',
-        icon: 'plugins/searchguard/assets/networking.svg',
-        //euiIconType: 'user',
+        category: SEARCHGUARD_APP_CATEGORY,
         mount: async params => {
           const { renderApp } = await import('./applications/multitenancy/npstart');
 
