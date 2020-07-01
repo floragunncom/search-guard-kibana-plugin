@@ -1,22 +1,23 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import { startCase, cloneDeep } from 'lodash';
 
 export const WATCH_TYPES = {
   GRAPH: 'graph',
   JSON: 'json',
-  BLOCKS: 'blocks'
+  BLOCKS: 'blocks',
 };
 
 export const CHECK_TYPES = {
   STATIC: 'static',
   SEARCH: 'search',
-  CONDITION_SCRIPT: 'condition'
+  CONDITION_SCRIPT: 'condition',
 };
 
 export const SEVERITY = {
   INFO: 'info',
   WARNING: 'warning',
   ERROR: 'error',
-  CRITICAL: 'critical'
+  CRITICAL: 'critical',
 };
 
 export const SEVERITY_COLORS = {
@@ -24,19 +25,19 @@ export const SEVERITY_COLORS = {
   warning: '#d7a64e',
   error: '#cf5e59',
   critical: '#000000',
-  none: '#ffffff'
+  none: '#ffffff',
 };
 
 export const SEVERITY_OPTIONS = [
   { label: SEVERITY.INFO, color: SEVERITY_COLORS.info },
   { label: SEVERITY.WARNING, color: SEVERITY_COLORS.warning },
   { label: SEVERITY.ERROR, color: SEVERITY_COLORS.error },
-  { label: SEVERITY.CRITICAL, color: SEVERITY_COLORS.critical }
+  { label: SEVERITY.CRITICAL, color: SEVERITY_COLORS.critical },
 ];
 
 export const SEVERITY_ORDER = {
   ASCENDING: 'ascending',
-  DESCENDING: 'descending'
+  DESCENDING: 'descending',
 };
 
 export const SEVERITY_META_DEFAULTS = {
@@ -49,9 +50,9 @@ export const SEVERITY_META_DEFAULTS = {
       [SEVERITY.INFO]: 100,
       [SEVERITY.WARNING]: 200,
       [SEVERITY.ERROR]: 300,
-      [SEVERITY.CRITICAL]: 400
-    }
-  }
+      [SEVERITY.CRITICAL]: 400,
+    },
+  },
 };
 
 export const ALL_DOCUMENTS = 'all documents';
@@ -62,13 +63,13 @@ export const AGGREGATIONS_TYPES = {
   AVG: 'avg',
   SUM: 'sum',
   MIN: 'min',
-  MAX: 'max'
+  MAX: 'max',
 };
 
 export const WATCH_TYPES_OPTIONS = [
   { value: WATCH_TYPES.GRAPH, text: startCase(WATCH_TYPES.GRAPH) },
   { value: WATCH_TYPES.JSON, text: startCase(WATCH_TYPES.JSON) },
-  { value: WATCH_TYPES.BLOCKS, text: startCase(WATCH_TYPES.BLOCKS) }
+  { value: WATCH_TYPES.BLOCKS, text: startCase(WATCH_TYPES.BLOCKS) },
 ];
 
 export const CHECK_MYSEARCH = 'mysearch';
@@ -86,15 +87,15 @@ const CHECKS_DEFAULTS = [
         from: 0,
         size: 10,
         query: {
-          match_all: {}
-        }
-      }
-    }
+          match_all: {},
+        },
+      },
+    },
   },
   {
     type: CHECK_TYPES.CONDITION_SCRIPT,
     name: CHECK_MYCONDITION,
-    source: `${PAYLOAD_PATH}.hits.hits.length > 0`
+    source: `${PAYLOAD_PATH}.hits.hits.length > 0`,
   },
 ];
 
@@ -153,8 +154,13 @@ export const SCHEDULE_DEFAULTS = {
   hourly: [{ label: '1' }],
   daily: 0,
   weekly: {
-    mon: false, tue: false, wed: false,
-    thu: false, fri: false, sat: false, sun: false
+    mon: false,
+    tue: false,
+    wed: false,
+    thu: false,
+    fri: false,
+    sat: false,
+    sun: false,
   },
   monthly: { type: 'day', day: 1 },
   timezone: [{ label: TIMEZONE_DEFAULT }],
@@ -169,7 +175,7 @@ export const RESULT_FIELD_DEFAULTS = {
 export const META_FIELDS_TO_OMIT = [
   ...Object.keys(RESULT_FIELD_DEFAULTS),
   ...Object.keys(SCHEDULE_DEFAULTS),
-  'state' // watch execution status
+  'state', // watch execution status
 ];
 
 export const DEFAULT_WATCH = {
@@ -177,8 +183,8 @@ export const DEFAULT_WATCH = {
   active: true,
   trigger: {
     schedule: {
-      interval: ['1m']
-    }
+      interval: ['1m'],
+    },
   },
   checks: cloneDeep(CHECKS_DEFAULTS),
   actions: [],
@@ -187,7 +193,7 @@ export const DEFAULT_WATCH = {
     ...GRAPH_DEFAULTS,
     ...RESULT_FIELD_DEFAULTS,
     ...SCHEDULE_DEFAULTS,
-    ...SEVERITY_META_DEFAULTS
+    ...SEVERITY_META_DEFAULTS,
   },
-  _meta: {} // Server plugin meta
+  _meta: {}, // Server plugin meta
 };

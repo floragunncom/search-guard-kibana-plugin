@@ -71,6 +71,7 @@ const inputExamples = {
     call_external_service_with_basic_auth: {
       example: {
         type: 'http',
+        name: 'http',
         request: {
           method: 'GET',
           url: 'https://localhost:9200/_cluster/stats',
@@ -87,6 +88,7 @@ const inputExamples = {
     call_external_service_with_params: {
       example: {
         type: 'http',
+        name: 'http',
         request: {
           method: 'POST',
           url: 'https://webhook.site/a663a74a-592b-4efd-ad22-54a6da966e47',

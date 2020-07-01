@@ -28,14 +28,6 @@ export const isSinglePermission = (permission = '') => {
     || permission.startsWith('signals:');
 };
 
-export const isClusterActionGroup = (permission = '') => {
-  return permission.toLowerCase().includes('cluster');
-};
-
-export const isGlobalActionGroup = (permission = '') => {
-  return permission.toLowerCase().includes('kibana');
-};
-
 export const arrayToComboBoxOptions = array => sortBy(array.map(label => ({ label })), 'label');
 export const comboBoxOptionsToArray = array => sortBy(array.map(({ label }) => label));
 

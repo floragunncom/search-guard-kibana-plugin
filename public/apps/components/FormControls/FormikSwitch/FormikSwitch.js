@@ -30,7 +30,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { EuiSwitch } from '@elastic/eui';
+import { EuiSwitch, EuiErrorBoundary } from '@elastic/eui';
 import FormikInputWrapper from '../FormikInputWrapper';
 import FormikFormRow from '../FormikFormRow';
 
@@ -63,16 +63,18 @@ const FormikSwitch = ({
   rowProps = {},
   elementProps = {},
 }) => (
-  <FormikInputWrapper
-    name={name}
-    formikFieldProps={formikFieldProps}
-    render={({ field, form }) => {
-      const fieldSwitch = (<FieldSwitch name={name} form={form} field={field} elementProps={elementProps} />);
-      return !formRow ? fieldSwitch : (
-        <FormikFormRow name={name} form={form} rowProps={rowProps}>{fieldSwitch}</FormikFormRow>
-      );
-    }}
-  />
+  <EuiErrorBoundary>
+    <FormikInputWrapper
+      name={name}
+      formikFieldProps={formikFieldProps}
+      render={({ field, form }) => {
+        const fieldSwitch = (<FieldSwitch name={name} form={form} field={field} elementProps={elementProps} />);
+        return !formRow ? fieldSwitch : (
+          <FormikFormRow name={name} form={form} rowProps={rowProps}>{fieldSwitch}</FormikFormRow>
+        );
+      }}
+    />
+  </EuiErrorBoundary>
 );
 
 FormikSwitch.propTypes = {

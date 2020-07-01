@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ace from 'brace';
 import Modes from './modes';
+import { EuiErrorBoundary } from '@elastic/eui';
 
 export class CodeEditor extends Component {
   constructor(props) {
@@ -111,7 +112,11 @@ export class CodeEditor extends Component {
   render() {
     const { id, width, height, style } = this.props;
 
-    return <div id={id} ref={this.updateRef} style={{ width, height, ...style }} />;
+    return (
+      <EuiErrorBoundary>
+        <div id={id} ref={this.updateRef} style={{ width, height, ...style }} />
+      </EuiErrorBoundary>
+    );
   }
 }
 

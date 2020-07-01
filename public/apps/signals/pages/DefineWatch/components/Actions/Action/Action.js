@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { EuiAccordion } from '@elastic/eui';
+import { EuiAccordion, EuiErrorBoundary } from '@elastic/eui';
 
 const Action = ({ actionHeader, deleteButton, actionBody, id, name }) => (
   <EuiAccordion
@@ -12,7 +12,7 @@ const Action = ({ actionHeader, deleteButton, actionBody, id, name }) => (
     extraAction={deleteButton}
     paddingSize="l"
   >
-    {actionBody}
+    <EuiErrorBoundary>{actionBody}</EuiErrorBoundary>
   </EuiAccordion>
 );
 

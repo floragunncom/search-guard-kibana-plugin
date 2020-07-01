@@ -74,11 +74,11 @@ if [ $? != 0 ]; then
     exit 1
 fi
 
-VERSION=$(grep -e '\bversion\b' package.json | tr -d "[:blank:]" | sed -r 's/"version":"(.*)"(.*)/\1/')
-SG_TEST_VERSION=$(grep -e '\btest_sg_version\b' package.json | tr -d "[:blank:]" | sed -r 's/"test_sg_version":"(.*)"(.*)/\1/')
+VERSION=$(grep -e '\bversion\b' package.json | tr -d "[:blank:]" | sed -E 's/"version":"(.*)"(.*)/\1/')
+SG_TEST_VERSION=$(grep -e '\btest_sg_version\b' package.json | tr -d "[:blank:]" | sed -E 's/"test_sg_version":"(.*)"(.*)/\1/')
 
 ES_VERSION=$(echo $SG_TEST_VERSION | cut -d "-" -f 1)
-KIBANA_APP_BRANCH=$(grep -e '\bkibana_branch\b' package.json | tr -d "[:blank:]" | sed -r 's/"kibana_branch":"(.*)"(.*)/\1/')
+KIBANA_APP_BRANCH=$(grep -e '\bkibana_branch\b' package.json | tr -d "[:blank:]" | sed -E 's/"kibana_branch":"(.*)"(.*)/\1/')
 KIBANA_VERSION=$(echo $VERSION | cut -d "-" -f 1)
 KIBANA_PLUGIN_VERSION=$(echo $VERSION | cut -d "-" -f 2)
 
@@ -125,7 +125,7 @@ if [ -n "$KIBANA_APP_BRANCH" ]; then
       exit 1
     fi
 else
-  (git checkout "$KIBANA_VERSION" && echo "+++ Changed Kibana repository to $KIBANA_VERSION +++")
+  (git checkout "tags/v$KIBANA_VERSION" && echo "+++ Changed Kibana repository to v$KIBANA_VERSION +++")
     if [ $? != 0 ]; then
       echo "Switching to Kibana  $KIBANA_VERSION failed"
       exit 1
@@ -176,6 +176,7 @@ cp -a "$WORK_DIR/tests" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/patches" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/babel.config.js" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/server" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/__mocks__" "$BUILD_STAGE_PLUGIN_DIR"
 
 
 cd $BUILD_STAGE_PLUGIN_DIR

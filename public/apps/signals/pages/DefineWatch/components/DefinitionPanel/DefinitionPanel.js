@@ -3,11 +3,11 @@ import React, { useContext, useState, useEffect } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
-import { EuiButton, EuiSpacer } from '@elastic/eui';
-import { useCheckTemplates, useJsonWatchChecks } from '../../hooks';
+import { EuiButton, EuiSpacer, EuiErrorBoundary } from '@elastic/eui';
+import { useCheckTemplates, useWatchChecks } from '../../hooks';
 import { FormikSelect, ContentPanel } from '../../../../components';
 import JsonWatch from '../JsonWatch';
-import BlocksWatch from '../BlocksWatch';
+import { BlocksWatch } from '../BlocksWatch';
 import GraphWatch from '../GraphWatch';
 import QueryStat from '../QueryStat';
 import SeverityForm from '../SeverityForm';
@@ -20,15 +20,17 @@ import { Context } from '../../../../Context';
 const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
   const { httpClient, triggerFlyout } = useContext(Context);
 
-  const { addTemplate } = useCheckTemplates({ setFieldValue });
+  const watchType = get(values, '_ui.watchType', WATCH_TYPES.GRAPH);
+  const isSeverity = get(values, '_ui.isSeverity', false);
 
-  const {
-    isResultVisible,
-    closeResult,
-    editorResult,
-    isLoading,
-    executeWatch,
-  } = useJsonWatchChecks({ setFieldValue });
+  const { addTemplate } = useCheckTemplates({
+    setFieldValue,
+    checksPath: watchType === WATCH_TYPES.BLOCKS ? '_ui.checksBlocks' : 'checks',
+  });
+
+  const { isResultVisible, closeResult, editorResult, isLoading, executeWatch } = useWatchChecks({
+    setFieldValue,
+  });
 
   const [templateCounter, setTemplateCounter] = useState(0);
   const [template, setTemplate] = useState(null);
@@ -40,9 +42,9 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templateCounter]);
 
-  const addTemplateHelper = template => {
+  const addTemplateHelper = (template) => {
     setTemplate(template);
-    setTemplateCounter(prevState => prevState + 1);
+    setTemplateCounter((prevState) => prevState + 1);
   };
 
   const handleAddTemplate = () => {
@@ -51,11 +53,6 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
       payload: { onChange: addTemplateHelper },
     });
   };
-
-  const watchType = get(values, '_ui.watchType', WATCH_TYPES.GRAPH);
-  const isSeverity = get(values, '_ui.isSeverity', false);
-  let contentPanleActions = [];
-  let watch;
 
   const addChecksBtn = (
     <EuiButton data-test-subj="sgAddButton-AddChecks" onClick={handleAddTemplate}>
@@ -74,46 +71,58 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
     </EuiButton>
   );
 
+  function renderSeverity() {
+    return (
+      <>
+        <EuiSpacer />
+        <SeverityForm isTitle />
+      </>
+    );
+  }
+
+  let contentPanleActions = [];
+  let watch;
+
   switch (watchType) {
     case WATCH_TYPES.JSON:
       contentPanleActions = [addChecksBtn, execChecksBtn];
 
       watch = (
-        <>
+        <EuiErrorBoundary>
           <EuiSpacer />
           <JsonWatch
             isResultVisible={isResultVisible}
             editorResult={editorResult}
             onCloseResult={closeResult}
           />
-          <EuiSpacer />
           <QueryStat />
-          {isSeverity && <SeverityForm isTitle />}
-        </>
+          {isSeverity && renderSeverity()}
+        </EuiErrorBoundary>
       );
       break;
     case WATCH_TYPES.BLOCKS:
       contentPanleActions = [addChecksBtn, execChecksBtn];
 
       watch = (
-        <>
+        <EuiErrorBoundary>
+          <EuiSpacer />
           <BlocksWatch
+            checksBlocksPath="_ui.checksBlocks"
             isResultVisible={isResultVisible}
             editorResult={editorResult}
             onCloseResult={closeResult}
             onOpenChecksTemplatesFlyout={handleAddTemplate}
           />
-          {isSeverity && <SeverityForm isTitle />}
-        </>
+          {isSeverity && renderSeverity()}
+        </EuiErrorBoundary>
       );
       break;
     default:
       watch = (
-        <>
+        <EuiErrorBoundary>
           <GraphWatch isResultVisible={isResultVisible} httpClient={httpClient} />
-          <EuiSpacer />
           <QueryStat />
-        </>
+        </EuiErrorBoundary>
       );
       break;
   }
