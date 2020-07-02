@@ -1,12 +1,12 @@
 {
   "name": "searchguard",
-  "version": "7.8.1-43.0.0-SNAPSHOT",
+  "version": "7.8.1-master-SNAPSHOT",
   "description": "Search Guard features for Kibana",
   "main": "index.js",
   "homepage": "https://search-guard.com",
   "license": "Apache-2.0",
   "searchguard": {
-    "test_sg_version": "7.8.0-43.0.0-SNAPSHOT",
+    "test_sg_version": "7.8.0-master-SNAPSHOT",
     "kibana_branch": "7.8"
   },
   "repository": {
