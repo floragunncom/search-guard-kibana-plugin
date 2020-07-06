@@ -12,6 +12,7 @@ module.exports = {
   moduleNameMapper: {
     '!!raw-loader!./worker.js': '<rootDir>/__mocks__/raw_loader.js',
     'ui/chrome': '<rootDir>/__mocks__/chrome.js',
+    '\\.svg': '<rootDir>/__mocks__/svg_mock.js',
   },
   testMatch: ['**/*.test.js', '**/*.test.ts'],
   modulePaths: ['node_modules', '../../node_modules'],
