@@ -3,8 +3,8 @@
 # This patch makes Kibana v8 compatible with SearchGuard.
 
 COMMAND="$1"
-IFS=$'\n'       # make newlines the only separator
-set -f          # disable globbing to not expand file path on "/"
+set -f
+set -e
 
 if [ -z "$COMMAND" ]; then
   COMMAND="prod"
@@ -27,27 +27,28 @@ fi
 FILE_PATH="../../src/core/server/plugins/plugin_context.$EXT"
 HAPI_DEPENDENCY="hapiServer: deps.http.server"
 
-if grep -q $HAPI_DEPENDENCY $FILE_PATH; then
+if grep -q "$HAPI_DEPENDENCY" "$FILE_PATH"; then
   echo "Success! There is no need to patch!"
   echo "The file $FILE_PATH was patched already. The original file backup is in $FILE_PATH.bak"
 else
-  mv "$FILE_PATH" "$FILE_PATH.bak"
-  touch "$FILE_PATH"
+  mv $FILE_PATH "$FILE_PATH.bak"
+  touch $FILE_PATH
 
   DO_INSERT=false
 
-  for i in $(cat < "$FILE_PATH.bak"); do
-    echo "$i"
+  while IFS="" read -r line || [ -n "$line" ]
+  do
+    printf "%s\n" "$line" >> $FILE_PATH
 
-    if [[ "$i" == *"function createPluginSetupContext"* ]]; then
+    if [[ "$line" == *"function createPluginSetupContext"* ]]; then
       DO_INSERT=true
     fi
 
-    if [[ "$i" == *"return {"* && "$DO_INSERT" == true ]]; then
-      echo "    hapiServer: deps.http.server,"
+    if [[ "$line" == *"return {"* && "$DO_INSERT" == true ]]; then
+      printf "%s\n" "    hapiServer: deps.http.server," >> $FILE_PATH
       DO_INSERT=false
     fi
-  done > "$FILE_PATH"
+  done < "$FILE_PATH.bak"
 
   echo "Success!"
   echo "Patched $FILE_PATH. The original file backup is in $FILE_PATH.bak"
