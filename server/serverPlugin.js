@@ -96,20 +96,21 @@ export class Plugin {
           plugin: require('hapi-auth-cookie'),
         });
 
-        // @todo Replacement for status
-        // this.status.yellow('Initialising Search Guard authentication plugin.');
+        this.logger.info('Initialising Search Guard authentication plugin.');
 
         if (
           this.configService.get('searchguard.cookie.password') ===
           'searchguard_cookie_default_password'
         ) {
-          // @todo Replacement for status
-          // this.status.yellow("Default cookie password detected, please set a password in kibana.yml by setting 'searchguard.cookie.password' (min. 32 characters).");
+          this.logger.warn(
+            "Default cookie password detected, please set a password in kibana.yml by setting 'searchguard.cookie.password' (min. 32 characters)."
+          );
         }
 
         if (!this.configService.get('searchguard.cookie.secure')) {
-          // @todo Replacement for status
-          // this.status.yellow("'searchguard.cookie.secure' is set to false, cookies are transmitted over unsecure HTTP connection. Consider using HTTPS and set this key to 'true'");
+          this.logger.warn(
+            "'searchguard.cookie.secure' is set to false, cookies are transmitted over unsecure HTTP connection. Consider using HTTPS and set this key to 'true'"
+          );
         }
 
         switch (authType) {
@@ -145,31 +146,21 @@ export class Plugin {
                 APP_ROOT,
                 API_ROOT,
                 core,
-                this.configService
+                this.configService,
+                this.logger
               );
             }
 
             await authInstance.init();
-            // @todo Replacement for status
-            // this.status.yellow('Search Guard session management enabled.');
+            this.logger.info('Search Guard session management enabled.');
           } catch (error) {
-            server.log(
-              ['error', 'searchguard'],
-              `An error occurred while enabling session management: ${error}`
-            );
-            // @todo Replacement for status.red
-            // this.status.red('An error occurred during initialisation, please check the logs.');
-            return;
+            this.logger.error(`An error occurred while enabling session management: ${error}`);
+            throw error;
           }
         }
       } catch (error) {
-        server.log(
-          ['error', 'searchguard'],
-          `An error occurred registering server plugins: ${error}`
-        );
-        // @todo Replacement for status.red
-        // this.status.red('An error occurred during initialisation, please check the logs.');
-        return;
+        this.logger.error(`An error occurred registering server plugins: ${error}`);
+        throw error;
       }
     } else {
       // Register the storage plugin for the other auth types
@@ -183,17 +174,14 @@ export class Plugin {
       });
     }
 
-    // @todo We can probably remove this right?
     if (authType !== 'jwt') {
-      // @todo Replacement for status
-      // this.status.yellow("Search Guard copy JWT params disabled");
+      this.logger.warn('Search Guard copy JWT params disabled');
     }
 
     // @todo TEST
     if (this.configService.get('searchguard.xff.enabled')) {
       require('../lib/xff/xff')(server);
-      // @todo Replacement for status
-      // this.status.yellow("Search Guard XFF enabled.");
+      this.logger.info('Search Guard XFF enabled.');
     }
 
     // MT
@@ -230,10 +218,11 @@ export class Plugin {
         APP_ROOT,
         API_ROOT
       );
-      // this.status.yellow("Routes for Search Guard configuration GUI registered. This is an Enterprise feature.");
+      this.logger.info(
+        'Routes for Search Guard configuration GUI registered. This is an Enterprise feature.'
+      );
     } else {
-      // @todo Somehow set status yellow?
-      // this.status.yellow("Search Guard configuration GUI disabled");
+      this.logger.warn('Search Guard configuration GUI disabled');
     }
 
     require('../lib/system/routes')(
@@ -243,8 +232,7 @@ export class Plugin {
       API_ROOT,
       this.configService
     );
-    // @todo Status?
-    // this.status.yellow('Search Guard system routes registered.');
+    this.logger.info('Search Guard system routes registered.');
 
     // @todo Sanity check - do not fail on forbidden
     // @todo Sanity check - ssl certificates
