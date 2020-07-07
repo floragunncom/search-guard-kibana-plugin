@@ -102,11 +102,15 @@ export class Plugin {
           this.configService.get('searchguard.cookie.password') ===
           'searchguard_cookie_default_password'
         ) {
-          this.logger.warn("Default cookie password detected, please set a password in kibana.yml by setting 'searchguard.cookie.password' (min. 32 characters).");
+          this.logger.warn(
+            "Default cookie password detected, please set a password in kibana.yml by setting 'searchguard.cookie.password' (min. 32 characters)."
+          );
         }
 
         if (!this.configService.get('searchguard.cookie.secure')) {
-          this.logger.warn("'searchguard.cookie.secure' is set to false, cookies are transmitted over unsecure HTTP connection. Consider using HTTPS and set this key to 'true'");
+          this.logger.warn(
+            "'searchguard.cookie.secure' is set to false, cookies are transmitted over unsecure HTTP connection. Consider using HTTPS and set this key to 'true'"
+          );
         }
 
         switch (authType) {
@@ -144,14 +148,13 @@ export class Plugin {
                 core,
                 this.configService,
                 this.logger
-
               );
             }
 
             await authInstance.init();
             this.logger.info('Search Guard session management enabled.');
           } catch (error) {
-            this.logger.error(`An error occurred while enabling session management: ${error}`)
+            this.logger.error(`An error occurred while enabling session management: ${error}`);
             throw error;
           }
         }
@@ -172,13 +175,13 @@ export class Plugin {
     }
 
     if (authType !== 'jwt') {
-      this.logger.warn("Search Guard copy JWT params disabled");
+      this.logger.warn('Search Guard copy JWT params disabled');
     }
 
     // @todo TEST
     if (this.configService.get('searchguard.xff.enabled')) {
       require('../lib/xff/xff')(server);
-      this.logger.info("Search Guard XFF enabled.");
+      this.logger.info('Search Guard XFF enabled.');
     }
 
     // MT
@@ -215,9 +218,11 @@ export class Plugin {
         APP_ROOT,
         API_ROOT
       );
-      this.logger.info("Routes for Search Guard configuration GUI registered. This is an Enterprise feature.");
+      this.logger.info(
+        'Routes for Search Guard configuration GUI registered. This is an Enterprise feature.'
+      );
     } else {
-      this.logger.warn("Search Guard configuration GUI disabled");
+      this.logger.warn('Search Guard configuration GUI disabled');
     }
 
     require('../lib/system/routes')(
