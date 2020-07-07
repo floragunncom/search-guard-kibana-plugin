@@ -1,9 +1,9 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Formik, FieldArray } from 'formik';
 import queryString from 'query-string';
-import { EuiTitle, EuiSpacer, EuiFlexItem, EuiFlexGroup } from '@elastic/eui';
+import { EuiTitle, EuiSpacer, EuiFlexItem, EuiFlexGroup, EuiErrorBoundary } from '@elastic/eui';
 import { get } from 'lodash';
 import { WatchService } from '../../services';
 import { watchToFormik, formikToWatch } from './utils';
@@ -117,7 +117,7 @@ class DefineWatch extends Component {
             const isResolveActions = get(values, '_ui.isResolveActions', false);
 
             return (
-              <Fragment>
+              <>
                 <EuiTitle size="l">
                   <h1>{isEdit ? updateWatchText : createWatchText}</h1>
                 </EuiTitle>
@@ -140,7 +140,7 @@ class DefineWatch extends Component {
                 <EuiSpacer />
                 <FieldArray
                   name="actions"
-                  render={arrayHelpers => (
+                  render={(arrayHelpers) => (
                     <ActionPanel
                       isLoading={isLoading}
                       httpClient={httpClient}
@@ -154,7 +154,7 @@ class DefineWatch extends Component {
                     <EuiSpacer />
                     <FieldArray
                       name="resolve_actions"
-                      render={arrayHelpers => (
+                      render={(arrayHelpers) => (
                         <ResolveActionPanel
                           isLoading={isLoading}
                           httpClient={httpClient}
@@ -178,7 +178,7 @@ class DefineWatch extends Component {
                     />
                   </EuiFlexItem>
                 </EuiFlexGroup>
-              </Fragment>
+              </>
             );
           }}
         />

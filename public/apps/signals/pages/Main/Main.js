@@ -12,6 +12,7 @@ import {
   EuiTab,
   EuiTabs,
   EuiSpacer,
+  EuiErrorBoundary,
 } from '@elastic/eui';
 import Alerts from '../Alerts';
 import Watches from '../Watches';
@@ -209,10 +210,18 @@ class Main extends Component {
     const { httpClient, history, ...props } = this.props;
     const { flyout, modal } = this.state;
 
+    /*
+      Drag And Drop (DND) functionality relies on <div id="searchguardDragAndDropPortalAnchor" />
+      Because Eui accordion item visually brakes DND dragging capability applying transform.
+      https://github.com/elastic/eui/issues/3548
+    */
     return (
       <EuiPage id={APP_NAME}>
+        <div id="searchguardDragAndDropPortalAnchor" />
         <EuiPageBody className="sg-container">
-          <Flyout flyout={flyout} onClose={() => this.handleTriggerFlyout(null)} />
+          <EuiErrorBoundary>
+            <Flyout flyout={flyout} onClose={() => this.handleTriggerFlyout(null)} />
+          </EuiErrorBoundary>
 
           <EuiPageHeader>
             <Breadcrumbs history={history} onGetBreadcrumb={getBreadcrumb} {...props} />
@@ -220,7 +229,9 @@ class Main extends Component {
 
           <EuiPageContent>
             <EuiPageContentBody className="sg-page-content-body">
-              <Modal modal={modal} onClose={() => this.handleTriggerModal(null)} />
+              <EuiErrorBoundary>
+                <Modal modal={modal} onClose={() => this.handleTriggerModal(null)} />
+              </EuiErrorBoundary>
               <Switch>
                 <Route
                   exact

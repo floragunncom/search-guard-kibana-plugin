@@ -16,13 +16,15 @@
  */
 
 import { first } from 'rxjs/operators';
+import { defaultsDeep, get } from 'lodash';
 
 import SearchGuardBackend from '../lib/backend/searchguard';
 import SearchGuardConfigurationBackend from '../lib/configuration/backend/searchguard_configuration_backend';
 import { Signals, Multitenancy } from './applications';
 
 import authInfoRoutes from '../lib/auth/routes_authinfo';
-import { APP_ROOT, API_ROOT } from './utils/constants';
+import { ConfigService, readKibanaConfig } from './utils';
+import { APP_ROOT, API_ROOT, APP_NAME } from './utils/constants';
 
 export class Plugin {
   constructor(initializerContext) {
@@ -35,7 +37,7 @@ export class Plugin {
   async setup(core, pluginDependencies) {
     const router = core.http.createRouter();
 
-    process.on('unhandledRejection', error => {
+    process.on('unhandledRejection', (error) => {
       console.error(error); // This prints error with stack included (as for normal errors)
       throw error; // Following best practices re-throw error and let the process exit with error code
     });
@@ -44,79 +46,19 @@ export class Plugin {
      */
     const server = core.hapiServer;
 
-    const configValues = await this.config$.pipe(first()).toPromise();
+    const [kibanaConfig, pluginConfig] = await Promise.all([
+      readKibanaConfig({ isDev: get(this.initContext, 'env.mode.dev', false) }),
+      this.config$.pipe(first()).toPromise(),
+    ]);
 
-    const config = {
-      // return {
-      // @todo These values must be replaced!
-      legacyValues: {
-        'server.basePath': '',
-        'server.host': 'localhost',
-        'server.port': '5601',
-      },
-      get(configKey, defaultValue = undefined) {
-        // Remove the searchguard prefix if available
-        if (configKey.indexOf('searchguard.') === 0) {
-          configKey = configKey.replace('searchguard.', '');
-        }
+    kibanaConfig[APP_NAME] = defaultsDeep(kibanaConfig[APP_NAME], pluginConfig);
+    this.configService = new ConfigService(kibanaConfig);
 
-        const result = configKey.split('.').reduce((o, key) => {
-          if (o && typeof o[key] !== undefined) {
-            return o[key];
-          }
-
-          return;
-        }, configValues);
-
-        if (typeof result !== 'undefined') {
-          return result;
-        }
-
-        if (typeof this.legacyValues[configKey] !== 'undefined') {
-          return this.legacyValues[configKey];
-        }
-
-        console.log('Somebody wanted missing configKey: ', { configKey });
-
-        return defaultValue;
-      },
-      // }
-    };
-
-    // @todo Come up with a plan for this
-    /*
-        const legacyConfig = await this.initContext.config.legacy.globalConfig$
-            .pipe(first())
-            .toPromise()
-            ;
-
-         */
-
-    // Start auth MVP
-
-    // Set up
-
-    // @todo Come up with a plan for this
-    const legacyEsConfig = {
-      username: '',
-      password: '',
-      // @todo Needed for filtering headers in the client
-      requestHeadersWhitelist: [
-        'authorization',
-        'sgtenant',
-        'sg_impersonate_as',
-        'x-forwarded-for',
-        'x-proxy-user',
-        'x-proxy-roles',
-      ],
-    };
-
-    const searchGuardBackend = new SearchGuardBackend(core, server, config, legacyEsConfig);
+    const searchGuardBackend = new SearchGuardBackend(core, server, this.configService);
     const searchGuardConfigurationBackend = new SearchGuardConfigurationBackend(
       core,
       server,
-      config,
-      legacyEsConfig
+      this.configService
     );
 
     // Inits the authInfo route
@@ -126,20 +68,23 @@ export class Plugin {
     const storageCookieConf = {
       path: '/',
       ttl: null, // Cookie deleted when the browser is closed
-      password: config.get('searchguard.cookie.password'),
+      password: this.configService.get('searchguard.cookie.password'),
       encoding: 'iron',
-      isSecure: config.get('searchguard.cookie.secure'),
-      isSameSite: config.get('searchguard.cookie.isSameSite'),
+      isSecure: this.configService.get('searchguard.cookie.secure'),
+      isSameSite: this.configService.get('searchguard.cookie.isSameSite'),
     };
 
-    if (config.get('searchguard.cookie.domain')) {
-      storageCookieConf.domain = config.get('searchguard.cookie.domain');
+    if (this.configService.get('searchguard.cookie.domain')) {
+      storageCookieConf.domain = this.configService.get('searchguard.cookie.domain');
     }
 
-    server.state(config.get('searchguard.cookie.storage_cookie_name'), storageCookieConf);
+    server.state(
+      this.configService.get('searchguard.cookie.storage_cookie_name'),
+      storageCookieConf
+    );
 
-    const authType = config.get('searchguard.auth.type', null);
-    let authClass = null;
+    const authType = this.configService.get('searchguard.auth.type', null);
+    let AuthClass = null;
     let authInstance = null;
     if (
       authType &&
@@ -153,49 +98,53 @@ export class Plugin {
 
         this.logger.info('Initialising Search Guard authentication plugin.');
 
-        if (config.get('searchguard.cookie.password') === 'searchguard_cookie_default_password') {
+        if (
+          this.configService.get('searchguard.cookie.password') ===
+          'searchguard_cookie_default_password'
+        ) {
           this.logger.warn("Default cookie password detected, please set a password in kibana.yml by setting 'searchguard.cookie.password' (min. 32 characters).");
         }
 
-        if (!config.get('searchguard.cookie.secure')) {
+        if (!this.configService.get('searchguard.cookie.secure')) {
           this.logger.warn("'searchguard.cookie.secure' is set to false, cookies are transmitted over unsecure HTTP connection. Consider using HTTPS and set this key to 'true'");
         }
 
         switch (authType) {
           case 'openid':
-            authClass = require('../lib/auth/types/openid/OpenId');
+            AuthClass = require('../lib/auth/types/openid/OpenId');
             break;
 
           case 'basicauth':
-            authClass = require('../lib/auth/types/basicauth/BasicAuth');
+            AuthClass = require('../lib/auth/types/basicauth/BasicAuth');
             break;
 
           case 'jwt':
-            authClass = require('../lib/auth/types/jwt/Jwt');
+            AuthClass = require('../lib/auth/types/jwt/Jwt');
             break;
 
           case 'saml':
-            authClass = require('../lib/auth/types/saml/Saml');
+            AuthClass = require('../lib/auth/types/saml/Saml');
             break;
 
           case 'proxycache':
-            authClass = require('../lib/auth/types/proxycache/ProxyCache');
+            AuthClass = require('../lib/auth/types/proxycache/ProxyCache');
             break;
         }
 
-        if (authClass) {
+        if (AuthClass) {
           try {
             // Check that one of the auth types didn't already require an authInstance
             if (!authInstance) {
               // @todo Clean up the null parameters here
-              authInstance = new authClass(
+              authInstance = new AuthClass(
                 searchGuardBackend,
                 server,
                 APP_ROOT,
                 API_ROOT,
                 core,
-                config,
+                this.configService,
                 this.logger
+
               );
             }
 
@@ -217,7 +166,7 @@ export class Plugin {
         options: {
           searchGuardBackend: searchGuardBackend,
           authType: null,
-          storageCookieName: config.get('searchguard.cookie.storage_cookie_name'),
+          storageCookieName: this.configService.get('searchguard.cookie.storage_cookie_name'),
         },
       });
     }
@@ -226,13 +175,14 @@ export class Plugin {
       this.logger.warn("Search Guard copy JWT params disabled");
     }
 
-    if (config.get('searchguard.xff.enabled')) {
+    // @todo TEST
+    if (this.configService.get('searchguard.xff.enabled')) {
       require('../lib/xff/xff')(server);
       this.logger.info("Search Guard XFF enabled.");
     }
 
     // MT
-    if (config.get('searchguard.multitenancy.enabled')) {
+    if (this.configService.get('searchguard.multitenancy.enabled')) {
       // ATTENTION! We want to make sure the multitenancy app migrates saved objects
       // in the tenants indices before doing any any operation on indices
       this.multinenancyApp = new Multitenancy(this.initContext);
@@ -241,11 +191,11 @@ export class Plugin {
         await this.multinenancyApp.setup({
           hapiServer: core.hapiServer,
           elasticsearch: core.elasticsearch,
+          configService: this.configService,
+          spacesPlugin: pluginDependencies.spaces || null,
           router,
-          config,
           authInstance,
           searchGuardBackend,
-          spacesPlugin: pluginDependencies.spaces || null,
         });
       } catch (error) {
         this.logger.error(error);
@@ -258,7 +208,7 @@ export class Plugin {
       authInstance.registerAssignAuthHeader();
     }
 
-    if (config.get('searchguard.configuration.enabled')) {
+    if (this.configService.get('searchguard.configuration.enabled')) {
       require('../lib/configuration/routes/routes')(
         searchGuardConfigurationBackend,
         server,
@@ -270,7 +220,13 @@ export class Plugin {
       this.logger.warn("Search Guard configuration GUI disabled");
     }
 
-    require('../lib/system/routes')(searchGuardBackend, server, APP_ROOT, API_ROOT, config);
+    require('../lib/system/routes')(
+      searchGuardBackend,
+      server,
+      APP_ROOT,
+      API_ROOT,
+      this.configService
+    );
     this.logger.info('Search Guard system routes registered.');
 
     // @todo Sanity check - do not fail on forbidden
@@ -289,10 +245,8 @@ export class Plugin {
   }
 
   async start(core) {
-    const config = await this.config$.pipe(first()).toPromise();
-
     try {
-      if (config.multitenancy.enabled) {
+      if (this.configService.get('searchguard.multitenancy.enabled')) {
         await this.multinenancyApp.start(core.savedObjects);
       } else {
         this.logger.info('Multitenancy is disabled');

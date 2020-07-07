@@ -31,7 +31,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { EuiCodeEditor } from '@elastic/eui';
+import { EuiCodeEditor, EuiErrorBoundary } from '@elastic/eui';
 import FormikInputWrapper from '../FormikInputWrapper';
 import FormikFormRow from '../FormikFormRow';
 
@@ -61,22 +61,24 @@ const FormikCodeEditor = ({
   rowProps = {},
   elementProps = {},
 }) => (
-  <FormikInputWrapper
-    name={name}
-    formikFieldProps={formikFieldProps}
-    render={({ field, form }) => {
-      const codeEditor = (
-        <CodeEditor name={name} form={form} field={field} elementProps={elementProps} />
-      );
-      return !formRow ? (
-        codeEditor
-      ) : (
-        <FormikFormRow name={name} form={form} rowProps={rowProps}>
-          {codeEditor}
-        </FormikFormRow>
-      );
-    }}
-  />
+  <EuiErrorBoundary>
+    <FormikInputWrapper
+      name={name}
+      formikFieldProps={formikFieldProps}
+      render={({ field, form }) => {
+        const codeEditor = (
+          <CodeEditor name={name} form={form} field={field} elementProps={elementProps} />
+        );
+        return !formRow ? (
+          codeEditor
+        ) : (
+          <FormikFormRow name={name} form={form} rowProps={rowProps}>
+            {codeEditor}
+          </FormikFormRow>
+        );
+      }}
+    />
+  </EuiErrorBoundary>
 );
 
 FormikCodeEditor.propTypes = {

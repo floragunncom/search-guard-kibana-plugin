@@ -15,11 +15,7 @@
  limitations under the License.
  */
 
-import { first } from 'rxjs/operators';
-import { combineLatest } from 'rxjs';
-
-import { SavedObjectConfig } from '../../../../../src/core/server/saved_objects/saved_objects_config';
-import { retryCallCluster } from '../../../../../src/core/server/elasticsearch/retry_call_cluster';
+import { retryCallCluster } from '../../../../../src/core/server/elasticsearch/legacy/retry_call_cluster';
 import { KibanaMigrator } from '../../../../../src/core/server/saved_objects/migrations';
 
 import { defineMigrateRoutes } from './routes';
@@ -30,25 +26,33 @@ export class TenantsMigrationService {
     this.logger = coreContext.logger.get('tenants-migration-service');
   }
 
-  async setup({ searchGuardBackend, elasticsearch, router }) {
+  async setup({ searchGuardBackend, elasticsearch, router, configService }) {
     this.logger.debug('Setup tenants saved objects migration');
     this.searchGuardBackend = searchGuardBackend;
     this.elasticsearch = elasticsearch;
     this.router = router;
+    this.configService = configService;
 
     try {
+      const savedObjectsConfig = configService.get('searchguard.saved_objects');
+      const savedObjectsMigrationConfig = configService.get(
+        'searchguard.multitenancy.saved_objects_migration'
+      );
+
+      this.config = {
+        maxImportPayloadBytes: savedObjectsConfig.max_import_payload_bytes,
+        maxImportExportSize: savedObjectsConfig.max_import_export_size,
+        migration: {
+          batchSize: savedObjectsMigrationConfig.batch_size,
+          scrollDuration: savedObjectsMigrationConfig.scroll_duration,
+          pollInterval: savedObjectsMigrationConfig.poll_interval,
+          skip: savedObjectsMigrationConfig.skip,
+        },
+      };
+
       const tenantIndices = await searchGuardBackend.getTenantInfoWithInternalUser();
       this.tenantIndices =
         !tenantIndices || typeof tenantIndices !== 'object' ? [] : Object.keys(tenantIndices);
-
-      const [savedObjectsConfig, savedObjectsMigrationsConfig] = await combineLatest([
-        this.coreContext.configService.atPath('savedObjects'),
-        this.coreContext.configService.atPath('migrations'),
-      ])
-        .pipe(first())
-        .toPromise();
-
-      this.config = new SavedObjectConfig(savedObjectsConfig, savedObjectsMigrationsConfig);
     } catch (error) {
       throw error;
     }
@@ -61,11 +65,7 @@ export class TenantsMigrationService {
       }
 
       const typeRegistry = savedObjects.getTypeRegistry();
-
-      const kibanaConfig = await this.coreContext.configService
-        .atPath('kibana')
-        .pipe(first())
-        .toPromise();
+      const kibanaConfig = this.configService.get('kibana');
 
       const callCluster = retryCallCluster(
         this.elasticsearch.legacy.client.callAsInternalUser,
@@ -112,7 +112,7 @@ export class TenantsMigrationService {
         return;
       }
 
-      const migrators = this.tenantIndices.map(index => {
+      const migrators = this.tenantIndices.map((index) => {
         return new KibanaMigrator({
           ...migratorDeps,
           kibanaConfig: { ...kibanaConfig, index },
@@ -125,7 +125,7 @@ export class TenantsMigrationService {
         We must avoid waiting for all promisses to fulfill here. We may have a lot of tenants.
         And Kibana fails if a plugin start process is longer then 30 sec.
       */
-      Promise.all(migrators.map(migrator => migrator.runMigrations())).catch(error => {
+      Promise.all(migrators.map((migrator) => migrator.runMigrations())).catch((error) => {
         this.logger.error(`Fail to run migration: ${error.toString()}: ${error.stack}`);
       });
     } catch (error) {

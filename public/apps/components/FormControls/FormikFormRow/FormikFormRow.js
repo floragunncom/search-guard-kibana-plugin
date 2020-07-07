@@ -30,7 +30,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { EuiFormRow } from '@elastic/eui';
+import { EuiFormRow, EuiErrorBoundary } from '@elastic/eui';
 
 const FormikFormRow = ({
   children,
@@ -38,14 +38,16 @@ const FormikFormRow = ({
   name,
   rowProps: { isInvalid, error, ...props }
 }) => (
-  <EuiFormRow
-    id={name}
-    isInvalid={isInvalid instanceof Function ? isInvalid(name, form) : isInvalid}
-    error={error instanceof Function ? error(name, form) : error}
-    {...props}
-  >
-    {children}
-  </EuiFormRow>
+  <EuiErrorBoundary>
+    <EuiFormRow
+      id={name}
+      isInvalid={isInvalid instanceof Function ? isInvalid(name, form) : isInvalid}
+      error={error instanceof Function ? error(name, form) : error}
+      {...props}
+    >
+      {children}
+    </EuiFormRow>
+  </EuiErrorBoundary>
 );
 
 FormikFormRow.propTypes = {

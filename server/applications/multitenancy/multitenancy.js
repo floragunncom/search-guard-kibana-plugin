@@ -15,7 +15,6 @@
  limitations under the License.
  */
 
-import { first } from 'rxjs/operators';
 import { TenantsMigrationService } from './tenants_migration_service';
 import { defineMultitenancyRoutes } from './routes';
 import { requestHeaders } from './request_headers';
@@ -31,32 +30,32 @@ export class Multitenancy {
     hapiServer,
     searchGuardBackend,
     elasticsearch,
-    config,
+    configService,
     authInstance,
     router,
     spacesPlugin = null,
   }) {
     this.logger.info('Setup app');
+    this.configService = configService;
 
     try {
-      const esConfig = await this.coreContext.configService
-        .atPath('elasticsearch')
-        .pipe(first())
-        .toPromise();
+      const requestHeadersWhitelist = this.configService.get(
+        'elasticsearch.requestHeadersWhitelist'
+      );
 
-      if (!esConfig.requestHeadersWhitelist.includes('sgtenant')) {
+      if (!requestHeadersWhitelist.includes('sgtenant')) {
         throw new Error(
           'No tenant header found in whitelist. Please add sgtenant to elasticsearch.requestHeadersWhitelist in kibana.yml'
         );
       }
 
-      defineMultitenancyRoutes({ server: hapiServer, searchGuardBackend, config });
+      defineMultitenancyRoutes({ server: hapiServer, searchGuardBackend, config: configService });
 
       requestHeaders({
         server: hapiServer,
         searchGuardBackend,
         authInstance,
-        config,
+        config: configService,
         elasticsearch,
         spacesPlugin,
       });
@@ -69,20 +68,25 @@ export class Multitenancy {
         clearInvalid: true, // remove invalid cookies
         strictHeader: true, // don't allow violations of RFC 6265
         encoding: 'iron',
-        password: config.get('searchguard.cookie.password'),
-        isSameSite: config.get('searchguard.cookie.isSameSite'),
+        password: configService.get('searchguard.cookie.password'),
+        isSameSite: configService.get('searchguard.cookie.isSameSite'),
       };
 
-      if (config.get('searchguard.cookie.domain')) {
-        preferenceCookieConf.domain = config.get('searchguard.cookie.domain');
+      if (configService.get('searchguard.cookie.domain')) {
+        preferenceCookieConf.domain = configService.get('searchguard.cookie.domain');
       }
 
       hapiServer.state(
-        config.get('searchguard.cookie.preferences_cookie_name'),
+        configService.get('searchguard.cookie.preferences_cookie_name'),
         preferenceCookieConf
       );
 
-      await this.tenantsMigration.setup({ searchGuardBackend, elasticsearch, router });
+      await this.tenantsMigration.setup({
+        searchGuardBackend,
+        elasticsearch,
+        router,
+        configService,
+      });
     } catch (error) {
       this.logger.error(`setup: ${error.toString()} ${error.stack}`);
       throw error;

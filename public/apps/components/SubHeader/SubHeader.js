@@ -30,7 +30,7 @@
 
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { EuiHorizontalRule, EuiText, EuiTitle } from '@elastic/eui';
+import { EuiHorizontalRule, EuiText, EuiTitle, EuiErrorBoundary } from '@elastic/eui';
 
 const DEFAULT_PROPS = { size: 'xs', style: { paddingLeft: '10px' } };
 
@@ -41,11 +41,11 @@ const SubHeader = ({
   title,
   titleProps
 }) => (
-  <Fragment>
+  <EuiErrorBoundary>
     <EuiTitle {...titleProps}>{title}</EuiTitle>
     <EuiHorizontalRule {...horizontalRuleProps} />
     <EuiText {...descriptionProps}>{description}</EuiText>
-  </Fragment>
+  </EuiErrorBoundary>
 );
 
 SubHeader.propTypes = {

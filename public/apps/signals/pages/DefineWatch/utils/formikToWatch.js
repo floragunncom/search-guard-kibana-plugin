@@ -1,16 +1,11 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import { cloneDeep, omit, get } from 'lodash';
 import buildSchedule from './buildSchedule';
 import { buildThrottle } from './buildThrottle';
 import { buildGraphWatchChecks } from './graphWatch';
-import {
-  comboBoxOptionsToArray,
-  foldMultiLineString,
-} from '../../../utils/helpers';
-import {
-  WATCH_TYPES,
-  META_FIELDS_TO_OMIT,
-  SEVERITY
-} from './constants';
+import { buildCheckBlock } from '../components/BlocksWatch/utils/checkBlocks';
+import { comboBoxOptionsToArray, foldMultiLineString } from '../../../utils/helpers';
+import { WATCH_TYPES, META_FIELDS_TO_OMIT, SEVERITY } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
 
 export function buildSeverity(watch) {
@@ -23,7 +18,7 @@ export function buildSeverity(watch) {
   if (!newWatch._ui.isSeverity) {
     delete newWatch.severity;
 
-    newWatch.actions.forEach(action => {
+    newWatch.actions.forEach((action) => {
       if (action.severity) {
         delete action.severity;
       }
@@ -37,41 +32,35 @@ export function buildSeverity(watch) {
   const severity = {
     value: get(value, '[0].label', ''),
     order,
-    mapping: []
+    mapping: [],
   };
 
   // Order is important for ES plugin
-  const thresholdLevels = [
-    SEVERITY.INFO,
-    SEVERITY.WARNING,
-    SEVERITY.ERROR,
-    SEVERITY.CRITICAL
-  ];
+  const thresholdLevels = [SEVERITY.INFO, SEVERITY.WARNING, SEVERITY.ERROR, SEVERITY.CRITICAL];
 
-  thresholdLevels.forEach(level => {
+  thresholdLevels.forEach((level) => {
     if (thresholds[level]) {
       severity.mapping.push({
         level,
-        threshold: thresholds[level]
+        threshold: thresholds[level],
       });
     }
   });
 
   newWatch.severity = severity;
 
-  newWatch.actions.forEach(action => {
+  newWatch.actions.forEach((action) => {
     action.severity = comboBoxOptionsToArray(action.severity);
   });
 
   // Have only search requests in graph mode to avoid conflict
   // with severity
   if (newWatch._ui.watchType === WATCH_TYPES.GRAPH) {
-    newWatch.checks = newWatch.checks
-      .filter(check => check.type.includes('search'));
+    newWatch.checks = newWatch.checks.filter((check) => check.type.includes('search'));
   }
 
   if (newWatch._ui.isResolveActions) {
-    newWatch.resolve_actions.forEach(action => {
+    newWatch.resolve_actions.forEach((action) => {
       action.resolves_severity = comboBoxOptionsToArray(action.resolves_severity);
     });
   }
@@ -89,14 +78,14 @@ export function buildWebhookAction(action = {}) {
 
   return {
     ...action,
-    request: { ...action.request, headers }
+    request: { ...action.request, headers },
   };
 }
 
 export function buildSlackAction(action = {}) {
   return {
     ...action,
-    account: comboBoxOptionsToArray(action.account)[0]
+    account: comboBoxOptionsToArray(action.account)[0],
   };
 }
 
@@ -106,7 +95,7 @@ export function buildJiraAction(action = {}) {
     account: comboBoxOptionsToArray(action.account)[0],
   };
 
-  Object.keys(newAction.issue).forEach(key => {
+  Object.keys(newAction.issue).forEach((key) => {
     if (!newAction.issue[key]) {
       delete newAction.issue[key];
     }
@@ -121,13 +110,13 @@ export function buildPagerdutyAction(action = {}) {
     account: comboBoxOptionsToArray(action.account)[0],
   };
 
-  Object.keys(action.event).forEach(key => {
+  Object.keys(action.event).forEach((key) => {
     if (!action.event[key]) {
       delete action.event[key];
     }
   });
 
-  Object.keys(action.event.payload).forEach(key => {
+  Object.keys(action.event.payload).forEach((key) => {
     if (!action.event.payload[key]) {
       delete action.event.payload[key];
     }
@@ -142,36 +131,33 @@ export function buildEmailAction(action = {}) {
     to: comboBoxOptionsToArray(action.to),
     cc: comboBoxOptionsToArray(action.cc),
     bcc: comboBoxOptionsToArray(action.bcc),
-    account: comboBoxOptionsToArray(action.account)[0]
+    account: comboBoxOptionsToArray(action.account)[0],
   };
 }
 
 export const buildIndexAction = (action = {}) => {
   return {
     ...action,
-    index: get(action, 'index[0].label', '')
+    index: get(action, 'index[0].label', ''),
   };
 };
 
-export const buildChecksFromChecksBlocks = (checks = []) => checks
-  .reduce((res, { check }) => {
-    res.push(JSON.parse(foldMultiLineString(check)));
-    return res;
-  }, []);
+export const buildChecksFromChecksBlocks = (checks = []) => checks.map(buildCheckBlock);
+
+export const buildChecksFromFormikChecks = (checks = []) => JSON.parse(foldMultiLineString(checks));
 
 export const buildChecks = ({ _ui: ui = {}, checks = [] }) => {
   const { watchType, checksBlocks } = ui;
 
   if (watchType === WATCH_TYPES.JSON) {
     try {
-      return JSON.parse(foldMultiLineString(checks));
+      return buildChecksFromFormikChecks(checks);
     } catch (err) {
       console.error('Fail to parse checks for Json watch');
       return [];
     }
   }
 
-  // TODO: write tests for Blocks
   if (watchType === WATCH_TYPES.BLOCKS) {
     try {
       return buildChecksFromChecksBlocks(checksBlocks);
@@ -185,48 +171,52 @@ export const buildChecks = ({ _ui: ui = {}, checks = [] }) => {
 };
 
 export const buildActions = ({ actions = [], resolve_actions: resolveActions, _ui = {} }) => {
-  const buildHelper = actions => {
+  const buildHelper = (actions) => {
     const newActions = cloneDeep(actions);
 
-    return newActions.map(action => {
+    return newActions.map((action) => {
       // resolve_actions don't have throttle_period
       // TODO: add test for the absence of resolve_actions throttle_period
       const watchAction = action.resolves_severity ? action : buildThrottle(action);
 
       try {
         if (_ui.watchType === WATCH_TYPES.GRAPH && action.type !== ACTION_TYPE.INDEX) {
-          // Graph watch has no checks
+          // Graph watch actions has no checks. Except the index (Elasticsearch) action.
           watchAction.checks = [];
-        } else {
-          watchAction.checks = JSON.parse(foldMultiLineString(watchAction.checks));
+        } else if (_ui.watchType === WATCH_TYPES.JSON) {
+          watchAction.checks = buildChecksFromFormikChecks(watchAction.checks);
+        } else if (_ui.watchType === WATCH_TYPES.BLOCKS) {
+          watchAction.checks = buildChecksFromChecksBlocks(watchAction.checksBlocks);
         }
       } catch (err) {
         console.error(`Fail to parse action "${action.name}" checks`);
         watchAction.checks = [];
       }
 
+      delete watchAction.checksBlocks;
+
       if (action.type === ACTION_TYPE.INDEX) {
-        return omit(buildIndexAction(watchAction), ['_checksBlocks']);
+        return buildIndexAction(watchAction);
       }
 
       if (action.type === ACTION_TYPE.EMAIL) {
-        return omit(buildEmailAction(watchAction), ['_checksBlocks']);
+        return buildEmailAction(watchAction);
       }
 
       if (action.type === ACTION_TYPE.SLACK) {
-        return omit(buildSlackAction(watchAction), ['_checksBlocks']);
+        return buildSlackAction(watchAction);
       }
 
       if (action.type === ACTION_TYPE.JIRA) {
-        return omit(buildJiraAction(watchAction), ['_checksBlocks']);
+        return buildJiraAction(watchAction);
       }
 
       if (action.type === ACTION_TYPE.PAGERDUTY) {
-        return omit(buildPagerdutyAction(watchAction), ['_checksBlocks']);
+        return buildPagerdutyAction(watchAction);
       }
 
       // if ACTION_TYPE.WEBHOOK
-      return omit(buildWebhookAction(watchAction), ['_checksBlocks']);
+      return buildWebhookAction(watchAction);
     });
   };
 

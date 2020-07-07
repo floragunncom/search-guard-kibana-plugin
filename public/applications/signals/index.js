@@ -1,11 +1,12 @@
 /* eslint-disable @kbn/eslint/require-license-header */
+import { SEARCHGUARD_APP_CATEGORY } from '../../utils/constants';
 
 export class Signals {
   setup({ core, httpClient }) {
     core.application.register({
       id: 'searchguard-signals',
-      title: 'Search Guard Signals',
-      icon: 'plugins/searchguard/apps/signals/assets/signals_logo_64.svg',
+      title: 'Signals',
+      category: SEARCHGUARD_APP_CATEGORY,
       mount: async ({ element }) => {
         const { renderApp } = await import('./npstart');
 

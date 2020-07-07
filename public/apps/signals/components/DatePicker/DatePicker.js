@@ -1,5 +1,6 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Component } from 'react';
-import { EuiSuperDatePicker } from '@elastic/eui';
+import { EuiSuperDatePicker, EuiErrorBoundary } from '@elastic/eui';
 import PropTypes from 'prop-types';
 
 export default class DatePicker extends Component {
@@ -8,20 +9,21 @@ export default class DatePicker extends Component {
     isLoading: false,
     showUpdateButton: true,
     isAutoRefreshOnly: false,
-  }
+  };
 
   onTimeChange = ({ start, end }) => {
     const { refreshInterval, isPaused, onChange } = this.props;
 
     this.setState((prevState) => {
-      const recentlyUsedRanges = prevState.recentlyUsedRanges.filter(recentlyUsedRange => {
+      const recentlyUsedRanges = prevState.recentlyUsedRanges.filter((recentlyUsedRange) => {
         const isDuplicate = recentlyUsedRange.start === start && recentlyUsedRange.end === end;
         return !isDuplicate;
       });
       recentlyUsedRanges.unshift({ start, end });
 
       return {
-        recentlyUsedRanges: recentlyUsedRanges.length > 10 ? recentlyUsedRanges.slice(0, 9) : recentlyUsedRanges,
+        recentlyUsedRanges:
+          recentlyUsedRanges.length > 10 ? recentlyUsedRanges.slice(0, 9) : recentlyUsedRanges,
         isLoading: true,
       };
     }, this.startLoading);
@@ -32,7 +34,7 @@ export default class DatePicker extends Component {
       refreshInterval,
       isPaused,
     });
-  }
+  };
 
   onRefresh = ({ start, end, refreshInterval }) => {
     const { isPaused, onChange } = this.props;
@@ -45,12 +47,12 @@ export default class DatePicker extends Component {
         end,
         refreshInterval,
         isPaused,
-        isRefreshingWithNoChange: true
+        isRefreshingWithNoChange: true,
       });
     });
-  }
+  };
 
-  onStartInputChange = e => {
+  onStartInputChange = (e) => {
     const { end, refreshInterval, isPaused, onChange } = this.props;
 
     onChange({
@@ -61,7 +63,7 @@ export default class DatePicker extends Component {
     });
   };
 
-  onEndInputChange = e => {
+  onEndInputChange = (e) => {
     const { start, refreshInterval, isPaused, onChange } = this.props;
 
     onChange({
@@ -73,14 +75,12 @@ export default class DatePicker extends Component {
   };
 
   startLoading = () => {
-    setTimeout(
-      this.stopLoading,
-      1000);
-  }
+    setTimeout(this.stopLoading, 1000);
+  };
 
   stopLoading = () => {
     this.setState({ isLoading: false });
-  }
+  };
 
   onRefreshChange = ({ isPaused, refreshInterval }) => {
     const { start, end, onChange } = this.props;
@@ -91,37 +91,39 @@ export default class DatePicker extends Component {
       refreshInterval,
       isPaused,
     });
-  }
+  };
 
   toggleShowApplyButton = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       showUpdateButton: !prevState.showUpdateButton,
     }));
-  }
+  };
 
   toggleShowRefreshOnly = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       isAutoRefreshOnly: !prevState.isAutoRefreshOnly,
     }));
-  }
+  };
 
   render() {
     const { start, end, refreshInterval, isPaused } = this.props;
 
     return (
-      <EuiSuperDatePicker
-        isLoading={this.state.isLoading}
-        start={start}
-        end={end}
-        onTimeChange={this.onTimeChange}
-        onRefresh={this.onRefresh}
-        isPaused={isPaused}
-        refreshInterval={refreshInterval}
-        onRefreshChange={this.onRefreshChange}
-        recentlyUsedRanges={this.state.recentlyUsedRanges}
-        showUpdateButton={this.state.showUpdateButton}
-        isAutoRefreshOnly={this.state.isAutoRefreshOnly}
-      />
+      <EuiErrorBoundary>
+        <EuiSuperDatePicker
+          isLoading={this.state.isLoading}
+          start={start}
+          end={end}
+          onTimeChange={this.onTimeChange}
+          onRefresh={this.onRefresh}
+          isPaused={isPaused}
+          refreshInterval={refreshInterval}
+          onRefreshChange={this.onRefreshChange}
+          recentlyUsedRanges={this.state.recentlyUsedRanges}
+          showUpdateButton={this.state.showUpdateButton}
+          isAutoRefreshOnly={this.state.isAutoRefreshOnly}
+        />
+      </EuiErrorBoundary>
     );
   }
 }

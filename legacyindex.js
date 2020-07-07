@@ -11,7 +11,6 @@ import {
   APP_DESCRIPTION as signalsDescription
 } from './utils/signals/constants';
 import { handleSignalsAppAccess } from './lib/signals/lib/access/handleSignalsAppAccess';
-import { onHapiPreHandler } from './server/hapi_lifecycle_hooks';
 
 export default function (kibana) {
 
@@ -273,9 +272,6 @@ export default function (kibana) {
 
 
         async init(server, options) {
-            const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
-            server.ext({ type: 'onPreHandler', method: onHapiPreHandler(callWithRequest) });
-
             const legacyEsConfig = await server.newPlatform.__internals.elasticsearch.legacy.config$.pipe(first()).toPromise();
             APP_ROOT = '';
             API_ROOT = `${APP_ROOT}/api/v1`;

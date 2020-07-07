@@ -11,7 +11,7 @@ import {
 } from '../../../../../components';
 import ActionChecks from '../ActionChecks';
 import { validateEmptyField, isInvalid, hasError } from '../../../../../utils/validate';
-import ActionBodyHelpText from '../ActionBodyHelpText';
+import { RowHelpTextMustacheRuntimeDataField } from '../../RowHelpText';
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import ActionAccount from '../ActionAccount';
@@ -73,7 +73,7 @@ const renderCodeEditor = (path, label, editorTheme, editorOptions, checksResult,
         fullWidth: true,
         isInvalid,
         error: hasError,
-        helpText: (<ActionBodyHelpText watchResultData={checksResult} />)
+        helpText: <RowHelpTextMustacheRuntimeDataField />,
       }}
       elementProps={{
         isInvalid,

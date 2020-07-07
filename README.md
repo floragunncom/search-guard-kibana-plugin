@@ -105,12 +105,12 @@ For more information about any of these commands run `yarn ${task} --help`. For 
   **package.json**
 ```json  
     "searchguard": {  
-        "test_sg_version": "7.7.1-SNAPSHOT",
+        "test_sg_version": "7.8.0-42.0.0-SNAPSHOT",
         "kibana_branch": "7.7"
     }
 ```
 where
-  - `test_sg_version` - is the location of the latest Search Guard Suite Snapshot for ES 7.7.1 in Search Guard maven repository.
+  - `test_sg_version` - is the location of the latest SNAPSHOT for specified Search Guard and ES versions in Search Guard maven repository.
   - `kibana_branch` - is the branch in the official Kibana repository, which should be used for building and testing Search Guard Kibana plugin.
   
   These parameters are optional - if you don't specify them, the integration tests will be executed according to standard procedure.

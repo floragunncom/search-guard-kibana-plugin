@@ -133,7 +133,17 @@ export const ConfigSchema = schema.object({
       enable_private: schema.boolean({ defaultValue: true }),
       enable_global: schema.boolean({ defaultValue: true }),
       preferred: schema.maybe(schema.arrayOf(schema.string()))
-    })
+    }),
+    saved_objects_migration: schema.object({
+      batch_size: schema.number({ defaultValue: 100 }),
+      scroll_duration: schema.string({ defaultValue: '15m' }),
+      poll_interval: schema.number({ defaultValue: 1500 }),
+      skip: schema.boolean({ defaultValue: false }),
+    }),
+  }),
+  saved_objects: schema.object({
+    max_import_payload_bytes: schema.number({ defaultValue: 10485760 }),
+    max_import_export_size: schema.number({ defaultValue: 10000 }),
   }),
 
   configuration: schema.object({

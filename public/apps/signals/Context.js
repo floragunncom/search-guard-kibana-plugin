@@ -159,7 +159,7 @@ const ContextProvider = ({ children, core, httpClient }) => {
     });
 
   const addErrorToast = error => {
-    let text = get(error, 'data.message') || error.message || error;
+    let text = get(error, 'data.message') || get(error, 'body.message') || error.message || error;
     const detail = get(error, 'body.detail', undefined);
 
     if (detail) {
