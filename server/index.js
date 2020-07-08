@@ -1,46 +1,31 @@
-import { PluginInitializerContext } from "../../../src/core/server/plugins";
-import { Plugin } from './serverPlugin';
+/* eslint-disable @kbn/eslint/require-license-header */
 import { schema } from '@kbn/config-schema';
+import { Plugin } from './serverPlugin';
 import { version as sgVersion } from '../package.json';
 
 const getOpenIdSchema = (isSelectedAuthType) => {
   return schema.object({
-    connect_url: (isSelectedAuthType)
-      ? schema.string()
-      : schema.maybe(schema.string())
-    ,
+    connect_url: isSelectedAuthType ? schema.string() : schema.maybe(schema.string()),
     header: schema.string({ defaultValue: 'Authorization' }),
-    client_id: (isSelectedAuthType)
-      ? schema.string()
-      : schema.maybe(schema.string())
-    ,
+    client_id: isSelectedAuthType ? schema.string() : schema.maybe(schema.string()),
     client_secret: schema.string({ defaultValue: '' }),
-    scope: schema.string({ defaultValue: 'openid profile email address phone'}),
-    base_redirect_url: schema.string({ defaultValue: ''}),
-    logout_url: schema.string({ defaultValue: ''}),
-    root_ca: schema.string({ defaultValue: ''}),
+    scope: schema.string({ defaultValue: 'openid profile email address phone' }),
+    base_redirect_url: schema.string({ defaultValue: '' }),
+    logout_url: schema.string({ defaultValue: '' }),
+    root_ca: schema.string({ defaultValue: '' }),
     verify_hostnames: schema.boolean({ defaultValue: true }),
-  })
-}
+  });
+};
 
 const getProxyCacheSchema = (isSelectedAuthType) => {
   return schema.object({
-    user_header: (isSelectedAuthType)
-      ? schema.string()
-      : schema.maybe(schema.string())
-    ,
-    roles_header: (isSelectedAuthType)
-      ? schema.string()
-      : schema.maybe(schema.string())
-    ,
-    proxy_header: schema.string({defaultValue: 'x-forwarded-for'}),
-    proxy_header_ip: (isSelectedAuthType)
-      ? schema.string()
-      : schema.maybe(schema.string())
-    ,
-    login_endpoint: schema.nullable(schema.string({defaultValue: null})),
-  })
-}
+    user_header: isSelectedAuthType ? schema.string() : schema.maybe(schema.string()),
+    roles_header: isSelectedAuthType ? schema.string() : schema.maybe(schema.string()),
+    proxy_header: schema.string({ defaultValue: 'x-forwarded-for' }),
+    proxy_header_ip: isSelectedAuthType ? schema.string() : schema.maybe(schema.string()),
+    login_endpoint: schema.nullable(schema.string({ defaultValue: null })),
+  });
+};
 
 // @todo We need to go through all of these and double check the default values, nullable, allow empty string etc.
 export const ConfigSchema = schema.object({
@@ -49,7 +34,7 @@ export const ConfigSchema = schema.object({
   allow_client_certificates: schema.boolean({ defaultValue: false }),
 
   readonly_mode: schema.object({
-    roles: schema.arrayOf(schema.string(), { defaultValue: [] })
+    roles: schema.arrayOf(schema.string(), { defaultValue: [] }),
   }),
 
   xff: schema.object({
@@ -64,37 +49,41 @@ export const ConfigSchema = schema.object({
     password: schema.string({ minLength: 32, defaultValue: 'searchguard_cookie_default_password' }),
     ttl: schema.number({ defaultValue: 60 * 60 * 1000 }),
     domain: schema.maybe(schema.string()),
-    isSameSite: schema.oneOf([
-      // @todo Check the changes in Chrome 80 here - more values needed? Compare with hapi-auth-cookie
-      schema.literal(false),
-      schema.literal('Strict'),
-      schema.literal('Lax')
+    isSameSite: schema.oneOf(
+      [
+        // @todo Check the changes in Chrome 80 here - more values needed? Compare with hapi-auth-cookie
+        schema.literal(false),
+        schema.literal('Strict'),
+        schema.literal('Lax'),
       ],
       { defaultValue: false }
-      ),
+    ),
   }),
   session: schema.object({
     ttl: schema.number({ min: 0, defaultValue: 60 * 60 * 1000 }),
-    keepalive: schema.boolean({ defaultValue: true })
+    keepalive: schema.boolean({ defaultValue: true }),
   }),
 
   /**
    * General auth
    */
   auth: schema.object({
-    type: schema.oneOf([
-      schema.literal(''),
-      schema.literal('basicauth'),
-      schema.literal('jwt'),
-      schema.literal('openid'),
-      schema.literal('saml'),
-      schema.literal('proxy'),
-      schema.literal('kerberos'),
-      schema.literal('proxycache'),
-    ], { defaultValue: 'basicauth' }),
+    type: schema.oneOf(
+      [
+        schema.literal(''),
+        schema.literal('basicauth'),
+        schema.literal('jwt'),
+        schema.literal('openid'),
+        schema.literal('saml'),
+        schema.literal('proxy'),
+        schema.literal('kerberos'),
+        schema.literal('proxycache'),
+      ],
+      { defaultValue: 'basicauth' }
+    ),
     anonymous_auth_enabled: schema.boolean({ defaultValue: false }),
-    unauthenticated_routes: schema.arrayOf(schema.string(), { defaultValue: ['/api/status']}),
-    logout_url: schema.string({ defaultValue: '' })
+    unauthenticated_routes: schema.arrayOf(schema.string(), { defaultValue: ['/api/status'] }),
+    logout_url: schema.string({ defaultValue: '' }),
   }),
 
   /**
@@ -103,7 +92,7 @@ export const ConfigSchema = schema.object({
   basicauth: schema.object({
     forbidden_usernames: schema.arrayOf(schema.string(), { defaultValue: [] }),
     allowed_usernames: schema.nullable(schema.arrayOf(schema.string())),
-    header_trumps_session: schema.boolean({ defaultValue: false}),
+    header_trumps_session: schema.boolean({ defaultValue: false }),
     alternative_login: schema.object({
       headers: schema.arrayOf(schema.string(), { defaultValue: [] }),
       show_for_parameter: schema.string({ defaultValue: '' }),
@@ -114,11 +103,16 @@ export const ConfigSchema = schema.object({
     loadbalancer_url: schema.nullable(schema.string()),
     login: schema.object({
       title: schema.string({ defaultValue: 'Please login to Kibana' }),
-      subtitle: schema.string({ defaultValue: 'If you have forgotten your username or password, please ask your system administrator' }),
+      subtitle: schema.string({
+        defaultValue:
+          'If you have forgotten your username or password, please ask your system administrator',
+      }),
       showbrandimage: schema.boolean({ defaultValue: true }),
-      brandimage: schema.string({ defaultValue: 'plugins/searchguard/assets/searchguard_logo.svg' }),
-      buttonstyle: schema.object({}, { unknowns: 'allow' })
-    })
+      brandimage: schema.string({
+        defaultValue: 'plugins/searchguard/assets/searchguard_logo.svg',
+      }),
+      buttonstyle: schema.object({}, { unknowns: 'allow' }),
+    }),
   }),
 
   /**
@@ -132,7 +126,7 @@ export const ConfigSchema = schema.object({
     tenants: schema.object({
       enable_private: schema.boolean({ defaultValue: true }),
       enable_global: schema.boolean({ defaultValue: true }),
-      preferred: schema.maybe(schema.arrayOf(schema.string()))
+      preferred: schema.maybe(schema.arrayOf(schema.string())),
     }),
     saved_objects_migration: schema.object({
       batch_size: schema.number({ defaultValue: 100 }),
@@ -172,7 +166,7 @@ export const ConfigSchema = schema.object({
     enabled: schema.boolean({ defaultValue: false }),
     login_endpoint: schema.maybe(schema.string()),
     url_param: schema.string({ defaultValue: 'authorization' }),
-    header: schema.string({ defaultValue: 'Authorization'})
+    header: schema.string({ defaultValue: 'Authorization' }),
   }),
 
   sgVersion: schema.string({ defaultValue: sgVersion }),
@@ -191,7 +185,6 @@ export const config = {
   schema: ConfigSchema,
 };
 
-
-export function plugin(initializerContext: PluginInitializerContext): Plugin {
+export function plugin(initializerContext) {
   return new Plugin(initializerContext);
 }
