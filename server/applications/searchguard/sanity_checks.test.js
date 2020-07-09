@@ -12,10 +12,10 @@ import {
   defaultCookiePasswordWarnText,
   cookieSecureFalseWarnText,
 } from './sanity_checks';
-import { setupLoggerMock, setupSearchGuardBackendInstMock } from './utils/mocks';
+import { setupLoggerMock, setupSearchGuardBackendInstMock } from '../../utils/mocks';
 
-import { ConfigService } from './utils';
-import { DEFAULT_CONFIG } from './utils/read_kibana_config';
+import { ConfigService } from '../../../utils';
+import { DEFAULT_CONFIG } from './read_kibana_config';
 
 describe('sanity_checks', () => {
   describe('checkXPackSecurityDisabled', () => {

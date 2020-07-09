@@ -16,7 +16,7 @@ const Context = React.createContext();
 
 const { darkTheme, theme: lightTheme, ...editorOptionsDefaults } = CODE_EDITOR;
 
-const ContextProvider = ({ children, httpClient, core }) => {
+const ContextProvider = ({ children, httpClient, core, configService }) => {
   const IS_DARK_THEME = core.uiSettings.get('theme:darkMode');
 
   const [editorTheme] = useState(IS_DARK_THEME ? darkTheme : lightTheme);
@@ -197,6 +197,7 @@ const ContextProvider = ({ children, httpClient, core }) => {
           editorTheme,
           editorOptions,
           httpClient,
+          configService,
           onSwitchChange,
           onComboBoxChange,
           onComboBoxCreateOption,

@@ -31,7 +31,7 @@ export const renderApp = ({ element, basePath, config, httpClient }) => {
             <LoginPage
               httpClient={httpClient}
               basePath={basePath}
-              basicAuthConfig={config.get('basicauth')}
+              basicAuthConfig={config.get('searchguard.basicauth')}
               loginButtonStyles={stringCSSToReactStyle(config.get('basicauth.login.buttonstyle'))}
               alternativeLoginButtonStyles={stringCSSToReactStyle(
                 config.get('basicauth.alternative_login.buttonstyle')

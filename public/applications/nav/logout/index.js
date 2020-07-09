@@ -1,16 +1,14 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import React from 'react';
 import ReactDOM from 'react-dom';
-
+import { get } from 'lodash';
 import { HeaderUserMenu } from './header_user_menu';
 import { logoutText } from '../utils/i18n';
 
 export class HeaderUserMenuService {
-  async start({ core, httpClient, config }) {
-    const {
-      userName,
-      auth: { type: authType, logout_url: logoutUrl },
-    } = config;
+  start({ core, httpClient, config = {} } = {}) {
+    const { user_name: userName } = config.rest_info;
+    const { type: authType, logout_url: logoutUrl } = get(config, 'searchguard.auth');
 
     const props = { httpClient, authType };
 

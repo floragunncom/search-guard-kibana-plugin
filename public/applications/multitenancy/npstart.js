@@ -7,19 +7,18 @@ import { MultiTenancyPage } from './MultiTenancyPage';
 import { HashRouter as Router, Route } from 'react-router-dom';
 import { I18nProvider } from '@kbn/i18n/react';
 
-export const renderApp = ({ element, sgContext, httpClient, chromeHelper }) => {
+export const renderApp = ({ element, httpClient, chromeHelper, configService }) => {
   ReactDOM.render(
     <I18nProvider>
       <Router>
         <Route
-          render={props => (
-            <MainContextProvider>
-              <MultiTenancyPage
-                httpClient={httpClient}
-                sgContext={sgContext}
-                chromeHelper={chromeHelper}
-                {...props}
-              />
+          render={(props) => (
+            <MainContextProvider
+              httpClient={httpClient}
+              chromeHelper={chromeHelper}
+              configService={configService}
+            >
+              <MultiTenancyPage {...props} />
             </MainContextProvider>
           )}
         />

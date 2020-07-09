@@ -1,10 +1,9 @@
-import React from 'react';
+/* eslint-disable @kbn/eslint/require-license-header */
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { isObject } from 'lodash';
 import Empty from './assets/empty';
-import { sgContext } from '../../../../utils/sgContext';
-
-const IS_DARK_THEME = sgContext.isDarkMode;
+import { Context } from '../../Context';
 
 const icons = {
   logo: require('./assets/logo'),
@@ -39,8 +38,10 @@ const sizes = {
 };
 
 const Icon = ({ type, size = 'xl' }) => {
+  const { configService } = useContext(Context);
+
   const _size = isObject(size) ? size : sizes[size];
-  const _type = IS_DARK_THEME ? type + '_dark' : type;
+  const _type = configService.get('is_dark_mode') ? type + '_dark' : type;
   const Svg = icons[_type] ? icons[_type].default : Empty;
   return (<Svg {..._size} />);
 };

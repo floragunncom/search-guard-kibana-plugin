@@ -3,7 +3,7 @@ import { schema } from '@kbn/config-schema';
 import { Plugin } from './serverPlugin';
 import { version as sgVersion } from '../package.json';
 
-import { DEFAULT_CONFIG } from './utils/read_kibana_config';
+import { DEFAULT_CONFIG } from './applications/searchguard/read_kibana_config';
 
 const getOpenIdSchema = (isSelectedAuthType) => {
   return schema.object({

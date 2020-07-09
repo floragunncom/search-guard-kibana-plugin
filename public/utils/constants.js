@@ -10,3 +10,5 @@ export const SEARCHGUARD_APP_CATEGORY = {
   euiIconType: sgLogo,
   order: 9010,
 };
+
+export * from '../../utils/constants';

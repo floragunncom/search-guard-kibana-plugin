@@ -1,7 +1,6 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React from 'react';
 import { isEmpty, pick } from 'lodash';
-
-import { sgContext} from '../../../../../utils/sgContext';
 
 const getResource = (selectSideNavItem, resources) => {
   if (isEmpty(resources)) return {};
@@ -26,7 +25,7 @@ const getResource = (selectSideNavItem, resources) => {
     default:
       return {
         kibanaPlugin: {
-          version: sgContext.pluginVersion,
+          version: resources.sg_version,
           is_enterprise: false
         },
         auditLogging: pick(resources.modules.AUDITLOG, ['version', 'is_enterprise']),

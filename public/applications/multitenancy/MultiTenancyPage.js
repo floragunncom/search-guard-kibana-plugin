@@ -57,6 +57,7 @@ import {
   showVisualizationLabel,
 } from './utils/i18n/multitenancy_labels';
 import { LicenseWarningCallout } from '../../apps/components';
+import { tenantNameToUiTenantName } from '../../../utils';
 
 export class MultiTenancyPage extends Component {
   static contextType = MainContext;
@@ -64,7 +65,7 @@ export class MultiTenancyPage extends Component {
   constructor(props, context) {
     super(props, context);
 
-    this.config = this.props.sgContext.config;
+    this.configService = context.configService;
 
     this.state = {
       isLoading: true,
@@ -83,8 +84,8 @@ export class MultiTenancyPage extends Component {
       userHasDashboardOnlyRole: false,
       globalUserWriteable: false,
       globalUserVisible: false,
-      showSearch: this.config.get('multitenancy.enable_filter'),
-      showRoles: this.config.get('multitenancy.show_roles'),
+      showSearch: this.configService.get('searchguard.multitenancy.enable_filter'),
+      showRoles: this.configService.get('searchguard.multitenancy.show_roles'),
     };
 
     const { addErrorToast } = context;
@@ -94,11 +95,11 @@ export class MultiTenancyPage extends Component {
   }
 
   fetchMultiTenancyInfo(addErrorToast) {
-    const { httpClient } = this.props;
+    const { httpClient } = this.context;
     httpClient.get(`${API_ROOT}/multitenancy/info`).then(
       response => {
-        const kibana_server_user = this.config.get('elasticsearch.username');
-        const kibana_index = this.config.get('kibana.index');
+        const kibana_server_user = this.configService.get('elasticsearch.username');
+        const kibana_index = this.configService.get('kibana.index');
 
         // sanity checks, check that configuration is correct on
         // both ES and KI side
@@ -144,7 +145,7 @@ export class MultiTenancyPage extends Component {
   }
 
   fetchTenants(addErrorToast) {
-    const { httpClient } = this.props;
+    const { httpClient } = this.context;
 
     httpClient.get(`${API_ROOT}/auth/authinfo`).then(
       response => {
@@ -152,9 +153,11 @@ export class MultiTenancyPage extends Component {
         // since we want to display tenant name with "Private"
         const userName = response.data.user_name;
         const allTenants = response.data.sg_tenants;
-        const globalEnabled = this.config.get('multitenancy.tenants.enable_global');
-        const privateEnabled = this.config.get('multitenancy.tenants.enable_private');
-        const readOnlyConfig = this.config.get('readonly_mode');
+        const {
+          enable_global: globalEnabled,
+          enable_private: privateEnabled,
+        } = this.configService.get('searchguard.multitenancy.tenants');
+        const readOnlyConfig = this.configService.get('readonly_mode');
 
         let userHasDashboardOnlyRole = false;
         try {
@@ -276,9 +279,14 @@ export class MultiTenancyPage extends Component {
   }
 
   selectTenant(tenant, redirectTo = null) {
-    const { httpClient, sgContext, chromeHelper } = this.props;
     const { userName } = this.state;
-    const { addSuccessToast, addErrorToast } = this.context;
+    const {
+      addSuccessToast,
+      addErrorToast,
+      httpClient,
+      chromeHelper,
+      configService,
+    } = this.context;
 
     httpClient
       .post(`${API_ROOT}/multitenancy/tenant`, {
@@ -288,7 +296,7 @@ export class MultiTenancyPage extends Component {
       .then(
         response => {
           const currentTenant = response.data;
-          sgContext.multiTenancy.setTenant(currentTenant);
+          configService.setDynamicConfig('multitenancy.current_tenant', currentTenant);
           this.setCurrentTenant(currentTenant, userName);
 
           // clear lastUrls from nav links to avoid not found errors.
@@ -558,7 +566,7 @@ export class MultiTenancyPage extends Component {
           </EuiPageHeader>
           <EuiPageContent>
             <EuiPageContentBody className="sg-page-content-body">
-              <LicenseWarningCallout httpClient={this.props.httpClient} />
+              <LicenseWarningCallout httpClient={this.context.httpClient} />
 
               {this.renderFlyout()}
               <EuiTitle size="m">
@@ -601,5 +609,3 @@ export class MultiTenancyPage extends Component {
     );
   }
 }
-
-//Main.contextType = Context;

@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
 import { defaultsDeep, get, set } from 'lodash';
+import { SG_GLOBAL_TENANT_NAME } from '../../utils/constants';
 
 export const DEFAULT_CONFIG = {
   elasticsearch: {
@@ -53,6 +54,11 @@ export const DEFAULT_CONFIG = {
       password: 'searchguard_cookie_default_password',
     },
   },
+  dynamic: {
+    multitenancy: {
+      current_tenant: SG_GLOBAL_TENANT_NAME,
+    },
+  },
 };
 
 export function nestConfigProperties(config = {}) {
@@ -95,10 +101,20 @@ export function parseKibanaConfig(rawConfig = '') {
 
 export function readKibanaConfig({ configPath = '', isDev = false } = {}) {
   if (!configPath) {
-    const kibanaYmlPath = path.resolve(__dirname, '..', '..', '..', '..', 'config', 'kibana.yml');
+    const kibanaYmlPath = path.resolve(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      '..',
+      'config',
+      'kibana.yml'
+    );
 
     const kibanaDevYmlPath = path.resolve(
       __dirname,
+      '..',
       '..',
       '..',
       '..',

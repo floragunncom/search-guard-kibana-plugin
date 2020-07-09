@@ -14,10 +14,13 @@ import * as systemStatusI18nLabels from '../../utils/i18n/system_status';
 import { APP_PATH, SYSTEM_STATUS_ACTIONS } from '../../utils/constants';
 import { getResource } from './utils';
 import { sideNavItem } from '../../utils/helpers';
+import { Context } from '../../Context';
 
 class SystemStatus extends Component {
-  constructor(props) {
-    super(props);
+  static contextType = Context;
+
+  constructor(props, context) {
+    super(props, context);
 
     this.state = {
       resources: {},
@@ -27,6 +30,7 @@ class SystemStatus extends Component {
     };
 
     this.backendService = new SystemService(this.props.httpClient);
+    this.configService = context.configService;
   }
 
   componentDidMount() {
@@ -55,7 +59,10 @@ class SystemStatus extends Component {
   fetchData = async () => {
     try {
       this.setState({ isLoading: true });
+
       const { data: resources } = await this.backendService.getSystemInfo();
+      resources.sg_version = this.configService.get('searchguard.sgVersion');
+
       this.setState({ resources });
     } catch (error) {
       this.props.onTriggerErrorCallout(error);
