@@ -187,6 +187,11 @@ searchguard.multitenancy.tenants.enable_global: false
   test('can produce the default config', () => {
     const kibanaConfig = '';
     const config = {
+      dynamic: {
+        multitenancy: {
+          current_tenant: '',
+        },
+      },
       elasticsearch: {
         customHeaders: {},
         hosts: ['http://localhost:9200'],

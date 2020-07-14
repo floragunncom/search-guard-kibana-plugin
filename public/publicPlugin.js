@@ -17,14 +17,13 @@ export class PublicPlugin {
   async setup(core, plugins) {
     this.httpClient = new HttpWrapper(core.http);
 
-    const { configService, systemStateService, chromeHelper } = await this.searchGuardApp.setup({
+    const { configService, chromeHelper } = await this.searchGuardApp.setup({
       core,
       plugins,
       httpClient: this.httpClient,
     });
 
     this.configService = configService;
-    this.systemStateService = systemStateService;
 
     try {
       this.signalsApp.setup({ core, httpClient: this.httpClient });
