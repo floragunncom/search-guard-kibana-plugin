@@ -197,7 +197,9 @@ searchguard.multitenancy.tenants.enable_global: false
         requestHeadersWhitelist: ['authorization'],
         requestTimeout: 30000,
         shardTimeout: 30000,
-        ssl: {},
+        ssl: {
+          alwaysPresentCertificate: false,
+        },
         startupTimeout: 5000,
         username: 'kibana_system',
       },
@@ -226,6 +228,11 @@ searchguard.multitenancy.tenants.enable_global: false
         rewriteBasePath: false,
         ssl: {
           enabled: false,
+        },
+      },
+      searchguard: {
+        cookie: {
+          password: 'searchguard_cookie_default_password',
         },
       },
     };

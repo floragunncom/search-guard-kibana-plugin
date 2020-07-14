@@ -15,7 +15,9 @@ export const DEFAULT_CONFIG = {
     requestHeadersWhitelist: ['authorization'],
     requestTimeout: 30000,
     shardTimeout: 30000,
-    ssl: {},
+    ssl: {
+      alwaysPresentCertificate: false,
+    },
     startupTimeout: 5000,
     username: 'kibana_system',
   },
@@ -44,6 +46,11 @@ export const DEFAULT_CONFIG = {
     rewriteBasePath: false,
     ssl: {
       enabled: false,
+    },
+  },
+  searchguard: {
+    cookie: {
+      password: 'searchguard_cookie_default_password',
     },
   },
 };

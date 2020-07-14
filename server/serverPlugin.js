@@ -25,6 +25,12 @@ import { Signals, Multitenancy } from './applications';
 import authInfoRoutes from '../lib/auth/routes_authinfo';
 import { ConfigService, readKibanaConfig } from './utils';
 import { APP_ROOT, API_ROOT, APP_NAME } from './utils/constants';
+import {
+  checkDoNotFailOnForbidden,
+  checkTLSConfig,
+  checkXPackSecurityDisabled,
+  checkCookieConfig,
+} from './sanity_checks';
 
 export class Plugin {
   constructor(initializerContext) {
@@ -60,6 +66,12 @@ export class Plugin {
       server,
       this.configService
     );
+
+    // Sanity checks
+    checkXPackSecurityDisabled({ pluginDependencies, logger: this.logger });
+    checkTLSConfig({ configService: this.configService, logger: this.logger });
+    checkDoNotFailOnForbidden({ searchGuardBackend, logger: this.logger });
+    checkCookieConfig({ configService: this.configService, logger: this.logger });
 
     // Inits the authInfo route
     authInfoRoutes(searchGuardBackend, server, APP_ROOT, API_ROOT);
@@ -97,21 +109,6 @@ export class Plugin {
         });
 
         this.logger.info('Initialising Search Guard authentication plugin.');
-
-        if (
-          this.configService.get('searchguard.cookie.password') ===
-          'searchguard_cookie_default_password'
-        ) {
-          this.logger.warn(
-            "Default cookie password detected, please set a password in kibana.yml by setting 'searchguard.cookie.password' (min. 32 characters)."
-          );
-        }
-
-        if (!this.configService.get('searchguard.cookie.secure')) {
-          this.logger.warn(
-            "'searchguard.cookie.secure' is set to false, cookies are transmitted over unsecure HTTP connection. Consider using HTTPS and set this key to 'true'"
-          );
-        }
 
         switch (authType) {
           case 'openid':
@@ -234,8 +231,6 @@ export class Plugin {
     );
     this.logger.info('Search Guard system routes registered.');
 
-    // @todo Sanity check - do not fail on forbidden
-    // @todo Sanity check - ssl certificates
     // @todo Signals app access
     this.signalsApp.setup({
       core,
