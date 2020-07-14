@@ -3,6 +3,8 @@ import { schema } from '@kbn/config-schema';
 import { Plugin } from './serverPlugin';
 import { version as sgVersion } from '../package.json';
 
+import { DEFAULT_CONFIG } from './utils/read_kibana_config';
+
 const getOpenIdSchema = (isSelectedAuthType) => {
   return schema.object({
     connect_url: isSelectedAuthType ? schema.string() : schema.maybe(schema.string()),
@@ -46,7 +48,10 @@ export const ConfigSchema = schema.object({
     name: schema.string({ defaultValue: 'searchguard_authentication' }),
     storage_cookie_name: schema.string({ defaultValue: 'searchguard_storage' }),
     preferences_cookie_name: schema.string({ defaultValue: 'searchguard_preferences' }),
-    password: schema.string({ minLength: 32, defaultValue: 'searchguard_cookie_default_password' }),
+    password: schema.string({
+      minLength: 32,
+      defaultValue: DEFAULT_CONFIG.searchguard.cookie.password,
+    }),
     ttl: schema.number({ defaultValue: 60 * 60 * 1000 }),
     domain: schema.maybe(schema.string()),
     isSameSite: schema.oneOf(

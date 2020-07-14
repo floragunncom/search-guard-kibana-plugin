@@ -3,9 +3,12 @@
     "version": "8.0.0",
     "server": true,
     "ui": true,
-    "optionalPlugins": ["spaces"],
+    "optionalPlugins": [
+      "spaces",
+      "security"
+    ],
     "requiredPlugins": [
-        "home"
+      "home"
     ],
     "configPath": ["searchguard"]
 }
