@@ -4,9 +4,9 @@ import uuid from 'uuid/v4';
 import { EuiGlobalToastList, EuiTitle, EuiText, EuiCodeBlock } from '@elastic/eui';
 import { differenceBy, get } from 'lodash';
 import { Flyout, Modal } from './components';
-import { comboBoxOptionsToArray } from '../../apps/utils/helpers';
+import { comboBoxOptionsToArray } from '../../../apps/utils/helpers';
 import { FLYOUTS, MODALS } from './utils/constants';
-import { CODE_EDITOR } from '../../apps/utils/constants';
+import { CODE_EDITOR } from '../../../apps/utils/constants';
 
 // Themes for EuiCodeEditor
 import 'brace/theme/twilight';

@@ -12,7 +12,7 @@ import {
   EuiLink,
   EuiSpacer,
 } from '@elastic/eui';
-import { AccessControlService } from '../../../services';
+import { AccessControlService } from '../../../../services';
 import { logoutText } from '../utils/i18n';
 
 export function HeaderUserMenu({ httpClient, logoutUrl, userName, userNameTooltipText, authType }) {

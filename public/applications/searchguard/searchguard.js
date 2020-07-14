@@ -3,7 +3,7 @@ import { defaultsDeep } from 'lodash';
 import { ConfigService } from '../../../utils';
 import { SystemStateService } from '../../services/SystemStateService';
 import { redirectOnSessionTimeout } from './auth/redirectOnSessionTimeout';
-import { HeaderUserMenuService } from '../nav';
+import { HeaderUserMenuService } from './nav';
 import { ChromeHelper } from '../../services/ChromeHelper';
 import { API_ROOT, SEARCHGUARD_APP_CATEGORY } from '../../utils/constants';
 
@@ -55,7 +55,7 @@ export class SearchGuard {
         chromeless: true,
         appRoute: '/customerror',
         mount: async ({ element }) => {
-          const { renderApp } = await import('../customerror');
+          const { renderApp } = await import('./customerror');
 
           return renderApp({
             element,
@@ -114,7 +114,7 @@ export class SearchGuard {
         appRoute: '/login',
         euiIconType: 'user',
         mount: async (params) => {
-          const { renderApp } = await import('../login/npstart');
+          const { renderApp } = await import('./login/npstart');
 
           return renderApp({
             element: params.element,
@@ -137,7 +137,7 @@ export class SearchGuard {
         title: 'Configuration',
         category: SEARCHGUARD_APP_CATEGORY,
         mount: async ({ element }) => {
-          const { renderApp } = await import('../configuration-react');
+          const { renderApp } = await import('./configuration-react');
 
           return renderApp({
             element,

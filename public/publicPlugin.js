@@ -1,15 +1,17 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { HttpWrapper } from './utils/httpWrapper';
-import { API_ROOT, SEARCHGUARD_APP_CATEGORY } from './utils/constants';
-import { addTenantToShareURL } from './applications/multitenancy';
 import { Signals } from './applications/signals';
 import { SearchGuard } from './applications/searchguard';
+import { AccountInfo } from './applications/accountinfo';
+import { MultiTenancy } from './applications/multitenancy';
 
 export class PublicPlugin {
   constructor(initializerContext) {
     this.initializerContext = initializerContext;
     this.signalsApp = new Signals();
     this.searchGuardApp = new SearchGuard(this.initializerContext);
+    this.accountInfoApp = new AccountInfo();
+    this.multiTenancyApp = new MultiTenancy();
   }
 
   async setup(core, plugins) {
@@ -24,63 +26,35 @@ export class PublicPlugin {
     this.configService = configService;
     this.systemStateService = systemStateService;
 
-    this.signalsApp.setup({ core, httpClient: this.httpClient });
+    try {
+      this.signalsApp.setup({ core, httpClient: this.httpClient });
+    } catch (error) {
+      console.error(`Signals: ${error.toString()} ${error.stack}`);
+    }
 
     if (this.configService.get('searchguard.accountinfo.enabled')) {
-      core.application.register({
-        id: 'searchguard-accountinfo',
-        title: 'Account',
-        category: SEARCHGUARD_APP_CATEGORY,
-        mount: async (params) => {
-          const { renderApp } = await import('./applications/accountinfo/npstart');
-          return renderApp({
-            element: params.element,
-            httpClient: this.httpClient,
-            pluginVersion: this.configService.get('searchguard.sgVersion'),
-          });
-        },
-      });
+      try {
+        this.accountInfoApp.setup({
+          core,
+          httpClient: this.httpClient,
+          configService: this.configService,
+        });
+      } catch (error) {
+        console.error(`Accountinfo: ${error.toString()} ${error.stack}`);
+      }
     }
 
     if (this.configService.get('searchguard.multitenancy.enabled')) {
-      core.application.register({
-        id: 'searchguard-multitenancy',
-        title: 'Multitenancy',
-        category: SEARCHGUARD_APP_CATEGORY,
-        mount: async (params) => {
-          const { renderApp } = await import('./applications/multitenancy/npstart');
-
-          return renderApp({
-            element: params.element,
-            configService: this.configService,
-            httpClient: this.httpClient,
-            chromeHelper,
-          });
-        },
-      });
-
-      if (plugins.home) {
-        plugins.home.featureCatalogue.register({
-          id: 'searchguard-multitenancy',
-          title: 'Search Guard Multi Tenancy',
-          description: 'Separate searches, visualizations and dashboards by tenants.',
-          icon: 'usersRolesApp',
-          path: '/app/searchguard-multitenancy',
-          showOnHomePage: true,
-          category: 'data',
+      try {
+        this.multiTenancyApp.setup({
+          core,
+          plugins,
+          chromeHelper,
+          httpClient: this.httpClient,
+          configService: this.configService,
         });
-      }
-
-      // Make sure we have the current tenant available
-      // @todo Better check for login/customerror page
-      if (this.configService.get('rest_info.user_name')) {
-        this.httpClient.get(`${API_ROOT}/auth/authinfo`).then(({ data }) => {
-          this.configService.setDynamicConfig(
-            'multitenancy.current_tenant',
-            data.user_requested_tenant
-          );
-          addTenantToShareURL(this.configService);
-        });
+      } catch (error) {
+        console.error(`Multitenancy: ${error.toString()} ${error.stack}`);
       }
     }
   }

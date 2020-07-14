@@ -29,13 +29,13 @@ import {
   EuiButton,
   EuiPanel,
 } from '@elastic/eui';
-import { LicenseWarningCallout } from '../../apps/components';
+import { LicenseWarningCallout } from '../../../apps/components';
 
-import { API_ROOT } from '../../utils/constants';
+import { API_ROOT } from '../../../utils/constants';
 
 // @todo Move this to the new app
-import { sanitizeNextUrlFromFullUrl } from '../../apps/login/sanitize_next_url';
-import { SystemStateService } from '../../services';
+import { sanitizeNextUrlFromFullUrl } from '../../../apps/login/sanitize_next_url';
+import { SystemStateService } from '../../../services';
 
 export class LoginPage extends Component {
   //static contextType = MainContext;
