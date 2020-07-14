@@ -27,7 +27,12 @@ import {
 } from '@elastic/eui';
 import { messageTypes } from './errorMessageTypes';
 
-export function CustomErrorPage({ basePath, brandImagePath, showBrandImage, backButtonProps }) {
+export function CustomErrorPage({
+  basePath = '',
+  brandImagePath = '',
+  showBrandImage = false,
+  backButtonStyle = {},
+}) {
   const buttonHref = basePath + '/app/kibana';
 
   // If session was not terminated by logout, clear any remaining
@@ -42,7 +47,7 @@ export function CustomErrorPage({ basePath, brandImagePath, showBrandImage, back
   const queryString = window.location.search.trim().replace(/^(\?)/, '');
 
   if (queryString) {
-    queryString.split('&').map(parameter => {
+    queryString.split('&').map((parameter) => {
       const parameterParts = parameter.split('=');
       if (parameterParts[0].toLowerCase() === 'type') {
         type = parameterParts[1];
@@ -89,7 +94,7 @@ export function CustomErrorPage({ basePath, brandImagePath, showBrandImage, back
                   href={buttonHref}
                   data-test-subj="sg.customError.btn"
                   id="sg.custom.home"
-                  {...backButtonProps}
+                  style={backButtonStyle}
                 >
                   Back to Kibana Home
                 </EuiButton>
@@ -102,14 +107,8 @@ export function CustomErrorPage({ basePath, brandImagePath, showBrandImage, back
   );
 }
 
-CustomErrorPage.defaultProps = {
-  showBrandImage: false,
-  backButtonContentPropsStyle: {},
-  backButtonProps: {},
-};
-
 CustomErrorPage.propTypes = {
   brandImagePath: PropTypes.string.isRequired,
   showBrandImage: PropTypes.bool.isRequired,
-  backButtonProps: PropTypes.object,
+  backButtonStyle: PropTypes.object.isRequired,
 };

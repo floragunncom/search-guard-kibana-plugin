@@ -172,11 +172,9 @@ export class LoginPage extends Component {
       brandimage: brandImage,
       title: loginTitle,
       subtitle: loginSubTitle,
-      buttonstyle: buttonStyle,
     } = this.props.basicAuthConfig.login;
 
     const {
-      buttonstyle: alternativeButtonStyle,
       button_text: alternativeButtonLabel,
     } = this.props.basicAuthConfig.alternative_login;
 
@@ -252,7 +250,7 @@ export class LoginPage extends Component {
                 data-test-subj="sg.login"
                 fill
                 fullWidth={true}
-                style={buttonStyle}
+                style={this.props.loginButtonStyles}
                 onClick={this.handleSubmit}
                 type="submit"
               >
@@ -269,7 +267,7 @@ export class LoginPage extends Component {
                     fill
                     fullWidth={true}
                     href={this.state.alternativeLogin.url}
-                    style={alternativeButtonStyle}
+                    style={this.props.alternativeLoginButtonStyles}
                   >
                     {alternativeButtonLabel}
                   </EuiButton>
