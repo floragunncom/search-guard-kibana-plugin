@@ -98,7 +98,7 @@ export const ConfigSchema = schema.object({
       show_for_parameter: schema.string({ defaultValue: '' }),
       valid_redirects: schema.arrayOf(schema.string(), { defaultValue: [] }),
       button_text: schema.string({ defaultValue: 'Login with provider' }),
-      buttonstyle: schema.object({}, { unknowns: 'allow' }),
+      buttonstyle: schema.string({ defaultValue: '' }),
     }),
     loadbalancer_url: schema.nullable(schema.string()),
     login: schema.object({
@@ -111,7 +111,7 @@ export const ConfigSchema = schema.object({
       brandimage: schema.string({
         defaultValue: 'plugins/searchguard/assets/searchguard_logo.svg',
       }),
-      buttonstyle: schema.object({}, { unknowns: 'allow' }),
+      buttonstyle: schema.string({ defaultValue: '' }),
     }),
   }),
 
