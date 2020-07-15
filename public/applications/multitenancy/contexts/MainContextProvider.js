@@ -1,15 +1,11 @@
 import React, { useState } from 'react';
-import { sgContext } from '../../../utils/sgContext';
 import {EuiCodeBlock, EuiGlobalToastList, EuiText, EuiTitle} from '@elastic/eui';
 import uuid from "uuid/v4";
 import {get} from "lodash";
 
 const MainContext = React.createContext();
 
-const IS_DARK_THEME = sgContext.isDarkMode;
-
-const MainContextProvider = ({ children }) => {
-
+const MainContextProvider = ({ children, httpClient, chromeHelper, configService }) => {
   const [toasts, setToasts] = useState([]);
 
   const removeToast = ({ id }) =>
@@ -79,6 +75,9 @@ const MainContextProvider = ({ children }) => {
     <>
       <MainContext.Provider
         value={{
+          httpClient,
+          chromeHelper,
+          configService,
           addSuccessToast,
           addWarningToast,
           addErrorToast,

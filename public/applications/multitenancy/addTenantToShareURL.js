@@ -1,7 +1,8 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import { parse } from 'url';
-import { sgContext } from '../../utils/sgContext';
+import { tenantNameToUiTenantName } from '../../../utils';
 
-export function addTenantToShareURL() {
+export function addTenantToShareURL(configService) {
   document.addEventListener('copy', event => {
     const shareButton = document.querySelector('[data-share-url]');
     const target = document.querySelector('body > span');
@@ -23,12 +24,10 @@ export function addTenantToShareURL() {
           }
         }
 
-        console.log(sgContext.multiTenancy);
-
         const newValue = addTenantToURL(
           urlPart,
           originalValue,
-          sgContext.multiTenancy.currentTenantLabel
+          tenantNameToUiTenantName(configService.getDynamicConfig('multitenancy.current_tenant'))
         );
 
         if (newValue !== originalValue) {

@@ -35,7 +35,7 @@ export class Multitenancy {
     router,
     spacesPlugin = null,
   }) {
-    this.logger.info('Setup app');
+    this.logger.debug('Setup app');
     this.configService = configService;
 
     try {
@@ -94,7 +94,7 @@ export class Multitenancy {
   }
 
   async start(savedObjects) {
-    this.logger.info('Start app');
+    this.logger.debug('Start app');
 
     try {
       await this.tenantsMigration.start(savedObjects);
