@@ -4,15 +4,15 @@ import ReactDOM from 'react-dom';
 
 import { CustomErrorPage } from './CustomErrorPage';
 
-import { stringCSSToReactStyle} from "../../utils/cssHelper";
+import { stringCSSToReactStyle } from '../../../utils/cssHelper';
 
 export function renderApp({ element, basePath, config }) {
   ReactDOM.render(
     <CustomErrorPage
       basePath={basePath}
-      brandImagePath={config.basicauth.login.brandimage}
-      showBrandImage={config.basicauth.login.showbrandimage}
-      backButtonStyle={stringCSSToReactStyle(config.basicauth.login.buttonstyle)}
+      brandImagePath={config.searchguard.basicauth.login.brandimage}
+      showBrandImage={config.searchguard.basicauth.login.showbrandimage}
+      backButtonStyle={stringCSSToReactStyle(config.searchguard.basicauth.login.buttonstyle)}
     />,
     element
   );

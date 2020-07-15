@@ -60,7 +60,7 @@ export class SearchGuard {
           return renderApp({
             element,
             basePath: core.http.basePath.get(),
-            config: this.config.get(),
+            config: this.configService.getConfig(),
           });
         },
       });

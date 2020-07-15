@@ -24,6 +24,7 @@ import {
   EuiFlexItem,
   EuiSpacer,
   EuiImage,
+  EuiErrorBoundary,
 } from '@elastic/eui';
 import { messageTypes } from './errorMessageTypes';
 
@@ -33,7 +34,7 @@ export function CustomErrorPage({
   showBrandImage = false,
   backButtonStyle = {},
 }) {
-  const buttonHref = basePath + '/app/kibana';
+  const buttonHref = basePath;
 
   // If session was not terminated by logout, clear any remaining
   // stored paths etc. from previous users, to avoid issues
@@ -62,7 +63,7 @@ export function CustomErrorPage({
   }
 
   return (
-    <div>
+    <EuiErrorBoundary>
       <EuiSpacer size="xxl" />
       <EuiFlexGroup justifyContent="spaceAround">
         <EuiFlexItem grow={false}>
@@ -103,7 +104,7 @@ export function CustomErrorPage({
           </EuiPanel>
         </EuiFlexItem>
       </EuiFlexGroup>
-    </div>
+    </EuiErrorBoundary>
   );
 }
 
