@@ -286,7 +286,7 @@ export class LoginPage extends Component {
                 color="danger"
                 iconType="alert"
               >
-                <EuiText>
+                <EuiText data-test-subj="sg.errorMessage-text">
                   <p>{this.state.errorMessage}</p>
                 </EuiText>
               </EuiCallOut>
