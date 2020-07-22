@@ -38,13 +38,18 @@ import {
   systemItemsText
 } from '../../utils/i18n/common';
 import { resourcesToUiResources, uiResourceToResource } from './utils';
-import { SessionStorageService, LocalStorageService, InternalUsersService } from '../../services';
+import { LocalStorageService, InternalUsersService } from '../../services';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
 
-class InternalUsers extends Component {
-  constructor(props) {
-    super(props);
+import { Context } from '../../Context';
 
+class InternalUsers extends Component {
+  static contextType = Context;
+
+  constructor(props, context) {
+    super(props, context);
+
+    this.configService = this.context.configService;
     this.localStorage = new LocalStorageService();
     this.backendService = new InternalUsersService(this.props.httpClient);
     const { isShowingTableSystemItems = false } = this.localStorage.cache[APP_PATH.INTERNAL_USERS];
@@ -164,7 +169,7 @@ class InternalUsers extends Component {
   )
 
   renderActiveUser = name => {
-    const { user_name: currentResource } = SessionStorageService.restApiInfo();
+    const  currentResource = this.configService.get('restapiinfo.user_name');
     return (
       name === currentResource && (
         <EuiFlexGrid

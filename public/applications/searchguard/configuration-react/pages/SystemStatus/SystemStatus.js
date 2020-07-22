@@ -6,7 +6,6 @@ import { filter, get, toUpper } from 'lodash';
 import queryString from 'query-string';
 import { EuiFlexItem, EuiFlexGroup, EuiSideNav, EuiButton } from '@elastic/eui';
 import { ContentPanel, CancelButton } from '../../components';
-import { SystemService } from '../../services';
 import { UploadLicense, SystemStatusContent } from './components';
 import { SELECTED_SIDE_NAV_ITEM_NAME, SIDE_NAV } from './utils/constants';
 import { navigateText } from '../../utils/i18n/common';
@@ -29,7 +28,6 @@ class SystemStatus extends Component {
       isSideNavOpenOnMobile: false,
     };
 
-    this.backendService = new SystemService(this.props.httpClient);
     this.configService = context.configService;
   }
 
@@ -60,7 +58,7 @@ class SystemStatus extends Component {
     try {
       this.setState({ isLoading: true });
 
-      const { data: resources } = await this.backendService.getSystemInfo();
+      const resources = this.configService.get('systeminfo');
       resources.sg_version = this.configService.get('searchguard.sgVersion');
 
       this.setState({ resources });

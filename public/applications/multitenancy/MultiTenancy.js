@@ -34,7 +34,7 @@ export class MultiTenancy {
 
     // Make sure we have the current tenant available
     // @todo Better check for login/customerror page
-    if (configService.get('rest_info.user_name')) {
+    if (configService.get('restapiinfo.user_name')) {
       httpClient.get(`${API_ROOT}/auth/authinfo`).then(({ data }) => {
         configService.setDynamicConfig('multitenancy.current_tenant', data.user_requested_tenant);
         addTenantToShareURL(configService);

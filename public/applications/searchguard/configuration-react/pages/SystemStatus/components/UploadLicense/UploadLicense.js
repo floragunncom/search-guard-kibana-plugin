@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import { EuiFilePicker, EuiFlexGroup, EuiFlexItem, EuiFormRow } from '@elastic/eui';
 import { ContentPanel, FormikCodeEditor, CancelButton, SaveButton } from '../../../../components';
-import { APP_PATH } from '../../../../utils/constants';
+import { APP_PATH, API } from '../../../../utils/constants';
 import { SIDE_NAV } from '../../utils/constants';
 import {
   uploadLicenseText,
@@ -16,7 +16,6 @@ import {
   licenseFileCantBeImportedText,
 } from '../../../../utils/i18n/system_status';
 import { validateTextField, isInvalid, hasError } from '../../../../utils/validation';
-import { SystemService } from '../../../../services';
 import { readFileAsText } from '../../../../utils/helpers';
 
 import { Context } from '../../../../Context';
@@ -60,8 +59,6 @@ class UploadLicense extends Component {
         license: '',
       },
     };
-
-    this.backendService = new SystemService(this.props.httpClient);
   }
 
   componentWillUnmount = () => {
@@ -71,7 +68,7 @@ class UploadLicense extends Component {
   onSubmit = async ({ license }, { setSubmitting }) => {
     const { onTriggerSuccessCallout, onTriggerErrorCallout, history } = this.props;
     try {
-      await this.backendService.uploadLicense(license);
+      await this.context.httpClient.post(API.LICENSE, { sg_license: license });
       onTriggerSuccessCallout(licenseWasUploadedSuccessfullyText);
       history.push({
         pathname: APP_PATH.SYSTEM_INFO,

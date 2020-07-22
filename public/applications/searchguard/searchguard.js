@@ -1,14 +1,46 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { defaultsDeep } from 'lodash';
 import { ConfigService } from '../../../utils';
-import { SystemStateService } from '../../services/SystemStateService';
+import { ApiService } from '../../services';
 import { redirectOnSessionTimeout } from './auth/redirectOnSessionTimeout';
 import { HeaderUserMenuService } from './nav';
 import { ChromeHelper } from '../../services/ChromeHelper';
-import { API_ROOT, SEARCHGUARD_APP_CATEGORY } from '../../utils/constants';
+import { SEARCHGUARD_APP_CATEGORY } from '../../utils/constants';
 
-function readKibanaConfig(httpClient) {
-  return httpClient.get(`${API_ROOT}/searchguard/kibana_config`).then(({ data }) => data);
+export async function instantiateConfig({ coreContext, core, apiService }) {
+  let restapiinfo = {};
+  let systeminfo = {};
+  let kibanaConfig = {};
+
+  try {
+    restapiinfo = await apiService.loadRestInfo();
+  } catch (error) {
+    console.error('SearchGuard, initConfig', error);
+  }
+
+  try {
+    systeminfo = await apiService.loadSystemInfo();
+  } catch (error) {
+    console.error('SearchGuard, initConfig', error);
+  }
+
+  try {
+    kibanaConfig = await apiService.loadKibanaConfig();
+  } catch (error) {
+    console.error('SearchGuard, initConfig', error);
+  }
+
+  const config = { searchguard: coreContext.config.get() };
+
+  defaultsDeep(config, {
+    ...kibanaConfig,
+    restapiinfo,
+    systeminfo,
+    is_dark_mode: core.uiSettings.get('theme:darkMode'),
+  });
+
+  console.debug('SearchGuard, initConfig, config', config);
+  return new ConfigService(config);
 }
 
 export class SearchGuard {
@@ -20,32 +52,17 @@ export class SearchGuard {
 
   async setup({ httpClient, core, plugins }) {
     try {
-      this.systemStateService = new SystemStateService(httpClient);
-
-      const [restInfo] = await Promise.all([
-        this.systemStateService.loadRestInfo(),
-        this.systemStateService.loadSystemInfo(),
-      ]);
-
-      let config = { searchguard: this.coreContext.config.get(), rest_info: {} };
-
-      // @todo Better check for login/customerror page
-      if (restInfo.user_name) {
-        const kibanaConfig = await readKibanaConfig(httpClient);
-
-        config = defaultsDeep(config, {
-          ...kibanaConfig,
-          rest_info: restInfo,
-          is_dark_mode: core.uiSettings.get('theme:darkMode'),
-        });
-      }
-
-      this.configService = new ConfigService(config);
+      this.apiService = new ApiService(httpClient);
+      this.configService = await instantiateConfig({
+        core,
+        apiService: this.apiService,
+        coreContext: this.coreContext,
+      });
 
       redirectOnSessionTimeout(
         this.configService.get('searchguard.auth.type'),
         core.http,
-        this.configService.get('rest_info.user_name') === 'sg_anonymous'
+        this.configService.get('restapiinfo.user_name') === 'sg_anonymous'
       );
 
       core.http.anonymousPaths.register('/customerror');
@@ -70,7 +87,6 @@ export class SearchGuard {
 
       return {
         configService: this.configService,
-        systemStateService: this.systemStateService,
         chromeHelper: this.chromeHelper,
       };
     } catch (error) {
@@ -128,10 +144,11 @@ export class SearchGuard {
   }
 
   registerConfig({ core, plugins, httpClient }) {
-    if (
+    const isConfigEnabled =
       this.configService.get('searchguard.configuration.enabled') &&
-      this.systemStateService.hasApiAccess()
-    ) {
+      this.configService.hasApiAccess();
+
+    if (isConfigEnabled) {
       core.application.register({
         id: 'searchguard-configuration',
         title: 'Configuration',

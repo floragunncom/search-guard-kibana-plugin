@@ -30,18 +30,16 @@ import {
   EuiPanel,
 } from '@elastic/eui';
 import { LicenseWarningCallout } from '../../../apps/components';
+import { stringCSSToReactStyle } from '../../../utils/cssHelper';
 
 import { API_ROOT } from '../../../utils/constants';
 
 // @todo Move this to the new app
 import { sanitizeNextUrlFromFullUrl } from '../../../apps/login/sanitize_next_url';
-import { SystemStateService } from '../../../services';
 
 export class LoginPage extends Component {
-  //static contextType = MainContext;
-
-  constructor(props, context) {
-    super(props, context);
+  constructor(props) {
+    super(props);
 
     // if session was not terminated by logout, clear any remaining
     // stored paths etc. from previous users, to avoid issues
@@ -49,18 +47,26 @@ export class LoginPage extends Component {
     localStorage.clear();
     sessionStorage.clear();
 
+    const { configService } = props;
+
+    this.basicAuthConfig = configService.get('searchguard.basicauth');
+    this.loginButtonStyles = stringCSSToReactStyle(
+      configService.get('basicauth.login.buttonstyle')
+    );
+    this.alternativeLoginButtonStyles = stringCSSToReactStyle(
+      configService.get('basicauth.alternative_login.buttonstyle')
+    );
+
     // Custom styling
     this.state = {
       userName: '',
       password: '',
-      alternativeLogin: this.getAlternativeLogin(),
+      alternativeLogin: this.getAlternativeLogin(this.basicAuthConfig.alternative_login),
       errorMessage: null,
     };
   }
 
-  getAlternativeLogin() {
-    const alternativeLoginConfig = this.props.basicAuthConfig.alternative_login;
-
+  getAlternativeLogin(alternativeLoginConfig) {
     // Prepare alternative login for the view
     let alternativeLogin = null;
 
@@ -129,19 +135,7 @@ export class LoginPage extends Component {
         })
         .then(
           response => {
-            // cache the current user information, we need it at several places
-            sessionStorage.setItem('sg_user', JSON.stringify(response.data));
-            // load and cache systeminfo and rest api info
-            // perform in the callback due to Chrome cancelling the
-            // promises if we navigate away from the page, even if async/await
-
-            const systemStateService = new SystemStateService(httpClient);
-            systemStateService.loadSystemInfo().then(response => {
-              systemStateService.loadRestInfo().then(response => {
-                const user = JSON.parse(sessionStorage.getItem('sg_user'));
-                window.location.href = `${nextUrl}`;
-              });
-            });
+            window.location.href = `${nextUrl}`;
           },
           error => {
             error = error.body;
@@ -166,17 +160,17 @@ export class LoginPage extends Component {
   };
 
   render() {
-    const { basePath, httpClient } = this.props;
+    const { basePath, httpClient, configService } = this.props;
     const {
       showbrandimage: showBrandImage,
       brandimage: brandImage,
       title: loginTitle,
       subtitle: loginSubTitle,
-    } = this.props.basicAuthConfig.login;
+    } = this.basicAuthConfig.login;
 
     const {
       button_text: alternativeButtonLabel,
-    } = this.props.basicAuthConfig.alternative_login;
+    } = this.basicAuthConfig.alternative_login;
 
     return (
       <div
@@ -203,7 +197,7 @@ export class LoginPage extends Component {
             <p>{loginSubTitle}</p>
           </EuiText>
 
-          <LicenseWarningCallout httpClient={httpClient} />
+          <LicenseWarningCallout configService={configService} />
 
           <form onSubmit={event => event.preventDefault()}>
             <EuiForm>
@@ -250,7 +244,7 @@ export class LoginPage extends Component {
                 data-test-subj="sg.login"
                 fill
                 fullWidth={true}
-                style={this.props.loginButtonStyles}
+                style={this.loginButtonStyles}
                 onClick={this.handleSubmit}
                 type="submit"
               >
@@ -267,7 +261,7 @@ export class LoginPage extends Component {
                     fill
                     fullWidth={true}
                     href={this.state.alternativeLogin.url}
-                    style={this.props.alternativeLoginButtonStyles}
+                    style={this.alternativeLoginButtonStyles}
                   >
                     {alternativeButtonLabel}
                   </EuiButton>
