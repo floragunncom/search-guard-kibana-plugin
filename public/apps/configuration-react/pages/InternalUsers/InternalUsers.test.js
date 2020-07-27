@@ -63,7 +63,7 @@ describe('InternalUsers', () => {
   });
 
   test('renders the page', () => {
-    const main = mount(
+    const wrapper = mount(
       <InternalUsers
         httpClient={httpClientMock}
         history={historyMock}
@@ -72,49 +72,11 @@ describe('InternalUsers', () => {
       />
     );
 
-    console.log(main);
-    expect(main).toEqual(1);
+    const addButtonSelector = 'button[data-test-subj="sgContentPanelCreateButton"]';
+    const addButton = wrapper.find(addButtonSelector);
+    console.log(addButton.debug());
+    console.log(addButton.html());
+
+    expect(addButton.exists()).toBe(true);
   });
 });
-
-/*
-describe('SearchGuard Configuration App', () => {
-  let httpClientMock;
-  let historyMock;
-  let locationMock;
-
-  beforeEach(() => {
-    httpClientMock = setupHttpClientMock();
-    historyMock = setupHistoryMock();
-    locationMock = setupLocationMock();
-  });
-
-  test('renders the Home page', () => {
-    // //services.SystemService.loadSystemInfo = jest.fn().mockResolvedValue(null);
-    // class SystemService {
-    //   loadSystemInfo = jest.fn().mockResolvedValue(null);
-    // }
-
-    // services.SystemService = SystemService;
-    jest.mock('../../../services/SystemService', () => {
-      return jest.fn().mockImplementation(() => {
-        return {
-          loadSystemInfo: jest.fn().mockResolvedValue(null),
-          getSystemInfo: jest.fn().mockResolvedValue(null),
-        };
-      });
-    });
-
-    const main = mount(
-      <Main
-        title={SEARCH_GUARD_TITLE}
-        httpClient={httpClientMock}
-        history={historyMock}
-        location={locationMock}
-      />
-    );
-    console.log(main);
-    expect(main).toEqual(1);
-  });
-});
-*/
