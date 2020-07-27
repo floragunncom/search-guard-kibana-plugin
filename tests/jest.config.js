@@ -2,6 +2,7 @@
 module.exports = {
   rootDir: '../',
   setupFiles: ['<rootDir>/tests/setup_tests.js'],
+  setupFilesAfterEnv: ['<rootDir>/tests/setup_tests_after_env.js'],
   globals: {
     'ts-jest': {
       tsConfig: 'tsconfig.json',

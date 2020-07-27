@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -7,7 +8,7 @@ import {
   EuiText,
   EuiFlexItem,
   EuiEmptyPrompt,
-  EuiFlexGrid
+  EuiFlexGrid,
 } from '@elastic/eui';
 import { get } from 'lodash';
 import {
@@ -19,24 +20,17 @@ import {
   TableMultiDeleteButton,
   TableSwitchSystemItems,
   CreateButton,
-  CancelButton
+  CancelButton,
 } from '../../components';
-import {
-  APP_PATH,
-  INTERNAL_USERS_ACTIONS
-} from '../../utils/constants';
+import { APP_PATH, INTERNAL_USERS_ACTIONS } from '../../utils/constants';
 import {
   createInternalUserText,
   internalUsersText,
   backendRolesText,
   emptyUsersTableMessageText,
-  noUsersText
+  noUsersText,
 } from '../../utils/i18n/internal_users';
-import {
-  nameText,
-  currentUserText,
-  systemItemsText
-} from '../../utils/i18n/common';
+import { nameText, currentUserText, systemItemsText } from '../../utils/i18n/common';
 import { resourcesToUiResources, uiResourceToResource } from './utils';
 import { SessionStorageService, LocalStorageService, InternalUsersService } from '../../services';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
@@ -47,7 +41,7 @@ class InternalUsers extends Component {
 
     this.localStorage = new LocalStorageService();
     this.backendService = new InternalUsersService(this.props.httpClient);
-    const { isShowingTableSystemItems = false } = this.localStorage.cache[APP_PATH.INTERNAL_USERS];
+    // const { isShowingTableSystemItems = false } = this.localStorage.cache[APP_PATH.INTERNAL_USERS];
 
     this.state = {
       resources: [],
@@ -55,7 +49,7 @@ class InternalUsers extends Component {
       error: null,
       isLoading: true,
       tableSelection: [],
-      isShowingTableSystemItems
+      isShowingTableSystemItems: false,
     };
   }
 
@@ -64,11 +58,11 @@ class InternalUsers extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { prevIsShowingTableSystemItems } = prevState;
-    const { isShowingTableSystemItems } = this.state;
-    if (prevIsShowingTableSystemItems !== isShowingTableSystemItems) {
-      this.localStorage.setCacheByPath(APP_PATH.INTERNAL_USERS, { isShowingTableSystemItems });
-    }
+    // const { prevIsShowingTableSystemItems } = prevState;
+    // const { isShowingTableSystemItems } = this.state;
+    // if (prevIsShowingTableSystemItems !== isShowingTableSystemItems) {
+    //   this.localStorage.setCacheByPath(APP_PATH.INTERNAL_USERS, { isShowingTableSystemItems });
+    // }
   }
 
   fetchData = async () => {
@@ -76,16 +70,19 @@ class InternalUsers extends Component {
       this.setState({ isLoading: true });
       const { data } = await this.backendService.list();
       const resources = resourcesToUiResources(data);
-      const tableResources = filterReservedStaticTableResources(resources, this.state.isShowingTableSystemItems);
+      const tableResources = filterReservedStaticTableResources(
+        resources,
+        this.state.isShowingTableSystemItems
+      );
       this.setState({ resources, tableResources, error: null });
-    } catch(error) {
+    } catch (error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
-  }
+  };
 
-  handleDeleteResources = resourcesToDelete => {
+  handleDeleteResources = (resourcesToDelete) => {
     const { onTriggerConfirmDeletionModal } = this.props;
     onTriggerConfirmDeletionModal({
       body: resourcesToDelete.join(', '),
@@ -96,37 +93,37 @@ class InternalUsers extends Component {
       onCancel: () => {
         this.setState({ tableSelection: [] });
         onTriggerConfirmDeletionModal(null);
-      }
+      },
     });
-  }
+  };
 
-  deleteResources = async resourceIds => {
+  deleteResources = async (resourceIds) => {
     try {
       this.setState({ isLoading: true });
       for (let i = 0; i < resourceIds.length; i++) {
         await this.backendService.delete(resourceIds[i]);
       }
-    } catch(error) {
+    } catch (error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
     this.fetchData();
-  }
+  };
 
-  cloneResource = async resource => {
+  cloneResource = async (resource) => {
     let { _id: username } = resource;
     username += '_copy';
     try {
       this.setState({ isLoading: true });
       await this.backendService.save(username, uiResourceToResource(resource));
-    } catch(error) {
+    } catch (error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
     this.fetchData();
-  }
+  };
 
   renderToolsLeft = () => {
     const tableSelection = this.state.tableSelection;
@@ -136,34 +133,29 @@ class InternalUsers extends Component {
     }
 
     const handleMultiDelete = () => {
-      this.handleDeleteResources(tableSelection.map(item => item._id));
+      this.handleDeleteResources(tableSelection.map((item) => item._id));
       this.setState({ tableSelection: [] });
     };
 
     return (
-      <TableMultiDeleteButton
-        onClick={handleMultiDelete}
-        numOfSelections={tableSelection.length}
-      />
+      <TableMultiDeleteButton onClick={handleMultiDelete} numOfSelections={tableSelection.length} />
     );
-  }
+  };
 
-  renderEmptyTableMessage = history => (
+  renderEmptyTableMessage = (history) => (
     <EuiEmptyPrompt
       title={<h3>{noUsersText}</h3>}
       titleSize="xs"
       body={emptyUsersTableMessageText}
-      actions={(
-        <EuiButton
-          onClick={() => history.push(APP_PATH.CREATE_INTERNAL_USER)}
-        >
+      actions={
+        <EuiButton onClick={() => history.push(APP_PATH.CREATE_INTERNAL_USER)}>
           {createInternalUserText}
         </EuiButton>
-      )}
+      }
     />
-  )
+  );
 
-  renderActiveUser = name => {
+  renderActiveUser = (name) => {
     const { user_name: currentResource } = SessionStorageService.restApiInfo();
     return (
       name === currentResource && (
@@ -174,7 +166,7 @@ class InternalUsers extends Component {
           data-test-subj={`sgTableCol-Name-${name}-CurrentUser`}
         >
           <EuiFlexItem grow={false}>
-            <EuiIcon type="user"/>
+            <EuiIcon type="user" />
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiText size="s">{currentUserText}</EuiText>
@@ -182,21 +174,19 @@ class InternalUsers extends Component {
         </EuiFlexGrid>
       )
     );
-  }
+  };
 
   render() {
     const { history } = this.props;
     const { isLoading, error, tableResources, isShowingTableSystemItems } = this.state;
-    const getResourceEditUri = name => `${APP_PATH.CREATE_INTERNAL_USER}?id=${name}&action=${INTERNAL_USERS_ACTIONS.UPDATE_USER}`;
+    const getResourceEditUri = (name) =>
+      `${APP_PATH.CREATE_INTERNAL_USER}?id=${name}&action=${INTERNAL_USERS_ACTIONS.UPDATE_USER}`;
 
     const actions = [
       {
         render: (resource) => (
-          <TableCloneAction
-            name={resource._id}
-            onClick={() => this.cloneResource(resource)}
-          />
-        )
+          <TableCloneAction name={resource._id} onClick={() => this.cloneResource(resource)} />
+        ),
       },
       {
         render: ({ _id, reserved }) => {
@@ -207,8 +197,8 @@ class InternalUsers extends Component {
               onClick={() => this.handleDeleteResources([_id])}
             />
           );
-        }
-      }
+        },
+      },
     ];
 
     const columns = [
@@ -219,7 +209,7 @@ class InternalUsers extends Component {
         align: 'left',
         sortable: true,
         mobileOptions: {
-          header: false
+          header: false,
         },
         render: (id, { reserved }) => (
           <TableNameCell
@@ -229,7 +219,7 @@ class InternalUsers extends Component {
             isReserved={reserved}
             children={this.renderActiveUser(id)}
           />
-        )
+        ),
       },
       {
         field: 'backend_roles',
@@ -237,21 +227,21 @@ class InternalUsers extends Component {
         footer: backendRolesText,
         align: 'left',
         mobileOptions: {
-          header: false
+          header: false,
         },
         render: (items, { _id }) => (
           <TableItemsListCell items={items} name={`BackendRoles-${_id}`} />
-        )
+        ),
       },
       {
         align: 'right',
-        actions
-      }
+        actions,
+      },
     ];
 
     const selection = {
-      selectable: resource => resource._id && !resource.reserved,
-      onSelectionChange: tableSelection => this.setState({ tableSelection })
+      selectable: (resource) => resource._id && !resource.reserved,
+      onSelectionChange: (tableSelection) => this.setState({ tableSelection }),
     };
 
     const search = {
@@ -263,25 +253,28 @@ class InternalUsers extends Component {
           onChange={() => {
             this.setState({
               isShowingTableSystemItems: !isShowingTableSystemItems,
-              tableResources: filterReservedStaticTableResources(this.state.resources, !isShowingTableSystemItems)
+              tableResources: filterReservedStaticTableResources(
+                this.state.resources,
+                !isShowingTableSystemItems
+              ),
             });
           }}
         />
       ),
       box: {
         incremental: true,
-      }
+      },
     };
 
     return (
       <ContentPanel
         title={internalUsersText}
         actions={[
-          (<CancelButton onClick={() => history.push(APP_PATH.HOME)} />),
-          (<CreateButton
+          <CancelButton onClick={() => history.push(APP_PATH.HOME)} />,
+          <CreateButton
             value={createInternalUserText}
             onClick={() => history.push(APP_PATH.CREATE_INTERNAL_USER)}
-          />)
+          />,
         ]}
       >
         <EuiInMemoryTable
@@ -306,7 +299,7 @@ InternalUsers.propTypes = {
   history: PropTypes.object.isRequired,
   httpClient: PropTypes.func,
   onTriggerErrorCallout: PropTypes.func.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
 };
 
 export default InternalUsers;
