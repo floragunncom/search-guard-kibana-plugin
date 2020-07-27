@@ -25,6 +25,18 @@ function setupLocalStorageMock() {
 global.localStorage = setupLocalStorageMock();
 */
 
+const wait = (wrapper, predicate, timeout = 10) => {
+  return new Promise((resolve, reject) => {
+    if (predicate(wrapper)) {
+      return resolve(true);
+    }
+    setTimeout(() => {
+      wrapper.update();
+      return predicate(wrapper) ? resolve(true) : reject(new Error('Timeout expired'));
+    }, timeout);
+  });
+};
+
 jest.mock('../../services', () => {
   return {
     LocalStorageService: jest.fn().mockImplementation(() => {
@@ -74,9 +86,54 @@ describe('InternalUsers', () => {
 
     const addButtonSelector = 'button[data-test-subj="sgContentPanelCreateButton"]';
     const addButton = wrapper.find(addButtonSelector);
-    console.log(addButton.debug());
-    console.log(addButton.html());
 
     expect(addButton.exists()).toBe(true);
+  });
+
+  test('creates user', async () => {
+    const wrapper = mount(
+      <InternalUsers
+        httpClient={httpClientMock}
+        history={historyMock}
+        onTriggerErrorCallout={onTriggerErrorCalloutMock}
+        onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModalMock}
+      />
+    );
+
+    const addButtonSelector = 'button[data-test-subj="sgContentPanelCreateButton"]';
+    const addButton = wrapper.find(addButtonSelector);
+
+    // addButton.simulate('click');
+    addButton.props().onClick();
+    // await wait(wrapper, (w) => {
+    //   console.log(w.debug());
+    // });
+
+    // console.log(wrapper.debug());
+    // console.log(wrapper.html());
+    // const saveButtonSelector = 'button[data-test-subj="sgContentPanelSaveButton"]';
+    // const saveButton = wrapper.find(saveButtonSelector);
+    // console.log(saveButton.debug());
+    // console.log(saveButton.html());
+    // expect(saveButton.exists()).toBe(true);
+    wrapper.update();
+    setTimeout(() => {
+      console.log(wrapper.debug());
+      console.log(wrapper.html());
+      const saveButtonSelector = 'button[data-test-subj="sgContentPanelSaveButton"]';
+      const saveButton = wrapper.find(saveButtonSelector);
+      console.log(saveButton.debug());
+      console.log(saveButton.html());
+      expect(saveButton.exists()).toBe(true);
+    }, 0);
+
+    // await addButton.simulate('click').then(() => {
+    //   wrapper.update();
+    //   const saveButtonSelector = 'button[data-test-subj="sgContentPanelSaveButton"]';
+    //   const saveButton = wrapper.find(saveButtonSelector);
+    //   console.log(saveButton.debug());
+    //   console.log(saveButton.html());
+    //   expect(saveButton.exists()).toBe(true);
+    // });
   });
 });

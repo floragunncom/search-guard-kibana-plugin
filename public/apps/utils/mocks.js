@@ -9,7 +9,9 @@ export function setupLocationMock() {
 }
 
 export function setupHistoryMock() {
-  return {};
+  return {
+    push: jest.fn(),
+  };
 }
 
 export function setupHttpClientMock() {
