@@ -1,4 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable no-restricted-imports */
 import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
@@ -59,6 +60,8 @@ export const DEFAULT_CONFIG = {
       current_tenant: SG_GLOBAL_TENANT_NAME,
     },
   },
+  restapiinfo: {},
+  systeminfo: {},
 };
 
 export function nestConfigProperties(config = {}) {

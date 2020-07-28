@@ -57,7 +57,7 @@ export class AccountInfoPage extends Component {
   }
 
   fetchUser(addErrorToast) {
-    const { httpClient } = this.props;
+    const { httpClient } = this.context;
 
     httpClient.get(`${API_ROOT}/auth/authinfo`).then(
       response => {
@@ -84,7 +84,7 @@ export class AccountInfoPage extends Component {
           </EuiPageHeader>
           <EuiPageContent>
             <EuiPageContentBody className="sg-page-content-body">
-              <LicenseWarningCallout httpClient={this.props.httpClient} />
+              <LicenseWarningCallout configService={this.context.configService} />
 
               {sgUser && (
                 <EuiText>
@@ -116,7 +116,7 @@ export class AccountInfoPage extends Component {
                   </p>
 
                   <EuiText size="xs" style={{ fontStyle: 'italic' }}>
-                    {accountPluginVersion(this.props.pluginVersion)}
+                    {accountPluginVersion(this.context.configService.get('searchguard.sgVersion'))}
                   </EuiText>
                 </EuiText>
               )}

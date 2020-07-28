@@ -12,7 +12,7 @@ export class AccountInfo {
         return renderApp({
           element: params.element,
           httpClient,
-          pluginVersion: configService.get('searchguard.sgVersion'),
+          configService,
         });
       },
     });

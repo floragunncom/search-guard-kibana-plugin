@@ -1,14 +1,14 @@
-import SessionStorageService from '../../services/SessionStorageService';
 import { INDEX_PERMISSIONS, CLUSTER_PERMISSIONS } from '../constants';
 import { get, reduce, sortBy, uniqBy, map, filter } from 'lodash';
+import { configure } from 'enzyme';
 
 export { default as sideNavItem } from './sideNavItem';
 
 export const stringifyPretty = json => JSON.stringify(json, null, 2);
 
-export const checkIfLicenseValid = () => ({
-  isValid: !!get(SessionStorageService.systemInfo(), 'sg_license.is_valid'),
-  messages: get(SessionStorageService.systemInfo(), 'sg_license.msgs'),
+export const checkIfLicenseValid = (configService) => ({
+  isValid: configService.get('systeminfo.sg_license.is_valid', false),
+  messages: configService.get('systeminfo.sg_license.msgs', []),
 });
 
 export const readFileAsText = (file, FileReader = window.FileReader) => {

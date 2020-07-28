@@ -61,12 +61,6 @@ export const CALLOUTS = {
   SUCCESS_CALLOUT: 'successCallout'
 };
 
-export const SESSION_STORAGE = {
-  SG_USER: 'sg_user',
-  SYSTEMINFO: 'systeminfo',
-  RESTAPIINFO: 'restapiinfo'
-};
-
 export const MODALS = {
   CONFIRM_DELETION: 'confirmDeletion'
 };

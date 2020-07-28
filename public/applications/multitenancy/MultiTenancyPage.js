@@ -57,7 +57,6 @@ import {
   showVisualizationLabel,
 } from './utils/i18n/multitenancy_labels';
 import { LicenseWarningCallout } from '../../apps/components';
-import { tenantNameToUiTenantName } from '../../../utils';
 
 export class MultiTenancyPage extends Component {
   static contextType = MainContext;
@@ -98,6 +97,7 @@ export class MultiTenancyPage extends Component {
     const { httpClient } = this.context;
     httpClient.get(`${API_ROOT}/multitenancy/info`).then(
       response => {
+        console.debug('MultiTenancyPage, fetchMultiTenancyInfo, resp', response);
         const kibana_server_user = this.configService.get('elasticsearch.username');
         const kibana_index = this.configService.get('kibana.index');
 
@@ -566,7 +566,7 @@ export class MultiTenancyPage extends Component {
           </EuiPageHeader>
           <EuiPageContent>
             <EuiPageContentBody className="sg-page-content-body">
-              <LicenseWarningCallout httpClient={this.context.httpClient} />
+              <LicenseWarningCallout configService={this.configService} />
 
               {this.renderFlyout()}
               <EuiTitle size="m">

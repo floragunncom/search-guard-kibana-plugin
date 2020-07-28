@@ -7,8 +7,8 @@ import { logoutText } from '../utils/i18n';
 
 export class HeaderUserMenuService {
   start({ core, httpClient, config = {} } = {}) {
-    const { user_name: userName } = config.rest_info;
-    const { type: authType, logout_url: logoutUrl } = get(config, 'searchguard.auth');
+    const userName = get(config, 'restapiinfo.user_name');
+    const { type: authType, logout_url: logoutUrl } = get(config, 'searchguard.auth', {});
 
     const props = { httpClient, authType };
 

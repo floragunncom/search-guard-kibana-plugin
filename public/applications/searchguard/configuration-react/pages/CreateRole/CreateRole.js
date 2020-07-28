@@ -29,12 +29,15 @@ import {
   RolesMappingService,
   ActionGroupsService,
   TenantsService,
-  SystemService,
 } from '../../services';
 
+import { Context } from '../../Context';
+
 class CreateRole extends Component {
-  constructor(props) {
-    super(props);
+  static contextType = Context;
+
+  constructor(props, context) {
+    super(props, context);
 
     const { location, httpClient } = this.props;
     const { id } = queryString.parse(location.search);
@@ -43,7 +46,7 @@ class CreateRole extends Component {
     this.rolesMappingService = new RolesMappingService(httpClient);
     this.actionGroupsService = new ActionGroupsService(httpClient);
     this.tenantsService = new TenantsService(httpClient);
-    this.systemService = new SystemService(httpClient);
+    this.configService = context.configService;
 
     this.state = {
       id,
@@ -101,7 +104,6 @@ class CreateRole extends Component {
       const [{ data: actionGroups }, { data: allTenants }] = await Promise.all([
         this.actionGroupsService.list(),
         this.tenantsService.list(),
-        this.systemService.loadSystemInfo(),
       ]);
 
       const {
@@ -110,10 +112,10 @@ class CreateRole extends Component {
         allTenantActionGroups,
       } = actionGroupsToUiClusterIndexTenantActionGroups(actionGroups);
 
-      const isDlsEnabled = this.systemService.dlsFlsEnabled();
+      const isDlsEnabled = this.configService.dlsFlsEnabled();
       const isFlsEnabled = isDlsEnabled;
-      const isMultiTenancyEnabled = this.systemService.multiTenancyEnabled();
-      const isAnonymizedFieldsEnabled = this.systemService.complianceFeaturesEnabled();
+      const isMultiTenancyEnabled = this.configService.multiTenancyEnabled();
+      const isAnonymizedFieldsEnabled = this.configService.complianceFeaturesEnabled();
 
       this.setState({
         allClusterActionGroups,

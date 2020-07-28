@@ -7,14 +7,14 @@ import { AccountInfoPage } from './AccountInfoPage';
 import { HashRouter as Router, Route } from 'react-router-dom';
 import { I18nProvider } from '@kbn/i18n/react';
 
-export const renderApp = ({ element, httpClient, pluginVersion }) => {
+export const renderApp = ({ element, httpClient, configService }) => {
   ReactDOM.render(
     <I18nProvider>
       <Router>
         <Route
           render={props => (
-            <MainContextProvider>
-              <AccountInfoPage httpClient={httpClient} pluginVersion={pluginVersion} {...props} />
+            <MainContextProvider httpClient={httpClient} configService={configService}>
+              <AccountInfoPage {...props} />
             </MainContextProvider>
           )}
         />

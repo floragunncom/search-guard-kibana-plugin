@@ -1,5 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import React, { Fragment } from 'react';
+import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
 import {
@@ -39,15 +39,15 @@ import { tenantsText, tenantsDescription } from '../../utils/i18n/tenants';
 import { actionGroupsText, actionGroupsDescription } from '../../utils/i18n/action_groups';
 import { rolesText, rolesDescription } from '../../utils/i18n/roles';
 import { roleMappingsText, roleMappingsDescription } from '../../utils/i18n/role_mappings';
-import { SystemService } from '../../services';
 
-const Home = ({ httpClient, history, onPurgeCache, purgingCache }) => {
-  // TODO: use pesonalized Search Guard icons in cards instead of the default ones
-  const systemService = new SystemService(httpClient);
+import { Context } from '../../Context';
+
+const Home = ({ history, onPurgeCache, purgingCache }) => {
+  const { configService } = useContext(Context);
 
   const filterDisabledCards = (cards = []) => {
     return cards.filter(({ endpoint }) => {
-      return systemService.endpointAndMethodEnabled(endpoint, METHODS_FOR_ENDPOINTS[endpoint]);
+      return configService.endpointAndMethodEnabled(endpoint, METHODS_FOR_ENDPOINTS[endpoint]);
     });
   };
 
@@ -181,7 +181,6 @@ const Home = ({ httpClient, history, onPurgeCache, purgingCache }) => {
 };
 
 Home.propTypes = {
-  httpClient: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   onPurgeCache: PropTypes.func.isRequired,
   purgingCache: PropTypes.bool.isRequired,

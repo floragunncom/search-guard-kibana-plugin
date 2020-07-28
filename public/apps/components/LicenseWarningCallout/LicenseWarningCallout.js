@@ -2,10 +2,10 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { EuiCallOut, EuiText, EuiSpacer, EuiErrorBoundary } from '@elastic/eui';
-import { SystemStateService } from '../../../services';
+import { isEmpty } from 'lodash';
 
-export function LicenseWarningCallout({ httpClient, errorMessage }) {
-  const service = new SystemStateService(httpClient);
+export function LicenseWarningCallout({ configService, errorMessage }) {
+  const service = configService;
 
   const [licenseValid, setLicenseValid] = useState(true);
   const [error, setError] = useState(null);
@@ -22,9 +22,7 @@ export function LicenseWarningCallout({ httpClient, errorMessage }) {
       'The Search Guard license key is not valid for this cluster. Please contact your system administrator.';
 
     try {
-      await service.loadSystemInfo();
-
-      if (!service.stateLoaded()) {
+      if (isEmpty(service.get('systeminfo'))) {
         setError(licenseCantBeLoadedText);
         setLicenseValid(false);
         return;
@@ -44,11 +42,11 @@ export function LicenseWarningCallout({ httpClient, errorMessage }) {
       }
 
       if (service.licenseValid()) {
-        if (service.isTrialLicense() && service.expiresIn() <= 10) {
-          setWarning(`Your trial license expires in ${service.expiresIn()} days.`);
+        if (service.isTrialLicense() && service.licenseExpiresIn() <= 10) {
+          setWarning(`Your trial license expires in ${service.licenseExpiresIn()} days.`);
         }
-        if (!service.isTrialLicense() && service.expiresIn() <= 20) {
-          setWarning(`Your license expires in ${service.expiresIn()} days.`);
+        if (!service.isTrialLicense() && service.licenseExpiresIn() <= 20) {
+          setWarning(`Your license expires in ${service.licenseExpiresIn()} days.`);
         }
       }
     } catch (error) {
@@ -102,6 +100,6 @@ LicenseWarningCallout.defaultProps = {
 };
 
 LicenseWarningCallout.propTypes = {
-  httpClient: PropTypes.object.isRequired,
+  configService: PropTypes.object,
   errorMessage: PropTypes.string,
 };

@@ -20,7 +20,6 @@ import { LoginPage } from './LoginPage';
 
 import { HashRouter as Router, Route } from 'react-router-dom';
 import { I18nProvider } from '@kbn/i18n/react';
-import { stringCSSToReactStyle } from '../../../utils/cssHelper';
 
 export const renderApp = ({ element, basePath, config, httpClient }) => {
   ReactDOM.render(
@@ -28,15 +27,7 @@ export const renderApp = ({ element, basePath, config, httpClient }) => {
       <Router>
         <Route
           render={() => (
-            <LoginPage
-              httpClient={httpClient}
-              basePath={basePath}
-              basicAuthConfig={config.get('searchguard.basicauth')}
-              loginButtonStyles={stringCSSToReactStyle(config.get('basicauth.login.buttonstyle'))}
-              alternativeLoginButtonStyles={stringCSSToReactStyle(
-                config.get('basicauth.alternative_login.buttonstyle')
-              )}
-            />
+            <LoginPage httpClient={httpClient} basePath={basePath} configService={config} />
           )}
         />
       </Router>

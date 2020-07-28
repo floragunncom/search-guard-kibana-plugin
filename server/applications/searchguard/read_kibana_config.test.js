@@ -240,6 +240,8 @@ searchguard.multitenancy.tenants.enable_global: false
           password: 'searchguard_cookie_default_password',
         },
       },
+      restapiinfo: {},
+      systeminfo: {},
     };
 
     expect(parseKibanaConfig(kibanaConfig)).toEqual(config);

@@ -37,7 +37,7 @@ import {
   sgLicenseNotValidText,
 } from '../../utils/i18n/main';
 import { API_ACCESS_STATE } from './utils/constants';
-import { LocalStorageService, ApiService, SystemService } from '../../services';
+import { LocalStorageService, ApiService } from '../../services';
 import getBreadcrumb from './utils/getBreadcrumb';
 
 import { Context } from '../../Context';
@@ -45,12 +45,12 @@ import { Context } from '../../Context';
 class Main extends Component {
   static contextType = Context;
 
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
 
     this.localStorage = new LocalStorageService();
-    this.systemService = new SystemService(this.props.httpClient);
     this.apiService = new ApiService(this.props.httpClient);
+    this.configService = context.configService;
 
     this.state = {
       purgingCache: false,
@@ -70,12 +70,10 @@ class Main extends Component {
 
   checkAPIAccess = async () => {
     try {
-      await this.systemService.loadSystemInfo();
-      if (!this.systemService.restApiEnabled()) {
+      if (!this.configService.restApiEnabled()) {
         this.handleTriggerErrorCallout({ message: apiAccessStateNotEnabledText });
       } else {
-        await this.systemService.loadRestInfo();
-        if (!this.systemService.hasApiAccess()) {
+        if (!this.configService.hasApiAccess()) {
           this.handleTriggerErrorCallout({ message: apiAccessStateForbiddenText });
         } else {
           this.setState({ apiAccessState: API_ACCESS_STATE.OK });
@@ -88,7 +86,7 @@ class Main extends Component {
   };
 
   calloutErrorIfLicenseNotValid = () => {
-    const { isValid, messages } = checkIfLicenseValid();
+    const { isValid, messages } = checkIfLicenseValid(this.configService);
     if (!isValid) {
       this.handleTriggerCallout({
         type: CALLOUTS.ERROR_CALLOUT,
