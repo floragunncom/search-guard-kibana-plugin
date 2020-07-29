@@ -26,16 +26,13 @@ export class TenantsMigrationService {
     this.logger = coreContext.logger.get('tenants-migration-service');
   }
 
-  async setup({ searchGuardBackend, elasticsearch, router, configService }) {
+  setupSync({ configService }) {
     this.logger.debug('Setup tenants saved objects migration');
-    this.searchGuardBackend = searchGuardBackend;
-    this.elasticsearch = elasticsearch;
-    this.router = router;
     this.configService = configService;
 
     try {
-      const savedObjectsConfig = configService.get('searchguard.saved_objects');
-      const savedObjectsMigrationConfig = configService.get(
+      const savedObjectsConfig = this.configService.get('searchguard.saved_objects');
+      const savedObjectsMigrationConfig = this.configService.get(
         'searchguard.multitenancy.saved_objects_migration'
       );
 
@@ -49,26 +46,29 @@ export class TenantsMigrationService {
           skip: savedObjectsMigrationConfig.skip,
         },
       };
-
-      const tenantIndices = await searchGuardBackend.getTenantInfoWithInternalUser();
-      this.tenantIndices =
-        !tenantIndices || typeof tenantIndices !== 'object' ? [] : Object.keys(tenantIndices);
     } catch (error) {
       throw error;
     }
   }
 
-  async start(savedObjects) {
+  async start({ savedObjects, searchGuardBackend, elasticsearch, kibanaRouter }) {
+    this.logger.debug('Start tenants saved objects migration');
+
     try {
-      if (!this.config) {
-        throw new Error('You must run setup first!');
+      const didSetupSyncRun = this.config && this.configService;
+      if (!didSetupSyncRun) {
+        throw new Error('You must run setupSync first!');
       }
+
+      const tenantIndices = await searchGuardBackend.getTenantInfoWithInternalUser();
+      this.tenantIndices =
+        !tenantIndices || typeof tenantIndices !== 'object' ? [] : Object.keys(tenantIndices);
 
       const typeRegistry = savedObjects.getTypeRegistry();
       const kibanaConfig = this.configService.get('kibana');
 
       const callCluster = retryCallCluster(
-        this.elasticsearch.legacy.client.callAsInternalUser,
+        elasticsearch.legacy.client.callAsInternalUser,
         this.logger
       );
 
@@ -87,8 +87,8 @@ export class TenantsMigrationService {
       defineMigrateRoutes({
         KibanaMigrator,
         migratorDeps,
-        router: this.router,
-        searchGuardBackend: this.searchGuardBackend,
+        kibanaRouter,
+        searchGuardBackend,
       });
 
       const migrator = new KibanaMigrator(migratorDeps);

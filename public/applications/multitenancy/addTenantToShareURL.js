@@ -1,8 +1,9 @@
 /* eslint-disable @kbn/eslint/require-license-header */
+import { get } from 'lodash';
 import { parse } from 'url';
 import { tenantNameToUiTenantName } from '../../../utils';
 
-export function addTenantToShareURL(configService) {
+export function addTenantToShareURL() {
   document.addEventListener('copy', event => {
     const shareButton = document.querySelector('[data-share-url]');
     const target = document.querySelector('body > span');
@@ -24,10 +25,14 @@ export function addTenantToShareURL(configService) {
           }
         }
 
+        const config = JSON.parse(sessionStorage.getItem('searchguard') || '{}');
+        const currentTenant = get(config, 'authinfo.user_requested_tenant');
+        console.debug('addTenantToShareURL, currentTenant', currentTenant);
+
         const newValue = addTenantToURL(
           urlPart,
           originalValue,
-          tenantNameToUiTenantName(configService.getDynamicConfig('multitenancy.current_tenant'))
+          tenantNameToUiTenantName(currentTenant)
         );
 
         if (newValue !== originalValue) {

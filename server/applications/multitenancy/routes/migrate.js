@@ -15,7 +15,7 @@ export function migrateTenants({
     savedObjectValidations,
   },
 }) {
-  return async function(context, request, response) {
+  return async function (context, request, response) {
     try {
       const { tenantIndex } = request.params;
       let body;
@@ -39,7 +39,7 @@ export function migrateTenants({
 
       if (tenantIndex === '_all') {
         body = await Promise.all(
-          tenantIndices.map(index => {
+          tenantIndices.map((index) => {
             const migrator = new KibanaMigrator({
               callCluster,
               kibanaConfig: { ...kibanaConfig, index },
@@ -57,7 +57,7 @@ export function migrateTenants({
         return response.ok({ body });
       }
 
-      const indexToMigrate = tenantIndices.find(index => index === tenantIndex);
+      const indexToMigrate = tenantIndices.find((index) => index === tenantIndex);
 
       if (!indexToMigrate) {
         return response.customError({
@@ -88,7 +88,12 @@ export function migrateTenants({
   };
 }
 
-export function migrateTenantsRoute({ router, searchGuardBackend, migratorDeps, KibanaMigrator }) {
+export function migrateTenantsRoute({
+  kibanaRouter,
+  searchGuardBackend,
+  migratorDeps,
+  KibanaMigrator,
+}) {
   const options = {
     path: `${API_ROOT}/multitenancy/migrate/{tenantIndex}`,
     validate: {
@@ -98,6 +103,6 @@ export function migrateTenantsRoute({ router, searchGuardBackend, migratorDeps, 
     },
   };
 
-  router.post(options, migrateTenants({ searchGuardBackend, migratorDeps, KibanaMigrator }));
-  router.get(options, migrateTenants({ searchGuardBackend, migratorDeps, KibanaMigrator }));
+  kibanaRouter.post(options, migrateTenants({ searchGuardBackend, migratorDeps, KibanaMigrator }));
+  kibanaRouter.get(options, migrateTenants({ searchGuardBackend, migratorDeps, KibanaMigrator }));
 }

@@ -5,6 +5,7 @@ export function setupSearchGuardBackendInstMock() {
   return {
     getTenantInfoWithInternalUser: jest.fn(),
     getKibanaInfoWithInternalUser: jest.fn(),
+    hasPermissions: jest.fn(),
   };
 }
 

@@ -97,7 +97,6 @@ export class MultiTenancyPage extends Component {
     const { httpClient } = this.context;
     httpClient.get(`${API_ROOT}/multitenancy/info`).then(
       response => {
-        console.debug('MultiTenancyPage, fetchMultiTenancyInfo, resp', response);
         const kibana_server_user = this.configService.get('elasticsearch.username');
         const kibana_index = this.configService.get('kibana.index');
 
@@ -296,7 +295,7 @@ export class MultiTenancyPage extends Component {
       .then(
         response => {
           const currentTenant = response.data;
-          configService.setDynamicConfig('multitenancy.current_tenant', currentTenant);
+          configService.init();
           this.setCurrentTenant(currentTenant, userName);
 
           // clear lastUrls from nav links to avoid not found errors.

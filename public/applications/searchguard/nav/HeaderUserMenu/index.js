@@ -1,2 +1,2 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-export { ConfigApp } from './ConfigApp';
+export { HeaderUserMenuApp } from './HeaderUserMenuApp';

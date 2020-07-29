@@ -1,6 +1,7 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { HttpWrapper } from './utils/httpWrapper';
-import { Signals } from './applications/signals';
+import { ApiService, ConfigService } from './services';
+import { Signals } from './applications/signals/Signals';
 import { SearchGuard } from './applications/searchguard';
 import { AccountInfo } from './applications/accountinfo';
 import { MultiTenancy } from './applications/multitenancy';
@@ -10,57 +11,64 @@ export class PublicPlugin {
     this.initializerContext = initializerContext;
     this.signalsApp = new Signals();
     this.searchGuardApp = new SearchGuard(this.initializerContext);
-    this.accountInfoApp = new AccountInfo();
-    this.multiTenancyApp = new MultiTenancy();
+    this.accountInfoApp = new AccountInfo(this.initializerContext);
+    this.multiTenancyApp = new MultiTenancy(this.initializerContext);
   }
 
-  async setup(core, plugins) {
+  /*
+  ATTENTION! Kibana imposes restrictions to the plugin lifecycle methods:
+  1. A method must not return promise.
+  2. A method execution time limit is 10 seconds.
+  */
+  setup(core, plugins) {
     this.httpClient = new HttpWrapper(core.http);
+    const apiService = new ApiService(this.httpClient);
 
-    const { configService, chromeHelper } = await this.searchGuardApp.setup({
-      core,
-      plugins,
-      httpClient: this.httpClient,
+    this.configService = new ConfigService({
+      apiService,
+      uiSettings: core.uiSettings,
+      coreContext: this.initializerContext,
     });
 
-    this.configService = configService;
+    const { chromeHelper } = this.searchGuardApp.setupSync({
+      core,
+      plugins,
+      chromeHelper: this.chromeHelper,
+      httpClient: this.httpClient,
+      configService: this.configService,
+    });
 
-    try {
-      this.signalsApp.setup({ core, httpClient: this.httpClient });
-    } catch (error) {
-      console.error(`Signals: ${error.toString()} ${error.stack}`);
-    }
+    this.signalsApp.setupSync({ core, httpClient: this.httpClient });
 
-    if (this.configService.get('searchguard.accountinfo.enabled')) {
-      try {
-        this.accountInfoApp.setup({
-          core,
-          httpClient: this.httpClient,
-          configService: this.configService,
-        });
-      } catch (error) {
-        console.error(`Accountinfo: ${error.toString()} ${error.stack}`);
-      }
-    }
+    this.accountInfoApp.setupSync({
+      core,
+      httpClient: this.httpClient,
+      configService: this.configService,
+    });
 
-    if (this.configService.get('searchguard.multitenancy.enabled')) {
-      try {
-        this.multiTenancyApp.setup({
-          core,
-          plugins,
-          chromeHelper,
-          httpClient: this.httpClient,
-          configService: this.configService,
-        });
-      } catch (error) {
-        console.error(`Multitenancy: ${error.toString()} ${error.stack}`);
-      }
-    }
+    this.multiTenancyApp.setupSync({
+      core,
+      plugins,
+      chromeHelper,
+      httpClient: this.httpClient,
+      configService: this.configService,
+    });
   }
 
-  async start(core) {
-    this.searchGuardApp.start({ core, httpClient: this.httpClient });
-  }
+  start(core) {
+    (async () => {
+      await this.configService.init();
 
-  stop() {}
+      this.searchGuardApp.start({
+        core,
+        httpClient: this.httpClient,
+        configService: this.configService,
+      });
+
+      this.accountInfoApp.start({ configService: this.configService });
+      this.multiTenancyApp.start({ configService: this.configService });
+    })();
+
+    this.signalsApp.start({ httpClient: this.httpClient });
+  }
 }
