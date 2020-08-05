@@ -47,14 +47,6 @@ This software is licensed under the Apache2 license and can be used freely also 
 
 In some cases, when Kibana doesn't provide the required core functionality, we must patch.
 
-  - `yarn patch:kibana`
-
-    Patch Kibana v8 in a production environment.
-
-  - `yarn patch:kibana:dev`
-
-    Patch Kibana v8 in a development environment.
-
   - `yarn patch:kibana:samesite`
 
     The patch makes it possible to work with Kibana, which is embedded in an iframe on a third party website. We must do it because now (Thu Apr 23 2020) Kibana is still using hapi v17. And hapi added support for SameSite=None in hapi v19.0.0. Read more about [SameSite=None](https://www.chromestatus.com/feature/5633521622188032) and [SameSite](https://web.dev/samesite-cookies-explained/).
@@ -62,6 +54,27 @@ In some cases, when Kibana doesn't provide the required core functionality, we m
   - `yarn patch:kibana:dev:es_compatibility`
 
     The patch is only for the developers! It doesn't work in a production environment. The patch makes it possible to run Kibana with nodes where an old Elassticsearch version is used.
+  
+### Kibana 8 patch
+We must path Kibana 8 to make it work with Search Guard.
+
+#### Linux
+  - `yarn patch:kibana`
+
+    Patch Kibana v8 in the production environment.
+
+  - `yarn patch:kibana:dev`
+
+    Patch Kibana v8 in the development environment.
+
+#### Windows
+  - `powershell -ExecutionPolicy Bypass -File .\patches\patch_kibana.ps1`
+
+    Patch Kibana v8 in the production environment.
+
+  - `powershell -ExecutionPolicy Bypass -File .\patches\patch_kibana.ps1 -mode "dev"`
+
+    Patch Kibana v8 in the development environment.
 
 ## Development
 
