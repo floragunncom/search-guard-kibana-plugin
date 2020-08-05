@@ -60,7 +60,8 @@ function hideNavItems() {
  */
 function hideNavItemsForTenantReadOnly() {
     let hiddenNavLinkIds = [
-        'kibana:management'
+        'kibana:management',
+        'kibana:stack_management'
     ];
 
     chromeWrapper.getNavLinks().forEach((navLink) => {
@@ -392,8 +393,8 @@ export function enableReadOnly($rootScope, $http, $window, $timeout, $q, $locati
             await readOnlyResolver($q, $rootScope, $http, $location, {});
         }
 
-        //// Read only mode is disabled, developing ...
-        // resolveForReactRoutes();
+        // Workaround for React routes
+        resolveForReactRoutes();
 
         return;
     }
