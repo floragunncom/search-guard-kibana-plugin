@@ -1,4 +1,5 @@
-import React from 'react';
+/* eslint-disable @kbn/eslint/require-license-header */
+import React, { useContext } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
 import {
@@ -27,14 +28,23 @@ import {
 } from '../../../../utils/i18n/common';
 import { SEVERITY } from '../../utils/constants';
 import { SEVERITY_OPTIONS } from './utils/constants';
-import { isInvalid, hasError, validateEmptyField } from '../../../../utils/validate';
+import {
+  isInvalid,
+  hasError,
+  validateEmptyField,
+  validateEmptyComboBox,
+} from '../../../../utils/validate';
 import { validateSeverityThresholds } from './utils/validateSeverityThresholds';
 
+import { Context } from '../../../../Context';
+
 const Field = ({ fields = [] }) => {
+  const { onComboBoxChange } = useContext(Context);
+
   if (!fields.length) {
     return (
       <FormikFieldText
-        name="_ui.severity.value[0].label"
+        name="_ui.severity.valueString"
         formRow
         rowProps={{
           label: fieldText,
@@ -48,8 +58,7 @@ const Field = ({ fields = [] }) => {
           },
         }}
         formikFieldProps={{
-          placeholder: 'A field with number',
-          validate: validateEmptyField
+          validate: validateEmptyField,
         }}
       />
     );
@@ -62,16 +71,19 @@ const Field = ({ fields = [] }) => {
       formRow
       rowProps={{
         label: fieldText,
+        isInvalid,
+        error: hasError,
       }}
       elementProps={{
         placeholder: 'Select a field',
         options: fields,
-        onChange: (options, field, form) => {
-          form.setFieldValue(field.name, options);
-        },
+        onChange: onComboBoxChange(validateEmptyComboBox),
         isClearable: false,
         singleSelection: { asPlainText: true },
         'data-test-subj': 'sgSeverityFieldComboBox',
+      }}
+      formikFieldProps={{
+        validate: validateEmptyComboBox,
       }}
     />
   );
