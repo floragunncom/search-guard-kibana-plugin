@@ -1,6 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import { first } from 'rxjs/operators';
-import { get, defaultsDeep } from 'lodash';
+import { get } from 'lodash';
 import { registerRoutes } from './routes';
 import { readKibanaConfig } from './read_kibana_config';
 import { ConfigService } from '../../../utils/config_service';
@@ -18,40 +17,41 @@ import { APP_ROOT, API_ROOT } from '../../utils/constants';
 export class SearchGuard {
   constructor(coreContext) {
     this.coreContext = coreContext;
-    this.config$ = this.coreContext.config.create();
     this.logger = this.coreContext.logger.get('searchguard');
   }
 
-  async setup({ router, core, server, pluginDependencies }) {
-    this.logger.debug('Setup app');
+  setupSync({ core, pluginDependencies, hapiServer, kibanaRouter }) {
+    this.logger.debug('Setup sync app');
 
     try {
       const isDev = get(this.coreContext, 'env.mode.dev', false);
-      const [kibanaConfig, pluginConfig] = await Promise.all([
-        readKibanaConfig({ isDev }),
-        this.config$.pipe(first()).toPromise(),
-      ]);
+      this.configService = new ConfigService(readKibanaConfig({ isDev }));
 
-      kibanaConfig.searchguard = defaultsDeep(kibanaConfig.searchguard, pluginConfig);
-      this.configService = new ConfigService(kibanaConfig);
+      registerRoutes({
+        router: kibanaRouter,
+        config: this.configService.getConfig(),
+        logger: this.logger,
+      });
 
-      registerRoutes({ router, config: this.configService.getConfig(), logger: this.logger });
+      this.searchGuardBackend = new SearchGuardBackend(core, hapiServer, this.configService);
 
-      const searchGuardBackend = new SearchGuardBackend(core, server, this.configService);
-      const searchGuardConfigurationBackend = new SearchGuardConfigurationBackend(
+      this.searchGuardConfigurationBackend = new SearchGuardConfigurationBackend(
         core,
-        server,
+        hapiServer,
         this.configService
       );
 
       // Sanity checks
       checkXPackSecurityDisabled({ pluginDependencies, logger: this.logger });
       checkTLSConfig({ configService: this.configService, logger: this.logger });
-      checkDoNotFailOnForbidden({ searchGuardBackend, logger: this.logger });
+      checkDoNotFailOnForbidden({
+        searchGuardBackend: this.searchGuardBackend,
+        logger: this.logger,
+      });
       checkCookieConfig({ configService: this.configService, logger: this.logger });
 
       // Inits the authInfo route
-      authInfoRoutes(searchGuardBackend, server, APP_ROOT, API_ROOT);
+      authInfoRoutes(this.searchGuardBackend, hapiServer, APP_ROOT, API_ROOT);
 
       // Set up the storage cookie
       const storageCookieConf = {
@@ -67,10 +67,32 @@ export class SearchGuard {
         storageCookieConf.domain = this.configService.get('searchguard.cookie.domain');
       }
 
-      server.state(
+      hapiServer.state(
         this.configService.get('searchguard.cookie.storage_cookie_name'),
         storageCookieConf
       );
+
+      return {
+        configService: this.configService,
+        searchGuardBackend: this.searchGuardBackend,
+        searchGuardConfigurationBackend: this.searchGuardConfigurationBackend,
+      };
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
+
+  async setup({ hapiServer, core }) {
+    this.logger.debug('Setup app');
+
+    try {
+      const didSetupSyncRun =
+        this.configService && this.searchGuardBackend && this.searchGuardConfigurationBackend;
+
+      if (!didSetupSyncRun) {
+        throw new Error('You must run setupSync first!');
+      }
 
       const authType = this.configService.get('searchguard.auth.type', null);
       let AuthClass = null;
@@ -81,7 +103,7 @@ export class SearchGuard {
         ['basicauth', 'jwt', 'openid', 'saml', 'proxycache'].indexOf(authType) > -1
       ) {
         try {
-          await server.register({
+          await hapiServer.register({
             plugin: require('hapi-auth-cookie'),
           });
 
@@ -130,8 +152,8 @@ export class SearchGuard {
               if (!authInstance) {
                 // @todo Clean up the null parameters here
                 authInstance = new AuthClass(
-                  searchGuardBackend,
-                  server,
+                  this.searchGuardBackend,
+                  hapiServer,
                   APP_ROOT,
                   API_ROOT,
                   core,
@@ -153,10 +175,10 @@ export class SearchGuard {
         }
       } else {
         // Register the storage plugin for the other auth types
-        await server.register({
+        await hapiServer.register({
           plugin: require('../../../lib/session/sessionPlugin'),
           options: {
-            searchGuardBackend: searchGuardBackend,
+            searchGuardBackend: this.searchGuardBackend,
             authType: null,
             storageCookieName: this.configService.get('searchguard.cookie.storage_cookie_name'),
           },
@@ -169,7 +191,7 @@ export class SearchGuard {
 
       // @todo TEST
       if (this.configService.get('searchguard.xff.enabled')) {
-        require('../../../lib/xff/xff')(server);
+        require('../../../lib/xff/xff')(hapiServer);
         this.logger.info('Search Guard XFF enabled.');
       }
 
@@ -180,8 +202,8 @@ export class SearchGuard {
 
       if (this.configService.get('searchguard.configuration.enabled')) {
         require('../../../lib/configuration/routes/routes')(
-          searchGuardConfigurationBackend,
-          server,
+          this.searchGuardConfigurationBackend,
+          hapiServer,
           APP_ROOT,
           API_ROOT
         );
@@ -193,8 +215,8 @@ export class SearchGuard {
       }
 
       require('../../../lib/system/routes')(
-        searchGuardBackend,
-        server,
+        this.searchGuardBackend,
+        hapiServer,
         APP_ROOT,
         API_ROOT,
         this.configService
@@ -202,12 +224,7 @@ export class SearchGuard {
 
       this.logger.info('Search Guard system routes registered.');
 
-      return {
-        configService: this.configService,
-        searchGuardConfigurationBackend,
-        searchGuardBackend,
-        authInstance,
-      };
+      return { authInstance };
     } catch (error) {
       this.logger.error(error);
       throw error;

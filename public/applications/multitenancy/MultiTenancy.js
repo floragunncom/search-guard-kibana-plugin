@@ -1,44 +1,85 @@
 /* eslint-disable @kbn/eslint/require-license-header */
+import { BehaviorSubject } from 'rxjs';
+import { AppNavLinkStatus } from '../../../../../src/core/public';
 import { addTenantToShareURL } from './addTenantToShareURL';
-import { API_ROOT, SEARCHGUARD_APP_CATEGORY } from '../../utils/constants';
+import { SEARCHGUARD_APP_CATEGORY } from '../../utils/constants';
 
 export class MultiTenancy {
-  setup({ core, plugins, chromeHelper, configService, httpClient }) {
-    core.application.register({
-      id: 'searchguard-multitenancy',
-      title: 'Multitenancy',
-      category: SEARCHGUARD_APP_CATEGORY,
-      mount: async (params) => {
-        const { renderApp } = await import('./npstart');
+  constructor(coreContext) {
+    this.coreContext = coreContext;
+    this.appUpdater = new BehaviorSubject(() => ({}));
+  }
 
+  mount({ configService, httpClient, chromeHelper }) {
+    return async (params) => {
+      const [{ renderApp }] = await Promise.all([import('./npstart'), configService.init()]);
+
+      if (configService.get('searchguard.multitenancy.enabled')) {
         return renderApp({
           element: params.element,
           configService,
           httpClient,
           chromeHelper,
         });
-      },
-    });
+      }
+    };
+  }
 
-    if (plugins.home) {
-      plugins.home.featureCatalogue.register({
+  setupSync({ core, plugins, httpClient, configService, chromeHelper }) {
+    try {
+      core.application.register({
         id: 'searchguard-multitenancy',
-        title: 'Search Guard Multi Tenancy',
-        description: 'Separate searches, visualizations and dashboards by tenants.',
-        icon: 'usersRolesApp',
-        path: '/app/searchguard-multitenancy',
-        showOnHomePage: true,
-        category: 'data',
+        title: 'Multitenancy',
+        category: SEARCHGUARD_APP_CATEGORY,
+        updater$: this.appUpdater,
+        mount: this.mount({ core, configService, httpClient, chromeHelper }),
       });
-    }
 
-    // Make sure we have the current tenant available
-    // @todo Better check for login/customerror page
-    if (configService.get('restapiinfo.user_name')) {
-      httpClient.get(`${API_ROOT}/auth/authinfo`).then(({ data }) => {
-        configService.setDynamicConfig('multitenancy.current_tenant', data.user_requested_tenant);
-        addTenantToShareURL(configService);
-      });
+      if (plugins.home) {
+        plugins.home.featureCatalogue.register({
+          id: 'searchguard-multitenancy',
+          title: 'Search Guard Multi Tenancy',
+          description: 'Separate searches, visualizations and dashboards by tenants.',
+          icon: 'usersRolesApp',
+          path: '/app/searchguard-multitenancy',
+          showOnHomePage: true,
+          category: 'data',
+        });
+      }
+
+      this.setup({ configService });
+    } catch (error) {
+      console.error(`Multitenancy: ${error.toString()} ${error.stack}`);
+    }
+  }
+
+  async setup({ configService }) {
+    try {
+      await configService.init();
+
+      // @todo Better check for login/customerror page
+      const doAttachTenantNameToDashboardShareURL =
+        configService.get('searchguard.multitenancy.enabled') &&
+        configService.get('authinfo.user_requested_tenant');
+
+      if (doAttachTenantNameToDashboardShareURL) {
+        addTenantToShareURL();
+      }
+    } catch (error) {
+      console.error(`Multitenancy: ${error.toString()} ${error.stack}`);
+    }
+  }
+
+  start({ configService }) {
+    try {
+      if (!configService.get('searchguard.multitenancy.enabled')) {
+        this.appUpdater.next(() => ({
+          navLinkStatus: AppNavLinkStatus.disabled,
+          tooltip: 'Multitenancy disabled',
+        }));
+      }
+    } catch (error) {
+      console.error(`Multitenancy: ${error.toString()} ${error.stack}`);
     }
   }
 }

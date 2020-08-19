@@ -17,90 +17,88 @@
 
 import { Signals, Multitenancy, SearchGuard } from './applications';
 
-export class Plugin {
+export class ServerPlugin {
   constructor(initializerContext) {
     this.logger = initializerContext.logger.get();
     this.initContext = initializerContext;
     this.signalsApp = new Signals(this.initContext);
     this.searchGuardApp = new SearchGuard(this.initContext);
+    this.multiTenancyApp = new Multitenancy(this.initContext);
   }
 
-  async setup(core, pluginDependencies) {
-    const router = core.http.createRouter();
-
+  /*
+  ATTENTION! Kibana imposes restrictions to the plugin lifecycle methods:
+  1. A method must not return promise.
+  2. A method execution time limit is 10 seconds.
+  */
+  setup(core, pluginDependencies) {
     process.on('unhandledRejection', (error) => {
       console.error(error); // This prints error with stack included (as for normal errors)
       throw error; // Following best practices re-throw error and let the process exit with error code
     });
-    /**
-     * The patched values
-     */
-    const server = core.hapiServer;
 
-    const { configService, searchGuardBackend, authInstance } = await this.searchGuardApp.setup({
-      router,
+    this.hapiServer = core.hapiServer;
+    this.kibanaRouter = core.http.createRouter();
+    this.elasticsearch = core.elasticsearch;
+
+    const {
+      configService,
+      searchGuardBackend,
+      searchGuardConfigurationBackend,
+    } = this.searchGuardApp.setupSync({
       core,
-      server,
       pluginDependencies,
+      hapiServer: this.hapiServer,
+      kibanaRouter: this.kibanaRouter,
     });
 
     this.configService = configService;
+    this.searchGuardBackend = searchGuardBackend;
+    this.searchGuardConfigurationBackend = searchGuardConfigurationBackend;
 
-    // MT
-    if (this.configService.get('searchguard.multitenancy.enabled')) {
-      // ATTENTION! We want to make sure the multitenancy app migrates saved objects
-      // in the tenants indices before doing any any operation on indices
-      this.multinenancyApp = new Multitenancy(this.initContext);
-
-      try {
-        await this.multinenancyApp.setup({
-          hapiServer: core.hapiServer,
-          elasticsearch: core.elasticsearch,
-          configService: this.configService,
-          spacesPlugin: pluginDependencies.spaces || null,
-          router,
-          authInstance,
-          searchGuardBackend,
-        });
-      } catch (error) {
-        this.logger.error(error);
-        throw new Error(error);
-      }
-    }
-
-    // @todo Signals app access
-    this.signalsApp.setup({
+    this.signalsApp.setupSync({
       core,
-      router,
+      kibanaRouter: this.kibanaRouter,
       hapiServer: core.hapiServer,
       searchguardBackendService: searchGuardBackend,
     });
 
-    return {
-      something: 'returned',
-    };
-  }
-
-  async start(core) {
-    try {
-      if (this.configService.get('searchguard.multitenancy.enabled')) {
-        await this.multinenancyApp.start(core.savedObjects);
-      } else {
-        this.logger.info('Multitenancy is disabled');
-      }
-    } catch (error) {
-      this.logger.error(error);
-      throw new Error(error);
+    const isMtEnabled = this.configService.get('searchguard.multitenancy.enabled');
+    if (isMtEnabled) {
+      this.multiTenancyApp.setupSync({
+        configService,
+        searchGuardBackend,
+        hapiServer: this.hapiServer,
+      });
     }
 
-    return {
-      something: 'returned',
-    };
+    (async () => {
+      const { authInstance } = await this.searchGuardApp.setup({
+        core,
+        hapiServer: this.hapiServer,
+      });
+
+      if (isMtEnabled) {
+        this.multiTenancyApp.setup({
+          authInstance,
+          hapiServer: this.hapiServer,
+          elasticsearch: this.elasticsearch,
+          spacesPlugin: pluginDependencies.spaces || null,
+        });
+      }
+    })();
   }
 
-  stop() {
-    return {
-      something: 'returned',
-    };
+  start(core) {
+    const isMtEnabled = this.configService.get('searchguard.multitenancy.enabled');
+    if (isMtEnabled) {
+      // ATTENTION! We want to make sure the multitenancy app migrates saved objects
+      // in the tenants indices before doing any operation on indices
+      this.multiTenancyApp.start({
+        core,
+        elasticsearch: this.elasticsearch,
+        kibanaRouter: this.kibanaRouter,
+      });
+    }
   }
 }

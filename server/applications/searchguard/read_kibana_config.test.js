@@ -37,6 +37,32 @@ describe('nestConfigProperties', () => {
 });
 
 describe('parseKibanaConfig', () => {
+  // The function must be fast enough to avoid braking Kibana's limit of 10 seconds
+  // for a plugin lifecycle method (setup, start or stop)
+  test('can parse a big deeply nested config in less then 0.9 seconds', () => {
+    let kibanaConfig = '';
+    const timeLimit = 900;
+    const numOfLines = 2000;
+    const a = 97;
+    const z = 122;
+
+    for (let i = 0; i < numOfLines; i++) {
+      let key = '';
+      for (let j = a; j <= z; j++) {
+        const end = j < z ? '.' : ':';
+        key += String.fromCharCode(j) + i + end;
+      }
+
+      kibanaConfig += `${key} ${i}\n`;
+    }
+
+    const time0 = new Date().getTime();
+    parseKibanaConfig(kibanaConfig);
+    const time1 = new Date().getTime();
+
+    expect(time1 - time0).toBeLessThan(timeLimit);
+  });
+
   test('fail to read the config due to a YAML error', () => {
     const kibanaConfig = `
 A comment.
@@ -185,65 +211,6 @@ searchguard.multitenancy.tenants.enable_global: false
   });
 
   test('can produce the default config', () => {
-    const kibanaConfig = '';
-    const config = {
-      dynamic: {
-        multitenancy: {
-          current_tenant: '',
-        },
-      },
-      elasticsearch: {
-        customHeaders: {},
-        hosts: ['http://localhost:9200'],
-        logQueries: false,
-        password: 'pass',
-        pingTimeout: 1500,
-        preserveHost: true,
-        requestHeadersWhitelist: ['authorization'],
-        requestTimeout: 30000,
-        shardTimeout: 30000,
-        ssl: {
-          alwaysPresentCertificate: false,
-        },
-        startupTimeout: 5000,
-        username: 'kibana_system',
-      },
-      i18n: {
-        locale: 'en',
-      },
-      kibana: {
-        index: '.kibana',
-      },
-      logging: {
-        dest: 'stdout',
-        quiet: false,
-        silent: false,
-        verbose: false,
-      },
-      ops: {
-        interval: 5000,
-      },
-      pid: {},
-      server: {
-        basePath: '',
-        host: 'localhost',
-        maxPayloadBytes: 1048576,
-        name: 'your-hostname',
-        port: 5601,
-        rewriteBasePath: false,
-        ssl: {
-          enabled: false,
-        },
-      },
-      searchguard: {
-        cookie: {
-          password: 'searchguard_cookie_default_password',
-        },
-      },
-      restapiinfo: {},
-      systeminfo: {},
-    };
-
-    expect(parseKibanaConfig(kibanaConfig)).toEqual(config);
+    expect(parseKibanaConfig('')).toEqual(DEFAULT_CONFIG);
   });
 });

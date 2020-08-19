@@ -26,19 +26,15 @@ export class Multitenancy {
     this.tenantsMigration = new TenantsMigrationService(coreContext);
   }
 
-  async setup({
-    hapiServer,
-    searchGuardBackend,
-    elasticsearch,
-    configService,
-    authInstance,
-    router,
-    spacesPlugin = null,
-  }) {
-    this.logger.debug('Setup app');
-    this.configService = configService;
+  setupSync({ hapiServer, searchGuardBackend, elasticsearch, configService }) {
+    this.logger.debug('Setup sync app');
 
     try {
+      this.hapiServer = hapiServer;
+      this.searchGuardBackend = searchGuardBackend;
+      this.elasticsearch = elasticsearch;
+      this.configService = configService;
+
       const requestHeadersWhitelist = this.configService.get(
         'elasticsearch.requestHeadersWhitelist'
       );
@@ -50,15 +46,6 @@ export class Multitenancy {
       }
 
       defineMultitenancyRoutes({ server: hapiServer, searchGuardBackend, config: configService });
-
-      requestHeaders({
-        server: hapiServer,
-        searchGuardBackend,
-        authInstance,
-        config: configService,
-        elasticsearch,
-        spacesPlugin,
-      });
 
       const preferenceCookieConf = {
         ttl: 2217100485000,
@@ -81,26 +68,51 @@ export class Multitenancy {
         preferenceCookieConf
       );
 
-      await this.tenantsMigration.setup({
-        searchGuardBackend,
-        elasticsearch,
-        router,
-        configService,
-      });
+      this.tenantsMigration.setupSync({ configService });
     } catch (error) {
-      this.logger.error(`setup: ${error.toString()} ${error.stack}`);
-      throw error;
+      this.logger.error(error);
     }
   }
 
-  async start(savedObjects) {
+  async setup({ authInstance, spacesPlugin = null, elasticsearch, hapiServer }) {
+    this.logger.debug('Setup app');
+
+    try {
+      const didSetupSyncRun = this.searchGuardBackend && this.configService;
+      if (!didSetupSyncRun) {
+        throw new Error('You must run setupSync first!');
+      }
+
+      requestHeaders({
+        authInstance,
+        spacesPlugin,
+        elasticsearch,
+        server: hapiServer,
+        config: this.configService,
+        searchGuardBackend: this.searchGuardBackend,
+      });
+    } catch (error) {
+      this.logger.error(`setup: ${error.toString()} ${error.stack}`);
+    }
+  }
+
+  async start({ core, elasticsearch, kibanaRouter }) {
     this.logger.debug('Start app');
 
     try {
-      await this.tenantsMigration.start(savedObjects);
+      const didSetupSyncRun = this.searchGuardBackend;
+      if (!didSetupSyncRun) {
+        throw new Error('You must run setupSync first!');
+      }
+
+      await this.tenantsMigration.start({
+        elasticsearch,
+        kibanaRouter,
+        savedObjects: core.savedObjects,
+        searchGuardBackend: this.searchGuardBackend,
+      });
     } catch (error) {
       this.logger.error(`start: ${error.toString()} ${error.stack}`);
-      throw error;
     }
   }
 }

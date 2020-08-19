@@ -1,21 +1,34 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { schema } from '@kbn/config-schema';
-import { Plugin } from './serverPlugin';
+import { ServerPlugin } from './serverPlugin';
 import { version as sgVersion } from '../package.json';
 
 import { DEFAULT_CONFIG } from './applications/searchguard/read_kibana_config';
 
+const {
+  searchguard: {
+    openid: openidDefaults,
+    proxycache: proxycacheDefaults,
+    cookie: cookieDefaults,
+    auth: authDefaults,
+    basicauth: basicauthDefaults,
+    multitenancy: multitenancyDefaults,
+    jwt: jwtDefaults,
+    ...searchguardDefaults
+  } = {},
+} = DEFAULT_CONFIG;
+
 const getOpenIdSchema = (isSelectedAuthType) => {
   return schema.object({
     connect_url: isSelectedAuthType ? schema.string() : schema.maybe(schema.string()),
-    header: schema.string({ defaultValue: 'Authorization' }),
+    header: schema.string({ defaultValue: openidDefaults.header }),
     client_id: isSelectedAuthType ? schema.string() : schema.maybe(schema.string()),
-    client_secret: schema.string({ defaultValue: '' }),
-    scope: schema.string({ defaultValue: 'openid profile email address phone' }),
-    base_redirect_url: schema.string({ defaultValue: '' }),
-    logout_url: schema.string({ defaultValue: '' }),
-    root_ca: schema.string({ defaultValue: '' }),
-    verify_hostnames: schema.boolean({ defaultValue: true }),
+    client_secret: schema.string({ defaultValue: openidDefaults.client_secret }),
+    scope: schema.string({ defaultValue: openidDefaults.scope }),
+    base_redirect_url: schema.string({ defaultValue: openidDefaults.base_redirect_url }),
+    logout_url: schema.string({ defaultValue: openidDefaults.logout_url }),
+    root_ca: schema.string({ defaultValue: openidDefaults.root_ca }),
+    verify_hostnames: schema.boolean({ defaultValue: openidDefaults.verify_hostnames }),
   });
 };
 
@@ -23,36 +36,44 @@ const getProxyCacheSchema = (isSelectedAuthType) => {
   return schema.object({
     user_header: isSelectedAuthType ? schema.string() : schema.maybe(schema.string()),
     roles_header: isSelectedAuthType ? schema.string() : schema.maybe(schema.string()),
-    proxy_header: schema.string({ defaultValue: 'x-forwarded-for' }),
+    proxy_header: schema.string({ defaultValue: proxycacheDefaults.proxy_header }),
     proxy_header_ip: isSelectedAuthType ? schema.string() : schema.maybe(schema.string()),
-    login_endpoint: schema.nullable(schema.string({ defaultValue: null })),
+    login_endpoint: schema.nullable(
+      schema.string({ defaultValue: proxycacheDefaults.login_endpoint })
+    ),
   });
 };
 
 // @todo We need to go through all of these and double check the default values, nullable, allow empty string etc.
 export const ConfigSchema = schema.object({
-  enabled: schema.boolean({ defaultValue: true }),
+  enabled: schema.boolean({ defaultValue: searchguardDefaults.enabled }),
 
-  allow_client_certificates: schema.boolean({ defaultValue: false }),
+  allow_client_certificates: schema.boolean({
+    defaultValue: searchguardDefaults.allow_client_certificates,
+  }),
 
   readonly_mode: schema.object({
-    roles: schema.arrayOf(schema.string(), { defaultValue: [] }),
+    roles: schema.arrayOf(schema.string(), {
+      defaultValue: searchguardDefaults.readonly_mode.roles,
+    }),
   }),
 
   xff: schema.object({
-    enabled: schema.boolean({ defaultValue: false }),
+    enabled: schema.boolean({ defaultValue: searchguardDefaults.xff.enabled }),
   }),
 
   cookie: schema.object({
-    secure: schema.boolean({ defaultValue: false }),
-    name: schema.string({ defaultValue: 'searchguard_authentication' }),
-    storage_cookie_name: schema.string({ defaultValue: 'searchguard_storage' }),
-    preferences_cookie_name: schema.string({ defaultValue: 'searchguard_preferences' }),
+    secure: schema.boolean({ defaultValue: cookieDefaults.secure }),
+    name: schema.string({ defaultValue: cookieDefaults.name }),
+    storage_cookie_name: schema.string({ defaultValue: cookieDefaults.storage_cookie_name }),
+    preferences_cookie_name: schema.string({
+      defaultValue: cookieDefaults.preferences_cookie_name,
+    }),
     password: schema.string({
       minLength: 32,
-      defaultValue: DEFAULT_CONFIG.searchguard.cookie.password,
+      defaultValue: cookieDefaults.password,
     }),
-    ttl: schema.number({ defaultValue: 60 * 60 * 1000 }),
+    ttl: schema.number({ defaultValue: cookieDefaults.ttl }),
     domain: schema.maybe(schema.string()),
     isSameSite: schema.oneOf(
       [
@@ -61,12 +82,12 @@ export const ConfigSchema = schema.object({
         schema.literal('Strict'),
         schema.literal('Lax'),
       ],
-      { defaultValue: false }
+      { defaultValue: cookieDefaults.isSameSite }
     ),
   }),
   session: schema.object({
-    ttl: schema.number({ min: 0, defaultValue: 60 * 60 * 1000 }),
-    keepalive: schema.boolean({ defaultValue: true }),
+    ttl: schema.number({ min: 0, defaultValue: searchguardDefaults.session.ttl }),
+    keepalive: schema.boolean({ defaultValue: searchguardDefaults.session.keepalive }),
   }),
 
   /**
@@ -84,39 +105,50 @@ export const ConfigSchema = schema.object({
         schema.literal('kerberos'),
         schema.literal('proxycache'),
       ],
-      { defaultValue: 'basicauth' }
+      { defaultValue: authDefaults.type }
     ),
-    anonymous_auth_enabled: schema.boolean({ defaultValue: false }),
-    unauthenticated_routes: schema.arrayOf(schema.string(), { defaultValue: ['/api/status'] }),
-    logout_url: schema.string({ defaultValue: '' }),
+    anonymous_auth_enabled: schema.boolean({ defaultValue: authDefaults.anonymous_auth_enabled }),
+    unauthenticated_routes: schema.arrayOf(schema.string(), {
+      defaultValue: authDefaults.unauthenticated_routes,
+    }),
+    logout_url: schema.string({ defaultValue: authDefaults.logout_url }),
   }),
 
   /**
    * Basic auth
    */
   basicauth: schema.object({
-    forbidden_usernames: schema.arrayOf(schema.string(), { defaultValue: [] }),
+    forbidden_usernames: schema.arrayOf(schema.string(), {
+      defaultValue: basicauthDefaults.forbidden_usernames,
+    }),
     allowed_usernames: schema.nullable(schema.arrayOf(schema.string())),
-    header_trumps_session: schema.boolean({ defaultValue: false }),
+    header_trumps_session: schema.boolean({
+      defaultValue: basicauthDefaults.header_trumps_session,
+    }),
     alternative_login: schema.object({
-      headers: schema.arrayOf(schema.string(), { defaultValue: [] }),
-      show_for_parameter: schema.string({ defaultValue: '' }),
-      valid_redirects: schema.arrayOf(schema.string(), { defaultValue: [] }),
-      button_text: schema.string({ defaultValue: 'Login with provider' }),
-      buttonstyle: schema.string({ defaultValue: '' }),
+      headers: schema.arrayOf(schema.string(), {
+        defaultValue: basicauthDefaults.alternative_login.headers,
+      }),
+      show_for_parameter: schema.string({
+        defaultValue: basicauthDefaults.alternative_login.show_for_parameter,
+      }),
+      valid_redirects: schema.arrayOf(schema.string(), {
+        defaultValue: basicauthDefaults.alternative_login.valid_redirects,
+      }),
+      button_text: schema.string({ defaultValue: basicauthDefaults.alternative_login.button_text }),
+      buttonstyle: schema.string({ defaultValue: basicauthDefaults.alternative_login.buttonstyle }),
     }),
     loadbalancer_url: schema.nullable(schema.string()),
     login: schema.object({
-      title: schema.string({ defaultValue: 'Please login to Kibana' }),
+      title: schema.string({ defaultValue: basicauthDefaults.login.title }),
       subtitle: schema.string({
-        defaultValue:
-          'If you have forgotten your username or password, please ask your system administrator',
+        defaultValue: basicauthDefaults.login.subtitle,
       }),
-      showbrandimage: schema.boolean({ defaultValue: true }),
+      showbrandimage: schema.boolean({ defaultValue: basicauthDefaults.login.showbrandimage }),
       brandimage: schema.string({
-        defaultValue: 'plugins/searchguard/assets/searchguard_logo.svg',
+        defaultValue: basicauthDefaults.login.brandimage,
       }),
-      buttonstyle: schema.string({ defaultValue: '' }),
+      buttonstyle: schema.string({ defaultValue: basicauthDefaults.login.buttonstyle }),
     }),
   }),
 
@@ -124,33 +156,43 @@ export const ConfigSchema = schema.object({
    * Multitenancy
    */
   multitenancy: schema.object({
-    enabled: schema.boolean({ defaultValue: false }),
-    show_roles: schema.boolean({ defaultValue: false }),
-    enable_filter: schema.boolean({ defaultValue: false }),
-    debug: schema.boolean({ defaultValue: false }),
+    enabled: schema.boolean({ defaultValue: multitenancyDefaults.enabled }),
+    show_roles: schema.boolean({ defaultValue: multitenancyDefaults.show_roles }),
+    enable_filter: schema.boolean({ defaultValue: multitenancyDefaults.enable_filter }),
+    debug: schema.boolean({ defaultValue: multitenancyDefaults.debug }),
     tenants: schema.object({
-      enable_private: schema.boolean({ defaultValue: true }),
-      enable_global: schema.boolean({ defaultValue: true }),
+      enable_private: schema.boolean({ defaultValue: multitenancyDefaults.tenants.enable_private }),
+      enable_global: schema.boolean({ defaultValue: multitenancyDefaults.tenants.enable_global }),
       preferred: schema.maybe(schema.arrayOf(schema.string())),
     }),
     saved_objects_migration: schema.object({
-      batch_size: schema.number({ defaultValue: 100 }),
-      scroll_duration: schema.string({ defaultValue: '15m' }),
-      poll_interval: schema.number({ defaultValue: 1500 }),
-      skip: schema.boolean({ defaultValue: false }),
+      batch_size: schema.number({
+        defaultValue: multitenancyDefaults.saved_objects_migration.batch_size,
+      }),
+      scroll_duration: schema.string({
+        defaultValue: multitenancyDefaults.saved_objects_migration.scroll_duration,
+      }),
+      poll_interval: schema.number({
+        defaultValue: multitenancyDefaults.saved_objects_migration.poll_interval,
+      }),
+      skip: schema.boolean({ defaultValue: multitenancyDefaults.saved_objects_migration.skip }),
     }),
   }),
   saved_objects: schema.object({
-    max_import_payload_bytes: schema.number({ defaultValue: 10485760 }),
-    max_import_export_size: schema.number({ defaultValue: 10000 }),
+    max_import_payload_bytes: schema.number({
+      defaultValue: searchguardDefaults.saved_objects.max_import_payload_bytes,
+    }),
+    max_import_export_size: schema.number({
+      defaultValue: searchguardDefaults.saved_objects.max_import_export_size,
+    }),
   }),
 
   configuration: schema.object({
-    enabled: schema.boolean({ defaultValue: true }),
+    enabled: schema.boolean({ defaultValue: searchguardDefaults.configuration.enabled }),
   }),
 
   accountinfo: schema.object({
-    enabled: schema.boolean({ defaultValue: false }),
+    enabled: schema.boolean({ defaultValue: searchguardDefaults.accountinfo.enabled }),
   }),
 
   openid: schema.conditional(
@@ -168,10 +210,10 @@ export const ConfigSchema = schema.object({
   ),
 
   jwt: schema.object({
-    enabled: schema.boolean({ defaultValue: false }),
+    enabled: schema.boolean({ defaultValue: jwtDefaults.enabled }),
     login_endpoint: schema.maybe(schema.string()),
-    url_param: schema.string({ defaultValue: 'authorization' }),
-    header: schema.string({ defaultValue: 'Authorization' }),
+    url_param: schema.string({ defaultValue: jwtDefaults.url_param }),
+    header: schema.string({ defaultValue: jwtDefaults.header }),
   }),
 
   sgVersion: schema.string({ defaultValue: sgVersion }),
@@ -191,5 +233,5 @@ export const config = {
 };
 
 export function plugin(initializerContext) {
-  return new Plugin(initializerContext);
+  return new ServerPlugin(initializerContext);
 }

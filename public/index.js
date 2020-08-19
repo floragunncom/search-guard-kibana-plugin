@@ -1,5 +1,6 @@
-import { PublicPlugin as Plugin } from './publicPlugin';
+/* eslint-disable @kbn/eslint/require-license-header */
+import { PublicPlugin } from './publicPlugin';
 
 export function plugin(initializerContext) {
-  return new Plugin(initializerContext);
+  return new PublicPlugin(initializerContext);
 }

@@ -7,17 +7,15 @@ export class ApiService {
   }
 
   loadRestInfo() {
-    return this.httpClient.get(`${API_ROOT}/restapiinfo`).then(({ data }) => {
-      sessionStorage.setItem('restapiinfo', JSON.stringify(data));
-      return data;
-    });
+    return this.httpClient.get(`${API_ROOT}/restapiinfo`).then(({ data }) => data);
   }
 
   loadSystemInfo() {
-    return this.httpClient.get(`${API_ROOT}/systeminfo`).then(({ data }) => {
-      sessionStorage.setItem('systeminfo', JSON.stringify(data));
-      return data;
-    });
+    return this.httpClient.get(`${API_ROOT}/systeminfo`).then(({ data }) => data);
+  }
+
+  loadAuthInfo() {
+    return this.httpClient.get(`${API_ROOT}/auth/authinfo`).then(({ data }) => data);
   }
 
   loadKibanaConfig() {

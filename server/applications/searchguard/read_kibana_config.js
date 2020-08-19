@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
 import { defaultsDeep, get, set } from 'lodash';
-import { SG_GLOBAL_TENANT_NAME } from '../../utils/constants';
+import { version as sgVersion } from '../../../package.json';
 
 export const DEFAULT_CONFIG = {
   elasticsearch: {
@@ -51,17 +51,103 @@ export const DEFAULT_CONFIG = {
     },
   },
   searchguard: {
+    enabled: true,
+    allow_client_certificates: false,
+    readonly_mode: { roles: [] },
+    xff: { enabled: false },
     cookie: {
+      secure: false,
       password: 'searchguard_cookie_default_password',
+      name: 'searchguard_authentication',
+      storage_cookie_name: 'searchguard_storage',
+      preferences_cookie_name: 'searchguard_preferences',
+      ttl: 3600000,
+      isSameSite: false,
     },
-  },
-  dynamic: {
+    session: {
+      ttl: 3600000,
+      keepalive: true,
+    },
+    auth: {
+      type: 'basicauth',
+      anonymous_auth_enabled: false,
+      unauthenticated_routes: ['/api/status'],
+      logout_url: '',
+    },
+    basicauth: {
+      forbidden_usernames: [],
+      allowed_usernames: null,
+      header_trumps_session: false,
+      alternative_login: {
+        headers: [],
+        show_for_parameter: '',
+        valid_redirects: [],
+        button_text: 'Login with provider',
+        buttonstyle: '',
+      },
+      loadbalancer_url: null,
+      login: {
+        title: 'Please login to Kibana',
+        subtitle:
+          'If you have forgotten your username or password, please ask your system administrator',
+        showbrandimage: true,
+        brandimage: 'plugins/searchguard/assets/searchguard_logo.svg',
+        buttonstyle: '',
+      },
+    },
     multitenancy: {
-      current_tenant: SG_GLOBAL_TENANT_NAME,
+      enabled: false,
+      show_roles: false,
+      enable_filter: false,
+      debug: false,
+      tenants: {
+        enable_private: true,
+        enable_global: true,
+        preferred: undefined,
+      },
+      saved_objects_migration: {
+        batch_size: 100,
+        scroll_duration: '15m',
+        poll_interval: 1500,
+        skip: false,
+      },
     },
+    saved_objects: {
+      max_import_payload_bytes: 10485760,
+      max_import_export_size: 10000,
+    },
+    configuration: {
+      enabled: true,
+    },
+    accountinfo: {
+      enabled: false,
+    },
+    openid: {
+      connect_url: undefined,
+      header: 'Authorization',
+      client_id: undefined,
+      client_secret: '',
+      scope: 'openid profile email address phone',
+      base_redirect_url: '',
+      logout_url: '',
+      root_ca: '',
+      verify_hostnames: true,
+    },
+    proxycache: {
+      user_header: undefined,
+      roles_header: undefined,
+      proxy_header: 'x-forwarded-for',
+      proxy_header_ip: undefined,
+      login_endpoint: null,
+    },
+    jwt: {
+      enabled: false,
+      login_endpoint: undefined,
+      url_param: 'authorization',
+      header: 'Authorization',
+    },
+    sgVersion,
   },
-  restapiinfo: {},
-  systeminfo: {},
 };
 
 export function nestConfigProperties(config = {}) {
@@ -133,5 +219,5 @@ export function readKibanaConfig({ configPath = '', isDev = false } = {}) {
     }
   }
 
-  return Promise.resolve(parseKibanaConfig(fs.readFileSync(configPath, 'utf8')));
+  return parseKibanaConfig(fs.readFileSync(configPath, 'utf8'));
 }
