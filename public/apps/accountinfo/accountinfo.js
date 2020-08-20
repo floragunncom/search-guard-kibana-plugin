@@ -18,7 +18,6 @@ import chrome from 'ui/chrome';
 import uiRoutes from 'ui/routes';
 import { uiModules } from 'ui/modules';
 import { toastNotifications } from 'ui/notify';
-import 'ui/autoload/styles';
 import infoTemplate from './accountinfo.html';
 
 uiRoutes.enable();

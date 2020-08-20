@@ -1,6 +1,6 @@
 import React from 'react';
 
-const SvgTenantPattern = props => (
+export const SvgTenantPattern = props => (
   <svg id="tenant_pattern_svg__ART" viewBox="0 0 48 48" {...props}>
     <defs>
       <style>
@@ -75,5 +75,3 @@ const SvgTenantPattern = props => (
     />
   </svg>
 );
-
-export default SvgTenantPattern;

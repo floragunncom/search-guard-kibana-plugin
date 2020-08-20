@@ -11,7 +11,6 @@ import { APP_NAME } from './utils/constants';
 import { ContextProvider } from './Context';
 
 import 'react-vis/dist/style.css';
-import 'ui/autoload/styles';
 import Main from './pages/Main';
 
 import './css/style.css';

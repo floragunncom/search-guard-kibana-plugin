@@ -1,6 +1,6 @@
 import React from 'react';
 
-const SvgLogo = props => (
+export const SvgLogo = props => (
   <svg id="logo_svg__ART" viewBox="0 0 48 48" {...props}>
     <defs>
       <style>{'.logo_svg__cls-1{fill:#353740}'}</style>
@@ -23,5 +23,3 @@ const SvgLogo = props => (
     />
   </svg>
 );
-
-export default SvgLogo;

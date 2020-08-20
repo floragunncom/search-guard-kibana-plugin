@@ -8,7 +8,6 @@ import { I18nProvider } from '@kbn/i18n/react';
 
 import { ContextProvider } from './Context';
 
-import 'ui/autoload/styles';
 import Main from './pages/Main';
 
 import './css/style.css';

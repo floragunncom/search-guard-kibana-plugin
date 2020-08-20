@@ -1,6 +1,6 @@
 import React from 'react';
 
-const SvgLogoDark = props => (
+export const SvgLogoDark = props => (
   <svg id="logo_dark_svg__ART" viewBox="0 0 48 48" {...props}>
     <defs>
       <style>{'.logo_dark_svg__cls-1{fill:#fff}'}</style>
@@ -23,5 +23,3 @@ const SvgLogoDark = props => (
     />
   </svg>
 );
-
-export default SvgLogoDark;
