@@ -9,6 +9,9 @@
     "type": "git",
     "url": "https://github.com/floragunncom/search-guard-kibana-plugin"
   },
+  "searchguard": {
+    "test_sg_version": "7.8.0-master-SNAPSHOT"
+  },
   "scripts": {
     "lint": "./node_modules/.bin/eslint .",
     "kbn": "node ../../scripts/kbn",
