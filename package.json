@@ -19,7 +19,8 @@
     "test:server": "./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest --testPathIgnorePatterns=public --config ./tests/jest.config.js --silent",
     "test:prepare_integration_test": "yarn && ./patches/patch_kibana_es_version_compatibility.sh",
     "patch:kibana:samesite": "./patches/patch_to_add_samesite_none_to_cookies.sh",
-    "patch:kibana:dev:es_compatibility": "./patches/patch_kibana_es_version_compatibility.sh",
+    "patch:kibana:dev:es_compatibility": "./patches/patch_kibana_es_version_compatibility.sh dev",
+    "patch:kibana:es_compatibility": "./patches/patch_kibana_es_version_compatibility.sh",
     "patch:kibana:dev": "./patches/patch_kibana.sh dev",
     "patch:kibana": "./patches/patch_kibana.sh"
   },
