@@ -166,7 +166,6 @@ fi
 echo "+++ Copy plugin contents to build stage +++"
 BUILD_STAGE_PLUGIN_DIR="$BUILD_STAGE_DIR/kibana/plugins/search-guard-kibana-plugin"
 mkdir -p $BUILD_STAGE_PLUGIN_DIR
-cp -a "$WORK_DIR/index.js" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/package.json" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/lib" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/public" "$BUILD_STAGE_PLUGIN_DIR"
@@ -177,6 +176,7 @@ cp -a "$WORK_DIR/patches" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/babel.config.js" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/server" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/__mocks__" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/kibana.json" "$BUILD_STAGE_PLUGIN_DIR"
 
 
 cd $BUILD_STAGE_PLUGIN_DIR
@@ -229,7 +229,6 @@ rm -rf node_modules/
 echo "+++ Copy plugin contents to finalize build +++"
 COPYPATH="build/kibana/$PLUGIN_NAME"
 mkdir -p "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/index.js" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/package.json" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/node_modules" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/lib" "$COPYPATH"
@@ -238,6 +237,7 @@ cp -a "$BUILD_STAGE_PLUGIN_DIR/utils" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/examples" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/patches" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/server" "$COPYPATH"
+cp -a "$BUILD_STAGE_PLUGIN_DIR/kibana.json" "$COPYPATH"
 
 end=`date +%s`
 echo "Build time: $((end-start)) sec"
