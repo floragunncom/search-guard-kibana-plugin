@@ -178,7 +178,6 @@ cp -a "$WORK_DIR/babel.config.js" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/server" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/__mocks__" "$BUILD_STAGE_PLUGIN_DIR"
 
-
 cd $BUILD_STAGE_PLUGIN_DIR
 
 echo "+++ Checking yarn packages for vulnerabilities +++"
@@ -222,6 +221,11 @@ if [ $? != 0 ]; then
     exit 1
 fi
 
+# Build webpack bundles that must be part of the build since Kibana v7.9.
+# The bundles are in the folder named "target".
+echo "+++ Building webpack bundles +++"
+yarn build:bundles
+
 cd "$WORK_DIR"
 rm -rf build/
 rm -rf node_modules/
@@ -241,7 +245,6 @@ cp -a "$BUILD_STAGE_PLUGIN_DIR/server" "$COPYPATH"
 
 end=`date +%s`
 echo "Build time: $((end-start)) sec"
-
 
 if [ "$COMMAND" == "deploy-snapshot-maven" ] ; then
     echo "+++ mvn clean deploy +++"
