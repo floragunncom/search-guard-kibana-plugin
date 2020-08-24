@@ -178,7 +178,6 @@ cp -a "$WORK_DIR/server" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/__mocks__" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/kibana.json" "$BUILD_STAGE_PLUGIN_DIR"
 
-
 cd $BUILD_STAGE_PLUGIN_DIR
 
 echo "+++ Checking yarn packages for vulnerabilities +++"
@@ -222,6 +221,10 @@ if [ $? != 0 ]; then
     exit 1
 fi
 
+# Build webpack bundles that must be part of the build since Kibana v7.9.
+# The bundles are in the folder named "target".
+yarn build:bundles
+
 cd "$WORK_DIR"
 rm -rf build/
 rm -rf node_modules/
@@ -238,6 +241,7 @@ cp -a "$BUILD_STAGE_PLUGIN_DIR/examples" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/patches" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/server" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/kibana.json" "$COPYPATH"
+cp -a "$BUILD_STAGE_PLUGIN_DIR/target" "$COPYPATH"
 
 end=`date +%s`
 echo "Build time: $((end-start)) sec"

@@ -13,6 +13,7 @@
     "test_sg_version": "7.8.0-master-SNAPSHOT"
   },
   "scripts": {
+    "build:bundles": "node ../../scripts/build_kibana_platform_plugins.js --dist",
     "lint": "./node_modules/.bin/eslint .",
     "kbn": "node ../../scripts/kbn",
     "test:browser": "./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest --testPathIgnorePatterns=server  --config ./tests/jest.config.js --silent",
