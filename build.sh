@@ -168,6 +168,7 @@ BUILD_STAGE_PLUGIN_DIR="$BUILD_STAGE_DIR/kibana/plugins/search-guard-kibana-plug
 mkdir -p $BUILD_STAGE_PLUGIN_DIR
 cp -a "$WORK_DIR/index.js" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/package.json" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/kibana.json" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/lib" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/public" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/utils" "$BUILD_STAGE_PLUGIN_DIR"
@@ -177,7 +178,6 @@ cp -a "$WORK_DIR/patches" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/babel.config.js" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/server" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/__mocks__" "$BUILD_STAGE_PLUGIN_DIR"
-
 
 cd $BUILD_STAGE_PLUGIN_DIR
 
@@ -222,6 +222,10 @@ if [ $? != 0 ]; then
     exit 1
 fi
 
+# Build webpack bundles that must be part of the build since Kibana v7.9.
+# The bundles are in the folder named "target".
+yarn build:bundles
+
 cd "$WORK_DIR"
 rm -rf build/
 rm -rf node_modules/
@@ -231,6 +235,7 @@ COPYPATH="build/kibana/$PLUGIN_NAME"
 mkdir -p "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/index.js" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/package.json" "$COPYPATH"
+cp -a "$BUILD_STAGE_PLUGIN_DIR/kibana.json" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/node_modules" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/lib" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/public" "$COPYPATH"
@@ -238,6 +243,7 @@ cp -a "$BUILD_STAGE_PLUGIN_DIR/utils" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/examples" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/patches" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/server" "$COPYPATH"
+cp -a "$BUILD_STAGE_PLUGIN_DIR/target" "$COPYPATH"
 
 end=`date +%s`
 echo "Build time: $((end-start)) sec"
