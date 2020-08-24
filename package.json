@@ -5,12 +5,13 @@
   "main": "index.js",
   "homepage": "https://search-guard.com",
   "license": "Apache-2.0",
+  "searchguard": {
+    "test_sg_version": "7.9.0-master-SNAPSHOT",
+    "kibana_branch": "7.9"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/floragunncom/search-guard-kibana-plugin"
-  },
-  "searchguard": {
-    "test_sg_version": "7.8.0-master-SNAPSHOT"
   },
   "scripts": {
     "build:bundles": "node ../../scripts/build_kibana_platform_plugins.js --dist",
