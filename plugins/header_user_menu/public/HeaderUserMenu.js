@@ -12,15 +12,13 @@ import {
   EuiLink,
   EuiSpacer,
 } from '@elastic/eui';
-import { AccessControlService } from '../../services';
 import { logoutText } from './utils/i18n';
 
-export function HeaderUserMenu({ httpClient, logoutUrl, userName, userNameTooltipText }) {
+export function HeaderUserMenu({ httpClient, logoutUrl, userName, userNameTooltipText, authType }) {
   const [isOpen, setIsOpen] = useState(false);
-  const acService = new AccessControlService(httpClient);
 
   function openPopover() {
-    setIsOpen(prevState => !prevState);
+    setIsOpen((prevState) => !prevState);
   }
 
   function closePopover() {
@@ -28,7 +26,29 @@ export function HeaderUserMenu({ httpClient, logoutUrl, userName, userNameToolti
   }
 
   function logOut() {
-    acService.logout({ logoutUrl });
+    const { basePath = '' } = httpClient.basePath;
+
+    return httpClient
+      .post('/api/v1/auth/logout')
+      .then((response) => {
+        localStorage.clear();
+        sessionStorage.clear();
+
+        if (authType && ['openid', 'saml'].indexOf(authType) > -1) {
+          if (response.redirectURL) {
+            window.location.href = response.redirectURL;
+          } else {
+            window.location.href = `${basePath}/customerror`;
+          }
+        } else {
+          if (logoutUrl && logoutUrl.length > 0) {
+            window.location.href = logoutUrl;
+          } else {
+            window.location.href = `${basePath}/login?type=${authType || ''}Logout`;
+          }
+        }
+      })
+      .catch((error) => console.error('searchguard, HeaderUserMenu', error));
   }
 
   const button = (
@@ -73,7 +93,8 @@ HeaderUserMenu.defaultProps = {
 };
 
 HeaderUserMenu.propTypes = {
-  httpClient: PropTypes.func.isRequired,
+  httpClient: PropTypes.object.isRequired,
+  authType: PropTypes.string.isRequired,
   logoutUrl: PropTypes.string,
   userName: PropTypes.string,
   userNameTooltipText: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),

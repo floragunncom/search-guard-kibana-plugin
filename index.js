@@ -253,10 +253,6 @@ export default function (kibana) {
                 },
 
             ],
-            chromeNavControls: [
-                'plugins/searchguard/chrome/btn_logout/btn_logout.js'
-            ]
-            ,
             injectDefaultVars(server, options) {
                 options.multitenancy_enabled = server.config().get('searchguard.multitenancy.enabled');
                 options.accountinfo_enabled = server.config().get('searchguard.accountinfo.enabled');
