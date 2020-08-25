@@ -177,6 +177,7 @@ cp -a "$WORK_DIR/patches" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/babel.config.js" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/server" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/__mocks__" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/plugins" "$BUILD_STAGE_PLUGIN_DIR"
 
 cd $BUILD_STAGE_PLUGIN_DIR
 
@@ -242,6 +243,7 @@ cp -a "$BUILD_STAGE_PLUGIN_DIR/utils" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/examples" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/patches" "$COPYPATH"
 cp -a "$BUILD_STAGE_PLUGIN_DIR/server" "$COPYPATH"
+cp -a "$BUILD_STAGE_PLUGIN_DIR/plugins" "$COPYPATH"
 
 end=`date +%s`
 echo "Build time: $((end-start)) sec"
