@@ -21,7 +21,7 @@ export function redirectOnSessionTimeout(authType, coreHttp, isAnonymousAuth = f
 
   coreHttp.intercept({
     responseError: async httpResponse => {
-      if (httpResponse.response.status !== 401) {
+      if (!httpResponse.response || httpResponse.response.status !== 401) {
         return;
       }
 

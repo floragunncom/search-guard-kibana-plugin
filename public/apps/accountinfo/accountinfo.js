@@ -31,7 +31,7 @@ uiRoutes
 
 uiModules
     .get('app/searchguard-accountinfo')
-    .controller('accountInfoNavController', function ($http, $window, Private, sg_resolvedInfo) {
+    .controller('accountInfoNavController', function ($http, $window, Private) {
 
         var APP_ROOT = `${chrome.getBasePath()}`;
         var API_ROOT = `${APP_ROOT}/api/v1`;

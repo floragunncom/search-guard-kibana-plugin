@@ -163,8 +163,6 @@ export default function (kibana) {
         uiExports: {
             hacks: [
                 'plugins/searchguard/chrome/readonly/enable_readonly',
-                'plugins/searchguard/chrome/multitenancy/enable_multitenancy',
-                'plugins/searchguard/chrome/accountinfo/enable_accountinfo',
                 'plugins/searchguard/chrome/configuration/enable_configuration',
                 'plugins/searchguard/customizations/enable_customizations.js'
             ],
