@@ -14,7 +14,7 @@
     "url": "https://github.com/floragunncom/search-guard-kibana-plugin"
   },
   "scripts": {
-    "build:bundles": "node ../../scripts/build_kibana_platform_plugins.js --dist",
+    "build:bundles": "node ../../scripts/build_kibana_platform_plugins.js --dist --no-cache --no-core --no-examples",
     "lint": "./node_modules/.bin/eslint .",
     "kbn": "node ../../scripts/kbn",
     "test:browser": "./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest --testPathIgnorePatterns=server  --config ./tests/jest.config.js --silent",
