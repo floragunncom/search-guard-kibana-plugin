@@ -162,9 +162,7 @@ export default function (kibana) {
 
         uiExports: {
             hacks: [
-                'plugins/searchguard/chrome/readonly/enable_readonly',
-                'plugins/searchguard/chrome/configuration/enable_configuration',
-                'plugins/searchguard/customizations/enable_customizations.js'
+                'plugins/searchguard/chrome/configuration/enable_configuration'
             ],
             replaceInjectedVars: async function(originalInjectedVars, request, server) {
                 const authType = server.config().get('searchguard.auth.type');
