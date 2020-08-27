@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
 import { defaultsDeep, get, set } from 'lodash';
-import { version as sgVersion } from '../../../package.json';
+import { version as sgVersion } from '../../../../package.json';
 
 export const DEFAULT_CONFIG = {
   elasticsearch: {
@@ -197,12 +197,14 @@ export function readKibanaConfig({ configPath = '', isDev = false } = {}) {
       '..',
       '..',
       '..',
+      '..',
       'config',
       'kibana.yml'
     );
 
     const kibanaDevYmlPath = path.resolve(
       __dirname,
+      '..',
       '..',
       '..',
       '..',

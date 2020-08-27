@@ -21,7 +21,7 @@ import AuthenticationError from '../../errors/authentication_error';
 import MissingTenantError from '../../errors/missing_tenant_error';
 import MissingRoleError from '../../errors/missing_role_error';
 import { sanitizeNextUrl } from '../../sanitize_next_url';
-import { ensureRawRequest } from '../../../../../../src/core/server/http/router/request';
+import { ensureRawRequest } from '../../../../../../../src/core/server/http/router/request';
 import { customError as customErrorRoute } from '../common/routes';
 
 module.exports = function(

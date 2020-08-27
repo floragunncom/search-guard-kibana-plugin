@@ -15,8 +15,8 @@
  limitations under the License.
  */
 
-import { retryCallCluster } from '../../../../../src/core/server/elasticsearch/legacy/retry_call_cluster';
-import { KibanaMigrator } from '../../../../../src/core/server/saved_objects/migrations';
+import { retryCallCluster } from '../../../../../../src/core/server/elasticsearch/legacy/retry_call_cluster';
+import { KibanaMigrator } from '../../../../../../src/core/server/saved_objects/migrations';
 
 import { defineMigrateRoutes } from './routes';
 
