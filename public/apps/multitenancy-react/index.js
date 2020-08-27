@@ -3,7 +3,6 @@ import { render, unmountComponentAtNode } from 'react-dom';
 import { I18nProvider } from '@kbn/i18n/react';
 import { uiModules } from 'ui/modules';
 import chrome from 'ui/chrome';
-import 'ui/autoload/styles';
 import Main from './pages/Main';
 import { MainContextProvider } from './contexts/MainContextProvider';
 

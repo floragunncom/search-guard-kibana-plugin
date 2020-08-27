@@ -1,6 +1,6 @@
 import React from 'react';
 
-const SvgRolesDark = props => (
+export const SvgRolesDark = props => (
   <svg id="roles_dark_svg__ART" viewBox="0 0 48 48" {...props}>
     <defs>
       <style>
@@ -47,5 +47,3 @@ const SvgRolesDark = props => (
     />
   </svg>
 );
-
-export default SvgRolesDark;

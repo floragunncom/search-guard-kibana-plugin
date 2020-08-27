@@ -1,19 +1,20 @@
 {
   "name": "searchguard",
-  "version": "7.8.2-master-SNAPSHOT",
+  "version": "7.9.1-master-SNAPSHOT",
   "description": "Search Guard features for Kibana",
   "main": "index.js",
   "homepage": "https://search-guard.com",
   "license": "Apache-2.0",
   "searchguard": {
-    "test_sg_version": "7.8.0-master-SNAPSHOT",
-    "kibana_branch": "7.8"
+    "test_sg_version": "7.9.0-master-SNAPSHOT",
+    "kibana_branch": "7.9"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/floragunncom/search-guard-kibana-plugin"
   },
   "scripts": {
+    "build:bundles": "node ../../scripts/build_kibana_platform_plugins.js --verbose --no-examples",
     "lint": "./node_modules/.bin/eslint .",
     "kbn": "node ../../scripts/kbn",
     "test:browser": "./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest public --config ./tests/jest.config.js --silent",
