@@ -31,24 +31,26 @@
 
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { connect as connectFormik } from 'formik';
-import { EuiSpacer, EuiLoadingChart } from '@elastic/eui';
-import { cloneDeep, get, pick, isEqual } from 'lodash';
+import { EuiSpacer, EuiLoadingChart, EuiErrorBoundary } from '@elastic/eui';
+import { get, pick, isEqual, cloneDeep } from 'lodash';
 import { SubHeader } from '../../../../components';
 import WatchIndex from '../WatchIndex';
 import WatchTimeField from '../WatchTimeField';
 import VisualGraph from '../VisualGraph';
 import WatchExpressions from '../WatchExpressions';
-import { mappingsToFieldNames, buildSearchRequest } from './utils';
 import { ElasticsearchService, WatchService } from '../../../../services';
-import { PAYLOAD_PATH, WATCH_TYPES, CHECK_MYSEARCH } from '../../utils/constants';
+import { WATCH_TYPES, CHECK_MYSEARCH } from '../../utils/constants';
 import {
   youMustSpecifyIndexText,
   youMustSpecifyATimeFieldText,
   matchConditionText,
 } from '../../../../utils/i18n/watch';
-import { comboBoxOptionsToArray, arrayToComboBoxOptions } from '../../../../utils/helpers';
-import { getFieldsFromPayload, getFieldsForType } from '../../utils/helpers';
+import { comboBoxOptionsToArray } from '../../../../utils/helpers';
+import {
+  mappingsToFieldNames,
+  buildSearchRequest,
+  getPayloadFieldsForWatchExpressions,
+} from './utils';
 import { formikToWatch } from '../../utils';
 
 import { Context } from '../../../../Context';
@@ -65,21 +67,50 @@ function renderGraphMessage(message) {
   );
 }
 
-class GraphWatch extends Component {
+export async function runQuery({ values, watchService }) {
+  try {
+    const searchRequests = [buildSearchRequest(values), buildSearchRequest(values, false)];
+    console.debug('GraphWatch, runQuery, searchRequests', searchRequests);
+
+    const searchRequestPromises = searchRequests.map((request) => {
+      const watch = { ...formikToWatch(values), checks: [request], actions: [] };
+      delete watch.severity; // Avoid annoying error toasts while setting the graph expressions.
+      return watchService.execute({ watch, skipActions: true });
+    });
+
+    const [graphResult, result] = await Promise.all(searchRequestPromises).then(
+      ([graphResult, result]) => {
+        console.debug('GraphWatch, runQuery, searchResponses', [graphResult, result]);
+        if (!graphResult.ok) throw graphResult.resp;
+        if (!result.ok) throw result.resp;
+        return [graphResult.resp, result.resp];
+      }
+    );
+
+    const payloadFields = getPayloadFieldsForWatchExpressions(result);
+    console.debug('GraphWatch, runQuery, payloadFields', payloadFields);
+
+    return {
+      result,
+      payloadFields,
+      graphResult: get(graphResult, `runtime_attributes.data[${CHECK_MYSEARCH}]`, {}),
+    };
+  } catch (error) {
+    throw error;
+  }
+}
+
+export class GraphWatch extends Component {
   static contextType = Context;
 
   constructor(props) {
     super(props);
 
-    const {
-      httpClient,
-      formik: { values = {} },
-    } = this.props;
+    const { httpClient } = this.props;
 
     this.state = {
       dataTypes: {},
       payloadFields: [],
-      formikSnapshot: cloneDeep(values),
       isLoading: false,
     };
 
@@ -180,24 +211,9 @@ class GraphWatch extends Component {
       const dataTypes = mappingsToFieldNames(mappings);
       this.setState({ dataTypes });
     } catch (err) {
-      console.error('GraphWatch -- Fail getting mappings for query', err);
+      console.error('GraphWatch, onQueryMappings', err);
       this.context.addErrorToast(err);
-      console.debug('GraphWatch -- values', values);
     }
-  };
-
-  handlePayload = payload => {
-    const payloadFields = [
-      {
-        label: 'number',
-        options: arrayToComboBoxOptions(
-          getFieldsForType(getFieldsFromPayload(payload), 'number')
-        ).map(({ label }) => ({ label: `${PAYLOAD_PATH}.${label}` })),
-      },
-    ];
-
-    this.setState({ payloadFields });
-    console.debug('GraphWatch -- payloadFields', payloadFields);
   };
 
   queryMappings = index => {
@@ -212,55 +228,37 @@ class GraphWatch extends Component {
     const {
       formik: { values, setFieldValue },
     } = this.props;
-    const formikSnapshot = cloneDeep(values);
-
-    // If we are running a visual graph query, then we need to run two separate queries
-    // 1. The actual query that will be saved on the watch, to get accurate query performance stats
-    // 2. The UI generated query that gets [BUCKET_COUNT] times the aggregated buckets to show past
-    // history of query
-    // If the query is an extraction query, we can use the same query for results
-    // and query performance
-    const searchRequests = [buildSearchRequest(values), buildSearchRequest(values, false)];
-    console.debug('GraphWatch -- searchRequests', searchRequests);
 
     this.setState({ isLoading: true });
 
     try {
-      const [{ resp: graphQueryResponse }, { resp: realQueryResponse }] = await Promise.all(
-        searchRequests.map(request => {
-          const watch = { ...formikToWatch(values), checks: [request] };
-          return this.watchService.execute({ watch, skipActions: true });
-        })
-      );
-      console.debug('GraphWatch -- searchResponses', [graphQueryResponse, realQueryResponse]);
+      const { payloadFields, result, graphResult } = await runQuery({
+        values,
+        watchService: this.watchService,
+      });
 
-      this.handlePayload(realQueryResponse);
-      this.setState({ formikSnapshot });
-
-      setFieldValue(
-        '_ui.checksGraphResult',
-        get(graphQueryResponse, `runtime_attributes.data[${CHECK_MYSEARCH}]`, {})
-      );
-      setFieldValue('_ui.checksResult', realQueryResponse);
+      this.setState({ payloadFields });
+      setFieldValue('_ui.checksResult', result);
+      setFieldValue('_ui.checksGraphResult', graphResult);
     } catch (err) {
-      console.error('GraphWatch -- Fail running the query', err);
+      console.error('GraphWatch, onRunQuery', err);
+      console.debug('GraphWatch, onRunQuery, values', values);
       this.context.addErrorToast(err);
-      console.debug('GraphWatch -- values', values);
     }
 
     this.setState({ isLoading: false });
   };
 
   renderGraph = () => {
-    const { dataTypes, formikSnapshot, isLoading, payloadFields } = this.state;
+    const { dataTypes, isLoading, payloadFields } = this.state;
     const {
       formik: { values },
     } = this.props;
-    const response = values._ui.checksGraphResult || {};
+    const response = get(values, '_ui.checksGraphResult', {});
     const fieldName = get(values, '_ui.fieldName[0].label', 'Select a field');
 
     return (
-      <>
+      <EuiErrorBoundary>
         <SubHeader title={<h4>{matchConditionText}</h4>} />
         <EuiSpacer size="m" />
         <WatchExpressions
@@ -275,16 +273,9 @@ class GraphWatch extends Component {
             <EuiLoadingChart size="xl" />
           </div>
         ) : (
-          <VisualGraph
-            annotation
-            values={formikSnapshot}
-            fieldName={fieldName}
-            response={response}
-            thresholdValue={values._ui.thresholdValue}
-            severityThresholds={values._ui.severity.thresholds}
-          />
+          <VisualGraph annotation values={values} fieldName={fieldName} response={response} />
         )}
-      </>
+      </EuiErrorBoundary>
     );
   };
 
@@ -321,5 +312,3 @@ GraphWatch.propTypes = {
   httpClient: PropTypes.func.isRequired,
   formik: PropTypes.object.isRequired,
 };
-
-export default connectFormik(GraphWatch);

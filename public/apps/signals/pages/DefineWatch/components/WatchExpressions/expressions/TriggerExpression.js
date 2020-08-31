@@ -32,12 +32,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect as connectToFormik } from 'formik';
 import { get } from 'lodash';
-import {
-  EuiExpression,
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiPopover,
-} from '@elastic/eui';
+import { EuiExpression, EuiFlexGroup, EuiFlexItem, EuiPopover } from '@elastic/eui';
 import { POPOVER_STYLE, THRESHOLD_ENUM_OPTIONS } from './utils/constants';
 import { FormikFieldNumber, FormikSelect } from '../../../../../components';
 import SeverityForm from '../../SeverityForm';
@@ -45,17 +40,17 @@ import SeverityForm from '../../SeverityForm';
 export const Expressions = { THRESHOLD: 'THRESHOLD' };
 
 class TriggerExpression extends Component {
-  onChangeWrapper = (e, field) => {
+  onChangeThresholdWrapper = (e, field) => {
     this.props.onMadeChanges();
     field.onChange(e);
   };
 
   renderSeverityPopover() {
-    const { payloadFields, onMadeChanges } = this.props;
+    const { payloadFields } = this.props;
 
     return (
       <div style={POPOVER_STYLE}>
-        <SeverityForm isCompressed fields={payloadFields} onMadeChanges={onMadeChanges} />
+        <SeverityForm isCompressed fields={payloadFields} />
       </div>
     );
   }
@@ -69,7 +64,7 @@ class TriggerExpression extends Component {
               name="_ui.thresholdEnum"
               elementProps={{
                 options: THRESHOLD_ENUM_OPTIONS,
-                onChange: this.onChangeWrapper
+                onChange: this.onChangeThresholdWrapper
               }}
             />
           </EuiFlexItem>
@@ -78,7 +73,7 @@ class TriggerExpression extends Component {
             <FormikFieldNumber
               name="_ui.thresholdValue"
               elementProps={{
-                onChange: this.onChangeWrapper
+                onChange: this.onChangeThresholdWrapper
               }}
               rowProps={{
                 style: { paddingLeft: '10px' }
@@ -102,12 +97,17 @@ class TriggerExpression extends Component {
     let thresholdDescr = `IS ${get(values, '_ui.thresholdEnum')}`;
     let thresholdValue = get(values, '_ui.thresholdValue');
     thresholdValue = thresholdValue.toLocaleString();
+    let expressionColor = 'secondary';
 
     if (isSeverity) {
       const severityField = get(values, '_ui.severity.value[0].label', '');
+      if (!severityField) {
+        expressionColor = 'danger';
+      }
+
       let severityThresholds = get(values, '_ui.severity.thresholds', {});
       severityThresholds = Object.values(severityThresholds)
-        .filter(value => value)
+        .filter((value) => value)
         .join(',');
 
       thresholdDescr = 'severity conditions';
@@ -121,6 +121,7 @@ class TriggerExpression extends Component {
             id="trigger-popover"
             button={
               <EuiExpression
+                color={expressionColor}
                 description={thresholdDescr}
                 value={thresholdValue}
                 isActive={openedStates.THRESHOLD}

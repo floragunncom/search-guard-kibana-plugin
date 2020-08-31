@@ -32,17 +32,19 @@ import React, { Component } from 'react';
 import { connect } from 'formik';
 import _ from 'lodash';
 import { EuiPopover, EuiExpression } from '@elastic/eui';
-
 import { FormikComboBox } from '../../../../../components';
 import { POPOVER_STYLE, Expressions } from './utils/constants';
 import { getOptions } from './utils/dataTypes';
+import { validateEmptyComboBox, isInvalid, hasError } from '../../../../../utils/validate';
+import { Context } from '../../../../../Context';
 
 // TODO: EuiComboBox has an internal setState issue, waiting for EUI to fix it, remove this TODO when it is fixed
-
 class OfExpression extends Component {
+  static contextType = Context;
+
   onChangeWrapper = (options, field, form) => {
     this.props.onMadeChanges();
-    form.setFieldValue(field.name, options);
+    this.context.onComboBoxChange(validateEmptyComboBox)(options, field, form);
   };
 
   renderPopover = (options, expressionWidth) => (
@@ -50,13 +52,22 @@ class OfExpression extends Component {
       <div style={{ width: expressionWidth }}>
         <FormikComboBox
           name="_ui.fieldName"
+          formRow
+          rowProps={{
+            isInvalid,
+            error: hasError,
+          }}
           elementProps={{
+            isInvalid,
             placeholder: 'Select a field',
             options,
             onChange: this.onChangeWrapper,
             isClearable: false,
             singleSelection: { asPlainText: true },
             'data-test-subj': 'ofFieldComboBox',
+          }}
+          formikFieldProps={{
+            validate: validateEmptyComboBox,
           }}
         />
       </div>
@@ -82,11 +93,14 @@ class OfExpression extends Component {
         8 +
       60;
     const fieldName = _.get(values, '_ui.fieldName[0].label', 'Select a field');
+    const expressionColor = fieldName === 'Select a field' ? 'danger' : 'secondary';
+
     return (
       <EuiPopover
         id="of-popover"
         button={
           <EuiExpression
+            color={expressionColor}
             description="of"
             value={fieldName}
             isActive={openedStates.OF_FIELD}
