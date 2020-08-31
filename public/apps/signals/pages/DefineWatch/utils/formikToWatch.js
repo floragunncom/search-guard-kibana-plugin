@@ -27,10 +27,10 @@ export function buildSeverity(watch) {
     return newWatch;
   }
 
-  const { value, order, thresholds } = newWatch._ui.severity;
+  const { value, valueString, order, thresholds } = newWatch._ui.severity;
 
   const severity = {
-    value: get(value, '[0].label', ''),
+    value: newWatch._ui.watchType === WATCH_TYPES.GRAPH ? get(value, '[0].label', '') : valueString,
     order,
     mapping: [],
   };
@@ -39,6 +39,10 @@ export function buildSeverity(watch) {
   const thresholdLevels = [SEVERITY.INFO, SEVERITY.WARNING, SEVERITY.ERROR, SEVERITY.CRITICAL];
 
   thresholdLevels.forEach((level) => {
+    if (!Number.isInteger(thresholds[level])) {
+      thresholds[level] = 0;
+    }
+
     if (thresholds[level]) {
       severity.mapping.push({
         level,
@@ -52,12 +56,6 @@ export function buildSeverity(watch) {
   newWatch.actions.forEach((action) => {
     action.severity = comboBoxOptionsToArray(action.severity);
   });
-
-  // Have only search requests in graph mode to avoid conflict
-  // with severity
-  if (newWatch._ui.watchType === WATCH_TYPES.GRAPH) {
-    newWatch.checks = newWatch.checks.filter((check) => check.type.includes('search'));
-  }
 
   if (newWatch._ui.isResolveActions) {
     newWatch.resolve_actions.forEach((action) => {

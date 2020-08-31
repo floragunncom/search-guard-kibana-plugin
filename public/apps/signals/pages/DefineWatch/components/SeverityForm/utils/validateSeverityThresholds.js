@@ -15,10 +15,11 @@
  */
 
 import { SEVERITY, SEVERITY_ORDER } from '../../../utils/constants';
-import { severityThresholdsInvalidAscending, severityThresholdsInvalidDescending } from '../../../../../utils/i18n/watch';
+import { severityThresholdsInvalidAscendingText, severityThresholdsInvalidDescendingText } from '../../../../../utils/i18n/watch';
 
 export function validateSeverityThresholds(order, uiThresholds) {
   const thresholdErrors = [];
+
   const availableLevelsSorted = [
     { order: 10, level: SEVERITY.INFO, threshold: uiThresholds[SEVERITY.INFO] },
     {
@@ -36,15 +37,16 @@ export function validateSeverityThresholds(order, uiThresholds) {
       level: SEVERITY.CRITICAL,
       threshold: uiThresholds[SEVERITY.CRITICAL]
     }
-  ].filter(level => typeof level.threshold !== 'undefined');
+  ];
 
-  const sortedValues = availableLevelsSorted.sort((a, b) => {
-    if (order === SEVERITY_ORDER.ASCENDING) {
-      return a.threshold - b.threshold;
-    } else {
+  const sortedValues = availableLevelsSorted
+    .filter((level) => Number.isInteger(level.threshold) && level.threshold > 0)
+    .sort((a, b) => {
+      if (order === SEVERITY_ORDER.ASCENDING) {
+        return a.threshold - b.threshold;
+      }
       return b.threshold - a.threshold;
-    }
-  });
+    });
 
   for (let i = 0; i < sortedValues.length - 1; i++) {
     if (sortedValues[i].threshold === sortedValues[i + 1].threshold
@@ -57,8 +59,8 @@ export function validateSeverityThresholds(order, uiThresholds) {
   let message = null;
   if (thresholdErrors.length) {
     message = (order === SEVERITY_ORDER.ASCENDING)
-      ? severityThresholdsInvalidAscending
-      : severityThresholdsInvalidDescending;
+      ? severityThresholdsInvalidAscendingText
+      : severityThresholdsInvalidDescendingText;
   }
 
   return {
