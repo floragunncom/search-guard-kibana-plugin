@@ -24,7 +24,7 @@
     "patch:kibana:dev:es_compatibility": "./patches/patch_kibana_es_version_compatibility.sh"
   },
   "dependencies": {
-    "@elastic/eui": "^22.1.0",
+    "@elastic/eui": "26.3.3",
     "@elastic/kibana-ui-framework": "0.0.11",
     "@types/react": "^16.9.2",
     "@types/react-dom": "^16.9.0",
