@@ -1,24 +1,19 @@
 const pluginRoot = require('requirefrom')('');
-import { resolve, join, sep } from 'path';
 import { has } from 'lodash';
 import indexTemplate from './lib/elasticsearch/setup_index_template';
 import { migrateTenants } from './lib/multitenancy/migrate_tenants';
 import { version as sgVersion } from './package.json';
 import { first } from 'rxjs/operators';
 import registerSignalsRoutes from './lib/signals/routes/register_routes';
+import { sessionPlugin } from './lib/session/sessionPlugin';
 import {
   APP_NAME as signalsName,
   APP_DESCRIPTION as signalsDescription
 } from './utils/signals/constants';
+import { APP_ROOT, API_ROOT } from './utils/constants';
 import { handleSignalsAppAccess } from './lib/signals/lib/access/handleSignalsAppAccess';
 
 export default function (kibana) {
-
-    let APP_ROOT;
-    let API_ROOT;
-    let authenticationBackend;
-    let searchGuardConfiguration;
-
 
     const corePlugin = new kibana.Plugin({
         name: 'searchguard',
@@ -264,8 +259,6 @@ export default function (kibana) {
 
         async init(server, options) {
             const legacyEsConfig = await server.newPlatform.__internals.elasticsearch.legacy.config$.pipe(first()).toPromise();
-            APP_ROOT = '';
-            API_ROOT = `${APP_ROOT}/api/v1`;
             const config = server.config();
 
             // If X-Pack is installed it needs to be disabled for Search Guard to run.
@@ -391,7 +384,7 @@ export default function (kibana) {
                 // @todo await/async
                 // Register the storage plugin for the other auth types
                 server.register({
-                    plugin: pluginRoot('lib/session/sessionPlugin'),
+                    plugin: sessionPlugin,
                     options: {
                         authType: null,
                         storageCookieName: config.get('searchguard.cookie.storage_cookie_name')
