@@ -35,12 +35,11 @@ uiRoutes
         controller: 'searchguardMultitenancyController',
         controllerAs: 'ctrl'
     });
-
 uiModules
     .get('app/searchguard-multitenancy')
-    .controller('searchguardMultitenancyController', function ($http, $window, Private, sg_resolvedInfo) {
-        const indexPatternsGetProvider = Private(IndexPatternsGetProvider)('id');
 
+    .controller('searchguardMultitenancyController', function ($http, $window, Private, sg_resolvedInfo, multitenancyState) {
+        const indexPatternsGetProvider = Private(IndexPatternsGetProvider)('id');
         var APP_ROOT = `${chrome.getBasePath()}`;
         var API_ROOT = `${APP_ROOT}/api/v1`;
 
@@ -170,6 +169,8 @@ uiModules
         );
 
         this.selectTenant = function (tenantLabel, tenant, redirect) {
+            const tenantBeforeChange = multitenancyState.currentTenant;
+            multitenancyState.currentTenant = tenant;
             $http.post(`${API_ROOT}/multitenancy/tenant`, {tenant: tenant, username: this.username})
                 .then(
                 (response) => {
@@ -231,6 +232,7 @@ uiModules
                 },
                 (error) =>
                 {
+                    multitenancyState.currentTenant = tenantBeforeChange;
                     toastNotifications.addDanger({
                         text: error.data.message
                     });
