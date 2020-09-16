@@ -21,6 +21,7 @@ import { uiModules } from 'ui/modules';
 // Should be fixed starting from Kibana 6.6.2
 import 'ui/autoload/modules';
 import { FeatureCatalogueRegistryProvider, FeatureCatalogueCategory } from 'ui/registry/feature_catalogue';
+import { addResponseInterceptor } from "../../services/fetch_wrapper";
 require ('../../apps/configuration/systemstate/systemstate');
 
 const app = uiModules.get('apps/searchguard/configuration');
@@ -57,7 +58,7 @@ function redirectOnSessionTimeout($window) {
     }
 }
 
-app.factory('errorInterceptor', function ($q, $window) {
+app.factory('errorInterceptor', function ($q, $window, multitenancyState) {
 
     return {
         responseError: function (response) {
@@ -92,36 +93,29 @@ app.config(function($httpProvider) {
  * @param $window
  */
 function setupResponseErrorHandler($window) {
-    if (!window.fetch) {
-        return;
+    const sessionExpiredInterceptor = async (response) => {
+      if (response.status === 401) {
+        try {
+          // We need to clone the response before converting the body to JSON,
+          // otherwise the response will be locked for the next consumer.
+          const bodyJSON = await response.clone().json();
+          if (bodyJSON && bodyJSON.redirectTo === 'login') {
+            redirectOnSessionTimeout($window);
+          }
+        } catch (error) {
+          // Ignore
+          console.error('Searchguard. Failed to redirect when session expired.', error.message)
+        }
+      }
+
+      return response;
     }
 
-    const nativeFetch = window.fetch;
-    window.fetch = (url, config) => {
-        return nativeFetch(url, config)
-            .then(async(result) => {
-                if (result.status === 401) {
-                    try {
-                        // We need to clone the response before converting the body to JSON,
-                        // otherwise the response will be locked for the next consumer.
-                        const bodyJSON = await result.clone().json();
-                        if (bodyJSON && bodyJSON.redirectTo === 'login') {
-                            redirectOnSessionTimeout($window);
-                        }
-
-                    } catch (error) {
-                        // Ignore
-                    }
-                }
-
-              return result;
-            });
-    };
+    addResponseInterceptor(sessionExpiredInterceptor);
 }
 
 
-export function enableConfiguration($http, $window, systemstate) {
-
+export function enableConfiguration($http, $window, systemstate, config) {
     setupResponseErrorHandler($window);
 
     chrome.getNavLinkById("searchguard-configuration").hidden = true;

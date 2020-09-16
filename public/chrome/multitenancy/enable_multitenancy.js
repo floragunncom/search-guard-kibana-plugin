@@ -20,8 +20,9 @@ import { uiModules } from 'ui/modules';
 import { FeatureCatalogueRegistryProvider, FeatureCatalogueCategory } from 'ui/registry/feature_catalogue';
 import { EuiIcon } from '@elastic/eui';
 import {parse} from "url";
+import {addResponseInterceptor} from "../../services/fetch_wrapper";
 
-export function enableMultiTenancy(Private) {
+export function enableMultiTenancy(Private, multitenancyState) {
     const sgDynamic = chrome.getInjected().sgDynamic;
     var enabled = chrome.getInjected('multitenancy_enabled');
     chrome.getNavLinkById("searchguard-multitenancy").hidden = !enabled;
@@ -37,6 +38,8 @@ export function enableMultiTenancy(Private) {
               category: FeatureCatalogueCategory.DATA
           };
       });
+
+      addTenantResponseInterceptor(multitenancyState);
     }
 
     // Add tenant info to the request
@@ -78,6 +81,8 @@ export function enableMultiTenancy(Private) {
     }
 }
 
+
+
 /**
  * Add the tenant the value. The originalValue may include more than just an URL, e.g. for iFrame embeds.
  * @param url - The url we will append the tenant to
@@ -111,5 +116,72 @@ function addTenantToURL(url, originalValue = null, userRequestedTenant) {
     return originalValue.replace(valueToReplace, replaceWith);
 }
 
-uiModules.get('searchguard').run(enableMultiTenancy);
+/**
+ * Adds an interceptor for fetch calls
+ * @param multitenancyState
+ */
+function addTenantResponseInterceptor(multitenancyState) {
+  addResponseInterceptor((response) => {
+    const backendTenant = response.headers.get('sgtenant');
+    compareTenants(multitenancyState, backendTenant);
+
+    return response;
+  })
+}
+
+function compareTenants(multitenancyState, backendTenant) {
+  // If we don't have a tenant set, we can just return
+  if (backendTenant === null || multitenancyState.currentTenant === null) {
+    return;
+  }
+
+  // Reload the page if we detect a tenant mismatch
+  if (backendTenant !== multitenancyState.currentTenant) {
+    const reloadParameter = "tenantMismatch=true";
+    let locationSearch = location.search;
+    // Make sure that we only redirect once, just in case something unforeseen happens
+    if (locationSearch.indexOf(reloadParameter) > -1) {
+      return;
+    }
+
+    if(!locationSearch) {
+      locationSearch = `?${reloadParameter}`;
+    } else {
+      locationSearch = `${locationSearch}&${reloadParameter}`;
+    }
+
+    window.location.search = locationSearch;
+
+    // We need to throw an error to make sure subsequent ajax calls are prevented
+    throw new Error('Tenant mismatch, the page should be reloaded');
+  }
+}
+
+const app = uiModules.get('searchguard')
+  .service('multitenancyState', function() {
+    const injected = chrome.getInjected();
+    this.currentTenant = null;
+    if (injected.sgDynamic && injected.sgDynamic.multiTenancy && typeof injected.sgDynamic.multiTenancy.currentTenant !== 'undefined') {
+      this.currentTenant = injected.sgDynamic.multiTenancy.currentTenant;
+    }
+  })
+
+// If multitenancy is enabled, check for a tenant mismatch between the browser and the backend
+if (chrome.getInjected('multitenancy_enabled')) {
+  app.factory('tenantMismatchInterceptor', function (multitenancyState) {
+      return {
+        response: function (response) {
+          const backendTenant = response.headers('sgtenant');
+          compareTenants(multitenancyState, backendTenant);
+
+          return response;
+        }
+      };
+  })
+  .config(function($httpProvider) {
+      $httpProvider.interceptors.push('tenantMismatchInterceptor');
+  });
+}
+
+app.run(enableMultiTenancy);
 
