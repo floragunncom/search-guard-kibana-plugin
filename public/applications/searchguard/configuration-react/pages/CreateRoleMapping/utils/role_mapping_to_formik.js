@@ -1,6 +1,5 @@
 import { sortBy, difference, forEach } from 'lodash';
 import { arrayToComboBoxOptions } from '../../../utils/helpers';
-import { occupiedText, availableText } from '../../../utils/i18n/common';
 
 export const internalUsersToUiInternalUsers = (internalUsers = {}) =>
   arrayToComboBoxOptions(Object.keys(internalUsers));
@@ -8,11 +7,11 @@ export const internalUsersToUiInternalUsers = (internalUsers = {}) =>
 export const rolesToUiRoles = (allRoles = {}, allRoleMappings = {}) => {
   const diff = difference(Object.keys(allRoles), Object.keys(allRoleMappings));
   const availableGroup = {
-    label: availableText,
+    label: 'Available',
     options: []
   };
   const occupiedGroup = {
-    label: occupiedText,
+    label: 'Occupied',
     options: []
   };
 
