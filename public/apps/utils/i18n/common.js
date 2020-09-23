@@ -102,7 +102,7 @@ export const invalidText = (<EuiI18n token="sg.common.invalid.text" default="Inv
 export const pleaseFillOutAllRequiredFieldsText = (
   <EuiI18n
     token="sg.common.pleaseFillOutAllRequiredFields.text"
-    default="Please fill out all required fields"
+    default="Please fill out all required fields!"
   />
 );
 export const usernameText = <EuiI18n token="sg.common.username.text" default="Username" />;

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const SvgPurgeCache = props => (
+export const SvgPurgeCache = props => (
   <svg id="purge_cache_svg__ART" viewBox="0 0 48 48" {...props}>
     <defs>
       <style>{'.purge_cache_svg__cls-2{fill:#353740}'}</style>
@@ -26,5 +26,3 @@ const SvgPurgeCache = props => (
     />
   </svg>
 );
-
-export default SvgPurgeCache;

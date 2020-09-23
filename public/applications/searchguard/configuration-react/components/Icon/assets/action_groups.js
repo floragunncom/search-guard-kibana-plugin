@@ -1,6 +1,6 @@
 import React from 'react';
 
-const SvgActionGroups = props => (
+export const SvgActionGroups = props => (
   <svg id="action_groups_svg__ART" viewBox="0 0 48 48" {...props}>
     <defs>
       <style>
@@ -51,6 +51,3 @@ const SvgActionGroups = props => (
     />
   </svg>
 );
-
-export default SvgActionGroups;
-

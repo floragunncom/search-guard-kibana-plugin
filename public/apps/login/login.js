@@ -15,7 +15,6 @@
  */
 
 import chrome from 'ui/chrome';
-import 'ui/autoload/styles';
 import 'plugins/searchguard/apps/login/login.less';
 import LoginController from './login_controller';
 import template from 'plugins/searchguard/apps/login/login.html';

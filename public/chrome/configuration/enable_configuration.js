@@ -16,14 +16,7 @@
 
 import chrome from 'ui/chrome';
 import { uiModules } from 'ui/modules';
-// This fixes an issue where the app icons would disappear while having a non-Kibana app open.
-// Should be fixed starting from Kibana 6.6.2
 import 'ui/autoload/modules';
-import { chromeWrapper } from "../../services/chrome_wrapper";
-import { SystemStateService } from '../../services';
-import { npSetup } from 'ui/new_platform';
-import { FeatureCatalogueCategory } from '../../../../../src/plugins/home/public/services/feature_catalogue';
-import '../navigationicons.css';
 const app = uiModules.get('apps/searchguard/configuration');
 
 function redirectOnSessionTimeout($window) {
@@ -85,85 +78,3 @@ app.factory('errorInterceptor', function ($q, $window) {
 app.config(function($httpProvider) {
     $httpProvider.interceptors.push('errorInterceptor');
 });
-
-/**
- * Setup a wrapper around fetch so that we can
- * handle session timeouts on ajax calls made
- * by the kfetch component
- * @param $window
- */
-function setupResponseErrorHandler($window) {
-    if (!window.fetch) {
-        return;
-    }
-
-    const nativeFetch = window.fetch;
-    window.fetch = (url, config) => {
-        return nativeFetch(url, config)
-            .then(async(result) => {
-                if (result.status === 401) {
-                    try {
-                        // We need to clone the response before converting the body to JSON,
-                        // otherwise the response will be locked for the next consumer.
-                        const bodyJSON = await result.clone().json();
-                        if (bodyJSON && bodyJSON.redirectTo === 'login') {
-                            redirectOnSessionTimeout($window);
-                        }
-
-                    } catch (error) {
-                        // Ignore
-                    }
-                }
-
-              return result;
-            });
-    };
-}
-
-
-export function enableConfiguration($http, $window) {
-
-    setupResponseErrorHandler($window);
-
-    const ROOT = chrome.getBasePath();
-    const APP_ROOT = `${ROOT}`;
-    const API_ROOT = `${APP_ROOT}/api/v1`;
-    const path = chrome.removeBasePath($window.location.pathname);
-
-    const systemStateService = new SystemStateService($http);
-
-    // don't run on login or logout, we don't have any user on these pages
-    if(path === '/login' || path === '/logout' || path === '/customerror') {
-        return;
-    }
-    // make sure all infos are loaded since sessionStorage might
-    // get cleared sporadically, especially on mobile
-    systemStateService.loadSystemInfo().then(function(){
-        // if no REST module is installed the restinfo endpoint is not available, so fail fast
-        if (!systemStateService.restApiEnabled()) {
-            chromeWrapper.hideNavLink('searchguard-configuration', true);
-            return;
-        }
-        // rest module installed, check if user has access to the API
-        return systemStateService.loadRestInfo().then(function(){
-            if (systemStateService.hasApiAccess()) {
-                chromeWrapper.hideNavLink('searchguard-configuration', false);
-                npSetup.plugins.home.featureCatalogue.register({
-                    id: 'searchguard-configuration',
-                    title: 'Search Guard Configuration',
-                    description: 'Configure users, roles and permissions for Search Guard.',
-                    icon: 'securityApp',
-                    path: '/app/searchguard-configuration',
-                    showOnHomePage: true,
-                    category: FeatureCatalogueCategory.ADMIN,
-                });
-            } else {
-                chromeWrapper.hideNavLink('searchguard-configuration', true);
-            }
-        });
-    }).catch(() => {
-      chromeWrapper.hideNavLink('searchguard-configuration', true);
-    });
-}
-
-uiModules.get('searchguard').run(enableConfiguration);

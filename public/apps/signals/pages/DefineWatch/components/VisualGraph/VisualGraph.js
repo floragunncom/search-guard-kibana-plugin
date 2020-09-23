@@ -43,6 +43,7 @@ import {
   EuiFlexGroup,
   EuiFlexItem
 } from '@elastic/eui';
+import { get } from 'lodash';
 import {
   getLeftPadding,
   getYTitle,
@@ -94,8 +95,10 @@ export default class VisualGraph extends Component {
   };
 
   renderXYPlot = data => {
-    const { annotation, thresholdValue, severityThresholds, values } = this.props;
-    const isSeverity = values._ui.isSeverity;
+    const { annotation, values } = this.props;
+    const isSeverity = get(values, '_ui.isSeverity', false);
+    const thresholdValue = get(values, '_ui.thresholdValue');
+    const severityThresholds = get(values, '_ui.severity.thresholds');
     const { hint, hoveredLineSeriesName, hoveredThresholdName } = this.state;
 
     const getLineSeriesStyle = lineSeriesName =>
@@ -266,12 +269,5 @@ export default class VisualGraph extends Component {
 VisualGraph.propTypes = {
   response: PropTypes.object,
   annotation: PropTypes.bool.isRequired,
-  thresholdValue: PropTypes.number.isRequired,
-  severityThresholds: PropTypes.shape({
-    info: PropTypes.number,
-    warning: PropTypes.number,
-    error: PropTypes.number,
-    critical: PropTypes.number
-  }).isRequired,
   values: PropTypes.object.isRequired,
 };

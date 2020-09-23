@@ -66,6 +66,7 @@ export function requestHeaders({
     // MT is only relevant for these paths
     if (
       !request.path.startsWith('/internal/spaces') &&
+      !request.path.startsWith('/internal/search') &&
       !request.path.startsWith('/goto') &&
       !request.path.startsWith('/elasticsearch') &&
       !request.path.startsWith('/api') &&
@@ -83,6 +84,7 @@ export function requestHeaders({
 
     try {
       if (authInstance) {
+        authInstance.detectAuthHeaderCredentials(request);
         await authInstance.assignAuthHeader(request);
       }
 

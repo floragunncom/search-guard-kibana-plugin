@@ -1,6 +1,6 @@
 import React from 'react';
 
-const SvgInternalUsersDatabase = props => (
+export const SvgInternalUsersDatabase = props => (
   <svg id="internal_users_database_svg__ART" viewBox="0 0 48 48" {...props}>
     <defs>
       <style>
@@ -38,5 +38,3 @@ const SvgInternalUsersDatabase = props => (
     />
   </svg>
 );
-
-export default SvgInternalUsersDatabase;

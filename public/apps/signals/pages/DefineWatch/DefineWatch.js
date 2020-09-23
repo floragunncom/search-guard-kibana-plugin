@@ -7,11 +7,11 @@ import { EuiTitle, EuiSpacer, EuiFlexItem, EuiFlexGroup, EuiErrorBoundary } from
 import { get } from 'lodash';
 import { WatchService } from '../../services';
 import { watchToFormik, formikToWatch } from './utils';
-import { DEFAULT_WATCH } from './utils/constants';
+import { DEFAULT_WATCH, WATCH_TYPES, AGGREGATIONS_TYPES } from './utils/constants';
 import { GeneralPanel, DefinitionPanel, ActionPanel, ResolveActionPanel } from './components';
 import { CancelButton, SaveButton } from '../../components';
 import { APP_PATH } from '../../utils/constants';
-import { createWatchText, updateWatchText } from '../../utils/i18n/watch';
+import { createWatchText, updateWatchText, requiredText } from '../../utils/i18n/watch';
 import { updateText, createText, saveText } from '../../utils/i18n/common';
 
 import { Context } from '../../Context';
@@ -76,13 +76,53 @@ class DefineWatch extends Component {
     history.push(APP_PATH.WATCHES);
   };
 
-  onSubmit = async (values, { setSubmitting }) => {
+  onSubmit = async (values, { setSubmitting, setFieldError }) => {
     const { history } = this.props;
     const { _id: id } = values;
+    let watch;
     console.debug('DefineWatch -- onSubmit -- values', values);
 
-    let watch;
     try {
+      const isSeverity = get(values, '_ui.isSeverity', false);
+      const isGraphWatch = get(values, '_ui.watchType') === WATCH_TYPES.GRAPH;
+      const severityValue = get(values, '_ui.severity.value[0].label');
+      const aggFieldName = get(values, '_ui.fieldName[0].label');
+      const notCountAggType = get(values, '_ui.aggregationType') !== 'count';
+      const isTopHits = get(values, '_ui.overDocuments') === AGGREGATIONS_TYPES.TOP_HITS;
+      const topHitsField = get(values, '_ui.topHitsAgg.field[0].label');
+
+      // The graph watch condition expressions combobox fieds (severity, aggregation, top hits, etc.) are hidden.
+      // They are visible only in a popup after you clicked on the related expression.
+      // Formik doesn't check these fields validity on submit automatically.
+      const shouldSetSeverityField = isGraphWatch && isSeverity && !severityValue;
+      const shouldSetAggregationField = isGraphWatch && notCountAggType && !aggFieldName;
+      const shouldSetTopHitsField = isGraphWatch && isTopHits && !topHitsField;
+      const formErrors = {};
+
+      if (shouldSetSeverityField) {
+        formErrors['_ui.severity.value'] = requiredText;
+      }
+
+      if (shouldSetAggregationField) {
+        formErrors['_ui.fieldName'] = requiredText;
+      }
+
+      if (shouldSetTopHitsField) {
+        formErrors['_ui.topHitsAgg.field'] = requiredText;
+      }
+
+      console.debug('DefineWatch, onSubmit, formErrors', formErrors);
+      Object.keys(formErrors).forEach((field) => {
+        setFieldError(field, formErrors[field]);
+      });
+
+      const mustCancelSubmit =
+        shouldSetAggregationField || shouldSetSeverityField || shouldSetTopHitsField;
+      if (mustCancelSubmit) {
+        setSubmitting(false);
+        return;
+      }
+
       watch = formikToWatch(values);
       await this.watchService.put(watch, id);
 
@@ -107,7 +147,7 @@ class DefineWatch extends Component {
     const { httpClient, location, onTriggerConfirmDeletionModal } = this.props;
 
     return (
-      <div>
+      <EuiErrorBoundary>
         <Formik
           initialValues={initialValues}
           onSubmit={this.onSubmit}
@@ -182,7 +222,7 @@ class DefineWatch extends Component {
             );
           }}
         />
-      </div>
+      </EuiErrorBoundary>
     );
   }
 }
