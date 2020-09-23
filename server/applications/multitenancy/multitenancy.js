@@ -26,7 +26,13 @@ export class Multitenancy {
     this.tenantsMigration = new TenantsMigrationService(coreContext);
   }
 
-  setupSync({ hapiServer, searchGuardBackend, elasticsearch, configService }) {
+  setupSync({
+    hapiServer,
+    searchGuardBackend,
+    elasticsearch,
+    configService,
+    sessionStorageFactory,
+  }) {
     this.logger.debug('Setup sync app');
 
     try {
@@ -44,8 +50,6 @@ export class Multitenancy {
           'No tenant header found in whitelist. Please add sgtenant to elasticsearch.requestHeadersWhitelist in kibana.yml'
         );
       }
-
-      defineMultitenancyRoutes({ server: hapiServer, searchGuardBackend, config: configService });
 
       const preferenceCookieConf = {
         ttl: 2217100485000,
@@ -74,7 +78,14 @@ export class Multitenancy {
     }
   }
 
-  async setup({ authInstance, spacesPlugin = null, elasticsearch, hapiServer }) {
+  async setup({
+    kibanaCore,
+    authInstance,
+    spacesPlugin = null,
+    elasticsearch,
+    hapiServer,
+    sessionStorageFactory,
+  }) {
     this.logger.debug('Setup app');
 
     try {
@@ -83,6 +94,14 @@ export class Multitenancy {
         throw new Error('You must run setupSync first!');
       }
 
+      defineMultitenancyRoutes({
+        kibanaCore,
+        server: hapiServer,
+        searchGuardBackend: this.searchGuardBackend,
+        config: this.configService,
+        sessionStorageFactory,
+      });
+
       requestHeaders({
         authInstance,
         spacesPlugin,
@@ -90,6 +109,8 @@ export class Multitenancy {
         server: hapiServer,
         config: this.configService,
         searchGuardBackend: this.searchGuardBackend,
+        kibanaCore,
+        sessionStorageFactory,
       });
     } catch (error) {
       this.logger.error(`setup: ${error.toString()} ${error.stack}`);

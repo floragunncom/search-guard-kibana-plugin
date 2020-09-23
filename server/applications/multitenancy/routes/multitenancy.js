@@ -16,51 +16,84 @@
  */
 
 import { API_ROOT } from '../../../utils/constants';
+import { schema } from '@kbn/config-schema';
 
-export function multitenancyRoutes({ server, searchGuardBackend, config }) {
+export function multitenancyRoutes({
+  kibanaCore,
+  server,
+  searchGuardBackend,
+  config,
+  sessionStorageFactory,
+}) {
+  const router = kibanaCore.http.createRouter();
   const debugEnabled = config.get('searchguard.multitenancy.debug');
-  const preferencesCookieName = config.get('searchguard.cookie.preferences_cookie_name');
+  //const preferencesCookieName = config.get('searchguard.cookie.preferences_cookie_name');
 
-  server.route({
-    method: 'POST',
-    path: `${API_ROOT}/multitenancy/tenant`,
-    handler: (request, h) => {
-      const username = request.payload.username;
-      const selectedTenant = request.payload.tenant;
-      const prefs = searchGuardBackend.updateAndGetTenantPreferences(request, username, selectedTenant);
+  router.post(
+    {
+      path: `${API_ROOT}/multitenancy/tenant`,
+      validate: {
+        body: schema.object({
+          tenant: schema.string(),
+          username: schema.string(),
+        }),
+      },
+    },
+    async (context, request, response) => {
+      const username = request.body.username;
+      const selectedTenant = request.body.tenant;
+      console.log('**** In the route, context is:', context, context.sg_np.something());
 
-      request.auth.sgSessionStorage.putStorage('tenant', {
-        selected: selectedTenant,
-      });
+      // @todo Is this still needed?
+      const prefs = searchGuardBackend.updateAndGetTenantPreferences(
+        request,
+        username,
+        selectedTenant
+      );
+
+      const cookie = (await sessionStorageFactory.asScoped(request).get()) || {};
+      cookie.tenant = selectedTenant;
+      sessionStorageFactory.asScoped(request).set(cookie);
 
       if (debugEnabled) {
+        // @todo UPDATE LOG
         request.log(['info', 'searchguard', 'tenant_POST'], selectedTenant);
       }
 
-      return h.response(request.payload.tenant).state(preferencesCookieName, prefs);
-    },
-  });
+      return response.ok({ body: selectedTenant });
+    }
+  );
 
-  server.route({
-    method: 'GET',
-    path: `${API_ROOT}/multitenancy/tenant`,
-    handler: request => {
-      const selectedTenant = request.auth.sgSessionStorage.getStorage('tenant', {}).selected;
+  router.get(
+    {
+      path: `${API_ROOT}/multitenancy/tenant`,
+      validate: false,
+    },
+    async (context, request, response) => {
+      let selectedTenant = '';
+      const cookie = await sessionStorageFactory.asScoped(request).get();
+      console.log('Got cookie?', cookie);
+      if (cookie) {
+        selectedTenant = cookie.tenant || '';
+      }
 
       if (debugEnabled) {
+        // @todo UPDATE LOG
         request.log(['info', 'searchguard', 'tenant_GET'], selectedTenant);
       }
 
-      return selectedTenant;
-    },
-  });
+      return response.ok({ body: selectedTenant });
+    }
+  );
 
-  server.route({
-    method: 'GET',
-    path: `${API_ROOT}/multitenancy/info`,
-    handler: request => {
-      const mtinfo = searchGuardBackend.multitenancyinfo(request.headers);
-      return mtinfo;
+  router.get(
+    {
+      path: `${API_ROOT}/multitenancy/info`,
+      validate: false,
     },
-  });
+    async (context, request, response) => {
+      const mtinfo = await searchGuardBackend.multitenancyinfo(request.headers);
+      return response.ok({ body: mtinfo });
+    }
+  );
 } //end module

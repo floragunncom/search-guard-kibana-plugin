@@ -83,7 +83,7 @@ export class SearchGuard {
     }
   }
 
-  async setup({ hapiServer, core }) {
+  async setup({ hapiServer, core, sessionStorageFactory }) {
     this.logger.debug('Setup app');
 
     try {
@@ -103,10 +103,6 @@ export class SearchGuard {
         ['basicauth', 'jwt', 'openid', 'saml', 'proxycache'].indexOf(authType) > -1
       ) {
         try {
-          await hapiServer.register({
-            plugin: require('hapi-auth-cookie'),
-          });
-
           this.logger.info('Initialising Search Guard authentication plugin.');
 
           if (
@@ -151,6 +147,7 @@ export class SearchGuard {
               // Check that one of the auth types didn't already require an authInstance
               if (!authInstance) {
                 // @todo Clean up the null parameters here
+                console.log('**** Just before new class', sessionStorageFactory);
                 authInstance = new AuthClass(
                   this.searchGuardBackend,
                   hapiServer,
@@ -158,7 +155,8 @@ export class SearchGuard {
                   API_ROOT,
                   core,
                   this.configService,
-                  this.logger
+                  this.logger,
+                  sessionStorageFactory
                 );
               }
 
@@ -191,7 +189,7 @@ export class SearchGuard {
 
       // @todo TEST
       if (this.configService.get('searchguard.xff.enabled')) {
-        require('../../../lib/xff/xff')(hapiServer);
+        require('../../../lib/xff/xff')(core);
         this.logger.info('Search Guard XFF enabled.');
       }
 

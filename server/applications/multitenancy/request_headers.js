@@ -16,6 +16,7 @@
  */
 
 import { assign } from 'lodash';
+import { ensureRawRequest } from '../../../../../src/core/server/http/router/request'; //'../../../../../../src/core/server/http/router/request';
 
 export function requestHeaders({
   server,
@@ -24,6 +25,8 @@ export function requestHeaders({
   config,
   spacesPlugin = null,
   elasticsearch,
+  kibanaCore,
+  sessionStorageFactory,
 }) {
   const globalEnabled = config.get('searchguard.multitenancy.tenants.enable_global');
   const privateEnabled = config.get('searchguard.multitenancy.tenants.enable_private');
@@ -34,9 +37,14 @@ export function requestHeaders({
 
   const defaultSpaceId = 'default';
 
-  server.ext('onPreAuth', async function(request, h) {
+  kibanaCore.http.registerOnPreAuth(async function (request, response, toolkit) {
     // default is the tenant stored in the tenants cookie
-    let selectedTenant = request.auth.sgSessionStorage.getStorage('tenant', {}).selected;
+    // @todo Check stored tenant
+    //let selectedTenant = request.auth.sgSessionStorage.getStorage('tenant', {}).selected;
+    const theCookie = (await sessionStorageFactory.asScoped(request).get()) || {};
+
+    let selectedTenant =
+      theCookie && typeof theCookie.tenant !== 'undefined' ? theCookie.tenant : ''; //@todo <- This is just a temp replacement for the code above
     let externalTenant = null;
 
     if (debugEnabled) {
@@ -53,10 +61,11 @@ export function requestHeaders({
         request.log(['info', 'searchguard', 'tenant_http_header'], externalTenant);
       }
     }
-
     // check for tenant information in GET parameter. E.g. when using a share link. Overwrites the HTTP header.
-    if (request.query && (request.query.sg_tenant || request.query.sgtenant)) {
-      externalTenant = request.query.sg_tenant ? request.query.sg_tenant : request.query.sgtenant;
+    if (request.url.query && (request.url.query.sg_tenant || request.url.query.sgtenant)) {
+      externalTenant = request.url.query.sg_tenant
+        ? request.url.query.sg_tenant
+        : request.url.query.sgtenant;
 
       if (debugEnabled) {
         request.log(['info', 'searchguard', 'tenant_url_param'], externalTenant);
@@ -65,19 +74,20 @@ export function requestHeaders({
 
     // MT is only relevant for these paths
     if (
-      !request.path.startsWith('/internal/spaces') &&
-      !request.path.startsWith('/internal/search') &&
-      !request.path.startsWith('/goto') &&
-      !request.path.startsWith('/elasticsearch') &&
-      !request.path.startsWith('/api') &&
-      !request.path.startsWith('/app') &&
-      request.path !== '/' &&
+      !request.url.path.startsWith('/internal/spaces') &&
+      !request.url.path.startsWith('/internal/search') &&
+      !request.url.path.startsWith('/goto') &&
+      !request.url.path.startsWith('/elasticsearch') &&
+      !request.url.path.startsWith('/api') &&
+      !request.url.path.startsWith('/app') &&
+      request.url.path !== '/' &&
       !externalTenant
     ) {
-      return h.continue;
+      return toolkit.next();
     }
 
-    let response;
+    let authInfoResponse;
+
     if (externalTenant) {
       selectedTenant = externalTenant;
     }
@@ -85,20 +95,23 @@ export function requestHeaders({
     try {
       if (authInstance) {
         authInstance.detectAuthHeaderCredentials(request);
-        await authInstance.assignAuthHeader(request);
+        // @todo THIS needs to go back in, but with correct headers
+        //await authInstance.assignAuthHeader(request);
       }
-
-      response = await request.auth.sgSessionStorage.getAuthInfo(request.headers);
+      const authHeaders = await authInstance.assignAuthHeader(request);
+      authInfoResponse = await backend.authinfo(authHeaders);
     } catch (error) {
-      return h.continue;
+      // @todo Handle this?
+      return toolkit.next();
     }
 
     // if we have a tenant, check validity and set it
+    const beforeValidation = selectedTenant;
     if (typeof selectedTenant !== 'undefined' && selectedTenant !== null) {
       selectedTenant = backend.validateTenant(
-        response.user_name,
+        authInfoResponse.user_name,
         selectedTenant,
-        response.sg_tenants,
+        authInfoResponse.sg_tenants,
         globalEnabled,
         privateEnabled
       );
@@ -107,8 +120,8 @@ export function requestHeaders({
       try {
         selectedTenant = backend.getTenantByPreference(
           request,
-          response.user_name,
-          response.sg_tenants,
+          authInfoResponse.user_name,
+          authInfoResponse.sg_tenants,
           preferredTenants,
           globalEnabled,
           privateEnabled
@@ -118,31 +131,49 @@ export function requestHeaders({
       }
     }
 
-    if (selectedTenant !== request.auth.sgSessionStorage.getStorage('tenant', {}).selected) {
+    // @todo This must be fixed
+    const cookie = (await authInstance.sessionStorageFactory.asScoped(request).get()) || {};
+    const tempTenantFromCookie = cookie.tenant || '';
+
+    //if (selectedTenant !== request.auth.sgSessionStorage.getStorage('tenant', {}).selected) {
+    if (selectedTenant !== tempTenantFromCookie) {
       // save validated tenant as preference
       const prefcookie = backend.updateAndGetTenantPreferences(
         request,
-        response.user_name,
+        authInfoResponse.user_name,
         selectedTenant
       );
-      request.auth.sgSessionStorage.putStorage('tenant', {
-        selected: selectedTenant,
-      });
-      h.state(preferencesCookieName, prefcookie);
+
+      cookie.tenant = selectedTenant;
+      await authInstance.sessionStorageFactory.asScoped(request).set(cookie);
+
+      // @todo Clean up pref cookie things
+      //h.state(preferencesCookieName, prefcookie);
     }
 
     if (debugEnabled) {
       request.log(['info', 'searchguard', 'tenant_assigned'], selectedTenant);
     }
 
+    const headers = {
+      ...request.headers,
+    };
+
     if (selectedTenant != null) {
-      assign(request.headers, { sgtenant: selectedTenant });
+      // @todo We need to fix these header assignments
+      const rawRequest = ensureRawRequest(request);
+      const authHeaders = await authInstance.assignAuthHeader(request);
+      assign(rawRequest.headers, authHeaders);
+      //assign(request.headers, { sgtenant: selectedTenant });
+      rawRequest.headers.sgtenant = selectedTenant;
     }
 
     // Test for default space if spaces are enabled and we're on an app path
     const isDefaultSpacesRelevantPath =
-      request.path === '/' || request.path.startsWith('/app') || request.path.startsWith('/spaces');
-
+      request.url.path === '/' ||
+      request.url.path.startsWith('/app') ||
+      request.url.path.startsWith('/spaces');
+    // @todo PROBABLY NEED TO SET TENANT AND AUTH HEADERS HERE
     if (spacesPlugin && isDefaultSpacesRelevantPath) {
       const spacesClient = await spacesPlugin.spacesService.scopedClient(request);
       let defaultSpace = null;
@@ -157,7 +188,7 @@ export function requestHeaders({
 
       if (defaultSpace === null) {
         try {
-          if (selectedTenant && response.sg_tenants[selectedTenant] === false) {
+          if (selectedTenant && authInfoResponse.sg_tenants[selectedTenant] === false) {
             await addDefaultSpaceToReadOnlyTenant(
               server,
               elasticsearch,
@@ -176,7 +207,7 @@ export function requestHeaders({
       }
     }
 
-    return h.continue;
+    return toolkit.next();
   });
 }
 
