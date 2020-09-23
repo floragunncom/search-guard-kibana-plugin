@@ -1,6 +1,6 @@
 import React from 'react';
 
-const SvgIndexPatternDark = props => (
+export const SvgIndexPatternDark = props => (
   <svg viewBox="0 0 48 48" {...props}>
     <path
       d="M13.24 11.64h21a2.09 2.09 0 0 1 2.09 2.09v12.12H11.64V13.24a1.6 1.6 0 0 1 1.6-1.6z"
@@ -12,5 +12,3 @@ const SvgIndexPatternDark = props => (
     />
   </svg>
 );
-
-export default SvgIndexPatternDark;

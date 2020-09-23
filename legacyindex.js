@@ -164,11 +164,7 @@ export default function (kibana) {
 
         uiExports: {
             hacks: [
-                'plugins/searchguard/chrome/readonly/enable_readonly',
-                'plugins/searchguard/chrome/multitenancy/enable_multitenancy',
-                'plugins/searchguard/chrome/accountinfo/enable_accountinfo',
-                'plugins/searchguard/chrome/configuration/enable_configuration',
-                'plugins/searchguard/customizations/enable_customizations.js'
+                'plugins/searchguard/chrome/configuration/enable_configuration'
             ],
             replaceInjectedVars: async function(originalInjectedVars, request, server) {
                 const authType = server.config().get('searchguard.auth.type');
@@ -255,10 +251,6 @@ export default function (kibana) {
                 },
 
             ],
-            chromeNavControls: [
-                'plugins/searchguard/chrome/btn_logout/btn_logout.js'
-            ]
-            ,
             injectDefaultVars(server, options) {
                 options.multitenancy_enabled = server.config().get('searchguard.multitenancy.enabled');
                 options.accountinfo_enabled = server.config().get('searchguard.accountinfo.enabled');

@@ -40,8 +40,13 @@ import { FormikComboBox, FormikSelect, FormikFieldNumber } from '../../../../../
 import { getOptions } from './utils/dataTypes';
 import { POPOVER_STYLE, Expressions, OVER_TYPES, ORDER_TYPES } from './utils/constants';
 import { AGGREGATIONS_TYPES } from '../../../utils/constants';
+import { validateEmptyComboBox, isInvalid, hasError } from '../../../../../utils/validate';
+
+import { Context } from '../../../../../Context';
 
 class OverExpression extends Component {
+  static contextType = Context;
+
   onChangeWrapper = (e, field) => {
     this.props.onMadeChanges();
     field.onChange(e);
@@ -82,7 +87,13 @@ class OverExpression extends Component {
   renderTopHitsTermField = (options = []) => (
     <FormikComboBox
       name="_ui.topHitsAgg.field"
+      formRow
+      rowProps={{
+        isInvalid,
+        error: hasError,
+      }}
       elementProps={{
+        isInvalid,
         'data-test-subj': 'topHitsAggTermField',
         placeholder: 'Select a field',
         options,
@@ -90,8 +101,11 @@ class OverExpression extends Component {
         singleSelection: { asPlainText: true },
         onChange: (options, field, form) => {
           this.props.onMadeChanges();
-          form.setFieldValue(field.name, options);
+          this.context.onComboBoxChange(validateEmptyComboBox)(options, field, form);
         },
+      }}
+      formikFieldProps={{
+        validate: validateEmptyComboBox,
       }}
     />
   );
@@ -141,7 +155,12 @@ class OverExpression extends Component {
 
     let termFieldOptions = [];
     let termFieldWidth = 180;
+    let expressionColor = 'secondary';
+
     if (isTopHits) {
+      if (!topHitsField) {
+        expressionColor = 'danger';
+      }
       termFieldOptions = getOptions(dataTypes, values, ['keyword', 'number']);
       termFieldWidth =
         Math.max(
@@ -156,6 +175,7 @@ class OverExpression extends Component {
         id="over-popover"
         button={
           <EuiExpression
+            color={expressionColor}
             description={isTopHits ? 'grouped over' : 'over'}
             value={buttonValue}
             isActive={openedStates.OVER}

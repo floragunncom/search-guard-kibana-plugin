@@ -1,6 +1,6 @@
 import React from 'react';
 
-const SvgInternalUsersDatabaseDark = props => (
+export const SvgInternalUsersDatabaseDark = props => (
   <svg
     id="internal_users_database_dark_svg__ART"
     viewBox="0 0 48 48"
@@ -42,5 +42,3 @@ const SvgInternalUsersDatabaseDark = props => (
     />
   </svg>
 );
-
-export default SvgInternalUsersDatabaseDark;
