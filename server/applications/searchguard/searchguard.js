@@ -171,16 +171,6 @@ export class SearchGuard {
           this.logger.error(`An error occurred registering server plugins: ${error}`);
           throw error;
         }
-      } else {
-        // Register the storage plugin for the other auth types
-        await hapiServer.register({
-          plugin: require('../../../lib/session/sessionPlugin'),
-          options: {
-            searchGuardBackend: this.searchGuardBackend,
-            authType: null,
-            storageCookieName: this.configService.get('searchguard.cookie.storage_cookie_name'),
-          },
-        });
       }
 
       if (authType !== 'jwt') {
