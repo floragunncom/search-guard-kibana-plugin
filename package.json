@@ -70,7 +70,6 @@
     "eslint-plugin-mocha": "^5.2.0",
     "eslint-plugin-no-unsanitized": "^3.0.2",
     "eslint-plugin-prefer-object-spread": "^1.2.1",
-    "hapi": "17.5.3",
     "jest": "^24.9.0",
     "react-test-renderer": "^16.9.0",
     "regenerator-runtime": "^0.13.3",

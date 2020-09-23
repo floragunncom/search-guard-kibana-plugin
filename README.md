@@ -47,10 +47,6 @@ This software is licensed under the Apache2 license and can be used freely also 
 
 In some cases, when Kibana doesn't provide the required core functionality, we must patch.
 
-  - `yarn patch:kibana:samesite`
-
-    The patch makes it possible to work with Kibana, which is embedded in an iframe on a third party website. We must do it because now (Thu Apr 23 2020) Kibana is still using hapi v17. And hapi added support for SameSite=None in hapi v19.0.0. Read more about [SameSite=None](https://www.chromestatus.com/feature/5633521622188032) and [SameSite](https://web.dev/samesite-cookies-explained/).
-
   - `yarn patch:kibana:dev:es_compatibility`
 
     The patch is only for the developers! It doesn't work in a production environment. The patch makes it possible to run Kibana with nodes where an old Elassticsearch version is used.

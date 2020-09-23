@@ -79,7 +79,7 @@ export const ConfigSchema = schema.object({
     isSameSite: schema.oneOf(
       [
         // @todo Check the changes in Chrome 80 here - more values needed? Compare with hapi-auth-cookie
-        schema.literal(false),
+        schema.literal('None'),
         schema.literal('Strict'),
         schema.literal('Lax'),
       ],
