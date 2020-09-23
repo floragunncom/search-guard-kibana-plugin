@@ -65,6 +65,7 @@ export const ConfigSchema = schema.object({
   cookie: schema.object({
     secure: schema.boolean({ defaultValue: cookieDefaults.secure }),
     name: schema.string({ defaultValue: cookieDefaults.name }),
+    // @todo How do we deprecate this without breaking changes
     storage_cookie_name: schema.string({ defaultValue: cookieDefaults.storage_cookie_name }),
     preferences_cookie_name: schema.string({
       defaultValue: cookieDefaults.preferences_cookie_name,
