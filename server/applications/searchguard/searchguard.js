@@ -12,6 +12,7 @@ import {
   checkXPackSecurityDisabled,
   checkCookieConfig,
 } from './sanity_checks';
+import { getSecurityCookieOptions } from './session/security_cookie';
 import { APP_ROOT, API_ROOT } from '../../utils/constants';
 
 export class SearchGuard {
@@ -93,6 +94,10 @@ export class SearchGuard {
       if (!didSetupSyncRun) {
         throw new Error('You must run setupSync first!');
       }
+
+      const sessionStorageFactory = await core.http.createCookieSessionStorageFactory(
+        getSecurityCookieOptions(this.configService)
+      );
 
       const authType = this.configService.get('searchguard.auth.type', null);
       let AuthClass = null;
@@ -212,7 +217,18 @@ export class SearchGuard {
 
       this.logger.info('Search Guard system routes registered.');
 
-      return { authInstance };
+      core.http.registerAuth(authInstance.checkAuth);
+
+      core.http.registerRouteHandlerContext('sg_np', () => {
+        return {
+          sessionStorageFactory,
+          something: () => {
+            return 'Testar!';
+          },
+        };
+      });
+
+      return { authInstance, sessionStorageFactory };
     } catch (error) {
       this.logger.error(error);
       throw error;
