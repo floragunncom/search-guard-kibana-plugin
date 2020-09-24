@@ -1,4 +1,3 @@
-
 /**
  *    Copyright 2020 floragunn GmbH
 
@@ -63,25 +62,6 @@ export class ServerPlugin {
       searchguardBackendService: searchGuardBackend,
     });
 
-    const cookieConfig = {
-      encryptionKey: this.configService.get('searchguard.cookie.password'),
-      name: this.configService.get('searchguard.cookie.name'),
-      isSecure: this.configService.get('searchguard.cookie.secure'),
-      //validateFunc: this.sessionValidator(this.server),
-      validate: () => {
-        // @todo Just implement our own validation function again
-        return { isValid: true, path: '/' };
-      },
-
-      clearInvalid: true,
-      ttl: this.configService.get('searchguard.cookie.ttl'),
-      isSameSite: this.configService.get('searchguard.cookie.isSameSite'),
-    };
-
-    if (this.configService.get('searchguard.cookie.domain')) {
-      cookieConfig.domain = this.configService.get('searchguard.cookie.domain');
-    }
-
     const isMtEnabled = this.configService.get('searchguard.multitenancy.enabled');
     if (isMtEnabled) {
       this.multiTenancyApp.setupSync({
@@ -92,34 +72,10 @@ export class ServerPlugin {
     }
 
     (async () => {
-      this.sessionStorageFactory = await core.http.createCookieSessionStorageFactory(cookieConfig);
-      console.log('*** Got the factory?', this.sessionStorageFactory);
-
-      const { authInstance } = await this.searchGuardApp.setup({
+      const { authInstance, sessionStorageFactory } = await this.searchGuardApp.setup({
         core,
         hapiServer: this.hapiServer,
         sessionStorageFactory: this.sessionStorageFactory,
-      });
-
-      core.http.registerAuth(authInstance.checkAuth);
-      core.http.registerRouteHandlerContext('sg_np', (context, request) => {
-        console.log('********** What is context when setting up?', context);
-        return {
-          sessionStorageFactory: this.sessionStorageFactory,
-          something: () => {
-            return 'Testar!';
-          },
-        };
-      });
-
-      core.http.registerRouteHandlerContext('another-sg-context', (context, request) => {
-        console.log('********** What is context when setting up another?', context);
-        return {
-          somethingElse: () => {
-            console.log('Micke');
-            return 'Testar!';
-          },
-        };
       });
 
       if (isMtEnabled) {
@@ -129,7 +85,7 @@ export class ServerPlugin {
           elasticsearch: this.elasticsearch,
           spacesPlugin: pluginDependencies.spaces || null,
           kibanaCore: core,
-          sessionStorageFactory: this.sessionStorageFactory,
+          sessionStorageFactory,
         });
       }
     })();
