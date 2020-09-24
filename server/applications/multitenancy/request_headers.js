@@ -27,13 +27,13 @@ export function requestHeaders({
   elasticsearch,
   kibanaCore,
   sessionStorageFactory,
+  logger,
 }) {
   const globalEnabled = config.get('searchguard.multitenancy.tenants.enable_global');
   const privateEnabled = config.get('searchguard.multitenancy.tenants.enable_private');
   const preferredTenants = config.get('searchguard.multitenancy.tenants.preferred');
   const debugEnabled = config.get('searchguard.multitenancy.debug');
   const backend = searchGuardBackend;
-  const preferencesCookieName = config.get('searchguard.cookie.preferences_cookie_name');
 
   const defaultSpaceId = 'default';
 
@@ -44,7 +44,7 @@ export function requestHeaders({
     const theCookie = (await sessionStorageFactory.asScoped(request).get()) || {};
 
     let selectedTenant =
-      theCookie && typeof theCookie.tenant !== 'undefined' ? theCookie.tenant : ''; //@todo <- This is just a temp replacement for the code above
+      theCookie && typeof theCookie.tenant !== 'undefined' ? theCookie.tenant : null; //@todo <- This is just a temp replacement for the code above
     let externalTenant = null;
 
     if (debugEnabled) {
@@ -102,11 +102,12 @@ export function requestHeaders({
       authInfoResponse = await backend.authinfo(authHeaders);
     } catch (error) {
       // @todo Handle this?
+      logger.error('Could not get authinfo');
       return toolkit.next();
     }
 
     // if we have a tenant, check validity and set it
-    const beforeValidation = selectedTenant;
+
     if (typeof selectedTenant !== 'undefined' && selectedTenant !== null) {
       selectedTenant = backend.validateTenant(
         authInfoResponse.user_name,

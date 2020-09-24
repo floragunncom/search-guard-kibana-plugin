@@ -22,17 +22,11 @@ import { requestHeaders } from './request_headers';
 export class Multitenancy {
   constructor(coreContext) {
     this.coreContext = coreContext;
-    this.logger = coreContext.logger.get('multitenancy');
+    this.logger = coreContext.logger.get('searchguard-multitenancy');
     this.tenantsMigration = new TenantsMigrationService(coreContext);
   }
 
-  setupSync({
-    hapiServer,
-    searchGuardBackend,
-    elasticsearch,
-    configService,
-    sessionStorageFactory,
-  }) {
+  setupSync({ hapiServer, searchGuardBackend, elasticsearch, configService }) {
     this.logger.debug('Setup sync app');
 
     try {
@@ -50,27 +44,6 @@ export class Multitenancy {
           'No tenant header found in whitelist. Please add sgtenant to elasticsearch.requestHeadersWhitelist in kibana.yml'
         );
       }
-
-      const preferenceCookieConf = {
-        ttl: 2217100485000,
-        path: '/',
-        isSecure: false,
-        isHttpOnly: false,
-        clearInvalid: true, // remove invalid cookies
-        strictHeader: true, // don't allow violations of RFC 6265
-        encoding: 'iron',
-        password: configService.get('searchguard.cookie.password'),
-        isSameSite: configService.get('searchguard.cookie.isSameSite'),
-      };
-
-      if (configService.get('searchguard.cookie.domain')) {
-        preferenceCookieConf.domain = configService.get('searchguard.cookie.domain');
-      }
-
-      hapiServer.state(
-        configService.get('searchguard.cookie.preferences_cookie_name'),
-        preferenceCookieConf
-      );
 
       this.tenantsMigration.setupSync({ configService });
     } catch (error) {
@@ -96,10 +69,10 @@ export class Multitenancy {
 
       defineMultitenancyRoutes({
         kibanaCore,
-        server: hapiServer,
         searchGuardBackend: this.searchGuardBackend,
         config: this.configService,
         sessionStorageFactory,
+        logger: this.logger,
       });
 
       requestHeaders({
@@ -111,6 +84,7 @@ export class Multitenancy {
         searchGuardBackend: this.searchGuardBackend,
         kibanaCore,
         sessionStorageFactory,
+        logger: this.logger,
       });
     } catch (error) {
       this.logger.error(`setup: ${error.toString()} ${error.stack}`);
