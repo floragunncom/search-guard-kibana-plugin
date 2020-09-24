@@ -20,14 +20,13 @@ import { schema } from '@kbn/config-schema';
 
 export function multitenancyRoutes({
   kibanaCore,
-  server,
   searchGuardBackend,
   config,
   sessionStorageFactory,
+  logger,
 }) {
   const router = kibanaCore.http.createRouter();
   const debugEnabled = config.get('searchguard.multitenancy.debug');
-  //const preferencesCookieName = config.get('searchguard.cookie.preferences_cookie_name');
 
   router.post(
     {
@@ -40,24 +39,14 @@ export function multitenancyRoutes({
       },
     },
     async (context, request, response) => {
-      const username = request.body.username;
       const selectedTenant = request.body.tenant;
-      console.log('**** In the route, context is:', context, context.sg_np.something());
-
-      // @todo Is this still needed?
-      const prefs = searchGuardBackend.updateAndGetTenantPreferences(
-        request,
-        username,
-        selectedTenant
-      );
 
       const cookie = (await sessionStorageFactory.asScoped(request).get()) || {};
       cookie.tenant = selectedTenant;
       sessionStorageFactory.asScoped(request).set(cookie);
 
       if (debugEnabled) {
-        // @todo UPDATE LOG
-        request.log(['info', 'searchguard', 'tenant_POST'], selectedTenant);
+        logger.info(`tenant_POST: ${selectedTenant}`);
       }
 
       return response.ok({ body: selectedTenant });
@@ -70,16 +59,14 @@ export function multitenancyRoutes({
       validate: false,
     },
     async (context, request, response) => {
-      let selectedTenant = '';
+      let selectedTenant = undefined;
       const cookie = await sessionStorageFactory.asScoped(request).get();
-      console.log('Got cookie?', cookie);
       if (cookie) {
-        selectedTenant = cookie.tenant || '';
+        selectedTenant = cookie.tenant;
       }
 
       if (debugEnabled) {
-        // @todo UPDATE LOG
-        request.log(['info', 'searchguard', 'tenant_GET'], selectedTenant);
+        logger.info(`tenant_GET: ${selectedTenant}`);
       }
 
       return response.ok({ body: selectedTenant });

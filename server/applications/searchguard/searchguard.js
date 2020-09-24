@@ -54,25 +54,6 @@ export class SearchGuard {
       // Inits the authInfo route
       authInfoRoutes(this.searchGuardBackend, hapiServer, APP_ROOT, API_ROOT);
 
-      // Set up the storage cookie
-      const storageCookieConf = {
-        path: '/',
-        ttl: null, // Cookie deleted when the browser is closed
-        password: this.configService.get('searchguard.cookie.password'),
-        encoding: 'iron',
-        isSecure: this.configService.get('searchguard.cookie.secure'),
-        isSameSite: this.configService.get('searchguard.cookie.isSameSite'),
-      };
-
-      if (this.configService.get('searchguard.cookie.domain')) {
-        storageCookieConf.domain = this.configService.get('searchguard.cookie.domain');
-      }
-
-      hapiServer.state(
-        this.configService.get('searchguard.cookie.storage_cookie_name'),
-        storageCookieConf
-      );
-
       return {
         configService: this.configService,
         searchGuardBackend: this.searchGuardBackend,
@@ -160,7 +141,7 @@ export class SearchGuard {
                   API_ROOT,
                   core,
                   this.configService,
-                  this.logger,
+                  this.coreContext.logger.get('searchguard-auth'),
                   sessionStorageFactory
                 );
               }
@@ -218,15 +199,6 @@ export class SearchGuard {
       this.logger.info('Search Guard system routes registered.');
 
       core.http.registerAuth(authInstance.checkAuth);
-
-      core.http.registerRouteHandlerContext('sg_np', () => {
-        return {
-          sessionStorageFactory,
-          something: () => {
-            return 'Testar!';
-          },
-        };
-      });
 
       return { authInstance, sessionStorageFactory };
     } catch (error) {
