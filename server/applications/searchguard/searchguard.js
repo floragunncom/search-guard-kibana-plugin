@@ -221,7 +221,7 @@ export class SearchGuard {
               request,
               authHeaders: request.headers,
               selectedTenant,
-              pluginDependencies: pluginDependencies,
+              pluginDependencies,
               logger: authLogger,
               searchGuardBackend: this.searchGuardBackend,
               elasticsearch,
