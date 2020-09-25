@@ -4,6 +4,7 @@
   // tell the TypeScript compiler where to find your source files
   "include": [
     "lib/**/*",
+    "server/**/*",
     "public/**/*"
   ]
 }

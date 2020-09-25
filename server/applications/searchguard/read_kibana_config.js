@@ -62,7 +62,7 @@ export const DEFAULT_CONFIG = {
       storage_cookie_name: 'searchguard_storage',
       preferences_cookie_name: 'searchguard_preferences',
       ttl: 3600000,
-      isSameSite: false,
+      isSameSite: 'Lax',
     },
     session: {
       ttl: 3600000,

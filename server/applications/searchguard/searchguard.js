@@ -12,7 +12,7 @@ import {
   checkXPackSecurityDisabled,
   checkCookieConfig,
 } from './sanity_checks';
-import { getSecurityCookieOptions } from './session/security_cookie';
+import { getSecurityCookieOptions, extendSecurityCookieOptions } from './session/security_cookie';
 import { APP_ROOT, API_ROOT } from '../../utils/constants';
 
 export class SearchGuard {
@@ -65,7 +65,7 @@ export class SearchGuard {
     }
   }
 
-  async setup({ hapiServer, core, sessionStorageFactory }) {
+  async setup({ hapiServer, core }) {
     this.logger.debug('Setup app');
 
     try {
@@ -76,9 +76,14 @@ export class SearchGuard {
         throw new Error('You must run setupSync first!');
       }
 
+      const cookieOptions = getSecurityCookieOptions(this.configService);
       const sessionStorageFactory = await core.http.createCookieSessionStorageFactory(
-        getSecurityCookieOptions(this.configService)
+        cookieOptions
       );
+
+      // We must extend the cookie options.
+      // Because Kibana doesn't support all the options we need.
+      extendSecurityCookieOptions(cookieOptions);
 
       const authType = this.configService.get('searchguard.auth.type', null);
       let AuthClass = null;

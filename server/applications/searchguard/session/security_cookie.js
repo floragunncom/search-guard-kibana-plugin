@@ -1,10 +1,11 @@
 /* eslint-disable @kbn/eslint/require-license-header */
+import Statehood from 'statehood';
+
 export function getSecurityCookieOptions(configService) {
   const options = {
     encryptionKey: configService.get('searchguard.cookie.password'),
     name: configService.get('searchguard.cookie.name'),
     isSecure: configService.get('searchguard.cookie.secure'),
-    //validateFunc: this.sessionValidator(this.server),
     validate: () => {
       // @todo Just implement our own validation function again
       return { isValid: true, path: '/' };
@@ -20,4 +21,20 @@ export function getSecurityCookieOptions(configService) {
   }
 
   return options;
+}
+
+export function extendSecurityCookieOptions(options) {
+  const { domain, ttl, isSameSite } = options;
+  // https://github.com/hapijs/statehood/blob/master/lib/index.js#L442
+  const origPrepareValue = Statehood.prepareValue;
+
+  Statehood.prepareValue = function (name, value, origOptions) {
+    if (name === options.name) {
+      origOptions.domain = domain;
+      origOptions.ttl = ttl;
+      origOptions.isSameSite = isSameSite;
+    }
+
+    return origPrepareValue(name, value, origOptions);
+  };
 }
