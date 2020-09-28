@@ -16,18 +16,79 @@
  */
 
 import { assign } from 'lodash';
-import { ensureRawRequest } from '../../../../../src/core/server/http/router/request'; //'../../../../../../src/core/server/http/router/request';
+import { ensureRawRequest } from '../../../../../src/core/server/http/router';
 
-export function requestHeaders({
-  server,
+function isRelevantMultiTenancyPath(request) {
+  // MT is only relevant for these paths
+  const path = request.url.path;
+  if (
+    !path.startsWith('/internal/spaces') &&
+    !path.startsWith('/internal/search') &&
+    !path.startsWith('/goto') &&
+    !path.startsWith('/elasticsearch') &&
+    !path.startsWith('/api') &&
+    !path.startsWith('/app') &&
+    path !== '/'
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Check if we have a tenant set as query parameter
+ * or as header value
+ *
+ * @param request
+ * @param debugEnabled
+ * @returns {null}
+ */
+function getExternalTenant(request, logger, debugEnabled = false) {
+  let externalTenant = null;
+  // check for tenant information in HTTP header. E.g. when using the saved objects API
+  if (request.headers.sgtenant || request.headers.sg_tenant) {
+    externalTenant = request.headers.sgtenant
+      ? request.headers.sgtenant
+      : request.headers.sg_tenant;
+
+    if (debugEnabled) {
+      logger.info(`Multitenancy: tenant_http_header' ${externalTenant}`);
+    }
+  }
+  // check for tenant information in GET parameter. E.g. when using a share link. Overwrites the HTTP header.
+  if (request.url.query && (request.url.query.sg_tenant || request.url.query.sgtenant)) {
+    externalTenant = request.url.query.sg_tenant
+      ? request.url.query.sg_tenant
+      : request.url.query.sgtenant;
+
+    if (debugEnabled) {
+      logger.info(`Multitenancy: tenant_url_param' ${externalTenant}`);
+    }
+  }
+
+  return externalTenant;
+}
+
+/**
+ * Get and validate the selected tenant.
+ * @param authHeaders
+ * @param sessionCookie
+ * @param searchGuardBackend
+ * @param config
+ * @param sessionStorageFactory
+ * @param logger
+ * @param request
+ * @returns {Promise<string|null>}
+ */
+export async function handleSelectedTenant({
+  authHeaders,
+  sessionCookie,
   searchGuardBackend,
-  authInstance,
   config,
-  spacesPlugin = null,
-  elasticsearch,
-  kibanaCore,
   sessionStorageFactory,
   logger,
+  request,
 }) {
   const globalEnabled = config.get('searchguard.multitenancy.tenants.enable_global');
   const privateEnabled = config.get('searchguard.multitenancy.tenants.enable_private');
@@ -35,184 +96,79 @@ export function requestHeaders({
   const debugEnabled = config.get('searchguard.multitenancy.debug');
   const backend = searchGuardBackend;
 
-  const defaultSpaceId = 'default';
+  // default is the tenant stored in the tenants cookie
 
-  kibanaCore.http.registerOnPreAuth(async function (request, response, toolkit) {
-    // default is the tenant stored in the tenants cookie
-    // @todo Check stored tenant
-    //let selectedTenant = request.auth.sgSessionStorage.getStorage('tenant', {}).selected;
-    const theCookie = (await sessionStorageFactory.asScoped(request).get()) || {};
+  let selectedTenant =
+    sessionCookie && typeof sessionCookie.tenant !== 'undefined' ? sessionCookie.tenant : null;
 
-    let selectedTenant =
-      theCookie && typeof theCookie.tenant !== 'undefined' ? theCookie.tenant : null; //@todo <- This is just a temp replacement for the code above
-    let externalTenant = null;
+  if (debugEnabled) {
+    logger.info(`Multitenancy: tenant_storagecookie ${selectedTenant}`);
+  }
 
-    if (debugEnabled) {
-      request.log(['info', 'searchguard', 'tenant_storagecookie'], selectedTenant);
-    }
+  const externalTenant = getExternalTenant(request, logger, debugEnabled);
 
-    // check for tenant information in HTTP header. E.g. when using the saved objects API
-    if (request.headers.sgtenant || request.headers.sg_tenant) {
-      externalTenant = request.headers.sgtenant
-        ? request.headers.sgtenant
-        : request.headers.sg_tenant;
+  // MT is only relevant for some paths.
+  // If we have an externalTenant, we need to update the cookie
+  // though. Otherwise, if there's a redirect, the query parameter may
+  // get lost before we can use it.
+  if (!isRelevantMultiTenancyPath(request) && !externalTenant) {
+    return null;
+  }
 
-      if (debugEnabled) {
-        request.log(['info', 'searchguard', 'tenant_http_header'], externalTenant);
-      }
-    }
-    // check for tenant information in GET parameter. E.g. when using a share link. Overwrites the HTTP header.
-    if (request.url.query && (request.url.query.sg_tenant || request.url.query.sgtenant)) {
-      externalTenant = request.url.query.sg_tenant
-        ? request.url.query.sg_tenant
-        : request.url.query.sgtenant;
+  if (externalTenant) {
+    selectedTenant = externalTenant;
+  }
 
-      if (debugEnabled) {
-        request.log(['info', 'searchguard', 'tenant_url_param'], externalTenant);
-      }
-    }
+  let authInfoResponse;
+  try {
+    // We need the user's data from the backend to validate the selected tenant
+    authInfoResponse = await backend.authinfo(authHeaders);
+  } catch (error) {
+    logger.error(`Multitenancy: Could not get authinfo ${error.message}`);
+    return null;
+  }
 
-    // MT is only relevant for these paths
-    if (
-      !request.url.path.startsWith('/internal/spaces') &&
-      !request.url.path.startsWith('/internal/search') &&
-      !request.url.path.startsWith('/goto') &&
-      !request.url.path.startsWith('/elasticsearch') &&
-      !request.url.path.startsWith('/api') &&
-      !request.url.path.startsWith('/app') &&
-      request.url.path !== '/' &&
-      !externalTenant
-    ) {
-      return toolkit.next();
-    }
-
-    let authInfoResponse;
-
-    if (externalTenant) {
-      selectedTenant = externalTenant;
-    }
-
+  // if we have a tenant, check validity and set it
+  if (typeof selectedTenant !== 'undefined' && selectedTenant !== null) {
+    selectedTenant = backend.validateTenant(
+      authInfoResponse.user_name,
+      selectedTenant,
+      authInfoResponse.sg_tenants,
+      globalEnabled,
+      privateEnabled
+    );
+  } else {
+    // no tenant, choose configured, preferred tenant
     try {
-      if (authInstance) {
-        authInstance.detectAuthHeaderCredentials(request);
-        // @todo THIS needs to go back in, but with correct headers
-        //await authInstance.assignAuthHeader(request);
-      }
-      const authHeaders = await authInstance.assignAuthHeader(request);
-      authInfoResponse = await backend.authinfo(authHeaders);
-    } catch (error) {
-      // @todo Handle this?
-      logger.error('Could not get authinfo');
-      return toolkit.next();
-    }
-
-    // if we have a tenant, check validity and set it
-
-    if (typeof selectedTenant !== 'undefined' && selectedTenant !== null) {
-      selectedTenant = backend.validateTenant(
+      selectedTenant = backend.getTenantByPreference(
+        request,
         authInfoResponse.user_name,
-        selectedTenant,
         authInfoResponse.sg_tenants,
+        preferredTenants,
         globalEnabled,
         privateEnabled
       );
-    } else {
-      // no tenant, choose configured, preferred tenant
-      try {
-        selectedTenant = backend.getTenantByPreference(
-          request,
-          authInfoResponse.user_name,
-          authInfoResponse.sg_tenants,
-          preferredTenants,
-          globalEnabled,
-          privateEnabled
-        );
-      } catch (error) {
-        // nothing
-      }
+    } catch (error) {
+      // nothing
     }
+  }
 
-    // @todo This must be fixed
-    const cookie = (await authInstance.sessionStorageFactory.asScoped(request).get()) || {};
-    const tempTenantFromCookie = cookie.tenant || '';
+  if (selectedTenant !== sessionCookie.tenant) {
+    // save validated tenant in the cookie
+    sessionCookie.tenant = selectedTenant;
+    await sessionStorageFactory.asScoped(request).set(sessionCookie);
+  }
 
-    //if (selectedTenant !== request.auth.sgSessionStorage.getStorage('tenant', {}).selected) {
-    if (selectedTenant !== tempTenantFromCookie) {
-      // save validated tenant as preference
-      const prefcookie = backend.updateAndGetTenantPreferences(
-        request,
-        authInfoResponse.user_name,
-        selectedTenant
-      );
+  if (debugEnabled) {
+    logger.info(`Multitenancy: tenant_assigned ${selectedTenant}`);
+  }
 
-      cookie.tenant = selectedTenant;
-      await authInstance.sessionStorageFactory.asScoped(request).set(cookie);
-
-      // @todo Clean up pref cookie things
-      //h.state(preferencesCookieName, prefcookie);
-    }
-
-    if (debugEnabled) {
-      request.log(['info', 'searchguard', 'tenant_assigned'], selectedTenant);
-    }
-
-    const headers = {
-      ...request.headers,
-    };
-
-    if (selectedTenant != null) {
-      // @todo We need to fix these header assignments
-      const rawRequest = ensureRawRequest(request);
-      const authHeaders = await authInstance.assignAuthHeader(request);
-      assign(rawRequest.headers, authHeaders);
-      //assign(request.headers, { sgtenant: selectedTenant });
-      rawRequest.headers.sgtenant = selectedTenant;
-    }
-
-    // Test for default space if spaces are enabled and we're on an app path
-    const isDefaultSpacesRelevantPath =
-      request.url.path === '/' ||
-      request.url.path.startsWith('/app') ||
-      request.url.path.startsWith('/spaces');
-    // @todo PROBABLY NEED TO SET TENANT AND AUTH HEADERS HERE
-    if (spacesPlugin && isDefaultSpacesRelevantPath) {
-      const spacesClient = await spacesPlugin.spacesService.scopedClient(request);
-      let defaultSpace = null;
-
-      try {
-        defaultSpace = await spacesClient.get(defaultSpaceId);
-        server.log(['searchguard', 'info'], `Default space exists ${defaultSpace.id}`);
-      } catch (error) {
-        server.log(['searchguard', 'info'], `No default space, will try to create`);
-        // Most likely not really an error, default space just not found
-      }
-
-      if (defaultSpace === null) {
-        try {
-          if (selectedTenant && authInfoResponse.sg_tenants[selectedTenant] === false) {
-            await addDefaultSpaceToReadOnlyTenant(
-              server,
-              elasticsearch,
-              request,
-              backend,
-              defaultSpaceId,
-              selectedTenant
-            );
-          } else {
-            await addDefaultSpaceToWriteTenant(server, spacesClient, defaultSpaceId);
-          }
-        } catch (error) {
-          // We can't really recover from this error, so we'll just continue for now.
-          // The specific error should have been logged in the respective create method.
-        }
-      }
-    }
-
-    return toolkit.next();
-  });
+  return selectedTenant;
 }
 
-async function addDefaultSpaceToWriteTenant(server, spacesClient, defaultSpaceId) {
+const defaultSpaceId = 'default';
+
+async function addDefaultSpaceToWriteTenant(logger, spacesClient, defaultSpaceId) {
   try {
     await spacesClient.create({
       id: defaultSpaceId,
@@ -222,20 +178,17 @@ async function addDefaultSpaceToWriteTenant(server, spacesClient, defaultSpaceId
       disabledFeatures: [],
       _reserved: true,
     });
-    server.log(['searchguard', 'info'], `Default space created`);
+    logger.info(`Multitenancy: Default space created`);
 
     return true;
   } catch (error) {
-    server.log(
-      ['searchguard', 'error'],
-      `An error occurred while creating a default space: ${error}`
-    );
+    logger.error(`Multitenancy: An error occurred while creating a default space: ${error}`);
     throw error;
   }
 }
 
 async function addDefaultSpaceToReadOnlyTenant(
-  server,
+  logger,
   elasticsearch,
   request,
   backend,
@@ -255,9 +208,8 @@ async function addDefaultSpaceToReadOnlyTenant(
     // We have one known issue here. If a read only tenant is completely empty, the index will not yet have been created.
     // Hence, we won't retrieve an index name for that tenant.
     if (!indexName) {
-      server.log(
-        ['searchguard', 'error'],
-        `Could not find the index name for the tenant while creating a default space for a read only tenant. The tenant is probably empty.`
+      logger.error(
+        `Multitenancy: Could not find the index name for the tenant while creating a default space for a read only tenant. The tenant is probably empty.`
       );
       throw new Error('Could not find the index name for the tenant');
     }
@@ -284,16 +236,82 @@ async function addDefaultSpaceToReadOnlyTenant(
 
     // Create the space
     adminCluster.asScoped(request).callAsCurrentUser('create', clientParams);
-    server.log(
-      ['searchguard', 'info'],
-      `Created a default space for a read only tenant: ${tenantName}`
-    );
+    logger.info(`Multitenancy: Created a default space for a read only tenant: ${tenantName}`);
   } catch (error) {
-    server.log(
-      ['searchguard', 'error'],
-      `An error occurred while creating a default space for a read only tenant ${error}`
+    logger.error(
+      `Multitenancy: An error occurred while creating a default space for a read only tenant ${error}`
     );
 
     throw error;
+  }
+}
+
+/**
+ * If we have a new tenant with no default space, we need to create it.
+ * This works on post auth, unfortunately after Spaces has redirected
+ * to the spaces selector. Hence, the default space will only be
+ * visible after a browser reload.
+ * @param kibanaCore
+ * @param spacesPlugin
+ * @param logger
+ * @param searchGuardBackend
+ * @param elasticsearch
+ */
+export async function handleDefaultSpace({
+  request,
+  authHeaders,
+  selectedTenant,
+  pluginDependencies,
+  logger,
+  searchGuardBackend,
+  elasticsearch,
+}) {
+  // Test for default space if spaces are enabled.
+  // The global tenant ('') does not need to be handled
+  const spacesPlugin = pluginDependencies.spaces || null;
+  if (!spacesPlugin || !selectedTenant) {
+    return;
+  }
+
+  const isDefaultSpacesRelevantPath =
+    request.url.path === '/' ||
+    request.url.path.startsWith('/app') ||
+    request.url.path.startsWith('/internal/spaces') ||
+    request.url.path.startsWith('/spaces');
+
+  if (isDefaultSpacesRelevantPath) {
+    const rawRequest = ensureRawRequest(request);
+    assign(rawRequest.headers, authHeaders, { sgtenant: selectedTenant });
+    const spacesClient = await spacesPlugin.spacesService.scopedClient(rawRequest);
+    let defaultSpace = null;
+
+    try {
+      defaultSpace = await spacesClient.get(defaultSpaceId);
+      logger.info(`Multitenancy: Default space exists ${defaultSpace.id}`);
+    } catch (error) {
+      logger.info(`Multitenancy: No default space, will try to create`);
+      // Most likely not really an error, default space just not found
+    }
+
+    if (defaultSpace === null) {
+      try {
+        const authInfoResponse = await searchGuardBackend.authinfo(rawRequest.headers);
+        if (selectedTenant && authInfoResponse.sg_tenants[selectedTenant] === false) {
+          await addDefaultSpaceToReadOnlyTenant(
+            logger,
+            elasticsearch,
+            rawRequest,
+            searchGuardBackend,
+            defaultSpaceId,
+            selectedTenant
+          );
+        } else {
+          await addDefaultSpaceToWriteTenant(logger, spacesClient, defaultSpaceId);
+        }
+      } catch (error) {
+        // We can't really recover from this error, so we'll just continue for now.
+        // The specific error should have been logged in the respective create method.
+      }
+    }
   }
 }

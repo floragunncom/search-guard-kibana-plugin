@@ -6,11 +6,12 @@ export function getSecurityCookieOptions(configService) {
     encryptionKey: configService.get('searchguard.cookie.password'),
     name: configService.get('searchguard.cookie.name'),
     isSecure: configService.get('searchguard.cookie.secure'),
+    // This cookie validation is taken care of by the AuthType.
+    // We can't omit this though, because Kibana seems to
+    // wrap it somehow
     validate: () => {
-      // @todo Just implement our own validation function again
-      return { isValid: true, path: '/' };
+      return { isValid: true };
     },
-
     clearInvalid: true,
     ttl: configService.get('searchguard.cookie.ttl'),
     isSameSite: configService.get('searchguard.cookie.isSameSite'),
