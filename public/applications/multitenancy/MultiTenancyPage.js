@@ -347,14 +347,13 @@ export class MultiTenancyPage extends Component {
             const pathWithoutSpace =
               httpClient.basePath.serverBasePath +
               httpClient.basePath.remove(window.location.pathname);
-            const reload = window.location.pathname !== pathWithoutSpace;
 
-            if (reload) {
-              window.location.href = pathWithoutSpace;
-            }
+            // Always reload after switching tenants manually.
+            // Otherwise we may see weird issues with default index patterns and spaces.
+            window.location.href = pathWithoutSpace;
           }
         },
-        error => {
+        (error) => {
           addErrorToast(error);
         }
       );

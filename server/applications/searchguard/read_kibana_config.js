@@ -73,6 +73,7 @@ export const DEFAULT_CONFIG = {
       anonymous_auth_enabled: false,
       unauthenticated_routes: ['/api/status'],
       logout_url: '',
+      debug: false,
     },
     basicauth: {
       forbidden_usernames: [],

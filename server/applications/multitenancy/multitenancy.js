@@ -17,7 +17,6 @@
 
 import { TenantsMigrationService } from './tenants_migration_service';
 import { defineMultitenancyRoutes } from './routes';
-import { requestHeaders } from './request_headers';
 
 export class Multitenancy {
   constructor(coreContext) {
@@ -51,14 +50,7 @@ export class Multitenancy {
     }
   }
 
-  async setup({
-    kibanaCore,
-    authInstance,
-    spacesPlugin = null,
-    elasticsearch,
-    hapiServer,
-    sessionStorageFactory,
-  }) {
+  async setup({ kibanaCore, sessionStorageFactory }) {
     this.logger.debug('Setup app');
 
     try {
@@ -71,18 +63,6 @@ export class Multitenancy {
         kibanaCore,
         searchGuardBackend: this.searchGuardBackend,
         config: this.configService,
-        sessionStorageFactory,
-        logger: this.logger,
-      });
-
-      requestHeaders({
-        authInstance,
-        spacesPlugin,
-        elasticsearch,
-        server: hapiServer,
-        config: this.configService,
-        searchGuardBackend: this.searchGuardBackend,
-        kibanaCore,
         sessionStorageFactory,
         logger: this.logger,
       });

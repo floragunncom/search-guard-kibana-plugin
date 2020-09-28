@@ -14,6 +14,7 @@ import {
 } from './sanity_checks';
 import { getSecurityCookieOptions, extendSecurityCookieOptions } from './session/security_cookie';
 import { APP_ROOT, API_ROOT } from '../../utils/constants';
+import { handleDefaultSpace, handleSelectedTenant } from '../multitenancy/request_headers';
 
 export class SearchGuard {
   constructor(coreContext) {
@@ -65,7 +66,7 @@ export class SearchGuard {
     }
   }
 
-  async setup({ hapiServer, core }) {
+  async setup({ hapiServer, core, elasticsearch, pluginDependencies }) {
     this.logger.debug('Setup app');
 
     try {
@@ -137,8 +138,6 @@ export class SearchGuard {
             try {
               // Check that one of the auth types didn't already require an authInstance
               if (!authInstance) {
-                // @todo Clean up the null parameters here
-                console.log('**** Just before new class', sessionStorageFactory);
                 authInstance = new AuthClass(
                   this.searchGuardBackend,
                   hapiServer,
@@ -147,7 +146,9 @@ export class SearchGuard {
                   core,
                   this.configService,
                   this.coreContext.logger.get('searchguard-auth'),
-                  sessionStorageFactory
+                  sessionStorageFactory,
+                  elasticsearch,
+                  pluginDependencies
                 );
               }
 
@@ -174,11 +175,6 @@ export class SearchGuard {
         this.logger.info('Search Guard XFF enabled.');
       }
 
-      // @todo Try to refactor this stuff back to onPostAuth, like before 6.5
-      if (authInstance) {
-        authInstance.registerAssignAuthHeader();
-      }
-
       if (this.configService.get('searchguard.configuration.enabled')) {
         require('../../../lib/configuration/routes/routes')(
           this.searchGuardConfigurationBackend,
@@ -203,7 +199,36 @@ export class SearchGuard {
 
       this.logger.info('Search Guard system routes registered.');
 
-      core.http.registerAuth(authInstance.checkAuth);
+      // @todo We may not have an authInstance! Kerberos, Proxy
+      if (authInstance) {
+        core.http.registerAuth(authInstance.checkAuth);
+      } else {
+        core.http.registerAuth(async (request) => {
+          if (this.configService.get('searchguard.multitenancy.enabled')) {
+            const authLogger = this.coreContext.logger.get('searchguard-auth');
+            const sessionCookie = await this.sessionStorageFactory.asScoped(request).get();
+            const selectedTenant = await handleSelectedTenant({
+              authHeaders: request.headers,
+              sessionCookie,
+              searchGuardBackend: this.searchGuardBackend,
+              config: this.configService,
+              sessionStorageFactory,
+              logger: authLogger,
+              request,
+            });
+
+            await handleDefaultSpace({
+              request,
+              authHeaders: request.headers,
+              selectedTenant,
+              pluginDependencies: pluginDependencies,
+              logger: authLogger,
+              searchGuardBackend: this.searchGuardBackend,
+              elasticsearch,
+            });
+          }
+        });
+      }
 
       return { authInstance, sessionStorageFactory };
     } catch (error) {

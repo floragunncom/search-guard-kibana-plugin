@@ -113,6 +113,10 @@ export const ConfigSchema = schema.object({
       defaultValue: authDefaults.unauthenticated_routes,
     }),
     logout_url: schema.string({ defaultValue: authDefaults.logout_url }),
+    /*
+      Caution: Enabling this may cause sensitive authentication information (e.g. credentials) to be logged
+    */
+    debug: schema.boolean({ defaultValue: authDefaults.debug }),
   }),
 
   /**
