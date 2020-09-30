@@ -34,7 +34,7 @@ export function CustomErrorPage({
   showBrandImage = false,
   backButtonStyle = {},
 }) {
-  const buttonHref = basePath;
+  const buttonHref = basePath + '/app/kibana';
 
   // If session was not terminated by logout, clear any remaining
   // stored paths etc. from previous users, to avoid issues

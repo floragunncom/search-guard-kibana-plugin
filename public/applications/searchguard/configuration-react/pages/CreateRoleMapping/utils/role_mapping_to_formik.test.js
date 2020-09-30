@@ -4,7 +4,6 @@ import {
   roleMappingToFormik
 } from './role_mapping_to_formik';
 import { DEFAULT_ROLE_MAPPING } from './constants';
-import { occupiedText, availableText } from '../../../utils/i18n/common';
 
 describe('role mapping to UI role mapping', () => {
   test('can build UI roles difference', () => {
@@ -20,14 +19,14 @@ describe('role mapping to UI role mapping', () => {
 
     const uiResource = [
       {
-        label: availableText,
+        label: 'Available',
         options: [
           { label: 'b', color: 'default', disabled: false },
           { label: 'c', color: 'default', disabled: false }
         ]
       },
       {
-        label: occupiedText,
+        label: 'Occupied',
         options: [
           { label: 'a', color: 'subdued', disabled: true }
         ]

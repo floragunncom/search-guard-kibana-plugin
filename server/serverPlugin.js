@@ -96,7 +96,6 @@ export class ServerPlugin {
       // in the tenants indices before doing any operation on indices
       this.multiTenancyApp.start({
         core,
-        elasticsearch: this.elasticsearch,
         kibanaRouter: this.kibanaRouter,
       });
     }

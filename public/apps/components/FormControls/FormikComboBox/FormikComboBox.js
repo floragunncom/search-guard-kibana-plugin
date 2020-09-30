@@ -38,11 +38,12 @@ const ComboBox = ({
   name,
   form,
   field,
-  elementProps: { onBlur, onChange, onCreateOption, ...props },
+  elementProps: { onBlur, isInvalid, onChange, onCreateOption, ...props },
 }) => (
   <EuiComboBox
     name={name}
     id={name}
+    isInvalid={isInvalid instanceof Function ? isInvalid(name, form) : isInvalid}
     onChange={onChange instanceof Function ? options => onChange(options, field, form) : onChange}
     onCreateOption={onCreateOption instanceof Function ? value => onCreateOption(value, field, form) : onCreateOption}
     onBlur={onBlur instanceof Function ? e => onBlur(e, field, form) : onBlur}

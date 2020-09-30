@@ -1,6 +1,6 @@
 import React from 'react';
 
-const SvgTenantsDark = props => (
+export const SvgTenantsDark = props => (
   <svg id="tenants_dark_svg__ART" viewBox="0 0 48 48" {...props}>
     <defs>
       <style>{'.tenants_dark_svg__cls-1{fill:#fff}'}</style>
@@ -16,5 +16,3 @@ const SvgTenantsDark = props => (
     <circle className="tenants_dark_svg__cls-1" cx={36} cy={35.25} r={3.75} />
   </svg>
 );
-
-export default SvgTenantsDark;

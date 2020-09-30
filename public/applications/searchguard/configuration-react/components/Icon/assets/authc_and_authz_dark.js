@@ -1,6 +1,6 @@
 import React from 'react';
 
-const SvgAuthcAndAuthzDark = props => (
+export const SvgAuthcAndAuthzDark = props => (
   <svg id="authc_and_authz_dark_svg__ART" viewBox="0 0 48 48" {...props}>
     <defs>
       <style>{'.authc_and_authz_dark_svg__cls-2{fill:#047268}'}</style>
@@ -15,5 +15,3 @@ const SvgAuthcAndAuthzDark = props => (
     />
   </svg>
 );
-
-export default SvgAuthcAndAuthzDark;
