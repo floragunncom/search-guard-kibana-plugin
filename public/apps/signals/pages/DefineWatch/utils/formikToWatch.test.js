@@ -13,19 +13,20 @@ import { WATCH_TYPES, SEVERITY } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
 
 describe('buildSeverity', () => {
-  test('can build severity if it is enabled', () => {
+  test('can build severity if it is enabled in JSON watch', () => {
     const formik = {
       _ui: {
         isSeverity: true,
         isResolveActions: false,
         severity: {
           value: [{ label: 'bfield' }],
+          valueString: 'cfield',
           order: 'ascending',
           thresholds: {
-            info: null,
+            info: '',
             warning: 200,
             error: 300,
-            critical: null,
+            critical: 0,
           },
         },
       },
@@ -52,12 +53,90 @@ describe('buildSeverity', () => {
         isResolveActions: false,
         severity: {
           value: [{ label: 'bfield' }],
+          valueString: 'cfield',
           order: 'ascending',
           thresholds: {
-            info: null,
+            info: 0,
             warning: 200,
             error: 300,
-            critical: null,
+            critical: 0,
+          },
+        },
+      },
+      severity: {
+        value: 'cfield',
+        order: 'ascending',
+        mapping: [
+          {
+            threshold: 200,
+            level: SEVERITY.WARNING,
+          },
+          {
+            threshold: 300,
+            level: SEVERITY.ERROR,
+          },
+        ],
+      },
+      actions: [
+        {
+          name: 'email',
+          severity: [SEVERITY.INFO],
+        },
+      ],
+    };
+
+    expect(buildSeverity(formik)).toEqual(watch);
+  });
+
+  test('can build severity if it is enabled in GRAPH watch', () => {
+    const formik = {
+      _ui: {
+        watchType: WATCH_TYPES.GRAPH,
+        isSeverity: true,
+        isResolveActions: false,
+        severity: {
+          value: [{ label: 'bfield' }],
+          valueString: 'cfield',
+          order: 'ascending',
+          thresholds: {
+            info: '',
+            warning: 200,
+            error: 300,
+            critical: 0,
+          },
+        },
+      },
+      severity: {
+        value: 'afield',
+        mapping: [
+          {
+            threshold: 300,
+            level: SEVERITY.ERROR,
+          },
+        ],
+      },
+      actions: [
+        {
+          name: 'email',
+          severity: [{ label: SEVERITY.INFO }],
+        },
+      ],
+    };
+
+    const watch = {
+      _ui: {
+        watchType: WATCH_TYPES.GRAPH,
+        isSeverity: true,
+        isResolveActions: false,
+        severity: {
+          value: [{ label: 'bfield' }],
+          valueString: 'cfield',
+          order: 'ascending',
+          thresholds: {
+            info: 0,
+            warning: 200,
+            error: 300,
+            critical: 0,
           },
         },
       },
@@ -93,12 +172,13 @@ describe('buildSeverity', () => {
         isResolveActions: true,
         severity: {
           value: [{ label: 'bfield' }],
+          valueString: 'bfield',
           order: 'ascending',
           thresholds: {
-            info: null,
+            info: 0,
             warning: 200,
             error: 300,
-            critical: null,
+            critical: 0,
           },
         },
       },
@@ -131,12 +211,13 @@ describe('buildSeverity', () => {
         isResolveActions: true,
         severity: {
           value: [{ label: 'bfield' }],
+          valueString: 'bfield',
           order: 'ascending',
           thresholds: {
-            info: null,
+            info: 0,
             warning: 200,
             error: 300,
-            critical: null,
+            critical: 0,
           },
         },
       },
@@ -177,13 +258,14 @@ describe('buildSeverity', () => {
         isSeverity: false,
         isResolveActions: false,
         severity: {
-          value: 'field',
+          value: [{ label: 'field' }],
+          valueString: 'field',
           order: 'ascending',
           thresholds: {
             info: 100,
-            warning: null,
-            error: null,
-            critical: null,
+            warning: 0,
+            error: 0,
+            critical: 0,
           },
         },
       },
@@ -210,13 +292,14 @@ describe('buildSeverity', () => {
         isSeverity: false,
         isResolveActions: false,
         severity: {
-          value: 'field',
+          value: [{ label: 'field' }],
+          valueString: 'field',
           order: 'ascending',
           thresholds: {
             info: 100,
-            warning: null,
-            error: null,
-            critical: null,
+            warning: 0,
+            error: 0,
+            critical: 0,
           },
         },
       },

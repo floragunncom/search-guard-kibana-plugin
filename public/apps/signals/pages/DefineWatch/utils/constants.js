@@ -44,7 +44,8 @@ export const SEVERITY_META_DEFAULTS = {
   isSeverity: false,
   isResolveActions: false,
   severity: {
-    value: [{ label: '' }],
+    value: [],
+    valueString: '',
     order: SEVERITY_ORDER.ASCENDING,
     thresholds: {
       [SEVERITY.INFO]: 100,

@@ -215,6 +215,7 @@ fi
 
 # Build webpack bundles that must be part of the build since Kibana v7.9.
 # The bundles are in the folder named "target".
+echo "+++ Building webpack bundles +++"
 yarn build:bundles
 
 cd "$WORK_DIR"
@@ -238,7 +239,6 @@ cp -a "$BUILD_STAGE_PLUGIN_DIR/target" "$COPYPATH"
 
 end=`date +%s`
 echo "Build time: $((end-start)) sec"
-
 
 if [ "$COMMAND" == "deploy-snapshot-maven" ] ; then
     echo "+++ mvn clean deploy +++"

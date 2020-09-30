@@ -96,17 +96,19 @@ export class Multitenancy {
     }
   }
 
-  async start({ core, elasticsearch, kibanaRouter }) {
+  async start({ core, kibanaRouter }) {
     this.logger.debug('Start app');
 
     try {
+      const esClient = core.elasticsearch.client;
+
       const didSetupSyncRun = this.searchGuardBackend;
       if (!didSetupSyncRun) {
         throw new Error('You must run setupSync first!');
       }
 
       await this.tenantsMigration.start({
-        elasticsearch,
+        esClient,
         kibanaRouter,
         savedObjects: core.savedObjects,
         searchGuardBackend: this.searchGuardBackend,

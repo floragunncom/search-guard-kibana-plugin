@@ -1,6 +1,6 @@
 import React from 'react';
 
-const SvgAuthcAndAuthz = props => (
+export const SvgAuthcAndAuthz = props => (
   <svg viewBox="0 0 48 48" {...props}>
     <path
       d="M34.17 25.45H13.83v-9.14a10.17 10.17 0 0 1 20.34 0zM17.9 23.08h12.2v-6.77a6.1 6.1 0 0 0-12.2 0z"
@@ -12,5 +12,3 @@ const SvgAuthcAndAuthz = props => (
     />
   </svg>
 );
-
-export default SvgAuthcAndAuthz;

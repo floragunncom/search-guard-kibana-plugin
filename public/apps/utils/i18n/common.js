@@ -94,8 +94,6 @@ export const includeText = (<EuiI18n token="sg.common.include.text" default="Inc
 export const excludeText = (<EuiI18n token="sg.common.exclude.text" default="Exclude" />);
 export const jsonIsInvalidText = (<EuiI18n token="sg.common.jsonIsInvalid.text" default="JSON is invalid" />);
 export const jsonMustNotBeEmptyText = (<EuiI18n token="sg.common.jsonMustNotBeEmpty.text" default="JSON must not be empty" />);
-export const occupiedText = (<EuiI18n token="sg.common.occupied.text" default="Occupied" />);
-export const availableText = (<EuiI18n token="sg.common.available.text" default="Available" />);
 export const systemItemsText = (<EuiI18n token="sg.common.systemItems.text" default="System Items" />);
 export const logoutText = (<EuiI18n token="sg.common.logout.text" default="Logout" />);
 export const loginText = (<EuiI18n token="sg.common.login.text" default="Login" />);
@@ -104,7 +102,7 @@ export const invalidText = (<EuiI18n token="sg.common.invalid.text" default="Inv
 export const pleaseFillOutAllRequiredFieldsText = (
   <EuiI18n
     token="sg.common.pleaseFillOutAllRequiredFields.text"
-    default="Please fill out all required fields"
+    default="Please fill out all required fields!"
   />
 );
 export const usernameText = <EuiI18n token="sg.common.username.text" default="Username" />;

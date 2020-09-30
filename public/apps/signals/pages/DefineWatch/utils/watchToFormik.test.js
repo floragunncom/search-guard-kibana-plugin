@@ -37,7 +37,8 @@ describe('buildFormikSeverity', () => {
         isSeverity: false,
         isResolveActions: false,
         severity: {
-          value: [{ label: '' }],
+          value: [],
+          valueString: '',
           order: 'ascending',
           thresholds: {
             info: 100,
@@ -63,7 +64,7 @@ describe('buildFormikSeverity', () => {
     expect(buildFormikSeverity(watch)).toEqual(formik);
   });
 
-  test('can build formik severity if it is enabled', () => {
+  test('can build formik severity if it was addes via API', () => {
     const watch = {
       severity: {
         value: 'afield',
@@ -89,11 +90,84 @@ describe('buildFormikSeverity', () => {
         isResolveActions: false,
         severity: {
           value: [{ label: 'afield' }],
+          valueString: 'afield',
           order: 'descending',
           thresholds: {
-            info: undefined,
-            warning: undefined,
-            error: undefined,
+            info: 0,
+            warning: 0,
+            error: 0,
+            critical: 4000,
+          },
+        },
+      },
+      severity: {
+        value: 'afield',
+        order: 'descending',
+        mapping: [
+          {
+            threshold: 4000,
+            level: SEVERITY.CRITICAL,
+          },
+        ],
+      },
+      actions: [
+        {
+          name: 'email',
+          severity: [{ label: SEVERITY.CRITICAL, color: SEVERITY_COLORS.critical }],
+        },
+      ],
+      resolve_actions: [],
+    };
+
+    expect(buildFormikSeverity(watch)).toEqual(formik);
+  });
+
+  test('can build formik severity if it is enabled', () => {
+    const watch = {
+      _ui: {
+        isSeverity: true,
+        isResolveActions: false,
+        severity: {
+          value: [{ label: 'afield' }],
+          valueString: 'afield',
+          order: 'descending',
+          thresholds: {
+            warning: '',
+            error: 0,
+            critical: 4000,
+          },
+        },
+      },
+      severity: {
+        value: 'afield',
+        order: 'descending',
+        mapping: [
+          {
+            threshold: 4000,
+            level: SEVERITY.CRITICAL,
+          },
+        ],
+      },
+      actions: [
+        {
+          name: 'email',
+          severity: [SEVERITY.CRITICAL],
+        },
+      ],
+    };
+
+    const formik = {
+      _ui: {
+        isSeverity: true,
+        isResolveActions: false,
+        severity: {
+          value: [{ label: 'afield' }],
+          valueString: 'afield',
+          order: 'descending',
+          thresholds: {
+            info: 0,
+            warning: 0,
+            error: 0,
             critical: 4000,
           },
         },
@@ -152,11 +226,12 @@ describe('buildFormikSeverity', () => {
         isResolveActions: true,
         severity: {
           value: [{ label: 'afield' }],
+          valueString: 'afield',
           order: 'descending',
           thresholds: {
-            info: undefined,
-            warning: undefined,
-            error: undefined,
+            info: 0,
+            warning: 0,
+            error: 0,
             critical: 4000,
           },
         },
@@ -706,7 +781,8 @@ describe('watchToFormik', () => {
         isSeverity: false,
         isResolveActions: false,
         severity: {
-          value: [{ label: '' }],
+          value: [],
+          valueString: '',
           order: 'ascending',
           thresholds: {
             info: 100,
@@ -958,7 +1034,8 @@ describe('watchToFormik', () => {
         isSeverity: false,
         isResolveActions: false,
         severity: {
-          value: [{ label: '' }],
+          value: [],
+          valueString: '',
           order: 'ascending',
           thresholds: {
             info: 100,
@@ -1220,7 +1297,8 @@ describe('watchToFormik', () => {
         isSeverity: false,
         isResolveActions: false,
         severity: {
-          value: [{ label: '' }],
+          value: [],
+          valueString: '',
           order: 'ascending',
           thresholds: {
             info: 100,
@@ -1493,7 +1571,8 @@ describe('watchToFormik', () => {
         isSeverity: false,
         isResolveActions: false,
         severity: {
-          value: [{ label: '' }],
+          value: [],
+          valueString: '',
           order: 'ascending',
           thresholds: {
             info: 100,
@@ -1766,7 +1845,8 @@ describe('watchToFormik', () => {
         isSeverity: false,
         isResolveActions: false,
         severity: {
-          value: [{ label: '' }],
+          value: [],
+          valueString: '',
           order: 'ascending',
           thresholds: {
             info: 100,
@@ -2039,7 +2119,8 @@ describe('watchToFormik', () => {
         isSeverity: false,
         isResolveActions: false,
         severity: {
-          value: [{ label: '' }],
+          value: [],
+          valueString: '',
           order: 'ascending',
           thresholds: {
             info: 100,
@@ -2312,7 +2393,8 @@ describe('watchToFormik', () => {
         isSeverity: false,
         isResolveActions: false,
         severity: {
-          value: [{ label: '' }],
+          value: [],
+          valueString: '',
           order: 'ascending',
           thresholds: {
             info: 100,
@@ -2585,7 +2667,8 @@ describe('watchToFormik', () => {
         isSeverity: false,
         isResolveActions: false,
         severity: {
-          value: [{ label: '' }],
+          value: [],
+          valueString: '',
           order: 'ascending',
           thresholds: {
             info: 100,
@@ -2858,7 +2941,8 @@ describe('watchToFormik', () => {
         isSeverity: false,
         isResolveActions: false,
         severity: {
-          value: [{ label: '' }],
+          value: [],
+          valueString: '',
           order: 'ascending',
           thresholds: {
             info: 100,
@@ -3131,7 +3215,8 @@ describe('watchToFormik', () => {
         isSeverity: false,
         isResolveActions: false,
         severity: {
-          value: [{ label: '' }],
+          value: [],
+          valueString: '',
           order: 'ascending',
           thresholds: {
             info: 100,
@@ -3391,7 +3476,8 @@ describe('watchToFormik', () => {
         isSeverity: false,
         isResolveActions: false,
         severity: {
-          value: [{ label: '' }],
+          value: [],
+          valueString: '',
           order: 'ascending',
           thresholds: {
             info: 100,
@@ -3717,7 +3803,8 @@ describe('watchToFormik', () => {
         isSeverity: false,
         isResolveActions: false,
         severity: {
-          value: [{ label: '' }],
+          value: [],
+          valueString: '',
           order: 'ascending',
           thresholds: {
             info: 100,

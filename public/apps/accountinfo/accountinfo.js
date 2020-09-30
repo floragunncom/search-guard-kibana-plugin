@@ -18,7 +18,6 @@ import chrome from 'ui/chrome';
 import uiRoutes from 'ui/routes';
 import { uiModules } from 'ui/modules';
 import { toastNotifications } from 'ui/notify';
-import 'ui/autoload/styles';
 import infoTemplate from './accountinfo.html';
 
 uiRoutes.enable();
@@ -32,7 +31,7 @@ uiRoutes
 
 uiModules
     .get('app/searchguard-accountinfo')
-    .controller('accountInfoNavController', function ($http, $window, Private, sg_resolvedInfo) {
+    .controller('accountInfoNavController', function ($http, $window, Private) {
 
         var APP_ROOT = `${chrome.getBasePath()}`;
         var API_ROOT = `${APP_ROOT}/api/v1`;
