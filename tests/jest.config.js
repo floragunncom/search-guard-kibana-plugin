@@ -2,9 +2,10 @@
 module.exports = {
   rootDir: '../',
   setupFiles: ['<rootDir>/tests/setup_tests.js'],
+  preset: 'ts-jest',
   globals: {
     'ts-jest': {
-      tsConfig: 'tsconfig.json',
+      babelConfig: true,
       diagnostics: true,
     },
   },
