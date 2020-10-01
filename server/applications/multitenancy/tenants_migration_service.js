@@ -112,7 +112,7 @@ export class TenantsMigrationService {
         return;
       }
 
-      const migrators = this.tenantIndices.map((index) => {
+      const migratorPromises = this.tenantIndices.map((index) => {
         return new KibanaMigrator({
           ...migratorDeps,
           kibanaConfig: { ...kibanaConfig, index },
@@ -121,12 +121,20 @@ export class TenantsMigrationService {
 
       this.logger.info('Starting tenants saved objects migration ...');
 
-      /*
-        We must avoid waiting for all promisses to fulfill here. We may have a lot of tenants.
-        And Kibana fails if a plugin start process is longer then 30 sec.
-      */
-      Promise.all(migrators.map((migrator) => migrator.runMigrations())).catch((error) => {
-        this.logger.error(`Fail to run migration: ${error.toString()}: ${error.stack}`);
+      // Don't do await Promise.allSettled.
+      // We must avoid waiting for all promisses to fulfill here. We may have a lot of tenants.
+      Promise.allSettled(migratorPromises).then((responses) => {
+        responses.forEach((response, i) => {
+          if (response.status === 'fulfilled') {
+            this.logger.info(`Fulfilled migration for index ${this.tenantIndices[i]}.`);
+          } else {
+            this.logger.error(
+              `Unable to fulfill migration for index ${this.tenantIndices[i]} ${JSON.stringify(
+                response.value
+              )}`
+            );
+          }
+        });
       });
     } catch (error) {
       throw error;
