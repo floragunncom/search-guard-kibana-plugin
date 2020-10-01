@@ -6,7 +6,7 @@ export function migrateTenants({
   searchGuardBackend,
   KibanaMigrator,
   migratorDeps: {
-    client,
+    callCluster,
     kibanaConfig,
     typeRegistry,
     logger,
@@ -41,7 +41,7 @@ export function migrateTenants({
         body = await Promise.all(
           tenantIndices.map((index) => {
             const migrator = new KibanaMigrator({
-              client,
+              callCluster,
               kibanaConfig: { ...kibanaConfig, index },
               typeRegistry,
               logger,
@@ -69,7 +69,7 @@ export function migrateTenants({
       }
 
       const migrator = new KibanaMigrator({
-        client,
+        callCluster,
         kibanaConfig: { ...kibanaConfig, index: indexToMigrate },
         typeRegistry,
         logger,
