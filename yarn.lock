@@ -871,10 +871,10 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@elastic/eui@^22.1.0":
-  version "22.1.0"
-  resolved "https://registry.yarnpkg.com/@elastic/eui/-/eui-22.1.0.tgz#abe8573cdbf6d80957bcb3a299ceac9e591d64df"
-  integrity sha512-VZ6IpreEyRhiIX4pWyvMTGv280BPEfEdH3oRowLIjUdwGTnel7pU41Tkv6CECF9LNRY0rPAiSiZDDW8eoPHJsg==
+"@elastic/eui@26.3.3":
+  version "26.3.3"
+  resolved "https://registry.yarnpkg.com/@elastic/eui/-/eui-26.3.3.tgz#7d39d417700ce93bf38c5c0805a5ee03ab064ead"
+  integrity sha512-h2sf/1Lun04d+EjJv1bgTYBu4BDGh0L4Pf0TKAFtGFDdGPvtokEhB4czAUnSNNQokge01KUz8zPalGCN9zTXLw==
   dependencies:
     "@types/chroma-js" "^2.0.0"
     "@types/enzyme" "^3.1.13"
@@ -899,6 +899,7 @@
     react-virtualized "^9.21.2"
     resize-observer-polyfill "^1.5.0"
     tabbable "^3.0.0"
+    text-diff "^1.0.1"
     uuid "^3.1.0"
 
 "@elastic/kibana-ui-framework@0.0.11":
@@ -6030,6 +6031,11 @@ test-exclude@^5.2.3:
     minimatch "^3.0.4"
     read-pkg-up "^4.0.0"
     require-main-filename "^2.0.0"
+
+text-diff@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/text-diff/-/text-diff-1.0.1.tgz#6c105905435e337857375c9d2f6ca63e453ff565"
+  integrity sha1-bBBZBUNeM3hXN1ydL2ymPkU/9WU=
 
 text-table@^0.2.0:
   version "0.2.0"

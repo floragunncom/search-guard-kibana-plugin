@@ -42,7 +42,9 @@ export function redirectOnSessionTimeout(authType, coreHttp, isAnonymousAuth = f
         return;
       }
 
-      let nextUrl = path + window.location.hash + window.location.search;
+      const href = window.location.href;
+      let nextUrl = href.replace(window.location.origin, '');
+
       let redirectTarget = null;
 
       if (authType === 'jwt') {
