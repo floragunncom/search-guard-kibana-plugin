@@ -1,3 +1,5 @@
+import {ReadOnlyMode} from "./lib/authorization/ReadOnlyMode";
+
 const pluginRoot = require('requirefrom')('');
 import { resolve, join, sep } from 'path';
 import { has } from 'lodash';
@@ -30,6 +32,7 @@ export default function (kibana) {
                 enabled: Joi.boolean().default(true),
                 allow_client_certificates: Joi.boolean().default(false),
                 readonly_mode: Joi.object().keys({
+                    enabled: Joi.boolean().default(true),
                     roles: Joi.array().default([]),
                 }).default(),
                 xff: Joi.object().keys({
@@ -498,6 +501,10 @@ export default function (kibana) {
 
           handleSignalsAppAccess(server, searchguardBackend);
           registerSignalsRoutes(server);
+          if (config.get('searchguard.readonly_mode.enabled')) {
+            const readOnlyMode = new ReadOnlyMode(server);
+            readOnlyMode.setup(server.newPlatform.setup.core, searchguardBackend, config);
+          }
         }
     });
 
