@@ -194,7 +194,8 @@ uiModules
                     // Make sure that the app is really enabled before accessing.
                     // If chromeWrapper.resetLastSubUrl is used, the check for enabled apps is redundant.
                     // Keeping this to make the merges a bit easier.
-                    const appsToReset = ['kibana:visualize', 'kibana:dashboard', 'kibana:discover', 'timelion'];
+
+                    const appsToReset = ['visualize', 'dashboard', 'discover', 'timelion'];
                     chromeWrapper.getNavLinks().forEach((navLink) => {
                         if (appsToReset.indexOf(navLink.id) > -1) {
                             chromeWrapper.resetLastSubUrl(navLink.id);
@@ -218,10 +219,10 @@ uiModules
                     // redirect to either Visualize or Dashboard depending on user selection.
                     if(redirect) {
                         if (redirect == 'vis') {
-                            $window.location.href = chromeWrapper.getNavLinkById("kibana:visualize").url;
+                            $window.location.href = chromeWrapper.getNavLinkById("visualize").url;
                         }
                         if (redirect == 'dash') {
-                            $window.location.href = chromeWrapper.getNavLinkById("kibana:dashboard").url;
+                            $window.location.href = chromeWrapper.getNavLinkById("dashboard").url;
                         }
                     } else {
                         toastNotifications.addSuccess({
