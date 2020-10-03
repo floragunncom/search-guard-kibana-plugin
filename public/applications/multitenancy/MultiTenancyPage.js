@@ -332,10 +332,10 @@ export class MultiTenancyPage extends Component {
           // redirect to either Visualize or Dashboard depending on user selection.
           if (redirectTo) {
             if (redirectTo === 'vis') {
-              window.location.href = chromeHelper.getNavLinkById('kibana:visualize').url;
+              window.location.href = chromeHelper.getNavLinkById('visualize').url;
             }
             if (redirectTo === 'dash') {
-              window.location.href = chromeHelper.getNavLinkById('kibana:dashboard').url;
+              window.location.href = chromeHelper.getNavLinkById('dashboard').url;
             }
           } else {
             const successText =
