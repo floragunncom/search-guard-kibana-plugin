@@ -1,36 +1,53 @@
-/* eslint-disable @kbn/eslint/require-license-header */
-import Joi from 'joi';
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { schema } from '@kbn/config-schema';
 import { serverError } from '../../lib/errors';
 import { BASE_URI, MAX_DOC_COUNT_SEARCH } from '../../../../../utils/signals/constants';
 
-const searchEs = ({ clusterClient, logger }) => async request => {
+export const searchEs = ({ clusterClient, logger }) => async (context, request, response) => {
   try {
-    const { body, index, size } = request.payload;
+    const { body, index, size } = request.body;
 
     const resp = await clusterClient
       .asScoped(request)
       .callAsCurrentUser('search', { body, index, size });
 
-    return { ok: true, resp };
+    return response.ok({ body: { ok: true, resp } });
   } catch (err) {
-    logger.error(`searchEs: ${err.toString()} ${err.stack}`);
-    return { ok: false, resp: serverError(err) };
+    logger.error(`searchEs: ${err.stack}`);
+    return response.ok({ body: { ok: false, resp: serverError(err) } });
   }
 };
 
-export function searchEsRoute({ hapiServer, clusterClient, logger }) {
-  hapiServer.route({
-    path: `${BASE_URI}/_search`,
-    method: 'POST',
-    handler: searchEs({ clusterClient, logger }),
-    config: {
+export function searchEsRoute({ router, clusterClient, logger }) {
+  router.post(
+    {
+      path: `${BASE_URI}/_search`,
       validate: {
-        payload: {
-          body: Joi.object().required(),
-          index: Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string())),
-          size: Joi.number().default(MAX_DOC_COUNT_SEARCH),
-        },
+        body: schema.object(
+          {
+            body: schema.object({}, { unknowns: 'allow' }),
+            index: schema.oneOf([schema.string(), schema.arrayOf(schema.string())]),
+            size: schema.number({ defaultValue: MAX_DOC_COUNT_SEARCH }),
+          },
+          { unknowns: 'allow' }
+        ),
       },
     },
-  });
+    searchEs({ clusterClient, logger })
+  );
 }

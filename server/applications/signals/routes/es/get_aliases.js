@@ -1,37 +1,49 @@
-/* eslint-disable @kbn/eslint/require-license-header */
-import Joi from 'joi';
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { schema } from '@kbn/config-schema';
 import { serverError } from '../../lib/errors';
 import { BASE_URI } from '../../../../../utils/signals/constants';
 
-const getAliases = ({ clusterClient, logger }) => async request => {
+export const getAliases = ({ clusterClient, logger }) => async (context, request, response) => {
   try {
-    const { alias } = request.payload;
+    const { alias } = request.body;
     const resp = await clusterClient.asScoped(request).callAsCurrentUser('cat.aliases', {
       alias,
       format: 'json',
       h: 'alias,index',
     });
 
-    return { ok: true, resp };
+    return response.ok({ body: { ok: true, resp } });
   } catch (err) {
-    logger.error(`getAliases: ${err.toString()} ${err.stack}`);
-    return { ok: false, resp: serverError(err) };
+    logger.error(`getAliases: ${err.stack}`);
+    return response.ok({ body: { ok: false, resp: serverError(err) } });
   }
 };
 
-export function getAliasesRoute({ hapiServer, clusterClient, logger }) {
-  hapiServer.route({
-    path: `${BASE_URI}/_aliases`,
-    method: 'POST',
-    handler: getAliases({ clusterClient, logger }),
-    config: {
+export function getAliasesRoute({ router, clusterClient, logger }) {
+  router.post(
+    {
+      path: `${BASE_URI}/_aliases`,
       validate: {
-        payload: {
-          alias: Joi.alternatives()
-            .try(Joi.string(), Joi.array().items(Joi.string()))
-            .required(),
-        },
+        body: schema.object({
+          alias: schema.oneOf([schema.string(), schema.arrayOf(schema.string())]),
+        }),
       },
     },
-  });
+    getAliases({ clusterClient, logger })
+  );
 }

@@ -12,7 +12,7 @@ import {
   defaultCookiePasswordWarnText,
   cookieSecureFalseWarnText,
 } from './sanity_checks';
-import { setupLoggerMock, setupSearchGuardBackendInstMock } from '../../utils/mocks';
+import { setupLoggerMock, setupSearchGuardBackendMock } from '../../mocks';
 
 import { ConfigService } from '../../../utils';
 import { DEFAULT_CONFIG } from './read_kibana_config';
@@ -42,7 +42,7 @@ describe('sanity_checks', () => {
 
     beforeEach(() => {
       mockLogger = setupLoggerMock();
-      mockSearchGuardBackend = setupSearchGuardBackendInstMock();
+      mockSearchGuardBackend = setupSearchGuardBackendMock();
     });
 
     test('log warning if not not_fail_on_forbidden_enabled', async () => {

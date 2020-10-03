@@ -37,7 +37,6 @@ export class ServerPlugin {
       throw error; // Following best practices re-throw error and let the process exit with error code
     });
 
-    this.hapiServer = core.hapiServer;
     this.kibanaRouter = core.http.createRouter();
     const elasticsearch = core.elasticsearch;
 
@@ -48,7 +47,6 @@ export class ServerPlugin {
     } = this.searchGuardApp.setupSync({
       core,
       pluginDependencies,
-      hapiServer: this.hapiServer,
       kibanaRouter: this.kibanaRouter,
     });
 
@@ -59,7 +57,6 @@ export class ServerPlugin {
     this.signalsApp.setupSync({
       core,
       kibanaRouter: this.kibanaRouter,
-      hapiServer: core.hapiServer,
       searchguardBackendService: searchGuardBackend,
     });
 
@@ -68,7 +65,6 @@ export class ServerPlugin {
       this.multiTenancyApp.setupSync({
         configService,
         searchGuardBackend,
-        hapiServer: this.hapiServer,
       });
     }
 

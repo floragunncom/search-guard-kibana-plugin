@@ -1,13 +1,32 @@
-/* eslint-disable @kbn/eslint/require-license-header */
-import Joi from 'joi';
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { schema } from '@kbn/config-schema';
 import { serverError } from '../../lib';
 import { getId } from '../../lib/helpers';
 import { ROUTE_PATH, ES_SCROLL_SETTINGS } from '../../../../../utils/signals/constants';
 
-const getAccounts = ({ clusterClient, fetchAllFromScroll, logger }) => async request => {
+export const getAccounts = ({ clusterClient, fetchAllFromScroll, logger }) => async (
+  context,
+  request,
+  response
+) => {
   try {
     const {
-      payload: { query, scroll },
+      body: { query, scroll },
     } = request;
 
     const body = {};
@@ -26,31 +45,32 @@ const getAccounts = ({ clusterClient, fetchAllFromScroll, logger }) => async req
       response: firstScrollResponse,
     });
 
-    return {
-      ok: true,
-      resp: hits.map(({ _source, _id }) => ({ ..._source, _id: getId(_id) }))
-    };
+    return response.ok({
+      body: {
+        ok: true,
+        resp: hits.map(({ _source, _id }) => ({ ..._source, _id: getId(_id) })),
+      },
+    });
   } catch (err) {
-    logger.error(`getAccounts: ${err.toString()} ${err.stack}`);
-    return { ok: false, resp: serverError(err) };
+    logger.error(`getAccounts: ${err.stack}`);
+    return response.ok({ body: { ok: false, resp: serverError(err) } });
   }
 };
 
-export function getAccountsRoute({ hapiServer, clusterClient, fetchAllFromScroll, logger }) {
-  hapiServer.route({
-    path: ROUTE_PATH.ACCOUNTS,
-    method: 'POST',
-    handler: getAccounts({ clusterClient, fetchAllFromScroll, logger }),
-    config: {
+export function getAccountsRoute({ router, clusterClient, fetchAllFromScroll, logger }) {
+  router.post(
+    {
+      path: ROUTE_PATH.ACCOUNTS,
       validate: {
-        options: {
-          allowUnknown: true,
-        },
-        payload: {
-          scroll: Joi.string().default(ES_SCROLL_SETTINGS.KEEPALIVE),
-          query: Joi.object(),
-        },
+        body: schema.object(
+          {
+            scroll: schema.string({ defaultValue: ES_SCROLL_SETTINGS.KEEPALIVE }),
+            query: schema.object({}, { unknowns: 'allow' }),
+          },
+          { unknowns: 'allow' }
+        ),
       },
     },
-  });
+    getAccounts({ clusterClient, fetchAllFromScroll, logger })
+  );
 }

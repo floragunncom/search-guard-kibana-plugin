@@ -1,10 +1,25 @@
-/* eslint-disable @kbn/eslint/require-license-header */
-import Joi from 'joi';
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { schema } from '@kbn/config-schema';
 import { serverError } from '../../lib/errors';
 import { getId } from '../../lib/helpers';
 import { ROUTE_PATH } from '../../../../../utils/signals/constants';
 
-const getAccount = ({ clusterClient, logger }) => async request => {
+export const getAccount = ({ clusterClient, logger }) => async (context, request, response) => {
   try {
     const { id, type } = request.params;
 
@@ -15,30 +30,34 @@ const getAccount = ({ clusterClient, logger }) => async request => {
         type,
       });
 
-    return {
-      ok: true,
-      resp: { ..._source, _id: getId(_id) },
-    };
+    return response.ok({
+      body: {
+        ok: true,
+        resp: { ..._source, _id: getId(_id) },
+      },
+    });
   } catch (err) {
     if (err.statusCode !== 404) {
-      logger.error(`getAccount: ${err.toString()} ${err.stack}`);
+      logger.error(`getAccount: ${err.stack}`);
     }
-    return { ok: false, resp: serverError(err) };
+    return response.ok({ body: { ok: false, resp: serverError(err) } });
   }
 };
 
-export function getAccountRoute({ hapiServer, clusterClient, logger }) {
-  hapiServer.route({
-    path: `${ROUTE_PATH.ACCOUNT}/{type}/{id}`,
-    method: 'GET',
-    handler: getAccount({ clusterClient, logger }),
-    config: {
+export function getAccountRoute({ router, clusterClient, logger }) {
+  router.get(
+    {
+      path: `${ROUTE_PATH.ACCOUNT}/{type}/{id}`,
       validate: {
-        params: {
-          id: Joi.string().required(),
-          type: Joi.string().required(),
-        },
+        params: schema.object(
+          {
+            id: schema.string(),
+            type: schema.string(),
+          },
+          { unknowns: 'allow' }
+        ),
       },
     },
-  });
+    getAccount({ clusterClient, logger })
+  );
 }

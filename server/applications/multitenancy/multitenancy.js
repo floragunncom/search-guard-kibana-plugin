@@ -25,11 +25,10 @@ export class Multitenancy {
     this.tenantsMigration = new TenantsMigrationService(coreContext);
   }
 
-  setupSync({ hapiServer, searchGuardBackend, elasticsearch, configService }) {
+  setupSync({ searchGuardBackend, elasticsearch, configService }) {
     this.logger.debug('Setup sync app');
 
     try {
-      this.hapiServer = hapiServer;
       this.searchGuardBackend = searchGuardBackend;
       this.elasticsearch = elasticsearch;
       this.configService = configService;

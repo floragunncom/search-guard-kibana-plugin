@@ -1,14 +1,24 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { migrateTenants } from './migrate';
 import {
   setupLoggerMock,
-  httpRouteMock,
-  setupKibanaMigratorMock,
-  setupSearchGuardBackendInstMock,
-} from '../../../utils/mocks';
-
-import { migrateTenants } from './migrate';
-
-const { setupRequestMock, setupResponseMock } = httpRouteMock;
+  setupHttpResponseMock,
+  setupSearchGuardBackendMock,
+} from '../../../mocks';
 
 function setupMigrationEsClientMock() {
   return jest.fn();
@@ -87,185 +97,139 @@ function setupTypeRegistryMock() {
   };
 }
 
+function setupKibanaMigratorMock({ runMigrations = jest.fn() } = {}) {
+  return jest.fn(() => ({ runMigrations }));
+}
+
 const kibanaVersion = '8.0.0';
 
+const migratorDeps = {
+  client: setupMigrationEsClientMock(),
+  kibanaConfig: setupKibanaConfigMock(),
+  typeRegistry: setupTypeRegistryMock(),
+  logger: setupLoggerMock(),
+  savedObjectsConfig: setupSavedObjectsConfigMock(),
+  savedObjectValidations: setupSavedObjectValidationsMock(),
+  kibanaVersion,
+};
+
 describe('multitenancy/routes/migrate', () => {
-  let mockSearchGuardBackend;
-  let mockHandlerRequest;
-  let mockHandlerResponse;
-  let mockKibanaMigrator;
-  let mockMigratorDeps;
+  describe('errors', () => {
+    test('throw error if no tenant', async () => {
+      const searchGuardBackend = setupSearchGuardBackendMock();
+      const KibanaMigrator = setupKibanaMigratorMock();
+      const response = setupHttpResponseMock();
 
-  describe('there is an error', () => {
-    let mockHandlerResponse;
+      const request = { params: {} };
 
-    beforeEach(() => {
-      mockSearchGuardBackend = setupSearchGuardBackendInstMock();
-      mockHandlerRequest = setupRequestMock();
-      mockHandlerResponse = setupResponseMock();
+      await migrateTenants({
+        searchGuardBackend,
+        KibanaMigrator,
+        migratorDeps,
+      })(null, request, response);
 
-      mockKibanaMigrator = setupKibanaMigratorMock();
-      mockMigratorDeps = {
-        client: setupMigrationEsClientMock(),
-        kibanaConfig: setupKibanaConfigMock(),
-        typeRegistry: setupTypeRegistryMock(),
-        logger: setupLoggerMock(),
-        savedObjectsConfig: setupSavedObjectsConfigMock(),
-        savedObjectValidations: setupSavedObjectValidationsMock(),
-        kibanaVersion,
-      };
-    });
-
-    it('throw error if no tenant index provided', async () => {
-      const result = await migrateTenants({
-        searchGuardBackend: mockSearchGuardBackend,
-        KibanaMigrator: mockKibanaMigrator,
-        migratorDeps: mockMigratorDeps,
-      })(null, mockHandlerRequest, mockHandlerResponse);
-
-      expect(result).toEqual({
-        options: {
-          body: new Error('Tenant index name is required as the request parameter.'),
-        },
-        payload: new Error('Tenant index name is required as the request parameter.'),
-        status: 400,
+      expect(response.badRequest).toHaveBeenCalledWith({
+        body: new Error('Tenant index name is required as the request parameter.'),
       });
     });
 
-    it('throw error if no tenant indices found', async () => {
-      mockHandlerRequest.params.tenantIndex = '.kibana_3568561_trex';
-      mockSearchGuardBackend.getTenantInfoWithInternalUser.mockResolvedValue({});
+    test('throw error if no indices found', async () => {
+      const KibanaMigrator = setupKibanaMigratorMock();
+      const response = setupHttpResponseMock();
 
-      const result = await migrateTenants({
-        searchGuardBackend: mockSearchGuardBackend,
-        KibanaMigrator: mockKibanaMigrator,
-        migratorDeps: mockMigratorDeps,
-      })(null, mockHandlerRequest, mockHandlerResponse);
+      const searchGuardBackend = setupSearchGuardBackendMock({
+        getTenantInfoWithInternalUser: jest.fn().mockResolvedValue({}),
+      });
 
-      expect(result).toEqual({
-        options: {
-          body: new Error('No tenant indices have been found. Migration is not triggered.'),
-        },
-        payload: new Error('No tenant indices have been found. Migration is not triggered.'),
-        status: 503,
+      const request = { params: { tenantIndex: 'kibana_3568561_trex' } };
+
+      await migrateTenants({
+        searchGuardBackend,
+        KibanaMigrator,
+        migratorDeps,
+      })(null, request, response);
+
+      expect(response.customError).toHaveBeenCalledWith({
+        statusCode: 503,
+        body: new Error('No tenant indices have been found. Migration is not triggered.'),
       });
     });
 
-    it('throw error if the provided tenant index is not found', async () => {
-      const tenantIndex = '.kibana_3568561_trex';
-      mockHandlerRequest.params.tenantIndex = tenantIndex;
-      mockSearchGuardBackend.getTenantInfoWithInternalUser.mockResolvedValue({
-        '.kibana_-152937574_admintenant': 'admin_tenant',
+    test('throw error if no tenant index found', async () => {
+      const KibanaMigrator = setupKibanaMigratorMock();
+      const response = setupHttpResponseMock();
+
+      const searchGuardBackend = setupSearchGuardBackendMock({
+        getTenantInfoWithInternalUser: jest.fn().mockResolvedValue({
+          '.kibana_-152937574_admintenant': 'admin_tenant',
+        }),
       });
 
-      const result = await migrateTenants({
-        searchGuardBackend: mockSearchGuardBackend,
-        KibanaMigrator: mockKibanaMigrator,
-        migratorDeps: mockMigratorDeps,
-      })(null, mockHandlerRequest, mockHandlerResponse);
+      const tenantIndex = 'kibana_3568561_trex';
+      const request = { params: { tenantIndex } };
 
-      expect(result).toEqual({
-        options: {
-          body: new Error(
-            `The tenant's index "${tenantIndex}" has not been found. Check if the index name is correct.`
-          ),
-        },
-        payload: new Error(
+      await migrateTenants({
+        searchGuardBackend,
+        KibanaMigrator,
+        migratorDeps,
+      })(null, request, response);
+
+      expect(response.customError).toHaveBeenCalledWith({
+        statusCode: 503,
+        body: new Error(
           `The tenant's index "${tenantIndex}" has not been found. Check if the index name is correct.`
         ),
-        status: 503,
       });
     });
 
-    it('throw error if a runtime error', async () => {
-      const tenantIndex = '.kibana_3568561_trex';
-      mockHandlerRequest.params.tenantIndex = tenantIndex;
-      mockSearchGuardBackend.getTenantInfoWithInternalUser.mockRejectedValue(
-        new Error('nasty error')
-      );
+    test('throw error', async () => {
+      const KibanaMigrator = setupKibanaMigratorMock();
+      const response = setupHttpResponseMock();
 
-      const result = await migrateTenants({
-        searchGuardBackend: mockSearchGuardBackend,
-        KibanaMigrator: mockKibanaMigrator,
-        migratorDeps: mockMigratorDeps,
-      })(null, mockHandlerRequest, mockHandlerResponse);
-
-      expect(mockMigratorDeps.logger.error.mock.calls.length).toBe(1);
-      expect(result).toEqual({
-        options: {
-          body: new Error('nasty error'),
-        },
-        payload: new Error('nasty error'),
-        status: 500,
+      const error = new Error('nasty!');
+      const searchGuardBackend = setupSearchGuardBackendMock({
+        getTenantInfoWithInternalUser: jest.fn().mockRejectedValue(error),
       });
+
+      const tenantIndex = 'kibana_3568561_trex';
+      const request = { params: { tenantIndex } };
+
+      await migrateTenants({
+        searchGuardBackend,
+        KibanaMigrator,
+        migratorDeps,
+      })(null, request, response);
+
+      expect(response.internalError).toHaveBeenCalledWith({ body: error });
     });
   });
 
-  describe('there are some results', () => {
-    let migrationResult;
+  test('can migrate saved objects', async () => {
+    const response = setupHttpResponseMock();
 
-    beforeEach(() => {
-      // Kibana returns "skipped" status if migration is not needed.
-      // For example, if the hash of the new doc is equal to the old doc's hash.
-      migrationResult = [{ status: 'skipped' }];
-      mockHandlerRequest = setupRequestMock();
-      mockHandlerResponse = setupResponseMock();
-      mockSearchGuardBackend.getTenantInfoWithInternalUser.mockResolvedValue({
-        '.kibana_-152937574_admintenant': 'admin_tenant',
-        '.kibana_3568561_trex': 'trex',
-      });
-      mockMigratorDeps = {
-        client: setupMigrationEsClientMock(),
-        kibanaConfig: setupKibanaConfigMock(),
-        typeRegistry: setupTypeRegistryMock(),
-        logger: setupLoggerMock(),
-        savedObjectsConfig: setupSavedObjectsConfigMock(),
-        savedObjectValidations: setupSavedObjectValidationsMock(),
-        kibanaVersion,
-      };
-      mockKibanaMigrator = setupKibanaMigratorMock({
-        mockRunMigrations: jest.fn().mockResolvedValue(migrationResult),
-      });
-    });
-
-    it("can migrate saved objects for one tenant's index", async () => {
-      mockHandlerRequest.params.tenantIndex = '.kibana_3568561_trex';
-
-      const result = await migrateTenants({
-        searchGuardBackend: mockSearchGuardBackend,
-        KibanaMigrator: mockKibanaMigrator,
-        migratorDeps: mockMigratorDeps,
-      })(null, mockHandlerRequest, mockHandlerResponse);
-
-      expect(result).toEqual({
-        status: 200,
-        payload: [
+    const inputs = [
+      {
+        name: 'migrate a tenant index',
+        request: {
+          params: { tenantIndex: '.kibana_3568561_trex' },
+        },
+        expectedResponse: [
           {
             status: 'skipped',
           },
         ],
-        options: {
-          body: [
-            {
-              status: 'skipped',
-            },
-          ],
+        runMigrationsResponse: [{ status: 'skipped' }],
+        getTenantInfoWithInternalUserResponse: {
+          '.kibana_-152937574_admintenant': 'admin_tenant',
+          '.kibana_3568561_trex': 'trex',
         },
-      });
-    });
-
-    it('can migrate saved objects for all tenants indices', async () => {
-      mockHandlerRequest.params.tenantIndex = '_all';
-
-      const result = await migrateTenants({
-        searchGuardBackend: mockSearchGuardBackend,
-        KibanaMigrator: mockKibanaMigrator,
-        migratorDeps: mockMigratorDeps,
-      })(null, mockHandlerRequest, mockHandlerResponse);
-
-      expect(result).toEqual({
-        status: 200,
-        payload: [
+      },
+      {
+        name: 'migrate all tenants indices',
+        request: {
+          params: { tenantIndex: '_all' },
+        },
+        expectedResponse: [
           [
             {
               status: 'skipped',
@@ -277,21 +241,39 @@ describe('multitenancy/routes/migrate', () => {
             },
           ],
         ],
-        options: {
-          body: [
-            [
-              {
-                status: 'skipped',
-              },
-            ],
-            [
-              {
-                status: 'skipped',
-              },
-            ],
-          ],
+        runMigrationsResponse: [{ status: 'skipped' }],
+        getTenantInfoWithInternalUserResponse: {
+          '.kibana_-152937574_admintenant': 'admin_tenant',
+          '.kibana_3568561_trex': 'trex',
         },
+      },
+    ];
+
+    for (const input of inputs) {
+      const {
+        request,
+        expectedResponse,
+        getTenantInfoWithInternalUserResponse,
+        runMigrationsResponse,
+      } = input;
+
+      const KibanaMigrator = setupKibanaMigratorMock({
+        runMigrations: jest.fn().mockResolvedValue(runMigrationsResponse),
       });
-    });
+
+      const searchGuardBackend = setupSearchGuardBackendMock({
+        getTenantInfoWithInternalUser: jest
+          .fn()
+          .mockResolvedValue(getTenantInfoWithInternalUserResponse),
+      });
+
+      await migrateTenants({
+        searchGuardBackend,
+        KibanaMigrator,
+        migratorDeps,
+      })(null, request, response);
+
+      expect(response.ok).toHaveBeenCalledWith({ body: expectedResponse });
+    }
   });
 });

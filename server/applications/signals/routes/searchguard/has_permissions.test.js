@@ -1,96 +1,104 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { hasPermissions } from './has_permissions';
-import { PERMISSIONS_FOR_ACCESS } from '../../../../../utils/signals/constants';
+import { serverError } from '../../lib';
 import {
-  httpRouteMock,
   setupLoggerMock,
-  setupSearchGuardBackendInstMock,
-} from '../../../../utils/mocks';
-import { mockResponseOkImplementation, mockErrorResponse, mockSuccessResponse } from '../mocks';
+  setupHttpResponseMock,
+  setupContextMock,
+  setupSearchGuardBackendMock,
+} from '../../../../mocks';
+import { PERMISSIONS_FOR_ACCESS } from '../../../../../utils/signals/constants';
 
-const { setupRequestMock, setupResponseMock } = httpRouteMock;
-
-// TODO: mock http router to test entire route lifecycle.
-// Now we test only the route's handler.
 describe('routes/searchguard/has_permissions', () => {
-  let mockHandlerRequest;
-  let mockHandlerResponse;
-  let mockSearchGuardBackendService;
+  test('check Signals UI app permissions to render', async () => {
+    const logger = setupLoggerMock();
+    const response = setupHttpResponseMock();
+    const context = setupContextMock();
 
-  describe('there are some results, responds with 200', () => {
-    beforeEach(() => {
-      jest.resetAllMocks();
-      mockSearchGuardBackendService = setupSearchGuardBackendInstMock();
-    });
-
-    it('has permissions if some true', async () => {
-      const mockHandlerRequest = setupRequestMock();
-      const mockHandlerResponse = setupResponseMock();
-      mockHandlerResponse.ok.mockImplementation(mockResponseOkImplementation);
-
-      mockSearchGuardBackendService.hasPermissions.mockResolvedValue({
-        permissions: {
-          'cluster:admin:searchguard:tenant:signals:watch/get': true,
-          other_permission: false,
+    const inputs = [
+      {
+        name: 'no permission to render',
+        mockResponse: {
+          permissions: {
+            'cluster:admin:searchguard:tenant:signals:watch/get': false,
+            other_permission: false,
+          },
         },
+        expectedResponse: false,
+      },
+      {
+        name: 'there is a permission to render',
+        mockResponse: {
+          permissions: {
+            'cluster:admin:searchguard:tenant:signals:watch/get': true,
+            other_permission: false,
+          },
+        },
+        expectedResponse: true,
+      },
+    ];
+
+    const request = {
+      headers: { a: 'b' },
+    };
+
+    for (const { expectedResponse, mockResponse } of inputs) {
+      const searchguardBackendService = setupSearchGuardBackendMock({
+        hasPermissions: jest.fn().mockResolvedValue(mockResponse),
       });
 
-      const result = await hasPermissions({
-        searchguardBackendService: mockSearchGuardBackendService,
-      })(null, mockHandlerRequest, mockHandlerResponse);
+      await hasPermissions({ searchguardBackendService, logger })(context, request, response);
 
-      expect(mockSearchGuardBackendService.hasPermissions).toHaveBeenCalledWith(
-        mockHandlerRequest.headers,
+      expect(searchguardBackendService.hasPermissions).toHaveBeenCalledWith(
+        request.headers,
         PERMISSIONS_FOR_ACCESS
       );
-      expect(result).toEqual(mockSuccessResponse(true));
-    });
-
-    it("doesn't have permissions if all are false", async () => {
-      const mockHandlerRequest = setupRequestMock();
-      const mockHandlerResponse = setupResponseMock();
-      mockHandlerResponse.ok.mockImplementation(mockResponseOkImplementation);
-
-      mockSearchGuardBackendService.hasPermissions.mockResolvedValue({
-        permissions: {
-          'cluster:admin:searchguard:tenant:signals:watch/get': false,
-          other_permission: false,
-        },
+      expect(response.ok).toHaveBeenCalledWith({
+        body: { ok: true, resp: expectedResponse },
       });
-
-      const result = await hasPermissions({
-        searchguardBackendService: mockSearchGuardBackendService,
-      })(null, mockHandlerRequest, mockHandlerResponse);
-
-      expect(mockSearchGuardBackendService.hasPermissions).toHaveBeenCalledWith(
-        mockHandlerRequest.headers,
-        PERMISSIONS_FOR_ACCESS
-      );
-      expect(result).toEqual(mockSuccessResponse(false));
-    });
+    }
   });
 
-  describe('there is an error', () => {
-    let logger;
+  test('there is an error', async () => {
+    const logger = setupLoggerMock();
+    const response = setupHttpResponseMock();
+    const context = setupContextMock();
 
-    beforeEach(() => {
-      jest.resetAllMocks();
-      logger = setupLoggerMock();
-      mockHandlerRequest = setupRequestMock();
-      mockHandlerResponse = setupResponseMock();
-      mockHandlerResponse.ok.mockImplementation(mockResponseOkImplementation);
+    const error = new Error('nasty!');
+
+    const searchguardBackendService = setupSearchGuardBackendMock({
+      hasPermissions: jest.fn().mockRejectedValue(error),
     });
 
-    it('searchGuardBackendService reject', async () => {
-      mockSearchGuardBackendService.hasPermissions.mockRejectedValue(new Error('nasty error'));
+    const request = {
+      headers: {},
+      params: {},
+      body: {},
+    };
 
-      const result = await hasPermissions({
-        searchguardBackendService: mockSearchGuardBackendService,
-        logger,
-      })(null, mockHandlerRequest, mockHandlerResponse);
+    await hasPermissions({ searchguardBackendService, logger })(context, request, response);
 
-      expect(result).toEqual(mockErrorResponse('nasty error'));
-      expect(logger.error.mock.calls.length).toBe(1);
+    expect(logger.error).toHaveBeenCalledWith(`hasPermissions: ${error.stack}`);
+    expect(response.ok).toHaveBeenCalledWith({
+      body: {
+        ok: false,
+        resp: serverError(error),
+      },
     });
   });
 });

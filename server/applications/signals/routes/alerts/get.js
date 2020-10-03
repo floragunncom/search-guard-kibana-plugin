@@ -1,5 +1,20 @@
-/* eslint-disable @kbn/eslint/require-license-header */
-import Joi from 'joi';
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { schema } from '@kbn/config-schema';
 import { serverError } from '../../lib';
 import {
   INDEX,
@@ -9,10 +24,14 @@ import {
   NO_MULTITENANCY_TENANT,
 } from '../../../../../utils/signals/constants';
 
-export const getAlerts = ({ clusterClient, fetchAllFromScroll, logger }) => async request => {
+export const getAlerts = ({ clusterClient, fetchAllFromScroll, logger }) => async (
+  context,
+  request,
+  response
+) => {
   try {
     const {
-      payload: { query, sort, index, scroll },
+      body: { query, sort, index, scroll },
       headers: { sgtenant },
     } = request;
 
@@ -46,44 +65,58 @@ export const getAlerts = ({ clusterClient, fetchAllFromScroll, logger }) => asyn
       response: firstScrollResponse,
     });
 
-    return {
-      ok: true,
-      resp: hits.map(h => ({ ...h._source, _id: h._id, _index: h._index })),
-    };
+    return response.ok({
+      body: {
+        ok: true,
+        resp: hits.map((h) => ({ ...h._source, _id: h._id, _index: h._index })),
+      },
+    });
   } catch (err) {
-    logger.error(`getAlerts: ${err.toString()} ${err.stack}`);
-    return { ok: false, resp: serverError(err) };
+    logger.error(`getAlerts: ${err.stack}`);
+    return response.ok({ body: { ok: false, resp: serverError(err) } });
   }
 };
 
-export const getAlertsRoute = ({ hapiServer, clusterClient, fetchAllFromScroll, logger }) => {
-  hapiServer.route({
-    path: ROUTE_PATH.ALERTS,
-    method: 'POST',
-    handler: getAlerts({ clusterClient, fetchAllFromScroll, logger }),
-    config: {
+export const getAlertsRoute = ({ router, clusterClient, fetchAllFromScroll, logger }) => {
+  router.post(
+    {
+      path: ROUTE_PATH.ALERTS,
       validate: {
-        options: {
-          allowUnknown: true,
-        },
-        headers: {
-          sgtenant: Joi.string()
-            .default(NO_MULTITENANCY_TENANT)
-            .allow(''),
-        },
-        payload: {
-          index: Joi.string().default(INDEX.ALERTS),
-          scroll: Joi.string().default(ES_SCROLL_SETTINGS.KEEPALIVE),
-          query: Joi.object(),
-          sort: Joi.array()
-            .items(
-              Joi.object({
-                [DEFAULT_DATEFIELD]: Joi.string().valid('desc', 'asc'),
-              })
-            )
-            .default([{ [DEFAULT_DATEFIELD]: 'desc' }]),
-        },
+        headers: schema.object(
+          {
+            sgtenant: schema.string({ defaultValue: NO_MULTITENANCY_TENANT }),
+          },
+          { unknowns: 'allow' }
+        ),
+        body: schema.object({
+          index: schema.string({ defaultValue: INDEX.ALERTS }),
+          scroll: schema.string({ defaultValue: ES_SCROLL_SETTINGS.KEEPALIVE }),
+          query: schema.object({}, { unknowns: 'allow' }),
+          sort: schema.arrayOf(
+            schema.object(
+              {
+                [DEFAULT_DATEFIELD]: schema.string({
+                  validate(value) {
+                    const accepted = ['desc', 'asc'];
+                    if (!accepted.includes(value)) {
+                      return `The accepted values: ${accepted.join(', ')}`;
+                    }
+                  },
+                }),
+              },
+              {
+                unknowns: 'allow',
+              }
+            ),
+            {
+              defaultValue: {
+                [DEFAULT_DATEFIELD]: 'desc',
+              },
+            }
+          ),
+        }),
       },
     },
-  });
+    getAlerts({ clusterClient, fetchAllFromScroll, logger })
+  );
 };

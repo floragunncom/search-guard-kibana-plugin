@@ -12,7 +12,6 @@ import { registerSearchguardRoutes } from './searchguard';
 
 export function registerRoutes({
   router,
-  hapiServer,
   clusterClient,
   logger,
   searchguardBackendService,
@@ -26,24 +25,24 @@ export function registerRoutes({
 
   registerWatchRoutes({ router, clusterClient, logger: logger.get('watch-routes') });
 
-  registerEsRoutes({ hapiServer, clusterClient, logger: logger.get('es-routes') });
+  registerEsRoutes({ router, clusterClient, logger: logger.get('es-routes') });
 
   registerAlertsRoutes({
-    hapiServer,
+    router,
     clusterClient,
     fetchAllFromScroll,
     logger: logger.get('alerts-routes'),
   });
-  registerAlertRoutes({ hapiServer, clusterClient, logger: logger.get('alert-routes') });
+  registerAlertRoutes({ router, clusterClient, logger: logger.get('alert-routes') });
 
   registerAccountsRoutes({
-    hapiServer,
+    router,
     clusterClient,
     fetchAllFromScroll,
     logger: logger.get('accounts-routes'),
   });
 
-  registerAccountRoutes({ hapiServer, clusterClient, logger: logger.get('account-routes') });
+  registerAccountRoutes({ router, clusterClient, logger: logger.get('account-routes') });
 
   registerSearchguardRoutes({
     router,
