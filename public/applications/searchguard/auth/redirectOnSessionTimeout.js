@@ -1,3 +1,4 @@
+/* eslint-disable @kbn/eslint/require-license-header */
 /**
  *    Copyright 2020 floragunn GmbH
 
@@ -20,16 +21,15 @@ export function redirectOnSessionTimeout(authType, coreHttp, isAnonymousAuth = f
   }
 
   coreHttp.intercept({
-    responseError: async httpResponse => {
+    responseError: async (httpResponse) => {
       if (httpResponse.response.status !== 401) {
         return;
       }
 
       const errorBody = httpResponse.error.body || {};
-
-      // Handles 401s, but only if we've explicitly set the redirect property on the response
+      // Handles 401s, but only if we've explicitly set the Session Expired on the response
       // or if we're using basic auth
-      if (authType !== 'basicauth' && errorBody.redirectTo !== 'login') {
+      if (authType !== 'basicauth' && errorBody.message !== 'Session Expired') {
         return;
       }
 
@@ -45,6 +45,8 @@ export function redirectOnSessionTimeout(authType, coreHttp, isAnonymousAuth = f
       let nextUrl = path + window.location.hash + window.location.search;
       let redirectTarget = null;
 
+      // @todo Better to refactor this and let the auth types
+      // return the redirect target value
       if (authType === 'jwt') {
         // For JWT we don't have a login page, so we need to go to the custom error page
         redirectTarget = `${APP_ROOT}/customerror?type=sessionExpired`;
