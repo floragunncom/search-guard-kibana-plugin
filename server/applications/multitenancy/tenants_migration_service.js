@@ -15,17 +15,10 @@
  limitations under the License.
  */
 
-import { get } from 'lodash';
-import { migrationRetryCallCluster } from '../../../../../src/core/server/elasticsearch/client';
-import { createMigrationEsClient } from '../../../../../src/core/server/saved_objects/migrations/core';
+import { retryCallCluster } from '../../../../../src/core/server/elasticsearch/legacy/retry_call_cluster';
 import { KibanaMigrator } from '../../../../../src/core/server/saved_objects/migrations';
 
 import { defineMigrateRoutes } from './routes';
-
-export function callCluster({ esClient, path, params, logger }) {
-  const fn = get(esClient, path);
-  return migrationRetryCallCluster(() => fn(params), logger);
-}
 
 export class TenantsMigrationService {
   constructor(coreContext) {
@@ -58,7 +51,7 @@ export class TenantsMigrationService {
     }
   }
 
-  async start({ savedObjects, searchGuardBackend, esClient, kibanaRouter }) {
+  async start({ savedObjects, searchGuardBackend, elasticsearch, kibanaRouter }) {
     this.logger.debug('Start tenants saved objects migration');
 
     try {
@@ -74,8 +67,15 @@ export class TenantsMigrationService {
       const typeRegistry = savedObjects.getTypeRegistry();
       const kibanaConfig = this.configService.get('kibana');
 
+      const callCluster = retryCallCluster(
+        elasticsearch.legacy.client.callAsInternalUser,
+        this.logger
+      );
+
+      this.logger.info('Putting the tenants index template in Elasticsearch ...');
+
       const migratorDeps = {
-        client: createMigrationEsClient(esClient.asInternalUser, this.logger),
+        callCluster,
         kibanaConfig,
         typeRegistry,
         logger: this.logger,
@@ -93,10 +93,8 @@ export class TenantsMigrationService {
 
       const migrator = new KibanaMigrator(migratorDeps);
 
-      this.logger.info('Putting the tenants index template in Elasticsearch ...');
       await putTenantIndexTemplate({
-        esClient,
-        logger: this.logger,
+        callCluster,
         kibanaIndexName: kibanaConfig.index,
         mappings: migrator.getActiveMappings(),
       });
@@ -114,24 +112,27 @@ export class TenantsMigrationService {
         return;
       }
 
-      this.logger.info('Starting tenants saved objects migration ...');
-
-      const migratorPromises = this.tenantIndices.map((index) =>
-        new KibanaMigrator({
+      const migratorPromises = this.tenantIndices.map((index) => {
+        return new KibanaMigrator({
           ...migratorDeps,
           kibanaConfig: { ...kibanaConfig, index },
-        }).runMigrations()
-      );
+        });
+      });
+
+      this.logger.info('Starting tenants saved objects migration ...');
 
       // Don't do await Promise.allSettled.
       // We must avoid waiting for all promisses to fulfill here. We may have a lot of tenants.
       Promise.allSettled(migratorPromises).then((responses) => {
         responses.forEach((response, i) => {
-          const messageDetails = `${this.tenantIndices[i]} ${JSON.stringify(response.value)}`;
           if (response.status === 'fulfilled') {
-            this.logger.info(`Fulfilled migration for index ${messageDetails}`);
+            this.logger.info(`Fulfilled migration for index ${this.tenantIndices[i]}.`);
           } else {
-            this.logger.error(`Unable to fulfill migration for index ${messageDetails}`);
+            this.logger.error(
+              `Unable to fulfill migration for index ${this.tenantIndices[i]} ${JSON.stringify(
+                response.value
+              )}`
+            );
           }
         });
       });
@@ -141,32 +142,27 @@ export class TenantsMigrationService {
   }
 }
 
-async function putTenantIndexTemplate({ esClient, logger, kibanaIndexName, mappings }) {
-  return callCluster({
-    logger,
-    esClient,
-    path: 'asInternalUser.indices.putTemplate',
-    params: {
-      name: `tenant_template`,
-      body: {
-        index_patterns: [
-          kibanaIndexName + '_-*_*',
-          kibanaIndexName + '_0*_*',
-          kibanaIndexName + '_1*_*',
-          kibanaIndexName + '_2*_*',
-          kibanaIndexName + '_3*_*',
-          kibanaIndexName + '_4*_*',
-          kibanaIndexName + '_5*_*',
-          kibanaIndexName + '_6*_*',
-          kibanaIndexName + '_7*_*',
-          kibanaIndexName + '_8*_*',
-          kibanaIndexName + '_9*_*',
-        ],
-        settings: {
-          number_of_shards: 1,
-        },
-        mappings,
+async function putTenantIndexTemplate({ callCluster, kibanaIndexName, mappings }) {
+  return callCluster('indices.putTemplate', {
+    name: `tenant_template`,
+    body: {
+      index_patterns: [
+        kibanaIndexName + '_-*_*',
+        kibanaIndexName + '_0*_*',
+        kibanaIndexName + '_1*_*',
+        kibanaIndexName + '_2*_*',
+        kibanaIndexName + '_3*_*',
+        kibanaIndexName + '_4*_*',
+        kibanaIndexName + '_5*_*',
+        kibanaIndexName + '_6*_*',
+        kibanaIndexName + '_7*_*',
+        kibanaIndexName + '_8*_*',
+        kibanaIndexName + '_9*_*',
+      ],
+      settings: {
+        number_of_shards: 1,
       },
+      mappings,
     },
   });
 }
