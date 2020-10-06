@@ -39,9 +39,9 @@ describe('nestConfigProperties', () => {
 describe('parseKibanaConfig', () => {
   // The function must be fast enough to avoid braking Kibana's limit of 10 seconds
   // for a plugin lifecycle method (setup, start or stop)
-  test('can parse a big deeply nested config in less then 0.9 seconds', () => {
+  test('can parse a big deeply nested config in less then 2 seconds', () => {
     let kibanaConfig = '';
-    const timeLimit = 900;
+    const timeLimit = 2000;
     const numOfLines = 2000;
     const a = 97;
     const z = 122;
