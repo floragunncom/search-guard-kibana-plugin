@@ -51,27 +51,6 @@ In some cases, when Kibana doesn't provide the required core functionality, we m
 
     The patch is only for the developers! It doesn't work in a production environment. The patch makes it possible to run Kibana with nodes where an old Elassticsearch version is used.
   
-### Kibana 8 patch
-We must path Kibana 8 to make it work with Search Guard.
-
-#### Linux
-  - `yarn patch:kibana`
-
-    Patch Kibana v8 in the production environment.
-
-  - `yarn patch:kibana:dev`
-
-    Patch Kibana v8 in the development environment.
-
-#### Windows
-  - `powershell -ExecutionPolicy Bypass -File .\patches\patch_kibana.ps1`
-
-    Patch Kibana v8 in the production environment.
-
-  - `powershell -ExecutionPolicy Bypass -File .\patches\patch_kibana.ps1 -mode "dev"`
-
-    Patch Kibana v8 in the development environment.
-
 ## Development
 
 See the [kibana contributing guide](https://github.com/elastic/kibana/blob/master/CONTRIBUTING.md) and the Search Guard documentation above for instructions setting up your development environment. Once you have completed that, use the following yarn scripts.
