@@ -302,14 +302,8 @@ export class MultiTenancyPage extends Component {
           // Make sure that the app is really enabled before accessing.
           // If chromeWrapper.resetLastSubUrl is used, the check for enabled apps is redundant.
           // Keeping this to make the merges a bit easier.
-          const appsToReset = [
-            'kibana:visualize',
-            'kibana:dashboard',
-            'kibana:discover',
-            'timelion',
-          ];
-
-          chromeHelper.getNavLinks().forEach(navLink => {
+          const appsToReset = ['visualize', 'dashboards', 'discover', 'timelion'];
+          chromeHelper.getNavLinks().forEach((navLink) => {
             if (appsToReset.indexOf(navLink.id) > -1) {
               chromeHelper.resetLastUrl(navLink.id);
             }
@@ -335,7 +329,7 @@ export class MultiTenancyPage extends Component {
               window.location.href = chromeHelper.getNavLinkById('visualize').url;
             }
             if (redirectTo === 'dash') {
-              window.location.href = chromeHelper.getNavLinkById('dashboard').url;
+              window.location.href = chromeHelper.getNavLinkById('dashboards').url;
             }
           } else {
             const successText =

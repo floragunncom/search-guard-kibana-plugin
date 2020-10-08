@@ -21,15 +21,15 @@ export function redirectOnSessionTimeout(authType, coreHttp, isAnonymousAuth = f
   }
 
   coreHttp.intercept({
-    responseError: async (httpResponse) => {
-      if (httpResponse.response.status !== 401) {
+    responseError: async (httpResponseError) => {
+      const errorBody = httpResponseError.body || {};
+      if (errorBody.statusCode !== 401) {
         return;
       }
 
-      const errorBody = httpResponse.error.body || {};
       // Handles 401s, but only if we've explicitly set the Session Expired on the response
       // or if we're using basic auth
-      if (authType !== 'basicauth' && errorBody.message !== 'Session Expired') {
+      if (authType !== 'basicauth' && errorBody.message !== 'Session expired') {
         return;
       }
 
@@ -42,7 +42,8 @@ export function redirectOnSessionTimeout(authType, coreHttp, isAnonymousAuth = f
         return;
       }
 
-      let nextUrl = path + window.location.hash + window.location.search;
+      const href = window.location.href;
+      let nextUrl = href.replace(window.location.origin, '');
       let redirectTarget = null;
 
       // @todo Better to refactor this and let the auth types
