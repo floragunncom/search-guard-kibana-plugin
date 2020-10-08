@@ -1,6 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import React, { Component } from 'react';
-import chrome from 'ui/chrome';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import { EuiFilePicker, EuiFlexGroup, EuiFlexItem, EuiFormRow } from '@elastic/eui';
@@ -112,7 +111,8 @@ class UploadLicense extends Component {
         onSubmit={this.onSubmit}
         validateOnChange={false}
         enableReinitialize={true}
-        render={({ handleSubmit, isSubmitting, values }) => {
+      >
+        {({ handleSubmit, isSubmitting, values }) => {
           return (
             <ContentPanel
               title={uploadLicenseText}
@@ -149,7 +149,7 @@ class UploadLicense extends Component {
             </ContentPanel>
           );
         }}
-      />
+      </Formik>
     );
   }
 }
