@@ -107,13 +107,14 @@ class DefineWatch extends Component {
     const { httpClient, location, onTriggerConfirmDeletionModal } = this.props;
 
     return (
-      <div>
+      <EuiErrorBoundary>
         <Formik
           initialValues={initialValues}
           onSubmit={this.onSubmit}
           validateOnChange={false}
           enableReinitialize
-          render={({ handleSubmit, isSubmitting, values }) => {
+        >
+          {({ handleSubmit, isSubmitting, values }) => {
             const isResolveActions = get(values, '_ui.isResolveActions', false);
 
             return (
@@ -138,9 +139,8 @@ class DefineWatch extends Component {
                 <EuiSpacer />
                 <DefinitionPanel />
                 <EuiSpacer />
-                <FieldArray
-                  name="actions"
-                  render={arrayHelpers => (
+                <FieldArray name="actions">
+                  {(arrayHelpers) => (
                     <ActionPanel
                       isLoading={isLoading}
                       httpClient={httpClient}
@@ -148,13 +148,12 @@ class DefineWatch extends Component {
                       onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
                     />
                   )}
-                />
+                </FieldArray>
                 {isResolveActions && (
                   <>
                     <EuiSpacer />
-                    <FieldArray
-                      name="resolve_actions"
-                      render={arrayHelpers => (
+                    <FieldArray name="resolve_actions">
+                      {(arrayHelpers) => (
                         <ResolveActionPanel
                           isLoading={isLoading}
                           httpClient={httpClient}
@@ -162,7 +161,7 @@ class DefineWatch extends Component {
                           onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
                         />
                       )}
-                    />
+                    </FieldArray>
                   </>
                 )}
                 <EuiSpacer />
@@ -181,8 +180,8 @@ class DefineWatch extends Component {
               </Fragment>
             );
           }}
-        />
-      </div>
+        </Formik>
+      </EuiErrorBoundary>
     );
   }
 }
