@@ -103,7 +103,7 @@ describe('validation', () => {
 
       await expect(
         validateESDLSQuery(index, HttpClient)(query)
-      ).rejects.toEqual(problemWithValidationTryAgainText);
+      ).resolves.toEqual(problemWithValidationTryAgainText);
     });
   });
 
