@@ -44,10 +44,8 @@ const UserAttributes = ({ attributes, onTriggerConfirmDeletionModal }) => (
   <Fragment>
     <TitleSecondary text={userAttributesText} />
     <EuiHorizontalRule />
-    <FieldArray
-      name="_attributes"
-      validateOnChange={false}
-      render={arrayHelpers => (
+    <FieldArray name="_attributes" validateOnChange={false}>
+      {(arrayHelpers) => (
         <DynamicValuesForm
           isKey
           onAdd={() => arrayHelpers.push({ key: '', value: '' })}
@@ -65,7 +63,7 @@ const UserAttributes = ({ attributes, onTriggerConfirmDeletionModal }) => (
           onRenderKeyField={renderKeyField}
         />
       )}
-    />
+    </FieldArray>
   </Fragment>
 );
 

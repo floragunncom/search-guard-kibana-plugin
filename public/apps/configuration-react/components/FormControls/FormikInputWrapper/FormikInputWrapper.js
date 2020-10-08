@@ -3,11 +3,9 @@ import PropTypes from 'prop-types';
 import { Field } from 'formik';
 
 const FormikInputWrapper = ({ name, formikFieldProps, render }) => (
-  <Field
-    name={name}
-    {...formikFieldProps}
-    render={({ field, form }) => render({ field, form })}
-  />
+  <Field name={name} {...formikFieldProps}>
+    {({ field, form }) => render({ field, form })}
+  </Field>
 );
 
 FormikInputWrapper.propTypes = {
