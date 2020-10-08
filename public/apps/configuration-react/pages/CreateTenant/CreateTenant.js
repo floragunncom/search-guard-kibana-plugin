@@ -92,7 +92,8 @@ class CreateTenant extends Component {
         onSubmit={this.onSubmit}
         validateOnChange={false}
         enableReinitialize={true}
-        render={({ values, handleSubmit, isSubmitting }) => {
+      >
+        {({ values, handleSubmit, isSubmitting }) => {
           const isUpdatingName = id !== values._name;
 
           return (
@@ -142,7 +143,7 @@ class CreateTenant extends Component {
             </ContentPanel>
           );
         }}
-      />
+      </Formik>
     );
   }
 }
