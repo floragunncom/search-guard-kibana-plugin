@@ -152,7 +152,8 @@ class CreateRoleMapping extends Component {
         onSubmit={this.onSubmit}
         validateOnChange={false}
         enableReinitialize={true}
-        render={({ values, handleSubmit, isSubmitting }) => {
+      >
+        {({ values, handleSubmit, isSubmitting }) => {
           return (
             <ContentPanel
               title={titleText}
@@ -234,7 +235,7 @@ class CreateRoleMapping extends Component {
             </ContentPanel>
           );
         }}
-      />
+      </Formik>
     );
   }
 }

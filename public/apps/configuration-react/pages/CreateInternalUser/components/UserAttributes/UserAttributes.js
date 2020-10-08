@@ -1,6 +1,5 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { EuiSpacer } from '@elastic/eui';
 import { FieldArray } from 'formik';
 import { FormikFieldText, DynamicValuesForm, SubHeader } from '../../../../components';
 import { hasError, isInvalid, validateTextField } from '../../../../utils/validation';
@@ -44,10 +43,8 @@ const UserAttributes = ({ attributes, onTriggerConfirmDeletionModal }) => (
   <Fragment>
     <SubHeader title={<h4>{userAttributesText}</h4>} />
     <EuiSpacer size="s" />
-    <FieldArray
-      name="_attributes"
-      validateOnChange={false}
-      render={arrayHelpers => (
+    <FieldArray name="_attributes" validateOnChange={false}>
+      {(arrayHelpers) => (
         <DynamicValuesForm
           isKey
           onAdd={() => arrayHelpers.push({ key: '', value: '' })}
@@ -65,7 +62,7 @@ const UserAttributes = ({ attributes, onTriggerConfirmDeletionModal }) => (
           onRenderKeyField={renderKeyField}
         />
       )}
-    />
+    </FieldArray>
   </Fragment>
 );
 
