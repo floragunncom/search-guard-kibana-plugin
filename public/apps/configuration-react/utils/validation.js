@@ -19,7 +19,7 @@ export const validatePassword = passwordConfirmation => password => {
 };
 
 export const validateTextField = value => {
-  if (!value) throw requiredText;
+  if (!value) return requiredText;
 };
 
 export const isInvalid = (name, form) => {
@@ -29,27 +29,23 @@ export const isInvalid = (name, form) => {
 export const hasError = (name, form) => get(form.errors, name);
 
 export const validateName = (Service, isUpdatingName = false) => async (name) => {
-  if (!name) throw requiredText;
+  if (!name) return requiredText;
   const hasDots = (/[\.]/gm).test(name);
-  if (hasDots) throw nameMustNotContainDotsText;
+  if (hasDots) return nameMustNotContainDotsText;
   try {
     const { data } = await Service.list();
     const newNameAlreadyExists = isUpdatingName && Object.keys(data).includes(name);
     if (newNameAlreadyExists) return nameAlreadyExistsText;
   } catch (error) {
-    throw problemWithValidationTryAgainText;
+    return problemWithValidationTryAgainText;
   }
 };
 
 export const validateInternalUserName = (internalUsersService, isUpdatingName = false) => async (name) => {
   const hasDotsAndAsterisks = (/[\.\*]/gm).test(name);
-  if (hasDotsAndAsterisks) throw nameMustNotContainDotsAndAsterisksText;
-  try {
-    const message = await validateName(internalUsersService, isUpdatingName)(name);
-    if (message) throw message;
-  } catch (error) {
-    throw error;
-  }
+  if (hasDotsAndAsterisks) return nameMustNotContainDotsAndAsterisksText;
+  const message = await validateName(internalUsersService, isUpdatingName)(name);
+  return message;
 };
 
 export const validateESDLSQuery = (index, httpClient) => async (query) => {
@@ -70,7 +66,7 @@ export const validateESDLSQuery = (index, httpClient) => async (query) => {
       return dlsQuerySyntaxIsInvalidText;
     }
   } catch (error) {
-    throw problemWithValidationTryAgainText;
+    return problemWithValidationTryAgainText;
   }
 };
 
