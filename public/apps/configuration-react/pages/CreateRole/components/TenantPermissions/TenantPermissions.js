@@ -42,9 +42,8 @@ const TenantPermissions = ({
           <EuiSpacer />
         </Fragment>
       )}
-      <FieldArray
-        name="_tenantPermissions"
-        render={arrayHelpers => (
+      <FieldArray name="_tenantPermissions">
+        {(arrayHelpers) => (
           <Fragment>
             <AddButton onClick={() => addTenantPermission(arrayHelpers, isMultiTenancyEnabled)} />
             <EuiSpacer />
@@ -69,7 +68,7 @@ const TenantPermissions = ({
             )}
           </Fragment>
         )}
-      />
+      </FieldArray>
       <EuiSpacer />
     </Fragment>
   );

@@ -202,7 +202,8 @@ class CreateRole extends Component {
         onSubmit={this.onSubmit}
         validateOnChange={false}
         enableReinitialize={true}
-        render={({ values, handleSubmit, isSubmitting }) => {
+      >
+        {({ values, handleSubmit, isSubmitting }) => {
           const isUpdatingName = id !== values._name;
 
           return (
@@ -262,7 +263,7 @@ class CreateRole extends Component {
             </ContentPanel>
           );
         }}
-      />
+      </Formik>
     );
   }
 }
