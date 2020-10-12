@@ -15,7 +15,8 @@
  limitations under the License.
  */
 
-import { retryCallCluster } from '../../../../../src/core/server/elasticsearch/legacy/retry_call_cluster';
+import { migrationRetryCallCluster } from '../../../../../src/core/server/elasticsearch/client';
+import { createMigrationEsClient } from '../../../../../src/core/server/saved_objects/migrations/core';
 import { KibanaMigrator } from '../../../../../src/core/server/saved_objects/migrations';
 
 import { defineMigrateRoutes } from './routes';
@@ -51,7 +52,7 @@ export class TenantsMigrationService {
     }
   }
 
-  async start({ savedObjects, searchGuardBackend, elasticsearch, kibanaRouter }) {
+  async start({ savedObjects, searchGuardBackend, esClient, kibanaRouter }) {
     this.logger.debug('Start tenants saved objects migration');
 
     try {
@@ -67,15 +68,8 @@ export class TenantsMigrationService {
       const typeRegistry = savedObjects.getTypeRegistry();
       const kibanaConfig = this.configService.get('kibana');
 
-      const callCluster = retryCallCluster(
-        elasticsearch.legacy.client.callAsInternalUser,
-        this.logger
-      );
-
-      this.logger.info('Putting the tenants index template in Elasticsearch ...');
-
       const migratorDeps = {
-        callCluster,
+        client: createMigrationEsClient(esClient.asInternalUser, this.logger),
         kibanaConfig,
         typeRegistry,
         logger: this.logger,
@@ -93,8 +87,10 @@ export class TenantsMigrationService {
 
       const migrator = new KibanaMigrator(migratorDeps);
 
+      this.logger.info('Putting the tenants index template in Elasticsearch ...');
       await putTenantIndexTemplate({
-        callCluster,
+        esClient,
+        logger: this.logger,
         kibanaIndexName: kibanaConfig.index,
         mappings: migrator.getActiveMappings(),
       });
@@ -142,9 +138,9 @@ export class TenantsMigrationService {
   }
 }
 
-async function putTenantIndexTemplate({ callCluster, kibanaIndexName, mappings }) {
-  return callCluster('indices.putTemplate', {
-    name: `tenant_template`,
+function putTenantIndexTemplate({ esClient, logger, kibanaIndexName, mappings }) {
+  const params = {
+    name: 'tenant_template',
     body: {
       index_patterns: [
         kibanaIndexName + '_-*_*',
@@ -164,5 +160,7 @@ async function putTenantIndexTemplate({ callCluster, kibanaIndexName, mappings }
       },
       mappings,
     },
-  });
+  };
+
+  return migrationRetryCallCluster(() => esClient.asInternalUser.indices.putTemplate(params), logger);
 }

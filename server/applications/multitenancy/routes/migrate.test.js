@@ -10,7 +10,7 @@ import { migrateTenants } from './migrate';
 
 const { setupRequestMock, setupResponseMock } = httpRouteMock;
 
-function setupCallClusterMock() {
+function setupMigrationEsClientMock() {
   return jest.fn();
 }
 
@@ -106,7 +106,7 @@ describe('multitenancy/routes/migrate', () => {
 
       mockKibanaMigrator = setupKibanaMigratorMock();
       mockMigratorDeps = {
-        callCluster: setupCallClusterMock(),
+        client: setupMigrationEsClientMock(),
         kibanaConfig: setupKibanaConfigMock(),
         typeRegistry: setupTypeRegistryMock(),
         logger: setupLoggerMock(),
@@ -215,7 +215,7 @@ describe('multitenancy/routes/migrate', () => {
         '.kibana_3568561_trex': 'trex',
       });
       mockMigratorDeps = {
-        callCluster: setupCallClusterMock(),
+        client: setupMigrationEsClientMock(),
         kibanaConfig: setupKibanaConfigMock(),
         typeRegistry: setupTypeRegistryMock(),
         logger: setupLoggerMock(),

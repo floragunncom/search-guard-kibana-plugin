@@ -39,7 +39,7 @@ export class ServerPlugin {
 
     this.hapiServer = core.hapiServer;
     this.kibanaRouter = core.http.createRouter();
-    this.elasticsearch = core.elasticsearch;
+    const elasticsearch = core.elasticsearch;
 
     const {
       configService,
@@ -76,14 +76,14 @@ export class ServerPlugin {
       const { sessionStorageFactory } = await this.searchGuardApp.setup({
         core,
         hapiServer: this.hapiServer,
-        elasticsearch: this.elasticsearch,
+        elasticsearch,
         pluginDependencies,
       });
 
       if (isMtEnabled) {
         this.multiTenancyApp.setup({
           hapiServer: this.hapiServer,
-          elasticsearch: this.elasticsearch,
+          elasticsearch,
           kibanaCore: core,
           sessionStorageFactory,
         });
@@ -96,11 +96,7 @@ export class ServerPlugin {
     if (isMtEnabled) {
       // ATTENTION! We want to make sure the multitenancy app migrates saved objects
       // in the tenants indices before doing any operation on indices
-      this.multiTenancyApp.start({
-        core,
-        elasticsearch: this.elasticsearch,
-        kibanaRouter: this.kibanaRouter,
-      });
+      this.multiTenancyApp.start({ core, kibanaRouter: this.kibanaRouter });
     }
   }
 }
