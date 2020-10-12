@@ -42,7 +42,7 @@ describe('validate_name', () => {
     );
     await expect(
       validateName(Service)('123')
-    ).rejects.toBe(problemWithValidationTryAgainText);
+    ).resolves.toBe(problemWithValidationTryAgainText);
   });
 
   it('fail to validate name because there are prohibited special chars', async () => {

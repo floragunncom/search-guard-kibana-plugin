@@ -27,8 +27,8 @@
     "bell": "9.4.0",
     "brace": "^0.11.1",
     "dompurify": "^2.1.1",
-    "formik": "1.5.8",
     "hapi-auth-cookie": "^9.1.0",
+    "formik": "^2.1.7",
     "react-vis": "^1.11.7",
     "requirefrom": "^0.2.0",
     "wreck": "14.x.x"
