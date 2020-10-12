@@ -62,7 +62,6 @@ export class SearchGuard {
       };
     } catch (error) {
       this.logger.error(error);
-      throw error;
     }
   }
 
@@ -233,7 +232,6 @@ export class SearchGuard {
       return { authInstance, sessionStorageFactory };
     } catch (error) {
       this.logger.error(error);
-      throw error;
     }
   }
 }

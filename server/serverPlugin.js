@@ -73,14 +73,19 @@ export class ServerPlugin {
     }
 
     (async () => {
-      const { sessionStorageFactory } = await this.searchGuardApp.setup({
-        core,
-        hapiServer: this.hapiServer,
-        elasticsearch: this.elasticsearch,
-        pluginDependencies,
-      });
+      const { sessionStorageFactory } =
+        (await this.searchGuardApp.setup({
+          core,
+          hapiServer: this.hapiServer,
+          elasticsearch: this.elasticsearch,
+          pluginDependencies,
+        })) || {};
 
-      if (isMtEnabled) {
+      if (!sessionStorageFactory) {
+        this.logger.error('Unable to setup authentication.');
+      }
+
+      if (isMtEnabled && sessionStorageFactory) {
         this.multiTenancyApp.setup({
           hapiServer: this.hapiServer,
           elasticsearch: this.elasticsearch,
