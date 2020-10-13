@@ -1,105 +1,94 @@
-/* eslint-disable @kbn/eslint/require-license-header */
-import Hapi from 'hapi';
-import { deleteAlertRoute } from './delete';
-import { ROUTE_PATH } from '../../../../../utils/signals/constants';
-import { elasticsearchMock, setupLoggerMock } from '../../../../utils/mocks';
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-const { setupClusterClientMock, setupClusterClientScopedMock } = elasticsearchMock;
+import { deleteAlert } from './delete';
+import { serverError } from '../../lib';
+import {
+  setupLoggerMock,
+  setupHttpResponseMock,
+  setupClusterClientMock,
+  setupContextMock,
+} from '../../../../mocks';
+import { INDEX } from '../../../../../utils/signals/constants';
 
 describe('routes/alert/delete', () => {
-  describe('there are some results', () => {
-    let mockResponse;
-    let server;
+  test('delete alert', async () => {
+    const logger = setupLoggerMock();
+    const response = setupHttpResponseMock();
+    const context = setupContextMock();
 
-    beforeEach(() => {
-      mockResponse = {
-        _index: 'log',
-        result: 'deleted',
-      };
+    const expectedResponse = { result: 'deleted' };
 
-      const mockClusterClientScoped = setupClusterClientScopedMock();
-      mockClusterClientScoped.callAsCurrentUser.mockReturnValue(mockResponse);
-
-      const mockClusterClient = setupClusterClientMock();
-      mockClusterClient.asScoped.mockReturnValue(mockClusterClientScoped);
-
-      server = new Hapi.Server();
-      deleteAlertRoute({ hapiServer: server, clusterClient: mockClusterClient });
+    const callAsCurrentUser = jest.fn().mockResolvedValue(expectedResponse);
+    const clusterClient = setupClusterClientMock({
+      asScoped: jest.fn(() => ({ callAsCurrentUser })),
     });
 
-    it('responds with 200', async () => {
-      const { result, statusCode } = await server.inject({
-        method: 'delete',
-        url: `${ROUTE_PATH.ALERT}/log/123`,
-      });
+    const request = {
+      params: {
+        id: '123',
+        index: 'alerts',
+      },
+    };
 
-      expect(statusCode).toBe(200);
-      expect(result.ok).toBe(true);
+    const expectedEndpoint = 'delete';
+    const expectedClusterCallOptions = {
+      refresh: true,
+      type: INDEX.ALERT_DOC_TYPE,
+      index: 'alerts',
+      id: '123',
+    };
+
+    await deleteAlert({ clusterClient, logger })(context, request, response);
+
+    expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
+    expect(callAsCurrentUser).toHaveBeenCalledWith(expectedEndpoint, expectedClusterCallOptions);
+    expect(response.ok).toHaveBeenCalledWith({
+      body: {
+        ok: true,
+        resp: expectedResponse,
+      },
     });
   });
 
-  describe('there is an error', () => {
-    let logger;
+  test('there is an error', async () => {
+    const logger = setupLoggerMock();
+    const response = setupHttpResponseMock();
+    const context = setupContextMock();
 
-    beforeEach(() => {
-      logger = setupLoggerMock();
+    const error = new Error('nasty!');
+
+    const callAsCurrentUser = jest.fn().mockRejectedValue(error);
+    const clusterClient = setupClusterClientMock({
+      asScoped: jest.fn(() => ({ callAsCurrentUser })),
     });
 
-    it('bad implementation', async () => {
-      const mockClusterClientScoped = setupClusterClientScopedMock();
-      mockClusterClientScoped.callAsCurrentUser.mockRejectedValue(new Error('nasty error'));
+    const request = {
+      headers: {},
+      params: { id: '123' },
+    };
 
-      const mockClusterClient = setupClusterClientMock();
-      mockClusterClient.asScoped.mockReturnValue(mockClusterClientScoped);
+    await deleteAlert({ clusterClient, logger })(context, request, response);
 
-      const server = new Hapi.Server();
-      deleteAlertRoute({ hapiServer: server, clusterClient: mockClusterClient, logger });
-
-      const { result, statusCode } = await server.inject({
-        method: 'delete',
-        url: `${ROUTE_PATH.ALERT}/log/123`,
-      });
-
-      expect(statusCode).toBe(200);
-      expect(result.ok).toBe(false);
-      expect(result.resp.statusCode).toBe(500);
-      expect(result.resp.message).toBe('nasty error');
-      expect(logger.error.mock.calls.length).toBe(1);
-    });
-
-    it('elasticsearch error', async () => {
-      const mockResponse = {
-        body: {
-          status: {},
-          watch_id: '123',
-          error: {
-            message: 'elasticsearch error',
-            detail: {},
-          },
-        },
-        statusCode: 400,
-      };
-
-      const mockClusterClientScoped = setupClusterClientScopedMock();
-      mockClusterClientScoped.callAsCurrentUser.mockRejectedValue(mockResponse);
-
-      const mockClusterClient = setupClusterClientMock();
-      mockClusterClient.asScoped.mockReturnValue(mockClusterClientScoped);
-
-      const server = new Hapi.Server();
-      deleteAlertRoute({ hapiServer: server, clusterClient: mockClusterClient, logger });
-
-      const { result, statusCode } = await server.inject({
-        method: 'delete',
-        url: `${ROUTE_PATH.ALERT}/log/123`,
-      });
-
-      expect(statusCode).toBe(200);
-      expect(result.ok).toBe(false);
-      expect(result.resp.statusCode).toBe(400);
-      expect(result.resp.message).toBe('elasticsearch error');
-      expect(result.resp.body).toEqual(mockResponse.body);
-      expect(logger.error.mock.calls.length).toBe(1);
+    expect(logger.error).toHaveBeenCalledWith(`deleteAlert: ${error.stack}`);
+    expect(response.ok).toHaveBeenCalledWith({
+      body: {
+        ok: false,
+        resp: serverError(error),
+      },
     });
   });
 });

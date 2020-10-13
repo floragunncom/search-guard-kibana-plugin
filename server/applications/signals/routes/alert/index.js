@@ -1,6 +1,6 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { deleteAlertRoute } from './delete';
 
-export function registerAlertRoutes({ hapiServer, clusterClient, logger }) {
-  deleteAlertRoute({ hapiServer, clusterClient, logger });
+export function registerAlertRoutes({ router, clusterClient, logger }) {
+  deleteAlertRoute({ router, clusterClient, logger });
 }

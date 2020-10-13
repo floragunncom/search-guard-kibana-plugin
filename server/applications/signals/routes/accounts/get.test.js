@@ -1,133 +1,123 @@
-/* eslint-disable @kbn/eslint/require-license-header */
-import Hapi from 'hapi';
-import { getAccountsRoute } from './get';
-import { ROUTE_PATH } from '../../../../../utils/signals/constants';
-import { elasticsearchMock, setupLoggerMock } from '../../../../utils/mocks';
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-const { setupClusterClientMock, setupClusterClientScopedMock } = elasticsearchMock;
+import { getAccounts } from './get';
+import { serverError } from '../../lib';
+import {
+  setupLoggerMock,
+  setupHttpResponseMock,
+  setupClusterClientMock,
+  setupContextMock,
+} from '../../../../mocks';
 
 describe('routes/accounts/get', () => {
-  describe('there are some results', () => {
-    let mockResponse;
-    let server;
+  test('get accounts', async () => {
+    const logger = setupLoggerMock();
+    const response = setupHttpResponseMock();
+    const context = setupContextMock();
 
-    beforeEach(() => {
-      mockResponse = [
-        {
-          _id: 'email/mymailserver',
-          _index: '.signals_accounts',
-          _source: {
-            mime_layout: 'default',
-            port: 1025,
-            default_subject: 'SG Signals Message',
-            host: 'localhost',
-            type: 'EMAIL',
-            session_timeout: 120000,
-          },
+    const mockResponse = [
+      {
+        _id: 'email/mymailserver',
+        _index: '.signals_accounts',
+        _source: {
+          mime_layout: 'default',
+          port: 1025,
+          default_subject: 'SG Signals Message',
+          host: 'localhost',
+          type: 'EMAIL',
+          session_timeout: 120000,
         },
-      ];
+      },
+    ];
 
-      const mockClusterClientScoped = setupClusterClientScopedMock();
-      mockClusterClientScoped.callAsCurrentUser.mockReturnValue({
-        hits: { hits: mockResponse },
-      });
-
-      const mockClusterClient = setupClusterClientMock();
-      mockClusterClient.asScoped.mockReturnValue(mockClusterClientScoped);
-
-      const mockFetchAllFromScroll = jest.fn();
-      mockFetchAllFromScroll.mockResolvedValue(mockResponse);
-
-      server = new Hapi.Server();
-      getAccountsRoute({
-        hapiServer: server,
-        clusterClient: mockClusterClient,
-        fetchAllFromScroll: mockFetchAllFromScroll,
-      });
+    const callAsCurrentUser = jest.fn().mockResolvedValue(mockResponse);
+    const clusterClient = setupClusterClientMock({
+      asScoped: jest.fn(() => ({ callAsCurrentUser })),
     });
+    const fetchAllFromScroll = jest.fn().mockResolvedValue(mockResponse);
 
-    it('responds with 200', async () => {
-      const { result, statusCode } = await server.inject({
-        method: 'post',
-        url: ROUTE_PATH.ACCOUNTS,
-        payload: { query: {} },
-      });
+    const request = {
+      body: { query: { match_all: {} }, scroll: '30s' },
+    };
 
-      expect(statusCode).toBe(200);
-      expect(result.ok).toBe(true);
-      expect(result.resp).toEqual([
-        {
-          _id: 'mymailserver',
-          ...mockResponse[0]._source,
-        },
-      ]);
+    const expectedEndpoint = 'sgSignals.getAccounts';
+    const expectedCallClusterOptions = {
+      body: { query: request.body.query },
+      scroll: request.body.scroll,
+    };
+
+    await getAccounts({ clusterClient, fetchAllFromScroll, logger })(context, request, response);
+
+    const expectedFetchAllFromScrollOptions = {
+      clusterClient,
+      scroll: request.body.scroll,
+      request,
+      response: mockResponse,
+    };
+
+    const expectedResponse = [
+      {
+        _id: 'mymailserver',
+        default_subject: 'SG Signals Message',
+        host: 'localhost',
+        mime_layout: 'default',
+        port: 1025,
+        session_timeout: 120000,
+        type: 'EMAIL',
+      },
+    ];
+
+    expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
+    expect(callAsCurrentUser).toHaveBeenCalledWith(expectedEndpoint, expectedCallClusterOptions);
+    expect(fetchAllFromScroll).toHaveBeenCalledWith(expectedFetchAllFromScrollOptions);
+    expect(response.ok).toHaveBeenCalledWith({
+      body: {
+        ok: true,
+        resp: expectedResponse,
+      },
     });
   });
 
-  describe('there is an error', () => {
-    let logger;
+  test('there is an error', async () => {
+    const logger = setupLoggerMock();
+    const response = setupHttpResponseMock();
+    const context = setupContextMock();
 
-    beforeEach(() => {
-      logger = setupLoggerMock();
+    const error = new Error('nasty!');
+
+    const callAsCurrentUser = jest.fn().mockRejectedValue(error);
+    const clusterClient = setupClusterClientMock({
+      asScoped: jest.fn(() => ({ callAsCurrentUser })),
     });
+    const fetchAllFromScroll = jest.fn();
 
-    it('bad implementation', async () => {
-      const mockClusterClientScoped = setupClusterClientScopedMock();
-      mockClusterClientScoped.callAsCurrentUser.mockRejectedValue(new Error('nasty error'));
+    const request = {
+      headers: {},
+      body: {},
+    };
 
-      const mockClusterClient = setupClusterClientMock();
-      mockClusterClient.asScoped.mockReturnValue(mockClusterClientScoped);
+    await getAccounts({ clusterClient, fetchAllFromScroll, logger })(context, request, response);
 
-      const server = new Hapi.Server();
-      getAccountsRoute({ hapiServer: server, clusterClient: mockClusterClient, logger });
-
-      const { result, statusCode } = await server.inject({
-        method: 'post',
-        url: ROUTE_PATH.ACCOUNTS,
-        payload: { query: {} },
-      });
-
-      expect(statusCode).toBe(200);
-      expect(result.ok).toBe(false);
-      expect(result.resp.statusCode).toBe(500);
-      expect(result.resp.message).toBe('nasty error');
-      expect(logger.error.mock.calls.length).toBe(1);
-    });
-
-    it('elasticsearch error', async () => {
-      const mockResponse = {
-        body: {
-          status: {},
-          watch_id: '123',
-          error: {
-            message: 'elasticsearch error',
-            detail: {},
-          },
-        },
-        statusCode: 400,
-      };
-
-      const mockClusterClientScoped = setupClusterClientScopedMock();
-      mockClusterClientScoped.callAsCurrentUser.mockRejectedValue(mockResponse);
-
-      const mockClusterClient = setupClusterClientMock();
-      mockClusterClient.asScoped.mockReturnValue(mockClusterClientScoped);
-
-      const server = new Hapi.Server();
-      getAccountsRoute({ hapiServer: server, clusterClient: mockClusterClient, logger });
-
-      const { result, statusCode } = await server.inject({
-        method: 'post',
-        url: ROUTE_PATH.ACCOUNTS,
-        payload: { query: {} },
-      });
-
-      expect(statusCode).toBe(200);
-      expect(result.ok).toBe(false);
-      expect(result.resp.statusCode).toBe(400);
-      expect(result.resp.message).toBe('elasticsearch error');
-      expect(result.resp.body).toEqual(mockResponse.body);
-      expect(logger.error.mock.calls.length).toBe(1);
+    expect(logger.error).toHaveBeenCalledWith(`getAccounts: ${error.stack}`);
+    expect(response.ok).toHaveBeenCalledWith({
+      body: {
+        ok: false,
+        resp: serverError(error),
+      },
     });
   });
 });

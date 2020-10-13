@@ -3,7 +3,9 @@ import { get } from 'lodash';
 import { registerRoutes } from './routes';
 import { readKibanaConfig } from './read_kibana_config';
 import { ConfigService } from '../../../utils/config_service';
-import authInfoRoutes from '../../../lib/auth/routes_authinfo';
+import { defineAuthInfoRoutes } from '../../../lib/auth/routes_authinfo';
+import { defineSystemRoutes } from '../../../lib/system/routes';
+import { defineConfigurationRoutes } from '../../../lib/configuration/routes/routes';
 import SearchGuardBackend from '../../../lib/backend/searchguard';
 import SearchGuardConfigurationBackend from '../../../lib/configuration/backend/searchguard_configuration_backend';
 import {
@@ -13,7 +15,6 @@ import {
   checkCookieConfig,
 } from './sanity_checks';
 import { getSecurityCookieOptions, extendSecurityCookieOptions } from './session/security_cookie';
-import { APP_ROOT, API_ROOT } from '../../utils/constants';
 import { handleDefaultSpace, handleSelectedTenant } from '../multitenancy/request_headers';
 
 export class SearchGuard {
@@ -22,7 +23,7 @@ export class SearchGuard {
     this.logger = this.coreContext.logger.get('searchguard');
   }
 
-  setupSync({ core, pluginDependencies, hapiServer, kibanaRouter }) {
+  setupSync({ core, pluginDependencies, kibanaRouter }) {
     this.logger.debug('Setup sync app');
 
     try {
@@ -35,13 +36,12 @@ export class SearchGuard {
         logger: this.logger,
       });
 
-      this.searchGuardBackend = new SearchGuardBackend(core, hapiServer, this.configService);
+      this.searchGuardBackend = new SearchGuardBackend({ core, configService: this.configService });
 
-      this.searchGuardConfigurationBackend = new SearchGuardConfigurationBackend(
+      this.searchGuardConfigurationBackend = new SearchGuardConfigurationBackend({
         core,
-        hapiServer,
-        this.configService
-      );
+        configService: this.configService,
+      });
 
       // Sanity checks
       checkXPackSecurityDisabled({ pluginDependencies, logger: this.logger });
@@ -53,7 +53,11 @@ export class SearchGuard {
       checkCookieConfig({ configService: this.configService, logger: this.logger });
 
       // Inits the authInfo route
-      authInfoRoutes(this.searchGuardBackend, hapiServer, APP_ROOT, API_ROOT);
+      defineAuthInfoRoutes({
+        searchGuardBackend: this.searchGuardBackend,
+        kibanaCore: core,
+        logger: this.logger,
+      });
 
       return {
         configService: this.configService,
@@ -66,7 +70,7 @@ export class SearchGuard {
     }
   }
 
-  async setup({ hapiServer, core, elasticsearch, pluginDependencies }) {
+  async setup({ core, elasticsearch, pluginDependencies }) {
     this.logger.debug('Setup app');
 
     try {
@@ -138,18 +142,15 @@ export class SearchGuard {
             try {
               // Check that one of the auth types didn't already require an authInstance
               if (!authInstance) {
-                authInstance = new AuthClass(
-                  this.searchGuardBackend,
-                  hapiServer,
-                  APP_ROOT,
-                  API_ROOT,
-                  core,
-                  this.configService,
-                  this.coreContext.logger.get('searchguard-auth'),
+                authInstance = new AuthClass({
+                  searchGuardBackend: this.searchGuardBackend,
+                  kibanaCore: core,
+                  config: this.configService,
+                  logger: this.coreContext.logger.get('searchguard-auth'),
                   sessionStorageFactory,
                   elasticsearch,
-                  pluginDependencies
-                );
+                  pluginDependencies,
+                });
               }
 
               await authInstance.init();
@@ -176,12 +177,11 @@ export class SearchGuard {
       }
 
       if (this.configService.get('searchguard.configuration.enabled')) {
-        require('../../../lib/configuration/routes/routes')(
-          this.searchGuardConfigurationBackend,
-          hapiServer,
-          APP_ROOT,
-          API_ROOT
-        );
+        defineConfigurationRoutes({
+          searchGuardConfigurationBackend: this.searchGuardConfigurationBackend,
+          logger: this.logger,
+          kibanaCore: core,
+        });
         this.logger.info(
           'Routes for Search Guard configuration GUI registered. This is an Enterprise feature.'
         );
@@ -189,13 +189,11 @@ export class SearchGuard {
         this.logger.warn('Search Guard configuration GUI disabled');
       }
 
-      require('../../../lib/system/routes')(
-        this.searchGuardBackend,
-        hapiServer,
-        APP_ROOT,
-        API_ROOT,
-        this.configService
-      );
+      defineSystemRoutes({
+        searchGuardBackend: this.searchGuardBackend,
+        logger: this.logger,
+        kibanaCore: core,
+      });
 
       this.logger.info('Search Guard system routes registered.');
 
@@ -206,7 +204,7 @@ export class SearchGuard {
         core.http.registerAuth(async (request) => {
           if (this.configService.get('searchguard.multitenancy.enabled')) {
             const authLogger = this.coreContext.logger.get('searchguard-auth');
-            const sessionCookie = await this.sessionStorageFactory.asScoped(request).get();
+            const sessionCookie = await sessionStorageFactory.asScoped(request).get();
             const selectedTenant = await handleSelectedTenant({
               authHeaders: request.headers,
               sessionCookie,

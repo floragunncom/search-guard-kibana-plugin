@@ -13,19 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /* global jest */
-
-export function getCookieExpiryTimeMS(expireInDaysFromNow = 0) {
-  const today = new Date();
-  const expiryTime = new Date(today);
-  expiryTime.setDate(expiryTime.getDate() + expireInDaysFromNow);
-  return expiryTime;
-}
-
-export function getCookieExpiryTimeS(...props) {
-  return getCookieExpiryTimeMS(...props) / 1000;
-}
 
 export function setupHttpRouterMock({ ensureRawRequest = () => jest.fn() } = {}) {
   return {
@@ -37,22 +25,21 @@ export function setupSearchGuardBackendMock({
   authinfo = jest.fn(),
   validateTenant = jest.fn(),
   getTenantByPreference = jest.fn(),
+  hasPermissions = jest.fn(),
+  getTenantInfoWithInternalUser = jest.fn(),
 } = {}) {
   return {
     authinfo,
     validateTenant,
     getTenantByPreference,
+    hasPermissions,
+    getTenantInfoWithInternalUser,
   };
 }
 
-export function setupKibanaCoreMock({
-  basePath = '/abc',
-  registerOnPreResponse = jest.fn(),
-  getServerInfo = jest.fn(),
-} = {}) {
+export function setupKibanaCoreMock({ basePath = '/abc', registerOnPreResponse = jest.fn() } = {}) {
   return {
     http: {
-      getServerInfo,
       basePath: {
         get: jest.fn(() => basePath),
       },
@@ -67,11 +54,11 @@ export function setupConfigMock({ get = jest.fn() } = {}) {
   };
 }
 
-export function setupLoggerMock({ info = jest.fn(), error = jest.fn(), warn = jest.fn() } = {}) {
+export function setupLoggerMock({ error = jest.fn(), warn = jest.fn(), debug = jest.fn() } = {}) {
   return {
     error,
-    info,
     warn,
+    debug,
   };
 }
 
@@ -94,12 +81,18 @@ export function setupHttpResponseMock({
   redirected = jest.fn(),
   unauthorized = jest.fn(),
   renderAnonymousCoreApp = jest.fn(),
+  customError = jest.fn(),
+  badRequest = jest.fn(),
+  internalError = jest.fn(),
 } = {}) {
   return {
     ok,
     redirected,
     unauthorized,
     renderAnonymousCoreApp,
+    customError,
+    badRequest,
+    internalError,
   };
 }
 
@@ -126,6 +119,12 @@ export function setupContextMock() {
   return jest.fn();
 }
 
-export function setupDebugLogMock() {
-  return jest.fn();
+export function setupClusterClientMock({ asScoped = jest.fn() } = {}) {
+  return {
+    asScoped,
+  };
+}
+
+export function setupFetchAllFromScrollMock(mockFn = jest.fn()) {
+  return mockFn;
 }

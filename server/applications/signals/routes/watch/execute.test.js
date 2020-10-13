@@ -1,123 +1,110 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { executeWatch } from './execute';
-import { elasticsearchMock, httpRouteMock, setupLoggerMock } from '../../../../utils/mocks';
+import { serverError } from '../../lib';
 import {
-  mockResponseOkImplementation,
-  mockElasticsearchError,
-  mockErrorResponse,
-  mockSuccessResponse,
-  mockElasticsearchErrorResponse,
-} from '../mocks';
+  setupLoggerMock,
+  setupHttpResponseMock,
+  setupClusterClientMock,
+  setupContextMock,
+} from '../../../../mocks';
+import { NO_MULTITENANCY_TENANT } from '../../../../../utils/signals/constants';
 
-const { setupClusterClientMock, setupClusterClientScopedMock } = elasticsearchMock;
-const { setupRequestMock, setupResponseMock } = httpRouteMock;
-
-// TODO: mock http router to test entire route lifecycle.
-// Now we test only the route's handler.
 describe('routes/watch/execute', () => {
-  let mockHandlerRequest;
-  let mockHandlerResponse;
+  test('execute watch', async () => {
+    const logger = setupLoggerMock();
+    const response = setupHttpResponseMock();
+    const context = setupContextMock();
 
-  describe('there are some results', () => {
-    let mockResponse;
-    let mockClusterClient;
-
-    beforeEach(() => {
-      mockResponse = {
-        data: {
-          mysearch: {
-            _shards: {},
-            hits: {
-              hits: [
-                { _id: '123', _source: { a: 'b' } },
-                { _id: '456', _source: { c: 'd' } },
-              ],
-            },
+    const expectedResponse = {
+      data: {
+        mysearch: {
+          _shards: {},
+          hits: {
+            hits: [
+              { _id: '123', _source: { a: 'b' } },
+              { _id: '456', _source: { c: 'd' } },
+            ],
           },
         },
-      };
+      },
+    };
 
-      const mockClusterClientScoped = setupClusterClientScopedMock();
-      mockClusterClientScoped.callAsCurrentUser.mockReturnValue(mockResponse);
-
-      mockClusterClient = setupClusterClientMock();
-      mockClusterClient.asScoped.mockReturnValue(mockClusterClientScoped);
+    const callAsCurrentUser = jest.fn().mockResolvedValue(expectedResponse);
+    const clusterClient = setupClusterClientMock({
+      asScoped: jest.fn(() => ({ callAsCurrentUser })),
     });
 
-    it('responds with 200', async () => {
-      const mockHandlerRequest = setupRequestMock();
-      mockHandlerRequest.body = {
+    const request = {
+      headers: {},
+      body: {
         watch: {
           trigger: {},
           checks: [],
           actions: [],
           _meta: {},
         },
-      };
+      },
+    };
 
-      const mockHandlerResponse = setupResponseMock();
-      mockHandlerResponse.ok.mockImplementation(mockResponseOkImplementation);
+    const expectedEndpoint = 'sgSignals.executeWatch';
+    const expectedClusterCallOptions = {
+      body: request.body,
+      sgtenant: NO_MULTITENANCY_TENANT,
+    };
 
-      const result = await executeWatch({ clusterClient: mockClusterClient })(
-        null,
-        mockHandlerRequest,
-        mockHandlerResponse
-      );
+    await executeWatch({ clusterClient, logger })(context, request, response);
 
-      expect(result).toEqual(mockSuccessResponse(mockResponse));
+    expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
+    expect(callAsCurrentUser).toHaveBeenCalledWith(expectedEndpoint, expectedClusterCallOptions);
+    expect(response.ok).toHaveBeenCalledWith({
+      body: {
+        ok: true,
+        resp: expectedResponse,
+      },
     });
   });
 
-  describe('there is an error', () => {
-    let logger;
+  test('there is an error', async () => {
+    const logger = setupLoggerMock();
+    const response = setupHttpResponseMock();
+    const context = setupContextMock();
 
-    beforeEach(() => {
-      logger = setupLoggerMock();
-      mockHandlerRequest = setupRequestMock();
-      mockHandlerRequest.body = {
-        watch: {
-          trigger: {},
-          checks: [],
-          actions: [],
-          _meta: {},
-        },
-      };
-      mockHandlerResponse = setupResponseMock();
-      mockHandlerResponse.ok.mockImplementation(mockResponseOkImplementation);
+    const error = new Error('nasty!');
+
+    const callAsCurrentUser = jest.fn().mockRejectedValue(error);
+    const clusterClient = setupClusterClientMock({
+      asScoped: jest.fn(() => ({ callAsCurrentUser })),
     });
 
-    it('bad implementation', async () => {
-      const mockClusterClientScoped = setupClusterClientScopedMock();
-      mockClusterClientScoped.callAsCurrentUser.mockRejectedValue(new Error('nasty error'));
+    const request = {
+      headers: {},
+      params: {},
+      body: {},
+    };
 
-      const mockClusterClient = setupClusterClientMock();
-      mockClusterClient.asScoped.mockReturnValue(mockClusterClientScoped);
+    await executeWatch({ clusterClient, logger })(context, request, response);
 
-      const result = await executeWatch({ clusterClient: mockClusterClient, logger })(
-        null,
-        mockHandlerRequest,
-        mockHandlerResponse
-      );
-
-      expect(result).toEqual(mockErrorResponse('nasty error'));
-      expect(logger.error.mock.calls.length).toBe(1);
-    });
-
-    it('elasticsearch error', async () => {
-      const mockClusterClientScoped = setupClusterClientScopedMock();
-      mockClusterClientScoped.callAsCurrentUser.mockRejectedValue(mockElasticsearchError());
-
-      const mockClusterClient = setupClusterClientMock();
-      mockClusterClient.asScoped.mockReturnValue(mockClusterClientScoped);
-
-      const result = await executeWatch({ clusterClient: mockClusterClient, logger })(
-        null,
-        mockHandlerRequest,
-        mockHandlerResponse
-      );
-
-      expect(result).toEqual(mockElasticsearchErrorResponse(mockElasticsearchError()));
-      expect(logger.error.mock.calls.length).toBe(1);
+    expect(logger.error).toHaveBeenCalledWith(`executeWatch: ${error.stack}`);
+    expect(response.ok).toHaveBeenCalledWith({
+      body: {
+        ok: false,
+        resp: serverError(error),
+      },
     });
   });
 });

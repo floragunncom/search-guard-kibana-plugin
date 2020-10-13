@@ -1,138 +1,127 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { executeGraphWatch } from './execute_graph';
-import { elasticsearchMock, httpRouteMock, setupLoggerMock } from '../../../../utils/mocks';
+import { serverError } from '../../lib';
 import {
-  mockResponseOkImplementation,
-  mockElasticsearchError,
-  mockErrorResponse,
-  mockSuccessResponse,
-  mockElasticsearchErrorResponse,
-} from '../mocks';
+  setupLoggerMock,
+  setupHttpResponseMock,
+  setupClusterClientMock,
+  setupContextMock,
+} from '../../../../mocks';
 
-const { setupClusterClientMock, setupClusterClientScopedMock } = elasticsearchMock;
-const { setupRequestMock, setupResponseMock } = httpRouteMock;
-
-// TODO: mock http router to test entire route lifecycle.
-// Now we test only the route's handler.
 describe('routes/watch/execute_graph', () => {
-  let mockHandlerRequest;
-  let mockHandlerResponse;
+  test('execute graph watch', async () => {
+    const logger = setupLoggerMock();
+    const response = setupHttpResponseMock();
+    const context = setupContextMock();
 
-  describe('there are some results', () => {
-    let mockResponse;
-    let mockClusterClient;
-
-    beforeEach(() => {
-      mockResponse = {
-        hits: {
-          total: {
-            value: 71,
-            relation: 'eq',
-          },
-          max_score: null,
-          hits: [],
+    const expectedResponse = {
+      hits: {
+        total: {
+          value: 71,
+          relation: 'eq',
         },
-        aggregations: {
-          over: {
-            buckets: [
-              {
-                key_as_string: '2019-07-23T09:00:00.000Z',
-                key: 1563872400000,
-                doc_count: 9,
-              },
-              {
-                key_as_string: '2019-07-23T10:00:00.000Z',
-                key: 1563876000000,
-                doc_count: 19,
-              },
-              {
-                key_as_string: '2019-07-23T11:00:00.000Z',
-                key: 1563879600000,
-                doc_count: 15,
-              },
-            ],
-          },
+        max_score: null,
+        hits: [],
+      },
+      aggregations: {
+        over: {
+          buckets: [
+            {
+              key_as_string: '2019-07-23T09:00:00.000Z',
+              key: 1563872400000,
+              doc_count: 9,
+            },
+            {
+              key_as_string: '2019-07-23T10:00:00.000Z',
+              key: 1563876000000,
+              doc_count: 19,
+            },
+            {
+              key_as_string: '2019-07-23T11:00:00.000Z',
+              key: 1563879600000,
+              doc_count: 15,
+            },
+          ],
         },
-      };
+      },
+    };
 
-      const mockClusterClientScoped = setupClusterClientScopedMock();
-      mockClusterClientScoped.callAsCurrentUser.mockReturnValue(mockResponse);
-
-      mockClusterClient = setupClusterClientMock();
-      mockClusterClient.asScoped.mockReturnValue(mockClusterClientScoped);
+    const callAsCurrentUser = jest.fn().mockResolvedValue(expectedResponse);
+    const clusterClient = setupClusterClientMock({
+      asScoped: jest.fn(() => ({ callAsCurrentUser })),
     });
 
-    it('responds with 200', async () => {
-      const mockHandlerRequest = setupRequestMock();
-      mockHandlerRequest.body = {
+    const request = {
+      body: {
         request: {
           indices: ['a', 'b'],
           body: {},
         },
-      };
+      },
+    };
 
-      const mockHandlerResponse = setupResponseMock();
-      mockHandlerResponse.ok.mockImplementation(mockResponseOkImplementation);
+    const expectedEndpoint = 'search';
+    const expectedClusterCallOptions = {
+      body: request.body.request.body,
+      index: request.body.request.indices,
+    };
 
-      const result = await executeGraphWatch({ clusterClient: mockClusterClient })(
-        null,
-        mockHandlerRequest,
-        mockHandlerResponse
-      );
+    await executeGraphWatch({ clusterClient, logger })(context, request, response);
 
-      expect(result).toEqual(mockSuccessResponse(mockResponse));
+    expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
+    expect(callAsCurrentUser).toHaveBeenCalledWith(expectedEndpoint, expectedClusterCallOptions);
+    expect(response.ok).toHaveBeenCalledWith({
+      body: {
+        ok: true,
+        resp: expectedResponse,
+      },
     });
   });
 
-  describe('there is an error', () => {
-    let logger;
+  test('there is an error', async () => {
+    const logger = setupLoggerMock();
+    const response = setupHttpResponseMock();
+    const context = setupContextMock();
 
-    beforeEach(() => {
-      logger = setupLoggerMock();
-      mockHandlerRequest = setupRequestMock();
-      mockHandlerRequest.body = {
+    const error = new Error('nasty!');
+
+    const callAsCurrentUser = jest.fn().mockRejectedValue(error);
+    const clusterClient = setupClusterClientMock({
+      asScoped: jest.fn(() => ({ callAsCurrentUser })),
+    });
+
+    const request = {
+      body: {
         request: {
           indices: ['a', 'b'],
           body: {},
         },
-      };
+      },
+    };
 
-      mockHandlerResponse = setupResponseMock();
-      mockHandlerResponse.ok.mockImplementation(mockResponseOkImplementation);
-    });
+    await executeGraphWatch({ clusterClient, logger })(context, request, response);
 
-    it('bad implementation', async () => {
-      const mockClusterClientScoped = setupClusterClientScopedMock();
-      mockClusterClientScoped.callAsCurrentUser.mockRejectedValue(new Error('nasty error'));
-
-      const mockClusterClient = setupClusterClientMock();
-      mockClusterClient.asScoped.mockReturnValue(mockClusterClientScoped);
-
-      const result = await executeGraphWatch({ clusterClient: mockClusterClient, logger })(
-        null,
-        mockHandlerRequest,
-        mockHandlerResponse
-      );
-
-      expect(result).toEqual(mockErrorResponse('nasty error'));
-      expect(logger.error.mock.calls.length).toBe(1);
-    });
-
-    it('elasticsearch error', async () => {
-      const mockClusterClientScoped = setupClusterClientScopedMock();
-      mockClusterClientScoped.callAsCurrentUser.mockRejectedValue(mockElasticsearchError());
-
-      const mockClusterClient = setupClusterClientMock();
-      mockClusterClient.asScoped.mockReturnValue(mockClusterClientScoped);
-
-      const result = await executeGraphWatch({ clusterClient: mockClusterClient, logger })(
-        null,
-        mockHandlerRequest,
-        mockHandlerResponse
-      );
-
-      expect(result).toEqual(mockElasticsearchErrorResponse(mockElasticsearchError()));
-      expect(logger.error.mock.calls.length).toBe(1);
+    expect(logger.error).toHaveBeenCalledWith(`executeGraphWatch: ${error.stack}`);
+    expect(response.ok).toHaveBeenCalledWith({
+      body: {
+        ok: false,
+        resp: serverError(error),
+      },
     });
   });
 });

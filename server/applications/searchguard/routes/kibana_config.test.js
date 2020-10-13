@@ -1,21 +1,13 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { handleKibanaConfig } from './kibana_config';
-import { setupLoggerMock, httpRouteMock } from '../../../utils/mocks';
-
-const { setupRequestMock, setupResponseMock } = httpRouteMock;
+import { setupLoggerMock, setupHttpResponseMock } from '../../../mocks';
 
 describe('searchguard/routes/kibana_config', () => {
-  let mockHandlerRequest;
-  let mockHandlerResponse;
-  let mockLogger;
-
-  beforeEach(() => {
-    mockHandlerRequest = setupRequestMock();
-    mockHandlerResponse = setupResponseMock();
-    mockLogger = setupLoggerMock();
-  });
-
   test('serve the config, pick only a limited set of options', async () => {
+    const request = {};
+    const response = setupHttpResponseMock();
+    const logger = setupLoggerMock();
+
     const config = {
       a: 1,
       elasticsearch: {
@@ -54,10 +46,10 @@ describe('searchguard/routes/kibana_config', () => {
       },
     };
 
-    const result = await handleKibanaConfig({
+    await handleKibanaConfig({
       config,
-      logger: mockLogger,
-    })(null, mockHandlerRequest, mockHandlerResponse);
+      logger: logger,
+    })(null, request, response);
 
     const expected = {
       searchguard: {
@@ -88,16 +80,11 @@ describe('searchguard/routes/kibana_config', () => {
       },
     };
 
-    expect(mockLogger.debug.mock.calls.length).toBe(1);
-    expect(mockLogger.debug).toHaveBeenCalledWith(
+    expect(logger.debug.mock.calls.length).toBe(1);
+    expect(logger.debug).toHaveBeenCalledWith(
       'Serve the Kibana config:',
       JSON.stringify(expected, null, 2)
     );
-
-    expect(result).toEqual({
-      options: { body: expected },
-      payload: expected,
-      status: 200,
-    });
+    expect(response.ok).toHaveBeenCalledWith({ body: expected });
   });
 });

@@ -3,8 +3,8 @@ import { getAccountRoute } from './get';
 import { createAccountRoute } from './create';
 import { deleteAccountRoute } from './delete';
 
-export function registerAccountRoutes({ hapiServer, clusterClient, logger }) {
-  getAccountRoute({ hapiServer, clusterClient, logger });
-  createAccountRoute({ hapiServer, clusterClient, logger });
-  deleteAccountRoute({ hapiServer, clusterClient, logger });
+export function registerAccountRoutes({ router, clusterClient, logger }) {
+  getAccountRoute({ router, clusterClient, logger });
+  createAccountRoute({ router, clusterClient, logger });
+  deleteAccountRoute({ router, clusterClient, logger });
 }
