@@ -71,8 +71,10 @@ export class Multitenancy {
     }
   }
 
-  async start({ core, elasticsearch, kibanaRouter }) {
+  async start({ core, kibanaRouter }) {
     this.logger.debug('Start app');
+    const savedObjects = core.savedObjects;
+    const esClient = core.elasticsearch.client;
 
     try {
       const didSetupSyncRun = this.searchGuardBackend;
@@ -81,9 +83,9 @@ export class Multitenancy {
       }
 
       await this.tenantsMigration.start({
-        elasticsearch,
+        esClient,
         kibanaRouter,
-        savedObjects: core.savedObjects,
+        savedObjects,
         searchGuardBackend: this.searchGuardBackend,
       });
     } catch (error) {
