@@ -108,7 +108,8 @@ class UploadLicense extends Component {
         onSubmit={this.onSubmit}
         validateOnChange={false}
         enableReinitialize={true}
-        render={({ handleSubmit, isSubmitting, values }) => {
+      >
+        {({ handleSubmit, isSubmitting, values }) => {
           return (
             <ContentPanel
               title={uploadLicenseText}
@@ -145,7 +146,7 @@ class UploadLicense extends Component {
             </ContentPanel>
           );
         }}
-      />
+      </Formik>
     );
   }
 }

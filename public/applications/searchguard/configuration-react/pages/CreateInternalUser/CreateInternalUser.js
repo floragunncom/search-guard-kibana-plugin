@@ -101,7 +101,8 @@ class CreateInternalUser extends Component {
         onSubmit={this.onSubmit}
         validateOnChange={false}
         enableReinitialize={true}
-        render={({ values, handleSubmit, isSubmitting }) => {
+      >
+        {({ values, handleSubmit, isSubmitting }) => {
           const isUpdatingName = id !== values._username;
 
           return (
@@ -146,7 +147,7 @@ class CreateInternalUser extends Component {
             </ContentPanel>
           );
         }}
-      />
+      </Formik>
     );
   }
 }

@@ -120,7 +120,8 @@ class DefineAccount extends Component {
           onSubmit={this.onSubmit}
           validateOnChange={false}
           enableReinitialize
-          render={({ handleSubmit, isSubmitting }) => (
+        >
+          {({ handleSubmit, isSubmitting }) => (
             <Fragment>
               <EuiTitle size="l">
                 <h1>{isEdit ? updateAccountText : createAccountText}</h1>
@@ -142,7 +143,7 @@ class DefineAccount extends Component {
               </EuiFlexGroup>
             </Fragment>
           )}
-        />
+        </Formik>
       </div>
     );
   }

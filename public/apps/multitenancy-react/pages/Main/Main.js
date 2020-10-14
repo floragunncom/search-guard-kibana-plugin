@@ -275,7 +275,7 @@ export default class Main extends Component {
           // Make sure that the app is really enabled before accessing.
           // If chromeWrapper.resetLastSubUrl is used, the check for enabled apps is redundant.
           // Keeping this to make the merges a bit easier.
-          const appsToReset = ['kibana:visualize', 'kibana:dashboard', 'kibana:discover', 'timelion'];
+          const appsToReset = ['visualize', 'dashboards', 'discover', 'timelion'];
           chromeWrapper.getNavLinks().forEach((navLink) => {
             if (appsToReset.indexOf(navLink.id) > -1) {
               chromeWrapper.resetLastSubUrl(navLink.id);
@@ -286,7 +286,7 @@ export default class Main extends Component {
           let lastSubUrls = [];
           for (let i = 0; i < sessionStorage.length; i++) {
             let key = sessionStorage.key(i);
-            if (key.startsWith("lastSubUrl")) {
+            if (key.startsWith("lastUrl")) {
               lastSubUrls.push(key);
             }
           }
@@ -299,16 +299,13 @@ export default class Main extends Component {
           // redirect to either Visualize or Dashboard depending on user selection.
           if(redirectTo) {
             if (redirectTo === 'vis') {
-              window.location.href = chromeWrapper.getNavLinkById("kibana:visualize").url;
+              window.location.href = chromeWrapper.getNavLinkById("visualize").url;
             }
             if (redirectTo === 'dash') {
-              window.location.href = chromeWrapper.getNavLinkById("kibana:dashboard").url;
+              window.location.href = chromeWrapper.getNavLinkById("dashboards").url;
             }
           } else {
-            // @todo Add back toasts
-            console.warn('Label?', this.resolveTenantName(response.data, userName))
             const successText = 'Selected tenant is now ' + this.resolveTenantName(response.data, userName);
-            // @todo Label
             addSuccessToast(successText, 'Tenant changed');
 
             // We may need to redirect the user if they are in a non default space
@@ -378,7 +375,6 @@ export default class Main extends Component {
   }
 
   resolveTenantName(tenant, userName) {
-    console.warn(tenant, userName)
     if (!tenant || tenant === "undefined") {
       // @todo Label
       return 'Global';

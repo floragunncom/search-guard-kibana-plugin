@@ -27,9 +27,8 @@ const IndexPermissions = ({
   isAnonymizedFieldsEnabled,
   onTriggerErrorCallout
 }) => (
-  <FieldArray
-    name="_indexPermissions"
-    render={arrayHelpers => (
+  <FieldArray name="_indexPermissions">
+    {(arrayHelpers) => (
       <Fragment>
         <AddButton onClick={() => addIndexPermission(arrayHelpers)} />
         <EuiSpacer />
@@ -56,7 +55,7 @@ const IndexPermissions = ({
         )}
       </Fragment>
     )}
-  />
+  </FieldArray>
 );
 
 IndexPermissions.propTypes = {
