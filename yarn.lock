@@ -767,11 +767,6 @@ regexp.prototype.flags@^1.2.0:
     define-properties "^1.1.3"
     es-abstract "^1.17.0-next.1"
 
-requirefrom@^0.2.0:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/requirefrom/-/requirefrom-0.2.1.tgz#6f0d15f31e1e915dca8c4ea43bdf2ff41fba0038"
-  integrity sha1-bw0V8x4ekV3KjE6kO98v9B+6ADg=
-
 scheduler@^0.18.0:
   version "0.18.0"
   resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.18.0.tgz#5901ad6659bc1d8f3fdaf36eb7a67b0d6746b1c4"

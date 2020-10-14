@@ -32,7 +32,6 @@
     "formik": "^2.1.7",
     "raw-loader": "^3.1.0",
     "react-vis": "^1.8.1",
-    "requirefrom": "^0.2.0",
     "wreck": "14.x.x"
   },
   "devDependencies": {
