@@ -22,7 +22,7 @@ import {
   setupClusterClientMock,
   setupContextMock,
 } from '../../../../mocks';
-import { NO_MULTITENANCY_TENANT } from '../../../../../utils/signals/constants';
+import { NO_MULTITENANCY_TENANT } from '../../../../../common/signals/constants';
 
 describe('routes/watch/execute', () => {
   test('execute watch', async () => {

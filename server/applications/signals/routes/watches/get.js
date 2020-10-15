@@ -20,7 +20,7 @@ import {
   ROUTE_PATH,
   ES_SCROLL_SETTINGS,
   NO_MULTITENANCY_TENANT,
-} from '../../../../../utils/signals/constants';
+} from '../../../../../common/signals/constants';
 
 export function getWatches({ clusterClient, fetchAllFromScroll, logger }) {
   return async function (context, request, response) {

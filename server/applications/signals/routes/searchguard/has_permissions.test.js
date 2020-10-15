@@ -22,7 +22,7 @@ import {
   setupContextMock,
   setupSearchGuardBackendMock,
 } from '../../../../mocks';
-import { PERMISSIONS_FOR_ACCESS } from '../../../../../utils/signals/constants';
+import { PERMISSIONS_FOR_ACCESS } from '../../../../../common/signals/constants';
 
 describe('routes/searchguard/has_permissions', () => {
   test('check Signals UI app permissions to render', async () => {

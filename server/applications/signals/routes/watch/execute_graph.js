@@ -16,7 +16,7 @@
 
 import { schema } from '@kbn/config-schema';
 import { serverError } from '../../lib/errors';
-import { ROUTE_PATH } from '../../../../../utils/signals/constants';
+import { ROUTE_PATH } from '../../../../../common/signals/constants';
 
 export function executeGraphWatch({ clusterClient, logger }) {
   return async function (context, request, response) {

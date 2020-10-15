@@ -9,7 +9,7 @@ export {
   DEFAULT_DATEFIELD,
   INDEX,
   ES_SCROLL_SETTINGS
-} from '../../../../utils/signals/constants';
+} from '../../../../common/signals/constants';
 
 export const APP_PATH = {
   HOME: '/',

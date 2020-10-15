@@ -17,7 +17,7 @@
 import { schema } from '@kbn/config-schema';
 import { serverError } from '../../lib/errors';
 import { getId } from '../../lib/helpers';
-import { ROUTE_PATH, NO_MULTITENANCY_TENANT } from '../../../../../utils/signals/constants';
+import { ROUTE_PATH, NO_MULTITENANCY_TENANT } from '../../../../../common/signals/constants';
 
 export function getWatch({ clusterClient, logger }) {
   return async function (context, request, response) {

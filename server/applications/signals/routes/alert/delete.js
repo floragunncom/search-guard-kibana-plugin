@@ -16,7 +16,7 @@
 
 import { schema } from '@kbn/config-schema';
 import { serverError } from '../../lib/errors';
-import { ROUTE_PATH, INDEX } from '../../../../../utils/signals/constants';
+import { ROUTE_PATH, INDEX } from '../../../../../common/signals/constants';
 
 export const deleteAlert = ({ clusterClient, logger }) => async (context, request, response) => {
   try {

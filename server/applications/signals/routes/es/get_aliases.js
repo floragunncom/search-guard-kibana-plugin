@@ -16,7 +16,7 @@
 
 import { schema } from '@kbn/config-schema';
 import { serverError } from '../../lib/errors';
-import { BASE_URI } from '../../../../../utils/signals/constants';
+import { BASE_URI } from '../../../../../common/signals/constants';
 
 export const getAliases = ({ clusterClient, logger }) => async (context, request, response) => {
   try {

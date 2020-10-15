@@ -22,7 +22,7 @@ import {
   setupClusterClientMock,
   setupContextMock,
 } from '../../../../mocks';
-import { NO_MULTITENANCY_TENANT, ES_SCROLL_SETTINGS } from '../../../../../utils/signals/constants';
+import { NO_MULTITENANCY_TENANT, ES_SCROLL_SETTINGS } from '../../../../../common/signals/constants';
 
 describe('routes/watches/get', () => {
   test('there are some results', async () => {

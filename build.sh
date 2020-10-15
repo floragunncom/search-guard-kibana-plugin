@@ -82,7 +82,6 @@ KIBANA_APP_BRANCH=$(grep -e '\bkibana_branch\b' package.json | tr -d "[:blank:]"
 KIBANA_VERSION=$(echo $VERSION | cut -d "-" -f 1)
 KIBANA_PLUGIN_VERSION=$(echo $VERSION | cut -d "-" -f 2)
 
-
 SNAPSHOT=$(echo $VERSION | cut -d "-" -f 3)
 
 if [ $SNAPSHOT != "SNAPSHOT" ]; then
@@ -166,19 +165,16 @@ fi
 echo "+++ Copy plugin contents to build stage +++"
 BUILD_STAGE_PLUGIN_DIR="$BUILD_STAGE_DIR/kibana/plugins/search-guard-kibana-plugin"
 mkdir -p $BUILD_STAGE_PLUGIN_DIR
-cp -a "$WORK_DIR/index.js" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/babel.config.js" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/package.json" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/kibana.json" "$BUILD_STAGE_PLUGIN_DIR"
-cp -a "$WORK_DIR/lib" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/tsconfig.json" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/public" "$BUILD_STAGE_PLUGIN_DIR"
-cp -a "$WORK_DIR/utils" "$BUILD_STAGE_PLUGIN_DIR"
-cp -a "$WORK_DIR/examples" "$BUILD_STAGE_PLUGIN_DIR"
-cp -a "$WORK_DIR/tests" "$BUILD_STAGE_PLUGIN_DIR"
-cp -a "$WORK_DIR/patches" "$BUILD_STAGE_PLUGIN_DIR"
-cp -a "$WORK_DIR/babel.config.js" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/lib" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/server" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/common" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/tests" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/__mocks__" "$BUILD_STAGE_PLUGIN_DIR"
-
 cd $BUILD_STAGE_PLUGIN_DIR
 
 echo "+++ Checking yarn packages for vulnerabilities +++"
@@ -215,36 +211,23 @@ if [[ ! $srvtestsResult =~ .*\"numFailedTests\":0.* || ! $srvtestsResult =~ .*\"
 fi
 
 echo "+++ Installing plugin node modules for production +++"
-rm -rf "node_modules"
-yarn install --production --pure-lockfile >>"$WORK_DIR/build.log" 2>&1
+rm -rf "node_modules" yarn.lock
+yarn install --production >>"$WORK_DIR/build.log" 2>&1
 if [ $? != 0 ]; then
     echo "Installing node modules failed"
     exit 1
 fi
 
-# Build webpack bundles that must be part of the build since Kibana v7.9.
-# The bundles are in the folder named "target".
-echo "+++ Building webpack bundles +++"
-yarn build:bundles
-
-cd "$WORK_DIR"
-rm -rf build/
-rm -rf node_modules/
+echo "+++ Building webpack bundles for the the browser code  +++"
+echo "+++ And transpiling the server code  +++"
+yarn build -v $KIBANA_VERSION --skip-archive
 
 echo "+++ Copy plugin contents to finalize build +++"
-COPYPATH="build/kibana/$PLUGIN_NAME"
-mkdir -p "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/index.js" "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/package.json" "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/kibana.json" "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/node_modules" "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/lib" "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/public" "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/utils" "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/examples" "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/patches" "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/server" "$COPYPATH"
-cp -a "$BUILD_STAGE_PLUGIN_DIR/target" "$COPYPATH"
+cd "$WORK_DIR"
+rm -rf build node_modules
+mv "$BUILD_STAGE_PLUGIN_DIR/build" build
+mv build/kibana/searchguard "build/kibana/$PLUGIN_NAME"
+cp -a "$WORK_DIR/public" "build/kibana/$PLUGIN_NAME"
 
 end=`date +%s`
 echo "Build time: $((end-start)) sec"

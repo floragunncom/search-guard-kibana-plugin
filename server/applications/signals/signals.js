@@ -1,5 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import { CLUSTER } from '../../../utils/signals/constants';
+import { CLUSTER } from '../../../common/signals/constants';
 import { elasticsearchSignalsPlugin } from './lib/elasticsearch_signals_plugin';
 import { registerRoutes } from './routes';
 

@@ -1,7 +1,7 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { get } from 'lodash';
 import { parse } from 'url';
-import { tenantNameToUiTenantName } from '../../../utils';
+import { tenantNameToUiTenantName } from '../../../common';
 
 export function addTenantToShareURL() {
   document.addEventListener('copy', event => {

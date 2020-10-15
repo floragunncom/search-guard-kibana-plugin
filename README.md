@@ -43,14 +43,6 @@ bin/kibana-plugin install file:///path/to/searchguard-kibana-<version>.zip
 
 This software is licensed under the Apache2 license and can be used freely also for commercial purposes. Some features may require the Search Guard Enterprise Edition or above to function.
 
-## Patches
-
-In some cases, when Kibana doesn't provide the required core functionality, we must patch.
-
-  - `yarn patch:kibana:dev:es_compatibility`
-
-    The patch is only for the developers! It doesn't work in a production environment. The patch makes it possible to run Kibana with nodes where an old Elassticsearch version is used.
-  
 ## Development
 
 See the [kibana contributing guide](https://github.com/elastic/kibana/blob/master/CONTRIBUTING.md) and the Search Guard documentation above for instructions setting up your development environment. Once you have completed that, use the following yarn scripts.
