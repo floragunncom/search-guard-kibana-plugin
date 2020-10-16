@@ -115,6 +115,8 @@ describe('UI role to role ', () => {
   test('can build role', () => {
     const resource = {
       description: 'Migrated from v6 (all types mapped)',
+      exclude_cluster_permissions: ['eca', 'ecb'],
+      exclude_index_permissions: ['eia', 'eib'],
       cluster_permissions: [
         'A', 'B', 'cluster:a', 'indices:a', 'kibana:a'
       ],
@@ -159,6 +161,8 @@ describe('UI role to role ', () => {
         'B',
         'A'
       ],
+      exclude_cluster_permissions: ['eca', 'ecb'],
+      exclude_index_permissions: ['eia', 'eib'],
       index_permissions: [
         {
           index_patterns: ['b', 'a'],
