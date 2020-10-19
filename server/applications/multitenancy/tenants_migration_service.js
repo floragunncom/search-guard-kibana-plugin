@@ -112,7 +112,7 @@ export class TenantsMigrationService {
         return new KibanaMigrator({
           ...migratorDeps,
           kibanaConfig: { ...kibanaConfig, index },
-        });
+        }).runMigrations();
       });
 
       this.logger.info('Starting tenants saved objects migration ...');
@@ -123,6 +123,7 @@ export class TenantsMigrationService {
         responses.forEach((response, i) => {
           if (response.status === 'fulfilled') {
             this.logger.info(`Fulfilled migration for index ${this.tenantIndices[i]}.`);
+            this.logger.debug(`Migration result:\n${JSON.stringify(response.value, null, 2)}`);
           } else {
             this.logger.error(
               `Unable to fulfill migration for index ${this.tenantIndices[i]} ${JSON.stringify(
@@ -162,5 +163,8 @@ function putTenantIndexTemplate({ esClient, logger, kibanaIndexName, mappings })
     },
   };
 
-  return migrationRetryCallCluster(() => esClient.asInternalUser.indices.putTemplate(params), logger);
+  return migrationRetryCallCluster(
+    () => esClient.asInternalUser.indices.putTemplate(params),
+    logger
+  );
 }
