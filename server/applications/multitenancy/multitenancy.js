@@ -87,6 +87,33 @@ export class Multitenancy {
         savedObjects,
         searchGuardBackend: this.searchGuardBackend,
       });
+
+      const retryIn = 3000;
+      let interval;
+      // eslint-disable-next-line prefer-const
+      interval = setInterval(async () => {
+        try {
+          const {
+            body: { status = 'DOWN' } = {},
+          } = await esClient.asInternalUser.transport.request({
+            method: 'get',
+            path: '/_searchguard/health',
+          });
+
+          if (status === 'UP') {
+            clearInterval(interval);
+
+            await this.tenantsMigration.start({
+              esClient,
+              kibanaRouter,
+              savedObjects,
+              searchGuardBackend: this.searchGuardBackend,
+            });
+          }
+        } catch (error) {
+          this.logger.error(`tenants migration start: ${error.stack}`);
+        }
+      }, retryIn);
     } catch (error) {
       this.logger.error(`start: ${error.toString()} ${error.stack}`);
     }
