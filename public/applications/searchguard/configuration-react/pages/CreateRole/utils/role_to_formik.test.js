@@ -222,6 +222,8 @@ describe('role to UI role ', () => {
       reserved: false,
       hidden: false,
       description: 'Migrated from v6 (all types mapped)',
+      exclude_cluster_permissions: ['eca', 'ecb'],
+      exclude_index_permissions: ['eia', 'eib'],
       cluster_permissions: [
         'indices:a',
         'cluster:a',
