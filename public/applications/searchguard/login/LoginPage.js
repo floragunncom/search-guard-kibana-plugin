@@ -120,13 +120,13 @@ export class LoginPage extends Component {
   };
 
   handleSubmit = async () => {
-    const { httpClient } = this.props;
+    const { httpClient, basePath } = this.props;
     this.setState({
       errorMessage: null,
     });
 
     try {
-      const nextUrl = sanitizeNextUrlFromFullUrl(window.location.href, this.ROOT);
+      const nextUrl = sanitizeNextUrlFromFullUrl(window.location.href, basePath);
 
       httpClient
         .post(`${API_ROOT}/auth/login`, {
@@ -135,7 +135,7 @@ export class LoginPage extends Component {
         })
         .then(
           response => {
-            window.location.href = `${nextUrl}`;
+            window.location.href = nextUrl;
           },
           error => {
             error = error.body;
