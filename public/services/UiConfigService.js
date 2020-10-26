@@ -1,7 +1,7 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 // eslint-disable-next-line no-restricted-imports
 import { get as _get, defaultsDeep } from 'lodash';
-import { ConfigService } from '../../utils/config_service';
+import { ConfigService } from '../../common/config_service';
 
 export const CONFIG_DEFAULTS = {
   restapiinfo: {},

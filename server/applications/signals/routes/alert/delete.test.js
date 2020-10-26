@@ -22,7 +22,7 @@ import {
   setupClusterClientMock,
   setupContextMock,
 } from '../../../../mocks';
-import { INDEX } from '../../../../../utils/signals/constants';
+import { INDEX } from '../../../../../common/signals/constants';
 
 describe('routes/alert/delete', () => {
   test('delete alert', async () => {

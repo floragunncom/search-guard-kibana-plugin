@@ -5,6 +5,15 @@
   "include": [
     "lib/**/*",
     "server/**/*",
+    "common/**/*",
     "public/**/*"
+  ],
+  "exclude": [
+    "public/**/*.test.ts",
+    "public/**/*.test.tsx",
+    "lib/**/*.test.ts",
+    "server/**/*.test.ts",
+    "common/**/*.test.ts"
   ]
 }
+

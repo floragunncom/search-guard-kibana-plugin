@@ -17,7 +17,7 @@
 import { schema } from '@kbn/config-schema';
 import { serverError } from '../../lib/errors';
 import { getId } from '../../lib/helpers';
-import { ROUTE_PATH } from '../../../../../utils/signals/constants';
+import { ROUTE_PATH } from '../../../../../common/signals/constants';
 
 export const getAccount = ({ clusterClient, logger }) => async (context, request, response) => {
   try {

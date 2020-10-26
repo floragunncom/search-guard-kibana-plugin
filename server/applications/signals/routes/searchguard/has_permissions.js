@@ -15,7 +15,7 @@
  */
 
 import { serverError } from '../../lib';
-import { ROUTE_PATH, PERMISSIONS_FOR_ACCESS } from '../../../../../utils/signals/constants';
+import { ROUTE_PATH, PERMISSIONS_FOR_ACCESS } from '../../../../../common/signals/constants';
 
 export function hasPermissions({ logger, searchguardBackendService }) {
   return async function (context, request, response) {

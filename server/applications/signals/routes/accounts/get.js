@@ -17,7 +17,7 @@
 import { schema } from '@kbn/config-schema';
 import { serverError } from '../../lib';
 import { getId } from '../../lib/helpers';
-import { ROUTE_PATH, ES_SCROLL_SETTINGS } from '../../../../../utils/signals/constants';
+import { ROUTE_PATH, ES_SCROLL_SETTINGS } from '../../../../../common/signals/constants';
 
 export const getAccounts = ({ clusterClient, fetchAllFromScroll, logger }) => async (
   context,

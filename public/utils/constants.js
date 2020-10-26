@@ -11,4 +11,4 @@ export const SEARCHGUARD_APP_CATEGORY = {
   order: 9010,
 };
 
-export * from '../../utils/constants';
+export * from '../../common/constants';

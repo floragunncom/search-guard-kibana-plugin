@@ -22,7 +22,7 @@ import {
   DEFAULT_DATEFIELD,
   ES_SCROLL_SETTINGS,
   NO_MULTITENANCY_TENANT,
-} from '../../../../../utils/signals/constants';
+} from '../../../../../common/signals/constants';
 
 export const getAlerts = ({ clusterClient, fetchAllFromScroll, logger }) => async (
   context,

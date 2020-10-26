@@ -16,7 +16,7 @@
 
 import React, { Component } from 'react';
 import chrome from 'ui/chrome';
-import { APP_NAME } from '../../../../../utils/signals/constants';
+import { APP_NAME } from '../../../../../common/signals/constants';
 import {
   EuiButton,
   EuiButtonEmpty,

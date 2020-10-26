@@ -14,7 +14,7 @@ import {
 } from './sanity_checks';
 import { setupLoggerMock, setupSearchGuardBackendMock } from '../../mocks';
 
-import { ConfigService } from '../../../utils';
+import { ConfigService } from '../../../common';
 import { DEFAULT_CONFIG } from './read_kibana_config';
 
 describe('sanity_checks', () => {

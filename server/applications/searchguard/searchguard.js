@@ -2,7 +2,7 @@
 import { get } from 'lodash';
 import { registerRoutes } from './routes';
 import { readKibanaConfig } from './read_kibana_config';
-import { ConfigService } from '../../../utils/config_service';
+import { ConfigService } from '../../../common/config_service';
 import { defineAuthInfoRoutes } from '../../../lib/auth/routes_authinfo';
 import { defineSystemRoutes } from '../../../lib/system/routes';
 import { defineConfigurationRoutes } from '../../../lib/configuration/routes/routes';

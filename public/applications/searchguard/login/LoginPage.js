@@ -1,18 +1,17 @@
-/* eslint-disable @kbn/eslint/require-license-header */
-/**
+/*
  *    Copyright 2020 floragunn GmbH
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import React, { Component, Fragment } from 'react';
@@ -76,7 +75,7 @@ export class LoginPage extends Component {
       const queryString = window.location.search.trim().replace(/^(\?)/, '');
       const queryObject = {};
       if (queryString) {
-        queryString.split('&').map(parameter => {
+        queryString.split('&').map((parameter) => {
           const parameterParts = parameter.split('=');
           if (parameterParts[1]) {
             queryObject[encodeURIComponent(parameterParts[0])] = parameterParts[1];
@@ -88,7 +87,7 @@ export class LoginPage extends Component {
       let validRedirect = false;
 
       try {
-        alternativeLoginConfig.valid_redirects.forEach(redirect => {
+        alternativeLoginConfig.valid_redirects.forEach((redirect) => {
           if (new RegExp(redirect).test(alternativeLoginURL)) {
             validRedirect = true;
           }
@@ -111,7 +110,7 @@ export class LoginPage extends Component {
    * Update the credentials
    * @param event
    */
-  onChange = event => {
+  onChange = (event) => {
     const { name, value } = event.target;
 
     this.setState({
@@ -120,13 +119,13 @@ export class LoginPage extends Component {
   };
 
   handleSubmit = async () => {
-    const { httpClient } = this.props;
+    const { httpClient, basePath } = this.props;
     this.setState({
       errorMessage: null,
     });
 
     try {
-      const nextUrl = sanitizeNextUrlFromFullUrl(window.location.href, this.ROOT);
+      const nextUrl = sanitizeNextUrlFromFullUrl(window.location.href, basePath);
 
       httpClient
         .post(`${API_ROOT}/auth/login`, {
@@ -134,10 +133,10 @@ export class LoginPage extends Component {
           password: this.state.password,
         })
         .then(
-          response => {
-            window.location.href = `${nextUrl}`;
+          () => {
+            window.location.href = nextUrl;
           },
-          error => {
+          (error) => {
             error = error.body;
             let errorMessage =
               'An error occurred while checking your credentials, make sure you have an Elasticsearch cluster secured by Search Guard running.';
@@ -160,7 +159,7 @@ export class LoginPage extends Component {
   };
 
   render() {
-    const { basePath, httpClient, configService } = this.props;
+    const { basePath, configService } = this.props;
     const {
       showbrandimage: showBrandImage,
       brandimage: brandImage,
@@ -168,9 +167,7 @@ export class LoginPage extends Component {
       subtitle: loginSubTitle,
     } = this.basicAuthConfig.login;
 
-    const {
-      button_text: alternativeButtonLabel,
-    } = this.basicAuthConfig.alternative_login;
+    const { button_text: alternativeButtonLabel } = this.basicAuthConfig.alternative_login;
 
     return (
       <div
@@ -199,7 +196,7 @@ export class LoginPage extends Component {
 
           <LicenseWarningCallout configService={configService} />
 
-          <form onSubmit={event => event.preventDefault()}>
+          <form onSubmit={(event) => event.preventDefault()}>
             <EuiForm>
               <input
                 autoComplete="anyrandomstring"
@@ -207,7 +204,11 @@ export class LoginPage extends Component {
                 type="text"
                 style={{ display: 'none' }}
               />
-              <EuiFormRow id="sg.username" label="Username" isInvalid={this.state.errorMessage !== null}>
+              <EuiFormRow
+                id="sg.username"
+                label="Username"
+                isInvalid={this.state.errorMessage !== null}
+              >
                 <EuiFieldText
                   id="sg.username"
                   data-test-subj="sg.username"
@@ -224,7 +225,11 @@ export class LoginPage extends Component {
               </EuiFormRow>
 
               <EuiSpacer />
-              <EuiFormRow id="sg.password" label="Password" isInvalid={this.state.errorMessage !== null}>
+              <EuiFormRow
+                id="sg.password"
+                label="Password"
+                isInvalid={this.state.errorMessage !== null}
+              >
                 <EuiFieldPassword
                   id="sg.password"
                   data-test-subj="sg.password"
