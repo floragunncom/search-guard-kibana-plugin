@@ -14,7 +14,7 @@ export function getSecurityCookieOptions(configService) {
     },
     clearInvalid: true,
     ttl: configService.get('searchguard.cookie.ttl'),
-    isSameSite: configService.get('searchguard.cookie.isSameSite'),
+    sameSite: configService.get('searchguard.cookie.isSameSite'),
   };
 
   if (configService.get('searchguard.cookie.domain')) {
@@ -25,7 +25,7 @@ export function getSecurityCookieOptions(configService) {
 }
 
 export function extendSecurityCookieOptions(options) {
-  const { domain, ttl, isSameSite } = options;
+  const { domain, ttl } = options;
   // https://github.com/hapijs/statehood/blob/master/lib/index.js#L442
   const origPrepareValue = Statehood.prepareValue;
 
@@ -33,7 +33,6 @@ export function extendSecurityCookieOptions(options) {
     if (name === options.name) {
       origOptions.domain = domain;
       origOptions.ttl = ttl;
-      origOptions.isSameSite = isSameSite;
     }
 
     return origPrepareValue(name, value, origOptions);
