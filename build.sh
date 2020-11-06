@@ -221,13 +221,15 @@ fi
 echo "+++ Building webpack bundles for the the browser code  +++"
 echo "+++ And transpiling the server code  +++"
 yarn build -v $KIBANA_VERSION --skip-archive
+# The following files may be omitted by the Kibana build helpers but we must have them.
+cp -a "$WORK_DIR/public" build/kibana/searchguard
+cp -a "$WORK_DIR/package.json" build/kibana/searchguard
 
 echo "+++ Copy plugin contents to finalize build +++"
 cd "$WORK_DIR"
 rm -rf build node_modules
 mv "$BUILD_STAGE_PLUGIN_DIR/build" build
 mv build/kibana/searchguard "build/kibana/$PLUGIN_NAME"
-cp -a "$WORK_DIR/public" "build/kibana/$PLUGIN_NAME"
 
 end=`date +%s`
 echo "Build time: $((end-start)) sec"
