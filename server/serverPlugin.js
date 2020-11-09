@@ -68,19 +68,19 @@ export class ServerPlugin {
     }
 
     (async () => {
-      const { sessionStorageFactory } = await this.searchGuardApp.setup({
+      const { authInstance, sessionStorageFactory } = await this.searchGuardApp.setup({
         core,
-        hapiServer: this.hapiServer,
         elasticsearch,
         pluginDependencies,
       });
 
       if (isMtEnabled) {
         this.multiTenancyApp.setup({
-          hapiServer: this.hapiServer,
+          authInstance,
           elasticsearch,
           kibanaCore: core,
           sessionStorageFactory,
+          pluginDependencies,
         });
       }
     })();

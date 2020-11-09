@@ -15,7 +15,6 @@ import {
   checkCookieConfig,
 } from './sanity_checks';
 import { getSecurityCookieOptions, extendSecurityCookieOptions } from './session/security_cookie';
-import { handleDefaultSpace, handleSelectedTenant } from '../multitenancy/request_headers';
 
 export class SearchGuard {
   constructor(coreContext) {
@@ -197,35 +196,9 @@ export class SearchGuard {
 
       this.logger.info('Search Guard system routes registered.');
 
-      // @todo We may not have an authInstance! Kerberos, Proxy
+      // We may not have an authInstance, e.g. for Kerberos, Proxy
       if (authInstance) {
         core.http.registerAuth(authInstance.checkAuth);
-      } else {
-        core.http.registerAuth(async (request) => {
-          if (this.configService.get('searchguard.multitenancy.enabled')) {
-            const authLogger = this.coreContext.logger.get('searchguard-auth');
-            const sessionCookie = await sessionStorageFactory.asScoped(request).get();
-            const selectedTenant = await handleSelectedTenant({
-              authHeaders: request.headers,
-              sessionCookie,
-              searchGuardBackend: this.searchGuardBackend,
-              config: this.configService,
-              sessionStorageFactory,
-              logger: authLogger,
-              request,
-            });
-
-            await handleDefaultSpace({
-              request,
-              authHeaders: request.headers,
-              selectedTenant,
-              pluginDependencies,
-              logger: authLogger,
-              searchGuardBackend: this.searchGuardBackend,
-              elasticsearch,
-            });
-          }
-        });
       }
 
       return { authInstance, sessionStorageFactory };
