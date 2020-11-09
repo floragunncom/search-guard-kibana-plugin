@@ -49,11 +49,7 @@ export class SearchGuard {
         configService,
       });
 
-      redirectOnSessionTimeout(
-        configService.get('searchguard.auth.type'),
-        core.http,
-        configService.get('restapiinfo.user_name') === 'sg_anonymous'
-      );
+      redirectOnSessionTimeout(configService.get('searchguard.auth.type'), core.http);
     } catch (error) {
       console.error(error);
       throw error;
