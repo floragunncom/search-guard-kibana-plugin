@@ -3,6 +3,7 @@ import { get } from 'lodash';
 import { registerRoutes } from './routes';
 import { readKibanaConfig } from './read_kibana_config';
 import { ConfigService } from '../../../common/config_service';
+import { Kerberos } from '../../../lib/auth/types';
 import { defineAuthInfoRoutes } from '../../../lib/auth/routes_authinfo';
 import { defineSystemRoutes } from '../../../lib/system/routes';
 import { defineConfigurationRoutes } from '../../../lib/configuration/routes/routes';
@@ -92,6 +93,8 @@ export class SearchGuard {
       const authType = this.configService.get('searchguard.auth.type', null);
       let AuthClass = null;
       let authInstance = null;
+
+      // Proxy authentication is handled implicitly.
       if (
         authType &&
         authType !== '' &&
@@ -196,9 +199,20 @@ export class SearchGuard {
 
       this.logger.info('Search Guard system routes registered.');
 
-      // We may not have an authInstance, e.g. for Kerberos, Proxy
       if (authInstance) {
         core.http.registerAuth(authInstance.checkAuth);
+      }
+
+      // Handle Kerberos separately because we don't want to bring up entire jungle from AuthType here.
+      if (authType === 'kerberos') {
+        core.http.registerAuth(
+          new Kerberos({
+            pluginDependencies,
+            config: this.configService,
+            searchGuardBackend: this.searchGuardBackend,
+            logger: this.coreContext.logger.get('searchguard-kerberos-auth'),
+          }).checkAuth
+        );
       }
 
       return { authInstance, sessionStorageFactory };
