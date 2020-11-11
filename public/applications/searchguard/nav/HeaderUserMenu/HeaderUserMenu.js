@@ -15,12 +15,21 @@ import {
 import { AccessControlService } from '../../../../services';
 import { logoutText } from '../utils/i18n';
 
+function LogoutBtn({ onClick, authType }) {
+  if (authType === 'kerberos' || authType === 'proxy') return null;
+  return (
+    <EuiLink onClick={onClick} aria-label="logout" data-test-subj="sg.userMenu.button-logout">
+      {logoutText}
+    </EuiLink>
+  );
+}
+
 export function HeaderUserMenu({ httpClient, logoutUrl, userName, userNameTooltipText, authType }) {
   const [isOpen, setIsOpen] = useState(false);
   const acService = new AccessControlService({ httpClient, authType });
 
   function openPopover() {
-    setIsOpen(prevState => !prevState);
+    setIsOpen((prevState) => !prevState);
   }
 
   function closePopover() {
@@ -58,9 +67,7 @@ export function HeaderUserMenu({ httpClient, logoutUrl, userName, userNameToolti
           </EuiToolTip>
 
           <EuiSpacer />
-          <EuiLink onClick={logOut} aria-label="logout" data-test-subj="sg.userMenu.button-logout">
-            {logoutText}
-          </EuiLink>
+          <LogoutBtn onClick={logOut} authType={authType} />
         </EuiFlexItem>
       </EuiFlexGroup>
     </EuiPopover>
