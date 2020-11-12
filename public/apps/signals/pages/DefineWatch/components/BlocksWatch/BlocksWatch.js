@@ -109,6 +109,7 @@ function BlocksWatch({
       console.debug('BlocksWatch -- executeBlocks -- values, sliced checks', formik);
       console.debug('BlocksWatch -- executeBlocks -- watch', watch);
       addErrorToast(error);
+      setFieldValue(`${checksBlocksPath}.${endIndex}.response`, stringifyPretty(error.body));
     }
 
     setIsLoading(false);

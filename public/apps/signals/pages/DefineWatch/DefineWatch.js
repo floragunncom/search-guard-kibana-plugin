@@ -56,7 +56,7 @@ class DefineWatch extends Component {
     } catch (error) {
       console.error('DefineWatch -- fetchData', error);
 
-      if (error.statusCode === 404) {
+      if (error.body && error.body.statusCode === 404) {
         this.setState({ isEdit: false });
         history.push({ search: '' });
       } else {

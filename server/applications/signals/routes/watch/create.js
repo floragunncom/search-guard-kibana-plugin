@@ -27,16 +27,16 @@ export function createWatch({ clusterClient, logger }) {
         headers: { sgtenant = NO_MULTITENANCY_TENANT },
       } = request;
 
-      const resp = await clusterClient.asScoped(request).callAsCurrentUser('sgSignals.saveWatch', {
-        id,
+      const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
+        method: 'put',
+        path: `/_signals/watch/${sgtenant}/${id}`,
         body,
-        sgtenant,
       });
 
       return response.ok({ body: { ok: true, resp } });
     } catch (err) {
       logger.error(`createWatch: ${err.stack}`);
-      return response.ok({ body: { ok: false, resp: serverError(err) } });
+      return response.customError(serverError(err));
     }
   };
 }

@@ -31,23 +31,23 @@ describe('routes/watch/execute', () => {
     const context = setupContextMock();
 
     const expectedResponse = {
-      data: {
-        mysearch: {
-          _shards: {},
-          hits: {
-            hits: [
-              { _id: '123', _source: { a: 'b' } },
-              { _id: '456', _source: { c: 'd' } },
-            ],
+      body: {
+        data: {
+          mysearch: {
+            _shards: {},
+            hits: {
+              hits: [
+                { _id: '123', _source: { a: 'b' } },
+                { _id: '456', _source: { c: 'd' } },
+              ],
+            },
           },
         },
       },
     };
 
-    const callAsCurrentUser = jest.fn().mockResolvedValue(expectedResponse);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserTransportRequest = jest.fn().mockResolvedValue(expectedResponse);
+    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
 
     const request = {
       headers: {},
@@ -61,20 +61,25 @@ describe('routes/watch/execute', () => {
       },
     };
 
-    const expectedEndpoint = 'sgSignals.executeWatch';
     const expectedClusterCallOptions = {
-      body: request.body,
-      sgtenant: NO_MULTITENANCY_TENANT,
+      method: 'post',
+      path: `/_signals/watch/${NO_MULTITENANCY_TENANT}/_execute`,
+      body: {
+        watch: request.body.watch,
+        show_all_runtime_attributes: true,
+        simulate: false,
+        skip_actions: true,
+      },
     };
 
     await executeWatch({ clusterClient, logger })(context, request, response);
 
     expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
-    expect(callAsCurrentUser).toHaveBeenCalledWith(expectedEndpoint, expectedClusterCallOptions);
+    expect(asCurrentUserTransportRequest).toHaveBeenCalledWith(expectedClusterCallOptions);
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
-        resp: expectedResponse,
+        resp: expectedResponse.body,
       },
     });
   });
@@ -86,10 +91,8 @@ describe('routes/watch/execute', () => {
 
     const error = new Error('nasty!');
 
-    const callAsCurrentUser = jest.fn().mockRejectedValue(error);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserTransportRequest = jest.fn().mockRejectedValue(error);
+    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
 
     const request = {
       headers: {},
@@ -100,11 +103,6 @@ describe('routes/watch/execute', () => {
     await executeWatch({ clusterClient, logger })(context, request, response);
 
     expect(logger.error).toHaveBeenCalledWith(`executeWatch: ${error.stack}`);
-    expect(response.ok).toHaveBeenCalledWith({
-      body: {
-        ok: false,
-        resp: serverError(error),
-      },
-    });
+    expect(response.customError).toHaveBeenCalledWith(serverError(error));
   });
 });

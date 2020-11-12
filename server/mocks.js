@@ -119,9 +119,33 @@ export function setupContextMock() {
   return jest.fn();
 }
 
-export function setupClusterClientMock({ asScoped = jest.fn() } = {}) {
+export function setupClusterClientMock({
+  asCurrentUserTransportRequest = jest.fn(),
+  asCurrentUserScroll = jest.fn(),
+  asCurrentUserSearch = jest.fn(),
+  asCurrentUserDelete = jest.fn(),
+  asCurrentUserCatAliases = jest.fn(),
+  asCurrentUserCatIndices = jest.fn(),
+  asCurrentUserIndicesGetMapping = jest.fn(),
+} = {}) {
   return {
-    asScoped,
+    asScoped: jest.fn(() => {
+      return {
+        asCurrentUser: {
+          transport: { request: asCurrentUserTransportRequest },
+          scroll: asCurrentUserScroll,
+          search: asCurrentUserSearch,
+          delete: asCurrentUserDelete,
+          cat: {
+            aliases: asCurrentUserCatAliases,
+            indices: asCurrentUserCatIndices,
+          },
+          indices: {
+            getMapping: asCurrentUserIndicesGetMapping,
+          },
+        },
+      };
+    }),
   };
 }
 

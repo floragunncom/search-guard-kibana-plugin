@@ -27,14 +27,15 @@ export function executeGraphWatch({ clusterClient, logger }) {
         },
       } = request;
 
-      const resp = await clusterClient
-        .asScoped(request)
-        .callAsCurrentUser('search', { body, index });
+      const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.search({
+        body,
+        index,
+      });
 
       return response.ok({ body: { ok: true, resp } });
     } catch (err) {
       logger.error(`executeGraphWatch: ${err.stack}`);
-      return response.ok({ body: { ok: false, resp: serverError(err) } });
+      return response.customError(serverError(err));
     }
   };
 }

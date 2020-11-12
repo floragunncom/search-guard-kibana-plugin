@@ -35,11 +35,11 @@ export function getWatches({ clusterClient, fetchAllFromScroll, logger }) {
         body.query = query;
       }
 
-      const firstScrollResponse = await clusterClient
+      const { body: firstScrollResponse } = await clusterClient
         .asScoped(request)
-        .callAsCurrentUser('sgSignals.getWatches', {
-          scroll,
-          sgtenant,
+        .asCurrentUser.transport.request({
+          method: 'post',
+          path: `/_signals/watch/${sgtenant}/_search?scroll=${scroll}`,
           body,
         });
 
@@ -58,7 +58,7 @@ export function getWatches({ clusterClient, fetchAllFromScroll, logger }) {
       });
     } catch (err) {
       logger.error(`getWatches: ${err.stack}`);
-      return response.ok({ body: { ok: false, resp: serverError(err) } });
+      return response.customError(serverError(err));
     }
   };
 }
