@@ -96,7 +96,7 @@ export class MultiTenancyPage extends Component {
   fetchMultiTenancyInfo(addErrorToast) {
     const { httpClient } = this.context;
     httpClient.get(`${API_ROOT}/multitenancy/info`).then(
-      response => {
+      (response) => {
         const kibana_server_user = this.configService.get('elasticsearch.username');
         const kibana_index = this.configService.get('kibana.index');
 
@@ -137,7 +137,7 @@ export class MultiTenancyPage extends Component {
           });
         }
       },
-      error => {
+      (error) => {
         addErrorToast(error, 'Unable to load multitenancy info.');
       }
     );
@@ -147,7 +147,7 @@ export class MultiTenancyPage extends Component {
     const { httpClient } = this.context;
 
     httpClient.get(`${API_ROOT}/auth/authinfo`).then(
-      response => {
+      (response) => {
         // remove users own tenant, will be replaced with __user__
         // since we want to display tenant name with "Private"
         const userName = response.data.user_name;
@@ -156,17 +156,18 @@ export class MultiTenancyPage extends Component {
           enable_global: globalEnabled,
           enable_private: privateEnabled,
         } = this.configService.get('searchguard.multitenancy.tenants');
-        const readOnlyConfig = this.configService.get('readonly_mode');
+        const readOnlyConfig = this.configService.get('searchguard.readonly_mode');
 
         let userHasDashboardOnlyRole = false;
         try {
-          userHasDashboardOnlyRole = response.data.sg_roles.filter(role => {
+          userHasDashboardOnlyRole = response.data.sg_roles.filter((role) => {
             return readOnlyConfig.roles.indexOf(role) > -1;
           }).length
             ? true
             : false;
         } catch (error) {
           // Ignore for now
+          console.warn('Could not check read only mode roles', error);
         }
 
         // If SGS_GLOBAL_TENANT is not available in tenant list, it needs to be
@@ -195,7 +196,7 @@ export class MultiTenancyPage extends Component {
         }
         tenantKeys.sort();
 
-        const uiTenants = tenantKeys.map(tenant => ({
+        const uiTenants = tenantKeys.map((tenant) => ({
           id: tenant,
           label: tenant,
           canWrite: userHasDashboardOnlyRole ? false : allTenants[tenant],
@@ -204,7 +205,6 @@ export class MultiTenancyPage extends Component {
           },
         }));
 
-        // @todo Check labels and rights
         if (privateEnabled && !userHasDashboardOnlyRole) {
           uiTenants.unshift({
             id: '__user__',
@@ -224,14 +224,6 @@ export class MultiTenancyPage extends Component {
           });
         }
 
-        /* Moved to state
-          this.tenants = allTenants;
-          this.tenantkeys = tenantKeys;
-          this.roles = response.data.sg_roles.join(", ");
-          this.rolesArray = response.data.sg_roles;
-
-           */
-
         this.setState({
           userName,
           uiTenants,
@@ -249,16 +241,16 @@ export class MultiTenancyPage extends Component {
         });
 
         httpClient.get(`${API_ROOT}/multitenancy/tenant`).then(
-          response => {
+          (response) => {
             const currentTenant = response.data;
             this.setCurrentTenant(currentTenant, userName);
           },
-          error => {
+          (error) => {
             addErrorToast(error);
           }
         );
       },
-      error => {
+      (error) => {
         this.setState({
           isLoading: false,
         });
@@ -293,7 +285,7 @@ export class MultiTenancyPage extends Component {
         username: userName,
       })
       .then(
-        response => {
+        (response) => {
           const currentTenant = response.data;
           configService.init();
           this.setCurrentTenant(currentTenant, userName);
@@ -374,7 +366,7 @@ export class MultiTenancyPage extends Component {
         <EuiFlyoutBody>
           <EuiText>
             <ul>
-              {rolesArray.map(role => (
+              {rolesArray.map((role) => (
                 <li key={role}>{role}</li>
               ))}
             </ul>
@@ -386,11 +378,9 @@ export class MultiTenancyPage extends Component {
 
   resolveTenantName(tenant, userName) {
     if (!tenant || tenant === 'undefined') {
-      // @todo Label
       return 'Global';
     }
     if (tenant === userName || tenant === '__user__') {
-      // @todo Label
       return 'Private';
     } else {
       return tenant;
@@ -464,7 +454,7 @@ export class MultiTenancyPage extends Component {
       },
       {
         name: '',
-        render: uiTenant => {
+        render: (uiTenant) => {
           const testSuffix = uiTenant.testLabel || uiTenant.label;
           return (
             <div style={{ textAlign: 'right' }}>
@@ -483,7 +473,7 @@ export class MultiTenancyPage extends Component {
       },
       {
         name: '',
-        render: uiTenant => {
+        render: (uiTenant) => {
           if (userHasDashboardOnlyRole) {
             return null;
           }
@@ -507,7 +497,7 @@ export class MultiTenancyPage extends Component {
       {
         name: '',
         align: 'right',
-        render: uiTenant => {
+        render: (uiTenant) => {
           const testSuffix = uiTenant.testLabel || uiTenant.label;
           return (
             <EuiButton
@@ -581,7 +571,7 @@ export class MultiTenancyPage extends Component {
 
               <EuiInMemoryTable
                 items={uiTenants}
-                rowProps={uiTenant => {
+                rowProps={(uiTenant) => {
                   return {
                     isSelected: uiTenant.id === currentTenant,
                   };

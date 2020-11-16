@@ -53,7 +53,7 @@ export const DEFAULT_CONFIG = {
   searchguard: {
     enabled: true,
     allow_client_certificates: false,
-    readonly_mode: { roles: [] },
+    readonly_mode: { enabled: true, roles: [] },
     xff: { enabled: false },
     cookie: {
       secure: false,
