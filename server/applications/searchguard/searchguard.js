@@ -16,6 +16,7 @@ import {
   checkCookieConfig,
 } from './sanity_checks';
 import { getSecurityCookieOptions, extendSecurityCookieOptions } from './session/security_cookie';
+import { ReadOnlyMode } from '../../../lib/authorization/ReadOnlyMode';
 
 export class SearchGuard {
   constructor(coreContext) {
@@ -213,6 +214,16 @@ export class SearchGuard {
             logger: this.coreContext.logger.get('searchguard-kerberos-auth'),
           }).checkAuth
         );
+      }
+
+      if (this.configService.get('searchguard.readonly_mode.enabled')) {
+        const readOnlyMode = new ReadOnlyMode(this.coreContext.logger.get('searchguard-readonly'));
+        readOnlyMode.setupSync({
+          kibanaCoreSetup: core,
+          searchGuardBackend: this.searchGuardBackend,
+          configService: this.configService,
+          authInstance,
+        });
       }
 
       return { authInstance, sessionStorageFactory };

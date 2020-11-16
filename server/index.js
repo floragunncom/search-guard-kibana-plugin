@@ -67,6 +67,7 @@ export const ConfigSchema = schema.object({
   }),
 
   readonly_mode: schema.object({
+    enabled: schema.boolean({ defaultValue: searchguardDefaults.readonly_mode.enabled }),
     roles: schema.arrayOf(schema.string(), {
       defaultValue: searchguardDefaults.readonly_mode.roles,
     }),

@@ -195,7 +195,7 @@ if [ $? != 0 ]; then
 fi
 
 echo "+++ Testing UI +++"
-uitestsResult=`../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest public --config ./tests/jest.config.js --silent --json`
+uitestsResult=`../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server  --testPathIgnorePatterns=lib  --config ./tests/jest.config.js --silent --json`
 echo $uitestsResult >>"$WORK_DIR/build.log" 2>&1
 if [[ ! $uitestsResult =~ .*\"numFailedTests\":0.* || ! $uitestsResult =~ .*\"numFailedTestSuites\":0.* ]]; then
   echo "Browser tests failed"
@@ -203,7 +203,7 @@ if [[ ! $uitestsResult =~ .*\"numFailedTests\":0.* || ! $uitestsResult =~ .*\"nu
 fi
 
 echo "+++ Testing UI Server +++"
-srvtestsResult=`../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest lib --config ./tests/jest.config.js --passWithNoTests --silent --json`
+srvtestsResult=`../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=public  --config ./tests/jest.config.js --silent --json`
 echo $srvtestsResult >>"$WORK_DIR/build.log" 2>&1
 if [[ ! $srvtestsResult =~ .*\"numFailedTests\":0.* || ! $srvtestsResult =~ .*\"numFailedTestSuites\":0.* ]]; then
     echo "Server unit tests failed"
