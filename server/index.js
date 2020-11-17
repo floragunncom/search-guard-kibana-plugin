@@ -138,6 +138,7 @@ export const ConfigSchema = schema.object({
    * Basic auth
    */
   basicauth: schema.object({
+    enabled: schema.boolean({ defaultValue: basicauthDefaults.enabled }),
     forbidden_usernames: schema.arrayOf(schema.string(), {
       defaultValue: basicauthDefaults.forbidden_usernames,
     }),

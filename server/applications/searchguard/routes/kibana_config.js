@@ -51,6 +51,9 @@ export function kibanaConfigRoute({ router, config, logger }) {
   const options = {
     path: `${API_ROOT}/${'searchguard'}/kibana_config`,
     validate: false,
+    options: {
+      authRequired: false,
+    },
   };
 
   router.get(options, handleKibanaConfig({ config, logger }));

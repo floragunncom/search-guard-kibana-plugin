@@ -16,6 +16,7 @@ import {
   checkCookieConfig,
 } from './sanity_checks';
 import { getSecurityCookieOptions, extendSecurityCookieOptions } from './session/security_cookie';
+import { validateKibanaConfig } from './validate_config';
 import { ReadOnlyMode } from '../../../lib/authorization/ReadOnlyMode';
 
 export class SearchGuard {
@@ -29,7 +30,10 @@ export class SearchGuard {
 
     try {
       const isDev = get(this.coreContext, 'env.mode.dev', false);
-      this.configService = new ConfigService(readKibanaConfig({ isDev }));
+      const parsedKibanaConfig = readKibanaConfig({ isDev });
+      const validatedKibanaConfig = validateKibanaConfig(parsedKibanaConfig);
+
+      this.configService = new ConfigService(validatedKibanaConfig);
 
       registerRoutes({
         router: kibanaRouter,

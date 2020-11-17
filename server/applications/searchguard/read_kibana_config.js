@@ -76,6 +76,7 @@ export const DEFAULT_CONFIG = {
       debug: false,
     },
     basicauth: {
+      enabled: true,
       forbidden_usernames: [],
       allowed_usernames: null,
       header_trumps_session: false,

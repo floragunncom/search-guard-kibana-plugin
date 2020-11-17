@@ -58,10 +58,10 @@ export class UiConfigService extends ConfigService {
         console.error(kibanaConfigResp.reason);
       }
 
-      const config = { searchguard: this.coreContext.config.get() };
+      let config = { searchguard: this.coreContext.config.get() };
 
-      defaultsDeep(config, {
-        ...kibanaConfig,
+      config = defaultsDeep(kibanaConfig, {
+        ...config,
         restapiinfo,
         systeminfo,
         authinfo: {
