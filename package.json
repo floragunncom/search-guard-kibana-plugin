@@ -1,42 +1,37 @@
 {
   "name": "searchguard",
-  "version": "7.9.4-master-SNAPSHOT",
+  "version": "7.10.1-master-SNAPSHOT",
   "description": "Search Guard features for Kibana",
-  "main": "index.js",
   "homepage": "https://search-guard.com",
   "license": "Apache-2.0",
   "searchguard": {
     "test_sg_version": "7.9.3-master-SNAPSHOT",
-    "kibana_branch": "7.9"
+    "kibana_branch": "7.10"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/floragunncom/search-guard-kibana-plugin"
   },
   "scripts": {
-    "build:bundles": "node ../../scripts/build_kibana_platform_plugins.js --verbose --no-examples",
-    "lint": "./node_modules/.bin/eslint .",
+    "build": "yarn plugin-helpers build",
+    "plugin-helpers": "node ../../scripts/plugin_helpers",
     "kbn": "node ../../scripts/kbn",
-    "test:browser": "./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest public --config ./tests/jest.config.js --silent",
-    "test:server": "./node_modules/.bin/jest --clearCache && ./node_modules/.bin/jest lib --config ./tests/jest.config.js --silent",
-    "test:prepare_integration_test": "yarn && ./patches/patch_kibana_es_version_compatibility.sh",
-    "patch:kibana:samesite": "./patches/patch_to_add_samesite_none_to_cookies.sh",
-    "patch:kibana:dev:es_compatibility": "./patches/patch_kibana_es_version_compatibility.sh"
+    "test:browser": "../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server  --testPathIgnorePatterns=lib --config ./tests/jest.config.js --silent",
+    "test:server": "../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=public --config ./tests/jest.config.js --silent",
+    "patch:kibana:es_compatibility": "./common/patches/patch_kibana_es_version_compatibility.sh",
+    "patch:kibana:dev:es_compatibility": "./common/patches/patch_kibana_es_version_compatibility.sh dev"
   },
   "dependencies": {
-    "bell": "9.4.0",
-    "brace": "^0.11.1",
+    "brace": "0.11.1",
+    "cryptiles": "4.x.x",
     "dompurify": "^2.1.1",
-    "hapi-auth-cookie": "^9.1.0",
     "formik": "^2.1.7",
-    "react-vis": "^1.11.7",
-    "requirefrom": "^0.2.0",
+    "raw-loader": "^3.1.0",
+    "react-vis": "^1.8.1",
     "wreck": "14.x.x"
   },
   "devDependencies": {
     "core-js": "^3.6.5",
-    "enzyme-to-json": "^3.5.0",
-    "jest": "^26.5.2",
     "ts-jest": "^26.4.1"
   }
 }

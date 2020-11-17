@@ -309,6 +309,6 @@ export class GraphWatch extends Component {
 }
 
 GraphWatch.propTypes = {
-  httpClient: PropTypes.func.isRequired,
+  httpClient: PropTypes.object.isRequired,
   formik: PropTypes.object.isRequired,
 };

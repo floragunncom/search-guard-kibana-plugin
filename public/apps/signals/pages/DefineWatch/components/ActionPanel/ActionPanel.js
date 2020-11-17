@@ -214,7 +214,7 @@ class ActionPanel extends Component {
 
 ActionPanel.propTypes = {
   isLoading: PropTypes.bool,
-  httpClient: PropTypes.func.isRequired,
+  httpClient: PropTypes.object.isRequired,
   arrayHelpers: PropTypes.object.isRequired,
   formik: PropTypes.object.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,

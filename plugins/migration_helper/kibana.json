@@ -1,9 +1,0 @@
-{
-  "id": "migrationHelper",
-  "version": "7.9.4",
-  "server": false,
-  "ui": true,
-  "requiredPlugins": [
-    "home"
-  ]
-}

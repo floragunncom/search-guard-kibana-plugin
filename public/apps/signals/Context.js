@@ -1,7 +1,6 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import React, { useState } from 'react';
 import uuid from 'uuid/v4';
-import chrome from 'ui/chrome';
 import { EuiGlobalToastList, EuiTitle, EuiText, EuiCodeBlock } from '@elastic/eui';
 import { differenceBy, get } from 'lodash';
 import { Flyout, Modal } from './components';
@@ -15,10 +14,11 @@ import 'brace/theme/textmate';
 
 const Context = React.createContext();
 
-const IS_DARK_THEME = chrome.getUiSettingsClient().get('theme:darkMode');
 const { darkTheme, theme: lightTheme, ...editorOptionsDefaults } = CODE_EDITOR;
 
-const ContextProvider = ({ children, httpClient }) => {
+const ContextProvider = ({ children, core, httpClient }) => {
+  const IS_DARK_THEME = core.uiSettings.get('theme:darkMode');
+
   const [editorTheme] = useState(IS_DARK_THEME ? darkTheme : lightTheme);
   const [editorOptions] = useState(editorOptionsDefaults);
   const [flyout, setFlyout] = useState(null);
@@ -159,7 +159,7 @@ const ContextProvider = ({ children, httpClient }) => {
     });
 
   const addErrorToast = error => {
-    let text = get(error, 'data.message') || error.message || error;
+    let text = get(error, 'data.message') || get(error, 'body.message') || error.message || error;
     const detail = get(error, 'body.detail', undefined);
 
     if (detail) {

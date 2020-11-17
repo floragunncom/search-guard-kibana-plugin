@@ -175,7 +175,7 @@ class DefineWatch extends Component {
                   </EuiFlexItem>
                 </EuiFlexGroup>
                 <EuiSpacer />
-                <GeneralPanel httpClient={httpClient} location={location} />
+                <GeneralPanel location={location} />
                 <EuiSpacer />
                 <DefinitionPanel />
                 <EuiSpacer />
@@ -229,7 +229,7 @@ class DefineWatch extends Component {
 DefineWatch.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  httpClient: PropTypes.func.isRequired,
+  httpClient: PropTypes.object.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
 };
 

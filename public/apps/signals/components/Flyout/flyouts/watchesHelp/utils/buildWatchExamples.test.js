@@ -14,7 +14,7 @@ describe('buildWatchExamples', () => {
 
       expect(
         watchExamples[watchName].doc_link
-      ).toEqual(expect.stringContaining('/examples/watches'));
+      ).toEqual(expect.stringContaining('/common/examples/watches'));
     });
 
     [

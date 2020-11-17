@@ -343,7 +343,7 @@ class Accounts extends Component {
 }
 
 Accounts.propTypes = {
-  httpClient: PropTypes.func.isRequired,
+  httpClient: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
 };

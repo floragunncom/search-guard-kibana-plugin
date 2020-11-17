@@ -69,7 +69,7 @@ const CustomOption = ({ option, searchValue, contentClassName }) => {
 };
 
 const propTypes = {
-  httpClient: PropTypes.func.isRequired,
+  httpClient: PropTypes.object.isRequired,
   indexFieldName: PropTypes.string.isRequired,
   isClearable: PropTypes.bool,
   singleSelection: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),

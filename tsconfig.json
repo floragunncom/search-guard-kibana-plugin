@@ -4,6 +4,16 @@
   // tell the TypeScript compiler where to find your source files
   "include": [
     "lib/**/*",
+    "server/**/*",
+    "common/**/*",
     "public/**/*"
+  ],
+  "exclude": [
+    "public/**/*.test.ts",
+    "public/**/*.test.tsx",
+    "lib/**/*.test.ts",
+    "server/**/*.test.ts",
+    "common/**/*.test.ts"
   ]
 }
+

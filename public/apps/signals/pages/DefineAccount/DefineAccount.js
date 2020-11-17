@@ -94,30 +94,15 @@ class DefineAccount extends Component {
   };
 
   render() {
-    const {
-      location,
-      httpClient,
-      onComboBoxChange,
-      onComboBoxOnBlur,
-      onComboBoxCreateOption,
-    } = this.props;
-
+    const { location } = this.props;
     const { initialValues } = this.state;
     const { id, accountType } = queryString.parse(location.search);
     const isEdit = !!id;
 
-    let account = (
-      <EmailAccount
-        httpClient={httpClient}
-        id={id}
-        onComboBoxChange={onComboBoxChange}
-        onComboBoxOnBlur={onComboBoxOnBlur}
-        onComboBoxCreateOption={onComboBoxCreateOption}
-      />
-    );
+    let account = <EmailAccount id={id} />;
 
     if (accountType === ACCOUNT_TYPE.SLACK) {
-      account = <SlackAccount httpClient={httpClient} id={id} />;
+      account = <SlackAccount id={id} />;
     }
 
     if (accountType === ACCOUNT_TYPE.JIRA) {
@@ -165,12 +150,9 @@ class DefineAccount extends Component {
 }
 
 DefineAccount.propTypes = {
+  httpClient: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
-  httpClient: PropTypes.func.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired,
-  onComboBoxOnBlur: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired,
 };
 
 export default DefineAccount;

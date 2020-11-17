@@ -2,9 +2,10 @@
 module.exports = {
   rootDir: '../',
   setupFiles: ['<rootDir>/tests/setup_tests.js'],
+  preset: 'ts-jest',
   globals: {
     'ts-jest': {
-      tsConfig: 'tsconfig.json',
+      babelConfig: true,
       diagnostics: true,
     },
   },
@@ -12,10 +13,10 @@ module.exports = {
   moduleNameMapper: {
     '!!raw-loader!./worker.js': '<rootDir>/__mocks__/raw_loader.js',
     'ui/chrome': '<rootDir>/__mocks__/chrome.js',
+    '\\.svg': '<rootDir>/__mocks__/svg_mock.js',
   },
   testMatch: ['**/*.test.js', '**/*.test.ts'],
   modulePaths: ['node_modules', '../../node_modules'],
-  snapshotSerializers: ['./node_modules/enzyme-to-json/serializer'],
   coverageDirectory: './coverage',
   coverageReporters: ['lcov', 'text', 'cobertura'],
   transform: {
