@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
-export { default as formikToUser } from './formik_to_user';
-export { default as userToFormik } from './user_to_formik';
-export { isComplexAttributes } from './is_complex_attributes';
+export function isComplexAttributes(userAttributes = {}) {
+  for (const key of Object.keys(userAttributes)) {
+    if (userAttributes[key] !== null && typeof userAttributes[key] === 'object') return true;
+  }
+
+  return false;
+}

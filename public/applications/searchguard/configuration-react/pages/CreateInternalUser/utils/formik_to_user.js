@@ -27,11 +27,18 @@ const formikToUser = (userFormik) => {
       '_changePassword',
       '_backendRoles',
       '_attributes',
+      '_attributesString',
+      '_isComplexUserAttributes',
       ...FIELDS_TO_OMIT_BEFORE_SAVE,
     ]),
     backend_roles: comboBoxOptionsToArray(userFormik._backendRoles),
-    attributes: uiAttributesToAttributes(userFormik._attributes),
   };
+
+  if (userFormik._isComplexUserAttributes) {
+    user.attributes = JSON.parse(userFormik._attributesString);
+  } else {
+    user.attributes = uiAttributesToAttributes(userFormik._attributes);
+  }
 
   if (userFormik._password) {
     user.password = userFormik._password;

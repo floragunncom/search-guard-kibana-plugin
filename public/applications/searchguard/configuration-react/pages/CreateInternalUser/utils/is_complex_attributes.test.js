@@ -14,6 +14,14 @@
  * limitations under the License.
  */
 
-export { default as formikToUser } from './formik_to_user';
-export { default as userToFormik } from './user_to_formik';
-export { isComplexAttributes } from './is_complex_attributes';
+import { isComplexAttributes } from './is_complex_attributes';
+
+describe('isComplexAttributes', () => {
+  test('complex attributes', () => {
+    expect(isComplexAttributes({ a: 1, b: { c: 2 } })).toBe(true);
+  });
+
+  test('simple attributes', () => {
+    expect(isComplexAttributes({ a: 1, b: 2 })).toBe(false);
+  });
+});

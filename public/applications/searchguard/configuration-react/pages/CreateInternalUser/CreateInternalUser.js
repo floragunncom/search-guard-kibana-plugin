@@ -24,17 +24,20 @@ import { ContentPanel, InspectButton, CancelButton, SaveButton } from '../../com
 import { BackendRoles, UserAttributes, UserCredentials } from './components';
 import { APP_PATH, INTERNAL_USERS_ACTIONS } from '../../utils/constants';
 import { DEFAULT_USER } from './utils/constants';
-import { userToFormik, formikToUser } from './utils';
+import { userToFormik, formikToUser, isComplexAttributes } from './utils';
 import { internalUsersToUiBackendRoles } from '../../utils/helpers';
 import { InternalUsersService } from '../../services';
 
-// TODO: make this component get API data by chunks (paginations)
-class CreateInternalUser extends Component {
-  constructor(props) {
-    super(props);
+import { Context } from '../../Context';
 
-    const { location, httpClient } = this.props;
-    this.backendService = new InternalUsersService(httpClient);
+class CreateInternalUser extends Component {
+  static contextType = Context;
+
+  constructor(props, context) {
+    super(props, context);
+
+    const { location } = this.props;
+    this.backendService = new InternalUsersService(context.httpClient);
     const { id } = queryString.parse(location.search);
 
     this.state = {
@@ -44,7 +47,6 @@ class CreateInternalUser extends Component {
       allBackendRoles: [],
       isLoading: true,
       errorMessage: null,
-      isUserAttributesFlyoutVisible: false,
     };
   }
 
@@ -53,7 +55,7 @@ class CreateInternalUser extends Component {
   }
 
   componentWillUnmount = () => {
-    this.props.onTriggerInspectJsonFlyout(null);
+    this.context.triggerInspectJsonFlyout(null);
   };
 
   fetchData = async () => {
@@ -68,7 +70,7 @@ class CreateInternalUser extends Component {
 
       if (id) {
         const resource = await this.backendService.get(id);
-        this.setState({ resource: userToFormik(resource, id) });
+        this.setState({ resource: userToFormik(resource, { id }) });
       } else {
         this.setState({
           resource: userToFormik(DEFAULT_USER),
@@ -97,15 +99,13 @@ class CreateInternalUser extends Component {
   };
 
   render() {
+    const { history, location } = this.props;
     const {
-      history,
-      onTriggerInspectJsonFlyout,
-      location,
-      onTriggerConfirmDeletionModal,
+      triggerInspectJsonFlyout,
       onComboBoxChange,
       onComboBoxOnBlur,
       onComboBoxCreateOption,
-    } = this.props;
+    } = this.context;
     const { resource, isEdit, allBackendRoles, isLoading, errorMessage } = this.state;
     const { action, id } = queryString.parse(location.search);
     const updateUser = action === INTERNAL_USERS_ACTIONS.UPDATE_USER;
@@ -132,7 +132,7 @@ class CreateInternalUser extends Component {
             >
               <InspectButton
                 onClick={() => {
-                  onTriggerInspectJsonFlyout({
+                  triggerInspectJsonFlyout({
                     json: formikToUser(values),
                     title: titleText,
                   });
@@ -156,10 +156,7 @@ class CreateInternalUser extends Component {
               />
 
               <EuiSpacer />
-              <UserAttributes
-                attributes={values._attributes}
-                onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
-              />
+              <UserAttributes values={values} />
             </ContentPanel>
           );
         }}
@@ -171,13 +168,6 @@ class CreateInternalUser extends Component {
 CreateInternalUser.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  httpClient: PropTypes.object,
-  onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired,
-  onComboBoxOnBlur: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired,
 };
 
 export default CreateInternalUser;

@@ -16,16 +16,27 @@
 
 import { omit } from 'lodash';
 import { arrayToComboBoxOptions, attributesToUiAttributes } from '../../../utils/helpers';
+import { isComplexAttributes } from './is_complex_attributes';
 
-const userToFormik = (user, id = '') => {
-  return {
+const userToFormik = (user, { id = '' } = {}) => {
+  const formik = {
     ...omit(user, ['hash']),
     _username: id,
     _password: '',
     _backendRoles: arrayToComboBoxOptions(user.backend_roles),
-    _attributes: attributesToUiAttributes(user.attributes),
     _changePassword: false,
+    _attributes: [],
+    _attributesString: JSON.stringify(user.attributes, null, 2),
+    _isComplexUserAttributes: false,
   };
+
+  if (isComplexAttributes(user.attributes)) {
+    formik._isComplexUserAttributes = true;
+  } else {
+    formik._attributes = attributesToUiAttributes(user.attributes);
+  }
+
+  return formik;
 };
 
 export default userToFormik;

@@ -54,9 +54,61 @@ describe('user to UI user', () => {
           value: 'd',
         },
       ],
+      _attributesString: JSON.stringify(
+        {
+          a: 'b',
+          c: 'd',
+        },
+        null,
+        2
+      ),
+      _isComplexUserAttributes: false,
       _changePassword: false,
     };
 
-    expect(userToFormik(resource, uiResource._username)).toEqual(uiResource);
+    expect(userToFormik(resource, { id: uiResource._username })).toEqual(uiResource);
+  });
+
+  test('can build UI user if complex attributes', () => {
+    const resource = {
+      hash: '',
+      reserved: false,
+      hidden: false,
+      backend_roles: ['b', 'a'],
+      attributes: {
+        a: 'b',
+        c: { d: 'e' },
+      },
+      description: 'Migrated from v6',
+      static: false,
+    };
+
+    const uiResource = {
+      reserved: false,
+      hidden: false,
+      backend_roles: ['b', 'a'],
+      attributes: {
+        a: 'b',
+        c: { d: 'e' },
+      },
+      description: 'Migrated from v6',
+      static: false,
+      _username: 'admin',
+      _password: '',
+      _backendRoles: [{ label: 'a' }, { label: 'b' }],
+      _attributes: [],
+      _attributesString: JSON.stringify(
+        {
+          a: 'b',
+          c: { d: 'e' },
+        },
+        null,
+        2
+      ),
+      _isComplexUserAttributes: true,
+      _changePassword: false,
+    };
+
+    expect(userToFormik(resource, { id: uiResource._username })).toEqual(uiResource);
   });
 });

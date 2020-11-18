@@ -22,12 +22,6 @@ export const validateTextField = value => {
   if (!value) return requiredText;
 };
 
-export const isInvalid = (name, form) => {
-  return !!get(form.touched, name, false) && !!get(form.errors, name, false);
-};
-
-export const hasError = (name, form) => get(form.errors, name);
-
 export const validateName = (Service, isUpdatingName = false) => async (name) => {
   if (!name) return requiredText;
   const hasDots = (/[\.]/gm).test(name);
@@ -77,3 +71,5 @@ export const validateEmptyComboBox = value => {
 export const validClusterSinglePermissionOption = label => (/^cluster:[\w\*].*/).test(label);
 export const validIndicesSinglePermissionOption = label => (/^indices:[\w\*].*/).test(label);
 export const validSinglePermissionOption = label => (/^((cluster)|(indices)):[\w\*].*/).test(label);
+
+export * from '../../../../apps/utils/validate';
