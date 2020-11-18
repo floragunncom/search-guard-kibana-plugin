@@ -26,14 +26,15 @@ export function deleteWatch({ clusterClient, logger }) {
         headers: { sgtenant = NO_MULTITENANCY_TENANT },
       } = request;
 
-      const resp = await clusterClient
-        .asScoped(request)
-        .callAsCurrentUser('sgSignals.deleteWatch', { id, sgtenant });
+      const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
+        method: 'delete',
+        path: `/_signals/watch/${sgtenant}/${id}`,
+      });
 
       return response.ok({ body: { ok: true, resp } });
     } catch (err) {
       logger.error(`deleteWatch: ${err.stack}`);
-      return response.ok({ body: { ok: false, resp: serverError(err) } });
+      return response.customError(serverError(err));
     }
   };
 }

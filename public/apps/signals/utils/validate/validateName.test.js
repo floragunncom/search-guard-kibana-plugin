@@ -9,7 +9,7 @@ import {
 describe('validate_name', () => {
   it('can validate unique name', async () => {
     const Service = {
-      get: () => Promise.reject({ statusCode: 404 })
+      get: () => Promise.reject({ body: { statusCode: 404 } })
     };
 
     await expect(
@@ -38,7 +38,7 @@ describe('validate_name', () => {
     const Service = {};
     Service.get = jest.fn();
     Service.get.mockReturnValue(
-      Promise.reject({ statusCode: 500, message: 'Internal Server Error' })
+      Promise.reject({ body: { statusCode: 500, message: 'Internal Server Error' } })
     );
     await expect(
       validateName(Service)('123')

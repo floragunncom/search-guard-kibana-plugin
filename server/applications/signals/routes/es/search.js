@@ -22,14 +22,16 @@ export const searchEs = ({ clusterClient, logger }) => async (context, request, 
   try {
     const { body, index, size } = request.body;
 
-    const resp = await clusterClient
-      .asScoped(request)
-      .callAsCurrentUser('search', { body, index, size });
+    const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.search({
+      index,
+      size,
+      body,
+    });
 
     return response.ok({ body: { ok: true, resp } });
   } catch (err) {
     logger.error(`searchEs: ${err.stack}`);
-    return response.ok({ body: { ok: false, resp: serverError(err) } });
+    return response.customError(serverError(err));
   }
 };
 

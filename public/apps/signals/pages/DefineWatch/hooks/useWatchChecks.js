@@ -38,6 +38,7 @@ export function useWatchChecks({ setFieldValue, isResultVisibleDefault = false }
       console.debug('useWatchChecks -- executeWatch -- values', values);
       console.debug('useWatchChecks -- executeWatch -- watch', watch);
       addErrorToast(err);
+      setEditorResult(stringifyPretty(err.body));
     }
 
     setResultVisible(true);

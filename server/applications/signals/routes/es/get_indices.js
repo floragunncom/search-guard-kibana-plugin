@@ -24,7 +24,6 @@ export const getIndices = ({ clusterClient, logger }) => async (context, request
     const options = {
       ignoreUnavailable: true,
       index,
-      ignore: [404],
       body: {
         size: 0, // no hits
         aggs: {
@@ -38,9 +37,10 @@ export const getIndices = ({ clusterClient, logger }) => async (context, request
       },
     };
 
-    const { aggregations: { indices: { buckets = [] } = {} } = {} } = await clusterClient
-      .asScoped(request)
-      .callAsCurrentUser('search', options);
+    const {
+      body: { aggregations: { indices: { buckets = [] } = {} } = {} } = {},
+    } = await clusterClient.asScoped(request).asCurrentUser.search(options);
+    console.log('buckets', JSON.stringify(buckets, null, 2));
 
     return response.ok({
       body: {
@@ -54,7 +54,7 @@ export const getIndices = ({ clusterClient, logger }) => async (context, request
     });
   } catch (err) {
     logger.error(`getIndices: ${err.stack}`);
-    return response.ok({ body: { ok: false, resp: serverError(err) } });
+    return response.customError(serverError(err));
   }
 };
 

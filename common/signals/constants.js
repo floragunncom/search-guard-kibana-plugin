@@ -2,10 +2,6 @@
 export const APP_NAME = 'searchguard-signals';
 export const APP_DESCRIPTION = 'Search Guard Signals';
 
-export const CLUSTER = {
-  ALERTING: 'signals',
-};
-
 export const INDEX = {
   ALERTS: '.signals_log_*',
   ALERT_DOC_TYPE: '_doc',

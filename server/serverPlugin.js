@@ -53,12 +53,6 @@ export class ServerPlugin {
     this.searchGuardBackend = searchGuardBackend;
     this.searchGuardConfigurationBackend = searchGuardConfigurationBackend;
 
-    this.signalsApp.setupSync({
-      core,
-      kibanaRouter: this.kibanaRouter,
-      searchguardBackendService: searchGuardBackend,
-    });
-
     const isMtEnabled = this.configService.get('searchguard.multitenancy.enabled');
     if (isMtEnabled) {
       this.multiTenancyApp.setupSync({
@@ -87,6 +81,12 @@ export class ServerPlugin {
   }
 
   start(core) {
+    this.signalsApp.startSync({
+      core,
+      kibanaRouter: this.kibanaRouter,
+      searchguardBackendService: this.searchGuardBackend,
+    });
+
     const isMtEnabled = this.configService.get('searchguard.multitenancy.enabled');
     if (isMtEnabled) {
       // ATTENTION! We want to make sure the multitenancy app migrates saved objects

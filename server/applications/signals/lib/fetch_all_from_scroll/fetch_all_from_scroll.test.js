@@ -20,11 +20,7 @@ import { setupClusterClientMock } from '../../../../mocks';
 describe('fetch_all_from_scroll', () => {
   test('return empty array if no hits', async () => {
     const mockResponse = {};
-
-    const callAsCurrentUser = jest.fn().mockResolvedValue(mockResponse);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const clusterClient = setupClusterClientMock();
 
     const scroll = '30s';
     const request = { a: 1 };
@@ -41,19 +37,19 @@ describe('fetch_all_from_scroll', () => {
   });
 
   test('return the hits and scroll until there are no hits', async () => {
-    const callAsCurrentUser = jest.fn().mockResolvedValueOnce({
-      hits: { hits: ['z'] },
-      _scroll_id: '2nd',
+    const asCurrentUserScroll = jest.fn().mockResolvedValueOnce({
+      body: {
+        hits: { hits: ['z'] },
+        _scroll_id: '2nd',
+      },
     });
-
-    callAsCurrentUser.mockResolvedValue({
-      hits: { hits: [] },
-      _scroll_id: '3rd',
+    asCurrentUserScroll.mockResolvedValue({
+      body: {
+        hits: { hits: [] },
+        _scroll_id: '3rd',
+      },
     });
-
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const clusterClient = setupClusterClientMock({ asCurrentUserScroll });
 
     const scroll = '30s';
     const request = { a: 1 };

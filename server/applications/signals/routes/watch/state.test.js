@@ -31,81 +31,79 @@ describe('routes/watch/state', () => {
     const context = setupContextMock();
 
     const expectedResponse = {
-      actions: {
-        my_action: {
-          last_triggered: '2019-12-05T14:21:50.025735Z',
-          last_triage: '2019-12-05T14:21:50.025735Z',
-          last_triage_result: true,
-          last_execution: '2019-12-05T14:21:50.025735Z',
-          last_error: '2019-12-03T11:17:50.129348Z',
-          last_status: {
-            code: 'ACTION_TRIGGERED',
+      body: {
+        actions: {
+          my_action: {
+            last_triggered: '2019-12-05T14:21:50.025735Z',
+            last_triage: '2019-12-05T14:21:50.025735Z',
+            last_triage_result: true,
+            last_execution: '2019-12-05T14:21:50.025735Z',
+            last_error: '2019-12-03T11:17:50.129348Z',
+            last_status: {
+              code: 'ACTION_TRIGGERED',
+            },
+            acked: {
+              on: '2019-12-05T14:23:21.373254Z',
+              by: 'test_user',
+            },
+            execution_count: 20,
           },
-          acked: {
-            on: '2019-12-05T14:23:21.373254Z',
-            by: 'test_user',
-          },
-          execution_count: 20,
         },
-      },
-      last_execution: {
-        data: {
-          my_data: {
-            hits: {
-              hits: [],
-              total: {
-                value: 1,
-                relation: 'eq',
+        last_execution: {
+          data: {
+            my_data: {
+              hits: {
+                hits: [],
+                total: {
+                  value: 1,
+                  relation: 'eq',
+                },
+                max_score: 1,
               },
-              max_score: 1,
             },
           },
-        },
-        severity: {
-          level: 'error',
-          level_numeric: 3,
-          mapping_element: {
-            threshold: 1,
+          severity: {
             level: 'error',
+            level_numeric: 3,
+            mapping_element: {
+              threshold: 1,
+              level: 'error',
+            },
+            value: 1,
           },
-          value: 1,
+          trigger: {
+            scheduled_time: '2019-12-05T14:21:50Z',
+            triggered_time: '2019-12-05T14:21:50.006Z',
+          },
+          execution_time: '2019-12-05T14:21:50.009277Z',
         },
-        trigger: {
-          scheduled_time: '2019-12-05T14:21:50Z',
-          triggered_time: '2019-12-05T14:21:50.006Z',
+        last_status: {
+          code: 'ACTION_TRIGGERED',
         },
-        execution_time: '2019-12-05T14:21:50.009277Z',
+        node: 'my_node',
       },
-      last_status: {
-        code: 'ACTION_TRIGGERED',
-      },
-      node: 'my_node',
     };
 
-    const callAsCurrentUser = jest.fn().mockResolvedValue(expectedResponse);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserTransportRequest = jest.fn().mockResolvedValue(expectedResponse);
+    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
 
     const request = {
       params: { id: '123' },
       headers: {},
     };
-
-    const expectedEndpoint = 'sgSignals.stateOfWatch';
     const expectedClusterCallOptions = {
-      sgtenant: NO_MULTITENANCY_TENANT,
-      id: '123',
+      method: 'get',
+      path: `/_signals/watch/${NO_MULTITENANCY_TENANT}/${request.params.id}/_state`,
     };
 
     await stateOfWatch({ clusterClient, logger })(context, request, response);
 
     expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
-    expect(callAsCurrentUser).toHaveBeenCalledWith(expectedEndpoint, expectedClusterCallOptions);
+    expect(asCurrentUserTransportRequest).toHaveBeenCalledWith(expectedClusterCallOptions);
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
-        resp: expectedResponse,
+        resp: expectedResponse.body,
       },
     });
   });
@@ -117,10 +115,8 @@ describe('routes/watch/state', () => {
 
     const error = new Error('nasty!');
 
-    const callAsCurrentUser = jest.fn().mockRejectedValue(error);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserTransportRequest = jest.fn().mockRejectedValue(error);
+    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
 
     const request = {
       headers: {},
@@ -131,11 +127,6 @@ describe('routes/watch/state', () => {
     await stateOfWatch({ clusterClient, logger })(context, request, response);
 
     expect(logger.error).toHaveBeenCalledWith(`stateOfWatch: ${error.stack}`);
-    expect(response.ok).toHaveBeenCalledWith({
-      body: {
-        ok: false,
-        resp: serverError(error),
-      },
-    });
+    expect(response.customError).toHaveBeenCalledWith(serverError(error));
   });
 });

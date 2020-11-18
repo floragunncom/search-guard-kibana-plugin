@@ -37,11 +37,20 @@ export class SearchGuard {
         logger: this.logger,
       });
 
-      this.searchGuardBackend = new SearchGuardBackend({ core, configService: this.configService });
+      this.searchGuardBackend = new SearchGuardBackend({
+        configService: this.configService,
+        getElasticsearch: async () => {
+          const [{ elasticsearch }] = await core.getStartServices();
+          return elasticsearch;
+        },
+      });
 
       this.searchGuardConfigurationBackend = new SearchGuardConfigurationBackend({
-        core,
         configService: this.configService,
+        getElasticsearch: async () => {
+          const [{ elasticsearch }] = await core.getStartServices();
+          return elasticsearch;
+        },
       });
 
       // Sanity checks

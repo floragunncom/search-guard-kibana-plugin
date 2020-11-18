@@ -29,21 +29,21 @@ describe('routes/es/get_aliases', () => {
     const response = setupHttpResponseMock();
     const context = setupContextMock();
 
-    const mockResponse = [
-      {
-        alias: 'testindex_alias',
-        index: 'testindex',
-      },
-      {
-        alias: '.kibana',
-        index: '.kibana_2',
-      },
-    ];
+    const mockResponse = {
+      body: [
+        {
+          alias: 'testindex_alias',
+          index: 'testindex',
+        },
+        {
+          alias: '.kibana',
+          index: '.kibana_2',
+        },
+      ],
+    };
 
-    const callAsCurrentUser = jest.fn().mockResolvedValue(mockResponse);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserCatAliases = jest.fn().mockResolvedValue(mockResponse);
+    const clusterClient = setupClusterClientMock({ asCurrentUserCatAliases });
 
     const request = {
       body: {
@@ -52,7 +52,6 @@ describe('routes/es/get_aliases', () => {
       headers: {},
     };
 
-    const expectedEndpoint = 'cat.aliases';
     const expectedClusterCallOptions = {
       alias: request.body.alias,
       format: 'json',
@@ -73,7 +72,7 @@ describe('routes/es/get_aliases', () => {
     ];
 
     expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
-    expect(callAsCurrentUser).toHaveBeenCalledWith(expectedEndpoint, expectedClusterCallOptions);
+    expect(asCurrentUserCatAliases).toHaveBeenCalledWith(expectedClusterCallOptions);
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
@@ -89,10 +88,8 @@ describe('routes/es/get_aliases', () => {
 
     const error = new Error('nasty!');
 
-    const callAsCurrentUser = jest.fn().mockRejectedValue(error);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserCatAliases = jest.fn().mockRejectedValue(error);
+    const clusterClient = setupClusterClientMock({ asCurrentUserCatAliases });
 
     const request = {
       headers: {},
@@ -103,11 +100,6 @@ describe('routes/es/get_aliases', () => {
     await getAliases({ clusterClient, logger })(context, request, response);
 
     expect(logger.error).toHaveBeenCalledWith(`getAliases: ${error.stack}`);
-    expect(response.ok).toHaveBeenCalledWith({
-      body: {
-        ok: false,
-        resp: serverError(error),
-      },
-    });
+    expect(response.customError).toHaveBeenCalledWith(serverError(error));
   });
 });

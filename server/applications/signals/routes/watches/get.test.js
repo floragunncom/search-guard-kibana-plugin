@@ -22,7 +22,10 @@ import {
   setupClusterClientMock,
   setupContextMock,
 } from '../../../../mocks';
-import { NO_MULTITENANCY_TENANT, ES_SCROLL_SETTINGS } from '../../../../../common/signals/constants';
+import {
+  NO_MULTITENANCY_TENANT,
+  ES_SCROLL_SETTINGS,
+} from '../../../../../common/signals/constants';
 
 describe('routes/watches/get', () => {
   test('there are some results', async () => {
@@ -30,16 +33,22 @@ describe('routes/watches/get', () => {
     const response = setupHttpResponseMock();
     const context = setupContextMock();
 
-    const mockResponse = [
-      { _id: 'admin_tenant/123', _source: { a: 'b' } },
-      { _id: 'admin_tenant/456', _source: { c: 'd' } },
-    ];
+    const firstResponse = {
+      body: {
+        _scroll_id: 'uywfuhjwqvhb',
+        hits: {
+          hits: [
+            { _id: 'admin_tenant/123', _source: { a: 'b' } },
+            { _id: 'admin_tenant/456', _source: { c: 'd' } },
+          ],
+        },
+      },
+    };
+    const secondResponse = [...firstResponse.body.hits.hits];
 
-    const callAsCurrentUser = jest.fn().mockResolvedValue(mockResponse);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
-    const fetchAllFromScroll = jest.fn().mockResolvedValue(mockResponse);
+    const asCurrentUserTransportRequest = jest.fn().mockResolvedValueOnce(firstResponse);
+    const fetchAllFromScroll = jest.fn().mockResolvedValue(secondResponse);
+    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
 
     const request = {
       headers: {
@@ -55,27 +64,25 @@ describe('routes/watches/get', () => {
 
     await getWatches({ clusterClient, fetchAllFromScroll, logger })(context, request, response);
 
-    const expectedEndpoint = 'sgSignals.getWatches';
+    const expectedPath = `/_signals/watch/${request.headers.sgtenant}/_search?scroll=${request.body.scroll}`;
     const expectedCallClusterOptions = {
+      method: 'post',
+      path: expectedPath,
       body: { query: request.body.query },
-      scroll: request.body.scroll,
-      sgtenant: request.headers.sgtenant,
     };
-
     const expectedFetchAllFromScrollOptions = {
       clusterClient,
       scroll: request.body.scroll,
       request,
-      response: mockResponse,
+      response: firstResponse.body,
     };
-
     const expectedResponse = [
       { _id: '123', a: 'b' },
       { _id: '456', c: 'd' },
     ];
 
     expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
-    expect(callAsCurrentUser).toHaveBeenCalledWith(expectedEndpoint, expectedCallClusterOptions);
+    expect(asCurrentUserTransportRequest).toHaveBeenCalledWith(expectedCallClusterOptions);
     expect(fetchAllFromScroll).toHaveBeenCalledWith(expectedFetchAllFromScrollOptions);
     expect(response.ok).toHaveBeenCalledWith({
       body: {
@@ -92,11 +99,9 @@ describe('routes/watches/get', () => {
 
     const error = new Error('nasty!');
 
-    const callAsCurrentUser = jest.fn().mockRejectedValue(error);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserTransportRequest = jest.fn().mockRejectedValue(error);
     const fetchAllFromScroll = jest.fn();
+    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
 
     const request = {
       headers: {
@@ -113,11 +118,6 @@ describe('routes/watches/get', () => {
     await getWatches({ clusterClient, fetchAllFromScroll, logger })(context, request, response);
 
     expect(logger.error).toHaveBeenCalledWith(`getWatches: ${error.stack}`);
-    expect(response.ok).toHaveBeenCalledWith({
-      body: {
-        ok: false,
-        resp: serverError(error),
-      },
-    });
+    expect(response.customError).toHaveBeenCalledWith(serverError(error));
   });
 });

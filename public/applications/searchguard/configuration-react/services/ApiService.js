@@ -48,7 +48,7 @@ export class ApiService {
     try {
       return await this.httpClient.delete(`${API_ROOT}/${this.resourceName}/${id}`);
     } catch (error) {
-      if (error.statusCode === 403) this.accessControlService.logout();
+      if (error.body && error.body.statusCode === 403) this.accessControlService.logout();
       throw error;
     }
   }

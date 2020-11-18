@@ -27,16 +27,19 @@ export function getWatch({ clusterClient, logger }) {
         headers: { sgtenant = NO_MULTITENANCY_TENANT },
       } = request;
 
-      const { _source, _id } = await clusterClient
-        .asScoped(request)
-        .callAsCurrentUser('sgSignals.getWatch', { id, sgtenant });
+      const {
+        body: { _source, _id },
+      } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
+        method: 'get',
+        path: `/_signals/watch/${sgtenant}/${id}`,
+      });
 
       return response.ok({ body: { ok: true, resp: { ..._source, _id: getId(_id) } } });
     } catch (err) {
       if (err.statusCode !== 404) {
         logger.error(`getWatch: ${err.stack}`);
       }
-      return response.ok({ body: { ok: false, resp: serverError(err) } });
+      return response.customError(serverError(err));
     }
   };
 }

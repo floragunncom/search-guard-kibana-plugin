@@ -30,31 +30,32 @@ describe('routes/account/delete', () => {
     const context = setupContextMock();
 
     const expectedResponse = {
-      _id: 'mymailserver',
-      _version: 20,
-      result: 'deleted',
+      body: {
+        _id: 'mymailserver',
+        _version: 20,
+        result: 'deleted',
+      },
     };
 
-    const callAsCurrentUser = jest.fn().mockResolvedValue(expectedResponse);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserTransportRequest = jest.fn().mockResolvedValue(expectedResponse);
+    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
 
     const request = {
       params: { id: 'mymailserver', type: 'email' },
     };
-
-    const expectedEndpoint = 'sgSignals.deleteAccount';
-    const expectedClusterCallOptions = request.params;
+    const expectedPath = `/_signals/account/${request.params.type}/${request.params.id}`;
 
     await deleteAccount({ clusterClient, logger })(context, request, response);
 
     expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
-    expect(callAsCurrentUser).toHaveBeenCalledWith(expectedEndpoint, expectedClusterCallOptions);
+    expect(asCurrentUserTransportRequest).toHaveBeenCalledWith({
+      method: 'delete',
+      path: expectedPath,
+    });
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
-        resp: expectedResponse,
+        resp: expectedResponse.body,
       },
     });
   });
@@ -66,10 +67,8 @@ describe('routes/account/delete', () => {
 
     const error = new Error('nasty!');
 
-    const callAsCurrentUser = jest.fn().mockRejectedValue(error);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserTransportRequest = jest.fn().mockRejectedValue(error);
+    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
 
     const request = {
       headers: {},
@@ -79,11 +78,6 @@ describe('routes/account/delete', () => {
     await deleteAccount({ clusterClient, logger })(context, request, response);
 
     expect(logger.error).toHaveBeenCalledWith(`deleteAccount: ${error.stack}`);
-    expect(response.ok).toHaveBeenCalledWith({
-      body: {
-        ok: false,
-        resp: serverError(error),
-      },
-    });
+    expect(response.customError).toHaveBeenCalledWith(serverError(error));
   });
 });

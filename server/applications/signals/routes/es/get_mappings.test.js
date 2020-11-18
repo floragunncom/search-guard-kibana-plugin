@@ -30,26 +30,26 @@ describe('routes/es/get_mappings', () => {
     const context = setupContextMock();
 
     const expectedResponse = {
-      index_a: {
-        mappings: {
-          properties: {
-            f0: { type: 'float' },
+      body: {
+        index_a: {
+          mappings: {
+            properties: {
+              f0: { type: 'float' },
+            },
           },
         },
-      },
-      index_b: {
-        mappings: {
-          properties: {
-            f1: { type: 'keyword' },
+        index_b: {
+          mappings: {
+            properties: {
+              f1: { type: 'keyword' },
+            },
           },
         },
       },
     };
 
-    const callAsCurrentUser = jest.fn().mockResolvedValue(expectedResponse);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserIndicesGetMapping = jest.fn().mockResolvedValue(expectedResponse);
+    const clusterClient = setupClusterClientMock({ asCurrentUserIndicesGetMapping });
 
     const request = {
       body: {
@@ -57,18 +57,16 @@ describe('routes/es/get_mappings', () => {
       },
       headers: {},
     };
-
-    const expectedEndpoint = 'indices.getMapping';
     const expectedClusterCallOptions = request.body;
 
     await getMappings({ clusterClient, logger })(context, request, response);
 
     expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
-    expect(callAsCurrentUser).toHaveBeenCalledWith(expectedEndpoint, expectedClusterCallOptions);
+    expect(asCurrentUserIndicesGetMapping).toHaveBeenCalledWith(expectedClusterCallOptions);
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
-        resp: expectedResponse,
+        resp: expectedResponse.body,
       },
     });
   });
@@ -80,10 +78,8 @@ describe('routes/es/get_mappings', () => {
 
     const error = new Error('nasty!');
 
-    const callAsCurrentUser = jest.fn().mockRejectedValue(error);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserIndicesGetMapping = jest.fn().mockRejectedValue(error);
+    const clusterClient = setupClusterClientMock({ asCurrentUserIndicesGetMapping });
 
     const request = {
       headers: {},
@@ -94,11 +90,6 @@ describe('routes/es/get_mappings', () => {
     await getMappings({ clusterClient, logger })(context, request, response);
 
     expect(logger.error).toHaveBeenCalledWith(`getMappings: ${error.stack}`);
-    expect(response.ok).toHaveBeenCalledWith({
-      body: {
-        ok: false,
-        resp: serverError(error),
-      },
-    });
+    expect(response.customError).toHaveBeenCalledWith(serverError(error));
   });
 });

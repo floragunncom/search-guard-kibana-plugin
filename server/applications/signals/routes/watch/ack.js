@@ -26,15 +26,15 @@ export function ackWatch({ clusterClient, logger }) {
         headers: { sgtenant = NO_MULTITENANCY_TENANT },
       } = request;
 
-      let callPath = 'sgSignals.ackWatch';
-      let body = { id: watchId, sgtenant };
-
+      let path = `/_signals/watch/${sgtenant}/${watchId}/_ack`;
       if (actionId) {
-        callPath = 'sgSignals.ackWatchAction';
-        body = { watchId, actionId, sgtenant };
+        path = `/_signals/watch/${sgtenant}/${watchId}/_ack/${actionId}`;
       }
 
-      const resp = await clusterClient.asScoped(request).callAsCurrentUser(callPath, body);
+      const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
+        method: 'put',
+        path,
+      });
 
       return response.ok({
         body: {
@@ -44,7 +44,7 @@ export function ackWatch({ clusterClient, logger }) {
       });
     } catch (err) {
       logger.error(`ackWatch: ${err.stack}`);
-      return response.ok({ body: { ok: false, resp: serverError(err) } });
+      return response.customError(serverError(err));
     }
   };
 }
