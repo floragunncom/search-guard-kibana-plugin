@@ -1,41 +1,57 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import mappingsToFieldNames from './mappings_to_field_names';
 
 describe('Elasticsearch mappings to field names', () => {
   test(`can build field names aggregated by type`, () => {
     const mappings = {
       no_mappings_index: {
-        mappings: {}
+        mappings: {},
       },
       kibana_sample_data_ecommerce: {
         mappings: {
           properties: {
             currency: {
-              type: 'keyword'
+              type: 'keyword',
             },
             customer_birth_date: {
-              type: 'date'
+              type: 'date',
             },
             customer_first_name: {
               type: 'text',
               fields: {
                 keyword: {
                   type: 'keyword',
-                  ignore_above: 256
-                }
-              }
+                  ignore_above: 256,
+                },
+              },
             },
             day_of_week_i: {
-              type: 'integer'
+              type: 'integer',
             },
             geoip: {
               properties: {
                 city_name: {
-                  type: 'keyword'
+                  type: 'keyword',
                 },
                 location: {
-                  type: 'geo_point'
+                  type: 'geo_point',
                 },
-              }
+              },
             },
             products: {
               properties: {
@@ -44,52 +60,52 @@ describe('Elasticsearch mappings to field names', () => {
                   fields: {
                     keyword: {
                       type: 'keyword',
-                      ignore_above: 256
-                    }
-                  }
+                      ignore_above: 256,
+                    },
+                  },
                 },
                 base_price: {
-                  type: 'half_float'
+                  type: 'half_float',
                 },
                 created_on: {
-                  type: 'date'
+                  type: 'date',
                 },
-              }
+              },
             },
-          }
-        }
+          },
+        },
       },
       kibana_sample_data_logs: {
         mappings: {
           properties: {
             '@timestamp': {
               type: 'alias',
-              path: 'timestamp'
+              path: 'timestamp',
             },
             agent: {
               type: 'text',
               fields: {
                 keyword: {
                   type: 'keyword',
-                  ignore_above: 256
-                }
-              }
+                  ignore_above: 256,
+                },
+              },
             },
             bytes: {
-              type: 'long'
+              type: 'long',
             },
             clientip: {
-              type: 'ip'
+              type: 'ip',
             },
             geo: {
               properties: {
                 coordinates: {
-                  type: 'geo_point'
+                  type: 'geo_point',
                 },
                 dest: {
-                  type: 'keyword'
+                  type: 'keyword',
                 },
-              }
+              },
             },
             machine: {
               properties: {
@@ -98,37 +114,37 @@ describe('Elasticsearch mappings to field names', () => {
                   fields: {
                     keyword: {
                       type: 'keyword',
-                      ignore_above: 256
-                    }
-                  }
+                      ignore_above: 256,
+                    },
+                  },
                 },
                 ram: {
-                  type: 'long'
-                }
-              }
+                  type: 'long',
+                },
+              },
             },
             memory: {
-              type: 'double'
+              type: 'double',
             },
             utc_time: {
-              type: 'date'
-            }
-          }
-        }
-      }
+              type: 'date',
+            },
+          },
+        },
+      },
     };
 
     const result = {
-      alias: new Set (['@timestamp']),
-      date: new Set (['customer_birth_date', 'products.created_on', 'utc_time']),
-      double: new Set (['memory']),
-      geo_point: new Set (['geoip.location', 'geo.coordinates']),
-      half_float: new Set (['products.base_price']),
-      integer: new Set (['day_of_week_i']),
-      ip: new Set (['clientip']),
-      keyword: new Set (['currency', 'geoip.city_name', 'geo.dest']),
-      long: new Set (['bytes', 'machine.ram']),
-      text: new Set (['customer_first_name', 'products._id', 'agent', 'machine.os'])
+      alias: new Set(['@timestamp']),
+      date: new Set(['customer_birth_date', 'products.created_on', 'utc_time']),
+      double: new Set(['memory']),
+      geo_point: new Set(['geoip.location', 'geo.coordinates']),
+      half_float: new Set(['products.base_price']),
+      integer: new Set(['day_of_week_i']),
+      ip: new Set(['clientip']),
+      keyword: new Set(['currency', 'geoip.city_name', 'geo.dest']),
+      long: new Set(['bytes', 'machine.ram']),
+      text: new Set(['customer_first_name', 'products._id', 'agent', 'machine.os']),
     };
 
     expect(mappingsToFieldNames(mappings)).toEqual(result);

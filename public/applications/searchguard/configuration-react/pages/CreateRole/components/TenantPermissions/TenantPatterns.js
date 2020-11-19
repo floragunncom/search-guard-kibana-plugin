@@ -1,6 +1,6 @@
-/* eslint-disable @kbn/eslint/require-license-header */
 /*
- * Copyright 2015-2020 _floragunn_ GmbH
+ *    Copyright 2020 floragunn GmbH
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at

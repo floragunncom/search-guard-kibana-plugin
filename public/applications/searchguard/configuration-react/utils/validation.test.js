@@ -1,45 +1,48 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {
   validateESDLSQuery,
   validatePassword,
   validateEmptyComboBox,
   validClusterSinglePermissionOption,
   validSinglePermissionOption,
-  validIndicesSinglePermissionOption
+  validIndicesSinglePermissionOption,
 } from './validation';
-import {
-  jsonIsInvalidText,
-  requiredText,
-  problemWithValidationTryAgainText
-} from './i18n/common';
+import { jsonIsInvalidText, requiredText, problemWithValidationTryAgainText } from './i18n/common';
 import { dlsQuerySyntaxIsInvalidText } from './i18n/roles';
-import {
-  passwordsDontMatchText
-} from './i18n/internal_users';
+import { passwordsDontMatchText } from './i18n/internal_users';
 
 describe('validation', () => {
-
   describe('Internal User validation', () => {
     test('can validate password equals passwordConfirmation', () => {
       const password = '12345';
       const passwordConfirmation = '12345';
-      expect(
-        validatePassword(passwordConfirmation)(password)
-      ).toEqual(undefined);
+      expect(validatePassword(passwordConfirmation)(password)).toEqual(undefined);
     });
 
     test('fail to validate due to password != passwordConfirmation', () => {
       const password = '12345678';
       const passwordConfirmation = '12345';
-      expect(
-        validatePassword(passwordConfirmation)(password)
-      ).toEqual(passwordsDontMatchText);
+      expect(validatePassword(passwordConfirmation)(password)).toEqual(passwordsDontMatchText);
     });
 
     test('fail to validate due to password not set', () => {
       const password = '';
-      expect(
-        validatePassword(password)(password)
-      ).toEqual(requiredText);
+      expect(validatePassword(password)(password)).toEqual(requiredText);
     });
   });
 
@@ -53,9 +56,7 @@ describe('validation', () => {
         }
       }
 
-      await expect(
-        validateESDLSQuery(index, HttpClient)(query)
-      ).resolves.toEqual(undefined);
+      await expect(validateESDLSQuery(index, HttpClient)(query)).resolves.toEqual(undefined);
     });
 
     test('can validate empty DLS Query (no DLS is used)', async () => {
@@ -63,9 +64,7 @@ describe('validation', () => {
       const index = 'index';
       class HttpClient {}
 
-      await expect(
-        validateESDLSQuery(index, HttpClient)(query)
-      ).resolves.toEqual(undefined);
+      await expect(validateESDLSQuery(index, HttpClient)(query)).resolves.toEqual(undefined);
     });
 
     test('fail to validate DLS Query due to wrong syntax', async () => {
@@ -77,9 +76,9 @@ describe('validation', () => {
         }
       }
 
-      await expect(
-        validateESDLSQuery(index, HttpClient)(query)
-      ).resolves.toEqual(dlsQuerySyntaxIsInvalidText);
+      await expect(validateESDLSQuery(index, HttpClient)(query)).resolves.toEqual(
+        dlsQuerySyntaxIsInvalidText
+      );
     });
 
     test('fail to validate DLS Query due to wrong JSON', async () => {
@@ -87,9 +86,9 @@ describe('validation', () => {
       const index = 'index';
       class HttpClient {}
 
-      await expect(
-        validateESDLSQuery(index, HttpClient)(query)
-      ).resolves.toEqual(jsonIsInvalidText);
+      await expect(validateESDLSQuery(index, HttpClient)(query)).resolves.toEqual(
+        jsonIsInvalidText
+      );
     });
 
     test('fail to validate due to the failed async call', async () => {
@@ -101,9 +100,9 @@ describe('validation', () => {
         }
       }
 
-      await expect(
-        validateESDLSQuery(index, HttpClient)(query)
-      ).resolves.toEqual(problemWithValidationTryAgainText);
+      await expect(validateESDLSQuery(index, HttpClient)(query)).resolves.toEqual(
+        problemWithValidationTryAgainText
+      );
     });
   });
 

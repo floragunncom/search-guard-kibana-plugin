@@ -1,29 +1,33 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import React, { Fragment, Component } from 'react';
 import { connect } from 'formik';
 import PropTypes from 'prop-types';
 import { isEqual } from 'lodash';
-import {
-  EuiSpacer,
-  EuiFlexItem,
-  EuiFlexGroup,
-  EuiCallOut
-} from '@elastic/eui';
-import {
-  FormikRadio,
-  FormikComboBox,
-  SubHeader
-} from '../../../../../components';
+import { EuiSpacer, EuiFlexItem, EuiFlexGroup, EuiCallOut } from '@elastic/eui';
+import { FormikRadio, FormikComboBox, SubHeader } from '../../../../../components';
 import { FLS_MODES } from '../../../utils/constants';
 import {
   fieldLevelSecurityText,
   includeOrExcludeFieldsText,
   anonymizeFieldsText,
-  anonymizedFieldsDisabledText
+  anonymizedFieldsDisabledText,
 } from '../../../../../utils/i18n/roles';
-import {
-  includeText,
-  excludeText
-} from '../../../../../utils/i18n/common';
+import { includeText, excludeText } from '../../../../../utils/i18n/common';
 import { fieldNamesToUiFieldNames, mappingsToFieldNames } from './utils';
 import { comboBoxOptionsToArray } from '../../../../../utils/helpers';
 import { ElasticsearchService } from '../../../../../services';
@@ -37,15 +41,17 @@ class FieldLevelSecurity extends Component {
     this.state = {
       isLoading: false,
       allFields: [],
-      prevIndexPatterns: null
+      prevIndexPatterns: null,
     };
   }
 
   fetchFields = async () => {
     const {
-      formik: { values: { _indexPermissions } },
+      formik: {
+        values: { _indexPermissions },
+      },
       index,
-      onTriggerErrorCallout
+      onTriggerErrorCallout,
     } = this.props;
 
     const currIndexPatterns = _indexPermissions[index].index_patterns;
@@ -60,13 +66,13 @@ class FieldLevelSecurity extends Component {
 
       this.setState({
         allFields: fieldNamesToUiFieldNames(mappingsToFieldNames(mappings)),
-        prevIndexPatterns: currIndexPatterns
+        prevIndexPatterns: currIndexPatterns,
       });
-    } catch(error) {
+    } catch (error) {
       onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
-  }
+  };
 
   componentDidMount() {
     this.fetchFields();
@@ -74,12 +80,14 @@ class FieldLevelSecurity extends Component {
 
   render() {
     const {
-      formik: { values: { _indexPermissions } },
+      formik: {
+        values: { _indexPermissions },
+      },
       index,
       isAnonymizedFieldsEnabled,
       onComboBoxChange,
       onComboBoxOnBlur,
-      onComboBoxCreateOption
+      onComboBoxCreateOption,
     } = this.props;
 
     const { isLoading, allFields } = this.state;
@@ -100,7 +108,7 @@ class FieldLevelSecurity extends Component {
                 onChange: ({ target: { id } }, field, form) => {
                   const flsmode = id.split('_')[0];
                   form.setFieldValue(field.name, flsmode);
-                }
+                },
               }}
             />
           </EuiFlexItem>
@@ -116,18 +124,18 @@ class FieldLevelSecurity extends Component {
                 onChange: ({ target: { id } }, field, form) => {
                   const flsmode = id.split('_')[0];
                   form.setFieldValue(field.name, flsmode);
-                }
+                },
               }}
             />
           </EuiFlexItem>
         </EuiFlexGroup>
-        <EuiSpacer size="s"/>
+        <EuiSpacer size="s" />
 
         <FormikComboBox
           name={`_indexPermissions[${index}].fls`}
           formRow
           rowProps={{
-            helpText: includeOrExcludeFieldsText
+            helpText: includeOrExcludeFieldsText,
           }}
           elementProps={{
             isLoading,
@@ -136,7 +144,7 @@ class FieldLevelSecurity extends Component {
             onFocus: this.fetchFields,
             onBlur: onComboBoxOnBlur,
             onChange: onComboBoxChange(),
-            onCreateOption: onComboBoxCreateOption()
+            onCreateOption: onComboBoxCreateOption(),
           }}
         />
         {!isAnonymizedFieldsEnabled ? (
@@ -151,7 +159,7 @@ class FieldLevelSecurity extends Component {
             name={`_indexPermissions[${index}].masked_fields`}
             formRow
             rowProps={{
-              helpText: anonymizeFieldsText
+              helpText: anonymizeFieldsText,
             }}
             elementProps={{
               isLoading,
@@ -160,7 +168,7 @@ class FieldLevelSecurity extends Component {
               onFocus: this.fetchFields,
               onBlur: onComboBoxOnBlur,
               onChange: onComboBoxChange(),
-              onCreateOption: onComboBoxCreateOption()
+              onCreateOption: onComboBoxCreateOption(),
             }}
           />
         )}
@@ -177,9 +185,9 @@ FieldLevelSecurity.propTypes = {
   onComboBoxOnBlur: PropTypes.func.isRequired,
   onComboBoxCreateOption: PropTypes.func.isRequired,
   formik: PropTypes.shape({
-    values: PropTypes.object.isRequired
+    values: PropTypes.object.isRequired,
   }).isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired
+  onTriggerErrorCallout: PropTypes.func.isRequired,
 };
 
 export default connect(FieldLevelSecurity);
