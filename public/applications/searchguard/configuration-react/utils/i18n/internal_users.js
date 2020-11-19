@@ -36,3 +36,4 @@ export const emptyUsersTableMessageText = (
   />
 );
 export const noUsersText = (<EuiI18n token="sg.internalUsers.noUsers.text" default="No users" />);
+export const complexAttributesText = (<EuiI18n token="sg.internalUsers.complexAttributes.text" default="Complex attributes" />);

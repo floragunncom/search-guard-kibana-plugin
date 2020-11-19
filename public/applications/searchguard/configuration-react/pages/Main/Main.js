@@ -266,18 +266,7 @@ class Main extends Component {
                 <Switch>
                   <Route
                     path={APP_PATH.CREATE_INTERNAL_USER}
-                    render={props => (
-                      <CreateInternalUser
-                        httpClient={httpClient}
-                        onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
-                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                        onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
-                        onComboBoxChange={this.handleComboBoxChange}
-                        onComboBoxOnBlur={this.handleComboBoxOnBlur}
-                        onComboBoxCreateOption={this.handleComboBoxCreateOption}
-                        {...props}
-                      />
-                    )}
+                    render={(props) => <CreateInternalUser {...props} />}
                   />
                   <Route
                     path={APP_PATH.INTERNAL_USERS}
