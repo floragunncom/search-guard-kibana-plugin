@@ -98,9 +98,19 @@ describe('UI role to role ', () => {
   test('can build role', () => {
     const resource = {
       description: 'Migrated from v6 (all types mapped)',
-      exclude_cluster_permissions: ['eca', 'ecb'],
-      exclude_index_permissions: ['eia', 'eib'],
+      exclude_index_permissions: [],
       cluster_permissions: ['A', 'B', 'cluster:a', 'indices:a', 'kibana:a'],
+      exclude_cluster_permissions: ['A', 'B', 'cluster:a', 'indices:a', 'kibana:a'],
+      exclude_index_permissions: [
+        {
+          index_patterns: ['a', 'b'],
+          actions: ['A', 'B', 'cluster:a', 'indices:a', 'kibana:a'],
+        },
+        {
+          index_patterns: ['g', 'h'],
+          actions: ['A', 'B', 'cluster:a', 'indices:a', 'kibana:a'],
+        },
+      ],
       index_permissions: [
         {
           index_patterns: ['a', 'b'],
@@ -132,8 +142,7 @@ describe('UI role to role ', () => {
       hidden: false,
       description: 'Migrated from v6 (all types mapped)',
       cluster_permissions: ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'],
-      exclude_cluster_permissions: ['eca', 'ecb'],
-      exclude_index_permissions: ['eia', 'eib'],
+      exclude_index_permissions: [],
       index_permissions: [
         {
           index_patterns: ['b', 'a'],
@@ -161,15 +170,38 @@ describe('UI role to role ', () => {
       static: false,
       _name: 'A',
       _isClusterPermissionsAdvanced: false,
+      _isClusterExclusionsAdvanced: false,
       _roleMapping: {
         users: [],
         backend_roles: [],
         hosts: [],
       },
+      _excludeClusterPermissions: {
+        actiongroups: [{ label: 'A' }, { label: 'B' }],
+        permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
+      },
       _clusterPermissions: {
         actiongroups: [{ label: 'A' }, { label: 'B' }],
         permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
       },
+      _excludeIndexPermissions: [
+        {
+          index_patterns: [{ label: 'a' }, { label: 'b' }],
+          actions: {
+            actiongroups: [{ label: 'A' }, { label: 'B' }],
+            permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
+          },
+          _isAdvanced: false,
+        },
+        {
+          index_patterns: [{ label: 'g' }, { label: 'h' }],
+          actions: {
+            actiongroups: [{ label: 'A' }, { label: 'B' }],
+            permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
+          },
+          _isAdvanced: false,
+        },
+      ],
       _indexPermissions: [
         {
           index_patterns: [{ label: 'a' }, { label: 'b' }],

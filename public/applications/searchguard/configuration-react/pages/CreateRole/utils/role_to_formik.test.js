@@ -188,9 +188,18 @@ describe('role to UI role ', () => {
       reserved: false,
       hidden: false,
       description: 'Migrated from v6 (all types mapped)',
-      exclude_cluster_permissions: ['eca', 'ecb'],
-      exclude_index_permissions: ['eia', 'eib'],
+      exclude_cluster_permissions: ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'],
       cluster_permissions: ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'],
+      exclude_index_permissions: [
+        {
+          index_patterns: ['b', 'a'],
+          actions: ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'],
+        },
+        {
+          index_patterns: ['g', 'h'],
+          actions: ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'],
+        },
+      ],
       index_permissions: [
         {
           index_patterns: ['b', 'a'],
@@ -222,15 +231,38 @@ describe('role to UI role ', () => {
       ...cloneDeep(resource),
       _name: 'A',
       _isClusterPermissionsAdvanced: true,
+      _isClusterExclusionsAdvanced: true,
       _roleMapping: {
         users: [],
         backend_roles: [],
         hosts: [],
       },
+      _excludeClusterPermissions: {
+        actiongroups: [{ label: 'A' }, { label: 'B' }],
+        permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
+      },
       _clusterPermissions: {
         actiongroups: [{ label: 'A' }, { label: 'B' }],
         permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
       },
+      _excludeIndexPermissions: [
+        {
+          index_patterns: [{ label: 'a' }, { label: 'b' }],
+          actions: {
+            actiongroups: [{ label: 'A' }, { label: 'B' }],
+            permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
+          },
+          _isAdvanced: true,
+        },
+        {
+          index_patterns: [{ label: 'g' }, { label: 'h' }],
+          actions: {
+            actiongroups: [{ label: 'A' }, { label: 'B' }],
+            permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
+          },
+          _isAdvanced: true,
+        },
+      ],
       _indexPermissions: [
         {
           index_patterns: [{ label: 'a' }, { label: 'b' }],

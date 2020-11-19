@@ -43,6 +43,11 @@ export const INDEX_PERMISSION = {
   masked_fields: [],
 };
 
+export const INDEX_EXCLUSIONS = {
+  actions: [],
+  index_patterns: [],
+};
+
 export const TENANT_PERMISSION = {
   tenant_patterns: [],
   allowed_actions: [],
@@ -51,7 +56,9 @@ export const TENANT_PERMISSION = {
 export const TABS = {
   OVERVIEW: 'overview',
   CLUSTER_PERMISSIONS: 'clusterPermissions',
+  CLUSTER_EXCLUSIONS: 'clusterExclusions',
   INDEX_PERMISSIONS: 'indexPermissions',
+  INDEX_EXCLUSIONS: 'indexExclusions',
   TENANT_PERMISSIONS: 'tenantPermissions',
 };
 

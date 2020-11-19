@@ -27,9 +27,18 @@ import {
   tenantPermissionsText,
   updateRoleText,
   overviewText,
+  indexExclusionsText,
+  clusterExclusionsText,
 } from '../../utils/i18n/roles';
 import { ROLES_ACTIONS } from '../../utils/constants';
-import { Overview, ClusterPermissions, IndexPermissions, TenantPermissions } from './components';
+import {
+  Overview,
+  ClusterPermissions,
+  IndexPermissions,
+  TenantPermissions,
+  IndexExclusions,
+  ClusterExclusions,
+} from './components';
 import {
   formikToRole,
   roleToFormik,
@@ -54,7 +63,8 @@ class CreateRole extends Component {
   constructor(props, context) {
     super(props, context);
 
-    const { location, httpClient } = this.props;
+    const { location } = this.props;
+    const { httpClient } = context;
     const { id } = queryString.parse(location.search);
     this.esService = new ElasticsearchService(httpClient);
     this.rolesService = new RolesService(httpClient);
@@ -75,10 +85,6 @@ class CreateRole extends Component {
       allClusterActionGroups: [],
       allTenantActionGroups: [],
       allTenants: [],
-      isFlsEnabled: true,
-      isDlsEnabled: true,
-      isAnonymizedFieldsEnabled: true,
-      isMultiTenancyEnabled: true,
     };
 
     this.tabs = [
@@ -91,8 +97,16 @@ class CreateRole extends Component {
         name: clusterPermissionsText,
       },
       {
+        id: TABS.CLUSTER_EXCLUSIONS,
+        name: clusterExclusionsText,
+      },
+      {
         id: TABS.INDEX_PERMISSIONS,
         name: indexPermissionsText,
+      },
+      {
+        id: TABS.INDEX_EXCLUSIONS,
+        name: indexExclusionsText,
       },
       {
         id: TABS.TENANT_PERMISSIONS,
@@ -106,7 +120,7 @@ class CreateRole extends Component {
   }
 
   componentWillUnmount = () => {
-    this.props.onTriggerInspectJsonFlyout(null);
+    this.context.triggerInspectJsonFlyout(null);
   };
 
   fetchData = async () => {
@@ -127,19 +141,10 @@ class CreateRole extends Component {
         allTenantActionGroups,
       } = actionGroupsToUiClusterIndexTenantActionGroups(actionGroups);
 
-      const isDlsEnabled = this.configService.dlsFlsEnabled();
-      const isFlsEnabled = isDlsEnabled;
-      const isMultiTenancyEnabled = this.configService.multiTenancyEnabled();
-      const isAnonymizedFieldsEnabled = this.configService.complianceFeaturesEnabled();
-
       this.setState({
         allClusterActionGroups,
         allIndexActionGroups,
         allTenantActionGroups,
-        isDlsEnabled,
-        isFlsEnabled,
-        isAnonymizedFieldsEnabled,
-        isMultiTenancyEnabled,
         allTenants: tenantsToUiTenants(allTenants),
       });
 
@@ -190,14 +195,9 @@ class CreateRole extends Component {
   render() {
     const { history, location } = this.props;
     const {
-      isEdit,
       isLoading,
       resource,
       selectedTabId,
-      isDlsEnabled,
-      isFlsEnabled,
-      isMultiTenancyEnabled,
-      isAnonymizedFieldsEnabled,
       allIndexPermissions,
       allClusterPermissions,
       allIndexActionGroups,
@@ -210,7 +210,9 @@ class CreateRole extends Component {
     const titleText = updateRole ? updateRoleText : createRoleText;
     const isOverviewTab = selectedTabId === TABS.OVERVIEW;
     const isClusterPermissionsTab = selectedTabId === TABS.CLUSTER_PERMISSIONS;
+    const isClusterExclusionsTab = selectedTabId === TABS.CLUSTER_EXCLUSIONS;
     const isIndexPermissionsTab = selectedTabId === TABS.INDEX_PERMISSIONS;
+    const isIndexExclusionsTab = selectedTabId === TABS.INDEX_EXCLUSIONS;
     const isTenantPermissionsTab = selectedTabId === TABS.TENANT_PERMISSIONS;
 
     return (
@@ -238,42 +240,49 @@ class CreateRole extends Component {
 
               {isOverviewTab && (
                 <Overview
-                  isUpdatingName={isUpdatingName}
                   values={values}
+                  isUpdatingName={isUpdatingName}
                   titleText={titleText}
-                  isEdit={isEdit}
                   {...this.props}
                 />
               )}
               {isClusterPermissionsTab && (
                 <ClusterPermissions
-                  isAdvanced={values._isClusterPermissionsAdvanced}
+                  values={values}
                   allActionGroups={allClusterActionGroups}
                   allSinglePermissions={allClusterPermissions}
-                  isEdit={isEdit}
+                  {...this.props}
+                />
+              )}
+              {isClusterExclusionsTab && (
+                <ClusterExclusions
+                  values={values}
+                  allActionGroups={allClusterActionGroups}
+                  allSinglePermissions={allClusterPermissions}
                   {...this.props}
                 />
               )}
               {isIndexPermissionsTab && (
                 <IndexPermissions
-                  indexPermissions={values._indexPermissions}
+                  values={values}
                   allActionGroups={allIndexActionGroups}
                   allSinglePermissions={allIndexPermissions}
-                  isEdit={isEdit}
-                  isDlsEnabled={isDlsEnabled}
-                  isFlsEnabled={isFlsEnabled}
-                  isAnonymizedFieldsEnabled={isAnonymizedFieldsEnabled}
+                  {...this.props}
+                />
+              )}
+              {isIndexExclusionsTab && (
+                <IndexExclusions
+                  values={values}
+                  allActionGroups={allIndexActionGroups}
+                  allSinglePermissions={allIndexPermissions}
                   {...this.props}
                 />
               )}
               {isTenantPermissionsTab && (
                 <TenantPermissions
+                  values={values}
                   allTenants={allTenants}
                   allAppActionGroups={allTenantActionGroups}
-                  tenantPermissions={values._tenantPermissions}
-                  values={values}
-                  isEdit={isEdit}
-                  isMultiTenancyEnabled={isMultiTenancyEnabled}
                   {...this.props}
                 />
               )}
@@ -288,10 +297,7 @@ class CreateRole extends Component {
 CreateRole.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
-  httpClient: PropTypes.object.isRequired,
 };
 
 export default CreateRole;

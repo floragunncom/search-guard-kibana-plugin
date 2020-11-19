@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import React, { Fragment } from 'react';
+import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { isEmpty, map } from 'lodash';
 import {
@@ -42,13 +42,10 @@ import { FormikFieldText, SubHeader } from '../../../../components';
 import { hasError, isInvalid, validateName } from '../../../../utils/validation';
 import { RolesService } from '../../../../services';
 
-const Overview = ({
-  values,
-  titleText,
-  onTriggerInspectJsonFlyout,
-  isUpdatingName,
-  httpClient,
-}) => {
+import { Context } from '../../../../Context';
+
+const Overview = ({ values, titleText, isUpdatingName }) => {
+  const { httpClient, triggerInspectJsonFlyout } = useContext(Context);
   const rolesService = new RolesService(httpClient);
 
   const sectionNoMappedText = {
@@ -69,7 +66,7 @@ const Overview = ({
         size="s"
         iconType="inspect"
         onClick={() => {
-          onTriggerInspectJsonFlyout({
+          triggerInspectJsonFlyout({
             json: formikToRole(values),
             title: titleText,
           });
@@ -130,10 +127,8 @@ const Overview = ({
 };
 
 Overview.propTypes = {
-  httpClient: PropTypes.object.isRequired,
   values: PropTypes.object.isRequired,
   isUpdatingName: PropTypes.bool.isRequired,
-  onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
 };
 
 export default Overview;

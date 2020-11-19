@@ -37,7 +37,9 @@ import {
   createRoleText,
   emptyRolesTableMessageText,
   clusterPermissionsText,
+  clusterExclusionsText,
   indexPatternsText,
+  indexExclusionsText,
   tenantPatternsText,
 } from '../../utils/i18n/roles';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
@@ -218,6 +220,18 @@ class Roles extends Component {
         ),
       },
       {
+        field: 'exclude_cluster_permissions',
+        name: clusterExclusionsText,
+        footer: clusterExclusionsText,
+        align: 'left',
+        mobileOptions: {
+          header: false,
+        },
+        render: (items, { _id }) => (
+          <TableItemsListCell name={`ExcludeClusterPermissions-${_id}`} items={items} />
+        ),
+      },
+      {
         field: '_indexPatterns',
         name: indexPatternsText,
         footer: indexPatternsText,
@@ -227,6 +241,18 @@ class Roles extends Component {
         },
         render: (items, { _id }) => (
           <TableItemsListCell name={`IndexPatterns-${_id}`} items={items} />
+        ),
+      },
+      {
+        field: '_excludeIndexPatterns',
+        name: indexExclusionsText,
+        footer: indexExclusionsText,
+        align: 'left',
+        mobileOptions: {
+          header: false,
+        },
+        render: (items, { _id }) => (
+          <TableItemsListCell name={`ExcludeIndexPatterns-${_id}`} items={items} />
         ),
       },
       {

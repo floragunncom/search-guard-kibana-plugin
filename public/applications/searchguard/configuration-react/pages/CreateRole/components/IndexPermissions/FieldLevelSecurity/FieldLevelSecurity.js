@@ -32,11 +32,15 @@ import { fieldNamesToUiFieldNames, mappingsToFieldNames } from './utils';
 import { comboBoxOptionsToArray } from '../../../../../utils/helpers';
 import { ElasticsearchService } from '../../../../../services';
 
-class FieldLevelSecurity extends Component {
-  constructor(props) {
-    super(props);
+import { Context } from '../../../../../Context';
 
-    this.esService = new ElasticsearchService(this.props.httpClient);
+class FieldLevelSecurity extends Component {
+  static contextType = Context;
+
+  constructor(props, context) {
+    super(props, context);
+
+    this.esService = new ElasticsearchService(context.httpClient);
 
     this.state = {
       isLoading: false,
@@ -51,7 +55,6 @@ class FieldLevelSecurity extends Component {
         values: { _indexPermissions },
       },
       index,
-      onTriggerErrorCallout,
     } = this.props;
 
     const currIndexPatterns = _indexPermissions[index].index_patterns;
@@ -69,7 +72,7 @@ class FieldLevelSecurity extends Component {
         prevIndexPatterns: currIndexPatterns,
       });
     } catch (error) {
-      onTriggerErrorCallout(error);
+      this.context.addErrorToast(error);
     }
     this.setState({ isLoading: false });
   };
@@ -85,10 +88,8 @@ class FieldLevelSecurity extends Component {
       },
       index,
       isAnonymizedFieldsEnabled,
-      onComboBoxChange,
-      onComboBoxOnBlur,
-      onComboBoxCreateOption,
     } = this.props;
+    const { onComboBoxChange, onComboBoxOnBlur, onComboBoxCreateOption } = this.context;
 
     const { isLoading, allFields } = this.state;
 
@@ -178,16 +179,11 @@ class FieldLevelSecurity extends Component {
 }
 
 FieldLevelSecurity.propTypes = {
-  httpClient: PropTypes.object.isRequired,
   index: PropTypes.number.isRequired,
   isAnonymizedFieldsEnabled: PropTypes.bool.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired,
-  onComboBoxOnBlur: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired,
   formik: PropTypes.shape({
     values: PropTypes.object.isRequired,
   }).isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired,
 };
 
 export default connect(FieldLevelSecurity);

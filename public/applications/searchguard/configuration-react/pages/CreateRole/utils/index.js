@@ -21,5 +21,7 @@ export {
   indicesToUiIndices,
   actionGroupsToUiClusterIndexTenantActionGroups,
   tenantsToUiTenants,
+  excludeIndexPermissionToUiExcludeIndexPermission,
 } from './role_to_formik';
 export { formikToRole } from './formik_to_role';
+export { useIndexPatterns, indexPatternNames, renderIndexOption } from './use_index_patterns';

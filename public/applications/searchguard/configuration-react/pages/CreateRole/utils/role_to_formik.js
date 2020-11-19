@@ -134,6 +134,23 @@ export const dlsToUiDls = (dlsQuery) => {
   return _dlsQuery;
 };
 
+export const excludeIndexPermissionToUiExcludeIndexPermission = (excludeIndexPermission) => {
+  const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(
+    excludeIndexPermission.actions
+  );
+  const actions = {
+    actiongroups: arrayToComboBoxOptions(actiongroups),
+    permissions: arrayToComboBoxOptions(permissions),
+  };
+  const indexPatterns = arrayToComboBoxOptions(excludeIndexPermission.index_patterns);
+
+  return {
+    actions,
+    index_patterns: indexPatterns,
+    _isAdvanced: !isEmpty(actions.permissions),
+  };
+};
+
 export const indexPermissionToUiIndexPermission = (indexPermission) => {
   const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(
     indexPermission.allowed_actions
@@ -169,7 +186,14 @@ export const roleToFormik = ({ resource, roleMapping = {}, id = '' }) => {
   const formik = defaultsDeep(cloneDeep(resource), ROLE);
   const _roleMapping = defaultsDeep(cloneDeep(roleMapping), ROLE_MAPPING);
   const _clusterPermissions = clusterPermissionsToUiClusterPermissions(formik.cluster_permissions);
+  const _excludeClusterPermissions = clusterPermissionsToUiClusterPermissions(
+    formik.exclude_cluster_permissions
+  );
   const _indexPermissions = map(formik.index_permissions, indexPermissionToUiIndexPermission);
+  const _excludeIndexPermissions = map(
+    formik.exclude_index_permissions,
+    excludeIndexPermissionToUiExcludeIndexPermission
+  );
   const _tenantPermissions = map(formik.tenant_permissions, tenantPermissionToUiTenantPermission);
 
   return {
@@ -177,8 +201,11 @@ export const roleToFormik = ({ resource, roleMapping = {}, id = '' }) => {
     _name: id,
     _roleMapping,
     _clusterPermissions,
+    _excludeClusterPermissions,
     _indexPermissions,
+    _excludeIndexPermissions,
     _tenantPermissions,
     _isClusterPermissionsAdvanced: !isEmpty(_clusterPermissions.permissions),
+    _isClusterExclusionsAdvanced: !isEmpty(_excludeClusterPermissions.permissions),
   };
 };

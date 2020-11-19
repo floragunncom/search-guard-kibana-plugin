@@ -16,19 +16,16 @@
 
 import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
+import { EuiAccordion, EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
 import { FieldArray } from 'formik';
-import { isEmpty } from 'lodash';
-import { INDEX_PERMISSION } from '../../utils/constants';
-import { EuiAccordion, EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiCallOut } from '@elastic/eui';
-import { advancedText, addText } from '../../../../utils/i18n/common';
+import { isEmpty, get } from 'lodash';
+import { addText, advancedText } from '../../../utils/i18n/common';
 import {
-  emptyIndexPermissionsText,
-  indexPermissionsText,
+  emptyIndexExclusionsText,
+  indexExclusionsText,
   indexPatternsText,
-  fieldLevelSecurityDisabledText,
-  documentLevelSecurityDisabledText,
-} from '../../../../utils/i18n/roles';
-import { actionGroupsText, singlePermissionsText } from '../../../../utils/i18n/action_groups';
+} from '../../../utils/i18n/roles';
+import { actionGroupsText, singleExclusionsText } from '../../../utils/i18n/action_groups';
 import {
   EmptyPrompt,
   AddButton,
@@ -37,42 +34,30 @@ import {
   FormikComboBox,
   FormikSwitch,
   Icon,
-} from '../../../../components';
-import { validIndicesSinglePermissionOption } from '../../../../utils/validation';
-import FieldLevelSecurity from './FieldLevelSecurity';
-import DocumentLevelSecurity from './DocumentLevelSecurity';
+} from '../../../components';
+import { validIndicesSinglePermissionOption } from '../../../utils/validation';
 import {
-  indexPermissionToUiIndexPermission,
+  excludeIndexPermissionToUiExcludeIndexPermission,
   useIndexPatterns,
   indexPatternNames,
   renderIndexOption,
-} from '../../utils';
+} from '../utils';
+import { INDEX_EXCLUSIONS } from '../utils/constants';
 
-import { Context } from '../../../../Context';
+import { Context } from '../../../Context';
 
-function Permission({
-  index,
-  values,
-  allActionGroups,
-  allSinglePermissions,
-  isDlsEnabled,
-  isFlsEnabled,
-  isAnonymizedFieldsEnabled,
-}) {
-  const {
-    httpClient,
-    onSwitchChange,
-    onComboBoxChange,
-    onComboBoxOnBlur,
-    onComboBoxCreateOption,
-  } = useContext(Context);
+function Exclusion({ index, values, allActionGroups, allSinglePermissions }) {
+  const { onSwitchChange, onComboBoxChange, onComboBoxOnBlur, onComboBoxCreateOption } = useContext(
+    Context
+  );
 
   const { isLoading, indexOptions, onSearchChange } = useIndexPatterns();
+  const isAdvanced = get(values, `_excludeIndexPermissions[${index}]._isAdvanced`);
 
   return (
     <>
       <FormikComboBox
-        name={`_indexPermissions[${index}].index_patterns`}
+        name={`_excludeIndexPermissions[${index}].index_patterns`}
         formRow
         rowProps={{
           label: indexPatternsText,
@@ -91,7 +76,7 @@ function Permission({
         }}
       />
       <FormikComboBox
-        name={`_indexPermissions[${index}].allowed_actions.actiongroups`}
+        name={`_excludeIndexPermissions[${index}].actions.actiongroups`}
         formRow
         rowProps={{
           label: actionGroupsText,
@@ -109,14 +94,14 @@ function Permission({
           label: advancedText,
           onChange: onSwitchChange,
         }}
-        name={`_indexPermissions[${index}]._isAdvanced`}
+        name={`_excludeIndexPermissions[${index}]._isAdvanced`}
       />
-      {values._indexPermissions[index]._isAdvanced && (
+      {isAdvanced && (
         <FormikComboBox
-          name={`_indexPermissions[${index}].allowed_actions.permissions`}
+          name={`_excludeIndexPermissions[${index}].actions.permissions`}
           formRow
           rowProps={{
-            label: singlePermissionsText,
+            label: singleExclusionsText,
           }}
           elementProps={{
             options: allSinglePermissions,
@@ -127,54 +112,14 @@ function Permission({
           }}
         />
       )}
-      {!isFlsEnabled ? (
-        <Fragment>
-          <EuiSpacer />
-          <EuiCallOut
-            data-test-subj="sgFLSDisabledCallout"
-            className="sgFixedFormItem"
-            iconType="iInCircle"
-            title={fieldLevelSecurityDisabledText}
-          />
-        </Fragment>
-      ) : (
-        <Fragment>
-          <EuiSpacer />
-          <FieldLevelSecurity index={index} isAnonymizedFieldsEnabled={isAnonymizedFieldsEnabled} />
-        </Fragment>
-      )}
-      {!isDlsEnabled ? (
-        <Fragment>
-          <EuiSpacer />
-          <EuiCallOut
-            data-test-subj="sgDLSDisabledCallout"
-            className="sgFixedFormItem"
-            iconType="iInCircle"
-            title={documentLevelSecurityDisabledText}
-          />
-        </Fragment>
-      ) : (
-        <>
-          <EuiSpacer />
-          <DocumentLevelSecurity httpClient={httpClient} index={index} />
-        </>
-      )}
     </>
   );
 }
 
-function Permissions({
-  values,
-  arrayHelpers,
-  allActionGroups,
-  allSinglePermissions,
-  isDlsEnabled,
-  isFlsEnabled,
-  isAnonymizedFieldsEnabled,
-}) {
+function Exclusions({ values, arrayHelpers, allActionGroups, allSinglePermissions }) {
   const { triggerConfirmDeletionModal } = useContext(Context);
 
-  return values._indexPermissions.map((indexPermission, index) => (
+  return values._excludeIndexPermissions.map((indexPermission, index) => (
     <EuiFlexGroup key={index}>
       <EuiFlexItem>
         <EuiAccordion
@@ -204,14 +149,11 @@ function Permissions({
           }
         >
           <EuiSpacer />
-          <Permission
+          <Exclusion
             index={index}
             values={values}
             allActionGroups={allActionGroups}
             allSinglePermissions={allSinglePermissions}
-            isDlsEnabled={isDlsEnabled}
-            isFlsEnabled={isFlsEnabled}
-            isAnonymizedFieldsEnabled={isAnonymizedFieldsEnabled}
           />
 
           <EuiSpacer />
@@ -221,51 +163,42 @@ function Permissions({
   ));
 }
 
-const IndexPermissions = ({ values, allActionGroups, allSinglePermissions }) => {
-  const { configService } = useContext(Context);
-
-  const isDlsEnabled = configService.dlsFlsEnabled();
-  const isFlsEnabled = isDlsEnabled;
-  const isAnonymizedFieldsEnabled = configService.complianceFeaturesEnabled();
-
-  const addIndexPermission = (arrayHelpers) => {
-    arrayHelpers.push(indexPermissionToUiIndexPermission(INDEX_PERMISSION));
-  };
+export function IndexExclusions({ values, allActionGroups, allSinglePermissions }) {
+  function addIndexPermission(arrayHelpers) {
+    arrayHelpers.push(excludeIndexPermissionToUiExcludeIndexPermission(INDEX_EXCLUSIONS));
+  }
 
   return (
-    <FieldArray name="_indexPermissions">
+    <FieldArray name="_excludeIndexPermissions">
       {(arrayHelpers) => (
         <Fragment>
           <AddButton onClick={() => addIndexPermission(arrayHelpers)} />
           <EuiSpacer />
 
-          {isEmpty(values._indexPermissions) ? (
+          {isEmpty(values._excludeIndexPermissions) ? (
             <EmptyPrompt
-              titleText={indexPermissionsText}
-              bodyText={emptyIndexPermissionsText}
+              titleText={indexExclusionsText}
+              bodyText={emptyIndexExclusionsText}
               createButtonText={addText}
               onCreate={() => {
                 addIndexPermission(arrayHelpers);
               }}
             />
           ) : (
-            <Permissions
+            <Exclusions
               values={values}
+              arrayHelpers={arrayHelpers}
               allActionGroups={allActionGroups}
               allSinglePermissions={allSinglePermissions}
-              arrayHelpers={arrayHelpers}
-              isDlsEnabled={isDlsEnabled}
-              isFlsEnabled={isFlsEnabled}
-              isAnonymizedFieldsEnabled={isAnonymizedFieldsEnabled}
             />
           )}
         </Fragment>
       )}
     </FieldArray>
   );
-};
+}
 
-IndexPermissions.propTypes = {
+IndexExclusions.propTypes = {
   values: PropTypes.shape({
     _excludeIndexPermissions: PropTypes.arrayOf(
       PropTypes.shape({
@@ -276,20 +209,7 @@ IndexPermissions.propTypes = {
         }),
       })
     ).isRequired,
-    _indexPermissions: PropTypes.arrayOf(
-      PropTypes.shape({
-        index_patterns: PropTypes.array.isRequired,
-        fls: PropTypes.array.isRequired,
-        masked_fields: PropTypes.array.isRequired,
-        allowed_actions: PropTypes.shape({
-          actiongroups: PropTypes.array.isRequired,
-          permissions: PropTypes.array.isRequired,
-        }),
-      })
-    ).isRequired,
   }).isRequired,
   allActionGroups: PropTypes.array.isRequired,
   allSinglePermissions: PropTypes.array.isRequired,
 };
-
-export default IndexPermissions;

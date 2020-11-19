@@ -24,6 +24,7 @@ const resourcesToUiResources = (resources) =>
         result.push({
           ...values,
           cluster_permissions: sortBy(values.cluster_permissions),
+          exclude_cluster_permissions: sortBy(values.exclude_cluster_permissions),
           _id: id,
           _tenantPatterns: sortBy(
             reduce(
@@ -40,6 +41,18 @@ const resourcesToUiResources = (resources) =>
           _indexPatterns: sortBy(
             reduce(
               values.index_permissions,
+              (result, values) => {
+                forEach(values.index_patterns, (pattern) => {
+                  result.push(pattern);
+                });
+                return result;
+              },
+              []
+            )
+          ),
+          _excludeIndexPatterns: sortBy(
+            reduce(
+              values.exclude_index_permissions,
               (result, values) => {
                 forEach(values.index_patterns, (pattern) => {
                   result.push(pattern);

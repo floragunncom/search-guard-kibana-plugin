@@ -357,15 +357,9 @@ class Main extends Component {
                   />
                   <Route
                     path={APP_PATH.CREATE_ROLE}
-                    render={props => (
+                    render={(props) => (
                       <CreateRole
-                        httpClient={httpClient}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                        onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
-                        onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
-                        onComboBoxChange={this.handleComboBoxChange}
-                        onComboBoxOnBlur={this.handleComboBoxOnBlur}
-                        onComboBoxCreateOption={this.handleComboBoxCreateOption}
                         {...props}
                       />
                     )}

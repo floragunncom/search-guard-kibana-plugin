@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import React, { Fragment } from 'react';
+import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { FieldArray } from 'formik';
 import { isEmpty } from 'lodash';
@@ -30,6 +30,8 @@ import { TENANT_PERMISSION, GLOBAL_TENANT } from '../../utils/constants';
 import { tenantPermissionToUiTenantPermission } from '../../utils';
 import TenantPatterns from './TenantPatterns';
 
+import { Context } from '../../../../Context';
+
 const addTenantPermission = (arrayHelpers, isMultiTenancyEnabled) => {
   const permission = tenantPermissionToUiTenantPermission(TENANT_PERMISSION);
   if (!isMultiTenancyEnabled) {
@@ -38,12 +40,10 @@ const addTenantPermission = (arrayHelpers, isMultiTenancyEnabled) => {
   arrayHelpers.push(permission);
 };
 
-const TenantPermissions = ({
-  allTenants,
-  allAppActionGroups,
-  tenantPermissions,
-  isMultiTenancyEnabled,
-}) => {
+const TenantPermissions = ({ values, allTenants, allAppActionGroups }) => {
+  const { configService } = useContext(Context);
+  const isMultiTenancyEnabled = configService.multiTenancyEnabled();
+
   return (
     <Fragment>
       {!isMultiTenancyEnabled && (
@@ -63,7 +63,7 @@ const TenantPermissions = ({
             <AddButton onClick={() => addTenantPermission(arrayHelpers, isMultiTenancyEnabled)} />
             <EuiSpacer />
 
-            {isEmpty(tenantPermissions) ? (
+            {isEmpty(values._tenantPermissions) ? (
               <EmptyPrompt
                 titleText={tenantPermissionsText}
                 bodyText={emptyTenantPermissionsText}
@@ -76,7 +76,7 @@ const TenantPermissions = ({
               <TenantPatterns
                 isMultiTenancyEnabled={isMultiTenancyEnabled}
                 allTenants={allTenants}
-                tenantPermissions={tenantPermissions}
+                tenantPermissions={values._tenantPermissions}
                 allAppActionGroups={allAppActionGroups}
                 arrayHelpers={arrayHelpers}
               />
@@ -90,14 +90,15 @@ const TenantPermissions = ({
 };
 
 TenantPermissions.propTypes = {
+  values: PropTypes.shape({
+    _tenantPermissions: PropTypes.arrayOf(
+      PropTypes.shape({
+        tenant_patterns: PropTypes.array.isRequired,
+        allowed_actions: PropTypes.array.isRequired,
+      })
+    ).isRequired,
+  }).isRequired,
   allTenants: PropTypes.array.isRequired,
-  isMultiTenancyEnabled: PropTypes.bool.isRequired,
-  tenantPermissions: PropTypes.arrayOf(
-    PropTypes.shape({
-      tenant_patterns: PropTypes.array.isRequired,
-      allowed_actions: PropTypes.array.isRequired,
-    })
-  ).isRequired,
   allAppActionGroups: PropTypes.array.isRequired,
 };
 

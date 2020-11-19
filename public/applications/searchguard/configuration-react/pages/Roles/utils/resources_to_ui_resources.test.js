@@ -24,6 +24,7 @@ describe('roles to UI table roles', () => {
         hidden: false,
         description: 'Migrated from v6 (all types mapped)',
         cluster_permissions: ['indices:a/b/c', 'kibana:a/b/c', 'cluster:a/b/c', 'B', 'A'],
+        exclude_cluster_permissions: ['indices:a/b/c', 'kibana:a/b/c', 'cluster:a/b/c', 'B', 'A'],
         index_permissions: [
           {
             index_patterns: ['b', 'a'],
@@ -36,6 +37,16 @@ describe('roles to UI table roles', () => {
             fls: [],
             masked_fields: [],
             allowed_actions: [],
+          },
+        ],
+        exclude_index_permissions: [
+          {
+            index_patterns: ['b', 'a'],
+            actions: [],
+          },
+          {
+            index_patterns: ['d', 'c'],
+            actions: [],
           },
         ],
         tenant_permissions: [
@@ -55,12 +66,19 @@ describe('roles to UI table roles', () => {
         hidden: false,
         description: 'Migrated from v6 (all types mapped)',
         cluster_permissions: ['indices:a/b/c', 'kibana:a/b/c', 'cluster:a/b/c', 'B', 'A'],
+        exclude_cluster_permissions: ['indices:a/b/c', 'kibana:a/b/c', 'cluster:a/b/c', 'B', 'A'],
         index_permissions: [
           {
             index_patterns: ['a'],
             fls: [],
             masked_fields: [],
             allowed_actions: [],
+          },
+        ],
+        exclude_index_permissions: [
+          {
+            index_patterns: ['a'],
+            actions: [],
           },
         ],
         tenant_permissions: [],
@@ -72,8 +90,10 @@ describe('roles to UI table roles', () => {
       {
         _id: 'A_ROLE',
         _indexPatterns: ['a'],
+        _excludeIndexPatterns: ['a'],
         _tenantPatterns: [],
         cluster_permissions: ['A', 'B', 'cluster:a/b/c', 'indices:a/b/c', 'kibana:a/b/c'],
+        exclude_cluster_permissions: ['A', 'B', 'cluster:a/b/c', 'indices:a/b/c', 'kibana:a/b/c'],
         reserved: true,
         hidden: false,
         description: 'Migrated from v6 (all types mapped)',
@@ -85,14 +105,22 @@ describe('roles to UI table roles', () => {
             allowed_actions: [],
           },
         ],
+        exclude_index_permissions: [
+          {
+            index_patterns: ['a'],
+            actions: [],
+          },
+        ],
         tenant_permissions: [],
         static: true,
       },
       {
         _id: 'B_ROLE',
         _indexPatterns: ['a', 'b', 'c', 'd'],
+        _excludeIndexPatterns: ['a', 'b', 'c', 'd'],
         _tenantPatterns: ['e', 'f', 'g'],
         cluster_permissions: ['A', 'B', 'cluster:a/b/c', 'indices:a/b/c', 'kibana:a/b/c'],
+        exclude_cluster_permissions: ['A', 'B', 'cluster:a/b/c', 'indices:a/b/c', 'kibana:a/b/c'],
         reserved: true,
         hidden: false,
         description: 'Migrated from v6 (all types mapped)',
@@ -108,6 +136,16 @@ describe('roles to UI table roles', () => {
             fls: [],
             masked_fields: [],
             allowed_actions: [],
+          },
+        ],
+        exclude_index_permissions: [
+          {
+            index_patterns: ['b', 'a'],
+            actions: [],
+          },
+          {
+            index_patterns: ['d', 'c'],
+            actions: [],
           },
         ],
         tenant_permissions: [

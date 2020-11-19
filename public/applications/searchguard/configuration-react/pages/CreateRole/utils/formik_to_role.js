@@ -24,6 +24,22 @@ export const uiFlsToFls = (fls = [], flsmode) =>
     return flsmode === FLS_MODES.BLACKLIST ? '~' + field.replace(/^\~+/, '') : field;
   });
 
+export const uiExcludeIndexPermissionsToExcludeIndexPermissions = (excludeIndexPermissions) => {
+  return map(excludeIndexPermissions, (values) => {
+    const { actiongroups, permissions } = values.actions;
+    const actions = [
+      ...comboBoxOptionsToArray(actiongroups),
+      ...comboBoxOptionsToArray(permissions),
+    ];
+    const indexPatterns = comboBoxOptionsToArray(values.index_patterns);
+
+    return {
+      actions,
+      index_patterns: indexPatterns,
+    };
+  });
+};
+
 export const uiIndexPermissionsToIndexPermissions = (indexPermissions) => {
   return map(indexPermissions, (values) => {
     const { actiongroups, permissions } = values.allowed_actions;
@@ -68,7 +84,13 @@ export const uiClusterPermissionsToClusterPermissions = (clusterPermissions) => 
 export const formikToRole = (_formik) => {
   const formik = cloneDeep(_formik);
   const clusterPermissions = uiClusterPermissionsToClusterPermissions(formik._clusterPermissions);
+  const excludeClusterPermissions = uiClusterPermissionsToClusterPermissions(
+    formik._excludeClusterPermissions
+  );
   const indexPermissions = uiIndexPermissionsToIndexPermissions(formik._indexPermissions);
+  const excludeIndexPermissions = uiExcludeIndexPermissionsToExcludeIndexPermissions(
+    formik._excludeIndexPermissions
+  );
   const tenantPermissions = uiTenantPermissionsToTenantPermissions(formik._tenantPermissions);
 
   return {
@@ -76,13 +98,18 @@ export const formikToRole = (_formik) => {
       '_name',
       '_roleMapping',
       '_isClusterPermissionsAdvanced',
+      '_isClusterExclusionsAdvanced',
       '_clusterPermissions',
+      '_excludeClusterPermissions',
       '_indexPermissions',
+      '_excludeIndexPermissions',
       '_tenantPermissions',
       ...FIELDS_TO_OMIT_BEFORE_SAVE,
     ]),
     cluster_permissions: clusterPermissions,
     index_permissions: indexPermissions,
     tenant_permissions: tenantPermissions,
+    exclude_cluster_permissions: excludeClusterPermissions,
+    exclude_index_permissions: excludeIndexPermissions,
   };
 };

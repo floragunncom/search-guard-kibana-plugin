@@ -21,8 +21,10 @@ describe('UI table role to role', () => {
     const uiResource = {
       _id: 'A_ROLE',
       _indexPatterns: ['a'],
+      _excludeIndexPatterns: ['a'],
       _tenantPatterns: [],
       cluster_permissions: ['A', 'B', 'cluster:a/b/c', 'indices:a/b/c', 'kibana:a/b/c'],
+      exclude_cluster_permissions: ['A', 'B', 'cluster:a/b/c', 'indices:a/b/c', 'kibana:a/b/c'],
       reserved: true,
       hidden: false,
       description: 'Migrated from v6 (all types mapped)',
@@ -34,12 +36,19 @@ describe('UI table role to role', () => {
           allowed_actions: [],
         },
       ],
+      exclude_index_permissions: [
+        {
+          index_patterns: ['a'],
+          actions: [],
+        },
+      ],
       tenant_permissions: [],
       static: true,
     };
 
     const resource = {
       cluster_permissions: ['A', 'B', 'cluster:a/b/c', 'indices:a/b/c', 'kibana:a/b/c'],
+      exclude_cluster_permissions: ['A', 'B', 'cluster:a/b/c', 'indices:a/b/c', 'kibana:a/b/c'],
       description: 'Migrated from v6 (all types mapped)',
       index_permissions: [
         {
@@ -47,6 +56,12 @@ describe('UI table role to role', () => {
           fls: [],
           masked_fields: [],
           allowed_actions: [],
+        },
+      ],
+      exclude_index_permissions: [
+        {
+          index_patterns: ['a'],
+          actions: [],
         },
       ],
       tenant_permissions: [],

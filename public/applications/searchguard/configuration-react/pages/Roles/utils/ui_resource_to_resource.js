@@ -19,7 +19,13 @@ import { FIELDS_TO_OMIT_BEFORE_SAVE } from '../../../utils/constants';
 
 const uiResourceToResource = (resource) => {
   return {
-    ...omit(resource, ['_tenantPatterns', '_indexPatterns', '_id', ...FIELDS_TO_OMIT_BEFORE_SAVE]),
+    ...omit(resource, [
+      '_id',
+      '_tenantPatterns',
+      '_indexPatterns',
+      '_excludeIndexPatterns',
+      ...FIELDS_TO_OMIT_BEFORE_SAVE,
+    ]),
   };
 };
 
