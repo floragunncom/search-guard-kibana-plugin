@@ -19,7 +19,7 @@ import { sanitizeNextUrl } from '../../sanitize_next_url';
 import MissingTenantError from '../../errors/missing_tenant_error';
 import { customError as customErrorRoute } from '../common/routes';
 import { schema } from '@kbn/config-schema';
-import { APP_ROOT, API_ROOT } from '../../../../server/utils/constants';
+import { APP_ROOT, API_ROOT } from '../../../../../utils/constants';
 
 export default function ({
   authInstance,

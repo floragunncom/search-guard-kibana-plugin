@@ -20,7 +20,7 @@ import { sanitizeNextUrl } from '../../sanitize_next_url';
 import MissingTenantError from '../../errors/missing_tenant_error';
 import MissingRoleError from '../../errors/missing_role_error';
 import { customError as customErrorRoute } from '../common/routes';
-import { APP_ROOT, API_ROOT } from '../../../../server/utils/constants';
+import { APP_ROOT, API_ROOT } from '../../../../../utils/constants';
 
 export function defineRoutes({
   authInstance,

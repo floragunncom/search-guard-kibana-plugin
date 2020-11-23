@@ -22,7 +22,7 @@ import {
   setupLoggerMock,
   setupHttpResponseMock,
   setupHttpToolkitMock,
-} from '../../mocks';
+} from '../../../../../utils/mocks';
 
 describe(AuthClass.name, () => {
   test('handle request if the route path is in the whitelist', async () => {

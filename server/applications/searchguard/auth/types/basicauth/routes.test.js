@@ -26,10 +26,10 @@ import {
   setupHttpResponseMock,
   setupAuthInstanceMock,
   setupContextMock,
-} from '../../mocks';
+} from '../../../../../utils/mocks';
 import { AuthenticationError, MissingTenantError, MissingRoleError } from '../../errors';
 
-jest.mock('../../../../../../src/core/server/http/router', () => jest.fn());
+jest.mock('../../../../../../../../src/core/server/http/router', () => jest.fn());
 
 const authType = 'basicauth';
 

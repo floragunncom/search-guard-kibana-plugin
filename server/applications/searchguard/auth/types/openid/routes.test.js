@@ -27,10 +27,10 @@ import {
   setupContextMock,
   setupKibanaCoreMock,
   setupDebugLogMock,
-} from '../../mocks';
+} from '../../../../../utils/mocks';
 import { MissingTenantError, MissingRoleError } from '../../errors';
 
-jest.mock('../../../../../../src/core/server/http/router', () => jest.fn());
+jest.mock('../../../../../../../../src/core/server/http/router', () => jest.fn());
 
 jest.mock('cryptiles', () => ({
   randomString: jest.fn(() => 'ecF1onUEGkfbzBldXS6Unh'),

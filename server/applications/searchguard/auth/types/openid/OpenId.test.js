@@ -28,9 +28,9 @@ import {
   setupHttpResponseMock,
   setupHttpToolkitMock,
   getCookieExpiryTimeS,
-} from '../../mocks';
+} from '../../../../../utils/mocks';
 
-jest.mock('../../../../../../src/core/server/http/router', () => jest.fn());
+jest.mock('../../../../../../../../src/core/server/http/router', () => jest.fn());
 
 const authType = 'openid';
 

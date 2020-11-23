@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { API_ROOT } from '../../server/utils/constants';
+import { API_ROOT } from '../../../utils/constants';
 import { schema } from '@kbn/config-schema';
 
 export function systemInfoHandler({ searchGuardBackend, logger }) {

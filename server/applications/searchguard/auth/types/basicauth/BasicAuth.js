@@ -17,9 +17,9 @@
 
 import AuthType from '../AuthType';
 import MissingRoleError from '../../errors/missing_role_error';
-import { ensureRawRequest } from '../../../../../../src/core/server/http/router';
+import { ensureRawRequest } from '../../../../../../../../src/core/server/http/router';
 import { defineRoutes } from './routes';
-import { APP_ROOT } from '../../../../server/utils/constants';
+import { APP_ROOT } from '../../../../../utils/constants';
 import { stringify } from 'querystring';
 
 export default class BasicAuth extends AuthType {

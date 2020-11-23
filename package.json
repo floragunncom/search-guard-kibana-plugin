@@ -16,7 +16,7 @@
     "build": "yarn plugin-helpers build",
     "plugin-helpers": "node ../../scripts/plugin_helpers",
     "kbn": "node ../../scripts/kbn",
-    "test:browser": "../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server  --testPathIgnorePatterns=lib --config ./tests/jest.config.js --silent",
+    "test:browser": "../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --silent",
     "test:server": "../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=public --config ./tests/jest.config.js --silent",
     "patch:kibana:es_compatibility": "./common/patches/patch_kibana_es_version_compatibility.sh",
     "patch:kibana:dev:es_compatibility": "./common/patches/patch_kibana_es_version_compatibility.sh dev"

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { API_ROOT } from '../../server/utils/constants';
+import { API_ROOT } from '../../../utils/constants';
 
 export function authInfoHandler({ searchGuardBackend, logger }) {
   return async function (context, request, response) {

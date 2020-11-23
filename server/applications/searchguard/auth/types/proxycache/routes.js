@@ -14,14 +14,18 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
+import { parseLoginEndpoint } from './parse_login_endpoint';
 import { customError as customErrorRoute } from '../common/routes';
-import { APP_ROOT, API_ROOT } from '../../../../server/utils/constants';
+import { APP_ROOT, API_ROOT } from '../../../../../utils/constants';
 
-module.exports = function ({ authInstance, kibanaCore }) {
+module.exports = function ({ authInstance, kibanaCore, kibanaConfig, logger }) {
+  const config = kibanaConfig;
   const httpResources = kibanaCore.http.resources;
   const router = kibanaCore.http.createRouter();
 
+  /**
+   * After a logout we are redirected to a login page
+   */
   router.get(
     {
       path: `${APP_ROOT}/login`,
@@ -31,9 +35,25 @@ module.exports = function ({ authInstance, kibanaCore }) {
       },
     },
     async (context, request, response) => {
-      return response.redirected({
-        headers: { location: `${APP_ROOT}/customerror` },
-      });
+      // The customer may use a login endpoint, to which we can redirect
+      // if the user isn't authenticated.
+      const loginEndpoint = config.get('searchguard.proxycache.login_endpoint');
+      if (loginEndpoint) {
+        try {
+          const redirectUrl = parseLoginEndpoint(loginEndpoint);
+          return response.redirected({
+            headers: { location: redirectUrl },
+          });
+        } catch (error) {
+          logger.error(
+            'An error occured while parsing the searchguard.proxycache.login_endpoint value'
+          );
+        }
+      } else {
+        return response.redirected({
+          headers: { location: `${APP_ROOT}/customerror` },
+        });
+      }
     }
   );
 
@@ -52,9 +72,8 @@ module.exports = function ({ authInstance, kibanaCore }) {
     },
     async (context, request, response) => {
       await authInstance.clear(request);
-      return response.ok({
-        body: {},
-      });
+
+      return response.ok();
     }
   );
 }; //end module

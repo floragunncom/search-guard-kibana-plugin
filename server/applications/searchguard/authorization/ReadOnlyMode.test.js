@@ -15,7 +15,11 @@
  */
 
 import { cloneDeep } from 'lodash';
-import { setupConfigMock, setupSearchGuardBackendMock, setupLoggerMock } from '../auth/mocks';
+import {
+  setupConfigMock,
+  setupSearchGuardBackendMock,
+  setupLoggerMock,
+} from '../../../utils/mocks';
 import { ReadOnlyMode } from './ReadOnlyMode';
 
 describe('ReadOnlyMode', () => {
