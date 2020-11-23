@@ -19,22 +19,44 @@ import PropTypes from 'prop-types';
 import { connect } from 'formik';
 import { get } from 'lodash';
 import { SubHeader, FormikCodeEditor } from '../../../../components';
-import { EuiButton, EuiSpacer } from '@elastic/eui';
-import { elasticsearhQueryDLSText, documentLevelSecurityText } from '../../../../utils/i18n/roles';
+import { EuiButton, EuiSpacer, EuiCallOut } from '@elastic/eui';
+import {
+  elasticsearhQueryDLSText,
+  documentLevelSecurityText,
+  documentLevelSecurityDisabledText,
+} from '../../../../utils/i18n/roles';
 import { isInvalid, hasError, validateESDLSQuery } from '../../../../utils/validation';
 import { stringifyPretty } from '../../../../utils/helpers';
 
 import { Context } from '../../../../Context';
 
 const DocumentLevelSecurity = ({ index, formik }) => {
-  const { editorTheme, editorOptions, httpClient } = useContext(Context);
+  const { editorTheme, editorOptions, httpClient, configService } = useContext(Context);
+  const isDlsEnabled = configService.dlsFlsEnabled();
   const { values, validateField, setFieldValue } = formik;
   const fieldPath = `_indexPermissions[${index}]._dls`;
   // TODO: should we validate all indexes? This logic was taken from the old app
   const firstIndexPattern = get(values, `_indexPermissions[${index}].index_patterns[0].label`);
 
-  return (
+  function renderFeatureDisabledCallout() {
+    return (
+      <Fragment>
+        <EuiSpacer />
+        <EuiCallOut
+          data-test-subj="sgDLSDisabledCallout"
+          className="sgFixedFormItem"
+          iconType="iInCircle"
+          title={documentLevelSecurityDisabledText}
+        />
+      </Fragment>
+    );
+  }
+
+  return !isDlsEnabled ? (
+    renderFeatureDisabledCallout()
+  ) : (
     <Fragment>
+      <EuiSpacer />
       <SubHeader title={<h4>{documentLevelSecurityText}</h4>} />
       <EuiButton
         data-test-subj="sgDLSCheckButton"

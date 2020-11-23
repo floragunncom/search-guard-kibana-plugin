@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-import { startCase } from 'lodash';
-import { arrayToComboBoxOptions } from '../../../../../../utils/helpers';
+import { forbiddenCharactersText } from '../../../../../utils/i18n/common';
 
-export default function fieldNamesToUiFieldNames(fieldNames = {}) {
-  const result = [];
-  Object.entries(fieldNames).map(([dataType, fieldNames]) => {
-    result.push({
-      label: startCase(dataType),
-      options: arrayToComboBoxOptions(Array.from(fieldNames)),
-    });
-  });
-  return result;
+// In the default mode we don't allow setting field name with
+// hash function name or regex. Use the form inputs instead.
+export function validateMaskedFields(fields = []) {
+  if (fields.some(({ label = '' } = {}) => label.includes('::'))) {
+    return forbiddenCharactersText;
+  }
+  return null;
 }

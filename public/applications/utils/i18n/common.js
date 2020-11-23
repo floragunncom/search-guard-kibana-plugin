@@ -104,3 +104,9 @@ export const authtokenText = <EuiI18n token="sg.common.authtoken.text" default="
 export const integrationkeyText = (
   <EuiI18n token="sg.common.integrationkey.text" default="Integration Key" />
 );
+export const forbiddenCharactersText = (
+  <EuiI18n token="sg.roles.forbiddenCharacters.text" default="Forbidden characters" />
+);
+export const wrongDefinitionText = (
+  <EuiI18n token="sg.roles.wrongDefinition.text" default="Wrong definition" />
+);
