@@ -35,7 +35,7 @@ import {
   FormikSwitch,
   Icon,
 } from '../../../components';
-import { validIndicesSinglePermissionOption } from '../../../utils/validation';
+import { validIndicesSinglePermissionOption, isInvalid, hasError } from '../../../utils/validation';
 import {
   excludeIndexPermissionToUiExcludeIndexPermission,
   useIndexPatterns,
@@ -102,13 +102,19 @@ function Exclusion({ index, values, allActionGroups, allSinglePermissions }) {
           formRow
           rowProps={{
             label: singleExclusionsText,
+            isInvalid,
+            error: hasError,
           }}
           elementProps={{
+            isInvalid,
             options: allSinglePermissions,
             isClearable: true,
             onBlur: onComboBoxOnBlur,
-            onCreateOption: onComboBoxCreateOption(validIndicesSinglePermissionOption),
+            onCreateOption: onComboBoxCreateOption(),
             onChange: onComboBoxChange(),
+          }}
+          formikFieldProps={{
+            validate: validIndicesSinglePermissionOption,
           }}
         />
       )}

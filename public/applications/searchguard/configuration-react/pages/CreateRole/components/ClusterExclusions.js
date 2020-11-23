@@ -19,7 +19,7 @@ import PropTypes from 'prop-types';
 import { FormikComboBox, FormikSwitch } from '../../../components';
 import { actionGroupsText, singleExclusionsText } from '../../../utils/i18n/action_groups';
 import { advancedText } from '../../../utils/i18n/common';
-import { validSinglePermissionOption } from '../../../utils/validation';
+import { validSinglePermissionOption, isInvalid, hasError } from '../../../utils/validation';
 
 import { Context } from '../../../Context';
 
@@ -57,13 +57,19 @@ export function ClusterExclusions({ allActionGroups, allSinglePermissions, value
           formRow
           rowProps={{
             label: singleExclusionsText,
+            isInvalid,
+            error: hasError,
           }}
           elementProps={{
+            isInvalid,
             options: allSinglePermissions,
             isClearable: true,
             onBlur: onComboBoxOnBlur,
-            onCreateOption: onComboBoxCreateOption(validSinglePermissionOption),
+            onCreateOption: onComboBoxCreateOption(),
             onChange: onComboBoxChange(),
+          }}
+          formikFieldProps={{
+            validate: validSinglePermissionOption,
           }}
         />
       )}

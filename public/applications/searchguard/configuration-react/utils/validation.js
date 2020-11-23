@@ -25,6 +25,9 @@ import {
   nameAlreadyExistsText,
   nameMustNotContainDotsText,
   jsonIsInvalidText,
+  indicesPermissionsPrefixErrorText,
+  clusterPermissionsPrefixErrorText,
+  permissionsPrefixErrorText,
 } from './i18n/common';
 import { dlsQuerySyntaxIsInvalidText } from './i18n/roles';
 import { API } from './constants';
@@ -89,8 +92,25 @@ export const validateEmptyComboBox = (value) => {
   if (isEmpty(value)) return requiredText;
 };
 
-export const validClusterSinglePermissionOption = (label) => /^cluster:[\w\*].*/.test(label);
-export const validIndicesSinglePermissionOption = (label) => /^indices:[\w\*].*/.test(label);
-export const validSinglePermissionOption = (label) => /^((cluster)|(indices)):[\w\*].*/.test(label);
+export function validClusterSinglePermissionOption(options = []) {
+  if (options.some(({ label } = {}) => !/^cluster:[\w\*].*/.test(label))) {
+    return clusterPermissionsPrefixErrorText;
+  }
+  return null;
+}
+
+export function validIndicesSinglePermissionOption(options = []) {
+  if (options.some(({ label } = {}) => !/^indices:[\w\*].*/.test(label))) {
+    return indicesPermissionsPrefixErrorText;
+  }
+  return null;
+}
+
+export function validSinglePermissionOption(options = []) {
+  if (options.some(({ label } = {}) => !/^((cluster)|(indices)):[\w\*].*/.test(label))) {
+    return permissionsPrefixErrorText;
+  }
+  return null;
+}
 
 export * from '../../../utils/validate';

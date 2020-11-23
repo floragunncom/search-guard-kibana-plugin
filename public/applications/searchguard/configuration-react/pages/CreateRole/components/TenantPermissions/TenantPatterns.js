@@ -111,6 +111,7 @@ const TenantPatterns = ({
                   isClearable: true,
                   onBlur: onComboBoxOnBlur,
                   onChange: onComboBoxChange(),
+                  onCreateOption: onComboBoxCreateOption(),
                 }}
               />
               <EuiSpacer size="xl" />
