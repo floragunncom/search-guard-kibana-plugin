@@ -28,7 +28,7 @@ import {
   EuiButton,
   EuiPanel,
 } from '@elastic/eui';
-import { LicenseWarningCallout } from '../../../apps/components';
+import { LicenseWarningCallout } from '../../components';
 import { stringCSSToReactStyle } from '../../../utils/cssHelper';
 
 import { API_ROOT } from '../../../utils/constants';

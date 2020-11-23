@@ -72,4 +72,4 @@ export const validClusterSinglePermissionOption = label => (/^cluster:[\w\*].*/)
 export const validIndicesSinglePermissionOption = label => (/^indices:[\w\*].*/).test(label);
 export const validSinglePermissionOption = label => (/^((cluster)|(indices)):[\w\*].*/).test(label);
 
-export * from '../../../../apps/utils/validate';
+export * from '../../../utils/validate';

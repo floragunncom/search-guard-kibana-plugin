@@ -26,7 +26,7 @@ import {
   EuiText,
   EuiPageHeader,
 } from '@elastic/eui';
-import { LicenseWarningCallout } from '../../apps/components';
+import { LicenseWarningCallout } from '../components';
 
 import { MainContext } from './contexts/MainContextProvider';
 import {
