@@ -34,7 +34,7 @@ import { stringCSSToReactStyle } from '../../../utils/cssHelper';
 import { API_ROOT } from '../../../utils/constants';
 
 // @todo Move this to the new app
-import { sanitizeNextUrlFromFullUrl } from '../../../apps/login/sanitize_next_url';
+import { sanitizeNextUrlFromFullUrl } from './sanitize_next_url';
 
 export class LoginPage extends Component {
   constructor(props) {
