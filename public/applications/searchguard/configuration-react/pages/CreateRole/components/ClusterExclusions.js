@@ -16,14 +16,14 @@
 
 import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
-import { FormikComboBox, FormikSwitch } from '../../../../components';
-import { actionGroupsText, singlePermissionsText } from '../../../../utils/i18n/action_groups';
-import { advancedText } from '../../../../utils/i18n/common';
-import { validSinglePermissionOption } from '../../../../utils/validation';
+import { FormikComboBox, FormikSwitch } from '../../../components';
+import { actionGroupsText, singleExclusionsText } from '../../../utils/i18n/action_groups';
+import { advancedText } from '../../../utils/i18n/common';
+import { validSinglePermissionOption } from '../../../utils/validation';
 
-import { Context } from '../../../../Context';
+import { Context } from '../../../Context';
 
-const ClusterPermissions = ({ allActionGroups, allSinglePermissions, values }) => {
+export function ClusterExclusions({ allActionGroups, allSinglePermissions, values }) {
   const { onSwitchChange, onComboBoxChange, onComboBoxCreateOption, onComboBoxOnBlur } = useContext(
     Context
   );
@@ -31,7 +31,7 @@ const ClusterPermissions = ({ allActionGroups, allSinglePermissions, values }) =
   return (
     <Fragment>
       <FormikComboBox
-        name="_clusterPermissions.actiongroups"
+        name="_excludeClusterPermissions.actiongroups"
         formRow
         rowProps={{
           label: actionGroupsText,
@@ -49,14 +49,14 @@ const ClusterPermissions = ({ allActionGroups, allSinglePermissions, values }) =
           label: advancedText,
           onChange: onSwitchChange,
         }}
-        name="_isClusterPermissionsAdvanced"
+        name="_isClusterExclusionsAdvanced"
       />
-      {values._isClusterPermissionsAdvanced && (
+      {values._isClusterExclusionsAdvanced && (
         <FormikComboBox
-          name="_clusterPermissions.permissions"
+          name="_excludeClusterPermissions.permissions"
           formRow
           rowProps={{
-            label: singlePermissionsText,
+            label: singleExclusionsText,
           }}
           elementProps={{
             options: allSinglePermissions,
@@ -69,14 +69,12 @@ const ClusterPermissions = ({ allActionGroups, allSinglePermissions, values }) =
       )}
     </Fragment>
   );
-};
+}
 
-ClusterPermissions.propTypes = {
+ClusterExclusions.propTypes = {
   allActionGroups: PropTypes.array.isRequired,
   allSinglePermissions: PropTypes.array.isRequired,
   values: PropTypes.shape({
-    _isClusterPermissionsAdvanced: PropTypes.bool.isRequired,
+    _isClusterExclusionsAdvanced: PropTypes.bool.isRequired,
   }).isRequired,
 };
-
-export default ClusterPermissions;

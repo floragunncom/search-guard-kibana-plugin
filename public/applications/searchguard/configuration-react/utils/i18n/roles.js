@@ -16,8 +16,15 @@ export const emptyRolesTableMessageText = (
     default="Looks like you don&rsquo;t have any roles. Let&rsquo;s create some!"
   />
 );
-export const clusterPermissionsText = (<EuiI18n token="sg.roles.clusterPermissions.text" default="Cluster Permissions" />);
-export const indexPatternsText = (<EuiI18n token="sg.roles.indexPatterns.text" default="Index Patterns" />);
+export const clusterPermissionsText = (
+  <EuiI18n token="sg.roles.clusterPermissions.text" default="Cluster Permissions" />
+);
+export const clusterExclusionsText = (
+  <EuiI18n token="sg.roles.clusterExclusions.text" default="Cluster Exclusions" />
+);
+export const indexPatternsText = (
+  <EuiI18n token="sg.roles.indexPatterns.text" default="Index Patterns" />
+);
 export const tenantPatternsText = (<EuiI18n token="sg.roles.tenantPatterns.text" default="Tenant Patterns" />);
 export const noMappedUsersFoundText = (<EuiI18n token="sg.roles.noMappedUsersFound.text" default="No mapped users found" />);
 export const noMappedBackendRolesFoundText = (
@@ -26,6 +33,7 @@ export const noMappedBackendRolesFoundText = (
 export const noMappedHostsFoundText = (<EuiI18n token="sg.roles.noMappedHostsFound.text" default="No mapped hosts found" />);
 export const tenantPermissionsText = (<EuiI18n token="sg.roles.tenantPermissions.text" default="Tenant Permissions" />);
 export const indexPermissionsText = (<EuiI18n token="sg.roles.indexPermissions.text" default="Index Permissions" />);
+export const indexExclusionsText = (<EuiI18n token="sg.roles.indexExclusions.text" default="Index Exclusions" />);
 export const overviewText = (<EuiI18n token="sg.roles.overview.text" default="Overview" />);
 export const membersText = (<EuiI18n token="sg.roles.members.text" default="Members" />);
 export const usersText = (<EuiI18n token="sg.roles.users.text" default="Users" />);
@@ -44,6 +52,12 @@ export const emptyIndexPermissionsText = (
   <EuiI18n
     token="sg.roles.emptyIndexPermissions.text"
     default="Looks like you don&rsquo;t have any index permissions. Let&rsquo;s create some!"
+  />
+);
+export const emptyIndexExclusionsText = (
+  <EuiI18n
+    token="sg.roles.emptyIndexExclusions.text"
+    default="Looks like you don&rsquo;t have any index exclusions. Let&rsquo;s create some!"
   />
 );
 export const emptyTenantPermissionsText = (
@@ -68,3 +82,5 @@ export const anonymizedFieldsDisabledText = (
 export const dlsQuerySyntaxIsInvalidText = (
   <EuiI18n token="sg.roles.dlsQuerySyntaxIsInvalid.text" default="DLS query syntax is invalid" />
 );
+export const permitText = <EuiI18n token="sg.roles.permit.text" default="Permit" />;
+export const excludeText = <EuiI18n token="sg.roles.exclude.text" default="Exclude" />;
