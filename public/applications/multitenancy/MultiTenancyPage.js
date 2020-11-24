@@ -56,7 +56,7 @@ import {
   showDashboardLabel,
   showVisualizationLabel,
 } from './utils/i18n/multitenancy_labels';
-import { LicenseWarningCallout } from '../../apps/components';
+import { LicenseWarningCallout } from '../components';
 
 export class MultiTenancyPage extends Component {
   static contextType = MainContext;
