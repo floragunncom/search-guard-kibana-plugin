@@ -14,4 +14,28 @@
  * limitations under the License.
  */
 
+import React from 'react';
+import { EuiI18n } from '@elastic/eui';
+
 export * from '../../../../utils/i18n/common';
+
+export const indicesPermissionsPrefixErrorText = (
+  <EuiI18n
+    token="sg.roles.inicesPermissionsPrefixError.text"
+    default="Indices permissions prefix is indices:"
+  />
+);
+
+export const clusterPermissionsPrefixErrorText = (
+  <EuiI18n
+    token="sg.roles.clusterPermissionsPrefixError.text"
+    default="Cluster permissions prefix is cluster:"
+  />
+);
+
+export const permissionsPrefixErrorText = (
+  <EuiI18n
+    token="sg.roles.permissionsPrefixError.text"
+    default="Permissions prefixes are cluster: and indices:"
+  />
+);

@@ -38,7 +38,7 @@ export class ApiService {
     try {
       return await this.httpClient.post(`${API_ROOT}/${this.resourceName}/${id}`, data);
     } catch (error) {
-      if (error.body && error.body.statusCode === 403) this.accessControlService.logout();
+      if (error.body && error.body.statusCode === 401) this.accessControlService.logout();
       throw error;
     }
   }
@@ -48,7 +48,7 @@ export class ApiService {
     try {
       return await this.httpClient.delete(`${API_ROOT}/${this.resourceName}/${id}`);
     } catch (error) {
-      if (error.body && error.body.statusCode === 403) this.accessControlService.logout();
+      if (error.body && error.body.statusCode === 401) this.accessControlService.logout();
       throw error;
     }
   }
@@ -66,7 +66,7 @@ export class ApiService {
     try {
       return await this.httpClient.delete(`${API_ROOT}/cache`);
     } catch (error) {
-      if (error.body && error.body.statusCode === 403) this.accessControlService.logout();
+      if (error.body && error.body.statusCode === 401) this.accessControlService.logout();
       throw error;
     }
   }

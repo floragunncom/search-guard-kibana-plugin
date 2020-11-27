@@ -38,7 +38,11 @@ import {
   FormikSwitch,
   Icon,
 } from '../../../../components';
-import { validIndicesSinglePermissionOption } from '../../../../utils/validation';
+import {
+  validIndicesSinglePermissionOption,
+  isInvalid,
+  hasError,
+} from '../../../../utils/validation';
 import FieldLevelSecurity from './FieldLevelSecurity';
 import DocumentLevelSecurity from './DocumentLevelSecurity';
 import {
@@ -117,13 +121,19 @@ function Permission({
           formRow
           rowProps={{
             label: singlePermissionsText,
+            isInvalid,
+            error: hasError,
           }}
           elementProps={{
+            isInvalid,
             options: allSinglePermissions,
             isClearable: true,
             onBlur: onComboBoxOnBlur,
-            onCreateOption: onComboBoxCreateOption(validIndicesSinglePermissionOption),
+            onCreateOption: onComboBoxCreateOption(),
             onChange: onComboBoxChange(),
+          }}
+          formikFieldProps={{
+            validate: validIndicesSinglePermissionOption,
           }}
         />
       )}
