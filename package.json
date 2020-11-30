@@ -5,6 +5,9 @@
   "main": "index.js",
   "homepage": "https://search-guard.com",
   "license": "Apache-2.0",
+  "searchguard": {
+    "test_sg_version": "b-SGD-824-es-7.9.1-SNAPSHOT"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/floragunncom/search-guard-kibana-plugin"
@@ -24,7 +27,6 @@
     "@elastic/kibana-ui-framework": "0.0.11",
     "@types/react": "^16.9.2",
     "@types/react-dom": "^16.9.0",
-    "bell": "9.4.0",
     "boom": "^7.3.0",
     "brace": "^0.11.1",
     "dompurify": "^2.0.11",
