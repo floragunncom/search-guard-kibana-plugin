@@ -26,9 +26,10 @@ export function stateOfWatch({ clusterClient, logger }) {
         headers: { sgtenant = NO_MULTITENANCY_TENANT },
       } = request;
 
+      const path = `/_signals/watch/${encodeURIComponent(sgtenant)}/${encodeURIComponent(id)}/_state`;
       const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
         method: 'get',
-        path: `/_signals/watch/${sgtenant}/${id}/_state`,
+        path,
       });
 
       return response.ok({ body: { ok: true, resp } });

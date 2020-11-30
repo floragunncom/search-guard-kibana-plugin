@@ -23,11 +23,13 @@ export const getAccount = ({ clusterClient, logger }) => async (context, request
   try {
     const { id, type } = request.params;
 
+    const path = `/_signals/account/${type}/${encodeURIComponent(id)}`;
+
     const {
       body: { _source, _id },
     } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
       method: 'get',
-      path: `/_signals/account/${type}/${id}`,
+      path,
     });
 
     return response.ok({

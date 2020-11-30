@@ -114,7 +114,7 @@ export default class SearchGuardConfigurationBackend {
     try {
       const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       const response = await this._client({
-        path: `/_searchguard/api/${resourceName}/${id}`,
+        path: `/_searchguard/api/${resourceName}/${encodeURIComponent(id)}`,
         method: 'get',
         headers: authHeaders,
       });
@@ -135,7 +135,7 @@ export default class SearchGuardConfigurationBackend {
     try {
       const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       return await this._client({
-        path: `/_searchguard/api/${resourceName}/${id}`,
+        path: `/_searchguard/api/${resourceName}/${encodeURIComponent(id)}`,
         method: 'put',
         headers: authHeaders,
         body,
@@ -155,7 +155,7 @@ export default class SearchGuardConfigurationBackend {
     try {
       const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       return await this._client({
-        path: `/_searchguard/api/${resourceName}/${id}`,
+        path: `/_searchguard/api/${resourceName}/${encodeURIComponent(id)}`,
         method: 'delete',
         headers: authHeaders,
       });
