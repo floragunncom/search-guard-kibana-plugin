@@ -59,6 +59,8 @@ export const uiIndexPermissionsToIndexPermissions = (indexPermissions) => {
 
     if (!isEmpty(values._dls)) {
       result.dls = JSON.stringify(JSON.parse(values._dls));
+    } else {
+      delete result.dls;
     }
 
     return result;

@@ -66,6 +66,66 @@ describe('UI role to role ', () => {
     expect(uiIndexPermissionsToIndexPermissions(uiResource)).toEqual(resource);
   });
 
+  test('DLS field changed', () => {
+    const resource = [
+      {
+        index_patterns: [],
+        fls: [],
+        masked_fields: [],
+        allowed_actions: [],
+        dls: JSON.stringify({ exists: { field: 'user' } }),
+      },
+    ];
+
+    const uiResource = [
+      {
+        _isAdvanced: false,
+        _dls: JSON.stringify({ exists: { field: 'user' } }),
+        dls: JSON.stringify({ match_all: {} }),
+        flsmode: FLS_MODES.WHITELIST,
+        index_patterns: [],
+        fls: [],
+        masked_fields: [],
+        allowed_actions: {
+          actiongroups: [],
+          permissions: [],
+        },
+      },
+    ];
+
+    expect(uiIndexPermissionsToIndexPermissions(uiResource)).toEqual(resource);
+  });
+
+  test('DLS is empty, delete it', () => {
+    const resource = [
+      {
+        index_patterns: [],
+        fls: [],
+        masked_fields: [],
+        allowed_actions: [],
+      },
+    ];
+
+    const uiResource = [
+      {
+        _isAdvanced: false,
+        _dls: '',
+        dls: JSON.stringify({ match_all: {} }),
+        flsmode: FLS_MODES.WHITELIST,
+        index_patterns: [],
+        fls: [],
+        masked_fields: [],
+        allowed_actions: {
+          actiongroups: [],
+          permissions: [],
+        },
+      },
+    ];
+
+    expect(uiIndexPermissionsToIndexPermissions(uiResource)).toEqual(resource);
+  });
+
+
   test('can build tenant permissions', () => {
     const resource = [
       {
