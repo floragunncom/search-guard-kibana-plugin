@@ -40,6 +40,8 @@ export function setupSearchGuardBackendMock({
   authenticateWithHeader = jest.fn(),
   authenticateWithHeaders = jest.fn(),
   getTenantInfoWithInternalUser = jest.fn(),
+  getOIDCWellKnown = jest.fn(),
+  getOIDCToken = jest.fn(),
 } = {}) {
   return {
     authinfo,
@@ -48,6 +50,8 @@ export function setupSearchGuardBackendMock({
     authenticateWithHeader,
     authenticateWithHeaders,
     getTenantInfoWithInternalUser,
+    getOIDCWellKnown,
+    getOIDCToken,
   };
 }
 

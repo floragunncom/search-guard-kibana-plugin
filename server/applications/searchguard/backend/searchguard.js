@@ -168,6 +168,27 @@ export default class SearchGuardBackend {
     }
   }
 
+  async getOIDCWellKnown() {
+    return await this._client({
+      path: '/_searchguard/auth_domain/_first/openid/config',
+      method: 'get',
+    });
+  }
+
+  /**
+   * Get the id_token
+   * @param tokenEndpoint
+   * @param body
+   * @returns {Promise<*>}
+   */
+  async getOIDCToken({ tokenEndpoint, body }) {
+    return await this._client({
+      path: tokenEndpoint,
+      method: 'post',
+      body,
+    });
+  }
+
   async getSamlHeader() {
     try {
       return await this._client({

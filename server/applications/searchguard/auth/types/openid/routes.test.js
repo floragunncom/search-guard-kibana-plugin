@@ -27,7 +27,9 @@ import {
   setupContextMock,
   setupKibanaCoreMock,
   setupDebugLogMock,
+  setupSearchGuardBackendMock,
 } from '../../../../../utils/mocks';
+
 import { MissingTenantError, MissingRoleError } from '../../errors';
 
 jest.mock('../../../../../../../../src/core/server/http/router', () => jest.fn());
@@ -35,10 +37,6 @@ jest.mock('../../../../../../../../src/core/server/http/router', () => jest.fn()
 jest.mock('cryptiles', () => ({
   randomString: jest.fn(() => 'ecF1onUEGkfbzBldXS6Unh'),
 }));
-
-function setupWreckMock({ post = jest.fn() } = {}) {
-  return { post };
-}
 
 describe(`${AuthClass.name} routes`, () => {
   describe('logoutHandler', () => {
@@ -117,7 +115,6 @@ describe(`${AuthClass.name} routes`, () => {
       const logger = setupLoggerMock();
       const config = setupConfigMock();
       const basePath = '/abc';
-      const Wreck = setupWreckMock();
       const debugLog = setupDebugLogMock();
 
       const sessionStorageFactorySet = jest.fn();
@@ -184,7 +181,6 @@ describe(`${AuthClass.name} routes`, () => {
         clientSecret,
         scope,
         openIdEndPoints,
-        Wreck,
       })(context, cloneDeep(request), response);
 
       expect(getServerInfo).toHaveBeenCalledTimes(1);
@@ -226,6 +222,7 @@ describe(`${AuthClass.name} routes`, () => {
       const clientSecret = '50f0bdc8-7925-43bf-9186-91c40be5bf88';
       const scope = ['profile', 'email', 'openid'];
       const redirectUri = 'https://kibana.example.com:5601/abc/auth/openid/login';
+
       const openIdEndPoints = {
         authorization_endpoint:
           'http://keycloak.example.com:8080/auth/realms/master/protocol/openid-connect/auth',
@@ -258,21 +255,13 @@ describe(`${AuthClass.name} routes`, () => {
 
       const expectedLocation = '/abc/app/kibana';
 
-      const expectedWreckPostEndpoint =
-        'http://keycloak.example.com:8080/auth/realms/master/protocol/openid-connect/token';
-      const expectedWreckPostPayload = {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: 'Basic ZXMtb3BlbmlkOjUwZjBiZGM4LTc5MjUtNDNiZi05MTg2LTkxYzQwYmU1YmY4OA==',
-        },
-        payload: stringify({
-          client_id: clientId,
-          client_secret: clientSecret,
-          grant_type: 'authorization_code',
-          code: request.url.query.code,
-          redirect_uri: redirectUri,
-        }),
-      };
+      const bodyForTokenRequest = stringify({
+        client_id: clientId,
+        client_secret: clientSecret,
+        grant_type: 'authorization_code',
+        code: request.url.query.code,
+        redirect_uri: redirectUri,
+      });
 
       const idpPayload = {
         access_token:
@@ -289,13 +278,6 @@ describe(`${AuthClass.name} routes`, () => {
         scope: '',
       };
 
-      const mockIdpResponse = {
-        payload: Buffer.from(JSON.stringify(idpPayload)),
-      };
-
-      const wreckPost = jest.fn().mockResolvedValue(mockIdpResponse);
-      const Wreck = setupWreckMock({ post: wreckPost });
-
       const authInstance = setupAuthInstanceMock();
       authInstance.sessionStorageFactory = sessionStorageFactory;
 
@@ -305,6 +287,10 @@ describe(`${AuthClass.name} routes`, () => {
         port: '5601',
       });
       const kibanaCore = setupKibanaCoreMock({ getServerInfo });
+
+      const searchGuardBackend = setupSearchGuardBackendMock({
+        getOIDCToken: jest.fn().mockReturnValue(idpPayload),
+      });
 
       await loginHandler({
         basePath,
@@ -318,7 +304,7 @@ describe(`${AuthClass.name} routes`, () => {
         clientSecret,
         scope,
         openIdEndPoints,
-        Wreck,
+        searchGuardBackend,
       })(context, cloneDeep(request), response);
 
       expect(getServerInfo).toHaveBeenCalledTimes(1);
@@ -329,7 +315,11 @@ describe(`${AuthClass.name} routes`, () => {
       delete clearSessionCookie.openId;
       expect(sessionStorageFactorySet).toHaveBeenCalledWith(clearSessionCookie);
 
-      expect(wreckPost).toHaveBeenCalledWith(expectedWreckPostEndpoint, expectedWreckPostPayload);
+      expect(searchGuardBackend.getOIDCToken).toHaveBeenCalledWith({
+        tokenEndpoint: openIdEndPoints.token_endpoint,
+        body: bodyForTokenRequest,
+      });
+
       expect(authInstance.handleAuthenticate).toHaveBeenCalledWith(request, {
         authHeaderValue: `Bearer ${idpPayload.id_token}`,
       });
@@ -358,11 +348,9 @@ describe(`${AuthClass.name} routes`, () => {
       let openIdEndPoints;
       let request;
       let idpPayload;
-      let mockIdpResponse;
-      let wreckPost;
-      let Wreck;
       let getServerInfo;
       let kibanaCore;
+      let searchGuardBackend;
 
       beforeEach(() => {
         response = setupHttpResponseMock();
@@ -434,12 +422,9 @@ describe(`${AuthClass.name} routes`, () => {
           scope: '',
         };
 
-        mockIdpResponse = {
-          payload: Buffer.from(JSON.stringify(idpPayload)),
-        };
-
-        wreckPost = jest.fn().mockResolvedValue(mockIdpResponse);
-        Wreck = setupWreckMock({ post: wreckPost });
+        searchGuardBackend = setupSearchGuardBackendMock({
+          getOIDCToken: jest.fn().mockReturnValue(idpPayload),
+        });
 
         getServerInfo = jest.fn().mockReturnValue({
           protocol: 'https',
@@ -469,7 +454,7 @@ describe(`${AuthClass.name} routes`, () => {
           clientSecret,
           scope,
           openIdEndPoints,
-          Wreck,
+          searchGuardBackend,
         })(context, request, response);
 
         expect(response.redirected).toHaveBeenCalledWith({
@@ -499,7 +484,7 @@ describe(`${AuthClass.name} routes`, () => {
           clientSecret,
           scope,
           openIdEndPoints,
-          Wreck,
+          searchGuardBackend,
         })(context, cloneDeep(request), response);
 
         expect(response.redirected).toHaveBeenCalledWith({
@@ -529,7 +514,6 @@ describe(`${AuthClass.name} routes`, () => {
           clientSecret,
           scope,
           openIdEndPoints,
-          Wreck,
         })(context, cloneDeep(request), response);
 
         expect(response.redirected).toHaveBeenCalledWith({
