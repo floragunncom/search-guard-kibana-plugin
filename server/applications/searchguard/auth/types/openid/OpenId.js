@@ -22,10 +22,6 @@ import MissingRoleError from '../../errors/missing_role_error';
 import { defineRoutes } from './routes';
 import { stringify } from 'querystring';
 
-const Wreck = require('wreck');
-const https = require('https');
-const fs = require('fs');
-
 export default class OpenId extends AuthType {
   constructor({
     searchGuardBackend,
@@ -140,12 +136,14 @@ export default class OpenId extends AuthType {
   async setupRoutes() {
     try {
       const oidcWellKnown = await this.searchGuardBackend.getOIDCWellKnown();
+      console.log('OpenId, setupRoutes, oidcWellKnown', oidcWellKnown);
 
       const endPoints = {
         authorization_endpoint: oidcWellKnown.authorization_endpoint,
         token_endpoint: oidcWellKnown.token_endpoint_proxy,
         end_session_endpoint: oidcWellKnown.end_session_endpoint || null,
       };
+      console.log('OpenId, setupRoutes, endPoints', JSON.stringify(endPoints, null, 2));
 
       defineRoutes({
         authInstance: this,
@@ -157,6 +155,7 @@ export default class OpenId extends AuthType {
         searchGuardBackend: this.searchGuardBackend,
       });
     } catch (error) {
+      console.log('OpenID, setupRoutes, error', error);
       this.logger.error(
         `Error when trying to retrieve the well-known endpoints from your IdP: ${error.stack}`
       );
