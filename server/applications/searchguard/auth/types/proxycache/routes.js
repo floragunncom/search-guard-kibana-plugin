@@ -50,8 +50,12 @@ module.exports = function ({ authInstance, kibanaCore, kibanaConfig, logger }) {
           );
         }
       } else {
+        // We may have come here from an active logout, in which case
+        // "proxycacheLogout" type will be set. This way the user
+        // gets a logged out message instead of an error message.
+        const customErrorType = request.url.query.type || '';
         return response.redirected({
-          headers: { location: `${APP_ROOT}/customerror` },
+          headers: { location: `${APP_ROOT}/customerror?type=${customErrorType}` },
         });
       }
     }

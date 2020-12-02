@@ -23,7 +23,7 @@ import { parse, format } from 'url';
  * @param request - Optional, only needed if we should append a "nextUrl" query parameter
  * @returns {*}
  */
-export function parseLoginEndpoint(loginEndpoint, request = null) {
+export function parseLoginEndpoint(loginEndpoint, request = null, basePath = '') {
   // Parse the login endpoint so that we can append our nextUrl
   // if the customer has defined query parameters in the endpoint
   const loginEndpointURLObject = parse(loginEndpoint, true);
@@ -31,7 +31,7 @@ export function parseLoginEndpoint(loginEndpoint, request = null) {
   // Make sure we don't overwrite an existing "nextUrl" parameter,
   // just in case the customer is using that name for something else
   if (typeof loginEndpointURLObject.query.nextUrl === 'undefined' && request) {
-    const nextUrl = request.getBasePath() + request.url.path;
+    const nextUrl = basePath + request.url.path;
     // Delete the search parameter - otherwise format() will use its value instead of the .query property
     delete loginEndpointURLObject.search;
     loginEndpointURLObject.query.nextUrl = nextUrl;
