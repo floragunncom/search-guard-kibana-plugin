@@ -171,7 +171,11 @@ export default class ProxyCache extends AuthType {
       const loginEndpoint = this.config.get('searchguard.proxycache.login_endpoint');
       if (loginEndpoint) {
         try {
-          const redirectUrl = parseLoginEndpoint(loginEndpoint, request);
+          const redirectUrl = parseLoginEndpoint(
+            loginEndpoint,
+            isAJAX ? null : request, // Don't add the current request for AJAX requests
+            this.basePath
+          );
           return redirectUrl;
         } catch (error) {
           this.logger.error(

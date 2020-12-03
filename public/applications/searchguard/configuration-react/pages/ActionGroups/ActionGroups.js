@@ -17,8 +17,8 @@ import {
   CreateButton,
   CancelButton
 } from '../../components';
-import { resourcesToUiResources, uiResourceToResource } from './utils';
-import { APP_PATH, ACTION_GROUPS_ACTIONS } from '../../utils/constants';
+import { resourcesToUiResources, uiResourceToResource, getResourceEditUri } from './utils';
+import { APP_PATH } from '../../utils/constants';
 import {
   nameText,
   systemItemsText
@@ -161,7 +161,6 @@ class ActionGroups extends Component {
   render() {
     const { history } = this.props;
     const { isLoading, error, tableResources, isShowingTableSystemItems } = this.state;
-    const getResourceEditUri = name => `${APP_PATH.CREATE_ACTION_GROUP}?id=${name}&action=${ACTION_GROUPS_ACTIONS.UPDATE_ACTION_GROUP}`;
 
     const actions = [
       {

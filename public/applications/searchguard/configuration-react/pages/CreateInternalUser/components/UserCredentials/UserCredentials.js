@@ -2,12 +2,7 @@
 import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { FormikFieldText, FormikFieldPassword, FormikSwitch } from '../../../../components';
-import {
-  hasError,
-  isInvalid,
-  validatePassword,
-  validateInternalUserName,
-} from '../../../../utils/validation';
+import { hasError, isInvalid, validatePassword, validateName } from '../../../../utils/validation';
 import {
   usernameText,
   passwordText,
@@ -61,7 +56,7 @@ const UserCredentials = ({ isEdit = false, isUpdatingName, values }) => {
       <FormikFieldText
         formRow
         formikFieldProps={{
-          validate: validateInternalUserName(new InternalUsersService(httpClient), isUpdatingName),
+          validate: validateName(new InternalUsersService(httpClient), isUpdatingName),
         }}
         rowProps={{
           label: usernameText,

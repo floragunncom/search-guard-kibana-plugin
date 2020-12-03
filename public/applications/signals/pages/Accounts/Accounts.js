@@ -21,7 +21,7 @@ import {
   TableTextCell,
   PopoverButton,
 } from '../../components';
-import { buildESQuery } from './utils/helpers';
+import { buildESQuery, getResourceEditUri } from './utils/helpers';
 import { deleteText, cloneText, saveText, typeText } from '../../utils/i18n/common';
 import { accountsText } from '../../utils/i18n/account';
 import { TABLE_SORT_FIELD, TABLE_SORT_DIRECTION, ACCOUNT_TYPE } from './utils/constants';
@@ -251,7 +251,7 @@ class Accounts extends Component {
             name={id}
             value={id}
             onClick={() => {
-              history.push(`${APP_PATH.DEFINE_ACCOUNT}?id=${id}&accountType=${type}`);
+              history.push(getResourceEditUri(id, type));
             }}
           />
         ),

@@ -26,9 +26,11 @@ export function executeWatch({ clusterClient, logger }) {
         headers: { sgtenant = NO_MULTITENANCY_TENANT },
       } = request;
 
+      const path = `/_signals/watch/${encodeURIComponent(sgtenant)}/_execute`;
+
       const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
         method: 'post',
-        path: `/_signals/watch/${sgtenant}/_execute`,
+        path,
         body: {
           watch,
           simulate,

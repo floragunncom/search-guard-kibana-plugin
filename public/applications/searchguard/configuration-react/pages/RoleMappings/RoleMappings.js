@@ -19,11 +19,8 @@ import {
   CreateButton,
   CancelButton
 } from '../../components';
-import {
-  resourcesToUiResources,
-  uiResourceToResource
-} from './utils';
-import { APP_PATH, ROLE_MAPPINGS_ACTIONS } from '../../utils/constants';
+import { resourcesToUiResources, uiResourceToResource, getResourceEditUri } from './utils';
+import { APP_PATH } from '../../utils/constants';
 import {
   nameText,
   systemItemsText
@@ -171,7 +168,6 @@ class RoleMappings extends Component {
   render() {
     const { history } = this.props;
     const { isLoading, error, tableResources, isShowingTableSystemItems } = this.state;
-    const getResourceEditUri = name => `${APP_PATH.CREATE_ROLE_MAPPING}?id=${name}&action=${ROLE_MAPPINGS_ACTIONS.UPDATE_ROLE_MAPPING}`;
 
     const actions = [
       {

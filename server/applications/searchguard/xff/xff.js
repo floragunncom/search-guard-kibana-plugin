@@ -1,4 +1,6 @@
 /* eslint-disable @kbn/eslint/require-license-header */
+import { ensureRawRequest } from '../../../../../../src/core/server/http/router';
+
 /**
  *    Copyright 2019 floragunn GmbH
 
@@ -17,6 +19,7 @@
 
 export default function (kibanaCore) {
   kibanaCore.http.registerOnPreAuth(async function (request, response, toolkit) {
+    request = ensureRawRequest(request);
     request.headers['x-forwarded-for'] =
       (request.headers['x-forwarded-for'] ? request.headers['x-forwarded-for'] + ',' : '') +
       request.info.remoteAddress;

@@ -22,9 +22,11 @@ export const deleteAccount = ({ clusterClient, logger }) => async (context, requ
   try {
     const { id, type } = request.params;
 
+    const path = `/_signals/account/${type}/${encodeURIComponent(id)}`;
+
     const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
       method: 'delete',
-      path: `/_signals/account/${type}/${id}`,
+      path,
     });
 
     return response.ok({ body: { ok: true, resp } });

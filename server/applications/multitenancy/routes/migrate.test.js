@@ -18,7 +18,7 @@ import {
   setupLoggerMock,
   setupHttpResponseMock,
   setupSearchGuardBackendMock,
-} from '../../../mocks';
+} from '../../../utils/mocks';
 
 function setupMigrationEsClientMock() {
   return jest.fn();

@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { get } from 'lodash';
-import { WATCH_ACTION_STATUS, WATCH_STATUS } from '../../../utils/constants';
+import { WATCH_ACTION_STATUS, WATCH_STATUS, APP_PATH } from '../../../utils/constants';
 import {
   failedText,
   acknowledgedText,
@@ -120,3 +120,7 @@ export const buildESQuery = query => {
 
   return query;
 };
+
+export const getResourceEditUri = (id) => `${APP_PATH.DEFINE_WATCH}?id=${encodeURIComponent(id)}`;
+export const getWatchRelatedAlertsUri = (id) =>
+  `${APP_PATH.ALERTS}?watchId=${encodeURIComponent(id)}`;

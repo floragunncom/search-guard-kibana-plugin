@@ -39,7 +39,14 @@ import {
   byText,
   unknownText,
 } from '../../utils/i18n/common';
-import { watchToFormik, formikToWatch, dateFormat, actionAndWatchStatusToIconProps } from './utils';
+import {
+  watchToFormik,
+  formikToWatch,
+  dateFormat,
+  actionAndWatchStatusToIconProps,
+  getResourceEditUri,
+  getWatchRelatedAlertsUri,
+} from './utils';
 import {
   checksText,
   actionsText,
@@ -430,7 +437,7 @@ class Watches extends Component {
         <TableInspectAction
           name={_id}
           onClick={() => {
-            this.props.history.push(`${APP_PATH.ALERTS}?watchId=${_id}`);
+            this.props.history.push(getWatchRelatedAlertsUri(_id));
           }}
         />
       </EuiToolTip>
@@ -589,7 +596,7 @@ class Watches extends Component {
           <TableIdCell
             name={watchId}
             value={watchId}
-            onClick={() => history.push(`${APP_PATH.DEFINE_WATCH}?id=${watchId}`)}
+            onClick={() => history.push(getResourceEditUri(watchId))}
           />
         ),
       },
