@@ -31,20 +31,20 @@ describe('routes/watch/create', () => {
     const context = setupContextMock();
 
     const expectedResponse = {
-      _source: {
-        trigger: {},
-        checks: [],
-        actions: [],
-        active: true,
-        log_runtime_data: false,
+      body: {
+        _source: {
+          trigger: {},
+          checks: [],
+          actions: [],
+          active: true,
+          log_runtime_data: false,
+        },
+        _id: 'id',
       },
-      _id: 'id',
     };
 
-    const callAsCurrentUser = jest.fn().mockResolvedValue(expectedResponse);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserTransportRequest = jest.fn().mockResolvedValue(expectedResponse);
+    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
 
     const request = {
       body: {
@@ -58,21 +58,20 @@ describe('routes/watch/create', () => {
       headers: {},
     };
 
-    const expectedEndpoint = 'sgSignals.saveWatch';
     const expectedClusterCallOptions = {
+      method: 'put',
+      path: `/_signals/watch/${NO_MULTITENANCY_TENANT}/${request.params.id}`,
       body: request.body,
-      sgtenant: NO_MULTITENANCY_TENANT,
-      id: '123',
     };
 
     await createWatch({ clusterClient, logger })(context, request, response);
 
     expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
-    expect(callAsCurrentUser).toHaveBeenCalledWith(expectedEndpoint, expectedClusterCallOptions);
+    expect(asCurrentUserTransportRequest).toHaveBeenLastCalledWith(expectedClusterCallOptions);
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
-        resp: expectedResponse,
+        resp: expectedResponse.body,
       },
     });
   });
@@ -84,10 +83,8 @@ describe('routes/watch/create', () => {
 
     const error = new Error('nasty!');
 
-    const callAsCurrentUser = jest.fn().mockRejectedValue(error);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserTransportRequest = jest.fn().mockRejectedValue(error);
+    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
 
     const request = {
       headers: {},
@@ -98,11 +95,6 @@ describe('routes/watch/create', () => {
     await createWatch({ clusterClient, logger })(context, request, response);
 
     expect(logger.error).toHaveBeenCalledWith(`createWatch: ${error.stack}`);
-    expect(response.ok).toHaveBeenCalledWith({
-      body: {
-        ok: false,
-        resp: serverError(error),
-      },
-    });
+    expect(response.customError).toHaveBeenCalledWith(serverError(error));
   });
 });

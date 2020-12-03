@@ -22,7 +22,7 @@ export const deleteAlert = ({ clusterClient, logger }) => async (context, reques
   try {
     const { id, index } = request.params;
 
-    const resp = await clusterClient.asScoped(request).callAsCurrentUser('delete', {
+    const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.delete({
       refresh: true,
       type: INDEX.ALERT_DOC_TYPE,
       index,
@@ -32,7 +32,7 @@ export const deleteAlert = ({ clusterClient, logger }) => async (context, reques
     return response.ok({ body: { ok: resp.result === 'deleted', resp } });
   } catch (err) {
     logger.error(`deleteAlert: ${err.stack}`);
-    return response.ok({ body: { ok: false, resp: serverError(err) } });
+    return response.customError(serverError(err));
   }
 };
 

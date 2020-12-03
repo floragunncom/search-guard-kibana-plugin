@@ -23,12 +23,12 @@ export const getAccount = ({ clusterClient, logger }) => async (context, request
   try {
     const { id, type } = request.params;
 
-    const { _source, _id } = await clusterClient
-      .asScoped(request)
-      .callAsCurrentUser('sgSignals.getAccount', {
-        id,
-        type,
-      });
+    const {
+      body: { _source, _id },
+    } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
+      method: 'get',
+      path: `/_signals/account/${type}/${id}`,
+    });
 
     return response.ok({
       body: {
@@ -40,7 +40,7 @@ export const getAccount = ({ clusterClient, logger }) => async (context, request
     if (err.statusCode !== 404) {
       logger.error(`getAccount: ${err.stack}`);
     }
-    return response.ok({ body: { ok: false, resp: serverError(err) } });
+    return response.customError(serverError(err));
   }
 };
 

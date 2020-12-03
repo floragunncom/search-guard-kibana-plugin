@@ -31,37 +31,36 @@ describe('routes/watch/delete', () => {
     const context = setupContextMock();
 
     const expectedResponse = {
-      _index: 'signals_main_watches',
-      _type: '_doc',
-      _id: 'id',
-      _version: 2,
-      result: 'deleted',
+      body: {
+        _index: 'signals_main_watches',
+        _type: '_doc',
+        _id: 'id',
+        _version: 2,
+        result: 'deleted',
+      },
     };
 
-    const callAsCurrentUser = jest.fn().mockResolvedValue(expectedResponse);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserTransportRequest = jest.fn().mockResolvedValue(expectedResponse);
+    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
 
     const request = {
       params: { id: '123' },
       headers: {},
     };
 
-    const expectedEndpoint = 'sgSignals.deleteWatch';
     const expectedClusterCallOptions = {
-      sgtenant: NO_MULTITENANCY_TENANT,
-      id: '123',
+      method: 'delete',
+      path: `/_signals/watch/${NO_MULTITENANCY_TENANT}/${request.params.id}`,
     };
 
     await deleteWatch({ clusterClient, logger })(context, request, response);
 
     expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
-    expect(callAsCurrentUser).toHaveBeenCalledWith(expectedEndpoint, expectedClusterCallOptions);
+    expect(asCurrentUserTransportRequest).toHaveBeenLastCalledWith(expectedClusterCallOptions);
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
-        resp: expectedResponse,
+        resp: expectedResponse.body,
       },
     });
   });
@@ -73,10 +72,8 @@ describe('routes/watch/delete', () => {
 
     const error = new Error('nasty!');
 
-    const callAsCurrentUser = jest.fn().mockRejectedValue(error);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserTransportRequest = jest.fn().mockRejectedValue(error);
+    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
 
     const request = {
       headers: {},
@@ -87,11 +84,6 @@ describe('routes/watch/delete', () => {
     await deleteWatch({ clusterClient, logger })(context, request, response);
 
     expect(logger.error).toHaveBeenCalledWith(`deleteWatch: ${error.stack}`);
-    expect(response.ok).toHaveBeenCalledWith({
-      body: {
-        ok: false,
-        resp: serverError(error),
-      },
-    });
+    expect(response.customError).toHaveBeenCalledWith(serverError(error));
   });
 });

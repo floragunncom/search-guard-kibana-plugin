@@ -170,7 +170,6 @@ cp -a "$WORK_DIR/package.json" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/kibana.json" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/tsconfig.json" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/public" "$BUILD_STAGE_PLUGIN_DIR"
-cp -a "$WORK_DIR/lib" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/server" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/common" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/tests" "$BUILD_STAGE_PLUGIN_DIR"
@@ -195,7 +194,7 @@ if [ $? != 0 ]; then
 fi
 
 echo "+++ Testing UI +++"
-uitestsResult=`../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server  --testPathIgnorePatterns=lib  --config ./tests/jest.config.js --silent --json`
+uitestsResult=`../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --silent --json`
 echo $uitestsResult >>"$WORK_DIR/build.log" 2>&1
 if [[ ! $uitestsResult =~ .*\"numFailedTests\":0.* || ! $uitestsResult =~ .*\"numFailedTestSuites\":0.* ]]; then
   echo "Browser tests failed"

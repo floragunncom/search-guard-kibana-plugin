@@ -21,20 +21,20 @@ import { ROUTE_PATH } from '../../../../../common/signals/constants';
 export const createAccount = ({ clusterClient, logger }) => async (context, request, response) => {
   try {
     const {
-      body,
+      body = {},
       params: { id, type },
     } = request;
 
-    const resp = await clusterClient.asScoped(request).callAsCurrentUser('sgSignals.saveAccount', {
-      id,
-      type,
+    const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
+      method: 'put',
+      path: `/_signals/account/${type}/${id}`,
       body,
     });
 
     return response.ok({ body: { ok: true, resp } });
   } catch (err) {
     logger.error(`createAccount: ${err.stack}`);
-    return response.ok({ body: { ok: false, resp: serverError(err) } });
+    return response.customError(serverError(err));
   }
 };
 

@@ -4,9 +4,9 @@ import uuid from 'uuid/v4';
 import { EuiGlobalToastList, EuiTitle, EuiText, EuiCodeBlock } from '@elastic/eui';
 import { differenceBy, get } from 'lodash';
 import { Flyout, Modal } from './components';
-import { comboBoxOptionsToArray } from '../../../apps/utils/helpers';
+import { comboBoxOptionsToArray } from '../../utils/helpers';
 import { FLYOUTS, MODALS } from './utils/constants';
-import { CODE_EDITOR } from '../../../apps/utils/constants';
+import { CODE_EDITOR } from '../../utils/constants';
 
 // Themes for EuiCodeEditor
 import 'brace/theme/twilight';
@@ -158,25 +158,29 @@ const ContextProvider = ({ children, httpClient, core, configService }) => {
       ];
     });
 
-  const addErrorToast = error => {
-    let text = get(error, 'data.message') || get(error, 'body.message') || error.message || error;
-    const detail = get(error, 'body.detail', undefined);
+  const addErrorToast = (error) => {
+    let text = error.message;
+    const detail = get(error, 'body.attributes.body');
 
-    if (detail) {
-      text = (
-        <>
-          <EuiTitle>
-            <h4>{text}</h4>
-          </EuiTitle>
-          <EuiText size="s">
-            <p>Detail:</p>
-          </EuiText>
-          <EuiCodeBlock language="json">{JSON.stringify(detail, null, 2)}</EuiCodeBlock>
-        </>
-      );
+    try {
+      if (detail) {
+        text = (
+          <>
+            <EuiTitle>
+              <h4>{text}</h4>
+            </EuiTitle>
+            <EuiText size="s">
+              <p>Detail:</p>
+            </EuiText>
+            <EuiCodeBlock language="json">{JSON.stringify(detail, null, 2)}</EuiCodeBlock>
+          </>
+        );
+      }
+    } catch (e) {
+      console.error('addErrorToast', 'Error details cannot be parsed', error);
     }
 
-    setToasts(prevState => {
+    setToasts((prevState) => {
       return [
         ...prevState,
         {

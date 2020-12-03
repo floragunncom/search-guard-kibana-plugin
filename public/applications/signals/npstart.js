@@ -5,13 +5,13 @@ import { HashRouter as Router, Route } from 'react-router-dom';
 import { I18nProvider } from '@kbn/i18n/react';
 import { camelCase } from 'lodash';
 
-import Main from '../../apps/signals/pages/Main';
-import { APP_NAME } from '../../apps/signals/utils/constants';
+import Main from './pages/Main';
+import { APP_NAME } from './utils/constants';
 
-import { ContextProvider } from '../../apps/signals/Context';
+import { ContextProvider } from './Context';
 
 import 'react-vis/dist/style.css';
-import '../../apps/signals/style.scss';
+import './style.scss';
 
 export const renderApp = ({ core, httpClient, element }) => {
   ReactDOM.render(

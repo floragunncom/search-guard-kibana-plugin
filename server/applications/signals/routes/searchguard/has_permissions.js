@@ -33,7 +33,7 @@ export function hasPermissions({ logger, searchguardBackendService }) {
       });
     } catch (err) {
       logger.error(`hasPermissions: ${err.stack}`);
-      return response.ok({ body: { ok: false, resp: serverError(err) } });
+      return response.customError(serverError(err));
     }
   };
 }

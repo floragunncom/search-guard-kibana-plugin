@@ -30,31 +30,34 @@ describe('routes/account/create', () => {
     const context = setupContextMock();
 
     const expectedResponse = {
-      _id: 'mydest',
-      _version: 21,
-      result: 'created',
+      body: {
+        _id: 'mydest',
+        _version: 21,
+        result: 'created',
+      },
     };
 
-    const callAsCurrentUser = jest.fn().mockResolvedValue(expectedResponse);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserTransportRequest = jest.fn().mockResolvedValue(expectedResponse);
+    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
 
     const request = {
       params: { id: 'mydest', type: 'email' },
     };
-
-    const expectedEndpoint = 'sgSignals.saveAccount';
-    const expectedClusterCallOptions = request.params;
+    const expectedPath = `/_signals/account/${request.params.type}/${request.params.id}`;
+    const expectedBody = {};
 
     await createAccount({ clusterClient, logger })(context, request, response);
 
     expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
-    expect(callAsCurrentUser).toHaveBeenCalledWith(expectedEndpoint, expectedClusterCallOptions);
+    expect(asCurrentUserTransportRequest).toHaveBeenCalledWith({
+      method: 'put',
+      path: expectedPath,
+      body: expectedBody,
+    });
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
-        resp: expectedResponse,
+        resp: expectedResponse.body,
       },
     });
   });
@@ -66,10 +69,8 @@ describe('routes/account/create', () => {
 
     const error = new Error('nasty!');
 
-    const callAsCurrentUser = jest.fn().mockRejectedValue(error);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserTransportRequest = jest.fn().mockRejectedValue(error);
+    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
 
     const request = {
       headers: {},
@@ -79,11 +80,6 @@ describe('routes/account/create', () => {
     await createAccount({ clusterClient, logger })(context, request, response);
 
     expect(logger.error).toHaveBeenCalledWith(`createAccount: ${error.stack}`);
-    expect(response.ok).toHaveBeenCalledWith({
-      body: {
-        ok: false,
-        resp: serverError(error),
-      },
-    });
+    expect(response.customError).toHaveBeenCalledWith(serverError(error));
   });
 });

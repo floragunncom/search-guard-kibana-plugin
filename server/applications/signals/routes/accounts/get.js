@@ -34,9 +34,13 @@ export const getAccounts = ({ clusterClient, fetchAllFromScroll, logger }) => as
       body.query = query;
     }
 
-    const firstScrollResponse = await clusterClient
+    const { body: firstScrollResponse } = await clusterClient
       .asScoped(request)
-      .callAsCurrentUser('sgSignals.getAccounts', { scroll, body });
+      .asCurrentUser.transport.request({
+        method: 'post',
+        path: `/_signals/account/_search?scroll=${scroll}`,
+        body,
+      });
 
     const hits = await fetchAllFromScroll({
       clusterClient,
@@ -53,7 +57,7 @@ export const getAccounts = ({ clusterClient, fetchAllFromScroll, logger }) => as
     });
   } catch (err) {
     logger.error(`getAccounts: ${err.stack}`);
-    return response.ok({ body: { ok: false, resp: serverError(err) } });
+    return response.customError(serverError(err));
   }
 };
 

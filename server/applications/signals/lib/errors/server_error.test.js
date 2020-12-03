@@ -1,70 +1,78 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import serverError from './server_error';
 
 describe('server_error', () => {
-  test('can build SG plugin error', () => {
-    expect(
-      serverError({
-        statusCode: 422,
-        body: {
-          error: 'some error',
-        },
-      })
-    ).toEqual({
-      statusCode: 422,
-      body: {
-        error: 'some error',
-      },
-      message: 'some error',
-    });
+  test('fail to wrap if it is not an instance of Error', async () => {
+    const error = new Error('The provided argument must be instance of Error.');
+
+    try {
+      serverError({});
+    } catch (err) {
+      expect(error).toEqual(error);
+    }
   });
 
-  test('can build ES error', () => {
-    expect(
-      serverError({
-        statusCode: 422,
-        body: {
-          error: {
-            message: 'some error',
+  test('wrap error', async () => {
+    const error = new Error('nasty!');
+    error.statusCode = 401;
+    error.body = { error: { reason: 'too much' } };
+
+    const expected = {
+      body: {
+        attributes: {
+          body: {
+            error: {
+              reason: 'too much',
+            },
           },
         },
-      })
-    ).toEqual({
-      statusCode: 422,
-      body: {
-        error: {
-          message: 'some error',
-        },
+        message: 'nasty!',
       },
-      message: 'some error',
-    });
+      statusCode: 401,
+    };
+
+    expect(serverError(error)).toEqual(expected);
   });
 
-  test('can build ES error if no message but reason', () => {
-    expect(
-      serverError({
-        statusCode: 422,
-        body: {
-          error: {
-            reason: 'some error',
+  test('internal server error', async () => {
+    const errors = [
+      {
+        error: new Error('nasty!'),
+        expected: {
+          body: {
+            message: 'nasty!',
           },
-        },
-      })
-    ).toEqual({
-      statusCode: 422,
-      body: {
-        error: {
-          reason: 'some error',
+          statusCode: 500,
         },
       },
-      message: 'some error',
-    });
-  });
+      {
+        error: new Error(),
+        expected: {
+          body: {
+            message: 'Internal Server Error',
+          },
+          statusCode: 500,
+        },
+      },
+    ];
 
-  test('can build runtime error', () => {
-    expect(serverError(new Error('some error'))).toEqual({
-      message: 'some error',
-      statusCode: 500,
-    });
+    for (const { error, expected } of errors) {
+      expect(serverError(error)).toEqual(expected);
+    }
   });
 });

@@ -1,5 +1,20 @@
-/* eslint-disable @kbn/eslint/require-license-header */
-import React, { Fragment } from 'react';
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { isEmpty, map } from 'lodash';
 import {
@@ -27,13 +42,10 @@ import { FormikFieldText, SubHeader } from '../../../../components';
 import { hasError, isInvalid, validateName } from '../../../../utils/validation';
 import { RolesService } from '../../../../services';
 
-const Overview = ({
-  values,
-  titleText,
-  onTriggerInspectJsonFlyout,
-  isUpdatingName,
-  httpClient,
-}) => {
+import { Context } from '../../../../Context';
+
+const Overview = ({ values, titleText, isUpdatingName }) => {
+  const { httpClient, triggerInspectJsonFlyout } = useContext(Context);
   const rolesService = new RolesService(httpClient);
 
   const sectionNoMappedText = {
@@ -54,7 +66,7 @@ const Overview = ({
         size="s"
         iconType="inspect"
         onClick={() => {
-          onTriggerInspectJsonFlyout({
+          triggerInspectJsonFlyout({
             json: formikToRole(values),
             title: titleText,
           });
@@ -115,10 +127,8 @@ const Overview = ({
 };
 
 Overview.propTypes = {
-  httpClient: PropTypes.object.isRequired,
   values: PropTypes.object.isRequired,
   isUpdatingName: PropTypes.bool.isRequired,
-  onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
 };
 
 export default Overview;

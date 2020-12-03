@@ -30,18 +30,18 @@ describe('routes/es/search', () => {
     const context = setupContextMock();
 
     const expectedResponse = {
-      hits: {
-        hits: [
-          { _id: '123', _source: { a: 'b' } },
-          { _id: '456', _source: { c: 'd' } },
-        ],
+      body: {
+        hits: {
+          hits: [
+            { _id: '123', _source: { a: 'b' } },
+            { _id: '456', _source: { c: 'd' } },
+          ],
+        },
       },
     };
 
-    const callAsCurrentUser = jest.fn().mockResolvedValue(expectedResponse);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserSearch = jest.fn().mockResolvedValue(expectedResponse);
+    const clusterClient = setupClusterClientMock({ asCurrentUserSearch });
 
     const request = {
       body: {
@@ -55,18 +55,16 @@ describe('routes/es/search', () => {
       },
       headers: {},
     };
-
-    const expectedEndpoint = 'search';
     const expectedClusterCallOptions = request.body;
 
     await searchEs({ clusterClient, logger })(context, request, response);
 
     expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
-    expect(callAsCurrentUser).toHaveBeenCalledWith(expectedEndpoint, expectedClusterCallOptions);
+    expect(asCurrentUserSearch).toHaveBeenCalledWith(expectedClusterCallOptions);
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
-        resp: expectedResponse,
+        resp: expectedResponse.body,
       },
     });
   });
@@ -78,10 +76,8 @@ describe('routes/es/search', () => {
 
     const error = new Error('nasty!');
 
-    const callAsCurrentUser = jest.fn().mockRejectedValue(error);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserSearch = jest.fn().mockRejectedValue(error);
+    const clusterClient = setupClusterClientMock({ asCurrentUserSearch });
 
     const request = {
       headers: {},
@@ -92,11 +88,6 @@ describe('routes/es/search', () => {
     await searchEs({ clusterClient, logger })(context, request, response);
 
     expect(logger.error).toHaveBeenCalledWith(`searchEs: ${error.stack}`);
-    expect(response.ok).toHaveBeenCalledWith({
-      body: {
-        ok: false,
-        resp: serverError(error),
-      },
-    });
+    expect(response.customError).toHaveBeenCalledWith(serverError(error));
   });
 });

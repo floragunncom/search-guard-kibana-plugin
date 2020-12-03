@@ -3,12 +3,12 @@ import { get } from 'lodash';
 import { registerRoutes } from './routes';
 import { readKibanaConfig } from './read_kibana_config';
 import { ConfigService } from '../../../common/config_service';
-import { Kerberos } from '../../../lib/auth/types';
-import { defineAuthInfoRoutes } from '../../../lib/auth/routes_authinfo';
-import { defineSystemRoutes } from '../../../lib/system/routes';
-import { defineConfigurationRoutes } from '../../../lib/configuration/routes/routes';
-import SearchGuardBackend from '../../../lib/backend/searchguard';
-import SearchGuardConfigurationBackend from '../../../lib/configuration/backend/searchguard_configuration_backend';
+import { Kerberos } from './auth/types';
+import { defineAuthInfoRoutes } from './auth/routes_authinfo';
+import { defineSystemRoutes } from './system/routes';
+import { defineConfigurationRoutes } from './configuration/routes/routes';
+import SearchGuardBackend from './backend/searchguard';
+import SearchGuardConfigurationBackend from './configuration/backend/searchguard_configuration_backend';
 import {
   checkDoNotFailOnForbidden,
   checkTLSConfig,
@@ -16,7 +16,7 @@ import {
   checkCookieConfig,
 } from './sanity_checks';
 import { getSecurityCookieOptions, extendSecurityCookieOptions } from './session/security_cookie';
-import { ReadOnlyMode } from '../../../lib/authorization/ReadOnlyMode';
+import { ReadOnlyMode } from './authorization/ReadOnlyMode';
 
 export class SearchGuard {
   constructor(coreContext) {
@@ -37,11 +37,20 @@ export class SearchGuard {
         logger: this.logger,
       });
 
-      this.searchGuardBackend = new SearchGuardBackend({ core, configService: this.configService });
+      this.searchGuardBackend = new SearchGuardBackend({
+        configService: this.configService,
+        getElasticsearch: async () => {
+          const [{ elasticsearch }] = await core.getStartServices();
+          return elasticsearch;
+        },
+      });
 
       this.searchGuardConfigurationBackend = new SearchGuardConfigurationBackend({
-        core,
         configService: this.configService,
+        getElasticsearch: async () => {
+          const [{ elasticsearch }] = await core.getStartServices();
+          return elasticsearch;
+        },
       });
 
       // Sanity checks
@@ -121,23 +130,23 @@ export class SearchGuard {
 
           switch (authType) {
             case 'openid':
-              AuthClass = require('../../../lib/auth/types/openid/OpenId');
+              AuthClass = require('./auth/types/openid/OpenId');
               break;
 
             case 'basicauth':
-              AuthClass = require('../../../lib/auth/types/basicauth/BasicAuth');
+              AuthClass = require('./auth/types/basicauth/BasicAuth');
               break;
 
             case 'jwt':
-              AuthClass = require('../../../lib/auth/types/jwt/Jwt');
+              AuthClass = require('./auth/types/jwt/Jwt');
               break;
 
             case 'saml':
-              AuthClass = require('../../../lib/auth/types/saml/Saml');
+              AuthClass = require('./auth/types/saml/Saml');
               break;
 
             case 'proxycache':
-              AuthClass = require('../../../lib/auth/types/proxycache/ProxyCache');
+              AuthClass = require('./auth/types/proxycache/ProxyCache');
               break;
           }
 
@@ -175,7 +184,7 @@ export class SearchGuard {
 
       // @todo TEST
       if (this.configService.get('searchguard.xff.enabled')) {
-        require('../../../lib/xff/xff')(core);
+        require('./xff/xff')(core);
         this.logger.info('Search Guard XFF enabled.');
       }
 

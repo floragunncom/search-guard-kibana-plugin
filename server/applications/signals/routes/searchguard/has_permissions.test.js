@@ -94,11 +94,6 @@ describe('routes/searchguard/has_permissions', () => {
     await hasPermissions({ searchguardBackendService, logger })(context, request, response);
 
     expect(logger.error).toHaveBeenCalledWith(`hasPermissions: ${error.stack}`);
-    expect(response.ok).toHaveBeenCalledWith({
-      body: {
-        ok: false,
-        resp: serverError(error),
-      },
-    });
+    expect(response.customError).toHaveBeenCalledWith(serverError(error));
   });
 });

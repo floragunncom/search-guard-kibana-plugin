@@ -25,112 +25,68 @@ import {
 import { ES_SCROLL_SETTINGS } from '../../../../../common/signals/constants';
 
 describe('routes/alerts/get', () => {
-  test('there are some results', async () => {
-    const logger = setupLoggerMock();
-    const response = setupHttpResponseMock();
-    const context = setupContextMock();
+  describe('there are some results', () => {
+    let logger;
+    let response;
+    let context;
+    let firstResponse;
+    let secondResponse;
+    let asCurrentUserSearch;
+    let fetchAllFromScroll;
+    let clusterClient;
+    let expectedResponse;
 
-    const mockResponse = [
-      { _index: 'log', _id: '123', _source: { a: 'b' } },
-      { _index: 'log', _id: '456', _source: { c: 'd' } },
-    ];
-
-    const callAsCurrentUser = jest.fn().mockResolvedValue(mockResponse);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
+    beforeEach(() => {
+      logger = setupLoggerMock();
+      response = setupHttpResponseMock();
+      context = setupContextMock();
+      firstResponse = {
+        body: {
+          _scroll_id: 'FGluY2x1ZGVfY',
+          hits: {
+            hits: [
+              { _index: 'log', _id: '123', _source: { a: 'b' } },
+              { _index: 'log', _id: '456', _source: { c: 'd' } },
+            ],
+          },
+        },
+      };
+      secondResponse = [...firstResponse.body.hits.hits];
+      asCurrentUserSearch = jest.fn().mockResolvedValueOnce(firstResponse);
+      fetchAllFromScroll = jest.fn().mockResolvedValue(secondResponse);
+      clusterClient = setupClusterClientMock({ asCurrentUserSearch });
+      expectedResponse = [
+        {
+          _id: '123',
+          _index: 'log',
+          a: 'b',
+        },
+        {
+          _id: '456',
+          _index: 'log',
+          c: 'd',
+        },
+      ];
     });
-    const fetchAllFromScroll = jest.fn().mockResolvedValue(mockResponse);
 
-    const expectedResponse = [
-      {
-        _id: '123',
-        _index: 'log',
-        a: 'b',
-      },
-      {
-        _id: '456',
-        _index: 'log',
-        c: 'd',
-      },
-    ];
-
-    const inputs = [
-      {
-        name: 'no tenant',
-        request: {
-          headers: {},
-          body: {
-            query: { match_all: {} },
-            index: 'alerts',
-            sort: 'asc',
-            scroll: ES_SCROLL_SETTINGS.KEEPALIVE,
-          },
-        },
-        expectedEndpoint: 'search',
-        expectedCallClusterOptions: {
-          body: {
-            sort: 'asc',
-            query: { match_all: {} },
-          },
+    test('no tenant', async () => {
+      const request = {
+        headers: {},
+        body: {
+          query: { match_all: {} },
           index: 'alerts',
+          sort: 'asc',
           scroll: ES_SCROLL_SETTINGS.KEEPALIVE,
         },
-      },
-      {
-        name: 'tenant',
-        request: {
-          headers: { sgtenant: 'user' },
-          body: {
-            query: { bool: { must: [{ match_all: {} }] } },
-            index: 'alerts',
-            sort: 'asc',
-            scroll: ES_SCROLL_SETTINGS.KEEPALIVE,
-          },
+      };
+      const expectedCallClusterOptions = {
+        body: {
+          sort: 'asc',
+          query: { match_all: {} },
         },
-        expectedEndpoint: 'search',
-        expectedCallClusterOptions: {
-          body: {
-            sort: 'asc',
-            query: {
-              bool: {
-                must: [
-                  { match_all: {} },
-                  {
-                    term: { 'tenant.keyword': { value: 'user' } },
-                  },
-                ],
-              },
-            },
-          },
-          index: 'alerts',
-          scroll: ES_SCROLL_SETTINGS.KEEPALIVE,
-        },
-      },
-      {
-        name: 'global tenant',
-        request: {
-          headers: { sgtenant: '' },
-          body: {
-            query: { bool: { must: [{ match_all: {} }] } },
-            index: 'alerts',
-            sort: 'asc',
-            scroll: ES_SCROLL_SETTINGS.KEEPALIVE,
-          },
-        },
-        expectedEndpoint: 'search',
-        expectedCallClusterOptions: {
-          body: {
-            sort: 'asc',
-            query: { bool: { must: [{ match_all: {} }] } },
-          },
-          index: 'alerts',
-          scroll: ES_SCROLL_SETTINGS.KEEPALIVE,
-        },
-      },
-    ];
-
-    for (const input of inputs) {
-      const { request, expectedEndpoint, expectedCallClusterOptions } = input;
+        index: 'alerts',
+        scroll: ES_SCROLL_SETTINGS.KEEPALIVE,
+      };
 
       await getAlerts({ clusterClient, fetchAllFromScroll, logger })(context, request, response);
 
@@ -138,11 +94,11 @@ describe('routes/alerts/get', () => {
         clusterClient,
         scroll: request.body.scroll,
         request,
-        response: mockResponse,
+        response: firstResponse.body,
       };
 
       expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
-      expect(callAsCurrentUser).toHaveBeenCalledWith(expectedEndpoint, expectedCallClusterOptions);
+      expect(asCurrentUserSearch).toHaveBeenCalledWith(expectedCallClusterOptions);
       expect(fetchAllFromScroll).toHaveBeenCalledWith(expectedFetchAllFromScrollOptions);
       expect(response.ok).toHaveBeenCalledWith({
         body: {
@@ -150,7 +106,96 @@ describe('routes/alerts/get', () => {
           resp: expectedResponse,
         },
       });
-    }
+    });
+
+    test('tenant', async () => {
+      const request = {
+        headers: { sgtenant: 'user' },
+        body: {
+          query: { bool: { must: [{ match_all: {} }] } },
+          index: 'alerts',
+          sort: 'asc',
+          scroll: ES_SCROLL_SETTINGS.KEEPALIVE,
+        },
+      };
+      const expectedCallClusterOptions = {
+        body: {
+          sort: 'asc',
+          query: {
+            bool: {
+              must: [
+                { match_all: {} },
+                {
+                  term: { 'tenant.keyword': { value: 'user' } },
+                },
+              ],
+            },
+          },
+        },
+        index: 'alerts',
+        scroll: ES_SCROLL_SETTINGS.KEEPALIVE,
+      };
+
+      await getAlerts({ clusterClient, fetchAllFromScroll, logger })(context, request, response);
+
+      const expectedFetchAllFromScrollOptions = {
+        clusterClient,
+        scroll: request.body.scroll,
+        request,
+        response: firstResponse.body,
+      };
+
+      expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
+      expect(asCurrentUserSearch).toHaveBeenCalledWith(expectedCallClusterOptions);
+      expect(fetchAllFromScroll).toHaveBeenCalledWith(expectedFetchAllFromScrollOptions);
+      expect(response.ok).toHaveBeenCalledWith({
+        body: {
+          ok: true,
+          resp: expectedResponse,
+        },
+      });
+    });
+
+    test('global tenant', async () => {
+      const request = {
+        headers: { sgtenant: '' },
+        body: {
+          query: { bool: { must: [{ match_all: {} }] } },
+          index: 'alerts',
+          sort: 'asc',
+          scroll: ES_SCROLL_SETTINGS.KEEPALIVE,
+        },
+      };
+      const expectedCallClusterOptions = {
+        body: {
+          sort: 'asc',
+          query: { bool: { must: [{ match_all: {} }] } },
+        },
+        index: 'alerts',
+        scroll: ES_SCROLL_SETTINGS.KEEPALIVE,
+        index: 'alerts',
+        scroll: ES_SCROLL_SETTINGS.KEEPALIVE,
+      };
+
+      await getAlerts({ clusterClient, fetchAllFromScroll, logger })(context, request, response);
+
+      const expectedFetchAllFromScrollOptions = {
+        clusterClient,
+        scroll: request.body.scroll,
+        request,
+        response: firstResponse.body,
+      };
+
+      expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
+      expect(asCurrentUserSearch).toHaveBeenCalledWith(expectedCallClusterOptions);
+      expect(fetchAllFromScroll).toHaveBeenCalledWith(expectedFetchAllFromScrollOptions);
+      expect(response.ok).toHaveBeenCalledWith({
+        body: {
+          ok: true,
+          resp: expectedResponse,
+        },
+      });
+    });
   });
 
   test('there is an error', async () => {
@@ -160,11 +205,9 @@ describe('routes/alerts/get', () => {
 
     const error = new Error('nasty!');
 
-    const callAsCurrentUser = jest.fn().mockRejectedValue(error);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserSearch = jest.fn().mockRejectedValue(error);
     const fetchAllFromScroll = jest.fn();
+    const clusterClient = setupClusterClientMock({ asCurrentUserSearch });
 
     const request = {
       headers: {},
@@ -174,11 +217,6 @@ describe('routes/alerts/get', () => {
     await getAlerts({ clusterClient, fetchAllFromScroll, logger })(context, request, response);
 
     expect(logger.error).toHaveBeenCalledWith(`getAlerts: ${error.stack}`);
-    expect(response.ok).toHaveBeenCalledWith({
-      body: {
-        ok: false,
-        resp: serverError(error),
-      },
-    });
+    expect(response.customError).toHaveBeenCalledWith(serverError(error));
   });
 });

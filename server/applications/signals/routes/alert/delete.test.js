@@ -30,12 +30,10 @@ describe('routes/alert/delete', () => {
     const response = setupHttpResponseMock();
     const context = setupContextMock();
 
-    const expectedResponse = { result: 'deleted' };
+    const expectedResponse = { body: { result: 'deleted' } };
 
-    const callAsCurrentUser = jest.fn().mockResolvedValue(expectedResponse);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserDelete = jest.fn().mockResolvedValue(expectedResponse);
+    const clusterClient = setupClusterClientMock({ asCurrentUserDelete });
 
     const request = {
       params: {
@@ -43,8 +41,6 @@ describe('routes/alert/delete', () => {
         index: 'alerts',
       },
     };
-
-    const expectedEndpoint = 'delete';
     const expectedClusterCallOptions = {
       refresh: true,
       type: INDEX.ALERT_DOC_TYPE,
@@ -55,11 +51,11 @@ describe('routes/alert/delete', () => {
     await deleteAlert({ clusterClient, logger })(context, request, response);
 
     expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
-    expect(callAsCurrentUser).toHaveBeenCalledWith(expectedEndpoint, expectedClusterCallOptions);
+    expect(asCurrentUserDelete).toHaveBeenCalledWith(expectedClusterCallOptions);
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
-        resp: expectedResponse,
+        resp: expectedResponse.body,
       },
     });
   });
@@ -71,10 +67,8 @@ describe('routes/alert/delete', () => {
 
     const error = new Error('nasty!');
 
-    const callAsCurrentUser = jest.fn().mockRejectedValue(error);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserDelete = jest.fn().mockRejectedValue(error);
+    const clusterClient = setupClusterClientMock({ asCurrentUserDelete });
 
     const request = {
       headers: {},
@@ -84,11 +78,6 @@ describe('routes/alert/delete', () => {
     await deleteAlert({ clusterClient, logger })(context, request, response);
 
     expect(logger.error).toHaveBeenCalledWith(`deleteAlert: ${error.stack}`);
-    expect(response.ok).toHaveBeenCalledWith({
-      body: {
-        ok: false,
-        resp: serverError(error),
-      },
-    });
+    expect(response.customError).toHaveBeenCalledWith(serverError(error));
   });
 });
