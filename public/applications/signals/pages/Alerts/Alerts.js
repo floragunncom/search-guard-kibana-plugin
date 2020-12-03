@@ -26,6 +26,7 @@ import {
   TableTextCell,
   CancelButton,
 } from '../../components';
+import { getResourceEditUri } from '../Watches/utils/helpers';
 import { buildESQuery } from './utils/helpers';
 import { actionAndWatchStatusToIconProps } from '../Watches/utils';
 import { execEndText, statusText, executionHistoryText } from '../../utils/i18n/watch';
@@ -387,7 +388,7 @@ class Alerts extends Component {
           <TableIdCell
             name={`WatchId-${_id}`}
             value={watchId}
-            onClick={() => this.props.history.push(`${APP_PATH.DEFINE_WATCH}?id=${watchId}`)}
+            onClick={() => this.props.history.push(getResourceEditUri(watchId))}
           />
         ),
       });

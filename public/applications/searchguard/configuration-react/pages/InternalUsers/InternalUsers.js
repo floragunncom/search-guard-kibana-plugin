@@ -21,10 +21,7 @@ import {
   CreateButton,
   CancelButton
 } from '../../components';
-import {
-  APP_PATH,
-  INTERNAL_USERS_ACTIONS
-} from '../../utils/constants';
+import { APP_PATH } from '../../utils/constants';
 import {
   createInternalUserText,
   internalUsersText,
@@ -37,7 +34,7 @@ import {
   currentUserText,
   systemItemsText
 } from '../../utils/i18n/common';
-import { resourcesToUiResources, uiResourceToResource } from './utils';
+import { resourcesToUiResources, uiResourceToResource, getResourceEditUri } from './utils';
 import { LocalStorageService, InternalUsersService } from '../../services';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
 
@@ -192,7 +189,6 @@ class InternalUsers extends Component {
   render() {
     const { history } = this.props;
     const { isLoading, error, tableResources, isShowingTableSystemItems } = this.state;
-    const getResourceEditUri = name => `${APP_PATH.CREATE_INTERNAL_USER}?id=${name}&action=${INTERNAL_USERS_ACTIONS.UPDATE_USER}`;
 
     const actions = [
       {

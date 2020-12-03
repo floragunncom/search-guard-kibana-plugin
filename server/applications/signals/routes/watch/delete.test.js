@@ -21,7 +21,7 @@ import {
   setupHttpResponseMock,
   setupClusterClientMock,
   setupContextMock,
-} from '../../../../mocks';
+} from '../../../../utils/mocks';
 import { NO_MULTITENANCY_TENANT } from '../../../../../common/signals/constants';
 
 describe('routes/watch/delete', () => {
@@ -44,13 +44,13 @@ describe('routes/watch/delete', () => {
     const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
 
     const request = {
-      params: { id: '123' },
+      params: { id: '123 45' },
       headers: {},
     };
 
     const expectedClusterCallOptions = {
       method: 'delete',
-      path: `/_signals/watch/${NO_MULTITENANCY_TENANT}/${request.params.id}`,
+      path: `/_signals/watch/${NO_MULTITENANCY_TENANT}/${encodeURIComponent(request.params.id)}`,
     };
 
     await deleteWatch({ clusterClient, logger })(context, request, response);

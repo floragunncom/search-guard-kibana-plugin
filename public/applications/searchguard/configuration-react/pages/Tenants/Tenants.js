@@ -17,8 +17,8 @@ import {
   CreateButton,
   CancelButton
 } from '../../components';
-import { resourcesToUiResources, uiResourceToResource } from './utils';
-import { APP_PATH, TENANTS_ACTIONS } from '../../utils/constants';
+import { resourcesToUiResources, uiResourceToResource, getResourceEditUri } from './utils';
+import { APP_PATH } from '../../utils/constants';
 import {
   nameText,
   descriptionText,
@@ -158,7 +158,6 @@ class Tenants extends Component {
   render() {
     const { history } = this.props;
     const { isLoading, error, tableResources, isShowingTableSystemItems } = this.state;
-    const getResourceEditUri = name => `${APP_PATH.CREATE_TENANT}?id=${name}&action=${TENANTS_ACTIONS.UPDATE_TENANT}`;
 
     const actions = [
       {

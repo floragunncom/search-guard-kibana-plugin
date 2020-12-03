@@ -22,13 +22,13 @@ export class ApiService {
   get(id) {
     this._assertResourceName();
     return this.httpClient
-      .get(`${API_ROOT}/${this.resourceName}/${id}`)
+      .get(`${API_ROOT}/${this.resourceName}/${encodeURIComponent(id)}`)
       .then(({ data } = {}) => data);
   }
 
   getSilent(id) {
     this._assertResourceName();
-    return this.get(id).catch(() => {
+    return this.get(encodeURIComponent(id)).catch(() => {
       // Be silent about the error
     });
   }
@@ -36,7 +36,10 @@ export class ApiService {
   async save(id, data) {
     this._assertResourceName();
     try {
-      return await this.httpClient.post(`${API_ROOT}/${this.resourceName}/${id}`, data);
+      return await this.httpClient.post(
+        `${API_ROOT}/${this.resourceName}/${encodeURIComponent(id)}`,
+        data
+      );
     } catch (error) {
       if (error.body && error.body.statusCode === 401) this.accessControlService.logout();
       throw error;
@@ -46,7 +49,9 @@ export class ApiService {
   async delete(id) {
     this._assertResourceName();
     try {
-      return await this.httpClient.delete(`${API_ROOT}/${this.resourceName}/${id}`);
+      return await this.httpClient.delete(
+        `${API_ROOT}/${this.resourceName}/${encodeURIComponent(id)}`
+      );
     } catch (error) {
       if (error.body && error.body.statusCode === 401) this.accessControlService.logout();
       throw error;

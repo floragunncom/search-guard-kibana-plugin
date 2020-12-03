@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-import React from 'react';
-import { EuiI18n } from '@elastic/eui';
+import { getResourceEditUri, getWatchRelatedAlertsUri } from './helpers';
 
-export * from '../../../utils/i18n/common';
+describe('Watches/helpers', () => {
+  test('getResourceEditUri', () => {
+    expect(getResourceEditUri('a b')).toBe('/define-watch?id=a%20b');
+  });
 
-export const forbiddenCharsText = (
-  <EuiI18n token="sg.common.forbiddenChars.text" default="Forbidden characters: . * /" />
-);
+  test('getWatchRelatedAlertsUri', () => {
+    expect(getWatchRelatedAlertsUri('a b')).toBe('/alerts?watchId=a%20b');
+  });
+});

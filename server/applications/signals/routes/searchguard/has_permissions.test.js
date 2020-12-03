@@ -21,7 +21,7 @@ import {
   setupHttpResponseMock,
   setupContextMock,
   setupSearchGuardBackendMock,
-} from '../../../../mocks';
+} from '../../../../utils/mocks';
 import { PERMISSIONS_FOR_ACCESS } from '../../../../../common/signals/constants';
 
 describe('routes/searchguard/has_permissions', () => {

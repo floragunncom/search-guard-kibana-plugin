@@ -27,11 +27,13 @@ export function getWatch({ clusterClient, logger }) {
         headers: { sgtenant = NO_MULTITENANCY_TENANT },
       } = request;
 
+      const path = `/_signals/watch/${encodeURIComponent(sgtenant)}/${encodeURIComponent(id)}`;
+
       const {
         body: { _source, _id },
       } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
         method: 'get',
-        path: `/_signals/watch/${sgtenant}/${id}`,
+        path,
       });
 
       return response.ok({ body: { ok: true, resp: { ..._source, _id: getId(_id) } } });
