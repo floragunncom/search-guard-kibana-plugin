@@ -20,9 +20,6 @@ export const passwordText = (<EuiI18n token="sg.internalUsers.password.text" def
 export const repeatPasswordText = (<EuiI18n token="sg.internalUsers.repeatPassword.text" default="Repeat Password" />);
 export const changePasswordText = (<EuiI18n token="sg.internalUsers.changePassword.text" default="Change Password" />);
 export const passwordsDontMatchText = (<EuiI18n token="sg.internalUsers.passwordsDontMatch.text" default="Passwords don't match" />);
-export const nameMustNotContainDotsAndAsterisksText = (
-  <EuiI18n token="sg.internalUsers.nameMustNotContainDotsAndAsterisks.text" default="Name must not contain '.' or '*'" />
-);
 export const passwordMustBeAtLeast5CharsText = (
   <EuiI18n token="sg.internalUsers.passwordMustBeAtLeast5Chars.text" default="Password must be at least 5 characters" />
 );

@@ -23,7 +23,6 @@ import {
   setupConfigMock,
   setupLoggerMock,
   setupSessionStorageFactoryMock,
-  setupElasticsearchMock,
   setupPluginDependenciesMock,
   setupHttpResponseMock,
   setupHttpToolkitMock,
@@ -31,6 +30,10 @@ import {
 } from '../../../../../utils/mocks';
 
 jest.mock('../../../../../../../../src/core/server/http/router', () => jest.fn());
+
+function setupElasticsearchMock() {
+  return jest.fn();
+}
 
 const authType = 'basicauth';
 const authHeaderName = 'authorization';

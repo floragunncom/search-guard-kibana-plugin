@@ -21,7 +21,7 @@ import {
   setupHttpResponseMock,
   setupClusterClientMock,
   setupContextMock,
-} from '../../../../mocks';
+} from '../../../../utils/mocks';
 import {
   NO_MULTITENANCY_TENANT,
   ES_SCROLL_SETTINGS,

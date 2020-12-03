@@ -21,7 +21,7 @@ import {
   setupHttpResponseMock,
   setupClusterClientMock,
   setupContextMock,
-} from '../../../../mocks';
+} from '../../../../utils/mocks';
 import { ES_SCROLL_SETTINGS } from '../../../../../common/signals/constants';
 
 describe('routes/alerts/get', () => {

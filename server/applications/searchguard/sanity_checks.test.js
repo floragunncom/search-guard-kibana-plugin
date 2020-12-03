@@ -12,7 +12,7 @@ import {
   defaultCookiePasswordWarnText,
   cookieSecureFalseWarnText,
 } from './sanity_checks';
-import { setupLoggerMock, setupSearchGuardBackendMock } from '../../mocks';
+import { setupLoggerMock, setupSearchGuardBackendMock } from '../../utils/mocks';
 
 import { ConfigService } from '../../../common';
 import { DEFAULT_CONFIG } from './read_kibana_config';

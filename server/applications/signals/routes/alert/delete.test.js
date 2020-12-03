@@ -21,7 +21,7 @@ import {
   setupHttpResponseMock,
   setupClusterClientMock,
   setupContextMock,
-} from '../../../../mocks';
+} from '../../../../utils/mocks';
 import { INDEX } from '../../../../../common/signals/constants';
 
 describe('routes/alert/delete', () => {
