@@ -25,9 +25,11 @@ export const createAccount = ({ clusterClient, logger }) => async (context, requ
       params: { id, type },
     } = request;
 
+    const path = `/_signals/account/${encodeURIComponent(type)}/${encodeURIComponent(id)}`;
+
     const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
       method: 'put',
-      path: `/_signals/account/${type}/${id}`,
+      path,
       body,
     });
 

@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { getResourceEditUri } from './helpers';
 
-import React from 'react';
-import { EuiI18n } from '@elastic/eui';
-
-export * from '../../../utils/i18n/common';
-
-export const forbiddenCharsText = (
-  <EuiI18n token="sg.common.forbiddenChars.text" default="Forbidden characters: . * /" />
-);
+describe('Roles/helpers', () => {
+  test('getResourceEditUri', () => {
+    expect(getResourceEditUri('a b')).toBe('/create-role?id=a%20b&action=update-role');
+  });
+});

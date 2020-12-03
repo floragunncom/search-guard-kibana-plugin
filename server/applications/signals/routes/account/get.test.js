@@ -21,7 +21,7 @@ import {
   setupHttpResponseMock,
   setupClusterClientMock,
   setupContextMock,
-} from '../../../../mocks';
+} from '../../../../utils/mocks';
 
 describe('routes/account/get', () => {
   test('get account', async () => {
@@ -51,10 +51,10 @@ describe('routes/account/get', () => {
     const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
 
     const request = {
-      params: { id: 'mymailserver', type: 'email' },
+      params: { id: 'mymailserver 2', type: 'email' },
     };
 
-    const expectedPath = `/_signals/account/${request.params.type}/${request.params.id}`;
+    const expectedPath = `/_signals/account/${request.params.type}/${encodeURIComponent(request.params.id)}`;
     const expectedResponse = { ...mockResponse.body._source, _id: 'mymailserver' };
 
     await getAccount({ clusterClient, logger })(context, request, response);

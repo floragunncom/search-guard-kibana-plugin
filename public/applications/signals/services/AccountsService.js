@@ -8,11 +8,11 @@ export default class AccountsService extends SignalsService {
   }
 
   put(account, id, type = this.type) {
-    return super.put(`..${ROUTE_PATH.ACCOUNT}/${type}/${id}`, account);
+    return super.put(`..${ROUTE_PATH.ACCOUNT}/${type}/${encodeURIComponent(id)}`, account);
   }
 
   get(id, type = this.type) {
-    return super.get(`..${ROUTE_PATH.ACCOUNT}/${type}/${id}`);
+    return super.get(`..${ROUTE_PATH.ACCOUNT}/${type}/${encodeURIComponent(id)}`);
   }
 
   search(query = {}) {
@@ -20,6 +20,6 @@ export default class AccountsService extends SignalsService {
   }
 
   delete(id, type = this.type) {
-    return super.delete(`..${ROUTE_PATH.ACCOUNT}/${type}/${id}`);
+    return super.delete(`..${ROUTE_PATH.ACCOUNT}/${type}/${encodeURIComponent(id)}`);
   }
 }

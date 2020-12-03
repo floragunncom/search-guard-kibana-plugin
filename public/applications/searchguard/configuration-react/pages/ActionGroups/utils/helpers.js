@@ -13,12 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { APP_PATH, ACTION_GROUPS_ACTIONS } from '../../../utils/constants';
 
-import React from 'react';
-import { EuiI18n } from '@elastic/eui';
-
-export * from '../../../utils/i18n/common';
-
-export const forbiddenCharsText = (
-  <EuiI18n token="sg.common.forbiddenChars.text" default="Forbidden characters: . * /" />
-);
+export const getResourceEditUri = (name) =>
+  `${APP_PATH.CREATE_ACTION_GROUP}?id=${encodeURIComponent(name)}&action=${
+    ACTION_GROUPS_ACTIONS.UPDATE_ACTION_GROUP
+  }`;

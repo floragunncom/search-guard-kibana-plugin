@@ -15,15 +15,12 @@
  */
 
 import { isEmpty } from 'lodash';
-import {
-  nameMustNotContainDotsAndAsterisksText,
-  passwordsDontMatchText,
-} from './i18n/internal_users';
+import { passwordsDontMatchText } from './i18n/internal_users';
 import {
   requiredText,
   problemWithValidationTryAgainText,
   nameAlreadyExistsText,
-  nameMustNotContainDotsText,
+  forbiddenCharsText,
   jsonIsInvalidText,
   indicesPermissionsPrefixErrorText,
   clusterPermissionsPrefixErrorText,
@@ -43,8 +40,8 @@ export const validateTextField = (value) => {
 
 export const validateName = (Service, isUpdatingName = false) => async (name) => {
   if (!name) return requiredText;
-  const hasDots = /[\.]/gm.test(name);
-  if (hasDots) return nameMustNotContainDotsText;
+  const hasForbiddenChars = /[\.*]/gm.test(name);
+  if (hasForbiddenChars) return forbiddenCharsText;
   try {
     const { data } = await Service.list();
     const newNameAlreadyExists = isUpdatingName && Object.keys(data).includes(name);
@@ -52,15 +49,7 @@ export const validateName = (Service, isUpdatingName = false) => async (name) =>
   } catch (error) {
     return problemWithValidationTryAgainText;
   }
-};
-
-export const validateInternalUserName = (internalUsersService, isUpdatingName = false) => async (
-  name
-) => {
-  const hasDotsAndAsterisks = /[\.\*]/gm.test(name);
-  if (hasDotsAndAsterisks) return nameMustNotContainDotsAndAsterisksText;
-  const message = await validateName(internalUsersService, isUpdatingName)(name);
-  return message;
+  return null;
 };
 
 export const validateESDLSQuery = (index, httpClient) => async (query) => {

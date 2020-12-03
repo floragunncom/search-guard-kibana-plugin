@@ -17,11 +17,11 @@ export default class WatchService extends SignalsService {
   }
 
   put(watch, id) {
-    return super.put(`..${ROUTE_PATH.WATCH}/${id}`, watch);
+    return super.put(`..${ROUTE_PATH.WATCH}/${encodeURIComponent(id)}`, watch);
   }
 
   get(id) {
-    return super.get(`..${ROUTE_PATH.WATCH}/${id}`);
+    return super.get(`..${ROUTE_PATH.WATCH}/${encodeURIComponent(id)}`);
   }
 
   search(query = {}) {
@@ -29,11 +29,11 @@ export default class WatchService extends SignalsService {
   }
 
   delete(id) {
-    return super.delete(`..${ROUTE_PATH.WATCH}/${id}`);
+    return super.delete(`..${ROUTE_PATH.WATCH}/${encodeURIComponent(id)}`);
   }
 
   ack(watchId, actionId) {
-    let url = `..${ROUTE_PATH.WATCH}/${watchId}/_ack`;
+    let url = `..${ROUTE_PATH.WATCH}/${encodeURIComponent(watchId)}/_ack`;
     if (actionId) {
       url += `/${actionId}`;
     }
@@ -42,6 +42,6 @@ export default class WatchService extends SignalsService {
   }
 
   state(id) {
-    return super.get(`..${ROUTE_PATH.WATCH}/${id}/_state`);
+    return super.get(`..${ROUTE_PATH.WATCH}/${encodeURIComponent(id)}/_state`);
   }
 }

@@ -21,6 +21,7 @@ import {
   validClusterSinglePermissionOption,
   validSinglePermissionOption,
   validIndicesSinglePermissionOption,
+  validateName,
 } from './validation';
 import {
   jsonIsInvalidText,
@@ -29,6 +30,7 @@ import {
   indicesPermissionsPrefixErrorText,
   clusterPermissionsPrefixErrorText,
   permissionsPrefixErrorText,
+  forbiddenCharsText,
 } from './i18n/common';
 import { dlsQuerySyntaxIsInvalidText } from './i18n/roles';
 import { passwordsDontMatchText } from './i18n/internal_users';
@@ -171,6 +173,132 @@ describe('validation', () => {
         permissionsPrefixErrorText
       );
       expect(validSinglePermissionOption([{ label: 'cat' }])).toEqual(permissionsPrefixErrorText);
+    });
+  });
+
+  describe('validateName', () => {
+    test('forbidden chars', async () => {
+      const Service = jest.fn();
+      const expected = forbiddenCharsText;
+      const inputs = [
+        {
+          input: 'abc.',
+          expected,
+        },
+        {
+          input: 'abc*',
+          expected,
+        },
+      ];
+
+      for (let i = 0; i < inputs.length; i++) {
+        const { input, expected } = inputs[i];
+        expect(await validateName(Service)(input)).toBe(expected);
+      }
+    });
+
+    test('allowed chars', async () => {
+      const expected = null;
+      const inputs = [
+        {
+          input: 'abc#',
+          expected,
+        },
+        {
+          input: 'abc&',
+          expected,
+        },
+        {
+          input: 'abc+',
+          expected,
+        },
+        {
+          input: 'abc/',
+          expected,
+        },
+        {
+          input: 'abc\\',
+          expected,
+        },
+        {
+          input: 'abc1',
+          expected,
+        },
+        {
+          input: 'abc d',
+          expected,
+        },
+        {
+          input: 'abc',
+          expected,
+        },
+        {
+          input: 'abc_',
+          expected,
+        },
+        {
+          input: 'abc-',
+          expected,
+        },
+        {
+          input: 'abc!',
+          expected,
+        },
+        {
+          input: 'abc~',
+          expected,
+        },
+        {
+          input: 'abc(',
+          expected,
+        },
+        {
+          input: 'abc)',
+          expected,
+        },
+        {
+          input: 'abc',
+          expected,
+        },
+        {
+          input: 'abc;',
+          expected,
+        },
+        {
+          input: 'abc?,',
+          expected,
+        },
+        {
+          input: 'abc:',
+          expected,
+        },
+        {
+          input: 'abc@',
+          expected,
+        },
+        {
+          input: 'abc=',
+          expected,
+        },
+        {
+          input: 'abc$',
+          expected,
+        },
+        {
+          input: 'abc}',
+          expected,
+        },
+        {
+          input: 'abc]',
+          expected,
+        },
+      ];
+
+      for (let i = 0; i < inputs.length; i++) {
+        const { input, expected } = inputs[i];
+        const Service = { list: jest.fn().mockResolvedValue({ data: { [input]: {} } }) };
+        expect(await validateName(Service)(input)).toBe(expected);
+      }
     });
   });
 });
