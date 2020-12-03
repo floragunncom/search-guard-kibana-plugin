@@ -30,39 +30,40 @@ describe('routes/account/get', () => {
     const context = setupContextMock();
 
     const mockResponse = {
-      _id: 'email/mymailserver',
-      found: true,
-      _version: 18,
-      _seq_no: 23,
-      _primary_term: 4,
-      _source: {
-        mime_layout: 'default',
-        port: 1025,
-        default_subject: 'SG Signals Message',
-        host: 'localhost',
-        type: 'EMAIL',
-        session_timeout: 120000,
+      body: {
+        _id: 'email/mymailserver',
+        found: true,
+        _version: 18,
+        _seq_no: 23,
+        _primary_term: 4,
+        _source: {
+          mime_layout: 'default',
+          port: 1025,
+          default_subject: 'SG Signals Message',
+          host: 'localhost',
+          type: 'EMAIL',
+          session_timeout: 120000,
+        },
       },
     };
 
-    const callAsCurrentUser = jest.fn().mockResolvedValue(mockResponse);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserTransportRequest = jest.fn().mockResolvedValue(mockResponse);
+    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
 
     const request = {
       params: { id: 'mymailserver', type: 'email' },
     };
 
-    const expectedEndpoint = 'sgSignals.getAccount';
-    const expectedClusterCallOptions = request.params;
+    const expectedPath = `/_signals/account/${request.params.type}/${request.params.id}`;
+    const expectedResponse = { ...mockResponse.body._source, _id: 'mymailserver' };
 
     await getAccount({ clusterClient, logger })(context, request, response);
 
-    const expectedResponse = { ...mockResponse._source, _id: 'mymailserver' };
-
     expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
-    expect(callAsCurrentUser).toHaveBeenCalledWith(expectedEndpoint, expectedClusterCallOptions);
+    expect(asCurrentUserTransportRequest).toHaveBeenCalledWith({
+      method: 'get',
+      path: expectedPath,
+    });
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
@@ -78,10 +79,8 @@ describe('routes/account/get', () => {
 
     const error = new Error('nasty!');
 
-    const callAsCurrentUser = jest.fn().mockRejectedValue(error);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserTransportRequest = jest.fn().mockRejectedValue(error);
+    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
 
     const request = {
       headers: {},
@@ -91,11 +90,6 @@ describe('routes/account/get', () => {
     await getAccount({ clusterClient, logger })(context, request, response);
 
     expect(logger.error).toHaveBeenCalledWith(`getAccount: ${error.stack}`);
-    expect(response.ok).toHaveBeenCalledWith({
-      body: {
-        ok: false,
-        resp: serverError(error),
-      },
-    });
+    expect(response.customError).toHaveBeenCalledWith(serverError(error));
   });
 });

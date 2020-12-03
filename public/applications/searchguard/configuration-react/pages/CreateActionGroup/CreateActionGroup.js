@@ -178,6 +178,7 @@ class CreateActionGroup extends Component {
                   isClearable: true,
                   onBlur: onComboBoxOnBlur,
                   onChange: onComboBoxChange(),
+                  onCreateOption: onComboBoxCreateOption(),
                 }}
               />
               <FormikSwitch
@@ -194,13 +195,19 @@ class CreateActionGroup extends Component {
                   formRow
                   rowProps={{
                     label: singlePermissionsText,
+                    isInvalid,
+                    error: hasError,
                   }}
                   elementProps={{
+                    isInvalid,
                     options: allSinglePermissions,
                     isClearable: true,
                     onBlur: onComboBoxOnBlur,
-                    onCreateOption: onComboBoxCreateOption(validSinglePermissionOption),
+                    onCreateOption: onComboBoxCreateOption(),
                     onChange: onComboBoxChange(),
+                  }}
+                  formikFieldProps={{
+                    validate: validSinglePermissionOption,
                   }}
                 />
               )}

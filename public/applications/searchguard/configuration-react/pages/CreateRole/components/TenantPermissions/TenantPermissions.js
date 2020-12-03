@@ -1,5 +1,20 @@
-/* eslint-disable @kbn/eslint/require-license-header */
-import React, { Fragment } from 'react';
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { FieldArray } from 'formik';
 import { isEmpty } from 'lodash';
@@ -15,6 +30,8 @@ import { TENANT_PERMISSION, GLOBAL_TENANT } from '../../utils/constants';
 import { tenantPermissionToUiTenantPermission } from '../../utils';
 import TenantPatterns from './TenantPatterns';
 
+import { Context } from '../../../../Context';
+
 const addTenantPermission = (arrayHelpers, isMultiTenancyEnabled) => {
   const permission = tenantPermissionToUiTenantPermission(TENANT_PERMISSION);
   if (!isMultiTenancyEnabled) {
@@ -23,12 +40,10 @@ const addTenantPermission = (arrayHelpers, isMultiTenancyEnabled) => {
   arrayHelpers.push(permission);
 };
 
-const TenantPermissions = ({
-  allTenants,
-  allAppActionGroups,
-  tenantPermissions,
-  isMultiTenancyEnabled,
-}) => {
+const TenantPermissions = ({ values, allTenants, allAppActionGroups }) => {
+  const { configService } = useContext(Context);
+  const isMultiTenancyEnabled = configService.multiTenancyEnabled();
+
   return (
     <Fragment>
       {!isMultiTenancyEnabled && (
@@ -48,7 +63,7 @@ const TenantPermissions = ({
             <AddButton onClick={() => addTenantPermission(arrayHelpers, isMultiTenancyEnabled)} />
             <EuiSpacer />
 
-            {isEmpty(tenantPermissions) ? (
+            {isEmpty(values._tenantPermissions) ? (
               <EmptyPrompt
                 titleText={tenantPermissionsText}
                 bodyText={emptyTenantPermissionsText}
@@ -61,7 +76,7 @@ const TenantPermissions = ({
               <TenantPatterns
                 isMultiTenancyEnabled={isMultiTenancyEnabled}
                 allTenants={allTenants}
-                tenantPermissions={tenantPermissions}
+                tenantPermissions={values._tenantPermissions}
                 allAppActionGroups={allAppActionGroups}
                 arrayHelpers={arrayHelpers}
               />
@@ -75,14 +90,15 @@ const TenantPermissions = ({
 };
 
 TenantPermissions.propTypes = {
+  values: PropTypes.shape({
+    _tenantPermissions: PropTypes.arrayOf(
+      PropTypes.shape({
+        tenant_patterns: PropTypes.array.isRequired,
+        allowed_actions: PropTypes.array.isRequired,
+      })
+    ).isRequired,
+  }).isRequired,
   allTenants: PropTypes.array.isRequired,
-  isMultiTenancyEnabled: PropTypes.bool.isRequired,
-  tenantPermissions: PropTypes.arrayOf(
-    PropTypes.shape({
-      tenant_patterns: PropTypes.array.isRequired,
-      allowed_actions: PropTypes.array.isRequired,
-    })
-  ).isRequired,
   allAppActionGroups: PropTypes.array.isRequired,
 };
 

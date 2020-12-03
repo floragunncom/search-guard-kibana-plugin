@@ -22,26 +22,25 @@ export function executeWatch({ clusterClient, logger }) {
   return async function (context, request, response) {
     try {
       const {
-        body: { watch, simulate, skipActions, showAllRuntimeAttributes },
+        body: { watch, simulate = false, skipActions = true, showAllRuntimeAttributes = true },
         headers: { sgtenant = NO_MULTITENANCY_TENANT },
       } = request;
 
-      const resp = await clusterClient
-        .asScoped(request)
-        .callAsCurrentUser('sgSignals.executeWatch', {
-          body: {
-            watch,
-            simulate,
-            skip_actions: skipActions,
-            show_all_runtime_attributes: showAllRuntimeAttributes,
-          },
-          sgtenant,
-        });
+      const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
+        method: 'post',
+        path: `/_signals/watch/${sgtenant}/_execute`,
+        body: {
+          watch,
+          simulate,
+          skip_actions: skipActions,
+          show_all_runtime_attributes: showAllRuntimeAttributes,
+        },
+      });
 
       return response.ok({ body: { ok: true, resp } });
     } catch (err) {
       logger.error(`executeWatch: ${err.stack}`);
-      return response.ok({ body: { ok: false, resp: serverError(err) } });
+      return response.customError(serverError(err));
     }
   };
 }

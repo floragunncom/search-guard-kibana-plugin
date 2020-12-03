@@ -30,30 +30,30 @@ describe('routes/es/get_indices', () => {
     const context = setupContextMock();
 
     const mockResponse = {
-      aggregations: {
-        indices: {
-          buckets: [
-            {
-              key: 'index_a',
-              doc_count: 65494,
-            },
-            {
-              key: 'index_b',
-              doc_count: 14005,
-            },
-            {
-              key: 'index_c',
-              doc_count: 13059,
-            },
-          ],
+      body: {
+        aggregations: {
+          indices: {
+            buckets: [
+              {
+                key: 'index_a',
+                doc_count: 65494,
+              },
+              {
+                key: 'index_b',
+                doc_count: 14005,
+              },
+              {
+                key: 'index_c',
+                doc_count: 13059,
+              },
+            ],
+          },
         },
       },
     };
 
-    const callAsCurrentUser = jest.fn().mockResolvedValue(mockResponse);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserSearch = jest.fn().mockResolvedValue(mockResponse);
+    const clusterClient = setupClusterClientMock({ asCurrentUserSearch });
 
     const request = {
       body: {
@@ -62,11 +62,9 @@ describe('routes/es/get_indices', () => {
       headers: {},
     };
 
-    const expectedEndpoint = 'search';
     const expectedClusterCallOptions = {
       ignoreUnavailable: true,
       index: request.body.index,
-      ignore: [404],
       body: {
         size: 0, // no hits
         aggs: {
@@ -101,7 +99,7 @@ describe('routes/es/get_indices', () => {
     ];
 
     expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
-    expect(callAsCurrentUser).toHaveBeenCalledWith(expectedEndpoint, expectedClusterCallOptions);
+    expect(asCurrentUserSearch).toHaveBeenCalledWith(expectedClusterCallOptions);
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
@@ -117,10 +115,8 @@ describe('routes/es/get_indices', () => {
 
     const error = new Error('nasty!');
 
-    const callAsCurrentUser = jest.fn().mockRejectedValue(error);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserSearch = jest.fn().mockRejectedValue(error);
+    const clusterClient = setupClusterClientMock({ asCurrentUserSearch });
 
     const request = {
       headers: {},
@@ -131,11 +127,6 @@ describe('routes/es/get_indices', () => {
     await getIndices({ clusterClient, logger })(context, request, response);
 
     expect(logger.error).toHaveBeenCalledWith(`getIndices: ${error.stack}`);
-    expect(response.ok).toHaveBeenCalledWith({
-      body: {
-        ok: false,
-        resp: serverError(error),
-      },
-    });
+    expect(response.customError).toHaveBeenCalledWith(serverError(error));
   });
 });

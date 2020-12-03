@@ -1,3 +1,19 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { cloneDeep } from 'lodash';
 import {
   tenantsToUiTenants,
@@ -8,7 +24,7 @@ import {
   dlsToUiDls,
   indexPermissionToUiIndexPermission,
   clusterPermissionsToUiClusterPermissions,
-  roleToFormik
+  roleToFormik,
 } from './role_to_formik';
 import { FLS_MODES } from './constants';
 
@@ -16,13 +32,10 @@ describe('role to UI role ', () => {
   test('can build UI tenants', () => {
     const resource = {
       a: {},
-      b: {}
+      b: {},
     };
 
-    const uiResource = [
-      { label: 'a' },
-      { label: 'b' }
-    ];
+    const uiResource = [{ label: 'a' }, { label: 'b' }];
 
     expect(tenantsToUiTenants(resource)).toEqual(uiResource);
   });
@@ -90,18 +103,12 @@ describe('role to UI role ', () => {
   test('can build UI tenant permission', () => {
     const resource = {
       tenant_patterns: ['b', 'a'],
-      allowed_actions: ['d', 'c']
+      allowed_actions: ['d', 'c'],
     };
 
     const uiResource = {
-      tenant_patterns: [
-        { label: 'a' },
-        { label: 'b' }
-      ],
-      allowed_actions: [
-        { label: 'c' },
-        { label: 'd' }
-      ]
+      tenant_patterns: [{ label: 'a' }, { label: 'b' }],
+      allowed_actions: [{ label: 'c' }, { label: 'd' }],
     };
 
     expect(tenantPermissionToUiTenantPermission(resource)).toEqual(uiResource);
@@ -112,10 +119,7 @@ describe('role to UI role ', () => {
 
     const uiResource = {
       flsmode: FLS_MODES.WHITELIST,
-      fls: [
-        { label: 'a' },
-        { label: 'b' }
-      ]
+      fls: [{ label: 'a' }, { label: 'b' }],
     };
 
     expect(flsmodeAndFlsToUiFlsmoddeAndFls(resource)).toEqual(uiResource);
@@ -126,10 +130,7 @@ describe('role to UI role ', () => {
 
     const uiResource = {
       flsmode: FLS_MODES.BLACKLIST,
-      fls: [
-        { label: 'a' },
-        { label: 'b' }
-      ]
+      fls: [{ label: 'a' }, { label: 'b' }],
     };
 
     expect(flsmodeAndFlsToUiFlsmoddeAndFls(resource)).toEqual(uiResource);
@@ -152,66 +153,31 @@ describe('role to UI role ', () => {
       index_patterns: ['b', 'a'],
       fls: ['d', 'c'],
       masked_fields: ['f', 'e'],
-      allowed_actions: [
-        'indices:a',
-        'kibana:a',
-        'cluster:a',
-        'B',
-        'A'
-      ]
+      allowed_actions: ['indices:a', 'kibana:a', 'cluster:a', 'B', 'A'],
     };
 
     const uiResource = {
       _isAdvanced: true,
       _dls: '',
       flsmode: FLS_MODES.WHITELIST,
-      index_patterns: [
-        { label: 'a' },
-        { label: 'b' }
-      ],
-      fls: [
-        { label: 'c' },
-        { label: 'd' }
-      ],
-      masked_fields: [
-        { label: 'e' },
-        { label: 'f' }
-      ],
+      index_patterns: [{ label: 'a' }, { label: 'b' }],
+      fls: [{ label: 'c' }, { label: 'd' }],
+      masked_fields: [{ label: 'e' }, { label: 'f' }],
       allowed_actions: {
-        actiongroups: [
-          { label: 'A' },
-          { label: 'B' }
-        ],
-        permissions: [
-          { label: 'cluster:a' },
-          { label: 'indices:a' },
-          { label: 'kibana:a' }
-        ]
-      }
+        actiongroups: [{ label: 'A' }, { label: 'B' }],
+        permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
+      },
     };
 
     expect(indexPermissionToUiIndexPermission(resource)).toEqual(uiResource);
   });
 
   test('can build UI cluster permissions', () => {
-    const resource = [
-      'indices:a',
-      'cluster:a',
-      'kibana:a',
-      'B',
-      'A'
-    ];
+    const resource = ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'];
 
     const uiResource = {
-      actiongroups: [
-        { label: 'A' },
-        { label: 'B' }
-      ],
-      permissions: [
-        { label: 'cluster:a' },
-        { label: 'indices:a' },
-        { label: 'kibana:a' }
-      ]
+      actiongroups: [{ label: 'A' }, { label: 'B' }],
+      permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
     };
 
     expect(clusterPermissionsToUiClusterPermissions(resource)).toEqual(uiResource);
@@ -222,50 +188,41 @@ describe('role to UI role ', () => {
       reserved: false,
       hidden: false,
       description: 'Migrated from v6 (all types mapped)',
-      exclude_cluster_permissions: ['eca', 'ecb'],
-      exclude_index_permissions: ['eia', 'eib'],
-      cluster_permissions: [
-        'indices:a',
-        'cluster:a',
-        'kibana:a',
-        'B',
-        'A'
+      exclude_cluster_permissions: ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'],
+      cluster_permissions: ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'],
+      exclude_index_permissions: [
+        {
+          index_patterns: ['b', 'a'],
+          actions: ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'],
+        },
+        {
+          index_patterns: ['g', 'h'],
+          actions: ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'],
+        },
       ],
       index_permissions: [
         {
           index_patterns: ['b', 'a'],
           fls: ['d', 'c'],
           masked_fields: ['f', 'e'],
-          allowed_actions: [
-            'indices:a',
-            'cluster:a',
-            'kibana:a',
-            'B',
-            'A'
-          ]
+          allowed_actions: ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'],
         },
         {
           index_patterns: ['g', 'h'],
           fls: ['~i', '~j'],
           masked_fields: ['l', 'k'],
-          allowed_actions: [
-            'indices:a',
-            'cluster:a',
-            'kibana:a',
-            'B',
-            'A'
-          ]
-        }
+          allowed_actions: ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'],
+        },
       ],
       tenant_permissions: [
         {
           tenant_patterns: ['b', 'a'],
-          allowed_actions: ['d', 'c']
+          allowed_actions: ['d', 'c'],
         },
         {
           tenant_patterns: ['f', 'e'],
-          allowed_actions: ['h', 'g']
-        }
+          allowed_actions: ['h', 'g'],
+        },
       ],
       static: false,
     };
@@ -274,102 +231,74 @@ describe('role to UI role ', () => {
       ...cloneDeep(resource),
       _name: 'A',
       _isClusterPermissionsAdvanced: true,
+      _isClusterExclusionsAdvanced: true,
       _roleMapping: {
         users: [],
         backend_roles: [],
-        hosts: []
+        hosts: [],
+      },
+      _excludeClusterPermissions: {
+        actiongroups: [{ label: 'A' }, { label: 'B' }],
+        permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
       },
       _clusterPermissions: {
-        actiongroups: [
-          { label: 'A' },
-          { label: 'B' }
-        ],
-        permissions: [
-          { label: 'cluster:a' },
-          { label: 'indices:a' },
-          { label: 'kibana:a' }
-        ]
+        actiongroups: [{ label: 'A' }, { label: 'B' }],
+        permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
       },
+      _excludeIndexPermissions: [
+        {
+          index_patterns: [{ label: 'a' }, { label: 'b' }],
+          actions: {
+            actiongroups: [{ label: 'A' }, { label: 'B' }],
+            permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
+          },
+          _isAdvanced: true,
+        },
+        {
+          index_patterns: [{ label: 'g' }, { label: 'h' }],
+          actions: {
+            actiongroups: [{ label: 'A' }, { label: 'B' }],
+            permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
+          },
+          _isAdvanced: true,
+        },
+      ],
       _indexPermissions: [
         {
-          index_patterns: [
-            { label: 'a' },
-            { label: 'b' }
-          ],
-          fls: [
-            { label: 'c' },
-            { label: 'd' }
-          ],
-          masked_fields: [
-            { label: 'e' },
-            { label: 'f' }
-          ],
+          index_patterns: [{ label: 'a' }, { label: 'b' }],
+          fls: [{ label: 'c' }, { label: 'd' }],
+          masked_fields: [{ label: 'e' }, { label: 'f' }],
           allowed_actions: {
-            actiongroups: [
-              { label: 'A' },
-              { label: 'B' }
-            ],
-            permissions: [
-              { label: 'cluster:a' },
-              { label: 'indices:a' },
-              { label: 'kibana:a' }
-            ]
+            actiongroups: [{ label: 'A' }, { label: 'B' }],
+            permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
           },
           flsmode: FLS_MODES.WHITELIST,
           _dls: '',
-          _isAdvanced: true
+          _isAdvanced: true,
         },
         {
-          index_patterns: [
-            { label: 'g' },
-            { label: 'h' }
-          ],
-          fls: [
-            { label: 'i' },
-            { label: 'j' }
-          ],
-          masked_fields: [
-            { label: 'k' },
-            { label: 'l' }
-          ],
+          index_patterns: [{ label: 'g' }, { label: 'h' }],
+          fls: [{ label: 'i' }, { label: 'j' }],
+          masked_fields: [{ label: 'k' }, { label: 'l' }],
           allowed_actions: {
-            actiongroups: [
-              { label: 'A' },
-              { label: 'B' }
-            ],
-            permissions: [
-              { label: 'cluster:a' },
-              { label: 'indices:a' },
-              { label: 'kibana:a' }
-            ]
+            actiongroups: [{ label: 'A' }, { label: 'B' }],
+            permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
           },
           flsmode: FLS_MODES.BLACKLIST,
           _dls: '',
-          _isAdvanced: true
-        }
+          _isAdvanced: true,
+        },
       ],
       _tenantPermissions: [
         {
-          tenant_patterns: [
-            { label: 'a' },
-            { label: 'b' }
-          ],
-          allowed_actions: [
-            { label: 'c' },
-            { label: 'd' }
-          ]
+          tenant_patterns: [{ label: 'a' }, { label: 'b' }],
+          allowed_actions: [{ label: 'c' }, { label: 'd' }],
         },
         {
-          tenant_patterns: [
-            { label: 'e' },
-            { label: 'f' }
-          ],
-          allowed_actions: [
-            { label: 'g' },
-            { label: 'h' }
-          ]
-        }
-      ]
+          tenant_patterns: [{ label: 'e' }, { label: 'f' }],
+          allowed_actions: [{ label: 'g' }, { label: 'h' }],
+        },
+      ],
     };
 
     expect(roleToFormik({ resource, id: 'A' })).toEqual(uiResource);

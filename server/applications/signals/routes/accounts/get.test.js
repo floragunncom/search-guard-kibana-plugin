@@ -29,46 +29,46 @@ describe('routes/accounts/get', () => {
     const response = setupHttpResponseMock();
     const context = setupContextMock();
 
-    const mockResponse = [
-      {
-        _id: 'email/mymailserver',
-        _index: '.signals_accounts',
-        _source: {
-          mime_layout: 'default',
-          port: 1025,
-          default_subject: 'SG Signals Message',
-          host: 'localhost',
-          type: 'EMAIL',
-          session_timeout: 120000,
+    const firstResponse = {
+      body: {
+        _scroll_id: 'FGluY2x1ZGVfY',
+        hits: {
+          hits: [
+            {
+              _id: 'email/mymailserver',
+              _index: '.signals_accounts',
+              _source: {
+                mime_layout: 'default',
+                port: 1025,
+                default_subject: 'SG Signals Message',
+                host: 'localhost',
+                type: 'EMAIL',
+                session_timeout: 120000,
+              },
+            },
+          ],
         },
       },
-    ];
+    };
+    const secondResponse = [...firstResponse.body.hits.hits];
 
-    const callAsCurrentUser = jest.fn().mockResolvedValue(mockResponse);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
-    const fetchAllFromScroll = jest.fn().mockResolvedValue(mockResponse);
+    const asCurrentUserTransportRequest = jest.fn().mockResolvedValueOnce(firstResponse);
+    const fetchAllFromScroll = jest.fn().mockResolvedValue(secondResponse);
+    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
 
     const request = {
       body: { query: { match_all: {} }, scroll: '30s' },
     };
 
-    const expectedEndpoint = 'sgSignals.getAccounts';
-    const expectedCallClusterOptions = {
-      body: { query: request.body.query },
-      scroll: request.body.scroll,
-    };
-
     await getAccounts({ clusterClient, fetchAllFromScroll, logger })(context, request, response);
 
+    const expectedPath = `/_signals/account/_search?scroll=${request.body.scroll}`;
     const expectedFetchAllFromScrollOptions = {
       clusterClient,
       scroll: request.body.scroll,
       request,
-      response: mockResponse,
+      response: firstResponse.body,
     };
-
     const expectedResponse = [
       {
         _id: 'mymailserver',
@@ -82,7 +82,11 @@ describe('routes/accounts/get', () => {
     ];
 
     expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
-    expect(callAsCurrentUser).toHaveBeenCalledWith(expectedEndpoint, expectedCallClusterOptions);
+    expect(asCurrentUserTransportRequest).toHaveBeenCalledWith({
+      method: 'post',
+      path: expectedPath,
+      body: { query: request.body.query },
+    });
     expect(fetchAllFromScroll).toHaveBeenCalledWith(expectedFetchAllFromScrollOptions);
     expect(response.ok).toHaveBeenCalledWith({
       body: {
@@ -99,11 +103,9 @@ describe('routes/accounts/get', () => {
 
     const error = new Error('nasty!');
 
-    const callAsCurrentUser = jest.fn().mockRejectedValue(error);
-    const clusterClient = setupClusterClientMock({
-      asScoped: jest.fn(() => ({ callAsCurrentUser })),
-    });
+    const asCurrentUserTransportRequest = jest.fn().mockRejectedValue(error);
     const fetchAllFromScroll = jest.fn();
+    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
 
     const request = {
       headers: {},
@@ -113,11 +115,6 @@ describe('routes/accounts/get', () => {
     await getAccounts({ clusterClient, fetchAllFromScroll, logger })(context, request, response);
 
     expect(logger.error).toHaveBeenCalledWith(`getAccounts: ${error.stack}`);
-    expect(response.ok).toHaveBeenCalledWith({
-      body: {
-        ok: false,
-        resp: serverError(error),
-      },
-    });
+    expect(response.customError).toHaveBeenCalledWith(serverError(error));
   });
 });

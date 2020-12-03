@@ -24,7 +24,7 @@ import {
   setupHttpResponseMock,
   setupHttpToolkitMock,
   setupAuthInstanceMock,
-} from '../../../lib/auth/mocks';
+} from '../../utils/mocks';
 
 import {
   multiTenancyLifecycleHandler,

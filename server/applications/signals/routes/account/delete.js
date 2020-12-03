@@ -22,17 +22,15 @@ export const deleteAccount = ({ clusterClient, logger }) => async (context, requ
   try {
     const { id, type } = request.params;
 
-    const resp = await clusterClient
-      .asScoped(request)
-      .callAsCurrentUser('sgSignals.deleteAccount', {
-        id,
-        type,
-      });
+    const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
+      method: 'delete',
+      path: `/_signals/account/${type}/${id}`,
+    });
 
     return response.ok({ body: { ok: true, resp } });
   } catch (err) {
     logger.error(`deleteAccount: ${err.stack}`);
-    return response.ok({ body: { ok: false, resp: serverError(err) } });
+    return response.customError(serverError(err));
   }
 };
 

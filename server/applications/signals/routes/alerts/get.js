@@ -54,9 +54,9 @@ export const getAlerts = ({ clusterClient, fetchAllFromScroll, logger }) => asyn
       options.body = { sort, query };
     }
 
-    const firstScrollResponse = await clusterClient
+    const { body: firstScrollResponse } = await clusterClient
       .asScoped(request)
-      .callAsCurrentUser('search', options);
+      .asCurrentUser.search(options);
 
     const hits = await fetchAllFromScroll({
       clusterClient,
@@ -73,7 +73,7 @@ export const getAlerts = ({ clusterClient, fetchAllFromScroll, logger }) => asyn
     });
   } catch (err) {
     logger.error(`getAlerts: ${err.stack}`);
-    return response.ok({ body: { ok: false, resp: serverError(err) } });
+    return response.customError(serverError(err));
   }
 };
 

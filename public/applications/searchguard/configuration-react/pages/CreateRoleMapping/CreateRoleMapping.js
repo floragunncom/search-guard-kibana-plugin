@@ -141,7 +141,7 @@ class CreateRoleMapping extends Component {
       location,
       onComboBoxOnBlur,
       onComboBoxChange,
-      onComboBoxCreateOption
+      onComboBoxCreateOption,
     } = this.props;
     const {
       resource,

@@ -22,14 +22,14 @@ export const getMappings = ({ clusterClient, logger }) => async (context, reques
   try {
     const { index } = request.body;
 
-    const resp = await clusterClient
+    const { body: resp } = await clusterClient
       .asScoped(request)
-      .callAsCurrentUser('indices.getMapping', { index });
+      .asCurrentUser.indices.getMapping({ index });
 
     return response.ok({ body: { ok: true, resp } });
   } catch (err) {
     logger.error(`getMappings: ${err.stack}`);
-    return response.ok({ body: { ok: false, resp: serverError(err) } });
+    return response.customError(serverError(err));
   }
 };
 

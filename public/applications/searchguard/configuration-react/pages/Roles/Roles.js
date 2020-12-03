@@ -1,10 +1,22 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {
-  EuiButton,
-  EuiInMemoryTable,
-  EuiEmptyPrompt
-} from '@elastic/eui';
+import { EuiButton, EuiInMemoryTable, EuiEmptyPrompt } from '@elastic/eui';
 import { get } from 'lodash';
 import {
   ContentPanel,
@@ -15,21 +27,20 @@ import {
   TableMultiDeleteButton,
   TableSwitchSystemItems,
   CreateButton,
-  CancelButton
+  CancelButton,
 } from '../../components';
 import { resourcesToUiResources, uiResourceToResource } from './utils';
 import { APP_PATH, ROLES_ACTIONS } from '../../utils/constants';
-import {
-  nameText,
-  systemItemsText
-} from '../../utils/i18n/common';
+import { nameText, systemItemsText } from '../../utils/i18n/common';
 import {
   rolesText,
   createRoleText,
   emptyRolesTableMessageText,
   clusterPermissionsText,
+  clusterExclusionsText,
   indexPatternsText,
-  tenantPatternsText
+  indexExclusionsText,
+  tenantPatternsText,
 } from '../../utils/i18n/roles';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
 import { LocalStorageService, RolesService } from '../../services';
@@ -48,7 +59,7 @@ class Roles extends Component {
       error: null,
       isLoading: true,
       tableSelection: [],
-      isShowingTableSystemItems
+      isShowingTableSystemItems,
     };
   }
 
@@ -69,16 +80,19 @@ class Roles extends Component {
     try {
       const { data } = await this.backendService.list();
       const resources = resourcesToUiResources(data);
-      const tableResources = filterReservedStaticTableResources(resources, this.state.isShowingTableSystemItems);
+      const tableResources = filterReservedStaticTableResources(
+        resources,
+        this.state.isShowingTableSystemItems
+      );
       this.setState({ resources, tableResources, error: null });
-    } catch(error) {
+    } catch (error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
-  }
+  };
 
-  handleDeleteResources = resourcesToDelete => {
+  handleDeleteResources = (resourcesToDelete) => {
     const { onTriggerConfirmDeletionModal } = this.props;
     onTriggerConfirmDeletionModal({
       body: resourcesToDelete.join(', '),
@@ -89,37 +103,37 @@ class Roles extends Component {
       onCancel: () => {
         this.setState({ tableSelection: [] });
         onTriggerConfirmDeletionModal(null);
-      }
+      },
     });
-  }
+  };
 
-  deleteResources = async resourceIds => {
+  deleteResources = async (resourceIds) => {
     try {
       this.setState({ isLoading: true });
       for (let i = 0; i < resourceIds.length; i++) {
         await this.backendService.delete(resourceIds[i]);
       }
-    } catch(error) {
+    } catch (error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
     this.fetchData();
-  }
+  };
 
-  cloneResource = async resource => {
+  cloneResource = async (resource) => {
     let { _id: name } = resource;
     name += '_copy';
     try {
       this.setState({ isLoading: true });
       await this.backendService.save(name, uiResourceToResource(resource));
-    } catch(error) {
+    } catch (error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
     this.fetchData();
-  }
+  };
 
   renderToolsLeft = () => {
     const tableSelection = this.state.tableSelection;
@@ -129,46 +143,37 @@ class Roles extends Component {
     }
 
     const handleMultiDelete = () => {
-      this.handleDeleteResources(tableSelection.map(item => item._id));
+      this.handleDeleteResources(tableSelection.map((item) => item._id));
       this.setState({ tableSelection: [] });
     };
 
     return (
-      <TableMultiDeleteButton
-        onClick={handleMultiDelete}
-        numOfSelections={tableSelection.length}
-      />
+      <TableMultiDeleteButton onClick={handleMultiDelete} numOfSelections={tableSelection.length} />
     );
-  }
+  };
 
-  renderEmptyTableMessage = history => (
+  renderEmptyTableMessage = (history) => (
     <EuiEmptyPrompt
       title={<h3>{rolesText}</h3>}
       titleSize="xs"
       body={emptyRolesTableMessageText}
-      actions={(
-        <EuiButton
-          onClick={() => history.push(APP_PATH.CREATE_ROLE)}
-        >
-          {createRoleText}
-        </EuiButton>
-      )}
+      actions={
+        <EuiButton onClick={() => history.push(APP_PATH.CREATE_ROLE)}>{createRoleText}</EuiButton>
+      }
     />
-  )
+  );
 
   render() {
     const { history } = this.props;
     const { isLoading, error, tableResources, isShowingTableSystemItems } = this.state;
-    const getResourceEditUri = name => `${APP_PATH.CREATE_ROLE}?id=${name}&action=${ROLES_ACTIONS.UPDATE_ROLE}`;
+    const getResourceEditUri = (name) =>
+      `${APP_PATH.CREATE_ROLE}?id=${name}&action=${ROLES_ACTIONS.UPDATE_ROLE}`;
 
     const actions = [
       {
         render: (resource) => (
-          <TableCloneAction
-            name={resource._id}
-            onClick={() => this.cloneResource(resource)}
-          />
-        )
+          <TableCloneAction name={resource._id} onClick={() => this.cloneResource(resource)} />
+        ),
       },
       {
         render: ({ _id, reserved }) => {
@@ -179,8 +184,8 @@ class Roles extends Component {
               onClick={() => this.handleDeleteResources([_id])}
             />
           );
-        }
-      }
+        },
+      },
     ];
 
     const columns = [
@@ -191,7 +196,7 @@ class Roles extends Component {
         align: 'left',
         sortable: true,
         mobileOptions: {
-          header: false
+          header: false,
         },
         render: (id, { reserved }) => (
           <TableNameCell
@@ -200,7 +205,7 @@ class Roles extends Component {
             name={id}
             isReserved={reserved}
           />
-        )
+        ),
       },
       {
         field: 'cluster_permissions',
@@ -208,11 +213,23 @@ class Roles extends Component {
         footer: clusterPermissionsText,
         align: 'left',
         mobileOptions: {
-          header: false
+          header: false,
         },
         render: (items, { _id }) => (
           <TableItemsListCell name={`ClusterPermissions-${_id}`} items={items} />
-        )
+        ),
+      },
+      {
+        field: 'exclude_cluster_permissions',
+        name: clusterExclusionsText,
+        footer: clusterExclusionsText,
+        align: 'left',
+        mobileOptions: {
+          header: false,
+        },
+        render: (items, { _id }) => (
+          <TableItemsListCell name={`ExcludeClusterPermissions-${_id}`} items={items} />
+        ),
       },
       {
         field: '_indexPatterns',
@@ -220,11 +237,23 @@ class Roles extends Component {
         footer: indexPatternsText,
         align: 'left',
         mobileOptions: {
-          header: false
+          header: false,
         },
         render: (items, { _id }) => (
           <TableItemsListCell name={`IndexPatterns-${_id}`} items={items} />
-        )
+        ),
+      },
+      {
+        field: '_excludeIndexPatterns',
+        name: indexExclusionsText,
+        footer: indexExclusionsText,
+        align: 'left',
+        mobileOptions: {
+          header: false,
+        },
+        render: (items, { _id }) => (
+          <TableItemsListCell name={`ExcludeIndexPatterns-${_id}`} items={items} />
+        ),
       },
       {
         field: '_tenantPatterns',
@@ -232,21 +261,21 @@ class Roles extends Component {
         footer: tenantPatternsText,
         align: 'left',
         mobileOptions: {
-          header: false
+          header: false,
         },
         render: (items, { _id }) => (
           <TableItemsListCell name={`TenantPatterns-${_id}`} items={items} />
-        )
+        ),
       },
       {
         align: 'right',
-        actions
-      }
+        actions,
+      },
     ];
 
     const selection = {
-      selectable: resource => resource._id && !resource.reserved,
-      onSelectionChange: tableSelection => this.setState({ tableSelection })
+      selectable: (resource) => resource._id && !resource.reserved,
+      onSelectionChange: (tableSelection) => this.setState({ tableSelection }),
     };
 
     const search = {
@@ -258,25 +287,28 @@ class Roles extends Component {
           onChange={() => {
             this.setState({
               isShowingTableSystemItems: !isShowingTableSystemItems,
-              tableResources: filterReservedStaticTableResources(this.state.resources, !isShowingTableSystemItems)
+              tableResources: filterReservedStaticTableResources(
+                this.state.resources,
+                !isShowingTableSystemItems
+              ),
             });
           }}
         />
       ),
       box: {
         incremental: true,
-      }
+      },
     };
 
     return (
       <ContentPanel
         title={rolesText}
         actions={[
-          (<CancelButton onClick={() => history.push(APP_PATH.HOME)} />),
-          (<CreateButton
+          <CancelButton onClick={() => history.push(APP_PATH.HOME)} />,
+          <CreateButton
             value={createRoleText}
             onClick={() => history.push(APP_PATH.CREATE_ROLE)}
-          />)
+          />,
         ]}
       >
         <EuiInMemoryTable
@@ -302,7 +334,7 @@ Roles.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
   onTriggerErrorCallout: PropTypes.func.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
 };
 
 export default Roles;

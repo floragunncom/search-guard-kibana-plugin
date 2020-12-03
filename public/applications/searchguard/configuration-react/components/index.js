@@ -39,4 +39,4 @@ export {
   TableSwitchSystemItems,
   EmptyPrompt,
   Callout
-} from '../../../../apps/components';
+} from '../../../components';

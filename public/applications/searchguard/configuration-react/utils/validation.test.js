@@ -1,45 +1,55 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {
   validateESDLSQuery,
   validatePassword,
   validateEmptyComboBox,
   validClusterSinglePermissionOption,
   validSinglePermissionOption,
-  validIndicesSinglePermissionOption
+  validIndicesSinglePermissionOption,
 } from './validation';
 import {
   jsonIsInvalidText,
   requiredText,
-  problemWithValidationTryAgainText
+  problemWithValidationTryAgainText,
+  indicesPermissionsPrefixErrorText,
+  clusterPermissionsPrefixErrorText,
+  permissionsPrefixErrorText,
 } from './i18n/common';
 import { dlsQuerySyntaxIsInvalidText } from './i18n/roles';
-import {
-  passwordsDontMatchText
-} from './i18n/internal_users';
+import { passwordsDontMatchText } from './i18n/internal_users';
 
 describe('validation', () => {
-
   describe('Internal User validation', () => {
     test('can validate password equals passwordConfirmation', () => {
       const password = '12345';
       const passwordConfirmation = '12345';
-      expect(
-        validatePassword(passwordConfirmation)(password)
-      ).toEqual(undefined);
+      expect(validatePassword(passwordConfirmation)(password)).toEqual(undefined);
     });
 
     test('fail to validate due to password != passwordConfirmation', () => {
       const password = '12345678';
       const passwordConfirmation = '12345';
-      expect(
-        validatePassword(passwordConfirmation)(password)
-      ).toEqual(passwordsDontMatchText);
+      expect(validatePassword(passwordConfirmation)(password)).toEqual(passwordsDontMatchText);
     });
 
     test('fail to validate due to password not set', () => {
       const password = '';
-      expect(
-        validatePassword(password)(password)
-      ).toEqual(requiredText);
+      expect(validatePassword(password)(password)).toEqual(requiredText);
     });
   });
 
@@ -53,9 +63,7 @@ describe('validation', () => {
         }
       }
 
-      await expect(
-        validateESDLSQuery(index, HttpClient)(query)
-      ).resolves.toEqual(undefined);
+      await expect(validateESDLSQuery(index, HttpClient)(query)).resolves.toEqual(undefined);
     });
 
     test('can validate empty DLS Query (no DLS is used)', async () => {
@@ -63,9 +71,7 @@ describe('validation', () => {
       const index = 'index';
       class HttpClient {}
 
-      await expect(
-        validateESDLSQuery(index, HttpClient)(query)
-      ).resolves.toEqual(undefined);
+      await expect(validateESDLSQuery(index, HttpClient)(query)).resolves.toEqual(undefined);
     });
 
     test('fail to validate DLS Query due to wrong syntax', async () => {
@@ -77,9 +83,9 @@ describe('validation', () => {
         }
       }
 
-      await expect(
-        validateESDLSQuery(index, HttpClient)(query)
-      ).resolves.toEqual(dlsQuerySyntaxIsInvalidText);
+      await expect(validateESDLSQuery(index, HttpClient)(query)).resolves.toEqual(
+        dlsQuerySyntaxIsInvalidText
+      );
     });
 
     test('fail to validate DLS Query due to wrong JSON', async () => {
@@ -87,9 +93,9 @@ describe('validation', () => {
       const index = 'index';
       class HttpClient {}
 
-      await expect(
-        validateESDLSQuery(index, HttpClient)(query)
-      ).resolves.toEqual(jsonIsInvalidText);
+      await expect(validateESDLSQuery(index, HttpClient)(query)).resolves.toEqual(
+        jsonIsInvalidText
+      );
     });
 
     test('fail to validate due to the failed async call', async () => {
@@ -101,9 +107,9 @@ describe('validation', () => {
         }
       }
 
-      await expect(
-        validateESDLSQuery(index, HttpClient)(query)
-      ).resolves.toEqual(problemWithValidationTryAgainText);
+      await expect(validateESDLSQuery(index, HttpClient)(query)).resolves.toEqual(
+        problemWithValidationTryAgainText
+      );
     });
   });
 
@@ -119,36 +125,52 @@ describe('validation', () => {
 
   describe('validate single permissions', () => {
     test('can validate cluster and indices permission', () => {
-      expect(validClusterSinglePermissionOption('cluster:*')).toEqual(true);
-      expect(validClusterSinglePermissionOption('cluster:a')).toEqual(true);
-      expect(validClusterSinglePermissionOption('cluster:a/b/c')).toEqual(true);
-      expect(validIndicesSinglePermissionOption('indices:*')).toEqual(true);
-      expect(validIndicesSinglePermissionOption('indices:a')).toEqual(true);
-      expect(validIndicesSinglePermissionOption('indices:a/b/c')).toEqual(true);
+      expect(validClusterSinglePermissionOption([{ label: 'cluster:*' }])).toEqual(null);
+      expect(validClusterSinglePermissionOption([{ label: 'cluster:a' }])).toEqual(null);
+      expect(validClusterSinglePermissionOption([{ label: 'cluster:a/b/c' }])).toEqual(null);
+      expect(validIndicesSinglePermissionOption([{ label: 'indices:*' }])).toEqual(null);
+      expect(validIndicesSinglePermissionOption([{ label: 'indices:a' }])).toEqual(null);
+      expect(validIndicesSinglePermissionOption([{ label: 'indices:a/b/c' }])).toEqual(null);
     });
 
-    test('fail to validate cluster permission', () => {
-      expect(validClusterSinglePermissionOption('cluster:')).toEqual(false);
-      expect(validClusterSinglePermissionOption('cat')).toEqual(false);
-      expect(validClusterSinglePermissionOption('indices:a/b/c')).toEqual(false);
-      expect(validIndicesSinglePermissionOption('indices:')).toEqual(false);
-      expect(validIndicesSinglePermissionOption('cat')).toEqual(false);
-      expect(validIndicesSinglePermissionOption('cluster:a/b/c')).toEqual(false);
+    test('fail to validate cluster and indices permissions', () => {
+      expect(validClusterSinglePermissionOption([{ label: 'cluster:' }])).toEqual(
+        clusterPermissionsPrefixErrorText
+      );
+      expect(validClusterSinglePermissionOption([{ label: 'cat' }])).toEqual(
+        clusterPermissionsPrefixErrorText
+      );
+      expect(validClusterSinglePermissionOption([{ label: 'indices:a/b/c' }])).toEqual(
+        clusterPermissionsPrefixErrorText
+      );
+      expect(validIndicesSinglePermissionOption([{ label: 'indices:' }])).toEqual(
+        indicesPermissionsPrefixErrorText
+      );
+      expect(validIndicesSinglePermissionOption([{ label: 'cat' }])).toEqual(
+        indicesPermissionsPrefixErrorText
+      );
+      expect(validIndicesSinglePermissionOption([{ label: 'cluster:a/b/c' }])).toEqual(
+        indicesPermissionsPrefixErrorText
+      );
     });
 
     test('can validate single permission', () => {
-      expect(validSinglePermissionOption('cluster:*')).toEqual(true);
-      expect(validSinglePermissionOption('cluster:a')).toEqual(true);
-      expect(validSinglePermissionOption('cluster:a/b/c')).toEqual(true);
-      expect(validSinglePermissionOption('indices:*')).toEqual(true);
-      expect(validSinglePermissionOption('indices:a')).toEqual(true);
-      expect(validSinglePermissionOption('indices:a/b/c')).toEqual(true);
+      expect(validSinglePermissionOption([{ label: 'cluster:*' }])).toEqual(null);
+      expect(validSinglePermissionOption([{ label: 'cluster:a' }])).toEqual(null);
+      expect(validSinglePermissionOption([{ label: 'cluster:a/b/c' }])).toEqual(null);
+      expect(validSinglePermissionOption([{ label: 'indices:*' }])).toEqual(null);
+      expect(validSinglePermissionOption([{ label: 'indices:a' }])).toEqual(null);
+      expect(validSinglePermissionOption([{ label: 'indices:a/b/c' }])).toEqual(null);
     });
 
     test('fail to validate single permission', () => {
-      expect(validSinglePermissionOption('cluster:')).toEqual(false);
-      expect(validSinglePermissionOption('indices:')).toEqual(false);
-      expect(validSinglePermissionOption('cat')).toEqual(false);
+      expect(validSinglePermissionOption([{ label: 'cluster:' }])).toEqual(
+        permissionsPrefixErrorText
+      );
+      expect(validSinglePermissionOption([{ label: 'indices:' }])).toEqual(
+        permissionsPrefixErrorText
+      );
+      expect(validSinglePermissionOption([{ label: 'cat' }])).toEqual(permissionsPrefixErrorText);
     });
   });
 });

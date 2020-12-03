@@ -1,4 +1,19 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { cloneDeep, map, defaultsDeep, isEmpty, sortBy } from 'lodash';
 import { FLS_MODES, ROLE, ROLE_MAPPING } from './constants';
 import {
@@ -64,7 +79,7 @@ export function actionGroupsToUiClusterIndexTenantActionGroups(actionGroups = {}
   };
 }
 
-export const indicesToUiIndices = indices => {
+export const indicesToUiIndices = (indices) => {
   const colors = {
     red: 'danger',
     green: 'primary',
@@ -80,15 +95,15 @@ export const indicesToUiIndices = indices => {
   );
 };
 
-export const tenantPermissionToUiTenantPermission = tenantPermission => {
+export const tenantPermissionToUiTenantPermission = (tenantPermission) => {
   const {
     tenant_patterns: tenantPatterns = [],
-    allowed_actions: allowedActions = []
+    allowed_actions: allowedActions = [],
   } = tenantPermission;
 
   return {
     allowed_actions: arrayToComboBoxOptions(allowedActions),
-    tenant_patterns: arrayToComboBoxOptions(tenantPatterns)
+    tenant_patterns: arrayToComboBoxOptions(tenantPatterns),
   };
 };
 
@@ -99,7 +114,7 @@ export const flsmodeAndFlsToUiFlsmoddeAndFls = (fls = []) => {
 
   if (isFlsBlacklist) {
     flsmode = FLS_MODES.BLACKLIST;
-    _fls = arrayToComboBoxOptions(map(fls, field => field.slice(1)));
+    _fls = arrayToComboBoxOptions(map(fls, (field) => field.slice(1)));
   } else {
     _fls = arrayToComboBoxOptions(fls);
   }
@@ -107,7 +122,7 @@ export const flsmodeAndFlsToUiFlsmoddeAndFls = (fls = []) => {
   return { flsmode, fls: _fls };
 };
 
-export const dlsToUiDls = dlsQuery => {
+export const dlsToUiDls = (dlsQuery) => {
   let _dlsQuery = '';
   if (!isEmpty(dlsQuery)) {
     try {
@@ -119,11 +134,30 @@ export const dlsToUiDls = dlsQuery => {
   return _dlsQuery;
 };
 
-export const indexPermissionToUiIndexPermission = indexPermission =>  {
-  const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(indexPermission.allowed_actions);
+export const excludeIndexPermissionToUiExcludeIndexPermission = (excludeIndexPermission) => {
+  const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(
+    excludeIndexPermission.actions
+  );
+  const actions = {
+    actiongroups: arrayToComboBoxOptions(actiongroups),
+    permissions: arrayToComboBoxOptions(permissions),
+  };
+  const indexPatterns = arrayToComboBoxOptions(excludeIndexPermission.index_patterns);
+
+  return {
+    actions,
+    index_patterns: indexPatterns,
+    _isAdvanced: !isEmpty(actions.permissions),
+  };
+};
+
+export const indexPermissionToUiIndexPermission = (indexPermission) => {
+  const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(
+    indexPermission.allowed_actions
+  );
   const allowedActions = {
     actiongroups: arrayToComboBoxOptions(actiongroups),
-    permissions: arrayToComboBoxOptions(permissions)
+    permissions: arrayToComboBoxOptions(permissions),
   };
   const indexPatterns = arrayToComboBoxOptions(indexPermission.index_patterns);
 
@@ -138,11 +172,13 @@ export const indexPermissionToUiIndexPermission = indexPermission =>  {
   };
 };
 
-export const clusterPermissionsToUiClusterPermissions = clusterPermissions => {
-  const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(clusterPermissions);
+export const clusterPermissionsToUiClusterPermissions = (clusterPermissions) => {
+  const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(
+    clusterPermissions
+  );
   return {
     actiongroups: arrayToComboBoxOptions(actiongroups),
-    permissions: arrayToComboBoxOptions(permissions)
+    permissions: arrayToComboBoxOptions(permissions),
   };
 };
 
@@ -150,7 +186,14 @@ export const roleToFormik = ({ resource, roleMapping = {}, id = '' }) => {
   const formik = defaultsDeep(cloneDeep(resource), ROLE);
   const _roleMapping = defaultsDeep(cloneDeep(roleMapping), ROLE_MAPPING);
   const _clusterPermissions = clusterPermissionsToUiClusterPermissions(formik.cluster_permissions);
+  const _excludeClusterPermissions = clusterPermissionsToUiClusterPermissions(
+    formik.exclude_cluster_permissions
+  );
   const _indexPermissions = map(formik.index_permissions, indexPermissionToUiIndexPermission);
+  const _excludeIndexPermissions = map(
+    formik.exclude_index_permissions,
+    excludeIndexPermissionToUiExcludeIndexPermission
+  );
   const _tenantPermissions = map(formik.tenant_permissions, tenantPermissionToUiTenantPermission);
 
   return {
@@ -158,8 +201,11 @@ export const roleToFormik = ({ resource, roleMapping = {}, id = '' }) => {
     _name: id,
     _roleMapping,
     _clusterPermissions,
+    _excludeClusterPermissions,
     _indexPermissions,
+    _excludeIndexPermissions,
     _tenantPermissions,
-    _isClusterPermissionsAdvanced: !isEmpty(_clusterPermissions.permissions)
+    _isClusterPermissionsAdvanced: !isEmpty(_clusterPermissions.permissions),
+    _isClusterExclusionsAdvanced: !isEmpty(_excludeClusterPermissions.permissions),
   };
 };

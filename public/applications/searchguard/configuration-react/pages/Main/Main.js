@@ -139,12 +139,23 @@ class Main extends Component {
     this.setState({ callout });
   };
 
-  handleTriggerErrorCallout = error => {
-    console.error(error);
-    error = error.data || error.body || error;
+  handleTriggerErrorCallout = (error) => {
+    console.error('handleTriggerCallout', error);
+
+    let payload = error.message;
+    const detail = get(error, 'body.attributes.body');
+
+    try {
+      if (detail) {
+        payload = `${payload}: ${JSON.stringify(detail, null, 2)}`;
+      }
+    } catch (e) {
+      console.error('handleTriggerCallout', 'Error details cannot be parsed', error);
+    }
+
     this.handleTriggerCallout({
       type: CALLOUTS.ERROR_CALLOUT,
-      payload: get(error, 'message', error),
+      payload,
     });
   };
 
@@ -255,18 +266,7 @@ class Main extends Component {
                 <Switch>
                   <Route
                     path={APP_PATH.CREATE_INTERNAL_USER}
-                    render={props => (
-                      <CreateInternalUser
-                        httpClient={httpClient}
-                        onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
-                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                        onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
-                        onComboBoxChange={this.handleComboBoxChange}
-                        onComboBoxOnBlur={this.handleComboBoxOnBlur}
-                        onComboBoxCreateOption={this.handleComboBoxCreateOption}
-                        {...props}
-                      />
-                    )}
+                    render={(props) => <CreateInternalUser {...props} />}
                   />
                   <Route
                     path={APP_PATH.INTERNAL_USERS}
@@ -357,15 +357,9 @@ class Main extends Component {
                   />
                   <Route
                     path={APP_PATH.CREATE_ROLE}
-                    render={props => (
+                    render={(props) => (
                       <CreateRole
-                        httpClient={httpClient}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                        onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
-                        onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
-                        onComboBoxChange={this.handleComboBoxChange}
-                        onComboBoxOnBlur={this.handleComboBoxOnBlur}
-                        onComboBoxCreateOption={this.handleComboBoxCreateOption}
                         {...props}
                       />
                     )}

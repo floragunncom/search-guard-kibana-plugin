@@ -1,7 +1,7 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { BehaviorSubject } from 'rxjs';
 import { AppNavLinkStatus } from '../../../../../src/core/public';
-import { SearchGuardService } from '../../apps/signals/services';
+import { SearchGuardService } from './services';
 import { SEARCHGUARD_APP_CATEGORY } from '../../utils/constants';
 
 export class Signals {

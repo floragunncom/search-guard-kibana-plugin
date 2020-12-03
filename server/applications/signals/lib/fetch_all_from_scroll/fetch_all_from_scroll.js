@@ -23,9 +23,9 @@ export const fetchAllFromScroll = async ({ clusterClient, scroll, request, respo
 
   if (hits.length) {
     while (true) {
-      const promisedResp = await clusterClient.asScoped(request).callAsCurrentUser('scroll', {
-        body: { scroll, scroll_id: scrollId },
-      });
+      const { body: promisedResp } = await clusterClient
+        .asScoped(request)
+        .asCurrentUser.scroll({ body: { scroll, scroll_id: scrollId } });
 
       hits = get(promisedResp, 'hits.hits', []);
       if (!hits.length) {
