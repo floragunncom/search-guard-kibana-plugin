@@ -15,7 +15,13 @@
  */
 
 import { cloneDeep, map, defaultsDeep, isEmpty, sortBy } from 'lodash';
-import { FLS_MODES, ROLE, ROLE_MAPPING } from './constants';
+import {
+  FLS_MODES,
+  ROLE,
+  ROLE_MAPPING,
+  MASKED_FIELD_TYPE,
+  MASKED_FIELDS_DEFAULTS,
+} from './constants';
 import {
   allowedActionsToPermissionsAndActiongroups,
   arrayToComboBoxOptions,
@@ -151,6 +157,40 @@ export const excludeIndexPermissionToUiExcludeIndexPermission = (excludeIndexPer
   };
 };
 
+// The masked fields are grouped by their mask value: hash or regex.
+export function maskedFieldsToUiMaskedFields(maskedFields) {
+  if (maskedFields.length === 0) {
+    return [cloneDeep(MASKED_FIELDS_DEFAULTS)];
+  }
+
+  const uiMaskedFields = [];
+  const values = {};
+  const types = new Map();
+
+  for (const rawField of maskedFields) {
+    const [fieldName, ...rawValue] = rawField.split('::');
+    const maskType = rawValue.length > 1 ? MASKED_FIELD_TYPE.REGEX : MASKED_FIELD_TYPE.HASH;
+    const maskValue = rawValue.join('::');
+
+    if (!values[maskValue]) {
+      values[maskValue] = [];
+    }
+
+    types.set(maskValue, maskType);
+    values[maskValue].push({ label: fieldName });
+  }
+
+  for (const maskValue of Object.keys(values)) {
+    uiMaskedFields.push({
+      value: maskValue,
+      fields: values[maskValue],
+      mask_type: types.get(maskValue),
+    });
+  }
+
+  return sortBy(uiMaskedFields, 'value');
+}
+
 export const indexPermissionToUiIndexPermission = (indexPermission) => {
   const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(
     indexPermission.allowed_actions
@@ -167,8 +207,10 @@ export const indexPermissionToUiIndexPermission = (indexPermission) => {
     _dls: dlsToUiDls(indexPermission.dls),
     allowed_actions: allowedActions,
     index_patterns: indexPatterns,
-    masked_fields: arrayToComboBoxOptions(indexPermission.masked_fields),
+    masked_fields: maskedFieldsToUiMaskedFields(indexPermission.masked_fields),
+    masked_fields_advanced: arrayToComboBoxOptions(indexPermission.masked_fields),
     _isAdvanced: !isEmpty(allowedActions.permissions),
+    _isAdvancedFLSMaskedFields: false,
   };
 };
 

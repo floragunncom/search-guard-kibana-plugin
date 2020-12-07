@@ -57,10 +57,16 @@ export function useIndexPatterns() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { isLoading, indexOptions, onSearchChange };
+  return {
+    isLoading,
+    setIsLoading,
+    indexOptions,
+    onSearchChange,
+  };
 }
 
-export const indexPatternNames = (indexPatterns = []) => comboBoxOptionsToArray(indexPatterns).join(', ');
+export const indexPatternNames = (indexPatterns = []) =>
+  comboBoxOptionsToArray(indexPatterns).join(', ');
 
 export function renderIndexOption({ color, label }, searchValue, contentClassName) {
   return (

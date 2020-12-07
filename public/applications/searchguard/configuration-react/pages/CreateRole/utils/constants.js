@@ -63,3 +63,19 @@ export const TABS = {
 };
 
 export const GLOBAL_TENANT = 'SGS_GLOBAL_TENANT';
+
+export const MASKED_FIELD_TYPE = {
+  HASH: 'hash',
+  REGEX: 'regex',
+};
+
+export const MASKED_FIELD_TYPE_OPTIONS = [
+  { value: MASKED_FIELD_TYPE.HASH, text: MASKED_FIELD_TYPE.HASH },
+  { value: MASKED_FIELD_TYPE.REGEX, text: MASKED_FIELD_TYPE.REGEX },
+];
+
+export const MASKED_FIELDS_DEFAULTS = {
+  value: '',
+  fields: [],
+  mask_type: MASKED_FIELD_TYPE.HASH,
+};

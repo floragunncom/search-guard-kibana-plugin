@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-import React, { Fragment, useContext } from 'react';
+import React, { Fragment, useContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { FieldArray } from 'formik';
-import { isEmpty } from 'lodash';
+import { isEmpty, isEqual } from 'lodash';
 import { INDEX_PERMISSION } from '../../utils/constants';
-import { EuiAccordion, EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiCallOut } from '@elastic/eui';
+import { EuiAccordion, EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
 import { advancedText, addText } from '../../../../utils/i18n/common';
 import {
   emptyIndexPermissionsText,
   indexPermissionsText,
   indexPatternsText,
-  fieldLevelSecurityDisabledText,
-  documentLevelSecurityDisabledText,
 } from '../../../../utils/i18n/roles';
 import { actionGroupsText, singlePermissionsText } from '../../../../utils/i18n/action_groups';
 import {
@@ -50,28 +48,52 @@ import {
   useIndexPatterns,
   indexPatternNames,
   renderIndexOption,
+  fieldNamesToUiFieldNames,
+  mappingsToFieldNames,
 } from '../../utils';
+import { comboBoxOptionsToArray } from '../../../../utils/helpers';
+import { ElasticsearchService } from '../../../../services';
 
 import { Context } from '../../../../Context';
 
-function Permission({
-  index,
-  values,
-  allActionGroups,
-  allSinglePermissions,
-  isDlsEnabled,
-  isFlsEnabled,
-  isAnonymizedFieldsEnabled,
-}) {
+function Permission({ index, values, allActionGroups, allSinglePermissions }) {
   const {
     httpClient,
+    addErrorToast,
     onSwitchChange,
     onComboBoxChange,
     onComboBoxOnBlur,
     onComboBoxCreateOption,
   } = useContext(Context);
+  const { isLoading, setIsLoading, indexOptions, onSearchChange } = useIndexPatterns(values);
+  const [prevIndexPatterns, setPrevIndexPatterns] = useState([]);
+  const [allIndexPatternsFields, setAllIndexPatternsFields] = useState([]);
+  const esService = new ElasticsearchService(httpClient);
 
-  const { isLoading, indexOptions, onSearchChange } = useIndexPatterns();
+  async function fetchIndexPatternsFields({ indexPatterns = [] } = {}) {
+    if (!indexPatterns.length) return;
+    if (isEqual(indexPatterns, prevIndexPatterns)) return;
+
+    setPrevIndexPatterns(indexPatterns);
+    setIsLoading(true);
+
+    try {
+      const { data: { mappings = {} } = {} } = await esService.getIndexMappings(
+        comboBoxOptionsToArray(indexPatterns)
+      );
+
+      setAllIndexPatternsFields(fieldNamesToUiFieldNames(mappingsToFieldNames(mappings)));
+    } catch (error) {
+      addErrorToast(error);
+    }
+
+    setIsLoading(false);
+  }
+
+  useEffect(() => {
+    fetchIndexPatternsFields({ indexPatterns: values._indexPermissions[index].index_patterns });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -90,7 +112,10 @@ function Permission({
           options: indexOptions,
           renderOption: renderIndexOption,
           onBlur: onComboBoxOnBlur,
-          onChange: onComboBoxChange(),
+          onChange: (options, field, form) => {
+            fetchIndexPatternsFields({ indexPatterns: options });
+            onComboBoxChange()(options, field, form);
+          },
           onCreateOption: onComboBoxCreateOption(),
         }}
       />
@@ -137,51 +162,17 @@ function Permission({
           }}
         />
       )}
-      {!isFlsEnabled ? (
-        <Fragment>
-          <EuiSpacer />
-          <EuiCallOut
-            data-test-subj="sgFLSDisabledCallout"
-            className="sgFixedFormItem"
-            iconType="iInCircle"
-            title={fieldLevelSecurityDisabledText}
-          />
-        </Fragment>
-      ) : (
-        <Fragment>
-          <EuiSpacer />
-          <FieldLevelSecurity index={index} isAnonymizedFieldsEnabled={isAnonymizedFieldsEnabled} />
-        </Fragment>
-      )}
-      {!isDlsEnabled ? (
-        <Fragment>
-          <EuiSpacer />
-          <EuiCallOut
-            data-test-subj="sgDLSDisabledCallout"
-            className="sgFixedFormItem"
-            iconType="iInCircle"
-            title={documentLevelSecurityDisabledText}
-          />
-        </Fragment>
-      ) : (
-        <>
-          <EuiSpacer />
-          <DocumentLevelSecurity httpClient={httpClient} index={index} />
-        </>
-      )}
+      <FieldLevelSecurity
+        index={index}
+        isLoading={isLoading}
+        allIndexPatternsFields={allIndexPatternsFields}
+      />
+      <DocumentLevelSecurity index={index} />
     </>
   );
 }
 
-function Permissions({
-  values,
-  arrayHelpers,
-  allActionGroups,
-  allSinglePermissions,
-  isDlsEnabled,
-  isFlsEnabled,
-  isAnonymizedFieldsEnabled,
-}) {
+function Permissions({ values, arrayHelpers, allActionGroups, allSinglePermissions }) {
   const { triggerConfirmDeletionModal } = useContext(Context);
 
   return values._indexPermissions.map((indexPermission, index) => (
@@ -219,9 +210,6 @@ function Permissions({
             values={values}
             allActionGroups={allActionGroups}
             allSinglePermissions={allSinglePermissions}
-            isDlsEnabled={isDlsEnabled}
-            isFlsEnabled={isFlsEnabled}
-            isAnonymizedFieldsEnabled={isAnonymizedFieldsEnabled}
           />
 
           <EuiSpacer />
@@ -232,12 +220,6 @@ function Permissions({
 }
 
 const IndexPermissions = ({ values, allActionGroups, allSinglePermissions }) => {
-  const { configService } = useContext(Context);
-
-  const isDlsEnabled = configService.dlsFlsEnabled();
-  const isFlsEnabled = isDlsEnabled;
-  const isAnonymizedFieldsEnabled = configService.complianceFeaturesEnabled();
-
   const addIndexPermission = (arrayHelpers) => {
     arrayHelpers.push(indexPermissionToUiIndexPermission(INDEX_PERMISSION));
   };
@@ -264,9 +246,6 @@ const IndexPermissions = ({ values, allActionGroups, allSinglePermissions }) => 
               allActionGroups={allActionGroups}
               allSinglePermissions={allSinglePermissions}
               arrayHelpers={arrayHelpers}
-              isDlsEnabled={isDlsEnabled}
-              isFlsEnabled={isFlsEnabled}
-              isAnonymizedFieldsEnabled={isAnonymizedFieldsEnabled}
             />
           )}
         </Fragment>

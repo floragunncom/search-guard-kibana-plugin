@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import fieldNamesToUiFieldNames from './field_names_to_ui_field_names';
-import { arrayToComboBoxOptions } from '../../../../../../utils/helpers';
+import { fieldNamesToUiFieldNames } from './field_names_to_ui_field_names';
+import { arrayToComboBoxOptions } from '../../../utils/helpers';
 
 describe('field names to UI field names', () => {
   test(`can build UI field names`, () => {

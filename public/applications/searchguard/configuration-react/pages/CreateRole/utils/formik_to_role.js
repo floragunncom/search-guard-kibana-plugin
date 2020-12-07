@@ -40,6 +40,18 @@ export const uiExcludeIndexPermissionsToExcludeIndexPermissions = (excludeIndexP
   });
 };
 
+function uiMaskedFieldsToMaskedFields(uiMaskedFields) {
+  const maskedFields = [];
+
+  for (const fieldGroup of uiMaskedFields) {
+    for (const field of fieldGroup.fields) {
+      maskedFields.push(fieldGroup.value ? `${field.label}::${fieldGroup.value}` : field.label);
+    }
+  }
+
+  return maskedFields;
+}
+
 export const uiIndexPermissionsToIndexPermissions = (indexPermissions) => {
   return map(indexPermissions, (values) => {
     const { actiongroups, permissions } = values.allowed_actions;
@@ -50,12 +62,24 @@ export const uiIndexPermissionsToIndexPermissions = (indexPermissions) => {
     const indexPatterns = comboBoxOptionsToArray(values.index_patterns);
 
     const result = {
-      ...omit(values, '_isAdvanced', '_dls', 'flsmode'),
+      ...omit(
+        values,
+        '_isAdvanced',
+        '_isAdvancedFLSMaskedFields',
+        '_dls',
+        'flsmode',
+        'masked_fields_advanced'
+      ),
       allowed_actions: allowedActions,
       index_patterns: indexPatterns,
       fls: uiFlsToFls(values.fls, values.flsmode),
-      masked_fields: comboBoxOptionsToArray(values.masked_fields),
     };
+
+    if (values._isAdvancedFLSMaskedFields) {
+      result.masked_fields = comboBoxOptionsToArray(values.masked_fields_advanced);
+    } else {
+      result.masked_fields = uiMaskedFieldsToMaskedFields(values.masked_fields);
+    }
 
     if (!isEmpty(values._dls)) {
       result.dls = JSON.stringify(JSON.parse(values._dls));

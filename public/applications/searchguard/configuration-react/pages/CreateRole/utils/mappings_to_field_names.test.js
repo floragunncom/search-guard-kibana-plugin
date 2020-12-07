@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import mappingsToFieldNames from './mappings_to_field_names';
+import { mappingsToFieldNames } from './mappings_to_field_names';
 
 describe('Elasticsearch mappings to field names', () => {
   test(`can build field names aggregated by type`, () => {

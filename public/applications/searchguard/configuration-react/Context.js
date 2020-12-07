@@ -61,6 +61,10 @@ const ContextProvider = ({ children, httpClient, core, configService }) => {
     triggerModal(modal);
   };
 
+  const onSelectChange = (e, field) => {
+    field.onChange(e);
+  };
+
   const onSwitchChange = (e, field, form) => {
     // We trigger the switch by inverting the input bool value.
     // Formik passes 'true' or 'false'. But EuiSwitch requires it to be boolean not string, we deal with it here.
@@ -202,6 +206,7 @@ const ContextProvider = ({ children, httpClient, core, configService }) => {
           editorOptions,
           httpClient,
           configService,
+          onSelectChange,
           onSwitchChange,
           onComboBoxChange,
           onComboBoxCreateOption,

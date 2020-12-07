@@ -40,10 +40,16 @@ export const usersText = (<EuiI18n token="sg.roles.users.text" default="Users" /
 export const hostsText = (<EuiI18n token="sg.roles.hosts.text" default="Hosts" />);
 export const includeOrExcludeFieldsText = (<EuiI18n token="sg.roles.includeOrExcludeFields.text" default="Include or exclude fields" />);
 export const fieldLevelSecurityText = (<EuiI18n token="sg.roles.fieldLevelSecurity.text" default="Field Level Security" />);
-export const anonymizeFieldsText = (
+export const anonymizeText = <EuiI18n token="sg.roles.anonymize.text" default="Anonymize" />;
+export const maskTypeText = <EuiI18n token="sg.roles.maskType.text" default="Mask Type" />;
+export const regularExpressionText = (
+  <EuiI18n token="sg.roles.regularExpression.text" default="Regular Expression" />
+);
+export const hashText = <EuiI18n token="sg.roles.hash.text" default="Hash" />;
+export const anonymizeHelpText = (
   <EuiI18n
     token="sg.roles.anonimizeFields.text"
-    default="Anonimize fields. You can replace the fields with anonymized hashes"
+    default="You can anonymize the fields with hash or regular expression."
   />
 );
 export const elasticsearhQueryDLSText = (<EuiI18n token="sg.roles.elasticsearhQueryDLS.text" default="Elasticsearh query DLS" />);

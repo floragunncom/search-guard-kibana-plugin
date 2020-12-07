@@ -22,6 +22,11 @@ export {
   actionGroupsToUiClusterIndexTenantActionGroups,
   tenantsToUiTenants,
   excludeIndexPermissionToUiExcludeIndexPermission,
+  maskedFieldsToUiMaskedFields,
 } from './role_to_formik';
 export { formikToRole } from './formik_to_role';
 export { useIndexPatterns, indexPatternNames, renderIndexOption } from './use_index_patterns';
+export { fieldNamesToUiFieldNames } from './field_names_to_ui_field_names';
+export { mappingsToFieldNames } from './mappings_to_field_names';
+export { validateMaskedFields } from './validate_masked_fields';
+export { validateMaskedFieldsRegexMask } from './validate_masked_fields_regex_mask';
