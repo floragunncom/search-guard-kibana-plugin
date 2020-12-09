@@ -24,7 +24,8 @@ export const APP_PATH = {
   ROLES: '/roles',
   CREATE_ROLE: '/create-role',
   ROLE_MAPPINGS: '/role-mappings',
-  CREATE_ROLE_MAPPING: '/create-role-mapping'
+  CREATE_ROLE_MAPPING: '/create-role-mapping',
+  BLOCKS: '/blocks',
 };
 
 export const SYSTEM_STATUS_ACTIONS = {

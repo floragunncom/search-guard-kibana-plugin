@@ -1,5 +1,6 @@
 import queryString from 'query-string';
 import { homeText } from '../../../utils/i18n/home';
+import { blocksText } from '../../../utils/i18n/blocks';
 import {
   internalUsersText,
   createInternalUserText,
@@ -58,6 +59,10 @@ export default function getBreadcrumb(route) {
   const removePrefixSlash = path => path.slice(1);
   const breadcrumb = {
     '#': { text: homeText, href: APP_PATH.HOME },
+    [removePrefixSlash(APP_PATH.BLOCKS)]: {
+      text: blocksText,
+      href: APP_PATH.BLOCKS,
+    },
     [removePrefixSlash(APP_PATH.INTERNAL_USERS)]: {
       text: internalUsersText,
       href: APP_PATH.INTERNAL_USERS

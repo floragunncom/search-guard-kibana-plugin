@@ -14,14 +14,28 @@
  * limitations under the License.
  */
 
-export { default as LocalStorageService } from './LocalStorageService';
-export { default as ElasticsearchService } from './ElasticsearchService';
+import { resourcesToUiResources } from './resources_to_ui_resources';
 
-export { ApiService } from './ApiService';
-export { InternalUsersService } from './InternalUsersService';
-export { ActionGroupsService } from './ActionGroupsService';
-export { TenantsService } from './TenantsService';
-export { SgConfigService } from './SgConfigService';
-export { RolesService } from './RolesService';
-export { RolesMappingService } from './RolesMappingService';
-export { BlocksService } from './BlocksService';
+describe('searchguard/configuration/Blocks resourcesToUiResources', () => {
+  test('can convert to UI resources', () => {
+    const resources = {
+      data: {
+        a: {
+          b: 1,
+          c: 1,
+        },
+        d: {
+          e: 2,
+          f: 2,
+        },
+      },
+    };
+
+    const uiResources = [
+      { _id: 'a', b: 1, c: 1 },
+      { _id: 'd', e: 2, f: 2 },
+    ];
+
+    expect(resourcesToUiResources(resources)).toEqual(uiResources);
+  });
+});

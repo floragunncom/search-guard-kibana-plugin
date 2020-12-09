@@ -6,7 +6,8 @@ export const ENDPOINTS = {
   TENANTS: 'TENANTS',
   SGCONFIG: 'SGCONFIG',
   LICENSE: 'LICENSE',
-  CACHE: 'CACHE'
+  CACHE: 'CACHE',
+  BLOCKS: 'BLOCKS',
 };
 
 export const METHODS_FOR_ENDPOINTS = {

@@ -1,4 +1,19 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Switch, Route } from 'react-router-dom';
@@ -27,6 +42,7 @@ import {
   CreateRole,
   RoleMappings,
   CreateRoleMapping,
+  Blocks,
 } from '../';
 import { Breadcrumbs, Flyout, Callout, Modal, LoadingPage } from '../../components';
 import { APP_PATH, CALLOUTS, FLYOUTS, MODALS, LOCAL_STORAGE } from '../../utils/constants';
@@ -106,7 +122,7 @@ class Main extends Component {
     }
   };
 
-  handleTriggerFlyout = flyout => {
+  handleTriggerFlyout = (flyout) => {
     const { flyout: current } = this.state;
     const isSameFlyout = current && flyout && current.type === flyout.type;
     if (isSameFlyout) {
@@ -116,7 +132,7 @@ class Main extends Component {
     }
   };
 
-  handleTriggerInspectJsonFlyout = payload => {
+  handleTriggerInspectJsonFlyout = (payload) => {
     if (payload === null) {
       this.handleTriggerFlyout(null);
     } else {
@@ -127,7 +143,7 @@ class Main extends Component {
     }
   };
 
-  handleTriggerCustomFlyout = payload => {
+  handleTriggerCustomFlyout = (payload) => {
     if (payload === null) {
       this.handleTriggerFlyout(null);
     } else {
@@ -135,7 +151,7 @@ class Main extends Component {
     }
   };
 
-  handleTriggerCallout = callout => {
+  handleTriggerCallout = (callout) => {
     this.setState({ callout });
   };
 
@@ -159,15 +175,15 @@ class Main extends Component {
     });
   };
 
-  handleTriggerSuccessCallout = payload => {
+  handleTriggerSuccessCallout = (payload) => {
     this.handleTriggerCallout({ type: CALLOUTS.SUCCESS_CALLOUT, payload });
   };
 
-  handleTriggerModal = modal => {
+  handleTriggerModal = (modal) => {
     this.setState({ modal });
   };
 
-  handleTriggerConfirmDeletionModal = payload => {
+  handleTriggerConfirmDeletionModal = (payload) => {
     const modal = payload === null ? null : { type: MODALS.CONFIRM_DELETION, payload };
     this.handleTriggerModal(modal);
   };
@@ -182,16 +198,16 @@ class Main extends Component {
     this.setState({ purgingCache: false });
   };
 
-  handleComboBoxChange = validationFn => (options, field, form) => {
+  handleComboBoxChange = (validationFn) => (options, field, form) => {
     const isValidationRequired = validationFn instanceof Function;
     if (isValidationRequired) {
       const error = validationFn(options);
       if (error instanceof Promise) {
         error
-          .then(_error => {
+          .then((_error) => {
             throw _error;
           })
-          .catch(_error => form.setFieldError(field.name, _error));
+          .catch((_error) => form.setFieldError(field.name, _error));
       } else {
         form.setFieldError(field.name, error);
       }
@@ -221,10 +237,10 @@ class Main extends Component {
       const _isValid = validationFn(label, ...props);
       if (_isValid instanceof Promise) {
         await _isValid
-          .then(_error => {
+          .then((_error) => {
             throw _error;
           })
-          .catch(_error => (isValid = _error));
+          .catch((_error) => (isValid = _error));
       } else {
         isValid = _isValid;
       }
@@ -265,12 +281,18 @@ class Main extends Component {
               {isAPIAccessOk && (
                 <Switch>
                   <Route
+                    path={APP_PATH.BLOCKS}
+                    render={(props) => (
+                      <Blocks onTriggerErrorCallout={this.handleTriggerErrorCallout} {...props} />
+                    )}
+                  />
+                  <Route
                     path={APP_PATH.CREATE_INTERNAL_USER}
                     render={(props) => <CreateInternalUser {...props} />}
                   />
                   <Route
                     path={APP_PATH.INTERNAL_USERS}
-                    render={props => (
+                    render={(props) => (
                       <InternalUsers
                         httpClient={httpClient}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
@@ -281,7 +303,7 @@ class Main extends Component {
                   />
                   <Route
                     path={APP_PATH.AUTH}
-                    render={props => (
+                    render={(props) => (
                       <Auth
                         httpClient={httpClient}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
@@ -291,7 +313,7 @@ class Main extends Component {
                   />
                   <Route
                     path={APP_PATH.SYSTEM_STATUS}
-                    render={props => (
+                    render={(props) => (
                       <SystemStatus
                         httpClient={httpClient}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
@@ -303,7 +325,7 @@ class Main extends Component {
                   />
                   <Route
                     path={APP_PATH.TENANTS}
-                    render={props => (
+                    render={(props) => (
                       <Tenants
                         httpClient={httpClient}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
@@ -314,7 +336,7 @@ class Main extends Component {
                   />
                   <Route
                     path={APP_PATH.CREATE_TENANT}
-                    render={props => (
+                    render={(props) => (
                       <CreateTenant
                         httpClient={httpClient}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
@@ -325,7 +347,7 @@ class Main extends Component {
                   />
                   <Route
                     path={APP_PATH.ACTION_GROUPS}
-                    render={props => (
+                    render={(props) => (
                       <ActionGroups
                         httpClient={httpClient}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
@@ -336,7 +358,7 @@ class Main extends Component {
                   />
                   <Route
                     path={APP_PATH.CREATE_ACTION_GROUP}
-                    render={props => (
+                    render={(props) => (
                       <CreateActionGroup
                         httpClient={httpClient}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
@@ -346,7 +368,7 @@ class Main extends Component {
                   />
                   <Route
                     path={APP_PATH.ROLES}
-                    render={props => (
+                    render={(props) => (
                       <Roles
                         httpClient={httpClient}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
@@ -366,7 +388,7 @@ class Main extends Component {
                   />
                   <Route
                     path={APP_PATH.ROLE_MAPPINGS}
-                    render={props => (
+                    render={(props) => (
                       <RoleMappings
                         httpClient={httpClient}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
@@ -377,7 +399,7 @@ class Main extends Component {
                   />
                   <Route
                     path={APP_PATH.CREATE_ROLE_MAPPING}
-                    render={props => (
+                    render={(props) => (
                       <CreateRoleMapping
                         httpClient={httpClient}
                         onTriggerErrorCallout={this.handleTriggerErrorCallout}
@@ -390,7 +412,7 @@ class Main extends Component {
                     )}
                   />
                   <Route
-                    render={props => (
+                    render={(props) => (
                       <Home
                         httpClient={httpClient}
                         purgingCache={purgingCache}

@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-export { default as LocalStorageService } from './LocalStorageService';
-export { default as ElasticsearchService } from './ElasticsearchService';
+import { ApiService } from './ApiService';
 
-export { ApiService } from './ApiService';
-export { InternalUsersService } from './InternalUsersService';
-export { ActionGroupsService } from './ActionGroupsService';
-export { TenantsService } from './TenantsService';
-export { SgConfigService } from './SgConfigService';
-export { RolesService } from './RolesService';
-export { RolesMappingService } from './RolesMappingService';
-export { BlocksService } from './BlocksService';
+const RESOURCE = 'blocks';
+
+export class BlocksService extends ApiService {
+  constructor(httpClient) {
+    super(httpClient, RESOURCE);
+  }
+}
