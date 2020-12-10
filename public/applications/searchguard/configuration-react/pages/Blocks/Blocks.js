@@ -61,6 +61,7 @@ export function Blocks({ history, onTriggerErrorCallout }) {
       mobileOptions: {
         header: false,
       },
+      width: '30%',
       render: (v) => <TableTextCell name={`Description-${v}`} value={v} />,
     },
     {
@@ -75,7 +76,7 @@ export function Blocks({ history, onTriggerErrorCallout }) {
       render: (v) => <TableTextCell name={`Type-${v}`} value={v} />,
     },
     {
-      field: 'value',
+      field: '_value',
       name: valueText,
       footer: valueText,
       align: 'left',
@@ -83,6 +84,7 @@ export function Blocks({ history, onTriggerErrorCallout }) {
       mobileOptions: {
         header: false,
       },
+      width: '30%',
       render: (v) => <TableTextCell name={`Value-${v}`} value={v} />,
     },
     {

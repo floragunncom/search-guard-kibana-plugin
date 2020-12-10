@@ -18,7 +18,7 @@ export function resourcesToUiResources({ data = {} } = {}) {
   const uiResources = [];
 
   for (const _id of Object.keys(data)) {
-    uiResources.push({ _id, ...data[_id] });
+    uiResources.push({ _id, ...data[_id], _value: data[_id].value.join(', ') });
   }
 
   return uiResources;

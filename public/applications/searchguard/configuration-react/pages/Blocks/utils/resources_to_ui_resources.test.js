@@ -23,17 +23,19 @@ describe('searchguard/configuration/Blocks resourcesToUiResources', () => {
         a: {
           b: 1,
           c: 1,
+          value: ['b', 'c'],
         },
         d: {
           e: 2,
           f: 2,
+          value: ['e', 'f'],
         },
       },
     };
 
     const uiResources = [
-      { _id: 'a', b: 1, c: 1 },
-      { _id: 'd', e: 2, f: 2 },
+      { _id: 'a', b: 1, c: 1, value: ['b', 'c'], _value: 'b, c' },
+      { _id: 'd', e: 2, f: 2, value: ['e', 'f'], _value: 'e, f' },
     ];
 
     expect(resourcesToUiResources(resources)).toEqual(uiResources);
