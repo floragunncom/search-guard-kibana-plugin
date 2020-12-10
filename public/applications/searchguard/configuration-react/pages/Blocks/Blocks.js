@@ -56,6 +56,7 @@ export function Blocks({ history, onTriggerErrorCallout }) {
       name: descriptionText,
       footer: descriptionText,
       align: 'left',
+      sortable: true,
       mobileOptions: {
         header: false,
       },
@@ -65,6 +66,7 @@ export function Blocks({ history, onTriggerErrorCallout }) {
       name: typeText,
       footer: typeText,
       align: 'left',
+      sortable: true,
       mobileOptions: {
         header: false,
       },
@@ -74,6 +76,7 @@ export function Blocks({ history, onTriggerErrorCallout }) {
       name: valueText,
       footer: valueText,
       align: 'left',
+      sortable: true,
       mobileOptions: {
         header: false,
       },
@@ -83,6 +86,7 @@ export function Blocks({ history, onTriggerErrorCallout }) {
       name: verdictText,
       footer: verdictText,
       align: 'left',
+      sortable: true,
       mobileOptions: {
         header: false,
       },
