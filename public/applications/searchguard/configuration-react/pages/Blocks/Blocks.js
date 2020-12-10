@@ -18,7 +18,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
 import { EuiInMemoryTable, EuiEmptyPrompt } from '@elastic/eui';
-import { ContentPanel, CancelButton } from '../../components';
+import { ContentPanel, CancelButton, TableTextCell } from '../../components';
 import { BlocksService } from '../../services';
 import { nameText, descriptionText } from '../../utils/i18n/common';
 import {
@@ -50,6 +50,7 @@ export function Blocks({ history, onTriggerErrorCallout }) {
       mobileOptions: {
         header: false,
       },
+      render: (v) => <TableTextCell name={`Name-${v}`} value={v} />,
     },
     {
       field: 'description',
@@ -60,6 +61,7 @@ export function Blocks({ history, onTriggerErrorCallout }) {
       mobileOptions: {
         header: false,
       },
+      render: (v) => <TableTextCell name={`Description-${v}`} value={v} />,
     },
     {
       field: 'type',
@@ -70,6 +72,7 @@ export function Blocks({ history, onTriggerErrorCallout }) {
       mobileOptions: {
         header: false,
       },
+      render: (v) => <TableTextCell name={`Type-${v}`} value={v} />,
     },
     {
       field: 'value',
@@ -80,6 +83,7 @@ export function Blocks({ history, onTriggerErrorCallout }) {
       mobileOptions: {
         header: false,
       },
+      render: (v) => <TableTextCell name={`Value-${v}`} value={v} />,
     },
     {
       field: 'verdict',
@@ -90,6 +94,7 @@ export function Blocks({ history, onTriggerErrorCallout }) {
       mobileOptions: {
         header: false,
       },
+      render: (v) => <TableTextCell name={`Verdict-${v}`} value={v} />,
     },
   ];
 
