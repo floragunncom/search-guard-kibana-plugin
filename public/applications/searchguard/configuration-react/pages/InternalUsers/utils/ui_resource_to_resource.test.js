@@ -4,6 +4,8 @@ describe('UI table internal user to internal user', () => {
   test('can build internal user', () => {
     const uiResource = {
       _id: 'a',
+      _searchGuardRoles: 'SGS_A, SGS_B',
+      _backendRoles: 'a, b',
       reserved: true,
       hidden: false,
       backend_roles: ['a', 'b'],

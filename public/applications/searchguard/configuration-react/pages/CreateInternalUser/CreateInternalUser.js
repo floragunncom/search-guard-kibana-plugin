@@ -20,15 +20,22 @@ import PropTypes from 'prop-types';
 import { EuiCallOut, EuiSpacer } from '@elastic/eui';
 import queryString from 'query-string';
 import { createInternalUserText, updateInternalUserText } from '../../utils/i18n/internal_users';
-import { ContentPanel, InspectButton, CancelButton, SaveButton } from '../../components';
-import { BackendRoles, UserAttributes, UserCredentials } from './components';
+import {
+  ContentPanel,
+  InspectButton,
+  CancelButton,
+  SaveButton,
+  FormikSwitch,
+} from '../../components';
+import { BackendRoles, SearchGuardRoles, UserAttributes, UserCredentials } from './components';
 import { APP_PATH, INTERNAL_USERS_ACTIONS } from '../../utils/constants';
 import { DEFAULT_USER } from './utils/constants';
 import { userToFormik, formikToUser, isComplexAttributes } from './utils';
-import { internalUsersToUiBackendRoles } from '../../utils/helpers';
-import { InternalUsersService } from '../../services';
+import { arrayToComboBoxOptions, internalUsersToUiBackendRoles } from '../../utils/helpers';
+import { InternalUsersService, RolesService } from '../../services';
 
 import { Context } from '../../Context';
+import { advancedText } from '../../../../utils/i18n/common';
 
 class CreateInternalUser extends Component {
   static contextType = Context;
@@ -38,12 +45,14 @@ class CreateInternalUser extends Component {
 
     const { location } = this.props;
     this.backendService = new InternalUsersService(context.httpClient);
+    this.rolesService = new RolesService(context.httpClient);
     const { id } = queryString.parse(location.search);
 
     this.state = {
       id,
       isEdit: !!id,
       resource: userToFormik(DEFAULT_USER, id),
+      allSearchGuardRoles: [],
       allBackendRoles: [],
       isLoading: true,
       errorMessage: null,
@@ -63,10 +72,6 @@ class CreateInternalUser extends Component {
     const { onTriggerErrorCallout } = this.props;
     try {
       this.setState({ isLoading: true });
-      const { data: internalUsers } = await this.backendService.list();
-      this.setState({
-        allBackendRoles: internalUsersToUiBackendRoles(internalUsers),
-      });
 
       if (id) {
         const resource = await this.backendService.get(id);
@@ -77,6 +82,16 @@ class CreateInternalUser extends Component {
           isEdit: !!id,
         });
       }
+
+      const [{ data: internalUsers }, { data: searchGuardRoles }] = await Promise.all([
+        this.backendService.list(),
+        this.rolesService.list(),
+      ]);
+
+      this.setState({
+        allBackendRoles: internalUsersToUiBackendRoles(internalUsers),
+        allSearchGuardRoles: arrayToComboBoxOptions(Object.keys(searchGuardRoles).sort()),
+      });
     } catch (error) {
       onTriggerErrorCallout(error);
     }
@@ -105,8 +120,16 @@ class CreateInternalUser extends Component {
       onComboBoxChange,
       onComboBoxOnBlur,
       onComboBoxCreateOption,
+      onSwitchChange,
     } = this.context;
-    const { resource, isEdit, allBackendRoles, isLoading, errorMessage } = this.state;
+    const {
+      resource,
+      isEdit,
+      allSearchGuardRoles,
+      allBackendRoles,
+      isLoading,
+      errorMessage,
+    } = this.state;
     const { action, id } = queryString.parse(location.search);
     const updateUser = action === INTERNAL_USERS_ACTIONS.UPDATE_USER;
     const titleText = updateUser ? updateInternalUserText : createInternalUserText;
@@ -148,12 +171,25 @@ class CreateInternalUser extends Component {
               )}
 
               <UserCredentials isEdit={isEdit} isUpdatingName={isUpdatingName} values={values} />
-              <BackendRoles
-                allRoles={allBackendRoles}
-                onComboBoxChange={onComboBoxChange}
-                onComboBoxOnBlur={onComboBoxOnBlur}
-                onComboBoxCreateOption={onComboBoxCreateOption}
+
+              <SearchGuardRoles allSearchGuardRoles={allSearchGuardRoles} />
+
+              <FormikSwitch
+                formRow
+                elementProps={{
+                  label: advancedText,
+                  onChange: onSwitchChange,
+                }}
+                name="_isAdvanced"
               />
+              {values._isAdvanced && (
+                <BackendRoles
+                  allRoles={allBackendRoles}
+                  onComboBoxChange={onComboBoxChange}
+                  onComboBoxOnBlur={onComboBoxOnBlur}
+                  onComboBoxCreateOption={onComboBoxCreateOption}
+                />
+              )}
 
               <EuiSpacer />
               <UserAttributes values={values} />

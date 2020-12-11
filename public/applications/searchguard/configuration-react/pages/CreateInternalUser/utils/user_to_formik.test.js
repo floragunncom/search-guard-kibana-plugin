@@ -22,6 +22,7 @@ describe('user to UI user', () => {
       hash: '',
       reserved: false,
       hidden: false,
+      search_guard_roles: ['SGS_B', 'SGS_A'],
       backend_roles: ['b', 'a'],
       attributes: {
         a: 'b',
@@ -34,6 +35,7 @@ describe('user to UI user', () => {
     const uiResource = {
       reserved: false,
       hidden: false,
+      search_guard_roles: ['SGS_B', 'SGS_A'],
       backend_roles: ['b', 'a'],
       attributes: {
         a: 'b',
@@ -41,8 +43,10 @@ describe('user to UI user', () => {
       },
       description: 'Migrated from v6',
       static: false,
+      _isAdvanced: true,
       _username: 'admin',
       _password: '',
+      _searchGuardRoles: [{ label: 'SGS_A' }, { label: 'SGS_B' }],
       _backendRoles: [{ label: 'a' }, { label: 'b' }],
       _attributes: [
         {
@@ -74,6 +78,7 @@ describe('user to UI user', () => {
       hash: '',
       reserved: false,
       hidden: false,
+      search_guard_roles: ['SGS_B', 'SGS_A'],
       backend_roles: ['b', 'a'],
       attributes: {
         a: 'b',
@@ -86,6 +91,7 @@ describe('user to UI user', () => {
     const uiResource = {
       reserved: false,
       hidden: false,
+      search_guard_roles: ['SGS_B', 'SGS_A'],
       backend_roles: ['b', 'a'],
       attributes: {
         a: 'b',
@@ -93,9 +99,58 @@ describe('user to UI user', () => {
       },
       description: 'Migrated from v6',
       static: false,
+      _isAdvanced: true,
       _username: 'admin',
       _password: '',
+      _searchGuardRoles: [{ label: 'SGS_A' }, { label: 'SGS_B' }],
       _backendRoles: [{ label: 'a' }, { label: 'b' }],
+      _attributes: [],
+      _attributesString: JSON.stringify(
+        {
+          a: 'b',
+          c: { d: 'e' },
+        },
+        null,
+        2
+      ),
+      _isComplexUserAttributes: true,
+      _changePassword: false,
+    };
+
+    expect(userToFormik(resource, { id: uiResource._username })).toEqual(uiResource);
+  });
+
+  test('can build UI without _isAdvanced flag', () => {
+    const resource = {
+      hash: '',
+      reserved: false,
+      hidden: false,
+      search_guard_roles: ['SGS_B', 'SGS_A'],
+      backend_roles: [],
+      attributes: {
+        a: 'b',
+        c: { d: 'e' },
+      },
+      description: 'Migrated from v6',
+      static: false,
+    };
+
+    const uiResource = {
+      reserved: false,
+      hidden: false,
+      search_guard_roles: ['SGS_B', 'SGS_A'],
+      backend_roles: [],
+      attributes: {
+        a: 'b',
+        c: { d: 'e' },
+      },
+      description: 'Migrated from v6',
+      static: false,
+      _isAdvanced: false,
+      _username: 'admin',
+      _password: '',
+      _searchGuardRoles: [{ label: 'SGS_A' }, { label: 'SGS_B' }],
+      _backendRoles: [],
       _attributes: [],
       _attributesString: JSON.stringify(
         {

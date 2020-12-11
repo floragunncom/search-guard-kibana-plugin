@@ -14,12 +14,5 @@
  * limitations under the License.
  */
 
-import { omit } from 'lodash';
-import { DEFAULT_PASSWORD, FIELDS_TO_OMIT_BEFORE_SAVE } from '../../../utils/constants';
-
-const uiResourceToResource = (user) => ({
-  password: DEFAULT_PASSWORD, // API prohibits saving user with empty password
-  ...omit(user, ['_id', '_searchGuardRoles', '_backendRoles', ...FIELDS_TO_OMIT_BEFORE_SAVE]),
-});
-
-export default uiResourceToResource;
+import SearchGuardRoles from './SearchGuardRoles';
+export default SearchGuardRoles;

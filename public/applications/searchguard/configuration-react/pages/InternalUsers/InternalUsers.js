@@ -1,3 +1,19 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -7,33 +23,30 @@ import {
   EuiText,
   EuiFlexItem,
   EuiEmptyPrompt,
-  EuiFlexGrid
+  EuiFlexGrid,
 } from '@elastic/eui';
 import { get } from 'lodash';
 import {
   ContentPanel,
-  TableItemsListCell,
+  TableItemToListCell,
   TableNameCell,
   TableDeleteAction,
   TableCloneAction,
   TableMultiDeleteButton,
   TableSwitchSystemItems,
   CreateButton,
-  CancelButton
+  CancelButton,
 } from '../../components';
 import { APP_PATH } from '../../utils/constants';
 import {
   createInternalUserText,
   internalUsersText,
+  searchGuardRolesText,
   backendRolesText,
   emptyUsersTableMessageText,
-  noUsersText
+  noUsersText,
 } from '../../utils/i18n/internal_users';
-import {
-  nameText,
-  currentUserText,
-  systemItemsText
-} from '../../utils/i18n/common';
+import { nameText, currentUserText, systemItemsText } from '../../utils/i18n/common';
 import { resourcesToUiResources, uiResourceToResource, getResourceEditUri } from './utils';
 import { LocalStorageService, InternalUsersService } from '../../services';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
@@ -57,7 +70,7 @@ class InternalUsers extends Component {
       error: null,
       isLoading: true,
       tableSelection: [],
-      isShowingTableSystemItems
+      isShowingTableSystemItems,
     };
   }
 
@@ -78,16 +91,19 @@ class InternalUsers extends Component {
       this.setState({ isLoading: true });
       const { data } = await this.backendService.list();
       const resources = resourcesToUiResources(data);
-      const tableResources = filterReservedStaticTableResources(resources, this.state.isShowingTableSystemItems);
+      const tableResources = filterReservedStaticTableResources(
+        resources,
+        this.state.isShowingTableSystemItems
+      );
       this.setState({ resources, tableResources, error: null });
-    } catch(error) {
+    } catch (error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
-  }
+  };
 
-  handleDeleteResources = resourcesToDelete => {
+  handleDeleteResources = (resourcesToDelete) => {
     const { onTriggerConfirmDeletionModal } = this.props;
     onTriggerConfirmDeletionModal({
       body: resourcesToDelete.join(', '),
@@ -98,37 +114,37 @@ class InternalUsers extends Component {
       onCancel: () => {
         this.setState({ tableSelection: [] });
         onTriggerConfirmDeletionModal(null);
-      }
+      },
     });
-  }
+  };
 
-  deleteResources = async resourceIds => {
+  deleteResources = async (resourceIds) => {
     try {
       this.setState({ isLoading: true });
       for (let i = 0; i < resourceIds.length; i++) {
         await this.backendService.delete(resourceIds[i]);
       }
-    } catch(error) {
+    } catch (error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
     this.fetchData();
-  }
+  };
 
-  cloneResource = async resource => {
+  cloneResource = async (resource) => {
     let { _id: username } = resource;
     username += '_copy';
     try {
       this.setState({ isLoading: true });
       await this.backendService.save(username, uiResourceToResource(resource));
-    } catch(error) {
+    } catch (error) {
       this.setState({ error });
       this.props.onTriggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
     this.fetchData();
-  }
+  };
 
   renderToolsLeft = () => {
     const tableSelection = this.state.tableSelection;
@@ -138,35 +154,30 @@ class InternalUsers extends Component {
     }
 
     const handleMultiDelete = () => {
-      this.handleDeleteResources(tableSelection.map(item => item._id));
+      this.handleDeleteResources(tableSelection.map((item) => item._id));
       this.setState({ tableSelection: [] });
     };
 
     return (
-      <TableMultiDeleteButton
-        onClick={handleMultiDelete}
-        numOfSelections={tableSelection.length}
-      />
+      <TableMultiDeleteButton onClick={handleMultiDelete} numOfSelections={tableSelection.length} />
     );
-  }
+  };
 
-  renderEmptyTableMessage = history => (
+  renderEmptyTableMessage = (history) => (
     <EuiEmptyPrompt
       title={<h3>{noUsersText}</h3>}
       titleSize="xs"
       body={emptyUsersTableMessageText}
-      actions={(
-        <EuiButton
-          onClick={() => history.push(APP_PATH.CREATE_INTERNAL_USER)}
-        >
+      actions={
+        <EuiButton onClick={() => history.push(APP_PATH.CREATE_INTERNAL_USER)}>
           {createInternalUserText}
         </EuiButton>
-      )}
+      }
     />
-  )
+  );
 
-  renderActiveUser = name => {
-    const  currentResource = this.configService.get('restapiinfo.user_name');
+  renderActiveUser = (name) => {
+    const currentResource = this.configService.get('restapiinfo.user_name');
     return (
       name === currentResource && (
         <EuiFlexGrid
@@ -176,7 +187,7 @@ class InternalUsers extends Component {
           data-test-subj={`sgTableCol-Name-${name}-CurrentUser`}
         >
           <EuiFlexItem grow={false}>
-            <EuiIcon type="user"/>
+            <EuiIcon type="user" />
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiText size="s">{currentUserText}</EuiText>
@@ -184,7 +195,7 @@ class InternalUsers extends Component {
         </EuiFlexGrid>
       )
     );
-  }
+  };
 
   render() {
     const { history } = this.props;
@@ -193,11 +204,8 @@ class InternalUsers extends Component {
     const actions = [
       {
         render: (resource) => (
-          <TableCloneAction
-            name={resource._id}
-            onClick={() => this.cloneResource(resource)}
-          />
-        )
+          <TableCloneAction name={resource._id} onClick={() => this.cloneResource(resource)} />
+        ),
       },
       {
         render: ({ _id, reserved }) => {
@@ -208,8 +216,8 @@ class InternalUsers extends Component {
               onClick={() => this.handleDeleteResources([_id])}
             />
           );
-        }
-      }
+        },
+      },
     ];
 
     const columns = [
@@ -219,9 +227,6 @@ class InternalUsers extends Component {
         footer: nameText,
         align: 'left',
         sortable: true,
-        mobileOptions: {
-          header: false
-        },
         render: (id, { reserved }) => (
           <TableNameCell
             history={history}
@@ -230,29 +235,35 @@ class InternalUsers extends Component {
             isReserved={reserved}
             children={this.renderActiveUser(id)}
           />
-        )
+        ),
       },
       {
-        field: 'backend_roles',
+        width: '30%',
+        field: '_searchGuardRoles',
+        name: searchGuardRolesText,
+        footer: searchGuardRolesText,
+        align: 'left',
+        render: (item, { _id }) => (
+          <TableItemToListCell item={item} name={`SearchGuardRoles-${_id}`} />
+        ),
+      },
+      {
+        width: '30%',
+        field: '_backendRoles',
         name: backendRolesText,
         footer: backendRolesText,
         align: 'left',
-        mobileOptions: {
-          header: false
-        },
-        render: (items, { _id }) => (
-          <TableItemsListCell items={items} name={`BackendRoles-${_id}`} />
-        )
+        render: (item, { _id }) => <TableItemToListCell item={item} name={`BackendRoles-${_id}`} />,
       },
       {
         align: 'right',
-        actions
-      }
+        actions,
+      },
     ];
 
     const selection = {
-      selectable: resource => resource._id && !resource.reserved,
-      onSelectionChange: tableSelection => this.setState({ tableSelection })
+      selectable: (resource) => resource._id && !resource.reserved,
+      onSelectionChange: (tableSelection) => this.setState({ tableSelection }),
     };
 
     const search = {
@@ -264,25 +275,28 @@ class InternalUsers extends Component {
           onChange={() => {
             this.setState({
               isShowingTableSystemItems: !isShowingTableSystemItems,
-              tableResources: filterReservedStaticTableResources(this.state.resources, !isShowingTableSystemItems)
+              tableResources: filterReservedStaticTableResources(
+                this.state.resources,
+                !isShowingTableSystemItems
+              ),
             });
           }}
         />
       ),
       box: {
         incremental: true,
-      }
+      },
     };
 
     return (
       <ContentPanel
         title={internalUsersText}
         actions={[
-          (<CancelButton onClick={() => history.push(APP_PATH.HOME)} />),
-          (<CreateButton
+          <CancelButton onClick={() => history.push(APP_PATH.HOME)} />,
+          <CreateButton
             value={createInternalUserText}
             onClick={() => history.push(APP_PATH.CREATE_INTERNAL_USER)}
-          />)
+          />,
         ]}
       >
         <EuiInMemoryTable
@@ -307,7 +321,7 @@ InternalUsers.propTypes = {
   history: PropTypes.object.isRequired,
   httpClient: PropTypes.object,
   onTriggerErrorCallout: PropTypes.func.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired
+  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
 };
 
 export default InternalUsers;
