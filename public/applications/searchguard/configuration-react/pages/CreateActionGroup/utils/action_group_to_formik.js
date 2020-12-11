@@ -34,7 +34,7 @@ export const actionGroupToFormik = (actionGroup, id = '') => {
   return {
     ...actionGroup,
     _name: id,
-    _isAdvanced: true,
+    _isAdvanced: Array.isArray(permissions) && !!permissions.length,
     _permissions: arrayToComboBoxOptions(sortBy(permissions)),
     _actiongroups: arrayToComboBoxOptions(sortBy(actiongroups)),
   };

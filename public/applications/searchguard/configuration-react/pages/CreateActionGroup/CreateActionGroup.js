@@ -121,6 +121,7 @@ class CreateActionGroup extends Component {
       onComboBoxChange,
       onComboBoxCreateOption,
       onComboBoxOnBlur,
+      onSwitchChange,
     } = this.context;
 
     const { resource, isLoading, allSinglePermissions, allActionGroups } = this.state;
@@ -200,7 +201,7 @@ class CreateActionGroup extends Component {
                 formRow
                 elementProps={{
                   label: advancedText,
-                  checked: values._isAdvanced,
+                  onChange: onSwitchChange,
                 }}
                 name="_isAdvanced"
               />

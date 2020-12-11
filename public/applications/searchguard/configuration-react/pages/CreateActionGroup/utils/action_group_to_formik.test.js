@@ -56,4 +56,28 @@ describe('action group to UI action group', () => {
 
     expect(actionGroupToFormik(resource, uiResource._name)).toEqual(uiResource);
   });
+
+  test('can build UI action group with no single permissions', () => {
+    const resource = {
+      allowed_actions: ['B', 'A'],
+      type: 'cluster',
+      hidden: false,
+      reserved: false,
+      static: false,
+    };
+
+    const uiResource = {
+      allowed_actions: ['B', 'A'],
+      type: 'cluster',
+      hidden: false,
+      reserved: false,
+      static: false,
+      _isAdvanced: false,
+      _name: 'A_GROUP',
+      _permissions: [],
+      _actiongroups: [{ label: 'A' }, { label: 'B' }],
+    };
+
+    expect(actionGroupToFormik(resource, uiResource._name)).toEqual(uiResource);
+  });
 });
