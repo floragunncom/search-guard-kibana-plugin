@@ -52,31 +52,6 @@ export const validateName = (Service, isUpdatingName = false) => async (name) =>
   return null;
 };
 
-export const validateESDLSQuery = (index, httpClient) => async (query) => {
-  if (isEmpty(query)) return;
-
-  let _query;
-  try {
-    _query = JSON.parse(query);
-  } catch (error) {
-    return jsonIsInvalidText;
-  }
-
-  _query = JSON.stringify({ query: _query });
-
-  try {
-    const { data } = await httpClient.post(
-      API.VALIDATE_DLS + `/${encodeURIComponent(index)}`,
-      _query
-    );
-    if (!data.valid) {
-      return dlsQuerySyntaxIsInvalidText;
-    }
-  } catch (error) {
-    return problemWithValidationTryAgainText;
-  }
-};
-
 export const validateEmptyComboBox = (value) => {
   if (isEmpty(value)) return requiredText;
 };

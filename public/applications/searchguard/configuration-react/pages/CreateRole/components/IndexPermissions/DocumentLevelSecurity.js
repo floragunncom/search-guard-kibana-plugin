@@ -17,26 +17,21 @@
 import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'formik';
-import { get } from 'lodash';
 import { SubHeader, FormikCodeEditor } from '../../../../components';
-import { EuiButton, EuiSpacer, EuiCallOut } from '@elastic/eui';
+import { EuiSpacer, EuiCallOut } from '@elastic/eui';
 import {
   elasticsearhQueryDLSText,
   documentLevelSecurityText,
   documentLevelSecurityDisabledText,
 } from '../../../../utils/i18n/roles';
-import { isInvalid, hasError, validateESDLSQuery } from '../../../../utils/validation';
-import { stringifyPretty } from '../../../../utils/helpers';
+import { isInvalid, hasError } from '../../../../utils/validation';
 
 import { Context } from '../../../../Context';
 
-const DocumentLevelSecurity = ({ index, formik }) => {
-  const { editorTheme, editorOptions, httpClient, configService } = useContext(Context);
+const DocumentLevelSecurity = ({ index }) => {
+  const { editorTheme, editorOptions, configService } = useContext(Context);
   const isDlsEnabled = configService.dlsFlsEnabled();
-  const { values, validateField, setFieldValue } = formik;
   const fieldPath = `_indexPermissions[${index}]._dls`;
-  // TODO: should we validate all indexes? This logic was taken from the old app
-  const firstIndexPattern = get(values, `_indexPermissions[${index}].index_patterns[0].label`);
 
   function renderFeatureDisabledCallout() {
     return (
@@ -58,6 +53,10 @@ const DocumentLevelSecurity = ({ index, formik }) => {
     <Fragment>
       <EuiSpacer />
       <SubHeader title={<h4>{documentLevelSecurityText}</h4>} />
+      {/*
+      Uncomment the following button when the new DLS verification API is ready.
+      https://floragunn.atlassian.net/browse/SGD-898
+
       <EuiButton
         data-test-subj="sgDLSCheckButton"
         size="s"
@@ -74,13 +73,11 @@ const DocumentLevelSecurity = ({ index, formik }) => {
       >
         Check
       </EuiButton>
+      */}
       <EuiSpacer />
       <FormikCodeEditor
         name={fieldPath}
         formRow
-        formikFieldProps={{
-          validate: validateESDLSQuery(firstIndexPattern, httpClient),
-        }}
         rowProps={{
           helpText: elasticsearhQueryDLSText,
           fullWidth: true,
