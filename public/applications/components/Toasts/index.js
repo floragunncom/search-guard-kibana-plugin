@@ -14,6 +14,4 @@
  * limitations under the License.
  */
 
-export { confirm } from './confirm';
-export { confirmDeletion } from './confirmDeletion';
-export { errorToastDetails } from './errorToastDetails';
+export { ErrorToast } from './ErrorToast';

@@ -120,12 +120,12 @@ class CreateRole extends Component {
   }
 
   componentWillUnmount = () => {
-    this.context.triggerInspectJsonFlyout(null);
+    this.context.closeFlyout();
   };
 
   fetchData = async () => {
     const { id } = this.state;
-    const { onTriggerErrorCallout } = this.props;
+    const { triggerErrorCallout } = this.context;
 
     try {
       this.setState({ isLoading: true });
@@ -159,13 +159,14 @@ class CreateRole extends Component {
         });
       }
     } catch (error) {
-      onTriggerErrorCallout(error);
+      triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
   };
 
   onSubmit = async (values, { setSubmitting }) => {
-    const { history, onTriggerErrorCallout } = this.props;
+    const { history } = this.props;
+    const { triggerErrorCallout } = this.context;
     const { _name } = values;
     try {
       const doPreSave = false;
@@ -174,7 +175,7 @@ class CreateRole extends Component {
       history.goBack();
     } catch (error) {
       setSubmitting(false);
-      onTriggerErrorCallout(error);
+      triggerErrorCallout(error);
     }
   };
 
@@ -297,7 +298,6 @@ class CreateRole extends Component {
 CreateRole.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired,
 };
 
 export default CreateRole;

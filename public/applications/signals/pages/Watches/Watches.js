@@ -72,8 +72,8 @@ const initialQuery = EuiSearchBar.Query.MATCH_ALL;
 class Watches extends Component {
   static contextType = Context;
 
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
 
     this.state = {
       error: null,
@@ -83,7 +83,7 @@ class Watches extends Component {
       query: initialQuery,
     };
 
-    this.watchService = new WatchService(this.props.httpClient);
+    this.watchService = new WatchService(context.httpClient);
   }
 
   componentDidMount() {
@@ -91,7 +91,7 @@ class Watches extends Component {
   }
 
   componentWillUnmount() {
-    this.props.onTriggerFlyout(null);
+    this.context.closeFlyout();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -227,22 +227,22 @@ class Watches extends Component {
   };
 
   handleDeleteWatches = (watches = []) => {
-    const { onTriggerConfirmDeletionModal } = this.props;
-    onTriggerConfirmDeletionModal({
+    const { triggerConfirmDeletionModal } = this.context;
+    triggerConfirmDeletionModal({
       body: watches.join(', '),
       onConfirm: () => {
         this.deleteWatches(watches);
-        onTriggerConfirmDeletionModal(null);
+        triggerConfirmDeletionModal(null);
       },
       onCancel: () => {
         this.setState({ tableSelection: [] });
-        onTriggerConfirmDeletionModal(null);
+        triggerConfirmDeletionModal(null);
       },
     });
   };
 
   handleAck = (watchIds = [], actionId) => {
-    const { onTriggerConfirmModal } = this.props;
+    const { triggerConfirmModal } = this.context;
 
     const doAck = async () => {
       this.setState({ isLoading: true });
@@ -276,7 +276,7 @@ class Watches extends Component {
       this.getWatches();
     };
 
-    onTriggerConfirmModal({
+    triggerConfirmModal({
       title: (
         <EuiTitle>
           <h2>
@@ -286,11 +286,11 @@ class Watches extends Component {
       ),
       body: watchIds.join(', '),
       onConfirm: () => {
-        onTriggerConfirmModal(null);
+        triggerConfirmModal(null);
         doAck();
       },
       onCancel: () => {
-        onTriggerConfirmModal(null);
+        triggerConfirmModal(null);
       },
     });
   };
@@ -529,7 +529,8 @@ class Watches extends Component {
   };
 
   render() {
-    const { history, onTriggerFlyout } = this.props;
+    const { history } = this.props;
+    const { triggerFlyout, editorTheme, editorOptions } = this.context;
     const { watches, isLoading, error } = this.state;
 
     const actions = [
@@ -656,9 +657,15 @@ class Watches extends Component {
           <AddButton
             value={addExampleText}
             onClick={() => {
-              onTriggerFlyout({
+              triggerFlyout({
                 type: FLYOUTS.WATCHES_HELP,
-                payload: { onPutWatch: this.putWatch, error, isLoading },
+                payload: {
+                  onPutWatch: this.putWatch,
+                  error,
+                  isLoading,
+                  editorTheme,
+                  editorOptions,
+                },
               });
             }}
           />,
@@ -689,11 +696,7 @@ class Watches extends Component {
 }
 
 Watches.propTypes = {
-  httpClient: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
-  onTriggerConfirmModal: PropTypes.func.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
-  onTriggerFlyout: PropTypes.func.isRequired,
 };
 
 export default Watches;

@@ -137,7 +137,7 @@ export class MultiTenancyPage extends Component {
         }
       },
       (error) => {
-        addErrorToast(error, 'Unable to load multitenancy info.');
+        addErrorToast(error, { errorMessage: 'Unable to load multitenancy info.' });
       }
     );
   }
@@ -254,7 +254,7 @@ export class MultiTenancyPage extends Component {
           isLoading: false,
         });
 
-        addErrorToast(error, 'Unable to load authentication info.');
+        addErrorToast(error, { errorMessage: 'Unable to load authentication info.' });
       }
     );
   }

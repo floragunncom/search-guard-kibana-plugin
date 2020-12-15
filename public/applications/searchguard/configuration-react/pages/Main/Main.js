@@ -2,7 +2,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Switch, Route } from 'react-router-dom';
-import { get, differenceBy, isEmpty, map } from 'lodash';
+import { isEmpty, map } from 'lodash';
 import {
   EuiPage,
   EuiPageBody,
@@ -28,9 +28,9 @@ import {
   RoleMappings,
   CreateRoleMapping,
 } from '../';
-import { Breadcrumbs, Flyout, Callout, Modal, LoadingPage } from '../../components';
-import { APP_PATH, CALLOUTS, FLYOUTS, MODALS, LOCAL_STORAGE } from '../../utils/constants';
-import { checkIfLicenseValid, comboBoxOptionsToArray } from '../../utils/helpers';
+import { Breadcrumbs, Callout, LoadingPage } from '../../components';
+import { APP_PATH, CALLOUTS, LOCAL_STORAGE } from '../../utils/constants';
+import { checkIfLicenseValid } from '../../utils/helpers';
 import {
   apiAccessStateForbiddenText,
   apiAccessStateNotEnabledText,
@@ -49,14 +49,11 @@ class Main extends Component {
     super(props, context);
 
     this.localStorage = new LocalStorageService();
-    this.apiService = new ApiService(this.props.httpClient);
+    this.apiService = new ApiService(context.httpClient);
     this.configService = context.configService;
 
     this.state = {
       purgingCache: false,
-      flyout: null,
-      callout: null,
-      modal: null,
       sideNavItems: [],
       selectedSideNavItemName: undefined,
       apiAccessState: API_ACCESS_STATE.PENDING,
@@ -71,24 +68,24 @@ class Main extends Component {
   checkAPIAccess = async () => {
     try {
       if (!this.configService.restApiEnabled()) {
-        this.handleTriggerErrorCallout({ message: apiAccessStateNotEnabledText });
+        this.context.triggerErrorCallout({ message: apiAccessStateNotEnabledText });
       } else {
         if (!this.configService.hasApiAccess()) {
-          this.handleTriggerErrorCallout({ message: apiAccessStateForbiddenText });
+          this.context.triggerErrorCallout({ message: apiAccessStateForbiddenText });
         } else {
           this.setState({ apiAccessState: API_ACCESS_STATE.OK });
         }
       }
       this.calloutErrorIfLicenseNotValid();
     } catch (error) {
-      this.handleTriggerErrorCallout(error);
+      this.context.triggerErrorCallout(error);
     }
   };
 
   calloutErrorIfLicenseNotValid = () => {
     const { isValid, messages } = checkIfLicenseValid(this.configService);
     if (!isValid) {
-      this.handleTriggerCallout({
+      this.context.setCallout({
         type: CALLOUTS.ERROR_CALLOUT,
         payload: (
           <Fragment>
@@ -106,144 +103,20 @@ class Main extends Component {
     }
   };
 
-  handleTriggerFlyout = flyout => {
-    const { flyout: current } = this.state;
-    const isSameFlyout = current && flyout && current.type === flyout.type;
-    if (isSameFlyout) {
-      this.setState({ flyout: null });
-    } else {
-      this.setState({ flyout });
-    }
-  };
-
-  handleTriggerInspectJsonFlyout = payload => {
-    if (payload === null) {
-      this.handleTriggerFlyout(null);
-    } else {
-      this.handleTriggerFlyout({
-        type: FLYOUTS.INSPECT_JSON,
-        payload: { ...payload, editorTheme: this.context.editorTheme },
-      });
-    }
-  };
-
-  handleTriggerCustomFlyout = payload => {
-    if (payload === null) {
-      this.handleTriggerFlyout(null);
-    } else {
-      this.handleTriggerFlyout({ type: FLYOUTS.CUSTOM, payload });
-    }
-  };
-
-  handleTriggerCallout = callout => {
-    this.setState({ callout });
-  };
-
-  handleTriggerErrorCallout = (error) => {
-    console.error('handleTriggerCallout', error);
-
-    let payload = error.message;
-    const detail = get(error, 'body.attributes.body');
-
-    try {
-      if (detail) {
-        payload = `${payload}: ${JSON.stringify(detail, null, 2)}`;
-      }
-    } catch (e) {
-      console.error('handleTriggerCallout', 'Error details cannot be parsed', error);
-    }
-
-    this.handleTriggerCallout({
-      type: CALLOUTS.ERROR_CALLOUT,
-      payload,
-    });
-  };
-
-  handleTriggerSuccessCallout = payload => {
-    this.handleTriggerCallout({ type: CALLOUTS.SUCCESS_CALLOUT, payload });
-  };
-
-  handleTriggerModal = modal => {
-    this.setState({ modal });
-  };
-
-  handleTriggerConfirmDeletionModal = payload => {
-    const modal = payload === null ? null : { type: MODALS.CONFIRM_DELETION, payload };
-    this.handleTriggerModal(modal);
-  };
-
   handlePurgeCache = async () => {
     this.setState({ purgingCache: true });
     try {
       await this.apiService.clearCache();
     } catch (error) {
-      this.handleTriggerErrorCallout(error);
+      this.context.triggerErrorCallout(error);
     }
     this.setState({ purgingCache: false });
   };
 
-  handleComboBoxChange = validationFn => (options, field, form) => {
-    const isValidationRequired = validationFn instanceof Function;
-    if (isValidationRequired) {
-      const error = validationFn(options);
-      if (error instanceof Promise) {
-        error
-          .then(_error => {
-            throw _error;
-          })
-          .catch(_error => form.setFieldError(field.name, _error));
-      } else {
-        form.setFieldError(field.name, error);
-      }
-    }
-
-    const isDeleting = options.length < field.value.length;
-    if (isDeleting) {
-      const optionToDelete = comboBoxOptionsToArray(
-        differenceBy(field.value, options, 'label')
-      ).join(', ');
-      this.handleTriggerConfirmDeletionModal({
-        body: optionToDelete,
-        onConfirm: () => {
-          form.setFieldValue(field.name, options);
-          this.handleTriggerConfirmDeletionModal(null);
-        },
-      });
-    } else {
-      form.setFieldValue(field.name, options);
-    }
-  };
-
-  handleComboBoxCreateOption = (validationFn, ...props) => async (label, field, form) => {
-    let isValid = true;
-    const isValidationRequired = validationFn instanceof Function;
-    if (isValidationRequired) {
-      const _isValid = validationFn(label, ...props);
-      if (_isValid instanceof Promise) {
-        await _isValid
-          .then(_error => {
-            throw _error;
-          })
-          .catch(_error => (isValid = _error));
-      } else {
-        isValid = _isValid;
-      }
-    }
-
-    if (isValid) {
-      const normalizedSearchValue = label.trim().toLowerCase();
-      if (!normalizedSearchValue) return;
-      form.setFieldValue(field.name, field.value.concat({ label }));
-    }
-  };
-
-  handleComboBoxOnBlur = (e, field, form) => {
-    form.setFieldTouched(field.name, true);
-  };
-
   render() {
-    const { flyout, callout, purgingCache, modal, apiAccessState } = this.state;
-    const { httpClient, history, ...rest } = this.props;
+    const { purgingCache, apiAccessState } = this.state;
+    const { callout, setCallout } = this.context;
+    const { history, ...rest } = this.props;
 
     const isAPIAccessPending = apiAccessState === API_ACCESS_STATE.PENDING;
     const isAPIAccessOk = apiAccessState === API_ACCESS_STATE.OK;
@@ -251,16 +124,13 @@ class Main extends Component {
     return (
       <EuiPage id="searchGuardKibanaPlugin">
         <EuiPageBody className="container">
-          <Flyout flyout={flyout} onClose={() => this.handleTriggerFlyout(null)} />
-
           <EuiPageHeader>
             <Breadcrumbs history={history} onGetBreadcrumb={getBreadcrumb} {...rest} />
           </EuiPageHeader>
 
           <EuiPageContent>
             <EuiPageContentBody>
-              <Callout callout={callout} onClose={() => this.handleTriggerCallout(null)} />
-              <Modal modal={modal} onClose={() => this.handleTriggerModal(null)} />
+              <Callout callout={callout} onClose={() => setCallout(null)} />
               {isAPIAccessPending && LoadingPage}
               {isAPIAccessOk && (
                 <Switch>
@@ -270,129 +140,42 @@ class Main extends Component {
                   />
                   <Route
                     path={APP_PATH.INTERNAL_USERS}
-                    render={props => (
-                      <InternalUsers
-                        httpClient={httpClient}
-                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                        onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
-                        {...props}
-                      />
-                    )}
+                    render={(props) => <InternalUsers {...props} />}
                   />
-                  <Route
-                    path={APP_PATH.AUTH}
-                    render={props => (
-                      <Auth
-                        httpClient={httpClient}
-                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                        {...props}
-                      />
-                    )}
-                  />
+                  <Route path={APP_PATH.AUTH} render={(props) => <Auth {...props} />} />
                   <Route
                     path={APP_PATH.SYSTEM_STATUS}
-                    render={props => (
-                      <SystemStatus
-                        httpClient={httpClient}
-                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                        onTriggerSuccessCallout={this.handleTriggerSuccessCallout}
-                        onTriggerCustomFlyout={this.handleTriggerCustomFlyout}
-                        {...props}
-                      />
-                    )}
+                    render={(props) => <SystemStatus {...props} />}
                   />
-                  <Route
-                    path={APP_PATH.TENANTS}
-                    render={props => (
-                      <Tenants
-                        httpClient={httpClient}
-                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                        onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
-                        {...props}
-                      />
-                    )}
-                  />
+                  <Route path={APP_PATH.TENANTS} render={(props) => <Tenants {...props} />} />
                   <Route
                     path={APP_PATH.CREATE_TENANT}
-                    render={props => (
-                      <CreateTenant
-                        httpClient={httpClient}
-                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                        onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
-                        {...props}
-                      />
-                    )}
+                    render={(props) => <CreateTenant {...props} />}
                   />
                   <Route
                     path={APP_PATH.ACTION_GROUPS}
-                    render={props => (
-                      <ActionGroups
-                        httpClient={httpClient}
-                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                        onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
-                        {...props}
-                      />
-                    )}
+                    render={(props) => <ActionGroups {...props} />}
                   />
                   <Route
                     path={APP_PATH.CREATE_ACTION_GROUP}
-                    render={props => (
-                      <CreateActionGroup
-                        httpClient={httpClient}
-                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                        {...props}
-                      />
-                    )}
+                    render={(props) => <CreateActionGroup {...props} />}
                   />
-                  <Route
-                    path={APP_PATH.ROLES}
-                    render={props => (
-                      <Roles
-                        httpClient={httpClient}
-                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                        onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
-                        {...props}
-                      />
-                    )}
-                  />
+                  <Route path={APP_PATH.ROLES} render={(props) => <Roles {...props} />} />
                   <Route
                     path={APP_PATH.CREATE_ROLE}
-                    render={(props) => (
-                      <CreateRole
-                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                        {...props}
-                      />
-                    )}
+                    render={(props) => <CreateRole {...props} />}
                   />
                   <Route
                     path={APP_PATH.ROLE_MAPPINGS}
-                    render={props => (
-                      <RoleMappings
-                        httpClient={httpClient}
-                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                        onTriggerConfirmDeletionModal={this.handleTriggerConfirmDeletionModal}
-                        {...props}
-                      />
-                    )}
+                    render={(props) => <RoleMappings {...props} />}
                   />
                   <Route
                     path={APP_PATH.CREATE_ROLE_MAPPING}
-                    render={props => (
-                      <CreateRoleMapping
-                        httpClient={httpClient}
-                        onTriggerErrorCallout={this.handleTriggerErrorCallout}
-                        onTriggerInspectJsonFlyout={this.handleTriggerInspectJsonFlyout}
-                        onComboBoxChange={this.handleComboBoxChange}
-                        onComboBoxOnBlur={this.handleComboBoxOnBlur}
-                        onComboBoxCreateOption={this.handleComboBoxCreateOption}
-                        {...props}
-                      />
-                    )}
+                    render={(props) => <CreateRoleMapping {...props} />}
                   />
                   <Route
-                    render={props => (
+                    render={(props) => (
                       <Home
-                        httpClient={httpClient}
                         purgingCache={purgingCache}
                         onPurgeCache={this.handlePurgeCache}
                         {...props}
@@ -410,7 +193,6 @@ class Main extends Component {
 }
 
 Main.propTypes = {
-  httpClient: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
 };

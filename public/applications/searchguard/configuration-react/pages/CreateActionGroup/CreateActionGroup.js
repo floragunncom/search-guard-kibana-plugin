@@ -53,10 +53,11 @@ import { Context } from '../../Context';
 class CreateActionGroup extends Component {
   static contextType = Context;
 
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
 
-    const { location, httpClient } = this.props;
+    const { location } = this.props;
+    const { httpClient } = context;
 
     this.backendService = new ActionGroupsService(httpClient);
     const { id } = queryString.parse(location.search);
@@ -76,12 +77,12 @@ class CreateActionGroup extends Component {
   }
 
   componentWillUnmount = () => {
-    this.context.triggerInspectJsonFlyout(null);
+    this.context.closeFlyout();
   };
 
   fetchData = async () => {
     const { id } = this.state;
-    const { onTriggerErrorCallout } = this.props;
+    const { triggerErrorCallout } = this.context;
     try {
       this.setState({ isLoading: true });
       const { data } = await this.backendService.list();
@@ -95,13 +96,14 @@ class CreateActionGroup extends Component {
         this.setState({ resource: actionGroupToFormik(DEFAULT_ACTION_GROUP), isEdit: !!id });
       }
     } catch (error) {
-      onTriggerErrorCallout(error);
+      triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
   };
 
   onSubmit = async (values, { setSubmitting }) => {
-    const { history, onTriggerErrorCallout } = this.props;
+    const { history } = this.props;
+    const { triggerErrorCallout } = this.context;
     const { _name } = values;
     try {
       await this.backendService.save(_name, formikToActionGroup(values));
@@ -109,7 +111,7 @@ class CreateActionGroup extends Component {
       history.push(APP_PATH.ACTION_GROUPS);
     } catch (error) {
       setSubmitting(false);
-      onTriggerErrorCallout(error);
+      triggerErrorCallout(error);
     }
   };
 
@@ -236,10 +238,8 @@ class CreateActionGroup extends Component {
 }
 
 CreateActionGroup.propTypes = {
-  httpClient: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired,
 };
 
 export default CreateActionGroup;

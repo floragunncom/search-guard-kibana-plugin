@@ -30,12 +30,11 @@ import {
 import { BackendRoles, SearchGuardRoles, UserAttributes, UserCredentials } from './components';
 import { APP_PATH, INTERNAL_USERS_ACTIONS } from '../../utils/constants';
 import { DEFAULT_USER } from './utils/constants';
-import { userToFormik, formikToUser, isComplexAttributes } from './utils';
+import { userToFormik, formikToUser } from './utils';
 import { arrayToComboBoxOptions, internalUsersToUiBackendRoles } from '../../utils/helpers';
 import { InternalUsersService, RolesService } from '../../services';
-
-import { Context } from '../../Context';
 import { advancedText } from '../../../../utils/i18n/common';
+import { Context } from '../../Context';
 
 class CreateInternalUser extends Component {
   static contextType = Context;
@@ -64,12 +63,12 @@ class CreateInternalUser extends Component {
   }
 
   componentWillUnmount = () => {
-    this.context.triggerInspectJsonFlyout(null);
+    this.context.closeFlyout();
   };
 
   fetchData = async () => {
     const { id } = this.state;
-    const { onTriggerErrorCallout } = this.props;
+    const { triggerErrorCallout } = this.context;
     try {
       this.setState({ isLoading: true });
 
@@ -93,7 +92,7 @@ class CreateInternalUser extends Component {
         allSearchGuardRoles: arrayToComboBoxOptions(Object.keys(searchGuardRoles).sort()),
       });
     } catch (error) {
-      onTriggerErrorCallout(error);
+      triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
   };

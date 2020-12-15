@@ -14,49 +14,24 @@
  * limitations under the License.
  */
 
-import React from 'react';
 import PropTypes from 'prop-types';
-import { EuiOverlayMask, EuiConfirmModal, EuiText } from '@elastic/eui';
-import Modals from './modals';
+import * as Modals from './modals';
 
-const getModalProps = ({ type, payload }) => {
+const getModal = ({ type, payload }) => {
+  // eslint-disable-next-line import/namespace
   const modal = Modals[type];
   if (!modal || !(modal instanceof Function)) return null;
   return modal(payload);
 };
 
-const Modal = ({ modal, onClose }) => {
+const Modal = ({ modal, onClose } = {}) => {
   if (!modal) return null;
-  const modalData = getModalProps(modal);
-  if (!modalData) return null;
-  const {
-    modalProps,
-    title,
-    onConfirm,
-    onCancel = onClose,
-    body,
-    cancelButtonText,
-    confirmButtonText,
-  } = modalData;
 
-  return (
-    <EuiOverlayMask>
-      <EuiConfirmModal
-        id="confirm-modal"
-        className="sgConfirmModal"
-        title={title}
-        onCancel={onCancel}
-        onConfirm={onConfirm}
-        cancelButtonText={cancelButtonText}
-        confirmButtonText={confirmButtonText}
-        {...modalProps}
-      >
-        <EuiText className="sgConfirmModalBody" data-test-subj="sgConfirmModalBody">
-          {body}
-        </EuiText>
-      </EuiConfirmModal>
-    </EuiOverlayMask>
-  );
+  if (modal.payload) {
+    modal.payload.onCancel = modal.payload.onCancel || onClose;
+  }
+
+  return getModal(modal) || null;
 };
 
 Modal.propTypes = {

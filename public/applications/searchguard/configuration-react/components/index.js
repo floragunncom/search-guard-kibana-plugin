@@ -56,4 +56,5 @@ export {
   TableSwitchSystemItems,
   EmptyPrompt,
   Callout,
+  ErrorToast,
 } from '../../../components';

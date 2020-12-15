@@ -16,7 +16,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { EUI_MODAL_CONFIRM_BUTTON } from '@elastic/eui';
+import { EuiOverlayMask, EuiConfirmModal, EuiText, EUI_MODAL_CONFIRM_BUTTON } from '@elastic/eui';
 import {
   confirmDeleteText,
   doYouReallyWantToDeleteText,
@@ -24,15 +24,18 @@ import {
   confirmText,
 } from '../../../utils/i18n/common';
 
-const confirmDeletion = ({
+export function confirmDeletion({
   title = confirmDeleteText,
-  modalProps = {},
+  modalProps = {
+    buttonColor: 'danger',
+    defaultFocusedButton: EUI_MODAL_CONFIRM_BUTTON,
+  },
   body = null,
   onConfirm,
   onCancel,
   cancelButtonText = cancelText,
   confirmButtonText = confirmText,
-}) => {
+} = {}) {
   let bodyText = <p>{doYouReallyWantToDeleteText}?</p>;
   if (body) {
     bodyText = (
@@ -42,20 +45,25 @@ const confirmDeletion = ({
     );
   }
 
-  return {
-    modalProps: {
-      ...modalProps,
-      buttonColor: 'danger',
-      defaultFocusedButton: EUI_MODAL_CONFIRM_BUTTON,
-    },
-    cancelButtonText,
-    confirmButtonText,
-    onConfirm,
-    onCancel,
-    title,
-    body: bodyText,
-  };
-};
+  return (
+    <EuiOverlayMask>
+      <EuiConfirmModal
+        id="confirm-modal"
+        className="sgConfirmModal"
+        title={title}
+        onCancel={onCancel}
+        onConfirm={onConfirm}
+        cancelButtonText={cancelButtonText}
+        confirmButtonText={confirmButtonText}
+        {...modalProps}
+      >
+        <EuiText className="sgConfirmModalBody" data-test-subj="sgConfirmModalBody">
+          {bodyText}
+        </EuiText>
+      </EuiConfirmModal>
+    </EuiOverlayMask>
+  );
+}
 
 confirmDeletion.propTypes = {
   title: PropTypes.node,
@@ -66,5 +74,3 @@ confirmDeletion.propTypes = {
   cancelButtonText: PropTypes.node,
   confirmButtonText: PropTypes.node,
 };
-
-export default confirmDeletion;
