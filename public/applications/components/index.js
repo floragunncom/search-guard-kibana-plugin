@@ -22,6 +22,7 @@ export { default as FormikTextArea } from './FormControls/FormikTextArea';
 export { default as FormikRadio } from './FormControls/FormikRadio';
 
 // Table
+export { default as TableItemToListCell } from './Table/TableItemToListCell';
 export { default as TableItemsListCell } from './Table/TableItemsListCell';
 export { default as TableDeleteAction } from './Table/TableDeleteAction';
 export { default as TableCloneAction } from './Table/TableCloneAction';

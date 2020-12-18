@@ -17,6 +17,7 @@
 export const DEFAULT_USER = {
   reserved: false,
   password: '',
+  search_guard_roles: [],
   backend_roles: [],
   attributes: {},
   _changePassword: false,
@@ -25,4 +26,5 @@ export const DEFAULT_USER = {
   _attributes: [],
   _attributesString: [],
   _isComplexUserAttributes: false,
+  _isAdvanced: false,
 };

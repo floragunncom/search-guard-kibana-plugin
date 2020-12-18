@@ -14,12 +14,21 @@
  * limitations under the License.
  */
 
-import { omit } from 'lodash';
-import { DEFAULT_PASSWORD, FIELDS_TO_OMIT_BEFORE_SAVE } from '../../../utils/constants';
+import React from 'react';
+import PropTypes from 'prop-types';
 
-const uiResourceToResource = (user) => ({
-  password: DEFAULT_PASSWORD, // API prohibits saving user with empty password
-  ...omit(user, ['_id', '_searchGuardRoles', '_backendRoles', ...FIELDS_TO_OMIT_BEFORE_SAVE]),
-});
+const TableItemToListCell = ({ item, name, splitByDelimiter = ',' }) => (
+  <div data-test-subj={`sgTableCol-${name}`}>
+    {item.split(splitByDelimiter).map((item, i) => (
+      <div key={i}>{item}</div>
+    ))}
+  </div>
+);
 
-export default uiResourceToResource;
+TableItemToListCell.propTypes = {
+  item: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  splitByDelimiter: PropTypes.string,
+};
+
+export default TableItemToListCell;
