@@ -170,7 +170,6 @@ describe(AuthClass.name, () => {
       headers: { a: 1 },
       url: {
         pathname: '/api/v1/searchguard/kibana_config',
-        path: '/api/v1/searchguard/kibana_config',
       },
     };
 
@@ -239,7 +238,6 @@ describe(AuthClass.name, () => {
       },
       url: {
         pathname: '/api/v1/searchguard/kibana_config',
-        path: '/api/v1/searchguard/kibana_config',
       },
     };
 
@@ -313,7 +311,6 @@ describe(AuthClass.name, () => {
       },
       url: {
         pathname: '/api/v1/searchguard/kibana_config',
-        path: '/api/v1/searchguard/kibana_config',
       },
     };
 
@@ -387,7 +384,6 @@ describe(AuthClass.name, () => {
       },
       url: {
         pathname: '/api/v1/searchguard/kibana_config',
-        path: '/api/v1/searchguard/kibana_config',
       },
     };
 
@@ -477,7 +473,6 @@ describe(AuthClass.name, () => {
       },
       url: {
         pathname: '/api/v1/searchguard/kibana_config',
-        path: '/api/v1/searchguard/kibana_config',
       },
     };
     const additionalAuthHeaders = {};
@@ -568,7 +563,6 @@ describe(AuthClass.name, () => {
       },
       url: {
         pathname: '/api/v1/searchguard/kibana_config',
-        path: '/api/v1/searchguard/kibana_config',
       },
     };
 
@@ -648,7 +642,6 @@ describe(AuthClass.name, () => {
       },
       url: {
         pathname: '/api/v1/searchguard/kibana_config',
-        path: '/api/v1/searchguard/kibana_config',
       },
     };
     const additionalAuthHeaders = {};
@@ -760,7 +753,6 @@ describe(AuthClass.name, () => {
         },
         url: {
           pathname: '/api/v1/searchguard/kibana_config',
-          path: '/api/v1/searchguard/kibana_config',
         },
       };
 
@@ -816,7 +808,6 @@ describe(AuthClass.name, () => {
         },
         url: {
           pathname: '/api/v1/searchguard/kibana_config',
-          path: '/api/v1/searchguard/kibana_config',
         },
       };
 

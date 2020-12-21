@@ -19,7 +19,7 @@ import { ensureRawRequest } from '../../../../../src/core/server/http/router';
 
 function isRelevantMultiTenancyPath(request) {
   // MT is only relevant for these paths
-  const path = request.url.path;
+  const path = request.url.pathname;
   if (
     !path.startsWith('/internal/spaces') &&
     !path.startsWith('/internal/search') &&
@@ -331,7 +331,7 @@ export async function handleDefaultSpace({
 }) {
   const spacesPlugin = pluginDependencies.spaces || null;
   // The global tenant ('') does not need to be handled
-  if (!spacesPlugin || !selectedTenant || !isDefaultSpacesRelevantPath(request.url.path)) {
+  if (!spacesPlugin || !selectedTenant || !isDefaultSpacesRelevantPath(request.url.pathname)) {
     return false;
   }
 
