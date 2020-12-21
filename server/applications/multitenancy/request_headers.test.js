@@ -89,7 +89,7 @@ describe('request_headers', () => {
       const request = {
         headers: {},
         url: {
-          path: '/app',
+          pathname: '/app',
         },
       };
       const authinfoResponse = {
@@ -147,7 +147,7 @@ describe('request_headers', () => {
       const request = {
         headers: { sgtenant },
         url: {
-          path: '/app',
+          pathname: '/app',
         },
       };
       const rawRequest = ensureRawRequest(cloneDeep(request));
@@ -234,7 +234,7 @@ describe('request_headers', () => {
       const request = {
         headers: { sgtenant },
         url: {
-          path: '/app',
+          pathname: '/app',
         },
       };
       const rawRequest = ensureRawRequest(cloneDeep(request));
@@ -309,7 +309,7 @@ describe('request_headers', () => {
           cookie: 'searchguard_authentication=Fe26.2**925d29ddcc3aba',
         },
         url: {
-          path: '/api/v1/searchguard/kibana_config',
+          pathname: '/api/v1/searchguard/kibana_config',
         },
       };
       const authHeaders = {
@@ -369,7 +369,7 @@ describe('request_headers', () => {
           cookie: 'searchguard_authentication=Fe26.2**925d29ddcc3aba',
         },
         url: {
-          path: '/api/v1/searchguard/kibana_config',
+          pathname: '/api/v1/searchguard/kibana_config',
         },
       };
       const authHeaders = {
@@ -441,7 +441,7 @@ describe('request_headers', () => {
           cookie: 'searchguard_authentication=Fe26.2**925d29ddcc3aba',
         },
         url: {
-          path: '/api/v1/searchguard/kibana_config',
+          pathname: '/api/v1/searchguard/kibana_config',
         },
       };
       const authHeaders = {
@@ -470,7 +470,7 @@ describe('request_headers', () => {
           sgtenant,
         },
         url: {
-          path: '/irrelevant-path',
+          pathname: '/irrelevant-path',
         },
       };
       const authHeaders = {
@@ -499,7 +499,7 @@ describe('request_headers', () => {
           cookie: 'searchguard_authentication=Fe26.2**925d29ddcc3aba',
         },
         url: {
-          path: '/api/v1/searchguard/kibana_config',
+          pathname: '/api/v1/searchguard/kibana_config',
         },
       };
       const authHeaders = {
@@ -528,7 +528,7 @@ describe('request_headers', () => {
           cookie: 'searchguard_authentication=Fe26.2**925d29ddcc3aba',
         },
         url: {
-          path: '/api/v1/searchguard/kibana_config',
+          pathname: '/api/v1/searchguard/kibana_config',
         },
       };
       const authHeaders = {

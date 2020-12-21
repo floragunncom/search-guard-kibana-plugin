@@ -242,7 +242,7 @@ export function defineRoutes({
       },
     },
     async (context, request, response) => {
-      logger.info('Why are we handling anonymous auth?', request.url.path);
+      logger.info('Why are we handling anonymous auth?', request.url.pathname);
       if (config.get('searchguard.auth.anonymous_auth_enabled')) {
         try {
           await authInstance.handleAuthenticate(request, {}, { isAnonymousAuth: true });
