@@ -4,6 +4,7 @@ start=`date +%s`
 # WARNING! Do not use jq here, only bash.
 COMMAND="$1"
 EXIT_IF_VULNERABILITY=true
+output=$(mktemp)
 
 # sanity checks for options
 if [ -z "$COMMAND" ]; then
@@ -68,9 +69,10 @@ fi
 # check for snapshot
 WORK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $WORK_DIR
-grep "\-SNAPSHOT" package.json > /dev/null 2>&1
+grep "\-SNAPSHOT" package.json > /dev/null &> $output
 if [ $? != 0 ]; then
     echo "Not a snapshot version in package.json"
+    cat $output
     exit 1
 fi
 
@@ -111,10 +113,19 @@ rm -f "$WORK_DIR/build.log"
 echo "Logfile: $WORK_DIR/build.log"
 
 echo "+++ Cloning https://github.com/elastic/kibana.git +++"
-git clone https://github.com/elastic/kibana.git >>"$WORK_DIR/build.log" 2>&1
+git clone https://github.com/elastic/kibana.git >>"$WORK_DIR/build.log" &> $output
+if [ $? != 0 ]; then
+    echo "Failed to clone Kibana"
+    cat $output
+    exit 1
+fi
 
 cd "kibana"
-git fetch >>"$WORK_DIR/build.log" 2>&1
+git fetch >>"$WORK_DIR/build.log" &> $output
+if [ $? != 0 ]; then
+    echo "Failed to fetch Kibana"
+    exit 1
+fi
 
 echo "+++ Going to choose Kibana repo branch +++"
 if [ -n "$KIBANA_APP_BRANCH" ]; then
@@ -134,9 +145,10 @@ fi
 #This is taken from Kibana GIT
 KIBANA_APP_VERSION=$(grep -e '\bversion\b' package.json | tr -d "[:blank:]" | sed -E 's/"version":"(.*)",/\1/')
 echo "+++ Installing node version $(cat .node-version) +++"
-nvm install "$(cat .node-version)" >>"$WORK_DIR/build.log" 2>&1
+nvm install "$(cat .node-version)" >>"$WORK_DIR/build.log" &> $output
 if [ $? != 0 ]; then
     echo "Installing node $(cat .node-version) failed"
+    cat $output
     exit 1
 else
     echo "    -> $(cat .node-version)"
@@ -147,9 +159,10 @@ export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 
 if ! [ -x "$(command -v yarn)" ]; then
     echo "+++ Installing Yarn +++"
-    curl -Ss -o- -L https://yarnpkg.com/install.sh | bash >>"$WORK_DIR/build.log" 2>&1
+    curl -Ss -o- -L https://yarnpkg.com/install.sh | bash >>"$WORK_DIR/build.log" &> $output
     if [ $? != 0 ]; then
         echo "Installing Yarn failed"
+        cat $output
         exit 1
     fi
 else
@@ -187,9 +200,10 @@ fi
 echo ${auditResult::limit} >>"$WORK_DIR/build.log" 2>&1
 
 echo "+++ Installing plugin node modules +++"
-yarn kbn bootstrap >>"$WORK_DIR/build.log" 2>&1
+yarn kbn bootstrap >>"$WORK_DIR/build.log" &> $output
 if [ $? != 0 ]; then
     echo "Installing node modules failed"
+    cat $output
     exit 1
 fi
 
@@ -210,10 +224,11 @@ if [[ ! $srvtestsResult =~ .*\"numFailedTests\":0.* || ! $srvtestsResult =~ .*\"
 fi
 
 echo "+++ Installing plugin node modules for production +++"
-rm -rf "node_modules" yarn.lock
-yarn install --production >>"$WORK_DIR/build.log" 2>&1
+rm -rf "node_modules"
+yarn install --production >>"$WORK_DIR/build.log" &> $output
 if [ $? != 0 ]; then
     echo "Installing node modules failed"
+    cat $output
     exit 1
 fi
 
