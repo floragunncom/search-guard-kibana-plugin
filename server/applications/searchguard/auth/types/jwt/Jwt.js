@@ -73,11 +73,9 @@ export default class Jwt extends AuthType {
     // Go through all given query parameters and make them lowercase
     // to avoid confusion when using uppercase or perhaps mixed caps
     const lowerCaseQueryParameters = {};
-    if (request.url.query) {
-      Object.keys(request.url.query).forEach((query) => {
-        lowerCaseQueryParameters[query.toLowerCase()] = request.url.query[query];
-      });
-    }
+    request.url.searchParams.forEach((value, key) => {
+      lowerCaseQueryParameters[key.toLowerCase()] = value;
+    });
 
     const jwtAuthParam = lowerCaseQueryParameters[urlparamname] || null;
 
