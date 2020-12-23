@@ -56,10 +56,10 @@ function getExternalTenant(request, logger, debugEnabled = false) {
     }
   }
   // check for tenant information in GET parameter. E.g. when using a share link. Overwrites the HTTP header.
-  if (request.url.query && (request.url.query.sg_tenant || request.url.query.sgtenant)) {
-    externalTenant = request.url.query.sg_tenant
-      ? request.url.query.sg_tenant
-      : request.url.query.sgtenant;
+  if (request.url.searchParams.has('sg_tenant') || request.url.searchParams.has('sgtenant')) {
+    externalTenant = request.url.searchParams.has('sg_tenant')
+      ? request.url.searchParams.get('sg_tenant')
+      : request.url.searchParams.get('sgtenant');
 
     if (debugEnabled) {
       logger.info(`Multitenancy: tenant_url_param' ${externalTenant}`);

@@ -90,6 +90,7 @@ describe('request_headers', () => {
         headers: {},
         url: {
           pathname: '/app',
+          searchParams: new URLSearchParams(),
         },
       };
       const authinfoResponse = {
@@ -148,6 +149,7 @@ describe('request_headers', () => {
         headers: { sgtenant },
         url: {
           pathname: '/app',
+          searchParams: new URLSearchParams(),
         },
       };
       const rawRequest = ensureRawRequest(cloneDeep(request));
@@ -235,6 +237,7 @@ describe('request_headers', () => {
         headers: { sgtenant },
         url: {
           pathname: '/app',
+          searchParams: new URLSearchParams(),
         },
       };
       const rawRequest = ensureRawRequest(cloneDeep(request));
@@ -310,6 +313,7 @@ describe('request_headers', () => {
         },
         url: {
           pathname: '/api/v1/searchguard/kibana_config',
+          searchParams: new URLSearchParams(),
         },
       };
       const authHeaders = {
@@ -370,6 +374,7 @@ describe('request_headers', () => {
         },
         url: {
           pathname: '/api/v1/searchguard/kibana_config',
+          searchParams: new URLSearchParams(),
         },
       };
       const authHeaders = {
@@ -442,6 +447,7 @@ describe('request_headers', () => {
         },
         url: {
           pathname: '/api/v1/searchguard/kibana_config',
+          searchParams: new URLSearchParams(),
         },
       };
       const authHeaders = {
@@ -471,6 +477,7 @@ describe('request_headers', () => {
         },
         url: {
           pathname: '/irrelevant-path',
+          searchParams: new URLSearchParams(),
         },
       };
       const authHeaders = {
@@ -500,6 +507,7 @@ describe('request_headers', () => {
         },
         url: {
           pathname: '/api/v1/searchguard/kibana_config',
+          searchParams: new URLSearchParams(),
         },
       };
       const authHeaders = {
@@ -529,6 +537,7 @@ describe('request_headers', () => {
         },
         url: {
           pathname: '/api/v1/searchguard/kibana_config',
+          searchParams: new URLSearchParams(),
         },
       };
       const authHeaders = {
