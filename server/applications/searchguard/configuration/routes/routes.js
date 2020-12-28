@@ -153,23 +153,6 @@ export function getConfigAliases({ searchGuardConfigurationBackend, logger }) {
   };
 }
 
-export function getValidatedDLS({ searchGuardConfigurationBackend, logger }) {
-  return async function (context, request, response) {
-    try {
-      const body = await searchGuardConfigurationBackend.validateDls(
-        request.headers,
-        request.params.indexName,
-        request.body
-      );
-
-      return response.ok({ body });
-    } catch (error) {
-      logger.error(`getValidatedDLS: ${error.stack}`);
-      return response.customError(wrapForCustomError(error));
-    }
-  };
-}
-
 export function getConfigIndexMappings({ searchGuardConfigurationBackend, logger }) {
   return async function (context, request, response) {
     try {
@@ -337,22 +320,6 @@ export function defineConfigurationRoutes({ searchGuardConfigurationBackend, kib
       },
     },
     getConfigAliases({ searchGuardConfigurationBackend, logger })
-  );
-
-  router.post(
-    {
-      path: `${API_ROOT}/configuration/validatedls/{indexName}`,
-      validate: {
-        params: schema.object({
-          indexName: schema.string(),
-        }),
-        body: schema.object({}, { unknowns: 'allow' }),
-      },
-      options: {
-        authRequired: true,
-      },
-    },
-    getValidatedDLS({ searchGuardConfigurationBackend, logger })
   );
 
   router.post(

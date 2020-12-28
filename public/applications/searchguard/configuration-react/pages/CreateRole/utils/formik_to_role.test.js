@@ -51,6 +51,7 @@ describe('UI role to role ', () => {
           'aname::SHA-512',
         ],
         allowed_actions: ['A', 'B', 'cluster:a', 'indices:a', 'kibana:a'],
+        dls: '{"query": {"term": {"manager": ${user.name|toJson} }}}',
       },
     ];
 
@@ -58,7 +59,6 @@ describe('UI role to role ', () => {
       {
         _isAdvanced: false,
         _isAdvancedFLSMaskedFields: false,
-        _dls: '',
         flsmode: FLS_MODES.WHITELIST,
         index_patterns: [{ label: 'a' }, { label: 'b' }],
         fls: [{ label: 'c' }, { label: 'd' }],
@@ -108,6 +108,39 @@ describe('UI role to role ', () => {
           actiongroups: [{ label: 'A' }, { label: 'B' }],
           permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
         },
+        dls: '',
+        _dls: '{"query": {"term": {"manager": ${user.name|toJson} }}}',
+      },
+    ];
+
+    expect(uiIndexPermissionsToIndexPermissions(uiResource)).toEqual(resource);
+  });
+
+  test('delete DLS', () => {
+    const resource = [
+      {
+        index_patterns: [],
+        fls: [],
+        masked_fields: [],
+        allowed_actions: [],
+      },
+    ];
+
+    const uiResource = [
+      {
+        _isAdvanced: false,
+        _isAdvancedFLSMaskedFields: false,
+        flsmode: FLS_MODES.WHITELIST,
+        index_patterns: [],
+        fls: [],
+        masked_fields: [],
+        masked_fields_advanced: [],
+        allowed_actions: {
+          actiongroups: [],
+          permissions: [],
+        },
+        _dls: '',
+        dls: '{"query": {"term": {"manager": ${user.name|toJson} }}}',
       },
     ];
 
@@ -128,7 +161,6 @@ describe('UI role to role ', () => {
       {
         _isAdvanced: false,
         _isAdvancedFLSMaskedFields: true,
-        _dls: '',
         flsmode: FLS_MODES.WHITELIST,
         index_patterns: [],
         fls: [],
@@ -158,7 +190,6 @@ describe('UI role to role ', () => {
       {
         _isAdvanced: false,
         _isAdvancedFLSMaskedFields: true,
-        _dls: '',
         flsmode: FLS_MODES.WHITELIST,
         index_patterns: [],
         fls: [],
@@ -170,63 +201,6 @@ describe('UI role to role ', () => {
           },
         ],
         masked_fields_advanced: [],
-        allowed_actions: {
-          actiongroups: [],
-          permissions: [],
-        },
-      },
-    ];
-
-    expect(uiIndexPermissionsToIndexPermissions(uiResource)).toEqual(resource);
-  });
-
-  test('DLS field changed', () => {
-    const resource = [
-      {
-        index_patterns: [],
-        fls: [],
-        masked_fields: [],
-        allowed_actions: [],
-        dls: JSON.stringify({ exists: { field: 'user' } }),
-      },
-    ];
-
-    const uiResource = [
-      {
-        _dls: JSON.stringify({ exists: { field: 'user' } }),
-        dls: JSON.stringify({ match_all: {} }),
-        flsmode: FLS_MODES.WHITELIST,
-        index_patterns: [],
-        masked_fields: [],
-        fls: [],
-        allowed_actions: {
-          actiongroups: [],
-          permissions: [],
-        },
-      },
-    ];
-
-    expect(uiIndexPermissionsToIndexPermissions(uiResource)).toEqual(resource);
-  });
-
-  test('DLS is empty, delete it', () => {
-    const resource = [
-      {
-        index_patterns: [],
-        fls: [],
-        masked_fields: [],
-        allowed_actions: [],
-      },
-    ];
-
-    const uiResource = [
-      {
-        _dls: '',
-        dls: JSON.stringify({ match_all: {} }),
-        flsmode: FLS_MODES.WHITELIST,
-        index_patterns: [],
-        fls: [],
-        masked_fields: [],
         allowed_actions: {
           actiongroups: [],
           permissions: [],
@@ -432,7 +406,6 @@ describe('UI role to role ', () => {
             permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
           },
           flsmode: FLS_MODES.WHITELIST,
-          _dls: '',
           _isAdvanced: false,
           _isAdvancedFLSMaskedFields: false,
         },
@@ -478,7 +451,6 @@ describe('UI role to role ', () => {
             permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
           },
           flsmode: FLS_MODES.BLACKLIST,
-          _dls: '',
           _isAdvanced: false,
           _isAdvancedFLSMaskedFields: false,
         },

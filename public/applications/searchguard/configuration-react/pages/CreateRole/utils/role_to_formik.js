@@ -128,18 +128,6 @@ export const flsmodeAndFlsToUiFlsmoddeAndFls = (fls = []) => {
   return { flsmode, fls: _fls };
 };
 
-export const dlsToUiDls = (dlsQuery) => {
-  let _dlsQuery = '';
-  if (!isEmpty(dlsQuery)) {
-    try {
-      _dlsQuery = stringifyPretty(JSON.parse(dlsQuery));
-    } catch (error) {
-      // Keep '' if .dls query can't be parsed
-    }
-  }
-  return _dlsQuery;
-};
-
 export const excludeIndexPermissionToUiExcludeIndexPermission = (excludeIndexPermission) => {
   const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(
     excludeIndexPermission.actions
@@ -204,7 +192,7 @@ export const indexPermissionToUiIndexPermission = (indexPermission) => {
   return {
     ...indexPermission,
     ...flsmodeAndFlsToUiFlsmoddeAndFls(indexPermission.fls),
-    _dls: dlsToUiDls(indexPermission.dls),
+    _dls: indexPermission.dls,
     allowed_actions: allowedActions,
     index_patterns: indexPatterns,
     masked_fields: maskedFieldsToUiMaskedFields(indexPermission.masked_fields),

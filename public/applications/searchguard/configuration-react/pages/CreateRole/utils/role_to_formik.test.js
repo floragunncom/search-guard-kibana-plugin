@@ -21,7 +21,6 @@ import {
   indicesToUiIndices,
   tenantPermissionToUiTenantPermission,
   flsmodeAndFlsToUiFlsmoddeAndFls,
-  dlsToUiDls,
   indexPermissionToUiIndexPermission,
   clusterPermissionsToUiClusterPermissions,
   roleToFormik,
@@ -136,18 +135,6 @@ describe('role to UI role ', () => {
     expect(flsmodeAndFlsToUiFlsmoddeAndFls(resource)).toEqual(uiResource);
   });
 
-  test('can build UI DLS', () => {
-    const dls = JSON.stringify({ a: 'b', c: { d: 'e' } });
-    const uiDls = '{\n  "a": "b",\n  "c": {\n    "d": "e"\n  }\n}';
-    expect(dlsToUiDls(dls)).toBe(uiDls);
-  });
-
-  test('can build UI DLS if .dls value cannot be parsed', () => {
-    const dls = '{ "a" }';
-    const uiDls = '';
-    expect(dlsToUiDls(dls)).toBe(uiDls);
-  });
-
   test('can build UI index permission', () => {
     const resource = {
       index_patterns: ['b', 'a'],
@@ -158,12 +145,12 @@ describe('role to UI role ', () => {
         'bname',
       ],
       allowed_actions: ['indices:a', 'kibana:a', 'cluster:a', 'B', 'A'],
+      dls: '{"query": {"term": {"manager": ${user.name|toJson} }}}',
     };
 
     const uiResource = {
       _isAdvanced: true,
       _isAdvancedFLSMaskedFields: false,
-      _dls: '',
       flsmode: FLS_MODES.WHITELIST,
       index_patterns: [{ label: 'a' }, { label: 'b' }],
       fls: [{ label: 'c' }, { label: 'd' }],
@@ -205,6 +192,8 @@ describe('role to UI role ', () => {
         actiongroups: [{ label: 'A' }, { label: 'B' }],
         permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
       },
+      dls: '{"query": {"term": {"manager": ${user.name|toJson} }}}',
+      _dls: '{"query": {"term": {"manager": ${user.name|toJson} }}}',
     };
 
     expect(indexPermissionToUiIndexPermission(resource)).toEqual(uiResource);
@@ -221,7 +210,6 @@ describe('role to UI role ', () => {
     const uiResource = {
       _isAdvanced: false,
       _isAdvancedFLSMaskedFields: false,
-      _dls: '',
       flsmode: FLS_MODES.WHITELIST,
       index_patterns: [],
       fls: [],
@@ -396,7 +384,6 @@ describe('role to UI role ', () => {
             permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
           },
           flsmode: FLS_MODES.WHITELIST,
-          _dls: '',
           _isAdvanced: true,
           _isAdvancedFLSMaskedFields: false,
         },
@@ -450,7 +437,6 @@ describe('role to UI role ', () => {
             permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
           },
           flsmode: FLS_MODES.BLACKLIST,
-          _dls: '',
           _isAdvanced: true,
           _isAdvancedFLSMaskedFields: false,
         },
