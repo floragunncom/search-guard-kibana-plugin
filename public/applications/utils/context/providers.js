@@ -64,20 +64,18 @@ export function onSwitchChangeProvider(e, field, form) {
   form.setFieldValue(field.name, !(e.target.value === 'true' || e.target.value === true));
 }
 
-export function onComboBoxChangeProvider({ setModal, validationFn }) {
-  return function (options, field, form) {
-    const isValidationRequired = validationFn instanceof Function;
+export function onComboBoxChangeProvider({ setModal, validationFn } = {}) {
+  return async function (options, field, form) {
+    const isValidationRequired = typeof validationFn === 'function';
 
     if (isValidationRequired) {
-      const error = validationFn(options);
-      if (error instanceof Promise) {
-        error
-          .then((_error) => {
-            throw _error;
-          })
-          .catch((_error) => form.setFieldError(field.name, _error));
-      } else {
-        form.setFieldError(field.name, error);
+      try {
+        const answer = validationFn(options);
+        // if answer == null the previous error is removed
+        form.setFieldError(field.name, answer instanceof Promise ? await answer : answer);
+      } catch (error) {
+        console.error('onComboBoxChangeProvider', error);
+        form.setFieldError(field.name, error.message || error);
       }
     }
 
@@ -107,18 +105,15 @@ export function onComboBoxChangeProvider({ setModal, validationFn }) {
 export function onComboBoxCreateOptionProvider(validationFn, ...props) {
   return async function (label, field, form) {
     let isValid = true;
-    const isValidationRequired = validationFn instanceof Function;
+    const isValidationRequired = typeof validationFn === 'function';
 
     if (isValidationRequired) {
-      const _isValid = validationFn(label, ...props);
-      if (_isValid instanceof Promise) {
-        await _isValid
-          .then((_error) => {
-            throw _error;
-          })
-          .catch((_error) => (isValid = _error));
-      } else {
-        isValid = _isValid;
+      try {
+        const answer = validationFn(label, ...props);
+        isValid = answer instanceof Promise ? await answer : answer;
+      } catch (error) {
+        console.error('onComboBoxCreateOptionProvider', error);
+        isValid = false;
       }
     }
 
