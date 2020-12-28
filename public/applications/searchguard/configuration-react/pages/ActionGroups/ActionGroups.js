@@ -32,12 +32,15 @@ import {
 } from '../../utils/i18n/action_groups';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
 import { LocalStorageService, ActionGroupsService } from '../../services';
+import { Context } from '../../Context';
 
 class ActionGroups extends Component {
-  constructor(props) {
-    super(props);
+  static contextType = Context;
 
-    this.backendService = new ActionGroupsService(this.props.httpClient);
+  constructor(props, context) {
+    super(props, context);
+
+    this.backendService = new ActionGroupsService(context.httpClient);
     this.localStorage = new LocalStorageService();
     const { isShowingTableSystemItems = false } = this.localStorage.cache[APP_PATH.ACTION_GROUPS];
 
@@ -75,22 +78,22 @@ class ActionGroups extends Component {
       this.setState({ resources, tableResources, error: null });
     } catch (error) {
       this.setState({ error });
-      this.props.onTriggerErrorCallout(error);
+      this.context.triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
   }
 
   handleDeleteResources = resourcesToDelete => {
-    const { onTriggerConfirmDeletionModal } = this.props;
-    onTriggerConfirmDeletionModal({
+    const { triggerConfirmDeletionModal } = this.context;
+    triggerConfirmDeletionModal({
       body: resourcesToDelete.join(', '),
       onConfirm: () => {
         this.deleteResources(resourcesToDelete);
-        onTriggerConfirmDeletionModal(null);
+        triggerConfirmDeletionModal(null);
       },
       onCancel: () => {
         this.setState({ tableSelection: [] });
-        onTriggerConfirmDeletionModal(null);
+        triggerConfirmDeletionModal(null);
       }
     });
   }
@@ -103,7 +106,7 @@ class ActionGroups extends Component {
       }
     } catch(error) {
       this.setState({ error });
-      this.props.onTriggerErrorCallout(error);
+      this.context.triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
     this.fetchData();
@@ -117,7 +120,7 @@ class ActionGroups extends Component {
       await this.backendService.save(name, uiResourceToResource(resource));
     } catch(error) {
       this.setState({ error });
-      this.props.onTriggerErrorCallout(error);
+      this.context.triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
     this.fetchData();
@@ -287,11 +290,8 @@ class ActionGroups extends Component {
 }
 
 ActionGroups.propTypes = {
-  httpClient: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired,
 };
 
 export default ActionGroups;

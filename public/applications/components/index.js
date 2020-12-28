@@ -6,6 +6,7 @@ export { default as Modal } from './Modal';
 export { default as Callout } from './Callout';
 export { default as Breadcrumbs } from './Breadcrumbs';
 export { CodeEditor } from './CodeEditor';
+export { ErrorToast } from './Toasts';
 
 // Formik wrappers
 export { default as FormikFormRow } from './FormControls/FormikFormRow';

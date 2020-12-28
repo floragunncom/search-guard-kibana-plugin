@@ -61,7 +61,7 @@ class InternalUsers extends Component {
 
     this.configService = this.context.configService;
     this.localStorage = new LocalStorageService();
-    this.backendService = new InternalUsersService(this.props.httpClient);
+    this.backendService = new InternalUsersService(context.httpClient);
     const { isShowingTableSystemItems = false } = this.localStorage.cache[APP_PATH.INTERNAL_USERS];
 
     this.state = {
@@ -98,22 +98,22 @@ class InternalUsers extends Component {
       this.setState({ resources, tableResources, error: null });
     } catch (error) {
       this.setState({ error });
-      this.props.onTriggerErrorCallout(error);
+      this.context.triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
   };
 
   handleDeleteResources = (resourcesToDelete) => {
-    const { onTriggerConfirmDeletionModal } = this.props;
-    onTriggerConfirmDeletionModal({
+    const { triggerConfirmDeletionModal } = this.context;
+    triggerConfirmDeletionModal({
       body: resourcesToDelete.join(', '),
       onConfirm: () => {
         this.deleteResources(resourcesToDelete);
-        onTriggerConfirmDeletionModal(null);
+        triggerConfirmDeletionModal(null);
       },
       onCancel: () => {
         this.setState({ tableSelection: [] });
-        onTriggerConfirmDeletionModal(null);
+        triggerConfirmDeletionModal(null);
       },
     });
   };
@@ -126,7 +126,7 @@ class InternalUsers extends Component {
       }
     } catch (error) {
       this.setState({ error });
-      this.props.onTriggerErrorCallout(error);
+      this.context.triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
     this.fetchData();
@@ -140,7 +140,7 @@ class InternalUsers extends Component {
       await this.backendService.save(username, uiResourceToResource(resource));
     } catch (error) {
       this.setState({ error });
-      this.props.onTriggerErrorCallout(error);
+      this.context.triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
     this.fetchData();
@@ -319,9 +319,6 @@ class InternalUsers extends Component {
 
 InternalUsers.propTypes = {
   history: PropTypes.object.isRequired,
-  httpClient: PropTypes.object,
-  onTriggerErrorCallout: PropTypes.func.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
 };
 
 export default InternalUsers;

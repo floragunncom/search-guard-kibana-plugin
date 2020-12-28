@@ -35,4 +35,5 @@ export {
   SaveButton,
   CancelButton,
   Breadcrumbs,
+  ErrorToast,
 } from '../../components';

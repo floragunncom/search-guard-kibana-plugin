@@ -14,6 +14,4 @@
  * limitations under the License.
  */
 
-import Modal from './Modal';
-
-export default Modal;
+export { ErrorToast } from './ErrorToast';

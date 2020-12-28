@@ -1,75 +1,60 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import React, { useState } from 'react';
-import {EuiCodeBlock, EuiGlobalToastList, EuiText, EuiTitle} from '@elastic/eui';
-import uuid from "uuid/v4";
-import {get} from "lodash";
+import { EuiGlobalToastList } from '@elastic/eui';
+import { Modal } from '../../components';
+import {
+  closeModalProvider,
+  removeToastProvider,
+  addSuccessToastProvider,
+  addWarningToastProvider,
+  addErrorToastProvider,
+} from '../../utils/context/providers';
 
 const MainContext = React.createContext();
 
 const MainContextProvider = ({ children, httpClient, chromeHelper, configService }) => {
   const [toasts, setToasts] = useState([]);
+  const [modal, setModal] = useState(null);
 
-  const removeToast = ({ id }) =>
-    setToasts(prevState => prevState.filter(toast => toast.id !== id));
+  function closeModal() {
+    closeModalProvider({ setModal });
+  }
 
-  const addSuccessToast = (text, title = null) =>
-    setToasts(prevState => {
-      return [
-        ...prevState,
-        {
-          title: title || 'Success',
-          text,
-          color: 'success',
-          iconType: 'check',
-          id: uuid(),
-        },
-      ];
+  function removeToast({ id }) {
+    removeToastProvider({ id, setToasts });
+  }
+
+  function addSuccessToast(text) {
+    addSuccessToastProvider({ text, setToasts });
+  }
+
+  function addWarningToast(text) {
+    addWarningToastProvider({ text, setToasts });
+  }
+
+  function addErrorToast(error, { title = 'Error', errorMessage, errorDetails } = {}) {
+    addErrorToastProvider({
+      error,
+      setModal,
+      setToasts,
+      options: { title, errorMessage, errorDetails },
     });
-
-  const addWarningToast = text =>
-    setToasts(prevState => {
-      return [
-        ...prevState,
-        {
-          title: 'Warning',
-          text,
-          color: 'warning',
-          iconType: 'help',
-          id: uuid(),
-        },
-      ];
-    });
-
-  const addErrorToast = (error, title = null) => {
-    let text = get(error, 'data.message') || get(error, 'body.message') || error.message || error;
-    const detail = get(error, 'body.detail', undefined);
-
-    if (detail) {
-      text = (
-        <>
-          <EuiTitle>
-            <h4>{text}</h4>
-          </EuiTitle>
-          <EuiText size="s">
-            <p>Detail:</p>
-          </EuiText>
-          <EuiCodeBlock language="json">{JSON.stringify(detail, null, 2)}</EuiCodeBlock>
-        </>
-      );
-    }
-
-    setToasts(prevState => {
-      return [
-        ...prevState,
-        {
-          title: title || 'Error',
-          text,
-          color: 'danger',
-          iconType: 'alert',
-          id: uuid(),
-        },
-      ];
-    });
-  };
+  }
 
   return (
     <>
@@ -86,10 +71,11 @@ const MainContextProvider = ({ children, httpClient, chromeHelper, configService
         {children}
       </MainContext.Provider>
 
+      <Modal modal={modal} onClose={closeModal} />
+
       <div style={{ zIndex: 9000 }}>
         <EuiGlobalToastList toasts={toasts} dismissToast={removeToast} toastLifeTimeMs={6000} />
       </div>
-
     </>
   );
 };

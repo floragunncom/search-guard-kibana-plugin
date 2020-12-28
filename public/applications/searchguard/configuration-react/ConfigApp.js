@@ -27,7 +27,7 @@ export class ConfigApp {
     };
   }
 
-  setupSync({ core, plugins, httpClient, configService }) {
+  setupSync({ core, plugins, httpClient, configService, ...props }) {
     core.application.register({
       id: 'searchguard-configuration',
       title: 'Configuration',

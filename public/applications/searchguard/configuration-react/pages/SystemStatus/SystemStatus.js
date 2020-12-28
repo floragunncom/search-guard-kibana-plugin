@@ -63,7 +63,7 @@ class SystemStatus extends Component {
 
       this.setState({ resources });
     } catch (error) {
-      this.props.onTriggerErrorCallout(error);
+      this.context.triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
   };
@@ -158,10 +158,6 @@ class SystemStatus extends Component {
 SystemStatus.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  httpClient: PropTypes.object.isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired,
-  onTriggerSuccessCallout: PropTypes.func.isRequired,
-  onTriggerCustomFlyout: PropTypes.func.isRequired,
 };
 
 export default SystemStatus;

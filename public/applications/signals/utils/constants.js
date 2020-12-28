@@ -54,5 +54,6 @@ export const FLYOUTS = {
 
 export const MODALS = {
   CONFIRM_DELETION: 'confirmDeletion',
-  CONFIRM: 'confirm'
+  CONFIRM: 'confirm',
+  ERROR_TOAST_DETAILS: 'errorToastDetails',
 };

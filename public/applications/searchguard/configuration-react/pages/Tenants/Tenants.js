@@ -32,12 +32,15 @@ import {
 } from '../../utils/i18n/tenants';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
 import { LocalStorageService, TenantsService } from '../../services';
+import { Context } from '../../Context';
 
 class Tenants extends Component {
-  constructor(props) {
-    super(props);
+  static contextType = Context;
 
-    this.backendService = new TenantsService(this.props.httpClient);
+  constructor(props, context) {
+    super(props, context);
+
+    this.backendService = new TenantsService(this.context.httpClient);
     this.localStorage = new LocalStorageService();
     const { isShowingTableSystemItems = false } = this.localStorage.cache[APP_PATH.TENANTS];
 
@@ -72,22 +75,22 @@ class Tenants extends Component {
       this.setState({ resources, tableResources, error: null });
     } catch(error) {
       this.setState({ error });
-      this.props.onTriggerErrorCallout(error);
+      this.context.triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
   }
 
   handleDeleteResources = resourcesToDelete => {
-    const { onTriggerConfirmDeletionModal } = this.props;
-    onTriggerConfirmDeletionModal({
+    const { triggerConfirmDeletionModal } = this.context;
+    triggerConfirmDeletionModal({
       body: resourcesToDelete.join(', '),
       onConfirm: () => {
         this.deleteResources(resourcesToDelete);
-        onTriggerConfirmDeletionModal(null);
+        triggerConfirmDeletionModal(null);
       },
       onCancel: () => {
         this.setState({ tableSelection: [] });
-        onTriggerConfirmDeletionModal(null);
+        triggerConfirmDeletionModal(null);
       }
     });
   }
@@ -100,7 +103,7 @@ class Tenants extends Component {
       }
     } catch(error) {
       this.setState({ error });
-      this.props.onTriggerErrorCallout(error);
+      this.context.triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
     this.fetchData();
@@ -114,7 +117,7 @@ class Tenants extends Component {
       await this.backendService.save(name, uiResourceToResource(resource));
     } catch(error) {
       this.setState({ error });
-      this.props.onTriggerErrorCallout(error);
+      this.context.triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
     this.fetchData();
@@ -274,8 +277,6 @@ class Tenants extends Component {
 Tenants.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired
 };
 
 export default Tenants;

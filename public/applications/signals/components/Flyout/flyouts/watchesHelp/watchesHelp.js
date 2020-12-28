@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import {
   EuiTitle,
@@ -14,18 +14,13 @@ import { LabelAppendLink, AddButton } from '../../../';
 import { startCase } from 'lodash';
 import { stringifyPretty } from '../../../../utils/helpers';
 import buildWatchExamples from './utils/buildWatchExamples';
-
 import { watchExamplesText } from '../../../../utils/i18n/watch';
 import { addText } from '../../../../utils/i18n/common';
 import { WATCH_EXAMPLES } from '../../../../utils/constants';
 
-import { Context } from '../../../../Context';
-
 const watchExamples = buildWatchExamples();
 
-export const TabContent = ({ watchName, onPutWatch, isLoading }) => {
-  const { editorTheme, editorOptions } = useContext(Context);
-
+export const TabContent = ({ watchName, onPutWatch, isLoading, editorOptions, editorTheme }) => {
   let watchJson;
   try {
     watchJson = stringifyPretty(watchExamples[watchName].json);
@@ -45,11 +40,11 @@ export const TabContent = ({ watchName, onPutWatch, isLoading }) => {
         labelAppend={<LabelAppendLink href={watchExamples[watchName].doc_link} name="WatchDoc" />}
       >
         <EuiCodeEditor
-          mode="json"
           theme={editorTheme}
+          setOptions={editorOptions}
+          mode="json"
           width="100%"
           value={watchJson}
-          setOptions={editorOptions}
           isReadOnly
           data-test-subj={`sgWatch-ExampleCode-${watchName}`}
           id={`watch-example-${watchName}`}
@@ -86,15 +81,25 @@ export const TabContent = ({ watchName, onPutWatch, isLoading }) => {
 TabContent.propTypes = {
   watchName: PropTypes.string.isRequired,
   onPutWatch: PropTypes.func.isRequired,
-  isLoading: PropTypes.bool.isRequired
+  isLoading: PropTypes.bool.isRequired,
+  editorOptions: PropTypes.object,
+  editorTheme: PropTypes.string,
 };
 
-const renderTabs = ({ onPutWatch, isLoading }) => Object.values(WATCH_EXAMPLES)
+const renderTabs = ({ onPutWatch, isLoading, editorOptions, editorTheme }) => Object.values(WATCH_EXAMPLES)
   .reduce((acc, watchName) => {
     acc.push({
       id: watchName,
       name: startCase(watchName),
-      content: <TabContent watchName={watchName} onPutWatch={onPutWatch} isLoading={isLoading} />
+      content: (
+        <TabContent
+          watchName={watchName}
+          onPutWatch={onPutWatch}
+          isLoading={isLoading}
+          editorOptions={editorOptions}
+          editorTheme={editorTheme}
+        />
+      ),
     });
     return acc;
   }, []);
@@ -105,9 +110,11 @@ export const watchesHelp = ({
   headerProps = { hasBorder: true },
   onPutWatch,
   isLoading,
-  error
+  error,
+  editorTheme,
+  editorOptions,
 } = {}) => {
-  const tabs = renderTabs({ onPutWatch, isLoading });
+  const tabs = renderTabs({ onPutWatch, isLoading, editorOptions, editorTheme });
 
   return {
     flyoutProps,
@@ -139,5 +146,7 @@ watchesHelp.propTypes = {
   headerProps: PropTypes.object,
   onPutWatch: PropTypes.func.isRequired,
   isLoading: PropTypes.bool.isRequired,
-  error: PropTypes.object
+  error: PropTypes.object,
+  editorOptions: PropTypes.object,
+  editorTheme: PropTypes.string,
 };

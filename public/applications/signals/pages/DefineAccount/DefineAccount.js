@@ -19,10 +19,11 @@ import { Context } from '../../Context';
 class DefineAccount extends Component {
   static contextType = Context;
 
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
 
-    const { location, httpClient } = this.props;
+    const { location } = this.props;
+    const { httpClient } = context;
     const { accountType } = queryString.parse(location.search);
 
     this.destService = new AccountsService(httpClient, accountType);
@@ -150,7 +151,6 @@ class DefineAccount extends Component {
 }
 
 DefineAccount.propTypes = {
-  httpClient: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
 };

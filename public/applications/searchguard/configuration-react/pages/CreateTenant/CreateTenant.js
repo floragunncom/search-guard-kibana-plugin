@@ -20,13 +20,16 @@ import { isInvalid, hasError, validateName } from '../../utils/validation';
 import { DEFAULT_TENANT } from './utils/constants';
 import { tenantToFormik, formikToTenant } from './utils';
 import { TenantsService } from '../../services';
+import { Context } from '../../Context';
 
 class CreateTenant extends Component {
-  constructor(props) {
-    super(props);
+  static contextType = Context;
 
-    const { location, httpClient } = this.props;
-    this.backendService = new TenantsService(httpClient);
+  constructor(props, context) {
+    super(props, context);
+
+    const { location } = this.props;
+    this.backendService = new TenantsService(context.httpClient);
     const { id } = queryString.parse(location.search);
 
     this.state = {
@@ -42,12 +45,12 @@ class CreateTenant extends Component {
   }
 
   componentWillUnmount = () => {
-    this.props.onTriggerInspectJsonFlyout(null);
+    this.context.closeFlyout();
   }
 
   fetchData = async () => {
     const { id } = this.state;
-    const { onTriggerErrorCallout } = this.props;
+    const { triggerErrorCallout } = this.context;
     try {
       this.setState({ isLoading: true });
       if (id) {
@@ -57,13 +60,14 @@ class CreateTenant extends Component {
         this.setState({ resource: tenantToFormik(DEFAULT_TENANT), isEdit: !!id });
       }
     } catch(error) {
-      onTriggerErrorCallout(error);
+      triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
   }
 
   onSubmit = async (values, { setSubmitting }) => {
-    const { history, onTriggerErrorCallout } = this.props;
+    const { history } = this.props;
+    const { triggerErrorCallout } = this.context;
     const { _name } = values;
     try {
       await this.backendService.save(_name, formikToTenant(values));
@@ -71,12 +75,13 @@ class CreateTenant extends Component {
       history.push(APP_PATH.TENANTS);
     } catch (error) {
       setSubmitting(false);
-      onTriggerErrorCallout(error);
+      triggerErrorCallout(error);
     }
   }
 
   render() {
-    const { history, onTriggerInspectJsonFlyout, location } = this.props;
+    const { history, location } = this.props;
+    const { triggerInspectJsonFlyout } = this.context;
     const { resource, isLoading } = this.state;
     const { action, id } = queryString.parse(location.search);
     const updateTenant = action === TENANTS_ACTIONS.UPDATE_TENANT;
@@ -103,7 +108,7 @@ class CreateTenant extends Component {
             >
               <InspectButton
                 onClick={() => {
-                  onTriggerInspectJsonFlyout({
+                  triggerInspectJsonFlyout({
                     json: formikToTenant(values),
                     title: titleText
                   });
@@ -147,8 +152,6 @@ class CreateTenant extends Component {
 CreateTenant.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired
 };
 
 export default CreateTenant;

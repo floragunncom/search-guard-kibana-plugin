@@ -33,12 +33,16 @@ import {
 import { internalUsersToUiBackendRoles } from '../../utils/helpers';
 import { hasError, isInvalid, validateEmptyComboBox } from '../../utils/validation';
 import { RolesService, RolesMappingService, InternalUsersService } from '../../services';
+import { Context } from '../../Context';
 
 class CreateRoleMapping extends Component {
-  constructor(props) {
-    super(props);
+  static contextType = Context;
 
-    const { location, httpClient } = this.props;
+  constructor(props, context) {
+    super(props, context);
+
+    const { location } = this.props;
+    const { httpClient } = context;
     this.rolesService = new RolesService(httpClient);
     this.rolesMappingService = new RolesMappingService(httpClient);
     this.internalUsersService = new InternalUsersService(httpClient);
@@ -60,12 +64,12 @@ class CreateRoleMapping extends Component {
   }
 
   componentWillUnmount = () => {
-    this.props.onTriggerInspectJsonFlyout(null);
+    this.context.closeFlyout();
   }
 
   fetchData = async () => {
     const { id } = this.state;
-    const { onTriggerErrorCallout } = this.props;
+    const { triggerErrorCallout } = this.context;
 
     try {
       this.setState({ isLoading: true });
@@ -96,13 +100,14 @@ class CreateRoleMapping extends Component {
         });
       }
     } catch (error) {
-      onTriggerErrorCallout(error);
+      triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
   }
 
   onSubmit = async (values, { setSubmitting }) => {
-    const { history, onTriggerErrorCallout } = this.props;
+    const { history } = this.props;
+    const { triggerErrorCallout } = this.context;
     const { _name: [{ label: name }] } = values;
     try {
       await this.rolesMappingService.save(name, formikToRoleMapping(values));
@@ -110,7 +115,7 @@ class CreateRoleMapping extends Component {
       history.push(APP_PATH.ROLE_MAPPINGS);
     } catch (error) {
       setSubmitting(false);
-      onTriggerErrorCallout(error);
+      triggerErrorCallout(error);
     }
   }
 
@@ -135,14 +140,13 @@ class CreateRoleMapping extends Component {
   };
 
   render() {
+    const { history, location } = this.props;
     const {
-      history,
-      onTriggerInspectJsonFlyout,
-      location,
+      triggerInspectJsonFlyout,
       onComboBoxOnBlur,
       onComboBoxChange,
       onComboBoxCreateOption,
-    } = this.props;
+    } = this.context;
     const {
       resource,
       isLoading,
@@ -173,7 +177,7 @@ class CreateRoleMapping extends Component {
             >
               <InspectButton
                 onClick={() => {
-                  onTriggerInspectJsonFlyout({
+                  triggerInspectJsonFlyout({
                     json: formikToRoleMapping(values),
                     title: titleText
                   });
@@ -249,14 +253,8 @@ class CreateRoleMapping extends Component {
 }
 
 CreateRoleMapping.propTypes = {
-  httpClient: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired,
-  onComboBoxChange: PropTypes.func.isRequired,
-  onComboBoxCreateOption: PropTypes.func.isRequired,
-  onComboBoxOnBlur: PropTypes.func.isRequired,
 };
 
 export default CreateRoleMapping;

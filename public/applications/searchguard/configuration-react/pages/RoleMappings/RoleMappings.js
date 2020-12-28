@@ -39,13 +39,16 @@ import {
 } from '../../utils/i18n/roles';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
 import { LocalStorageService, RolesService, RolesMappingService } from '../../services';
+import { Context } from '../../Context';
 
 class RoleMappings extends Component {
-  constructor(props) {
-    super(props);
+  static contextType = Context;
 
-    this.rolesMappingService = new RolesMappingService(this.props.httpClient);
-    this.rolesService = new RolesService(this.props.httpClient);
+  constructor(props, context) {
+    super(props, context);
+
+    this.rolesMappingService = new RolesMappingService(context.httpClient);
+    this.rolesService = new RolesService(context.httpClient);
     this.localStorage = new LocalStorageService();
     const { isShowingTableSystemItems = false } = this.localStorage.cache[APP_PATH.ROLE_MAPPINGS];
 
@@ -72,7 +75,7 @@ class RoleMappings extends Component {
   }
 
   fetchData = async () => {
-    const { onTriggerErrorCallout } = this.props;
+    const { triggerErrorCallout } = this.context;
     this.setState({ isLoading: true });
     try {
       const { data } = await this.rolesMappingService.list();
@@ -82,22 +85,22 @@ class RoleMappings extends Component {
       this.setState({ resources, tableResources, error: null });
     } catch(error) {
       this.setState({ error });
-      onTriggerErrorCallout(error);
+      triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
   }
 
   handleDeleteResources = resourcesToDelete => {
-    const { onTriggerConfirmDeletionModal } = this.props;
-    onTriggerConfirmDeletionModal({
+    const { triggerConfirmDeletionModal } = this.context;
+    triggerConfirmDeletionModal({
       body: resourcesToDelete.join(', '),
       onConfirm: () => {
         this.deleteResources(resourcesToDelete);
-        onTriggerConfirmDeletionModal(null);
+        triggerConfirmDeletionModal(null);
       },
       onCancel: () => {
         this.setState({ tableSelection: [] });
-        onTriggerConfirmDeletionModal(null);
+        triggerConfirmDeletionModal(null);
       }
     });
   }
@@ -110,7 +113,7 @@ class RoleMappings extends Component {
       }
     } catch(error) {
       this.setState({ error });
-      this.props.onTriggerErrorCallout(error);
+      this.context.triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
     this.fetchData();
@@ -124,7 +127,7 @@ class RoleMappings extends Component {
       await this.rolesMappingService.save(name, uiResourceToResource(resource));
     } catch(error) {
       this.setState({ error });
-      this.props.onTriggerErrorCallout(error);
+      this.context.triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
     this.fetchData();
@@ -322,10 +325,8 @@ class RoleMappings extends Component {
 }
 
 RoleMappings.propTypes = {
-  httpClient: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
 };
 
 export default RoleMappings;
