@@ -123,7 +123,7 @@ export class UiConfigService extends ConfigService {
   }
 
   licenseRequired() {
-    return _get(this.config, 'systeminfo.sg_license.license_required', false);
+    return _get(this.config, 'systeminfo.sg_license.license_required', true);
   }
 
   licenseValid() {
@@ -131,14 +131,14 @@ export class UiConfigService extends ConfigService {
     if (!this.licenseRequired()) {
       return true;
     }
-    return _get(this.config, 'systeminfo.sg_license.is_valid', true);
+    return _get(this.config, 'systeminfo.sg_license.is_valid', false);
   }
 
   isTrialLicense() {
-    if (!_get(this.config, 'systeminfo.sg_license.license_required', true)) {
+    if (!this.licenseRequired()) {
       return false;
     }
-    const licenseType = _get(this.getConfig(), 'systeminfo.sg_license.type', 'TRIAL');
+    const licenseType = _get(this.getConfig(), 'systeminfo.sg_license.type', 'UNKNOWN');
     return licenseType.toLowerCase() === 'trial';
   }
 

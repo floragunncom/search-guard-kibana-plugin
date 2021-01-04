@@ -105,16 +105,4 @@ export const CALLOUTS = {
   SUCCESS_CALLOUT: 'successCallout',
 };
 
-export const DOC_LINKS = {
-  CONFIGURE_INTERNAL_USERS_DATABASE:
-    'https://docs.search-guard.com/latest/internal-users-database#configuring-the-internal-users-database',
-  MAPPING_USERS_ROLES: 'https://docs.search-guard.com/latest/first-steps-mapping-users-roles',
-  ROLE_PERMISSIONS: 'https://docs.search-guard.com/latest/roles-permissions',
-  ACTION_GROUPS: 'https://docs.search-guard.com/latest/action-groups',
-  MULTITENANCY: 'https://docs.search-guard.com/latest/kibana-multi-tenancy#kibana-multitenancy',
-  AUTHENTICATION: 'https://docs.search-guard.com/latest/kibana-authentication-types',
-  AUTHENTICATION_API: 'https://docs.search-guard.com/latest/rest-api-authentication',
-  SGADMIN: 'https://docs.search-guard.com/latest/sgadmin-basic-usage',
-  MAIN_CONCEPTS: 'https://docs.search-guard.com/latest/main-concepts',
-  LICENSING: 'https://search-guard.com/licensing/',
-};
+export { DOC_LINKS } from '../../../utils/constants';

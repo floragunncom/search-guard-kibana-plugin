@@ -1,0 +1,204 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LicenseWarningCallout community license is valid 1`] = `null`;
+
+exports[`LicenseWarningCallout license cannot be loaded 1`] = `
+Array [
+  <div
+    className="euiCallOut euiCallOut--danger"
+    data-test-subj="sg.callout.licenseWarning"
+    id="sg.label.licensewarning"
+  >
+    <div
+      className="euiCallOutHeader"
+    >
+      <svg
+        aria-hidden={true}
+        className="euiIcon euiIcon--medium euiIcon-isLoading euiCallOutHeader__icon"
+        focusable="false"
+        height={16}
+        role="img"
+        style={null}
+        viewBox="0 0 16 16"
+        width={16}
+        xmlns="http://www.w3.org/2000/svg"
+      />
+      <span
+        className="euiCallOutHeader__title"
+      >
+        Error
+      </span>
+    </div>
+    <div
+      className="euiText euiText--small"
+    >
+      <div
+        className="euiText euiText--medium"
+      >
+        <p>
+          The Search Guard license information could not be loaded. Please contact your system administrator.
+        </p>
+      </div>
+    </div>
+  </div>,
+  <div
+    className="euiSpacer euiSpacer--l"
+  />,
+]
+`;
+
+exports[`LicenseWarningCallout license is not required 1`] = `null`;
+
+exports[`LicenseWarningCallout license is required 1`] = `
+Array [
+  <div
+    className="euiCallOut euiCallOut--danger"
+    data-test-subj="sg.callout.licenseWarning"
+    id="sg.label.licensewarning"
+  >
+    <div
+      className="euiCallOutHeader"
+    >
+      <svg
+        aria-hidden={true}
+        className="euiIcon euiIcon--medium euiCallOutHeader__icon"
+        focusable="false"
+        height={16}
+        role="img"
+        style={null}
+        viewBox="0 0 16 16"
+        width={16}
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M7.59 10.059L7.35 5.18h1.3L8.4 10.06h-.81zm.394 1.901a.61.61 0 01-.448-.186.606.606 0 01-.186-.444c0-.174.062-.323.186-.446a.614.614 0 01.448-.184c.169 0 .315.06.44.182.124.122.186.27.186.448a.6.6 0 01-.189.446.607.607 0 01-.437.184zM2 14a1 1 0 01-.878-1.479l6-11a1 1 0 011.756 0l6 11A1 1 0 0114 14H2zm0-1h12L8 2 2 13z"
+          fillRule="evenodd"
+        />
+      </svg>
+      <span
+        className="euiCallOutHeader__title"
+      >
+        Error
+      </span>
+    </div>
+    <div
+      className="euiText euiText--small"
+    >
+      <div
+        className="euiText euiText--medium"
+      >
+        <p>
+          The Search Guard license key is not valid for this cluster. Please contact your system administrator.
+           
+          <a
+            className="euiLink euiLink--primary"
+            href="https://search-guard.com/licensing/"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Licensing options.
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>,
+  <div
+    className="euiSpacer euiSpacer--l"
+  />,
+]
+`;
+
+exports[`LicenseWarningCallout license is valid but expires in 20 days 1`] = `
+Array [
+  <div
+    className="euiCallOut euiCallOut--warning"
+    data-test-subj="sg.callout.licenseHint"
+    id="sg.label.licensehint"
+  >
+    <div
+      className="euiCallOutHeader"
+    >
+      <svg
+        aria-hidden={true}
+        className="euiIcon euiIcon--medium euiCallOutHeader__icon"
+        focusable="false"
+        height={16}
+        role="img"
+        style={null}
+        viewBox="0 0 16 16"
+        width={16}
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M13.6 12.186l-1.357-1.358c-.025-.025-.058-.034-.084-.056.53-.794.84-1.746.84-2.773a4.977 4.977 0 00-.84-2.772c.026-.02.059-.03.084-.056L13.6 3.813a6.96 6.96 0 010 8.373zM8 15A6.956 6.956 0 013.814 13.6l1.358-1.358c.025-.025.034-.057.055-.084C6.02 12.688 6.974 13 8 13a4.978 4.978 0 002.773-.84c.02.026.03.058.056.083l1.357 1.358A6.956 6.956 0 018 15zm-5.601-2.813a6.963 6.963 0 010-8.373l1.359 1.358c.024.025.057.035.084.056A4.97 4.97 0 003 8c0 1.027.31 1.98.842 2.773-.027.022-.06.031-.084.056l-1.36 1.358zm5.6-.187A4 4 0 118 4a4 4 0 010 8zM8 1c1.573 0 3.019.525 4.187 1.4l-1.357 1.358c-.025.025-.035.057-.056.084A4.979 4.979 0 008 3a4.979 4.979 0 00-2.773.842c-.021-.027-.03-.059-.055-.084L3.814 2.4A6.957 6.957 0 018 1zm0-1a8.001 8.001 0 10.003 16.002A8.001 8.001 0 008 0z"
+          fillRule="evenodd"
+        />
+      </svg>
+      <span
+        className="euiCallOutHeader__title"
+      >
+        Warning
+      </span>
+    </div>
+    <div
+      className="euiText euiText--small"
+    >
+      <div
+        className="euiText euiText--medium"
+      >
+        <p>
+          Your license expires in 20 days.
+        </p>
+      </div>
+    </div>
+  </div>,
+  <div
+    className="euiSpacer euiSpacer--l"
+  />,
+]
+`;
+
+exports[`LicenseWarningCallout trial license is valid but expires in 10 days 1`] = `
+Array [
+  <div
+    className="euiCallOut euiCallOut--warning"
+    data-test-subj="sg.callout.licenseHint"
+    id="sg.label.licensehint"
+  >
+    <div
+      className="euiCallOutHeader"
+    >
+      <svg
+        aria-hidden={true}
+        className="euiIcon euiIcon--medium euiIcon-isLoading euiCallOutHeader__icon"
+        focusable="false"
+        height={16}
+        role="img"
+        style={null}
+        viewBox="0 0 16 16"
+        width={16}
+        xmlns="http://www.w3.org/2000/svg"
+      />
+      <span
+        className="euiCallOutHeader__title"
+      >
+        Warning
+      </span>
+    </div>
+    <div
+      className="euiText euiText--small"
+    >
+      <div
+        className="euiText euiText--medium"
+      >
+        <p>
+          Your trial license expires in 10 days.
+        </p>
+      </div>
+    </div>
+  </div>,
+  <div
+    className="euiSpacer euiSpacer--l"
+  />,
+]
+`;

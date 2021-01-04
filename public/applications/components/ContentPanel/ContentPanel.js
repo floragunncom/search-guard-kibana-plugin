@@ -44,7 +44,7 @@ const handleRenderActions = (actions) =>
 const ContentPanel = ({
   title,
   description,
-  titleSize = 's',
+  titleSize = 'm',
   horizontalRuleMargin = 's',
   bodyStyles = {},
   panelStyles = {},

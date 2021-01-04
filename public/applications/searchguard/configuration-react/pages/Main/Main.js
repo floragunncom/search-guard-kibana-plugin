@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Switch, Route } from 'react-router-dom';
-import { isEmpty, map } from 'lodash';
+import { isEmpty } from 'lodash';
 import {
   EuiPage,
   EuiPageBody,
   EuiPageHeader,
   EuiPageContent,
   EuiPageContentBody,
-  EuiText,
-  EuiListGroup,
-  EuiListGroupItem,
 } from '@elastic/eui';
 import Home from '../Home';
 import {
@@ -44,13 +41,9 @@ import {
   CreateRoleMapping,
 } from '../';
 import { Breadcrumbs, Callout, LoadingPage } from '../../components';
-import { APP_PATH, CALLOUTS, LOCAL_STORAGE } from '../../utils/constants';
-import { checkIfLicenseValid } from '../../utils/helpers';
-import {
-  apiAccessStateForbiddenText,
-  apiAccessStateNotEnabledText,
-  sgLicenseNotValidText,
-} from '../../utils/i18n/main';
+import { LicenseWarningCallout } from '../../../../components';
+import { APP_PATH, LOCAL_STORAGE } from '../../utils/constants';
+import { apiAccessStateForbiddenText, apiAccessStateNotEnabledText } from '../../utils/i18n/main';
 import { API_ACCESS_STATE } from './utils/constants';
 import { LocalStorageService, ApiService } from '../../services';
 import getBreadcrumb from './utils/getBreadcrumb';
@@ -91,30 +84,8 @@ class Main extends Component {
           this.setState({ apiAccessState: API_ACCESS_STATE.OK });
         }
       }
-      this.calloutErrorIfLicenseNotValid();
     } catch (error) {
       this.context.triggerErrorCallout(error);
-    }
-  };
-
-  calloutErrorIfLicenseNotValid = () => {
-    const { isValid, messages } = checkIfLicenseValid(this.configService);
-    if (!isValid) {
-      this.context.setCallout({
-        type: CALLOUTS.ERROR_CALLOUT,
-        payload: (
-          <Fragment>
-            <EuiText>
-              <h3>{sgLicenseNotValidText}</h3>
-            </EuiText>
-            <EuiListGroup>
-              {map(messages, (message, i) => (
-                <EuiListGroupItem key={i} label={message} />
-              ))}
-            </EuiListGroup>
-          </Fragment>
-        ),
-      });
     }
   };
 
@@ -130,7 +101,7 @@ class Main extends Component {
 
   render() {
     const { purgingCache, apiAccessState } = this.state;
-    const { callout, setCallout } = this.context;
+    const { callout, setCallout, configService } = this.context;
     const { history, ...rest } = this.props;
 
     const isAPIAccessPending = apiAccessState === API_ACCESS_STATE.PENDING;
@@ -145,6 +116,7 @@ class Main extends Component {
 
           <EuiPageContent>
             <EuiPageContentBody>
+              <LicenseWarningCallout configService={configService} />
               <Callout callout={callout} onClose={() => setCallout(null)} />
               {isAPIAccessPending && LoadingPage}
               {isAPIAccessOk && (

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { EuiCallOut, EuiText, EuiSpacer, EuiErrorBoundary } from '@elastic/eui';
 import { isEmpty } from 'lodash';
-
+import { licenseCantBeLoadedText, licenseKeyIsInvalidText, licenseExpiresInText, trialLicenseExpiresInText } from './i18n';
 export function LicenseWarningCallout({ configService, errorMessage }) {
   const service = configService;
 
@@ -16,11 +16,6 @@ export function LicenseWarningCallout({ configService, errorMessage }) {
   }, []);
 
   async function verifyLicense() {
-    const licenseCantBeLoadedText =
-      'The Search Guard license information could not be loaded. Please contact your system administrator.';
-    const licenseKeyIsInvalidText =
-      'The Search Guard license key is not valid for this cluster. Please contact your system administrator.';
-
     try {
       if (isEmpty(service.get('systeminfo'))) {
         setError(licenseCantBeLoadedText);
@@ -33,7 +28,8 @@ export function LicenseWarningCallout({ configService, errorMessage }) {
         return;
       }
 
-      setLicenseValid(service.licenseValid());
+      const isLicenseValid = service.licenseValid();
+      setLicenseValid(isLicenseValid);
 
       if (errorMessage) {
         setError(errorMessage);
@@ -41,12 +37,15 @@ export function LicenseWarningCallout({ configService, errorMessage }) {
         setError(licenseKeyIsInvalidText);
       }
 
-      if (service.licenseValid()) {
-        if (service.isTrialLicense() && service.licenseExpiresIn() <= 10) {
-          setWarning(`Your trial license expires in ${service.licenseExpiresIn()} days.`);
+      const isTrialLicense = service.isTrialLicense();
+      const licenseExpiresInDays = service.licenseExpiresIn();
+
+      if (isLicenseValid) {
+        if (isTrialLicense && licenseExpiresInDays <= 10) {
+          setWarning(trialLicenseExpiresInText(licenseExpiresInDays));
         }
-        if (!service.isTrialLicense() && service.licenseExpiresIn() <= 20) {
-          setWarning(`Your license expires in ${service.licenseExpiresIn()} days.`);
+        if (!isTrialLicense && service.licenseExpiresIn() <= 20) {
+          setWarning(licenseExpiresInText(licenseExpiresInDays));
         }
       }
     } catch (error) {

@@ -15,7 +15,8 @@
  */
 
 import React from 'react';
-import { EuiI18n } from '@elastic/eui';
+import { EuiI18n, EuiLink } from '@elastic/eui';
+import { DOC_LINKS } from '../constants';
 
 export const apiAccessStateForbiddenText = (
   <EuiI18n
@@ -30,8 +31,13 @@ export const apiAccessStateNotEnabledText = (
   />
 );
 export const sgLicenseNotValidText = (
-  <EuiI18n
-    token="sg.common.sgLicenseNotValid.text"
-    default="The Search Guard license key is not valid for this cluster"
-  />
+  <>
+    <EuiI18n
+      token="sg.common.sgLicenseNotValid.text"
+      default="The Search Guard license key is not valid for this cluster."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.LICENSING}>
+      Licensing options.
+    </EuiLink>
+  </>
 );
