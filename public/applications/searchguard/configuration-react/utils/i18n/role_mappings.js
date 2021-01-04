@@ -1,13 +1,40 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import React from 'react';
 import { EuiI18n } from '@elastic/eui';
 
-export const roleMappingsText = (<EuiI18n token="sg.role_mappings.roleMappings.text" default="Role Mappings" />);
-export const roleMappingsDescription = (
-  <EuiI18n token="sg.role_mappings.roleMappings.description" default="Map users, backend roles and hostnames to Search Guard roles" />
+export const roleMappingsText = (
+  <EuiI18n token="sg.role_mappings.roleMappings.text" default="Role Mappings" />
 );
-export const createRoleMappingText = (<EuiI18n token="sg.role_mappings.createRoleMapping.text" default="Create Role Mapping" />);
-export const updateRoleMappingText = (<EuiI18n token="sg.role_mappings.updateRoleMapping.text" default="Update Role Mapping" />);
-export const noRoleMappingsText = (<EuiI18n token="sg.role_mappings.noRoleMappingsText.text" default="No Role Mappings" />);
+export const roleMappingsDescription = (
+  <EuiI18n
+    token="sg.role_mappings.roleMappings.description"
+    default="Map users, backend roles and hostnames to Search Guard roles"
+  />
+);
+export const createRoleMappingText = (
+  <EuiI18n token="sg.role_mappings.createRoleMapping.text" default="Create Role Mapping" />
+);
+export const updateRoleMappingText = (
+  <EuiI18n token="sg.role_mappings.updateRoleMapping.text" default="Update Role Mapping" />
+);
+export const noRoleMappingsText = (
+  <EuiI18n token="sg.role_mappings.noRoleMappingsText.text" default="No Role Mappings" />
+);
 export const emptyRoleMappingsTableMessageText = (
   <EuiI18n
     token="sg.role_mappings.emptyRoleMappingsTableMessage.text"

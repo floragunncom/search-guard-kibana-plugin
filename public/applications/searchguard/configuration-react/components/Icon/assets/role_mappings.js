@@ -1,6 +1,22 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import React from 'react';
 
-export const SvgRoleMappings = props => (
+export const SvgRoleMappings = (props) => (
   <svg id="role_mappings_svg__ART" viewBox="0 0 48 48" {...props}>
     <defs>
       <style>{'.role_mappings_svg__cls-2{fill:#353740}'}</style>
@@ -23,11 +39,6 @@ export const SvgRoleMappings = props => (
       className="role_mappings_svg__cls-2"
       d="M13 19.7a4.3 4.3 0 1 0 4.3 4.3 4.3 4.3 0 0 0-4.3-4.3zm2.24 3.63L13 25.59l-.18.18a.62.62 0 0 1-.46.19.63.63 0 0 1-.46-.19l-.18-.18-.94-.95a.64.64 0 0 1 0-.92l.17-.17a.64.64 0 0 1 .92 0l.49.48 1.8-1.8a.67.67 0 0 1 .93 0l.17.18a.64.64 0 0 1 0 .92z"
     />
-    <circle
-      className="role_mappings_svg__cls-2"
-      cx={13.02}
-      cy={38.32}
-      r={4.3}
-    />
+    <circle className="role_mappings_svg__cls-2" cx={13.02} cy={38.32} r={4.3} />
   </svg>
 );

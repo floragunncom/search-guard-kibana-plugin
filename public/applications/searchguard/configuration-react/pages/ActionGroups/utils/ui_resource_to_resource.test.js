@@ -1,32 +1,37 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import uiResourceToResource from './ui_resource_to_resource';
 
 describe('UI table action group to action group', () => {
   test('can build action group', () => {
     const uiResource = {
       _id: 'A_ACTION_GROUP',
-      _actiongroups: [ 'C' ],
-      _permissions: [
-        'kibana:a/b/c/d'
-      ],
+      _actiongroups: ['C'],
+      _permissions: ['kibana:a/b/c/d'],
       reserved: false,
       hidden: false,
-      allowed_actions: [
-        'indices:a/b/c',
-        'kibana:a/b/c',
-        'cluster:a/b/c',
-        'B',
-        'A',
-      ],
+      allowed_actions: ['indices:a/b/c', 'kibana:a/b/c', 'cluster:a/b/c', 'B', 'A'],
       type: 'kibana',
-      static: false
+      static: false,
     };
 
     const resource = {
-      allowed_actions: [
-        'kibana:a/b/c/d',
-        'C'
-      ],
-      type: uiResource.type
+      allowed_actions: ['kibana:a/b/c/d', 'C'],
+      type: uiResource.type,
     };
 
     expect(uiResourceToResource(uiResource)).toEqual(resource);

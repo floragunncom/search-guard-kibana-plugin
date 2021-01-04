@@ -1,11 +1,25 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import React from 'react';
 
-export const SvgRoles = props => (
+export const SvgRoles = (props) => (
   <svg id="roles_svg__ART" viewBox="0 0 48 48" {...props}>
     <defs>
-      <style>
-        {'.roles_svg__cls-1{fill:#353740}.roles_svg__cls-2{fill:#047268}'}
-      </style>
+      <style>{'.roles_svg__cls-1{fill:#353740}.roles_svg__cls-2{fill:#047268}'}</style>
     </defs>
     <path
       className="roles_svg__cls-1"

@@ -16,7 +16,7 @@ class ElasticsearchService {
 
   getIndexMappings = (index = []) => {
     return this.httpClient.post(API.INDEX_MAPPINGS, { index });
-  }
+  };
 }
 
 export default ElasticsearchService;

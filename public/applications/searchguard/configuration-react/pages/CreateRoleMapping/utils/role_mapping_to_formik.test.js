@@ -1,20 +1,36 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {
   rolesToUiRoles,
   internalUsersToUiInternalUsers,
-  roleMappingToFormik
+  roleMappingToFormik,
 } from './role_mapping_to_formik';
 import { DEFAULT_ROLE_MAPPING } from './constants';
 
 describe('role mapping to UI role mapping', () => {
   test('can build UI roles difference', () => {
     const allRoles = {
-      'c': {},
-      'b': {},
-      'a': {}
+      c: {},
+      b: {},
+      a: {},
     };
 
     const allRoleMappings = {
-      'a': {}
+      a: {},
     };
 
     const uiResource = [
@@ -22,15 +38,13 @@ describe('role mapping to UI role mapping', () => {
         label: 'Available',
         options: [
           { label: 'b', color: 'default', disabled: false },
-          { label: 'c', color: 'default', disabled: false }
-        ]
+          { label: 'c', color: 'default', disabled: false },
+        ],
       },
       {
         label: 'Occupied',
-        options: [
-          { label: 'a', color: 'subdued', disabled: true }
-        ]
-      }
+        options: [{ label: 'a', color: 'subdued', disabled: true }],
+      },
     ];
 
     expect(rolesToUiRoles(allRoles, allRoleMappings)).toEqual(uiResource);
@@ -38,16 +52,12 @@ describe('role mapping to UI role mapping', () => {
 
   test('can build UI internal users', () => {
     const resource = {
-      'c': {},
-      'b': {},
-      'a': {}
+      c: {},
+      b: {},
+      a: {},
     };
 
-    const uiResource = [
-      { label: 'a' },
-      { label: 'b' },
-      { label: 'c' }
-    ];
+    const uiResource = [{ label: 'a' }, { label: 'b' }, { label: 'c' }];
 
     expect(internalUsersToUiInternalUsers(resource)).toEqual(uiResource);
   });
@@ -61,7 +71,7 @@ describe('role mapping to UI role mapping', () => {
       hosts: ['d', 'c'],
       users: ['f', 'e'],
       and_backend_roles: [],
-      description: ''
+      description: '',
     };
 
     const uiResource = {
@@ -74,18 +84,9 @@ describe('role mapping to UI role mapping', () => {
       and_backend_roles: [],
       description: '',
       _name: [{ label: 'role_a' }],
-      _backendRoles: [
-        { label: 'a' },
-        { label: 'b' }
-      ],
-      _hosts: [
-        { label: 'c' },
-        { label: 'd' }
-      ],
-      _users: [
-        { label: 'e' },
-        { label: 'f' }
-      ]
+      _backendRoles: [{ label: 'a' }, { label: 'b' }],
+      _hosts: [{ label: 'c' }, { label: 'd' }],
+      _users: [{ label: 'e' }, { label: 'f' }],
     };
 
     expect(roleMappingToFormik(resource, 'role_a')).toEqual(uiResource);
@@ -100,7 +101,7 @@ describe('role mapping to UI role mapping', () => {
       backend_roles: [],
       description: '',
       hosts: [],
-      users: []
+      users: [],
     };
 
     expect(roleMappingToFormik(DEFAULT_ROLE_MAPPING)).toEqual(uiResource);

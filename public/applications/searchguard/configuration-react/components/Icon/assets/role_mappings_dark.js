@@ -1,12 +1,26 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import React from 'react';
 
-export const SvgRoleMappingsDark = props => (
+export const SvgRoleMappingsDark = (props) => (
   <svg id="role_mappings_dark_svg__ART" viewBox="0 0 48 48" {...props}>
     <defs>
       <style>
-        {
-          '.role_mappings_dark_svg__cls-1{fill:#047268}.role_mappings_dark_svg__cls-2{fill:#fff}'
-        }
+        {'.role_mappings_dark_svg__cls-1{fill:#047268}.role_mappings_dark_svg__cls-2{fill:#fff}'}
       </style>
     </defs>
     <path
@@ -17,22 +31,12 @@ export const SvgRoleMappingsDark = props => (
       className="role_mappings_dark_svg__cls-2"
       d="M35 5.38a4.3 4.3 0 1 0 4.3 4.3 4.3 4.3 0 0 0-4.3-4.3zM37.22 9L35 11.27l-.17.17a.64.64 0 0 1-.93 0l-.17-.17-.95-.95a.64.64 0 0 1 0-.92l.17-.18a.67.67 0 0 1 .93 0l.48.49 1.81-1.8a.64.64 0 0 1 .92 0l.17.17a.65.65 0 0 1-.04.92z"
     />
-    <circle
-      className="role_mappings_dark_svg__cls-2"
-      cx={34.98}
-      cy={24}
-      r={4.3}
-    />
+    <circle className="role_mappings_dark_svg__cls-2" cx={34.98} cy={24} r={4.3} />
     <path
       className="role_mappings_dark_svg__cls-2"
       d="M35 34a4.3 4.3 0 1 0 4.3 4.29A4.3 4.3 0 0 0 35 34zm2.24 3.62L35 39.92l-.17.17a.66.66 0 0 1-.93 0l-.17-.17-.95-1a.65.65 0 0 1 0-.93l.17-.17a.67.67 0 0 1 .93 0l.48.49 1.81-1.8a.64.64 0 0 1 .92 0l.17.17a.64.64 0 0 1-.04.97z"
     />
-    <circle
-      className="role_mappings_dark_svg__cls-2"
-      cx={13.02}
-      cy={9.68}
-      r={4.3}
-    />
+    <circle className="role_mappings_dark_svg__cls-2" cx={13.02} cy={9.68} r={4.3} />
     <path
       className="role_mappings_dark_svg__cls-2"
       d="M13 19.7a4.3 4.3 0 1 0 4.3 4.3 4.3 4.3 0 0 0-4.3-4.3zm2.24 3.63L13 25.59l-.18.18a.62.62 0 0 1-.46.19.63.63 0 0 1-.46-.19l-.18-.18-.94-.95a.64.64 0 0 1 0-.92l.17-.17a.64.64 0 0 1 .92 0l.49.48 1.8-1.8a.67.67 0 0 1 .93 0l.17.18a.64.64 0 0 1 0 .92z"
@@ -41,11 +45,6 @@ export const SvgRoleMappingsDark = props => (
       className="role_mappings_dark_svg__cls-1"
       d="M14.16 22.23L12.36 24l-.49-.48a.64.64 0 0 0-.92 0l-.17.17a.64.64 0 0 0 0 .92l.94.95.18.18a.63.63 0 0 0 .46.19.62.62 0 0 0 .46-.19l.18-.18 2.26-2.26a.64.64 0 0 0 0-.92l-.17-.18a.67.67 0 0 0-.93.03zM36.13 7.91l-1.81 1.8-.48-.49a.67.67 0 0 0-.93 0l-.17.18a.64.64 0 0 0 0 .92l.95.95.17.17a.64.64 0 0 0 .93 0l.17-.17L37.22 9a.65.65 0 0 0 0-.93l-.17-.17a.64.64 0 0 0-.92.01zM36.13 36.56l-1.81 1.8-.48-.49a.67.67 0 0 0-.93 0l-.17.17a.65.65 0 0 0 0 .93l.95 1 .17.17a.66.66 0 0 0 .93 0l.17-.17 2.26-2.27a.64.64 0 0 0 0-.92l-.17-.17a.64.64 0 0 0-.92-.05z"
     />
-    <circle
-      className="role_mappings_dark_svg__cls-2"
-      cx={13.02}
-      cy={38.32}
-      r={4.3}
-    />
+    <circle className="role_mappings_dark_svg__cls-2" cx={13.02} cy={38.32} r={4.3} />
   </svg>
 );

@@ -245,7 +245,6 @@ function AnonymizedFields({ values, index, isLoading, allIndexPatternsFields }) 
   }
 
   function renderAnonimizedFields({ isLoading }) {
-
     return (
       <div id={`sgMaskedFields-${index}`}>
         <EuiSpacer size="m" />

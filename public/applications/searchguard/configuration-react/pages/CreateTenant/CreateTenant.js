@@ -1,19 +1,32 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import { EuiSpacer } from '@elastic/eui';
 import queryString from 'query-string';
-import {
-  nameText,
-  descriptionText
-} from '../../utils/i18n/common';
+import { nameText, descriptionText } from '../../utils/i18n/common';
 import { createTenantText, updateTenantText } from '../../utils/i18n/tenants';
 import {
   ContentPanel,
   FormikFieldText,
   InspectButton,
   CancelButton,
-  SaveButton
+  SaveButton,
 } from '../../components';
 import { APP_PATH, TENANTS_ACTIONS } from '../../utils/constants';
 import { isInvalid, hasError, validateName } from '../../utils/validation';
@@ -36,7 +49,7 @@ class CreateTenant extends Component {
       id,
       isEdit: !!id,
       resource: tenantToFormik(DEFAULT_TENANT, id),
-      isLoading: true
+      isLoading: true,
     };
   }
 
@@ -46,7 +59,7 @@ class CreateTenant extends Component {
 
   componentWillUnmount = () => {
     this.context.closeFlyout();
-  }
+  };
 
   fetchData = async () => {
     const { id } = this.state;
@@ -59,11 +72,11 @@ class CreateTenant extends Component {
       } else {
         this.setState({ resource: tenantToFormik(DEFAULT_TENANT), isEdit: !!id });
       }
-    } catch(error) {
+    } catch (error) {
       triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
-  }
+  };
 
   onSubmit = async (values, { setSubmitting }) => {
     const { history } = this.props;
@@ -77,7 +90,7 @@ class CreateTenant extends Component {
       setSubmitting(false);
       triggerErrorCallout(error);
     }
-  }
+  };
 
   render() {
     const { history, location } = this.props;
@@ -102,15 +115,15 @@ class CreateTenant extends Component {
               title={titleText}
               isLoading={isLoading}
               actions={[
-                (<CancelButton onClick={() => history.push(APP_PATH.TENANTS)} />),
-                (<SaveButton isLoading={isSubmitting} onClick={handleSubmit} />)
+                <CancelButton onClick={() => history.push(APP_PATH.TENANTS)} />,
+                <SaveButton isLoading={isSubmitting} onClick={handleSubmit} />,
               ]}
             >
               <InspectButton
                 onClick={() => {
                   triggerInspectJsonFlyout({
                     json: formikToTenant(values),
-                    title: titleText
+                    title: titleText,
                   });
                 }}
               />
@@ -119,15 +132,15 @@ class CreateTenant extends Component {
               <FormikFieldText
                 formRow
                 formikFieldProps={{
-                  validate: validateName(this.backendService, isUpdatingName)
+                  validate: validateName(this.backendService, isUpdatingName),
                 }}
                 rowProps={{
                   label: nameText,
                   isInvalid,
-                  error: hasError
+                  error: hasError,
                 }}
                 elementProps={{
-                  isInvalid
+                  isInvalid,
                 }}
                 name="_name"
               />
@@ -137,7 +150,7 @@ class CreateTenant extends Component {
                   label: descriptionText,
                 }}
                 elementProps={{
-                  isInvalid
+                  isInvalid,
                 }}
                 name="description"
               />

@@ -1,3 +1,19 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
@@ -6,21 +22,21 @@ import queryString from 'query-string';
 import {
   createRoleMappingText,
   updateRoleMappingText,
-  roleHelpText
+  roleHelpText,
 } from '../../utils/i18n/role_mappings';
 import {
   roleText,
   backendRolesText,
   usersText,
   hostsText,
-  createRoleText
+  createRoleText,
 } from '../../utils/i18n/roles';
 import {
   ContentPanel,
   FormikComboBox,
   InspectButton,
   CancelButton,
-  SaveButton
+  SaveButton,
 } from '../../components';
 import { APP_PATH, ROLE_MAPPINGS_ACTIONS } from '../../utils/constants';
 import { DEFAULT_ROLE_MAPPING } from './utils/constants';
@@ -28,7 +44,7 @@ import {
   roleMappingToFormik,
   formikToRoleMapping,
   internalUsersToUiInternalUsers,
-  rolesToUiRoles
+  rolesToUiRoles,
 } from './utils';
 import { internalUsersToUiBackendRoles } from '../../utils/helpers';
 import { hasError, isInvalid, validateEmptyComboBox } from '../../utils/validation';
@@ -55,7 +71,7 @@ class CreateRoleMapping extends Component {
       isLoading: true,
       allInternalUsers: [],
       allRoles: [],
-      allBackendRoles: []
+      allBackendRoles: [],
     };
   }
 
@@ -65,7 +81,7 @@ class CreateRoleMapping extends Component {
 
   componentWillUnmount = () => {
     this.context.closeFlyout();
-  }
+  };
 
   fetchData = async () => {
     const { id } = this.state;
@@ -87,7 +103,7 @@ class CreateRoleMapping extends Component {
       this.setState({
         allBackendRoles: internalUsersToUiBackendRoles(allInternalUsers),
         allInternalUsers: internalUsersToUiInternalUsers(allInternalUsers),
-        allRoles: rolesToUiRoles(allRoles, allRoleMappings)
+        allRoles: rolesToUiRoles(allRoles, allRoleMappings),
       });
 
       if (id) {
@@ -96,19 +112,21 @@ class CreateRoleMapping extends Component {
       } else {
         this.setState({
           resource: roleMappingToFormik(DEFAULT_ROLE_MAPPING),
-          isEdit: !!id
+          isEdit: !!id,
         });
       }
     } catch (error) {
       triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
-  }
+  };
 
   onSubmit = async (values, { setSubmitting }) => {
     const { history } = this.props;
     const { triggerErrorCallout } = this.context;
-    const { _name: [{ label: name }] } = values;
+    const {
+      _name: [{ label: name }],
+    } = values;
     try {
       await this.rolesMappingService.save(name, formikToRoleMapping(values));
       setSubmitting(false);
@@ -117,19 +135,16 @@ class CreateRoleMapping extends Component {
       setSubmitting(false);
       triggerErrorCallout(error);
     }
-  }
+  };
 
-  renderRoleHelpText = history => (
+  renderRoleHelpText = (history) => (
     <Fragment>
       {roleHelpText}{' '}
-      <EuiLink
-        data-test-subj="sgCreateRole"
-        onClick={() => history.push(APP_PATH.CREATE_ROLE)}
-      >
+      <EuiLink data-test-subj="sgCreateRole" onClick={() => history.push(APP_PATH.CREATE_ROLE)}>
         {createRoleText}
       </EuiLink>
     </Fragment>
-  )
+  );
 
   renderRoleOption = ({ color, label }) => {
     return (
@@ -147,13 +162,7 @@ class CreateRoleMapping extends Component {
       onComboBoxChange,
       onComboBoxCreateOption,
     } = this.context;
-    const {
-      resource,
-      isLoading,
-      allInternalUsers,
-      allRoles,
-      allBackendRoles
-    } = this.state;
+    const { resource, isLoading, allInternalUsers, allRoles, allBackendRoles } = this.state;
     const { action } = queryString.parse(location.search);
     const updateRoleMapping = action === ROLE_MAPPINGS_ACTIONS.UPDATE_ROLE_MAPPING;
     const titleText = updateRoleMapping ? updateRoleMappingText : createRoleMappingText;
@@ -171,15 +180,15 @@ class CreateRoleMapping extends Component {
               title={titleText}
               isLoading={isLoading}
               actions={[
-                (<CancelButton onClick={() => history.push(APP_PATH.ROLE_MAPPINGS)} />),
-                (<SaveButton isLoading={isSubmitting} onClick={handleSubmit} />)
+                <CancelButton onClick={() => history.push(APP_PATH.ROLE_MAPPINGS)} />,
+                <SaveButton isLoading={isSubmitting} onClick={handleSubmit} />,
               ]}
             >
               <InspectButton
                 onClick={() => {
                   triggerInspectJsonFlyout({
                     json: formikToRoleMapping(values),
-                    title: titleText
+                    title: titleText,
                   });
                 }}
               />
@@ -193,28 +202,28 @@ class CreateRoleMapping extends Component {
                   label: roleText,
                   helpText: this.renderRoleHelpText(history),
                   error: hasError,
-                  isInvalid
+                  isInvalid,
                 }}
                 elementProps={{
                   options: allRoles,
                   isClearable: false,
                   singleSelection: { asPlainText: true },
                   onChange: onComboBoxChange(validateEmptyComboBox),
-                  renderOption: this.renderRoleOption
+                  renderOption: this.renderRoleOption,
                 }}
               />
               <FormikComboBox
                 name="_users"
                 formRow
                 rowProps={{
-                  label: usersText
+                  label: usersText,
                 }}
                 elementProps={{
                   options: allInternalUsers,
                   isClearable: true,
                   onChange: onComboBoxChange(),
                   onCreateOption: onComboBoxCreateOption(),
-                  onBlur: onComboBoxOnBlur
+                  onBlur: onComboBoxOnBlur,
                 }}
               />
               <FormikComboBox
@@ -228,7 +237,7 @@ class CreateRoleMapping extends Component {
                   isClearable: true,
                   onChange: onComboBoxChange(),
                   onCreateOption: onComboBoxCreateOption(),
-                  onBlur: onComboBoxOnBlur
+                  onBlur: onComboBoxOnBlur,
                 }}
               />
               <FormikComboBox
@@ -241,7 +250,7 @@ class CreateRoleMapping extends Component {
                   isClearable: true,
                   onChange: onComboBoxChange(),
                   onCreateOption: onComboBoxCreateOption(),
-                  onBlur: onComboBoxOnBlur
+                  onBlur: onComboBoxOnBlur,
                 }}
               />
             </ContentPanel>

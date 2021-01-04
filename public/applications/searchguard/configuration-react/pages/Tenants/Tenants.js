@@ -1,10 +1,22 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {
-  EuiButton,
-  EuiInMemoryTable,
-  EuiEmptyPrompt
-} from '@elastic/eui';
+import { EuiButton, EuiInMemoryTable, EuiEmptyPrompt } from '@elastic/eui';
 import { get } from 'lodash';
 import {
   ContentPanel,
@@ -15,20 +27,16 @@ import {
   TableMultiDeleteButton,
   TableSwitchSystemItems,
   CreateButton,
-  CancelButton
+  CancelButton,
 } from '../../components';
 import { resourcesToUiResources, uiResourceToResource, getResourceEditUri } from './utils';
 import { APP_PATH } from '../../utils/constants';
-import {
-  nameText,
-  descriptionText,
-  systemItemsText
-} from '../../utils/i18n/common';
+import { nameText, descriptionText, systemItemsText } from '../../utils/i18n/common';
 import {
   tenantsText,
   createTenantText,
   emptyTenantsTableMessageText,
-  noTenantsText
+  noTenantsText,
 } from '../../utils/i18n/tenants';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
 import { LocalStorageService, TenantsService } from '../../services';
@@ -50,7 +58,7 @@ class Tenants extends Component {
       error: null,
       isLoading: true,
       tableSelection: [],
-      isShowingTableSystemItems
+      isShowingTableSystemItems,
     };
   }
 
@@ -71,16 +79,19 @@ class Tenants extends Component {
     try {
       const { data } = await this.backendService.list();
       const resources = resourcesToUiResources(data);
-      const tableResources = filterReservedStaticTableResources(resources, this.state.isShowingTableSystemItems);
+      const tableResources = filterReservedStaticTableResources(
+        resources,
+        this.state.isShowingTableSystemItems
+      );
       this.setState({ resources, tableResources, error: null });
-    } catch(error) {
+    } catch (error) {
       this.setState({ error });
       this.context.triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
-  }
+  };
 
-  handleDeleteResources = resourcesToDelete => {
+  handleDeleteResources = (resourcesToDelete) => {
     const { triggerConfirmDeletionModal } = this.context;
     triggerConfirmDeletionModal({
       body: resourcesToDelete.join(', '),
@@ -91,37 +102,37 @@ class Tenants extends Component {
       onCancel: () => {
         this.setState({ tableSelection: [] });
         triggerConfirmDeletionModal(null);
-      }
+      },
     });
-  }
+  };
 
-  deleteResources = async resourceIds => {
+  deleteResources = async (resourceIds) => {
     try {
       this.setState({ isLoading: true });
       for (let i = 0; i < resourceIds.length; i++) {
         await this.backendService.delete(resourceIds[i]);
       }
-    } catch(error) {
+    } catch (error) {
       this.setState({ error });
       this.context.triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
     this.fetchData();
-  }
+  };
 
-  cloneResource = async resource => {
+  cloneResource = async (resource) => {
     let { _id: name } = resource;
     name += '_copy';
     try {
       this.setState({ isLoading: true });
       await this.backendService.save(name, uiResourceToResource(resource));
-    } catch(error) {
+    } catch (error) {
       this.setState({ error });
       this.context.triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
     this.fetchData();
-  }
+  };
 
   renderToolsLeft = () => {
     const tableSelection = this.state.tableSelection;
@@ -131,32 +142,27 @@ class Tenants extends Component {
     }
 
     const handleMultiDelete = () => {
-      this.handleDeleteResources(tableSelection.map(item => item._id));
+      this.handleDeleteResources(tableSelection.map((item) => item._id));
       this.setState({ tableSelection: [] });
     };
 
     return (
-      <TableMultiDeleteButton
-        onClick={handleMultiDelete}
-        numOfSelections={tableSelection.length}
-      />
+      <TableMultiDeleteButton onClick={handleMultiDelete} numOfSelections={tableSelection.length} />
     );
-  }
+  };
 
-  renderEmptyTableMessage = history => (
+  renderEmptyTableMessage = (history) => (
     <EuiEmptyPrompt
       title={<h3>{noTenantsText}</h3>}
       titleSize="xs"
       body={emptyTenantsTableMessageText}
-      actions={(
-        <EuiButton
-          onClick={() => history.push(APP_PATH.CREATE_TENANT)}
-        >
+      actions={
+        <EuiButton onClick={() => history.push(APP_PATH.CREATE_TENANT)}>
           {createTenantText}
         </EuiButton>
-      )}
+      }
     />
-  )
+  );
 
   render() {
     const { history } = this.props;
@@ -165,11 +171,8 @@ class Tenants extends Component {
     const actions = [
       {
         render: (resource) => (
-          <TableCloneAction
-            name={resource._id}
-            onClick={() => this.cloneResource(resource)}
-          />
-        )
+          <TableCloneAction name={resource._id} onClick={() => this.cloneResource(resource)} />
+        ),
       },
       {
         render: ({ _id, reserved }) => {
@@ -180,8 +183,8 @@ class Tenants extends Component {
               onClick={() => this.handleDeleteResources([_id])}
             />
           );
-        }
-      }
+        },
+      },
     ];
 
     const columns = [
@@ -192,7 +195,7 @@ class Tenants extends Component {
         align: 'left',
         sortable: true,
         mobileOptions: {
-          header: false
+          header: false,
         },
         render: (id, { reserved }) => (
           <TableNameCell
@@ -201,7 +204,7 @@ class Tenants extends Component {
             name={id}
             isReserved={reserved}
           />
-        )
+        ),
       },
       {
         field: 'description',
@@ -209,21 +212,21 @@ class Tenants extends Component {
         footer: descriptionText,
         align: 'left',
         mobileOptions: {
-          header: false
+          header: false,
         },
         render: (description, { _id }) => (
           <TableTextCell name={`Description-${_id}`} value={description} />
-        )
+        ),
       },
       {
         align: 'right',
-        actions
-      }
+        actions,
+      },
     ];
 
     const selection = {
-      selectable: resource => resource._id && !resource.reserved,
-      onSelectionChange: tableSelection => this.setState({ tableSelection })
+      selectable: (resource) => resource._id && !resource.reserved,
+      onSelectionChange: (tableSelection) => this.setState({ tableSelection }),
     };
 
     const search = {
@@ -235,25 +238,28 @@ class Tenants extends Component {
           onChange={() => {
             this.setState({
               isShowingTableSystemItems: !isShowingTableSystemItems,
-              tableResources: filterReservedStaticTableResources(this.state.resources, !isShowingTableSystemItems)
+              tableResources: filterReservedStaticTableResources(
+                this.state.resources,
+                !isShowingTableSystemItems
+              ),
             });
           }}
         />
       ),
       box: {
         incremental: true,
-      }
+      },
     };
 
     return (
       <ContentPanel
         title={tenantsText}
         actions={[
-          (<CancelButton onClick={() => history.push(APP_PATH.HOME)} />),
-          (<CreateButton
+          <CancelButton onClick={() => history.push(APP_PATH.HOME)} />,
+          <CreateButton
             value={createTenantText}
             onClick={() => history.push(APP_PATH.CREATE_TENANT)}
-          />)
+          />,
         ]}
       >
         <EuiInMemoryTable
