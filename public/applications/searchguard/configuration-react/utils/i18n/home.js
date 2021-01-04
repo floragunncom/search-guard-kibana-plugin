@@ -15,7 +15,8 @@
  */
 
 import React from 'react';
-import { EuiI18n } from '@elastic/eui';
+import { EuiI18n, EuiLink } from '@elastic/eui';
+import { DOC_LINKS } from '../constants';
 
 export const homeText = <EuiI18n token="sg.home.home.text" default="Home" />;
 export const authenticationBackendsText = (
@@ -43,4 +44,15 @@ export const isNoPermissionsAndRolesText = (
 );
 export const isNoSystemText = (
   <EuiI18n token="sg.home.isNoSystem.text" default="Access to system settings is disabled" />
+);
+export const sgDescriptionText = (
+  <>
+    <EuiI18n
+      token="sg.home.description.text"
+      default="Search Guard secures Elasticsearch cluster applicating different industry-standard authentication techniques, like Kerberos, LDAP / Active Directory, JSON web tokens, TLS certificates, and Proxy authentication / SSO (SAML, OpenId, JWT). Main concepts."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.MAIN_CONCEPTS}>
+      Main concepts.
+    </EuiLink>
+  </>
 );

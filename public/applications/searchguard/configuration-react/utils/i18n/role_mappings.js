@@ -15,14 +15,15 @@
  */
 
 import React from 'react';
-import { EuiI18n } from '@elastic/eui';
+import { EuiI18n, EuiLink } from '@elastic/eui';
+import { DOC_LINKS } from '../constants';
 
 export const roleMappingsText = (
   <EuiI18n token="sg.role_mappings.roleMappings.text" default="Role Mappings" />
 );
-export const roleMappingsDescription = (
+export const roleMappingsShortDescriptionText = (
   <EuiI18n
-    token="sg.role_mappings.roleMappings.description"
+    token="sg.role_mappings.shortDescription.text"
     default="Map users, backend roles and hostnames to Search Guard roles"
   />
 );
@@ -47,4 +48,15 @@ export const roleHelpText = (
 );
 export const noCorrespondingRoleText = (
   <EuiI18n token="sg.role_mappings.noCorrespondingRole.text" default="No corresponding role" />
+);
+export const roleMappingsDescriptionText = (
+  <>
+    <EuiI18n
+      token="sg.role_mappings.description.text"
+      default="After a user is authenticated, Search Guard uses the role mappings to determine which Search Guard roles should be assigned to the user."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.MAPPING_USERS_ROLES}>
+      Read more.
+    </EuiLink>
+  </>
 );

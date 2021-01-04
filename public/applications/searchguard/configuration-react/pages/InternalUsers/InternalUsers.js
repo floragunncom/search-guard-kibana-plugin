@@ -45,6 +45,7 @@ import {
   backendRolesText,
   emptyUsersTableMessageText,
   noUsersText,
+  internalUsersDescriptionText,
 } from '../../utils/i18n/internal_users';
 import { nameText, currentUserText, systemItemsText } from '../../utils/i18n/common';
 import { resourcesToUiResources, uiResourceToResource, getResourceEditUri } from './utils';
@@ -291,6 +292,7 @@ class InternalUsers extends Component {
     return (
       <ContentPanel
         title={internalUsersText}
+        description={internalUsersDescriptionText}
         actions={[
           <CancelButton onClick={() => history.push(APP_PATH.HOME)} />,
           <CreateButton

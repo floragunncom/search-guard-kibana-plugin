@@ -24,6 +24,7 @@ import {
   EuiSpacer,
   EuiLoadingSpinner,
   EuiCallOut,
+  EuiText,
 } from '@elastic/eui';
 import { ContentPanel, Icon } from '../../components';
 import { APP_PATH } from '../../utils/constants';
@@ -37,23 +38,24 @@ import {
   isNoAuthenticationBackendsText,
   isNoPermissionsAndRolesText,
   isNoSystemText,
+  sgDescriptionText,
 } from '../../utils/i18n/home';
 import {
   internalUsersDatabaseText,
-  internalUsersDatabaseDescription,
+  internalUsersDatabaseShortDescriptionText,
 } from '../../utils/i18n/internal_users';
 import {
   authenticationAndAuthorizationText,
-  authenticationAndAuthorizationDescription,
+  authenticationAndAuthorizationShortDescriptionText,
 } from '../../utils/i18n/auth';
 import {
   systemStatus as systemStatusText,
-  systemStatusDescription,
+  systemStatusShortDescriptionText,
 } from '../../utils/i18n/system_status';
-import { tenantsText, tenantsDescription } from '../../utils/i18n/tenants';
-import { actionGroupsText, actionGroupsDescription } from '../../utils/i18n/action_groups';
-import { rolesText, rolesDescription } from '../../utils/i18n/roles';
-import { roleMappingsText, roleMappingsDescription } from '../../utils/i18n/role_mappings';
+import { tenantsText, tenantsShortDescriptionText } from '../../utils/i18n/tenants';
+import { actionGroupsText, actionGroupsShortDescriptionText } from '../../utils/i18n/action_groups';
+import { rolesText, rolesShortDescriptionText } from '../../utils/i18n/roles';
+import { roleMappingsText, roleMappingsShortDescriptionText } from '../../utils/i18n/role_mappings';
 
 import { Context } from '../../Context';
 
@@ -71,7 +73,7 @@ const Home = ({ history, onPurgeCache, purgingCache }) => {
       endpoint: ENDPOINTS.INTERNALUSERS,
       icon: <Icon size="xxl" type="internalUsersDatabase" />,
       title: internalUsersDatabaseText,
-      description: internalUsersDatabaseDescription,
+      description: internalUsersDatabaseShortDescriptionText,
       onClick: () => history.push(APP_PATH.INTERNAL_USERS),
     },
   ]);
@@ -81,14 +83,14 @@ const Home = ({ history, onPurgeCache, purgingCache }) => {
       endpoint: ENDPOINTS.SGCONFIG,
       icon: <Icon size="xxl" type="authcAndAuthz" />,
       title: authenticationAndAuthorizationText,
-      description: authenticationAndAuthorizationDescription,
+      description: authenticationAndAuthorizationShortDescriptionText,
       onClick: () => history.push(APP_PATH.AUTH),
     },
     {
       endpoint: ENDPOINTS.LICENSE,
       icon: <Icon size="xxl" type="systemStatus" />,
       title: systemStatusText,
-      description: systemStatusDescription,
+      description: systemStatusShortDescriptionText,
       onClick: () => history.push(APP_PATH.SYSTEM_STATUS),
     },
     {
@@ -105,28 +107,28 @@ const Home = ({ history, onPurgeCache, purgingCache }) => {
       endpoint: ENDPOINTS.ROLESMAPPING,
       icon: <Icon size="xxl" type="roleMappings" />,
       title: roleMappingsText,
-      description: roleMappingsDescription,
+      description: roleMappingsShortDescriptionText,
       onClick: () => history.push(APP_PATH.ROLE_MAPPINGS),
     },
     {
       endpoint: ENDPOINTS.ROLES,
       icon: <Icon size="xxl" type="roles" />,
       title: rolesText,
-      description: rolesDescription,
+      description: rolesShortDescriptionText,
       onClick: () => history.push(APP_PATH.ROLES),
     },
     {
       endpoint: ENDPOINTS.ACTIONGROUPS,
       icon: <Icon size="xxl" type="actionGroups" />,
       title: actionGroupsText,
-      description: actionGroupsDescription,
+      description: actionGroupsShortDescriptionText,
       onClick: () => history.push(APP_PATH.ACTION_GROUPS),
     },
     {
       endpoint: ENDPOINTS.TENANTS,
       icon: <Icon size="xxl" type="tenants" />,
       title: tenantsText,
-      description: tenantsDescription,
+      description: tenantsShortDescriptionText,
       onClick: () => history.push(APP_PATH.TENANTS),
     },
   ]);
@@ -150,9 +152,12 @@ const Home = ({ history, onPurgeCache, purgingCache }) => {
 
   return (
     <Fragment>
-      <EuiFlexGroup justifyContent="spaceAround">
+      <EuiFlexGroup justifyContent="center" alignItems="center" direction="column">
         <EuiFlexItem grow={false}>
           <Icon type="logo" size={{ width: '150px', height: '150px' }} />
+        </EuiFlexItem>
+        <EuiFlexItem grow={false}>
+          <EuiText>{sgDescriptionText}</EuiText>
         </EuiFlexItem>
       </EuiFlexGroup>
 

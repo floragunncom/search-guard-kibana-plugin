@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-export { default as ContentPanel } from './ContentPanel';
 export { default as DynamicValuesForm } from './DynamicValuesForm';
 export { default as Flyout } from './Flyout';
 export { default as Icon } from './Icon';
@@ -57,4 +56,5 @@ export {
   EmptyPrompt,
   Callout,
   ErrorToast,
+  ContentPanel,
 } from '../../../components';

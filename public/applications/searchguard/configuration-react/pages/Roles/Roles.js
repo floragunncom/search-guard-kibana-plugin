@@ -41,6 +41,7 @@ import {
   indexPatternsText,
   indexExclusionsText,
   tenantPatternsText,
+  rolesDescriptionText,
 } from '../../utils/i18n/roles';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
 import { LocalStorageService, RolesService } from '../../services';
@@ -304,6 +305,7 @@ class Roles extends Component {
     return (
       <ContentPanel
         title={rolesText}
+        description={rolesDescriptionText}
         actions={[
           <CancelButton onClick={() => history.push(APP_PATH.HOME)} />,
           <CreateButton

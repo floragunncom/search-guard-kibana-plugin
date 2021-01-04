@@ -15,14 +15,15 @@
  */
 
 import React from 'react';
-import { EuiI18n } from '@elastic/eui';
+import { EuiI18n, EuiLink } from '@elastic/eui';
+import { DOC_LINKS } from '../constants';
 
 export const systemStatusText = (
   <EuiI18n token="sg.system_status.systemStatus.text" default="System Status" />
 );
-export const systemStatusDescription = (
+export const systemStatusShortDescriptionText = (
   <EuiI18n
-    token="sg.system_status.systemStatus.description"
+    token="sg.system_status.shortdDescription.text"
     default="View the Search Guard license and all installed modules"
   />
 );
@@ -116,4 +117,15 @@ export const kibanaMultitenancy = (
 );
 export const RESTManagementAPI = (
   <EuiI18n token="sg.system_status.RESTManagementAPI.text" default="REST Management API" />
+);
+export const licensingDescriptionText = (
+  <>
+    <EuiI18n
+      token="sg.system_status.licensing.text"
+      default="Search Guard offers several licensing models: community, enterprise, and compliance."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.LICENSING}>
+      Read more.
+    </EuiLink>
+  </>
 );

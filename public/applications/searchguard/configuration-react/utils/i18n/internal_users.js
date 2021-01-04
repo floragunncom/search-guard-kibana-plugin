@@ -15,7 +15,8 @@
  */
 
 import React from 'react';
-import { EuiI18n } from '@elastic/eui';
+import { EuiI18n, EuiLink } from '@elastic/eui';
+import { DOC_LINKS } from '../constants';
 
 export const internalUsersText = (
   <EuiI18n token="sg.internalUsers.internalUsers.text" default="Internal Users" />
@@ -29,9 +30,9 @@ export const updateInternalUserText = (
 export const internalUsersDatabaseText = (
   <EuiI18n token="sg.internalUsers.internalUsersDatabase.text" default="Internal Users Database" />
 );
-export const internalUsersDatabaseDescription = (
+export const internalUsersDatabaseShortDescriptionText = (
   <EuiI18n
-    token="sg.internalUsers.internalUsersDatabase.description"
+    token="sg.internalUsers.shortDescription.text"
     default="Use it if you don't have any external authentication systems in place"
   />
 );
@@ -74,4 +75,15 @@ export const emptyUsersTableMessageText = (
 export const noUsersText = <EuiI18n token="sg.internalUsers.noUsers.text" default="No users" />;
 export const complexAttributesText = (
   <EuiI18n token="sg.internalUsers.complexAttributes.text" default="Complex attributes" />
+);
+export const internalUsersDescriptionText = (
+  <>
+    <EuiI18n
+      token="sg.internalUsers.description.text"
+      default="Search Guard ships with an internal user database. You can use this user database if you do not have any external authentication system like LDAP or Active Directory in place. Users, their hashed passwords and roles are stored in the internal Search Guard configuration index on your cluster."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.CONFIGURE_INTERNAL_USERS_DATABASE}>
+      Read more.
+    </EuiLink>
+  </>
 );

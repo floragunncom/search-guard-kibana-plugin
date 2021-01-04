@@ -37,6 +37,7 @@ import {
   createTenantText,
   emptyTenantsTableMessageText,
   noTenantsText,
+  tenantsDescriptionText,
 } from '../../utils/i18n/tenants';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
 import { LocalStorageService, TenantsService } from '../../services';
@@ -254,6 +255,7 @@ class Tenants extends Component {
     return (
       <ContentPanel
         title={tenantsText}
+        description={tenantsDescriptionText}
         actions={[
           <CancelButton onClick={() => history.push(APP_PATH.HOME)} />,
           <CreateButton

@@ -38,6 +38,7 @@ import {
   emptyRoleMappingsTableMessageText,
   noRoleMappingsText,
   noCorrespondingRoleText,
+  roleMappingsDescriptionText,
 } from '../../utils/i18n/role_mappings';
 import { usersText, hostsText, rolesText } from '../../utils/i18n/roles';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
@@ -294,6 +295,7 @@ class RoleMappings extends Component {
     return (
       <ContentPanel
         title={roleMappingsText}
+        description={roleMappingsDescriptionText}
         actions={[
           <CancelButton onClick={() => history.push(APP_PATH.HOME)} />,
           <CreateButton

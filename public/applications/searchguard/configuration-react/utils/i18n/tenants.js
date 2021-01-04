@@ -15,11 +15,12 @@
  */
 
 import React from 'react';
-import { EuiI18n } from '@elastic/eui';
+import { EuiI18n, EuiLink } from '@elastic/eui';
+import { DOC_LINKS } from '../constants';
 
 export const tenantsText = <EuiI18n token="sg.tenants.tenants.text" default="Tenants" />;
-export const tenantsDescription = (
-  <EuiI18n token="sg.tenants.tenants.description" default="Define tenants" />
+export const tenantsShortDescriptionText = (
+  <EuiI18n token="sg.tenants.shortDescription.text" default="Define tenants" />
 );
 export const createTenantText = (
   <EuiI18n token="sg.tenants.createTenant.text" default="Create Tenant" />
@@ -36,4 +37,15 @@ export const emptyTenantsTableMessageText = (
 );
 export const nameAlreadyExistsText = (
   <EuiI18n token="sg.tenants.nameAlreadyExists.text" default="Name already exists" />
+);
+export const tenantsDescriptionText = (
+  <>
+    <EuiI18n
+      token="sg.tenants.description.text"
+      default="A Kibana tenant is a named container for storing saved objects. A tenant can be assigned to one or more Search Guard roles. The role can have read-write or read-only access to the tenant and thus the saved objects in it. A Kibana user selects the tenant that he or she wants to work with. Search Guard ensures that the saved objects are placed in the selected tenant."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.MULTITENANCY}>
+      Read more.
+    </EuiLink>
+  </>
 );

@@ -15,16 +15,17 @@
  */
 
 import React from 'react';
-import { EuiI18n } from '@elastic/eui';
+import { EuiI18n, EuiLink } from '@elastic/eui';
+import { DOC_LINKS } from '../constants';
 
 export const rolesText = <EuiI18n token="sg.roles.roles.text" default="Roles" />;
 export const roleText = <EuiI18n token="sg.roles.role.text" default="Role" />;
 export const backendRolesText = (
   <EuiI18n token="sg.roles.backendRoles.text" default="Backend Roles" />
 );
-export const rolesDescription = (
+export const rolesShortDescriptionText = (
   <EuiI18n
-    token="sg.roles.actionGroups.description"
+    token="sg.roles.shortDescription.text"
     default="Configure Search Guard Roles and their permissions"
   />
 );
@@ -142,3 +143,14 @@ export const dlsQuerySyntaxIsInvalidText = (
 );
 export const permitText = <EuiI18n token="sg.roles.permit.text" default="Permit" />;
 export const excludeText = <EuiI18n token="sg.roles.exclude.text" default="Exclude" />;
+export const rolesDescriptionText = (
+  <>
+    <EuiI18n
+      token="sg.role_mappings.rolesDescription.text"
+      default="Search Guard roles are the central place to configure access permissions on the following levels: cluster, index, document, field, and Kibana level."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.ROLE_PERMISSIONS}>
+      Read more.
+    </EuiLink>
+  </>
+);

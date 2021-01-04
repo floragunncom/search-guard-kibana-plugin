@@ -157,6 +157,7 @@ class SystemStatus extends Component {
         <EuiFlexItem>
           <ContentPanel
             title={systemStatusI18nLabels[selectedSideNavItemName]}
+            description={systemStatusI18nLabels.licensingDescriptionText}
             actions={[
               <CancelButton onClick={() => history.push(APP_PATH.HOME)} />,
               this.renderUploadLicenseButton(history, location),

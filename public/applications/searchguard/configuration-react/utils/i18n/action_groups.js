@@ -15,14 +15,15 @@
  */
 
 import React from 'react';
-import { EuiI18n } from '@elastic/eui';
+import { EuiI18n, EuiLink } from '@elastic/eui';
+import { DOC_LINKS } from '../constants';
 
 export const actionGroupsText = (
   <EuiI18n token="sg.action_groups.actionGroups.text" default="Action Groups" />
 );
-export const actionGroupsDescription = (
+export const actionGroupsShortDescriptionText = (
   <EuiI18n
-    token="sg.action_groups.actionGroups.description"
+    token="sg.action_groups.shortDescription.text"
     default="Configure named groups of permissions that can be applied to roles"
   />
 );
@@ -49,4 +50,15 @@ export const singlePermissionsText = (
 );
 export const singleExclusionsText = (
   <EuiI18n token="sg.action_groups.singleExclusions.text" default="Single Exclusions" />
+);
+export const actionGroupsDescriptionText = (
+  <>
+    <EuiI18n
+      token="sg.action_groups.description.text"
+      default="An action group is simply a collection of permissions with a telling name."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.ACTION_GROUPS}>
+      Read more.
+    </EuiLink>
+  </>
 );

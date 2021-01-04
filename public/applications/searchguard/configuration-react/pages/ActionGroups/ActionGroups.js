@@ -38,6 +38,7 @@ import {
   createActionGroupText,
   emptyActionGroupsTableMessageText,
   noActionGroupsText,
+  actionGroupsDescriptionText,
 } from '../../utils/i18n/action_groups';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
 import { LocalStorageService, ActionGroupsService } from '../../services';
@@ -267,6 +268,7 @@ class ActionGroups extends Component {
     return (
       <ContentPanel
         title={actionGroupsText}
+        description={actionGroupsDescriptionText}
         actions={[
           <CancelButton onClick={() => history.push(APP_PATH.HOME)} />,
           <CreateButton

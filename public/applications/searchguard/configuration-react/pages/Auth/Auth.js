@@ -31,6 +31,7 @@ import { get, isEmpty, map, toString, startCase } from 'lodash';
 import { APP_PATH } from '../../utils/constants';
 import { stringifyPretty } from '../../utils/helpers';
 import { navigateText, disabledText } from '../../utils/i18n/common';
+import { authenticationDescriptionText } from '../../utils/i18n/auth';
 import { SELECTED_SIDE_NAV_ITEM_NAME } from './utils/constants';
 import { resourcesToUiResources, getSideNavItems } from './utils';
 import { SgConfigService } from '../../services';
@@ -191,6 +192,7 @@ export class Auth extends Component {
         <EuiFlexItem>
           <ContentPanel
             title={this.renderPanelTitle(selectedSideNavItemName)}
+            description={authenticationDescriptionText}
             actions={[<CancelButton onClick={() => history.push(APP_PATH.HOME)} />]}
           >
             <AuthContent resource={resource} />
