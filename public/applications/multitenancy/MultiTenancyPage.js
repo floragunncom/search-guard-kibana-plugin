@@ -18,7 +18,6 @@ import React, { Component } from 'react';
 
 import { APP_NAME } from './utils/constants';
 import { API_ROOT } from '../../utils/constants';
-
 import {
   EuiButton,
   EuiButtonEmpty,
@@ -54,8 +53,9 @@ import {
   selectTenantButtonLabel,
   showDashboardLabel,
   showVisualizationLabel,
+  tenantsDescriptionText,
 } from './utils/i18n/multitenancy_labels';
-import { LicenseWarningCallout } from '../components';
+import { LicenseWarningCallout, ContentPanel } from '../components';
 
 export class MultiTenancyPage extends Component {
   static contextType = MainContext;
@@ -549,15 +549,6 @@ export class MultiTenancyPage extends Component {
             <EuiPageContentBody className="sg-page-content-body">
               <LicenseWarningCallout configService={this.configService} />
 
-              {this.renderFlyout()}
-              <EuiTitle size="m">
-                <h2 id="tenantLabel" style={{ textAlign: 'center' }}>
-                  {currentTenantLabel}
-                </h2>
-              </EuiTitle>
-
-              <EuiSpacer size="l" />
-
               {errorMessage && (
                 <>
                   <EuiCallOut title={mtConfigErrorHeader} color="danger" iconType="alert">
@@ -568,21 +559,28 @@ export class MultiTenancyPage extends Component {
                 </>
               )}
 
-              <EuiInMemoryTable
-                items={uiTenants}
-                rowProps={(uiTenant) => {
-                  return {
-                    isSelected: uiTenant.id === currentTenant,
-                  };
-                }}
-                itemId="id"
-                search={search}
-                pagination={pagination}
-                loading={isLoading}
-                columns={columns}
-                sorting={true}
-                isSelectable={false}
-              />
+              {this.renderFlyout()}
+              <EuiTitle size="m">
+                <h2 id="tenantLabel">{currentTenantLabel}</h2>
+              </EuiTitle>
+
+              <ContentPanel description={tenantsDescriptionText}>
+                <EuiInMemoryTable
+                  items={uiTenants}
+                  rowProps={(uiTenant) => {
+                    return {
+                      isSelected: uiTenant.id === currentTenant,
+                    };
+                  }}
+                  itemId="id"
+                  search={search}
+                  pagination={pagination}
+                  loading={isLoading}
+                  columns={columns}
+                  sorting={true}
+                  isSelectable={false}
+                />
+              </ContentPanel>
             </EuiPageContentBody>
           </EuiPageContent>
         </EuiPageBody>
