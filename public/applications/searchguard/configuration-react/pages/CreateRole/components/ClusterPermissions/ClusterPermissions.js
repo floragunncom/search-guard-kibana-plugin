@@ -16,14 +16,18 @@
 
 import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
-import { FormikComboBox, FormikSwitch } from '../../../../components';
+import { FormikComboBox, FormikSwitch, LabelAppendLink } from '../../../../components';
+import { ActionGroupsHelpText } from '../common';
 import { actionGroupsText, singlePermissionsText } from '../../../../utils/i18n/action_groups';
-import { advancedText } from '../../../../utils/i18n/common';
+import {
+  advancedText,
+  allowDisallowActionsBasedOnTheLevelsText,
+} from '../../../../utils/i18n/common';
 import { validSinglePermissionOption, isInvalid, hasError } from '../../../../utils/validation';
-
+import { DOC_LINKS } from '../../../../utils/constants';
 import { Context } from '../../../../Context';
 
-const ClusterPermissions = ({ allActionGroups, allSinglePermissions, values }) => {
+const ClusterPermissions = ({ allActionGroups, allSinglePermissions, values, history }) => {
   const { onSwitchChange, onComboBoxChange, onComboBoxCreateOption, onComboBoxOnBlur } = useContext(
     Context
   );
@@ -35,6 +39,10 @@ const ClusterPermissions = ({ allActionGroups, allSinglePermissions, values }) =
         formRow
         rowProps={{
           label: actionGroupsText,
+          labelAppend: (
+            <LabelAppendLink name="searchGuardActionGroups" href={DOC_LINKS.ACTION_GROUPS} />
+          ),
+          helpText: <ActionGroupsHelpText history={history} />,
         }}
         elementProps={{
           options: allActionGroups,
@@ -60,6 +68,7 @@ const ClusterPermissions = ({ allActionGroups, allSinglePermissions, values }) =
             label: singlePermissionsText,
             isInvalid,
             error: hasError,
+            helpText: allowDisallowActionsBasedOnTheLevelsText,
           }}
           elementProps={{
             isInvalid,
@@ -84,6 +93,7 @@ ClusterPermissions.propTypes = {
   values: PropTypes.shape({
     _isClusterPermissionsAdvanced: PropTypes.bool.isRequired,
   }).isRequired,
+  history: PropTypes.object.isRequired,
 };
 
 export default ClusterPermissions;

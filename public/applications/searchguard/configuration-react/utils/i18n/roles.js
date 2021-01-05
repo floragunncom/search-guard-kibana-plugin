@@ -50,6 +50,9 @@ export const indexPatternsText = (
 export const tenantPatternsText = (
   <EuiI18n token="sg.roles.tenantPatterns.text" default="Tenant Patterns" />
 );
+export const giveAccessToTenantsText = (
+  <EuiI18n token="sg.roles.tenantPatternshelp.text" default="Give access to tenant(s)" />
+);
 export const noMappedUsersFoundText = (
   <EuiI18n token="sg.roles.noMappedUsersFound.text" default="No mapped users found" />
 );
@@ -79,7 +82,10 @@ export const includeOrExcludeFieldsText = (
   <EuiI18n token="sg.roles.includeOrExcludeFields.text" default="Include or exclude fields" />
 );
 export const fieldLevelSecurityText = (
-  <EuiI18n token="sg.roles.fieldLevelSecurity.text" default="Field Level Security" />
+  <EuiI18n token="sg.roles.fieldLevelSecurity.text" default="Field-level security" />
+);
+export const fieldAnonymizationText = (
+  <EuiI18n token="sg.roles.fieldAnonymization.text" default="Field anonymization" />
 );
 export const anonymizeText = <EuiI18n token="sg.roles.anonymize.text" default="Anonymize" />;
 export const maskTypeText = <EuiI18n token="sg.roles.maskType.text" default="Mask Type" />;
@@ -90,14 +96,14 @@ export const hashText = <EuiI18n token="sg.roles.hash.text" default="Hash" />;
 export const anonymizeHelpText = (
   <EuiI18n
     token="sg.roles.anonimizeFields.text"
-    default="You can anonymize the fields with hash or regular expression."
+    default="You can anonymize the fields with hash or regular expression"
   />
 );
 export const elasticsearhQueryDLSText = (
   <EuiI18n token="sg.roles.elasticsearhQueryDLS.text" default="Elasticsearh query DLS" />
 );
 export const documentLevelSecurityText = (
-  <EuiI18n token="sg.roles.documentLevelSecurity.text" default="Document Level Security" />
+  <EuiI18n token="sg.roles.documentLevelSecurity.text" default="Document-level security" />
 );
 export const emptyIndexPermissionsText = (
   <EuiI18n
@@ -146,10 +152,98 @@ export const excludeText = <EuiI18n token="sg.roles.exclude.text" default="Exclu
 export const rolesDescriptionText = (
   <>
     <EuiI18n
-      token="sg.role_mappings.rolesDescription.text"
+      token="sg.roles.rolesDescription.text"
       default="Search Guard roles are the central place to configure access permissions on the following levels: cluster, index, document, field, and Kibana level."
     />{' '}
     <EuiLink target="_blank" href={DOC_LINKS.ROLE_PERMISSIONS}>
+      Read more.
+    </EuiLink>
+  </>
+);
+export const createRoleClusterPemissionsHelpText = (
+  <>
+    <EuiI18n
+      token="sg.roles.createRoleClusterPermissionsHelp.text"
+      default="The cluster permissions are used to define permissions on cluster level. Cluster-level permissions are used to allow/disallow actions that affect either the whole cluster, like querying the cluster health or the nodes stats."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.ROLE_PERMISSIONS_CLUSTER}>
+      Read more.
+    </EuiLink>
+  </>
+);
+export const createRoleIndexPemissionsHelpText = (
+  <>
+    <EuiI18n
+      token="sg.roles.createRoleIndexPermissionsHelp.text"
+      default="The index permissions are used to allow/disallow actions that affect indices matching the configured index patterns."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.ROLE_PERMISSIONS_INDEX}>
+      Read more.
+    </EuiLink>
+  </>
+);
+export const createRoleClusterExclusionsHelpText = (
+  <>
+    <EuiI18n
+      token="sg.roles.createRoleClusterExclusionsHelp.text"
+      default="The cluster exclustions are used to define permissions a user may not have at the cluster-level."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.ROLE_PERMISSIONS_EXCLUSIONS}>
+      Read more.
+    </EuiLink>
+  </>
+);
+export const createRoleIndexExclusionsHelpText = (
+  <>
+    <EuiI18n
+      token="sg.roles.createRoleIndexExclusionsHelp.text"
+      default="The cluster exclustions are used to define permissions a user may not have at the index-level."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.ROLE_PERMISSIONS_EXCLUSIONS}>
+      Read more.
+    </EuiLink>
+  </>
+);
+export const createRoleTenantPermissionsHelpText = (
+  <>
+    <EuiI18n
+      token="sg.roles.createRoleTenantPermissionsHelp.text"
+      default="A role can have read-write or read-only access to the tenant and thus the saved objects in it."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.MULTITENANCY}>
+      Read more.
+    </EuiLink>
+  </>
+);
+export const createRoleFieldAnonymizationHelpText = (
+  <>
+    <EuiI18n
+      token="sg.roles.createRoleFieldAnonymizationHelp.text"
+      default="It is used to anonymize values of document fields."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.ANONYMIZE_FIELDS}>
+      Read more.
+    </EuiLink>
+  </>
+);
+export const createRoleFieldLevelSecurityHelpText = (
+  <>
+    <EuiI18n
+      token="sg.roles.createRoleFieldLevelSecurityHelp.text"
+      default="Field-level security controls which fields a user is able to see."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.FIELD_LEVEL_SECURITY}>
+      Read more.
+    </EuiLink>
+  </>
+);
+export const createRoleDocumentLevelSecurityHelpText = (
+  <>
+    <EuiI18n
+      token="sg.roles.createRoleDocumentLevelSecurityHelp.text"
+      default="Document-level security restricts a user’s access to certain documents within an index. To enable document-level security you configure an Elasticsearch query that defines which documents are accessible and which not. Only documents matching this query will be visible for the role that the DLS is defined for."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.DOCUMENT_LEVEL_SECURITY}>
       Read more.
     </EuiLink>
   </>

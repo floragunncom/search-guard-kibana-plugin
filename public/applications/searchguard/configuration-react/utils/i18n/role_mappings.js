@@ -63,10 +63,3 @@ export const roleMappingsDescriptionText = (
     </EuiLink>
   </>
 );
-
-export const hostnameOrIPAddressTheRequestOriginatedFromText = (
-  <EuiI18n
-    token="sg.role_mappings.hostnameOrIPAddressTheRequestOriginatedFrom.text"
-    default="Hostname or IP address the request originated from"
-  />
-);

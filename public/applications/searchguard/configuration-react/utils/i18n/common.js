@@ -57,3 +57,14 @@ export const allowDisallowActionsBasedOnTheLevelsText = (
     default="Allow/disallow actions based on the levels: indices or cluster"
   />
 );
+
+export const collectionOfPermissionsText = (
+  <EuiI18n token="sg.common.collectionOfPermissions.text" default="Collection of permissions" />
+);
+
+export const hostnameOrIPAddressTheRequestOriginatedFromText = (
+  <EuiI18n
+    token="sg.role_mappings.hostnameOrIPAddressTheRequestOriginatedFrom.text"
+    default="Hostname or IP address the request originated from"
+  />
+);

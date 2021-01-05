@@ -16,14 +16,15 @@
 
 import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
-import { FormikComboBox, FormikSwitch } from '../../../components';
+import { FormikComboBox, FormikSwitch, LabelAppendLink } from '../../../components';
+import { ActionGroupsHelpText } from './common';
 import { actionGroupsText, singleExclusionsText } from '../../../utils/i18n/action_groups';
-import { advancedText } from '../../../utils/i18n/common';
+import { advancedText, allowDisallowActionsBasedOnTheLevelsText } from '../../../utils/i18n/common';
 import { validSinglePermissionOption, isInvalid, hasError } from '../../../utils/validation';
-
+import { DOC_LINKS } from '../../../utils/constants';
 import { Context } from '../../../Context';
 
-export function ClusterExclusions({ allActionGroups, allSinglePermissions, values }) {
+export function ClusterExclusions({ allActionGroups, allSinglePermissions, values, history }) {
   const { onSwitchChange, onComboBoxChange, onComboBoxCreateOption, onComboBoxOnBlur } = useContext(
     Context
   );
@@ -35,6 +36,10 @@ export function ClusterExclusions({ allActionGroups, allSinglePermissions, value
         formRow
         rowProps={{
           label: actionGroupsText,
+          labelAppend: (
+            <LabelAppendLink name="searchGuardActionGroups" href={DOC_LINKS.ACTION_GROUPS} />
+          ),
+          helpText: <ActionGroupsHelpText history={history} />,
         }}
         elementProps={{
           options: allActionGroups,
@@ -59,6 +64,7 @@ export function ClusterExclusions({ allActionGroups, allSinglePermissions, value
             label: singleExclusionsText,
             isInvalid,
             error: hasError,
+            helpText: allowDisallowActionsBasedOnTheLevelsText,
           }}
           elementProps={{
             isInvalid,
@@ -83,4 +89,5 @@ ClusterExclusions.propTypes = {
   values: PropTypes.shape({
     _isClusterExclusionsAdvanced: PropTypes.bool.isRequired,
   }).isRequired,
+  history: PropTypes.object.isRequired,
 };

@@ -40,7 +40,7 @@ const addTenantPermission = (arrayHelpers, isMultiTenancyEnabled) => {
   arrayHelpers.push(permission);
 };
 
-const TenantPermissions = ({ values, allTenants, allAppActionGroups }) => {
+const TenantPermissions = ({ values, allTenants, allAppActionGroups, history }) => {
   const { configService } = useContext(Context);
   const isMultiTenancyEnabled = configService.multiTenancyEnabled();
 
@@ -74,6 +74,7 @@ const TenantPermissions = ({ values, allTenants, allAppActionGroups }) => {
               />
             ) : (
               <TenantPatterns
+                history={history}
                 isMultiTenancyEnabled={isMultiTenancyEnabled}
                 allTenants={allTenants}
                 tenantPermissions={values._tenantPermissions}
@@ -100,6 +101,7 @@ TenantPermissions.propTypes = {
   }).isRequired,
   allTenants: PropTypes.array.isRequired,
   allAppActionGroups: PropTypes.array.isRequired,
+  history: PropTypes.object.isRequired,
 };
 
 export default TenantPermissions;

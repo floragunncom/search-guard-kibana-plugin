@@ -38,6 +38,12 @@ export const DOC_LINKS = {
     'https://docs.search-guard.com/latest/internal-users-database#configuring-the-internal-users-database',
   MAPPING_USERS_ROLES: 'https://docs.search-guard.com/latest/mapping-users-roles',
   ROLE_PERMISSIONS: 'https://docs.search-guard.com/latest/roles-permissions',
+  ROLE_PERMISSIONS_CLUSTER:
+    'https://docs.search-guard.com/latest/roles-permissions#cluster-level-permissions',
+  ROLE_PERMISSIONS_INDEX:
+    'https://docs.search-guard.com/latest/roles-permissions#index-level-permissions',
+  ROLE_PERMISSIONS_EXCLUSIONS:
+    'https://docs.search-guard.com/latest/roles-permissions#permission-exclusions',
   ACTION_GROUPS: 'https://docs.search-guard.com/latest/action-groups',
   MULTITENANCY: 'https://docs.search-guard.com/latest/kibana-multi-tenancy#kibana-multitenancy',
   AUTHENTICATION: 'https://docs.search-guard.com/latest/kibana-authentication-types',
@@ -47,4 +53,8 @@ export const DOC_LINKS = {
   LICENSING: 'https://search-guard.com/licensing/',
   BACKEND_ROLES:
     'https://docs.search-guard.com/latest/troubleshooting-search-guard-user-roles#backend-roles',
+  ANONYMIZE_FIELDS:
+    'https://docs.search-guard.com/latest/field-anonymization#anonymize-fields-in-elasticsearch-documents',
+  FIELD_LEVEL_SECURITY: 'https://docs.search-guard.com/latest/field-level-security',
+  DOCUMENT_LEVEL_SECURITY: 'https://docs.search-guard.com/latest/document-level-security',
 };

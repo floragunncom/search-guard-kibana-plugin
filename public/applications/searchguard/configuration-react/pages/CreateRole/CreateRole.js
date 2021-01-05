@@ -29,6 +29,11 @@ import {
   overviewText,
   indexExclusionsText,
   clusterExclusionsText,
+  createRoleClusterPemissionsHelpText,
+  createRoleClusterExclusionsHelpText,
+  createRoleIndexExclusionsHelpText,
+  createRoleIndexPemissionsHelpText,
+  createRoleTenantPermissionsHelpText,
 } from '../../utils/i18n/roles';
 import { ROLES_ACTIONS } from '../../utils/constants';
 import {
@@ -113,6 +118,15 @@ class CreateRole extends Component {
         name: tenantPermissionsText,
       },
     ];
+
+    this.tabHelpText = {
+      [TABS.OVERVIEW]: null,
+      [TABS.CLUSTER_PERMISSIONS]: createRoleClusterPemissionsHelpText,
+      [TABS.CLUSTER_EXCLUSIONS]: createRoleClusterExclusionsHelpText,
+      [TABS.INDEX_PERMISSIONS]: createRoleIndexPemissionsHelpText,
+      [TABS.INDEX_EXCLUSIONS]: createRoleIndexExclusionsHelpText,
+      [TABS.TENANT_PERMISSIONS]: createRoleTenantPermissionsHelpText,
+    };
   }
 
   componentDidMount() {
@@ -229,6 +243,7 @@ class CreateRole extends Component {
           return (
             <ContentPanel
               title={titleText}
+              description={this.tabHelpText[selectedTabId]}
               isLoading={isLoading}
               actions={[
                 <CancelButton onClick={() => history.goBack()} />,

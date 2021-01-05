@@ -19,7 +19,11 @@ import PropTypes from 'prop-types';
 import { EuiAccordion, EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
 import { FieldArray } from 'formik';
 import { isEmpty, get } from 'lodash';
-import { addText, advancedText } from '../../../utils/i18n/common';
+import {
+  addText,
+  advancedText,
+  allowDisallowActionsBasedOnTheLevelsText,
+} from '../../../utils/i18n/common';
 import {
   emptyIndexExclusionsText,
   indexExclusionsText,
@@ -34,7 +38,9 @@ import {
   FormikComboBox,
   FormikSwitch,
   Icon,
+  LabelAppendLink,
 } from '../../../components';
+import { ActionGroupsHelpText } from './common';
 import { validIndicesSinglePermissionOption, isInvalid, hasError } from '../../../utils/validation';
 import {
   excludeIndexPermissionToUiExcludeIndexPermission,
@@ -43,10 +49,10 @@ import {
   renderIndexOption,
 } from '../utils';
 import { INDEX_EXCLUSIONS } from '../utils/constants';
-
+import { DOC_LINKS } from '../../../utils/constants';
 import { Context } from '../../../Context';
 
-function Exclusion({ index, values, allActionGroups, allSinglePermissions }) {
+function Exclusion({ index, values, allActionGroups, allSinglePermissions, history }) {
   const { onSwitchChange, onComboBoxChange, onComboBoxOnBlur, onComboBoxCreateOption } = useContext(
     Context
   );
@@ -80,6 +86,10 @@ function Exclusion({ index, values, allActionGroups, allSinglePermissions }) {
         formRow
         rowProps={{
           label: actionGroupsText,
+          labelAppend: (
+            <LabelAppendLink name="searchGuardActionGroups" href={DOC_LINKS.ACTION_GROUPS} />
+          ),
+          helpText: <ActionGroupsHelpText history={history} />,
         }}
         elementProps={{
           options: allActionGroups,
@@ -104,6 +114,7 @@ function Exclusion({ index, values, allActionGroups, allSinglePermissions }) {
             label: singleExclusionsText,
             isInvalid,
             error: hasError,
+            helpText: allowDisallowActionsBasedOnTheLevelsText,
           }}
           elementProps={{
             isInvalid,
@@ -122,7 +133,7 @@ function Exclusion({ index, values, allActionGroups, allSinglePermissions }) {
   );
 }
 
-function Exclusions({ values, arrayHelpers, allActionGroups, allSinglePermissions }) {
+function Exclusions({ values, arrayHelpers, allActionGroups, allSinglePermissions, history }) {
   const { triggerConfirmDeletionModal } = useContext(Context);
 
   return values._excludeIndexPermissions.map((indexPermission, index) => (
@@ -156,6 +167,7 @@ function Exclusions({ values, arrayHelpers, allActionGroups, allSinglePermission
         >
           <EuiSpacer />
           <Exclusion
+            history={history}
             index={index}
             values={values}
             allActionGroups={allActionGroups}
@@ -169,7 +181,7 @@ function Exclusions({ values, arrayHelpers, allActionGroups, allSinglePermission
   ));
 }
 
-export function IndexExclusions({ values, allActionGroups, allSinglePermissions }) {
+export function IndexExclusions({ values, allActionGroups, allSinglePermissions, history }) {
   function addIndexPermission(arrayHelpers) {
     arrayHelpers.push(excludeIndexPermissionToUiExcludeIndexPermission(INDEX_EXCLUSIONS));
   }
@@ -192,6 +204,7 @@ export function IndexExclusions({ values, allActionGroups, allSinglePermissions 
             />
           ) : (
             <Exclusions
+              history={history}
               values={values}
               arrayHelpers={arrayHelpers}
               allActionGroups={allActionGroups}
@@ -218,4 +231,5 @@ IndexExclusions.propTypes = {
   }).isRequired,
   allActionGroups: PropTypes.array.isRequired,
   allSinglePermissions: PropTypes.array.isRequired,
+  history: PropTypes.object.isRequired,
 };

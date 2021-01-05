@@ -24,7 +24,6 @@ import {
   updateRoleMappingText,
   roleHelpText,
   usersHelpText,
-  hostnameOrIPAddressTheRequestOriginatedFromText,
 } from '../../utils/i18n/role_mappings';
 import { createInternalUserText } from '../../utils/i18n/internal_users';
 import {
@@ -34,7 +33,10 @@ import {
   hostsText,
   createRoleText,
 } from '../../utils/i18n/roles';
-import { rolesFromInternalDbLDAPJSONWebTokenOrSAMLText } from '../../utils/i18n/common';
+import {
+  rolesFromInternalDbLDAPJSONWebTokenOrSAMLText,
+  hostnameOrIPAddressTheRequestOriginatedFromText,
+} from '../../utils/i18n/common';
 import {
   ContentPanel,
   FormikComboBox,

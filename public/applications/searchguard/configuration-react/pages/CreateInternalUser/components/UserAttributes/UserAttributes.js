@@ -48,12 +48,6 @@ function SimpleUserAttributes({ attributes }) {
       rowProps={{
         isInvalid,
         error: hasError,
-        labelAppend: (
-          <LabelAppendLink
-            name="searchGuardInternalUsersAttributes"
-            href={DOC_LINKS.CONFIGURE_INTERNAL_USERS_DATABASE}
-          />
-        ),
       }}
       elementProps={{
         isInvalid,
@@ -71,7 +65,6 @@ function SimpleUserAttributes({ attributes }) {
       rowProps={{
         isInvalid,
         error: hasError,
-        hasEmptyLabelSpace: true,
       }}
       elementProps={{
         isInvalid,
@@ -150,7 +143,7 @@ function UserAttributes({ values: { _attributes, _isComplexUserAttributes } }) {
 
   return (
     <>
-      <SubHeader title={<h4>{userAttributesText}</h4>} />
+      <SubHeader title={<h5>{userAttributesText}</h5>} />
       <FormikSwitch
         formRow
         elementProps={{

@@ -65,7 +65,7 @@ export const actionGroupsDescriptionText = (
 export const actionGroupMayIncludeOtherActionGroupsText = (
   <EuiI18n
     token="sg.action_groups.actionGroupMayIncludeOtherActionGroups.text"
-    default="Action Group may include other action groups"
+    default="Action group may include other action groups"
   />
 );
 export const permissionLevelText = (

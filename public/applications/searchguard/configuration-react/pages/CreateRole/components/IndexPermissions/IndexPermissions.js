@@ -20,7 +20,11 @@ import { FieldArray } from 'formik';
 import { isEmpty, isEqual } from 'lodash';
 import { INDEX_PERMISSION } from '../../utils/constants';
 import { EuiAccordion, EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
-import { advancedText, addText } from '../../../../utils/i18n/common';
+import {
+  advancedText,
+  addText,
+  allowDisallowActionsBasedOnTheLevelsText,
+} from '../../../../utils/i18n/common';
 import {
   emptyIndexPermissionsText,
   indexPermissionsText,
@@ -35,7 +39,9 @@ import {
   FormikComboBox,
   FormikSwitch,
   Icon,
+  LabelAppendLink,
 } from '../../../../components';
+import { ActionGroupsHelpText } from '../common';
 import {
   validIndicesSinglePermissionOption,
   isInvalid,
@@ -43,6 +49,7 @@ import {
 } from '../../../../utils/validation';
 import FieldLevelSecurity from './FieldLevelSecurity';
 import DocumentLevelSecurity from './DocumentLevelSecurity';
+import AnonymizedFields from './AnonymizedFields';
 import {
   indexPermissionToUiIndexPermission,
   useIndexPatterns,
@@ -53,10 +60,10 @@ import {
 } from '../../utils';
 import { comboBoxOptionsToArray } from '../../../../utils/helpers';
 import { ElasticsearchService } from '../../../../services';
-
+import { DOC_LINKS } from '../../../../utils/constants';
 import { Context } from '../../../../Context';
 
-function Permission({ index, values, allActionGroups, allSinglePermissions }) {
+function Permission({ index, values, allActionGroups, allSinglePermissions, history }) {
   const {
     httpClient,
     addErrorToast,
@@ -124,6 +131,10 @@ function Permission({ index, values, allActionGroups, allSinglePermissions }) {
         formRow
         rowProps={{
           label: actionGroupsText,
+          labelAppend: (
+            <LabelAppendLink name="searchGuardActionGroups" href={DOC_LINKS.ACTION_GROUPS} />
+          ),
+          helpText: <ActionGroupsHelpText history={history} />,
         }}
         elementProps={{
           options: allActionGroups,
@@ -148,6 +159,7 @@ function Permission({ index, values, allActionGroups, allSinglePermissions }) {
             label: singlePermissionsText,
             isInvalid,
             error: hasError,
+            helpText: allowDisallowActionsBasedOnTheLevelsText,
           }}
           elementProps={{
             isInvalid,
@@ -162,17 +174,29 @@ function Permission({ index, values, allActionGroups, allSinglePermissions }) {
           }}
         />
       )}
+      <EuiSpacer />
+
       <FieldLevelSecurity
         index={index}
         isLoading={isLoading}
         allIndexPatternsFields={allIndexPatternsFields}
       />
+      <EuiSpacer />
+      <EuiSpacer />
+
+      <AnonymizedFields
+        index={index}
+        isLoading={isLoading}
+        allIndexPatternsFields={allIndexPatternsFields}
+      />
+      <EuiSpacer />
+
       <DocumentLevelSecurity index={index} />
     </>
   );
 }
 
-function Permissions({ values, arrayHelpers, allActionGroups, allSinglePermissions }) {
+function Permissions({ values, arrayHelpers, allActionGroups, allSinglePermissions, history }) {
   const { triggerConfirmDeletionModal } = useContext(Context);
 
   return values._indexPermissions.map((indexPermission, index) => (
@@ -206,6 +230,7 @@ function Permissions({ values, arrayHelpers, allActionGroups, allSinglePermissio
         >
           <EuiSpacer />
           <Permission
+            history={history}
             index={index}
             values={values}
             allActionGroups={allActionGroups}
@@ -219,7 +244,7 @@ function Permissions({ values, arrayHelpers, allActionGroups, allSinglePermissio
   ));
 }
 
-const IndexPermissions = ({ values, allActionGroups, allSinglePermissions }) => {
+const IndexPermissions = ({ values, allActionGroups, allSinglePermissions, history }) => {
   const addIndexPermission = (arrayHelpers) => {
     arrayHelpers.push(indexPermissionToUiIndexPermission(INDEX_PERMISSION));
   };
@@ -242,6 +267,7 @@ const IndexPermissions = ({ values, allActionGroups, allSinglePermissions }) => 
             />
           ) : (
             <Permissions
+              history={history}
               values={values}
               allActionGroups={allActionGroups}
               allSinglePermissions={allSinglePermissions}
@@ -279,6 +305,7 @@ IndexPermissions.propTypes = {
   }).isRequired,
   allActionGroups: PropTypes.array.isRequired,
   allSinglePermissions: PropTypes.array.isRequired,
+  history: PropTypes.object.isRequired,
 };
 
 export default IndexPermissions;

@@ -18,11 +18,12 @@ import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'formik';
 import { SubHeader, FormikCodeEditor } from '../../../../components';
-import { EuiSpacer, EuiCallOut } from '@elastic/eui';
+import { EuiSpacer, EuiCallOut, EuiText } from '@elastic/eui';
 import {
   elasticsearhQueryDLSText,
   documentLevelSecurityText,
   documentLevelSecurityDisabledText,
+  createRoleDocumentLevelSecurityHelpText,
 } from '../../../../utils/i18n/roles';
 import { isInvalid, hasError } from '../../../../utils/validation';
 
@@ -52,7 +53,10 @@ const DocumentLevelSecurity = ({ index }) => {
   ) : (
     <Fragment>
       <EuiSpacer />
-      <SubHeader title={<h4>{documentLevelSecurityText}</h4>} />
+      <SubHeader
+        title={<h5>{documentLevelSecurityText}</h5>}
+        description={<EuiText size="s">{createRoleDocumentLevelSecurityHelpText}</EuiText>}
+      />
       {/*
       Uncomment the following button when the new DLS verification API is ready.
       https://floragunn.atlassian.net/browse/SGD-898

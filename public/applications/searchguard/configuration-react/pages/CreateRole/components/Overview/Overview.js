@@ -26,8 +26,14 @@ import {
   EuiListGroup,
   EuiListGroupItem,
   EuiTitle,
+  EuiIconTip,
 } from '@elastic/eui';
-import { inspectText, nameText } from '../../../../utils/i18n/common';
+import {
+  inspectText,
+  nameText,
+  rolesFromInternalDbLDAPJSONWebTokenOrSAMLText,
+  hostnameOrIPAddressTheRequestOriginatedFromText,
+} from '../../../../utils/i18n/common';
 import {
   membersText,
   backendRolesText,
@@ -37,11 +43,11 @@ import {
   noMappedBackendRolesFoundText,
   noMappedHostsFoundText,
 } from '../../../../utils/i18n/roles';
+import { internalUsersDatabaseText } from '../../../../utils/i18n/internal_users';
 import { formikToRole } from '../../utils';
 import { FormikFieldText, SubHeader } from '../../../../components';
 import { hasError, isInvalid, validateName } from '../../../../utils/validation';
 import { RolesService } from '../../../../services';
-
 import { Context } from '../../../../Context';
 
 const Overview = ({ values, titleText, isUpdatingName }) => {
@@ -58,6 +64,12 @@ const Overview = ({ values, titleText, isUpdatingName }) => {
     users: usersText,
     backend_roles: backendRolesText,
     hosts: hostsText,
+  };
+
+  const sectionIconTipContent = {
+    users: internalUsersDatabaseText,
+    backend_roles: rolesFromInternalDbLDAPJSONWebTokenOrSAMLText,
+    hosts: hostnameOrIPAddressTheRequestOriginatedFromText,
   };
 
   return (
@@ -96,11 +108,14 @@ const Overview = ({ values, titleText, isUpdatingName }) => {
       <SubHeader title={<h4>{membersText}</h4>} />
       {['users', 'backend_roles', 'hosts'].map((sectionName, i) => (
         <Fragment key={i}>
-          <EuiFlexGroup>
-            <EuiFlexItem>
+          <EuiFlexGroup gutterSize="s">
+            <EuiFlexItem grow={false}>
               <EuiTitle size="xs">
                 <h5>{sectionText[sectionName]}</h5>
               </EuiTitle>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiIconTip content={sectionIconTipContent[sectionName]} />
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiFlexGroup>

@@ -17,23 +17,42 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
-import { EuiSpacer, EuiFlexItem, EuiFlexGroup, EuiAccordion } from '@elastic/eui';
+import { EuiSpacer, EuiFlexItem, EuiFlexGroup, EuiAccordion, EuiLink } from '@elastic/eui';
 import {
   AccordionButtonContent,
   AccordionDeleteButton,
   FormikComboBox,
   Icon,
+  LabelAppendLink,
 } from '../../../../components';
+import { ActionGroupsHelpText } from '../common';
 import { actionGroupsText } from '../../../../utils/i18n/action_groups';
-import { tenantPatternsText } from '../../../../utils/i18n/roles';
+import { tenantPatternsText, giveAccessToTenantsText } from '../../../../utils/i18n/roles';
+import { createTenantText } from '../../../../utils/i18n/tenants';
 import { comboBoxOptionsToArray } from '../../../../utils/helpers';
 import { GLOBAL_TENANT } from '../../utils/constants';
-
+import { APP_PATH, DOC_LINKS } from '../../../../utils/constants';
 import { Context } from '../../../../Context';
 
 const tenantPatternNames = (options = []) => comboBoxOptionsToArray(options).join(', ');
 
+function renderTenantPatternsHelpText(history) {
+  return (
+    <>
+      {giveAccessToTenantsText}
+      {', '}
+      <EuiLink
+        data-test-subj="sgCreateActionGroup"
+        onClick={() => history.push(APP_PATH.CREATE_TENANT)}
+      >
+        {createTenantText}
+      </EuiLink>
+    </>
+  );
+}
+
 const TenantPatterns = ({
+  history,
   allTenants,
   isMultiTenancyEnabled,
   tenantPermissions,
@@ -87,6 +106,7 @@ const TenantPatterns = ({
                 formRow
                 rowProps={{
                   label: tenantPatternsText,
+                  helpText: renderTenantPatternsHelpText(history),
                 }}
                 elementProps={{
                   isClearable: true,
@@ -105,6 +125,13 @@ const TenantPatterns = ({
                 formRow
                 rowProps={{
                   label: actionGroupsText,
+                  labelAppend: (
+                    <LabelAppendLink
+                      name="searchGuardActionGroups"
+                      href={DOC_LINKS.ACTION_GROUPS}
+                    />
+                  ),
+                  helpText: <ActionGroupsHelpText history={history} />,
                 }}
                 elementProps={{
                   options: allAppActionGroups,
@@ -129,6 +156,7 @@ TenantPatterns.propTypes = {
   tenantPermissions: PropTypes.array.isRequired,
   arrayHelpers: PropTypes.object.isRequired,
   allAppActionGroups: PropTypes.array.isRequired,
+  history: PropTypes.object.isRequired,
 };
 
 export default TenantPatterns;
