@@ -40,6 +40,18 @@ export const internalUsersDatabaseShortDescriptionText = (
 export const searchGuardRolesText = (
   <EuiI18n token="sg.internalUsers.searchGuardRoles.text" default="Search Guard Roles" />
 );
+export const addRolesToConfigureAccessPermissionText = (
+  <EuiI18n
+    token="sg.internalUsers.addRolesToConfigureAccessPermission.text"
+    default="Add roles to configure access permission"
+  />
+);
+export const rolesFromInternalDbLDAPJSONWebTokenOrSAMLText = (
+  <EuiI18n
+    token="sg.internalUsers.rolesFromInternalDbLDAPJSONWebTokenOrSAML.text"
+    default="Roles from Internal DB, LDAP, JSON web token or SAML"
+  />
+);
 export const backendRolesText = (
   <EuiI18n token="sg.internalUsers.backendRoles.text" default="Backend Roles" />
 );

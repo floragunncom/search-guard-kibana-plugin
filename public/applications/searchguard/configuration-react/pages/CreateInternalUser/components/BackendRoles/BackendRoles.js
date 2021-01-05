@@ -17,7 +17,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FormikComboBox, LabelAppendLink } from '../../../../components';
-import { backendRolesText } from '../../../../utils/i18n/internal_users';
+import {
+  backendRolesText,
+  rolesFromInternalDbLDAPJSONWebTokenOrSAMLText,
+} from '../../../../utils/i18n/internal_users';
 import { DOC_LINKS } from '../../../../utils/constants';
 
 const BackendRoles = ({ allRoles, onComboBoxChange, onComboBoxOnBlur, onComboBoxCreateOption }) => (
@@ -29,6 +32,7 @@ const BackendRoles = ({ allRoles, onComboBoxChange, onComboBoxOnBlur, onComboBox
       labelAppend: (
         <LabelAppendLink name="searchGuardBackendRoles" href={DOC_LINKS.BACKEND_ROLES} />
       ),
+      helpText: rolesFromInternalDbLDAPJSONWebTokenOrSAMLText,
     }}
     elementProps={{
       options: allRoles,

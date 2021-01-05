@@ -17,7 +17,10 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { FormikComboBox, LabelAppendLink } from '../../../../components';
-import { searchGuardRolesText } from '../../../../utils/i18n/internal_users';
+import {
+  searchGuardRolesText,
+  addRolesToConfigureAccessPermissionText,
+} from '../../../../utils/i18n/internal_users';
 import { Context } from '../../../../Context';
 import { DOC_LINKS } from '../../../../utils/constants';
 
@@ -31,6 +34,7 @@ const SearchGuardRoles = ({ allSearchGuardRoles }) => {
       rowProps={{
         label: searchGuardRolesText,
         labelAppend: <LabelAppendLink name="searchGuardRoles" href={DOC_LINKS.ROLE_PERMISSIONS} />,
+        helpText: addRolesToConfigureAccessPermissionText,
       }}
       elementProps={{
         options: allSearchGuardRoles,
