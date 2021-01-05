@@ -409,7 +409,7 @@ describe('UiConfigService', () => {
         },
       });
 
-      expect(configService.licenseRequired()).toBe(false);
+      expect(configService.licenseRequired()).toBe(true);
     });
 
     test('licenseValid', () => {
