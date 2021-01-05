@@ -219,7 +219,7 @@ export const createRoleFieldAnonymizationHelpText = (
   <>
     <EuiI18n
       token="sg.roles.createRoleFieldAnonymizationHelp.text"
-      default="It is used to anonymize values of document fields."
+      default="Field anonymization is used to anonymize values of document fields."
     />{' '}
     <EuiLink target="_blank" href={DOC_LINKS.ANONYMIZE_FIELDS}>
       Read more.
