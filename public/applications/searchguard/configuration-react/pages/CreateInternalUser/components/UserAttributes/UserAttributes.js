@@ -24,6 +24,7 @@ import {
   FormikSwitch,
   DynamicValuesForm,
   SubHeader,
+  LabelAppendLink,
 } from '../../../../components';
 import {
   hasError,
@@ -32,7 +33,7 @@ import {
   validateJsonString,
 } from '../../../../utils/validation';
 import { userAttributesText, complexAttributesText } from '../../../../utils/i18n/internal_users';
-
+import { DOC_LINKS } from '../../../../utils/constants';
 import { Context } from '../../../../Context';
 
 function SimpleUserAttributes({ attributes }) {
@@ -47,6 +48,12 @@ function SimpleUserAttributes({ attributes }) {
       rowProps={{
         isInvalid,
         error: hasError,
+        labelAppend: (
+          <LabelAppendLink
+            name="searchGuardInternalUsersAttributes"
+            href={DOC_LINKS.CONFIGURE_INTERNAL_USERS_DATABASE}
+          />
+        ),
       }}
       elementProps={{
         isInvalid,
@@ -64,6 +71,7 @@ function SimpleUserAttributes({ attributes }) {
       rowProps={{
         isInvalid,
         error: hasError,
+        hasEmptyLabelSpace: true,
       }}
       elementProps={{
         isInvalid,
@@ -112,6 +120,12 @@ function ComplexUserAttributes() {
           fullWidth: true,
           isInvalid,
           error: hasError,
+          labelAppend: (
+            <LabelAppendLink
+              name="searchGuardInternalUsersComplexAttributes"
+              href={DOC_LINKS.CONFIGURE_INTERNAL_USERS_DATABASE}
+            />
+          ),
         }}
         elementProps={{
           mode: 'text',

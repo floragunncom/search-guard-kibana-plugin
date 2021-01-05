@@ -57,4 +57,5 @@ export {
   Callout,
   ErrorToast,
   ContentPanel,
+  LabelAppendLink,
 } from '../../../components';

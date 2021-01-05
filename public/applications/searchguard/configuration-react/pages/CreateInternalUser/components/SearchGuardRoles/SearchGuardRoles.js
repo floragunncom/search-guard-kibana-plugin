@@ -16,9 +16,10 @@
 
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { FormikComboBox } from '../../../../components';
+import { FormikComboBox, LabelAppendLink } from '../../../../components';
 import { searchGuardRolesText } from '../../../../utils/i18n/internal_users';
 import { Context } from '../../../../Context';
+import { DOC_LINKS } from '../../../../utils/constants';
 
 const SearchGuardRoles = ({ allSearchGuardRoles }) => {
   const { onComboBoxChange, onComboBoxOnBlur, onComboBoxCreateOption } = useContext(Context);
@@ -29,6 +30,7 @@ const SearchGuardRoles = ({ allSearchGuardRoles }) => {
       formRow
       rowProps={{
         label: searchGuardRolesText,
+        labelAppend: <LabelAppendLink name="searchGuardRoles" href={DOC_LINKS.ROLE_PERMISSIONS} />,
       }}
       elementProps={{
         options: allSearchGuardRoles,

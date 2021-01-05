@@ -45,4 +45,6 @@ export const DOC_LINKS = {
   SGADMIN: 'https://docs.search-guard.com/latest/sgadmin-basic-usage',
   MAIN_CONCEPTS: 'https://docs.search-guard.com/latest/main-concepts',
   LICENSING: 'https://search-guard.com/licensing/',
+  BACKEND_ROLES:
+    'https://docs.search-guard.com/latest/troubleshooting-search-guard-user-roles#backend-roles',
 };
