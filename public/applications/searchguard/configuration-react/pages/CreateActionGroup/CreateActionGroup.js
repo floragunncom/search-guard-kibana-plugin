@@ -19,12 +19,19 @@ import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import { EuiSpacer } from '@elastic/eui';
 import queryString from 'query-string';
-import { nameText, advancedText, typeText } from '../../utils/i18n/common';
+import {
+  nameText,
+  advancedText,
+  typeText,
+  allowDisallowActionsBasedOnTheLevelsText,
+} from '../../utils/i18n/common';
 import {
   createActionGroupText,
   updateActionGroupText,
   actionGroupsText,
   singlePermissionsText,
+  actionGroupMayIncludeOtherActionGroupsText,
+  permissionLevelText,
 } from '../../utils/i18n/action_groups';
 import {
   ContentPanel,
@@ -35,8 +42,9 @@ import {
   InspectButton,
   CancelButton,
   SaveButton,
+  LabelAppendLink,
 } from '../../components';
-import { APP_PATH, ACTION_GROUPS_ACTIONS } from '../../utils/constants';
+import { APP_PATH, ACTION_GROUPS_ACTIONS, DOC_LINKS } from '../../utils/constants';
 import {
   isInvalid,
   hasError,
@@ -179,6 +187,7 @@ class CreateActionGroup extends Component {
                 formRow
                 rowProps={{
                   label: typeText,
+                  helpText: permissionLevelText,
                 }}
                 elementProps={{
                   options: TYPES,
@@ -190,6 +199,13 @@ class CreateActionGroup extends Component {
                 formRow
                 rowProps={{
                   label: actionGroupsText,
+                  labelAppend: (
+                    <LabelAppendLink
+                      name="searchGuardActionGroups"
+                      href={DOC_LINKS.ACTION_GROUPS}
+                    />
+                  ),
+                  helpText: actionGroupMayIncludeOtherActionGroupsText,
                 }}
                 elementProps={{
                   options: allActionGroups,
@@ -215,6 +231,7 @@ class CreateActionGroup extends Component {
                     label: singlePermissionsText,
                     isInvalid,
                     error: hasError,
+                    helpText: allowDisallowActionsBasedOnTheLevelsText,
                   }}
                   elementProps={{
                     isInvalid,

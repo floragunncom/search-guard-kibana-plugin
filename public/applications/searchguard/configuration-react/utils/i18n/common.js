@@ -50,3 +50,10 @@ export const rolesFromInternalDbLDAPJSONWebTokenOrSAMLText = (
     default="Roles from Internal DB, LDAP, JSON web token or SAML"
   />
 );
+
+export const allowDisallowActionsBasedOnTheLevelsText = (
+  <EuiI18n
+    token="sg.common.allowDisallowActionsBasedOnTheLevels.text"
+    default="Allow/disallow actions based on the levels: indices or cluster"
+  />
+);

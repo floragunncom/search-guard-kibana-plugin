@@ -62,3 +62,12 @@ export const actionGroupsDescriptionText = (
     </EuiLink>
   </>
 );
+export const actionGroupMayIncludeOtherActionGroupsText = (
+  <EuiI18n
+    token="sg.action_groups.actionGroupMayIncludeOtherActionGroups.text"
+    default="Action Group may include other action groups"
+  />
+);
+export const permissionLevelText = (
+  <EuiI18n token="sg.action_groups.permissionLevel.text" default="Permission level" />
+);
