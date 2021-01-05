@@ -23,7 +23,10 @@ import {
   createRoleMappingText,
   updateRoleMappingText,
   roleHelpText,
+  usersHelpText,
+  hostnameOrIPAddressTheRequestOriginatedFromText,
 } from '../../utils/i18n/role_mappings';
+import { createInternalUserText } from '../../utils/i18n/internal_users';
 import {
   roleText,
   backendRolesText,
@@ -31,14 +34,16 @@ import {
   hostsText,
   createRoleText,
 } from '../../utils/i18n/roles';
+import { rolesFromInternalDbLDAPJSONWebTokenOrSAMLText } from '../../utils/i18n/common';
 import {
   ContentPanel,
   FormikComboBox,
   InspectButton,
   CancelButton,
   SaveButton,
+  LabelAppendLink,
 } from '../../components';
-import { APP_PATH, ROLE_MAPPINGS_ACTIONS } from '../../utils/constants';
+import { APP_PATH, ROLE_MAPPINGS_ACTIONS, DOC_LINKS } from '../../utils/constants';
 import { DEFAULT_ROLE_MAPPING } from './utils/constants';
 import {
   roleMappingToFormik,
@@ -146,6 +151,15 @@ class CreateRoleMapping extends Component {
     </Fragment>
   );
 
+  renderUsersHelpText = (history) => (
+    <Fragment>
+      {usersHelpText}{' '}
+      <EuiLink data-test-subj="sgUsers" onClick={() => history.push(APP_PATH.CREATE_INTERNAL_USER)}>
+        {createInternalUserText}
+      </EuiLink>
+    </Fragment>
+  );
+
   renderRoleOption = ({ color, label }) => {
     return (
       <EuiText size="s">
@@ -200,9 +214,12 @@ class CreateRoleMapping extends Component {
                 formikFieldProps={{ validate: validateEmptyComboBox }}
                 rowProps={{
                   label: roleText,
-                  helpText: this.renderRoleHelpText(history),
                   error: hasError,
                   isInvalid,
+                  labelAppend: (
+                    <LabelAppendLink name="searchGuardRole" href={DOC_LINKS.ROLE_PERMISSIONS} />
+                  ),
+                  helpText: this.renderRoleHelpText(history),
                 }}
                 elementProps={{
                   options: allRoles,
@@ -217,6 +234,13 @@ class CreateRoleMapping extends Component {
                 formRow
                 rowProps={{
                   label: usersText,
+                  labelAppend: (
+                    <LabelAppendLink
+                      name="searchGuardInternalUsersDB"
+                      href={DOC_LINKS.CONFIGURE_INTERNAL_USERS_DATABASE}
+                    />
+                  ),
+                  helpText: this.renderUsersHelpText(history),
                 }}
                 elementProps={{
                   options: allInternalUsers,
@@ -231,6 +255,13 @@ class CreateRoleMapping extends Component {
                 formRow
                 rowProps={{
                   label: backendRolesText,
+                  labelAppend: (
+                    <LabelAppendLink
+                      name="searchGuardBackendRoles"
+                      href={DOC_LINKS.BACKEND_ROLES}
+                    />
+                  ),
+                  helpText: rolesFromInternalDbLDAPJSONWebTokenOrSAMLText,
                 }}
                 elementProps={{
                   options: allBackendRoles,
@@ -245,6 +276,7 @@ class CreateRoleMapping extends Component {
                 formRow
                 rowProps={{
                   label: hostsText,
+                  helpText: hostnameOrIPAddressTheRequestOriginatedFromText,
                 }}
                 elementProps={{
                   isClearable: true,

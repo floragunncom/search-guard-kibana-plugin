@@ -17,10 +17,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FormikComboBox, LabelAppendLink } from '../../../../components';
-import {
-  backendRolesText,
-  rolesFromInternalDbLDAPJSONWebTokenOrSAMLText,
-} from '../../../../utils/i18n/internal_users';
+import { backendRolesText } from '../../../../utils/i18n/internal_users';
+import { rolesFromInternalDbLDAPJSONWebTokenOrSAMLText } from '../../../../utils/i18n/common';
 import { DOC_LINKS } from '../../../../utils/constants';
 
 const BackendRoles = ({ allRoles, onComboBoxChange, onComboBoxOnBlur, onComboBoxCreateOption }) => (

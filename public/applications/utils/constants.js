@@ -36,7 +36,7 @@ export const CALLOUTS = {
 export const DOC_LINKS = {
   CONFIGURE_INTERNAL_USERS_DATABASE:
     'https://docs.search-guard.com/latest/internal-users-database#configuring-the-internal-users-database',
-  MAPPING_USERS_ROLES: 'https://docs.search-guard.com/latest/first-steps-mapping-users-roles',
+  MAPPING_USERS_ROLES: 'https://docs.search-guard.com/latest/mapping-users-roles',
   ROLE_PERMISSIONS: 'https://docs.search-guard.com/latest/roles-permissions',
   ACTION_GROUPS: 'https://docs.search-guard.com/latest/action-groups',
   MULTITENANCY: 'https://docs.search-guard.com/latest/kibana-multi-tenancy#kibana-multitenancy',
