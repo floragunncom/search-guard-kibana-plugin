@@ -1,4 +1,20 @@
 /*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
  *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License").
@@ -14,19 +30,19 @@
  */
 
 /*
-  * Copyright 2015-2019 _floragunn_ GmbH
-  * Licensed under the Apache License, Version 2.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  * http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+ * Copyright 2015-2019 _floragunn_ GmbH
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 import _ from 'lodash';
 
@@ -79,7 +95,10 @@ export function getAnnotationData(xDomain, yDomain, thresholdValue) {
   let yValue = thresholdValue;
   if (thresholdValue > yMax) yValue = yMax;
   if (thresholdValue < yMin) yValue = yMin;
-  return [{ x: xMin, y: yValue }, { x: xMax, y: yValue }];
+  return [
+    { x: xMin, y: yValue },
+    { x: xMax, y: yValue },
+  ];
 }
 
 export function getDataFromResponse(response) {
@@ -97,7 +116,7 @@ export function getDataFromResponse(response) {
 
   const buckets = _.get(response, 'aggregations.dateAgg.buckets', []);
   return {
-    [ALL_DOCUMENTS]: buckets.map(getXYValues).filter(filterInvalidYValues)
+    [ALL_DOCUMENTS]: buckets.map(getXYValues).filter(filterInvalidYValues),
   };
 }
 
@@ -113,11 +132,14 @@ export function filterInvalidYValues({ y }) {
 }
 
 export function getMarkData(data) {
-  return data.map(d => ({ ...d, size: DEFAULT_MARK_SIZE }));
+  return data.map((d) => ({ ...d, size: DEFAULT_MARK_SIZE }));
 }
 
 export function getAggregationTitle(values) {
-  const aggregationType = selectOptionValueToText(values._ui.aggregationType, AGGREGATION_TYPES_OPTIONS);
+  const aggregationType = selectOptionValueToText(
+    values._ui.aggregationType,
+    AGGREGATION_TYPES_OPTIONS
+  );
   const when = `WHEN ${aggregationType}`;
   const fieldName = _.get(values, '_ui.fieldName[0].label');
   const of = `OF ${fieldName}`;
@@ -144,5 +166,5 @@ export function getAggregationTitle(values) {
 
 export function isGraphDataEmpty(data) {
   if (!data) return true;
-  return Object.values(data).every(buckets => !buckets.length);
+  return Object.values(data).every((buckets) => !buckets.length);
 }

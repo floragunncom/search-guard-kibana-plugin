@@ -1,3 +1,19 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { comboBoxOptionsToArray } from '../../../utils/helpers';
 import { ADVANCED_TIME_PERIOD_UNIT } from './constants';
 
@@ -25,7 +41,7 @@ export default function buildSchedule({
 
     //TODO: add hourly test
     case 'hourly': {
-      schedule = [{ minute: hourly.map(hour => parseInt(hour.label, 10)) }];
+      schedule = [{ minute: hourly.map((hour) => parseInt(hour.label, 10)) }];
       break;
     }
 
@@ -48,7 +64,8 @@ export default function buildSchedule({
       schedule = [{ at: `${daily}:00`, on: +monthly.day }];
       break;
     }
-    default: { // cron
+    default: {
+      // cron
       schedule = cron.split('\n');
       break;
     }
@@ -58,8 +75,8 @@ export default function buildSchedule({
     trigger: {
       schedule: {
         [frequency]: schedule,
-        timezone: comboBoxOptionsToArray(timezone)[0]
-      }
-    }
+        timezone: comboBoxOptionsToArray(timezone)[0],
+      },
+    },
   };
 }

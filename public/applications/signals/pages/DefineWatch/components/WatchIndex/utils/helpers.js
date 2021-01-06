@@ -1,4 +1,20 @@
 /*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
  *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License").
@@ -14,19 +30,19 @@
  */
 
 /*
-  * Copyright 2015-2019 _floragunn_ GmbH
-  * Licensed under the Apache License, Version 2.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  * http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+ * Copyright 2015-2019 _floragunn_ GmbH
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 export function canAppendWildcard(keyPressed) {
   // If it's not a letter, number or is something longer, reject it
@@ -50,7 +66,7 @@ export function filterSystemIndices(indices, isIncludingSystemIndices) {
   const acceptableIndices = isIncludingSystemIndices
     ? indices
     : // All system indices begin with a period.
-    indices.filter(index => !index.label.startsWith('.'));
+      indices.filter((index) => !index.label.startsWith('.'));
 
   return acceptableIndices.slice(0, MAX_NUMBER_OF_MATCHING_INDICES);
 }
@@ -132,11 +148,13 @@ export function getMatchedOptions(
 }
 
 export const indicesToUiIndices = (indices = []) =>
-  indices.map(({ health, index: label, status }) => ({
-    label,
-    health,
-    status
-  })).sort((a, b) => a.label.localeCompare(b.label));
+  indices
+    .map(({ health, index: label, status }) => ({
+      label,
+      health,
+      status,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
 
 export const uniqueAliases = (aliases = []) =>
   aliases.reduce((res, { alias: label }) => {
@@ -145,7 +163,9 @@ export const uniqueAliases = (aliases = []) =>
   }, {});
 
 export const aliasesToUiAliases = (aliases = []) =>
-  Object.entries(uniqueAliases(aliases)).reduce((res, entry) => {
-    res.push(entry.pop());
-    return res;
-  }, []).sort((a, b) => a.label.localeCompare(b.label));
+  Object.entries(uniqueAliases(aliases))
+    .reduce((res, entry) => {
+      res.push(entry.pop());
+      return res;
+    }, [])
+    .sort((a, b) => a.label.localeCompare(b.label));

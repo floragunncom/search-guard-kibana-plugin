@@ -1,15 +1,34 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { cloneDeep } from 'lodash';
 import { arrayToComboBoxOptions } from '../../../utils/helpers';
 import { SCHEDULE_DEFAULTS } from './constants';
 import { buildTimePeriod } from './helpers';
 
 export default function buildFormikSchedule(watch = {}) {
-  const matchTimeHHMM = timeStr => timeStr.match(/^(0[0-9]|1[0-9]|2[0-3]|[0-9]):[0-5][0-9](?::[0-5][0-9])?$/);
-  const matchDayOfMonth = dayOfMonthStr => (dayOfMonthStr + '').match(/^([1-9]|[12]\d|3[01])$/);
-  const matchDayOfWeek = dayOfWeekStr => dayOfWeekStr.match(/\b((mon|tues|wed(nes)?|thu(rs)?|fri|sat(ur)?|sun)(day)?)\b/);
+  const matchTimeHHMM = (timeStr) =>
+    timeStr.match(/^(0[0-9]|1[0-9]|2[0-3]|[0-9]):[0-5][0-9](?::[0-5][0-9])?$/);
+  const matchDayOfMonth = (dayOfMonthStr) => (dayOfMonthStr + '').match(/^([1-9]|[12]\d|3[01])$/);
+  const matchDayOfWeek = (dayOfWeekStr) =>
+    dayOfWeekStr.match(/\b((mon|tues|wed(nes)?|thu(rs)?|fri|sat(ur)?|sun)(day)?)\b/);
 
   const frequency = Object.keys(watch.trigger.schedule)
-    .filter(key => ['interval', 'hourly', 'daily', 'weekly', 'monthly', 'cron'].includes(key)).pop();
+    .filter((key) => ['interval', 'hourly', 'daily', 'weekly', 'monthly', 'cron'].includes(key))
+    .pop();
   const formikSchedule = { ...cloneDeep(SCHEDULE_DEFAULTS), frequency };
 
   if (watch.trigger.schedule.timezone) {
@@ -34,7 +53,7 @@ export default function buildFormikSchedule(watch = {}) {
       // arrayToComboBox sorts the integer values wrong, hence the "duplication" here
       formikSchedule.hourly = minutes
         .sort((a, b) => a - b)
-        .map(minute => ({ label: minute.toString() }));
+        .map((minute) => ({ label: minute.toString() }));
       break;
     }
 
@@ -52,7 +71,7 @@ export default function buildFormikSchedule(watch = {}) {
       const weekly = Array.isArray(watchSchedule) ? watchSchedule[0] : watchSchedule;
       const daysOfWeek = Array.isArray(weekly.on) ? weekly.on : [weekly.on];
 
-      daysOfWeek.forEach(day => {
+      daysOfWeek.forEach((day) => {
         if (matchDayOfWeek(day)) {
           const shortDay = day.slice(0, 3);
           formikSchedule.weekly[shortDay] = true;
@@ -83,7 +102,8 @@ export default function buildFormikSchedule(watch = {}) {
 
       break;
     }
-    default: { // cron
+    default: {
+      // cron
       const cron = Array.isArray(watchSchedule) ? watchSchedule.join('\n') : watchSchedule;
       formikSchedule.cron = cron;
     }

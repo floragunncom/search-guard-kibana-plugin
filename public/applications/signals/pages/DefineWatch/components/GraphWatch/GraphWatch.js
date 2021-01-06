@@ -216,9 +216,9 @@ export class GraphWatch extends Component {
     }
   };
 
-  queryMappings = index => {
+  queryMappings = (index) => {
     if (!index.length) return {};
-    return this.elasticsearchService.getMappings(index).then(data => {
+    return this.elasticsearchService.getMappings(index).then((data) => {
       if (data.ok) return data.resp;
       return {};
     });

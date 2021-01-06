@@ -1,3 +1,19 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -28,8 +44,8 @@ export const TabContent = ({ watchName, onPutWatch, isLoading, editorOptions, ed
     watchJson = error.toString();
   }
 
-  const addJsonWatchText = (<p>{addText} JSON</p>);
-  const addGraphWatchText = (<p>{addText} Graph</p>);
+  const addJsonWatchText = <p>{addText} JSON</p>;
+  const addGraphWatchText = <p>{addText} Graph</p>;
 
   return (
     <div>
@@ -86,8 +102,8 @@ TabContent.propTypes = {
   editorTheme: PropTypes.string,
 };
 
-const renderTabs = ({ onPutWatch, isLoading, editorOptions, editorTheme }) => Object.values(WATCH_EXAMPLES)
-  .reduce((acc, watchName) => {
+const renderTabs = ({ onPutWatch, isLoading, editorOptions, editorTheme }) =>
+  Object.values(WATCH_EXAMPLES).reduce((acc, watchName) => {
     acc.push({
       id: watchName,
       name: startCase(watchName),
@@ -131,12 +147,9 @@ export const watchesHelp = ({
             {error.message}
           </EuiCallOut>
         )}
-        <EuiTabbedContent
-          tabs={tabs}
-          initialSelectedTab={tabs[0]}
-        />
+        <EuiTabbedContent tabs={tabs} initialSelectedTab={tabs[0]} />
       </div>
-    )
+    ),
   };
 };
 

@@ -1,4 +1,20 @@
 /*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
  *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License").
@@ -14,28 +30,23 @@
  */
 
 /*
-  * Copyright 2015-2019 _floragunn_ GmbH
-  * Licensed under the Apache License, Version 2.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  * http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+ * Copyright 2015-2019 _floragunn_ GmbH
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 import React, { Component } from 'react';
 import { connect } from 'formik';
-import {
-  EuiPopover,
-  EuiExpression,
-  EuiFlexGroup,
-  EuiFlexItem,
-} from '@elastic/eui';
+import { EuiPopover, EuiExpression, EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 import { FormikComboBox, FormikSelect, FormikFieldNumber } from '../../../../../components';
 import { getOptions } from './utils/dataTypes';
 import { POPOVER_STYLE, Expressions, OVER_TYPES, ORDER_TYPES } from './utils/constants';
@@ -148,7 +159,10 @@ class OverExpression extends Component {
     } = this.props;
 
     const isTopHits = values._ui.overDocuments === AGGREGATIONS_TYPES.TOP_HITS;
-    const { size: topHitsSize, field: [{ label: topHitsField } = {}] } = values._ui.topHitsAgg;
+    const {
+      size: topHitsSize,
+      field: [{ label: topHitsField } = {}],
+    } = values._ui.topHitsAgg;
     const buttonValue = isTopHits
       ? `${values._ui.overDocuments} ${topHitsSize} ${topHitsField || 'Select a field'}`
       : values._ui.overDocuments;
@@ -167,7 +181,9 @@ class OverExpression extends Component {
           ...termFieldOptions.map(({ options }) =>
             options.reduce((accu, curr) => Math.max(accu, curr.label.length), 0)
           )
-        ) * 8 + 60;
+        ) *
+          8 +
+        60;
     }
 
     return (
@@ -189,7 +205,9 @@ class OverExpression extends Component {
         withTitle
         anchorPosition="downLeft"
       >
-        {isTopHits ? this.renderTopHitsPopover({ termFieldOptions, termFieldWidth }) : this.renderOverPopover()}
+        {isTopHits
+          ? this.renderTopHitsPopover({ termFieldOptions, termFieldWidth })
+          : this.renderOverPopover()}
       </EuiPopover>
     );
   }

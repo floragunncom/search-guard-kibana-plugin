@@ -18,7 +18,7 @@ export const renderApp = ({ core, httpClient, element }) => {
     <I18nProvider>
       <Router>
         <Route
-          render={props => (
+          render={(props) => (
             <ContextProvider httpClient={httpClient} core={core}>
               <Main title={camelCase(APP_NAME)} httpClient={httpClient} {...props} />
             </ContextProvider>

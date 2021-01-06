@@ -136,7 +136,7 @@ class Alerts extends Component {
             </p>
           );
         })
-        .catch(error => {
+        .catch((error) => {
           console.error('Alerts -- deleteAlert', error);
           this.context.addErrorToast(error);
         });
@@ -228,7 +228,7 @@ class Alerts extends Component {
 
     const handleMultiDelete = () => {
       this.handleDeleteAlerts(
-        tableSelection.map(item => ({
+        tableSelection.map((item) => ({
           id: item._id,
           index: item._index,
         }))
@@ -285,7 +285,7 @@ class Alerts extends Component {
   };
 
   renderSearchFilterOptions = (values = []) =>
-    values.map(status => {
+    values.map((status) => {
       const { color } = actionAndWatchStatusToIconProps(status);
       return {
         value: status,
@@ -306,8 +306,8 @@ class Alerts extends Component {
     const isAlertsAggByWatch = !!watchId;
 
     const selection = {
-      selectable: doc => doc._id,
-      onSelectionChange: tableSelection => this.setState({ tableSelection }),
+      selectable: (doc) => doc._id,
+      onSelectionChange: (tableSelection) => this.setState({ tableSelection }),
     };
 
     const sorting = {

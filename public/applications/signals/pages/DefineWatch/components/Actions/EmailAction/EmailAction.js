@@ -106,7 +106,7 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
             placeholder: 'Select severity',
             onBlur: onComboBoxOnBlur,
             onChange: onComboBoxChange(),
-            onCreateOption: onComboBoxCreateOption()
+            onCreateOption: onComboBoxCreateOption(),
           }}
         />
       )}
@@ -148,7 +148,7 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
           placeholder: 'Type email addresses',
           onBlur: onComboBoxOnBlur,
           onChange: onComboBoxChange(),
-          onCreateOption: onComboBoxCreateOption()
+          onCreateOption: onComboBoxCreateOption(),
         }}
         formikFieldProps={{
           validate: !isDefaultTo ? validateEmailAddr() : null,
@@ -167,7 +167,7 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
           placeholder: 'Type email addresses',
           onBlur: onComboBoxOnBlur,
           onChange: onComboBoxChange(),
-          onCreateOption: onComboBoxCreateOption()
+          onCreateOption: onComboBoxCreateOption(),
         }}
         formikFieldProps={{
           validate: validateEmailAddr(false),
@@ -186,7 +186,7 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
           placeholder: 'Type email addresses',
           onBlur: onComboBoxOnBlur,
           onChange: onComboBoxChange(),
-          onCreateOption: onComboBoxCreateOption()
+          onCreateOption: onComboBoxCreateOption(),
         }}
         formikFieldProps={{
           validate: validateEmailAddr(false),

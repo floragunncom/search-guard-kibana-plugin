@@ -15,16 +15,19 @@ import {
   FormikFieldText,
   FormikFieldNumber,
   FormikSelect,
-  FormikComboBox
+  FormikComboBox,
 } from '../../../../../components';
-import { severityText, leaveInputEmptyToOmitThresholdLevelText } from '../../../../utils/i18n/watch';
+import {
+  severityText,
+  leaveInputEmptyToOmitThresholdLevelText,
+} from '../../../../utils/i18n/watch';
 import {
   fieldText,
   orderText,
   infoText,
   warningText,
   errorText,
-  criticalText
+  criticalText,
 } from '../../../../utils/i18n/common';
 import { SEVERITY } from '../../utils/constants';
 import { SEVERITY_OPTIONS } from './utils/constants';
@@ -108,10 +111,10 @@ const InfoThreshold = ({ thresholdErrors }) => (
     formRow
     rowProps={{
       label: infoText,
-      isInvalid: (thresholdErrors.indexOf(SEVERITY.INFO) > -1),
+      isInvalid: thresholdErrors.indexOf(SEVERITY.INFO) > -1,
     }}
     elementProps={{
-      isInvalid: (thresholdErrors.indexOf(SEVERITY.INFO) > -1),
+      isInvalid: thresholdErrors.indexOf(SEVERITY.INFO) > -1,
     }}
   />
 );
@@ -122,10 +125,10 @@ const WarningThreshold = ({ thresholdErrors }) => (
     formRow
     rowProps={{
       label: warningText,
-      isInvalid: (thresholdErrors.indexOf(SEVERITY.WARNING) > -1),
+      isInvalid: thresholdErrors.indexOf(SEVERITY.WARNING) > -1,
     }}
     elementProps={{
-      isInvalid: (thresholdErrors.indexOf(SEVERITY.WARNING) > -1),
+      isInvalid: thresholdErrors.indexOf(SEVERITY.WARNING) > -1,
     }}
   />
 );
@@ -136,10 +139,10 @@ const ErrorThreshold = ({ thresholdErrors }) => (
     formRow
     rowProps={{
       label: errorText,
-      isInvalid: (thresholdErrors.indexOf(SEVERITY.ERROR) > -1),
+      isInvalid: thresholdErrors.indexOf(SEVERITY.ERROR) > -1,
     }}
     elementProps={{
-      isInvalid: (thresholdErrors.indexOf(SEVERITY.ERROR) > -1),
+      isInvalid: thresholdErrors.indexOf(SEVERITY.ERROR) > -1,
     }}
   />
 );
@@ -150,16 +153,19 @@ const CriticalThreshold = ({ thresholdErrors }) => (
     formRow
     rowProps={{
       label: criticalText,
-      isInvalid: (thresholdErrors.indexOf(SEVERITY.CRITICAL) > -1),
+      isInvalid: thresholdErrors.indexOf(SEVERITY.CRITICAL) > -1,
     }}
     elementProps={{
-      isInvalid: (thresholdErrors.indexOf(SEVERITY.CRITICAL) > -1),
+      isInvalid: thresholdErrors.indexOf(SEVERITY.CRITICAL) > -1,
     }}
   />
 );
 
 const SeverityForm = ({ isCompressed, isTitle, fields, formik: { values } }) => {
-  const thresholdValidation = validateSeverityThresholds(values._ui.severity.order, values._ui.severity.thresholds);
+  const thresholdValidation = validateSeverityThresholds(
+    values._ui.severity.order,
+    values._ui.severity.thresholds
+  );
   const containerStyle = isCompressed ? { maxWidth: '550px' } : {};
 
   return (
@@ -197,10 +203,10 @@ const SeverityForm = ({ isCompressed, isTitle, fields, formik: { values } }) => 
             <WarningThreshold thresholdErrors={thresholdValidation.thresholdErrors} />
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <ErrorThreshold thresholdErrors={thresholdValidation.thresholdErrors}  />
+            <ErrorThreshold thresholdErrors={thresholdValidation.thresholdErrors} />
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <CriticalThreshold thresholdErrors={thresholdValidation.thresholdErrors}  />
+            <CriticalThreshold thresholdErrors={thresholdValidation.thresholdErrors} />
           </EuiFlexItem>
         </EuiFlexGroup>
 
@@ -225,7 +231,7 @@ const SeverityForm = ({ isCompressed, isTitle, fields, formik: { values } }) => 
 SeverityForm.defaultProps = {
   fields: [],
   isCompressed: false,
-  isTitle: false
+  isTitle: false,
 };
 
 SeverityForm.propTypes = {

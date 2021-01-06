@@ -1,3 +1,19 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import React, { useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -34,7 +50,7 @@ export const TabContent = ({ examples, tabName, onAdd }) => {
     id: name,
     name: startCase(name),
     isSelected: selectedItemName === name,
-    onClick: () => setSelectedItemName(name)
+    onClick: () => setSelectedItemName(name),
   });
 
   const handleOnAdd = (body, type) => {
@@ -54,12 +70,12 @@ export const TabContent = ({ examples, tabName, onAdd }) => {
   };
 
   const buildSideNav = (data = {}) =>
-    Object.keys(data).map(categoryName => createNavItem(categoryName));
+    Object.keys(data).map((categoryName) => createNavItem(categoryName));
 
   const renderExamples = () => {
     if (!examples[selectedItemName]) return null;
 
-    return Object.keys(examples[selectedItemName]).map(subItemName => {
+    return Object.keys(examples[selectedItemName]).map((subItemName) => {
       const { example, link, type } = examples[selectedItemName][subItemName];
       return (
         <div key={subItemName}>
@@ -111,7 +127,7 @@ TabContent.propTypes = {
 };
 
 export const checkExamples = ({ flyoutProps, headerProps, onChange }) => {
-  const tabs = Object.keys(examples).map(name => ({
+  const tabs = Object.keys(examples).map((name) => ({
     id: name,
     name: startCase(name.replace(/Examples/, '')),
     content: <TabContent examples={examples[name]} tabName={name} onAdd={onChange} />,

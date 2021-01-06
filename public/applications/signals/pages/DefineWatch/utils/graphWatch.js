@@ -1,3 +1,19 @@
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import momentTimezone from 'moment-timezone';
 import moment from 'moment';
 import { get } from 'lodash';
@@ -7,7 +23,7 @@ import {
   CHECK_MYCONDITION,
   CHECK_MYSEARCH,
   PAYLOAD_PATH,
-  AGGREGATIONS_TYPES
+  AGGREGATIONS_TYPES,
 } from './constants';
 import { comboBoxOptionsToArray } from '../../../utils/helpers';
 
@@ -16,11 +32,7 @@ export const ALL_DOCS_COUNT_VALUE_PATH = `${PAYLOAD_PATH}.hits.total.value`;
 export const ALL_DOCS_METRIC_AGG_PATH = `${PAYLOAD_PATH}.aggregations.metricAgg.value`;
 export const TOP_HITS_BUCKETS_PATH = `${PAYLOAD_PATH}.aggregations.bucketAgg.buckets`;
 
-const getDateHistogramOptions = ({
-  bucketValue,
-  bucketUnitOfTime,
-  timeField
-}) => {
+const getDateHistogramOptions = ({ bucketValue, bucketUnitOfTime, timeField }) => {
   const min = `now-${bucketValue * BUCKET_COUNT}${bucketUnitOfTime}`;
   const max = 'now';
 
@@ -33,14 +45,11 @@ const getDateHistogramOptions = ({
     fixed_interval: numberOfBuckets,
     time_zone: momentTimezone.tz.guess(),
     min_doc_count: 0,
-    extended_bounds: { min, max }
+    extended_bounds: { min, max },
   };
 };
 
-export const buildAllDocsAgg = ({
-  aggregationType,
-  fieldName: [{ label: field } = {}],
-}) => {
+export const buildAllDocsAgg = ({ aggregationType, fieldName: [{ label: field } = {}] }) => {
   if (aggregationType === 'count' || !field) return {};
   return { metricAgg: { [aggregationType]: { field } } };
 };
@@ -50,7 +59,7 @@ export const buildAllDocsQuery = ({
   bucketUnitOfTime,
   timeField,
   aggregationType,
-  fieldName
+  fieldName,
 }) => {
   const whenAggregation = buildAllDocsAgg({ aggregationType, fieldName });
   const gte = `now-${Math.round(bucketValue)}${bucketUnitOfTime}`;
@@ -76,21 +85,21 @@ export const buildUiAllDocsAgg = ({
   bucketUnitOfTime,
   timeField,
   aggregationType,
-  fieldName
+  fieldName,
 }) => {
   const whenAggregation = buildAllDocsAgg({ aggregationType, fieldName });
 
   const dateHistogram = getDateHistogramOptions({
     bucketValue,
     bucketUnitOfTime,
-    timeField
+    timeField,
   });
 
   return {
     dateAgg: {
       date_histogram: dateHistogram,
-      aggregations: whenAggregation
-    }
+      aggregations: whenAggregation,
+    },
   };
 };
 
@@ -99,14 +108,14 @@ export const buildUiAllDocsQuery = ({
   bucketUnitOfTime,
   timeField,
   aggregationType,
-  fieldName
+  fieldName,
 }) => {
   const overAggregation = buildUiAllDocsAgg({
     bucketValue,
     bucketUnitOfTime,
     timeField,
     aggregationType,
-    fieldName
+    fieldName,
   });
 
   // default range window to [BUCKET_COUNT] * the date histogram interval
@@ -128,50 +137,38 @@ export const buildUiAllDocsQuery = ({
   };
 };
 
-export const getOperator = thresholdEnum =>
+export const getOperator = (thresholdEnum) =>
   ({ ABOVE: '>', BELOW: '<', EXACTLY: '==' }[thresholdEnum]);
 
-export const buildAllDocsCondition = ({
-  thresholdValue,
-  thresholdEnum,
-  aggregationType
-}) => {
-  const resultsPath = aggregationType === 'count'
-    ? ALL_DOCS_COUNT_VALUE_PATH
-    : ALL_DOCS_METRIC_AGG_PATH;
+export const buildAllDocsCondition = ({ thresholdValue, thresholdEnum, aggregationType }) => {
+  const resultsPath =
+    aggregationType === 'count' ? ALL_DOCS_COUNT_VALUE_PATH : ALL_DOCS_METRIC_AGG_PATH;
   const operator = getOperator(thresholdEnum);
 
   return {
     type: CHECK_TYPES.CONDITION_SCRIPT,
     name: CHECK_MYCONDITION,
-    source: `${resultsPath} ${operator} ${thresholdValue}`
+    source: `${resultsPath} ${operator} ${thresholdValue}`,
   };
 };
 
-export const buildTopHitsCondition = ({
-  thresholdValue,
-  thresholdEnum,
-  aggregationType
-}) => {
+export const buildTopHitsCondition = ({ thresholdValue, thresholdEnum, aggregationType }) => {
   const operator = getOperator(thresholdEnum);
-  const source = aggregationType === 'count'
-    // eslint-disable-next-line max-len
-    ? `ArrayList arr = ${TOP_HITS_BUCKETS_PATH}; for (int i = 0; i < arr.length; i++) { if (arr[i].doc_count ${operator} ${thresholdValue}) { return true; } } return false;`
-    // eslint-disable-next-line max-len
-    : `ArrayList arr = ${TOP_HITS_BUCKETS_PATH}; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value ${operator} ${thresholdValue}) { return true; } } return false;`;
+  const source =
+    aggregationType === 'count'
+      ? // eslint-disable-next-line max-len
+        `ArrayList arr = ${TOP_HITS_BUCKETS_PATH}; for (int i = 0; i < arr.length; i++) { if (arr[i].doc_count ${operator} ${thresholdValue}) { return true; } } return false;`
+      : // eslint-disable-next-line max-len
+        `ArrayList arr = ${TOP_HITS_BUCKETS_PATH}; for (int i = 0; i < arr.length; i++) { if (arr[i]['metricAgg'].value ${operator} ${thresholdValue}) { return true; } } return false;`;
 
   return {
     type: CHECK_TYPES.CONDITION_SCRIPT,
     name: CHECK_MYCONDITION,
-    source
+    source,
   };
 };
 
-export const buildTopHitsAgg = ({
-  aggregationType,
-  fieldName,
-  topHitsAgg,
-}) => {
+export const buildTopHitsAgg = ({ aggregationType, fieldName, topHitsAgg }) => {
   const metricAggField = get(fieldName, '[0].label', null);
   const topHitsField = get(topHitsAgg, 'field[0].label', null);
   if (aggregationType !== 'count' && (!metricAggField || !topHitsField)) {
@@ -236,7 +233,7 @@ export const buildUiTopHitsAgg = ({
   const dateHistogram = getDateHistogramOptions({
     bucketValue,
     bucketUnitOfTime,
-    timeField
+    timeField,
   });
 
   if (aggregationType === 'count' || !metricAggField || !topHitsField) {
@@ -457,5 +454,5 @@ export const buildGraphWatchChecks = ({
     overDocuments,
   });
 
-  return [ query, condition ];
+  return [query, condition];
 };

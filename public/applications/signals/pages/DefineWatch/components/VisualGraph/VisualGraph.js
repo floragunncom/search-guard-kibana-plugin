@@ -1,4 +1,20 @@
 /*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
  *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License").
@@ -14,19 +30,19 @@
  */
 
 /*
-  * Copyright 2015-2019 _floragunn_ GmbH
-  * Licensed under the Apache License, Version 2.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  * http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+ * Copyright 2015-2019 _floragunn_ GmbH
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
@@ -37,12 +53,9 @@ import {
   LineSeries,
   FlexibleXYPlot,
   LineMarkSeries,
-  DiscreteColorLegend
+  DiscreteColorLegend,
 } from 'react-vis';
-import {
-  EuiFlexGroup,
-  EuiFlexItem
-} from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 import { get } from 'lodash';
 import {
   getLeftPadding,
@@ -61,7 +74,7 @@ import {
   HINT_STYLES,
   LINE_STYLES,
   HOVERED_LINE_STYLES,
-  DEFAULT_MARK_SIZE
+  DEFAULT_MARK_SIZE,
 } from './utils/constants';
 import { SEVERITY_COLORS } from '../../utils/constants';
 
@@ -71,18 +84,18 @@ export default class VisualGraph extends Component {
   state = {
     hint: null,
     hoveredLineSeriesName: null,
-    hoveredThresholdName: null
+    hoveredThresholdName: null,
   };
 
-  onNearestXY = hint => {
+  onNearestXY = (hint) => {
     this.setState({ hint });
   };
 
-  onLineSeriesLegendItemMouseEnter = hoveredLineSeriesName => {
+  onLineSeriesLegendItemMouseEnter = (hoveredLineSeriesName) => {
     this.setState({ hoveredLineSeriesName });
   };
 
-  onThresholdLegendItemMouseEnter = hoveredThresholdName => {
+  onThresholdLegendItemMouseEnter = (hoveredThresholdName) => {
     if (hoveredThresholdName == null) {
       this.setState({ hoveredThresholdName });
     } else {
@@ -94,28 +107,24 @@ export default class VisualGraph extends Component {
     this.setState({ hint: null });
   };
 
-  renderXYPlot = data => {
+  renderXYPlot = (data) => {
     const { annotation, values } = this.props;
     const isSeverity = get(values, '_ui.isSeverity', false);
     const thresholdValue = get(values, '_ui.thresholdValue');
     const severityThresholds = get(values, '_ui.severity.thresholds');
     const { hint, hoveredLineSeriesName, hoveredThresholdName } = this.state;
 
-    const getLineSeriesStyle = lineSeriesName =>
-      lineSeriesName === hoveredLineSeriesName
-        ? HOVERED_LINE_STYLES
-        : LINE_STYLES;
+    const getLineSeriesStyle = (lineSeriesName) =>
+      lineSeriesName === hoveredLineSeriesName ? HOVERED_LINE_STYLES : LINE_STYLES;
 
-    const getThresholdStyle = thresholdName =>
-      thresholdName === hoveredThresholdName
-        ? HOVERED_ANNOTATION_STYLES
-        : ANNOTATION_STYLES;
+    const getThresholdStyle = (thresholdName) =>
+      thresholdName === hoveredThresholdName ? HOVERED_ANNOTATION_STYLES : ANNOTATION_STYLES;
 
-    const getXYDomains = data => {
+    const getXYDomains = (data) => {
       let xDomain = [];
       let yDomain = [];
 
-      Object.keys(data).forEach(bucketsName => {
+      Object.keys(data).forEach((bucketsName) => {
         xDomain = xDomain.concat(getXDomain(data[bucketsName]));
         yDomain = yDomain.concat(getYDomain(data[bucketsName]));
       });
@@ -125,7 +134,7 @@ export default class VisualGraph extends Component {
 
       return {
         xDomain: [xDomain[0], xDomain[xDomain.length - 1]],
-        yDomain: [yDomain[0], yDomain[yDomain.length - 1]]
+        yDomain: [yDomain[0], yDomain[yDomain.length - 1]],
       };
     };
 
@@ -139,18 +148,18 @@ export default class VisualGraph extends Component {
       {
         data: getAnnotationData(xDomain, yDomain, thresholdValue),
         color: SEVERITY_COLORS.error,
-        name: 'threshold'
-      }
+        name: 'threshold',
+      },
     ];
 
     if (isSeverity) {
       annotations = [];
-      Object.keys(severityThresholds).forEach(name => {
+      Object.keys(severityThresholds).forEach((name) => {
         if (severityThresholds[name]) {
           annotations.push({
             data: getAnnotationData(xDomain, yDomain, severityThresholds[name]),
             color: SEVERITY_COLORS[name],
-            name
+            name,
           });
         }
       });
@@ -160,7 +169,9 @@ export default class VisualGraph extends Component {
       if (name === hoveredLineSeriesName) {
         return (
           <div key={key}>
-            <p><b>{name}</b></p>
+            <p>
+              <b>{name}</b>
+            </p>
           </div>
         );
       }
@@ -172,10 +183,12 @@ export default class VisualGraph extends Component {
         return {
           title: (
             <div key={key}>
-              <p><b>{name}</b></p>
+              <p>
+                <b>{name}</b>
+              </p>
             </div>
           ),
-          color
+          color,
         };
       }
       return { title: name, color };
@@ -212,15 +225,16 @@ export default class VisualGraph extends Component {
                   onNearestXY={this.onNearestXY}
                 />
               ))}
-              {annotation && annotations.map(({ data, color, name }, key) => (
-                <LineSeries
-                  name={name}
-                  key={key}
-                  data={data}
-                  color={color}
-                  style={getThresholdStyle(name)}
-                />
-              ))}
+              {annotation &&
+                annotations.map(({ data, color, name }, key) => (
+                  <LineSeries
+                    name={name}
+                    key={key}
+                    data={data}
+                    color={color}
+                    style={getThresholdStyle(name)}
+                  />
+                ))}
               {hint && (
                 <Hint value={hint}>
                   <div style={HINT_STYLES}>({hint.y.toLocaleString()})</div>

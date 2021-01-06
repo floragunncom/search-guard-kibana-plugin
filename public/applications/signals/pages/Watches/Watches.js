@@ -136,7 +136,7 @@ class Watches extends Component {
           .then(({ resp: state = {} } = {}) => {
             watches[i] = watchToFormik(watch, state);
           })
-          .catch(error => {
+          .catch((error) => {
             console.error('Watches -- fetchWatchesState', watch._id, error);
             // Default to empty state
             watches[i] = watchToFormik(watch);
@@ -202,7 +202,7 @@ class Watches extends Component {
     const promises = [];
 
     this.setState({ isLoading: true, error: null });
-    watchIds.forEach(id => {
+    watchIds.forEach((id) => {
       const promise = this.watchService
         .delete(id)
         .then(() => {
@@ -212,7 +212,7 @@ class Watches extends Component {
             </p>
           );
         })
-        .catch(error => {
+        .catch((error) => {
           console.error('Watches -- deleteWatches', error);
           this.context.addErrorToast(error);
           this.setState({ error });
@@ -249,13 +249,13 @@ class Watches extends Component {
 
       try {
         const promises = [];
-        watchIds.forEach(id => {
+        watchIds.forEach((id) => {
           promises.push(this.watchService.ack(id, actionId));
         });
 
         await Promise.all(promises);
 
-        watchIds.forEach(id => {
+        watchIds.forEach((id) => {
           const successMsg = !actionId ? (
             <EuiText>
               {acknowledgeText} watch {id}
@@ -300,12 +300,12 @@ class Watches extends Component {
     if (tableSelection.length === 0) return null;
 
     const handleMultiDelete = () => {
-      this.handleDeleteWatches(tableSelection.map(item => item._id));
+      this.handleDeleteWatches(tableSelection.map((item) => item._id));
       this.setState({ tableSelection: [] });
     };
 
     const handleMultiAcknowledge = () => {
-      this.handleAck(tableSelection.map(item => item._id));
+      this.handleAck(tableSelection.map((item) => item._id));
       this.setState({ tableSelection: [] });
     };
 
@@ -541,7 +541,7 @@ class Watches extends Component {
         icon: 'check',
         type: 'icon',
         color: 'success',
-        onClick: watch => this.handleAck([watch._id]),
+        onClick: (watch) => this.handleAck([watch._id]),
       },
       {
         'data-test-subj': 'sgTableCol-ActionClone',
@@ -558,7 +558,7 @@ class Watches extends Component {
         icon: 'trash',
         type: 'icon',
         color: 'danger',
-        onClick: watch => this.handleDeleteWatches([watch._id]),
+        onClick: (watch) => this.handleDeleteWatches([watch._id]),
       },
     ];
 
@@ -593,7 +593,7 @@ class Watches extends Component {
         alignment: LEFT_ALIGNMENT,
         truncateText: true,
         sortable: true,
-        render: watchId => (
+        render: (watchId) => (
           <TableIdCell
             name={watchId}
             value={watchId}
@@ -637,8 +637,8 @@ class Watches extends Component {
     ];
 
     const selection = {
-      selectable: doc => doc._id,
-      onSelectionChange: tableSelection => {
+      selectable: (doc) => doc._id,
+      onSelectionChange: (tableSelection) => {
         this.setState({ tableSelection });
       },
     };
