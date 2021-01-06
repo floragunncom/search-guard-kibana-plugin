@@ -1,13 +1,26 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { EuiCallOut, EuiText, EuiSpacer, EuiErrorBoundary } from '@elastic/eui';
+import {
+  EuiCallOut,
+  EuiText,
+  EuiSpacer,
+  EuiErrorBoundary,
+  EuiListGroup,
+  EuiListGroupItem,
+} from '@elastic/eui';
 import { isEmpty } from 'lodash';
-import { licenseCantBeLoadedText, licenseKeyIsInvalidText, licenseExpiresInText, trialLicenseExpiresInText } from './i18n';
+import {
+  licenseCantBeLoadedText,
+  licenseKeyIsInvalidText,
+  licenseExpiresInText,
+  trialLicenseExpiresInText,
+} from './i18n';
 export function LicenseWarningCallout({ configService, errorMessage }) {
   const service = configService;
 
   const [licenseValid, setLicenseValid] = useState(true);
+  const [licenseMessages] = useState(service.get('systeminfo.sg_license.msgs', []));
   const [error, setError] = useState(null);
   const [warning, setWarning] = useState(null);
 
@@ -55,6 +68,17 @@ export function LicenseWarningCallout({ configService, errorMessage }) {
     }
   }
 
+  let additionalMessages = null;
+  if (licenseMessages.length) {
+    additionalMessages = (
+      <EuiListGroup>
+        {licenseMessages.map((message, i) => (
+          <EuiListGroupItem key={i} label={message} />
+        ))}
+      </EuiListGroup>
+    );
+  } 
+
   return (
     <EuiErrorBoundary>
       {!licenseValid && (
@@ -69,6 +93,7 @@ export function LicenseWarningCallout({ configService, errorMessage }) {
             <EuiText>
               <p>{error}</p>
             </EuiText>
+            {additionalMessages}
           </EuiCallOut>
           <EuiSpacer />
         </>
@@ -86,6 +111,7 @@ export function LicenseWarningCallout({ configService, errorMessage }) {
             <EuiText>
               <p>{warning}</p>
             </EuiText>
+            {additionalMessages}
           </EuiCallOut>
           <EuiSpacer />
         </>

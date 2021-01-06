@@ -15,11 +15,17 @@
  */
 
 import React from 'react';
-import renderer from 'react-test-renderer';
+import ShallowRenderer from 'react-test-renderer/shallow';
 import { LicenseWarningCallout } from './LicenseWarningCallout';
 import { UiConfigService as ConfigService } from '../../../services/UiConfigService';
 
 describe(LicenseWarningCallout.name, () => {
+  let renderer;
+
+  beforeEach(() => {
+    renderer = new ShallowRenderer();
+  });
+
   test('license cannot be loaded', () => {
     const configService = new ConfigService({
       config: {
@@ -27,7 +33,7 @@ describe(LicenseWarningCallout.name, () => {
       },
     });
 
-    const tree = renderer.create(<LicenseWarningCallout configService={configService} />).toJSON();
+    const tree = renderer.render(<LicenseWarningCallout configService={configService} />);
     expect(tree).toMatchSnapshot();
   });
 
@@ -42,7 +48,7 @@ describe(LicenseWarningCallout.name, () => {
       },
     });
 
-    const tree = renderer.create(<LicenseWarningCallout configService={configService} />).toJSON();
+    const tree = renderer.render(<LicenseWarningCallout configService={configService} />);
     expect(tree).toMatchSnapshot();
   });
 
@@ -57,7 +63,7 @@ describe(LicenseWarningCallout.name, () => {
       },
     });
 
-    const tree = renderer.create(<LicenseWarningCallout configService={configService} />).toJSON();
+    const tree = renderer.render(<LicenseWarningCallout configService={configService} />);
     expect(tree).toMatchSnapshot();
   });
 
@@ -73,7 +79,7 @@ describe(LicenseWarningCallout.name, () => {
       },
     });
 
-    const tree = renderer.create(<LicenseWarningCallout configService={configService} />).toJSON();
+    const tree = renderer.render(<LicenseWarningCallout configService={configService} />);
     expect(tree).toMatchSnapshot();
   });
 
@@ -91,7 +97,7 @@ describe(LicenseWarningCallout.name, () => {
       },
     });
 
-    const tree = renderer.create(<LicenseWarningCallout configService={configService} />).toJSON();
+    const tree = renderer.render(<LicenseWarningCallout configService={configService} />);
     expect(tree).toMatchSnapshot();
   });
 
@@ -108,7 +114,23 @@ describe(LicenseWarningCallout.name, () => {
       },
     });
 
-    const tree = renderer.create(<LicenseWarningCallout configService={configService} />).toJSON();
+    const tree = renderer.render(<LicenseWarningCallout configService={configService} />);
+    expect(tree).toMatchSnapshot();
+  });
+
+  test('license is expired', () => {
+    const configService = new ConfigService({
+      config: {
+        systeminfo: {
+          sg_license: {
+            license_required: true,
+            msgs: ['License is expired'],
+          },
+        },
+      },
+    });
+
+    const tree = renderer.render(<LicenseWarningCallout configService={configService} />);
     expect(tree).toMatchSnapshot();
   });
 });
