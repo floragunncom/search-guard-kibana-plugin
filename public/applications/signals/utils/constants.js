@@ -59,6 +59,8 @@ export const DOC_LINKS = {
   TRIGGERS: {
     SCHEDULE: 'https://docs.search-guard.com/latest/elasticsearch-alerting-triggers-schedule',
   },
+  HOW_SIGNALS_WORKS: 'https://docs.search-guard.com/latest/elasticsearch-alerting-how-it-works',
+  ACCOUNTS: 'https://docs.search-guard.com/latest/elasticsearch-alerting-accounts',
 };
 
 export const FLYOUTS = {

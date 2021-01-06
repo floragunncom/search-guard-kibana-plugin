@@ -15,7 +15,8 @@
  */
 
 import React from 'react';
-import { EuiI18n } from '@elastic/eui';
+import { EuiI18n, EuiLink } from '@elastic/eui';
+import { DOC_LINKS } from '../constants';
 
 export const createAccountText = (
   <EuiI18n token="sg.account.createAccount.text" default="Create Account" />
@@ -40,3 +41,14 @@ export const trustedHostText = (
 export const simulateText = <EuiI18n token="sg.account.simulate.text" default="Simulate" />;
 export const debugText = <EuiI18n token="sg.account.debug.text" default="Debug" />;
 export const proxyText = <EuiI18n token="sg.account.proxy.text" default="Proxy" />;
+export const accountsHelpText = (
+  <>
+    <EuiI18n
+      token="sg.accounts.help.text"
+      default="Accounts are reusable profiles for external service, e.g., email, Slack, Jira, etc."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.ACCOUNTS}>
+      Read more.
+    </EuiLink>
+  </>
+);

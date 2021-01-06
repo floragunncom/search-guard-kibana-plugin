@@ -59,6 +59,7 @@ import {
   lastStatusText,
   lastExecutionText,
   severityText,
+  watchesHelpText,
 } from '../../utils/i18n/watch';
 import { buildESQuery } from './utils/helpers';
 import { APP_PATH, FLYOUTS, WATCH_STATUS } from '../../utils/constants';
@@ -653,6 +654,7 @@ class Watches extends Component {
     return (
       <ContentPanel
         title="Watches"
+        description={watchesHelpText}
         actions={[
           <AddButton
             value={addExampleText}

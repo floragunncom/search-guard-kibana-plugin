@@ -1,6 +1,7 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import React from 'react';
-import { EuiI18n } from '@elastic/eui';
+import { EuiI18n, EuiLink } from '@elastic/eui';
+import { DOC_LINKS } from '../constants';
 
 export * from '../../../utils/i18n/common';
 
@@ -247,3 +248,11 @@ export const leaveInputEmptyToOmitThresholdLevelText = (
 );
 export const textBodyText = <EuiI18n token="sg.watch.textBody.text" default="Text Body" />;
 export const htmlBodyText = <EuiI18n token="sg.watch.htmlBody.text" default="HTML Body" />;
+export const watchesHelpText = (
+  <>
+    <EuiI18n token="sg.watches.help.text" default="Search Guard Signals manages alerts." />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.HOW_SIGNALS_WORKS}>
+      Read more.
+    </EuiLink>
+  </>
+);

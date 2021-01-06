@@ -23,7 +23,7 @@ import {
 } from '../../components';
 import { buildESQuery, getResourceEditUri } from './utils/helpers';
 import { deleteText, cloneText, saveText, typeText } from '../../utils/i18n/common';
-import { accountsText } from '../../utils/i18n/account';
+import { accountsText, accountsHelpText } from '../../utils/i18n/account';
 import { TABLE_SORT_FIELD, TABLE_SORT_DIRECTION, ACCOUNT_TYPE } from './utils/constants';
 import { APP_PATH } from '../../utils/constants';
 
@@ -311,6 +311,7 @@ class Accounts extends Component {
     return (
       <ContentPanel
         title={accountsText}
+        description={accountsHelpText}
         actions={[
           <PopoverButton
             isPopoverOpen={isAddAccountPopoverOpen}
