@@ -4,62 +4,67 @@ import { connect } from 'formik';
 import PropTypes from 'prop-types';
 import queryString from 'query-string';
 import { get } from 'lodash';
-import { EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiIconTip } from '@elastic/eui';
 import { FormikFieldText, FormikSwitch, ContentPanel } from '../../../../components';
 import WatchSchedule from '../WatchSchedule';
 import { nameText, generalText, activeText } from '../../../../utils/i18n/common';
-import { severityText, resolveText } from '../../../../utils/i18n/watch';
+import {
+  severityText,
+  resolveText,
+  watchSeverityShortHelpText,
+  watchResolveActionShortHelpText,
+} from '../../../../utils/i18n/watch';
 import { isInvalid, hasError, validateName } from '../../../../utils/validate';
 import { WatchService } from '../../../../services';
 
 import { Context } from '../../../../Context';
 
 const ActiveSwitch = ({ onSwitchChange: onChange }) => (
-  <EuiFlexItem grow={false}>
-    <FormikSwitch
-      name="active"
-      formRow
-      rowProps={{
-        hasEmptyLabelSpace: true,
-      }}
-      elementProps={{
-        label: activeText,
-        onChange,
-      }}
-    />
-  </EuiFlexItem>
+  <EuiFlexGroup alignItems="center" responsive={false}>
+    <EuiFlexItem grow={false}>
+      <FormikSwitch
+        name="active"
+        elementProps={{
+          label: activeText,
+          onChange,
+        }}
+      />
+    </EuiFlexItem>
+  </EuiFlexGroup>
 );
 
 const SeveritySwitch = ({ onSwitchChange: onChange }) => (
-  <EuiFlexItem grow={false}>
-    <FormikSwitch
-      name="_ui.isSeverity"
-      formRow
-      rowProps={{
-        hasEmptyLabelSpace: true,
-      }}
-      elementProps={{
-        label: severityText,
-        onChange,
-      }}
-    />
-  </EuiFlexItem>
+  <EuiFlexGroup alignItems="center" gutterSize="s" responsive={false}>
+    <EuiFlexItem grow={false}>
+      <FormikSwitch
+        name="_ui.isSeverity"
+        elementProps={{
+          label: severityText,
+          onChange,
+        }}
+      />
+    </EuiFlexItem>
+    <EuiFlexItem grow={false}>
+      <EuiIconTip content={watchSeverityShortHelpText} position="top" />
+    </EuiFlexItem>
+  </EuiFlexGroup>
 );
 
 const ResolveActionsSwitch = ({ onSwitchChange: onChange }) => (
-  <EuiFlexItem grow={false}>
-    <FormikSwitch
-      name="_ui.isResolveActions"
-      formRow
-      rowProps={{
-        hasEmptyLabelSpace: true,
-      }}
-      elementProps={{
-        label: resolveText,
-        onChange,
-      }}
-    />
-  </EuiFlexItem>
+  <EuiFlexGroup alignItems="center" gutterSize="s" responsive={false}>
+    <EuiFlexItem grow={false}>
+      <FormikSwitch
+        name="_ui.isResolveActions"
+        elementProps={{
+          label: resolveText,
+          onChange,
+        }}
+      />
+    </EuiFlexItem>
+    <EuiFlexItem grow={false}>
+      <EuiIconTip content={watchResolveActionShortHelpText} position="bottom" />
+    </EuiFlexItem>
+  </EuiFlexGroup>
 );
 
 const WatchName = ({ httpClient, isUpdatingName }) => (
@@ -99,9 +104,15 @@ const GeneralPanel = ({ location, formik: { values } }) => {
         <WatchName httpClient={httpClient} isUpdatingName={isUpdatingName} />
         <EuiFlexItem grow={false}>
           <EuiFlexGroup>
-            <ActiveSwitch onSwitchChange={onSwitchChange} />
-            <SeveritySwitch onSwitchChange={onSwitchChange} />
-            {isSeverity && <ResolveActionsSwitch onSwitchChange={onSwitchChange} />}
+            <EuiFlexItem>
+              <ActiveSwitch onSwitchChange={onSwitchChange} />
+            </EuiFlexItem>
+            <EuiFlexItem>
+              <SeveritySwitch onSwitchChange={onSwitchChange} />
+            </EuiFlexItem>
+            <EuiFlexItem>
+              {isSeverity && <ResolveActionsSwitch onSwitchChange={onSwitchChange} />}
+            </EuiFlexItem>
           </EuiFlexGroup>
         </EuiFlexItem>
       </EuiFlexGroup>

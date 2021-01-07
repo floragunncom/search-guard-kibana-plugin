@@ -50,7 +50,6 @@ const SlackAction = ({ isResolveActions, index, accounts, formik: { values } }) 
   const watchType = get(values, '_ui.watchType');
   const isGraphWatch = watchType === WATCH_TYPES.GRAPH;
   const isSeverity = get(values, '_ui.isSeverity', false);
-  const checksResult = get(values, '_ui.checksResult', null);
 
   const severityLabel = isResolveActions ? resolvesSeverityText : severityText;
   const severityPath = isResolveActions

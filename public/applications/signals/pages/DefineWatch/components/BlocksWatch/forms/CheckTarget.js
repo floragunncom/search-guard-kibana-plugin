@@ -1,7 +1,7 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import React from 'react';
 import { FormikFieldText } from '../../../../../components';
-import { targetText, optionalText } from '../../../../../utils/i18n/watch';
+import { targetText, watchCheckInputTargetHelpText } from '../../../../../utils/i18n/watch';
 
 export function CheckTarget({ targetPath }) {
   return (
@@ -10,7 +10,7 @@ export function CheckTarget({ targetPath }) {
       formRow
       rowProps={{
         label: targetText,
-        helpText: optionalText,
+        helpText: watchCheckInputTargetHelpText,
       }}
       elementProps={{
         onFocus: (e, field, form) => {

@@ -20,6 +20,7 @@ import {
 import {
   severityText,
   leaveInputEmptyToOmitThresholdLevelText,
+  watchSeverityHelpText,
 } from '../../../../utils/i18n/watch';
 import {
   fieldText,
@@ -166,6 +167,7 @@ const SeverityForm = ({ isCompressed, isTitle, fields, formik: { values } }) => 
     values._ui.severity.order,
     values._ui.severity.thresholds
   );
+  // The compressed form is used in the graph watch.
   const containerStyle = isCompressed ? { maxWidth: '550px' } : {};
 
   return (
@@ -173,7 +175,7 @@ const SeverityForm = ({ isCompressed, isTitle, fields, formik: { values } }) => 
       <div style={containerStyle}>
         {isTitle && (
           <>
-            <SubHeader title={<h4>{severityText}</h4>} />
+            <SubHeader title={<h4>{severityText}</h4>} description={watchSeverityHelpText} />
             <EuiSpacer size="m" />
           </>
         )}
@@ -221,7 +223,15 @@ const SeverityForm = ({ isCompressed, isTitle, fields, formik: { values } }) => 
 
         <EuiSpacer size="xs" />
         <EuiText size="xs">
-          <EuiTextColor color="subdued">{leaveInputEmptyToOmitThresholdLevelText}</EuiTextColor>
+          {isCompressed ? (
+            <EuiTextColor color="subdued">
+              {leaveInputEmptyToOmitThresholdLevelText}
+              {'. '}
+              {watchSeverityHelpText}
+            </EuiTextColor>
+          ) : (
+            <EuiTextColor color="subdued">{leaveInputEmptyToOmitThresholdLevelText}</EuiTextColor>
+          )}
         </EuiText>
       </div>
     </EuiErrorBoundary>

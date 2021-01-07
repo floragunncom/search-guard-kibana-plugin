@@ -19,7 +19,7 @@ import PropTypes from 'prop-types';
 import { FormikComboBox } from '../../../../../components';
 import buildActionAccounts from './utils/buildActionAccounts';
 import { isInvalid, hasError, validateEmptyArray } from '../../../../../utils/validate';
-import { accountText } from '../../../../../utils/i18n/account';
+import { accountText, accountsHelpText } from '../../../../../utils/i18n/account';
 import { ACCOUNT_TYPE } from '../../../../Accounts/utils/constants';
 
 const ActionAccount = ({ isResolveActions, index, accounts, accountType }) => {
@@ -35,6 +35,7 @@ const ActionAccount = ({ isResolveActions, index, accounts, accountType }) => {
         isInvalid,
         error: hasError,
         style: { paddingLeft: '0px' },
+        helpText: accountsHelpText,
       }}
       elementProps={{
         isClearable: false,

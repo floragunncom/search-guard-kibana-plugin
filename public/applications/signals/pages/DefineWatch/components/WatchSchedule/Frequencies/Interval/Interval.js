@@ -44,11 +44,18 @@
  * limitations under the License.
  */
 
-import React, { Fragment } from 'react';
+import React from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
-import { EuiFlexItem, EuiFlexGroup, EuiSpacer } from '@elastic/eui';
+import {
+  EuiFlexItem,
+  EuiFlexGroup,
+  EuiSpacer,
+  EuiTextColor,
+  EuiText,
+  EuiErrorBoundary,
+} from '@elastic/eui';
 import {
   FormikFieldNumber,
   FormikSelect,
@@ -65,14 +72,20 @@ import { TIME_INTERVAL_OPTIONS, ADVANCED_TIME_PERIOD_UNIT } from '../../../../ut
 import { DOC_LINKS } from '../../../../../../utils/constants';
 import { everyText } from '../../../../../../utils/i18n/watch';
 
-const Interval = ({ propsInterval, propsAdvInterval, propsUnit, formik: { values } }) => {
+const Interval = ({
+  propsInterval,
+  propsAdvInterval,
+  propsUnit,
+  formik: { values },
+  helpText = null,
+}) => {
   const unit = get(values, propsUnit.name);
   const isAdvanced = unit === ADVANCED_TIME_PERIOD_UNIT;
 
   return (
-    <Fragment>
+    <EuiErrorBoundary>
       <EuiSpacer size="m" />
-      <EuiFlexGroup alignItems="flexStart" style={{ maxWidth: '425px' }}>
+      <EuiFlexGroup alignItems="flexEnd" style={{ maxWidth: '425px' }}>
         <EuiFlexItem>
           {!isAdvanced ? (
             <FormikFieldNumber formRow elementProps={{ icon: 'clock' }} {...propsInterval} />
@@ -85,7 +98,7 @@ const Interval = ({ propsInterval, propsAdvInterval, propsUnit, formik: { values
             />
           )}
         </EuiFlexItem>
-        <EuiFlexItem style={{ marginTop: '8px' }}>
+        <EuiFlexItem>
           <FormikSelect
             formRow
             rowProps={{ hasEmptyLabelSpace: true }}
@@ -94,11 +107,21 @@ const Interval = ({ propsInterval, propsAdvInterval, propsUnit, formik: { values
           />
         </EuiFlexItem>
       </EuiFlexGroup>
-    </Fragment>
+      <EuiFlexGroup alignItems="flexEnd" style={{ maxWidth: '425px' }}>
+        <EuiFlexItem>
+          {helpText && (
+            <EuiText size="xs">
+              <EuiTextColor color="subdued">{helpText}</EuiTextColor>
+            </EuiText>
+          )}
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    </EuiErrorBoundary>
   );
 };
 
 Interval.propTypes = {
+  helpText: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   propsInterval: PropTypes.shape({
     name: PropTypes.string.isRequired,
     rowProps: PropTypes.shape({

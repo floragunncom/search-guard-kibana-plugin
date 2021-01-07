@@ -51,7 +51,7 @@ export const DOC_LINKS = {
     STATIC: 'https://docs.search-guard.com/latest/elasticsearch-alerting-inputs-static',
     HTTP: 'https://docs.search-guard.com/latest/elasticsearch-alerting-inputs-http',
     SEARCH_REQUEST:
-      'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html',
+      'https://docs.search-guard.com/latest/elasticsearch-alerting-inputs-elasticsearch',
   },
   CONDITIONS: 'https://docs.search-guard.com/latest/elasticsearch-alerting-conditions-script',
   TRANSFORMS: 'https://docs.search-guard.com/latest/elasticsearch-alerting-transformations',
@@ -61,6 +61,29 @@ export const DOC_LINKS = {
   },
   HOW_SIGNALS_WORKS: 'https://docs.search-guard.com/latest/elasticsearch-alerting-how-it-works',
   ACCOUNTS: 'https://docs.search-guard.com/latest/elasticsearch-alerting-accounts',
+  ALERTING_TRIGGERS_OVERVIEW:
+    'https://docs.search-guard.com/latest/elasticsearch-alerting-triggers-overview',
+  ALERTING_INPUT_OVERVIEW:
+    'https://docs.search-guard.com/latest/elasticsearch-alerting-inputs-overview',
+  ALERTING_ACTIONS_OVERVIEW:
+    'https://docs.search-guard.com/latest/elasticsearch-alerting-actions-overview',
+  ALERTING_CHAINING_CHECKS:
+    'https://docs.search-guard.com/latest/elasticsearch-alerting-chaining-checks',
+  ALERTING_ACTIONS_SLACK:
+    'https://docs.search-guard.com/latest/elasticsearch-alerting-actions-slack',
+  ALERTING_ACTIONS_INDEX:
+    'https://docs.search-guard.com/latest/elasticsearch-alerting-actions-index',
+  ALERTING_ACTIONS_EMAIL:
+    'https://docs.search-guard.com/latest/elasticsearch-alerting-actions-email',
+  ALERTING_ACTIONS_WEBHOOK:
+    'https://docs.search-guard.com/latest/elasticsearch-alerting-actions-webhook',
+  ALERTING_ACTIONS_PAGERDUTY:
+    'https://docs.search-guard.com/latest/elasticsearch-alerting-actions-pagerduty',
+  ALERTING_ACTIONS_JIRA: 'https://docs.search-guard.com/latest/elasticsearch-alerting-actions-jira',
+  USING_RESOLVE_ACTIONS:
+    'https://docs.search-guard.com/latest/elasticsearch-alerting-severity#using-resolve-actions',
+  ALERTING_SEVERITY: 'https://docs.search-guard.com/latest/elasticsearch-alerting-severity',
+  ALERTING_THROTTLING: 'https://docs.search-guard.com/latest/elasticsearch-alerting-throttling',
 };
 
 export const FLYOUTS = {

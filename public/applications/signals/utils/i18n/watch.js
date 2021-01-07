@@ -256,3 +256,146 @@ export const watchesHelpText = (
     </EuiLink>
   </>
 );
+export const watchChecksHelpText = (
+  <>
+    <EuiI18n
+      token="sg.watch.checksHelp.text"
+      default="Each watch can have one or more inputs. The inputs can be freely defined anywhere in the execution chain. Each input will fetch data from a data source and place it in the runtime data context under a configurable key for later usage."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.ALERTING_INPUT_OVERVIEW}>
+      Read more.
+    </EuiLink>
+  </>
+);
+export const watchActionsHelpText = (
+  <>
+    <EuiI18n
+      token="sg.watch.actionsHelp.text"
+      default="Actions can be used to send notifications by e-mail or other messaging services such as Slack. Also, actions allow writing data to Elasticsearch indices. A general-purpose mechanism to invoke external services is the webhook action, which allows making HTTP requests to configurable endpoints."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.ALERTING_ACTIONS_OVERVIEW}>
+      Read more.
+    </EuiLink>
+  </>
+);
+export const watchCheckInputTargetHelpText = (
+  <>
+    {optionalText}
+    {'. '}
+    <EuiI18n
+      token="sg.watch.checkInputTargetHelp.text"
+      default="The fetched payload is placed in the runtime data under a name specified by the target."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.ALERTING_CHAINING_CHECKS}>
+      Read more.
+    </EuiLink>
+  </>
+);
+export const watchActionSlackHelpText = (
+  <>
+    <EuiI18n
+      token="sg.watch.actionSlackHelp.text"
+      default="Use Slack actions to send notifications via Slack. You can use Mustache templates to define dynamic content for the Slack message."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.ALERTING_ACTIONS_SLACK}>
+      Read more.
+    </EuiLink>
+  </>
+);
+export const watchActionIndexHelpText = (
+  <>
+    <EuiI18n
+      token="sg.watch.actionIndexHelp.text"
+      default="Use index actions to store data in an Elasticsearch index."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.ALERTING_ACTIONS_INDEX}>
+      Read more.
+    </EuiLink>
+  </>
+);
+export const watchActionEmailHelpText = (
+  <>
+    <EuiI18n
+      token="sg.watch.actionEmailHelp.text"
+      default="Use e-mail actions to send e-mail notifications from watches. You can use Mustache templates to define dynamic content for mail subject and content."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.ALERTING_ACTIONS_EMAIL}>
+      Read more.
+    </EuiLink>
+  </>
+);
+export const watchActionWebhookHelpText = (
+  <>
+    <EuiI18n
+      token="sg.watch.actionWebhookHelp.text"
+      default="Use webhook actions to call arbitrary HTTP endpoints from watches. You can use Mustache templates to define parts of the URI and the request body."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.ALERTING_ACTIONS_WEBHOOK}>
+      Read more.
+    </EuiLink>
+  </>
+);
+export const watchActionPagerdutyHelpText = (
+  <>
+    <EuiI18n
+      token="sg.watch.actionPagerdutyHelp.text"
+      default="The PagerDuty action type allows you to integrate Signals with PagerDuty."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.ALERTING_ACTIONS_PAGERDUTY}>
+      Read more.
+    </EuiLink>
+  </>
+);
+export const watchActionJiraHelpText = (
+  <>
+    <EuiI18n
+      token="sg.watch.actionJiraHelp.text"
+      default="The Jira action type allows creating issues and sub-tasks in the Jira bug tracking software."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.ALERTING_ACTIONS_JIRA}>
+      Read more.
+    </EuiLink>
+  </>
+);
+export const watchResolveActionHelpText = (
+  <>
+    <EuiI18n
+      token="sg.watch.resolveActionHelp.text"
+      default="After having defined a severity conditions, you can also use resolve actions. A resolve action is assigned to one or more severity levels; the action is executed if one of these severity levels was active before but is not active anymore."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.USING_RESOLVE_ACTIONS}>
+      Read more.
+    </EuiLink>
+  </>
+);
+export const watchSeverityShortHelpText = (
+  <EuiI18n
+    token="sg.watch.severityShortHelp.text"
+    default="Map any metric obtained by a watch to a severity level"
+  />
+);
+export const watchSeverityHelpText = (
+  <>
+    <EuiI18n
+      token="sg.watch.severityHelp.text"
+      default="The Severity feature of Signals provides you an easy way to map any metric obtained by a watch to a severity level."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.ALERTING_SEVERITY}>
+      Read more.
+    </EuiLink>
+  </>
+);
+export const watchResolveActionShortHelpText = (
+  <EuiI18n token="sg.watch.severityHelp.text" default="Assign actions to the severity levels" />
+);
+export const watchActionThrottleHelpText = (
+  <>
+    <EuiI18n
+      token="sg.watch.actionThrottleHelp.text"
+      default="The purpose of throttling is to prevent any action from being executed too many times, thus generating too many notifications."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.ALERTING_THROTTLING}>
+      Read more.
+    </EuiLink>
+  </>
+);

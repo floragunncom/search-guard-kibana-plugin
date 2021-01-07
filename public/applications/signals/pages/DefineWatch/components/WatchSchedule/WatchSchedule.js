@@ -44,9 +44,9 @@
  * limitations under the License.
  */
 
-import React, { Fragment } from 'react';
+import React from 'react';
 import { connect as connectFormik } from 'formik';
-import { EuiSpacer, EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
+import { EuiSpacer, EuiErrorBoundary } from '@elastic/eui';
 import { Frequency, FrequencyPicker } from './Frequencies';
 import Timezone from './Timezone';
 import { SubHeader } from '../../../../components';
@@ -54,13 +54,13 @@ import { scheduleText } from '../../../../utils/i18n/watch';
 
 const WatchSchedule = ({ formik: { values } }) => {
   return (
-    <Fragment>
+    <EuiErrorBoundary>
       <SubHeader title={<h4>{scheduleText}</h4>} />
       <EuiSpacer size="s" />
       <Frequency />
       <FrequencyPicker />
       {['interval', 'hourly'].indexOf(values._ui.frequency) === -1 && <Timezone />}
-    </Fragment>
+    </EuiErrorBoundary>
   );
 };
 

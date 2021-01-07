@@ -13,15 +13,24 @@ import {
   DeleteActionButton,
   ElasticsearchAction,
   EmailAction,
+  JiraAction,
+  PagerdutyAction,
 } from '../Actions';
 import { AccountsService } from '../../../../services';
-import { resolveActionText } from '../../../../utils/i18n/watch';
+import {
+  resolveActionText,
+  watchActionSlackHelpText,
+  watchActionIndexHelpText,
+  watchActionEmailHelpText,
+  watchActionJiraHelpText,
+  watchActionPagerdutyHelpText,
+  watchActionWebhookHelpText,
+  watchResolveActionHelpText,
+} from '../../../../utils/i18n/watch';
 import { ACTION_TYPE } from './utils/constants';
-import { webhook, slack, index, email } from './utils/action_defaults';
+import * as ACTION_DEFAULTS from './utils/action_defaults';
 
 import { Context } from '../../../../Context';
-
-const ACTION_DEFAULTS = { webhook, slack, index, email };
 
 // TODO: This component duplicates code of ActionPanel.
 // Have a single unified component instead.
@@ -96,26 +105,38 @@ class ResolveActionPanel extends Component {
               ActionBody = EmailAction;
               headerProps = {
                 iconType: 'email',
-                description: 'Sends email',
+                description: watchActionEmailHelpText,
               };
               break;
             case ACTION_TYPE.WEBHOOK:
               ActionBody = WebhookAction;
               headerProps = {
-                description: 'Sends HTTP request',
+                description: watchActionWebhookHelpText,
               };
               break;
             case ACTION_TYPE.SLACK:
               ActionBody = SlackAction;
               headerProps = {
-                description: 'Sends message on Slack',
+                description: watchActionSlackHelpText,
               };
               break;
             case ACTION_TYPE.INDEX:
               ActionBody = ElasticsearchAction;
               headerProps = {
                 iconType: 'database',
-                description: 'Puts data to a Elasticsearch index',
+                description: watchActionIndexHelpText,
+              };
+              break;
+            case ACTION_TYPE.JIRA:
+              ActionBody = JiraAction;
+              headerProps = {
+                description: watchActionJiraHelpText,
+              };
+              break;
+            case ACTION_TYPE.PAGERDUTY:
+              ActionBody = PagerdutyAction;
+              headerProps = {
+                description: watchActionPagerdutyHelpText,
               };
               break;
           }
@@ -180,9 +201,14 @@ class ResolveActionPanel extends Component {
             onClick: () => this.addAction(ACTION_TYPE.INDEX),
           },
           {
-            name: 'PagerDuty (coming soon)',
+            name: 'Jira',
             icon: <EuiIcon type="empty" size="m" />,
-            onClick: () => null,
+            onClick: () => this.addAction(ACTION_TYPE.JIRA),
+          },
+          {
+            name: 'PagerDuty',
+            icon: <EuiIcon type="empty" size="m" />,
+            onClick: () => this.addAction(ACTION_TYPE.PAGERDUTY),
           },
         ],
       },
@@ -191,6 +217,7 @@ class ResolveActionPanel extends Component {
     return (
       <ContentPanel
         title={resolveActionText}
+        description={watchResolveActionHelpText}
         titleSize="s"
         bodyStyles={{ padding: 'initial', paddingLeft: '10px' }}
         actions={

@@ -9,10 +9,11 @@ import {
   EuiText,
   EuiLink,
 } from '@elastic/eui';
-import { FormikCodeEditorSG } from '../../../../components';
+import { FormikCodeEditorSG, LabelAppendLink } from '../../../../components';
 import { hasError, isInvalid, validateWatchString } from '../../utils/validate';
+import { DOC_LINKS } from '../../../../utils/constants';
 import { checksText } from '../../../../utils/i18n/watch';
-import { closeText, responseText } from '../../../../utils/i18n/common';
+import { closeText, responseText, documentationText } from '../../../../utils/i18n/common';
 
 import { Context } from '../../../../Context';
 
@@ -44,6 +45,13 @@ const JsonWatch = ({
         formRow
         rowProps={{
           label: checksText,
+          labelAppend: (
+            <LabelAppendLink
+              name="sgChecksLabelAppend"
+              value={documentationText}
+              href={DOC_LINKS.ALERTING_INPUT_OVERVIEW}
+            />
+          ),
           fullWidth: true,
           isInvalid,
           error: hasError,

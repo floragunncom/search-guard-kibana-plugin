@@ -18,6 +18,15 @@ import {
 } from '../Actions';
 import { AccountsService } from '../../../../services';
 import { actionText } from '../../../../utils/i18n/common';
+import {
+  watchActionsHelpText,
+  watchActionSlackHelpText,
+  watchActionIndexHelpText,
+  watchActionEmailHelpText,
+  watchActionJiraHelpText,
+  watchActionPagerdutyHelpText,
+  watchActionWebhookHelpText,
+} from '../../../../utils/i18n/watch';
 import { ACTION_TYPE } from './utils/constants';
 import * as ACTION_DEFAULTS from './utils/action_defaults';
 
@@ -27,39 +36,39 @@ const newActions = {
   [ACTION_TYPE.WEBHOOK]: {
     Body: WebhookAction,
     headerProps: {
-      description: 'Sends HTTP request',
+      description: watchActionWebhookHelpText,
     },
   },
   [ACTION_TYPE.SLACK]: {
     Body: SlackAction,
     headerProps: {
-      description: 'Sends message on Slack',
+      description: watchActionSlackHelpText,
     },
   },
   [ACTION_TYPE.INDEX]: {
     Body: ElasticsearchAction,
     headerProps: {
       iconType: 'database',
-      description: 'Puts data to index',
+      description: watchActionIndexHelpText,
     },
   },
   [ACTION_TYPE.EMAIL]: {
     Body: EmailAction,
     headerProps: {
       iconType: 'email',
-      description: 'Sends email',
+      description: watchActionEmailHelpText,
     },
   },
   [ACTION_TYPE.JIRA]: {
     Body: JiraAction,
     headerProps: {
-      description: 'Creates Jira issue',
+      description: watchActionJiraHelpText,
     },
   },
   [ACTION_TYPE.PAGERDUTY]: {
     Body: PagerdutyAction,
     headerProps: {
-      description: 'Creates PagerDuty event',
+      description: watchActionPagerdutyHelpText,
     },
   },
 };
@@ -192,6 +201,7 @@ class ActionPanel extends Component {
     return (
       <ContentPanel
         title={actionText}
+        description={watchActionsHelpText}
         titleSize="s"
         bodyStyles={{ padding: 'initial', paddingLeft: '10px' }}
         actions={

@@ -25,12 +25,13 @@ import {
   validateInterval,
   validateThrottleAdvancedInterval,
 } from '../../../utils/validate';
-import { throttlePeriodText } from '../../../../../utils/i18n/watch';
+import { throttlePeriodText, watchActionThrottleHelpText } from '../../../../../utils/i18n/watch';
 import { DOC_LINKS } from '../../../../../utils/constants';
 
 const ActionThrottlePeriod = ({ index }) => (
   <>
     <Interval
+      helpText={watchActionThrottleHelpText}
       propsInterval={{
         name: `actions[${index}].throttle_period.interval`,
         rowProps: {

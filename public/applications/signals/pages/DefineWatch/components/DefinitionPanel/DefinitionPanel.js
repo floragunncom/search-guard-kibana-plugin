@@ -14,6 +14,7 @@ import SeverityForm from '../SeverityForm';
 import { FLYOUTS } from '../../../../utils/constants';
 import { WATCH_TYPES_OPTIONS, WATCH_TYPES } from '../../utils/constants';
 import { definitionText, typeText, executeText, addText } from '../../../../utils/i18n/common';
+import { watchChecksHelpText } from '../../../../utils/i18n/watch';
 
 import { Context } from '../../../../Context';
 
@@ -21,11 +22,13 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
   const { httpClient, triggerFlyout } = useContext(Context);
 
   const watchType = get(values, '_ui.watchType', WATCH_TYPES.GRAPH);
+  const isBlocksWatch = watchType === WATCH_TYPES.BLOCKS;
+  const isJsonWatch = watchType === WATCH_TYPES.JSON;
   const isSeverity = get(values, '_ui.isSeverity', false);
 
   const { addTemplate } = useCheckTemplates({
     setFieldValue,
-    checksPath: watchType === WATCH_TYPES.BLOCKS ? '_ui.checksBlocks' : 'checks',
+    checksPath: isBlocksWatch ? '_ui.checksBlocks' : 'checks',
   });
 
   const { isResultVisible, closeResult, editorResult, isLoading, executeWatch } = useWatchChecks({
@@ -127,8 +130,15 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
       break;
   }
 
+  const descriptionText = isJsonWatch || isBlocksWatch ? watchChecksHelpText : null;
+
   return (
-    <ContentPanel title={definitionText} titleSize="s" actions={contentPanleActions}>
+    <ContentPanel
+      title={definitionText}
+      description={descriptionText}
+      titleSize="s"
+      actions={contentPanleActions}
+    >
       <div>
         <FormikSelect
           name="_ui.watchType"
