@@ -52,3 +52,26 @@ export const accountsHelpText = (
     </EuiLink>
   </>
 );
+export const accountDefaultsHelpText = (
+  <>
+    <EuiI18n
+      token="sg.account.defaultsHelp.text"
+      default="Define defaults used in emails when an email action does not configure an explicit from address. Optional."
+    />{' '}
+    <EuiLink target="_blank" href={DOC_LINKS.ACCOUNTS}>
+      Read more.
+    </EuiLink>
+  </>
+);
+export const accountDebugHelpText = (
+  <EuiI18n
+    token="sg.account.debugHelp.text"
+    default="Protocol data is logged to the Elasticsearch log when mails are sent"
+  />
+);
+export const accountSimulateHelpText = (
+  <EuiI18n
+    token="sg.account.simulateHelp.text"
+    default="Email actions render the email but won’t send it to the SMTP server. The resulting artifact or request can be viewed in the result returned by the action in the attribute request and Elasticsearch log"
+  />
+);

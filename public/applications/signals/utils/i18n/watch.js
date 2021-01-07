@@ -271,7 +271,7 @@ export const watchActionsHelpText = (
   <>
     <EuiI18n
       token="sg.watch.actionsHelp.text"
-      default="Actions can be used to send notifications by e-mail or other messaging services such as Slack. Also, actions allow writing data to Elasticsearch indices. A general-purpose mechanism to invoke external services is the webhook action, which allows making HTTP requests to configurable endpoints."
+      default="Actions can be used to send notifications by email or other messaging services such as Slack. Also, actions allow writing data to Elasticsearch indices. A general-purpose mechanism to invoke external services is the webhook action, which allows making HTTP requests to configurable endpoints."
     />{' '}
     <EuiLink target="_blank" href={DOC_LINKS.ALERTING_ACTIONS_OVERVIEW}>
       Read more.
@@ -317,7 +317,7 @@ export const watchActionEmailHelpText = (
   <>
     <EuiI18n
       token="sg.watch.actionEmailHelp.text"
-      default="Use e-mail actions to send e-mail notifications from watches. You can use Mustache templates to define dynamic content for mail subject and content."
+      default="Use email actions to send email notifications from watches. You can use Mustache templates to define dynamic content for mail subject and content."
     />{' '}
     <EuiLink target="_blank" href={DOC_LINKS.ALERTING_ACTIONS_EMAIL}>
       Read more.

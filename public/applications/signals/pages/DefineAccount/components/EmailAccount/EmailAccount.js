@@ -2,7 +2,7 @@
 import React, { Fragment, useContext } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
-import { EuiSpacer, EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
+import { EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiIconTip } from '@elastic/eui';
 import {
   ContentPanel,
   SubHeader,
@@ -33,6 +33,9 @@ import {
   simulateText,
   debugText,
   proxyText,
+  accountDefaultsHelpText,
+  accountDebugHelpText,
+  accountSimulateHelpText,
 } from '../../../../utils/i18n/account';
 import { fromText, toText, ccText, bccText } from '../../../../utils/i18n/watch';
 import {
@@ -51,32 +54,36 @@ const Debug = ({ onSwitchChange }) => (
     <SubHeader title={<h4>{debugText}</h4>} />
     <EuiFlexGroup>
       <EuiFlexItem grow={false}>
-        <FormikSwitch
-          name="debug"
-          formRow
-          rowProps={{
-            hasEmptyLabelSpace: true,
-            style: { marginTop: '0px' },
-          }}
-          elementProps={{
-            label: debugText,
-            onChange: onSwitchChange,
-          }}
-        />
+        <EuiFlexGroup alignItems="center" gutterSize="s" responsive={false}>
+          <EuiFlexItem grow={false}>
+            <FormikSwitch
+              name="debug"
+              elementProps={{
+                label: debugText,
+                onChange: onSwitchChange,
+              }}
+            />
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiIconTip content={accountDebugHelpText} position="top" />
+          </EuiFlexItem>
+        </EuiFlexGroup>
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
-        <FormikSwitch
-          name="simulate"
-          formRow
-          rowProps={{
-            hasEmptyLabelSpace: true,
-            style: { marginTop: '0px' },
-          }}
-          elementProps={{
-            label: simulateText,
-            onChange: onSwitchChange,
-          }}
-        />
+        <EuiFlexGroup alignItems="center" gutterSize="s" responsive={false}>
+          <EuiFlexItem grow={false}>
+            <FormikSwitch
+              name="simulate"
+              elementProps={{
+                label: simulateText,
+                onChange: onSwitchChange,
+              }}
+            />
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiIconTip content={accountSimulateHelpText} position="top" />
+          </EuiFlexItem>
+        </EuiFlexGroup>
       </EuiFlexItem>
     </EuiFlexGroup>
   </Fragment>
@@ -167,7 +174,7 @@ const Security = ({
 
 const Defaults = ({ onComboBoxChange, onComboBoxOnBlur, onComboBoxCreateOption }) => (
   <Fragment>
-    <SubHeader title={<h4>{defaultsText}</h4>} />
+    <SubHeader title={<h4>{defaultsText}</h4>} description={accountDefaultsHelpText} />
     <EuiSpacer size="s" />
     <div className="group">
       <FormikFieldText
