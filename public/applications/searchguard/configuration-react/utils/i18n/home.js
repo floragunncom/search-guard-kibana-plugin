@@ -49,7 +49,7 @@ export const sgDescriptionText = (
   <>
     <EuiI18n
       token="sg.home.description.text"
-      default="Search Guard secures Elasticsearch cluster applicating different industry-standard authentication techniques, like Kerberos, LDAP / Active Directory, JSON web tokens, TLS certificates, and Proxy authentication / SSO (SAML, OpenId, JWT). Main concepts."
+      default="Search Guard secures Elasticsearch cluster applicating different industry-standard authentication techniques, like Kerberos, LDAP / Active Directory, JSON web tokens, TLS certificates, and Proxy authentication / SSO (SAML, OpenId, JWT)."
     />{' '}
     <EuiLink target="_blank" href={DOC_LINKS.MAIN_CONCEPTS}>
       Main concepts.
