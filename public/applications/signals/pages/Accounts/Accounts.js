@@ -21,7 +21,7 @@ import {
   TableTextCell,
   PopoverButton,
 } from '../../components';
-import { buildESQuery } from './utils/helpers';
+import { buildESQuery, getResourceEditUri } from './utils/helpers';
 import { deleteText, cloneText, saveText, typeText } from '../../utils/i18n/common';
 import { accountsText } from '../../utils/i18n/account';
 import { TABLE_SORT_FIELD, TABLE_SORT_DIRECTION, ACCOUNT_TYPE } from './utils/constants';
@@ -33,8 +33,8 @@ const initialQuery = EuiSearchBar.Query.MATCH_ALL;
 class Accounts extends Component {
   static contextType = Context;
 
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
 
     this.state = {
       error: null,
@@ -45,7 +45,7 @@ class Accounts extends Component {
       query: initialQuery,
     };
 
-    this.destService = new AccountsService(this.props.httpClient);
+    this.destService = new AccountsService(context.httpClient);
   }
 
   componentDidMount() {
@@ -150,16 +150,16 @@ class Accounts extends Component {
   };
 
   handleDeleteAccounts = (accounts = []) => {
-    const { onTriggerConfirmDeletionModal } = this.props;
-    onTriggerConfirmDeletionModal({
+    const { triggerConfirmDeletionModal } = this.context;
+    triggerConfirmDeletionModal({
       body: accounts.map(({ _id }) => _id).join(', '),
       onConfirm: () => {
         this.deleteAccounts(accounts);
-        onTriggerConfirmDeletionModal(null);
+        triggerConfirmDeletionModal(null);
       },
       onCancel: () => {
         this.setState({ tableSelection: [] });
-        onTriggerConfirmDeletionModal(null);
+        triggerConfirmDeletionModal(null);
       },
     });
   };
@@ -251,7 +251,7 @@ class Accounts extends Component {
             name={id}
             value={id}
             onClick={() => {
-              history.push(`${APP_PATH.DEFINE_ACCOUNT}?id=${id}&accountType=${type}`);
+              history.push(getResourceEditUri(id, type));
             }}
           />
         ),
@@ -343,9 +343,7 @@ class Accounts extends Component {
 }
 
 Accounts.propTypes = {
-  httpClient: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
 };
 
 export default Accounts;

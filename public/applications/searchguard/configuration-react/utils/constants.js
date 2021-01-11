@@ -7,7 +7,6 @@ export const API = {
   LICENSE: `${API_BASE}/license`,
   INDICES: `${API_BASE}/configuration/indices`,
   ALIASES: `${API_BASE}/configuration/aliases`,
-  VALIDATE_DLS: `${API_BASE}/configuration/validatedls`,
   INDEX_MAPPINGS: `${API_BASE}/configuration/index_mappings`,
 };
 
@@ -53,16 +52,6 @@ export const ROLE_MAPPINGS_ACTIONS = {
 
 export const FLYOUTS = {
   INSPECT_JSON: 'inspectJson',
-  CUSTOM: 'customFlyout'
-};
-
-export const CALLOUTS = {
-  ERROR_CALLOUT: 'errorCallout',
-  SUCCESS_CALLOUT: 'successCallout'
-};
-
-export const MODALS = {
-  CONFIRM_DELETION: 'confirmDeletion'
 };
 
 export { default as INDEX_PERMISSIONS } from './permissions/indexpermissions';
@@ -93,4 +82,9 @@ export const LOCAL_STORAGE = {
   [APP_PATH.TENANTS]: {
     ...LOCAL_STORAGE_COMMON
   },
+};
+
+export const CALLOUTS = {
+  ERROR_CALLOUT: 'errorCallout',
+  SUCCESS_CALLOUT: 'successCallout',
 };

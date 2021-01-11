@@ -26,6 +26,7 @@ import {
   TableTextCell,
   CancelButton,
 } from '../../components';
+import { getResourceEditUri } from '../Watches/utils/helpers';
 import { buildESQuery } from './utils/helpers';
 import { actionAndWatchStatusToIconProps } from '../Watches/utils';
 import { execEndText, statusText, executionHistoryText } from '../../utils/i18n/watch';
@@ -45,8 +46,8 @@ const initialQuery = EuiSearchBar.Query.MATCH_ALL;
 class Alerts extends Component {
   static contextType = Context;
 
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
 
     this.timer = null;
     this.state = {
@@ -57,7 +58,7 @@ class Alerts extends Component {
       tableSelection: [],
     };
 
-    this.alertService = new AlertService(this.props.httpClient);
+    this.alertService = new AlertService(context.httpClient);
   }
 
   componentDidMount() {
@@ -81,7 +82,7 @@ class Alerts extends Component {
   }
 
   componentWillUnmount() {
-    this.props.onTriggerInspectJsonFlyout(null);
+    this.context.closeFlyout();
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -149,16 +150,16 @@ class Alerts extends Component {
   };
 
   handleDeleteAlerts = (alerts = []) => {
-    const { onTriggerConfirmDeletionModal } = this.props;
-    onTriggerConfirmDeletionModal({
+    const { triggerConfirmDeletionModal } = this.context;
+    triggerConfirmDeletionModal({
       body: alerts.map(({ id }) => id).join(', '),
       onConfirm: () => {
         this.deleteAlerts(alerts);
-        onTriggerConfirmDeletionModal(null);
+        triggerConfirmDeletionModal(null);
       },
       onCancel: () => {
         this.setState({ tableSelection: [] });
-        onTriggerConfirmDeletionModal(null);
+        triggerConfirmDeletionModal(null);
       },
     });
   };
@@ -336,7 +337,7 @@ class Alerts extends Component {
             name={id}
             value={id}
             onClick={() => {
-              this.props.onTriggerInspectJsonFlyout({
+              this.context.triggerInspectJsonFlyout({
                 json: alert,
                 title: id,
               });
@@ -387,7 +388,7 @@ class Alerts extends Component {
           <TableIdCell
             name={`WatchId-${_id}`}
             value={watchId}
-            onClick={() => this.props.history.push(`${APP_PATH.DEFINE_WATCH}?id=${watchId}`)}
+            onClick={() => this.props.history.push(getResourceEditUri(watchId))}
           />
         ),
       });
@@ -422,11 +423,8 @@ class Alerts extends Component {
 }
 
 Alerts.propTypes = {
-  httpClient: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
-  onTriggerInspectJsonFlyout: PropTypes.func.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
 };
 
 export default Alerts;

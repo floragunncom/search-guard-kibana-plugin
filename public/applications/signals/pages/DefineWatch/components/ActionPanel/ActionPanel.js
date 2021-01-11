@@ -67,8 +67,8 @@ const newActions = {
 class ActionPanel extends Component {
   static contextType = Context;
 
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
 
     this.state = {
       isAddActionPopoverOpen: false,
@@ -76,7 +76,7 @@ class ActionPanel extends Component {
       accounts: [],
     };
 
-    this.destService = new AccountsService(this.props.httpClient);
+    this.destService = new AccountsService(context.httpClient);
   }
 
   componentDidMount() {
@@ -108,12 +108,12 @@ class ActionPanel extends Component {
   };
 
   deleteAction = (actionIndex, actionName, arrayHelpers) => {
-    const { onTriggerConfirmDeletionModal } = this.props;
-    onTriggerConfirmDeletionModal({
+    const { triggerConfirmDeletionModal } = this.context;
+    triggerConfirmDeletionModal({
       body: actionName,
       onConfirm: () => {
         arrayHelpers.remove(actionIndex);
-        onTriggerConfirmDeletionModal(null);
+        triggerConfirmDeletionModal(null);
       },
     });
   };
@@ -214,10 +214,8 @@ class ActionPanel extends Component {
 
 ActionPanel.propTypes = {
   isLoading: PropTypes.bool,
-  httpClient: PropTypes.object.isRequired,
   arrayHelpers: PropTypes.object.isRequired,
   formik: PropTypes.object.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
 };
 
 export default connectFormik(ActionPanel);

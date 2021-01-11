@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { omit, map, cloneDeep, isEmpty } from 'lodash';
+import { omit, map, cloneDeep } from 'lodash';
 import { comboBoxOptionsToArray } from '../../../utils/helpers';
 import { FIELDS_TO_OMIT_BEFORE_SAVE } from '../../../utils/constants';
 import { FLS_MODES } from './constants';
@@ -40,6 +40,18 @@ export const uiExcludeIndexPermissionsToExcludeIndexPermissions = (excludeIndexP
   });
 };
 
+function uiMaskedFieldsToMaskedFields(uiMaskedFields) {
+  const maskedFields = [];
+
+  for (const fieldGroup of uiMaskedFields) {
+    for (const field of fieldGroup.fields) {
+      maskedFields.push(fieldGroup.value ? `${field.label}::${fieldGroup.value}` : field.label);
+    }
+  }
+
+  return maskedFields;
+}
+
 export const uiIndexPermissionsToIndexPermissions = (indexPermissions) => {
   return map(indexPermissions, (values) => {
     const { actiongroups, permissions } = values.allowed_actions;
@@ -50,17 +62,19 @@ export const uiIndexPermissionsToIndexPermissions = (indexPermissions) => {
     const indexPatterns = comboBoxOptionsToArray(values.index_patterns);
 
     const result = {
-      ...omit(values, '_isAdvanced', '_dls', 'flsmode'),
       allowed_actions: allowedActions,
       index_patterns: indexPatterns,
       fls: uiFlsToFls(values.fls, values.flsmode),
-      masked_fields: comboBoxOptionsToArray(values.masked_fields),
     };
 
-    if (!isEmpty(values._dls)) {
-      result.dls = JSON.stringify(JSON.parse(values._dls));
+    if (values._dls) {
+      result.dls = values._dls;
+    }
+
+    if (values._isAdvancedFLSMaskedFields) {
+      result.masked_fields = comboBoxOptionsToArray(values.masked_fields_advanced);
     } else {
-      delete result.dls;
+      result.masked_fields = uiMaskedFieldsToMaskedFields(values.masked_fields);
     }
 
     return result;

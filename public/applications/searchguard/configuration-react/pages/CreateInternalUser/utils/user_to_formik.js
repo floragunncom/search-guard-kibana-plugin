@@ -23,11 +23,13 @@ const userToFormik = (user, { id = '' } = {}) => {
     ...omit(user, ['hash']),
     _username: id,
     _password: '',
+    _searchGuardRoles: arrayToComboBoxOptions(user.search_guard_roles),
     _backendRoles: arrayToComboBoxOptions(user.backend_roles),
     _changePassword: false,
     _attributes: [],
     _attributesString: JSON.stringify(user.attributes, null, 2),
     _isComplexUserAttributes: false,
+    _isAdvanced: user.backend_roles.length ? true : false,
   };
 
   if (isComplexAttributes(user.attributes)) {

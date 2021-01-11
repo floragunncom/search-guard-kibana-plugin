@@ -1,11 +1,41 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import React, { useState } from 'react';
-import uuid from 'uuid/v4';
-import { EuiGlobalToastList, EuiTitle, EuiText, EuiCodeBlock } from '@elastic/eui';
-import { differenceBy, get } from 'lodash';
+import { EuiGlobalToastList } from '@elastic/eui';
 import { Flyout, Modal } from './components';
-import { comboBoxOptionsToArray } from '../utils/helpers';
-import { FLYOUTS, MODALS } from './utils/constants';
+import {
+  closeFlyoutProvider,
+  triggerFlyoutProvider,
+  closeModalProvider,
+  triggerConfirmModalProvider,
+  triggerConfirmDeletionModalProvider,
+  onSelectChangeProvider,
+  onSwitchChangeProvider,
+  onComboBoxChangeProvider,
+  onComboBoxCreateOptionProvider,
+  onComboBoxOnBlurProvider,
+  removeToastProvider,
+  addSuccessToastProvider,
+  addWarningToastProvider,
+  addErrorToastProvider,
+  triggerErrorCalloutProvider,
+  triggerSuccessCalloutProvider,
+} from '../utils/context/providers';
+import { FLYOUTS } from './utils/constants';
 import { CODE_EDITOR } from '../utils/constants';
 
 // Themes for EuiCodeEditor
@@ -16,7 +46,7 @@ const Context = React.createContext();
 
 const { darkTheme, theme: lightTheme, ...editorOptionsDefaults } = CODE_EDITOR;
 
-const ContextProvider = ({ children, core, httpClient }) => {
+const ContextProvider = ({ children, httpClient, core, configService }) => {
   const IS_DARK_THEME = core.uiSettings.get('theme:darkMode');
 
   const [editorTheme] = useState(IS_DARK_THEME ? darkTheme : lightTheme);
@@ -24,175 +54,90 @@ const ContextProvider = ({ children, core, httpClient }) => {
   const [flyout, setFlyout] = useState(null);
   const [modal, setModal] = useState(null);
   const [toasts, setToasts] = useState([]);
+  const [callout, setCallout] = useState(null);
 
-  const closeFlyout = () => setFlyout(null);
+  function closeFlyout() {
+    closeFlyoutProvider({ setFlyout });
+  }
 
-  const triggerFlyout = newFlyout => {
-    const isSameFlyout = flyout && newFlyout && flyout.type === newFlyout.type;
+  function triggerFlyout(newFlyout) {
+    triggerFlyoutProvider({ flyout: newFlyout, prevFlyout: flyout, setFlyout });
+  }
 
-    if (isSameFlyout) {
-      setFlyout(null);
-      return;
-    }
-
-    setFlyout(newFlyout);
-  };
-
-  const triggerInspectJsonFlyout = (payload = {}) => {
-    if (payload === null) {
-      triggerFlyout(null);
-      return;
-    }
-
-    triggerFlyout({ type: FLYOUTS.INSPECT_JSON, payload: { ...payload, editorTheme } });
-  };
-
-  const closeModal = () => setModal(null);
-
-  const triggerModal = modal => setModal(modal);
-
-  const triggerConfirmModal = payload => {
-    const modal = payload === null ? null : { type: MODALS.CONFIRM, payload };
-    triggerModal(modal);
-  };
-
-  const triggerConfirmDeletionModal = payload => {
-    const modal = payload === null ? null : { type: MODALS.CONFIRM_DELETION, payload };
-    triggerModal(modal);
-  };
-
-  const onSwitchChange = (e, field, form) => {
-    // We trigger the switch by inverting the input bool value.
-    // Formik passes 'true' or 'false'. But EuiSwitch requires it to be boolean not string, we deal with it here.
-    form.setFieldValue(field.name, !(e.target.value === 'true' || e.target.value === true));
-  };
-
-  const onComboBoxChange = validationFn => (options, field, form) => {
-    const isValidationRequired = validationFn instanceof Function;
-    if (isValidationRequired) {
-      const error = validationFn(options);
-      if (error instanceof Promise) {
-        error
-          .then(_error => {
-            throw _error;
-          })
-          .catch(_error => form.setFieldError(field.name, _error));
-      } else {
-        form.setFieldError(field.name, error);
-      }
-    }
-
-    const isDeleting = field.value && options.length < field.value.length;
-
-    if (isDeleting) {
-      const optionToDelete = comboBoxOptionsToArray(
-        differenceBy(field.value, options, 'label')
-      ).join(', ');
-
-      triggerConfirmDeletionModal({
-        body: optionToDelete,
-        onConfirm: () => {
-          form.setFieldValue(field.name, options);
-          triggerConfirmDeletionModal(null);
-        },
-      });
-    } else {
-      form.setFieldValue(field.name, options);
-    }
-  };
-
-  const onComboBoxCreateOption = (validationFn, ...props) => async (label, field, form) => {
-    let isValid = true;
-    const isValidationRequired = validationFn instanceof Function;
-
-    if (isValidationRequired) {
-      const _isValid = validationFn(label, ...props);
-      if (_isValid instanceof Promise) {
-        await _isValid
-          .then(_error => {
-            throw _error;
-          })
-          .catch(_error => (isValid = _error));
-      } else {
-        isValid = _isValid;
-      }
-    }
-
-    if (isValid) {
-      const normalizedSearchValue = label.trim().toLowerCase();
-      if (!normalizedSearchValue) return;
-      form.setFieldValue(field.name, field.value.concat({ label }));
-    }
-  };
-
-  const onComboBoxOnBlur = (e, field, form) => form.setFieldTouched(field.name, true);
-
-  const removeToast = ({ id }) =>
-    setToasts(prevState => prevState.filter(toast => toast.id !== id));
-
-  const addSuccessToast = text =>
-    setToasts(prevState => {
-      return [
-        ...prevState,
-        {
-          title: 'Success',
-          text,
-          color: 'success',
-          iconType: 'check',
-          id: uuid(),
-        },
-      ];
+  function triggerInspectJsonFlyout(payload) {
+    triggerFlyoutProvider({
+      flyout: {
+        type: FLYOUTS.INSPECT_JSON,
+        payload: { editorTheme, ...payload },
+      },
+      setFlyout,
     });
+  }
 
-  const addWarningToast = text =>
-    setToasts(prevState => {
-      return [
-        ...prevState,
-        {
-          title: 'Warning',
-          text,
-          color: 'warning',
-          iconType: 'help',
-          id: uuid(),
-        },
-      ];
+  function closeModal() {
+    closeModalProvider({ setModal });
+  }
+
+  function triggerConfirmModal(payload) {
+    triggerConfirmModalProvider({ payload, setModal });
+  }
+
+  function triggerConfirmDeletionModal(payload) {
+    triggerConfirmDeletionModalProvider({ payload, setModal });
+  }
+
+  function onSelectChange(e, field) {
+    onSelectChangeProvider(e, field);
+  }
+
+  function onSwitchChange(e, field, form) {
+    onSwitchChangeProvider(e, field, form);
+  }
+
+  function onComboBoxChange(validationFn) {
+    return function (options, field, form) {
+      onComboBoxChangeProvider({ setModal, validationFn })(options, field, form);
+    };
+  }
+
+  function onComboBoxCreateOption(validationFn, ...props) {
+    return function (label, field, form) {
+      onComboBoxCreateOptionProvider(validationFn, ...props)(label, field, form);
+    };
+  }
+
+  function onComboBoxOnBlur(e, field, form) {
+    onComboBoxOnBlurProvider(e, field, form);
+  }
+
+  function removeToast({ id }) {
+    removeToastProvider({ id, setToasts });
+  }
+
+  function addSuccessToast(text) {
+    addSuccessToastProvider({ text, setToasts });
+  }
+
+  function addWarningToast(text) {
+    addWarningToastProvider({ text, setToasts });
+  }
+
+  function addErrorToast(error, { title = 'Error', errorMessage, errorDetails } = {}) {
+    addErrorToastProvider({
+      error,
+      setModal,
+      setToasts,
+      options: { title, errorMessage, errorDetails },
     });
+  }
 
-  const addErrorToast = (error) => {
-    let text = error.message;
-    const detail = get(error, 'body.attributes.body');
+  function triggerErrorCallout(error) {
+    triggerErrorCalloutProvider({ error, setCallout });
+  }
 
-    try {
-      if (detail) {
-        text = (
-          <>
-            <EuiTitle>
-              <h4>{text}</h4>
-            </EuiTitle>
-            <EuiText size="s">
-              <p>Detail:</p>
-            </EuiText>
-            <EuiCodeBlock language="json">{JSON.stringify(detail, null, 2)}</EuiCodeBlock>
-          </>
-        );
-      }
-    } catch (e) {
-      console.error('addErrorToast', 'Error details cannot be parsed', error);
-    }
-
-    setToasts((prevState) => {
-      return [
-        ...prevState,
-        {
-          title: 'Error',
-          text,
-          color: 'danger',
-          iconType: 'alert',
-          id: uuid(),
-        },
-      ];
-    });
-  };
+  function triggerSuccessCallout(payload) {
+    triggerSuccessCalloutProvider({ payload, setCallout });
+  }
 
   return (
     <>
@@ -201,6 +146,8 @@ const ContextProvider = ({ children, core, httpClient }) => {
           editorTheme,
           editorOptions,
           httpClient,
+          configService,
+          onSelectChange,
           onSwitchChange,
           onComboBoxChange,
           onComboBoxCreateOption,
@@ -214,6 +161,10 @@ const ContextProvider = ({ children, core, httpClient }) => {
           addSuccessToast,
           addWarningToast,
           addErrorToast,
+          callout,
+          setCallout,
+          triggerErrorCallout,
+          triggerSuccessCallout,
         }}
       >
         {children}

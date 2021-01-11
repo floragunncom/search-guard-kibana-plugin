@@ -29,8 +29,8 @@ import {
   CreateButton,
   CancelButton,
 } from '../../components';
-import { resourcesToUiResources, uiResourceToResource } from './utils';
-import { APP_PATH, ROLES_ACTIONS } from '../../utils/constants';
+import { resourcesToUiResources, uiResourceToResource, getResourceEditUri } from './utils';
+import { APP_PATH } from '../../utils/constants';
 import { nameText, systemItemsText } from '../../utils/i18n/common';
 import {
   rolesText,
@@ -44,12 +44,15 @@ import {
 } from '../../utils/i18n/roles';
 import { filterReservedStaticTableResources } from '../../utils/helpers';
 import { LocalStorageService, RolesService } from '../../services';
+import { Context } from '../../Context';
 
 class Roles extends Component {
-  constructor(props) {
-    super(props);
+  static contextType = Context;
 
-    this.backendService = new RolesService(this.props.httpClient);
+  constructor(props, context) {
+    super(props, context);
+
+    this.backendService = new RolesService(context.httpClient);
     this.localStorage = new LocalStorageService();
     const { isShowingTableSystemItems = false } = this.localStorage.cache[APP_PATH.ROLES];
 
@@ -87,22 +90,22 @@ class Roles extends Component {
       this.setState({ resources, tableResources, error: null });
     } catch (error) {
       this.setState({ error });
-      this.props.onTriggerErrorCallout(error);
+      this.context.triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
   };
 
   handleDeleteResources = (resourcesToDelete) => {
-    const { onTriggerConfirmDeletionModal } = this.props;
-    onTriggerConfirmDeletionModal({
+    const { triggerConfirmDeletionModal } = this.context;
+    triggerConfirmDeletionModal({
       body: resourcesToDelete.join(', '),
       onConfirm: () => {
         this.deleteResources(resourcesToDelete);
-        onTriggerConfirmDeletionModal(null);
+        triggerConfirmDeletionModal(null);
       },
       onCancel: () => {
         this.setState({ tableSelection: [] });
-        onTriggerConfirmDeletionModal(null);
+        triggerConfirmDeletionModal(null);
       },
     });
   };
@@ -115,7 +118,7 @@ class Roles extends Component {
       }
     } catch (error) {
       this.setState({ error });
-      this.props.onTriggerErrorCallout(error);
+      this.context.triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
     this.fetchData();
@@ -129,7 +132,7 @@ class Roles extends Component {
       await this.backendService.save(name, uiResourceToResource(resource));
     } catch (error) {
       this.setState({ error });
-      this.props.onTriggerErrorCallout(error);
+      this.context.triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
     this.fetchData();
@@ -166,8 +169,6 @@ class Roles extends Component {
   render() {
     const { history } = this.props;
     const { isLoading, error, tableResources, isShowingTableSystemItems } = this.state;
-    const getResourceEditUri = (name) =>
-      `${APP_PATH.CREATE_ROLE}?id=${name}&action=${ROLES_ACTIONS.UPDATE_ROLE}`;
 
     const actions = [
       {
@@ -330,11 +331,8 @@ class Roles extends Component {
 }
 
 Roles.propTypes = {
-  httpClient: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
 };
 
 export default Roles;

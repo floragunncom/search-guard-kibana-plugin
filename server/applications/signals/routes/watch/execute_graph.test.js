@@ -21,7 +21,7 @@ import {
   setupHttpResponseMock,
   setupClusterClientMock,
   setupContextMock,
-} from '../../../../mocks';
+} from '../../../../utils/mocks';
 
 describe('routes/watch/execute_graph', () => {
   test('execute graph watch', async () => {

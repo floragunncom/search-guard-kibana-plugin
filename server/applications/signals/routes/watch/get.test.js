@@ -21,7 +21,7 @@ import {
   setupHttpResponseMock,
   setupClusterClientMock,
   setupContextMock,
-} from '../../../../mocks';
+} from '../../../../utils/mocks';
 import { NO_MULTITENANCY_TENANT } from '../../../../../common/signals/constants';
 
 describe('routes/watch/get', () => {
@@ -46,12 +46,12 @@ describe('routes/watch/get', () => {
     const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
 
     const request = {
-      params: { id: '123' },
+      params: { id: '123 45' },
       headers: {},
     };
     const expectedClusterCallOptions = {
       method: 'get',
-      path: `/_signals/watch/${NO_MULTITENANCY_TENANT}/${request.params.id}`,
+      path: `/_signals/watch/${NO_MULTITENANCY_TENANT}/${encodeURIComponent(request.params.id)}`,
     };
     const expectedResponse = { ...mockResponse.body._source, _id: 'id' };
 

@@ -21,7 +21,7 @@ import {
   setupHttpResponseMock,
   setupClusterClientMock,
   setupContextMock,
-} from '../../../../mocks';
+} from '../../../../utils/mocks';
 
 describe('routes/watch/ack', () => {
   test('ack watch and action', async () => {
@@ -38,14 +38,25 @@ describe('routes/watch/ack', () => {
       {
         expectedClusterCallOptions: {
           method: 'put',
-          path: '/_signals/watch/__user__/123/_ack',
+          path: '/_signals/watch/a%20user/123%2045/_ack',
         },
         expectedResponse: { status: 200 },
         request: {
           headers: {
-            sgtenant: '__user__',
+            sgtenant: 'a user',
           },
-          params: { watchId: '123' },
+          params: { watchId: '123 45' },
+        },
+      },
+      {
+        expectedClusterCallOptions: {
+          method: 'put',
+          path: '/_signals/watch/_main/123%2045/_ack',
+        },
+        expectedResponse: { status: 200 },
+        request: {
+          headers: {},
+          params: { watchId: '123 45' },
         },
       },
       {

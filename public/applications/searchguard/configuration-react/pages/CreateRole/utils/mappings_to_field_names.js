@@ -42,7 +42,7 @@ function getTypeFromField(mappings, field = '', dataTypes) {
   return dataTypes;
 }
 
-export default function mappingsToFieldNames(mappings = {}) {
+export function mappingsToFieldNames(mappings = {}) {
   const dataTypes = {};
 
   Object.entries(mappings)

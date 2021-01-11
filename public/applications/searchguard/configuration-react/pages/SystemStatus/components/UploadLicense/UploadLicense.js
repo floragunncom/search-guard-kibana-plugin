@@ -62,14 +62,15 @@ class UploadLicense extends Component {
   }
 
   componentWillUnmount = () => {
-    this.props.onTriggerCustomFlyout(null);
+    this.context.closeFlyout();
   };
 
   onSubmit = async ({ license }, { setSubmitting }) => {
-    const { onTriggerSuccessCallout, onTriggerErrorCallout, history } = this.props;
+    const { history } = this.props;
+    const { triggerSuccessCallout, triggerErrorCallout } = this.context;
     try {
       await this.context.httpClient.post(API.LICENSE, { sg_license: license });
-      onTriggerSuccessCallout(licenseWasUploadedSuccessfullyText);
+      triggerSuccessCallout(licenseWasUploadedSuccessfullyText);
       history.push({
         pathname: APP_PATH.SYSTEM_INFO,
         state: {
@@ -77,7 +78,7 @@ class UploadLicense extends Component {
         },
       });
     } catch (error) {
-      onTriggerErrorCallout(error);
+      triggerErrorCallout(error);
     }
     setSubmitting(false);
   };
@@ -93,7 +94,7 @@ class UploadLicense extends Component {
       this.setState({ initialValues: { license } });
       handleSubmit();
     } catch (error) {
-      this.props.onTriggerErrorCallout(licenseFileCantBeImportedText);
+      this.context.triggerErrorCallout(licenseFileCantBeImportedText);
     }
     this.setState({ isLoading: false });
   };
@@ -154,10 +155,6 @@ class UploadLicense extends Component {
 UploadLicense.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  httpClient: PropTypes.object.isRequired,
-  onTriggerErrorCallout: PropTypes.func.isRequired,
-  onTriggerSuccessCallout: PropTypes.func.isRequired,
-  onTriggerCustomFlyout: PropTypes.func.isRequired,
 };
 
 export default UploadLicense;

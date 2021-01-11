@@ -36,6 +36,7 @@ export function setupHttpRouterMock({ ensureRawRequest = () => jest.fn() } = {})
 export function setupSearchGuardBackendMock({
   authinfo = jest.fn(),
   validateTenant = jest.fn(),
+  hasPermissions = jest.fn(),
   getTenantByPreference = jest.fn(),
   authenticateWithHeader = jest.fn(),
   authenticateWithHeaders = jest.fn(),
@@ -46,6 +47,7 @@ export function setupSearchGuardBackendMock({
   return {
     authinfo,
     validateTenant,
+    hasPermissions,
     getTenantByPreference,
     authenticateWithHeader,
     authenticateWithHeaders,
@@ -97,10 +99,6 @@ export function setupSessionStorageFactoryMock({ asScoped = jest.fn() } = {}) {
   };
 }
 
-export function setupElasticsearchMock() {
-  return jest.fn();
-}
-
 export function setupPluginDependenciesMock() {
   return jest.fn();
 }
@@ -112,6 +110,8 @@ export function setupHttpResponseMock({
   notFound = jest.fn(),
   internalError = jest.fn(),
   renderAnonymousCoreApp = jest.fn(),
+  customError = jest.fn(),
+  badRequest = jest.fn(),
 } = {}) {
   return {
     ok,
@@ -120,6 +120,8 @@ export function setupHttpResponseMock({
     notFound,
     internalError,
     renderAnonymousCoreApp,
+    customError,
+    badRequest,
   };
 }
 
@@ -155,4 +157,38 @@ export function setupContextMock() {
 
 export function setupDebugLogMock() {
   return jest.fn();
+}
+
+export function setupClusterClientMock({
+  asCurrentUserTransportRequest = jest.fn(),
+  asCurrentUserScroll = jest.fn(),
+  asCurrentUserSearch = jest.fn(),
+  asCurrentUserDelete = jest.fn(),
+  asCurrentUserCatAliases = jest.fn(),
+  asCurrentUserCatIndices = jest.fn(),
+  asCurrentUserIndicesGetMapping = jest.fn(),
+} = {}) {
+  return {
+    asScoped: jest.fn(() => {
+      return {
+        asCurrentUser: {
+          transport: { request: asCurrentUserTransportRequest },
+          scroll: asCurrentUserScroll,
+          search: asCurrentUserSearch,
+          delete: asCurrentUserDelete,
+          cat: {
+            aliases: asCurrentUserCatAliases,
+            indices: asCurrentUserCatIndices,
+          },
+          indices: {
+            getMapping: asCurrentUserIndicesGetMapping,
+          },
+        },
+      };
+    }),
+  };
+}
+
+export function setupFetchAllFromScrollMock(mockFn = jest.fn()) {
+  return mockFn;
 }

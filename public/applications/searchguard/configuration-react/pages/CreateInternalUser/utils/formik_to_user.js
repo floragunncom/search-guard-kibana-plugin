@@ -25,12 +25,15 @@ const formikToUser = (userFormik) => {
       '_password',
       '_passwordConfirmation',
       '_changePassword',
+      '_searchGuardRoles',
       '_backendRoles',
       '_attributes',
       '_attributesString',
       '_isComplexUserAttributes',
+      '_isAdvanced',
       ...FIELDS_TO_OMIT_BEFORE_SAVE,
     ]),
+    search_guard_roles: comboBoxOptionsToArray(userFormik._searchGuardRoles),
     backend_roles: comboBoxOptionsToArray(userFormik._backendRoles),
   };
 

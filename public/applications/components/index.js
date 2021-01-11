@@ -6,6 +6,7 @@ export { default as Modal } from './Modal';
 export { default as Callout } from './Callout';
 export { default as Breadcrumbs } from './Breadcrumbs';
 export { CodeEditor } from './CodeEditor';
+export { ErrorToast } from './Toasts';
 
 // Formik wrappers
 export { default as FormikFormRow } from './FormControls/FormikFormRow';
@@ -22,6 +23,7 @@ export { default as FormikTextArea } from './FormControls/FormikTextArea';
 export { default as FormikRadio } from './FormControls/FormikRadio';
 
 // Table
+export { default as TableItemToListCell } from './Table/TableItemToListCell';
 export { default as TableItemsListCell } from './Table/TableItemsListCell';
 export { default as TableDeleteAction } from './Table/TableDeleteAction';
 export { default as TableCloneAction } from './Table/TableCloneAction';

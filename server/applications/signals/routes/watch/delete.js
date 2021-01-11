@@ -26,9 +26,11 @@ export function deleteWatch({ clusterClient, logger }) {
         headers: { sgtenant = NO_MULTITENANCY_TENANT },
       } = request;
 
+      const path = `/_signals/watch/${encodeURIComponent(sgtenant)}/${encodeURIComponent(id)}`;
+
       const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
         method: 'delete',
-        path: `/_signals/watch/${sgtenant}/${id}`,
+        path,
       });
 
       return response.ok({ body: { ok: true, resp } });

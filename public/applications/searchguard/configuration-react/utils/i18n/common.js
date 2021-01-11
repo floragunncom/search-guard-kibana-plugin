@@ -19,6 +19,10 @@ import { EuiI18n } from '@elastic/eui';
 
 export * from '../../../../utils/i18n/common';
 
+export const forbiddenCharsText = (
+  <EuiI18n token="sg.common.forbiddenChars.text" default="Forbidden characters: . *" />
+);
+
 export const indicesPermissionsPrefixErrorText = (
   <EuiI18n
     token="sg.roles.inicesPermissionsPrefixError.text"

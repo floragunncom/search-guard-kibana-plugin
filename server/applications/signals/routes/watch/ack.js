@@ -26,9 +26,9 @@ export function ackWatch({ clusterClient, logger }) {
         headers: { sgtenant = NO_MULTITENANCY_TENANT },
       } = request;
 
-      let path = `/_signals/watch/${sgtenant}/${watchId}/_ack`;
+      let path = `/_signals/watch/${encodeURIComponent(sgtenant)}/${encodeURIComponent(watchId)}/_ack`;
       if (actionId) {
-        path = `/_signals/watch/${sgtenant}/${watchId}/_ack/${actionId}`;
+        path = `/_signals/watch/${encodeURIComponent(sgtenant)}/${encodeURIComponent(watchId)}/_ack/${actionId}`;
       }
 
       const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.transport.request({

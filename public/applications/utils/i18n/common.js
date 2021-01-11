@@ -50,9 +50,6 @@ export const doYouReallyWantToDeleteText = (
 export const documentationText = (
   <EuiI18n token="sg.common.documentation.text" default="Documentation" />
 );
-export const validCharsForNameAreText = (
-  <EuiI18n token="sg.common.validCharsForNameAre.text" default="Valid characters for name are letter, number, space, underscore and dash" />
-);
 export const addText = (<EuiI18n token="sg.common.addText.text" default="Add" />);
 export const invalidJsonText = (<EuiI18n token="sg.common.invalidJson.text" default="Invalid JSON" />);
 export const successText = (<EuiI18n token="sg.common.success.text" default="Success" />);
@@ -84,9 +81,6 @@ export const reservedText = (<EuiI18n token="sg.common.reserved.text" default="R
 export const currentUserText = (<EuiI18n token="sg.common.currentUser.text" default="Current User" />);
 export const navigateText = (<EuiI18n token="sg.common.navigate.text" default="Navigate" />);
 export const disabledText = (<EuiI18n token="sg.common.disabled.text" default="Disabled" />);
-export const nameMustNotContainDotsText = (
-  <EuiI18n token="sg.internalUsers.nameMustNotContainDots.text" default="Name must not contain '.'" />
-);
 export const permissionsText = (<EuiI18n token="sg.common.permissions.text" default="Permissions" />);
 export const theOptionIsNotValidText = (<EuiI18n token="sg.common.theOptionIsNotValid.text" default="The option is not valid" />);
 export const advancedText = (<EuiI18n token="sg.common.advanced.text" default="Advanced" />);
@@ -109,4 +103,10 @@ export const usernameText = <EuiI18n token="sg.common.username.text" default="Us
 export const authtokenText = <EuiI18n token="sg.common.authtoken.text" default="Auth Token" />;
 export const integrationkeyText = (
   <EuiI18n token="sg.common.integrationkey.text" default="Integration Key" />
+);
+export const forbiddenCharactersText = (
+  <EuiI18n token="sg.roles.forbiddenCharacters.text" default="Forbidden characters" />
+);
+export const wrongDefinitionText = (
+  <EuiI18n token="sg.roles.wrongDefinition.text" default="Wrong definition" />
 );

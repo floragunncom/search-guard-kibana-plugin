@@ -21,7 +21,7 @@ import {
   setupHttpResponseMock,
   setupClusterClientMock,
   setupContextMock,
-} from '../../../../mocks';
+} from '../../../../utils/mocks';
 
 describe('routes/es/get_mappings', () => {
   test('get mappings', async () => {

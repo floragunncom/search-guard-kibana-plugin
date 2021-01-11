@@ -19,10 +19,11 @@ import { Context } from '../../Context';
 class DefineWatch extends Component {
   static contextType = Context;
 
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
 
-    const { location, httpClient } = this.props;
+    const { location } = this.props;
+    const { httpClient } = context;
     this.watchService = new WatchService(httpClient);
     const { id } = queryString.parse(location.search);
 
@@ -144,7 +145,7 @@ class DefineWatch extends Component {
 
   render() {
     const { initialValues, isEdit, isLoading } = this.state;
-    const { httpClient, location, onTriggerConfirmDeletionModal } = this.props;
+    const { location } = this.props;
 
     return (
       <EuiErrorBoundary>
@@ -181,12 +182,7 @@ class DefineWatch extends Component {
                 <EuiSpacer />
                 <FieldArray name="actions">
                   {(arrayHelpers) => (
-                    <ActionPanel
-                      isLoading={isLoading}
-                      httpClient={httpClient}
-                      arrayHelpers={arrayHelpers}
-                      onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
-                    />
+                    <ActionPanel isLoading={isLoading} arrayHelpers={arrayHelpers} />
                   )}
                 </FieldArray>
                 {isResolveActions && (
@@ -194,12 +190,7 @@ class DefineWatch extends Component {
                     <EuiSpacer />
                     <FieldArray name="resolve_actions">
                       {(arrayHelpers) => (
-                        <ResolveActionPanel
-                          isLoading={isLoading}
-                          httpClient={httpClient}
-                          arrayHelpers={arrayHelpers}
-                          onTriggerConfirmDeletionModal={onTriggerConfirmDeletionModal}
-                        />
+                        <ResolveActionPanel isLoading={isLoading} arrayHelpers={arrayHelpers} />
                       )}
                     </FieldArray>
                   </>
@@ -229,8 +220,6 @@ class DefineWatch extends Component {
 DefineWatch.propTypes = {
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
-  httpClient: PropTypes.object.isRequired,
-  onTriggerConfirmDeletionModal: PropTypes.func.isRequired,
 };
 
 export default DefineWatch;

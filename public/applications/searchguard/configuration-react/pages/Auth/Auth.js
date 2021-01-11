@@ -44,8 +44,8 @@ const AuthContent = ({ resource }) => (
 export class Auth extends Component {
   static contextType = Context;
 
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
 
     this.state = {
       resources: {},
@@ -54,7 +54,7 @@ export class Auth extends Component {
       isSideNavOpenOnMobile: false,
     };
 
-    this.backendService = new SgConfigService(this.props.httpClient);
+    this.backendService = new SgConfigService(context.httpClient);
   }
 
   componentDidMount() {
@@ -72,7 +72,7 @@ export class Auth extends Component {
         }),
       });
     } catch (error) {
-      this.props.onTriggerErrorCallout(error);
+      this.context.triggerErrorCallout(error);
     }
     this.setState({ isLoading: false });
   };
@@ -188,6 +188,4 @@ export class Auth extends Component {
 
 Auth.propTypes = {
   history: PropTypes.object.isRequired,
-  httpClient: PropTypes.object,
-  onTriggerErrorCallout: PropTypes.func.isRequired,
 };

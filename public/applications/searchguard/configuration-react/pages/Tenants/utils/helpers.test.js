@@ -13,17 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { getResourceEditUri } from './helpers';
 
-import { startCase } from 'lodash';
-import { arrayToComboBoxOptions } from '../../../../../../utils/helpers';
-
-export default function fieldNamesToUiFieldNames(fieldNames = {}) {
-  const result = [];
-  Object.entries(fieldNames).map(([dataType, fieldNames]) => {
-    result.push({
-      label: startCase(dataType),
-      options: arrayToComboBoxOptions(Array.from(fieldNames)),
-    });
+describe('Tenants/helpers', () => {
+  test('getResourceEditUri', () => {
+    expect(getResourceEditUri('a b')).toBe('/create-tenant?id=a%20b&action=update-tenant');
   });
-  return result;
-}
+});

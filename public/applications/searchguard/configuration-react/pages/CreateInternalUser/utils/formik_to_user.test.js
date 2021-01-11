@@ -20,6 +20,7 @@ describe('UI user to user', () => {
   test('can build user', () => {
     const resource = {
       password: 'abcde',
+      search_guard_roles: ['SGS_A', 'SGS_B'],
       backend_roles: ['a', 'b'],
       attributes: {
         a: 'b',
@@ -31,6 +32,7 @@ describe('UI user to user', () => {
     const uiResource = {
       reserved: false,
       hidden: false,
+      search_guard_roles: ['SGS_A', 'SGS_B'],
       backend_roles: ['b', 'a'],
       attributes: {
         a: 'b',
@@ -38,8 +40,10 @@ describe('UI user to user', () => {
       },
       description: 'Migrated from v6',
       static: false,
+      _isAdvanced: true,
       _username: 'admin',
       _password: 'abcde',
+      _searchGuardRoles: [{ label: 'SGS_A' }, { label: 'SGS_B' }],
       _backendRoles: [{ label: 'a' }, { label: 'b' }],
       _attributes: [
         {
@@ -60,6 +64,7 @@ describe('UI user to user', () => {
   test('can build user with complex attributes', () => {
     const resource = {
       password: 'abcde',
+      search_guard_roles: ['SGS_A', 'SGS_B'],
       backend_roles: ['a', 'b'],
       attributes: {
         a: 'b',
@@ -82,8 +87,10 @@ describe('UI user to user', () => {
       },
       description: 'Migrated from v6',
       static: false,
+      _isAdvanced: true,
       _username: 'admin',
       _password: 'abcde',
+      _searchGuardRoles: [{ label: 'SGS_A' }, { label: 'SGS_B' }],
       _backendRoles: [{ label: 'a' }, { label: 'b' }],
       _attributes: [
         {

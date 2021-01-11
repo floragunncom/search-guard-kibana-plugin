@@ -1,18 +1,17 @@
-/* eslint-disable @kbn/eslint/require-license-header */
-/**
+/*
  *    Copyright 2020 floragunn GmbH
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import React, { Component, Fragment } from 'react';
@@ -60,12 +59,12 @@ export class AccountInfoPage extends Component {
     const { httpClient } = this.context;
 
     httpClient.get(`${API_ROOT}/auth/authinfo`).then(
-      response => {
+      (response) => {
         this.setState({
           sgUser: response.data,
         });
       },
-      error => {
+      (error) => {
         addErrorToast(error);
       }
     );
@@ -95,7 +94,7 @@ export class AccountInfoPage extends Component {
                   <p>
                     {sgUser.sg_roles.length === 0
                       ? sgRolesEmpty
-                      : sgUser.sg_roles.map(role => (
+                      : sgUser.sg_roles.map((role) => (
                           <Fragment key={role}>
                             {role}
                             <br />
@@ -107,7 +106,7 @@ export class AccountInfoPage extends Component {
                   <p>
                     {sgUser.backend_roles.length === 0
                       ? backendRolesEmpty
-                      : sgUser.backend_roles.map(role => (
+                      : sgUser.backend_roles.map((role) => (
                           <Fragment key={role}>
                             {role}
                             <br />
