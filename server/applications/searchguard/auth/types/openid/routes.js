@@ -266,7 +266,6 @@ export function loginHandler({
         },
       });
     } catch (error) {
-      console.log('What the error', error);
       logger.error(`Error while trying to authenticate ${error.stack}`);
       // If we've come this far, we should have already logged an error
       let redirectTo = basePath + '/customerror?type=authError';

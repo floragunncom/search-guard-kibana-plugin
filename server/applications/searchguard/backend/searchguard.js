@@ -169,10 +169,17 @@ export default class SearchGuardBackend {
   }
 
   async getOIDCWellKnown() {
-    return await this._client({
-      path: '/_searchguard/auth_domain/_first/openid/config',
-      method: 'get',
-    });
+    try {
+      return await this._client({
+        path: '/_searchguard/auth_domain/_first/openid/config',
+        method: 'get',
+      });
+    } catch (error) {
+      if (error.statusCode === 401) {
+        throw new AuthenticationError(error.message, error);
+      }
+      throw error;
+    }
   }
 
   /**
@@ -182,11 +189,18 @@ export default class SearchGuardBackend {
    * @returns {Promise<*>}
    */
   async getOIDCToken({ tokenEndpoint, body }) {
-    return await this._client({
-      path: tokenEndpoint,
-      method: 'post',
-      body,
-    });
+    try {
+      return await this._client({
+        path: tokenEndpoint,
+        method: 'post',
+        body,
+      });
+    } catch (error) {
+      if (error.statusCode === 401) {
+        throw new AuthenticationError(error.message, error);
+      }
+      throw error;
+    }
   }
 
   async getSamlHeader() {
