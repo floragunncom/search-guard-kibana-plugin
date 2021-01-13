@@ -179,7 +179,7 @@ export class LoginPage extends Component {
               <EuiImage
                 data-test-subj="sg.login.brandImage"
                 alt="Brand image"
-                size="l"
+                size="fullWidth"
                 url={brandImage.startsWith('/plugins') ? basePath + brandImage : brandImage}
               />
             </div>
