@@ -15,7 +15,7 @@
  limitations under the License.
  */
 
-import { Signals, Multitenancy, SearchGuard } from './applications';
+import { Signals, Multitenancy, SearchGuard, AuthTokens } from './applications';
 
 export class ServerPlugin {
   constructor(initializerContext) {
@@ -24,6 +24,7 @@ export class ServerPlugin {
     this.signalsApp = new Signals(this.initContext);
     this.searchGuardApp = new SearchGuard(this.initContext);
     this.multiTenancyApp = new Multitenancy(this.initContext);
+    this.authTokensApp = new AuthTokens(this.initContext);
   }
 
   /*
@@ -86,6 +87,8 @@ export class ServerPlugin {
       kibanaRouter: this.kibanaRouter,
       searchguardBackendService: this.searchGuardBackend,
     });
+
+    this.authTokensApp.startSync({ core, kibanaRouter: this.kibanaRouter });
 
     const isMtEnabled = this.configService.get('searchguard.multitenancy.enabled');
     if (isMtEnabled) {

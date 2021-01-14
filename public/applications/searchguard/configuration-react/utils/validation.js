@@ -21,13 +21,10 @@ import {
   problemWithValidationTryAgainText,
   nameAlreadyExistsText,
   forbiddenCharsText,
-  jsonIsInvalidText,
   indicesPermissionsPrefixErrorText,
   clusterPermissionsPrefixErrorText,
   permissionsPrefixErrorText,
 } from './i18n/common';
-import { dlsQuerySyntaxIsInvalidText } from './i18n/roles';
-import { API } from './constants';
 
 export const validatePassword = (passwordConfirmation) => (password) => {
   if (!password) return requiredText;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { fetchAllFromScroll } from '../lib/fetch_all_from_scroll';
+import { fetchAllFromScroll } from '../lib';
 
 import { registerWatchesRoutes } from './watches';
 import { registerWatchRoutes } from './watch';

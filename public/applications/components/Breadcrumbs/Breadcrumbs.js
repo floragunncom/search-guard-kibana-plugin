@@ -88,6 +88,7 @@ class Breadcrumbs extends Component {
           responsive={false}
           truncate={true}
           className="sgBreadcrumbs"
+          data-test-subj="sgBreadcrumbs"
         />
       </EuiErrorBoundary>
     );

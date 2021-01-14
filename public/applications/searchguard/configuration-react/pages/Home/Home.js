@@ -132,15 +132,9 @@ const Home = ({ history, onPurgeCache, purgingCache }) => {
   ]);
 
   const renderCards = (cards) =>
-    cards.map((card, i) => (
+    cards.map(({ endpoint, ...props }, i) => (
       <EuiFlexItem key={i} grow={false} className="sgHomeMenu__card">
-        <EuiCard
-          data-test-subj={`sgHomeMenu-${card.endpoint.toLowerCase()}`}
-          icon={card.icon}
-          title={card.title}
-          description={card.description}
-          onClick={() => card.onClick()}
-        />
+        <EuiCard data-test-subj={`sgHomeMenu-${endpoint.toLowerCase()}`} {...props} />
       </EuiFlexItem>
     ));
 

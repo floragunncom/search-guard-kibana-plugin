@@ -30,5 +30,12 @@ export const MODALS = {
 
 export const CALLOUTS = {
   ERROR_CALLOUT: 'errorCallout',
+  WARNING_CALLOUT: 'warningCallout',
   SUCCESS_CALLOUT: 'successCallout',
+};
+
+export const DOC_LINKS = {
+  CREATE_SG_ATH_TOKENS:
+    'https://docs.search-guard.com/latest/search-guard-auth-tokens#configuring-the-search-guard-auth-token-service',
+  PERMISSIONS_AND_ACTION_GROUPS: 'https://docs.search-guard.com/latest/action-groups',
 };

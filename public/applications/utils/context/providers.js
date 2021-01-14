@@ -212,6 +212,13 @@ export function triggerErrorCalloutProvider({ error, setCallout }) {
   });
 }
 
+export function triggerWarningCalloutProvider({ payload, setCallout }) {
+  setCallout({
+    type: CALLOUTS.WARNING_CALLOUT,
+    payload,
+  });
+}
+
 export function triggerSuccessCalloutProvider({ payload, setCallout }) {
   setCallout({
     type: CALLOUTS.SUCCESS_CALLOUT,

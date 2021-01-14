@@ -5,7 +5,7 @@ import { Signals } from './applications/signals/Signals';
 import { SearchGuard } from './applications/searchguard';
 import { AccountInfo } from './applications/accountinfo';
 import { MultiTenancy } from './applications/multitenancy';
-
+import { AuthTokens } from './applications/authtokens';
 export class PublicPlugin {
   constructor(initializerContext) {
     this.initializerContext = initializerContext;
@@ -13,6 +13,7 @@ export class PublicPlugin {
     this.searchGuardApp = new SearchGuard(this.initializerContext);
     this.accountInfoApp = new AccountInfo(this.initializerContext);
     this.multiTenancyApp = new MultiTenancy(this.initializerContext);
+    this.authTokensApp = new AuthTokens(this.initializerContext);
   }
 
   /*
@@ -53,6 +54,12 @@ export class PublicPlugin {
       httpClient: this.httpClient,
       configService: this.configService,
     });
+
+    this.authTokensApp.setupSync({
+      core,
+      httpClient: this.httpClient,
+      configService: this.configService,
+    });
   }
 
   start(core) {
@@ -67,6 +74,7 @@ export class PublicPlugin {
 
       this.accountInfoApp.start({ configService: this.configService });
       this.multiTenancyApp.start({ configService: this.configService });
+      this.authTokensApp.start({ configService: this.configService });
     })();
 
     this.signalsApp.start({ httpClient: this.httpClient });

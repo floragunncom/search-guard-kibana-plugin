@@ -15,4 +15,4 @@
  */
 
 export { default as NotFoundError } from './not_found';
-export { wrapForCustomError } from './wrap_elasticsearch_error';
+export { wrapForCustomError } from '../../../../utils/wrap_elasticsearch_error';

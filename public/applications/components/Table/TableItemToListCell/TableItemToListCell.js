@@ -20,7 +20,7 @@ import PropTypes from 'prop-types';
 const TableItemToListCell = ({ item, name, splitByDelimiter = ',' }) => (
   <div data-test-subj={`sgTableCol-${name}`}>
     {item.split(splitByDelimiter).map((item, i) => (
-      <div key={i}>{item}</div>
+      <p key={i}>{item}</p>
     ))}
   </div>
 );

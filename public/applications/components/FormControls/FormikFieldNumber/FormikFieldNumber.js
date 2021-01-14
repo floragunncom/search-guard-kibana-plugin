@@ -39,13 +39,14 @@ const FieldNumber = ({
   name,
   form,
   field,
-  elementProps: { onChange, isInvalid, ...props }
+  elementProps: { onChange, onFocus, isInvalid, ...props }
 }) => (
   <EuiFieldNumber
     {...field}
     {...props}
     id={name}
     isInvalid={isInvalid instanceof Function ? isInvalid(name, form) : isInvalid}
+    onFocus={onFocus instanceof Function ? e => onFocus(e, field, form) : onFocus}
     onChange={e => (onChange instanceof Function ? onChange(e, field, form) : field.onChange(e))}
   />
 );
