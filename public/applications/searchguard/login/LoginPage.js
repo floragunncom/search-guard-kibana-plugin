@@ -15,7 +15,7 @@
  */
 
 import React, { Component, Fragment } from 'react';
-
+import dompurify from 'dompurify';
 import {
   EuiSpacer,
   EuiFieldText,
@@ -50,10 +50,10 @@ export class LoginPage extends Component {
 
     this.basicAuthConfig = configService.get('searchguard.basicauth');
     this.loginButtonStyles = stringCSSToReactStyle(
-      configService.get('basicauth.login.buttonstyle')
+      configService.get('searchguard.basicauth.login.buttonstyle')
     );
     this.alternativeLoginButtonStyles = stringCSSToReactStyle(
-      configService.get('basicauth.alternative_login.buttonstyle')
+      configService.get('searchguard.basicauth.alternative_login.buttonstyle')
     );
 
     // Custom styling
@@ -93,7 +93,7 @@ export class LoginPage extends Component {
           }
         });
       } catch (error) {
-        console.warn(error);
+        console.warn('LoginPage, getAlternativeLogin', error);
       }
 
       if (validRedirect) {
@@ -188,10 +188,16 @@ export class LoginPage extends Component {
           )}
 
           <EuiText textAlign="center" data-test-subj="sg.login.title">
-            <h2>{loginTitle}</h2>
+            <h2
+              // eslint-disable-next-line react/no-danger
+              dangerouslySetInnerHTML={{ __html: dompurify.sanitize(loginTitle) }}
+            />
           </EuiText>
           <EuiText textAlign="center" data-test-subj="sg.login.subTitle">
-            <p>{loginSubTitle}</p>
+            <p
+              // eslint-disable-next-line react/no-danger
+              dangerouslySetInnerHTML={{ __html: dompurify.sanitize(loginSubTitle) }}
+            />
           </EuiText>
 
           <LicenseWarningCallout configService={configService} />
