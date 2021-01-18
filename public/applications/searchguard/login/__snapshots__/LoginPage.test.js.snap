@@ -29,7 +29,7 @@ exports[`LoginPage can render the page with HTML in login title and subtitle 1`]
       <EuiImage
         alt="Brand image"
         data-test-subj="sg.login.brandImage"
-        size="l"
+        size="fullWidth"
         url="plugins/searchguard/assets/my_logo.png"
       />
     </div>
@@ -221,7 +221,7 @@ exports[`LoginPage can render the page with a license and the basicauth login de
       <EuiImage
         alt="Brand image"
         data-test-subj="sg.login.brandImage"
-        size="l"
+        size="fullWidth"
         url="plugins/searchguard/assets/searchguard_logo.svg"
       />
     </div>
