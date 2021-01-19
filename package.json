@@ -28,6 +28,7 @@
     "formik": "^2.1.7",
     "raw-loader": "^3.1.0",
     "react-vis": "^1.8.1",
+    "serialize-error": "^8.0.0",
     "wreck": "14.x.x"
   },
   "devDependencies": {

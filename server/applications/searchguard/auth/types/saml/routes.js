@@ -15,6 +15,7 @@
  limitations under the License.
  */
 
+import { serializeError } from 'serialize-error';
 import { sanitizeNextUrl } from '../../sanitize_next_url';
 import MissingTenantError from '../../errors/missing_tenant_error';
 import { customError as customErrorRoute } from '../common/routes';
@@ -91,7 +92,14 @@ export default function ({
 
         return response.redirected({ headers: { location: samlHeader.location } });
       } catch (error) {
-        logger.error(`SAML auth, fail to obtain the SAML header: ${error.stack}`);
+        if (authInstance.authDebugEnabled) {
+          logger.error(
+            `SAML auth, fail to obtain the SAML header: ${JSON.stringify(serializeError(error))}`
+          );
+        } else {
+          logger.error(`SAML auth, fail to obtain the SAML header: ${error.stack}`);
+        }
+
         return response.redirected({
           headers: { location: `${basePath}/customerror?type=samlConfigError` },
         });
