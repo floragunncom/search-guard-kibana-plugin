@@ -153,6 +153,7 @@ export default class OpenId extends AuthType {
         searchGuardBackend: this.searchGuardBackend,
       });
     } catch (error) {
+      console.log('Failed endpoints', error)
       this.logger.error(
         `Error when trying to retrieve the well-known endpoints from your IdP: ${error.stack}`
       );
