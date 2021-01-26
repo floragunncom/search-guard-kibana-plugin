@@ -8,7 +8,8 @@
       "security"
     ],
     "requiredPlugins": [
-      "home"
+      "home",
+      "securityOss"
     ],
     "configPath": ["searchguard"]
 }
