@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { stringify, parse } from 'querystring';
+import { stringify } from 'querystring';
 import { randomString } from 'cryptiles';
 import { sanitizeNextUrl } from '../../sanitize_next_url';
 import MissingTenantError from '../../errors/missing_tenant_error';
@@ -27,11 +27,10 @@ export function defineRoutes({
   kibanaCore,
   kibanaConfig,
   openIdEndPoints,
-  Wreck,
   logger,
   debugLog,
+  searchGuardBackend,
 }) {
-  // TODO: remove the server when OpenID fixed for NP.
   const config = kibanaConfig;
   const basePath = kibanaCore.http.basePath.serverBasePath;
   const httpResources = kibanaCore.http.resources;
@@ -69,8 +68,9 @@ export function defineRoutes({
     logger,
     scope,
     openIdEndPoints,
-    Wreck,
+    searchGuardBackend,
   });
+
   router.get(loginSettings, finalLoginHandler);
   router.post(loginSettings, finalLoginHandler);
 
@@ -181,7 +181,7 @@ export function loginHandler({
   clientSecret,
   scope,
   openIdEndPoints,
-  Wreck,
+  searchGuardBackend,
 }) {
   return async function (context, request, response) {
     const baseRedirectUrl = `${getBaseRedirectUrl({ kibanaCore, config })}${basePath}`;
@@ -245,8 +245,8 @@ export function loginHandler({
         clientSecret,
         authCode,
         redirectUri,
-        Wreck,
         openIdEndPoints,
+        searchGuardBackend,
       });
 
       // Authenticate with the token given to us by the IdP
@@ -346,8 +346,8 @@ async function handleIdTokenRequest({
   clientSecret,
   authCode,
   redirectUri,
-  Wreck,
   openIdEndPoints,
+  searchGuardBackend,
 }) {
   const query = {
     client_id: clientId,
@@ -357,32 +357,21 @@ async function handleIdTokenRequest({
     redirect_uri: redirectUri,
   };
 
-  // Get the necessary tokens from the IdP
-  let payload;
+  // Get the necessary token from the IdP
   try {
-    const authHeaderValue = Buffer.from(clientId + ':' + clientSecret, 'utf8').toString('base64');
-    const idpResponse = await Wreck.post(openIdEndPoints.token_endpoint, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: 'Basic ' + authHeaderValue,
-      },
-      payload: stringify(query),
+    const idpResponse = await searchGuardBackend.getOIDCToken({
+      tokenEndpoint: openIdEndPoints.token_endpoint,
+      // Only "application/x-www-form-urlencoded" possible
+      body: stringify(query),
     });
 
-    payload = idpResponse.payload.toString();
-    try {
-      payload = JSON.parse(payload);
-    } catch (error) {
-      payload = parse(payload);
+    if (!idpResponse.id_token) {
+      throw new Error('IdP response is missing the id_token');
     }
 
-    if (!payload.id_token) {
-      throw new Error('IdP payload is missing the id_token');
-    }
+    return idpResponse;
   } catch (error) {
     logger.error(`Error while retrieving the token from the IdP: ${error.stack}`);
     throw error;
   }
-
-  return payload;
 }
