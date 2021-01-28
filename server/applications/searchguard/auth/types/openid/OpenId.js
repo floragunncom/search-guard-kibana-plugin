@@ -136,7 +136,7 @@ export default class OpenId extends AuthType {
   async setupRoutes() {
     try {
       const oidcWellKnown = await this.searchGuardBackend.getOIDCWellKnown();
-
+      console.log('oidcWellKnown', oidcWellKnown)
       const endPoints = {
         authorization_endpoint: oidcWellKnown.authorization_endpoint,
         token_endpoint: oidcWellKnown.token_endpoint_proxy,
