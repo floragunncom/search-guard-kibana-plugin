@@ -22,10 +22,6 @@ import MissingRoleError from '../../errors/missing_role_error';
 import { defineRoutes } from './routes';
 import { stringify } from 'querystring';
 
-const Wreck = require('wreck');
-const https = require('https');
-const fs = require('fs');
-
 export default class OpenId extends AuthType {
   constructor({
     searchGuardBackend,
@@ -51,22 +47,6 @@ export default class OpenId extends AuthType {
      * @type {string}
      */
     this.type = 'openid';
-
-    // support for self signed certificates: root ca and verify hostname
-    const options = {};
-
-    if (this.config.get('searchguard.openid.root_ca')) {
-      options.ca = [fs.readFileSync(this.config.get('searchguard.openid.root_ca'))];
-    }
-
-    if (this.config.get('searchguard.openid.verify_hostnames') == false) {
-      // do not check identity
-      options.checkServerIdentity = function (host, cert) {};
-    }
-
-    if (options.ca || options.checkServerIdentity) {
-      Wreck.agents.https = new https.Agent(options);
-    }
 
     try {
       this.authHeaderName = this.config.get('searchguard.openid.header').toLowerCase();
@@ -155,14 +135,12 @@ export default class OpenId extends AuthType {
 
   async setupRoutes() {
     try {
-      const { payload } = await Wreck.get(this.config.get('searchguard.openid.connect_url'));
-
-      const parsedPayload = JSON.parse(payload.toString());
+      const oidcWellKnown = await this.searchGuardBackend.getOIDCWellKnown();
 
       const endPoints = {
-        authorization_endpoint: parsedPayload.authorization_endpoint,
-        token_endpoint: parsedPayload.token_endpoint,
-        end_session_endpoint: parsedPayload.end_session_endpoint || null,
+        authorization_endpoint: oidcWellKnown.authorization_endpoint,
+        token_endpoint: oidcWellKnown.token_endpoint_proxy,
+        end_session_endpoint: oidcWellKnown.end_session_endpoint || null,
       };
 
       defineRoutes({
@@ -172,12 +150,13 @@ export default class OpenId extends AuthType {
         logger: this.logger,
         openIdEndPoints: endPoints,
         debugLog: this.debugLog.bind(this),
-        Wreck,
+        searchGuardBackend: this.searchGuardBackend,
       });
     } catch (error) {
-      if (error || error.output.statusCode < 200 || error.output.statusCode > 299) {
-        throw new Error('Failed when trying to obtain the endpoints from your IdP');
-      }
+      this.logger.error(
+        `Error when trying to retrieve the well-known endpoints from your IdP: ${error.stack}`
+      );
+      throw new Error('Failed when trying to obtain the endpoints from your IdP');
     }
   }
 }

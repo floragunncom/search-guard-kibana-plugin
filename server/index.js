@@ -34,14 +34,17 @@ const {
 
 const getOpenIdSchema = (isSelectedAuthType) => {
   return schema.object({
-    connect_url: isSelectedAuthType ? schema.string() : schema.maybe(schema.string()),
     header: schema.string({ defaultValue: openidDefaults.header }),
     client_id: isSelectedAuthType ? schema.string() : schema.maybe(schema.string()),
     client_secret: schema.string({ defaultValue: openidDefaults.client_secret }),
     scope: schema.string({ defaultValue: openidDefaults.scope }),
     base_redirect_url: schema.string({ defaultValue: openidDefaults.base_redirect_url }),
     logout_url: schema.string({ defaultValue: openidDefaults.logout_url }),
+    /* @deprecated */
+    connect_url: schema.maybe(schema.string()),
+    /* @deprecated */
     root_ca: schema.string({ defaultValue: openidDefaults.root_ca }),
+    /* @deprecated */
     verify_hostnames: schema.boolean({ defaultValue: openidDefaults.verify_hostnames }),
   });
 };
@@ -250,6 +253,13 @@ export const config = {
     sgVersion: true,
   },
   schema: ConfigSchema,
+  deprecations: ({ unusedFromRoot }) => {
+    return [
+      unusedFromRoot('searchguard.openid.verify_hostnames'),
+      unusedFromRoot('searchguard.openid.root_ca'),
+      unusedFromRoot('searchguard.openid.connect_url'),
+    ];
+  },
 };
 
 export function plugin(initializerContext) {
