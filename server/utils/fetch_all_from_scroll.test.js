@@ -15,7 +15,7 @@
  */
 
 import { fetchAllFromScroll } from './fetch_all_from_scroll';
-import { setupClusterClientMock } from '../../../../utils/mocks';
+import { setupClusterClientMock } from './mocks';
 
 describe('fetch_all_from_scroll', () => {
   test('return empty array if no hits', async () => {

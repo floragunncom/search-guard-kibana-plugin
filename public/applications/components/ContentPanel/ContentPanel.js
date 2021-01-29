@@ -36,57 +36,43 @@ import {
   EuiFlexItem,
   EuiHorizontalRule,
   EuiTitle,
-  EuiPanel,
-  EuiTextColor,
+  EuiText,
   EuiErrorBoundary,
 } from '@elastic/eui';
-import LoadingPage from '../Page/LoadingPage';
+import { LoadingPage } from '../index';
 
-const handleRenderActions = actions =>
+const handleRenderActions = (actions) =>
   Array.isArray(actions) ? (
     actions.map((action, i) => <EuiFlexItem key={i}>{action}</EuiFlexItem>)
   ) : (
     <EuiFlexItem>{actions}</EuiFlexItem>
   );
 
-const handleRenderSecondTitle = (secondTitle, secondTitleProps) => (
-  <EuiFlexItem>
-    <EuiTitle size="s" {...secondTitleProps}>
-      <h4>
-        <EuiTextColor color="secondary">{secondTitle}</EuiTextColor>
-      </h4>
-    </EuiTitle>
-  </EuiFlexItem>
-);
-
 const ContentPanel = ({
-  isPanel,
   title,
-  secondTitle,
-  titleProps,
-  secondTitleProps,
-  horizontalRuleProps,
-  bodyStyles,
-  panelProps,
-  headerStyles,
+  description,
+  titleSize = 'm',
+  horizontalRuleMargin = 's',
+  bodyStyles = {},
+  panelStyles = {},
+  headerStyles = {},
   actions,
   children,
-  isLoading,
+  isLoading = false,
 }) => {
-  const body = (
-    <>
+  return (
+    <div style={{ ...panelStyles }} className="sgContentPanel">
       <EuiFlexGroup
-        style={{ padding: '0 1em', ...headerStyles }}
+        style={{ ...headerStyles }}
+        className="sgContentPanel__header"
         justifyContent="spaceBetween"
         alignItems="center"
       >
         <EuiFlexItem>
-          {title && (
-            <EuiTitle size="s" {...titleProps}>
-              <h2>{title}</h2>
-            </EuiTitle>
-          )}
-          {secondTitle && handleRenderSecondTitle(secondTitle, secondTitleProps)}
+          <EuiTitle size={titleSize}>
+            <h2>{title}</h2>
+          </EuiTitle>
+          {description && <EuiText>{description}</EuiText>}
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiFlexGroup justifyContent="spaceBetween" alignItems="center">
@@ -94,49 +80,32 @@ const ContentPanel = ({
           </EuiFlexGroup>
         </EuiFlexItem>
       </EuiFlexGroup>
-      <EuiHorizontalRule margin="s" {...horizontalRuleProps} />
-      {isLoading ? LoadingPage : <div style={{ padding: '0 1em', ...bodyStyles }}>{children}</div>}
-    </>
-  );
 
-  return (
-    <EuiErrorBoundary>
-      {isPanel ? (
-        <EuiPanel paddingSize="l" {...panelProps}>
-          {body}
-        </EuiPanel>
+      <EuiHorizontalRule margin={horizontalRuleMargin} />
+
+      {isLoading ? (
+        LoadingPage
       ) : (
-        <div>{body}</div>
+        <EuiErrorBoundary>
+          <div style={{ ...bodyStyles }} className="sgContentPanel__body">
+            {children}
+          </div>
+        </EuiErrorBoundary>
       )}
-    </EuiErrorBoundary>
+    </div>
   );
 };
 
 ContentPanel.propTypes = {
-  isPanel: PropTypes.bool,
-  title: PropTypes.oneOfType([PropTypes.node, PropTypes.string, PropTypes.null]),
-  titleProps: PropTypes.object,
-  secondTitle: PropTypes.oneOfType([PropTypes.node, PropTypes.string]),
-  secondTitleProps: PropTypes.object,
+  title: PropTypes.node,
+  description: PropTypes.oneOfType([PropTypes.node, PropTypes.string]),
+  titleSize: PropTypes.string,
   bodyStyles: PropTypes.object,
-  panelProps: PropTypes.object,
-  horizontalRuleProps: PropTypes.object,
+  panelStyles: PropTypes.object,
   headerStyles: PropTypes.object,
   actions: PropTypes.oneOfType([PropTypes.node, PropTypes.arrayOf([PropTypes.node])]),
   children: PropTypes.oneOfType([PropTypes.node, PropTypes.arrayOf([PropTypes.node])]).isRequired,
   isLoading: PropTypes.bool,
-};
-
-ContentPanel.defaultProps = {
-  isPanel: true,
-  title: null,
-  titleProps: {},
-  secondTitleProps: {},
-  horizontalRuleProps: {},
-  bodyStyles: {},
-  panelProps: {},
-  headerStyles: {},
-  isLoading: false,
 };
 
 export default ContentPanel;

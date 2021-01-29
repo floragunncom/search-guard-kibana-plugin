@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AuthTokens TableColumnDate with no value 1`] = `null`;
+
+exports[`AuthTokens TableColumnText 1`] = `
+<EuiText
+  color="default"
+  data-test-subj="tc-398uricjejkvh"
+  size="s"
+>
+  value
+</EuiText>
+`;
+
+exports[`AuthTokens TableColumnText for revoked token 1`] = `
+<EuiText
+  color="subdued"
+  data-test-subj="tc-398uricjejkvh"
+  size="s"
+>
+  value
+</EuiText>
+`;
+
+exports[`AuthTokens TableColumnTokenName 1`] = `
+<EuiLink
+  color="primary"
+  data-test-subj="sgTableCol-TokenName-398uricjejkvh"
+  onClick={[MockFunction]}
+>
+  aToken
+</EuiLink>
+`;
+
+exports[`AuthTokens TableColumnTokenName for revoked token 1`] = `
+<EuiLink
+  color="subdued"
+  data-test-subj="sgTableCol-TokenName-398uricjejkvh"
+  onClick={[MockFunction]}
+>
+  aToken
+</EuiLink>
+`;

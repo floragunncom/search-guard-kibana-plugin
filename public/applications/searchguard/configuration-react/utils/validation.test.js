@@ -15,7 +15,6 @@
  */
 
 import {
-  validateESDLSQuery,
   validatePassword,
   validateEmptyComboBox,
   validClusterSinglePermissionOption,
@@ -24,15 +23,12 @@ import {
   validateName,
 } from './validation';
 import {
-  jsonIsInvalidText,
   requiredText,
-  problemWithValidationTryAgainText,
   indicesPermissionsPrefixErrorText,
   clusterPermissionsPrefixErrorText,
   permissionsPrefixErrorText,
   forbiddenCharsText,
 } from './i18n/common';
-import { dlsQuerySyntaxIsInvalidText } from './i18n/roles';
 import { passwordsDontMatchText } from './i18n/internal_users';
 
 describe('validation', () => {

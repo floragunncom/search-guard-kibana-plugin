@@ -15,8 +15,8 @@
  */
 
 import { schema } from '@kbn/config-schema';
+import { wrapForCustomError } from '../../../../utils/wrap_elasticsearch_error';
 import { API_ROOT } from '../../../../utils/constants';
-import { wrapForCustomError } from '../../backend/errors/wrap_elasticsearch_error';
 
 export function getConfigResourcesByType({ searchGuardConfigurationBackend, logger }) {
   return async function (context, request, response) {

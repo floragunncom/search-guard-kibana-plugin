@@ -110,3 +110,6 @@ export const forbiddenCharactersText = (
 export const wrongDefinitionText = (
   <EuiI18n token="sg.roles.wrongDefinition.text" default="Wrong definition" />
 );
+export const forbiddenCharsText = (
+  <EuiI18n token="sg.common.forbiddenChars.text" default="Forbidden characters: . *" />
+);
