@@ -116,7 +116,7 @@ export default class OpenId extends AuthType {
       if (!isAJAX) {
         queryParamsObject.nextUrl = this.getNextUrl(request);
       }
-      redirectTo = `${this.basePath}/auth/openid/login`;
+      redirectTo = `${this.basePath}/auth/openid/encode`;
     }
 
     const queryParameterString = stringify(queryParamsObject);
@@ -125,7 +125,6 @@ export default class OpenId extends AuthType {
 
   onUnAuthenticated(request, response, toolkit, error) {
     const redirectTo = this.getRedirectTargetForUnauthenticated(request, error);
-
     return response.redirected({
       headers: {
         location: `${redirectTo}`,

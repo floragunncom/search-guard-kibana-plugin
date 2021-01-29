@@ -37,6 +37,53 @@ export function defineRoutes({
   const router = kibanaCore.http.createRouter();
   const routesPath = '/auth/openid/';
 
+  httpResources.register(
+    {
+      path: `${APP_ROOT}${routesPath}encode-js`,
+      options: { authRequired: false },
+      validate: false,
+    },
+    (context, request, response) => {
+      return response.renderJs({
+        body: `
+          const search = new URLSearchParams(window.location.search);
+          if (search.get('nextUrl')) {
+            search.set('nextUrl', encodeURIComponent(search.get('nextUrl') + window.location.hash));
+            window.location = "${APP_ROOT}${routesPath}login?" + search.toString()
+          } else {
+            window.location = "${APP_ROOT}${routesPath}login"
+          }
+          `,
+      });
+    }
+  );
+
+  // This path is there to render a JavaScript snippet that
+  // encodes the location.hash. Otherwise, everything behind
+  // the # symbol will get lost in the redirect flow.
+  // I would have preferred an inline script here, but it
+  // seems like Kibana's CSP block that.
+  // Hence the extra JS route above.
+  httpResources.register(
+    {
+      path: `${APP_ROOT}${routesPath}encode`,
+      options: { authRequired: false },
+      validate: false,
+    },
+    (context, request, response) => {
+      return response.renderHtml({
+        body: `
+          <html>
+            <head>
+            <script src="${APP_ROOT}${routesPath}encode-js"></script>
+            </head>
+            <body></body>
+          </html>
+          `,
+      });
+    }
+  );
+
   // OpenId config
   const clientId = config.get('searchguard.openid.client_id');
   const clientSecret = config.get('searchguard.openid.client_secret');
@@ -256,7 +303,7 @@ export function loginHandler({
 
       let redirectTo = '/app/home';
       if (cookieOpenId.query && cookieOpenId.query.nextUrl) {
-        redirectTo = sanitizeNextUrl(cookieOpenId.query.nextUrl, basePath);
+        redirectTo = sanitizeNextUrl(decodeURIComponent(cookieOpenId.query.nextUrl), basePath);
       }
 
       // All good, redirect to home
@@ -320,10 +367,10 @@ async function handleAuthRequest({
     nonce,
     query: request.url.query,
   };
+
   await sessionStorageFactory.asScoped(request).set(sessionCookie);
 
   const idpAuthLocation = openIdEndPoints.authorization_endpoint + '?' + stringify(query);
-
   return response.redirected({
     headers: {
       location: idpAuthLocation,
