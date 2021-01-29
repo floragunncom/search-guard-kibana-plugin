@@ -179,7 +179,7 @@ describe(AuthClass.name, () => {
     expect(sessionStorageFactory.asScoped).toHaveBeenCalledWith(request);
     expect(response.redirected).toHaveBeenCalledWith({
       headers: {
-        location: '/abc/auth/openid/login?nextUrl=%2Fabc%2F',
+        location: '/abc/auth/openid/encode?nextUrl=%2Fabc%2F',
       },
     });
   });
@@ -312,7 +312,7 @@ describe(AuthClass.name, () => {
     expect(sessionStorageFactorySet).toHaveBeenCalledWith(clearedSessionCookie);
     expect(response.redirected).toHaveBeenCalledWith({
       headers: {
-        location: '/abc/auth/openid/login?nextUrl=%2Fabc%2Fapp%2Fkibana',
+        location: '/abc/auth/openid/encode?nextUrl=%2Fabc%2Fapp%2Fkibana',
       },
     });
   });
