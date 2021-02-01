@@ -15,14 +15,20 @@
  */
 
 import React from 'react';
-import renderer from 'react-test-renderer';
+import ShallowRenderer from 'react-test-renderer/shallow';
 import { ErrorToast } from './ErrorToast';
 
 describe(ErrorToast.name, () => {
+  let renderer;
+
+  beforeEach(() => {
+    renderer = new ShallowRenderer();
+  });
+
   it('renders correctly', () => {
     const error = new Error('nasty!');
 
-    const tree = renderer.create(<ErrorToast error={error} />).toJSON();
+    const tree = renderer.render(<ErrorToast error={error} />);
     expect(tree).toMatchSnapshot();
   });
 
@@ -37,7 +43,7 @@ describe(ErrorToast.name, () => {
       },
     };
 
-    const tree = renderer.create(<ErrorToast error={error} />).toJSON();
+    const tree = renderer.render(<ErrorToast error={error} />);
     expect(tree).toMatchSnapshot();
   });
 
@@ -49,7 +55,7 @@ describe(ErrorToast.name, () => {
     b.next = a;
     error.body = { attributes: { body: { a } } };
 
-    const tree = renderer.create(<ErrorToast error={error} />).toJSON();
+    const tree = renderer.render(<ErrorToast error={error} />);
     expect(tree).toMatchSnapshot();
   });
 
@@ -65,9 +71,9 @@ describe(ErrorToast.name, () => {
       },
     };
 
-    const tree = renderer
-      .create(<ErrorToast error={error} errorMessage={errorMessage} errorDetails={errorDetails} />)
-      .toJSON();
+    const tree = renderer.render(
+      <ErrorToast error={error} errorMessage={errorMessage} errorDetails={errorDetails} />
+    );
     expect(tree).toMatchSnapshot();
   });
 });
