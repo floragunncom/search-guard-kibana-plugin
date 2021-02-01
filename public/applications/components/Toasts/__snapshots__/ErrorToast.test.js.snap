@@ -12,40 +12,29 @@ exports[`ErrorToast renders correctly if custom message and details 1`] = `
 <div
   id="sgErrorToast"
 >
-  <div
-    className="euiText euiText--small"
+  <EuiText
+    size="s"
   >
     <p>
       Super nasty!!!
     </p>
-  </div>
-  <div
-    className="euiSpacer euiSpacer--l"
-  />
-  <div
-    className="euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--justifyContentFlexEnd euiFlexGroup--directionRow euiFlexGroup--responsive"
+  </EuiText>
+  <EuiSpacer />
+  <EuiFlexGroup
+    justifyContent="flexEnd"
   >
-    <div
-      className="euiFlexItem euiFlexItem--flexGrowZero"
+    <EuiFlexItem
+      grow={false}
     >
-      <button
-        className="euiButton euiButton--danger euiButton--small"
-        disabled={false}
+      <EuiButton
+        color="danger"
         onClick={[Function]}
-        type="button"
+        size="s"
       >
-        <span
-          className="euiButtonContent euiButton__content"
-        >
-          <span
-            className="euiButton__text"
-          >
-            Details
-          </span>
-        </span>
-      </button>
-    </div>
-  </div>
+        Details
+      </EuiButton>
+    </EuiFlexItem>
+  </EuiFlexGroup>
 </div>
 `;
 
@@ -61,39 +50,28 @@ exports[`ErrorToast renders details correctly 1`] = `
 <div
   id="sgErrorToast"
 >
-  <div
-    className="euiText euiText--small"
+  <EuiText
+    size="s"
   >
     <p>
       nasty!
     </p>
-  </div>
-  <div
-    className="euiSpacer euiSpacer--l"
-  />
-  <div
-    className="euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--justifyContentFlexEnd euiFlexGroup--directionRow euiFlexGroup--responsive"
+  </EuiText>
+  <EuiSpacer />
+  <EuiFlexGroup
+    justifyContent="flexEnd"
   >
-    <div
-      className="euiFlexItem euiFlexItem--flexGrowZero"
+    <EuiFlexItem
+      grow={false}
     >
-      <button
-        className="euiButton euiButton--danger euiButton--small"
-        disabled={false}
+      <EuiButton
+        color="danger"
         onClick={[Function]}
-        type="button"
+        size="s"
       >
-        <span
-          className="euiButtonContent euiButton__content"
-        >
-          <span
-            className="euiButton__text"
-          >
-            Details
-          </span>
-        </span>
-      </button>
-    </div>
-  </div>
+        Details
+      </EuiButton>
+    </EuiFlexItem>
+  </EuiFlexGroup>
 </div>
 `;
