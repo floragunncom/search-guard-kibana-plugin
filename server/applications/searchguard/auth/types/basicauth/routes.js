@@ -77,6 +77,7 @@ export function loginAuthHandler({
   logger,
   searchGuardBackend,
   sessionStorageFactory,
+  authManager
 }) {
   return async function (context, request, response) {
     const username = request.body.username;
@@ -108,6 +109,7 @@ export function loginAuthHandler({
       const { user, session: sessionCookie } = await authInstance.handleAuthenticate(request, {
         authHeaderValue: 'Basic ' + authHeaderValue,
       });
+      authManager.setAuthInstance('basicauth', authInstance);
 
       // handle tenants if MT is enabled
       if (config.get('searchguard.multitenancy.enabled')) {
@@ -187,13 +189,16 @@ export function defineRoutes({
   kibanaConfig,
   sessionStorageFactory,
   logger,
+  authManager,
 }) {
   const config = kibanaConfig;
   const basePath = kibanaCore.http.basePath.serverBasePath;
   const httpResources = kibanaCore.http.resources;
   const router = kibanaCore.http.createRouter();
 
-  customErrorRoute({ httpResources });
+  // @todo PoC - Most auth types register this route.
+  // @todo Prevent routes from being registered multiple times.
+  //customErrorRoute({ httpResources });
 
   /**
    * The login page.
@@ -222,9 +227,12 @@ export function defineRoutes({
         authRequired: false,
       },
     },
-    loginAuthHandler({ config, authInstance, logger, searchGuardBackend, sessionStorageFactory })
+    loginAuthHandler({ config, authInstance, logger, searchGuardBackend, sessionStorageFactory, authManager })
   );
 
+  // @todo PoC - Most auth types register this route.
+  // @todo Prevent routes from being registered multiple times.
+  /*
   router.post(
     {
       path: `${API_ROOT}/auth/logout`,
@@ -232,6 +240,8 @@ export function defineRoutes({
     },
     logoutHandler({ authInstance })
   );
+
+   */
 
   router.get(
     {

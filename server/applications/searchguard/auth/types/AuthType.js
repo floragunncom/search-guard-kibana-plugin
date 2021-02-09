@@ -30,6 +30,7 @@ export default class AuthType {
     sessionStorageFactory,
     elasticsearch,
     pluginDependencies,
+    authManager
   }) {
     this.searchGuardBackend = searchGuardBackend;
     this.config = config;
@@ -38,6 +39,7 @@ export default class AuthType {
     this.sessionStorageFactory = sessionStorageFactory;
     this.elasticsearch = elasticsearch;
     this.pluginDependencies = pluginDependencies;
+    this.authManager = authManager;
 
     this.basePath = kibanaCore.http.basePath.get();
     this.unauthenticatedRoutes = this.config.get('searchguard.auth.unauthenticated_routes');

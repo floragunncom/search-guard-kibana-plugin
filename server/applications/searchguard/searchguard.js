@@ -4,7 +4,8 @@ import { registerRoutes } from './routes';
 import { readKibanaConfig } from './read_kibana_config';
 import { ConfigService } from '../../../common/config_service';
 import { Kerberos } from './auth/types';
-import { defineAuthInfoRoutes } from './auth/routes_authinfo';
+import { AuthManager } from './auth/AuthManager';
+import { defineAuthInfoRoutes, defineAuthRoutes } from './auth/routes_authinfo';
 import { defineSystemRoutes } from './system/routes';
 import { defineConfigurationRoutes } from './configuration/routes/routes';
 import SearchGuardBackend from './backend/searchguard';
@@ -63,6 +64,8 @@ export class SearchGuard {
       });
       checkCookieConfig({ configService: this.configService, logger: this.logger });
 
+      defineAuthRoutes({kibanaCore: core});
+
       // Inits the authInfo route
       defineAuthInfoRoutes({
         searchGuardBackend: this.searchGuardBackend,
@@ -104,6 +107,9 @@ export class SearchGuard {
       const authType = this.configService.get('searchguard.auth.type', null);
       let AuthClass = null;
       let authInstance = null;
+      const authManager = new AuthManager({
+        config: this.configService,
+      });
 
       // Proxy authentication is handled implicitly.
       if (
@@ -129,13 +135,17 @@ export class SearchGuard {
             );
           }
 
+          // @todo PoC, this needs to be configurable
+          const OpenId = require('./auth/types/openid/OpenId');
+          const BasicAuth = require('./auth/types/basicauth/BasicAuth');
+
           switch (authType) {
             case 'openid':
-              AuthClass = require('./auth/types/openid/OpenId');
+              //AuthClass = require('./auth/types/openid/OpenId');
               break;
 
             case 'basicauth':
-              AuthClass = require('./auth/types/basicauth/BasicAuth');
+              //AuthClass = require('./auth/types/basicauth/BasicAuth');
               break;
 
             case 'jwt':
@@ -151,9 +161,11 @@ export class SearchGuard {
               break;
           }
 
-          if (AuthClass) {
+
+          if (1 || AuthClass) {
             try {
               // Check that one of the auth types didn't already require an authInstance
+              /*
               if (!authInstance) {
                 authInstance = new AuthClass({
                   searchGuardBackend: this.searchGuardBackend,
@@ -167,6 +179,36 @@ export class SearchGuard {
               }
 
               await authInstance.init();
+
+               */
+
+
+
+              const openId = new OpenId({
+                searchGuardBackend: this.searchGuardBackend,
+                kibanaCore: core,
+                config: this.configService,
+                logger: this.coreContext.logger.get('searchguard-auth'),
+                sessionStorageFactory,
+                elasticsearch,
+                pluginDependencies,
+                authManager
+              });
+
+              openId.init();
+
+              const basicAuth = new BasicAuth({
+                searchGuardBackend: this.searchGuardBackend,
+                kibanaCore: core,
+                config: this.configService,
+                logger: this.coreContext.logger.get('searchguard-auth'),
+                sessionStorageFactory,
+                elasticsearch,
+                pluginDependencies,
+                authManager
+              });
+
+              basicAuth.init();
               this.logger.info('Search Guard session management enabled.');
             } catch (error) {
               this.logger.error(`An error occurred while enabling session management: ${error}`);
@@ -210,9 +252,10 @@ export class SearchGuard {
 
       this.logger.info('Search Guard system routes registered.');
 
-      if (authInstance) {
-        core.http.registerAuth(authInstance.checkAuth);
-      }
+      //if (authInstance) {
+
+        core.http.registerAuth(authManager.checkAuth);
+      //}
 
       // Handle Kerberos separately because we don't want to bring up entire jungle from AuthType here.
       if (authType === 'kerberos') {

@@ -30,6 +30,7 @@ export function defineRoutes({
   logger,
   debugLog,
   searchGuardBackend,
+  authManager
 }) {
   const config = kibanaConfig;
   const basePath = kibanaCore.http.basePath.serverBasePath;
@@ -64,6 +65,7 @@ export function defineRoutes({
   // I would have preferred an inline script here, but it
   // seems like Kibana's CSP block that.
   // Hence the extra JS route above.
+  console.log('---------- Registering route?', `${APP_ROOT}${routesPath}encode`);
   httpResources.register(
     {
       path: `${APP_ROOT}${routesPath}encode`,
@@ -116,6 +118,7 @@ export function defineRoutes({
     scope,
     openIdEndPoints,
     searchGuardBackend,
+    authManager
   });
 
   router.get(loginSettings, finalLoginHandler);
@@ -229,6 +232,7 @@ export function loginHandler({
   scope,
   openIdEndPoints,
   searchGuardBackend,
+  authManager
 }) {
   return async function (context, request, response) {
     const baseRedirectUrl = `${getBaseRedirectUrl({ kibanaCore, config })}${basePath}`;
@@ -300,6 +304,8 @@ export function loginHandler({
       await authInstance.handleAuthenticate(request, {
         authHeaderValue: 'Bearer ' + idpPayload.id_token,
       });
+
+      authManager.setAuthInstance('openid', authInstance)
 
       let redirectTo = '/app/home';
       if (cookieOpenId.query && cookieOpenId.query.nextUrl) {

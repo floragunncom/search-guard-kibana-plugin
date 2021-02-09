@@ -31,6 +31,7 @@ export default class BasicAuth extends AuthType {
     sessionStorageFactory,
     elasticsearch,
     pluginDependencies,
+    authManager,
   }) {
     super({
       searchGuardBackend,
@@ -40,6 +41,7 @@ export default class BasicAuth extends AuthType {
       sessionStorageFactory,
       elasticsearch,
       pluginDependencies,
+      authManager
     });
 
     /**
@@ -229,6 +231,7 @@ export default class BasicAuth extends AuthType {
       kibanaConfig: this.config,
       sessionStorageFactory: this.sessionStorageFactory,
       logger: this.logger,
+      authManager: this.authManager,
     });
   }
 }

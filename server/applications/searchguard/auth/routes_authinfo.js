@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { API_ROOT } from '../../../utils/constants';
+import { API_ROOT, APP_ROOT } from '../../../utils/constants';
 
 export function authInfoHandler({ searchGuardBackend, logger }) {
   return async function (context, request, response) {
@@ -29,6 +29,38 @@ export function authInfoHandler({ searchGuardBackend, logger }) {
       return response.internalError({ body: error });
     }
   };
+}
+
+// @todo PoC - This is the route to the auth type selector page
+// This route does not belong in this file
+export function defineAuthRoutes({ kibanaCore }) {
+  const httpResources = kibanaCore.http.resources;
+
+  httpResources.register(
+    {
+      // @todo Correct path APPROOT
+      path: `/auth`,
+      options: { authRequired: false },
+      validate: false,
+    },
+    (context, request, response) => {
+      return response.renderHtml({
+        body: `
+          <html>
+            <head>
+
+            </head>
+            <body>
+                <ul>
+                    <li><a href="/login">Basic auth</a></li>
+                    <li><a href="/auth/openid/login">OpenId</a></li>
+                </ul>
+            </body>
+          </html>
+          `,
+      });
+    }
+  );
 }
 
 export function defineAuthInfoRoutes({ searchGuardBackend, kibanaCore, logger }) {

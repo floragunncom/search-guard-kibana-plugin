@@ -31,6 +31,7 @@ export default class OpenId extends AuthType {
     sessionStorageFactory,
     elasticsearch,
     pluginDependencies,
+    authManager,
   }) {
     super({
       searchGuardBackend,
@@ -40,6 +41,7 @@ export default class OpenId extends AuthType {
       sessionStorageFactory,
       elasticsearch,
       pluginDependencies,
+      authManager
     });
 
     /**
@@ -150,6 +152,7 @@ export default class OpenId extends AuthType {
         openIdEndPoints: endPoints,
         debugLog: this.debugLog.bind(this),
         searchGuardBackend: this.searchGuardBackend,
+        authManager: this.authManager,
       });
     } catch (error) {
       this.logger.error(
