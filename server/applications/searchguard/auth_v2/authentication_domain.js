@@ -161,21 +161,26 @@ export class AuthenticationDomain {
   async checkAuth(request, response, toolkit) {
     try {
       let authcState = await this.sessionStorage.get();
+      // TODO: do not expose credentials
+      this.logger.debug(`Pre authenticate authcState ${JSON.stringify(authcState, null, 2)}`);
+
       authcState = await this.authenticate(request.headers, authcState);
+      // TODO: do not expose credentials
+      this.logger.debug(`Post authenticate authcState ${JSON.stringify(authcState, null, 2)}`);
 
       if (authcState.isOk) {
         return toolkit.authenticated({ requestHeaders: authcState.requestHeaders });
       } else if (authcState.isRedirected) {
         return toolkit.redirected({ headers: authcState.headers });
       } else if (authcState.isUnauthorized) {
+        this.logger.error(`Unauthorized, ${authcState.body.message}`);
         return response.unauthorized({ headers: authcState.headers, body: authcState.body });
-      } else {
-        return toolkit.notHandled();
       }
     } catch (error) {
       this.logger(`Fail to verify session, ${error}`);
     }
 
+    this.logger.error('Not handled');
     return toolkit.notHandled();
   }
 }
