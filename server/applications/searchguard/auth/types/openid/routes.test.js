@@ -63,6 +63,10 @@ describe(`${AuthClass.name} routes`, () => {
           'http://keycloak.example.com:8080/auth/realms/master/protocol/openid-connect/logout',
       };
 
+      const searchGuardBackend = setupSearchGuardBackendMock({
+        getOIDCWellKnown: jest.fn().mockReturnValue(openIdEndPoints),
+      });
+
       const request = { a: 1 };
 
       const expectedSessionCookie = {
@@ -90,6 +94,7 @@ describe(`${AuthClass.name} routes`, () => {
       authInstance.sessionStorageFactory = sessionStorageFactory;
 
       await logoutHandler({
+        searchGuardBackend,
         kibanaCore,
         config,
         authInstance,
@@ -98,6 +103,7 @@ describe(`${AuthClass.name} routes`, () => {
         logger,
       })(context, cloneDeep(request), response);
 
+      expect(searchGuardBackend.getOIDCWellKnown).toHaveBeenCalledTimes(1);
       expect(authInstance.clear).toHaveBeenCalledWith(request);
       expect(response.ok).toHaveBeenCalledWith({
         body: {
@@ -148,6 +154,10 @@ describe(`${AuthClass.name} routes`, () => {
           'http://keycloak.example.com:8080/auth/realms/master/protocol/openid-connect/logout',
       };
 
+      const searchGuardBackend = setupSearchGuardBackendMock({
+        getOIDCWellKnown: jest.fn().mockReturnValue(openIdEndPoints),
+      });
+
       const request = {
         headers: {},
         body: {},
@@ -180,9 +190,10 @@ describe(`${AuthClass.name} routes`, () => {
         clientId,
         clientSecret,
         scope,
-        openIdEndPoints,
+        searchGuardBackend
       })(context, cloneDeep(request), response);
 
+      expect(searchGuardBackend.getOIDCWellKnown).toHaveBeenCalledTimes(1);
       expect(getServerInfo).toHaveBeenCalledTimes(1);
       expect(sessionStorageFactory.asScoped).toHaveBeenCalledWith(request);
       expect(sessionStorageFactoryGet).toHaveBeenCalledTimes(1);
@@ -226,7 +237,7 @@ describe(`${AuthClass.name} routes`, () => {
       const openIdEndPoints = {
         authorization_endpoint:
           'http://keycloak.example.com:8080/auth/realms/master/protocol/openid-connect/auth',
-        token_endpoint:
+        token_endpoint_proxy:
           'http://keycloak.example.com:8080/auth/realms/master/protocol/openid-connect/token',
         end_session_endpoint:
           'http://keycloak.example.com:8080/auth/realms/master/protocol/openid-connect/logout',
@@ -290,6 +301,7 @@ describe(`${AuthClass.name} routes`, () => {
 
       const searchGuardBackend = setupSearchGuardBackendMock({
         getOIDCToken: jest.fn().mockReturnValue(idpPayload),
+        getOIDCWellKnown: jest.fn().mockReturnValue(openIdEndPoints),
       });
 
       await loginHandler({
@@ -303,7 +315,6 @@ describe(`${AuthClass.name} routes`, () => {
         clientId,
         clientSecret,
         scope,
-        openIdEndPoints,
         searchGuardBackend,
       })(context, cloneDeep(request), response);
 
@@ -315,8 +326,10 @@ describe(`${AuthClass.name} routes`, () => {
       delete clearSessionCookie.openId;
       expect(sessionStorageFactorySet).toHaveBeenCalledWith(clearSessionCookie);
 
+      expect(searchGuardBackend.getOIDCWellKnown).toHaveBeenCalledTimes(1);
+
       expect(searchGuardBackend.getOIDCToken).toHaveBeenCalledWith({
-        tokenEndpoint: openIdEndPoints.token_endpoint,
+        tokenEndpoint: openIdEndPoints.token_endpoint_proxy,
         body: bodyForTokenRequest,
       });
 
@@ -380,7 +393,7 @@ describe(`${AuthClass.name} routes`, () => {
         openIdEndPoints = {
           authorization_endpoint:
             'http://keycloak.example.com:8080/auth/realms/master/protocol/openid-connect/auth',
-          token_endpoint:
+          token_endpoint_proxy:
             'http://keycloak.example.com:8080/auth/realms/master/protocol/openid-connect/token',
           end_session_endpoint:
             'http://keycloak.example.com:8080/auth/realms/master/protocol/openid-connect/logout',
@@ -423,6 +436,7 @@ describe(`${AuthClass.name} routes`, () => {
         };
 
         searchGuardBackend = setupSearchGuardBackendMock({
+          getOIDCWellKnown: jest.fn().mockReturnValue(openIdEndPoints),
           getOIDCToken: jest.fn().mockReturnValue(idpPayload),
         });
 
@@ -453,7 +467,6 @@ describe(`${AuthClass.name} routes`, () => {
           clientId,
           clientSecret,
           scope,
-          openIdEndPoints,
           searchGuardBackend,
         })(context, request, response);
 
@@ -483,7 +496,6 @@ describe(`${AuthClass.name} routes`, () => {
           clientId,
           clientSecret,
           scope,
-          openIdEndPoints,
           searchGuardBackend,
         })(context, cloneDeep(request), response);
 
@@ -513,7 +525,7 @@ describe(`${AuthClass.name} routes`, () => {
           clientId,
           clientSecret,
           scope,
-          openIdEndPoints,
+          searchGuardBackend,
         })(context, cloneDeep(request), response);
 
         expect(response.redirected).toHaveBeenCalledWith({
