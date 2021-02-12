@@ -10,6 +10,10 @@ This plugin for Kibana adds session management and true multi-tenancy to a [Sear
 
 For Kibana 7.x and 6.x it also provides a configuration GUI for Search Guard.
 
+## Commercial use
+
+This software is licensed under the Apache2 license and can be used freely also for commercial purposes. Some features may require the [Search Guard Enterprise Edition](https://search-guard.com/licensing/) or above to function.
+
 ## Installation
 
 Download the release matching your Kibana installation, and install it like any other Kibana plugin:
@@ -18,7 +22,37 @@ Download the release matching your Kibana installation, and install it like any 
 bin/kibana-plugin install file:///path/to/searchguard-kibana-<version>.zip
 ```
 
-**For multi-tenancy, you also need to install the [Search Guard multi-tenancy module](https://github.com/floragunncom/search-guard-module-kibana-multitenancy) in addition to this plugin!**
+## Configuration
+
+Execute the install_demo_configuration script to configure the Search Guard Kibana plugin with a demo configuration and create a self-signed TLS certificate. Afterward, make sure you configured the Search Guard Elasticsearch plugin accordingly. [Check the documentation](https://docs.search-guard.com/latest/authentication-authorization).
+
+```
+  ____                                 _          ____                              _ 
+ / ___|    ___    __ _   _ __    ___  | |__      / ___|  _   _    __ _   _ __    __| |
+ \___ \   / _ \  / _` | | '__|  / __| | '_ \    | |  _  | | | |  / _` | | '__|  / _` |
+  ___) | |  __/ | (_| | | |    | (__  | | | |   | |_| | | |_| | | (_| | | |    | (_| |
+ |____/   \___|  \__,_| |_|     \___| |_| |_|    \____|  \__,_|  \__,_| |_|     \__,_|
+                                                                                      
+? What do you want to configure? (Use arrow keys)
+❯ Basic Login demo 
+  OpenID Connect demo 
+  JWT demo 
+  SAML demo 
+  Proxy demo 
+  Kerberos demo 
+```
+
+### Linux
+```
+cd kibana/plugins/searchguard
+./install_demo_configuration.sh
+```
+
+### Windows
+```
+cd kibana\plugins\searchguard
+powershell -ExecutionPolicy Bypass -File install_demo_configuration.ps1
+```
 
 ## Documentation
 
@@ -38,10 +72,6 @@ bin/kibana-plugin install file:///path/to/searchguard-kibana-<version>.zip
 * [Installation](http://docs.search-guard.com/v5/kibana-plugin-installation)
 * [Authentication](http://docs.search-guard.com/v5/kibana-authentication)
 * [Multi Tenancy](http://docs.search-guard.com/v5/kibana-multi-tenancy)
-
-## Commercial use
-
-This software is licensed under the Apache2 license and can be used freely also for commercial purposes. Some features may require the Search Guard Enterprise Edition or above to function.
 
 ## Development
 
