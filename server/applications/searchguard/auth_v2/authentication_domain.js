@@ -140,7 +140,7 @@ export class AuthenticationDomain {
     this.logger = logger;
   }
 
-  login(request, authcMethod) {
+  login(authcHeaders, authcMethod) {
     if (!authDomains.has(authcMethod.method)) {
       return new UnauthorizedState(authcMethod, {
         body: {
@@ -149,10 +149,10 @@ export class AuthenticationDomain {
       });
     }
 
-    return authDomains[authcMethod.method].login(request, authcMethod);
+    return authDomains[authcMethod.method].login(authcHeaders, authcMethod);
   }
 
-  logout(request, authcMethod) {
+  logout(authcHeaders, authcMethod) {
     if (!authDomains.has(authcMethod.method)) {
       return new RedirectedState(authcMethod, {
         body: {
@@ -161,7 +161,7 @@ export class AuthenticationDomain {
       });
     }
 
-    return authDomains[authcMethod.method].logout(request, authcMethod);
+    return authDomains[authcMethod.method].logout(authcHeaders, authcMethod);
   }
 
   authenticate(authcHeaders, authcState) {
