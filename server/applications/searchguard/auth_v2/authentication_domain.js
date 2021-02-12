@@ -19,10 +19,11 @@ The goals of the new authc design
 1. Consolidate the authc code
 2. Consolidate the unit test
 3. Pass less arguments
-4. Mock less in the unit tests
-5. Decrease side effects by prefering composition over inheritence
-6. Abstract the authc domain selection and have more control by handling all auth modes explicitely
-7. Uniform error handling and log
+4. Dependency inversion
+5. Mock less in the unit tests
+6. Decrease side effects by prefering composition over inheritence
+7. Abstract the authc domain selection and have more control by handling all auth modes explicitely
+8. Uniform error handling and log
 
 Design patterns that was used
 1. OOP
@@ -141,7 +142,7 @@ export class AuthenticationDomain {
 
   login(request, authcMethod) {
     if (!authDomains.has(authcMethod.method)) {
-      return new RedirectedState(authcMethod, {
+      return new UnauthorizedState(authcMethod, {
         body: {
           message: `Unrecognized authentication domain "${authcMethod.method}"`,
         },
