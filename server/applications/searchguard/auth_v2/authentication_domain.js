@@ -23,7 +23,11 @@ The goals of the new authc design
 5. Decrease side effects by prefering composition over inheritence
 6. Abstract the authc domain selection and have more control by handling all auth modes explicitely
 7. Uniform error handling and log
-8. Finite-state machine
+
+Design patterns that was used
+1. OOP
+2. Factory pattern
+3. Finite-state machine
 https://en.wikipedia.org/wiki/Finite-state_machine
 https://dev.to/lifelongthinker/the-state-pattern-exemplified-4cbe
 */
