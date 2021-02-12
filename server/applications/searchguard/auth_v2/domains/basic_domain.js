@@ -18,15 +18,14 @@ import { SessionBasedDomain } from './session_based_domain';
 import { OkState, RedirectedState, UnauthorizedState } from '../authentication_domain';
 
 export class BasicDomain extends SessionBasedDomain {
-  async login(request, authcMethod) {
-    console.log(request, authcMethod);
+  async login(authcHeaders, authcMethod) {
+    console.log(authcHeaders, authcMethod);
 
     const cookie = await this.sessionStorage.get();
     const authcState = new UnauthorizedState(cookie, authcMethod);
 
     try {
-      await super.authenticate(request.headers);
-      return new OkState(authcState);
+      return await this.authenticate(authcHeaders, authcState);
     } catch (error) {
       return new UnauthorizedState(authcState);
     }

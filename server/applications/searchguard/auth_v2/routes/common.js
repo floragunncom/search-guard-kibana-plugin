@@ -39,7 +39,7 @@ export function defineCommonRoutes({ authcDomain, kibanaCore, logger }) {
 export function loginAuthHandler({ logger, authcDomain }) {
   return async function (context, request, response) {
     try {
-      const authcState = await authcDomain.login(request, request.body.authMeta);
+      const authcState = await authcDomain.login(request.headers, request.body.authMeta);
 
       logger.debug(
         debugStateMessage({
