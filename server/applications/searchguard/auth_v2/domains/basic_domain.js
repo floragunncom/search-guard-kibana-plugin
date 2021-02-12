@@ -25,12 +25,15 @@ export class BasicDomain extends SessionBasedDomain {
     let authcState = new UnauthorizedState(cookie, authcMethod);
 
     authcState = await this.authenticate(authcHeaders, authcState);
-    // We don't redirect on the Login page if we are on the Login page
+
+    // In BasicDomain we don't redirect to the Login page if we are on the Login page
     if (authcState.isRedirected) {
       return new UnauthorizedState(authcState, {
-        headers: {},
+        headers: {}, // Must clean headers.location
         body: { message: 'Wrong credentials' },
       });
+    } else {
+      return authcState;
     }
   }
 
