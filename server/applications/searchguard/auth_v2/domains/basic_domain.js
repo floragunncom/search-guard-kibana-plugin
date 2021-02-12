@@ -22,12 +22,15 @@ export class BasicDomain extends SessionBasedDomain {
     console.log(authcHeaders, authcMethod);
 
     const cookie = await this.sessionStorage.get();
-    const authcState = new UnauthorizedState(cookie, authcMethod);
+    let authcState = new UnauthorizedState(cookie, authcMethod);
 
-    try {
-      return await this.authenticate(authcHeaders, authcState);
-    } catch (error) {
-      return new UnauthorizedState(authcState);
+    authcState = await this.authenticate(authcHeaders, authcState);
+    // We don't redirect on the Login page if we are on the Login page
+    if (authcState.isRedirected) {
+      return new UnauthorizedState(authcState, {
+        headers: {},
+        body: { message: 'Wrong credentials' },
+      });
     }
   }
 
@@ -48,6 +51,7 @@ export class BasicDomain extends SessionBasedDomain {
 
       return new OkState(authcHeaders);
     } catch (error) {
+      // TODO: renew token
       return new RedirectedState(authcState, {
         headers: {
           location: '/login',
