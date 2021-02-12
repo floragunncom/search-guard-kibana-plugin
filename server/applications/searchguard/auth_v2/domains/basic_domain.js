@@ -15,21 +15,21 @@
  */
 
 import { SessionBasedDomain } from './session_based_domain';
-import { redirectedState, okState } from '../authentication_domain';
+import { RedirectedState, OkState } from '../authentication_domain';
 
 export class BasicDomain extends SessionBasedDomain {
   async login(request, authcMethod) {
     console.log(request, authcMethod);
     const authcState = await this.sessionStorage.get();
 
-    return okState(authcState);
+    return new OkState(authcState);
   }
 
   async logout(request, authcMethod) {
     console.log(request, authcMethod);
 
     const authcState = {};
-    return redirectedState(authcState, {
+    return new RedirectedState(authcState, {
       headers: {
         location: '/api/v2/_searchguard/auth/login',
       },
@@ -40,9 +40,9 @@ export class BasicDomain extends SessionBasedDomain {
     try {
       await super.authenticate(authcHeaders);
 
-      okState(authcHeaders);
+      return new OkState(authcHeaders);
     } catch (error) {
-      return redirectedState(authcState, {
+      return new RedirectedState(authcState, {
         headers: {
           location: '/api/v2/_searchguard/auth/login',
         },

@@ -15,16 +15,16 @@
  */
 
 import { Domain } from './domain';
-import { unauthorizedState, okState } from '../authentication_domain';
+import { UnauthorizedState, OkState } from '../authentication_domain';
 
 export class ProxyDomain extends Domain {
   async authenticate(authcHeaders, authcState) {
     try {
       await super.authenticate(authcHeaders);
 
-      return okState(authcState);
+      return new OkState(authcState);
     } catch (error) {
-      return unauthorizedState(authcState, {
+      return new UnauthorizedState(authcState, {
         headers: {
           ['Proxy-Authenticate']: 'Basic realm="Authorization Required"',
         },

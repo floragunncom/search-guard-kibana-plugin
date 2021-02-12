@@ -17,17 +17,18 @@
 /*
 The goals of the new authc design
 1. Consolidate the authc code
-2. Consolidate the unit tests
+2. Consolidate the unit test
 3. Pass less arguments
 4. Mock less in the unit tests
 5. Decrease side effects by prefering composition over inheritence
 6. Abstract the authc domain selection and have more control by handling all auth modes explicitely
-7. Finite-state machine
+7. Uniform error handling and log
+8. Finite-state machine
 https://en.wikipedia.org/wiki/Finite-state_machine
 https://dev.to/lifelongthinker/the-state-pattern-exemplified-4cbe
 */
 
-import { cloneDeep } from 'lodash';
+import { cloneDeep, get } from 'lodash';
 import { BasicDomain, BasicauthDomain, KerberosDomain, ProxyDomain } from './domains';
 
 const AUTH_DOMAINS = {
@@ -58,52 +59,73 @@ export function isProxyAuth(authcHeaders) {
   );
 }
 
-// It will be a class in TypeScript
-export function unauthorizedState(state, args = {}) {
-  return {
-    ...cloneDeep(state),
-    ...cloneDeep(args),
-    isOk: false,
-    isRedirected: false,
-    isUnauthorized: true,
-    isNotHandled: false,
-  };
+export class AuthenticationState {
+  constructor(args) {
+    this.isOk = false;
+    this.isRedirected = false;
+    this.isUnauthorized = false;
+    this.isNotHandled = true;
+
+    for (const [key, value] of Object.entries(args)) {
+      this[key] = value;
+    }
+  }
 }
 
-// It will be a class in TypeScript
-export function redirectedState(state, args = {}) {
-  return {
-    ...cloneDeep(state),
-    ...cloneDeep(args),
-    isOk: false,
-    isRedirected: true,
-    isUnauthorized: false,
-    isNotHandled: false,
-  };
+export class UnauthorizedState extends AuthenticationState {
+  constructor(state, args = {}) {
+    super({ ...cloneDeep(state), ...cloneDeep(args) });
+    this.isOk = false;
+    this.isRedirected = false;
+    this.isUnauthorized = true;
+    this.isNotHandled = false;
+  }
 }
 
-// It will be a class in TypeScript
-export function okState(state, args = {}) {
-  return {
-    ...cloneDeep(state),
-    ...cloneDeep(args),
-    isOk: true,
-    isRedirected: false,
-    isUnauthorized: false,
-    isNotHandled: false,
-  };
+export class NotHandledState extends AuthenticationState {
+  constructor(state, args = {}) {
+    super({ ...cloneDeep(state), ...cloneDeep(args) });
+    this.isOk = false;
+    this.isRedirected = false;
+    this.isUnauthorized = false;
+    this.isNotHandled = true;
+  }
 }
 
-// It will be a class in TypeScript
-export function notHandledState(state, args = {}) {
-  return {
-    ...cloneDeep(state),
-    ...cloneDeep(args),
-    isOk: false,
-    isRedirected: false,
-    isUnauthorized: false,
-    isNotHandled: true,
-  };
+export class RedirectedState extends AuthenticationState {
+  constructor(state, args = {}) {
+    super({ ...cloneDeep(state), ...cloneDeep(args) });
+    this.isOk = false;
+    this.isRedirected = true;
+    this.isUnauthorized = false;
+    this.isNotHandled = false;
+  }
+}
+
+export class OkState extends AuthenticationState {
+  constructor(state, args = {}) {
+    super({ ...cloneDeep(state), ...cloneDeep(args) });
+    this.isOk = false;
+    this.isRedirected = true;
+    this.isUnauthorized = false;
+    this.isNotHandled = false;
+  }
+}
+
+export function debugStateMessage({ error, state, message }) {
+  const messageParts = [];
+  if (message) messageParts.push(message);
+  if (error) messageParts.push(error);
+
+  if (state) {
+    const debugState = cloneDeep(state);
+    if (get(debugState, 'headers.authorization')) {
+      debugState.headers.authorization = '<obfuscated credentials>';
+    }
+    messageParts.push(JSON.stringify(debugState, null, 2));
+  }
+
+  return messageParts.join(', ');
 }
 
 export class AuthenticationDomain {
@@ -115,7 +137,7 @@ export class AuthenticationDomain {
 
   login(request, authcMethod) {
     if (!authDomains.has(authcMethod.method)) {
-      return redirectedState(authcMethod, {
+      return new RedirectedState(authcMethod, {
         body: {
           message: `Unrecognized authentication domain "${authcMethod.method}"`,
         },
@@ -127,7 +149,7 @@ export class AuthenticationDomain {
 
   logout(request, authcMethod) {
     if (!authDomains.has(authcMethod.method)) {
-      return redirectedState(authcMethod, {
+      return new RedirectedState(authcMethod, {
         body: {
           message: `Unrecognized authentication domain "${authcMethod.method}"`,
         },
@@ -147,7 +169,7 @@ export class AuthenticationDomain {
       } else if (isProxyAuth(authcHeaders)) {
         authcState.authcMethod = AUTH_DOMAINS.proxy;
       } else {
-        return unauthorizedState(authcState, {
+        return new UnauthorizedState(authcState, {
           body: {
             message: `Unrecognized authentication domain "${authcState.authcMethod}"`,
           },
@@ -160,13 +182,24 @@ export class AuthenticationDomain {
 
   async checkAuth(request, response, toolkit) {
     try {
-      let authcState = await this.sessionStorage.get();
-      // TODO: do not expose credentials
-      this.logger.debug(`Pre authenticate authcState ${JSON.stringify(authcState, null, 2)}`);
+      const cookie = await this.sessionStorage.get();
+      let authcState = new NotHandledState(cookie);
+
+      this.logger.debug(
+        debugStateMessage({
+          state: authcState,
+          message: 'Pre authenticate state',
+        })
+      );
 
       authcState = await this.authenticate(request.headers, authcState);
-      // TODO: do not expose credentials
-      this.logger.debug(`Post authenticate authcState ${JSON.stringify(authcState, null, 2)}`);
+
+      this.logger.debug(
+        debugStateMessage({
+          state: authcState,
+          message: 'Post authenticate state',
+        })
+      );
 
       if (authcState.isOk) {
         return toolkit.authenticated({ requestHeaders: authcState.requestHeaders });

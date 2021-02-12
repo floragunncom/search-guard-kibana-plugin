@@ -15,6 +15,7 @@
  */
 
 import { schema } from '@kbn/config-schema';
+import { debugStateMessage } from '../authentication_domain';
 
 export function defineCommonRoutes({ authcDomain, kibanaCore, logger }) {
   const router = kibanaCore.http.createRouter();
@@ -39,6 +40,13 @@ export function loginAuthHandler({ logger, authcDomain }) {
   return async function (context, request, response) {
     try {
       const authcState = await authcDomain.login(request, request.body.authMeta);
+
+      logger.debug(
+        debugStateMessage({
+          state: authcState,
+          message: `Login using mode "${request.body.authMeta.method}"`,
+        })
+      );
 
       if (authcState.isOk) {
         return response.ok({
