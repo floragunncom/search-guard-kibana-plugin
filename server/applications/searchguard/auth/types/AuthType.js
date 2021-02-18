@@ -27,7 +27,7 @@ export default class AuthType {
     kibanaCore,
     config,
     logger,
-    sessionStorageFactory,
+    sessionStorage,
     elasticsearch,
     pluginDependencies,
   }) {
@@ -35,7 +35,7 @@ export default class AuthType {
     this.config = config;
     this.kibanaCore = kibanaCore;
     this.logger = logger;
-    this.sessionStorageFactory = sessionStorageFactory;
+    this.sessionStorage = sessionStorage;
     this.elasticsearch = elasticsearch;
     this.pluginDependencies = pluginDependencies;
 
@@ -200,7 +200,7 @@ export default class AuthType {
   };
 
   async getCookieWithCredentials(request) {
-    let sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+    let sessionCookie = (await this.sessionStorage.get(request)) || {};
     // @todo Maybe check the headers before the cookie. Since we check the headers
     // in the cookie validation and if headers are present, we overwrite the cookie
     // with the header value. Hence, the end result would be the same, but with less code.
@@ -267,7 +267,7 @@ export default class AuthType {
         this.logger.error(
           `An error occurred while computing auth headers, clearing session: No headers found in the session cookie`
         );
-        await this.clear(request);
+        this.sessionStorage.clear(request);
         return this._handleUnAuthenticated(request, response, toolkit);
       }
 
@@ -287,7 +287,7 @@ export default class AuthType {
    */
   async validateSessionCookie(request, sessionCookie) {
     if (sessionCookie.authType !== this.type) {
-      await this.clear(request);
+      this.sessionStorage.clear(request);
       throw new InvalidSessionError('Invalid cookie');
     }
 
@@ -305,7 +305,7 @@ export default class AuthType {
         this.debugLog(
           'Authenticated, but found different auth headers and re-authentication failed. Clearing cookies.'
         );
-        await this.clear(request); // The validator should handle this for us really
+        this.sessionStorage.clear(request); // The validator should handle this for us really
         throw error;
       }
     }
@@ -313,7 +313,7 @@ export default class AuthType {
     // Make sure we don't have any conflicting auth headers
     if (!this.validateAdditionalAuthHeaders(request, sessionCookie)) {
       this.debugLog('Validation of different auth headers failed. Clearing cookies.');
-      await this.clear(request);
+      this.sessionStorage.clear(request);
       throw new InvalidSessionError('Validation of different auth headers failed');
     }
 
@@ -321,14 +321,14 @@ export default class AuthType {
     // JWT's .exp is denoted in seconds, not milliseconds.
     if (sessionCookie.exp && sessionCookie.exp < Math.floor(Date.now() / 1000)) {
       this.debugLog('Session expired - .exp is in the past. Clearing cookies');
-      await this.clear(request);
+      this.sessionStorage.clear(request);
       throw new SessionExpiredError('Session expired');
     } else if (!sessionCookie.exp && this.sessionTTL) {
       if (!sessionCookie.expiryTime || sessionCookie.expiryTime < Date.now()) {
         this.debugLog(
           'Session expired - the credentials .expiryTime is in the past. Clearing cookies.'
         );
-        await this.clear(request);
+        this.sessionStorage.clear(request);
         throw new SessionExpiredError('Session expired');
       }
 
@@ -338,7 +338,7 @@ export default class AuthType {
         // should be equivalent to calling request.auth.cookie.set(),
         // but it seems like the cookie's browser lifetime isn't updated.
         // Hence, we need to set it explicitly.
-        this.sessionStorageFactory.asScoped(request).set(sessionCookie);
+        this.sessionStorage.set(request, sessionCookie);
       }
     }
 
@@ -467,7 +467,7 @@ export default class AuthType {
       return this._handleAuthResponse(request, credentials, authResponse, additionalAuthHeaders);
     } catch (error) {
       // Make sure we clear any existing cookies if something went wrong
-      this.clear(request);
+      this.sessionStorage.clear(request);
       throw error;
     }
   }
@@ -508,7 +508,7 @@ export default class AuthType {
       return this._handleAuthResponse(request, credentials, authResponse, additionalAuthHeaders);
     } catch (error) {
       // Make sure we clear any existing cookies if something went wrong
-      this.clear(request);
+      this.sessionStorage.clear(request);
       throw error;
     }
   }
@@ -557,23 +557,8 @@ export default class AuthType {
       authResponse.session.additionalAuthHeaders = additionalAuthHeaders;
     }
 
-    this.sessionStorageFactory.asScoped(request).set(authResponse.session);
+    this.sessionStorage.set(request, authResponse.session);
 
     return authResponse;
-  }
-
-  /**
-   * Remove the credentials from the session cookie
-   */
-  async clear(request) {
-    const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
-    // @todo Consider refactoring anything auth related into an "auth" property.
-    delete sessionCookie.credentials;
-    delete sessionCookie.username;
-    delete sessionCookie.authType;
-    delete sessionCookie.additionalAuthHeaders;
-    delete sessionCookie.isAnonymousAuth;
-
-    return await this.sessionStorageFactory.asScoped(request).set(sessionCookie);
   }
 }

@@ -76,7 +76,7 @@ export function loginAuthHandler({
   authInstance,
   logger,
   searchGuardBackend,
-  sessionStorageFactory,
+  sessionStorage,
 }) {
   return async function (context, request, response) {
     const username = request.body.username;
@@ -126,7 +126,7 @@ export function loginAuthHandler({
         );
 
         sessionCookie.tenant = finalTenant;
-        await sessionStorageFactory.asScoped(request).set(sessionCookie);
+        sessionStorage.set(request, sessionCookie);
 
         return response.ok({
           body: {
@@ -173,9 +173,9 @@ export function loginAuthHandler({
   };
 }
 
-export function logoutHandler({ authInstance }) {
+export function logoutHandler({ sessionStorage }) {
   return async function (context, request, response) {
-    await authInstance.clear(request);
+    sessionStorage.clear(request);
     return response.ok();
   };
 }
@@ -185,7 +185,7 @@ export function defineRoutes({
   searchGuardBackend,
   kibanaCore,
   kibanaConfig,
-  sessionStorageFactory,
+  sessionStorage,
   logger,
 }) {
   const config = kibanaConfig;
@@ -222,7 +222,7 @@ export function defineRoutes({
         authRequired: false,
       },
     },
-    loginAuthHandler({ config, authInstance, logger, searchGuardBackend, sessionStorageFactory })
+    loginAuthHandler({ config, authInstance, logger, searchGuardBackend, sessionStorage })
   );
 
   router.post(
@@ -230,7 +230,7 @@ export function defineRoutes({
       path: `${API_ROOT}/auth/logout`,
       validate: false,
     },
-    logoutHandler({ authInstance })
+    logoutHandler({ sessionStorage })
   );
 
   router.get(

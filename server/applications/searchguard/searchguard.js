@@ -4,6 +4,7 @@ import { registerRoutes } from './routes';
 import { readKibanaConfig } from './read_kibana_config';
 import { ConfigService } from '../../../common/config_service';
 import { Kerberos } from './auth/types';
+import { SessionStorage } from './auth';
 import { defineAuthInfoRoutes } from './auth/routes_authinfo';
 import { defineSystemRoutes } from './system/routes';
 import { defineConfigurationRoutes } from './configuration/routes/routes';
@@ -96,6 +97,7 @@ export class SearchGuard {
       const sessionStorageFactory = await core.http.createCookieSessionStorageFactory(
         cookieOptions
       );
+      const sessionStorage = new SessionStorage(sessionStorageFactory);
 
       // We must extend the cookie options.
       // Because Kibana doesn't support all the options we need.
@@ -160,7 +162,7 @@ export class SearchGuard {
                   kibanaCore: core,
                   config: this.configService,
                   logger: this.coreContext.logger.get('searchguard-auth'),
-                  sessionStorageFactory,
+                  sessionStorage,
                   elasticsearch,
                   pluginDependencies,
                 });
@@ -236,7 +238,7 @@ export class SearchGuard {
         });
       }
 
-      return { authInstance, sessionStorageFactory };
+      return { authInstance, sessionStorage };
     } catch (error) {
       this.logger.error(error);
       throw error;

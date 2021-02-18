@@ -198,10 +198,10 @@ export function logoutHandler({
     // Build the redirect uri needed by the provider
     const baseRedirectUrl = getBaseRedirectUrl({ kibanaCore, config });
 
-    const sessionCookie = (await authInstance.sessionStorageFactory.asScoped(request).get()) || {};
+    const sessionCookie = (await authInstance.sessionStorage.get(request)) || {};
 
     // Clear the cookie credentials
-    await authInstance.clear(request);
+    authInstance.sessionStorage.clear(request);
 
     const requestQueryParameters = `?post_logout_redirect_uri=${baseRedirectUrl}${basePath}/app/home`;
 
@@ -276,7 +276,7 @@ export function loginHandler({
       return handleAuthRequest({
         request,
         response,
-        sessionStorageFactory: authInstance.sessionStorageFactory,
+        sessionStorage: authInstance.sessionStorage,
         clientId,
         clientSecret,
         redirectUri,
@@ -291,7 +291,7 @@ export function loginHandler({
       // Validate the nonce/state to make sure that the request was really
       // requested by Kibana in this session
       const sessionCookie =
-        (await authInstance.sessionStorageFactory.asScoped(request).get()) || {};
+        (await authInstance.sessionStorage.get(request)) || {};
 
       const cookieOpenId = sessionCookie.openId;
 
@@ -307,7 +307,7 @@ export function loginHandler({
 
       // Make sure to clear out what was used for this login request.
       delete sessionCookie.openId;
-      await authInstance.sessionStorageFactory.asScoped(request).set(sessionCookie);
+      authInstance.sessionStorage.set(request, sessionCookie);
 
       // The usage of nonce vs. state is a bit confusing here. Keeping with nonce
       // internally, but state when we pass a parameter to the IdP to make sure
@@ -368,7 +368,7 @@ export function loginHandler({
  * Handle the first step of the process - obtain an auth code
  * @param request
  * @param response
- * @param sessionStorageFactory
+ * @param sessionStorage
  * @param clientId
  * @param redirectUri
  * @param nonce
@@ -378,7 +378,7 @@ export function loginHandler({
 async function handleAuthRequest({
   request,
   response,
-  sessionStorageFactory,
+  sessionStorage,
   clientId,
   redirectUri,
   nonce,
@@ -394,13 +394,13 @@ async function handleAuthRequest({
     scope: scope.join(' '),
   };
 
-  const sessionCookie = (await sessionStorageFactory.asScoped(request).get()) || {};
+  const sessionCookie = (await sessionStorage.get(request)) || {};
   sessionCookie.openId = {
     nonce,
     query: request.url.query,
   };
 
-  await sessionStorageFactory.asScoped(request).set(sessionCookie);
+  sessionStorage.set(request, sessionCookie);
 
   const idpAuthLocation = openIdEndPoints.authorization_endpoint + '?' + stringify(query);
   return response.redirected({

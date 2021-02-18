@@ -22,7 +22,7 @@ import {
   setupSearchGuardBackendMock,
   setupConfigMock,
   setupLoggerMock,
-  setupSessionStorageFactoryMock,
+  setupSessionStorageMock,
   setupHttpResponseMock,
   setupAuthInstanceMock,
   setupContextMock,
@@ -65,7 +65,7 @@ describe(`${AuthClass.name} routes`, () => {
       const response = setupHttpResponseMock();
       const logger = setupLoggerMock();
       const searchGuardBackend = setupSearchGuardBackendMock();
-      const sessionStorageFactory = setupSessionStorageFactoryMock();
+      const sessionStorage = setupSessionStorageMock();
 
       const config = setupConfigMock({
         get: jest.fn((path) => {
@@ -117,7 +117,7 @@ describe(`${AuthClass.name} routes`, () => {
           authInstance,
           logger,
           searchGuardBackend,
-          sessionStorageFactory,
+          sessionStorage,
         })(context, cloneDeep(request), response);
 
         expect(logger.error).toHaveBeenCalledWith(`Basic auth login authorization ${error.stack}`);
@@ -151,7 +151,7 @@ describe(`${AuthClass.name} routes`, () => {
       const response = setupHttpResponseMock();
       const logger = setupLoggerMock();
       const searchGuardBackend = setupSearchGuardBackendMock();
-      const sessionStorageFactory = setupSessionStorageFactoryMock();
+      const sessionStorage = setupSessionStorageMock();
 
       const config = setupConfigMock({
         get: jest.fn((path) => {
@@ -208,7 +208,7 @@ describe(`${AuthClass.name} routes`, () => {
         authInstance,
         logger,
         searchGuardBackend,
-        sessionStorageFactory,
+        sessionStorage,
       })(context, cloneDeep(request), response);
 
       expect(authInstance.handleAuthenticate).toHaveBeenCalledWith(request, { authHeaderValue });
@@ -277,11 +277,9 @@ describe(`${AuthClass.name} routes`, () => {
         getTenantByPreference: jest.fn().mockReturnValue(sgtenant),
       });
 
-      const sessionStorageFactorySet = jest.fn();
-      const sessionStorageFactory = setupSessionStorageFactoryMock({
-        asScoped: jest.fn(() => ({
-          set: sessionStorageFactorySet,
-        })),
+      const sessionStorageSet = jest.fn();
+      const sessionStorage = setupSessionStorageMock({
+        set: sessionStorageSet,
       });
 
       const request = {
@@ -299,7 +297,7 @@ describe(`${AuthClass.name} routes`, () => {
         authInstance,
         logger,
         searchGuardBackend,
-        sessionStorageFactory,
+        sessionStorage,
       })(context, cloneDeep(request), response);
 
       expect(authInstance.handleAuthenticate).toHaveBeenCalledWith(request, { authHeaderValue });
@@ -311,8 +309,7 @@ describe(`${AuthClass.name} routes`, () => {
         globalTenantEnabled,
         privateTenantEnabled
       );
-      expect(sessionStorageFactory.asScoped).toHaveBeenCalledWith(request);
-      expect(sessionStorageFactorySet).toHaveBeenCalledWith({
+      expect(sessionStorageSet).toHaveBeenCalledWith(request, {
         ...session,
         tenant: sgtenant,
       });
@@ -332,7 +329,9 @@ describe(`${AuthClass.name} routes`, () => {
     test('logout user', async () => {
       const context = setupContextMock();
       const response = setupHttpResponseMock();
-      const authInstance = setupAuthInstanceMock();
+
+      const sessionStorageClear = jest.fn();
+      const sessionStorage = setupSessionStorageMock({ clear: sessionStorageClear });
 
       const request = {
         headers: {
@@ -348,9 +347,9 @@ describe(`${AuthClass.name} routes`, () => {
         auth: { isAuthenticated: true },
       };
 
-      await logoutHandler({ authInstance })(context, cloneDeep(request), response);
+      await logoutHandler({ sessionStorage })(context, cloneDeep(request), response);
 
-      expect(authInstance.clear).toHaveBeenCalledWith(request);
+      expect(sessionStorageClear).toHaveBeenCalledWith(request);
       expect(response.ok).toHaveBeenCalledTimes(1);
     });
   });

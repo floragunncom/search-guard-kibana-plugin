@@ -93,9 +93,9 @@ export function setupLoggerMock({
   };
 }
 
-export function setupSessionStorageFactoryMock({ asScoped = jest.fn() } = {}) {
+export function setupSessionStorageMock({ get = jest.fn(), set = jest.fn(), clear = jest.fn() } = {}) {
   return {
-    asScoped,
+    get, set, clear
   };
 }
 

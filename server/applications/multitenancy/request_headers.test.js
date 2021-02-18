@@ -19,7 +19,7 @@ import {
   setupSearchGuardBackendMock,
   setupConfigMock,
   setupLoggerMock,
-  setupSessionStorageFactoryMock,
+  setupSessionStorageMock,
   setupPluginDependenciesMock,
   setupHttpResponseMock,
   setupHttpToolkitMock,
@@ -98,11 +98,9 @@ describe('request_headers', () => {
         sg_tenants: { admin_tenant: true, admin: true, SGS_GLOBAL_TENANT: true },
       };
 
-      const sessionStorageFactoryGet = jest.fn(() => sessionCookie);
-      const sessionStorageFactory = setupSessionStorageFactoryMock({
-        asScoped: jest.fn(() => ({
-          get: sessionStorageFactoryGet,
-        })),
+      const sessionStorageGet = jest.fn(() => sessionCookie);
+      const sessionStorage = setupSessionStorageMock({
+        get: sessionStorageGet,
       });
 
       const searchGuardBackend = setupSearchGuardBackendMock({
@@ -114,14 +112,13 @@ describe('request_headers', () => {
         authInstance,
         searchGuardBackend,
         configService,
-        sessionStorageFactory,
+        sessionStorage,
         logger,
         pluginDependencies,
         getElasticsearch,
       })(request, response, toolkit);
 
-      expect(sessionStorageFactory.asScoped).toHaveBeenCalledWith(request);
-      expect(sessionStorageFactoryGet).toHaveBeenCalledTimes(1);
+      expect(sessionStorageGet).toHaveBeenCalledWith(request);
       // Should happen if we have an authInstance
       expect(authInstance.getAllAuthHeaders).toHaveBeenCalledWith(request);
       // Internals of getSelectedTenant()
@@ -161,11 +158,9 @@ describe('request_headers', () => {
         '.kibana_92668751_sgtenant': sgtenant,
       };
 
-      const sessionStorageFactoryGet = jest.fn(() => sessionCookie);
-      const sessionStorageFactory = setupSessionStorageFactoryMock({
-        asScoped: jest.fn(() => ({
-          get: sessionStorageFactoryGet,
-        })),
+      const sessionStorageGet = jest.fn(() => sessionCookie);
+      const sessionStorage = setupSessionStorageMock({
+        get: sessionStorageGet,
       });
 
       const searchGuardBackend = setupSearchGuardBackendMock({
@@ -196,12 +191,13 @@ describe('request_headers', () => {
         authInstance,
         searchGuardBackend,
         configService,
-        sessionStorageFactory,
+        sessionStorage,
         logger,
         pluginDependencies,
         getElasticsearch,
       })(cloneDeep(request), response, toolkit);
 
+      expect(sessionStorageGet).toHaveBeenCalledWith(request);
       // Internals of handleDefaultSpace
       expect(spacesServiceScopedClient).toHaveBeenCalledWith(rawRequest);
       expect(searchGuardBackend.authinfo).toHaveBeenCalledWith(rawRequest.headers);
@@ -248,11 +244,9 @@ describe('request_headers', () => {
         '.kibana_92668751_sgtenant': sgtenant,
       };
 
-      const sessionStorageFactoryGet = jest.fn(() => sessionCookie);
-      const sessionStorageFactory = setupSessionStorageFactoryMock({
-        asScoped: jest.fn(() => ({
-          get: sessionStorageFactoryGet,
-        })),
+      const sessionStorageGet = jest.fn(() => sessionCookie);
+      const sessionStorage = setupSessionStorageMock({
+        get: sessionStorageGet,
       });
 
       const searchGuardBackend = setupSearchGuardBackendMock({
@@ -269,12 +263,13 @@ describe('request_headers', () => {
         authInstance,
         searchGuardBackend,
         configService,
-        sessionStorageFactory,
+        sessionStorage,
         logger,
         pluginDependencies,
         getElasticsearch,
       })(cloneDeep(request), response, toolkit);
 
+      expect(sessionStorageGet).toHaveBeenLastCalledWith(request);
       // Internals of handleDefaultSpace
       expect(spacesServiceScopedClient).toHaveBeenCalledWith(rawRequest);
       expect(searchGuardBackend.authinfo).toHaveBeenCalledWith(rawRequest.headers);
@@ -330,11 +325,9 @@ describe('request_headers', () => {
         validateTenant: jest.fn().mockReturnValue('__user__'),
       });
 
-      const sessionStorageFactoryGet = jest.fn(() => sessionCookie);
-      const sessionStorageFactory = setupSessionStorageFactoryMock({
-        asScoped: jest.fn(() => ({
-          get: sessionStorageFactoryGet,
-        })),
+      const sessionStorageGet = jest.fn(() => sessionCookie);
+      const sessionStorage = setupSessionStorageMock({
+        get: sessionStorageGet,
       });
 
       const selectedTenant = await getSelectedTenant({
@@ -343,7 +336,7 @@ describe('request_headers', () => {
         sessionCookie: cloneDeep(sessionCookie),
         searchGuardBackend,
         configService,
-        sessionStorageFactory,
+        sessionStorage,
         logger,
       });
 
@@ -355,7 +348,7 @@ describe('request_headers', () => {
         false,
         true
       );
-      expect(sessionStorageFactory.asScoped).toHaveBeenCalledTimes(0);
+      expect(sessionStorageGet).toHaveBeenCalledTimes(0);
       expect(selectedTenant).toEqual(sgtenant);
     });
 
@@ -386,13 +379,11 @@ describe('request_headers', () => {
         getTenantByPreference: jest.fn().mockReturnValue('admin_tenant'),
       });
 
-      const sessionStorageFactorySet = jest.fn();
-      const sessionStorageFactoryGet = jest.fn(() => sessionCookie);
-      const sessionStorageFactory = setupSessionStorageFactoryMock({
-        asScoped: jest.fn(() => ({
-          get: sessionStorageFactoryGet,
-          set: sessionStorageFactorySet,
-        })),
+      const sessionStorageSet = jest.fn();
+      const sessionStorageGet = jest.fn(() => sessionCookie);
+      const sessionStorage = setupSessionStorageMock({
+        get: sessionStorageGet,
+        set: sessionStorageSet,
       });
 
       const selectedTenant = await getSelectedTenant({
@@ -401,13 +392,12 @@ describe('request_headers', () => {
         sessionCookie: cloneDeep(sessionCookie),
         searchGuardBackend,
         configService,
-        sessionStorageFactory,
+        sessionStorage,
         logger,
       });
 
       expect(searchGuardBackend.authinfo).toHaveBeenCalledWith(authHeaders);
-      expect(sessionStorageFactory.asScoped).toHaveBeenCalledWith(request);
-      expect(sessionStorageFactorySet).toHaveBeenCalledWith({ tenant: sgtenant });
+      expect(sessionStorageSet).toHaveBeenCalledWith(request, { tenant: sgtenant });
       expect(searchGuardBackend.validateTenant).toHaveBeenCalledTimes(0);
       expect(searchGuardBackend.getTenantByPreference).toHaveBeenCalledWith(
         request,

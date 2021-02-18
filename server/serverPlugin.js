@@ -63,7 +63,7 @@ export class ServerPlugin {
     }
 
     (async () => {
-      const { authInstance, sessionStorageFactory } = await this.searchGuardApp.setup({
+      const { authInstance, sessionStorage } = await this.searchGuardApp.setup({
         core,
         elasticsearch,
         pluginDependencies,
@@ -74,7 +74,7 @@ export class ServerPlugin {
           authInstance,
           elasticsearch,
           kibanaCore: core,
-          sessionStorageFactory,
+          sessionStorage,
           pluginDependencies,
         });
       }

@@ -28,7 +28,7 @@ export default class ProxyCache extends AuthType {
     kibanaCore,
     config,
     logger,
-    sessionStorageFactory,
+    sessionStorage,
     elasticsearch,
     pluginDependencies,
   }) {
@@ -37,7 +37,7 @@ export default class ProxyCache extends AuthType {
       kibanaCore,
       config,
       logger,
-      sessionStorageFactory,
+      sessionStorage,
       elasticsearch,
       pluginDependencies,
     });

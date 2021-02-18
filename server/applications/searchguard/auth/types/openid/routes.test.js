@@ -21,7 +21,7 @@ import { loginHandler, logoutHandler } from './routes';
 import {
   setupConfigMock,
   setupLoggerMock,
-  setupSessionStorageFactoryMock,
+  setupSessionStorageMock,
   setupHttpResponseMock,
   setupAuthInstanceMock,
   setupContextMock,
@@ -81,17 +81,15 @@ describe(`${AuthClass.name} routes`, () => {
         tenant: '',
       };
 
-      const sessionStorageFactoryGet = jest
+      const sessionStorageGet = jest
         .fn()
         .mockResolvedValue(cloneDeep(expectedSessionCookie));
-      const sessionStorageFactory = setupSessionStorageFactoryMock({
-        asScoped: jest.fn(() => ({
-          get: sessionStorageFactoryGet,
-        })),
+      const sessionStorage = setupSessionStorageMock({
+        get: sessionStorageGet,
       });
 
       const authInstance = setupAuthInstanceMock();
-      authInstance.sessionStorageFactory = sessionStorageFactory;
+      authInstance.sessionStorage = sessionStorage;
 
       await logoutHandler({
         searchGuardBackend,
@@ -104,7 +102,7 @@ describe(`${AuthClass.name} routes`, () => {
       })(context, cloneDeep(request), response);
 
       expect(searchGuardBackend.getOIDCWellKnown).toHaveBeenCalledTimes(1);
-      expect(authInstance.clear).toHaveBeenCalledWith(request);
+      expect(authInstance.sessionStorage.clear).toHaveBeenCalledTimes(1);
       expect(response.ok).toHaveBeenCalledWith({
         body: {
           redirectURL:
@@ -123,17 +121,15 @@ describe(`${AuthClass.name} routes`, () => {
       const basePath = '/abc';
       const debugLog = setupDebugLogMock();
 
-      const sessionStorageFactorySet = jest.fn();
-      const sessionStorageFactoryGet = jest.fn().mockResolvedValue(null);
-      const sessionStorageFactory = setupSessionStorageFactoryMock({
-        asScoped: jest.fn(() => ({
-          get: sessionStorageFactoryGet,
-          set: sessionStorageFactorySet,
-        })),
+      const sessionStorageSet = jest.fn();
+      const sessionStorageGet = jest.fn().mockResolvedValue(null);
+      const sessionStorage = setupSessionStorageMock({
+        get: sessionStorageGet,
+        set: sessionStorageSet,
       });
 
       const authInstance = setupAuthInstanceMock();
-      authInstance.sessionStorageFactory = sessionStorageFactory;
+      authInstance.sessionStorage = sessionStorage;
 
       const getServerInfo = jest.fn().mockReturnValue({
         hostname: 'kibana.example.com',
@@ -195,9 +191,8 @@ describe(`${AuthClass.name} routes`, () => {
 
       expect(searchGuardBackend.getOIDCWellKnown).toHaveBeenCalledTimes(1);
       expect(getServerInfo).toHaveBeenCalledTimes(1);
-      expect(sessionStorageFactory.asScoped).toHaveBeenCalledWith(request);
-      expect(sessionStorageFactoryGet).toHaveBeenCalledTimes(1);
-      expect(sessionStorageFactorySet).toHaveBeenCalledWith(expectedSessionCookie);
+      expect(sessionStorageGet).toHaveBeenCalledWith(request);
+      expect(sessionStorageSet).toHaveBeenCalledWith(request, expectedSessionCookie);
       expect(response.redirected).toHaveBeenCalledWith({
         headers: {
           location: expectedLocation,
@@ -217,15 +212,13 @@ describe(`${AuthClass.name} routes`, () => {
         openId: { nonce: 'ecF1onUEGkfbzBldXS6Unh', query: { nextUrl: '/abc/app/kibana' } },
       };
 
-      const sessionStorageFactorySet = jest.fn();
-      const sessionStorageFactoryGet = jest
+      const sessionStorageSet = jest.fn();
+      const sessionStorageGet = jest
         .fn()
         .mockResolvedValue(cloneDeep(expectedSessionCookie));
-      const sessionStorageFactory = setupSessionStorageFactoryMock({
-        asScoped: jest.fn(() => ({
-          get: sessionStorageFactoryGet,
-          set: sessionStorageFactorySet,
-        })),
+      const sessionStorage = setupSessionStorageMock({
+        get: sessionStorageGet,
+        set: sessionStorageSet,
       });
 
       const routesPath = '/auth/openid/';
@@ -290,7 +283,7 @@ describe(`${AuthClass.name} routes`, () => {
       };
 
       const authInstance = setupAuthInstanceMock();
-      authInstance.sessionStorageFactory = sessionStorageFactory;
+      authInstance.sessionStorage = sessionStorage;
 
       const getServerInfo = jest.fn().mockReturnValue({
         protocol: 'https',
@@ -319,12 +312,11 @@ describe(`${AuthClass.name} routes`, () => {
       })(context, cloneDeep(request), response);
 
       expect(getServerInfo).toHaveBeenCalledTimes(1);
-      expect(sessionStorageFactory.asScoped).toHaveBeenCalledWith(request);
-      expect(sessionStorageFactoryGet).toHaveBeenCalledTimes(1);
 
+      expect(sessionStorageGet).toHaveBeenCalledWith(request);
       const clearSessionCookie = { ...expectedSessionCookie };
       delete clearSessionCookie.openId;
-      expect(sessionStorageFactorySet).toHaveBeenCalledWith(clearSessionCookie);
+      expect(sessionStorageSet).toHaveBeenCalledWith(request, clearSessionCookie);
 
       expect(searchGuardBackend.getOIDCWellKnown).toHaveBeenCalledTimes(1);
 
@@ -351,9 +343,9 @@ describe(`${AuthClass.name} routes`, () => {
       let basePath;
       let debugLog;
       let expectedSessionCookie;
-      let sessionStorageFactorySet;
-      let sessionStorageFactoryGet;
-      let sessionStorageFactory;
+      let sessionStorageClear;
+      let sessionStorageGet;
+      let sessionStorage;
       let routesPath;
       let clientId;
       let clientSecret;
@@ -377,13 +369,11 @@ describe(`${AuthClass.name} routes`, () => {
           openId: { nonce: 'ecF1onUEGkfbzBldXS6Unh', query: { nextUrl: '/abc/app/kibana' } },
         };
 
-        sessionStorageFactorySet = jest.fn();
-        sessionStorageFactoryGet = jest.fn().mockResolvedValue(cloneDeep(expectedSessionCookie));
-        sessionStorageFactory = setupSessionStorageFactoryMock({
-          asScoped: jest.fn(() => ({
-            get: sessionStorageFactoryGet,
-            set: sessionStorageFactorySet,
-          })),
+        sessionStorageClear = jest.fn();
+        sessionStorageGet = jest.fn().mockResolvedValue(cloneDeep(expectedSessionCookie));
+        sessionStorage = setupSessionStorageMock({
+          clear: sessionStorageClear,
+          get: sessionStorageGet,
         });
 
         routesPath = '/auth/openid/';
@@ -454,7 +444,7 @@ describe(`${AuthClass.name} routes`, () => {
 
         const handleAuthenticate = jest.fn().mockRejectedValue(error);
         const authInstance = setupAuthInstanceMock({ handleAuthenticate });
-        authInstance.sessionStorageFactory = sessionStorageFactory;
+        authInstance.sessionStorage = sessionStorage;
 
         await loginHandler({
           basePath,
@@ -483,7 +473,7 @@ describe(`${AuthClass.name} routes`, () => {
 
         const handleAuthenticate = jest.fn().mockRejectedValue(error);
         const authInstance = setupAuthInstanceMock({ handleAuthenticate });
-        authInstance.sessionStorageFactory = sessionStorageFactory;
+        authInstance.sessionStorage = sessionStorage;
 
         await loginHandler({
           basePath,
@@ -512,7 +502,7 @@ describe(`${AuthClass.name} routes`, () => {
 
         const handleAuthenticate = jest.fn().mockRejectedValue(error);
         const authInstance = setupAuthInstanceMock({ handleAuthenticate });
-        authInstance.sessionStorageFactory = sessionStorageFactory;
+        authInstance.sessionStorage = sessionStorage;
 
         await loginHandler({
           basePath,

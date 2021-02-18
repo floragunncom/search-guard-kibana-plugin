@@ -27,7 +27,7 @@ export default class Saml extends AuthType {
     kibanaCore,
     config,
     logger,
-    sessionStorageFactory,
+    sessionStorage,
     elasticsearch,
     pluginDependencies,
   }) {
@@ -36,7 +36,7 @@ export default class Saml extends AuthType {
       kibanaCore,
       config,
       logger,
-      sessionStorageFactory,
+      sessionStorage,
       elasticsearch,
       pluginDependencies,
     });
@@ -141,7 +141,7 @@ export default class Saml extends AuthType {
       kibanaCore: this.kibanaCore,
       kibanaConfig: this.config,
       debugLog: this.debugLog.bind(this),
-      sessionStorageFactory: this.sessionStorageFactory,
+      sessionStorage: this.sessionStorage,
       logger: this.logger,
     });
   }

@@ -28,7 +28,7 @@ export default class BasicAuth extends AuthType {
     kibanaCore,
     config,
     logger,
-    sessionStorageFactory,
+    sessionStorage,
     elasticsearch,
     pluginDependencies,
   }) {
@@ -37,7 +37,7 @@ export default class BasicAuth extends AuthType {
       kibanaCore,
       config,
       logger,
-      sessionStorageFactory,
+      sessionStorage,
       elasticsearch,
       pluginDependencies,
     });
@@ -102,7 +102,7 @@ export default class BasicAuth extends AuthType {
         if (has401) {
           // Make sure we don't have an auth cookie anymore if we receive a 401.
           // Most likely, the current user's password was changed, leading to the 401.
-          await this.clear(request);
+          this.sessionStorage.clear(request);
           if (request.response.output && request.response.output.headers) {
             delete request.response.output.headers['WWW-Authenticate'];
             delete request.response.wwwAuthenticateDirective;
@@ -227,7 +227,7 @@ export default class BasicAuth extends AuthType {
       searchGuardBackend: this.searchGuardBackend,
       kibanaCore: this.kibanaCore,
       kibanaConfig: this.config,
-      sessionStorageFactory: this.sessionStorageFactory,
+      sessionStorage: this.sessionStorage,
       logger: this.logger,
     });
   }

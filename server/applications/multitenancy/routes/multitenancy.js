@@ -22,7 +22,7 @@ export function multitenancyRoutes({
   kibanaCore,
   searchGuardBackend,
   config,
-  sessionStorageFactory,
+  sessionStorage,
   logger,
 }) {
   const router = kibanaCore.http.createRouter();
@@ -41,9 +41,9 @@ export function multitenancyRoutes({
     async (context, request, response) => {
       const selectedTenant = request.body.tenant;
 
-      const cookie = (await sessionStorageFactory.asScoped(request).get()) || {};
+      const cookie = (await sessionStorage.get(request)) || {};
       cookie.tenant = selectedTenant;
-      sessionStorageFactory.asScoped(request).set(cookie);
+      sessionStorage.set(request, cookie);
 
       if (debugEnabled) {
         logger.info(`tenant_POST: ${selectedTenant}`);
@@ -60,7 +60,7 @@ export function multitenancyRoutes({
     },
     async (context, request, response) => {
       let selectedTenant = undefined;
-      const cookie = await sessionStorageFactory.asScoped(request).get();
+      const cookie = await sessionStorage.get(request);
       if (cookie) {
         selectedTenant = cookie.tenant;
       }

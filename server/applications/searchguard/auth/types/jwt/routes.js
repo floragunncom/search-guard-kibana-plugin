@@ -51,7 +51,7 @@ module.exports = function ({ authInstance, kibanaCore }) {
       },
     },
     async (context, request, response) => {
-      await authInstance.clear(request);
+      authInstance.sessionStorage.clear(request);
       return response.ok({
         body: {},
       });

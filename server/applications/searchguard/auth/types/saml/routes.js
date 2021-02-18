@@ -26,7 +26,7 @@ export default function ({
   searchGuardBackend,
   kibanaCore,
   debugLog,
-  sessionStorageFactory,
+  sessionStorage,
   logger,
 }) {
   const basePath = kibanaCore.http.basePath.serverBasePath;
@@ -79,7 +79,7 @@ export default function ({
         }
         */
 
-        const sessionCookie = (await sessionStorageFactory.asScoped(request).get()) || {};
+        const sessionCookie = (await sessionStorage.get(request)) || {};
         // When logging in, sessionCookie={}
 
         sessionCookie['temp-saml'] = {
@@ -87,7 +87,7 @@ export default function ({
           nextUrl,
         };
 
-        await sessionStorageFactory.asScoped(request).set(sessionCookie);
+        sessionStorage.set(request, sessionCookie);
 
         return response.redirected({ headers: { location: samlHeader.location } });
       } catch (error) {
@@ -126,7 +126,7 @@ export default function ({
         SAMLResponse = PHNhbWxwOlJlc3BvbnNlIHhtbG5zOnNhbWxwPSJ1cm46b2Fza...
         */
 
-        const sessionCookie = await sessionStorageFactory.asScoped(request).get();
+        const sessionCookie = await sessionStorage.get(request);
         if (!sessionCookie) {
           throw new Error('The session cookie is absent.');
         }
@@ -141,7 +141,7 @@ export default function ({
         */
 
         const { 'temp-saml': storedRequestInfo, ...restSessionCookie } = sessionCookie;
-        await sessionStorageFactory.asScoped(request).set(restSessionCookie);
+        sessionStorage.set(request, restSessionCookie);
 
         if (!storedRequestInfo.requestId) {
           return response.redirected({
@@ -254,7 +254,7 @@ export default function ({
     xsrfRequired: false,
   };
   const logoutHandler = async (context, request, response) => {
-    await authInstance.clear(request);
+    sessionStorage.clear(request);
     return response.redirected({
       headers: { location: `${basePath}/customerror?type=samlLogoutSuccess` },
     });
@@ -281,7 +281,7 @@ export default function ({
     },
     async function (context, request, response) {
       try {
-        const sessionCookie = await sessionStorageFactory.asScoped(request).get();
+        const sessionCookie = await sessionStorage.get(request);
         if (!sessionCookie || !sessionCookie.credentials) {
           throw new Error('The session cookie or credentials is absent.');
         }
@@ -312,7 +312,7 @@ export default function ({
         }
         */
 
-        await authInstance.clear(request);
+        await authInstance.sessionStorage.clear(request);
 
         if (authInfo && authInfo.sso_logout_url) {
           return response.ok({

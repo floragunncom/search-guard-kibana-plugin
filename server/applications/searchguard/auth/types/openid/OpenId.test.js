@@ -22,7 +22,7 @@ import {
   setupKibanaCoreMock,
   setupConfigMock,
   setupLoggerMock,
-  setupSessionStorageFactoryMock,
+  setupSessionStorageMock,
   setupPluginDependenciesMock,
   setupHttpResponseMock,
   setupHttpToolkitMock,
@@ -42,7 +42,7 @@ describe(AuthClass.name, () => {
     const searchGuardBackend = setupSearchGuardBackendMock();
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
-    const sessionStorageFactory = setupSessionStorageFactoryMock();
+    const sessionStorage = setupSessionStorageMock();
     const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
@@ -59,7 +59,7 @@ describe(AuthClass.name, () => {
       kibanaCore,
       config,
       logger,
-      sessionStorageFactory,
+      sessionStorage,
       elasticsearch,
       pluginDependencies,
     });
@@ -103,7 +103,7 @@ describe(AuthClass.name, () => {
     });
 
     const logger = setupLoggerMock();
-    const sessionStorageFactory = setupSessionStorageFactoryMock();
+    const sessionStorage = setupSessionStorageMock();
     const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
@@ -112,7 +112,7 @@ describe(AuthClass.name, () => {
       kibanaCore,
       config,
       logger,
-      sessionStorageFactory,
+      sessionStorage,
       elasticsearch,
       pluginDependencies,
     });
@@ -147,10 +147,8 @@ describe(AuthClass.name, () => {
       }),
     });
 
-    const sessionStorageFactory = setupSessionStorageFactoryMock({
-      asScoped: jest.fn(() => ({
-        get: jest.fn(() => null),
-      })),
+    const sessionStorage = setupSessionStorageMock({
+      get: jest.fn(() => null),
     });
 
     const authInstance = new AuthClass({
@@ -158,7 +156,7 @@ describe(AuthClass.name, () => {
       kibanaCore,
       config,
       logger,
-      sessionStorageFactory,
+      sessionStorage,
       elasticsearch,
       pluginDependencies,
     });
@@ -176,7 +174,6 @@ describe(AuthClass.name, () => {
 
     await authInstance.checkAuth(cloneDeep(request), response, toolkit);
 
-    expect(sessionStorageFactory.asScoped).toHaveBeenCalledWith(request);
     expect(response.redirected).toHaveBeenCalledWith({
       headers: {
         location: '/abc/auth/openid/encode?nextUrl=%2Fabc%2F',
@@ -203,15 +200,13 @@ describe(AuthClass.name, () => {
       credentials: { authHeaderValue: 'Bearer eyJhbGciOiJSUzI1NiIsInR5' },
       authType,
       isAnonymousAuth: false,
-      exp: getCookieExpiryTimeS(1),
+      exp: getCookieExpiryTimeS(2),
       additionalAuthHeaders: null,
     };
 
-    const sessionStorageFactoryGet = jest.fn(() => cloneDeep(sessionCookie));
-    const sessionStorageFactory = setupSessionStorageFactoryMock({
-      asScoped: jest.fn(() => ({
-        get: sessionStorageFactoryGet,
-      })),
+    const sessionStorageGet = jest.fn(() => cloneDeep(sessionCookie));
+    const sessionStorage = setupSessionStorageMock({
+      get: sessionStorageGet,
     });
 
     const authInstance = new AuthClass({
@@ -219,7 +214,7 @@ describe(AuthClass.name, () => {
       kibanaCore,
       config,
       logger,
-      sessionStorageFactory,
+      sessionStorage,
       elasticsearch,
       pluginDependencies,
     });
@@ -239,8 +234,7 @@ describe(AuthClass.name, () => {
 
     await authInstance.checkAuth(cloneDeep(request), response, toolkit);
 
-    expect(sessionStorageFactory.asScoped).toHaveBeenCalledWith(request);
-    expect(sessionStorageFactoryGet).toHaveBeenCalledTimes(1);
+    expect(sessionStorageGet).toHaveBeenCalledWith(request);
     expect(toolkit.authenticated).toHaveBeenCalledWith({
       requestHeaders: { authorization: 'Bearer eyJhbGciOiJSUzI1NiIsInR5' },
     });
@@ -265,17 +259,15 @@ describe(AuthClass.name, () => {
       credentials: { authHeaderValue: 'Bearer eyJhbGciOiJSUzI1NiIsInR5' },
       authType,
       isAnonymousAuth: false,
-      exp: getCookieExpiryTimeS(-1),
+      exp: getCookieExpiryTimeS(-2),
       additionalAuthHeaders: null,
     };
 
-    const sessionStorageFactoryGet = jest.fn(() => cloneDeep(sessionCookie));
-    const sessionStorageFactorySet = jest.fn();
-    const sessionStorageFactory = setupSessionStorageFactoryMock({
-      asScoped: jest.fn(() => ({
-        get: sessionStorageFactoryGet,
-        set: sessionStorageFactorySet,
-      })),
+    const sessionStorageGet = jest.fn(() => cloneDeep(sessionCookie));
+    const sessionStorageClear = jest.fn();
+    const sessionStorage = setupSessionStorageMock({
+      get: sessionStorageGet,
+      clear: sessionStorageClear,
     });
 
     const authInstance = new AuthClass({
@@ -283,7 +275,7 @@ describe(AuthClass.name, () => {
       kibanaCore,
       config,
       logger,
-      sessionStorageFactory,
+      sessionStorage,
       elasticsearch,
       pluginDependencies,
     });
@@ -303,13 +295,8 @@ describe(AuthClass.name, () => {
 
     await authInstance.checkAuth(cloneDeep(request), response, toolkit);
 
-    const clearedSessionCookie = {
-      exp: getCookieExpiryTimeS(-1),
-    };
-
-    expect(sessionStorageFactory.asScoped).toHaveBeenCalledWith(request);
-    expect(sessionStorageFactoryGet).toHaveBeenCalledTimes(2);
-    expect(sessionStorageFactorySet).toHaveBeenCalledWith(clearedSessionCookie);
+    expect(sessionStorageGet).toHaveBeenCalledWith(request);
+    expect(sessionStorageClear).toHaveBeenCalledWith(request);
     expect(response.redirected).toHaveBeenCalledWith({
       headers: {
         location: '/abc/auth/openid/encode?nextUrl=%2Fabc%2Fapp%2Fkibana',

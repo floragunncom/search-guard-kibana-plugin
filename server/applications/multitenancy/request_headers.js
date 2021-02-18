@@ -73,13 +73,13 @@ export function multiTenancyLifecycleHandler({
   authInstance,
   searchGuardBackend,
   configService,
-  sessionStorageFactory,
+  sessionStorage,
   logger,
   pluginDependencies,
   getElasticsearch,
 }) {
   return async function (request, response, toolkit) {
-    const sessionCookie = await sessionStorageFactory.asScoped(request).get();
+    const sessionCookie = await sessionStorage.get(request);
     let authHeaders = request.headers;
 
     if (authInstance) {
@@ -94,7 +94,7 @@ export function multiTenancyLifecycleHandler({
       sessionCookie,
       searchGuardBackend,
       configService,
-      sessionStorageFactory,
+      sessionStorage,
       logger,
       request,
     });
@@ -124,7 +124,7 @@ export function multiTenancyLifecycleHandler({
  * @param sessionCookie
  * @param searchGuardBackend
  * @param config
- * @param sessionStorageFactory
+ * @param sessionStorage
  * @param logger
  * @param request
  * @returns {Promise<string|null>}
@@ -134,7 +134,7 @@ export async function getSelectedTenant({
   sessionCookie,
   searchGuardBackend,
   configService,
-  sessionStorageFactory,
+  sessionStorage,
   logger,
   request,
 }) {
@@ -208,7 +208,7 @@ export async function getSelectedTenant({
   if (selectedTenant !== sessionCookie.tenant) {
     // save validated tenant in the cookie
     sessionCookie.tenant = selectedTenant;
-    await sessionStorageFactory.asScoped(request).set(sessionCookie);
+    sessionStorage.set(request, sessionCookie);
   }
 
   if (debugEnabled) {

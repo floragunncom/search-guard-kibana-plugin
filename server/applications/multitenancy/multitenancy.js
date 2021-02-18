@@ -50,7 +50,7 @@ export class Multitenancy {
     }
   }
 
-  async setup({ authInstance, kibanaCore, sessionStorageFactory, pluginDependencies }) {
+  async setup({ authInstance, kibanaCore, sessionStorage, pluginDependencies }) {
     this.logger.debug('Setup app');
 
     try {
@@ -64,7 +64,7 @@ export class Multitenancy {
           authInstance,
           searchGuardBackend: this.searchGuardBackend,
           configService: this.configService,
-          sessionStorageFactory,
+          sessionStorage,
           logger: this.logger,
           pluginDependencies,
           getElasticsearch: async () => {
@@ -78,7 +78,7 @@ export class Multitenancy {
         kibanaCore,
         searchGuardBackend: this.searchGuardBackend,
         config: this.configService,
-        sessionStorageFactory,
+        sessionStorage,
         logger: this.logger,
       });
     } catch (error) {
