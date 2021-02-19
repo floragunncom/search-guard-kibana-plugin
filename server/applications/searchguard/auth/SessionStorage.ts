@@ -19,14 +19,14 @@ import {
   SessionStorageFactory,
 } from '../../../kibana_interfaces';
 
-export interface IBasicAuthCredentials {
+export interface ISessionCookieCredentials {
   authHeaderValue: string;
 }
 
 export interface ISessionCookie {
   expiryTime: number;
   tenant: string;
-  credentials: IBasicAuthCredentials;
+  credentials: ISessionCookieCredentials;
   username: string;
   authType: string;
   additionalAuthHeaders: null | object;
