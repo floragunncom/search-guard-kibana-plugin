@@ -1,4 +1,19 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -14,6 +29,7 @@ import {
 } from '@elastic/eui';
 import { AccessControlService } from '../../../../services';
 import { logoutText } from '../utils/i18n';
+import { AppList } from './AppList';
 
 function LogoutBtn({ onClick, authType }) {
   if (authType === 'kerberos' || authType === 'proxy') return null;
@@ -24,7 +40,10 @@ function LogoutBtn({ onClick, authType }) {
   );
 }
 
-export function HeaderUserMenu({ httpClient, logoutUrl, userName, userNameTooltipText, authType }) {
+export const AccountComponent = () => <p>Account component</p>;
+export const MultitenancyComponent = () => <p>Multitenancy component</p>;
+
+export function HeaderUserMenu({ httpClient, logoutUrl, userName, userNameTooltipText, authType, core }) {
   const [isOpen, setIsOpen] = useState(false);
   const acService = new AccessControlService({ httpClient, authType });
 
@@ -46,6 +65,19 @@ export function HeaderUserMenu({ httpClient, logoutUrl, userName, userNameToolti
     </EuiButtonEmpty>
   );
 
+  const appListItems = [
+    {
+      label: 'Account',
+      component: <AccountComponent />,
+      href: 'searchguard-accountinfo',
+    },
+    {
+      label: 'Multitenancy',
+      component: <MultitenancyComponent />,
+      href: 'searchguard-multitenancy',
+    },
+  ];
+
   return (
     <EuiPopover
       style={{ paddingTop: 2 }}
@@ -55,21 +87,26 @@ export function HeaderUserMenu({ httpClient, logoutUrl, userName, userNameToolti
       button={button}
       closePopover={closePopover}
     >
-      <EuiFlexGroup>
-        <EuiFlexItem grow={false}>
-          <EuiAvatar name={userName} />
-        </EuiFlexItem>
-        <EuiFlexItem>
-          <EuiToolTip position="bottom" content={userNameTooltipText}>
-            <EuiText>
-              <p>{userName}</p>
-            </EuiText>
-          </EuiToolTip>
+      <div style={{ width: '400px' }}>
+        <EuiFlexGroup>
+          <EuiFlexItem grow={false}>
+            <EuiAvatar name={userName} />
+          </EuiFlexItem>
+          <EuiFlexItem wrap={true}>
+            <EuiToolTip position="bottom" content={userNameTooltipText}>
+              <EuiText>
+                <div style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{userName}</div>
+              </EuiText>
+            </EuiToolTip>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <LogoutBtn onClick={logOut} authType={authType} />
+          </EuiFlexItem>
+        </EuiFlexGroup>
 
-          <EuiSpacer />
-          <LogoutBtn onClick={logOut} authType={authType} />
-        </EuiFlexItem>
-      </EuiFlexGroup>
+        <EuiSpacer />
+        <AppList items={appListItems} core={core} />
+      </div>
     </EuiPopover>
   );
 }
