@@ -24,6 +24,7 @@ import { stringify } from 'querystring';
 
 export default class BasicAuth extends AuthType {
   constructor({
+    authMethodConfig,
     searchGuardBackend,
     kibanaCore,
     config,
@@ -33,6 +34,7 @@ export default class BasicAuth extends AuthType {
     pluginDependencies,
   }) {
     super({
+      authMethodConfig,
       searchGuardBackend,
       kibanaCore,
       config,
@@ -160,15 +162,46 @@ export default class BasicAuth extends AuthType {
   async authenticate(credentials, options = {}, additionalAuthHeaders = {}) {
     // A login can happen via a POST request (login form) or when we have request headers with user credentials.
     // We also need to re-authenticate if the credentials (headers) don't match what's in the session.
+    let user;
+    // @todo Naming, reassigning is weird
+    let sessionCredentials;
+
     try {
-      const user = await this.searchGuardBackend.authenticateWithHeader(
-        this.authHeaderName,
-        credentials.authHeaderValue,
-        additionalAuthHeaders
-      );
+      if (this.authMethodConfig.session) {
+        const response = await this.searchGuardBackend.authenticateWithSession({
+          mode: 'basic',
+          user: credentials.username,
+          password: credentials.password,
+        });
+
+        sessionCredentials = {
+          authHeaderValue: 'Bearer ' + response.token,
+        };
+
+        const authInfoResponse = await this.searchGuardBackend.authinfo({
+          [this.authHeaderName]: sessionCredentials.authHeaderValue,
+        });
+
+        user = this.searchGuardBackend.buildSessionResponse(sessionCredentials, authInfoResponse);
+      } else {
+        // Without session token
+        const authHeaderValue =
+          'Basic ' +
+          Buffer.from(`${credentials.username}:${credentials.password}`).toString('base64');
+        user = await this.searchGuardBackend.authenticateWithHeader(
+          this.authHeaderName,
+          authHeaderValue,
+          additionalAuthHeaders
+        );
+
+        sessionCredentials = {
+          authHeaderValue,
+        };
+      }
+
       const session = {
         username: user.username,
-        credentials: credentials,
+        credentials: sessionCredentials,
         authType: this.type,
         isAnonymousAuth: options && options.isAnonymousAuth === true ? true : false,
       };

@@ -104,9 +104,9 @@ export function loginAuthHandler({
         }
       }
 
-      const authHeaderValue = Buffer.from(`${username}:${password}`).toString('base64');
       const { user, session: sessionCookie } = await authInstance.handleAuthenticate(request, {
-        authHeaderValue: 'Basic ' + authHeaderValue,
+        username,
+        password,
       });
 
       // handle tenants if MT is enabled
@@ -242,7 +242,6 @@ export function defineRoutes({
       },
     },
     async (context, request, response) => {
-      logger.info('Why are we handling anonymous auth?', request.url.path);
       if (config.get('searchguard.auth.anonymous_auth_enabled')) {
         try {
           await authInstance.handleAuthenticate(request, {}, { isAnonymousAuth: true });

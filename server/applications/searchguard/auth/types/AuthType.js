@@ -23,6 +23,7 @@ import MissingRoleError from '../errors/missing_role_error';
 
 export default class AuthType {
   constructor({
+    authMethodConfig,
     searchGuardBackend,
     kibanaCore,
     config,
@@ -31,6 +32,7 @@ export default class AuthType {
     elasticsearch,
     pluginDependencies,
   }) {
+    this.authMethodConfig = authMethodConfig;
     this.searchGuardBackend = searchGuardBackend;
     this.config = config;
     this.kibanaCore = kibanaCore;
@@ -573,6 +575,14 @@ export default class AuthType {
     delete sessionCookie.authType;
     delete sessionCookie.additionalAuthHeaders;
     delete sessionCookie.isAnonymousAuth;
+
+    if (this.authMethodConfig.session) {
+      try {
+        await this.searchGuardBackend.logoutSession(request.headers);
+      } catch (error) {
+        this.logger.error(`Failed to delete the session token: ${error.stack}`);
+      }
+    }
 
     return await this.sessionStorageFactory.asScoped(request).set(sessionCookie);
   }

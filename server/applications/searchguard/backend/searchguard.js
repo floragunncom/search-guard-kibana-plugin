@@ -38,6 +38,61 @@ export default class SearchGuardBackend {
     return body;
   }
 
+  async getAuthConfig() {
+    try {
+      // @todo Probably easier to test if we pass the credentials into the method
+      const username = this.configService.get('elasticsearch.username');
+      const password = this.configService.get('elasticsearch.password');
+      const authHeaderValue = Buffer.from(`${username}:${password}`).toString('base64');
+      const response = await this._client({
+        path: '/_searchguard/auth/config',
+        method: 'GET',
+        headers: {
+          authorization: 'Basic ' + authHeaderValue,
+        },
+      });
+
+      return response;
+    } catch (error) {
+      if (error.statusCode === 401) {
+        throw new AuthenticationError('Invalid username or password', error);
+      }
+      throw error;
+    }
+  }
+
+  async authenticateWithSession(credentials) {
+    try {
+      const response = await this._client({
+        path: '/_searchguard/auth/session',
+        method: 'POST',
+        body: credentials,
+      });
+
+      return response;
+    } catch (error) {
+      if (error.statusCode === 401) {
+        throw new AuthenticationError('Invalid username or password', error);
+      }
+      throw error;
+    }
+  }
+
+  async logoutSession(headers) {
+    try {
+      return await this._client({
+        path: '/_searchguard/auth/session',
+        method: 'DELETE',
+        headers,
+      });
+    } catch (error) {
+      if (error.statusCode === 401) {
+        throw new AuthenticationError('Invalid username or password', error);
+      }
+      throw error;
+    }
+  }
+
   async authenticate(credentials) {
     const authHeader = Buffer.from(`${credentials.username}:${credentials.password}`).toString(
       'base64'
