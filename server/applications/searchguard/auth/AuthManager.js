@@ -15,12 +15,13 @@
  */
 
 export class AuthManager {
-  constructor({ config }) {
+  constructor({ configService, sessionStorageFactory }) {
     this.authTypeName = null;
     this.authInstance = null;
-    this.config = config;
+    this.configService = configService;
+    this.sessionStorageFactory = sessionStorageFactory;
 
-    this.unauthenticatedRoutes = this.config.get('searchguard.auth.unauthenticated_routes');
+    this.unauthenticatedRoutes = this.configService.get('searchguard.auth.unauthenticated_routes');
 
     /**
      * Loading bundles are now behind auth.
@@ -60,6 +61,9 @@ export class AuthManager {
 
     if (this.authInstance) {
       return this.authInstance.checkAuth(request, response, toolkit);
+    } else {
+      // @todo "sync" with existing cookie here?
+      const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
     }
 
     console.log('------ Redirecting for', request.url.path);
@@ -70,4 +74,12 @@ export class AuthManager {
       },
     });
   };
+
+  getAllAuthHeaders(request) {
+    if (this.authInstance) {
+      return this.authInstance.getAllAuthHeaders(request);
+    }
+
+    return false;
+  }
 }

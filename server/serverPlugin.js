@@ -63,7 +63,7 @@ export class ServerPlugin {
     }
 
     (async () => {
-      const { authInstance, sessionStorageFactory } = await this.searchGuardApp.setup({
+      const { authManager, sessionStorageFactory } = await this.searchGuardApp.setup({
         core,
         elasticsearch,
         pluginDependencies,
@@ -71,7 +71,7 @@ export class ServerPlugin {
 
       if (isMtEnabled) {
         this.multiTenancyApp.setup({
-          authInstance,
+          authManager,
           elasticsearch,
           kibanaCore: core,
           sessionStorageFactory,

@@ -70,7 +70,7 @@ function getExternalTenant(request, logger, debugEnabled = false) {
 }
 
 export function multiTenancyLifecycleHandler({
-  authInstance,
+  authManager,
   searchGuardBackend,
   configService,
   sessionStorageFactory,
@@ -82,8 +82,8 @@ export function multiTenancyLifecycleHandler({
     const sessionCookie = await sessionStorageFactory.asScoped(request).get();
     let authHeaders = request.headers;
 
-    if (authInstance) {
-      const authCredentialsHeaders = await authInstance.getAllAuthHeaders(request);
+    if (authManager) {
+      const authCredentialsHeaders = await authManager.getAllAuthHeaders(request);
       if (authCredentialsHeaders) {
         authHeaders = authCredentialsHeaders;
       }

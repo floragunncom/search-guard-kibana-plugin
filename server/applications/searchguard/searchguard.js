@@ -108,7 +108,8 @@ export class SearchGuard {
       let AuthClass = null;
       let authInstance = null;
       const authManager = new AuthManager({
-        config: this.configService,
+        configService: this.configService,
+        sessionStorageFactory,
       });
 
       // Proxy authentication is handled implicitly.
@@ -205,7 +206,7 @@ export class SearchGuard {
                 sessionStorageFactory,
                 elasticsearch,
                 pluginDependencies,
-                authManager
+                authManager,
               });
 
               basicAuth.init();
@@ -279,7 +280,7 @@ export class SearchGuard {
         });
       }
 
-      return { authInstance, sessionStorageFactory };
+      return { authManager, sessionStorageFactory };
     } catch (error) {
       this.logger.error(error);
       throw error;

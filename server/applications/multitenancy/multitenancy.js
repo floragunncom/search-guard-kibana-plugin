@@ -50,7 +50,7 @@ export class Multitenancy {
     }
   }
 
-  async setup({ authInstance, kibanaCore, sessionStorageFactory, pluginDependencies }) {
+  async setup({ authManager, kibanaCore, sessionStorageFactory, pluginDependencies }) {
     this.logger.debug('Setup app');
 
     try {
@@ -61,7 +61,7 @@ export class Multitenancy {
 
       kibanaCore.http.registerOnPreAuth(
         multiTenancyLifecycleHandler({
-          authInstance,
+          authManager,
           searchGuardBackend: this.searchGuardBackend,
           configService: this.configService,
           sessionStorageFactory,
