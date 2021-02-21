@@ -138,6 +138,37 @@ export default class BasicAuth extends AuthType {
       const authHeaderValue = request.headers[this.authHeaderName];
       const headerTrumpsSession = this.config.get('searchguard.basicauth.header_trumps_session');
 
+      if (this.authMethodConfig.session) {
+        if (sessionCredentials !== null && !headerTrumpsSession) {
+          // Return early if we have a cookie and don't want the headers to trump the session value
+          return null;
+        }
+        try {
+          if (authHeaderValue && authHeaderValue.indexOf('Basic ') === 0) {
+            const decodedAuthHeaderValue = Buffer.from(
+              authHeaderValue.replace('Basic ', ''),
+              'base64'
+            );
+
+            // Make sure we really have a username:password combination
+            const authHeaderValueParts = decodedAuthHeaderValue.toString('utf-8').split(':');
+            if (authHeaderValueParts.length === 2) {
+              return {
+                username: authHeaderValueParts[0],
+                password: authHeaderValueParts[1],
+              };
+            }
+          }
+        } catch (error) {
+          this.logger.error(`An error occurred while parsing the auth header: ${error.stack}`);
+        }
+
+        // If we have a session based auth, and also an auth header,
+        // the value will always be different.
+        return null;
+      }
+
+
       // If we have sessionCredentials AND auth headers we need to check if they are the same.
       if (sessionCredentials !== null && sessionCredentials.authHeaderValue === authHeaderValue) {
         // The auth header credentials are the same as those in the session,
