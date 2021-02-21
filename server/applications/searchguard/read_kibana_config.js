@@ -121,7 +121,7 @@ export const DEFAULT_CONFIG = {
       enabled: true,
     },
     accountinfo: {
-      enabled: false,
+      enabled: true,
     },
     openid: {
       connect_url: undefined,

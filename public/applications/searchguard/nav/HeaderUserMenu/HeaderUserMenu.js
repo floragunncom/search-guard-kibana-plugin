@@ -51,11 +51,23 @@ function LogoutBtn({ onClick, authType }) {
 
 export function HeaderUserMenu({ httpClient, configService, kibanaAppService }) {
   const userNameText = configService.get('restapiinfo.user_name');
-  const authType = configService.get('searchguard.auth.type');
-  const logoutUrl = configService.get('searchguard.auth.logout_url');
+  const { type: authType, logout_url: logoutUrl } = configService.get('searchguard.auth', {});
 
   const [isOpen, setIsOpen] = useState(false);
   const acService = new AccessControlService({ httpClient, authType });
+
+  const appMenu = [
+    {
+      label: SEARCHGUARD_ACCOUNTINFO_APP_TITLE,
+      appId: SEARCHGUARD_ACCOUNTINFO_APP_ID,
+      isEnabled: configService.get('searchguard.accountinfo.enabled', false),
+    },
+    {
+      label: SEARCHGUARD_MULTITENANCY_APP_TITLE,
+      appId: SEARCHGUARD_MULTITENANCY_APP_ID,
+      isEnabled: configService.get('searchguard.multitenancy.enabled', false),
+    },
+  ];
 
   function openPopover() {
     setIsOpen((prevState) => !prevState);
@@ -69,22 +81,26 @@ export function HeaderUserMenu({ httpClient, configService, kibanaAppService }) 
     acService.logout({ logoutUrl });
   }
 
+  function renderAppMenu(appMenu) {
+    return appMenu
+      .filter((item) => item.isEnabled)
+      .map((item) => {
+        return (
+          <EuiListGroupItem
+            onClick={() => {
+              kibanaAppService.navigateToApp(item.appId);
+            }}
+            label={item.label}
+          />
+        );
+      });
+  }
+
   const button = (
     <EuiButtonEmpty onClick={openPopover} data-test-subj="sg.userMenu.button">
       <EuiAvatar size="s" name={userNameText} />
     </EuiButtonEmpty>
   );
-
-  const appMenu = [
-    {
-      label: SEARCHGUARD_ACCOUNTINFO_APP_TITLE,
-      appId: SEARCHGUARD_ACCOUNTINFO_APP_ID,
-    },
-    {
-      label: SEARCHGUARD_MULTITENANCY_APP_TITLE,
-      appId: SEARCHGUARD_MULTITENANCY_APP_ID,
-    },
-  ];
 
   return (
     <EuiPopover
@@ -116,16 +132,7 @@ export function HeaderUserMenu({ httpClient, configService, kibanaAppService }) 
 
         <EuiSpacer />
         <EuiListGroup flush={true} bordered={true}>
-          {appMenu.map((item) => {
-            return (
-              <EuiListGroupItem
-                onClick={() => {
-                  kibanaAppService.navigateToApp(item.appId);
-                }}
-                label={item.label}
-              />
-            );
-          })}
+          {renderAppMenu(appMenu)}
         </EuiListGroup>
       </div>
     </EuiPopover>

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { BehaviorSubject } from 'rxjs';
 import { AppNavLinkStatus } from '../../../../../src/core/public';
 import { addTenantToShareURL } from './addTenantToShareURL';
 import { SEARCHGUARD_APP_CATEGORY } from '../../utils/constants';
@@ -25,7 +24,6 @@ export const SEARCHGUARD_MULTITENANCY_APP_TITLE = 'Multitenancy';
 export class MultiTenancy {
   constructor(coreContext) {
     this.coreContext = coreContext;
-    this.appUpdater = new BehaviorSubject(() => ({}));
   }
 
   mount({ configService, httpClient, chromeHelper }) {
@@ -49,8 +47,9 @@ export class MultiTenancy {
         id: SEARCHGUARD_MULTITENANCY_APP_ID,
         title: SEARCHGUARD_MULTITENANCY_APP_TITLE,
         category: SEARCHGUARD_APP_CATEGORY,
-        updater$: this.appUpdater,
         mount: this.mount({ core, configService, httpClient, chromeHelper }),
+        // We show the app in the Kinana header user menu
+        navLinkStatus: AppNavLinkStatus.hidden,
       });
 
       if (plugins.home) {
@@ -82,19 +81,6 @@ export class MultiTenancy {
 
       if (doAttachTenantNameToDashboardShareURL) {
         addTenantToShareURL();
-      }
-    } catch (error) {
-      console.error(`Multitenancy: ${error.toString()} ${error.stack}`);
-    }
-  }
-
-  start({ configService }) {
-    try {
-      if (!configService.get('searchguard.multitenancy.enabled')) {
-        this.appUpdater.next(() => ({
-          navLinkStatus: AppNavLinkStatus.disabled,
-          tooltip: 'Multitenancy disabled',
-        }));
       }
     } catch (error) {
       console.error(`Multitenancy: ${error.toString()} ${error.stack}`);

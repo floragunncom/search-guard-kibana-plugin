@@ -98,8 +98,6 @@ export class PublicPlugin {
         configService: this.configService,
       });
 
-      this.accountInfoApp.start({ configService: this.configService });
-      this.multiTenancyApp.start({ configService: this.configService });
       this.authTokensApp.start({ configService: this.configService });
     })();
 

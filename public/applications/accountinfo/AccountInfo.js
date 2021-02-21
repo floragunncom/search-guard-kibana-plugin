@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { BehaviorSubject } from 'rxjs';
 import { AppNavLinkStatus } from '../../../../../src/core/public';
 import { SEARCHGUARD_APP_CATEGORY } from '../../utils/constants';
 
@@ -24,7 +23,6 @@ export const SEARCHGUARD_ACCOUNTINFO_APP_TITLE = 'Account Info';
 export class AccountInfo {
   constructor(coreContext) {
     this.coreContext = coreContext;
-    this.appUpdater = new BehaviorSubject(() => ({}));
   }
 
   mount({ configService, httpClient }) {
@@ -47,22 +45,10 @@ export class AccountInfo {
         id: SEARCHGUARD_ACCOUNTINFO_APP_ID,
         title: SEARCHGUARD_ACCOUNTINFO_APP_TITLE,
         category: SEARCHGUARD_APP_CATEGORY,
-        updater$: this.appUpdater,
         mount: this.mount({ httpClient, configService }),
+        // We show the app in the Kinana header user menu
+        navLinkStatus: AppNavLinkStatus.hidden,
       });
-    } catch (error) {
-      console.error(`Accountinfo: ${error.toString()} ${error.stack} `);
-    }
-  }
-
-  start({ configService }) {
-    try {
-      if (!configService.get('searchguard.accountinfo.enabled')) {
-        this.appUpdater.next(() => ({
-          navLinkStatus: AppNavLinkStatus.disabled,
-          tooltip: 'Accountinfo disabled',
-        }));
-      }
     } catch (error) {
       console.error(`Accountinfo: ${error.toString()} ${error.stack} `);
     }
