@@ -34,13 +34,13 @@ import { logoutText } from '../utils/i18n';
 import {
   SEARCHGUARD_MULTITENANCY_APP_ID,
   SEARCHGUARD_MULTITENANCY_APP_TITLE,
-} from '../../../multitenancy/MultiTenancy';
+} from '../../../multitenancy/utils/constants';
 import {
   SEARCHGUARD_ACCOUNTINFO_APP_ID,
   SEARCHGUARD_ACCOUNTINFO_APP_TITLE,
-} from '../../../accountinfo/AccountInfo';
+} from '../../../accountinfo/utils/constants';
 
-function LogoutBtn({ onClick, authType }) {
+export function LogoutBtn({ onClick, authType }) {
   if (authType === 'kerberos' || authType === 'proxy') return null;
   return (
     <EuiLink onClick={onClick} aria-label="logout" data-test-subj="sg.userMenu.button-logout">
@@ -87,10 +87,11 @@ export function HeaderUserMenu({ httpClient, configService, kibanaAppService }) 
       .map((item) => {
         return (
           <EuiListGroupItem
+            key={item.appId}
+            label={item.label}
             onClick={() => {
               kibanaAppService.navigateToApp(item.appId);
             }}
-            label={item.label}
           />
         );
       });

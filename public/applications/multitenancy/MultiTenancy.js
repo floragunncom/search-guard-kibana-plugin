@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 floragunn GmbH
+ *    Copyright 2021 floragunn GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,10 @@
 import { AppNavLinkStatus } from '../../../../../src/core/public';
 import { addTenantToShareURL } from './addTenantToShareURL';
 import { SEARCHGUARD_APP_CATEGORY } from '../../utils/constants';
-
-export const SEARCHGUARD_MULTITENANCY_APP_ID = 'searchguard-multitenancy';
-export const SEARCHGUARD_MULTITENANCY_APP_TITLE = 'Multitenancy';
+import {
+  SEARCHGUARD_MULTITENANCY_APP_ID,
+  SEARCHGUARD_MULTITENANCY_APP_TITLE,
+} from './utils/constants';
 
 export class MultiTenancy {
   constructor(coreContext) {

@@ -1,0 +1,198 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`HeaderUserMenu can render the user menu 1`] = `
+<EuiPopover
+  anchorPosition="downCenter"
+  button={
+    <EuiButtonEmpty
+      data-test-subj="sg.userMenu.button"
+      onClick={[Function]}
+    >
+      <EuiAvatar
+        name="a user"
+        size="s"
+      />
+    </EuiButtonEmpty>
+  }
+  closePopover={[Function]}
+  data-test-subj="sg.userMenu"
+  display="inlineBlock"
+  hasArrow={true}
+  isOpen={false}
+  ownFocus={false}
+  panelPaddingSize="m"
+  repositionOnScroll={true}
+  style={
+    Object {
+      "paddingTop": 2,
+    }
+  }
+>
+  <div
+    style={
+      Object {
+        "width": "400px",
+      }
+    }
+  >
+    <EuiFlexGroup>
+      <EuiFlexItem
+        grow={false}
+      >
+        <EuiAvatar
+          name="a user"
+        />
+      </EuiFlexItem>
+      <EuiFlexItem
+        wrap={true}
+      >
+        <EuiToolTip
+          content="a user"
+          delay="regular"
+          position="bottom"
+        >
+          <EuiText>
+            <div
+              style={
+                Object {
+                  "overflowWrap": "anywhere",
+                  "wordBreak": "break-word",
+                }
+              }
+            >
+              a user
+            </div>
+          </EuiText>
+        </EuiToolTip>
+      </EuiFlexItem>
+      <EuiFlexItem
+        grow={false}
+      >
+        <LogoutBtn
+          authType="basicauth"
+          onClick={[Function]}
+        />
+      </EuiFlexItem>
+    </EuiFlexGroup>
+    <EuiSpacer />
+    <EuiListGroup
+      bordered={true}
+      flush={true}
+    >
+      <EuiListGroupItem
+        label="Account Info"
+        onClick={[Function]}
+      />
+      <EuiListGroupItem
+        label="Multitenancy"
+        onClick={[Function]}
+      />
+    </EuiListGroup>
+  </div>
+</EuiPopover>
+`;
+
+exports[`HeaderUserMenu filter menu items (Multitenancy is disabled) 1`] = `
+<EuiPopover
+  anchorPosition="downCenter"
+  button={
+    <EuiButtonEmpty
+      data-test-subj="sg.userMenu.button"
+      onClick={[Function]}
+    >
+      <EuiAvatar
+        name="a user"
+        size="s"
+      />
+    </EuiButtonEmpty>
+  }
+  closePopover={[Function]}
+  data-test-subj="sg.userMenu"
+  display="inlineBlock"
+  hasArrow={true}
+  isOpen={false}
+  ownFocus={false}
+  panelPaddingSize="m"
+  repositionOnScroll={true}
+  style={
+    Object {
+      "paddingTop": 2,
+    }
+  }
+>
+  <div
+    style={
+      Object {
+        "width": "400px",
+      }
+    }
+  >
+    <EuiFlexGroup>
+      <EuiFlexItem
+        grow={false}
+      >
+        <EuiAvatar
+          name="a user"
+        />
+      </EuiFlexItem>
+      <EuiFlexItem
+        wrap={true}
+      >
+        <EuiToolTip
+          content="a user"
+          delay="regular"
+          position="bottom"
+        >
+          <EuiText>
+            <div
+              style={
+                Object {
+                  "overflowWrap": "anywhere",
+                  "wordBreak": "break-word",
+                }
+              }
+            >
+              a user
+            </div>
+          </EuiText>
+        </EuiToolTip>
+      </EuiFlexItem>
+      <EuiFlexItem
+        grow={false}
+      >
+        <LogoutBtn
+          authType="basicauth"
+          onClick={[Function]}
+        />
+      </EuiFlexItem>
+    </EuiFlexGroup>
+    <EuiSpacer />
+    <EuiListGroup
+      bordered={true}
+      flush={true}
+    >
+      <EuiListGroupItem
+        label="Account Info"
+        onClick={[Function]}
+      />
+    </EuiListGroup>
+  </div>
+</EuiPopover>
+`;
+
+exports[`LogoutBtn do not render the button if Kerberos auth 1`] = `null`;
+
+exports[`LogoutBtn do not render the button if Proxy auth 1`] = `null`;
+
+exports[`LogoutBtn render the button 1`] = `
+<EuiLink
+  aria-label="logout"
+  data-test-subj="sg.userMenu.button-logout"
+  onClick={[Function]}
+>
+  <EuiI18n
+    default="Logout"
+    token="sg.nav.logout.logoutText"
+  />
+</EuiLink>
+`;

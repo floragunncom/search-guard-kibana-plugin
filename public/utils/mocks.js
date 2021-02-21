@@ -30,3 +30,9 @@ export function setupCoreMock({ uiSettingsGetImplementation = () => null } = {})
     },
   };
 }
+
+export function setupKibanaCoreAppServiceMock({ navigateToApp = jest.fn() } = {}) {
+  return {
+    navigateToApp,
+  };
+}

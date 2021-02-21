@@ -14,4 +14,5 @@
  * limitations under the License.
  */
 
-export { AccountInfo } from './AccountInfo';
+export const SEARCHGUARD_ACCOUNTINFO_APP_ID = 'searchguard-accountinfo';
+export const SEARCHGUARD_ACCOUNTINFO_APP_TITLE = 'Account Info';
