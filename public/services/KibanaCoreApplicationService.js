@@ -1,4 +1,3 @@
-const LICENSE_HEADER = `
 /*
  *    Copyright 2021 floragunn GmbH
  *
@@ -14,26 +13,13 @@ const LICENSE_HEADER = `
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-`
 
-module.exports = {	
-  root: true,	
-  extends: ['@elastic/eslint-config-kibana', 'plugin:@elastic/eui/recommended'],
-  rules: {
-    // "@kbn/eslint/require-license-header": "off"
-  },
-  overrides: [
-    {
-      files: ['**/*.{js,ts,tsx}'],
-      rules: {
-        '@kbn/eslint/require-license-header': [
-          'error',
-          {
-            license: LICENSE_HEADER,
-          },
-        ],
-        "no-console": 0
-      }
-    }
-  ],
-};
+export class KibanaCoreApplicationService {
+  constructor(kibanaCore) {
+    this.application = kibanaCore.application;
+  }
+
+  navigateToApp(appName) {
+    return this.application.navigateToApp(appName);
+  }
+}

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 floragunn GmbH
+ *    Copyright 2021 floragunn GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,19 @@ import {
   EuiText,
   EuiLink,
   EuiSpacer,
+  EuiListGroup,
+  EuiListGroupItem,
 } from '@elastic/eui';
 import { AccessControlService } from '../../../../services';
 import { logoutText } from '../utils/i18n';
-import { AppList } from './AppList';
+import {
+  SEARCHGUARD_MULTITENANCY_APP_ID,
+  SEARCHGUARD_MULTITENANCY_APP_TITLE,
+} from '../../../multitenancy/MultiTenancy';
+import {
+  SEARCHGUARD_ACCOUNTINFO_APP_ID,
+  SEARCHGUARD_ACCOUNTINFO_APP_TITLE,
+} from '../../../accountinfo/AccountInfo';
 
 function LogoutBtn({ onClick, authType }) {
   if (authType === 'kerberos' || authType === 'proxy') return null;
@@ -40,10 +49,11 @@ function LogoutBtn({ onClick, authType }) {
   );
 }
 
-export const AccountComponent = () => <p>Account component</p>;
-export const MultitenancyComponent = () => <p>Multitenancy component</p>;
+export function HeaderUserMenu({ httpClient, configService, kibanaAppService }) {
+  const userNameText = configService.get('restapiinfo.user_name');
+  const authType = configService.get('searchguard.auth.type');
+  const logoutUrl = configService.get('searchguard.auth.logout_url');
 
-export function HeaderUserMenu({ httpClient, logoutUrl, userName, userNameTooltipText, authType, core }) {
   const [isOpen, setIsOpen] = useState(false);
   const acService = new AccessControlService({ httpClient, authType });
 
@@ -61,20 +71,18 @@ export function HeaderUserMenu({ httpClient, logoutUrl, userName, userNameToolti
 
   const button = (
     <EuiButtonEmpty onClick={openPopover} data-test-subj="sg.userMenu.button">
-      <EuiAvatar size="s" name={userName} />
+      <EuiAvatar size="s" name={userNameText} />
     </EuiButtonEmpty>
   );
 
-  const appListItems = [
+  const appMenu = [
     {
-      label: 'Account',
-      component: <AccountComponent />,
-      href: 'searchguard-accountinfo',
+      label: SEARCHGUARD_ACCOUNTINFO_APP_TITLE,
+      appId: SEARCHGUARD_ACCOUNTINFO_APP_ID,
     },
     {
-      label: 'Multitenancy',
-      component: <MultitenancyComponent />,
-      href: 'searchguard-multitenancy',
+      label: SEARCHGUARD_MULTITENANCY_APP_TITLE,
+      appId: SEARCHGUARD_MULTITENANCY_APP_ID,
     },
   ];
 
@@ -90,12 +98,14 @@ export function HeaderUserMenu({ httpClient, logoutUrl, userName, userNameToolti
       <div style={{ width: '400px' }}>
         <EuiFlexGroup>
           <EuiFlexItem grow={false}>
-            <EuiAvatar name={userName} />
+            <EuiAvatar name={userNameText} />
           </EuiFlexItem>
           <EuiFlexItem wrap={true}>
-            <EuiToolTip position="bottom" content={userNameTooltipText}>
+            <EuiToolTip position="bottom" content={userNameText}>
               <EuiText>
-                <div style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{userName}</div>
+                <div style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+                  {userNameText}
+                </div>
               </EuiText>
             </EuiToolTip>
           </EuiFlexItem>
@@ -105,21 +115,25 @@ export function HeaderUserMenu({ httpClient, logoutUrl, userName, userNameToolti
         </EuiFlexGroup>
 
         <EuiSpacer />
-        <AppList items={appListItems} core={core} />
+        <EuiListGroup flush={true} bordered={true}>
+          {appMenu.map((item) => {
+            return (
+              <EuiListGroupItem
+                onClick={() => {
+                  kibanaAppService.navigateToApp(item.appId);
+                }}
+                label={item.label}
+              />
+            );
+          })}
+        </EuiListGroup>
       </div>
     </EuiPopover>
   );
 }
 
-HeaderUserMenu.defaultProps = {
-  userName: 'user',
-  userNameTooltipText: 'user',
-};
-
 HeaderUserMenu.propTypes = {
   httpClient: PropTypes.object.isRequired,
-  authType: PropTypes.string.isRequired,
-  logoutUrl: PropTypes.string,
-  userName: PropTypes.string,
-  userNameTooltipText: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  configService: PropTypes.object.isRequired,
+  kibanaAppService: PropTypes.object.isRequired,
 };

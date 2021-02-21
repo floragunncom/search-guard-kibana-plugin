@@ -19,6 +19,9 @@ import { AppNavLinkStatus } from '../../../../../src/core/public';
 import { addTenantToShareURL } from './addTenantToShareURL';
 import { SEARCHGUARD_APP_CATEGORY } from '../../utils/constants';
 
+export const SEARCHGUARD_MULTITENANCY_APP_ID = 'searchguard-multitenancy';
+export const SEARCHGUARD_MULTITENANCY_APP_TITLE = 'Multitenancy';
+
 export class MultiTenancy {
   constructor(coreContext) {
     this.coreContext = coreContext;
@@ -43,8 +46,8 @@ export class MultiTenancy {
   setupSync({ core, plugins, httpClient, configService, chromeHelper }) {
     try {
       core.application.register({
-        id: 'searchguard-multitenancy',
-        title: 'Multitenancy',
+        id: SEARCHGUARD_MULTITENANCY_APP_ID,
+        title: SEARCHGUARD_MULTITENANCY_APP_TITLE,
         category: SEARCHGUARD_APP_CATEGORY,
         updater$: this.appUpdater,
         mount: this.mount({ core, configService, httpClient, chromeHelper }),
@@ -52,8 +55,8 @@ export class MultiTenancy {
 
       if (plugins.home) {
         plugins.home.featureCatalogue.register({
-          id: 'searchguard-multitenancy',
-          title: 'Search Guard Multi Tenancy',
+          id: SEARCHGUARD_MULTITENANCY_APP_ID,
+          title: SEARCHGUARD_MULTITENANCY_APP_TITLE,
           description: 'Separate searches, visualizations and dashboards by tenants.',
           icon: 'usersRolesApp',
           path: '/app/searchguard-multitenancy',

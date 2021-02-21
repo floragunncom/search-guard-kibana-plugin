@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 floragunn GmbH
+ *    Copyright 2021 floragunn GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,26 +19,11 @@ import ReactDOM from 'react-dom';
 import { HeaderUserMenu } from './HeaderUserMenu';
 
 export class HeaderUserMenuApp {
-  start({ core, httpClient, configService } = {}) {
-    const userName = configService.get('restapiinfo.user_name');
-    const authType = configService.get('searchguard.auth.type');
-    const logoutUrl = configService.get('searchguard.auth.logout_url');
-
-    const props = { httpClient, authType };
-
-    if (logoutUrl) {
-      props.logoutUrl = logoutUrl;
-    }
-
-    if (userName) {
-      props.userName = userName;
-      props.userNameTooltipText = userName;
-    }
-
-    core.chrome.navControls.registerRight({
+  start({ kibanaChromeService, ...props } = {}) {
+    kibanaChromeService.navControls.registerRight({
       order: 5000,
       mount: (element) => {
-        ReactDOM.render(<HeaderUserMenu {...props} core={core} />, element);
+        ReactDOM.render(<HeaderUserMenu {...props} />, element);
         return () => ReactDOM.unmountComponentAtNode(element);
       },
     });

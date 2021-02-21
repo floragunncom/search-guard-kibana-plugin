@@ -15,33 +15,6 @@
  */
 
 import React from 'react';
-import {
-  EuiListGroup,
-  EuiListGroupItem,
-} from '@elastic/eui';
+import { EuiI18n } from '@elastic/eui';
 
-interface IAppListPropsItem {
-  label: JSX.Element | string;
-  component: JSX.Element | null;
-}
-
-interface IAppListProps {
-  items: IAppListPropsItem[]
-}
-
-export function AppList({ items, core }: IAppListProps) {
-  return (
-    <EuiListGroup flush={true} bordered={true}>
-      {items.map((item) => {
-        return (
-          <EuiListGroupItem
-            onClick={() => {
-              core.application.navigateToUrl(item.href);
-            }}
-            label={item.label}
-          />
-        );
-      })}
-    </EuiListGroup>
-  );
-}
+export const logoutText = <EuiI18n token="sg.nav.logout.logoutText" default="Logout" />;

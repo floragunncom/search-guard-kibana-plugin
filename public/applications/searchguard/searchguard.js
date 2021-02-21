@@ -30,7 +30,7 @@ export class SearchGuard {
     }
   }
 
-  async start({ core, httpClient, configService }) {
+  async start({ core, httpClient, configService, kibanaAppService, kibanaChromeService }) {
     try {
       const didSetupSyncRun = this.chromeHelper;
       if (!didSetupSyncRun) {
@@ -44,7 +44,8 @@ export class SearchGuard {
       this.chromeHelper.start(core.chrome);
 
       this.headerUserMenuApp.start({
-        core,
+        kibanaAppService,
+        kibanaChromeService,
         httpClient,
         configService,
       });

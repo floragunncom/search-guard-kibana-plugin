@@ -18,6 +18,9 @@ import { BehaviorSubject } from 'rxjs';
 import { AppNavLinkStatus } from '../../../../../src/core/public';
 import { SEARCHGUARD_APP_CATEGORY } from '../../utils/constants';
 
+export const SEARCHGUARD_ACCOUNTINFO_APP_ID = 'searchguard-accountinfo';
+export const SEARCHGUARD_ACCOUNTINFO_APP_TITLE = 'Account Info';
+
 export class AccountInfo {
   constructor(coreContext) {
     this.coreContext = coreContext;
@@ -41,8 +44,8 @@ export class AccountInfo {
   setupSync({ core, httpClient, configService }) {
     try {
       core.application.register({
-        id: 'searchguard-accountinfo',
-        title: 'Account',
+        id: SEARCHGUARD_ACCOUNTINFO_APP_ID,
+        title: SEARCHGUARD_ACCOUNTINFO_APP_TITLE,
         category: SEARCHGUARD_APP_CATEGORY,
         updater$: this.appUpdater,
         mount: this.mount({ httpClient, configService }),
