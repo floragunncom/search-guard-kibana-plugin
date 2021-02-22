@@ -113,7 +113,7 @@ export function HeaderUserMenu({ httpClient, configService, kibanaAppService }) 
       button={button}
       closePopover={closePopover}
     >
-      <div style={{ width: '400px' }}>
+      <div id="sg.userMenu.content" style={{ width: '400px' }}>
         <EuiFlexGroup>
           <EuiFlexItem grow={false}>
             <EuiAvatar name={userNameText} />
