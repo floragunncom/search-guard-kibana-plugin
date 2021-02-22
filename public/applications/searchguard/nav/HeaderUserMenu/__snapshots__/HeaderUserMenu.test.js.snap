@@ -29,6 +29,7 @@ exports[`HeaderUserMenu can render the user menu 1`] = `
   }
 >
   <div
+    id="sg.userMenu.content"
     style={
       Object {
         "width": "400px",
@@ -123,6 +124,7 @@ exports[`HeaderUserMenu filter menu items (Multitenancy is disabled) 1`] = `
   }
 >
   <div
+    id="sg.userMenu.content"
     style={
       Object {
         "width": "400px",
