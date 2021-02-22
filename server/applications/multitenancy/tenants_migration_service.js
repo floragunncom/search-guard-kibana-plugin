@@ -108,31 +108,28 @@ export class TenantsMigrationService {
         return;
       }
 
-      const migratorPromises = this.tenantIndices.map((index) => {
-        return new KibanaMigrator({
-          ...migratorDeps,
-          kibanaConfig: { ...kibanaConfig, index },
-        }).runMigrations();
-      });
-
       this.logger.info('Starting tenants saved objects migration ...');
 
-      // Don't do await Promise.allSettled.
-      // We must avoid waiting for all promisses to fulfill here. We may have a lot of tenants.
-      Promise.allSettled(migratorPromises).then((responses) => {
-        responses.forEach((response, i) => {
-          if (response.status === 'fulfilled') {
-            this.logger.info(`Fulfilled migration for index ${this.tenantIndices[i]}.`);
-            this.logger.debug(`Migration result:\n${JSON.stringify(response.value, null, 2)}`);
-          } else {
-            this.logger.error(
-              `Unable to fulfill migration for index ${this.tenantIndices[i]} ${JSON.stringify(
-                response.value
-              )}`
-            );
-          }
-        });
-      });
+      for (let i = 0; i < this.tenantIndices.length; i++) {
+        let response;
+
+        try {
+          // We execute the index migration sequentially because Elasticsearch doesn't keep up
+          // with parallel migration for a large number of indices (tenants).
+          // https://git.floragunn.com/search-guard/search-guard-kibana-plugin/-/issues/315
+          response = await new KibanaMigrator({
+            ...migratorDeps,
+            kibanaConfig: { ...kibanaConfig, index: this.tenantIndices[i] },
+          }).runMigrations();
+
+          this.logger.info(`Fulfilled migration for index ${this.tenantIndices[i]}.`);
+          this.logger.debug(`Migration result:\n${JSON.stringify(response, null, 2)}`);
+        } catch (error) {
+          this.logger.error(
+            `Unable to fulfill migration for index ${this.tenantIndices[i]}, ${error}`
+          );
+        }
+      }
     } catch (error) {
       throw error;
     }
