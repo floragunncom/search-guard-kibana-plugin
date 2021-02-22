@@ -87,6 +87,7 @@ export function HeaderUserMenu({ httpClient, configService, kibanaAppService }) 
       .map((item) => {
         return (
           <EuiListGroupItem
+            data-test-subj={`sg.userMenu.appMenu.item.${item.appId}`}
             key={item.appId}
             label={item.label}
             onClick={() => {
