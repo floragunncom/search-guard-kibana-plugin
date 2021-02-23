@@ -67,7 +67,7 @@ describe(`${AuthClass.name} routes`, () => {
         getOIDCWellKnown: jest.fn().mockReturnValue(openIdEndPoints),
       });
 
-      const request = { a: 1 };
+      const request = { a: 1, url: { searchParams: new URLSearchParams() } };
 
       const expectedSessionCookie = {
         username: 'admin',
@@ -163,16 +163,15 @@ describe(`${AuthClass.name} routes`, () => {
         body: {},
         url: {
           pathname: '/auth/openid/login',
-          path: '/auth/openid/login?nextUrl=%2Fapp%2Fkibana',
           href: '/auth/openid/login?nextUrl=%2Fapp%2Fkibana',
-          query: { nextUrl: '/app/kibana' },
+          searchParams: new URLSearchParams('nextUrl=/app/kibana'),
         },
       };
 
       const expectedSessionCookie = {
         openId: {
           nonce: 'ecF1onUEGkfbzBldXS6Unh',
-          query: request.url.query,
+          query: { nextUrl: '/app/kibana' },
         },
       };
 
@@ -190,7 +189,7 @@ describe(`${AuthClass.name} routes`, () => {
         clientId,
         clientSecret,
         scope,
-        searchGuardBackend
+        searchGuardBackend,
       })(context, cloneDeep(request), response);
 
       expect(searchGuardBackend.getOIDCWellKnown).toHaveBeenCalledTimes(1);
@@ -250,15 +249,12 @@ describe(`${AuthClass.name} routes`, () => {
         url: {
           search:
             '?state=ecF1onUEGkfbzBldXS6Unh&session_state=05d65b77-d4bf-4661-a8af-9d065945b6f3&code=eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw',
-          query: {
-            state: 'ecF1onUEGkfbzBldXS6Unh',
-            session_state: '05d65b77-d4bf-4661-a8af-9d065945b6f3',
-            code:
-              'eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw',
-          },
+          searchParams: new URLSearchParams(
+            'state=ecF1onUEGkfbzBldXS6Unh' +
+              '&session_state=05d65b77-d4bf-4661-a8af-9d065945b6f3' +
+              '&code=eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw'
+          ),
           pathname: '/auth/openid/login',
-          path:
-            '/auth/openid/login?state=ecF1onUEGkfbzBldXS6Unh&session_state=05d65b77-d4bf-4661-a8af-9d065945b6f3&code=eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw',
           href:
             '/auth/openid/login?state=ecF1onUEGkfbzBldXS6Unh&session_state=05d65b77-d4bf-4661-a8af-9d065945b6f3&code=eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw',
         },
@@ -270,7 +266,8 @@ describe(`${AuthClass.name} routes`, () => {
         client_id: clientId,
         client_secret: clientSecret,
         grant_type: 'authorization_code',
-        code: request.url.query.code,
+        code:
+          'eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw',
         redirect_uri: redirectUri,
       });
 
@@ -406,15 +403,12 @@ describe(`${AuthClass.name} routes`, () => {
           url: {
             search:
               '?state=ecF1onUEGkfbzBldXS6Unh&session_state=05d65b77-d4bf-4661-a8af-9d065945b6f3&code=eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw',
-            query: {
-              state: 'ecF1onUEGkfbzBldXS6Unh',
-              session_state: '05d65b77-d4bf-4661-a8af-9d065945b6f3',
-              code:
-                'eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw',
-            },
+            searchParams: new URLSearchParams(
+              'state=ecF1onUEGkfbzBldXS6Unh' +
+                '&session_state=05d65b77-d4bf-4661-a8af-9d065945b6f3' +
+                '&code=eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw'
+            ),
             pathname: '/auth/openid/login',
-            path:
-              '/auth/openid/login?state=ecF1onUEGkfbzBldXS6Unh&session_state=05d65b77-d4bf-4661-a8af-9d065945b6f3&code=eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw',
             href:
               '/auth/openid/login?state=ecF1onUEGkfbzBldXS6Unh&session_state=05d65b77-d4bf-4661-a8af-9d065945b6f3&code=eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw',
           },

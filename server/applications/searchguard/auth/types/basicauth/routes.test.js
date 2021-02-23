@@ -48,7 +48,6 @@ describe(`${AuthClass.name} routes`, () => {
           search: '?nextUrl=%2Fapp%2Fhome',
           query: { nextUrl: '/app/home' },
           pathname: '/login',
-          path: '/login?nextUrl=%2Fapp%2Fhome',
           href: '/login?nextUrl=%2Fapp%2Fhome',
         },
       };
@@ -107,7 +106,6 @@ describe(`${AuthClass.name} routes`, () => {
           body: { username: 'admin', password: 'admin' },
           url: {
             pathname: '/api/v1/auth/login',
-            path: '/api/v1/auth/login',
             href: '/api/v1/auth/login',
           },
         };
@@ -198,7 +196,6 @@ describe(`${AuthClass.name} routes`, () => {
         body: { username: 'admin', password: 'admin' },
         url: {
           pathname: '/api/v1/auth/login',
-          path: '/api/v1/auth/login',
           href: '/api/v1/auth/login',
         },
       };
@@ -289,7 +286,6 @@ describe(`${AuthClass.name} routes`, () => {
         body: { username: 'admin', password: 'admin' },
         url: {
           pathname: '/api/v1/auth/login',
-          path: '/api/v1/auth/login',
           href: '/api/v1/auth/login',
         },
       };
@@ -342,7 +338,6 @@ describe(`${AuthClass.name} routes`, () => {
         },
         url: {
           pathname: '/api/v1/auth/logout',
-          path: '/api/v1/auth/logout',
           href: '/api/v1/auth/logout',
         },
         auth: { isAuthenticated: true },
