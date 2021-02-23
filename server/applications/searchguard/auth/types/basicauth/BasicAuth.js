@@ -168,7 +168,6 @@ export default class BasicAuth extends AuthType {
         return null;
       }
 
-
       // If we have sessionCredentials AND auth headers we need to check if they are the same.
       if (sessionCredentials !== null && sessionCredentials.authHeaderValue === authHeaderValue) {
         // The auth header credentials are the same as those in the session,
@@ -199,11 +198,15 @@ export default class BasicAuth extends AuthType {
 
     try {
       if (this.authMethodConfig.session) {
-        const response = await this.searchGuardBackend.authenticateWithSession({
+        const authRequestData = {
           mode: 'basic',
-          user: credentials.username,
-          password: credentials.password,
-        });
+        };
+        // Credentials may be null if we have anonymous auth
+        if (credentials) {
+          authRequestData.user = credentials.username;
+          authRequestData.password = credentials.password;
+        }
+        const response = await this.searchGuardBackend.authenticateWithSession(authRequestData);
 
         sessionCredentials = {
           authHeaderValue: 'Bearer ' + response.token,
@@ -217,8 +220,11 @@ export default class BasicAuth extends AuthType {
       } else {
         // Without session token
         const authHeaderValue =
-          'Basic ' +
-          Buffer.from(`${credentials.username}:${credentials.password}`).toString('base64');
+          credentials === null
+            ? undefined
+            : 'Basic ' +
+              Buffer.from(`${credentials.username}:${credentials.password}`).toString('base64');
+
         user = await this.searchGuardBackend.authenticateWithHeader(
           this.authHeaderName,
           authHeaderValue,

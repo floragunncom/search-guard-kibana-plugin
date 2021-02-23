@@ -244,7 +244,7 @@ export function defineRoutes({
     async (context, request, response) => {
       if (config.get('searchguard.auth.anonymous_auth_enabled')) {
         try {
-          await authInstance.handleAuthenticate(request, {}, { isAnonymousAuth: true });
+          await authInstance.handleAuthenticate(request, null, { isAnonymousAuth: true });
 
           let nextUrl = null;
           if (request.url && request.url.query && request.url.query.nextUrl) {
