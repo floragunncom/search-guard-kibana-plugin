@@ -14,13 +14,29 @@
  * limitations under the License.
  */
 
-export const APP_ROOT = '';
-export const API_ROOT = `${APP_ROOT}/api/v1`;
+import { handleKibanaCapabilities } from './kibana_capabilities';
+import { setupHttpResponseMock } from '../../../utils/mocks';
 
-export * from '../../common/constants';
+test('handleKibanaCapabilities', () => {
+  const response = setupHttpResponseMock();
+  const request = {
+    body: {
+      applications: ['a', 'b', 'c'],
+    },
+  };
 
-export const ES_SCROLL_SETTINGS = {
-  KEEPALIVE: '25s',
-};
-
-export const DEFAULT_KIBANA_INDEX_NAME = '.kibana';
+  handleKibanaCapabilities()(null, request, response);
+  expect(response.ok).toHaveBeenCalledWith({
+    body: {
+      a: {},
+      b: {},
+      c: {},
+      dashboard: {},
+      navLinks: {
+        a: true,
+        b: true,
+        c: true,
+      },
+    },
+  });
+});

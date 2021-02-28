@@ -15,6 +15,8 @@
  limitations under the License.
  */
 
+import { KibanaResponse } from '../../../../../../../src/core/server/http/router';
+
 import InvalidSessionError from '../errors/invalid_session_error';
 import SessionExpiredError from '../errors/session_expired_error';
 import filterAuthHeaders from '../filter_auth_headers';
@@ -51,10 +53,10 @@ export default class AuthType {
     this.routesToIgnore = [
       '/login',
       '/customerror',
-      '/api/core/capabilities',
       '/bootstrap.js',
       '/bundles/app/core/bootstrap.js',
       '/bundles/app/searchguard-customerror/bootstrap.js',
+      '/api/core/capabilities',
     ];
 
     this.sessionTTL = this.config.get('searchguard.session.ttl');
@@ -235,6 +237,24 @@ export default class AuthType {
 
     return sessionCookie;
   }
+
+  onPostAuth = async (request, response, toolkit) => {
+    if (request.route.path === '/api/core/capabilities' && !request.headers.authorization) {
+      /*
+      We need this hackish redirect because Kibana calls the capabilities on our login page. The Spaces capabilities provider checks if there is the default space in the Kibana index.
+      The problem is that the Kibana call is scoped to the current request. And the current request doesn't contain any credentials in the headers because the user hasn't been authenticated yet.
+      As a result, the call fails with 401, and the user sees the Kibana error page instead of our login page.
+      We flank this issue by redirecting the Kibana call to our route /api/v1/searchguard/kibana_capabilities where we serve some
+      minimum amount of capabilities. We expect that Kibana fetches the capabilities again once the user logged in.
+      */
+
+      // The payload is passed together with the redirect despite of the undefined here
+      return new KibanaResponse(307, undefined, {
+        headers: { location: this.basePath + '/api/v1/searchguard/kibana_capabilities' },
+      });
+    }
+    return toolkit.next();
+  };
 
   checkAuth = async (request, response, toolkit) => {
     if (this.routesToIgnore.includes(request.url.pathname)) {

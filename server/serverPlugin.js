@@ -75,7 +75,6 @@ export class ServerPlugin {
           elasticsearch,
           kibanaCore: core,
           sessionStorageFactory,
-          pluginDependencies,
         });
       }
     })();

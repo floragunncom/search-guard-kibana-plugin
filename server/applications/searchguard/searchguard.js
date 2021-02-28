@@ -53,7 +53,6 @@ export class SearchGuard {
         },
       });
 
-      pluginDependencies.securityOss.showInsecureClusterWarning$.next(false);
       // Sanity checks
       checkXPackSecurityDisabled({ pluginDependencies, logger: this.logger });
       checkTLSConfig({ configService: this.configService, logger: this.logger });
@@ -212,6 +211,7 @@ export class SearchGuard {
 
       if (authInstance) {
         core.http.registerAuth(authInstance.checkAuth);
+        core.http.registerOnPostAuth(authInstance.onPostAuth);
       }
 
       // Handle Kerberos separately because we don't want to bring up entire jungle from AuthType here.
