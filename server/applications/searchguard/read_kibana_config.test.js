@@ -1,6 +1,27 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/*
+ *    Copyright 2020 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import path from 'path';
 import { defaultsDeep } from 'lodash';
-import { parseKibanaConfig, nestConfigProperties, DEFAULT_CONFIG } from './read_kibana_config';
+import {
+  parseKibanaConfig,
+  nestConfigProperties,
+  DEFAULT_CONFIG,
+  findTheConfigPath,
+} from './read_kibana_config';
 
 describe('nestConfigProperties', () => {
   test('can nest the config properties', () => {
@@ -212,5 +233,38 @@ searchguard.multitenancy.tenants.enable_global: false
 
   test('can produce the default config', () => {
     expect(parseKibanaConfig('')).toEqual(DEFAULT_CONFIG);
+  });
+});
+
+describe('findTheConfigPath', () => {
+  beforeEach(() => {
+    process.argv = [];
+    process.env = {};
+  });
+
+  test('get the path from cmd line argument -c', () => {
+    process.argv = ['-c', '/opt/kibana/config/kibana_instance0.yml'];
+    expect(findTheConfigPath()).toBe('/opt/kibana/config/kibana_instance0.yml');
+  });
+
+  test('get the path from cmd line argument --config', () => {
+    process.argv = ['--config', '/opt/kibana/config/kibana_instance1.yml'];
+    expect(findTheConfigPath()).toBe('/opt/kibana/config/kibana_instance1.yml');
+  });
+
+  test('get the path from $KBN_PATH_CONF', () => {
+    process.env.KBN_PATH_CONF = '/opt/kibana/config';
+    expect(findTheConfigPath()).toBe('/opt/kibana/config/kibana.yml');
+  });
+
+  test('get the path from $KIBANA_HOME', () => {
+    process.env.KIBANA_HOME = '/opt/kibana';
+    expect(findTheConfigPath()).toBe('/opt/kibana/config/kibana.yml');
+  });
+
+  test('get the path from parent', () => {
+    expect(findTheConfigPath()).toBe(
+      path.resolve(__dirname, '..', '..', '..', '..', '..', 'config', 'kibana.yml')
+    );
   });
 });
