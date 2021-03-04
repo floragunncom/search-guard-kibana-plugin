@@ -1,8 +1,8 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { get } from 'lodash';
 import { registerRoutes } from './routes';
-import { readKibanaConfig } from './read_kibana_config';
-import { ConfigService } from '../../../common/config_service';
+import { ConfigService } from './config_service';
+import { readKibanaConfigFromFile } from './read_kibana_config';
 import { Kerberos } from './auth/types';
 import { defineAuthInfoRoutes } from './auth/routes_authinfo';
 import { defineSystemRoutes } from './system/routes';
@@ -29,7 +29,7 @@ export class SearchGuard {
 
     try {
       const isDev = get(this.coreContext, 'env.mode.dev', false);
-      this.configService = new ConfigService(readKibanaConfig({ isDev }));
+      this.configService = new ConfigService(readKibanaConfigFromFile({ isDev }));
 
       registerRoutes({
         router: kibanaRouter,

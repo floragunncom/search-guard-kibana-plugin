@@ -1,7 +1,6 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 // eslint-disable-next-line no-restricted-imports
-import { get as _get, defaultsDeep } from 'lodash';
-import { ConfigService } from '../../common/config_service';
+import { get as _get, set as _set, defaultsDeep, cloneDeep } from 'lodash';
 
 export const CONFIG_DEFAULTS = {
   restapiinfo: {},
@@ -13,9 +12,9 @@ export const CONFIG_DEFAULTS = {
   server: {},
 };
 
-export class UiConfigService extends ConfigService {
+export class UiConfigService {
   constructor({ config = {}, uiSettings, coreContext, apiService } = {}) {
-    super(config);
+    this.config = config;
     defaultsDeep(this.config, CONFIG_DEFAULTS);
     this.uiSettings = uiSettings;
     this.coreContext = coreContext;
@@ -144,5 +143,26 @@ export class UiConfigService extends ConfigService {
 
   licenseExpiresIn() {
     return this.get('systeminfo.sg_license.expiry_in_days', 0);
+  }
+
+  get(path, defaultValue) {
+    return _get(this.getConfig(), path, defaultValue);
+  }
+
+  getConfig() {
+    return cloneDeep(this.config);
+  }
+
+  getSearchguardConfig(path = '', defaultValue) {
+    path = path ? `searchguard.${path}` : 'searchguard';
+    return this.get(path, defaultValue);
+  }
+
+  set(path, value) {
+    _set(this.config, path, value);
+  }
+
+  setSearchguardConfig(path, value) {
+    this.set(`searchguard.${path}`, value);
   }
 }
