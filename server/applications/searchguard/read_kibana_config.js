@@ -193,29 +193,31 @@ export function nestConfigProperties(config = {}) {
 }
 
 export function parseKibanaConfig(rawConfig = '') {
-  let config = {};
-
   try {
-    config = yaml.safeLoad(rawConfig) || {};
-    return defaultsDeep(nestConfigProperties(config), DEFAULT_CONFIG);
+    return nestConfigProperties(yaml.safeLoad(rawConfig) || {});
   } catch (error) {
-    throw new Error(`Fail to read kibana.yml. Make sure it is correct. Error: ${error.toString()}`);
+    throw new Error(
+      `Fail to parse Kibana config. Make sure it is correct. Error: ${error.toString()}`
+    );
   }
 }
 
-export function findTheConfigPath({ configPath, isDev } = {}) {
+export function findTheConfigPath({ configPath = [], isDev } = {}) {
   const KIBANA_YML = 'kibana.yml';
   const KIBANA_DEV_YML = 'kibana.dev.yml';
 
-  let commandLineArgIdx = process.argv.findIndex((arg) => arg === '-c' || arg === '--config');
-  if (commandLineArgIdx > -1) commandLineArgIdx += 1;
+  const isConfigFlagUsed = process.argv.some((arg) => arg === '-c' || arg === '--config');
 
-  if (commandLineArgIdx > -1) {
-    configPath = process.argv[commandLineArgIdx];
+  if (isConfigFlagUsed) {
+    for (let i = 0; i < process.argv.length; i++) {
+      if (process.argv[i] === '-c' || process.argv[i] === '--config') {
+        configPath.push(process.argv[i + 1]);
+      }
+    }
   } else if (process.env.KBN_PATH_CONF) {
-    configPath = path.resolve(process.env.KBN_PATH_CONF, KIBANA_YML);
+    configPath.push(path.resolve(process.env.KBN_PATH_CONF, KIBANA_YML));
   } else if (process.env.KIBANA_HOME) {
-    configPath = path.resolve(process.env.KIBANA_HOME, 'config', KIBANA_YML);
+    configPath.push(path.resolve(process.env.KIBANA_HOME, 'config', KIBANA_YML));
   } else {
     // Try to find config in the parent
     const kibanaDevYmlPath = path.resolve(
@@ -230,21 +232,42 @@ export function findTheConfigPath({ configPath, isDev } = {}) {
     );
 
     if (isDev && fs.existsSync(kibanaDevYmlPath)) {
-      configPath = kibanaDevYmlPath;
+      configPath.push(kibanaDevYmlPath);
     } else {
-      configPath = path.resolve(__dirname, '..', '..', '..', '..', '..', 'config', KIBANA_YML);
+      configPath.push(path.resolve(__dirname, '..', '..', '..', '..', '..', 'config', KIBANA_YML));
     }
   }
 
   return configPath;
 }
 
-export function readKibanaConfigFromFile({ isDev = false } = {}) {
+export function readKibanaConfig({ isDev = false, logger } = {}) {
   const configPath = findTheConfigPath({ isDev });
 
-  if (!fs.existsSync(configPath)) {
-    throw new Error('Failed to find Kibana config in ' + configPath);
+  const configs = [];
+  for (const path of configPath) {
+    if (fs.existsSync(path)) {
+      try {
+        configs.push(parseKibanaConfig(fs.readFileSync(path, 'utf8')));
+      } catch (error) {
+        logger.error(error);
+      }
+    } else {
+      logger.error(`Failed to find the Kibana config at ${path}`);
+    }
   }
 
-  return parseKibanaConfig(fs.readFileSync(configPath, 'utf8'));
+  if (!configs.length) {
+    logger.error('There is no Kibana config to read. Return the default values.');
+    return { ...DEFAULT_CONFIG };
+  }
+
+  // Multiple config files are joined
+  const joinedConfig = {};
+  for (const config of configs) {
+    defaultsDeep(joinedConfig, config);
+  }
+  defaultsDeep(joinedConfig, DEFAULT_CONFIG);
+
+  return joinedConfig;
 }

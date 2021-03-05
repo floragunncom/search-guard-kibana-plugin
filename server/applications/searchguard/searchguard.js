@@ -2,7 +2,7 @@
 import { get } from 'lodash';
 import { registerRoutes } from './routes';
 import { ConfigService } from './config_service';
-import { readKibanaConfigFromFile } from './read_kibana_config';
+import { readKibanaConfig } from './read_kibana_config';
 import { Kerberos } from './auth/types';
 import { defineAuthInfoRoutes } from './auth/routes_authinfo';
 import { defineSystemRoutes } from './system/routes';
@@ -29,7 +29,7 @@ export class SearchGuard {
 
     try {
       const isDev = get(this.coreContext, 'env.mode.dev', false);
-      this.configService = new ConfigService(readKibanaConfigFromFile({ isDev }));
+      this.configService = new ConfigService(readKibanaConfig({ isDev, logger: this.logger }));
 
       registerRoutes({
         router: kibanaRouter,

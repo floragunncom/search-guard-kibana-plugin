@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import fs from 'fs';
 import path from 'path';
 import { defaultsDeep } from 'lodash';
 import {
@@ -21,7 +22,11 @@ import {
   nestConfigProperties,
   DEFAULT_CONFIG,
   findTheConfigPath,
+  readKibanaConfig,
 } from './read_kibana_config';
+import { setupLoggerMock } from '../../utils/mocks';
+
+jest.mock('fs');
 
 describe('nestConfigProperties', () => {
   test('can nest the config properties', () => {
@@ -91,7 +96,7 @@ server.port: 5602
     `;
 
     const error = new Error(
-      `Fail to read kibana.yml. Make sure it is correct. Error: YAMLException: end of the stream or a document separator is expected at line 3, column 12:\n    server.port: 5602\n               ^`
+      `Fail to parse Kibana config. Make sure it is correct. Error: YAMLException: end of the stream or a document separator is expected at line 3, column 12:\n    server.port: 5602\n               ^`
     );
 
     expect(() => parseKibanaConfig(kibanaConfig)).toThrow(error);
@@ -107,16 +112,12 @@ server.port: 5602
 server.host: "localhost"
     `;
 
-    const config = defaultsDeep(
-      {
-        server: {
-          port: 5602,
-          host: 'localhost',
-        },
+    const config = {
+      server: {
+        port: 5602,
+        host: 'localhost',
       },
-      DEFAULT_CONFIG
-    );
-
+    };
     expect(parseKibanaConfig(kibanaConfig)).toEqual(config);
   });
 
@@ -128,24 +129,20 @@ searchguard.multitenancy.tenants.enable_global: false
 searchguard.multitenancy.tenants.preferred: ['velociraptor', 'admin_tenant', 'Private']
     `;
 
-    const config = defaultsDeep(
-      {
-        server: {
-          port: 5602,
-        },
-        searchguard: {
-          multitenancy: {
-            enabled: true,
-            tenants: {
-              enable_global: false,
-              preferred: ['velociraptor', 'admin_tenant', 'Private'],
-            },
+    const config = {
+      server: {
+        port: 5602,
+      },
+      searchguard: {
+        multitenancy: {
+          enabled: true,
+          tenants: {
+            enable_global: false,
+            preferred: ['velociraptor', 'admin_tenant', 'Private'],
           },
         },
       },
-      DEFAULT_CONFIG
-    );
-
+    };
     expect(parseKibanaConfig(kibanaConfig)).toEqual(config);
   });
 
@@ -165,37 +162,33 @@ map.regionmap:
             description: "INSEE numeric identifier"
     `;
 
-    const config = defaultsDeep(
-      {
-        server: {
-          port: 5602,
-        },
-        map: {
-          regionmap: {
-            includeElasticMapsService: false,
-            layers: [
-              {
-                attribution: 'INRAP',
-                fields: [
-                  {
-                    description: 'Full department name',
-                    name: 'department',
-                  },
-                  {
-                    description: 'INSEE numeric identifier',
-                    name: 'INSEE',
-                  },
-                ],
-                name: 'Departments of France',
-                url: 'http://my.cors.enabled.server.org/france_departements.geojson',
-              },
-            ],
-          },
+    const config = {
+      server: {
+        port: 5602,
+      },
+      map: {
+        regionmap: {
+          includeElasticMapsService: false,
+          layers: [
+            {
+              attribution: 'INRAP',
+              fields: [
+                {
+                  description: 'Full department name',
+                  name: 'department',
+                },
+                {
+                  description: 'INSEE numeric identifier',
+                  name: 'INSEE',
+                },
+              ],
+              name: 'Departments of France',
+              url: 'http://my.cors.enabled.server.org/france_departements.geojson',
+            },
+          ],
         },
       },
-      DEFAULT_CONFIG
-    );
-
+    };
     expect(parseKibanaConfig(kibanaConfig)).toEqual(config);
   });
 
@@ -214,25 +207,21 @@ searchguard.multitenancy.tenants.enable_global: false
 #    animal: wolf
     `;
 
-    const config = defaultsDeep(
-      {
-        searchguard: {
-          multitenancy: {
-            enabled: true,
-            tenants: {
-              enable_global: false,
-            },
+    const config = {
+      searchguard: {
+        multitenancy: {
+          enabled: true,
+          tenants: {
+            enable_global: false,
           },
         },
       },
-      DEFAULT_CONFIG
-    );
-
+    };
     expect(parseKibanaConfig(kibanaConfig)).toEqual(config);
   });
 
   test('can produce the default config', () => {
-    expect(parseKibanaConfig('')).toEqual(DEFAULT_CONFIG);
+    expect(parseKibanaConfig('')).toEqual({});
   });
 });
 
@@ -243,28 +232,112 @@ describe('findTheConfigPath', () => {
   });
 
   test('get the path from cmd line argument -c', () => {
-    process.argv = ['-c', '/opt/kibana/config/kibana_instance0.yml'];
-    expect(findTheConfigPath()).toBe('/opt/kibana/config/kibana_instance0.yml');
+    process.argv = [
+      '-c',
+      '/opt/kibana/config/base.kibana.yml',
+      '-c',
+      '/opt/kibana/config/prod.kibana.yml',
+    ];
+    expect(findTheConfigPath()).toEqual([
+      '/opt/kibana/config/base.kibana.yml',
+      '/opt/kibana/config/prod.kibana.yml',
+    ]);
   });
 
   test('get the path from cmd line argument --config', () => {
-    process.argv = ['--config', '/opt/kibana/config/kibana_instance1.yml'];
-    expect(findTheConfigPath()).toBe('/opt/kibana/config/kibana_instance1.yml');
+    process.argv = [
+      '--config',
+      '/opt/kibana/config/base.kibana.yml',
+      '--config',
+      '/opt/kibana/config/prod.kibana.yml',
+    ];
+    expect(findTheConfigPath()).toEqual([
+      '/opt/kibana/config/base.kibana.yml',
+      '/opt/kibana/config/prod.kibana.yml',
+    ]);
   });
 
   test('get the path from $KBN_PATH_CONF', () => {
     process.env.KBN_PATH_CONF = '/opt/kibana/config';
-    expect(findTheConfigPath()).toBe('/opt/kibana/config/kibana.yml');
+    expect(findTheConfigPath()).toEqual(['/opt/kibana/config/kibana.yml']);
   });
 
   test('get the path from $KIBANA_HOME', () => {
     process.env.KIBANA_HOME = '/opt/kibana';
-    expect(findTheConfigPath()).toBe('/opt/kibana/config/kibana.yml');
+    expect(findTheConfigPath()).toEqual(['/opt/kibana/config/kibana.yml']);
   });
 
   test('get the path from parent', () => {
-    expect(findTheConfigPath()).toBe(
-      path.resolve(__dirname, '..', '..', '..', '..', '..', 'config', 'kibana.yml')
+    expect(findTheConfigPath()).toEqual([
+      path.resolve(__dirname, '..', '..', '..', '..', '..', 'config', 'kibana.yml'),
+    ]);
+  });
+});
+
+describe('readKibanaConfig', () => {
+  let logger;
+
+  beforeEach(() => {
+    process.argv = [];
+    logger = setupLoggerMock();
+  });
+
+  test('read multiple configs and defaults deep the configs from left to right', () => {
+    process.argv = [
+      '-c',
+      '/opt/kibana/config/base.kibana.yml',
+      '-c',
+      '/opt/kibana/config/prod.kibana.yml',
+    ];
+
+    const baseKibanaContent = 'a.b: true';
+    const prodKibanaContent = 'a.c: 1';
+
+    fs.existsSync = jest.fn().mockReturnValue(true);
+    fs.readFileSync = jest
+      .fn()
+      .mockReturnValueOnce(baseKibanaContent)
+      .mockReturnValueOnce(prodKibanaContent);
+
+    expect(readKibanaConfig({ logger })).toEqual(
+      defaultsDeep({ a: { b: true, c: 1 } }, DEFAULT_CONFIG)
     );
+  });
+
+  test('omit a config if it cannot be read', () => {
+    process.argv = [
+      '-c',
+      '/opt/kibana/config/base.kibana.yml',
+      '-c',
+      '/opt/kibana/config/prod.kibana.yml',
+    ];
+
+    const baseKibanaContent = 'a.b: true';
+    const prodKibanaContent = `
+A comment.
+server.port: 5602
+    `;
+
+    fs.existsSync = jest.fn().mockReturnValue(true);
+    fs.readFileSync = jest
+      .fn()
+      .mockReturnValueOnce(baseKibanaContent)
+      .mockReturnValueOnce(prodKibanaContent);
+
+    expect(readKibanaConfig({ logger })).toEqual(defaultsDeep({ a: { b: true } }, DEFAULT_CONFIG));
+  });
+
+  test('provide default config if the provided config cannot be read', () => {
+    process.argv = ['-c', '/opt/kibana/config/base.kibana.yml'];
+
+    const kibanaConfig = `
+A comment.
+server.port: 5602
+    `;
+
+    fs.existsSync = jest.fn().mockReturnValue(true);
+    fs.readFileSync = jest.fn().mockReturnValueOnce(kibanaConfig);
+
+    expect(readKibanaConfig({ logger })).toEqual(DEFAULT_CONFIG);
   });
 });
