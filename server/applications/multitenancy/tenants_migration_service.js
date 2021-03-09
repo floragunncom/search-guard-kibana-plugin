@@ -27,17 +27,16 @@ export class TenantsMigrationService {
     this.logger = coreContext.logger.get('tenants-migration-service');
   }
 
-  setupSync({ configService }) {
-    this.logger.debug('Setup tenants saved objects migration');
-    this.configService = configService;
+  async start({ savedObjects, searchGuardBackend, esClient, kibanaRouter, configService }) {
+    this.logger.debug('Start tenants saved objects migration');
 
     try {
-      const savedObjectsConfig = this.configService.get('searchguard.saved_objects');
-      const savedObjectsMigrationConfig = this.configService.get(
+      const savedObjectsConfig = configService.get('searchguard.saved_objects');
+      const savedObjectsMigrationConfig = configService.get(
         'searchguard.multitenancy.saved_objects_migration'
       );
 
-      this.config = {
+      const config = {
         maxImportPayloadBytes: savedObjectsConfig.max_import_payload_bytes,
         maxImportExportSize: savedObjectsConfig.max_import_export_size,
         migration: {
@@ -47,26 +46,13 @@ export class TenantsMigrationService {
           skip: savedObjectsMigrationConfig.skip,
         },
       };
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async start({ savedObjects, searchGuardBackend, esClient, kibanaRouter }) {
-    this.logger.debug('Start tenants saved objects migration');
-
-    try {
-      const didSetupSyncRun = this.config && this.configService;
-      if (!didSetupSyncRun) {
-        throw new Error('You must run setupSync first!');
-      }
 
       const tenantIndices = await searchGuardBackend.getTenantInfoWithInternalUser();
       this.tenantIndices =
         !tenantIndices || typeof tenantIndices !== 'object' ? [] : Object.keys(tenantIndices);
 
       const typeRegistry = savedObjects.getTypeRegistry();
-      const kibanaConfig = this.configService.get('kibana');
+      const kibanaConfig = configService.get('kibana');
 
       const migratorDeps = {
         client: createMigrationEsClient(esClient.asInternalUser, this.logger),
@@ -74,7 +60,7 @@ export class TenantsMigrationService {
         typeRegistry,
         logger: this.logger,
         kibanaVersion: this.coreContext.env.packageInfo.version,
-        savedObjectsConfig: this.config.migration,
+        savedObjectsConfig: config.migration,
         savedObjectValidations: {}, // Kibana NP doesn't have this yet.
       };
 
@@ -95,9 +81,9 @@ export class TenantsMigrationService {
         mappings: migrator.getActiveMappings(),
       });
 
-      const isMigrationNeeded = this.config.migration.skip || !!this.tenantIndices.length;
+      const isMigrationNeeded = config.migration.skip || !!this.tenantIndices.length;
       if (!isMigrationNeeded) {
-        if (this.config.migration.skip) {
+        if (config.migration.skip) {
           this.logger.info('You configured to skip tenants saved objects migration.');
         } else {
           this.logger.info(

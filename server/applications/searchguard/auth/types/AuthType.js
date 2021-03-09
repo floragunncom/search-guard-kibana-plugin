@@ -15,7 +15,7 @@
  limitations under the License.
  */
 
-import { KibanaResponse } from '../../../../../../../src/core/server/http/router';
+import { KibanaResponse } from '../../../../../../../src/core/server/http/router/response';
 
 import InvalidSessionError from '../errors/invalid_session_error';
 import SessionExpiredError from '../errors/session_expired_error';
@@ -30,7 +30,6 @@ export default class AuthType {
     config,
     logger,
     sessionStorageFactory,
-    elasticsearch,
     pluginDependencies,
   }) {
     this.searchGuardBackend = searchGuardBackend;
@@ -38,7 +37,6 @@ export default class AuthType {
     this.kibanaCore = kibanaCore;
     this.logger = logger;
     this.sessionStorageFactory = sessionStorageFactory;
-    this.elasticsearch = elasticsearch;
     this.pluginDependencies = pluginDependencies;
 
     this.basePath = kibanaCore.http.basePath.get();
