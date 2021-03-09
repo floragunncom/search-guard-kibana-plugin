@@ -17,7 +17,7 @@
 import { schema } from '@kbn/config-schema';
 import { ServerPlugin } from './serverPlugin';
 import { version as sgVersion } from '../package.json';
-import { DEFAULT_CONFIG } from './applications/searchguard/read_kibana_config';
+import { DEFAULT_CONFIG } from './default_config';
 
 const {
   searchguard: {

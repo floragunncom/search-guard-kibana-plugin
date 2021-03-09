@@ -29,9 +29,7 @@ import {
   getCookieExpiryTimeMS,
 } from '../../../../../utils/mocks';
 
-function setupElasticsearchMock() {
-  return jest.fn();
-}
+jest.mock('../../../../../../../../src/core/server/http/router', () => jest.fn());
 
 const authType = 'basicauth';
 const authHeaderName = 'authorization';
@@ -42,7 +40,6 @@ describe(AuthClass.name, () => {
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
     const sessionStorageFactory = setupSessionStorageFactoryMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
     const config = setupConfigMock({
@@ -59,7 +56,6 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
@@ -104,7 +100,6 @@ describe(AuthClass.name, () => {
 
     const logger = setupLoggerMock();
     const sessionStorageFactory = setupSessionStorageFactoryMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
     const authInstance = new AuthClass({
@@ -113,7 +108,6 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
@@ -137,7 +131,6 @@ describe(AuthClass.name, () => {
     const searchGuardBackend = setupSearchGuardBackendMock();
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
     const config = setupConfigMock({
@@ -160,7 +153,6 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
@@ -191,7 +183,6 @@ describe(AuthClass.name, () => {
     const searchGuardBackend = setupSearchGuardBackendMock();
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
     const sessionTTL = 3600000;
@@ -227,7 +218,6 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
@@ -268,7 +258,6 @@ describe(AuthClass.name, () => {
     const searchGuardBackend = setupSearchGuardBackendMock();
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
     const config = setupConfigMock({
@@ -302,7 +291,6 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
@@ -340,7 +328,6 @@ describe(AuthClass.name, () => {
     const searchGuardBackend = setupSearchGuardBackendMock();
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
     const config = setupConfigMock({
@@ -374,7 +361,6 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
@@ -416,7 +402,6 @@ describe(AuthClass.name, () => {
   test('handle authenticated request if credentials are only in headers', async () => {
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
     const user = {
@@ -464,7 +449,6 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
@@ -511,7 +495,6 @@ describe(AuthClass.name, () => {
   test('handle unauthenticated request (asynchronous)', async () => {
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
     const response = setupHttpResponseMock();
     const toolkit = setupHttpToolkitMock();
@@ -555,7 +538,6 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
@@ -592,7 +574,6 @@ describe(AuthClass.name, () => {
   test('handle request that has auth header credentials different from the cookie credentials', async () => {
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
     const sessionTTL = 3600000;
@@ -639,7 +620,6 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
@@ -686,7 +666,6 @@ describe(AuthClass.name, () => {
   describe('handle additional headers validation', () => {
     let kibanaCore;
     let logger;
-    let elasticsearch;
     let pluginDependencies;
     let response;
     let toolkit;
@@ -699,7 +678,6 @@ describe(AuthClass.name, () => {
     beforeEach(() => {
       kibanaCore = setupKibanaCoreMock();
       logger = setupLoggerMock();
-      elasticsearch = setupElasticsearchMock();
       pluginDependencies = setupPluginDependenciesMock();
       response = setupHttpResponseMock();
       toolkit = setupHttpToolkitMock();
@@ -750,7 +728,6 @@ describe(AuthClass.name, () => {
         config,
         logger,
         sessionStorageFactory,
-        elasticsearch,
         pluginDependencies,
       });
 
@@ -806,7 +783,6 @@ describe(AuthClass.name, () => {
         config,
         logger,
         sessionStorageFactory,
-        elasticsearch,
         pluginDependencies,
       });
 
