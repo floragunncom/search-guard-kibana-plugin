@@ -34,6 +34,7 @@ function setupConfigServiceMock() {
       if (path === 'searchguard.multitenancy.tenants.enable_private') return true;
       if (path === 'searchguard.multitenancy.tenants.preferred') return ['private'];
       if (path === 'searchguard.multitenancy.debug') return false;
+      if (path === 'kibana.index') return '.kibana';
     }),
   });
 }

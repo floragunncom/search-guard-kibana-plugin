@@ -16,7 +16,6 @@
 
 import { get, assign } from 'lodash';
 import { ensureRawRequest } from '../../../../../src/core/server/http/router';
-import { DEFAULT_KIBANA_INDEX_NAME } from '../../utils/constants';
 import { SG_GLOBAL_TENANT_NAME } from '../../../common/constants';
 
 export class MultitenancyLifecycle {
@@ -217,6 +216,7 @@ export class MultitenancyLifecycle {
    * @returns {Promise<void|boolean>}
    */
   createDefaultSpace = async ({ request, selectedTenant }) => {
+    const kibanaIndex = this.configService.get('kibana.index');
     const defaultSpaceId = 'space:default';
     // If the spaces doesn't work, check the default doc structure
     // in the Kibana version you use. Maybe the doc changed.
@@ -233,17 +233,18 @@ export class MultitenancyLifecycle {
     };
 
     const [{ elasticsearch }] = await this.getStartServices();
+    // Kibana talks to its index. The SG ES plugin substitutes the Kibana index name with a tenant index name.
     try {
       await elasticsearch.client.asScoped(request).asCurrentUser.transport.request({
         method: 'get',
-        path: `/${DEFAULT_KIBANA_INDEX_NAME}/_doc/${defaultSpaceId}`,
+        path: `/${kibanaIndex}/_doc/${defaultSpaceId}`,
       });
     } catch (error) {
       if (error.meta.statusCode === 404) {
         try {
           await elasticsearch.client.asScoped(request).asCurrentUser.create({
             id: defaultSpaceId,
-            index: DEFAULT_KIBANA_INDEX_NAME,
+            index: kibanaIndex,
             refresh: true,
             body: defaultSpaceDoc,
           });

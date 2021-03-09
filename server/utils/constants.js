@@ -22,5 +22,3 @@ export * from '../../common/constants';
 export const ES_SCROLL_SETTINGS = {
   KEEPALIVE: '25s',
 };
-
-export const DEFAULT_KIBANA_INDEX_NAME = '.kibana';
