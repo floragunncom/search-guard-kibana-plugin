@@ -15,7 +15,6 @@
  */
 
 import _ from 'lodash';
-import filterAuthHeaders from '../auth/filter_auth_headers';
 import AuthenticationError from '../auth/errors/authentication_error';
 import User from '../auth/user';
 
@@ -26,7 +25,6 @@ export default class SearchGuardBackend {
   constructor({ configService, getElasticsearch }) {
     this.getElasticsearch = getElasticsearch;
     this.configService = configService;
-    this.requestHeadersWhitelist = this.configService.get('elasticsearch.requestHeadersWhitelist');
   }
 
   async _client({ headers = {}, asWho = 'asCurrentUser', ...options }) {
@@ -75,8 +73,7 @@ export default class SearchGuardBackend {
         headerValue: headerValue,
       };
 
-      const headers = filterAuthHeaders(additionalAuthHeaders, this.requestHeadersWhitelist);
-
+      const headers = additionalAuthHeaders;
       // For anonymous auth, we wouldn't have any value here
       if (headerValue) {
         headers[headerName] = headerValue;
@@ -112,7 +109,7 @@ export default class SearchGuardBackend {
    */
   async authenticateWithHeaders(headers, credentials = {}, additionalAuthHeaders = {}) {
     headers = {
-      ...filterAuthHeaders(additionalAuthHeaders, this.requestHeadersWhitelist),
+      ...additionalAuthHeaders,
       ...headers,
     };
 
@@ -154,11 +151,10 @@ export default class SearchGuardBackend {
 
   async authinfo(headers) {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       return await this._client({
         path: '/_searchguard/authinfo',
         method: 'get',
-        headers: authHeaders,
+        headers,
       });
     } catch (error) {
       if (error.statusCode === 401) {
@@ -280,11 +276,10 @@ export default class SearchGuardBackend {
    */
   async hasPermissions(headers, permissions) {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       return await this._client({
         path: '/_searchguard/permission',
         method: 'get',
-        headers: authHeaders,
+        headers,
         querystring: { permissions },
       });
     } catch (error) {
@@ -297,11 +292,10 @@ export default class SearchGuardBackend {
 
   async multitenancyinfo(headers) {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       return await this._client({
         path: '/_searchguard/kibanainfo',
         method: 'get',
-        headers: authHeaders,
+        headers,
       });
     } catch (error) {
       if (error.statusCode === 401) {
@@ -313,11 +307,10 @@ export default class SearchGuardBackend {
 
   async systeminfo(headers) {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       return await this._client({
         path: '/_searchguard/license',
         method: 'get',
-        headers: authHeaders,
+        headers,
       });
     } catch (error) {
       if (error.statusCode === 401) {
@@ -344,11 +337,10 @@ export default class SearchGuardBackend {
 
   async getTenantInfo(headers) {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       return await this._client({
         path: '/_searchguard/tenantinfo',
         method: 'get',
-        headers: authHeaders,
+        headers,
       });
     } catch (error) {
       if (error.statusCode === 401) {
@@ -360,11 +352,10 @@ export default class SearchGuardBackend {
 
   async uploadLicense(headers, body) {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       return await this._client({
         path: '/_searchguard/api/license',
         method: 'put',
-        headers: authHeaders,
+        headers,
         body,
       });
     } catch (error) {
@@ -401,13 +392,6 @@ export default class SearchGuardBackend {
     const credentials = { username: username, password: password };
     const user = new User(credentials.username, credentials, credentials, [], {});
     return user;
-  }
-
-  getServerUser() {
-    return this.getUser(
-      this.configService.get('elasticsearch.username'),
-      this.configService.get('elasticsearch.password')
-    );
   }
 
   updateAndGetTenantPreferences(request, user, tenant) {

@@ -5,9 +5,6 @@ import {
   checkDoNotFailOnForbidden,
   doNotFailOnForbiddenText,
   failedCheckDoNotFailOnForbiddenText,
-  allowClientCertificatesNeededForSSLCertificateErrorText,
-  checkTLSConfig,
-  alwaysPresentCertificateWarnText,
   checkCookieConfig,
   defaultCookiePasswordWarnText,
   cookieSecureFalseWarnText,
@@ -85,73 +82,6 @@ describe('sanity_checks', () => {
       expect(mockLogger.error).toHaveBeenCalledWith(
         `${failedCheckDoNotFailOnForbiddenText} ${error.toString()}`
       );
-    });
-  });
-
-  describe('checkTLSConfig', () => {
-    let mockLogger;
-    const allowClientCertificateNeededError = new Error(
-      allowClientCertificatesNeededForSSLCertificateErrorText
-    );
-
-    beforeEach(() => {
-      mockLogger = setupLoggerMock();
-    });
-
-    test('log and throw error if elasticsearch.ssl.certificate is used, but not explicitly allowed', () => {
-      const configService = new ConfigService({
-        elasticsearch: {
-          ssl: {
-            certificate: '/path/to/certificate',
-          },
-        },
-      });
-
-      expect(() => checkTLSConfig({ configService, logger: mockLogger })).toThrow(
-        allowClientCertificateNeededError
-      );
-
-      expect(mockLogger.error.mock.calls.length).toBe(1);
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        allowClientCertificatesNeededForSSLCertificateErrorText
-      );
-    });
-
-    test('do not log error if elasticsearch.ssl.certificate is used and explicitly allowed', () => {
-      const configService = new ConfigService({
-        elasticsearch: {
-          ssl: {
-            certificate: '/path/to/certificate',
-          },
-        },
-        searchguard: {
-          allow_client_certificates: true,
-        },
-      });
-
-      expect(() => checkTLSConfig({ configService, logger: mockLogger })).not.toThrow(
-        allowClientCertificateNeededError
-      );
-      expect(mockLogger.error.mock.calls.length).toBe(0);
-    });
-
-    test('log error if elasticsearch.ssl.certificate is used and alwaysPresentCertificate is true', () => {
-      const configService = new ConfigService({
-        elasticsearch: {
-          ssl: {
-            certificate: '/path/to/certificate',
-            alwaysPresentCertificate: true,
-          },
-        },
-        searchguard: {
-          allow_client_certificates: true,
-        },
-      });
-
-      checkTLSConfig({ configService, logger: mockLogger });
-
-      expect(mockLogger.warn.mock.calls.length).toBe(1);
-      expect(mockLogger.warn).toHaveBeenCalledWith(alwaysPresentCertificateWarnText);
     });
   });
 

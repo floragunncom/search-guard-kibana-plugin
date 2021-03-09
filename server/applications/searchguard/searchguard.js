@@ -11,7 +11,6 @@ import SearchGuardBackend from './backend/searchguard';
 import SearchGuardConfigurationBackend from './configuration/backend/searchguard_configuration_backend';
 import {
   checkDoNotFailOnForbidden,
-  checkTLSConfig,
   checkXPackSecurityDisabled,
   checkCookieConfig,
 } from './sanity_checks';
@@ -56,7 +55,6 @@ export class SearchGuard {
       pluginDependencies.securityOss.showInsecureClusterWarning$.next(false);
       // Sanity checks
       checkXPackSecurityDisabled({ pluginDependencies, logger: this.logger });
-      checkTLSConfig({ configService: this.configService, logger: this.logger });
       checkDoNotFailOnForbidden({
         searchGuardBackend: this.searchGuardBackend,
         logger: this.logger,
