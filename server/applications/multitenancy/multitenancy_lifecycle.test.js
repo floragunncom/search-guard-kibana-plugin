@@ -24,6 +24,7 @@ import {
   setupHttpToolkitMock,
   setupAuthInstanceMock,
 } from '../../utils/mocks';
+import { SG_GLOBAL_TENANT_NAME } from '../../../common/constants';
 
 function setupConfigServiceMock() {
   return setupConfigMock({
@@ -260,6 +261,36 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       method: 'get',
       path: '/.kibana/_doc/space:default',
     });
+    expect(elasticsearchClientAsScopedAsCurrentUserCreate).toHaveBeenCalledTimes(0);
+  });
+
+  test('do not create the default space if the global tenant', async () => {
+    sessionCookie = {
+      username: 'admin',
+      tenant: SG_GLOBAL_TENANT_NAME, // there is tenant in cookie
+    };
+    searchGuardBackend = setupSearchGuardBackendMock({
+      authinfo: jest.fn().mockResolvedValue(authinfoResponse),
+      validateTenant: jest.fn().mockReturnValue(SG_GLOBAL_TENANT_NAME),
+    });
+
+    const {
+      elasticsearchClientAsScopedAsCurrentUserCreate,
+      elasticsearchClientAsScopedAsCurrentUserTransportRequest,
+      getStartServices,
+    } = setupForCreateDefaultSpace();
+
+    const mtLifecycle = new MultitenancyLifecycle({
+      authInstance,
+      searchGuardBackend,
+      configService,
+      sessionStorageFactory,
+      logger,
+      getStartServices,
+    });
+    await mtLifecycle.onPreAuth(request, response, toolkit);
+
+    expect(elasticsearchClientAsScopedAsCurrentUserTransportRequest).toHaveBeenCalledTimes(0);
     expect(elasticsearchClientAsScopedAsCurrentUserCreate).toHaveBeenCalledTimes(0);
   });
 

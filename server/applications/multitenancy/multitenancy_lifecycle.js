@@ -17,6 +17,7 @@
 import { get, assign } from 'lodash';
 import { ensureRawRequest } from '../../../../../src/core/server/http/router';
 import { DEFAULT_KIBANA_INDEX_NAME } from '../../utils/constants';
+import { SG_GLOBAL_TENANT_NAME } from '../../../common/constants';
 
 export class MultitenancyLifecycle {
   constructor({
@@ -56,7 +57,9 @@ export class MultitenancyLifecycle {
       const rawRequest = ensureRawRequest(request);
       assign(rawRequest.headers, authHeaders, { sgtenant: selectedTenant || '' });
 
-      await this.createDefaultSpace({ request, selectedTenant });
+      if (selectedTenant !== SG_GLOBAL_TENANT_NAME) {
+        await this.createDefaultSpace({ request, selectedTenant });
+      }
     }
 
     return toolkit.next();
