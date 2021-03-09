@@ -27,7 +27,7 @@ export class TenantsMigrationService {
     this.logger = coreContext.logger.get('tenants-migration-service');
   }
 
-  setupSync({ configService }) {
+  async setup({ configService }) {
     this.logger.debug('Setup tenants saved objects migration');
     this.configService = configService;
 

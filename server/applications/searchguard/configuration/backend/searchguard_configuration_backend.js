@@ -20,9 +20,8 @@ import NotFoundError from './../../backend/errors/not_found';
  * The SearchGuard  backend.
  */
 export default class SearchGuardConfigurationBackend {
-  constructor({ configService, getElasticsearch }) {
+  constructor({ getElasticsearch }) {
     this.getElasticsearch = getElasticsearch;
-    this.configService = configService;
   }
 
   async _client({ headers = {}, asWho = 'asCurrentUser', ...options }) {

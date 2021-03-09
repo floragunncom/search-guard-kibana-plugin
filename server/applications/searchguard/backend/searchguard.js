@@ -22,9 +22,8 @@ import User from '../auth/user';
  * The SearchGuard  backend.
  */
 export default class SearchGuardBackend {
-  constructor({ configService, getElasticsearch }) {
+  constructor({ getElasticsearch }) {
     this.getElasticsearch = getElasticsearch;
-    this.configService = configService;
   }
 
   async _client({ headers = {}, asWho = 'asCurrentUser', ...options }) {

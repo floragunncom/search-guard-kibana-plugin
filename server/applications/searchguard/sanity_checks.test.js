@@ -12,7 +12,7 @@ import {
 import { setupLoggerMock, setupSearchGuardBackendMock } from '../../utils/mocks';
 
 import { ConfigService } from '../../../common';
-import { DEFAULT_CONFIG } from './read_kibana_config';
+import { DEFAULT_CONFIG } from '../../index';
 
 describe('sanity_checks', () => {
   describe('checkXPackSecurityDisabled', () => {
