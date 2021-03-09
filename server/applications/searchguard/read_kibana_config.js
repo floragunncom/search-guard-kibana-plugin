@@ -7,49 +7,6 @@ import { defaultsDeep, get, set } from 'lodash';
 import { version as sgVersion } from '../../../package.json';
 
 export const DEFAULT_CONFIG = {
-  elasticsearch: {
-    customHeaders: {},
-    hosts: ['http://localhost:9200'],
-    logQueries: false,
-    password: 'pass',
-    pingTimeout: 1500,
-    preserveHost: true,
-    requestHeadersWhitelist: ['authorization'],
-    requestTimeout: 30000,
-    shardTimeout: 30000,
-    ssl: {
-      alwaysPresentCertificate: false,
-    },
-    startupTimeout: 5000,
-    username: 'kibana_system',
-  },
-  i18n: {
-    locale: 'en',
-  },
-  kibana: {
-    index: '.kibana',
-  },
-  logging: {
-    dest: 'stdout',
-    quiet: false,
-    silent: false,
-    verbose: false,
-  },
-  ops: {
-    interval: 5000,
-  },
-  pid: {},
-  server: {
-    basePath: '',
-    host: 'localhost',
-    maxPayloadBytes: 1048576,
-    name: 'your-hostname',
-    port: 5601,
-    rewriteBasePath: false,
-    ssl: {
-      enabled: false,
-    },
-  },
   searchguard: {
     enabled: true,
     allow_client_certificates: false,

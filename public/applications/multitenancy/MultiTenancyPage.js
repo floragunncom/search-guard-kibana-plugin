@@ -96,40 +96,16 @@ export class MultiTenancyPage extends Component {
     const { httpClient } = this.context;
     httpClient.get(`${API_ROOT}/multitenancy/info`).then(
       (response) => {
-        const kibana_server_user = this.configService.get('elasticsearch.username');
-        const kibana_index = this.configService.get('kibana.index');
-
         // sanity checks, check that configuration is correct on
         // both ES and KI side
         const mtinfo = response.data;
         let errorMessage = null;
-
-        // this.GLOBAL_USER_WRITEABLE = (!mtinfo.kibana_index_readonly && ! this.userHasDashboardOnlyRole);
 
         if (!mtinfo.kibana_mt_enabled) {
           errorMessage =
             'It seems that the Multitenancy module is not installed on your Elasticsearch cluster, or it is disabled. Multitenancy will not work, please check your installation.';
         }
 
-        if (mtinfo.kibana_server_user !== kibana_server_user) {
-          errorMessage =
-            'Mismatch between the configured Kibana server usernames on Elasticsearch and Kibana, multitenancy will not work! ' +
-            'Configured username on Kibana: "' +
-            kibana_server_user +
-            '", configured username on Elasticsearch: "' +
-            mtinfo.kibana_server_user +
-            '"';
-        }
-
-        if (mtinfo.kibana_index !== kibana_index) {
-          errorMessage =
-            'Mismatch between the configured Kibana index names on Elasticsearch and Kibana, multitenancy will not work! ' +
-            'Configured index name on Kibana: "' +
-            kibana_index +
-            '", configured index name on Elasticsearch: "' +
-            mtinfo.kibana_index +
-            '"';
-        }
         if (errorMessage) {
           this.setState({
             errorMessage,

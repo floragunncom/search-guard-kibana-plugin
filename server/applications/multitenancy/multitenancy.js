@@ -34,16 +34,6 @@ export class Multitenancy {
       this.elasticsearch = elasticsearch;
       this.configService = configService;
 
-      const requestHeadersWhitelist = this.configService.get(
-        'elasticsearch.requestHeadersWhitelist'
-      );
-
-      if (!requestHeadersWhitelist.includes('sgtenant')) {
-        throw new Error(
-          'No tenant header found in whitelist. Please add sgtenant to elasticsearch.requestHeadersWhitelist in kibana.yml'
-        );
-      }
-
       this.tenantsMigration.setupSync({ configService });
     } catch (error) {
       this.logger.error(error);
