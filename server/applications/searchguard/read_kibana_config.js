@@ -17,7 +17,7 @@
 import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
-import { defaultsDeep, get, set } from 'lodash';
+import { defaultsDeep, get, set, cloneDeep } from 'lodash';
 import { version as sgVersion } from '../../../package.json';
 
 export const DEFAULT_CONFIG = {
@@ -246,5 +246,16 @@ export function readKibanaConfigFromFile({ isDev = false } = {}) {
     throw new Error('Failed to find Kibana config in ' + configPath);
   }
 
-  return parseKibanaConfig(fs.readFileSync(configPath, 'utf8'));
+  const config = parseKibanaConfig(fs.readFileSync(configPath, 'utf8'));
+
+  const configForLog = cloneDeep(config);
+  set(configForLog, 'searchguard.cookie.password', 'obfuscated');
+  set(configForLog, 'elasticsearch.password', 'obfuscated');
+  set(configForLog, 'searchguard.openid.client_secret', 'obfuscated');
+  set(configForLog, 'searchguard.openid.client_id', 'obfuscated');
+  set(configForLog, 'xpack.reporting.encryptionKey', 'obfuscated');
+  set(configForLog, 'xpack.encryptedSavedObjects.encryptionKey', 'obfuscated');
+  console.log('kibana config: ', JSON.stringify(configForLog, null, 2));
+
+  return config;
 }
