@@ -30,7 +30,6 @@ describe('SearchGuardConfigurationBackend', () => {
     const getElasticsearch = jest.fn().mockResolvedValue(elasticsearch);
 
     const backend = new SearchGuardConfigurationBackend({ configService, getElasticsearch });
-    backend.requestHeadersWhitelist = [];
     backend._client = jest.fn().mockResolvedValue({});
 
     const resourceName = 'resourceName';

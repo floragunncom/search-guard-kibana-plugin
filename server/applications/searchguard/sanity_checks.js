@@ -1,5 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import { DEFAULT_CONFIG } from './read_kibana_config';
+import { DEFAULT_CONFIG } from '../../default_config';
 
 export const xPackSecurityErrorText =
   'X-Pack Security needs to be disabled for Search Guard to work properly. Please set "xpack.security.enabled" to false in your kibana.yml';

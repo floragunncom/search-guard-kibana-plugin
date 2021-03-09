@@ -16,33 +16,28 @@
 
 import { AuthenticationError } from '../../auth/errors';
 import NotFoundError from './../../backend/errors/not_found';
-import filterAuthHeaders from '../../auth/filter_auth_headers';
 /**
  * The SearchGuard  backend.
  */
 export default class SearchGuardConfigurationBackend {
-  constructor({ configService, getElasticsearch }) {
-    this.getElasticsearch = getElasticsearch;
-    this.configService = configService;
-    this.requestHeadersWhitelist = this.configService.get('elasticsearch.requestHeadersWhitelist');
+  constructor({ elasticsearch }) {
+    this.elasticsearch = elasticsearch;
   }
 
-  async _client({ headers = {}, asWho = 'asCurrentUser', ...options }) {
-    const elasticsearch = await this.getElasticsearch();
-    const { body } = await elasticsearch.client
+  _client = async ({ headers = {}, asWho = 'asCurrentUser', ...options }) => {
+    const { body } = await this.elasticsearch.client
       .asScoped({ headers })
       [asWho].transport.request(options);
 
     return body;
-  }
+  };
 
-  async restapiinfo(headers) {
+  restapiinfo = async (headers) => {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       return await this._client({
         path: '/_searchguard/api/permissionsinfo',
         method: 'get',
-        headers: authHeaders,
+        headers: headers,
       });
     } catch (error) {
       if (error.statusCode === 401) {
@@ -50,14 +45,12 @@ export default class SearchGuardConfigurationBackend {
       }
       throw error;
     }
-  }
+  };
 
-  async indices({ headers, index = [] } = {}) {
+  indices = async ({ headers, index = [] } = {}) => {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
-      const elasticsearch = await this.getElasticsearch();
-      const { body: response } = await elasticsearch.client
-        .asScoped({ headers: authHeaders })
+      const { body: response } = await this.elasticsearch.client
+        .asScoped({ headers })
         .asCurrentUser.cat.indices({
           index,
           format: 'json',
@@ -71,14 +64,12 @@ export default class SearchGuardConfigurationBackend {
       }
       throw error;
     }
-  }
+  };
 
-  async aliases({ headers, alias = [] } = {}) {
+  aliases = async ({ headers, alias = [] } = {}) => {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
-      const elasticsearch = await this.getElasticsearch();
-      const { body: response } = await elasticsearch.client
-        .asScoped({ headers: authHeaders })
+      const { body: response } = await this.elasticsearch.client
+        .asScoped({ headers })
         .asCurrentUser.cat.aliases({
           alias,
           format: 'json',
@@ -92,15 +83,14 @@ export default class SearchGuardConfigurationBackend {
       }
       throw error;
     }
-  }
+  };
 
-  async list(headers, resourceName) {
+  list = async (headers, resourceName) => {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       return await this._client({
         path: `/_searchguard/api/${resourceName}`,
         method: 'get',
-        headers: authHeaders,
+        headers,
       });
     } catch (error) {
       if (error.statusCode === 401) {
@@ -108,15 +98,14 @@ export default class SearchGuardConfigurationBackend {
       }
       throw error;
     }
-  }
+  };
 
-  async get(headers, resourceName, id) {
+  get = async (headers, resourceName, id) => {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       const response = await this._client({
         path: `/_searchguard/api/${resourceName}/${encodeURIComponent(id)}`,
         method: 'get',
-        headers: authHeaders,
+        headers,
       });
 
       return response[id];
@@ -129,15 +118,14 @@ export default class SearchGuardConfigurationBackend {
       }
       throw error;
     }
-  }
+  };
 
-  async save(headers, resourceName, id, body) {
+  save = async (headers, resourceName, id, body) => {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       return await this._client({
         path: `/_searchguard/api/${resourceName}/${encodeURIComponent(id)}`,
         method: 'put',
-        headers: authHeaders,
+        headers,
         body,
       });
     } catch (error) {
@@ -149,15 +137,14 @@ export default class SearchGuardConfigurationBackend {
       }
       throw error;
     }
-  }
+  };
 
-  async delete(headers, resourceName, id) {
+  delete = async (headers, resourceName, id) => {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       return await this._client({
         path: `/_searchguard/api/${resourceName}/${encodeURIComponent(id)}`,
         method: 'delete',
-        headers: authHeaders,
+        headers,
       });
     } catch (error) {
       if (error.statusCode === 401) {
@@ -168,15 +155,14 @@ export default class SearchGuardConfigurationBackend {
       }
       throw error;
     }
-  }
+  };
 
-  async clearCache(headers) {
+  clearCache = async (headers) => {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       return await this._client({
         path: '/_searchguard/api/cache',
         method: 'delete',
-        headers: authHeaders,
+        headers,
       });
     } catch (error) {
       if (error.statusCode === 401) {
@@ -184,15 +170,14 @@ export default class SearchGuardConfigurationBackend {
       }
       throw error;
     }
-  }
+  };
 
-  async validateDls(headers, indexname, body) {
+  validateDls = async (headers, indexname, body) => {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       return await this._client({
         path: '/_validate/query?explain=true',
         method: 'post',
-        headers: authHeaders,
+        headers,
         body,
       });
     } catch (error) {
@@ -201,14 +186,12 @@ export default class SearchGuardConfigurationBackend {
       }
       throw error;
     }
-  }
+  };
 
   getIndexMappings = async ({ headers, body: { index } }) => {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
-      const elasticsearch = await this.getElasticsearch();
-      const { body: mappings } = await elasticsearch.client
-        .asScoped({ headers: authHeaders })
+      const { body: mappings } = await this.elasticsearch.client
+        .asScoped({ headers })
         .asCurrentUser.indices.getMapping({
           index: index.join(','),
           ignore_unavailable: true,

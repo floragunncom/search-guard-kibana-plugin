@@ -29,7 +29,6 @@ export default class ProxyCache extends AuthType {
     config,
     logger,
     sessionStorageFactory,
-    elasticsearch,
     pluginDependencies,
   }) {
     super({
@@ -38,7 +37,6 @@ export default class ProxyCache extends AuthType {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 

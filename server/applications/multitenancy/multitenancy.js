@@ -26,44 +26,29 @@ export class Multitenancy {
     this.tenantsMigration = new TenantsMigrationService(coreContext);
   }
 
-  setupSync({ searchGuardBackend, elasticsearch, configService }) {
-    this.logger.debug('Setup sync app');
-
-    try {
-      this.searchGuardBackend = searchGuardBackend;
-      this.elasticsearch = elasticsearch;
-      this.configService = configService;
-
-      const requestHeadersWhitelist = this.configService.get(
-        'elasticsearch.requestHeadersWhitelist'
-      );
-
-      if (!requestHeadersWhitelist.includes('sgtenant')) {
-        throw new Error(
-          'No tenant header found in whitelist. Please add sgtenant to elasticsearch.requestHeadersWhitelist in kibana.yml'
-        );
-      }
-
-      this.tenantsMigration.setupSync({ configService });
-    } catch (error) {
-      this.logger.error(error);
-    }
-  }
-
-  async setup({ authInstance, kibanaCore, sessionStorageFactory, pluginDependencies }) {
+  async setup({
+    authInstance,
+    kibanaCore,
+    sessionStorageFactory,
+    pluginDependencies,
+    configService,
+    searchGuardBackend,
+  }) {
     this.logger.debug('Setup app');
 
-    try {
-      const didSetupSyncRun = this.searchGuardBackend && this.configService;
-      if (!didSetupSyncRun) {
-        throw new Error('You must run setupSync first!');
-      }
+    const requestHeadersWhitelist = configService.get('elasticsearch.requestHeadersWhitelist');
+    if (!requestHeadersWhitelist.includes('sgtenant')) {
+      throw new Error(
+        'No tenant header found in whitelist. Please add sgtenant to elasticsearch.requestHeadersWhitelist in kibana.yml'
+      );
+    }
 
+    try {
       kibanaCore.http.registerOnPreAuth(
         multiTenancyLifecycleHandler({
           authInstance,
-          searchGuardBackend: this.searchGuardBackend,
-          configService: this.configService,
+          searchGuardBackend,
+          configService,
           sessionStorageFactory,
           logger: this.logger,
           pluginDependencies,
@@ -76,8 +61,8 @@ export class Multitenancy {
 
       defineMultitenancyRoutes({
         kibanaCore,
-        searchGuardBackend: this.searchGuardBackend,
-        config: this.configService,
+        searchGuardBackend,
+        config: configService,
         sessionStorageFactory,
         logger: this.logger,
       });
@@ -86,22 +71,18 @@ export class Multitenancy {
     }
   }
 
-  async start({ core, kibanaRouter }) {
+  async start({ core, kibanaRouter, searchGuardBackend, configService }) {
     this.logger.debug('Start app');
     const savedObjects = core.savedObjects;
     const esClient = core.elasticsearch.client;
 
     try {
-      const didSetupSyncRun = this.searchGuardBackend;
-      if (!didSetupSyncRun) {
-        throw new Error('You must run setupSync first!');
-      }
-
       await this.tenantsMigration.start({
         esClient,
         kibanaRouter,
         savedObjects,
-        searchGuardBackend: this.searchGuardBackend,
+        searchGuardBackend,
+        configService,
       });
     } catch (error) {
       this.logger.error(`start: ${error.toString()} ${error.stack}`);

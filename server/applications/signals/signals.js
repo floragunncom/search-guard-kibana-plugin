@@ -22,7 +22,7 @@ export class Signals {
     this.logger = coreContext.logger.get('signals');
   }
 
-  startSync({ core, kibanaRouter, searchguardBackendService }) {
+  start({ core, kibanaRouter, searchguardBackendService }) {
     this.logger.debug('Start app');
 
     try {

@@ -98,13 +98,10 @@ export class MultiTenancyPage extends Component {
       (response) => {
         const kibana_server_user = this.configService.get('elasticsearch.username');
         const kibana_index = this.configService.get('kibana.index');
-
         // sanity checks, check that configuration is correct on
         // both ES and KI side
         const mtinfo = response.data;
         let errorMessage = null;
-
-        // this.GLOBAL_USER_WRITEABLE = (!mtinfo.kibana_index_readonly && ! this.userHasDashboardOnlyRole);
 
         if (!mtinfo.kibana_mt_enabled) {
           errorMessage =
@@ -130,6 +127,7 @@ export class MultiTenancyPage extends Component {
             mtinfo.kibana_index +
             '"';
         }
+
         if (errorMessage) {
           this.setState({
             errorMessage,
