@@ -5,7 +5,7 @@
   "homepage": "https://search-guard.com",
   "license": "Apache-2.0",
   "searchguard": {
-    "test_sg_version": "7.10.2-master-SNAPSHOT",
+    "test_sg_version": "7.11.2-master-SNAPSHOT",
     "kibana_branch": "7.11"
   },
   "repository": {
