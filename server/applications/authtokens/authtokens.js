@@ -21,7 +21,7 @@ export class AuthTokens {
     this.logger = coreContext.logger.get('authTokens');
   }
 
-  startSync({ core, kibanaRouter }) {
+  start({ core, kibanaRouter }) {
     this.logger.debug('Start app');
 
     try {
