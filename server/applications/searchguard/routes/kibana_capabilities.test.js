@@ -14,27 +14,29 @@
  * limitations under the License.
  */
 
-import { multitenancyRoutes } from './multitenancy';
-import { getTenantInfoRoute } from './get_tenant_info';
+import { handleKibanaCapabilities } from './kibana_capabilities';
+import { setupHttpResponseMock } from '../../../utils/mocks';
 
-export { migrateTenantsRoute as defineMigrateRoutes } from './migrate';
+test('handleKibanaCapabilities', () => {
+  const response = setupHttpResponseMock();
+  const request = {
+    body: {
+      applications: ['a', 'b', 'c'],
+    },
+  };
 
-export function defineMultitenancyRoutes({
-  router,
-  searchGuardBackend,
-  config,
-  sessionStorageFactory,
-  logger,
-  clusterClient,
-}) {
-  multitenancyRoutes({
-    router,
-    searchGuardBackend,
-    config,
-    sessionStorageFactory,
-    logger,
-    clusterClient,
+  handleKibanaCapabilities()(null, request, response);
+  expect(response.ok).toHaveBeenCalledWith({
+    body: {
+      a: {},
+      b: {},
+      c: {},
+      dashboard: {},
+      navLinks: {
+        a: true,
+        b: true,
+        c: true,
+      },
+    },
   });
-
-  getTenantInfoRoute({ searchGuardBackend, logger, router });
-}
+});

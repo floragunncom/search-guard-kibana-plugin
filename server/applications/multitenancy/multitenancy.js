@@ -17,7 +17,7 @@
 
 import { TenantsMigrationService } from './tenants_migration_service';
 import { defineMultitenancyRoutes } from './routes';
-import { multiTenancyLifecycleHandler } from './request_headers';
+import { MultitenancyLifecycle } from './multitenancy_lifecycle';
 
 export class Multitenancy {
   constructor(coreContext) {
@@ -59,27 +59,27 @@ export class Multitenancy {
         throw new Error('You must run setupSync first!');
       }
 
-      kibanaCore.http.registerOnPreAuth(
-        multiTenancyLifecycleHandler({
-          authInstance,
-          searchGuardBackend: this.searchGuardBackend,
-          configService: this.configService,
-          sessionStorageFactory,
-          logger: this.logger,
-          pluginDependencies,
-          getElasticsearch: async () => {
-            const [{ elasticsearch }] = await kibanaCore.getStartServices();
-            return elasticsearch;
-          },
-        })
-      );
+      const router = kibanaCore.http.createRouter();
+      const [{ elasticsearch }] = await kibanaCore.getStartServices();
+
+      const multitenancyLifecycle = new MultitenancyLifecycle({
+        authInstance,
+        searchGuardBackend: this.searchGuardBackend,
+        configService: this.configService,
+        sessionStorageFactory,
+        logger: this.logger,
+        clusterClient: elasticsearch.client,
+        pluginDependencies,
+      });
+      kibanaCore.http.registerOnPreAuth(multitenancyLifecycle.onPreAuth);
 
       defineMultitenancyRoutes({
-        kibanaCore,
+        router,
         searchGuardBackend: this.searchGuardBackend,
         config: this.configService,
         sessionStorageFactory,
         logger: this.logger,
+        clusterClient: elasticsearch.client,
       });
     } catch (error) {
       this.logger.error(`setup: ${error.toString()} ${error.stack}`);

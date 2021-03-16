@@ -19,13 +19,12 @@ import { API_ROOT } from '../../../utils/constants';
 import { schema } from '@kbn/config-schema';
 
 export function multitenancyRoutes({
-  kibanaCore,
+  router,
   searchGuardBackend,
   config,
   sessionStorageFactory,
   logger,
 }) {
-  const router = kibanaCore.http.createRouter();
   const debugEnabled = config.get('searchguard.multitenancy.debug');
 
   router.post(
