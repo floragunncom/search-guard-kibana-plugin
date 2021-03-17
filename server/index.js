@@ -92,7 +92,7 @@ export const ConfigSchema = schema.object({
       minLength: 32,
       defaultValue: cookieDefaults.password,
     }),
-    ttl: schema.number({ defaultValue: cookieDefaults.ttl }),
+    ttl: schema.nullable(schema.number({ defaultValue: cookieDefaults.ttl })),
     domain: schema.maybe(schema.string()),
     isSameSite: schema.oneOf(
       [
