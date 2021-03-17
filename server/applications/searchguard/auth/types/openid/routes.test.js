@@ -63,7 +63,11 @@ describe(`${AuthClass.name} routes`, () => {
           'http://keycloak.example.com:8080/auth/realms/master/protocol/openid-connect/logout',
       };
 
-      const request = { a: 1 };
+      const searchGuardBackend = setupSearchGuardBackendMock({
+        getOIDCWellKnown: jest.fn().mockReturnValue(openIdEndPoints),
+      });
+
+      const request = { a: 1, url: { searchParams: new URLSearchParams() } };
 
       const expectedSessionCookie = {
         username: 'admin',
@@ -90,6 +94,7 @@ describe(`${AuthClass.name} routes`, () => {
       authInstance.sessionStorageFactory = sessionStorageFactory;
 
       await logoutHandler({
+        searchGuardBackend,
         kibanaCore,
         config,
         authInstance,
@@ -98,6 +103,7 @@ describe(`${AuthClass.name} routes`, () => {
         logger,
       })(context, cloneDeep(request), response);
 
+      expect(searchGuardBackend.getOIDCWellKnown).toHaveBeenCalledTimes(1);
       expect(authInstance.clear).toHaveBeenCalledWith(request);
       expect(response.ok).toHaveBeenCalledWith({
         body: {
@@ -148,21 +154,24 @@ describe(`${AuthClass.name} routes`, () => {
           'http://keycloak.example.com:8080/auth/realms/master/protocol/openid-connect/logout',
       };
 
+      const searchGuardBackend = setupSearchGuardBackendMock({
+        getOIDCWellKnown: jest.fn().mockReturnValue(openIdEndPoints),
+      });
+
       const request = {
         headers: {},
         body: {},
         url: {
           pathname: '/auth/openid/login',
-          path: '/auth/openid/login?nextUrl=%2Fapp%2Fkibana',
           href: '/auth/openid/login?nextUrl=%2Fapp%2Fkibana',
-          query: { nextUrl: '/app/kibana' },
+          searchParams: new URLSearchParams('nextUrl=/app/kibana'),
         },
       };
 
       const expectedSessionCookie = {
         openId: {
           nonce: 'ecF1onUEGkfbzBldXS6Unh',
-          query: request.url.query,
+          query: { nextUrl: '/app/kibana' },
         },
       };
 
@@ -180,9 +189,10 @@ describe(`${AuthClass.name} routes`, () => {
         clientId,
         clientSecret,
         scope,
-        openIdEndPoints,
+        searchGuardBackend,
       })(context, cloneDeep(request), response);
 
+      expect(searchGuardBackend.getOIDCWellKnown).toHaveBeenCalledTimes(1);
       expect(getServerInfo).toHaveBeenCalledTimes(1);
       expect(sessionStorageFactory.asScoped).toHaveBeenCalledWith(request);
       expect(sessionStorageFactoryGet).toHaveBeenCalledTimes(1);
@@ -226,7 +236,7 @@ describe(`${AuthClass.name} routes`, () => {
       const openIdEndPoints = {
         authorization_endpoint:
           'http://keycloak.example.com:8080/auth/realms/master/protocol/openid-connect/auth',
-        token_endpoint:
+        token_endpoint_proxy:
           'http://keycloak.example.com:8080/auth/realms/master/protocol/openid-connect/token',
         end_session_endpoint:
           'http://keycloak.example.com:8080/auth/realms/master/protocol/openid-connect/logout',
@@ -239,15 +249,12 @@ describe(`${AuthClass.name} routes`, () => {
         url: {
           search:
             '?state=ecF1onUEGkfbzBldXS6Unh&session_state=05d65b77-d4bf-4661-a8af-9d065945b6f3&code=eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw',
-          query: {
-            state: 'ecF1onUEGkfbzBldXS6Unh',
-            session_state: '05d65b77-d4bf-4661-a8af-9d065945b6f3',
-            code:
-              'eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw',
-          },
+          searchParams: new URLSearchParams(
+            'state=ecF1onUEGkfbzBldXS6Unh' +
+              '&session_state=05d65b77-d4bf-4661-a8af-9d065945b6f3' +
+              '&code=eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw'
+          ),
           pathname: '/auth/openid/login',
-          path:
-            '/auth/openid/login?state=ecF1onUEGkfbzBldXS6Unh&session_state=05d65b77-d4bf-4661-a8af-9d065945b6f3&code=eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw',
           href:
             '/auth/openid/login?state=ecF1onUEGkfbzBldXS6Unh&session_state=05d65b77-d4bf-4661-a8af-9d065945b6f3&code=eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw',
         },
@@ -259,7 +266,8 @@ describe(`${AuthClass.name} routes`, () => {
         client_id: clientId,
         client_secret: clientSecret,
         grant_type: 'authorization_code',
-        code: request.url.query.code,
+        code:
+          'eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw',
         redirect_uri: redirectUri,
       });
 
@@ -290,6 +298,7 @@ describe(`${AuthClass.name} routes`, () => {
 
       const searchGuardBackend = setupSearchGuardBackendMock({
         getOIDCToken: jest.fn().mockReturnValue(idpPayload),
+        getOIDCWellKnown: jest.fn().mockReturnValue(openIdEndPoints),
       });
 
       await loginHandler({
@@ -303,7 +312,6 @@ describe(`${AuthClass.name} routes`, () => {
         clientId,
         clientSecret,
         scope,
-        openIdEndPoints,
         searchGuardBackend,
       })(context, cloneDeep(request), response);
 
@@ -315,8 +323,10 @@ describe(`${AuthClass.name} routes`, () => {
       delete clearSessionCookie.openId;
       expect(sessionStorageFactorySet).toHaveBeenCalledWith(clearSessionCookie);
 
+      expect(searchGuardBackend.getOIDCWellKnown).toHaveBeenCalledTimes(1);
+
       expect(searchGuardBackend.getOIDCToken).toHaveBeenCalledWith({
-        tokenEndpoint: openIdEndPoints.token_endpoint,
+        tokenEndpoint: openIdEndPoints.token_endpoint_proxy,
         body: bodyForTokenRequest,
       });
 
@@ -380,7 +390,7 @@ describe(`${AuthClass.name} routes`, () => {
         openIdEndPoints = {
           authorization_endpoint:
             'http://keycloak.example.com:8080/auth/realms/master/protocol/openid-connect/auth',
-          token_endpoint:
+          token_endpoint_proxy:
             'http://keycloak.example.com:8080/auth/realms/master/protocol/openid-connect/token',
           end_session_endpoint:
             'http://keycloak.example.com:8080/auth/realms/master/protocol/openid-connect/logout',
@@ -393,15 +403,12 @@ describe(`${AuthClass.name} routes`, () => {
           url: {
             search:
               '?state=ecF1onUEGkfbzBldXS6Unh&session_state=05d65b77-d4bf-4661-a8af-9d065945b6f3&code=eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw',
-            query: {
-              state: 'ecF1onUEGkfbzBldXS6Unh',
-              session_state: '05d65b77-d4bf-4661-a8af-9d065945b6f3',
-              code:
-                'eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw',
-            },
+            searchParams: new URLSearchParams(
+              'state=ecF1onUEGkfbzBldXS6Unh' +
+                '&session_state=05d65b77-d4bf-4661-a8af-9d065945b6f3' +
+                '&code=eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw'
+            ),
             pathname: '/auth/openid/login',
-            path:
-              '/auth/openid/login?state=ecF1onUEGkfbzBldXS6Unh&session_state=05d65b77-d4bf-4661-a8af-9d065945b6f3&code=eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw',
             href:
               '/auth/openid/login?state=ecF1onUEGkfbzBldXS6Unh&session_state=05d65b77-d4bf-4661-a8af-9d065945b6f3&code=eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..ylG_YpO714QbfeN1sV1p-A.5HA8shWEmh1oyJv-8kDLea5UXIWGkre2pZ9g_TODgAct6TyHth757FVM72jt4r_vBZv7bkjBMMXe59xrbq4rXVyxAV6tKnro8de60n0iHriadzcjVmJXwaGQMA2Ld_r7sKKQKibrjf2Danx-eYbgFQ5Z9PCIq5a4xxdo0pQ3Ymf1dxBX9ZuG4R7qTLhZyqGyyFDMMLw0RpqGqPgemsTDFdLk3WNrPfE1iEAS-Bvv-VOHZJ-LsH_NuXPpjI3KPPCJ.6bOOPX38Xqfqs-DmOMExFw',
           },
@@ -423,6 +430,7 @@ describe(`${AuthClass.name} routes`, () => {
         };
 
         searchGuardBackend = setupSearchGuardBackendMock({
+          getOIDCWellKnown: jest.fn().mockReturnValue(openIdEndPoints),
           getOIDCToken: jest.fn().mockReturnValue(idpPayload),
         });
 
@@ -453,7 +461,6 @@ describe(`${AuthClass.name} routes`, () => {
           clientId,
           clientSecret,
           scope,
-          openIdEndPoints,
           searchGuardBackend,
         })(context, request, response);
 
@@ -483,7 +490,6 @@ describe(`${AuthClass.name} routes`, () => {
           clientId,
           clientSecret,
           scope,
-          openIdEndPoints,
           searchGuardBackend,
         })(context, cloneDeep(request), response);
 
@@ -513,7 +519,7 @@ describe(`${AuthClass.name} routes`, () => {
           clientId,
           clientSecret,
           scope,
-          openIdEndPoints,
+          searchGuardBackend,
         })(context, cloneDeep(request), response);
 
         expect(response.redirected).toHaveBeenCalledWith({

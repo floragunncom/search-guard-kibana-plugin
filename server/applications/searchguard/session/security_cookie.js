@@ -1,5 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import Statehood from 'statehood';
+import Statehood from '@hapi/statehood';
 
 export function getSecurityCookieOptions(configService) {
   const options = {
