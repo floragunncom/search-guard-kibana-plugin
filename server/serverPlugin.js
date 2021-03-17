@@ -1,21 +1,42 @@
-/* eslint-disable @kbn/eslint/require-license-header */
-/**
+/*
  *    Copyright 2020 floragunn GmbH
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
+import { first } from 'rxjs/operators';
 import { Signals, Multitenancy, SearchGuard, AuthTokens } from './applications';
+import { ConfigService } from '../common/config_service';
+import SearchGuardBackend from './applications/searchguard/backend/searchguard';
+import SearchGuardConfigurationBackend from './applications/searchguard/configuration/backend/searchguard_configuration_backend';
+
+async function getConfigService({ logger, initContext, clusterClient }) {
+  try {
+    const [kibanaConfig, sgConfig] = await Promise.all([
+      initContext.config.legacy.globalConfig$.pipe(first()).toPromise(),
+      initContext.config.create().pipe(first()).toPromise(),
+    ]);
+
+    return new ConfigService({
+      ...kibanaConfig,
+      elasticsearch: clusterClient.config,
+      searchguard: sgConfig,
+    });
+  } catch (error) {
+    logger.error(`Failed to fetch the Kibana config, ${error}`);
+    throw error;
+  }
+}
 
 export class ServerPlugin {
   constructor(initializerContext) {
@@ -38,63 +59,71 @@ export class ServerPlugin {
     });
 
     this.kibanaRouter = core.http.createRouter();
-    const elasticsearch = core.elasticsearch;
-
-    const {
-      configService,
-      searchGuardBackend,
-      searchGuardConfigurationBackend,
-    } = this.searchGuardApp.setupSync({
-      core,
-      pluginDependencies,
-      kibanaRouter: this.kibanaRouter,
-    });
-
-    this.configService = configService;
-    this.searchGuardBackend = searchGuardBackend;
-    this.searchGuardConfigurationBackend = searchGuardConfigurationBackend;
-
-    const isMtEnabled = this.configService.get('searchguard.multitenancy.enabled');
-    if (isMtEnabled) {
-      this.multiTenancyApp.setupSync({
-        configService,
-        searchGuardBackend,
-      });
-    }
 
     (async () => {
-      const { authInstance, sessionStorageFactory } = await this.searchGuardApp.setup({
-        core,
+      const [{ elasticsearch }] = await core.getStartServices();
+      const searchGuardBackend = new SearchGuardBackend({ elasticsearch });
+      const searchGuardConfigurationBackend = new SearchGuardConfigurationBackend({
         elasticsearch,
-        pluginDependencies,
       });
 
+      const configService = await getConfigService({
+        logger: this.logger,
+        initContext: this.initContext,
+        clusterClient: elasticsearch.client,
+      });
+
+      const { authInstance, sessionStorageFactory } = await this.searchGuardApp.setup({
+        core,
+        pluginDependencies,
+        configService,
+        kibanaRouter: this.kibanaRouter,
+        searchGuardBackend,
+        searchGuardConfigurationBackend,
+      });
+
+      const isMtEnabled = configService.get('searchguard.multitenancy.enabled');
       if (isMtEnabled) {
         this.multiTenancyApp.setup({
           authInstance,
-          elasticsearch,
           kibanaCore: core,
           sessionStorageFactory,
           pluginDependencies,
+          searchGuardBackend,
+          configService,
         });
       }
     })();
   }
 
   start(core) {
-    this.signalsApp.startSync({
-      core,
-      kibanaRouter: this.kibanaRouter,
-      searchguardBackendService: this.searchGuardBackend,
-    });
+    (async () => {
+      const searchGuardBackend = new SearchGuardBackend({ elasticsearch: core.elasticsearch });
+      const configService = await getConfigService({
+        logger: this.logger,
+        initContext: this.initContext,
+        clusterClient: core.elasticsearch.client,
+      });
 
-    this.authTokensApp.startSync({ core, kibanaRouter: this.kibanaRouter });
+      this.signalsApp.start({
+        core,
+        kibanaRouter: this.kibanaRouter,
+        searchguardBackendService: searchGuardBackend,
+      });
 
-    const isMtEnabled = this.configService.get('searchguard.multitenancy.enabled');
-    if (isMtEnabled) {
-      // ATTENTION! We want to make sure the multitenancy app migrates saved objects
-      // in the tenants indices before doing any operation on indices
-      this.multiTenancyApp.start({ core, kibanaRouter: this.kibanaRouter });
-    }
+      this.authTokensApp.start({ core, kibanaRouter: this.kibanaRouter });
+
+      const isMtEnabled = configService.get('searchguard.multitenancy.enabled');
+      if (isMtEnabled) {
+        // ATTENTION! We want to make sure the multitenancy app migrates saved objects
+        // in the tenants indices before doing any operation on indices
+        this.multiTenancyApp.start({
+          core,
+          kibanaRouter: this.kibanaRouter,
+          searchGuardBackend,
+          configService,
+        });
+      }
+    })();
   }
 }

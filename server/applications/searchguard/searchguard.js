@@ -1,19 +1,14 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import { get } from 'lodash';
 import { registerRoutes } from './routes';
-import { readKibanaConfig } from './read_kibana_config';
-import { ConfigService } from '../../../common/config_service';
 import { Kerberos } from './auth/types';
 import { defineAuthInfoRoutes } from './auth/routes_authinfo';
 import { defineSystemRoutes } from './system/routes';
 import { defineConfigurationRoutes } from './configuration/routes/routes';
-import SearchGuardBackend from './backend/searchguard';
-import SearchGuardConfigurationBackend from './configuration/backend/searchguard_configuration_backend';
 import {
   checkDoNotFailOnForbidden,
-  checkTLSConfig,
   checkXPackSecurityDisabled,
   checkCookieConfig,
+  checkTLSConfig,
 } from './sanity_checks';
 import { getSecurityCookieOptions, extendSecurityCookieOptions } from './session/security_cookie';
 import { ReadOnlyMode } from './authorization/ReadOnlyMode';
@@ -24,75 +19,40 @@ export class SearchGuard {
     this.logger = this.coreContext.logger.get('searchguard');
   }
 
-  setupSync({ core, pluginDependencies, kibanaRouter }) {
-    this.logger.debug('Setup sync app');
+  async setup({
+    core,
+    pluginDependencies,
+    configService,
+    kibanaRouter,
+    searchGuardBackend,
+    searchGuardConfigurationBackend,
+  }) {
+    this.logger.debug('Setup app');
 
     try {
-      const isDev = get(this.coreContext, 'env.mode.dev', false);
-      this.configService = new ConfigService(readKibanaConfig({ isDev }));
-
-      registerRoutes({
-        router: kibanaRouter,
-        config: this.configService.getConfig(),
-        logger: this.logger,
-      });
-
-      this.searchGuardBackend = new SearchGuardBackend({
-        configService: this.configService,
-        getElasticsearch: async () => {
-          const [{ elasticsearch }] = await core.getStartServices();
-          return elasticsearch;
-        },
-      });
-
-      this.searchGuardConfigurationBackend = new SearchGuardConfigurationBackend({
-        configService: this.configService,
-        getElasticsearch: async () => {
-          const [{ elasticsearch }] = await core.getStartServices();
-          return elasticsearch;
-        },
-      });
-
-      pluginDependencies.securityOss.showInsecureClusterWarning$.next(false);
       // Sanity checks
+      checkTLSConfig({ configService, logger: this.logger });
+      checkCookieConfig({ configService, logger: this.logger });
       checkXPackSecurityDisabled({ pluginDependencies, logger: this.logger });
-      checkTLSConfig({ configService: this.configService, logger: this.logger });
       checkDoNotFailOnForbidden({
-        searchGuardBackend: this.searchGuardBackend,
+        searchGuardBackend,
         logger: this.logger,
       });
-      checkCookieConfig({ configService: this.configService, logger: this.logger });
 
       // Inits the authInfo route
       defineAuthInfoRoutes({
-        searchGuardBackend: this.searchGuardBackend,
+        searchGuardBackend,
         kibanaCore: core,
         logger: this.logger,
       });
 
-      return {
-        configService: this.configService,
-        searchGuardBackend: this.searchGuardBackend,
-        searchGuardConfigurationBackend: this.searchGuardConfigurationBackend,
-      };
-    } catch (error) {
-      this.logger.error(error);
-      throw error;
-    }
-  }
+      registerRoutes({
+        router: kibanaRouter,
+        config: configService.getConfig(),
+        logger: this.logger,
+      });
 
-  async setup({ core, elasticsearch, pluginDependencies }) {
-    this.logger.debug('Setup app');
-
-    try {
-      const didSetupSyncRun =
-        this.configService && this.searchGuardBackend && this.searchGuardConfigurationBackend;
-
-      if (!didSetupSyncRun) {
-        throw new Error('You must run setupSync first!');
-      }
-
-      const cookieOptions = getSecurityCookieOptions(this.configService);
+      const cookieOptions = getSecurityCookieOptions(configService);
       const sessionStorageFactory = await core.http.createCookieSessionStorageFactory(
         cookieOptions
       );
@@ -101,13 +61,14 @@ export class SearchGuard {
       // Because Kibana doesn't support all the options we need.
       extendSecurityCookieOptions(cookieOptions);
 
-      //const authType = this.configService.get('searchguard.auth.type', null);
+      //const authType = configService.get('searchguard.auth.type', null);
+
       let AuthClass = null;
       let authInstance = null;
 
       // @todo Is it enough to load the config on startup only?
       // @todo Error handling
-      const authConfig = await this.searchGuardBackend.getAuthConfig();
+      const authConfig = await searchGuardBackend.getAuthConfig();
 
       // @todo Dummy pending correct auth response
       const authMethodConfig = authConfig.auth_methods.filter(
@@ -131,7 +92,7 @@ export class SearchGuard {
 
           // @todo We should show this log messages for proxy/kerberos too
           if (
-            this.configService.get('searchguard.cookie.password') ===
+            configService.get('searchguard.cookie.password') ===
             'searchguard_cookie_default_password'
           ) {
             this.logger.warn(
@@ -139,7 +100,7 @@ export class SearchGuard {
             );
           }
 
-          if (!this.configService.get('searchguard.cookie.secure')) {
+          if (!configService.get('searchguard.cookie.secure')) {
             this.logger.warn(
               "'searchguard.cookie.secure' is set to false, cookies are transmitted over unsecure HTTP connection. Consider using HTTPS and set this key to 'true'"
             );
@@ -173,12 +134,11 @@ export class SearchGuard {
               if (!authInstance) {
                 authInstance = new AuthClass({
                   authMethodConfig,
-                  searchGuardBackend: this.searchGuardBackend,
+                  searchGuardBackend,
                   kibanaCore: core,
-                  config: this.configService,
+                  config: configService,
                   logger: this.coreContext.logger.get('searchguard-auth'),
                   sessionStorageFactory,
-                  elasticsearch,
                   pluginDependencies,
                 });
               }
@@ -201,14 +161,14 @@ export class SearchGuard {
       }
 
       // @todo TEST
-      if (this.configService.get('searchguard.xff.enabled')) {
+      if (configService.get('searchguard.xff.enabled')) {
         require('./xff/xff')(core);
         this.logger.info('Search Guard XFF enabled.');
       }
 
-      if (this.configService.get('searchguard.configuration.enabled')) {
+      if (configService.get('searchguard.configuration.enabled')) {
         defineConfigurationRoutes({
-          searchGuardConfigurationBackend: this.searchGuardConfigurationBackend,
+          searchGuardConfigurationBackend,
           logger: this.logger,
           kibanaCore: core,
         });
@@ -220,7 +180,7 @@ export class SearchGuard {
       }
 
       defineSystemRoutes({
-        searchGuardBackend: this.searchGuardBackend,
+        searchGuardBackend,
         logger: this.logger,
         kibanaCore: core,
       });
@@ -229,6 +189,7 @@ export class SearchGuard {
 
       if (authInstance) {
         core.http.registerAuth(authInstance.checkAuth);
+        core.http.registerOnPostAuth(authInstance.onPostAuth);
       }
 
       // Handle Kerberos separately because we don't want to bring up entire jungle from AuthType here.
@@ -236,19 +197,19 @@ export class SearchGuard {
         core.http.registerAuth(
           new Kerberos({
             pluginDependencies,
-            config: this.configService,
-            searchGuardBackend: this.searchGuardBackend,
+            config: configService,
+            searchGuardBackend,
             logger: this.coreContext.logger.get('searchguard-kerberos-auth'),
           }).checkAuth
         );
       }
 
-      if (this.configService.get('searchguard.readonly_mode.enabled')) {
+      if (configService.get('searchguard.readonly_mode.enabled')) {
         const readOnlyMode = new ReadOnlyMode(this.coreContext.logger.get('searchguard-readonly'));
         readOnlyMode.setupSync({
           kibanaCoreSetup: core,
-          searchGuardBackend: this.searchGuardBackend,
-          configService: this.configService,
+          searchGuardBackend,
+          configService,
           authInstance,
         });
       }

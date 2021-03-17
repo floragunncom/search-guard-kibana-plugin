@@ -36,10 +36,7 @@ export function loginHandler({ config, authInstance, logger, basePath }) {
         if (foundHeaders.length) {
           await authInstance.handleAuthenticateWithHeaders(request);
 
-          let nextUrl = null;
-          if (request.url && request.url.query && request.url.query.nextUrl) {
-            nextUrl = sanitizeNextUrl(request.url.query.nextUrl, basePath);
-          }
+          let nextUrl = request.url.searchParams.get('nextUrl');
 
           if (nextUrl) {
             nextUrl = sanitizeNextUrl(nextUrl, basePath);
@@ -246,10 +243,7 @@ export function defineRoutes({
         try {
           await authInstance.handleAuthenticate(request, null, { isAnonymousAuth: true });
 
-          let nextUrl = null;
-          if (request.url && request.url.query && request.url.query.nextUrl) {
-            nextUrl = sanitizeNextUrl(request.url.query.nextUrl, basePath);
-          }
+          const nextUrl = request.url.searchParams.get('nextUrl');
 
           let redirectTo = basePath + '/app/kibana';
 

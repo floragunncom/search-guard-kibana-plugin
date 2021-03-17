@@ -31,7 +31,7 @@ export function parseLoginEndpoint(loginEndpoint, request = null, basePath = '')
   // Make sure we don't overwrite an existing "nextUrl" parameter,
   // just in case the customer is using that name for something else
   if (typeof loginEndpointURLObject.query.nextUrl === 'undefined' && request) {
-    const nextUrl = basePath + request.url.path;
+    const nextUrl = basePath + request.url.pathname;
     // Delete the search parameter - otherwise format() will use its value instead of the .query property
     delete loginEndpointURLObject.search;
     loginEndpointURLObject.query.nextUrl = nextUrl;

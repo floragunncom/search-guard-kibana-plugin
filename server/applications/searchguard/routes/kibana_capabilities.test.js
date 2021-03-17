@@ -13,27 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { registerRoutes } from './routes';
 
-export class AuthTokens {
-  constructor(coreContext) {
-    this.coreContext = coreContext;
-    this.logger = coreContext.logger.get('authTokens');
-  }
+import { handleKibanaCapabilities } from './kibana_capabilities';
+import { setupHttpResponseMock } from '../../../utils/mocks';
 
-  start({ core, kibanaRouter }) {
-    this.logger.debug('Start app');
+test('handleKibanaCapabilities', () => {
+  const response = setupHttpResponseMock();
+  const request = {
+    body: {
+      applications: ['a', 'b', 'c'],
+    },
+  };
 
-    try {
-      this.clusterClient = core.elasticsearch.client;
-
-      registerRoutes({
-        router: kibanaRouter,
-        clusterClient: this.clusterClient,
-        logger: this.logger,
-      });
-    } catch (error) {
-      this.logger.error(error);
-    }
-  }
-}
+  handleKibanaCapabilities()(null, request, response);
+  expect(response.ok).toHaveBeenCalledWith({
+    body: {
+      a: {},
+      b: {},
+      c: {},
+      dashboard: {},
+      navLinks: {
+        a: true,
+        b: true,
+        c: true,
+      },
+    },
+  });
+});
