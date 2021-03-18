@@ -904,5 +904,32 @@ describe(AuthClass.name, () => {
       expect(toolkit.next).toHaveBeenCalledTimes(1);
       expect(resp).toBe('next');
     });
+
+    test('do not redirect if sg_anonymous', async () => {
+      toolkit = setupHttpToolkitMock({ next: jest.fn(() => 'next') });
+
+      const sessionStorageFactoryGet = jest.fn().mockResolvedValue({ isAnonymousAuth: true });
+      const sessionStorageAsScoped = jest.fn(() => ({ get: sessionStorageFactoryGet }));
+      sessionStorageFactory = setupSessionStorageFactoryMock({ asScoped: sessionStorageAsScoped });
+
+      const authInstance = new AuthClass({
+        searchGuardBackend,
+        kibanaCore,
+        config,
+        logger,
+        sessionStorageFactory,
+        pluginDependencies,
+      });
+
+      const request = {
+        headers: {},
+        route: { path: '/api/core/capabilities' },
+      };
+
+      const resp = await authInstance.onPostAuth(cloneDeep(request), response, toolkit);
+      expect(sessionStorageAsScoped).toHaveBeenCalledWith(request);
+      expect(toolkit.next).toHaveBeenCalledTimes(1);
+      expect(resp).toBe('next');
+    });
   });
 });
