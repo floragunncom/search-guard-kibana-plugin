@@ -51,10 +51,10 @@ export default class AuthType {
     this.routesToIgnore = [
       '/login',
       '/customerror',
-      '/api/core/capabilities',
       '/bootstrap.js',
       '/bundles/app/core/bootstrap.js',
       '/bundles/app/searchguard-customerror/bootstrap.js',
+      '/api/core/capabilities',
     ];
 
     this.sessionTTL = this.config.get('searchguard.session.ttl');

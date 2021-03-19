@@ -53,7 +53,6 @@ export class SearchGuard {
         },
       });
 
-      pluginDependencies.securityOss.showInsecureClusterWarning$.next(false);
       // Sanity checks
       checkXPackSecurityDisabled({ pluginDependencies, logger: this.logger });
       checkTLSConfig({ configService: this.configService, logger: this.logger });

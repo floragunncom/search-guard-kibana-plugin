@@ -165,6 +165,9 @@ describe(AuthClass.name, () => {
 
     const request = {
       headers: { a: 1 },
+      route: {
+        path: '/',
+      },
       url: {
         pathname: '/',
         path: '/',
