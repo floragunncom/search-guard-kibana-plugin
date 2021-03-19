@@ -55,14 +55,14 @@ export function HeaderUserMenu({ httpClient, logoutUrl, userName, userNameToolti
       button={button}
       closePopover={closePopover}
     >
-      <EuiFlexGroup>
+      <EuiFlexGroup data-test-subj="sg.userMenu.content">
         <EuiFlexItem grow={false}>
           <EuiAvatar name={userName} />
         </EuiFlexItem>
         <EuiFlexItem>
           <EuiToolTip position="bottom" content={userNameTooltipText}>
             <EuiText>
-              <p>{userName}</p>
+              <p id="sg.userMenu.username">{userName}</p>
             </EuiText>
           </EuiToolTip>
 
