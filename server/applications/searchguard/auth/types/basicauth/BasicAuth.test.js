@@ -29,8 +29,6 @@ import {
   getCookieExpiryTimeMS,
 } from '../../../../../utils/mocks';
 
-jest.mock('../../../../../../../../src/core/server/http/router', () => jest.fn());
-
 const authType = 'basicauth';
 const authHeaderName = 'authorization';
 
@@ -864,7 +862,34 @@ describe(AuthClass.name, () => {
     });
 
     test('do not redirect if the request contains authorization', async () => {
+      const sessionCookie = {
+        username: 'admin',
+        credentials: { authHeaderValue: 'Basic YWRtaW46YWRtaW4=' },
+        authType,
+        isAnonymousAuth: false,
+        expiryTime: getCookieExpiryTimeMS(1),
+        additionalAuthHeaders: null,
+      };
+
+      const sessionStorageFactoryGet = jest.fn(() => cloneDeep(sessionCookie));
+      const sessionStorageFactorySet = jest.fn();
+      const sessionStorageFactory = setupSessionStorageFactoryMock({
+        asScoped: jest.fn(() => ({
+          get: sessionStorageFactoryGet,
+          set: sessionStorageFactorySet,
+        })),
+      });
+
+      const request = {
+        headers: {
+          cookie: 'searchguard_authentication=Fe26.2**925d29ddcc3aba',
+          authorization: 'Basic YWRtaW46YWRtaW4=',
+        },
+        route: { path: '/api/core/capabilities' },
+      };
+
       toolkit = setupHttpToolkitMock({ next: jest.fn(() => 'next') });
+
       const authInstance = new AuthClass({
         searchGuardBackend,
         kibanaCore,
@@ -874,12 +899,8 @@ describe(AuthClass.name, () => {
         pluginDependencies,
       });
 
-      const request = {
-        headers: { authorization: 'whatever' },
-        route: { path: '/api/core/capabilities' },
-      };
-
       const resp = await authInstance.onPostAuth(cloneDeep(request), response, toolkit);
+
       expect(toolkit.next).toHaveBeenCalledTimes(1);
       expect(resp).toBe('next');
     });

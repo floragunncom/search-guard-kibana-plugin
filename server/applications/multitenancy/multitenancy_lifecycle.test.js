@@ -15,6 +15,7 @@
  */
 
 import { MultitenancyLifecycle } from './multitenancy_lifecycle';
+import { SpacesService } from './spaces_service';
 import {
   setupSearchGuardBackendMock,
   setupConfigMock,
@@ -159,6 +160,8 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       clusterClient,
     } = setupForCreateDefaultSpace404();
 
+    const spacesService = new SpacesService({ clusterClient, logger, configService });
+
     const mtLifecycle = new MultitenancyLifecycle({
       authInstance,
       searchGuardBackend,
@@ -167,6 +170,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       logger,
       clusterClient,
       pluginDependencies,
+      spacesService,
     });
     await mtLifecycle.onPreAuth(request, response, toolkit);
 
@@ -239,6 +243,8 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       clusterClient,
     } = setupForCreateDefaultSpace();
 
+    const spacesService = new SpacesService({ clusterClient, logger, configService });
+
     const mtLifecycle = new MultitenancyLifecycle({
       authInstance,
       searchGuardBackend,
@@ -247,6 +253,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       logger,
       clusterClient,
       pluginDependencies,
+      spacesService,
     });
     await mtLifecycle.onPreAuth(request, response, toolkit);
 
