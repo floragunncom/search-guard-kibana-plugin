@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { get, assign } from 'lodash';
+import { assign } from 'lodash';
 import { ensureRawRequest } from '../../../../../src/core/server/http/router';
 
 export class MultitenancyLifecycle {
@@ -26,6 +26,7 @@ export class MultitenancyLifecycle {
     logger,
     clusterClient,
     pluginDependencies,
+    spacesService,
   }) {
     this.authInstance = authInstance;
     this.searchGuardBackend = searchGuardBackend;
@@ -34,6 +35,7 @@ export class MultitenancyLifecycle {
     this.logger = logger;
     this.clusterClient = clusterClient;
     this.pluginDependencies = pluginDependencies;
+    this.spacesService = spacesService;
   }
 
   onPreAuth = async (request, response, toolkit) => {
@@ -58,7 +60,8 @@ export class MultitenancyLifecycle {
       assign(rawRequest.headers, authHeaders, { sgtenant: selectedTenant || '' });
 
       if (this.pluginDependencies.spaces) {
-        await this.createDefaultSpace({ request, selectedTenant });
+        // If we have a new tenant with no default space, we need to create it.
+        await this.spacesService.createDefaultSpace({ request, selectedTenant });
       }
     }
 
@@ -204,72 +207,5 @@ export class MultitenancyLifecycle {
     }
 
     return externalTenant;
-  };
-
-  /**
-   *  * If we have a new tenant with no default space, we need to create it.
-   * This works on post auth, unfortunately after Spaces has redirected
-   * to the spaces selector. Hence, the default space will only be
-   * visible after a browser reload.
-   * @param request
-   * @param authHeaders
-   * @param selectedTenant
-   * @returns {Promise<void|boolean>}
-   */
-  createDefaultSpace = async ({ request, selectedTenant }) => {
-    const kibanaIndex = this.configService.get('kibana.index');
-    const defaultSpaceId = 'space:default';
-    // If the spaces doesn't work, check the default doc structure
-    // in the Kibana version you use. Maybe the doc changed.
-    const defaultSpaceDoc = {
-      type: 'space',
-      space: {
-        name: 'Default',
-        description: 'This is your default space!',
-        disabledFeatures: [],
-        color: '#00bfb3',
-        _reserved: true,
-      },
-      updated_at: new Date().toISOString(),
-    };
-
-    // Kibana talks to its index. The SG ES plugin substitutes the Kibana index name with a tenant index name.
-    try {
-      await this.clusterClient.asScoped(request).asCurrentUser.transport.request({
-        method: 'get',
-        path: `/${kibanaIndex}/_doc/${defaultSpaceId}`,
-      });
-    } catch (error) {
-      if (error.meta.statusCode === 404) {
-        try {
-          await this.clusterClient.asScoped(request).asCurrentUser.create({
-            id: defaultSpaceId,
-            index: kibanaIndex,
-            refresh: true,
-            body: defaultSpaceDoc,
-          });
-
-          this.logger.debug(`Created the default space for tenant "${selectedTenant}"`);
-        } catch (error) {
-          if (error.meta.statusCode !== 409) {
-            this.logger.error(
-              `Failed to create the default space for tenant "${selectedTenant}", ${JSON.stringify(
-                get(error, 'meta.body', {}),
-                null,
-                2
-              )}`
-            );
-          }
-        }
-      } else {
-        this.logger.error(
-          `Failed to check the default space for tenant "${selectedTenant}", ${JSON.stringify(
-            get(error, 'meta.body', {}),
-            null,
-            2
-          )}`
-        );
-      }
-    }
   };
 }
