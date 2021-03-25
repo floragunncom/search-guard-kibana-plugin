@@ -28,7 +28,7 @@ export const DEFAULT_CONFIG = {
       name: 'searchguard_authentication',
       storage_cookie_name: 'searchguard_storage',
       preferences_cookie_name: 'searchguard_preferences',
-      ttl: null,
+      ttl: 3600000,
       isSameSite: 'Lax',
     },
     session: {
