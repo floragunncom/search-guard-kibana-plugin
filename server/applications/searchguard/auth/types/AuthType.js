@@ -243,16 +243,18 @@ export default class AuthType {
 
   onPostAuth = async (request, response, toolkit) => {
     if (request.route.path === '/api/core/capabilities') {
-      /*
-      We need this redirect because Kibana calls the capabilities on our login page. The Kibana checks if there is the default space in the Kibana index.
-      The problem is that the Kibana call is scoped to the current request. And the current request doesn't contain any credentials in the headers because the user hasn't been authenticated yet.
-      As a result, the call fails with 401, and the user sees the Kibana error page instead of our login page.
-      We flank this issue by redirecting the Kibana call to our route /api/v1/searchguard/kibana_capabilities where we serve some
-      minimum amount of capabilities. We expect that Kibana fetches the capabilities again once the user logged in.
-      */
+      const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+      if (sessionCookie.isAnonymousAuth) return toolkit.next();
 
       const authHeaders = await this.getAllAuthHeaders(request);
       if (authHeaders === false) {
+        /*
+        We need this redirect because Kibana calls the capabilities on our login page. The Kibana checks if there is the default space in the Kibana index.
+        The problem is that the Kibana call is scoped to the current request. And the current request doesn't contain any credentials in the headers because the user hasn't been authenticated yet.
+        As a result, the call fails with 401, and the user sees the Kibana error page instead of our login page.
+        We flank this issue by redirecting the Kibana call to our route /api/v1/searchguard/kibana_capabilities where we serve some
+        minimum amount of capabilities. We expect that Kibana fetches the capabilities again once the user logged in.
+        */
         // The payload is passed together with the redirect despite of the undefined here
         return new KibanaResponse(307, undefined, {
           headers: { location: this.basePath + '/api/v1/searchguard/kibana_capabilities' },
