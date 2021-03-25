@@ -19,6 +19,7 @@ import { Signals, Multitenancy, SearchGuard, AuthTokens } from './applications';
 import { ConfigService } from '../common/config_service';
 import SearchGuardBackend from './applications/searchguard/backend/searchguard';
 import SearchGuardConfigurationBackend from './applications/searchguard/configuration/backend/searchguard_configuration_backend';
+import { SpacesService } from './applications/multitenancy';
 
 async function getConfigService({ logger, initContext, clusterClient }) {
   try {
@@ -73,6 +74,12 @@ export class ServerPlugin {
         clusterClient: elasticsearch.client,
       });
 
+      const spacesService = new SpacesService({
+        clusterClient: elasticsearch.client,
+        logger: this.logger,
+        configService,
+      });
+
       const { authInstance, sessionStorageFactory } = await this.searchGuardApp.setup({
         core,
         pluginDependencies,
@@ -80,6 +87,7 @@ export class ServerPlugin {
         kibanaRouter: this.kibanaRouter,
         searchGuardBackend,
         searchGuardConfigurationBackend,
+        spacesService,
       });
 
       const isMtEnabled = configService.get('searchguard.multitenancy.enabled');
@@ -91,6 +99,7 @@ export class ServerPlugin {
           pluginDependencies,
           searchGuardBackend,
           configService,
+          spacesService,
         });
       }
     })();

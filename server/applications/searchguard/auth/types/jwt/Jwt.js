@@ -30,6 +30,7 @@ export default class Jwt extends AuthType {
     logger,
     sessionStorageFactory,
     pluginDependencies,
+    spacesService,
   }) {
     super({
       searchGuardBackend,
@@ -38,6 +39,7 @@ export default class Jwt extends AuthType {
       logger,
       sessionStorageFactory,
       pluginDependencies,
+      spacesService,
     });
 
     /**
