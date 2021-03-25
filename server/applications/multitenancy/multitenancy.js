@@ -17,7 +17,7 @@
 
 import { TenantsMigrationService } from './tenants_migration_service';
 import { defineMultitenancyRoutes } from './routes';
-import { multiTenancyLifecycleHandler } from './request_headers';
+import { MultitenancyLifecycle } from './multitenancy_lifecycle';
 
 export class Multitenancy {
   constructor(coreContext) {
@@ -26,82 +26,63 @@ export class Multitenancy {
     this.tenantsMigration = new TenantsMigrationService(coreContext);
   }
 
-  setupSync({ searchGuardBackend, elasticsearch, configService }) {
-    this.logger.debug('Setup sync app');
-
-    try {
-      this.searchGuardBackend = searchGuardBackend;
-      this.elasticsearch = elasticsearch;
-      this.configService = configService;
-
-      const requestHeadersWhitelist = this.configService.get(
-        'elasticsearch.requestHeadersWhitelist'
-      );
-
-      if (!requestHeadersWhitelist.includes('sgtenant')) {
-        throw new Error(
-          'No tenant header found in whitelist. Please add sgtenant to elasticsearch.requestHeadersWhitelist in kibana.yml'
-        );
-      }
-
-      this.tenantsMigration.setupSync({ configService });
-    } catch (error) {
-      this.logger.error(error);
-    }
-  }
-
-  async setup({ authInstance, kibanaCore, sessionStorageFactory, pluginDependencies }) {
+  async setup({
+    authInstance,
+    kibanaCore,
+    sessionStorageFactory,
+    pluginDependencies,
+    configService,
+    searchGuardBackend,
+  }) {
     this.logger.debug('Setup app');
 
-    try {
-      const didSetupSyncRun = this.searchGuardBackend && this.configService;
-      if (!didSetupSyncRun) {
-        throw new Error('You must run setupSync first!');
-      }
-
-      kibanaCore.http.registerOnPreAuth(
-        multiTenancyLifecycleHandler({
-          authInstance,
-          searchGuardBackend: this.searchGuardBackend,
-          configService: this.configService,
-          sessionStorageFactory,
-          logger: this.logger,
-          pluginDependencies,
-          getElasticsearch: async () => {
-            const [{ elasticsearch }] = await kibanaCore.getStartServices();
-            return elasticsearch;
-          },
-        })
+    const requestHeadersWhitelist = configService.get('elasticsearch.requestHeadersWhitelist');
+    if (!requestHeadersWhitelist.includes('sgtenant')) {
+      throw new Error(
+        'No tenant header found in whitelist. Please add sgtenant to elasticsearch.requestHeadersWhitelist in kibana.yml'
       );
+    }
 
-      defineMultitenancyRoutes({
-        kibanaCore,
-        searchGuardBackend: this.searchGuardBackend,
-        config: this.configService,
+    try {
+      const router = kibanaCore.http.createRouter();
+      const [{ elasticsearch }] = await kibanaCore.getStartServices();
+
+      const multitenancyLifecycle = new MultitenancyLifecycle({
+        authInstance,
+        searchGuardBackend,
+        configService,
         sessionStorageFactory,
         logger: this.logger,
+        clusterClient: elasticsearch.client,
+        pluginDependencies,
+      });
+      kibanaCore.http.registerOnPreAuth(multitenancyLifecycle.onPreAuth);
+
+      defineMultitenancyRoutes({
+        router,
+        searchGuardBackend,
+        config: configService,
+        sessionStorageFactory,
+        logger: this.logger,
+        clusterClient: elasticsearch.client,
       });
     } catch (error) {
       this.logger.error(`setup: ${error.toString()} ${error.stack}`);
     }
   }
 
-  async start({ core, kibanaRouter }) {
+  async start({ core, kibanaRouter, searchGuardBackend, configService }) {
     this.logger.debug('Start app');
     const savedObjects = core.savedObjects;
     const esClient = core.elasticsearch.client;
 
     try {
-      const didSetupSyncRun = this.searchGuardBackend;
-      if (!didSetupSyncRun) {
-        throw new Error('You must run setupSync first!');
-      }
-
       await this.tenantsMigration.start({
         esClient,
         kibanaRouter,
         savedObjects,
-        searchGuardBackend: this.searchGuardBackend,
+        searchGuardBackend,
+        configService,
       });
     } catch (error) {
       this.logger.error(`start: ${error.toString()} ${error.stack}`);

@@ -42,4 +42,10 @@ export const mtRolesFlyoutTitle = (userName) => {
       values={{ userName }}
     />
   );
-}
+};
+export const theTenantHasNotBeenCreatedYet = (
+  <EuiI18n
+    token="sg.mt.theTenantHasNotBeenCreatedYet"
+    default="The tenant has not been created yet"
+  />
+);

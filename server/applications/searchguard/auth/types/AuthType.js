@@ -28,7 +28,6 @@ export default class AuthType {
     config,
     logger,
     sessionStorageFactory,
-    elasticsearch,
     pluginDependencies,
   }) {
     this.searchGuardBackend = searchGuardBackend;
@@ -36,7 +35,6 @@ export default class AuthType {
     this.kibanaCore = kibanaCore;
     this.logger = logger;
     this.sessionStorageFactory = sessionStorageFactory;
-    this.elasticsearch = elasticsearch;
     this.pluginDependencies = pluginDependencies;
 
     this.basePath = kibanaCore.http.basePath.get();
@@ -51,10 +49,10 @@ export default class AuthType {
     this.routesToIgnore = [
       '/login',
       '/customerror',
-      '/api/core/capabilities',
       '/bootstrap.js',
       '/bundles/app/core/bootstrap.js',
       '/bundles/app/searchguard-customerror/bootstrap.js',
+      '/api/core/capabilities',
     ];
 
     this.sessionTTL = this.config.get('searchguard.session.ttl');
@@ -90,9 +88,7 @@ export default class AuthType {
   }
 
   async init() {
-    // Setting up routes before the auth scheme, mainly for the case where something goes wrong
-    // when OpenId tries to get the connect_url
-    await this.setupRoutes();
+    this.setupRoutes();
   }
 
   /**
@@ -265,7 +261,7 @@ export default class AuthType {
 
     if (sessionCookie.credentials) {
       const authHeaders = await this.getAllAuthHeaders(request, sessionCookie);
-      if (!authHeaders) {
+      if (!authHeaders && !sessionCookie.isAnonymousAuth) {
         this.logger.error(
           `An error occurred while computing auth headers, clearing session: No headers found in the session cookie`
         );

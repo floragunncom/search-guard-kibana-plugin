@@ -54,6 +54,7 @@ import {
   selectTenantButtonLabel,
   showDashboardLabel,
   showVisualizationLabel,
+  theTenantHasNotBeenCreatedYet,
 } from './utils/i18n/multitenancy_labels';
 import { LicenseWarningCallout } from '../components';
 
@@ -71,7 +72,6 @@ export class MultiTenancyPage extends Component {
       showRolesFlyout: false,
       userName: '',
       tenants: [],
-      tenantKeys: [],
       uiTenants: [],
       roles: '',
       rolesArray: [],
@@ -98,13 +98,10 @@ export class MultiTenancyPage extends Component {
       (response) => {
         const kibana_server_user = this.configService.get('elasticsearch.username');
         const kibana_index = this.configService.get('kibana.index');
-
         // sanity checks, check that configuration is correct on
         // both ES and KI side
         const mtinfo = response.data;
         let errorMessage = null;
-
-        // this.GLOBAL_USER_WRITEABLE = (!mtinfo.kibana_index_readonly && ! this.userHasDashboardOnlyRole);
 
         if (!mtinfo.kibana_mt_enabled) {
           errorMessage =
@@ -130,6 +127,7 @@ export class MultiTenancyPage extends Component {
             mtinfo.kibana_index +
             '"';
         }
+
         if (errorMessage) {
           this.setState({
             errorMessage,
@@ -142,121 +140,120 @@ export class MultiTenancyPage extends Component {
     );
   }
 
-  fetchTenants(addErrorToast) {
+  async fetchTenants(addErrorToast) {
     const { httpClient } = this.context;
 
-    httpClient.get(`${API_ROOT}/auth/authinfo`).then(
-      (response) => {
-        // remove users own tenant, will be replaced with __user__
-        // since we want to display tenant name with "Private"
-        const userName = response.data.user_name;
-        const allTenants = response.data.sg_tenants;
-        const {
-          enable_global: globalEnabled,
-          enable_private: privateEnabled,
-        } = this.configService.get('searchguard.multitenancy.tenants');
-        const readOnlyConfig = this.configService.get('searchguard.readonly_mode');
+    try {
+      const [
+        { data: tenantinfo },
+        { data: currentTenant },
+        { data: authinfo },
+      ] = await Promise.all([
+        httpClient.get(`${API_ROOT}/multitenancy/tenantinfo`),
+        httpClient.get(`${API_ROOT}/multitenancy/tenant`),
+        httpClient.get(`${API_ROOT}/auth/authinfo`),
+      ]);
 
-        let userHasDashboardOnlyRole = false;
-        try {
-          userHasDashboardOnlyRole = response.data.sg_roles.filter((role) => {
-            return readOnlyConfig.roles.indexOf(role) > -1;
-          }).length
-            ? true
-            : false;
-        } catch (error) {
-          // Ignore for now
-          console.warn('Could not check read only mode roles', error);
-        }
+      const tenantToIndexMap = Object.entries(tenantinfo).reduce((acc, [key, value]) => {
+        acc[value] = key;
+        return acc;
+      }, {});
 
-        // If SGS_GLOBAL_TENANT is not available in tenant list, it needs to be
-        // removed from UI display as well
-        let globalUserWriteable = false;
-        let globalUserVisible = false;
-        delete allTenants[userName];
+      // remove users own tenant, will be replaced with __user__
+      // since we want to display tenant name with "Private"
+      const userName = authinfo.user_name;
+      const allTenants = authinfo.sg_tenants;
+      const {
+        enable_global: globalEnabled,
+        enable_private: privateEnabled,
+      } = this.configService.get('searchguard.multitenancy.tenants');
+      const readOnlyConfig = this.configService.get('searchguard.readonly_mode');
 
-        // delete the SGS_GLOBAL_TENANT for the moment. We fall back the GLOBAL until
-        // RBAC is rolled out completely.
-        if (response.data.sg_tenants.hasOwnProperty('SGS_GLOBAL_TENANT') && globalEnabled) {
-          globalUserWriteable =
-            response.data.sg_tenants.SGS_GLOBAL_TENANT && !userHasDashboardOnlyRole;
-          globalUserVisible = true;
-        }
-        delete response.data.sg_tenants.SGS_GLOBAL_TENANT;
-
-        // sort tenants by putting the keys in an array first
-        const tenantKeys = [];
-        let k;
-
-        for (k in allTenants) {
-          if (allTenants.hasOwnProperty(k)) {
-            tenantKeys.push(k);
-          }
-        }
-        tenantKeys.sort();
-
-        const uiTenants = tenantKeys.map((tenant) => ({
-          id: tenant,
-          label: tenant,
-          canWrite: userHasDashboardOnlyRole ? false : allTenants[tenant],
-          rowProps: {
-            isSelected: true,
-          },
-        }));
-
-        if (privateEnabled && !userHasDashboardOnlyRole) {
-          uiTenants.unshift({
-            id: '__user__',
-            label: 'Private',
-            testLabel: 'private',
-            canWrite: true,
-          });
-        }
-
-        // @todo Why is this called globalUserVisible and not globalTenantVisible?
-        if (globalUserVisible) {
-          uiTenants.unshift({
-            id: '',
-            label: 'Global',
-            testLabel: 'global',
-            canWrite: globalUserWriteable,
-          });
-        }
-
-        this.setState({
-          userName,
-          uiTenants,
-          tenants: allTenants,
-          tenantKeys,
-          roles: response.data.sg_roles.join(', '),
-          rolesArray: response.data.sg_roles,
-          userHasDashboardOnlyRole,
-          globalUserWriteable,
-          globalUserVisible,
-        });
-
-        this.setState({
-          isLoading: false,
-        });
-
-        httpClient.get(`${API_ROOT}/multitenancy/tenant`).then(
-          (response) => {
-            const currentTenant = response.data;
-            this.setCurrentTenant(currentTenant, userName);
-          },
-          (error) => {
-            addErrorToast(error);
-          }
-        );
-      },
-      (error) => {
-        this.setState({
-          isLoading: false,
-        });
-
-        addErrorToast(error, { errorMessage: 'Unable to load authentication info.' });
+      let userHasDashboardOnlyRole = false;
+      try {
+        userHasDashboardOnlyRole = authinfo.sg_roles.filter((role) => {
+          return readOnlyConfig.roles.indexOf(role) > -1;
+        }).length
+          ? true
+          : false;
+      } catch (error) {
+        // Ignore for now
+        console.warn('Could not check read only mode roles', error);
       }
-    );
+
+      // If SGS_GLOBAL_TENANT is not available in tenant list, it needs to be
+      // removed from UI display as well
+      let globalUserWriteable = false;
+      let globalUserVisible = false;
+      delete allTenants[userName];
+
+      // delete the SGS_GLOBAL_TENANT for the moment. We fall back the GLOBAL until
+      // RBAC is rolled out completely.
+      if (authinfo.sg_tenants.hasOwnProperty('SGS_GLOBAL_TENANT') && globalEnabled) {
+        globalUserWriteable = authinfo.sg_tenants.SGS_GLOBAL_TENANT && !userHasDashboardOnlyRole;
+        globalUserVisible = true;
+      }
+      delete authinfo.sg_tenants.SGS_GLOBAL_TENANT;
+
+      // sort tenants by putting the keys in an array first
+      const tenantKeys = [];
+      let k;
+
+      for (k in allTenants) {
+        if (allTenants.hasOwnProperty(k)) {
+          tenantKeys.push(k);
+        }
+      }
+      tenantKeys.sort();
+
+      const uiTenants = tenantKeys.map((tenant) => ({
+        id: tenant,
+        label: tenant,
+        canWrite: userHasDashboardOnlyRole ? false : allTenants[tenant],
+        rowProps: {
+          isSelected: true,
+        },
+        isDisabled: !tenantToIndexMap[tenant] && !allTenants[tenant],
+      }));
+
+      if (privateEnabled && !userHasDashboardOnlyRole) {
+        uiTenants.unshift({
+          id: '__user__',
+          label: 'Private',
+          testLabel: 'private',
+          canWrite: true,
+        });
+      }
+
+      // @todo Why is this called globalUserVisible and not globalTenantVisible?
+      if (globalUserVisible) {
+        uiTenants.unshift({
+          id: '',
+          label: 'Global',
+          testLabel: 'global',
+          canWrite: globalUserWriteable,
+        });
+      }
+
+      this.setState({
+        userName,
+        uiTenants,
+        tenants: allTenants,
+        roles: authinfo.sg_roles.join(', '),
+        rolesArray: authinfo.sg_roles,
+        userHasDashboardOnlyRole,
+        globalUserWriteable,
+        globalUserVisible,
+      });
+
+      this.setCurrentTenant(currentTenant, userName);
+    } catch (error) {
+      addErrorToast(error);
+    }
+
+    this.setState({
+      isLoading: false,
+    });
   }
 
   setCurrentTenant(tenant, userName) {
@@ -427,14 +424,29 @@ export class MultiTenancyPage extends Component {
         render: (label, uiTenant) => {
           const testSuffix = uiTenant.testLabel || uiTenant.label;
           return (
-            <EuiButtonEmpty
-              id={'sg.link.select.' + testSuffix}
-              onClick={() => {
-                this.selectTenant(uiTenant.id);
-              }}
-            >
-              {label}
-            </EuiButtonEmpty>
+            <EuiFlexGroup direction="column" gutterSize="xs" alignItems="flexStart">
+              <EuiFlexItem grow={false}>
+                <EuiButtonEmpty
+                  isDisabled={uiTenant.isDisabled}
+                  id={'sg.link.select.' + testSuffix}
+                  onClick={() => {
+                    this.selectTenant(uiTenant.id);
+                  }}
+                >
+                  {label}
+                </EuiButtonEmpty>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                {uiTenant.isDisabled && (
+                  <EuiCallOut
+                    data-test-subj={`sg.mt.theTenantHasNotBeenCreatedYet.${testSuffix}`}
+                    title={theTenantHasNotBeenCreatedYet}
+                    iconType="help"
+                    color="warning"
+                  />
+                )}
+              </EuiFlexItem>
+            </EuiFlexGroup>
           );
         },
       },
@@ -458,6 +470,7 @@ export class MultiTenancyPage extends Component {
           return (
             <div style={{ textAlign: 'right' }}>
               <EuiButton
+                isDisabled={uiTenant.isDisabled}
                 id={'sg.button.show_dashboard.' + testSuffix}
                 size="s"
                 fill
@@ -481,6 +494,7 @@ export class MultiTenancyPage extends Component {
           return (
             <div style={{ textAlign: 'right' }}>
               <EuiButton
+                isDisabled={uiTenant.isDisabled}
                 id={'sg.button.show_visualization.' + testSuffix}
                 size="s"
                 fill
@@ -500,6 +514,7 @@ export class MultiTenancyPage extends Component {
           const testSuffix = uiTenant.testLabel || uiTenant.label;
           return (
             <EuiButton
+              isDisabled={uiTenant.isDisabled}
               id={'sg.button.select.' + testSuffix}
               size="s"
               fill

@@ -31,10 +31,6 @@ import {
 
 jest.mock('../../../../../../../../src/core/server/http/router', () => jest.fn());
 
-function setupElasticsearchMock() {
-  return jest.fn();
-}
-
 const authType = 'openid';
 
 describe(AuthClass.name, () => {
@@ -43,7 +39,6 @@ describe(AuthClass.name, () => {
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
     const sessionStorageFactory = setupSessionStorageFactoryMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
     const config = setupConfigMock({
@@ -60,7 +55,6 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
@@ -104,7 +98,6 @@ describe(AuthClass.name, () => {
 
     const logger = setupLoggerMock();
     const sessionStorageFactory = setupSessionStorageFactoryMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
     const authInstance = new AuthClass({
@@ -113,7 +106,6 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
@@ -136,7 +128,6 @@ describe(AuthClass.name, () => {
     const searchGuardBackend = setupSearchGuardBackendMock();
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
     const config = setupConfigMock({
@@ -159,12 +150,14 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
     const request = {
       headers: { a: 1 },
+      route: {
+        path: '/',
+      },
       url: {
         pathname: '/',
         path: '/',
@@ -188,7 +181,6 @@ describe(AuthClass.name, () => {
     const searchGuardBackend = setupSearchGuardBackendMock();
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
     const config = setupConfigMock({
@@ -220,7 +212,6 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
@@ -250,7 +241,6 @@ describe(AuthClass.name, () => {
     const searchGuardBackend = setupSearchGuardBackendMock();
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
     const config = setupConfigMock({
@@ -284,7 +274,6 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 

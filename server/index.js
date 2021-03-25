@@ -17,7 +17,7 @@
 import { schema } from '@kbn/config-schema';
 import { ServerPlugin } from './serverPlugin';
 import { version as sgVersion } from '../package.json';
-import { DEFAULT_CONFIG } from './applications/searchguard/read_kibana_config';
+import { DEFAULT_CONFIG } from './default_config';
 
 const {
   searchguard: {
@@ -92,7 +92,7 @@ export const ConfigSchema = schema.object({
       minLength: 32,
       defaultValue: cookieDefaults.password,
     }),
-    ttl: schema.number({ defaultValue: cookieDefaults.ttl }),
+    ttl: schema.nullable(schema.number({ defaultValue: cookieDefaults.ttl })),
     domain: schema.maybe(schema.string()),
     isSameSite: schema.oneOf(
       [
