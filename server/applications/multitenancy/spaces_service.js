@@ -14,69 +14,144 @@
  * limitations under the License.
  */
 
-import { get, head } from 'lodash';
+import { get } from 'lodash';
 
-const DEFAULT_SPACE_ID = 'space:default';
-// If the spaces doesn't work, check the default doc structure
-// in the Kibana version you use. Maybe the doc changed.
-const DEFAULT_SPACE_DOC = {
-  type: 'space',
-  space: {
-    name: 'Default',
-    description: 'This is your default space!',
-    disabledFeatures: [],
-    color: '#00bfb3',
-    _reserved: true,
-  },
-  updated_at: new Date().toISOString(),
-};
+export const DEFAULT_SPACE_NAME = 'default';
+
+// ATTENTION! If either Saved Objects migration or integration with spaces doesn't work,
+// check the space document structure in your Kibana version. Maybe it changed.
+export function getDefaultSpaceDoc(kibanaVersion) {
+  return {
+    space: {
+      name: 'Default',
+      description: 'This is your default space!',
+      disabledFeatures: [],
+      color: '#00bfb3',
+      _reserved: true,
+    },
+    type: 'space',
+    references: [],
+    migrationVersion: {
+      space: '6.6.0',
+    },
+    coreMigrationVersion: kibanaVersion,
+    updated_at: new Date().toISOString(),
+  };
+}
 
 export class SpacesService {
-  constructor({ clusterClient, logger, configService }) {
+  constructor({ kibanaVersion, clusterClient, logger, configService, searchGuardBackend }) {
+    this.kibanaVersion = kibanaVersion;
     this.clusterClient = clusterClient;
     this.logger = logger;
     this.configService = configService;
-    this.kibanaIndex = this.configService.get('kibana.index');
+    this.searchGuardBackend = searchGuardBackend;
   }
 
-  createDefaultSpace = async ({ request, selectedTenant = '' } = {}) => {
-    // Kibana talks to its index. The SG ES plugin substitutes the Kibana index name with a tenant index name.
+  logErrorDetails = (error, message) => {
+    if (!message) message = error.message;
+
+    let errorMeta = JSON.stringify(get(error, 'meta.body', ''), null, 2);
+    if (!errorMeta || !errorMeta.length) errorMeta = error;
+
+    this.logger.error(`${message}, ${errorMeta}`);
+  };
+
+  spaceExists = async ({ request, indexName, spaceName }) => {
     try {
       await this.clusterClient.asScoped(request).asCurrentUser.transport.request({
         method: 'get',
-        path: `/${this.kibanaIndex}/_doc/${DEFAULT_SPACE_ID}`,
+        path: `/${indexName}/_doc/space:${spaceName}`,
       });
+
+      return true;
     } catch (error) {
       if (error.meta.statusCode === 404) {
-        try {
-          await this.clusterClient.asScoped(request).asCurrentUser.create({
-            id: DEFAULT_SPACE_ID,
-            index: this.kibanaIndex,
-            refresh: true,
-            body: DEFAULT_SPACE_DOC,
-          });
-
-          this.logger.debug(`Created the default space for tenant "${selectedTenant}"`);
-        } catch (error) {
-          if (error.meta.statusCode !== 409) {
-            this.logger.error(
-              `Failed to create the default space for tenant "${selectedTenant}", ${JSON.stringify(
-                get(error, 'meta.body', {}),
-                null,
-                2
-              )}`
-            );
-          }
-        }
+        return false;
       } else {
-        this.logger.error(
-          `Failed to check the default space for tenant "${selectedTenant}", ${JSON.stringify(
-            get(error, 'meta.body', {}),
-            null,
-            2
-          )}`
+        this.logErrorDetails(error, `Fail to verify space "${spaceName}"`);
+      }
+    }
+
+    return false;
+  };
+
+  createIndexAlias = async ({ request, aliasName, indices }) => {
+    try {
+      return await this.clusterClient.asScoped(request).asCurrentUser.indices.putAlias({
+        index: indices,
+        name: aliasName,
+      });
+    } catch (error) {
+      this.logErrorDetails(error, `Fail to create alias "${aliasName}" for indices "${indices}"`);
+    }
+  };
+
+  createSpaceForTenant = async ({
+    request,
+    tenantName,
+    aliasName,
+    versionAliasName,
+    versionIndexName,
+    spaceName,
+    spaceBody,
+    refresh = true,
+  } = {}) => {
+    try {
+      // Create doc and index
+      await this.clusterClient.asScoped(request).asCurrentUser.create({
+        id: `space:${spaceName}`,
+        index: versionIndexName,
+        body: spaceBody,
+        refresh,
+      });
+
+      // We must create an alias and a version alias. The migration algorithm requires the alias.
+      // And the Kibana page is broken after a tenant is selected if there is no version alias because apps query the version alias directly.
+      const aliasesToCreate = [aliasName, versionAliasName];
+      return Promise.all(
+        aliasesToCreate.map((aliasName) =>
+          this.createIndexAlias({ request, aliasName, indices: [versionIndexName] })
+        )
+      );
+    } catch (error) {
+      const spaceExists = get(error, 'meta.statusCode') === 409;
+      if (!spaceExists) {
+        this.logErrorDetails(
+          error,
+          `Fail to create the space "${spaceName}" for tenant "${tenantName}" in index ${versionIndexName}`
         );
       }
+    }
+  };
+
+  createDefaultSpace = async ({ request, selectedTenant = '' } = {}) => {
+    /*
+      The SG backend maps calls for the alias .kibana and the version alias .kibana_<V> to the selectedTenant aliases.
+      For example:
+        .kibana -> .kibana_-<N>_tenant
+        .kibana_V -> .kibana_-<N>_tenant_<V>
+    */
+    const aliasName = this.configService.get('kibana.index');
+    const versionAliasName = aliasName + `_${this.kibanaVersion}`;
+    const versionIndexName = versionAliasName + '_001';
+
+    const spaceExists = await this.spaceExists({
+      request,
+      index: aliasName,
+      spaceName: DEFAULT_SPACE_NAME,
+    });
+
+    if (!spaceExists) {
+      return this.createSpaceForTenant({
+        request,
+        aliasName,
+        versionAliasName,
+        versionIndexName,
+        tenantName: selectedTenant,
+        spaceName: DEFAULT_SPACE_NAME,
+        spaceBody: getDefaultSpaceDoc(this.kibanaVersion),
+      });
     }
   };
 }

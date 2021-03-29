@@ -78,11 +78,8 @@ export const DEFAULT_CONFIG = {
         scroll_duration: '15m',
         poll_interval: 1500,
         skip: false,
+        enableV2: true,
       },
-    },
-    saved_objects: {
-      max_import_payload_bytes: 10485760,
-      max_import_export_size: 10000,
     },
     configuration: {
       enabled: true,

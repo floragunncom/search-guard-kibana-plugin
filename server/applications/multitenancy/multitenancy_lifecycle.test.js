@@ -45,54 +45,6 @@ function setupClusterClientMock({ elasticsearchClientAsScoped = jest.fn() } = {}
   };
 }
 
-function setupForCreateDefaultSpace() {
-  const elasticsearchClientAsScopedAsCurrentUserTransportRequest = jest
-    .fn()
-    .mockResolvedValueOnce();
-  const elasticsearchClientAsScopedAsCurrentUserCreate = jest.fn();
-  const elasticsearchClientAsScoped = jest.fn(() => ({
-    asCurrentUser: {
-      create: elasticsearchClientAsScopedAsCurrentUserCreate,
-      transport: {
-        request: elasticsearchClientAsScopedAsCurrentUserTransportRequest,
-      },
-    },
-  }));
-  const clusterClient = setupClusterClientMock({ elasticsearchClientAsScoped });
-
-  return {
-    elasticsearchClientAsScopedAsCurrentUserCreate,
-    elasticsearchClientAsScopedAsCurrentUserTransportRequest,
-    elasticsearchClientAsScoped,
-    clusterClient,
-  };
-}
-
-function setupForCreateDefaultSpace404() {
-  const error404 = new Error('No default space');
-  error404.meta = { statusCode: 404 };
-  const elasticsearchClientAsScopedAsCurrentUserTransportRequest = jest
-    .fn()
-    .mockRejectedValueOnce(error404);
-  const elasticsearchClientAsScopedAsCurrentUserCreate = jest.fn();
-  const elasticsearchClientAsScoped = jest.fn(() => ({
-    asCurrentUser: {
-      create: elasticsearchClientAsScopedAsCurrentUserCreate,
-      transport: {
-        request: elasticsearchClientAsScopedAsCurrentUserTransportRequest,
-      },
-    },
-  }));
-  const clusterClient = setupClusterClientMock({ elasticsearchClientAsScoped });
-
-  return {
-    elasticsearchClientAsScopedAsCurrentUserCreate,
-    elasticsearchClientAsScopedAsCurrentUserTransportRequest,
-    elasticsearchClientAsScoped,
-    clusterClient,
-  };
-}
-
 function setupPluginDependenciesMock() {
   return { spaces: {} };
 }
@@ -113,6 +65,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
   let sessionStorageFactoryGet;
   let sessionStorageFactory;
   let searchGuardBackend;
+  let clusterClient;
 
   beforeEach(() => {
     authInstance = setupAuthInstanceMock();
@@ -150,17 +103,12 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       authinfo: jest.fn().mockResolvedValue(authinfoResponse),
       validateTenant: jest.fn().mockReturnValue(sgtenant),
     });
+    clusterClient = setupClusterClientMock();
   });
 
   test('assign tenant to request headers and create the default space', async () => {
-    const {
-      elasticsearchClientAsScopedAsCurrentUserCreate,
-      elasticsearchClientAsScopedAsCurrentUserTransportRequest,
-      elasticsearchClientAsScoped,
-      clusterClient,
-    } = setupForCreateDefaultSpace404();
-
     const spacesService = new SpacesService({ clusterClient, logger, configService });
+    spacesService.createDefaultSpace = jest.fn();
 
     const mtLifecycle = new MultitenancyLifecycle({
       authInstance,
@@ -168,7 +116,6 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       configService,
       sessionStorageFactory,
       logger,
-      clusterClient,
       pluginDependencies,
       spacesService,
     });
@@ -204,46 +151,26 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
     expect(request.headers.sgtenant).toEqual(sgtenant);
 
     // Create the default space
-    expect(elasticsearchClientAsScoped).toHaveBeenCalledTimes(2);
-    expect(elasticsearchClientAsScoped).toHaveBeenCalledWith({
-      ...request,
-      headers: {
-        sgtenant,
-      },
-    });
-    expect(elasticsearchClientAsScopedAsCurrentUserTransportRequest).toHaveBeenCalledWith({
-      method: 'get',
-      path: '/.kibana/_doc/space:default',
-    });
-    expect(elasticsearchClientAsScopedAsCurrentUserCreate).toHaveBeenCalledWith({
-      body: {
-        space: {
-          _reserved: true,
-          color: '#00bfb3',
-          description: 'This is your default space!',
-          disabledFeatures: [],
-          name: 'Default',
+    expect(spacesService.createDefaultSpace).toHaveBeenLastCalledWith({
+      request: {
+        headers: {
+          sgtenant: 'admin_tenant',
         },
-        type: 'space',
-        updated_at: expect.any(String),
+        url: {
+          pathname: '/app',
+          searchParams: new URLSearchParams(),
+        },
       },
-      id: 'space:default',
-      index: '.kibana',
-      refresh: true,
+      selectedTenant: 'admin_tenant',
     });
 
     expect(toolkit.next).toHaveBeenCalled();
   });
 
-  test('do not create the default space if exists', async () => {
-    const {
-      elasticsearchClientAsScopedAsCurrentUserCreate,
-      elasticsearchClientAsScopedAsCurrentUserTransportRequest,
-      elasticsearchClientAsScoped,
-      clusterClient,
-    } = setupForCreateDefaultSpace();
-
+  test('do not create the default space if Kibana spaces plugin disabled', async () => {
     const spacesService = new SpacesService({ clusterClient, logger, configService });
+    spacesService.createDefaultSpace = jest.fn();
+    pluginDependencies = {};
 
     const mtLifecycle = new MultitenancyLifecycle({
       authInstance,
@@ -251,47 +178,12 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       configService,
       sessionStorageFactory,
       logger,
-      clusterClient,
       pluginDependencies,
       spacesService,
     });
     await mtLifecycle.onPreAuth(request, response, toolkit);
 
-    expect(elasticsearchClientAsScoped).toHaveBeenCalledTimes(1);
-    expect(elasticsearchClientAsScoped).toHaveBeenCalledWith({
-      ...request,
-      headers: {
-        sgtenant,
-      },
-    });
-    expect(elasticsearchClientAsScopedAsCurrentUserTransportRequest).toHaveBeenCalledWith({
-      method: 'get',
-      path: '/.kibana/_doc/space:default',
-    });
-    expect(elasticsearchClientAsScopedAsCurrentUserCreate).toHaveBeenCalledTimes(0);
-  });
-
-  test('do not create the default space if Kibana spaces plugin disabled', async () => {
-    pluginDependencies = {};
-    const {
-      elasticsearchClientAsScopedAsCurrentUserCreate,
-      elasticsearchClientAsScopedAsCurrentUserTransportRequest,
-      clusterClient,
-    } = setupForCreateDefaultSpace();
-
-    const mtLifecycle = new MultitenancyLifecycle({
-      authInstance,
-      searchGuardBackend,
-      configService,
-      sessionStorageFactory,
-      logger,
-      clusterClient,
-      pluginDependencies,
-    });
-    await mtLifecycle.onPreAuth(request, response, toolkit);
-
-    expect(elasticsearchClientAsScopedAsCurrentUserTransportRequest).toHaveBeenCalledTimes(0);
-    expect(elasticsearchClientAsScopedAsCurrentUserCreate).toHaveBeenCalledTimes(0);
+    expect(spacesService.createDefaultSpace).toHaveBeenCalledTimes(0);
   });
 
   test('tenant is read from the cookie and validated', async () => {
@@ -333,7 +225,8 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       })),
     });
 
-    const { clusterClient } = setupForCreateDefaultSpace();
+    const spacesService = new SpacesService({ clusterClient, logger, configService });
+    spacesService.createDefaultSpace = jest.fn();
 
     const mtLifecycle = new MultitenancyLifecycle({
       authInstance,
@@ -341,8 +234,8 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       configService,
       sessionStorageFactory,
       logger,
-      clusterClient,
       pluginDependencies,
+      spacesService,
     });
 
     const selectedTenant = await mtLifecycle.getSelectedTenant({
@@ -399,7 +292,8 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       })),
     });
 
-    const { clusterClient } = setupForCreateDefaultSpace();
+    const spacesService = new SpacesService({ clusterClient, logger, configService });
+    spacesService.createDefaultSpace = jest.fn();
 
     const mtLifecycle = new MultitenancyLifecycle({
       authInstance,
@@ -407,8 +301,8 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       configService,
       sessionStorageFactory,
       logger,
-      clusterClient,
       pluginDependencies,
+      spacesService,
     });
 
     const selectedTenant = await mtLifecycle.getSelectedTenant({

@@ -199,17 +199,11 @@ export const ConfigSchema = schema.object({
         defaultValue: multitenancyDefaults.saved_objects_migration.poll_interval,
       }),
       skip: schema.boolean({ defaultValue: multitenancyDefaults.saved_objects_migration.skip }),
+      enableV2: schema.boolean({
+        defaultValue: multitenancyDefaults.saved_objects_migration.enableV2,
+      }),
     }),
   }),
-  saved_objects: schema.object({
-    max_import_payload_bytes: schema.number({
-      defaultValue: searchguardDefaults.saved_objects.max_import_payload_bytes,
-    }),
-    max_import_export_size: schema.number({
-      defaultValue: searchguardDefaults.saved_objects.max_import_export_size,
-    }),
-  }),
-
   configuration: schema.object({
     enabled: schema.boolean({ defaultValue: searchguardDefaults.configuration.enabled }),
   }),
