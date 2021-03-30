@@ -33,6 +33,7 @@ export class Multitenancy {
     pluginDependencies,
     configService,
     searchGuardBackend,
+    spacesService,
   }) {
     this.logger.debug('Setup app');
 
@@ -55,6 +56,7 @@ export class Multitenancy {
         logger: this.logger,
         clusterClient: elasticsearch.client,
         pluginDependencies,
+        spacesService,
       });
       kibanaCore.http.registerOnPreAuth(multitenancyLifecycle.onPreAuth);
 

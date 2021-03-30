@@ -26,6 +26,7 @@ export class SearchGuard {
     kibanaRouter,
     searchGuardBackend,
     searchGuardConfigurationBackend,
+    spacesService,
   }) {
     this.logger.debug('Setup app');
 
@@ -140,6 +141,7 @@ export class SearchGuard {
                   logger: this.coreContext.logger.get('searchguard-auth'),
                   sessionStorageFactory,
                   pluginDependencies,
+                  spacesService,
                 });
               }
 

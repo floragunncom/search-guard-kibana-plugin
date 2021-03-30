@@ -31,6 +31,7 @@ export default class BasicAuth extends AuthType {
     logger,
     sessionStorageFactory,
     pluginDependencies,
+    spacesService,
   }) {
     super({
       authMethodConfig,
@@ -40,6 +41,7 @@ export default class BasicAuth extends AuthType {
       logger,
       sessionStorageFactory,
       pluginDependencies,
+      spacesService,
     });
 
     /**
