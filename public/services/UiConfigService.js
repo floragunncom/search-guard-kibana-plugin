@@ -62,6 +62,7 @@ export class UiConfigService extends ConfigService {
 
       defaultsDeep(config, {
         ...kibanaConfig,
+        uiHelpers: kibanaConfig.uiHelpers,
         restapiinfo,
         systeminfo,
         authinfo: {

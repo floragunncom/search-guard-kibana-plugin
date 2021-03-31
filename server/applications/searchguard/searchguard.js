@@ -62,25 +62,40 @@ export class SearchGuard {
       // Because Kibana doesn't support all the options we need.
       extendSecurityCookieOptions(cookieOptions);
 
-      //const authType = configService.get('searchguard.auth.type', null);
+      const authType = configService.get('searchguard.auth.type', null);
 
       let AuthClass = null;
       let authInstance = null;
 
       // @todo Is it enough to load the config on startup only?
       // @todo Error handling
-      const authConfig = await searchGuardBackend.getAuthConfig();
+      let authMethodConfig = {
+        session: true
+      }
+
+      //const authConfig = await searchGuardBackend.getAuthConfig();
 
       // @todo Dummy pending correct auth response
-      const authMethodConfig = authConfig.auth_methods.filter(
+      /*
+      authMethodConfig = authConfig.auth_methods.filter(
         (config) => config.method === 'basic'
       )[0];
+
+       */
+
+
+
+      console.log('------- What is the config?', authMethodConfig)
 
       // @todo This mapping will probably go away
       const AUTH_METHODS = {
         basic: 'basicauth',
       };
-      const authType = AUTH_METHODS[authMethodConfig.method];
+      //const authType = AUTH_METHODS[authMethodConfig.method];
+
+
+
+
 
       // Proxy authentication is handled implicitly.
       if (

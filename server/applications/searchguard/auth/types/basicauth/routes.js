@@ -25,6 +25,7 @@ import { APP_ROOT, API_ROOT } from '../../../../../utils/constants';
 
 export function loginHandler({ config, authInstance, logger, basePath }) {
   return async function (context, request, response) {
+
     try {
       // Check if we have alternative login headers
       const alternativeHeaders = config.get('searchguard.basicauth.alternative_login.headers');
@@ -200,7 +201,7 @@ export function defineRoutes({
       path: `${APP_ROOT}/login`,
       validate: false,
       options: {
-        authRequired: false,
+        authRequired: 'optional',
       },
     },
     loginHandler({ config, authInstance, logger, basePath })

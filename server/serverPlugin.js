@@ -90,6 +90,13 @@ export class ServerPlugin {
         spacesService,
       });
 
+      core.http.registerRouteHandlerContext('searchGuard', () => {
+        return {
+          sessionStorageFactory,
+          authInstance,
+        };
+      });
+
       const isMtEnabled = configService.get('searchguard.multitenancy.enabled');
       if (isMtEnabled) {
         this.multiTenancyApp.setup({

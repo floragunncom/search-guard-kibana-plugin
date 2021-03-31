@@ -44,10 +44,7 @@ export default class SearchGuardBackend {
       const response = await this._client({
         asWho: 'asInternalUser',
         path: '/_searchguard/auth/config',
-        method: 'GET',
-        headers: {
-          //authorization: 'Basic ' + authHeaderValue,
-        },
+        method: 'get',
       });
 
       return response;

@@ -3,7 +3,7 @@ import { pick } from 'lodash';
 import { API_ROOT } from '../../../utils/constants';
 
 export function handleKibanaConfig({ config, logger }) {
-  return function (context, request, response) {
+  return async function (context, request, response) {
     try {
       let kibanaConfig = {};
 
@@ -22,6 +22,14 @@ export function handleKibanaConfig({ config, logger }) {
 
         config.searchguard.auth = config.searchguard.auth || {};
         kibanaConfig.searchguard.auth = pick(config.searchguard.auth, ['type']);
+
+        kibanaConfig.uiHelpers = {};
+        // @todo searchguard.auth.* is overwritten so we need to use something different
+        const sessionCookie =
+          (await context.searchGuard.sessionStorageFactory.asScoped(request).get()) || {};
+        kibanaConfig.uiHelpers.hasAuthCookie = context.searchGuard.authInstance.getAuthHeader(
+          sessionCookie
+        ) === false ? false : true;
 
         config.searchguard.multitenancy = config.searchguard.multitenancy || {};
         kibanaConfig.searchguard.multitenancy = {

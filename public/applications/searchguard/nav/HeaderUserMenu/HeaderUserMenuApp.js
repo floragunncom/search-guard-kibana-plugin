@@ -10,8 +10,8 @@ export class HeaderUserMenuApp {
     const userName = configService.get('restapiinfo.user_name');
     const authType = configService.get('searchguard.auth.type');
     const logoutUrl = configService.get('searchguard.auth.logout_url');
-
-    const props = { httpClient, authType };
+    const uiHelpers = configService.get('uiHelpers');
+    const props = { httpClient, authType, uiHelpers };
 
     if (logoutUrl) {
       props.logoutUrl = logoutUrl;

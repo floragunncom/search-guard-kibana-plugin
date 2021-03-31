@@ -21,6 +21,7 @@ import { ensureRawRequest } from '../../../../../../../../src/core/server/http/r
 import { defineRoutes } from './routes';
 import { APP_ROOT } from '../../../../../utils/constants';
 import { stringify } from 'querystring';
+import InvalidSessionError from "../../errors/invalid_session_error";
 
 export default class BasicAuth extends AuthType {
   constructor({
@@ -49,12 +50,6 @@ export default class BasicAuth extends AuthType {
      * @type {string}
      */
     this.type = 'basicauth';
-
-    /**
-     * The name of the authorization header to be used
-     * @type {string}
-     */
-    this.authHeaderName = 'authorization';
 
     /**
      * Redirect to a loadbalancer url instead of a relative path when unauthenticated?
@@ -137,8 +132,10 @@ export default class BasicAuth extends AuthType {
   detectAuthHeaderCredentials(request, sessionCredentials = null) {
     if (request.headers[this.authHeaderName]) {
       const authHeaderValue = request.headers[this.authHeaderName];
+      // @todo Should we remove this now?
       const headerTrumpsSession = this.config.get('searchguard.basicauth.header_trumps_session');
 
+      /*
       if (this.authMethodConfig.session) {
         if (sessionCredentials !== null && !headerTrumpsSession) {
           // Return early if we have a cookie and don't want the headers to trump the session value
@@ -168,6 +165,8 @@ export default class BasicAuth extends AuthType {
         // the value will always be different.
         return null;
       }
+
+       */
 
       // If we have sessionCredentials AND auth headers we need to check if they are the same.
       if (sessionCredentials !== null && sessionCredentials.authHeaderValue === authHeaderValue) {
@@ -220,11 +219,18 @@ export default class BasicAuth extends AuthType {
         user = this.searchGuardBackend.buildSessionResponse(sessionCredentials, authInfoResponse);
       } else {
         // Without session token
-        const authHeaderValue =
-          credentials === null
-            ? undefined
-            : 'Basic ' +
-              Buffer.from(`${credentials.username}:${credentials.password}`).toString('base64');
+
+        // We should already have an authHeader value if the credentials come from an auth header.
+        // If they come from a login form, we have username and password
+        // @todo Too many ways to pass credentials...
+        let authHeaderValue = credentials.authHeaderValue;
+        if (!authHeaderValue) {
+          authHeaderValue =
+            credentials === null
+              ? undefined
+              : 'Basic ' +
+                Buffer.from(`${credentials.username}:${credentials.password}`).toString('base64');
+        }
 
         user = await this.searchGuardBackend.authenticateWithHeader(
           this.authHeaderName,

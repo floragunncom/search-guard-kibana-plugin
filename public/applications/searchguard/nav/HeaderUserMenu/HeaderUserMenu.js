@@ -24,7 +24,14 @@ function LogoutBtn({ onClick, authType }) {
   );
 }
 
-export function HeaderUserMenu({ httpClient, logoutUrl, userName, userNameTooltipText, authType }) {
+export function HeaderUserMenu({
+  httpClient,
+  logoutUrl,
+  userName,
+  userNameTooltipText,
+  authType,
+  uiHelpers,
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const acService = new AccessControlService({ httpClient, authType });
 
@@ -67,7 +74,7 @@ export function HeaderUserMenu({ httpClient, logoutUrl, userName, userNameToolti
           </EuiToolTip>
 
           <EuiSpacer />
-          <LogoutBtn onClick={logOut} authType={authType} />
+          {uiHelpers.hasAuthCookie && <LogoutBtn onClick={logOut} authType={authType} />}
         </EuiFlexItem>
       </EuiFlexGroup>
     </EuiPopover>

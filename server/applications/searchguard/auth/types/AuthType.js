@@ -57,6 +57,7 @@ export default class AuthType {
      */
     this.routesToIgnore = [
       '/login',
+      '/favicon.ico',
       '/customerror',
       '/bootstrap.js',
       '/bundles/app/core/bootstrap.js',
@@ -223,6 +224,11 @@ export default class AuthType {
         throw error;
       }
     } else {
+      return sessionCookie;
+
+      /*
+
+      // @todo Remove this stuff
       // No (valid) cookie, we need to check for headers
       const authHeaderCredentials = this.detectAuthHeaderCredentials(request);
       if (authHeaderCredentials) {
@@ -238,6 +244,8 @@ export default class AuthType {
           throw error;
         }
       }
+
+       */
     }
 
     return sessionCookie;
@@ -246,7 +254,9 @@ export default class AuthType {
   onPostAuth = async (request, response, toolkit) => {
     if (request.route.path === '/api/core/capabilities') {
       const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
-      if (sessionCookie.isAnonymousAuth) return toolkit.next();
+      if (sessionCookie.isAnonymousAuth || this.detectAuthHeaderCredentials(request) !== null) {
+        return toolkit.next();
+      }
 
       const authHeaders = await this.getAllAuthHeaders(request);
       if (authHeaders === false) {
@@ -273,6 +283,29 @@ export default class AuthType {
   };
 
   checkAuth = async (request, response, toolkit) => {
+    let sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+
+    // Skip auth if we have an authorization header
+    if (request.headers[this.authHeaderName]) {
+      // In case we already had a session BEFORE we encountered a request
+      // with auth headers. This is a bit tricky since we do add an
+      // authorization header in the pre auth lifecycle handlers.
+      // Hence, we compare what we have in the cookie with what's in the header.
+      const differentAuthHeaderCredentials = this.detectAuthHeaderCredentials(
+        request,
+        sessionCookie.credentials
+      );
+
+      if (differentAuthHeaderCredentials) {
+        // Make sure to clear any auth related cookie info if we detect a different header
+        await this.clear(request);
+        // @todo It may make sense to reload the browser at this point - we may have a new user.
+      }
+
+      return toolkit.authenticated({
+        requestHeaders: request.headers,
+      });
+    }
     if (this.routesToIgnore.includes(request.url.pathname)) {
       // @todo This should probable be toolkit.authenticated(), but that threw an error.
       // Change back after everything has been implemented
@@ -289,7 +322,7 @@ export default class AuthType {
       });
     }
 
-    let sessionCookie = {};
+    //let sessionCookie = {};
 
     try {
       sessionCookie = await this.getCookieWithCredentials(request);
@@ -332,6 +365,12 @@ export default class AuthType {
       throw new InvalidSessionError('Invalid cookie');
     }
 
+    // No further validation needed by session based auth
+    if (this.authMethodConfig.session) {
+      return sessionCookie;
+    }
+
+    /*
     // Check if we have auth header credentials set that are different from the cookie credentials
     const differentAuthHeaderCredentials = this.detectAuthHeaderCredentials(
       request,
@@ -357,6 +396,8 @@ export default class AuthType {
       await this.clear(request);
       throw new InvalidSessionError('Validation of different auth headers failed');
     }
+
+     */
 
     // If we are still here, we need to compare the expiration time
     // JWT's .exp is denoted in seconds, not milliseconds.
@@ -387,7 +428,13 @@ export default class AuthType {
   }
 
   /**
-   * Validates
+   * Validates additional auth headers by comparing request headers
+   * with the contents of the cookie
+   *
+   * When we stop creating cookies for existing request auth headers,
+   * this is most likely only relevant for ProxyCache.
+   * @todo Move this to ProxyCache?
+   *
    * @param request
    * @param session
    * @returns {boolean}
@@ -432,6 +479,7 @@ export default class AuthType {
    * @returns {Promise<boolean|*>}
    */
   async getAllAuthHeaders(request, sessionCookie = null) {
+
     if (!sessionCookie) {
       try {
         sessionCookie = await this.getCookieWithCredentials(request);
@@ -608,6 +656,7 @@ export default class AuthType {
    */
   async clear(request) {
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+    const authHeaders = await this.getAllAuthHeaders(request);
     // @todo Consider refactoring anything auth related into an "auth" property.
     delete sessionCookie.credentials;
     delete sessionCookie.username;
@@ -615,7 +664,7 @@ export default class AuthType {
     delete sessionCookie.additionalAuthHeaders;
     delete sessionCookie.isAnonymousAuth;
 
-    if (this.authMethodConfig.session) {
+    if (this.authMethodConfig.session && authHeaders) {
       try {
         await this.searchGuardBackend.logoutSession(request.headers);
       } catch (error) {
