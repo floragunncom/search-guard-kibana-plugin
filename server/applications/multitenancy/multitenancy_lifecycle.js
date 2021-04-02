@@ -24,7 +24,6 @@ export class MultitenancyLifecycle {
     configService,
     sessionStorageFactory,
     logger,
-    clusterClient,
     pluginDependencies,
     spacesService,
   }) {
@@ -33,7 +32,6 @@ export class MultitenancyLifecycle {
     this.configService = configService;
     this.sessionStorageFactory = sessionStorageFactory;
     this.logger = logger;
-    this.clusterClient = clusterClient;
     this.pluginDependencies = pluginDependencies;
     this.spacesService = spacesService;
   }
