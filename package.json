@@ -1,12 +1,11 @@
 {
   "name": "searchguard",
-  "version": "7.12.1-master-SNAPSHOT",
+  "version": "7.12.0-master-SNAPSHOT",
   "description": "Search Guard features for Kibana",
   "homepage": "https://search-guard.com",
   "license": "Apache-2.0",
   "searchguard": {
-    "test_sg_version": "7.12.0-master-SNAPSHOT",
-    "kibana_branch": "7.12"
+    "test_sg_version": "7.12.0-master-SNAPSHOT"
   },
   "repository": {
     "type": "git",
