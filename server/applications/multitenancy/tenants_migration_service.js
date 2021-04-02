@@ -16,7 +16,6 @@
  */
 
 import { migrationRetryCallCluster } from '../../../../../src/core/server/elasticsearch/client';
-import { createMigrationEsClient } from '../../../../../src/core/server/saved_objects/migrations/core';
 import { KibanaMigrator } from '../../../../../src/core/server/saved_objects/migrations';
 
 import { defineMigrateRoutes } from './routes';
@@ -31,19 +30,17 @@ export class TenantsMigrationService {
     this.logger.debug('Start tenants saved objects migration');
 
     try {
-      const savedObjectsConfig = configService.get('searchguard.saved_objects');
       const savedObjectsMigrationConfig = configService.get(
         'searchguard.multitenancy.saved_objects_migration'
       );
 
       const config = {
-        maxImportPayloadBytes: savedObjectsConfig.max_import_payload_bytes,
-        maxImportExportSize: savedObjectsConfig.max_import_export_size,
         migration: {
           batchSize: savedObjectsMigrationConfig.batch_size,
           scrollDuration: savedObjectsMigrationConfig.scroll_duration,
           pollInterval: savedObjectsMigrationConfig.poll_interval,
           skip: savedObjectsMigrationConfig.skip,
+          enableV2: savedObjectsMigrationConfig.enableV2,
         },
       };
 
@@ -55,7 +52,7 @@ export class TenantsMigrationService {
       const kibanaConfig = configService.get('kibana');
 
       const migratorDeps = {
-        client: createMigrationEsClient(esClient.asInternalUser, this.logger),
+        client: esClient.asInternalUser,
         kibanaConfig,
         typeRegistry,
         logger: this.logger,
@@ -103,10 +100,13 @@ export class TenantsMigrationService {
           // We execute the index migration sequentially because Elasticsearch doesn't keep up
           // with parallel migration for a large number of indices (tenants).
           // https://git.floragunn.com/search-guard/search-guard-kibana-plugin/-/issues/315
-          response = await new KibanaMigrator({
+          const kibanaMigrator = new KibanaMigrator({
             ...migratorDeps,
             kibanaConfig: { ...kibanaConfig, index: this.tenantIndices[i] },
-          }).runMigrations();
+          });
+
+          kibanaMigrator.prepareMigrations();
+          await kibanaMigrator.runMigrations();
 
           this.logger.info(`Fulfilled migration for index ${this.tenantIndices[i]}.`);
           this.logger.debug(`Migration result:\n${JSON.stringify(response, null, 2)}`);

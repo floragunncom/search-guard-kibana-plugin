@@ -75,9 +75,11 @@ export class ServerPlugin {
       });
 
       const spacesService = new SpacesService({
+        kibanaVersion: this.initContext.env.packageInfo.version,
         clusterClient: elasticsearch.client,
         logger: this.logger,
         configService,
+        searchGuardBackend,
       });
 
       const { authInstance, sessionStorageFactory } = await this.searchGuardApp.setup({
