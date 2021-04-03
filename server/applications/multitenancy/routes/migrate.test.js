@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 floragunn GmbH
+ *    Copyright 2021 floragunn GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,8 +97,11 @@ function setupTypeRegistryMock() {
   };
 }
 
-function setupKibanaMigratorMock({ runMigrations = jest.fn() } = {}) {
-  return jest.fn(() => ({ runMigrations }));
+function setupKibanaMigratorMock({
+  runMigrations = jest.fn(),
+  prepareMigrations = jest.fn(),
+} = {}) {
+  return jest.fn(() => ({ runMigrations, prepareMigrations }));
 }
 
 const kibanaVersion = '8.0.0';
@@ -204,76 +207,86 @@ describe('multitenancy/routes/migrate', () => {
     });
   });
 
-  test('can migrate saved objects', async () => {
-    const response = setupHttpResponseMock();
-
-    const inputs = [
+  test('can migrate saved objects for a tenant', async () => {
+    const request = {
+      params: { tenantIndex: '.kibana_3655250_wolf' },
+    };
+    const expectedTenantInfoResponse = { '.kibana_3655250_wolf': '__private__' };
+    const expectedMigrationResponse = [
       {
-        name: 'migrate a tenant index',
-        request: {
-          params: { tenantIndex: '.kibana_3568561_trex' },
-        },
-        expectedResponse: [
-          {
-            status: 'skipped',
-          },
-        ],
-        runMigrationsResponse: [{ status: 'skipped' }],
-        getTenantInfoWithInternalUserResponse: {
-          '.kibana_-152937574_admintenant': 'admin_tenant',
-          '.kibana_3568561_trex': 'trex',
-        },
-      },
-      {
-        name: 'migrate all tenants indices',
-        request: {
-          params: { tenantIndex: '_all' },
-        },
-        expectedResponse: [
-          [
-            {
-              status: 'skipped',
-            },
-          ],
-          [
-            {
-              status: 'skipped',
-            },
-          ],
-        ],
-        runMigrationsResponse: [{ status: 'skipped' }],
-        getTenantInfoWithInternalUserResponse: {
-          '.kibana_-152937574_admintenant': 'admin_tenant',
-          '.kibana_3568561_trex': 'trex',
-        },
+        status: 'patched',
+        destIndex: '.kibana_3655250_wolf_7.12.0_001',
+        elapsedMs: 386.70695400238037,
       },
     ];
 
-    for (const input of inputs) {
-      const {
-        request,
-        expectedResponse,
-        getTenantInfoWithInternalUserResponse,
-        runMigrationsResponse,
-      } = input;
+    const response = setupHttpResponseMock();
 
-      const KibanaMigrator = setupKibanaMigratorMock({
-        runMigrations: jest.fn().mockResolvedValue(runMigrationsResponse),
-      });
+    const prepareMigrations = jest.fn();
+    const runMigrations = jest.fn().mockResolvedValue(expectedMigrationResponse);
+    const KibanaMigrator = setupKibanaMigratorMock({ prepareMigrations, runMigrations });
 
-      const searchGuardBackend = setupSearchGuardBackendMock({
-        getTenantInfoWithInternalUser: jest
-          .fn()
-          .mockResolvedValue(getTenantInfoWithInternalUserResponse),
-      });
+    const searchGuardBackend = setupSearchGuardBackendMock({
+      getTenantInfoWithInternalUser: jest.fn().mockResolvedValue(expectedTenantInfoResponse),
+    });
 
-      await migrateTenants({
-        searchGuardBackend,
-        KibanaMigrator,
-        migratorDeps,
-      })(null, request, response);
+    await migrateTenants({
+      searchGuardBackend,
+      KibanaMigrator,
+      migratorDeps,
+    })(null, request, response);
 
-      expect(response.ok).toHaveBeenCalledWith({ body: expectedResponse });
-    }
+    expect(prepareMigrations).toHaveBeenCalled();
+    expect(runMigrations).toHaveBeenCalledWith({ rerun: true });
+    expect(response.ok).toHaveBeenCalledWith({ body: expectedMigrationResponse });
+  });
+
+  test('can migrate saved objects for all tenants', async () => {
+    const request = {
+      params: { tenantIndex: '_all' },
+    };
+    const expectedTenantInfoResponse = {
+      '.kibana_3655250_wolf': '__private__',
+      '.kibana_4766361_rabbit': '__private__',
+    };
+    const expectedMigrationResponse1 = [
+      {
+        status: 'patched',
+        destIndex: '.kibana_3655250_wolf_7.12.0_001',
+        elapsedMs: 386.70695400238037,
+      },
+    ];
+    const expectedMigrationResponse2 = [
+      {
+        status: 'patched',
+        destIndex: '.kibana_4766361_rabbit_7.12.0_001',
+        elapsedMs: 386.70695400238037,
+      },
+    ];
+
+    const response = setupHttpResponseMock();
+
+    const prepareMigrations = jest.fn();
+    const runMigrations = jest
+      .fn()
+      .mockResolvedValueOnce(expectedMigrationResponse1)
+      .mockResolvedValueOnce(expectedMigrationResponse2);
+    const KibanaMigrator = setupKibanaMigratorMock({ prepareMigrations, runMigrations });
+
+    const searchGuardBackend = setupSearchGuardBackendMock({
+      getTenantInfoWithInternalUser: jest.fn().mockResolvedValue(expectedTenantInfoResponse),
+    });
+
+    await migrateTenants({
+      searchGuardBackend,
+      KibanaMigrator,
+      migratorDeps,
+    })(null, request, response);
+
+    expect(prepareMigrations).toHaveBeenCalled();
+    expect(runMigrations).toHaveBeenCalledWith({ rerun: true });
+    expect(response.ok).toHaveBeenCalledWith({
+      body: [expectedMigrationResponse1, expectedMigrationResponse2],
+    });
   });
 });
