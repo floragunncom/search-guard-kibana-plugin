@@ -66,6 +66,7 @@ class Main extends Component {
     this.localStorage = new LocalStorageService();
     this.apiService = new ApiService(context.httpClient);
     this.configService = context.configService;
+    this.configuration = this.configService.get('searchguard.configuration', {});
 
     this.state = {
       purgingCache: false,
@@ -149,45 +150,69 @@ class Main extends Component {
               {isAPIAccessPending && LoadingPage}
               {isAPIAccessOk && (
                 <Switch>
-                  <Route
-                    path={APP_PATH.CREATE_INTERNAL_USER}
-                    render={(props) => <CreateInternalUser {...props} />}
-                  />
-                  <Route
-                    path={APP_PATH.INTERNAL_USERS}
-                    render={(props) => <InternalUsers {...props} />}
-                  />
-                  <Route path={APP_PATH.AUTH} render={(props) => <Auth {...props} />} />
-                  <Route
-                    path={APP_PATH.SYSTEM_STATUS}
-                    render={(props) => <SystemStatus {...props} />}
-                  />
-                  <Route path={APP_PATH.TENANTS} render={(props) => <Tenants {...props} />} />
-                  <Route
-                    path={APP_PATH.CREATE_TENANT}
-                    render={(props) => <CreateTenant {...props} />}
-                  />
-                  <Route
-                    path={APP_PATH.ACTION_GROUPS}
-                    render={(props) => <ActionGroups {...props} />}
-                  />
-                  <Route
-                    path={APP_PATH.CREATE_ACTION_GROUP}
-                    render={(props) => <CreateActionGroup {...props} />}
-                  />
-                  <Route path={APP_PATH.ROLES} render={(props) => <Roles {...props} />} />
-                  <Route
-                    path={APP_PATH.CREATE_ROLE}
-                    render={(props) => <CreateRole {...props} />}
-                  />
-                  <Route
-                    path={APP_PATH.ROLE_MAPPINGS}
-                    render={(props) => <RoleMappings {...props} />}
-                  />
-                  <Route
-                    path={APP_PATH.CREATE_ROLE_MAPPING}
-                    render={(props) => <CreateRoleMapping {...props} />}
-                  />
+                  {this.configuration.create_internal_users_page.enabled && (
+                    <Route
+                      path={APP_PATH.CREATE_INTERNAL_USER}
+                      render={(props) => <CreateInternalUser {...props} />}
+                    />
+                  )}
+                  {this.configuration.internal_users_page.enabled && (
+                    <Route
+                      path={APP_PATH.INTERNAL_USERS}
+                      render={(props) => <InternalUsers {...props} />}
+                    />
+                  )}
+                  {this.configuration.auth_page.enabled && (
+                    <Route path={APP_PATH.AUTH} render={(props) => <Auth {...props} />} />
+                  )}
+                  {this.configuration.system_status_page.enabled && (
+                    <Route
+                      path={APP_PATH.SYSTEM_STATUS}
+                      render={(props) => <SystemStatus {...props} />}
+                    />
+                  )}
+                  {this.configuration.tenants_page.enabled && (
+                    <Route path={APP_PATH.TENANTS} render={(props) => <Tenants {...props} />} />
+                  )}
+                  {this.configuration.create_tenants_page.enabled && (
+                    <Route
+                      path={APP_PATH.CREATE_TENANT}
+                      render={(props) => <CreateTenant {...props} />}
+                    />
+                  )}
+                  {this.configuration.action_groups_page.enabled && (
+                    <Route
+                      path={APP_PATH.ACTION_GROUPS}
+                      render={(props) => <ActionGroups {...props} />}
+                    />
+                  )}
+                  {this.configuration.create_action_groups_page.enabled && (
+                    <Route
+                      path={APP_PATH.CREATE_ACTION_GROUP}
+                      render={(props) => <CreateActionGroup {...props} />}
+                    />
+                  )}
+                  {this.configuration.roles_page.enabled && (
+                    <Route path={APP_PATH.ROLES} render={(props) => <Roles {...props} />} />
+                  )}
+                  {this.configuration.create_roles_page.enabled && (
+                    <Route
+                      path={APP_PATH.CREATE_ROLE}
+                      render={(props) => <CreateRole {...props} />}
+                    />
+                  )}
+                  {this.configuration.role_mappings_page.enabled && (
+                    <Route
+                      path={APP_PATH.ROLE_MAPPINGS}
+                      render={(props) => <RoleMappings {...props} />}
+                    />
+                  )}
+                  {this.configuration.create_role_mappings_page.enabled && (
+                    <Route
+                      path={APP_PATH.CREATE_ROLE_MAPPING}
+                      render={(props) => <CreateRoleMapping {...props} />}
+                    />
+                  )}
                   <Route
                     render={(props) => (
                       <Home

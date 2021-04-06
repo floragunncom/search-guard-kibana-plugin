@@ -212,6 +212,76 @@ export const ConfigSchema = schema.object({
 
   configuration: schema.object({
     enabled: schema.boolean({ defaultValue: searchguardDefaults.configuration.enabled }),
+    action_groups_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.action_groups_page.enabled,
+      }),
+    }),
+    create_action_groups_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.create_action_groups_page.enabled,
+      }),
+    }),
+    internal_users_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.internal_users_page.enabled,
+      }),
+    }),
+    create_internal_users_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.create_internal_users_page.enabled,
+      }),
+    }),
+    roles_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.roles_page.enabled,
+      }),
+    }),
+    create_roles_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.create_roles_page.enabled,
+      }),
+    }),
+    role_mappings_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.role_mappings_page.enabled,
+      }),
+    }),
+    create_role_mappings_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.create_role_mappings_page.enabled,
+      }),
+    }),
+    tenants_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.tenants_page.enabled,
+      }),
+    }),
+    create_tenants_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.create_tenants_page.enabled,
+      }),
+    }),
+    system_status_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.system_status_page.enabled,
+      }),
+    }),
+    license_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.license_page.enabled,
+      }),
+    }),
+    cache_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.cache_page.enabled,
+      }),
+    }),
+    auth_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.auth_page.enabled,
+      }),
+    }),
   }),
 
   accountinfo: schema.object({

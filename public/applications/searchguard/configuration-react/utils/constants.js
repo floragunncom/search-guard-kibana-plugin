@@ -106,3 +106,107 @@ export const CALLOUTS = {
 };
 
 export { DOC_LINKS } from '../../../utils/constants';
+
+export const PAGE_NAMES = {
+  action_groups_page: 'action_groups_page',
+  create_action_groups_page: 'create_action_groups_page',
+  internal_users_page: 'internal_users_page',
+  create_internal_users_page: 'create_internal_users_page',
+  roles_page: 'roles_page',
+  create_roles_page: 'create_roles_page',
+  role_mappings_page: 'role_mappings_page',
+  create_role_mappings_page: 'create_role_mappings_page',
+  tenants_page: 'tenants_page',
+  create_tenants_page: 'create_tenants_page',
+  system_status_page: 'system_status_page',
+  auth_page: 'auth_page',
+  license_page: 'license_page',
+  cache_page: 'cache_page',
+};
+
+export const PAGE_CONFIGS = {
+  [PAGE_NAMES.action_groups_page]: {
+    api: {
+      method: 'GET',
+      endpoint: 'ACTIONGROUPS',
+    },
+  },
+  [PAGE_NAMES.create_action_groups_page]: {
+    api: {
+      method: 'GET',
+      endpoint: 'ACTIONGROUPS',
+    },
+  },
+  [PAGE_NAMES.internal_users_page]: {
+    api: {
+      method: 'GET',
+      endpoint: 'INTERNALUSERS',
+    },
+  },
+  [PAGE_NAMES.create_internal_users_page]: {
+    api: {
+      method: 'GET',
+      endpoint: 'INTERNALUSERS',
+    },
+  },
+  [PAGE_NAMES.roles_page]: {
+    api: {
+      method: 'GET',
+      endpoint: 'ROLES',
+    },
+  },
+  [PAGE_NAMES.create_roles_page]: {
+    api: {
+      method: 'GET',
+      endpoint: 'ROLES',
+    },
+  },
+  [PAGE_NAMES.role_mappings_page]: {
+    api: {
+      method: 'GET',
+      endpoint: 'ROLESMAPPING',
+    },
+  },
+  [PAGE_NAMES.create_role_mappings_page]: {
+    api: {
+      method: 'GET',
+      endpoint: 'ROLESMAPPING',
+    },
+  },
+  [PAGE_NAMES.tenants_page]: {
+    api: {
+      method: 'GET',
+      endpoint: 'TENANTS',
+    },
+  },
+  [PAGE_NAMES.create_tenants_page]: {
+    api: {
+      method: 'GET',
+      endpoint: 'TENANTS',
+    },
+  },
+  [PAGE_NAMES.system_status_page]: {
+    api: {
+      method: 'GET',
+      endpoint: 'SGCONFIG',
+    },
+  },
+  [PAGE_NAMES.auth_page]: {
+    api: {
+      method: 'GET',
+      endpoint: 'SGCONFIG',
+    },
+  },
+  [PAGE_NAMES.license_page]: {
+    api: {
+      method: 'GET',
+      endpoint: 'LICENSE',
+    },
+  },
+  [PAGE_NAMES.cache_page]: {
+    api: {
+      method: 'GET',
+      endpoint: 'CACHE',
+    },
+  },
+};

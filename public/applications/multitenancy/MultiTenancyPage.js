@@ -283,7 +283,7 @@ export class MultiTenancyPage extends Component {
       .then(
         (response) => {
           const currentTenant = response.data;
-          configService.init();
+          configService.fetchConfig();
           this.setCurrentTenant(currentTenant, userName);
 
           // clear lastUrls from nav links to avoid not found errors.

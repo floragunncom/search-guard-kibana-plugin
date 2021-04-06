@@ -26,7 +26,7 @@ export class AccountInfo {
 
   mount({ configService, httpClient }) {
     return async (params) => {
-      const [{ renderApp }] = await Promise.all([import('./npstart'), configService.init()]);
+      const [{ renderApp }] = await Promise.all([import('./npstart'), configService.fetchConfig()]);
 
       if (configService.get('searchguard.accountinfo.enabled')) {
         return renderApp({
