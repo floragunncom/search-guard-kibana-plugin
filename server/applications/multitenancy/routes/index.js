@@ -26,6 +26,7 @@ export function defineMultitenancyRoutes({
   sessionStorageFactory,
   logger,
   clusterClient,
+  tenantService,
 }) {
   multitenancyRoutes({
     router,
@@ -34,6 +35,7 @@ export function defineMultitenancyRoutes({
     sessionStorageFactory,
     logger,
     clusterClient,
+    tenantService,
   });
 
   getTenantInfoRoute({ searchGuardBackend, logger, router });

@@ -34,6 +34,7 @@ export class Multitenancy {
     configService,
     searchGuardBackend,
     spacesService,
+    tenantService,
   }) {
     this.logger.debug('Setup app');
 
@@ -57,6 +58,7 @@ export class Multitenancy {
         clusterClient: elasticsearch.client,
         pluginDependencies,
         spacesService,
+        tenantService,
       });
       kibanaCore.http.registerOnPreAuth(multitenancyLifecycle.onPreAuth);
 
@@ -67,6 +69,7 @@ export class Multitenancy {
         sessionStorageFactory,
         logger: this.logger,
         clusterClient: elasticsearch.client,
+        tenantService,
       });
     } catch (error) {
       this.logger.error(`setup: ${error.toString()} ${error.stack}`);

@@ -16,6 +16,7 @@
 
 import { MultitenancyLifecycle } from './multitenancy_lifecycle';
 import { SpacesService } from './spaces_service';
+import { TenantService } from './tenant_service';
 import {
   setupSearchGuardBackendMock,
   setupConfigMock,
@@ -66,6 +67,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
   let sessionStorageFactory;
   let searchGuardBackend;
   let clusterClient;
+  const kibanaVersion = '7.12';
 
   beforeEach(() => {
     authInstance = setupAuthInstanceMock();
@@ -107,8 +109,17 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
   });
 
   test('assign tenant to request headers and create the default space', async () => {
-    const spacesService = new SpacesService({ clusterClient, logger, configService });
-    spacesService.createDefaultSpace = jest.fn();
+    const tenantService = new TenantService({
+      kibanaVersion,
+      clusterClient,
+      logger,
+      configService,
+    });
+    tenantService.createIndexForTenant = jest.fn();
+    tenantService.createDoc = jest.fn();
+    tenantService.docExists = jest.fn().mockResolvedValue(false);
+
+    const spacesService = new SpacesService({ kibanaVersion, tenantService });
 
     const mtLifecycle = new MultitenancyLifecycle({
       authInstance,
@@ -118,6 +129,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       logger,
       pluginDependencies,
       spacesService,
+      tenantService,
     });
     await mtLifecycle.onPreAuth(request, response, toolkit);
 
@@ -150,8 +162,8 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
     // If we have a selected tenant, the sgtenant header should be added to the request
     expect(request.headers.sgtenant).toEqual(sgtenant);
 
-    // Create the default space
-    expect(spacesService.createDefaultSpace).toHaveBeenLastCalledWith({
+    // Create tenant index and aliases
+    expect(tenantService.createIndexForTenant).toHaveBeenCalledWith({
       request: {
         headers: {
           sgtenant: 'admin_tenant',
@@ -164,11 +176,65 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       selectedTenant: 'admin_tenant',
     });
 
+    // Create the default space
+    expect(tenantService.docExists).toHaveBeenCalledWith({
+      docId: 'space:default',
+      indexName: '.kibana',
+      request: {
+        headers: {
+          sgtenant: 'admin_tenant',
+        },
+        url: {
+          pathname: '/app',
+          searchParams: new URLSearchParams(),
+        },
+      },
+    });
+
+    expect(tenantService.createDoc).toHaveBeenCalledWith({
+      docBody: {
+        coreMigrationVersion: '7.12',
+        migrationVersion: {
+          space: '6.6.0',
+        },
+        references: [],
+        space: {
+          _reserved: true,
+          color: '#00bfb3',
+          description: 'This is your default space!',
+          disabledFeatures: [],
+          name: 'Default',
+        },
+        type: 'space',
+        updated_at: expect.any(String),
+      },
+      docId: 'space:default',
+      request: {
+        headers: {
+          sgtenant: 'admin_tenant',
+        },
+        url: {
+          pathname: '/app',
+          searchParams: new URLSearchParams(),
+        },
+      },
+      tenantName: 'admin_tenant',
+      versionIndexName: '.kibana_7.12_001',
+    });
+
     expect(toolkit.next).toHaveBeenCalled();
   });
 
   test('do not create the default space if Kibana spaces plugin disabled', async () => {
-    const spacesService = new SpacesService({ clusterClient, logger, configService });
+    const tenantService = new TenantService({
+      kibanaVersion,
+      clusterClient,
+      logger,
+      configService,
+    });
+    tenantService.createIndexForTenant = jest.fn();
+
+    const spacesService = new SpacesService({ kibanaVersion, tenantService });
     spacesService.createDefaultSpace = jest.fn();
     pluginDependencies = {};
 
@@ -180,9 +246,11 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       logger,
       pluginDependencies,
       spacesService,
+      tenantService,
     });
     await mtLifecycle.onPreAuth(request, response, toolkit);
 
+    expect(tenantService.createIndexForTenant).toHaveBeenCalledTimes(1);
     expect(spacesService.createDefaultSpace).toHaveBeenCalledTimes(0);
   });
 
@@ -225,7 +293,15 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       })),
     });
 
-    const spacesService = new SpacesService({ clusterClient, logger, configService });
+    const tenantService = new TenantService({
+      kibanaVersion,
+      clusterClient,
+      logger,
+      configService,
+    });
+    tenantService.createIndexForTenant = jest.fn();
+
+    const spacesService = new SpacesService({ kibanaVersion, tenantService });
     spacesService.createDefaultSpace = jest.fn();
 
     const mtLifecycle = new MultitenancyLifecycle({
@@ -236,6 +312,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       logger,
       pluginDependencies,
       spacesService,
+      tenantService,
     });
 
     const selectedTenant = await mtLifecycle.getSelectedTenant({
@@ -292,7 +369,15 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       })),
     });
 
-    const spacesService = new SpacesService({ clusterClient, logger, configService });
+    const tenantService = new TenantService({
+      kibanaVersion,
+      clusterClient,
+      logger,
+      configService,
+    });
+    tenantService.createIndexForTenant = jest.fn();
+
+    const spacesService = new SpacesService({ kibanaVersion, tenantService });
     spacesService.createDefaultSpace = jest.fn();
 
     const mtLifecycle = new MultitenancyLifecycle({
@@ -303,6 +388,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       logger,
       pluginDependencies,
       spacesService,
+      tenantService,
     });
 
     const selectedTenant = await mtLifecycle.getSelectedTenant({
