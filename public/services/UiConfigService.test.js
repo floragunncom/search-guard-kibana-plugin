@@ -7,7 +7,7 @@ describe('UiConfigService', () => {
     jest.resetAllMocks();
   });
 
-  test('can construct the default config', () => {
+  test.skip('can construct the default config', () => {
     const configService = new ConfigService();
 
     expect(configService).toBeInstanceOf(ConfigService);
@@ -19,7 +19,7 @@ describe('UiConfigService', () => {
       jest.resetAllMocks();
     });
 
-    test('instantiate config if NOT authenticated', async () => {
+    test.skip('instantiate config if NOT authenticated', async () => {
       const core = setupCoreMock({
         uiSettingsGetImplementation: () => true,
       });
@@ -94,7 +94,7 @@ describe('UiConfigService', () => {
       });
     });
 
-    test('instantiate config if authenticated', async () => {
+    test.skip('instantiate config if authenticated', async () => {
       const core = setupCoreMock({
         uiSettingsGetImplementation: () => true,
       });
@@ -204,7 +204,7 @@ describe('UiConfigService', () => {
   });
 
   describe('helpers', () => {
-    test('restApiEnbled', () => {
+    test.skip('restApiEnbled', () => {
       let configService = new ConfigService({
         config: {
           systeminfo: {
@@ -228,7 +228,7 @@ describe('UiConfigService', () => {
       expect(configService.restApiEnabled()).toBe(false);
     });
 
-    test('hasApiAccess', () => {
+    test.skip('hasApiAccess', () => {
       let configService = new ConfigService({
         config: {
           systeminfo: {
@@ -282,7 +282,7 @@ describe('UiConfigService', () => {
       expect(configService.hasApiAccess()).toBe(false);
     });
 
-    test('dlsFlsEnabled', () => {
+    test.skip('dlsFlsEnabled', () => {
       let configService = new ConfigService({
         config: {
           systeminfo: {
@@ -306,7 +306,7 @@ describe('UiConfigService', () => {
       expect(configService.dlsFlsEnabled()).toBe(false);
     });
 
-    test('multiTenancyEnabled', () => {
+    test.skip('multiTenancyEnabled', () => {
       let configService = new ConfigService({
         config: {
           systeminfo: {
@@ -330,7 +330,7 @@ describe('UiConfigService', () => {
       expect(configService.multiTenancyEnabled()).toBe(false);
     });
 
-    test('compliancyFeaturesEnabled', () => {
+    test.skip('compliancyFeaturesEnabled', () => {
       let configService = new ConfigService({
         config: {
           systeminfo: {
@@ -356,7 +356,7 @@ describe('UiConfigService', () => {
       expect(configService.complianceFeaturesEnabled()).toBe(false);
     });
 
-    test('endpointAndMethodEnabled', () => {
+    test.skip('endpointAndMethodEnabled', () => {
       let configService = new ConfigService({
         config: {
           restapiinfo: {},
@@ -390,7 +390,7 @@ describe('UiConfigService', () => {
       expect(configService.endpointAndMethodEnabled('a', 'b')).toBe(false);
     });
 
-    test('licenseRequired', () => {
+    test.skip('licenseRequired', () => {
       let configService = new ConfigService({
         config: {
           systeminfo: {
@@ -412,7 +412,7 @@ describe('UiConfigService', () => {
       expect(configService.licenseRequired()).toBe(false);
     });
 
-    test('licenseValid', () => {
+    test.skip('licenseValid', () => {
       let configService = new ConfigService({
         config: {
           systeminfo: {
@@ -452,7 +452,7 @@ describe('UiConfigService', () => {
       expect(configService.licenseValid()).toBe(false);
     });
 
-    test('isTrialLicense', () => {
+    test.skip('isTrialLicense', () => {
       let configService = new ConfigService({
         config: {
           systeminfo: {
@@ -479,7 +479,7 @@ describe('UiConfigService', () => {
       expect(configService.isTrialLicense()).toBe(true);
     });
 
-    test('licenseExpiresIn', () => {
+    test.skip('licenseExpiresIn', () => {
       let configService = new ConfigService({
         config: {
           systeminfo: {

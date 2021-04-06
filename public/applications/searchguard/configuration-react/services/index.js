@@ -9,3 +9,4 @@ export { TenantsService } from './TenantsService';
 export { SgConfigService } from './SgConfigService';
 export { RolesService } from './RolesService';
 export { RolesMappingService } from './RolesMappingService';
+export { ConfigService } from './ConfigService';

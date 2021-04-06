@@ -11,7 +11,7 @@ export class ConfigApp {
 
   mount({ core, configService, httpClient }) {
     return async (params) => {
-      const [{ renderApp }] = await Promise.all([import('./npstart'), configService.init()]);
+      const [{ renderApp }] = await Promise.all([import('./npstart'), configService.fetchConfig()]);
 
       const isConfigEnabled =
         configService.get('searchguard.configuration.enabled') && configService.hasApiAccess();
@@ -27,7 +27,7 @@ export class ConfigApp {
     };
   }
 
-  setupSync({ core, plugins, httpClient, configService, ...props }) {
+  setupSync({ core, plugins, httpClient, configService }) {
     core.application.register({
       id: 'searchguard-configuration',
       title: 'Configuration',

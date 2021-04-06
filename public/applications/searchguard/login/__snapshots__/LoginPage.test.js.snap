@@ -59,11 +59,17 @@ exports[`LoginPage can render the page with HTML in login title and subtitle 1`]
     </EuiText>
     <LicenseWarningCallout
       configService={
-        UiConfigService {
-          "apiService": undefined,
+        ConfigService {
+          "apiService": Object {
+            "loadAuthInfo": [MockFunction],
+            "loadKibanaConfig": [MockFunction],
+            "loadRestInfo": [MockFunction],
+            "loadSystemInfo": [MockFunction],
+          },
           "config": Object {
             "authinfo": Object {},
             "elasticsearch": Object {},
+            "is_dark_mode": false,
             "kibana": Object {},
             "restapiinfo": Object {},
             "searchguard": Object {
@@ -93,8 +99,36 @@ exports[`LoginPage can render the page with HTML in login title and subtitle 1`]
               },
             },
           },
-          "coreContext": undefined,
-          "uiSettings": undefined,
+          "coreContext": Object {
+            "config": Object {
+              "get": [MockFunction] {
+                "calls": Array [
+                  Array [],
+                ],
+                "results": Array [
+                  Object {
+                    "type": "return",
+                    "value": null,
+                  },
+                ],
+              },
+            },
+          },
+          "uiSettings": Object {
+            "get": [MockFunction] {
+              "calls": Array [
+                Array [
+                  "theme:darkMode",
+                ],
+              ],
+              "results": Array [
+                Object {
+                  "type": "return",
+                  "value": false,
+                },
+              ],
+            },
+          },
         }
       }
       errorMessage=""
@@ -251,11 +285,17 @@ exports[`LoginPage can render the page with a license and the basicauth login de
     </EuiText>
     <LicenseWarningCallout
       configService={
-        UiConfigService {
-          "apiService": undefined,
+        ConfigService {
+          "apiService": Object {
+            "loadAuthInfo": [MockFunction],
+            "loadKibanaConfig": [MockFunction],
+            "loadRestInfo": [MockFunction],
+            "loadSystemInfo": [MockFunction],
+          },
           "config": Object {
             "authinfo": Object {},
             "elasticsearch": Object {},
+            "is_dark_mode": false,
             "kibana": Object {},
             "restapiinfo": Object {},
             "searchguard": Object {
@@ -285,8 +325,36 @@ exports[`LoginPage can render the page with a license and the basicauth login de
               },
             },
           },
-          "coreContext": undefined,
-          "uiSettings": undefined,
+          "coreContext": Object {
+            "config": Object {
+              "get": [MockFunction] {
+                "calls": Array [
+                  Array [],
+                ],
+                "results": Array [
+                  Object {
+                    "type": "return",
+                    "value": null,
+                  },
+                ],
+              },
+            },
+          },
+          "uiSettings": Object {
+            "get": [MockFunction] {
+              "calls": Array [
+                Array [
+                  "theme:darkMode",
+                ],
+              ],
+              "results": Array [
+                Object {
+                  "type": "return",
+                  "value": false,
+                },
+              ],
+            },
+          },
         }
       }
       errorMessage=""

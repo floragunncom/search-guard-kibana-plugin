@@ -36,7 +36,6 @@ export class PublicPlugin {
       plugins,
       chromeHelper: this.chromeHelper,
       httpClient: this.httpClient,
-      configService: this.configService,
     });
 
     this.signalsApp.setupSync({ core, httpClient: this.httpClient });
@@ -64,12 +63,11 @@ export class PublicPlugin {
 
   start(core) {
     (async () => {
-      await this.configService.init();
+      await this.configService.fetchConfig();
 
       this.searchGuardApp.start({
         core,
         httpClient: this.httpClient,
-        configService: this.configService,
       });
 
       this.accountInfoApp.start({ configService: this.configService });

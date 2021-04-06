@@ -4,7 +4,8 @@ import { ConfigApp } from './configuration-react';
 import { CustomErrorApp } from './customerror';
 import { LoginApp } from './login';
 import { redirectOnSessionTimeout } from './auth/redirectOnSessionTimeout';
-import { ChromeHelper } from '../../services';
+import { ChromeHelper, ApiService } from '../../services';
+import { ConfigService } from './configuration-react/services';
 
 export class SearchGuard {
   constructor(coreContext) {
@@ -15,13 +16,20 @@ export class SearchGuard {
     this.headerUserMenuApp = new HeaderUserMenuApp();
   }
 
-  setupSync({ core, plugins, httpClient, configService }) {
+  setupSync({ core, plugins, httpClient }) {
     try {
+      const apiService = new ApiService(httpClient);
+      this.configService = new ConfigService({
+        apiService,
+        uiSettings: core.uiSettings,
+        coreContext: this.coreContext,
+      });
+
       this.chromeHelper = new ChromeHelper();
 
-      this.customErrorApp.setupSync({ core, configService });
-      this.configApp.setupSync({ core, plugins, httpClient, configService });
-      this.loginApp.setupSync({ core, httpClient, configService });
+      this.customErrorApp.setupSync({ core, configService: this.configService });
+      this.configApp.setupSync({ core, plugins, httpClient, configService: this.configService });
+      this.loginApp.setupSync({ core, httpClient, configService: this.configService });
 
       return { chromeHelper: this.chromeHelper };
     } catch (error) {
@@ -30,15 +38,17 @@ export class SearchGuard {
     }
   }
 
-  async start({ core, httpClient, configService }) {
+  async start({ core, httpClient }) {
     try {
-      const didSetupSyncRun = this.chromeHelper;
+      const didSetupSyncRun = this.chromeHelper && this.configService;
       if (!didSetupSyncRun) {
         throw new Error('You must run setupSync first!');
       }
 
-      this.configApp.start({ configService });
-      this.loginApp.start({ configService });
+      await this.configService.fetchConfig();
+
+      this.configApp.start({ configService: this.configService });
+      this.loginApp.start({ configService: this.configService });
 
       // Make sure the chrome helper has access to coreStart.chrome
       this.chromeHelper.start(core.chrome);
@@ -46,10 +56,10 @@ export class SearchGuard {
       this.headerUserMenuApp.start({
         core,
         httpClient,
-        configService,
+        configService: this.configService,
       });
 
-      redirectOnSessionTimeout(configService.get('searchguard.auth.type'), core.http);
+      redirectOnSessionTimeout(this.configService.get('searchguard.auth.type'), core.http);
     } catch (error) {
       console.error(error);
       throw error;

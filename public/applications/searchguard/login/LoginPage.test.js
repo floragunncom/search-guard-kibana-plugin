@@ -17,15 +17,24 @@
 import React from 'react';
 import ShallowRenderer from 'react-test-renderer/shallow';
 import { LoginPage } from './LoginPage';
-import { UiConfigService } from '../../../services/UiConfigService';
+import { ConfigService } from '../configuration-react/services';
+import { setupApiServiceMock, setupCoreMock, setupCoreContextMock } from '../../../utils/mocks';
 
 describe(LoginPage.name, () => {
   let httpClient;
   let renderer;
   let basePath;
   let systeminfo;
+  let uiSettings;
+  let coreContext;
+  let apiService;
 
   beforeEach(() => {
+    uiSettings = setupCoreMock({
+      uiSettingsGetImplementation: (setting) => setting !== 'theme:darkMode',
+    }).uiSettings;
+    coreContext = setupCoreContextMock();
+    apiService = setupApiServiceMock();
     httpClient = () => null;
     renderer = new ShallowRenderer();
     basePath = 'abc';
@@ -39,7 +48,10 @@ describe(LoginPage.name, () => {
   });
 
   test('can render the page with a license and the basicauth login defaults', () => {
-    const configService = new UiConfigService({
+    const configService = new ConfigService({
+      uiSettings,
+      coreContext,
+      apiService,
       config: {
         systeminfo,
         searchguard: {
@@ -71,7 +83,10 @@ describe(LoginPage.name, () => {
   });
 
   test('can render the page with HTML in login title and subtitle', () => {
-    const configService = new UiConfigService({
+    const configService = new ConfigService({
+      uiSettings,
+      coreContext,
+      apiService,
       config: {
         systeminfo,
         searchguard: {
