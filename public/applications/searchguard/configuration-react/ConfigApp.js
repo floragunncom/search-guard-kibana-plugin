@@ -2,6 +2,7 @@
 import { BehaviorSubject } from 'rxjs';
 import { AppNavLinkStatus } from '../../../../../../src/core/public';
 import { SEARCHGUARD_APP_CATEGORY } from '../../../utils/constants';
+import { buildSeardGuardConfiguration } from './utils/helpers';
 
 export class ConfigApp {
   constructor(coreContext) {
@@ -11,7 +12,15 @@ export class ConfigApp {
 
   mount({ core, configService, httpClient }) {
     return async (params) => {
-      const [{ renderApp }] = await Promise.all([import('./npstart'), configService.init()]);
+      const [{ renderApp }] = await Promise.all([import('./npstart'), configService.fetchConfig()]);
+
+      configService.set(
+        'searchguard.configuration',
+        buildSeardGuardConfiguration({
+          restapiinfo: configService.get('restapiinfo', {}),
+          searchguard: configService.get('searchguard', {}),
+        })
+      );
 
       const isConfigEnabled =
         configService.get('searchguard.configuration.enabled') && configService.hasApiAccess();
@@ -27,7 +36,7 @@ export class ConfigApp {
     };
   }
 
-  setupSync({ core, plugins, httpClient, configService, ...props }) {
+  setupSync({ core, plugins, httpClient, configService }) {
     core.application.register({
       id: 'searchguard-configuration',
       title: 'Configuration',
@@ -50,6 +59,8 @@ export class ConfigApp {
   }
 
   start({ configService }) {
+    if (configService.isLoginPage()) return;
+
     const isConfigEnabled =
       configService.get('searchguard.configuration.enabled') && configService.hasApiAccess();
 

@@ -27,7 +27,7 @@ export class MultiTenancy {
 
   mount({ configService, httpClient, chromeHelper }) {
     return async (params) => {
-      const [{ renderApp }] = await Promise.all([import('./npstart'), configService.init()]);
+      const [{ renderApp }] = await Promise.all([import('./npstart'), configService.fetchConfig()]);
 
       if (configService.get('searchguard.multitenancy.enabled')) {
         return renderApp({
@@ -70,8 +70,6 @@ export class MultiTenancy {
 
   async setup({ configService }) {
     try {
-      await configService.init();
-
       // @todo Better check for login/customerror page
       const doAttachTenantNameToDashboardShareURL =
         configService.get('searchguard.multitenancy.enabled') &&
