@@ -26,6 +26,7 @@ export class MultitenancyLifecycle {
     logger,
     pluginDependencies,
     spacesService,
+    tenantService,
   }) {
     this.authInstance = authInstance;
     this.searchGuardBackend = searchGuardBackend;
@@ -34,6 +35,7 @@ export class MultitenancyLifecycle {
     this.logger = logger;
     this.pluginDependencies = pluginDependencies;
     this.spacesService = spacesService;
+    this.tenantService = tenantService;
   }
 
   onPreAuth = async (request, response, toolkit) => {
@@ -56,6 +58,8 @@ export class MultitenancyLifecycle {
     if (selectedTenant !== null) {
       const rawRequest = ensureRawRequest(request);
       assign(rawRequest.headers, authHeaders, { sgtenant: selectedTenant || '' });
+
+      await this.tenantService.createIndexForTenant({ request, selectedTenant });
 
       if (this.pluginDependencies.spaces) {
         // If we have a new tenant with no default space, we need to create it.

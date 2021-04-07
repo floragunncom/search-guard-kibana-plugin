@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import { get } from 'lodash';
-
-export const DEFAULT_SPACE_NAME = 'default';
+export const DEFAULT_SPACE_ID = 'space:default';
 
 // ATTENTION! If either Saved Objects migration or integration with spaces doesn't work,
 // check the space document structure in your Kibana version. Maybe it changed.
@@ -40,117 +38,25 @@ export function getDefaultSpaceDoc(kibanaVersion) {
 }
 
 export class SpacesService {
-  constructor({ kibanaVersion, clusterClient, logger, configService, searchGuardBackend }) {
+  constructor({ kibanaVersion, tenantService }) {
     this.kibanaVersion = kibanaVersion;
-    this.clusterClient = clusterClient;
-    this.logger = logger;
-    this.configService = configService;
-    this.searchGuardBackend = searchGuardBackend;
+    this.tenantService = tenantService;
   }
 
-  logErrorDetails = (error, message) => {
-    if (!message) message = error.message;
-
-    let errorMeta = JSON.stringify(get(error, 'meta.body', ''), null, 2);
-    if (!errorMeta || !errorMeta.length) errorMeta = error;
-
-    this.logger.error(`${message}, ${errorMeta}`);
-  };
-
-  spaceExists = async ({ request, indexName, spaceName }) => {
-    try {
-      await this.clusterClient.asScoped(request).asCurrentUser.transport.request({
-        method: 'get',
-        path: `/${indexName}/_doc/space:${spaceName}`,
-      });
-
-      return true;
-    } catch (error) {
-      if (error.meta.statusCode === 404) {
-        return false;
-      } else {
-        this.logErrorDetails(error, `Fail to verify space "${spaceName}"`);
-      }
-    }
-
-    return false;
-  };
-
-  createIndexAlias = async ({ request, aliasName, indices }) => {
-    try {
-      return await this.clusterClient.asScoped(request).asCurrentUser.indices.putAlias({
-        index: indices,
-        name: aliasName,
-      });
-    } catch (error) {
-      this.logErrorDetails(error, `Fail to create alias "${aliasName}" for indices "${indices}"`);
-    }
-  };
-
-  createSpaceForTenant = async ({
-    request,
-    tenantName,
-    aliasName,
-    versionAliasName,
-    versionIndexName,
-    spaceName,
-    spaceBody,
-    refresh = true,
-  } = {}) => {
-    try {
-      // Create doc and index
-      await this.clusterClient.asScoped(request).asCurrentUser.create({
-        id: `space:${spaceName}`,
-        index: versionIndexName,
-        body: spaceBody,
-        refresh,
-      });
-
-      // We must create an alias and a version alias. The migration algorithm requires the alias.
-      // And the Kibana page is broken after a tenant is selected if there is no version alias because apps query the version alias directly.
-      const aliasesToCreate = [aliasName, versionAliasName];
-      return Promise.all(
-        aliasesToCreate.map((aliasName) =>
-          this.createIndexAlias({ request, aliasName, indices: [versionIndexName] })
-        )
-      );
-    } catch (error) {
-      const spaceExists = get(error, 'meta.statusCode') === 409;
-      if (!spaceExists) {
-        this.logErrorDetails(
-          error,
-          `Fail to create the space "${spaceName}" for tenant "${tenantName}" in index ${versionIndexName}`
-        );
-      }
-    }
-  };
-
   createDefaultSpace = async ({ request, selectedTenant = '' } = {}) => {
-    /*
-      The SG backend maps calls for the alias .kibana and the version alias .kibana_<V> to the selectedTenant aliases.
-      For example:
-        .kibana -> .kibana_-<N>_tenant
-        .kibana_V -> .kibana_-<N>_tenant_<V>
-    */
-    const aliasName = this.configService.get('kibana.index');
-    const versionAliasName = aliasName + `_${this.kibanaVersion}`;
-    const versionIndexName = versionAliasName + '_001';
-
-    const spaceExists = await this.spaceExists({
+    const spaceExists = await this.tenantService.docExists({
       request,
-      index: aliasName,
-      spaceName: DEFAULT_SPACE_NAME,
+      indexName: this.tenantService.aliasName,
+      docId: DEFAULT_SPACE_ID,
     });
 
     if (!spaceExists) {
-      return this.createSpaceForTenant({
+      return this.tenantService.createDoc({
         request,
-        aliasName,
-        versionAliasName,
-        versionIndexName,
         tenantName: selectedTenant,
-        spaceName: DEFAULT_SPACE_NAME,
-        spaceBody: getDefaultSpaceDoc(this.kibanaVersion),
+        versionIndexName: this.tenantService.versionIndexName,
+        docId: DEFAULT_SPACE_ID,
+        docBody: getDefaultSpaceDoc(this.kibanaVersion),
       });
     }
   };

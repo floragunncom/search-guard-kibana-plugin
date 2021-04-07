@@ -19,7 +19,7 @@ import { Signals, Multitenancy, SearchGuard, AuthTokens } from './applications';
 import { ConfigService } from '../common/config_service';
 import SearchGuardBackend from './applications/searchguard/backend/searchguard';
 import SearchGuardConfigurationBackend from './applications/searchguard/configuration/backend/searchguard_configuration_backend';
-import { SpacesService } from './applications/multitenancy';
+import { SpacesService, TenantService } from './applications/multitenancy';
 
 async function getConfigService({ logger, initContext, clusterClient }) {
   try {
@@ -74,12 +74,16 @@ export class ServerPlugin {
         clusterClient: elasticsearch.client,
       });
 
-      const spacesService = new SpacesService({
+      const tenantService = new TenantService({
         kibanaVersion: this.initContext.env.packageInfo.version,
         clusterClient: elasticsearch.client,
         logger: this.logger,
         configService,
-        searchGuardBackend,
+      });
+
+      const spacesService = new SpacesService({
+        kibanaVersion: this.initContext.env.packageInfo.version,
+        tenantService,
       });
 
       const { authInstance, sessionStorageFactory } = await this.searchGuardApp.setup({
@@ -102,6 +106,7 @@ export class ServerPlugin {
           searchGuardBackend,
           configService,
           spacesService,
+          tenantService,
         });
       }
     })();
