@@ -15,8 +15,10 @@
  limitations under the License.
  */
 
-import { API_ROOT } from '../../../utils/constants';
+import { assign } from 'lodash';
 import { schema } from '@kbn/config-schema';
+import { ensureRawRequest } from '../../../../../../src/core/server/http/router';
+import { API_ROOT } from '../../../utils/constants';
 
 export function multitenancyRoutes({
   router,
@@ -24,6 +26,7 @@ export function multitenancyRoutes({
   config,
   sessionStorageFactory,
   logger,
+  tenantService,
 }) {
   const debugEnabled = config.get('searchguard.multitenancy.debug');
 
@@ -38,17 +41,25 @@ export function multitenancyRoutes({
       },
     },
     async (context, request, response) => {
-      const selectedTenant = request.body.tenant;
+      try {
+        const selectedTenant = request.body.tenant;
 
-      const cookie = (await sessionStorageFactory.asScoped(request).get()) || {};
-      cookie.tenant = selectedTenant;
-      sessionStorageFactory.asScoped(request).set(cookie);
+        const cookie = (await sessionStorageFactory.asScoped(request).get()) || {};
+        cookie.tenant = selectedTenant;
+        sessionStorageFactory.asScoped(request).set(cookie);
 
-      if (debugEnabled) {
-        logger.info(`tenant_POST: ${selectedTenant}`);
+        if (debugEnabled) {
+          logger.info(`tenant_POST: ${selectedTenant}`);
+        }
+
+        const rawRequest = ensureRawRequest(request);
+        assign(rawRequest.headers, { sgtenant: selectedTenant || '' });
+        await tenantService.createIndexForTenant({ request, selectedTenant });
+
+        return response.ok({ body: selectedTenant });
+      } catch (error) {
+        return response.internalError({ body: error });
       }
-
-      return response.ok({ body: selectedTenant });
     }
   );
 

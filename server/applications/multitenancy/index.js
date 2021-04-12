@@ -16,3 +16,4 @@
 
 export { Multitenancy } from './multitenancy';
 export { SpacesService } from './spaces_service';
+export { TenantService } from './tenant_service';
