@@ -27,6 +27,7 @@ export class Multitenancy {
   }
 
   async setup({
+    kibanaRouter,
     authInstance,
     kibanaCore,
     sessionStorageFactory,
@@ -35,6 +36,8 @@ export class Multitenancy {
     searchGuardBackend,
     spacesService,
     tenantService,
+    savedObjects,
+    elasticsearch,
   }) {
     this.logger.debug('Setup app');
 
@@ -46,8 +49,13 @@ export class Multitenancy {
     }
 
     try {
-      const router = kibanaCore.http.createRouter();
-      const [{ elasticsearch }] = await kibanaCore.getStartServices();
+      this.tenantsMigration.setup({
+        configService,
+        savedObjects,
+        esClient: elasticsearch.client,
+        kibanaRouter,
+        searchGuardBackend,
+      });
 
       const multitenancyLifecycle = new MultitenancyLifecycle({
         authInstance,
@@ -63,7 +71,7 @@ export class Multitenancy {
       kibanaCore.http.registerOnPreAuth(multitenancyLifecycle.onPreAuth);
 
       defineMultitenancyRoutes({
-        router,
+        router: kibanaRouter,
         searchGuardBackend,
         config: configService,
         sessionStorageFactory,
@@ -76,18 +84,17 @@ export class Multitenancy {
     }
   }
 
-  async start({ core, kibanaRouter, searchGuardBackend, configService }) {
+  async start({ core, searchGuardBackend, configService }) {
     this.logger.debug('Start app');
-    const savedObjects = core.savedObjects;
     const esClient = core.elasticsearch.client;
+    const savedObjects = core.savedObjects;
 
     try {
       await this.tenantsMigration.start({
         esClient,
-        kibanaRouter,
-        savedObjects,
         searchGuardBackend,
         configService,
+        savedObjects,
       });
     } catch (error) {
       this.logger.error(`start: ${error.toString()} ${error.stack}`);

@@ -20,53 +20,80 @@ import { KibanaMigrator } from '../../../../../src/core/server/saved_objects/mig
 
 import { defineMigrateRoutes } from './routes';
 
+function setupMigratorDependencies({
+  configService,
+  esClient,
+  savedObjects,
+  kibanaVersion,
+  logger,
+}) {
+  const savedObjectsMigrationConfig = configService.get(
+    'searchguard.multitenancy.saved_objects_migration'
+  );
+
+  const savedObjectsConfig = {
+    batchSize: savedObjectsMigrationConfig.batch_size,
+    scrollDuration: savedObjectsMigrationConfig.scroll_duration,
+    pollInterval: savedObjectsMigrationConfig.poll_interval,
+    skip: savedObjectsMigrationConfig.skip,
+    enableV2: savedObjectsMigrationConfig.enableV2,
+  };
+
+  const typeRegistry = savedObjects.getTypeRegistry();
+  const kibanaConfig = configService.get('kibana');
+
+  const migratorDeps = {
+    client: esClient.asInternalUser,
+    kibanaConfig,
+    typeRegistry,
+    logger,
+    kibanaVersion,
+    savedObjectsConfig,
+    savedObjectValidations: {}, // Kibana NP doesn't have this yet.
+  };
+
+  return { savedObjectsConfig, typeRegistry, kibanaConfig, migratorDeps };
+}
+
 export class TenantsMigrationService {
   constructor(coreContext) {
     this.coreContext = coreContext;
+    this.kibanaVersion = this.coreContext.env.packageInfo.version;
     this.logger = coreContext.logger.get('tenants-migration-service');
   }
 
-  async start({ savedObjects, searchGuardBackend, esClient, kibanaRouter, configService }) {
+  async setup({ configService, savedObjects, esClient, kibanaRouter, searchGuardBackend }) {
+    const { migratorDeps } = setupMigratorDependencies({
+      configService,
+      esClient,
+      savedObjects,
+      kibanaVersion: this.kibanaVersion,
+      logger: this.logger,
+    });
+
+    defineMigrateRoutes({
+      KibanaMigrator,
+      migratorDeps,
+      kibanaRouter,
+      searchGuardBackend,
+    });
+  }
+
+  async start({ searchGuardBackend, esClient, configService, savedObjects }) {
     this.logger.debug('Start tenants saved objects migration');
 
     try {
-      const savedObjectsMigrationConfig = configService.get(
-        'searchguard.multitenancy.saved_objects_migration'
-      );
-
-      const config = {
-        migration: {
-          batchSize: savedObjectsMigrationConfig.batch_size,
-          scrollDuration: savedObjectsMigrationConfig.scroll_duration,
-          pollInterval: savedObjectsMigrationConfig.poll_interval,
-          skip: savedObjectsMigrationConfig.skip,
-          enableV2: savedObjectsMigrationConfig.enableV2,
-        },
-      };
+      const { savedObjectsConfig, migratorDeps, kibanaConfig } = setupMigratorDependencies({
+        configService,
+        esClient,
+        savedObjects,
+        kibanaVersion: this.kibanaVersion,
+        logger: this.logger,
+      });
 
       const tenantIndices = await searchGuardBackend.getTenantInfoWithInternalUser();
       this.tenantIndices =
         !tenantIndices || typeof tenantIndices !== 'object' ? [] : Object.keys(tenantIndices);
-
-      const typeRegistry = savedObjects.getTypeRegistry();
-      const kibanaConfig = configService.get('kibana');
-
-      const migratorDeps = {
-        client: esClient.asInternalUser,
-        kibanaConfig,
-        typeRegistry,
-        logger: this.logger,
-        kibanaVersion: this.coreContext.env.packageInfo.version,
-        savedObjectsConfig: config.migration,
-        savedObjectValidations: {}, // Kibana NP doesn't have this yet.
-      };
-
-      defineMigrateRoutes({
-        KibanaMigrator,
-        migratorDeps,
-        kibanaRouter,
-        searchGuardBackend,
-      });
 
       const migrator = new KibanaMigrator(migratorDeps);
 
@@ -78,9 +105,9 @@ export class TenantsMigrationService {
         mappings: migrator.getActiveMappings(),
       });
 
-      const isMigrationNeeded = config.migration.skip || !!this.tenantIndices.length;
+      const isMigrationNeeded = savedObjectsConfig.skip || !!this.tenantIndices.length;
       if (!isMigrationNeeded) {
-        if (config.migration.skip) {
+        if (savedObjectsConfig.skip) {
           this.logger.info('You configured to skip tenants saved objects migration.');
         } else {
           this.logger.info(
