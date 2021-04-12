@@ -1,4 +1,19 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/*
+ *    Copyright 2021 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { schema } from '@kbn/config-schema';
 import { API_ROOT } from '../../../utils/constants';
 
@@ -40,7 +55,7 @@ export function migrateTenants({
       if (tenantIndex === '_all') {
         body = await Promise.all(
           tenantIndices.map((index) => {
-            const migrator = new KibanaMigrator({
+            const kibanaMigrator = new KibanaMigrator({
               client,
               kibanaConfig: { ...kibanaConfig, index },
               typeRegistry,
@@ -50,7 +65,8 @@ export function migrateTenants({
               savedObjectValidations,
             });
 
-            return migrator.runMigrations({ rerun: true });
+            kibanaMigrator.prepareMigrations();
+            return kibanaMigrator.runMigrations({ rerun: true });
           })
         );
 
@@ -68,7 +84,7 @@ export function migrateTenants({
         });
       }
 
-      const migrator = new KibanaMigrator({
+      const kibanaMigrator = new KibanaMigrator({
         client,
         kibanaConfig: { ...kibanaConfig, index: indexToMigrate },
         typeRegistry,
@@ -78,7 +94,8 @@ export function migrateTenants({
         savedObjectValidations,
       });
 
-      body = await migrator.runMigrations({ rerun: true });
+      kibanaMigrator.prepareMigrations();
+      body = await kibanaMigrator.runMigrations({ rerun: true });
 
       return response.ok({ body });
     } catch (error) {

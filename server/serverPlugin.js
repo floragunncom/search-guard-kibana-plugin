@@ -62,7 +62,7 @@ export class ServerPlugin {
     this.kibanaRouter = core.http.createRouter();
 
     (async () => {
-      const [{ elasticsearch }] = await core.getStartServices();
+      const [{ elasticsearch, savedObjects }] = await core.getStartServices();
       const searchGuardBackend = new SearchGuardBackend({ elasticsearch });
       const searchGuardConfigurationBackend = new SearchGuardConfigurationBackend({
         elasticsearch,
@@ -99,6 +99,7 @@ export class ServerPlugin {
       const isMtEnabled = configService.get('searchguard.multitenancy.enabled');
       if (isMtEnabled) {
         this.multiTenancyApp.setup({
+          kibanaRouter: this.kibanaRouter,
           authInstance,
           kibanaCore: core,
           sessionStorageFactory,
@@ -107,6 +108,8 @@ export class ServerPlugin {
           configService,
           spacesService,
           tenantService,
+          savedObjects,
+          elasticsearch,
         });
       }
     })();
@@ -135,7 +138,6 @@ export class ServerPlugin {
         // in the tenants indices before doing any operation on indices
         this.multiTenancyApp.start({
           core,
-          kibanaRouter: this.kibanaRouter,
           searchGuardBackend,
           configService,
         });
