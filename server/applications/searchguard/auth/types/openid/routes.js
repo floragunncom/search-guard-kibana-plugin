@@ -328,7 +328,6 @@ export function loginHandler({
         openIdEndPoints,
         searchGuardBackend,
       });
-      console.log('\n\nidpPayload', idpPayload);
 
       // Authenticate with the token given to us by the IdP
       await authInstance.handleAuthenticate(request, {

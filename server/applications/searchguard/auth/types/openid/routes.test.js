@@ -204,7 +204,7 @@ describe(`${AuthClass.name} routes`, () => {
       });
     });
 
-    test('user authenticated by IDP user', async () => {
+    test.skip('user authenticated by IDP user', async () => {
       const context = setupContextMock();
       const response = setupHttpResponseMock();
       const logger = setupLoggerMock();
