@@ -287,7 +287,7 @@ export function loginHandler({
       });
     }
 
-    // We have an auth code, now we need to try to exchange it for an id_token
+    // We have an auth code, now we need to try to exchange it for an access_token
     try {
       // Validate the nonce/state to make sure that the request was really
       // requested by Kibana in this session
@@ -328,10 +328,11 @@ export function loginHandler({
         openIdEndPoints,
         searchGuardBackend,
       });
+      console.log('\n\nidpPayload', idpPayload);
 
       // Authenticate with the token given to us by the IdP
       await authInstance.handleAuthenticate(request, {
-        authHeaderValue: 'Bearer ' + idpPayload.id_token,
+        authHeaderValue: 'Bearer ' + idpPayload.access_token,
       });
 
       let redirectTo = '/app/home';
