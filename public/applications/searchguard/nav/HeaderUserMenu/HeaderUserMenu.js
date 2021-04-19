@@ -24,7 +24,16 @@ function LogoutBtn({ onClick, authType }) {
   );
 }
 
-export function HeaderUserMenu({ httpClient, logoutUrl, userName, userNameTooltipText, authType }) {
+export function HeaderUserMenu({ httpClient, configService }) {
+  const userName = configService.get('authinfo.user_name', 'User');
+  const userNameTooltipText = (
+    <>
+      {logoutText} {userName}
+    </>
+  );
+  const authType = configService.get('searchguard.auth.type');
+  const logoutUrl = configService.get('searchguard.auth.logout_url');
+
   const [isOpen, setIsOpen] = useState(false);
   const acService = new AccessControlService({ httpClient, authType });
 
@@ -59,7 +68,7 @@ export function HeaderUserMenu({ httpClient, logoutUrl, userName, userNameToolti
         <EuiFlexItem grow={false}>
           <EuiAvatar name={userName} />
         </EuiFlexItem>
-        <EuiFlexItem>
+        <EuiFlexItem style={{ maxWidth: 400 }}>
           <EuiToolTip position="bottom" content={userNameTooltipText}>
             <EuiText>
               <p id="sg.userMenu.username">{userName}</p>
@@ -74,15 +83,7 @@ export function HeaderUserMenu({ httpClient, logoutUrl, userName, userNameToolti
   );
 }
 
-HeaderUserMenu.defaultProps = {
-  userName: 'user',
-  userNameTooltipText: 'user',
-};
-
 HeaderUserMenu.propTypes = {
   httpClient: PropTypes.object.isRequired,
-  authType: PropTypes.string.isRequired,
-  logoutUrl: PropTypes.string,
-  userName: PropTypes.string,
-  userNameTooltipText: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  configService: PropTypes.object.isRequired,
 };
