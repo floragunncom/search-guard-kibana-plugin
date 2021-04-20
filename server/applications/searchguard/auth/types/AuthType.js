@@ -65,8 +65,6 @@ export default class AuthType {
     this.sessionTTL = this.config.get('searchguard.session.ttl');
     this.sessionKeepAlive = this.config.get('searchguard.session.keepalive');
 
-    this.unauthenticatedRoutes.push('/api/v1/systeminfo');
-
     /**
      * The authType is saved in the auth cookie for later reference
      * @type {string}

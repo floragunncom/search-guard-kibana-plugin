@@ -162,7 +162,7 @@ export class Auth extends Component {
     const resource = this.getResource(resources[selectedSideNavItemName]);
 
     return (
-      <EuiFlexGroup>
+      <EuiFlexGroup data-test-subj="sgConfiguration-Auth">
         <EuiFlexItem grow={false}>
           <EuiSideNav
             mobileTitle={navigateText}

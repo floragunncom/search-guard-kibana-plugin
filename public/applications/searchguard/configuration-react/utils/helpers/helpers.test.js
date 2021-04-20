@@ -6,7 +6,8 @@ import {
   attributesToUiAttributes,
   uiAttributesToAttributes,
   filterReservedStaticTableResources,
-  allowedActionsToPermissionsAndActiongroups
+  allowedActionsToPermissionsAndActiongroups,
+  isEndpointAndMethodEnabled,
 } from './index';
 
 describe('common helpers', () => {
@@ -110,5 +111,23 @@ describe('common helpers', () => {
     };
 
     expect(allowedActionsToPermissionsAndActiongroups(allowedActions)).toEqual(result);
+  });
+
+  test('isEndpointAndMethodEnabled', () => {
+    let restapiinfo = {};
+    expect(isEndpointAndMethodEnabled(restapiinfo)).toBe(false);
+
+    restapiinfo = { disabled_endpoints: {} };
+    expect(isEndpointAndMethodEnabled(restapiinfo)).toBe(true);
+
+    restapiinfo = { disabled_endpoints: { a: [] } };
+    let endpoint = 'a';
+    let method = 'b';
+    expect(isEndpointAndMethodEnabled(restapiinfo, endpoint, method)).toBe(true);
+
+    restapiinfo = { disabled_endpoints: { a: ['b'] } };
+    endpoint = 'a';
+    method = 'b';
+    expect(isEndpointAndMethodEnabled(restapiinfo, endpoint, method)).toBe(false);
   });
 });

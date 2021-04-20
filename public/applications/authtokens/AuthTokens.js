@@ -26,7 +26,7 @@ export class AuthTokens {
 
   mount({ core, httpClient, configService }) {
     return async (params) => {
-      const [{ renderApp }] = await Promise.all([import('./app'), configService.init()]);
+      const [{ renderApp }] = await Promise.all([import('./app'), configService.fetchConfig()]);
       return renderApp({ element: params.element, core, httpClient, configService });
     };
   }
@@ -47,9 +47,11 @@ export class AuthTokens {
     }
   }
 
-  start() {
+  start({ configService }) {
     (async () => {
       try {
+        if (configService.isLoginPage()) return;
+
         const isEnabled = await this.authTokensService.hasUserPermissionsToAccessTheApp();
 
         if (!isEnabled) {

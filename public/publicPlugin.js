@@ -64,7 +64,7 @@ export class PublicPlugin {
 
   start(core) {
     (async () => {
-      await this.configService.init();
+      await this.configService.fetchConfig();
 
       this.searchGuardApp.start({
         core,
@@ -72,11 +72,14 @@ export class PublicPlugin {
         configService: this.configService,
       });
 
+      this.authTokensApp.start({
+        configService: this.configService,
+        configService: this.configService,
+      });
+
       this.accountInfoApp.start({ configService: this.configService });
       this.multiTenancyApp.start({ configService: this.configService });
-      this.authTokensApp.start({ configService: this.configService });
+      this.signalsApp.start({ httpClient: this.httpClient, configService: this.configService });
     })();
-
-    this.signalsApp.start({ httpClient: this.httpClient });
   }
 }
