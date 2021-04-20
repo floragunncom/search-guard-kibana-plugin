@@ -171,15 +171,14 @@ class Block extends Component {
               </EuiFlexGroup>
             </EuiFlexItem>
           </EuiFlexGroup>
-          <FieldArray
-            name="_ui.checksBlocks"
-            render={() => (
+          <FieldArray name="_ui.checksBlocks">
+            {() => (
               <EuiFlexGroup>
                 <EuiFlexItem>{this.renderCheckEditor(index)}</EuiFlexItem>
                 <EuiFlexItem>{this.renderCheckResponse(response)}</EuiFlexItem>
               </EuiFlexGroup>
             )}
-          />
+          </FieldArray>
           <EuiSpacer />
         </EuiPanel>
       </div>
