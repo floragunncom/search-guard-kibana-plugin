@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 floragunn GmbH
+ *    Copyright 2021 floragunn GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { get } from 'lodash';
 
-export { fetchAllFromScroll } from './fetch_all_from_scroll';
-export { wrapForCustomError } from './wrap_elasticsearch_error';
-
-export function isAuthorized(result, authHeaderName = 'authorization') {
-  const credentials = get(result, `meta.request.params.headers${authHeaderName}`, '');
-  return !!credentials.length;
-}
+export { rootScopedClientRequestWrapper } from './root_scoped_client_request_wrapper';
+export { Kerberos } from './types';
+export { defineAuthInfoRoutes } from './routes_authinfo';
