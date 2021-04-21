@@ -134,31 +134,15 @@ export default class OpenId extends AuthType {
     });
   }
 
-  async setupRoutes() {
-    try {
-      const oidcWellKnown = await this.searchGuardBackend.getOIDCWellKnown();
-
-      const endPoints = {
-        authorization_endpoint: oidcWellKnown.authorization_endpoint,
-        token_endpoint: oidcWellKnown.token_endpoint_proxy,
-        end_session_endpoint: oidcWellKnown.end_session_endpoint || null,
-      };
-
-      defineRoutes({
-        authInstance: this,
-        kibanaCore: this.kibanaCore,
-        kibanaConfig: this.config,
-        logger: this.logger,
-        openIdEndPoints: endPoints,
-        debugLog: this.debugLog.bind(this),
-        searchGuardBackend: this.searchGuardBackend,
-        authManager: this.authManager,
-      });
-    } catch (error) {
-      this.logger.error(
-        `Error when trying to retrieve the well-known endpoints from your IdP: ${error.stack}`
-      );
-      throw new Error('Failed when trying to obtain the endpoints from your IdP');
-    }
+  setupRoutes() {
+    defineRoutes({
+      authInstance: this,
+      kibanaCore: this.kibanaCore,
+      kibanaConfig: this.config,
+      logger: this.logger,
+      debugLog: this.debugLog.bind(this),
+      searchGuardBackend: this.searchGuardBackend,
+      authManager: this.authManager,
+    });
   }
 }

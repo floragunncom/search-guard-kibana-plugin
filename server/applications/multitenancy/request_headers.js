@@ -19,7 +19,7 @@ import { ensureRawRequest } from '../../../../../src/core/server/http/router';
 
 function isRelevantMultiTenancyPath(request) {
   // MT is only relevant for these paths
-  const path = request.url.path;
+  const path = request.url.pathname;
   if (
     !path.startsWith('/internal/spaces') &&
     !path.startsWith('/internal/search') &&
@@ -56,10 +56,10 @@ function getExternalTenant(request, logger, debugEnabled = false) {
     }
   }
   // check for tenant information in GET parameter. E.g. when using a share link. Overwrites the HTTP header.
-  if (request.url.query && (request.url.query.sg_tenant || request.url.query.sgtenant)) {
-    externalTenant = request.url.query.sg_tenant
-      ? request.url.query.sg_tenant
-      : request.url.query.sgtenant;
+  if (request.url.searchParams.has('sg_tenant') || request.url.searchParams.has('sgtenant')) {
+    externalTenant = request.url.searchParams.has('sg_tenant')
+      ? request.url.searchParams.get('sg_tenant')
+      : request.url.searchParams.get('sgtenant');
 
     if (debugEnabled) {
       logger.info(`Multitenancy: tenant_url_param' ${externalTenant}`);
@@ -331,7 +331,7 @@ export async function handleDefaultSpace({
 }) {
   const spacesPlugin = pluginDependencies.spaces || null;
   // The global tenant ('') does not need to be handled
-  if (!spacesPlugin || !selectedTenant || !isDefaultSpacesRelevantPath(request.url.path)) {
+  if (!spacesPlugin || !selectedTenant || !isDefaultSpacesRelevantPath(request.url.pathname)) {
     return false;
   }
 

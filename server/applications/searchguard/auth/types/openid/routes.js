@@ -22,11 +22,22 @@ import MissingRoleError from '../../errors/missing_role_error';
 import { customError as customErrorRoute } from '../common/routes';
 import { APP_ROOT, API_ROOT } from '../../../../../utils/constants';
 
+async function getOIDCWellKnown({ searchGuardBackend }) {
+  const oidcWellKnown = await searchGuardBackend.getOIDCWellKnown();
+
+  const endPoints = {
+    authorization_endpoint: oidcWellKnown.authorization_endpoint,
+    token_endpoint: oidcWellKnown.token_endpoint_proxy,
+    end_session_endpoint: oidcWellKnown.end_session_endpoint || null,
+  };
+
+  return endPoints;
+}
+
 export function defineRoutes({
   authInstance,
   kibanaCore,
   kibanaConfig,
-  openIdEndPoints,
   logger,
   debugLog,
   searchGuardBackend,
@@ -116,7 +127,6 @@ export function defineRoutes({
     clientSecret,
     logger,
     scope,
-    openIdEndPoints,
     searchGuardBackend,
     authManager
   });
@@ -142,7 +152,7 @@ export function defineRoutes({
         authRequired: false,
       },
     },
-    logoutHandler({ kibanaCore, config, authInstance, basePath, openIdEndPoints, logger })
+    logoutHandler({ searchGuardBackend, kibanaCore, config, authInstance, basePath, logger })
   );
 } //end module
 
@@ -172,14 +182,22 @@ function getBaseRedirectUrl({ kibanaCore, config }) {
 }
 
 export function logoutHandler({
+  searchGuardBackend,
   kibanaCore,
   config,
   authInstance,
   basePath,
-  openIdEndPoints,
   logger,
 }) {
   return async (context, request, response) => {
+    let openIdEndPoints = {};
+    try {
+      openIdEndPoints = await getOIDCWellKnown({ searchGuardBackend });
+    } catch (error) {
+      logger.error(
+        `Error when trying to retrieve the well-known endpoints from your IdP: ${error.stack}`
+      );
+    }
     // Build the redirect uri needed by the provider
     const baseRedirectUrl = getBaseRedirectUrl({ kibanaCore, config });
 
@@ -230,15 +248,30 @@ export function loginHandler({
   clientId,
   clientSecret,
   scope,
-  openIdEndPoints,
   searchGuardBackend,
   authManager
 }) {
   return async function (context, request, response) {
+    let openIdEndPoints;
+    try {
+      openIdEndPoints = await getOIDCWellKnown({ searchGuardBackend });
+    } catch (error) {
+      logger.error(
+        `Error when trying to retrieve the well-known endpoints from your IdP: ${error.stack}`
+      );
+
+      return response.redirected({
+        headers: {
+          location: basePath + '/customerror?type=authError',
+        },
+      });
+    }
+
     const baseRedirectUrl = `${getBaseRedirectUrl({ kibanaCore, config })}${basePath}`;
     debugLog('Base redirect url: ' + baseRedirectUrl);
     const redirectUri = encodeURI(baseRedirectUrl + routesPath + 'login');
-    const authCode = request.url.query.code;
+    const authCode = request.url.searchParams.get('code');
+
     // Could not find any info about length of the nonce in
     // the OpenId spec, so I went with what we had before
     // the migration.
@@ -285,7 +318,7 @@ export function loginHandler({
       // internally, but state when we pass a parameter to the IdP to make sure
       // I don't introduce any change here - it seems to have worked well with
       // all IdPs
-      if (!cookieOpenId.nonce || cookieOpenId.nonce !== request.url.query.state) {
+      if (!cookieOpenId.nonce || cookieOpenId.nonce !== request.url.searchParams.get('state')) {
         throw new Error('There was a state mismatch between the cookie and the IdP response');
       }
 
@@ -369,10 +402,11 @@ async function handleAuthRequest({
   };
 
   const sessionCookie = (await sessionStorageFactory.asScoped(request).get()) || {};
-  sessionCookie.openId = {
-    nonce,
-    query: request.url.query,
-  };
+
+  sessionCookie.openId = { nonce, query: {} };
+  for (const [key, value] of request.url.searchParams) {
+    sessionCookie.openId.query[key] = value;
+  }
 
   await sessionStorageFactory.asScoped(request).set(sessionCookie);
 

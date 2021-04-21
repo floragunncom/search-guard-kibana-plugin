@@ -167,7 +167,6 @@ describe(AuthClass.name, () => {
       headers: { a: 1 },
       url: {
         pathname: '/',
-        path: '/',
       },
     };
 
@@ -230,7 +229,6 @@ describe(AuthClass.name, () => {
       },
       url: {
         pathname: '/app/kibana',
-        path: '/app/kibana',
       },
     };
 
@@ -294,7 +292,6 @@ describe(AuthClass.name, () => {
       },
       url: {
         pathname: '/app/kibana',
-        path: '/app/kibana',
       },
     };
 

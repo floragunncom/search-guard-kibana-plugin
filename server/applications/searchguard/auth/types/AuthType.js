@@ -92,9 +92,7 @@ export default class AuthType {
   }
 
   async init() {
-    // Setting up routes before the auth scheme, mainly for the case where something goes wrong
-    // when OpenId tries to get the connect_url
-    await this.setupRoutes();
+    this.setupRoutes();
   }
 
   /**
@@ -158,12 +156,12 @@ export default class AuthType {
    * A helper for generating the correct nextUrl.
    * Spaces manipulates the URL for non default
    * spaces, and that change is not reflected
-   * in request.url.path
+   * in request.url.pathname
    * @param request
    * @returns {string}
    */
   getNextUrl(request) {
-    return this.basePath + request.url.path;
+    return this.basePath + request.url.pathname;
   }
 
   setupRoutes() {

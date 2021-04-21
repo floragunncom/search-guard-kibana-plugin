@@ -64,8 +64,8 @@ export default function ({
         }
 
         let nextUrl = null;
-        if (request.url && request.url.query && request.url.query.nextUrl) {
-          nextUrl = sanitizeNextUrl(request.url.query.nextUrl, basePath);
+        if (request.url.searchParams.has('nextUrl')) {
+          nextUrl = sanitizeNextUrl(request.url.searchParams.get('nextUrl'), basePath);
           // When logging in, nextUrl = /app/kibana
         }
 
