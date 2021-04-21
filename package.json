@@ -5,6 +5,9 @@
   "main": "index.js",
   "homepage": "https://search-guard.com",
   "license": "Apache-2.0",
+  "searchguard": {
+    "test_sg_version": "7.6.2-41.1.0"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/floragunncom/search-guard-kibana-plugin"
