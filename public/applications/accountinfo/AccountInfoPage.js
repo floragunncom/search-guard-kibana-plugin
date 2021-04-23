@@ -17,26 +17,18 @@
 import React, { Component, Fragment } from 'react';
 import { API_ROOT } from '../../utils/constants';
 
-import {
-  EuiPage,
-  EuiPageBody,
-  EuiPageContent,
-  EuiPageContentBody,
-  EuiText,
-  EuiPageHeader,
-} from '@elastic/eui';
+import { EuiPage, EuiPageBody, EuiPageContent, EuiPageContentBody, EuiText } from '@elastic/eui';
 import { LicenseWarningCallout } from '../components';
 
 import { MainContext } from './contexts/MainContextProvider';
 import {
-  pageHeader,
   sgRolesHeader,
   accountPluginVersion,
   userNameHeader,
   sgRolesEmpty,
   backendRolesHeader,
   backendRolesEmpty,
-} from './utils/i18n/accountinfo_labels';
+} from './utils/i18n';
 
 const APP_NAME = 'Account Info';
 
@@ -76,11 +68,6 @@ export class AccountInfoPage extends Component {
     return (
       <EuiPage id={APP_NAME}>
         <EuiPageBody className="sg-container">
-          <EuiPageHeader>
-            <EuiText size="s" style={{ fontWeight: 500 }}>
-              {pageHeader}
-            </EuiText>
-          </EuiPageHeader>
           <EuiPageContent>
             <EuiPageContentBody className="sg-page-content-body">
               <LicenseWarningCallout configService={this.context.configService} />
