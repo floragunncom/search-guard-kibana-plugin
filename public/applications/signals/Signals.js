@@ -43,7 +43,7 @@ export class Signals {
 
       if (!this.hasPermissions) {
         this.appUpdater.next(() => ({
-          navLinkStatus: AppNavLinkStatus.disabled,
+          navLinkStatus: AppNavLinkStatus.hidden,
           tooltip: 'Signals disabled',
         }));
       }

@@ -102,7 +102,7 @@ export const DEFAULT_CONFIG = {
       auth_page: { enabled: false },
     },
     accountinfo: {
-      enabled: false,
+      enabled: true,
     },
     openid: {
       connect_url: undefined,
