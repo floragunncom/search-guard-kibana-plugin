@@ -236,12 +236,16 @@ echo "+++ Building webpack bundles for the the browser code  +++"
 echo "+++ And transpiling the server code  +++"
 yarn build -v $KIBANA_VERSION --skip-archive
 # The following files may be omitted by the Kibana build helpers but we must have them.
+mv node_modules build/kibana/searchguard
 cp -a "$WORK_DIR/public" build/kibana/searchguard
 cp -a "$WORK_DIR/package.json" build/kibana/searchguard
+cp -a "$WORK_DIR/install_demo_configuration.ps1" build/kibana/searchguard
+cp -a "$WORK_DIR/install_demo_configuration.sh" build/kibana/searchguard
+cp -a "$WORK_DIR/install_demo_configuration.js" build/kibana/searchguard
 
 echo "+++ Copy plugin contents to finalize build +++"
 cd "$WORK_DIR"
-rm -rf build node_modules
+rm -rf build
 mv "$BUILD_STAGE_PLUGIN_DIR/build" build
 mv build/kibana/searchguard "build/kibana/$PLUGIN_NAME"
 
