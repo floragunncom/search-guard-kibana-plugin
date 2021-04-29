@@ -418,7 +418,7 @@ export default function (kibana) {
                         authType: null,
                         storageCookieName: config.get('searchguard.cookie.storage_cookie_name'),
                         extraCookieName: config.get('searchguard.cookie.extra_cookie_name'),
-                        extraCookies: this.config.get('searchguard.cookie.number_of_extra_cookies'),
+                        extraCookies: config.get('searchguard.cookie.number_of_extra_cookies'),
                     }
                 })
             }
