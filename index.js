@@ -43,6 +43,9 @@ export default function (kibana) {
                     name: Joi.string().default('searchguard_authentication'),
                     storage_cookie_name: Joi.string().default('searchguard_storage'),
                     preferences_cookie_name: Joi.string().default('searchguard_preferences'),
+                    extra_cookie_encoding: Joi.string().valid('none', 'iron').default('none'),
+                    extra_cookie_name: Joi.string().default('searchguard_extra'),
+                    number_of_extra_cookies: Joi.number().integer().min(1).default(1),
                     password: Joi.string().min(32).default('searchguard_cookie_default_password'),
                     ttl: Joi.number().integer().min(0).default(60 * 60 * 1000),
                     domain: Joi.string(),
@@ -336,7 +339,23 @@ export default function (kibana) {
 
             server.state(config.get('searchguard.cookie.storage_cookie_name'), storageCookieConf);
 
+            // Set up the extra cookie(s)
+            let extraCookieConfig = {
+              path: '/',
+              ttl: config.get('searchguard.cookie.ttl'),
+              password: config.get('searchguard.cookie.password'),
+              encoding: config.get('searchguard.cookie.extra_cookie_encoding'),
+              isSecure: config.get('searchguard.cookie.secure'),
+              isSameSite: config.get('searchguard.cookie.isSameSite')
+            };
 
+            if (config.get('searchguard.cookie.domain')) {
+              extraCookieConfig["domain"] = config.get('searchguard.cookie.domain');
+            }
+
+            for (let i = 0; i < config.get('searchguard.cookie.number_of_extra_cookies'); i++) {
+              server.state(config.get('searchguard.cookie.extra_cookie_name') + '_' + i, extraCookieConfig);
+            }
 
             if (authType && authType !== '' && ['basicauth', 'jwt', 'openid', 'saml', 'proxycache'].indexOf(authType) > -1) {
                 try {
@@ -397,7 +416,9 @@ export default function (kibana) {
                     plugin: pluginRoot('lib/session/sessionPlugin'),
                     options: {
                         authType: null,
-                        storageCookieName: config.get('searchguard.cookie.storage_cookie_name')
+                        storageCookieName: config.get('searchguard.cookie.storage_cookie_name'),
+                        extraCookieName: config.get('searchguard.cookie.extra_cookie_name'),
+                        extraCookies: this.config.get('searchguard.cookie.number_of_extra_cookies'),
                     }
                 })
             }
