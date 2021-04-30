@@ -125,9 +125,6 @@ export default class OpenId extends AuthType {
       };
 
       if (tokenPayload.exp) {
-        console.log('--- What is the original exp?', tokenPayload.exp)
-        tokenPayload.exp = (new Date().getTime() + 30000) / 1000;
-        console.log('--- What is the exp token?', parseInt(tokenPayload.exp, 10))
         // The token's exp value trumps the config setting
         this.sessionKeepAlive = false;
         session.exp = parseInt(tokenPayload.exp, 10);
