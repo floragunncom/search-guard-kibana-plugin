@@ -100,6 +100,7 @@ export const DEFAULT_CONFIG = {
       logout_url: '',
       root_ca: '',
       verify_hostnames: true,
+      refresh_flow_enabled: false,
     },
     proxycache: {
       user_header: undefined,

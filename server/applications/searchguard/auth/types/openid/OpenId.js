@@ -60,6 +60,45 @@ export default class OpenId extends AuthType {
     super.debugLog(message, label);
   }
 
+  /**
+   * Checks if we have an authorization header.
+   *
+   * Pass the existing session credentials to compare with the authorization header.
+   *
+   * @param request
+   * @param sessionCredentials
+   * @returns {object|null} - credentials for the authentication
+   */
+  detectAuthHeaderCredentials(request, sessionCredentials = null) {
+    if (request.headers[this.authHeaderName]) {
+      const authHeaderValue = request.headers[this.authHeaderName];
+      if (authHeaderValue.startsWith('Bearer') && this.config.get('searchguard.openid.refresh_flow_enabled')) {
+        return null;
+      }
+    }
+    return super.detectAuthHeaderCredentials(request, sessionCredentials)
+  }
+
+  async refreshToken(request, refreshToken) {
+    const oidcWellKnown = await this.searchGuardBackend.getOIDCWellKnown();
+    const result = await this.searchGuardBackend.getOIDCToken({
+      tokenEndpoint: oidcWellKnown.token_endpoint_proxy,
+      body: stringify({
+        client_id: this.config.get('searchguard.openid.client_id'),
+        client_secret: this.config.get('searchguard.openid.client_secret'),
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+      }),
+    });
+
+    const authResponse = await this.handleAuthenticate(request, {
+      authHeaderValue: 'Bearer ' + result.id_token,
+      refreshToken: result.refresh_token,
+    });
+
+    return authResponse;
+  }
+
   async authenticate(credentials, options = {}, additionalAuthHeaders = {}) {
     // A "login" can happen when we have a token (as header or as URL parameter but no session,
     // or when we have an existing session, but the passed token does not match what's in the session.
@@ -86,6 +125,9 @@ export default class OpenId extends AuthType {
       };
 
       if (tokenPayload.exp) {
+        console.log('--- What is the original exp?', tokenPayload.exp)
+        tokenPayload.exp = (new Date().getTime() + 30000) / 1000;
+        console.log('--- What is the exp token?', parseInt(tokenPayload.exp, 10))
         // The token's exp value trumps the config setting
         this.sessionKeepAlive = false;
         session.exp = parseInt(tokenPayload.exp, 10);

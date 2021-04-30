@@ -16,7 +16,6 @@
  */
 
 import { assign } from 'lodash';
-
 import { KibanaResponse } from '../../../../../../../src/core/server/http/router/response';
 import { ensureRawRequest } from '../../../../../../../src/core/server/http/router';
 
@@ -358,7 +357,25 @@ export default class AuthType {
 
     // If we are still here, we need to compare the expiration time
     // JWT's .exp is denoted in seconds, not milliseconds.
+
     if (sessionCookie.exp && sessionCookie.exp < Math.floor(Date.now() / 1000)) {
+      // @todo This needs to be refactored into OpenId if we merge this into the official release.
+      if (
+        this.type === 'openid' &&
+        this.config.get('searchguard.openid.refresh_flow_enabled') &&
+        sessionCookie.credentials.refreshToken
+      ) {
+        try {
+          const authResponse = await this.refreshToken(
+            request,
+            sessionCookie.credentials.refreshToken
+          );
+          return authResponse.session;
+        } catch (error) {
+          console.log('--- OIDC: Reconnecting went wrong', error);
+        }
+      }
+
       this.debugLog('Session expired - .exp is in the past. Clearing cookies');
       await this.clear(request);
       throw new SessionExpiredError('Session expired');

@@ -332,6 +332,7 @@ export function loginHandler({
       // Authenticate with the token given to us by the IdP
       await authInstance.handleAuthenticate(request, {
         authHeaderValue: 'Bearer ' + idpPayload.id_token,
+        refreshToken: idpPayload.refresh_token,
       });
 
       let redirectTo = '/app/home';

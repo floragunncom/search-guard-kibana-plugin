@@ -40,6 +40,7 @@ const getOpenIdSchema = (isSelectedAuthType) => {
     scope: schema.string({ defaultValue: openidDefaults.scope }),
     base_redirect_url: schema.string({ defaultValue: openidDefaults.base_redirect_url }),
     logout_url: schema.string({ defaultValue: openidDefaults.logout_url }),
+    refresh_flow_enabled: schema.boolean({ defaultValue: openidDefaults.refresh_flow_enabled }),
     /* @deprecated */
     connect_url: schema.maybe(schema.string()),
     /* @deprecated */
