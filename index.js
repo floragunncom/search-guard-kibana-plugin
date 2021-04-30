@@ -43,7 +43,7 @@ export default function (kibana) {
                     name: Joi.string().default('searchguard_authentication'),
                     storage_cookie_name: Joi.string().default('searchguard_storage'),
                     preferences_cookie_name: Joi.string().default('searchguard_preferences'),
-                    extra_cookie_encoding: Joi.string().valid('none', 'iron').default('none'),
+                    extra_cookie_encoding: Joi.string().valid('none').default('none'),
                     extra_cookie_name: Joi.string().default('searchguard_extra'),
                     number_of_extra_cookies: Joi.number().integer().min(1).default(1),
                     password: Joi.string().min(32).default('searchguard_cookie_default_password'),
