@@ -332,6 +332,7 @@ describe(`${AuthClass.name} routes`, () => {
 
       expect(authInstance.handleAuthenticate).toHaveBeenCalledWith(request, {
         authHeaderValue: `Bearer ${idpPayload.id_token}`,
+        refreshToken: idpPayload.refresh_token,
       });
       expect(response.redirected).toHaveBeenCalledWith({
         headers: {

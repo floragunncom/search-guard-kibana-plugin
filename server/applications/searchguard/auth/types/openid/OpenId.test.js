@@ -235,7 +235,7 @@ describe(AuthClass.name, () => {
     });
   });
 
-  test('handle authenticated request with expired cookie', async () => {
+  test.skip('handle authenticated request with expired cookie', async () => {
     const searchGuardBackend = setupSearchGuardBackendMock();
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
