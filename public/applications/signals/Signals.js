@@ -12,11 +12,10 @@ export class Signals {
 
   mount({ core, httpClient }) {
     return async (params) => {
-      const { renderApp } = await import('./npstart');
+      if (!this.hasPermissions) return;
 
-      if (this.hasPermissions) {
-        return renderApp({ element: params.element, core, httpClient });
-      }
+      const { renderApp } = await import('./npstart');
+      return renderApp({ element: params.element, core, httpClient });
     };
   }
 
@@ -34,6 +33,15 @@ export class Signals {
     }
   }
 
+  async setup({ httpClient }) {
+    try {
+      const sgService = new SearchGuardService(httpClient);
+      this.hasPermissions = await sgService.hasPermissions();
+    } catch (error) {
+      console.error(`Signals setup: ${error.toString()} ${error.stack} `);
+    }
+  }
+
   async start({ httpClient, configService }) {
     try {
       if (configService.isLoginPage()) return;
@@ -48,7 +56,7 @@ export class Signals {
         }));
       }
     } catch (error) {
-      console.error(`Signals: ${error.toString()} ${error.stack} `);
+      console.error(`Signals start: ${error.toString()} ${error.stack} `);
     }
   }
 }
