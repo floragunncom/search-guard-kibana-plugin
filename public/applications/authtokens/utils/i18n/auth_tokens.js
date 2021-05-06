@@ -95,3 +95,10 @@ export const theFeatureIsDisabledText = (
     </EuiLink>
   </>
 );
+export const tokenConfirmModalText = (
+  <EuiI18n
+    token="sg.auth_tokens.tokenConfirmModal.text"
+    default="Please make sure that you have copied the token below before closing this dialog. For security reasons, the token will not be shown in the Signals UI again."
+  />
+);
+export const copyTokenText = <EuiI18n token="sg.auth_tokens.copyToken.text" default="Copy Token" />;
