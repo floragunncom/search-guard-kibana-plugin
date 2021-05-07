@@ -56,12 +56,13 @@ const ContentPanel = ({
   bodyStyles = {},
   panelStyles = {},
   headerStyles = {},
+  panelDivProps = {},
   actions,
   children,
   isLoading = false,
 }) => {
   return (
-    <div style={{ ...panelStyles }} className="sgContentPanel">
+    <div style={{ ...panelStyles }} className="sgContentPanel" {...panelDivProps}>
       <EuiFlexGroup
         style={{ ...headerStyles }}
         className="sgContentPanel__header"
@@ -103,6 +104,7 @@ ContentPanel.propTypes = {
   bodyStyles: PropTypes.object,
   panelStyles: PropTypes.object,
   headerStyles: PropTypes.object,
+  panelDivProps: PropTypes.object,
   actions: PropTypes.oneOfType([PropTypes.node, PropTypes.arrayOf([PropTypes.node])]),
   children: PropTypes.oneOfType([PropTypes.node, PropTypes.arrayOf([PropTypes.node])]).isRequired,
   isLoading: PropTypes.bool,

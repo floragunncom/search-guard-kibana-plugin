@@ -2,16 +2,18 @@ import queryString from 'query-string';
 import {
   createWatchText,
   updateWatchText,
+  readWatchText,
   watchesText,
   executionHistoryText
 } from '../../../utils/i18n/watch';
 import {
   createAccountText,
   updateAccountText,
-  accountsText
+  accountsText,
+  readAccountText,
 } from '../../../utils/i18n/account';
 import { homeText } from '../../../utils/i18n/common';
-import { APP_PATH } from '../../../utils/constants';
+import { APP_PATH, WATCH_ACTIONS } from '../../../utils/constants';
 
 // TODO: unit test this
 export default function getBreadcrumb(route) {
@@ -20,7 +22,10 @@ export default function getBreadcrumb(route) {
   const [ base, queryParams ] = route.split('?');
   if (!base) return null;
 
-  const { id, watchId, accountType } = queryString.parse(queryParams);
+  const { id, watchId, accountType, action } = queryString.parse(queryParams);
+  const readWatch = action === WATCH_ACTIONS.READ_WATCH;
+  const readAccount = true;
+
   let urlParams = '';
   if (id && accountType) {
     urlParams = `?${queryString.stringify({ id, accountType })}`;
@@ -56,6 +61,16 @@ export default function getBreadcrumb(route) {
         href: APP_PATH.DEFINE_WATCH + urlParams
       }
     ],
+    [removePrefixSlash(APP_PATH.DEFINE_JSON_WATCH)]: [
+      {
+        text: watchesText,
+        href: APP_PATH.WATCHES,
+      },
+      {
+        text: readWatch ? readWatchText : (id ? updateWatchText : createWatchText),
+        href: APP_PATH.DEFINE_JSON_WATCH + urlParams,
+      }
+    ],
     [removePrefixSlash(APP_PATH.ACCOUNTS)]: {
       text: accountsText,
       href: APP_PATH.ACCOUNTS
@@ -68,6 +83,16 @@ export default function getBreadcrumb(route) {
       {
         text: id ? updateAccountText : createAccountText,
         href: APP_PATH.DEFINE_ACCOUNT + urlParams
+      }
+    ],
+    [removePrefixSlash(APP_PATH.DEFINE_JSON_ACCOUNT)]: [
+      {
+        text: accountsText,
+        href: APP_PATH.ACCOUNTS,
+      },
+      {
+        text: readAccount ? readAccountText : (id ? updateAccountText : createAccountText),
+        href: APP_PATH.DEFINE_ACCOUNT + urlParams,
       }
     ],
   }[base];

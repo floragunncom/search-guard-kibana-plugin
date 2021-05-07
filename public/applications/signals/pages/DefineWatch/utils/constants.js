@@ -69,7 +69,6 @@ export const AGGREGATIONS_TYPES = {
 
 export const WATCH_TYPES_OPTIONS = [
   { value: WATCH_TYPES.GRAPH, text: startCase(WATCH_TYPES.GRAPH) },
-  { value: WATCH_TYPES.JSON, text: startCase(WATCH_TYPES.JSON) },
   { value: WATCH_TYPES.BLOCKS, text: startCase(WATCH_TYPES.BLOCKS) },
 ];
 
