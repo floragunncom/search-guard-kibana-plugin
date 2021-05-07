@@ -31,36 +31,55 @@ export function authInfoHandler({ searchGuardBackend, logger }) {
   };
 }
 
-// @todo PoC - This is the route to the auth type selector page
-// This route does not belong in this file
-export function defineAuthRoutes({ kibanaCore }) {
-  const httpResources = kibanaCore.http.resources;
+export function defineAuthRoutes({ kibanaCore, authManager }) {
+  const router = kibanaCore.http.createRouter();
 
-  httpResources.register(
+  router.post(
     {
-      // @todo Correct path APPROOT
-      path: `/auth`,
-      options: { authRequired: false },
+      path: `${API_ROOT}/auth/logout`,
       validate: false,
     },
-    (context, request, response) => {
-      return response.renderHtml({
-        body: `
-          <html>
-            <head>
-
-            </head>
-            <body>
-                <ul>
-                    <li><a href="/login">Basic auth</a></li>
-                    <li><a href="/auth/openid/login">OpenId</a></li>
-                </ul>
-            </body>
-          </html>
-          `,
-      });
-    }
+    logoutHandler({ authManager })
   );
+
+  router.get(
+    {
+      path: `${API_ROOT}/auth/types`,
+      validate: false,
+      options: {
+        authRequired: false,
+      },
+    },
+    listAuthTypesHandler({ authManager })
+  );
+}
+
+export function logoutHandler({ authManager }) {
+  return async function (context, request, response) {
+    return authManager.logout({ context, request, response });
+  };
+}
+
+export function listAuthTypesHandler({ authManager }) {
+  return async function (context, request, response) {
+    // @todo The registered authInstances are most likely not the best source for this.
+    // @todo We may have multiple OIDCs, and also the authtype is probably not the best
+    // title
+    const authTypes = Object.keys(authManager.authInstances).map((authInstanceName) => {
+      const authInstance = authManager.authInstances[authInstanceName];
+      return {
+        // @todo I think we need a type property here too. In case we have multiple OIDC for example.
+        title: authInstanceName,
+        description: '@todo Get a description for this method somewhere',
+        loginURL: authInstance.loginURL,
+        icon: null, // @todo
+      };
+    });
+
+    return response.ok({
+      body: authTypes,
+    });
+  };
 }
 
 export function defineAuthInfoRoutes({ searchGuardBackend, kibanaCore, logger }) {

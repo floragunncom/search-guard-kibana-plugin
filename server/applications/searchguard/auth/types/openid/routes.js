@@ -22,7 +22,11 @@ import MissingRoleError from '../../errors/missing_role_error';
 import { customError as customErrorRoute } from '../common/routes';
 import { APP_ROOT, API_ROOT } from '../../../../../utils/constants';
 
-async function getOIDCWellKnown({ searchGuardBackend }) {
+export const OIDC_ROUTES = {
+  LOGIN: `${APP_ROOT}/auth/openid/encode`, // @todo Update this later - the auth selector page should probably do all the encoding
+};
+
+export async function getOIDCWellKnown({ searchGuardBackend }) {
   const oidcWellKnown = await searchGuardBackend.getOIDCWellKnown();
 
   const endPoints = {
@@ -145,7 +149,7 @@ export function defineRoutes({
    */
   router.post(
     {
-      path: `${API_ROOT}/auth/logout`,
+      path: `${API_ROOT}/auth/logoutTEMP`,
       validate: false,
       options: {
         // We may need false here if the cookie has already expired
@@ -161,7 +165,7 @@ export function defineRoutes({
  * Instead, we have the searchguard.openid.base_redirect_uri config option.
  * @returns {string}
  */
-function getBaseRedirectUrl({ kibanaCore, config }) {
+export function getBaseRedirectUrl({ kibanaCore, config }) {
   const configuredBaseRedirectUrl = config.get('searchguard.openid.base_redirect_url');
   if (configuredBaseRedirectUrl) {
     return configuredBaseRedirectUrl.endsWith('/')
@@ -337,8 +341,6 @@ export function loginHandler({
       await authInstance.handleAuthenticate(request, {
         authHeaderValue: 'Bearer ' + idpPayload.id_token,
       });
-
-      authManager.setAuthInstance('openid', authInstance)
 
       let redirectTo = '/app/home';
       if (cookieOpenId.query && cookieOpenId.query.nextUrl) {

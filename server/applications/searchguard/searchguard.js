@@ -4,8 +4,8 @@ import { registerRoutes } from './routes';
 import { readKibanaConfig } from './read_kibana_config';
 import { ConfigService } from '../../../common/config_service';
 import { Kerberos } from './auth/types';
-import { AuthManager } from './auth/AuthManager';
-import { defineAuthInfoRoutes, defineAuthRoutes } from './auth/routes_authinfo';
+import {AUTH_TYPE_NAMES, AuthManager} from './auth/AuthManager';
+import { defineAuthInfoRoutes, defineAuthRoutes } from './auth/routes_auth';
 import { defineSystemRoutes } from './system/routes';
 import { defineConfigurationRoutes } from './configuration/routes/routes';
 import SearchGuardBackend from './backend/searchguard';
@@ -64,8 +64,6 @@ export class SearchGuard {
       });
       checkCookieConfig({ configService: this.configService, logger: this.logger });
 
-      defineAuthRoutes({kibanaCore: core});
-
       // Inits the authInfo route
       defineAuthInfoRoutes({
         searchGuardBackend: this.searchGuardBackend,
@@ -111,6 +109,9 @@ export class SearchGuard {
         configService: this.configService,
         sessionStorageFactory,
       });
+
+      // @todo These routes should go somewhere else
+      defineAuthRoutes({kibanaCore: core, authManager});
 
       // Proxy authentication is handled implicitly.
       if (
@@ -198,6 +199,8 @@ export class SearchGuard {
 
               openId.init();
 
+              authManager.registerAuthInstance(AUTH_TYPE_NAMES.OIDC, openId);
+
               const basicAuth = new BasicAuth({
                 searchGuardBackend: this.searchGuardBackend,
                 kibanaCore: core,
@@ -210,6 +213,7 @@ export class SearchGuard {
               });
 
               basicAuth.init();
+              authManager.registerAuthInstance(AUTH_TYPE_NAMES.BASIC, basicAuth);
               this.logger.info('Search Guard session management enabled.');
             } catch (error) {
               this.logger.error(`An error occurred while enabling session management: ${error}`);

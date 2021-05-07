@@ -21,6 +21,7 @@ import { ensureRawRequest } from '../../../../../../../../src/core/server/http/r
 import { defineRoutes } from './routes';
 import { APP_ROOT } from '../../../../../utils/constants';
 import { stringify } from 'querystring';
+import {AUTH_TYPE_NAMES} from "../../AuthManager";
 
 export default class BasicAuth extends AuthType {
   constructor({
@@ -48,7 +49,7 @@ export default class BasicAuth extends AuthType {
      * The authType is saved in the auth cookie for later reference
      * @type {string}
      */
-    this.type = 'basicauth';
+    this.type = AUTH_TYPE_NAMES.BASIC;
 
     /**
      * The name of the authorization header to be used
@@ -71,7 +72,7 @@ export default class BasicAuth extends AuthType {
     this.handleUnauthenticated();
   }
 
-  debugLog(message, label = 'basicauth') {
+  debugLog(message, label = AUTH_TYPE_NAMES.BASIC) {
     super.debugLog(message, label);
   }
 

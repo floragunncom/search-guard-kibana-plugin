@@ -27,6 +27,10 @@ import {
   EuiImage,
   EuiButton,
   EuiPanel,
+  EuiCard,
+  EuiIcon,
+  EuiFlexGroup,
+  EuiFlexItem,
 } from '@elastic/eui';
 import { LicenseWarningCallout } from '../../components';
 import { stringCSSToReactStyle } from '../../../utils/cssHelper';
@@ -158,6 +162,32 @@ export class LoginPage extends Component {
     }
   };
 
+  renderBasicAuthForm() {}
+
+  renderAdditionalAuthTypes(authTypes) {
+    const { basePath } = this.props;
+
+    return (
+      <Fragment>
+        {authTypes.map((authType, index) => (
+          <EuiCard
+            key={index}
+            layout="horizontal"
+            icon={
+              <EuiIcon
+                size="xl"
+                type={basePath + 'plugins/searchguard/assets/openid-icon-100x100.png'}
+              />
+            }
+            title={authType.title}
+            description={authType.description}
+            href={authType.loginURL}
+          />
+        ))}
+      </Fragment>
+    );
+  }
+
   render() {
     const { basePath, configService } = this.props;
     const {
@@ -171,133 +201,157 @@ export class LoginPage extends Component {
 
     return (
       <div
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+        }}
       >
-        <EuiPanel style={{ maxWidth: '350px' }}>
-          {showBrandImage ? (
-            <div style={{ margin: 'auto', maxWidth: '300px' }}>
-              <EuiImage
-                data-test-subj="sg.login.brandImage"
-                alt="Brand image"
-                size="fullWidth"
-                url={brandImage.startsWith('/plugins') ? basePath + brandImage : brandImage}
-              />
-            </div>
-          ) : (
-            <EuiSpacer size="l" />
-          )}
-
-          <EuiText textAlign="center" data-test-subj="sg.login.title">
-            <h2
-              // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{ __html: dompurify.sanitize(loginTitle) }}
+        {showBrandImage ? (
+          <div style={{ maxWidth: '300px' }}>
+            <EuiImage
+              data-test-subj="sg.login.brandImage"
+              alt="Brand image"
+              size="fullWidth"
+              url={brandImage.startsWith('/plugins') ? basePath + brandImage : brandImage}
             />
-          </EuiText>
-          <EuiText textAlign="center" data-test-subj="sg.login.subTitle">
-            <p
-              // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{ __html: dompurify.sanitize(loginSubTitle) }}
-            />
-          </EuiText>
+          </div>
+        ) : (
+          <EuiSpacer size="l" />
+        )}
 
-          <LicenseWarningCallout configService={configService} />
+        <EuiText textAlign="center" data-test-subj="sg.login.title">
+          <h2
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{ __html: dompurify.sanitize(loginTitle) }}
+          />
+        </EuiText>
 
-          <form onSubmit={(event) => event.preventDefault()}>
-            <EuiForm>
-              <input
-                autoComplete="anyrandomstring"
-                name="hidden"
-                type="text"
-                style={{ display: 'none' }}
-              />
-              <EuiFormRow
-                id="sg.username"
-                label="Username"
-                isInvalid={this.state.errorMessage !== null}
-              >
-                <EuiFieldText
-                  id="sg.username"
-                  data-test-subj="sg.username"
-                  name="userName"
-                  required={true}
-                  placeholder="Username"
-                  value={this.state.userName}
-                  onChange={this.onChange}
-                  autoFocus
-                  icon="user"
-                  autoComplete="off"
-                  isInvalid={this.state.errorMessage !== null}
-                />
-              </EuiFormRow>
+        <EuiSpacer size="l" />
 
-              <EuiSpacer />
-              <EuiFormRow
-                id="sg.password"
-                label="Password"
-                isInvalid={this.state.errorMessage !== null}
-              >
-                <EuiFieldPassword
-                  id="sg.password"
-                  data-test-subj="sg.password"
-                  name="password"
-                  required={true}
-                  placeholder="Password"
-                  value={this.state.password}
-                  onChange={this.onChange}
-                  autoComplete="off"
-                  isInvalid={this.state.errorMessage !== null}
-                />
-              </EuiFormRow>
-              <EuiSpacer size="l" />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <EuiFlexGroup style={{ margin: '0 auto' }}>
+            {this.props.authTypes.find((type) => type.title === 'basicauth') && (
+              <EuiFlexItem grow={false} style={{ alignItems: 'center' }}>
+                <EuiPanel grow={false} style={{ maxWidth: '350px' }}>
+                  <EuiText textAlign="center" data-test-subj="sg.login.subTitle">
+                    <p
+                      // eslint-disable-next-line react/no-danger
+                      dangerouslySetInnerHTML={{ __html: dompurify.sanitize(loginSubTitle) }}
+                    />
+                  </EuiText>
 
-              <EuiButton
-                id="sg.login"
-                data-test-subj="sg.login"
-                fill
-                fullWidth={true}
-                style={this.loginButtonStyles}
-                onClick={this.handleSubmit}
-                type="submit"
-              >
-                Log in
-              </EuiButton>
+                  <LicenseWarningCallout configService={configService} />
 
-              {this.state.alternativeLogin && (
-                <Fragment>
-                  <EuiSpacer size="l" />
+                  <form onSubmit={(event) => event.preventDefault()}>
+                    <EuiForm>
+                      <input
+                        autoComplete="anyrandomstring"
+                        name="hidden"
+                        type="text"
+                        style={{ display: 'none' }}
+                      />
+                      <EuiFormRow
+                        id="sg.username"
+                        label="Username"
+                        isInvalid={this.state.errorMessage !== null}
+                      >
+                        <EuiFieldText
+                          id="sg.username"
+                          data-test-subj="sg.username"
+                          name="userName"
+                          required={true}
+                          placeholder="Username"
+                          value={this.state.userName}
+                          onChange={this.onChange}
+                          autoFocus
+                          icon="user"
+                          autoComplete="off"
+                          isInvalid={this.state.errorMessage !== null}
+                        />
+                      </EuiFormRow>
 
-                  <EuiButton
-                    id="sg.alternative_login"
-                    data-test-subj="sg.alternative_login"
-                    fill
-                    fullWidth={true}
-                    href={this.state.alternativeLogin.url}
-                    style={this.alternativeLoginButtonStyles}
-                  >
-                    {alternativeButtonLabel}
-                  </EuiButton>
-                </Fragment>
-              )}
-            </EuiForm>
-          </form>
+                      <EuiSpacer />
+                      <EuiFormRow
+                        id="sg.password"
+                        label="Password"
+                        isInvalid={this.state.errorMessage !== null}
+                      >
+                        <EuiFieldPassword
+                          id="sg.password"
+                          data-test-subj="sg.password"
+                          name="password"
+                          required={true}
+                          placeholder="Password"
+                          value={this.state.password}
+                          onChange={this.onChange}
+                          autoComplete="off"
+                          isInvalid={this.state.errorMessage !== null}
+                        />
+                      </EuiFormRow>
+                      <EuiSpacer size="l" />
 
-          {this.state.errorMessage && (
-            <Fragment>
-              <EuiSpacer size="l" />
-              <EuiCallOut
-                id="sg.errorMessage"
-                data-test-subj="sg.errorMessage"
-                title="Error"
-                color="danger"
-                iconType="alert"
-              >
-                <EuiText data-test-subj="sg.errorMessage-text">
-                  <p>{this.state.errorMessage}</p>
-                </EuiText>
-              </EuiCallOut>
-            </Fragment>
-          )}
-        </EuiPanel>
+                      <EuiButton
+                        id="sg.login"
+                        data-test-subj="sg.login"
+                        fill
+                        fullWidth={true}
+                        style={this.loginButtonStyles}
+                        onClick={this.handleSubmit}
+                        type="submit"
+                      >
+                        Log in
+                      </EuiButton>
+
+                      {this.state.alternativeLogin && (
+                        <Fragment>
+                          <EuiSpacer size="l" />
+
+                          <EuiButton
+                            id="sg.alternative_login"
+                            data-test-subj="sg.alternative_login"
+                            fill
+                            fullWidth={true}
+                            href={this.state.alternativeLogin.url}
+                            style={this.alternativeLoginButtonStyles}
+                          >
+                            {alternativeButtonLabel}
+                          </EuiButton>
+                        </Fragment>
+                      )}
+                    </EuiForm>
+                  </form>
+
+                  {this.state.errorMessage && (
+                    <Fragment>
+                      <EuiSpacer size="l" />
+                      <EuiCallOut
+                        id="sg.errorMessage"
+                        data-test-subj="sg.errorMessage"
+                        title="Error"
+                        color="danger"
+                        iconType="alert"
+                      >
+                        <EuiText data-test-subj="sg.errorMessage-text">
+                          <p>{this.state.errorMessage}</p>
+                        </EuiText>
+                      </EuiCallOut>
+                    </Fragment>
+                  )}
+                </EuiPanel>
+              </EuiFlexItem>
+            )}
+            <EuiFlexItem style={{ alignItems: 'center' }}>
+              <div style={{ maxWidth: '350px' }}>
+                {this.renderAdditionalAuthTypes(
+                  this.props.authTypes.filter((authType) => authType.title !== 'basicauth')
+                )}
+              </div>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        </div>
       </div>
     );
   }

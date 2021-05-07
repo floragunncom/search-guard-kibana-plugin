@@ -74,7 +74,7 @@ export function loginAuthHandler({
   logger,
   searchGuardBackend,
   sessionStorageFactory,
-  authManager
+  authManager,
 }) {
   return async function (context, request, response) {
     const username = request.body.username;
@@ -106,7 +106,7 @@ export function loginAuthHandler({
       const { user, session: sessionCookie } = await authInstance.handleAuthenticate(request, {
         authHeaderValue: 'Basic ' + authHeaderValue,
       });
-      authManager.setAuthInstance('basicauth', authInstance);
+
 
       // handle tenants if MT is enabled
       if (config.get('searchguard.multitenancy.enabled')) {
@@ -224,7 +224,14 @@ export function defineRoutes({
         authRequired: false,
       },
     },
-    loginAuthHandler({ config, authInstance, logger, searchGuardBackend, sessionStorageFactory, authManager })
+    loginAuthHandler({
+      config,
+      authInstance,
+      logger,
+      searchGuardBackend,
+      sessionStorageFactory,
+      authManager,
+    })
   );
 
   // @todo PoC - Most auth types register this route.

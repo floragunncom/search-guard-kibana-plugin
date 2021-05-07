@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
+export const AUTH_TYPE_NAMES = {
+  BASIC: 'basicauth',
+  OIDC: 'openid',
+};
+
 export class AuthManager {
   constructor({ configService, sessionStorageFactory }) {
     this.authTypeName = null;
     this.authInstance = null;
+    // @todo Where do we set these?
+    this.authInstances = {};
     this.configService = configService;
     this.sessionStorageFactory = sessionStorageFactory;
 
@@ -37,20 +44,35 @@ export class AuthManager {
     ];
   }
 
-  setAuthInstance(authTypeName, authInstance) {
-    this.authTypeName = authTypeName;
-    this.authInstance = authInstance;
+  registerAuthInstance(authTypeName, authInstance) {
+    this.authInstances[authTypeName] = authInstance;
+  }
+
+  getAuthInstanceByName(authTypeName) {
+    if (this.authInstances[authTypeName]) {
+      return this.authInstances[authTypeName];
+    }
+
+    return null;
+  }
+
+  async getAuthInstanceByRequest(request) {
+    // Checks cookie for authType
+    const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+    if (sessionCookie.authType && this.authInstances[sessionCookie.authType]) {
+      return this.getAuthInstanceByName(sessionCookie.authType);
+    }
+
+    return null;
   }
 
   checkAuth = async (request, response, toolkit) => {
     if (this.routesToIgnore.includes(request.url.pathname)) {
-      // @todo This should probable be toolkit.authenticated(), but that threw an error.
       // Change back after everything has been implemented
       return toolkit.notHandled();
     }
 
     if (this.unauthenticatedRoutes.includes(request.url.pathname)) {
-      // @todo Why does this work? If we return notHandled here, searchguard throws an error.
       // If we do this, we don't really assign any relevant headers
       // Until now, we got the kibana server user here, but those credentials were
       // not really used, it seems
@@ -59,27 +81,35 @@ export class AuthManager {
       });
     }
 
-    if (this.authInstance) {
-      return this.authInstance.checkAuth(request, response, toolkit);
-    } else {
-      // @todo "sync" with existing cookie here?
-      const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+    // Detect authType. Keep in mind that we don't want to create a cookie based on headers only anymore.
+    // @todo ProxyCache being the exception? Shouldn't matter at this place though
+    const authInstanceByRequest = await this.getAuthInstanceByRequest(request);
+    if (authInstanceByRequest) {
+      return authInstanceByRequest.checkAuth(request, response, toolkit);
     }
-
-    console.log('------ Redirecting for', request.url.path);
 
     return response.redirected({
       headers: {
-        location: `/auth`,
+        location: `/login`,
       },
     });
   };
 
-  getAllAuthHeaders(request) {
-    if (this.authInstance) {
-      return this.authInstance.getAllAuthHeaders(request);
+  async getAllAuthHeaders(request) {
+    const authInstance = await this.getAuthInstanceByRequest(request);
+    if (authInstance) {
+      return authInstance.getAllAuthHeaders(request);
     }
 
     return false;
+  }
+
+  async logout({context, request, response}) {
+    const authInstance = await this.getAuthInstanceByRequest(request);
+    if (authInstance) {
+      return await authInstance.logout({context, request, response});
+    }
+
+    return response.ok();
   }
 }

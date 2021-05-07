@@ -20,6 +20,7 @@ import SessionExpiredError from '../errors/session_expired_error';
 import filterAuthHeaders from '../filter_auth_headers';
 import MissingTenantError from '../errors/missing_tenant_error';
 import MissingRoleError from '../errors/missing_role_error';
+import {OIDC_ROUTES} from "./openid/routes";
 
 export default class AuthType {
   constructor({
@@ -69,6 +70,13 @@ export default class AuthType {
      * @type {string}
      */
     this.type = null;
+
+    /**
+     * If a loginURL is defined, we can skip the auth selector page
+     * if the customer only has one auth type enabled.
+     * @type {string|null}
+     */
+    this.loginURL = null;
 
     /**
      * Tells the sessionPlugin whether or not to validate the number of tenants when authenticating
@@ -259,6 +267,7 @@ export default class AuthType {
 
     try {
       sessionCookie = await this.getCookieWithCredentials(request);
+
     } catch (error) {
       return this._handleUnAuthenticated(request, response, toolkit, error);
     }
@@ -564,6 +573,12 @@ export default class AuthType {
     return authResponse;
   }
 
+  async logout({context = null, request, response}) {
+    await this.clear(request);
+    return response.ok();
+  }
+
+
   /**
    * Remove the credentials from the session cookie
    */
@@ -572,7 +587,7 @@ export default class AuthType {
     // @todo Consider refactoring anything auth related into an "auth" property.
     delete sessionCookie.credentials;
     delete sessionCookie.username;
-    delete sessionCookie.authType;
+    //delete sessionCookie.authType;
     delete sessionCookie.additionalAuthHeaders;
     delete sessionCookie.isAnonymousAuth;
 

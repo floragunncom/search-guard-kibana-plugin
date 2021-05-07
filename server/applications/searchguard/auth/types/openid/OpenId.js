@@ -19,8 +19,9 @@ import AuthType from '../AuthType';
 import MissingTenantError from '../../errors/missing_tenant_error';
 import AuthenticationError from '../../errors/authentication_error';
 import MissingRoleError from '../../errors/missing_role_error';
-import { defineRoutes } from './routes';
+import {defineRoutes, getBaseRedirectUrl, getOIDCWellKnown, OIDC_ROUTES} from './routes';
 import { stringify } from 'querystring';
+import {AUTH_TYPE_NAMES} from "../../AuthManager";
 
 export default class OpenId extends AuthType {
   constructor({
@@ -48,7 +49,14 @@ export default class OpenId extends AuthType {
      * The authType is saved in the auth cookie for later reference
      * @type {string}
      */
-    this.type = 'openid';
+    this.type = AUTH_TYPE_NAMES.OIDC;
+
+    /**
+     * If a loginURL is defined, we can skip the auth selector page
+     * if the customer only has one auth type enabled.
+     * @type {string|null}
+     */
+    this.loginURL = OIDC_ROUTES.LOGIN;
 
     try {
       this.authHeaderName = this.config.get('searchguard.openid.header').toLowerCase();
@@ -58,7 +66,7 @@ export default class OpenId extends AuthType {
     }
   }
 
-  debugLog(message, label = 'openid') {
+  debugLog(message, label = AUTH_TYPE_NAMES.OIDC) {
     super.debugLog(message, label);
   }
 
@@ -88,6 +96,10 @@ export default class OpenId extends AuthType {
       };
 
       if (tokenPayload.exp) {
+        //console.log('--- What is the original exp?', tokenPayload.exp)
+        //tokenPayload.exp = (new Date().getTime() + 20000) / 1000;
+        //console.log('--- What is the exp token?', parseInt(tokenPayload.exp, 10))
+
         // The token's exp value trumps the config setting
         this.sessionKeepAlive = false;
         session.exp = parseInt(tokenPayload.exp, 10);
@@ -143,6 +155,54 @@ export default class OpenId extends AuthType {
       debugLog: this.debugLog.bind(this),
       searchGuardBackend: this.searchGuardBackend,
       authManager: this.authManager,
+    });
+  }
+
+  async logout({context = null, request, response}) {
+    const basePath = this.kibanaCore.http.basePath.serverBasePath;
+    let openIdEndPoints = {};
+    try {
+      openIdEndPoints = await getOIDCWellKnown({ searchGuardBackend: this.searchGuardBackend });
+    } catch (error) {
+      this.logger.error(
+        `Error when trying to retrieve the well-known endpoints from your IdP: ${error.stack}`
+      );
+    }
+    // Build the redirect uri needed by the provider
+    const baseRedirectUrl = getBaseRedirectUrl({ kibanaCore: this.kibanaCore, config: this.config });
+
+    const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+
+    // Clear the cookie credentials
+    await this.clear(request);
+
+    const requestQueryParameters = `?post_logout_redirect_uri=${baseRedirectUrl}${basePath}/app/home`;
+
+    // If we don't have an "end_session_endpoint" in the .well-known list,
+    // we may have a custom logout_url defined in the config.
+    // The custom url trumps the .well-known endpoint if both are available.
+    const customLogoutUrl = this.config.get('searchguard.openid.logout_url');
+    let endSessionUrl = null;
+    if (customLogoutUrl) {
+      // Pass the post_logout_uri just in case, but not the token
+      endSessionUrl = customLogoutUrl + requestQueryParameters;
+    } else if (openIdEndPoints.end_session_endpoint) {
+      endSessionUrl = openIdEndPoints.end_session_endpoint + requestQueryParameters;
+
+      // Pass the token to the IdP when logging out (id_token_hint)
+      try {
+        let idTokenHint = '';
+        if (sessionCookie.credentials && sessionCookie.credentials.authHeaderValue) {
+          idTokenHint = sessionCookie.credentials.authHeaderValue.split(' ')[1];
+          endSessionUrl = endSessionUrl + '&id_token_hint=' + idTokenHint;
+        }
+      } catch (error) {
+        this.logger.info('Could not add the id_token_hint to the logout url');
+      }
+    }
+
+    return response.ok({
+      body: { redirectURL: endSessionUrl },
     });
   }
 }
