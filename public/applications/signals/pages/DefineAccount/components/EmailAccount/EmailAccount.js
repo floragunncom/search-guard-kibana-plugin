@@ -11,6 +11,7 @@ import {
   FormikFieldPassword,
   FormikComboBox,
   FormikSwitch,
+  FormikErrorsCallOut,
 } from '../../../../components';
 import { AccountsService } from '../../../../services';
 import {
@@ -289,7 +290,7 @@ const Proxy = () => (
   </Fragment>
 );
 
-const EmailAccount = ({ id, formik: { values } }) => {
+const EmailAccount = ({ id, formik: { values, errors } }) => {
   const {
     httpClient,
     onSwitchChange,
@@ -308,6 +309,9 @@ const EmailAccount = ({ id, formik: { values } }) => {
       }
       titleSize="s"
     >
+      <FormikErrorsCallOut errors={errors} />
+      <EuiSpacer />
+
       <FormikFieldText
         name="_id"
         formRow

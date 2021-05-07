@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 floragunn GmbH
+ *    Copyright 2021 floragunn GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getResourceEditUri, getResourceReadUri } from './helpers';
 
-describe('Accounts/helpers', () => {
-  test('getResourceEditUri', () => {
-    expect(getResourceEditUri('a b', 'email')).toBe('/define-account?id=a%20b&accountType=email');
-  });
-
-  test('getResourceReadUri', () => {
-    expect(getResourceReadUri('a b', 'email')).toBe(
-      '/define-json-account?id=a%20b&accountType=email&action=read-account'
-    );
-  });
-});
+export { DefineJsonWatch } from './DefineJsonWatch';

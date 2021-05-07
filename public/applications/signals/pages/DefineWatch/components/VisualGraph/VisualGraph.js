@@ -250,7 +250,7 @@ export default class VisualGraph extends Component {
     <div
       style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '450px' }}
     >
-      <div>There is no data for the current selections.</div>
+      <p id="sgSignals.graphWatch.graphMessage">There is no data for the current selections</p>
     </div>
   );
 
@@ -259,7 +259,10 @@ export default class VisualGraph extends Component {
     const data = getDataFromResponse(response);
 
     return (
-      <div style={{ padding: '20px', border: '1px solid #D9D9D9', borderRadius: '5px' }}>
+      <div
+        style={{ padding: '20px', border: '1px solid #D9D9D9', borderRadius: '5px' }}
+        id="sgSignals.graphWatch.graph"
+      >
         {!isGraphDataEmpty(data) ? this.renderXYPlot(data) : this.renderEmptyData()}
       </div>
     );

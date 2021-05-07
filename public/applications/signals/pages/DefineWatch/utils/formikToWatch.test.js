@@ -13,81 +13,6 @@ import { WATCH_TYPES, SEVERITY } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
 
 describe('buildSeverity', () => {
-  test('can build severity if it is enabled in JSON watch', () => {
-    const formik = {
-      _ui: {
-        isSeverity: true,
-        isResolveActions: false,
-        severity: {
-          value: [{ label: 'bfield' }],
-          valueString: 'cfield',
-          order: 'ascending',
-          thresholds: {
-            info: '',
-            warning: 200,
-            error: 300,
-            critical: 0,
-          },
-        },
-      },
-      severity: {
-        value: 'afield',
-        mapping: [
-          {
-            threshold: 300,
-            level: SEVERITY.ERROR,
-          },
-        ],
-      },
-      actions: [
-        {
-          name: 'email',
-          severity: [{ label: SEVERITY.INFO }],
-        },
-      ],
-    };
-
-    const watch = {
-      _ui: {
-        isSeverity: true,
-        isResolveActions: false,
-        severity: {
-          value: [{ label: 'bfield' }],
-          valueString: 'cfield',
-          order: 'ascending',
-          thresholds: {
-            info: 0,
-            warning: 200,
-            error: 300,
-            critical: 0,
-          },
-        },
-      },
-      severity: {
-        value: 'cfield',
-        order: 'ascending',
-        mapping: [
-          {
-            threshold: 200,
-            level: SEVERITY.WARNING,
-          },
-          {
-            threshold: 300,
-            level: SEVERITY.ERROR,
-          },
-        ],
-      },
-      actions: [
-        {
-          name: 'email',
-          severity: [SEVERITY.INFO],
-        },
-      ],
-    };
-
-    expect(buildSeverity(formik)).toEqual(watch);
-  });
-
   test('can build severity if it is enabled in GRAPH watch', () => {
     const formik = {
       _ui: {
@@ -495,12 +420,10 @@ describe('buildActions', () => {
     ];
 
     const formik = {
-      _ui: {
-        watchType: 'json',
-      },
+      _ui: {},
       actions: [
         {
-          checks: '[]',
+          checks: [],
           throttle_period: {
             interval: 1,
             unit: 's',
@@ -536,12 +459,10 @@ describe('buildActions', () => {
     ];
 
     const formik = {
-      _ui: {
-        watchType: 'json',
-      },
+      _ui: {},
       actions: [
         {
-          checks: '[]',
+          checks: [],
           throttle_period: {
             interval: 1,
             unit: 's',
@@ -578,12 +499,10 @@ describe('buildActions', () => {
     ];
 
     const formik = {
-      _ui: {
-        watchType: 'json',
-      },
+      _ui: {},
       actions: [
         {
-          checks: '[]',
+          checks: [],
           throttle_period: {
             interval: 1,
             unit: 's',
@@ -620,9 +539,7 @@ describe('buildActions', () => {
     ];
 
     const formik = {
-      _ui: {
-        watchType: 'json',
-      },
+      _ui: {},
       actions: [
         {
           checks: [],
@@ -657,9 +574,7 @@ describe('buildActions', () => {
     ];
 
     const formik = {
-      _ui: {
-        watchType: 'json',
-      },
+      _ui: {},
       actions: [
         {
           throttle_period: {
@@ -669,39 +584,7 @@ describe('buildActions', () => {
           type: ACTION_TYPE.INDEX,
           name: 'myelasticsearch',
           index: [{ label: 'a' }],
-          checks: stringifyPretty([{ a: 1 }]),
-        },
-      ],
-    };
-
-    expect(buildActions(formik)).toEqual({ actions });
-  });
-
-  test('can build index action if JSON error', () => {
-    const actions = [
-      {
-        throttle_period: '1s',
-        type: ACTION_TYPE.INDEX,
-        name: 'myelasticsearch',
-        index: 'a',
-        checks: [],
-      },
-    ];
-
-    const formik = {
-      _ui: {
-        watchType: 'json',
-      },
-      actions: [
-        {
-          throttle_period: {
-            interval: 1,
-            unit: 's',
-          },
-          type: ACTION_TYPE.INDEX,
-          name: 'myelasticsearch',
-          index: [{ label: 'a' }],
-          checks: '[{ "a" }]', // JSON error
+          checks: [{ a: 1 }],
         },
       ],
     };
@@ -711,13 +594,6 @@ describe('buildActions', () => {
 });
 
 describe('buildChecks', () => {
-  test('can build checks for json watch', () => {
-    const watchType = WATCH_TYPES.JSON;
-    const checks = JSON.stringify({ a: 1 });
-
-    expect(buildChecks({ _ui: { watchType }, checks })).toEqual(JSON.parse(checks));
-  });
-
   test('can build checks for blocks watch', () => {
     const formik = {
       _ui: {
@@ -3809,198 +3685,6 @@ describe('formikToWatch', () => {
         last_edit: {
           user: 'admin',
           date: '2019-11-21T12:18:29.624Z',
-        },
-      },
-      log_runtime_data: false,
-      _tenant: 'admin_tenant',
-    };
-
-    expect(formikToWatch(formik)).toEqual(watch);
-  });
-
-  test('formik to watch: watch created by API (Json watch)', () => {
-    const formik = {
-      _id: 'watch_created_by_api',
-      active: true,
-      trigger: {
-        schedule: {
-          timezone: 'Europe/Rome',
-          cron: ['0 0/30 * * * ?'],
-        },
-      },
-      checks:
-        '[\n  {\n    "type": "search",\n    "name": "testsearch",\n    "target": "testsearch",\n    "request": {\n      "indices": [\n        "kibana_sample_data_ecommerce"\n      ],\n      "body": {\n        "from": 0,\n        "size": 10,\n        "query": {\n          "range": {\n            "taxful_total_price": {\n              "gte": 100\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    "type": "condition",\n    "name": "testcondition",\n    "source": "ctx.testsearch.hits.hits.length > 0"\n  }\n]',
-      actions: [
-        {
-          type: 'index',
-          name: 'my_index',
-          throttle_period: {
-            interval: 1,
-            advInterval: '1h30m15s',
-            unit: 'm',
-          },
-          index: [
-            {
-              label: 'testsink',
-            },
-          ],
-          checks: '[]',
-          checksBlocks: [],
-        },
-        {
-          type: 'webhook',
-          name: 'my_webhook',
-          throttle_period: {
-            interval: 1,
-            advInterval: '1h30m15s',
-            unit: 'm',
-          },
-          request: {
-            method: 'POST',
-            url: 'https://hooks.slack.com/services/111/111/111',
-            body:
-              '{"text": "Goods total: {{testsearch.hits.total.value}}", "attachments": [{"title": "First 10 customers", "text": "{{#testsearch.hits.hits}}{{#_source}}_{{customer_full_name}}_, {{email}}, *price: {{taxful_total_price}}*, {{/_source}}{{/testsearch.hits.hits}}"}]}',
-            headers: '{\n  "Content-type": "application/json"\n}',
-          },
-          checks: '[]',
-          checksBlocks: [],
-        },
-      ],
-      _ui: {
-        watchType: 'json',
-        index: [],
-        timeField: '',
-        aggregationType: 'count',
-        fieldName: [],
-        topHitsAgg: {
-          field: [],
-          size: 3,
-          order: 'asc',
-        },
-        overDocuments: 'all documents',
-        bucketValue: 1,
-        bucketUnitOfTime: 'h',
-        thresholdValue: 1000,
-        thresholdEnum: 'ABOVE',
-        checksGraphResult: {},
-        checksResult: '',
-        checksBlocks: [],
-        frequency: 'cron',
-        period: {
-          interval: 1,
-          advInterval: '1h30m15s',
-          unit: 'm',
-        },
-        cron: '0 0/30 * * * ?',
-        daily: 0,
-        weekly: {
-          mon: false,
-          tue: false,
-          wed: false,
-          thu: false,
-          fri: false,
-          sat: false,
-          sun: false,
-        },
-        monthly: {
-          type: 'day',
-          day: 1,
-        },
-        timezone: [
-          {
-            label: 'Europe/Rome',
-          },
-        ],
-      },
-      _meta: {
-        last_edit: {
-          user: 'admin',
-          date: '2019-11-21T12:19:51.532Z',
-        },
-      },
-      log_runtime_data: false,
-      _tenant: 'admin_tenant',
-    };
-
-    const watch = {
-      active: true,
-      trigger: {
-        schedule: {
-          cron: ['0 0/30 * * * ?'],
-          timezone: 'Europe/Rome',
-        },
-      },
-      checks: [
-        {
-          type: 'search',
-          name: 'testsearch',
-          target: 'testsearch',
-          request: {
-            indices: ['kibana_sample_data_ecommerce'],
-            body: {
-              from: 0,
-              size: 10,
-              query: {
-                range: {
-                  taxful_total_price: {
-                    gte: 100,
-                  },
-                },
-              },
-            },
-          },
-        },
-        {
-          type: 'condition',
-          name: 'testcondition',
-          source: 'ctx.testsearch.hits.hits.length > 0',
-        },
-      ],
-      actions: [
-        {
-          checks: [],
-          type: 'index',
-          name: 'my_index',
-          index: 'testsink',
-          throttle_period: '1m',
-        },
-        {
-          checks: [],
-          type: 'webhook',
-          name: 'my_webhook',
-          request: {
-            method: 'POST',
-            url: 'https://hooks.slack.com/services/111/111/111',
-            body:
-              '{"text": "Goods total: {{testsearch.hits.total.value}}", "attachments": [{"title": "First 10 customers", "text": "{{#testsearch.hits.hits}}{{#_source}}_{{customer_full_name}}_, {{email}}, *price: {{taxful_total_price}}*, {{/_source}}{{/testsearch.hits.hits}}"}]}',
-            headers: {
-              'Content-type': 'application/json',
-            },
-          },
-          throttle_period: '1m',
-        },
-      ],
-      _ui: {
-        watchType: 'json',
-        index: [],
-        timeField: '',
-        aggregationType: 'count',
-        fieldName: [],
-        topHitsAgg: {
-          field: [],
-          size: 3,
-          order: 'asc',
-        },
-        overDocuments: 'all documents',
-        bucketValue: 1,
-        bucketUnitOfTime: 'h',
-        thresholdValue: 1000,
-        thresholdEnum: 'ABOVE',
-      },
-      _meta: {
-        last_edit: {
-          user: 'admin',
-          date: '2019-11-21T12:19:51.532Z',
         },
       },
       log_runtime_data: false,

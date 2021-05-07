@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
-import { cloneDeep, isEmpty } from 'lodash';
+import { cloneDeep, isEmpty, get } from 'lodash';
 import { EuiIcon, EuiErrorBoundary } from '@elastic/eui';
 import { ContentPanel, PopoverButton } from '../../../../components';
 import {
@@ -17,10 +17,10 @@ import {
   PagerdutyAction,
 } from '../Actions';
 import { AccountsService } from '../../../../services';
+import { resolveActionText } from '../../../../utils/i18n/watch';
 import { actionText } from '../../../../utils/i18n/common';
 import { ACTION_TYPE } from './utils/constants';
 import * as ACTION_DEFAULTS from './utils/action_defaults';
-
 import { Context } from '../../../../Context';
 
 const newActions = {
@@ -64,6 +64,14 @@ const newActions = {
   },
 };
 
+function actionToResolveAction(action) {
+  const rAction = { ...action };
+  rAction.resolves_severity = [];
+  delete rAction.throttle_period;
+  delete rAction.severity;
+  return rAction;
+}
+
 class ActionPanel extends Component {
   static contextType = Context;
 
@@ -100,10 +108,12 @@ class ActionPanel extends Component {
   };
 
   addAction = (actionType) => {
-    const { arrayHelpers } = this.props;
-    this.triggerAddActionPopover();
+    const { arrayHelpers, isResolveActions } = this.props;
 
-    const newAction = cloneDeep(ACTION_DEFAULTS[actionType] || ACTION_DEFAULTS[ACTION_TYPE.EMAIL]);
+    this.triggerAddActionPopover();
+    let newAction = cloneDeep(ACTION_DEFAULTS[actionType] || ACTION_DEFAULTS[ACTION_TYPE.EMAIL]);
+    if (isResolveActions) newAction = actionToResolveAction(newAction);
+
     arrayHelpers.unshift(newAction);
   };
 
@@ -121,18 +131,19 @@ class ActionPanel extends Component {
   render() {
     const {
       arrayHelpers,
-      formik: {
-        values: { actions },
-      },
+      formik: { values },
+      isResolveActions,
     } = this.props;
 
+    const actions = isResolveActions ? values.resolve_actions : values.actions;
+    const titleText = isResolveActions ? resolveActionText : actionText;
     const hasActions = !isEmpty(actions);
     const { isAddActionPopoverOpen, isLoading, accounts } = this.state;
 
     const addActionContextMenuPanels = [
       {
         id: 0,
-        title: 'Accounts',
+        title: 'Actions',
         items: [
           {
             name: 'Email',
@@ -150,11 +161,6 @@ class ActionPanel extends Component {
             onClick: () => this.addAction(ACTION_TYPE.WEBHOOK),
           },
           {
-            name: 'Elasticsearch',
-            icon: <EuiIcon type="database" size="m" />,
-            onClick: () => this.addAction(ACTION_TYPE.INDEX),
-          },
-          {
             name: 'Jira',
             icon: <EuiIcon type="empty" size="m" />,
             onClick: () => this.addAction(ACTION_TYPE.JIRA),
@@ -163,6 +169,11 @@ class ActionPanel extends Component {
             name: 'PagerDuty',
             icon: <EuiIcon type="empty" size="m" />,
             onClick: () => this.addAction(ACTION_TYPE.PAGERDUTY),
+          },
+          {
+            name: 'Elasticsearch',
+            icon: <EuiIcon type="database" size="m" />,
+            onClick: () => this.addAction(ACTION_TYPE.INDEX),
           },
         ],
       },
@@ -178,7 +189,14 @@ class ActionPanel extends Component {
             key={index}
             id={index.toString(2)}
             actionHeader={<Header actionName={action.name} {...headerProps} />}
-            actionBody={<Body index={index} accounts={accounts} />}
+            actionBody={
+              <Body
+                isResolveActions={isResolveActions}
+                index={index}
+                accounts={accounts}
+                arrayHelpers={arrayHelpers}
+              />
+            }
             deleteButton={
               <DeleteActionButton
                 name={action.name}
@@ -191,9 +209,12 @@ class ActionPanel extends Component {
 
     return (
       <ContentPanel
-        title={actionText}
+        title={titleText}
         titleSize="s"
         bodyStyles={{ padding: 'initial', paddingLeft: '10px' }}
+        panelDivProps={{
+          id: isResolveActions ? 'sg.signals.actions.resolve' : 'sg.signals.actions',
+        }}
         actions={
           <PopoverButton
             isPopoverOpen={isAddActionPopoverOpen}
@@ -216,6 +237,7 @@ ActionPanel.propTypes = {
   isLoading: PropTypes.bool,
   arrayHelpers: PropTypes.object.isRequired,
   formik: PropTypes.object.isRequired,
+  isResolveActions: PropTypes.bool,
 };
 
 export default connectFormik(ActionPanel);

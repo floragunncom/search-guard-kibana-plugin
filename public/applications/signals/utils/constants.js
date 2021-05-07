@@ -16,12 +16,24 @@ export const APP_PATH = {
   ACCOUNTS: '/accounts',
   ACCOUNT: '/account',
   DEFINE_ACCOUNT: '/define-account',
+  DEFINE_JSON_ACCOUNT: '/define-json-account',
   DASHBOARD: '/dashboard',
   WATCHES: '/watches',
   WATCH: '/watch',
   DEFINE_WATCH: '/define-watch',
+  DEFINE_JSON_WATCH: '/define-json-watch',
   ALERTS: '/alerts',
   ALERT: '/alert'
+};
+
+export const ACCOUNT_ACTIONS = {
+  READ_ACCOUNT: 'read-account',
+  DEFINE_JSON_ACCOUNT: 'define-json-account',
+};
+
+export const WATCH_ACTIONS = {
+  READ_WATCH: 'read-watch',
+  DEFINE_JSON_WATCH: 'define-json-watch',
 };
 
 export const SEARCH_TYPE = {
@@ -30,6 +42,7 @@ export const SEARCH_TYPE = {
 };
 
 export const DOC_LINKS = {
+  GET_STARTED: 'https://docs.search-guard.com/latest/elasticsearch-alerting-getting-started',
   REPO: 'https://git.floragunn.com/search-guard/search-guard-kibana-plugin',
   INPUTS: {
     STATIC: 'https://docs.search-guard.com/latest/elasticsearch-alerting-inputs-static',

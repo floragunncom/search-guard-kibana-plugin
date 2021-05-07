@@ -32,15 +32,16 @@ const PopoverButton = ({
   return (
     <EuiErrorBoundary>
       <EuiPopover
+        data-test-subj="sg.popover"
         id="notFormikContextMenu"
         button={button}
         isOpen={isPopoverOpen}
         panelPaddingSize="none"
-        withTitle
         anchorPosition="upLeft"
         closePopover={onClick}
       >
         <EuiContextMenu
+          data-test-subj="sg.contextMenu"
           initialPanelId={0}
           panels={contextMenuPanels}
         />
@@ -65,10 +66,10 @@ PopoverButton.propTypes = {
   isPopoverOpen: PropTypes.bool.isRequired,
   contextMenuPanels: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.number.isRequired,
-    title: PropTypes.string.isRequired,
+    title: PropTypes.string,
     items: PropTypes.arrayOf(PropTypes.shape({
       name: PropTypes.string.isRequired,
-      icon: PropTypes.node.isRequired,
+      icon: PropTypes.node,
       onClick: PropTypes.func.isRequired
     }).isRequired).isRequired
   }).isRequired).isRequired,

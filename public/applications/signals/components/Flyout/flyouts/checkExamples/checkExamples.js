@@ -32,9 +32,10 @@ export const TabContent = ({ examples, tabName, onAdd }) => {
   const createNavItem = (name, data = {}) => ({
     ...data,
     id: name,
+    'data-test-subj': name,
     name: startCase(name),
     isSelected: selectedItemName === name,
-    onClick: () => setSelectedItemName(name)
+    onClick: () => setSelectedItemName(name),
   });
 
   const handleOnAdd = (body, type) => {
@@ -91,6 +92,7 @@ export const TabContent = ({ examples, tabName, onAdd }) => {
       <EuiFlexGroup>
         <EuiFlexItem grow={false}>
           <EuiSideNav
+            data-test-subj="sg.sideNav"
             mobileTitle="Navigate examples"
             toggleOpenOnMobile={toggleOpenOnMobile}
             isOpenOnMobile={isSideNavOpenOnMobile}

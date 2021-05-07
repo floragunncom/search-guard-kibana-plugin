@@ -16,8 +16,10 @@ import {
 import Alerts from '../Alerts';
 import Watches from '../Watches';
 import DefineWatch from '../DefineWatch';
+import { DefineJsonWatch } from '../DefineJsonWatch';
 import Accounts from '../Accounts';
 import DefineAccount from '../DefineAccount';
+import { DefineJsonAccount } from '../DefineJsonAccount';
 import { Breadcrumbs } from '../../components';
 import getBreadcrumb from './utils/getBreadcrumb';
 import { APP_PATH, APP_NAME } from '../../utils/constants';
@@ -126,6 +128,10 @@ class Main extends Component {
                   path={APP_PATH.DEFINE_WATCH}
                   render={(props) => <DefineWatch {...props} />}
                 />
+                <Route
+                  path={APP_PATH.DEFINE_JSON_WATCH}
+                  render={(props) => <DefineJsonWatch {...props} />}
+                />
                 <Route path={APP_PATH.ALERTS} render={(props) => <Alerts {...props} />} />
                 <Route
                   exact
@@ -151,6 +157,10 @@ class Main extends Component {
                 <Route
                   path={APP_PATH.DEFINE_ACCOUNT}
                   render={(props) => <DefineAccount {...props} />}
+                />
+                <Route
+                  path={APP_PATH.DEFINE_JSON_ACCOUNT}
+                  render={(props) => <DefineJsonAccount {...props} />}
                 />
                 <Redirect to={APP_PATH.WATCHES} />
               </Switch>
