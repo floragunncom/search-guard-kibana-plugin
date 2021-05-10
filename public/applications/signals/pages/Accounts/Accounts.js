@@ -98,7 +98,7 @@ class Accounts extends Component {
     this.setState({ isLoading: false });
   };
 
-  handleCloneAccount = async account => {
+  handleCloneAccount = async (account) => {
     this.setState({ isLoading: true, error: null });
     try {
       const { _id: id, ...rest } = account;
@@ -132,7 +132,7 @@ class Accounts extends Component {
             </p>
           );
         })
-        .catch(error => {
+        .catch((error) => {
           console.error('Accounts -- deleteAccounts', error);
           this.context.addErrorToast(error);
           this.setState({ error });
@@ -165,12 +165,12 @@ class Accounts extends Component {
   };
 
   triggerAddAccountPopover = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       isAddAccountPopoverOpen: !prevState.isAddAccountPopoverOpen,
     }));
   };
 
-  addAccount = accountType => {
+  addAccount = (accountType) => {
     this.triggerAddAccountPopover();
     this.props.history.push(`${APP_PATH.DEFINE_ACCOUNT}?accountType=${accountType}`);
   };
@@ -224,12 +224,12 @@ class Accounts extends Component {
 
     const actions = [
       {
-        render: account => (
+        render: (account) => (
           <TableCloneAction name={account._id} onClick={() => this.handleCloneAccount(account)} />
         ),
       },
       {
-        render: account => (
+        render: (account) => (
           <TableDeleteAction
             name={account._id}
             onClick={() => this.handleDeleteAccounts([account])}
@@ -268,8 +268,8 @@ class Accounts extends Component {
     ];
 
     const selection = {
-      selectable: doc => doc._id,
-      onSelectionChange: tableSelection => this.setState({ tableSelection }),
+      selectable: (doc) => doc._id,
+      onSelectionChange: (tableSelection) => this.setState({ tableSelection }),
     };
 
     const sorting = {
