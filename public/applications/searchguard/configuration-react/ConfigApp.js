@@ -66,7 +66,7 @@ export class ConfigApp {
 
     if (!isConfigEnabled) {
       this.appUpdater.next(() => ({
-        navLinkStatus: AppNavLinkStatus.disabled,
+        navLinkStatus: AppNavLinkStatus.hidden,
         tooltip: 'Configuration disabled',
       }));
     }

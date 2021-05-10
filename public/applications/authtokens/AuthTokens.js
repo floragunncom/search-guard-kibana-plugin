@@ -56,7 +56,7 @@ export class AuthTokens {
 
         if (!isEnabled) {
           this.appUpdater.next(() => ({
-            navLinkStatus: AppNavLinkStatus.disabled,
+            navLinkStatus: AppNavLinkStatus.hidden,
             tooltip: 'Auth Tokens disabled',
           }));
         }
