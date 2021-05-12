@@ -64,10 +64,7 @@ class DefineAccount extends Component {
   };
 
   onCancel = () => {
-    const { history } = this.props;
-
-    if (this.state.isEdit) history.goBack();
-    history.push(APP_PATH.ACCOUNTS);
+    this.props.history.push(APP_PATH.ACCOUNTS);
   };
 
   onSubmit = async (values, { setSubmitting }) => {

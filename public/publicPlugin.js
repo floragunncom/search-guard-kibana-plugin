@@ -59,6 +59,7 @@ export class PublicPlugin {
     });
 
     this.signalsApp.setupSync({ core, httpClient: this.httpClient });
+    this.signalsApp.setup({ httpClient: this.httpClient });
   }
 
   start(core) {
