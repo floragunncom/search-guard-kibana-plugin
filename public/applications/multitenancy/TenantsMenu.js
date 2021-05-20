@@ -179,6 +179,11 @@ export function tenantsToUiTenants({
     });
   }
 
+  // We need to put this dummy option as the first option because if we don't do it
+  // and the EuiSelectable scroll is present (it is present if there are more than 7 options),
+  // the first option is checked only after the second click.
+  uiTenants.unshift({ label: 'Tenants', isGroupLabel: true });
+
   return uiTenants;
 }
 
@@ -294,9 +299,7 @@ export function TenantsMenu() {
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [tenants, setTenants] = useState([]);
-  const { index: tenantIndex, tenant } = findSelectedTenant(tenants);
-  const [selectedTenant, setSelectedTenant] = useState(tenant);
-  const [activeOptionIndex, setActiveOptionIndex] = useState(tenantIndex);
+  const [selectedTenant, setSelectedTenant] = useState(findSelectedTenant(tenants));
 
   useEffect(() => {
     fetchData();
@@ -329,9 +332,7 @@ export function TenantsMenu() {
 
       setTenants(uiTenants);
 
-      const { index, tenant } = findSelectedTenant(uiTenants);
-      setActiveOptionIndex(index);
-      setSelectedTenant(tenant);
+      setSelectedTenant(findSelectedTenant(uiTenants));
     } catch (error) {
       console.error('TenantsMenu, fetchData', error);
       addErrorToast(error);
@@ -393,8 +394,7 @@ export function TenantsMenu() {
   }
 
   function findSelectedTenant(tenants) {
-    const index = tenants.findIndex((t) => t.checked === 'on');
-    return { index, tenant: tenants[index] };
+    return tenants.filter((t) => t.checked === 'on')[0];
   }
 
   function onMenuButtonClick() {
@@ -407,11 +407,10 @@ export function TenantsMenu() {
   }
 
   function onChange(tenants) {
-    const { index, tenant } = findSelectedTenant(tenants);
+    const tenant = findSelectedTenant(tenants);
 
     setTenants(tenants);
     setSelectedTenant(tenant);
-    setActiveOptionIndex(index);
     setIsOpen(false);
     applyTenant(tenant);
   }
@@ -461,7 +460,6 @@ export function TenantsMenu() {
         listProps={{
           rowHeight: 40,
           showIcons: false,
-          activeOptionIndex,
         }}
         data-test-subj="sg.tenantsMenu.selectable"
       >
