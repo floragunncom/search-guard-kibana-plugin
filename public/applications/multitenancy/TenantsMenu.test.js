@@ -54,6 +54,10 @@ describe('tenantsToUiTenants', () => {
 
     const uiTenants = [
       {
+        label: 'Tenants',
+        isGroupLabel: true,
+      },
+      {
         'aria-label': 'Global',
         searchableLabel: 'Global',
         label: 'Global',
@@ -129,6 +133,10 @@ describe('tenantsToUiTenants', () => {
 
     const uiTenants = [
       {
+        label: 'Tenants',
+        isGroupLabel: true,
+      },
+      {
         'aria-label': 'Private',
         searchableLabel: 'Private',
         label: 'Private',
@@ -193,6 +201,10 @@ describe('tenantsToUiTenants', () => {
     const isDashboardOnlyRole = false;
 
     const uiTenants = [
+      {
+        label: 'Tenants',
+        isGroupLabel: true,
+      },
       {
         'aria-label': 'Global',
         searchableLabel: 'Global',
@@ -259,6 +271,10 @@ describe('tenantsToUiTenants', () => {
 
     const uiTenants = [
       {
+        label: 'Tenants',
+        isGroupLabel: true,
+      },
+      {
         'aria-label': 'Global',
         searchableLabel: 'Global',
         label: 'Global',
@@ -322,6 +338,10 @@ describe('tenantsToUiTenants', () => {
     const isDashboardOnlyRole = false;
 
     const uiTenants = [
+      {
+        label: 'Tenants',
+        isGroupLabel: true,
+      },
       {
         'aria-label': 'Global',
         searchableLabel: 'Global',
