@@ -49,7 +49,7 @@ export class SearchGuard {
         configService,
       });
 
-      redirectOnSessionTimeout(configService.get('searchguard.auth.type'), core.http);
+      redirectOnSessionTimeout({ coreHttp: core.http, configService });
     } catch (error) {
       console.error(error);
       throw error;

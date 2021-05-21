@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-export function redirectOnSessionTimeout(authType, coreHttp) {
+export function redirectOnSessionTimeout({ coreHttp, configService }) {
+  const authType = configService.get('searchguard.auth.type');
+
+  if (!authType) {
+    return;
+  }
+
   if (!authType) {
     return;
   }
@@ -54,7 +60,14 @@ export function redirectOnSessionTimeout(authType, coreHttp) {
       }
 
       const href = window.location.href;
-      const nextUrl = href.replace(window.location.origin, '');
+      const newUrl = new URL(href);
+      try {
+        newUrl.searchParams.set('sg_tenant', configService.get('authinfo.user_requested_tenant'));
+      } catch (error) {
+        console.debug('Could not add tenant to nextUrl', error);
+      }
+
+      const nextUrl = newUrl.toString().replace(window.location.origin, '');
 
       try {
         // URLSearchParams should be safe now that IE11 support is dropped
