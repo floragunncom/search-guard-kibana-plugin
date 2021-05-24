@@ -464,7 +464,7 @@ describe(AuthClass.name, () => {
     await authInstance.checkAuth(cloneDeep(request), response, toolkit);
 
     expect(sessionStorageFactory.asScoped).toHaveBeenCalledWith(request);
-    expect(sessionStorageFactoryGet).toHaveBeenCalledTimes(1);
+    expect(sessionStorageFactoryGet).toHaveBeenCalledTimes(2);
     expect(authenticateWithHeader).toHaveBeenCalledWith(
       authHeaderName,
       request.headers.authorization,
@@ -633,7 +633,7 @@ describe(AuthClass.name, () => {
 
     expect(kibanaCore.http.registerOnPreResponse).toHaveBeenCalledTimes(1);
     expect(sessionStorageFactory.asScoped).toHaveBeenCalledWith(request);
-    expect(sessionStorageFactoryGet).toHaveBeenCalledTimes(1);
+    expect(sessionStorageFactoryGet).toHaveBeenCalledTimes(2);
     expect(authenticateWithHeader).toHaveBeenCalledWith(
       authHeaderName,
       request.headers.authorization,
