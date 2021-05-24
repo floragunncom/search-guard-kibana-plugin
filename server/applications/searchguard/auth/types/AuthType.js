@@ -576,7 +576,7 @@ export default class AuthType {
    * @returns {*}
    * @private
    */
-  _handleAuthResponse(request, credentials, authResponse, additionalAuthHeaders = {}) {
+  async _handleAuthResponse(request, credentials, authResponse, additionalAuthHeaders = {}) {
     // Make sure the user has a tenant that they can use
     if (
       this.validateAvailableTenants &&
@@ -612,6 +612,9 @@ export default class AuthType {
     if (Object.keys(additionalAuthHeaders).length) {
       authResponse.session.additionalAuthHeaders = additionalAuthHeaders;
     }
+
+    const cookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+    authResponse.session = { ...cookie, ...authResponse.session };
 
     this.sessionStorageFactory.asScoped(request).set(authResponse.session);
 
