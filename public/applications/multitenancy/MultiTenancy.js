@@ -26,11 +26,7 @@ export class MultiTenancy {
     const isMTEnabled = configService.get('searchguard.multitenancy.enabled');
     if (!isMTEnabled) return;
 
-    const doAttachTenantNameToCopyShareURL =
-      configService.get('searchguard.multitenancy.enabled') &&
-      configService.get('authinfo.user_requested_tenant');
-
-    if (doAttachTenantNameToCopyShareURL) shareButtonEventListener();
+    shareButtonEventListener();
 
     const chromeHelper = new ChromeHelper();
     chromeHelper.start(core.chrome);
