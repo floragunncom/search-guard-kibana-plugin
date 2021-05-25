@@ -408,6 +408,8 @@ export function TenantsMenu() {
 
   function onChange(tenants) {
     const { index, tenant } = findSelectedTenant(tenants);
+
+    setTenants(tenants);
     setSelectedTenant(tenant);
     setActiveOptionIndex(index);
     setIsOpen(false);
