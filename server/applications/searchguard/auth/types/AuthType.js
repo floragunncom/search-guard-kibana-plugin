@@ -574,20 +574,30 @@ export default class AuthType {
   }
 
   async logout({context = null, request, response}) {
-    await this.clear(request);
-    return response.ok();
+    await this.clear(request, true);
+    return response.ok({
+      body: { redirectURL: this.basePath + '/login?type=' + this.type + 'Logout' },
+    });
   }
 
 
   /**
    * Remove the credentials from the session cookie
+   * @param request
+   * @param explicitlyRemoveAuthType
+   * @returns {Promise<*>}
    */
-  async clear(request) {
+  async clear(request, explicitlyRemoveAuthType = false) {
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
     // @todo Consider refactoring anything auth related into an "auth" property.
     delete sessionCookie.credentials;
     delete sessionCookie.username;
-    //delete sessionCookie.authType;
+    // @todo Does this makes sense? It so that we get back to the
+    // login page after logging out from e.g. OIDC
+    if (explicitlyRemoveAuthType) {
+      delete sessionCookie.authType;
+    }
+
     delete sessionCookie.additionalAuthHeaders;
     delete sessionCookie.isAnonymousAuth;
 

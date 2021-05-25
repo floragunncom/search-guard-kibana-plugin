@@ -202,10 +202,12 @@ export default class BasicAuth extends AuthType {
       redirectTo = this.basePath + '/customerror';
     }
 
+    // @todo
     if (this.anonymousAuthEnabled) {
       redirectTo = `${this.basePath}${APP_ROOT}/auth/anonymous`;
     }
 
+    // @todo
     if (this.loadBalancerURL) {
       redirectTo = `${this.loadBalancerURL}${this.basePath}${APP_ROOT}/login`;
     }

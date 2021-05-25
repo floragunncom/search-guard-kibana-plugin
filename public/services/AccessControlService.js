@@ -17,6 +17,8 @@ export class AccessControlService {
         return;
       }
 
+      //@todo Try to make all of the following code obsolete, in favor
+      //of passing a redirectURL when logging out from the backend
       if (this.authType && ['openid', 'saml'].indexOf(this.authType) > -1) {
         if (response.data.redirectURL) {
           window.location.href = response.data.redirectURL;

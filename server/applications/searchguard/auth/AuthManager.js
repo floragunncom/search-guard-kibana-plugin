@@ -88,6 +88,27 @@ export class AuthManager {
       return authInstanceByRequest.checkAuth(request, response, toolkit);
     }
 
+    // Check for ajax requests
+    // @todo Share this function with the authInstance?
+    if (request.headers) {
+      // If the session has expired, we may receive ajax requests that can't handle a 302 redirect.
+      // In this case, we trigger a 401 and let the interceptor handle the redirect on the client side.
+      if (
+        (request.headers.accept &&
+          request.headers.accept.split(',').indexOf('application/json') > -1) ||
+        (request.headers['content-type'] &&
+          request.headers['content-type'].indexOf('application/json') > -1)
+      ) {
+
+        return response.unauthorized({
+          headers: {
+            sg_redirectTo: '/login',
+          },
+          body: { message: 'Session expired' },
+        });
+      }
+    }
+
     return response.redirected({
       headers: {
         location: `/login`,

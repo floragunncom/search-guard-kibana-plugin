@@ -65,6 +65,7 @@ export function listAuthTypesHandler({ authManager }) {
     // @todo The registered authInstances are most likely not the best source for this.
     // @todo We may have multiple OIDCs, and also the authtype is probably not the best
     // title
+    // @todo Use the backend auth config for this
     const authTypes = Object.keys(authManager.authInstances).map((authInstanceName) => {
       const authInstance = authManager.authInstances[authInstanceName];
       return {

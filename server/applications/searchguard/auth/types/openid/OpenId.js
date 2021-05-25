@@ -174,7 +174,7 @@ export default class OpenId extends AuthType {
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
 
     // Clear the cookie credentials
-    await this.clear(request);
+    await this.clear(request, true);
 
     const requestQueryParameters = `?post_logout_redirect_uri=${baseRedirectUrl}${basePath}/app/home`;
 

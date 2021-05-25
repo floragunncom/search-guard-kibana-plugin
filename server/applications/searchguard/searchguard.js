@@ -105,10 +105,34 @@ export class SearchGuard {
       const authType = this.configService.get('searchguard.auth.type', null);
       let AuthClass = null;
       let authInstance = null;
+
       const authManager = new AuthManager({
         configService: this.configService,
         sessionStorageFactory,
       });
+
+      // Get the available configs. Or maybe the authManager will do this
+      const authConfig = await this.searchGuardBackend.getAuthConfig();
+
+
+      console.log(authConfig)
+      /*
+                  // @todo Dummy pending correct auth response
+                  const authMethodConfig = authConfig.auth_methods.filter(
+                    (config) => config.method === 'basic'
+                  )[0];
+
+                  // @todo This mapping will probably go away
+                  const AUTH_METHODS = {
+                    basic: 'basicauth',
+                  };
+
+                  console.log('AuthMethodConfig', {
+                    authConfig,
+                    authMethodConfig
+                  })
+
+                   */
 
       // @todo These routes should go somewhere else
       defineAuthRoutes({kibanaCore: core, authManager});
