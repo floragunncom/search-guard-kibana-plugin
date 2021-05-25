@@ -120,7 +120,8 @@ export default function (kibana) {
                     base_redirect_url: Joi.string().allow('').default(''),
                     logout_url: Joi.string().allow('').default(''),
                     root_ca: Joi.string().allow('').default(''),
-                    verify_hostnames: Joi.boolean().default(true)
+                    verify_hostnames: Joi.boolean().default(true),
+                    refresh_flow_enabled: Joi.boolean().default(false),
                 }).default().when('auth.type', {
                     is: 'openid',
                     then: Joi.object({
