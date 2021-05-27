@@ -17,7 +17,7 @@
 import { schema } from '@kbn/config-schema';
 import { ServerPlugin } from './serverPlugin';
 import { version as sgVersion } from '../package.json';
-import { DEFAULT_CONFIG } from './applications/searchguard/read_kibana_config';
+import { DEFAULT_CONFIG } from './default_config';
 
 const {
   searchguard: {
@@ -92,7 +92,7 @@ export const ConfigSchema = schema.object({
       minLength: 32,
       defaultValue: cookieDefaults.password,
     }),
-    ttl: schema.number({ defaultValue: cookieDefaults.ttl }),
+    ttl: schema.nullable(schema.number({ defaultValue: cookieDefaults.ttl })),
     domain: schema.maybe(schema.string()),
     isSameSite: schema.oneOf(
       [
@@ -199,19 +199,83 @@ export const ConfigSchema = schema.object({
         defaultValue: multitenancyDefaults.saved_objects_migration.poll_interval,
       }),
       skip: schema.boolean({ defaultValue: multitenancyDefaults.saved_objects_migration.skip }),
+      enableV2: schema.boolean({
+        defaultValue: multitenancyDefaults.saved_objects_migration.enableV2,
+      }),
     }),
   }),
-  saved_objects: schema.object({
-    max_import_payload_bytes: schema.number({
-      defaultValue: searchguardDefaults.saved_objects.max_import_payload_bytes,
-    }),
-    max_import_export_size: schema.number({
-      defaultValue: searchguardDefaults.saved_objects.max_import_export_size,
-    }),
-  }),
-
   configuration: schema.object({
     enabled: schema.boolean({ defaultValue: searchguardDefaults.configuration.enabled }),
+    action_groups_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.action_groups_page.enabled,
+      }),
+    }),
+    create_action_groups_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.create_action_groups_page.enabled,
+      }),
+    }),
+    internal_users_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.internal_users_page.enabled,
+      }),
+    }),
+    create_internal_users_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.create_internal_users_page.enabled,
+      }),
+    }),
+    roles_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.roles_page.enabled,
+      }),
+    }),
+    create_roles_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.create_roles_page.enabled,
+      }),
+    }),
+    role_mappings_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.role_mappings_page.enabled,
+      }),
+    }),
+    create_role_mappings_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.create_role_mappings_page.enabled,
+      }),
+    }),
+    tenants_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.tenants_page.enabled,
+      }),
+    }),
+    create_tenants_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.create_tenants_page.enabled,
+      }),
+    }),
+    system_status_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.system_status_page.enabled,
+      }),
+    }),
+    license_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.license_page.enabled,
+      }),
+    }),
+    cache_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.cache_page.enabled,
+      }),
+    }),
+    auth_page: schema.object({
+      enabled: schema.boolean({
+        defaultValue: searchguardDefaults.configuration.auth_page.enabled,
+      }),
+    }),
   }),
 
   accountinfo: schema.object({

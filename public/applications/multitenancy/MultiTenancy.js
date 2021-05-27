@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 floragunn GmbH
+ *    Copyright 2021 floragunn GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,87 +14,43 @@
  * limitations under the License.
  */
 
-import { BehaviorSubject } from 'rxjs';
-import { AppNavLinkStatus } from '../../../../../src/core/public';
-import { addTenantToShareURL } from './addTenantToShareURL';
-import { SEARCHGUARD_APP_CATEGORY } from '../../utils/constants';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { shareButtonEventListener } from './addTenantToShareURL';
+import { ChromeHelper } from '../../services';
+import { MainContextProvider } from './contexts/MainContextProvider';
+import { TenantsMenu } from './TenantsMenu';
 
 export class MultiTenancy {
-  constructor(coreContext) {
-    this.coreContext = coreContext;
-    this.appUpdater = new BehaviorSubject(() => ({}));
-  }
+  start({ core, httpClient, configService } = {}) {
+    const isMTEnabled = configService.get('searchguard.multitenancy.enabled');
+    if (!isMTEnabled) return;
 
-  mount({ configService, httpClient, chromeHelper }) {
-    return async (params) => {
-      const [{ renderApp }] = await Promise.all([import('./npstart'), configService.init()]);
+    const doAttachTenantNameToCopyShareURL =
+      configService.get('searchguard.multitenancy.enabled') &&
+      configService.get('authinfo.user_requested_tenant');
 
-      if (configService.get('searchguard.multitenancy.enabled')) {
-        return renderApp({
-          element: params.element,
-          configService,
-          httpClient,
-          chromeHelper,
-        });
-      }
-    };
-  }
+    if (doAttachTenantNameToCopyShareURL) shareButtonEventListener();
 
-  setupSync({ core, plugins, httpClient, configService, chromeHelper }) {
-    try {
-      core.application.register({
-        id: 'searchguard-multitenancy',
-        title: 'Multitenancy',
-        category: SEARCHGUARD_APP_CATEGORY,
-        updater$: this.appUpdater,
-        mount: this.mount({ core, configService, httpClient, chromeHelper }),
-      });
+    const chromeHelper = new ChromeHelper();
+    chromeHelper.start(core.chrome);
 
-      if (plugins.home) {
-        plugins.home.featureCatalogue.register({
-          id: 'searchguard-multitenancy',
-          title: 'Search Guard Multi Tenancy',
-          description: 'Separate searches, visualizations and dashboards by tenants.',
-          icon: 'usersRolesApp',
-          path: '/app/searchguard-multitenancy',
-          showOnHomePage: true,
-          category: 'data',
-        });
-      }
-
-      this.setup({ configService });
-    } catch (error) {
-      console.error(`Multitenancy: ${error.toString()} ${error.stack}`);
-    }
-  }
-
-  async setup({ configService }) {
-    try {
-      await configService.init();
-
-      // @todo Better check for login/customerror page
-      const doAttachTenantNameToDashboardShareURL =
-        configService.get('searchguard.multitenancy.enabled') &&
-        configService.get('authinfo.user_requested_tenant');
-
-      if (doAttachTenantNameToDashboardShareURL) {
-        addTenantToShareURL();
-      }
-    } catch (error) {
-      console.error(`Multitenancy: ${error.toString()} ${error.stack}`);
-    }
-  }
-
-  start({ configService }) {
-    try {
-      if (!configService.get('searchguard.multitenancy.enabled')) {
-        this.appUpdater.next(() => ({
-          navLinkStatus: AppNavLinkStatus.disabled,
-          tooltip: 'Multitenancy disabled',
-        }));
-      }
-    } catch (error) {
-      console.error(`Multitenancy: ${error.toString()} ${error.stack}`);
-    }
+    core.chrome.navControls.registerLeft({
+      order: 5000,
+      mount: (element) => {
+        ReactDOM.render(
+          <MainContextProvider
+            httpClient={httpClient}
+            configService={configService}
+            chromeHelper={chromeHelper}
+            kibanaApplication={core.application}
+          >
+            <TenantsMenu />
+          </MainContextProvider>,
+          element
+        );
+        return () => ReactDOM.unmountComponentAtNode(element);
+      },
+    });
   }
 }

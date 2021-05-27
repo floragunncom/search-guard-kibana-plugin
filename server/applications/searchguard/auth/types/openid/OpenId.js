@@ -30,8 +30,8 @@ export default class OpenId extends AuthType {
     config,
     logger,
     sessionStorageFactory,
-    elasticsearch,
     pluginDependencies,
+    spacesService,
     authManager,
   }) {
     super({
@@ -40,8 +40,8 @@ export default class OpenId extends AuthType {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
+      spacesService,
       authManager
     });
 

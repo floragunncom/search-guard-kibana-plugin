@@ -40,7 +40,6 @@ export const getIndices = ({ clusterClient, logger }) => async (context, request
     const {
       body: { aggregations: { indices: { buckets = [] } = {} } = {} } = {},
     } = await clusterClient.asScoped(request).asCurrentUser.search(options);
-    console.log('buckets', JSON.stringify(buckets, null, 2));
 
     return response.ok({
       body: {

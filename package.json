@@ -1,12 +1,11 @@
 {
   "name": "searchguard",
-  "version": "7.11.2-master-SNAPSHOT",
+  "version": "7.12.1-master-SNAPSHOT",
   "description": "Search Guard features for Kibana",
   "homepage": "https://search-guard.com",
   "license": "Apache-2.0",
   "searchguard": {
-    "test_sg_version": "7.10.2-master-SNAPSHOT",
-    "kibana_branch": "7.11"
+    "test_sg_version": "7.12.1-master-SNAPSHOT"
   },
   "repository": {
     "type": "git",
@@ -23,11 +22,16 @@
   },
   "dependencies": {
     "brace": "0.11.1",
+    "chalk": "^4.1.0",
+    "clear": "^0.1.0",
     "cryptiles": "4.x.x",
     "dompurify": "^2.2.6",
+    "figlet": "^1.5.0",
     "formik": "^2.1.7",
+    "inquirer": "^7.3.3",
     "raw-loader": "^3.1.0",
     "react-vis": "^1.8.1",
+    "selfsigned": "^1.10.8",
     "wreck": "14.x.x"
   },
   "devDependencies": {

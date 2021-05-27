@@ -28,8 +28,8 @@ export default class Saml extends AuthType {
     config,
     logger,
     sessionStorageFactory,
-    elasticsearch,
     pluginDependencies,
+    spacesService,
   }) {
     super({
       searchGuardBackend,
@@ -37,8 +37,8 @@ export default class Saml extends AuthType {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
+      spacesService,
     });
 
     /**

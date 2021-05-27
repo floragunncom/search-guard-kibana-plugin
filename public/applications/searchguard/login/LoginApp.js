@@ -12,7 +12,12 @@ export class LoginApp {
   mount({ core, configService, httpClient }) {
     return async (params) => {
 
-      const [{ renderApp }, {data: authTypes} ] = await Promise.all([import('./npstart'), httpClient.get(`${API_ROOT}/auth/types`), configService.init()]);
+      const [{ renderApp }, {data: authTypes}] = await Promise.all([
+        import('./npstart'),
+        httpClient.get(`${API_ROOT}/auth/types`),
+        configService.fetchConfig(),
+      ]);
+
       const authType = configService.get('searchguard.auth.type');
 
       if (authType === 'basicauth') {

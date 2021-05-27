@@ -30,8 +30,8 @@ export default class BasicAuth extends AuthType {
     config,
     logger,
     sessionStorageFactory,
-    elasticsearch,
     pluginDependencies,
+    spacesService,
     authManager,
   }) {
     super({
@@ -40,8 +40,8 @@ export default class BasicAuth extends AuthType {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
+      spacesService,
       authManager
     });
 
@@ -107,6 +107,7 @@ export default class BasicAuth extends AuthType {
           // Most likely, the current user's password was changed, leading to the 401.
           await this.clear(request);
           if (request.response.output && request.response.output.headers) {
+            delete request.response.output.headers['www-authenticate'];
             delete request.response.output.headers['WWW-Authenticate'];
             delete request.response.wwwAuthenticateDirective;
           }

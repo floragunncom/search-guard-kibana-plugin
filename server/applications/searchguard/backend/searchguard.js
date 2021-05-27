@@ -15,7 +15,6 @@
  */
 
 import _ from 'lodash';
-import filterAuthHeaders from '../auth/filter_auth_headers';
 import AuthenticationError from '../auth/errors/authentication_error';
 import User from '../auth/user';
 
@@ -23,22 +22,19 @@ import User from '../auth/user';
  * The SearchGuard  backend.
  */
 export default class SearchGuardBackend {
-  constructor({ configService, getElasticsearch }) {
-    this.getElasticsearch = getElasticsearch;
-    this.configService = configService;
-    this.requestHeadersWhitelist = this.configService.get('elasticsearch.requestHeadersWhitelist');
+  constructor({ elasticsearch }) {
+    this.elasticsearch = elasticsearch;
   }
 
-  async _client({ headers = {}, asWho = 'asCurrentUser', ...options }) {
-    const elasticsearch = await this.getElasticsearch();
-    const { body } = await elasticsearch.client
+  _client = async ({ headers = {}, asWho = 'asCurrentUser', ...options }) => {
+    const { body } = await this.elasticsearch.client
       .asScoped({ headers })
       [asWho].transport.request(options);
 
     return body;
   }
 
-  async getAuthConfig() {
+  getAuthConfig = async () => {
     // @todo For some reason, the call below breaks things, so we just hardcode here for now
     return {
       auth_methods: [
@@ -71,7 +67,7 @@ export default class SearchGuardBackend {
     }
   }
 
-  async authenticate(credentials) {
+  authenticate = async (credentials) => {
     const authHeader = Buffer.from(`${credentials.username}:${credentials.password}`).toString(
       'base64'
     );
@@ -101,14 +97,13 @@ export default class SearchGuardBackend {
     }
   }
 
-  async authenticateWithHeader(headerName, headerValue, additionalAuthHeaders = {}) {
+  authenticateWithHeader = async (headerName, headerValue, additionalAuthHeaders = {}) => {
     try {
       const credentials = {
         headerName: headerName,
         headerValue: headerValue,
       };
-
-      const headers = filterAuthHeaders(additionalAuthHeaders, this.requestHeadersWhitelist);
+      const headers = { ...additionalAuthHeaders };
 
       // For anonymous auth, we wouldn't have any value here
       if (headerValue) {
@@ -143,9 +138,9 @@ export default class SearchGuardBackend {
    * @param credentials
    * @returns {Promise<User>}
    */
-  async authenticateWithHeaders(headers, credentials = {}, additionalAuthHeaders = {}) {
+  authenticateWithHeaders = async (headers, credentials = {}, additionalAuthHeaders = {}) => {
     headers = {
-      ...filterAuthHeaders(additionalAuthHeaders, this.requestHeadersWhitelist),
+      ...additionalAuthHeaders,
       ...headers,
     };
 
@@ -185,13 +180,12 @@ export default class SearchGuardBackend {
     );
   }
 
-  async authinfo(headers) {
+  authinfo = async (headers) => {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       return await this._client({
         path: '/_searchguard/authinfo',
         method: 'get',
-        headers: authHeaders,
+        headers,
       });
     } catch (error) {
       if (error.statusCode === 401) {
@@ -201,7 +195,7 @@ export default class SearchGuardBackend {
     }
   }
 
-  async getOIDCWellKnown() {
+  getOIDCWellKnown = async () => {
     try {
       return await this._client({
         path: '/_searchguard/auth_domain/_first/openid/config',
@@ -221,7 +215,7 @@ export default class SearchGuardBackend {
    * @param body
    * @returns {Promise<*>}
    */
-  async getOIDCToken({ tokenEndpoint, body }) {
+  getOIDCToken = async ({ tokenEndpoint, body }) => {
     try {
       return await this._client({
         path: tokenEndpoint,
@@ -236,7 +230,7 @@ export default class SearchGuardBackend {
     }
   }
 
-  async getSamlHeader() {
+  getSamlHeader = async () => {
     try {
       return await this._client({
         path: '/_searchguard/authinfo',
@@ -269,7 +263,7 @@ export default class SearchGuardBackend {
    * @param acsEndpoint
    * @returns {Promise<Promise<*>|*>}
    */
-  async authtoken(RequestId, SAMLResponse, acsEndpoint = null) {
+  authtoken = async (RequestId, SAMLResponse, acsEndpoint = null) => {
     const body = {
       RequestId,
       SAMLResponse,
@@ -290,7 +284,7 @@ export default class SearchGuardBackend {
     }
   }
 
-  async getKibanaInfoWithInternalUser() {
+  getKibanaInfoWithInternalUser = async () => {
     try {
       return await this._client({
         path: '/_searchguard/kibanainfo',
@@ -311,13 +305,12 @@ export default class SearchGuardBackend {
    * @param permissions
    * @returns {Promise<*>}
    */
-  async hasPermissions(headers, permissions) {
+  hasPermissions = async (headers, permissions) => {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       return await this._client({
         path: '/_searchguard/permission',
         method: 'get',
-        headers: authHeaders,
+        headers,
         querystring: { permissions },
       });
     } catch (error) {
@@ -328,13 +321,12 @@ export default class SearchGuardBackend {
     }
   }
 
-  async multitenancyinfo(headers) {
+  multitenancyinfo = async (headers) => {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       return await this._client({
         path: '/_searchguard/kibanainfo',
         method: 'get',
-        headers: authHeaders,
+        headers,
       });
     } catch (error) {
       if (error.statusCode === 401) {
@@ -344,13 +336,12 @@ export default class SearchGuardBackend {
     }
   }
 
-  async systeminfo(headers) {
+  systeminfo = async (headers) => {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       return await this._client({
         path: '/_searchguard/license',
         method: 'get',
-        headers: authHeaders,
+        headers,
       });
     } catch (error) {
       if (error.statusCode === 401) {
@@ -360,7 +351,7 @@ export default class SearchGuardBackend {
     }
   }
 
-  async getTenantInfoWithInternalUser() {
+  getTenantInfoWithInternalUser = async () => {
     try {
       return await this._client({
         path: '/_searchguard/tenantinfo',
@@ -375,13 +366,12 @@ export default class SearchGuardBackend {
     }
   }
 
-  async getTenantInfo(headers) {
+  getTenantInfo = async (headers) => {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       return await this._client({
         path: '/_searchguard/tenantinfo',
         method: 'get',
-        headers: authHeaders,
+        headers,
       });
     } catch (error) {
       if (error.statusCode === 401) {
@@ -391,13 +381,12 @@ export default class SearchGuardBackend {
     }
   }
 
-  async uploadLicense(headers, body) {
+  uploadLicense = async (headers, body) => {
     try {
-      const authHeaders = filterAuthHeaders(headers, this.requestHeadersWhitelist);
       return await this._client({
         path: '/_searchguard/api/license',
         method: 'put',
-        headers: authHeaders,
+        headers,
         body,
       });
     } catch (error) {
@@ -413,7 +402,7 @@ export default class SearchGuardBackend {
    * @param user
    * @returns {Promise<{authorization: string}>}
    */
-  async getAuthHeaders(user) {
+  getAuthHeaders = async (user) => {
     const credentials = user.credentials;
     const authHeader = Buffer.from(`${credentials.username}:${credentials.password}`).toString(
       'base64'
@@ -434,13 +423,6 @@ export default class SearchGuardBackend {
     const credentials = { username: username, password: password };
     const user = new User(credentials.username, credentials, credentials, [], {});
     return user;
-  }
-
-  getServerUser() {
-    return this.getUser(
-      this.configService.get('elasticsearch.username'),
-      this.configService.get('elasticsearch.password')
-    );
   }
 
   updateAndGetTenantPreferences(request, user, tenant) {

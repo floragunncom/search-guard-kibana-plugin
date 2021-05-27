@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 floragunn GmbH
+ *    Copyright 2021 floragunn GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,19 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 import queryString from 'query-string';
-import { EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
+import {
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiSpacer,
+  EuiModal,
+  EuiModalBody,
+  EuiModalFooter,
+  EuiModalHeader,
+  EuiModalHeaderTitle,
+  EuiCodeBlock,
+  EuiButton,
+  EuiText,
+} from '@elastic/eui';
 import {
   FormikCodeEditor,
   ContentPanel,
@@ -36,8 +48,10 @@ import {
   requestedPermissionsText,
   expiresAfterText,
   authTokenText,
+  tokenConfirmModalText,
+  copyTokenText,
 } from '../../utils/i18n/auth_tokens';
-import { nameText, advancedText } from '../../utils/i18n/common';
+import { nameText, advancedText, closeText } from '../../utils/i18n/common';
 import {
   hasError,
   isInvalid,
@@ -168,11 +182,42 @@ Permissions.propTypes = {
   isReadOnly: PropTypes.bool.isRequired,
 };
 
+function TokenConfirmModal({ token, onClose }) {
+  if (!token) return null;
+
+  return (
+    <EuiModal onClose={onClose} data-test-subj="sgModal">
+      <EuiModalHeader>
+        <EuiModalHeaderTitle>
+          <h1>{copyTokenText}</h1>
+        </EuiModalHeaderTitle>
+      </EuiModalHeader>
+
+      <EuiModalBody data-test-subj="sgModal.body">
+        <EuiText>
+          <p>{tokenConfirmModalText}</p>
+        </EuiText>
+        <EuiSpacer />
+        <EuiCodeBlock language="html" isCopyable style={{ wordWrap: 'break-word' }}>
+          {token}
+        </EuiCodeBlock>
+      </EuiModalBody>
+
+      <EuiModalFooter>
+        <EuiButton onClick={onClose} fill data-test-subj="sgModal.footer.close">
+          {closeText}
+        </EuiButton>
+      </EuiModalFooter>
+    </EuiModal>
+  );
+}
+
 export function CreateAuthToken({ history, location }) {
   const { triggerErrorCallout, httpClient } = useContext(Context);
 
   const [resource, setResource] = useState(tokenToFormik());
   const [isLoading, setIsLoading] = useState(false);
+  const [token, setToken] = useState(null);
 
   const service = new AuthTokensService(httpClient);
   const { id, action } = queryString.parse(location.search);
@@ -209,13 +254,14 @@ export function CreateAuthToken({ history, location }) {
     setIsLoading(true);
 
     try {
-      const res = formikToToken(values);
-      console.debug('CreateAuthToken, onSubmit, res', res);
+      let res = formikToToken(values);
+      console.debug('CreateAuthToken, onSubmit, values', res);
 
-      await service.save(res);
-      history.push(APP_PATH.AUTH_TOKENS);
+      res = await service.save(res);
+      setToken(res.token);
     } catch (error) {
       console.error('CreateAuthToken, onSubmit', error);
+      setToken(null);
       triggerErrorCallout(error);
     }
 
@@ -243,19 +289,22 @@ export function CreateAuthToken({ history, location }) {
     >
       {({ values, handleSubmit, isSubmitting }) => {
         return (
-          <ContentPanel
-            title={contentPanelTitleText}
-            isLoading={isLoading}
-            actions={getContentPanelAction({ isSubmitting, handleSubmit })}
-          >
-            <Name />
-            <EuiSpacer size="m" />
+          <>
+            <ContentPanel
+              title={contentPanelTitleText}
+              isLoading={isLoading}
+              actions={getContentPanelAction({ isSubmitting, handleSubmit })}
+            >
+              <Name />
+              <EuiSpacer size="m" />
 
-            <ExpiresAfter />
-            <EuiSpacer size="m" />
+              <ExpiresAfter />
+              <EuiSpacer size="m" />
 
-            <Permissions values={values} isReadOnly={isReadOnly} />
-          </ContentPanel>
+              <Permissions values={values} isReadOnly={isReadOnly} />
+            </ContentPanel>
+            <TokenConfirmModal token={token} onClose={() => history.push(APP_PATH.AUTH_TOKENS)} />
+          </>
         );
       }}
     </Formik>

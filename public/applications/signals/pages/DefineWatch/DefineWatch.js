@@ -70,11 +70,7 @@ class DefineWatch extends Component {
   };
 
   onCancel = () => {
-    const { history } = this.props;
-    if (this.state.isEdit) {
-      history.goBack();
-    }
-    history.push(APP_PATH.WATCHES);
+    this.props.history.push(APP_PATH.WATCHES);
   };
 
   onSubmit = async (values, { setSubmitting, setFieldError }) => {
@@ -120,6 +116,7 @@ class DefineWatch extends Component {
       const mustCancelSubmit =
         shouldSetAggregationField || shouldSetSeverityField || shouldSetTopHitsField;
       if (mustCancelSubmit) {
+        console.debug('DefineWatch, this.onSubmit, mustCancelSubmit');
         setSubmitting(false);
         return;
       }

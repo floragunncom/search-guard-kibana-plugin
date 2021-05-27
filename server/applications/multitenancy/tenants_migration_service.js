@@ -16,74 +16,84 @@
  */
 
 import { migrationRetryCallCluster } from '../../../../../src/core/server/elasticsearch/client';
-import { createMigrationEsClient } from '../../../../../src/core/server/saved_objects/migrations/core';
 import { KibanaMigrator } from '../../../../../src/core/server/saved_objects/migrations';
 
 import { defineMigrateRoutes } from './routes';
 
+function setupMigratorDependencies({
+  configService,
+  esClient,
+  savedObjects,
+  kibanaVersion,
+  logger,
+}) {
+  const savedObjectsMigrationConfig = configService.get(
+    'searchguard.multitenancy.saved_objects_migration'
+  );
+
+  const savedObjectsConfig = {
+    batchSize: savedObjectsMigrationConfig.batch_size,
+    scrollDuration: savedObjectsMigrationConfig.scroll_duration,
+    pollInterval: savedObjectsMigrationConfig.poll_interval,
+    skip: savedObjectsMigrationConfig.skip,
+    enableV2: savedObjectsMigrationConfig.enableV2,
+  };
+
+  const typeRegistry = savedObjects.getTypeRegistry();
+  const kibanaConfig = configService.get('kibana');
+
+  const migratorDeps = {
+    client: esClient.asInternalUser,
+    kibanaConfig,
+    typeRegistry,
+    logger,
+    kibanaVersion,
+    savedObjectsConfig,
+    savedObjectValidations: {}, // Kibana NP doesn't have this yet.
+  };
+
+  return { savedObjectsConfig, typeRegistry, kibanaConfig, migratorDeps };
+}
+
 export class TenantsMigrationService {
   constructor(coreContext) {
     this.coreContext = coreContext;
+    this.kibanaVersion = this.coreContext.env.packageInfo.version;
     this.logger = coreContext.logger.get('tenants-migration-service');
   }
 
-  setupSync({ configService }) {
-    this.logger.debug('Setup tenants saved objects migration');
-    this.configService = configService;
+  async setup({ configService, savedObjects, esClient, kibanaRouter, searchGuardBackend }) {
+    const { migratorDeps } = setupMigratorDependencies({
+      configService,
+      esClient,
+      savedObjects,
+      kibanaVersion: this.kibanaVersion,
+      logger: this.logger,
+    });
 
-    try {
-      const savedObjectsConfig = this.configService.get('searchguard.saved_objects');
-      const savedObjectsMigrationConfig = this.configService.get(
-        'searchguard.multitenancy.saved_objects_migration'
-      );
-
-      this.config = {
-        maxImportPayloadBytes: savedObjectsConfig.max_import_payload_bytes,
-        maxImportExportSize: savedObjectsConfig.max_import_export_size,
-        migration: {
-          batchSize: savedObjectsMigrationConfig.batch_size,
-          scrollDuration: savedObjectsMigrationConfig.scroll_duration,
-          pollInterval: savedObjectsMigrationConfig.poll_interval,
-          skip: savedObjectsMigrationConfig.skip,
-        },
-      };
-    } catch (error) {
-      throw error;
-    }
+    defineMigrateRoutes({
+      KibanaMigrator,
+      migratorDeps,
+      kibanaRouter,
+      searchGuardBackend,
+    });
   }
 
-  async start({ savedObjects, searchGuardBackend, esClient, kibanaRouter }) {
+  async start({ searchGuardBackend, esClient, configService, savedObjects }) {
     this.logger.debug('Start tenants saved objects migration');
 
     try {
-      const didSetupSyncRun = this.config && this.configService;
-      if (!didSetupSyncRun) {
-        throw new Error('You must run setupSync first!');
-      }
+      const { savedObjectsConfig, migratorDeps, kibanaConfig } = setupMigratorDependencies({
+        configService,
+        esClient,
+        savedObjects,
+        kibanaVersion: this.kibanaVersion,
+        logger: this.logger,
+      });
 
       const tenantIndices = await searchGuardBackend.getTenantInfoWithInternalUser();
       this.tenantIndices =
         !tenantIndices || typeof tenantIndices !== 'object' ? [] : Object.keys(tenantIndices);
-
-      const typeRegistry = savedObjects.getTypeRegistry();
-      const kibanaConfig = this.configService.get('kibana');
-
-      const migratorDeps = {
-        client: createMigrationEsClient(esClient.asInternalUser, this.logger),
-        kibanaConfig,
-        typeRegistry,
-        logger: this.logger,
-        kibanaVersion: this.coreContext.env.packageInfo.version,
-        savedObjectsConfig: this.config.migration,
-        savedObjectValidations: {}, // Kibana NP doesn't have this yet.
-      };
-
-      defineMigrateRoutes({
-        KibanaMigrator,
-        migratorDeps,
-        kibanaRouter,
-        searchGuardBackend,
-      });
 
       const migrator = new KibanaMigrator(migratorDeps);
 
@@ -95,9 +105,9 @@ export class TenantsMigrationService {
         mappings: migrator.getActiveMappings(),
       });
 
-      const isMigrationNeeded = this.config.migration.skip || !!this.tenantIndices.length;
+      const isMigrationNeeded = savedObjectsConfig.skip || !!this.tenantIndices.length;
       if (!isMigrationNeeded) {
-        if (this.config.migration.skip) {
+        if (savedObjectsConfig.skip) {
           this.logger.info('You configured to skip tenants saved objects migration.');
         } else {
           this.logger.info(
@@ -117,10 +127,13 @@ export class TenantsMigrationService {
           // We execute the index migration sequentially because Elasticsearch doesn't keep up
           // with parallel migration for a large number of indices (tenants).
           // https://git.floragunn.com/search-guard/search-guard-kibana-plugin/-/issues/315
-          response = await new KibanaMigrator({
+          const kibanaMigrator = new KibanaMigrator({
             ...migratorDeps,
             kibanaConfig: { ...kibanaConfig, index: this.tenantIndices[i] },
-          }).runMigrations();
+          });
+
+          kibanaMigrator.prepareMigrations();
+          await kibanaMigrator.runMigrations();
 
           this.logger.info(`Fulfilled migration for index ${this.tenantIndices[i]}.`);
           this.logger.debug(`Migration result:\n${JSON.stringify(response, null, 2)}`);

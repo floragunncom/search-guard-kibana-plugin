@@ -56,7 +56,7 @@ export function defineSystemRoutes({ searchGuardBackend, logger, kibanaCore }) {
       path: `${API_ROOT}/systeminfo`,
       validate: false,
       options: {
-        authRequired: true,
+        authRequired: false,
       },
     },
     systemInfoHandler({ searchGuardBackend, logger })

@@ -29,12 +29,6 @@ import {
   getCookieExpiryTimeMS,
 } from '../../../../../utils/mocks';
 
-jest.mock('../../../../../../../../src/core/server/http/router', () => jest.fn());
-
-function setupElasticsearchMock() {
-  return jest.fn();
-}
-
 const authType = 'basicauth';
 const authHeaderName = 'authorization';
 
@@ -44,7 +38,6 @@ describe(AuthClass.name, () => {
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
     const sessionStorageFactory = setupSessionStorageFactoryMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
     const config = setupConfigMock({
@@ -61,7 +54,6 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
@@ -106,7 +98,6 @@ describe(AuthClass.name, () => {
 
     const logger = setupLoggerMock();
     const sessionStorageFactory = setupSessionStorageFactoryMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
     const authInstance = new AuthClass({
@@ -115,7 +106,6 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
@@ -135,11 +125,10 @@ describe(AuthClass.name, () => {
     expect(toolkit.authenticated).toHaveBeenCalledWith({ requestHeaders: request.headers });
   });
 
-  test('handle unauthenticated request', async () => {
+  test('redirect to the login page if unauthenticated request', async () => {
     const searchGuardBackend = setupSearchGuardBackendMock();
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
     const config = setupConfigMock({
@@ -162,12 +151,12 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
     const request = {
       headers: { a: 1 },
+      route: { path: '' },
       url: {
         pathname: '/api/v1/searchguard/kibana_config',
       },
@@ -191,7 +180,6 @@ describe(AuthClass.name, () => {
     const searchGuardBackend = setupSearchGuardBackendMock();
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
     const sessionTTL = 3600000;
@@ -227,7 +215,6 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
@@ -267,7 +254,6 @@ describe(AuthClass.name, () => {
     const searchGuardBackend = setupSearchGuardBackendMock();
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
     const config = setupConfigMock({
@@ -301,7 +287,6 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
@@ -338,7 +323,6 @@ describe(AuthClass.name, () => {
     const searchGuardBackend = setupSearchGuardBackendMock();
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
     const config = setupConfigMock({
@@ -372,7 +356,6 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
@@ -413,7 +396,6 @@ describe(AuthClass.name, () => {
   test('handle authenticated request if credentials are only in headers', async () => {
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
     const user = {
@@ -461,7 +443,6 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
@@ -507,7 +488,6 @@ describe(AuthClass.name, () => {
   test('handle unauthenticated request (asynchronous)', async () => {
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
     const response = setupHttpResponseMock();
     const toolkit = setupHttpToolkitMock();
@@ -551,7 +531,6 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
@@ -560,6 +539,9 @@ describe(AuthClass.name, () => {
         cookie: 'searchguard_authentication=Fe26.2**925d29ddcc3aba',
         accept: 'applicatiom/json',
         'content-type': ['application/json'],
+      },
+      route: {
+        path: '/api/v1/searchguard/kibana_config',
       },
       url: {
         pathname: '/api/v1/searchguard/kibana_config',
@@ -584,7 +566,6 @@ describe(AuthClass.name, () => {
   test('handle request that has auth header credentials different from the cookie credentials', async () => {
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
-    const elasticsearch = setupElasticsearchMock();
     const pluginDependencies = setupPluginDependenciesMock();
 
     const sessionTTL = 3600000;
@@ -631,7 +612,6 @@ describe(AuthClass.name, () => {
       config,
       logger,
       sessionStorageFactory,
-      elasticsearch,
       pluginDependencies,
     });
 
@@ -677,7 +657,6 @@ describe(AuthClass.name, () => {
   describe('handle additional headers validation', () => {
     let kibanaCore;
     let logger;
-    let elasticsearch;
     let pluginDependencies;
     let response;
     let toolkit;
@@ -690,7 +669,6 @@ describe(AuthClass.name, () => {
     beforeEach(() => {
       kibanaCore = setupKibanaCoreMock();
       logger = setupLoggerMock();
-      elasticsearch = setupElasticsearchMock();
       pluginDependencies = setupPluginDependenciesMock();
       response = setupHttpResponseMock();
       toolkit = setupHttpToolkitMock();
@@ -741,7 +719,6 @@ describe(AuthClass.name, () => {
         config,
         logger,
         sessionStorageFactory,
-        elasticsearch,
         pluginDependencies,
       });
 
@@ -796,7 +773,6 @@ describe(AuthClass.name, () => {
         config,
         logger,
         sessionStorageFactory,
-        elasticsearch,
         pluginDependencies,
       });
 
@@ -824,6 +800,136 @@ describe(AuthClass.name, () => {
           location: '/abc/login?nextUrl=%2Fabc%2Fapi%2Fv1%2Fsearchguard%2Fkibana_config',
         },
       });
+    });
+  });
+
+  describe('handle the Kibana capabilities', () => {
+    let searchGuardBackend;
+    let kibanaCore;
+    let logger;
+    let pluginDependencies;
+    let response;
+    let toolkit;
+    let config;
+    let sessionStorageFactory;
+
+    beforeEach(() => {
+      searchGuardBackend = setupSearchGuardBackendMock();
+      kibanaCore = setupKibanaCoreMock();
+      logger = setupLoggerMock();
+      pluginDependencies = setupPluginDependenciesMock();
+      response = setupHttpResponseMock();
+      toolkit = setupHttpToolkitMock();
+      config = setupConfigMock({
+        get: jest.fn((path) => {
+          if (path === 'searchguard.auth.unauthenticated_routes') {
+            return [];
+          }
+        }),
+      });
+      sessionStorageFactory = setupSessionStorageFactoryMock({
+        asScoped: jest.fn(() => ({
+          get: jest.fn(() => null),
+        })),
+      });
+    });
+
+    test('if Kibana requests capabilities without authorization, redirect the call to our route to serve the default capabilities', async () => {
+      const authInstance = new AuthClass({
+        searchGuardBackend,
+        kibanaCore,
+        config,
+        logger,
+        sessionStorageFactory,
+        pluginDependencies,
+      });
+
+      const request = {
+        headers: {}, // no authorization
+        route: { path: '/api/core/capabilities' },
+      };
+
+      const resp = await authInstance.onPostAuth(cloneDeep(request), response, toolkit);
+      expect(resp).toEqual({
+        options: {
+          headers: {
+            location: '/abc/api/v1/searchguard/kibana_capabilities',
+          },
+        },
+        payload: undefined, // The payload is passed together with the redirect despite of the undefined here
+        status: 307,
+      });
+    });
+
+    test('do not redirect if the request contains authorization', async () => {
+      const sessionCookie = {
+        username: 'admin',
+        credentials: { authHeaderValue: 'Basic YWRtaW46YWRtaW4=' },
+        authType,
+        isAnonymousAuth: false,
+        expiryTime: getCookieExpiryTimeMS(1),
+        additionalAuthHeaders: null,
+      };
+
+      const sessionStorageFactoryGet = jest.fn(() => cloneDeep(sessionCookie));
+      const sessionStorageFactorySet = jest.fn();
+      const sessionStorageFactory = setupSessionStorageFactoryMock({
+        asScoped: jest.fn(() => ({
+          get: sessionStorageFactoryGet,
+          set: sessionStorageFactorySet,
+        })),
+      });
+
+      const request = {
+        headers: {
+          cookie: 'searchguard_authentication=Fe26.2**925d29ddcc3aba',
+          authorization: 'Basic YWRtaW46YWRtaW4=',
+        },
+        route: { path: '/api/core/capabilities' },
+      };
+
+      toolkit = setupHttpToolkitMock({ next: jest.fn(() => 'next') });
+
+      const authInstance = new AuthClass({
+        searchGuardBackend,
+        kibanaCore,
+        config,
+        logger,
+        sessionStorageFactory,
+        pluginDependencies,
+      });
+
+      const resp = await authInstance.onPostAuth(cloneDeep(request), response, toolkit);
+
+      expect(toolkit.next).toHaveBeenCalledTimes(1);
+      expect(resp).toBe('next');
+    });
+
+    test('do not redirect if sg_anonymous', async () => {
+      toolkit = setupHttpToolkitMock({ next: jest.fn(() => 'next') });
+
+      const sessionStorageFactoryGet = jest.fn().mockResolvedValue({ isAnonymousAuth: true });
+      const sessionStorageAsScoped = jest.fn(() => ({ get: sessionStorageFactoryGet }));
+      sessionStorageFactory = setupSessionStorageFactoryMock({ asScoped: sessionStorageAsScoped });
+
+      const authInstance = new AuthClass({
+        searchGuardBackend,
+        kibanaCore,
+        config,
+        logger,
+        sessionStorageFactory,
+        pluginDependencies,
+      });
+
+      const request = {
+        headers: {},
+        route: { path: '/api/core/capabilities' },
+      };
+
+      const resp = await authInstance.onPostAuth(cloneDeep(request), response, toolkit);
+      expect(sessionStorageAsScoped).toHaveBeenCalledWith(request);
+      expect(toolkit.next).toHaveBeenCalledTimes(1);
+      expect(resp).toBe('next');
     });
   });
 });

@@ -32,7 +32,12 @@ export function extendSecurityCookieOptions(options) {
   Statehood.prepareValue = function (name, value, origOptions) {
     if (name === options.name) {
       origOptions.domain = domain;
-      origOptions.ttl = ttl;
+      // Converting 0 to null for backward compatibility.
+      // Statehood handles 0 "correctly" and sets the ttl to 0ms as opposed to
+      // hapi-auth-cookie, which for 0 sets the ttl to browser session.
+      // However, setting ttl to 0 milliseconds would render the cookie invalid immediately
+      // https://github.com/hapijs/cookie/blob/v9.0.0/lib/index.js#L110
+      origOptions.ttl = ttl === 0 ? null : ttl;
     }
 
     return origPrepareValue(name, value, origOptions);

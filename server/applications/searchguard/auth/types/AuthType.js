@@ -15,12 +15,16 @@
  limitations under the License.
  */
 
+import { assign } from 'lodash';
+
+import { KibanaResponse } from '../../../../../../../src/core/server/http/router/response';
+import { ensureRawRequest } from '../../../../../../../src/core/server/http/router';
+
 import InvalidSessionError from '../errors/invalid_session_error';
 import SessionExpiredError from '../errors/session_expired_error';
 import filterAuthHeaders from '../filter_auth_headers';
 import MissingTenantError from '../errors/missing_tenant_error';
 import MissingRoleError from '../errors/missing_role_error';
-import {OIDC_ROUTES} from "./openid/routes";
 
 export default class AuthType {
   constructor({
@@ -29,17 +33,17 @@ export default class AuthType {
     config,
     logger,
     sessionStorageFactory,
-    elasticsearch,
     pluginDependencies,
-    authManager
+    spacesService,
+    authManager,
   }) {
     this.searchGuardBackend = searchGuardBackend;
     this.config = config;
     this.kibanaCore = kibanaCore;
     this.logger = logger;
     this.sessionStorageFactory = sessionStorageFactory;
-    this.elasticsearch = elasticsearch;
     this.pluginDependencies = pluginDependencies;
+    this.spacesService = spacesService;
     this.authManager = authManager;
 
     this.basePath = kibanaCore.http.basePath.get();
@@ -54,16 +58,14 @@ export default class AuthType {
     this.routesToIgnore = [
       '/login',
       '/customerror',
-      '/api/core/capabilities',
       '/bootstrap.js',
       '/bundles/app/core/bootstrap.js',
       '/bundles/app/searchguard-customerror/bootstrap.js',
+      '/api/core/capabilities',
     ];
 
     this.sessionTTL = this.config.get('searchguard.session.ttl');
     this.sessionKeepAlive = this.config.get('searchguard.session.keepalive');
-
-    this.unauthenticatedRoutes.push('/api/v1/systeminfo');
 
     /**
      * The authType is saved in the auth cookie for later reference
@@ -246,6 +248,35 @@ export default class AuthType {
     return sessionCookie;
   }
 
+  onPostAuth = async (request, response, toolkit) => {
+    if (request.route.path === '/api/core/capabilities') {
+      const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+      if (sessionCookie.isAnonymousAuth) return toolkit.next();
+
+      const authHeaders = await this.getAllAuthHeaders(request);
+      if (authHeaders === false) {
+        /*
+        We need this redirect because Kibana calls the capabilities on our login page. The Kibana checks if there is the default space in the Kibana index.
+        The problem is that the Kibana call is scoped to the current request. And the current request doesn't contain any credentials in the headers because the user hasn't been authenticated yet.
+        As a result, the call fails with 401, and the user sees the Kibana error page instead of our login page.
+        We flank this issue by redirecting the Kibana call to our route /api/v1/searchguard/kibana_capabilities where we serve some
+        minimum amount of capabilities. We expect that Kibana fetches the capabilities again once the user logged in.
+        */
+        // The payload is passed together with the redirect despite of the undefined here
+        return new KibanaResponse(307, undefined, {
+          headers: { location: this.basePath + '/api/v1/searchguard/kibana_capabilities' },
+        });
+      } else {
+        // Update the request with auth headers in order to allow Kibana to check the default space.
+        // Kibana page breaks if Kibana can't check the default space.
+        const rawRequest = ensureRawRequest(request);
+        assign(rawRequest.headers, authHeaders);
+      }
+    }
+
+    return toolkit.next();
+  };
+
   checkAuth = async (request, response, toolkit) => {
     if (this.routesToIgnore.includes(request.url.pathname)) {
       // @todo This should probable be toolkit.authenticated(), but that threw an error.
@@ -274,12 +305,17 @@ export default class AuthType {
 
     if (sessionCookie.credentials) {
       const authHeaders = await this.getAllAuthHeaders(request, sessionCookie);
-      if (!authHeaders) {
+      if (!authHeaders && !sessionCookie.isAnonymousAuth) {
         this.logger.error(
           `An error occurred while computing auth headers, clearing session: No headers found in the session cookie`
         );
         await this.clear(request);
         return this._handleUnAuthenticated(request, response, toolkit);
+      }
+
+      const isMtEnabled = this.config.get('searchguard.multitenancy.enabled');
+      if (!isMtEnabled && this.pluginDependencies.spaces) {
+        await this.spacesService.createDefaultSpace({ request: { headers: authHeaders } });
       }
 
       return toolkit.authenticated({
