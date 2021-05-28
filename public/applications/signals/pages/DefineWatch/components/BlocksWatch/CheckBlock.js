@@ -142,6 +142,7 @@ export function CheckBlock({
           content: executeBlocksAboveAndThisBlockText,
         }}
         buttonProps={{
+          'data-test-subj': 'execute-cascade',
           'aria-label': 'execute-cascade',
           iconType: 'play',
           onClick: () => onExecuteBlock(0, index),
@@ -159,6 +160,7 @@ export function CheckBlock({
           content: executeOnlyThisBlockText,
         }}
         buttonProps={{
+          'data-test-subj': 'execute',
           'aria-label': 'execute',
           iconType: 'bullseye',
           onClick: () => onExecuteBlock(index),
@@ -175,6 +177,7 @@ export function CheckBlock({
           title: deleteText,
         }}
         buttonProps={{
+          'data-test-subj': 'delete',
           'aria-label': 'delete',
           iconType: 'trash',
           color: 'danger',
@@ -207,6 +210,9 @@ export function CheckBlock({
           <EuiAccordion
             id={`${sgBlocksWatchId}-accordion-${index}`}
             buttonContent={shorterCheckName(checkBlock.name)}
+            buttonProps={{
+              'data-test-subj': `${sgBlocksWatchId}-accordion-${index}-button`,
+            }}
             extraAction={renderExtraAction()}
             paddingSize="l"
           >

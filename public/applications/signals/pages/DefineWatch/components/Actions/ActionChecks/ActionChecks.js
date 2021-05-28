@@ -4,14 +4,13 @@ import PropTypes from 'prop-types';
 import { connect as connectFormik } from 'formik';
 import { get, cloneDeep } from 'lodash';
 import { EuiButton } from '@elastic/eui';
-import JsonWatch from '../../JsonWatch';
 import { useCheckTemplates, useWatchChecks } from '../../../hooks';
+import JsonWatch from '../../JsonWatch';
 import { ContentPanel } from '../../../../../components';
 import { BlocksWatch } from '../../BlocksWatch';
 import { FLYOUTS } from '../../../../../utils/constants';
 import { WATCH_TYPES } from '../../../utils/constants';
 import { addText, pleaseFillOutAllRequiredFieldsText } from '../../../../../utils/i18n/common';
-import { executeText } from '../../../../../utils/i18n/watch';
 
 import { Context } from '../../../../../Context';
 
@@ -31,7 +30,7 @@ const ActionChecks = ({
     checksPath,
   });
 
-  const { isResultVisible, closeResult, executeWatch, editorResult, isLoading } = useWatchChecks({
+  const { isResultVisible, closeResult, executeWatch, editorResult } = useWatchChecks({
     setFieldValue,
   });
 
@@ -99,29 +98,32 @@ const ActionChecks = ({
     // </EuiButton>,
   ];
 
-  // The graph watch doesn't have checks in actions.
-  return (
-    <ContentPanel actions={actions} isPanel={false}>
-      {watchType === WATCH_TYPES.BLOCKS ? (
-        <>
-          <BlocksWatch
-            checksBlocksPath={checksPath}
-            isResultVisible={isResultVisible}
-            editorResult={editorResult}
-            onCloseResult={closeResult}
-            onOpenChecksTemplatesFlyout={handleAddTemplate}
-          />
-        </>
-      ) : (
+  if (watchType === WATCH_TYPES.BLOCKS) {
+    return (
+      <ContentPanel actions={actions} isPanel={false}>
+        <BlocksWatch
+          checksBlocksPath={checksPath}
+          isResultVisible={isResultVisible}
+          editorResult={editorResult}
+          onCloseResult={closeResult}
+          onOpenChecksTemplatesFlyout={handleAddTemplate}
+        />
+      </ContentPanel>
+    );
+  } else if (watchType === WATCH_TYPES.GRAPH) {
+    return (
+      <ContentPanel actions={actions} isPanel={false}>
         <JsonWatch
           checksPath={checksPath}
           isResultVisible={isResultVisible}
           editorResult={editorResult}
           onCloseResult={closeResult}
         />
-      )}
-    </ContentPanel>
-  );
+      </ContentPanel>
+    );
+  } else {
+    return null;
+  }
 };
 
 ActionChecks.propTypes = {

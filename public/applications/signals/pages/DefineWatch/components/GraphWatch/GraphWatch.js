@@ -61,10 +61,22 @@ function renderGraphMessage(message) {
       <div
         style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '450px' }}
       >
-        <div id="graph-message">{message}</div>
+        <p id="sgSignals.graphWatch.graphMessage">{message}</p>
       </div>
     </div>
   );
+}
+
+function formikToGraphRequestWatch({ values, request }) {
+  const watch = formikToWatch(values);
+  watch.checks = [request];
+
+  // We don't need severity and actions to fetch the graph data
+  delete watch.severity;
+  watch.actions = [];
+  watch.resolve_actions = [];
+
+  return watch;
 }
 
 export async function runQuery({ values, watchService }) {
@@ -73,9 +85,10 @@ export async function runQuery({ values, watchService }) {
     console.debug('GraphWatch, runQuery, searchRequests', searchRequests);
 
     const searchRequestPromises = searchRequests.map((request) => {
-      const watch = { ...formikToWatch(values), checks: [request], actions: [] };
-      delete watch.severity; // Avoid annoying error toasts while setting the graph expressions.
-      return watchService.execute({ watch, skipActions: true });
+      return watchService.execute({
+        watch: formikToGraphRequestWatch({ values, request }),
+        skipActions: true,
+      });
     });
 
     const [graphResult, result] = await Promise.all(searchRequestPromises).then(
@@ -302,7 +315,9 @@ export class GraphWatch extends Component {
         <WatchTimeField dataTypes={dataTypes} />
 
         <EuiSpacer />
-        <div style={{ paddingTop: '10px' }}>{content}</div>
+        <div style={{ paddingTop: '10px' }} id="sgSignals.graphWatch.content">
+          {content}
+        </div>
       </Fragment>
     );
   }

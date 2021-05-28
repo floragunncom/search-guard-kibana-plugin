@@ -58,8 +58,11 @@ export const acknowledgedText = (<EuiI18n token="sg.watch.acknowledged.text" def
 export const noActionsText = (<EuiI18n token="sg.watch.noActions.text" default="No actions" />);
 export const checkExamplesText = (<EuiI18n token="sg.watch.checkExamples.text" default="Check Examples" />);
 export const watchesText = (<EuiI18n token="sg.watch.watches.text" default="Watches" />);
+export const watchText = (<EuiI18n token="sg.watch.watch.text" default="Watch" />);
+export const watchJsonText = (<EuiI18n token="sg.watch.watchJson.text" default="Watch JSON" />);
 export const createWatchText = (<EuiI18n token="sg.watch.createWatch.text" default="Create Watch" />);
 export const updateWatchText = (<EuiI18n token="sg.watch.updateWatch.text" default="Update Watch" />);
+export const readWatchText = (<EuiI18n token="sg.watch.readWatch.text" default="Read Watch" />);
 export const includeDataText = (<EuiI18n token="sg.watch.includeData.text" default="Include Data" />);
 export const savedWatchText = (<EuiI18n token="sg.watch.savedWatch.text" default="saved watch" />);
 export const checksText = (<EuiI18n token="sg.watch.checks.text" default="Checks" />);
@@ -132,7 +135,7 @@ export const bccText = (<EuiI18n token="sg.watch.bcc.text" default="Bcc" />);
 export const subjectText = (<EuiI18n token="sg.watch.subject.text" default="Subject" />);
 export const iconEmojiText = (<EuiI18n token="sg.watch.iconEmoji.text" default="Icon Emoji" />);
 export const timezoneText = (<EuiI18n token="sg.watch.timezone.text" default="Timezone" />);
-export const youMustSpecifyIndexText = (<EuiI18n token="sg.watch.youMustSpecifyIndex.text" default="You must specify index" />);
+export const youMustSpecifyIndexText = (<EuiI18n token="sg.watch.youMustSpecifyIndex.text" default="You must specify an index" />);
 export const youMustSpecifyATimeFieldText = (
   <EuiI18n token="sg.watch.youMustSpecifyATimeField.text" default="You must specify a time field" />
 );
