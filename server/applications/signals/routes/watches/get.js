@@ -39,7 +39,7 @@ export function getWatches({ clusterClient, fetchAllFromScroll, logger }) {
         .asScoped(request)
         .asCurrentUser.transport.request({
           method: 'post',
-          path: `/_signals/watch/${sgtenant}/_search?scroll=${scroll}`,
+          path: `/_signals/watch/${encodeURIComponent(sgtenant)}/_search?scroll=${scroll}`,
           body,
         });
 
