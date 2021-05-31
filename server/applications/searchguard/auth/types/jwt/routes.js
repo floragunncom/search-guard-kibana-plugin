@@ -21,10 +21,11 @@ import { APP_ROOT, API_ROOT } from '../../../../../utils/constants';
 module.exports = function ({ authInstance, kibanaCore }) {
   const httpResources = kibanaCore.http.resources;
   const router = kibanaCore.http.createRouter();
-
+  //@todo This can probably be removed
   router.get(
     {
-      path: `${APP_ROOT}/login`,
+      // @todo Do we need a route for this?
+      path: `${APP_ROOT}/loginJWT`,
       validate: false,
       options: {
         authRequired: false,
@@ -40,21 +41,6 @@ module.exports = function ({ authInstance, kibanaCore }) {
   /**
    * The error page.
    */
-  customErrorRoute({ httpResources });
+  //customErrorRoute({ httpResources });
 
-  router.post(
-    {
-      path: `${API_ROOT}/auth/logout`,
-      validate: false,
-      options: {
-        authRequired: false,
-      },
-    },
-    async (context, request, response) => {
-      await authInstance.clear(request);
-      return response.ok({
-        body: {},
-      });
-    }
-  );
 }; //end module

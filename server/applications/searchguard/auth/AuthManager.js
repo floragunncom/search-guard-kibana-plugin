@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 floragunn GmbH
+ *    Copyright 2021 floragunn GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-import {ensureRawRequest, KibanaResponse} from "../../../../../../src/core/server/http/router";
-import {assign} from "lodash";
+import { ensureRawRequest, KibanaResponse } from '../../../../../../src/core/server/http/router';
+import { assign } from 'lodash';
 
 export const AUTH_TYPE_NAMES = {
   BASIC: 'basicauth',
   OIDC: 'openid',
+  JWT: 'jwt',
+  SAML: 'saml',
 };
 
 export class AuthManager {
@@ -39,7 +41,7 @@ export class AuthManager {
      * We need to skip auth for the bundles for the login page and the error page
      */
     this.routesToIgnore = [
-      '/login',
+      //'/login',
       '/customerror',
       '/api/core/capabilities',
       '/bootstrap.js',
@@ -62,17 +64,52 @@ export class AuthManager {
     return null;
   }
 
-  async getAuthInstanceByRequest(request) {
-    // Checks cookie for authType
-    const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
-    if (sessionCookie.authType && this.authInstances[sessionCookie.authType]) {
-      return this.getAuthInstanceByName(sessionCookie.authType);
+  async getAuthInstanceByRequest({ request }) {
+    // @todo Allow registering "hooks" here - e.g. JWT's query param
+    // If we find a match, return that authType.
+    // Alternatively, we could just loop through all registered methods and
+    // then use what is already there, keeping in mind that we will
+    // skip creating a cookie for existing request headers.
+
+    // @todo What happens if we already have a cookie for basic auth,
+    // and then we also have a JWT query parameter? We may need to not
+    // only return the authInstance,
+    // but also create/update a cookie
+
+    const matchedAuthInstance = this.getAuthInstanceByAuthTypes({ request });
+    // matchedAuthInstance will be null if we didn't get a match
+    if (matchedAuthInstance) {
+      return matchedAuthInstance;
+    }
+
+    // If none of the authTypes matched, we check for an existing cookie
+    return this.getAuthInstanceByCookie({ request });
+  }
+
+  getAuthInstanceByAuthTypes({ request }) {
+    for (const authType in this.authInstances) {
+      const authInstance = this.getAuthInstanceByName(authType);
+      const authInstanceResult = authInstance.detectAuthHeaderCredentials(request);
+      if (authInstanceResult !== null) {
+        console.warn('--- We did find something that we need to act on?', authInstanceResult);
+        return authInstance;
+      }
     }
 
     return null;
   }
 
+  async getAuthInstanceByCookie({ request }) {
+    const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+    if (sessionCookie.authType && this.authInstances[sessionCookie.authType]) {
+      return this.getAuthInstanceByName(sessionCookie.authType);
+    }
+  }
+
   checkAuth = async (request, response, toolkit) => {
+    // @todo Here's where we will check for existing auth headers
+    // and skip the rest if we have something.
+
     if (this.routesToIgnore.includes(request.url.pathname)) {
       // Change back after everything has been implemented
       return toolkit.notHandled();
@@ -89,7 +126,7 @@ export class AuthManager {
 
     // Detect authType. Keep in mind that we don't want to create a cookie based on headers only anymore.
     // @todo ProxyCache being the exception? Shouldn't matter at this place though
-    const authInstanceByRequest = await this.getAuthInstanceByRequest(request);
+    const authInstanceByRequest = await this.getAuthInstanceByRequest({ request });
     if (authInstanceByRequest) {
       return authInstanceByRequest.checkAuth(request, response, toolkit);
     }
@@ -105,7 +142,6 @@ export class AuthManager {
         (request.headers['content-type'] &&
           request.headers['content-type'].indexOf('application/json') > -1)
       ) {
-
         return response.unauthorized({
           headers: {
             sg_redirectTo: '/login',
@@ -152,7 +188,7 @@ export class AuthManager {
   };
 
   async getAllAuthHeaders(request) {
-    const authInstance = await this.getAuthInstanceByRequest(request);
+    const authInstance = await this.getAuthInstanceByRequest({ request });
     if (authInstance) {
       return authInstance.getAllAuthHeaders(request);
     }
@@ -160,10 +196,17 @@ export class AuthManager {
     return false;
   }
 
-  async logout({context, request, response}) {
-    const authInstance = await this.getAuthInstanceByRequest(request);
+  async logout({ context, request, response }) {
+    // We only check for authInstance by cookie when logging out.
+    // @todo Reason is that if we use the check for authTypes, we
+    // may run into problems because of the preAuth lifecycle handler:
+    // If we have a JWT bearer token attached to the request, OpenId
+    // would detect an authHeader and then we would have OpenId as authInstance.
+    // @todo This may all go away though depending on how the final code
+    // regarding the auth header check works
+    const authInstance = await this.getAuthInstanceByCookie({ request });
     if (authInstance) {
-      return await authInstance.logout({context, request, response});
+      return await authInstance.logout({ context, request, response });
     }
 
     return response.ok();

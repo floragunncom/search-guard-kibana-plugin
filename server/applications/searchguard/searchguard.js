@@ -135,6 +135,8 @@ export class SearchGuard {
           // @todo PoC, this needs to be configurable
           const OpenId = require('./auth/types/openid/OpenId');
           const BasicAuth = require('./auth/types/basicauth/BasicAuth');
+          const JWT = require('./auth/types/jwt/Jwt');
+          const Saml = require('./auth/types/saml/Saml');
 
           switch (authType) {
             case 'openid':
@@ -180,7 +182,6 @@ export class SearchGuard {
                */
 
 
-              // @todo Check params after merge
               const openId = new OpenId({
                 searchGuardBackend,
                 kibanaCore: core,
@@ -195,6 +196,36 @@ export class SearchGuard {
               openId.init();
 
               authManager.registerAuthInstance(AUTH_TYPE_NAMES.OIDC, openId);
+
+              const jwt = new JWT({
+                searchGuardBackend,
+                kibanaCore: core,
+                config: configService,
+                logger: this.coreContext.logger.get('searchguard-auth'),
+                sessionStorageFactory,
+                elasticsearch,
+                pluginDependencies,
+                authManager
+              });
+
+              jwt.init();
+
+              authManager.registerAuthInstance(AUTH_TYPE_NAMES.JWT, jwt);
+
+              const saml = new Saml({
+                searchGuardBackend,
+                kibanaCore: core,
+                config: configService,
+                logger: this.coreContext.logger.get('searchguard-auth'),
+                sessionStorageFactory,
+                elasticsearch,
+                pluginDependencies,
+                authManager,
+              });
+
+              saml.init();
+
+              authManager.registerAuthInstance(AUTH_TYPE_NAMES.SAML, saml);
 
               // @todo Check params after merge
               const basicAuth = new BasicAuth({

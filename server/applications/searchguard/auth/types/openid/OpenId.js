@@ -202,7 +202,10 @@ export default class OpenId extends AuthType {
     }
 
     return response.ok({
-      body: { redirectURL: endSessionUrl },
+      body: {
+        authType: this.type,
+        redirectURL: endSessionUrl,
+      },
     });
   }
 }

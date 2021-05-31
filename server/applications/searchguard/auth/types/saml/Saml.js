@@ -20,6 +20,9 @@ import MissingTenantError from '../../errors/missing_tenant_error';
 import AuthenticationError from '../../errors/authentication_error';
 import MissingRoleError from '../../errors/missing_role_error';
 import { stringify } from 'querystring';
+import { AUTH_TYPE_NAMES } from '../../AuthManager';
+import { defineRoutes, SAML_ROUTES } from './routes';
+import { APP_ROOT } from '../../../../../utils/constants';
 
 export default class Saml extends AuthType {
   constructor({
@@ -45,7 +48,14 @@ export default class Saml extends AuthType {
      * The authType is saved in the auth cookie for later reference
      * @type {string}
      */
-    this.type = 'saml';
+    this.type = AUTH_TYPE_NAMES.SAML;
+
+    /**
+     * If a loginURL is defined, we can skip the auth selector page
+     * if the customer only has one auth type enabled.
+     * @type {string|null}
+     */
+    this.loginURL = SAML_ROUTES.LOGIN;
 
     this.routesToIgnore = [
       ...this.routesToIgnore,
@@ -135,7 +145,7 @@ export default class Saml extends AuthType {
   }
 
   setupRoutes() {
-    require('./routes')({
+    defineRoutes({
       authInstance: this,
       searchGuardBackend: this.searchGuardBackend,
       kibanaCore: this.kibanaCore,
@@ -144,5 +154,79 @@ export default class Saml extends AuthType {
       sessionStorageFactory: this.sessionStorageFactory,
       logger: this.logger,
     });
+  }
+
+  async logout({ context = null, request, response }) {
+    try {
+      const sessionCookie = await this.sessionStorageFactory.asScoped(request).get();
+      if (!sessionCookie || !sessionCookie.credentials) {
+        throw new Error('The session cookie or credentials is absent.');
+      }
+      /*
+      When logging in,
+      sessionCookie = {
+        username: 'admin',
+        credentials: {
+          authHeaderValue: 'bearer eyJhbGciOiJIUzUxMiJ9.eyJuYmYiOjE2MDEw...'
+        },
+        authType: 'saml',
+        exp: 1601046190,
+        additionalAuthHeaders: null
+      }
+      */
+
+      // @todo This should probably use all authHeaders instead
+      const authHeader = {
+        [this.authHeaderName]: sessionCookie.credentials.authHeaderValue,
+      };
+
+      const authInfo = await this.searchGuardBackend.authinfo(authHeader);
+      /*
+      When logging in,
+      authInfo = {
+        user: 'User [name=admin, backend_roles=[manage-account, ...], requestedTenant=null]',
+        ...,
+        sso_logout_url: 'http://keycloak.example.com:8080/auth/realms/master/protocol/saml?SAMLRequest=fVLRatwwEPwVo3edZdmKbXFnKF...'
+      }
+      */
+
+      await this.clear(request, true);
+
+      if (authInfo && authInfo.sso_logout_url) {
+        return response.ok({
+          body: {
+            authType: this.type,
+            redirectURL: authInfo.sso_logout_url,
+          },
+        });
+      }
+
+      // @todo Why do we repeat this?
+      const redirectURL =
+        authInfo && authInfo.sso_logout_url
+          ? authInfo.sso_logout_url
+          : `${APP_ROOT}/customerror?type=samlLogoutSuccess`;
+
+      // The logout procedure:
+      // 1. Logout from IDP.
+      // 2. Logout from Kibana.
+      return response.ok({
+        body: {
+          authType: this.type,
+          redirectURL,
+        },
+      });
+    } catch (error) {
+      this.logger.error(`SAML auth logout: ${error.stack}`);
+
+      // The authenticated user is redirected back to Kibana home if his session is still active on IDP.
+      // For some reason, response.redirected() doesn't pass query params to the customerror page here.
+      // @todo Customerror still available?
+      return response.ok({
+        body: {
+          redirectURL: `${this.basePath}/customerror?type=samlAuthError`,
+        },
+      });
+    }
   }
 }

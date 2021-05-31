@@ -21,7 +21,11 @@ import { customError as customErrorRoute } from '../common/routes';
 import { schema } from '@kbn/config-schema';
 import { APP_ROOT, API_ROOT } from '../../../../../utils/constants';
 
-export default function ({
+export const SAML_ROUTES = {
+  LOGIN: `${APP_ROOT}/auth/saml/login`, // @todo Update this later - the auth selector page should probably do all the encoding
+};
+
+export function defineRoutes({
   authInstance,
   searchGuardBackend,
   kibanaCore,
@@ -255,6 +259,7 @@ export default function ({
   };
   const logoutHandler = async (context, request, response) => {
     await authInstance.clear(request);
+    // @todo Should customerror stay?
     return response.redirected({
       headers: { location: `${basePath}/customerror?type=samlLogoutSuccess` },
     });
@@ -266,14 +271,14 @@ export default function ({
   /**
    * The custom error page.
    */
-  customErrorRoute({ httpResources });
+  //customErrorRoute({ httpResources });
 
   /**
    * Logout
    */
   router.post(
     {
-      path: `${API_ROOT}/auth/logout`,
+      path: `${API_ROOT}/auth/logoutSAMLTEMP`,
       validate: false,
       options: {
         authRequired: false,

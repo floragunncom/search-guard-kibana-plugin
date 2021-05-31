@@ -298,7 +298,6 @@ export default class AuthType {
 
     try {
       sessionCookie = await this.getCookieWithCredentials(request);
-
     } catch (error) {
       return this._handleUnAuthenticated(request, response, toolkit, error);
     }
@@ -609,13 +608,15 @@ export default class AuthType {
     return authResponse;
   }
 
-  async logout({context = null, request, response}) {
+  async logout({ context = null, request, response }) {
     await this.clear(request, true);
     return response.ok({
-      body: { redirectURL: this.basePath + '/login?type=' + this.type + 'Logout' },
+      body: {
+        authType: this.type,
+        redirectURL: this.basePath + '/login?type=' + this.type + 'Logout',
+      },
     });
   }
-
 
   /**
    * Remove the credentials from the session cookie
