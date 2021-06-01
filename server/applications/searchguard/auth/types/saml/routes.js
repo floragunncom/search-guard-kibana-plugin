@@ -99,9 +99,13 @@ export default function ({
     }
   );
 
-  /**
-   * The page that the IdP redirects to after a successful SP-initiated login
-   */
+  /*
+  The page that the IDP redirects to after a successful SP-initiated login.
+
+  TODO: The Kibana callback URL for the acs endpoint is encoded in the SAMLRequest,
+  which you get after calling /_searchguard/authinfo. For now, SG BE doesn't support adding query parameters.
+  That's why we can't redirect an unauthenticated user that uses the shared dashboard URL.
+  */
   router.post(
     {
       path: `${APP_ROOT}/searchguard/saml/acs`,

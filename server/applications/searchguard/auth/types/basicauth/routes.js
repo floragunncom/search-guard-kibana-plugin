@@ -68,13 +68,7 @@ export function loginHandler({ config, authInstance, logger, basePath }) {
   };
 }
 
-export function loginAuthHandler({
-  config,
-  authInstance,
-  logger,
-  searchGuardBackend,
-  sessionStorageFactory,
-}) {
+export function loginAuthHandler({ config, authInstance, logger }) {
   return async function (context, request, response) {
     const username = request.body.username;
     const password = request.body.password;
@@ -102,29 +96,12 @@ export function loginAuthHandler({
       }
 
       const authHeaderValue = Buffer.from(`${username}:${password}`).toString('base64');
-      const { user, session: sessionCookie } = await authInstance.handleAuthenticate(request, {
+      const { user } = await authInstance.handleAuthenticate(request, {
         authHeaderValue: 'Basic ' + authHeaderValue,
       });
 
       // handle tenants if MT is enabled
       if (config.get('searchguard.multitenancy.enabled')) {
-        // get the preferred tenant of the user
-        const globalTenantEnabled = config.get('searchguard.multitenancy.tenants.enable_global');
-        const privateTenantEnabled = config.get('searchguard.multitenancy.tenants.enable_private');
-        const preferredTenants = config.get('searchguard.multitenancy.tenants.preferred');
-
-        const finalTenant = searchGuardBackend.getTenantByPreference(
-          request,
-          user.username,
-          user.tenants,
-          preferredTenants,
-          globalTenantEnabled,
-          privateTenantEnabled
-        );
-
-        sessionCookie.tenant = finalTenant;
-        await sessionStorageFactory.asScoped(request).set(sessionCookie);
-
         return response.ok({
           body: {
             username: user.username,
@@ -179,7 +156,6 @@ export function logoutHandler({ authInstance }) {
 
 export function defineRoutes({
   authInstance,
-  searchGuardBackend,
   kibanaCore,
   kibanaConfig,
   sessionStorageFactory,
@@ -219,7 +195,7 @@ export function defineRoutes({
         authRequired: false,
       },
     },
-    loginAuthHandler({ config, authInstance, logger, searchGuardBackend, sessionStorageFactory })
+    loginAuthHandler({ config, authInstance, logger })
   );
 
   router.post(
