@@ -257,6 +257,7 @@ class Tenants extends Component {
         ]}
       >
         <EuiInMemoryTable
+          data-test-subj="sg.tenants.table"
           items={tableResources}
           itemId="_id"
           error={get(error, 'message')}

@@ -14,14 +14,45 @@
  * limitations under the License.
  */
 
-import { getResourceEditUri, getWatchRelatedAlertsUri } from './helpers';
+import { WATCH_TYPES } from '../../DefineWatch/utils/constants';
+import { getResourceEditUri, getResourceReadUri, getWatchRelatedAlertsUri, isJsonWatch } from './helpers';
 
 describe('Watches/helpers', () => {
   test('getResourceEditUri', () => {
-    expect(getResourceEditUri('a b')).toBe('/define-watch?id=a%20b');
+    expect(getResourceEditUri({ _id: 'a b' })).toBe('/define-json-watch?id=a%20b');
+    expect(getResourceEditUri({ _id: 'a b', _ui: { watchType: WATCH_TYPES.GRAPH } })).toBe(
+      '/define-watch?id=a%20b'
+    );
+    expect(getResourceEditUri({ _id: 'a b', _ui: { watchType: WATCH_TYPES.BLOCKS } })).toBe(
+      '/define-watch?id=a%20b'
+    );
+  });
+
+  test('getResourceReadUri', () => {
+    expect(getResourceReadUri({ _id: 'a b' })).toBe(
+      '/define-json-watch?id=a%20b&action=read-watch'
+    );
   });
 
   test('getWatchRelatedAlertsUri', () => {
     expect(getWatchRelatedAlertsUri('a b')).toBe('/alerts?watchId=a%20b');
+  });
+
+  test('isJsonWatch', () => {
+    let input = { _id: 'example' };
+    let expected = true;
+    expect(isJsonWatch(input)).toBe(expected);
+
+    input = { _id: 'example', _ui: { watchType: 'json' } };
+    expected = true;
+    expect(isJsonWatch(input)).toBe(expected);
+
+    input = { _id: 'example', _ui: { watchType: 'graph' } };
+    expected = false;
+    expect(isJsonWatch(input)).toBe(expected);
+
+    input = { _id: 'example', _ui: { watchType: 'blocks' } };
+    expected = false;
+    expect(isJsonWatch(input)).toBe(expected);
   });
 });

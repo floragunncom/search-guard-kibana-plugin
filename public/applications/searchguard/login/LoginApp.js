@@ -10,7 +10,10 @@ export class LoginApp {
 
   mount({ core, configService, httpClient }) {
     return async (params) => {
-      const [{ renderApp }] = await Promise.all([import('./npstart'), configService.init()]);
+      const [{ renderApp }] = await Promise.all([
+        import('./npstart'),
+        configService.fetchConfig(),
+      ]);
 
       const authType = configService.get('searchguard.auth.type');
 

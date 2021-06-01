@@ -2,9 +2,9 @@
 import React, { useContext } from 'react';
 import { get } from 'lodash';
 import {
-  buildFormikChecks,
   buildFormikChecksBlocks,
   buildChecksFromChecksBlocks,
+  buildFormikChecks,
   buildChecksFromFormikChecks,
 } from '../utils';
 import { addedCheckTemplateText } from '../../../utils/i18n/watch';
@@ -22,10 +22,14 @@ export function getFormikChecksPlusTemplate({ template, values, checksPath }) {
   const watchType = get(values, '_ui.watchType', WATCH_TYPES.GRAPH);
   let formikChecks;
 
+  console.log('values', values);
+  console.log('template', template);
+  console.log('checksPath', checksPath);
+
   if (watchType === WATCH_TYPES.BLOCKS) {
     const rawChecks = buildChecksFromChecksBlocks(get(values, checksPath, '[]'));
     formikChecks = buildFormikChecksBlocks([...rawChecks, template]);
-  } else if (watchType === WATCH_TYPES.JSON) {
+  } else if (watchType === WATCH_TYPES.GRAPH) {
     const rawChecks = buildChecksFromFormikChecks(get(values, checksPath, '[]'));
     formikChecks = buildFormikChecks([...rawChecks, template]);
   } else {

@@ -18,9 +18,8 @@
 import AuthType from '../AuthType';
 import MissingTenantError from '../../errors/missing_tenant_error';
 import SessionExpiredError from '../../errors/session_expired_error';
-import { parse, format } from 'url';
 import MissingRoleError from '../../errors/missing_role_error';
-import { stringify } from 'querystring';
+import path from 'path';
 
 export default class Jwt extends AuthType {
   constructor({
@@ -160,17 +159,16 @@ export default class Jwt extends AuthType {
   }
 
   getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false) {
-    // For JWT it is easier to just add the
-    const queryParamsObject = {
-      type: 'authError',
-    };
-    let redirectTo = `${this.basePath}/customerror`;
+    let url = new URL(request.url.href);
+    url.pathname = path.posix.join(this.basePath, '/customerror');
 
     // Missing tenant or role takes precedence
     if (error instanceof MissingTenantError) {
-      queryParamsObject.type = 'missingTenant';
+      url.searchParams.set('type', 'missingTenant');
     } else if (error instanceof MissingRoleError) {
-      queryParamsObject.type = 'missingRole';
+      url.searchParams.set('type', 'missingRole');
+    } else if (error instanceof SessionExpiredError) {
+      url.searchParams.set('type', 'sessionExpired');
     } else {
       // The customer may use a login endpoint, to which we can redirect
       // if the user isn't authenticated.
@@ -179,34 +177,27 @@ export default class Jwt extends AuthType {
         try {
           // Parse the login endpoint so that we can append our nextUrl
           // if the customer has defined query parameters in the endpoint
-          const loginEndpointURLObject = parse(loginEndpoint, true);
+          url = new URL(loginEndpoint);
 
           // Make sure we don't overwrite an existing "nextUrl" parameter,
           // just in case the customer is using that name for something else
           // Also, we don't want the nextUrl if this is an AJAX request.
-          if (!isAJAX && typeof loginEndpointURLObject.query.nextUrl === 'undefined') {
-            const nextUrl = this.getNextUrl(request);
-            // Delete the search parameter - otherwise format() will use its value instead of the .query property
-            delete loginEndpointURLObject.search;
-
-            loginEndpointURLObject.query.nextUrl = nextUrl;
+          if (!isAJAX && !url.searchParams.has('nextUrl')) {
+            url.searchParams.set('nextUrl', this.getNextUrl(request));
+            // Delete sg_tenant because we have it already as a param in the nextUrl
+            url.searchParams.delete('sg_tenant');
           }
-          // Format the parsed endpoint object into a URL and redirect
-          redirectTo = format(loginEndpointURLObject);
 
-          return redirectTo;
+          return url.toString();
         } catch (error) {
           this.logger.error(
             'An error occured while parsing the searchguard.jwt.login_endpoint value'
           );
         }
-      } else if (error instanceof SessionExpiredError) {
-        queryParamsObject.type = 'sessionExpired';
       }
     }
 
-    const queryParameterString = stringify(queryParamsObject);
-    return queryParameterString ? `${redirectTo}?${queryParameterString}` : `${redirectTo}`;
+    return url.pathname + url.search + url.hash;
   }
 
   onUnAuthenticated(request, response, toolkit, error = null) {

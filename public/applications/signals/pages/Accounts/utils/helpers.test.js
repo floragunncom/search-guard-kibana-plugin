@@ -13,10 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getResourceEditUri } from './helpers';
+import { getResourceEditUri, getResourceReadUri } from './helpers';
 
 describe('Accounts/helpers', () => {
   test('getResourceEditUri', () => {
     expect(getResourceEditUri('a b', 'email')).toBe('/define-account?id=a%20b&accountType=email');
+  });
+
+  test('getResourceReadUri', () => {
+    expect(getResourceReadUri('a b', 'email')).toBe(
+      '/define-json-account?id=a%20b&accountType=email&action=read-account'
+    );
   });
 });

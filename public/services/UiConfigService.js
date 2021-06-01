@@ -1,6 +1,20 @@
-/* eslint-disable @kbn/eslint/require-license-header */
-// eslint-disable-next-line no-restricted-imports
-import { get as _get, defaultsDeep } from 'lodash';
+/*
+ *    Copyright 2021 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { get as _get, defaultsDeep, cloneDeep } from 'lodash';
 import { ConfigService } from '../../common/config_service';
 
 export const CONFIG_DEFAULTS = {
@@ -16,51 +30,58 @@ export const CONFIG_DEFAULTS = {
 export class UiConfigService extends ConfigService {
   constructor({ config = {}, uiSettings, coreContext, apiService } = {}) {
     super(config);
-    defaultsDeep(this.config, CONFIG_DEFAULTS);
     this.uiSettings = uiSettings;
     this.coreContext = coreContext;
     this.apiService = apiService;
+
+    defaultsDeep(this.config, CONFIG_DEFAULTS, {
+      searchguard: cloneDeep(this.coreContext.config.get()),
+      is_dark_mode: this.uiSettings.get('theme:darkMode'),
+    });
   }
 
-  init() {
-    return Promise.allSettled([
-      this.apiService.loadRestInfo(),
-      this.apiService.loadSystemInfo(),
-      this.apiService.loadAuthInfo(),
-      this.apiService.loadKibanaConfig(),
-    ]).then(([restapiinfoResp, systeminfoResp, authinfoResp, kibanaConfigResp]) => {
-      let restapiinfo = {};
-      let systeminfo = {};
-      let authinfo = {};
-      let kibanaConfig = {};
+  fetchConfig() {
+    if (this.isLoginPage()) {
+      return this.fetchLimitedConfig();
+    }
 
-      if (restapiinfoResp.status === 'fulfilled') {
-        restapiinfo = restapiinfoResp.value;
-      } else {
-        console.error(restapiinfoResp.reason);
-      }
+    return this.fetchUnlimitedConfig();
+  }
 
-      if (systeminfoResp.status === 'fulfilled') {
-        systeminfo = systeminfoResp.value;
-      } else {
-        console.error(systeminfoResp.reason);
-      }
+  async fetchLimitedConfig() {
+    try {
+      const systeminfo = await this.apiService.loadSystemInfo();
+      this.config.systeminfo = systeminfo;
 
-      if (authinfoResp.status === 'fulfilled') {
-        authinfo = authinfoResp.value;
-      } else {
-        console.error(authinfoResp.reason);
-      }
+      // ATTENTION! We must not expose any sensitive data to the browser session storage.
+      sessionStorage.setItem(
+        'searchguard',
+        JSON.stringify({
+          systeminfo: this.config.systeminfo,
+        })
+      );
 
-      if (kibanaConfigResp.status === 'fulfilled') {
-        kibanaConfig = kibanaConfigResp.value;
-      } else {
-        console.error(kibanaConfigResp.reason);
-      }
+      console.debug('UiConfigService, this.fetchConfig', this.config);
+    } catch (error) {
+      console.error('UiConfigService, this.fetchLimitedConfig', error);
+    }
+  }
 
-      const config = { searchguard: this.coreContext.config.get() };
+  async fetchUnlimitedConfig() {
+    try {
+      const [
+        restapiinfo = {},
+        authinfo = {},
+        kibanaConfig = {},
+        systeminfo = {},
+      ] = await Promise.all([
+        this.apiService.loadRestInfo(),
+        this.apiService.loadAuthInfo(),
+        this.apiService.loadKibanaConfig(),
+        this.apiService.loadSystemInfo(),
+      ]);
 
-      defaultsDeep(config, {
+      defaultsDeep(this.config, {
         ...kibanaConfig,
         restapiinfo,
         systeminfo,
@@ -68,22 +89,22 @@ export class UiConfigService extends ConfigService {
           user_name: authinfo.user_name,
           user_requested_tenant: authinfo.user_requested_tenant,
         },
-        is_dark_mode: this.uiSettings.get('theme:darkMode'),
       });
 
       // ATTENTION! We must not expose any sensitive data to the browser session storage.
       sessionStorage.setItem(
         'searchguard',
         JSON.stringify({
-          restapiinfo: config.restapiinfo,
-          systeminfo: config.systeminfo,
-          authinfo: config.authinfo,
+          restapiinfo: this.config.restapiinfo,
+          systeminfo: this.config.systeminfo,
+          authinfo: this.config.authinfo,
         })
       );
 
-      console.debug('ConfigService, init, config', config);
-      this.config = config;
-    });
+      console.debug('UiConfigService, this.fetchConfig', this.config);
+    } catch (error) {
+      console.error('UiConfigService, this.fetchUnlimitedConfig', error);
+    }
   }
 
   restApiEnabled() {
@@ -110,18 +131,6 @@ export class UiConfigService extends ConfigService {
     return false;
   }
 
-  endpointAndMethodEnabled(endpoint, method) {
-    const restInfo = this.get('restapiinfo');
-    if (restInfo && restInfo.disabled_endpoints) {
-      if (restInfo.disabled_endpoints[endpoint]) {
-        return restInfo.disabled_endpoints[endpoint].indexOf(method) === -1;
-      } else {
-        return true;
-      }
-    }
-    return false;
-  }
-
   licenseRequired() {
     return _get(this.config, 'systeminfo.sg_license.license_required', false);
   }
@@ -144,5 +153,10 @@ export class UiConfigService extends ConfigService {
 
   licenseExpiresIn() {
     return this.get('systeminfo.sg_license.expiry_in_days', 0);
+  }
+
+  isLoginPage() {
+    const pathname = _get(window, 'location.pathname', '');
+    return pathname.includes('/login');
   }
 }

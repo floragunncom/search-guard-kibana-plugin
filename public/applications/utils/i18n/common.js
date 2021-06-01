@@ -27,7 +27,7 @@ export const noText = (<EuiI18n token="sg.common.no.text" default="No" />);
 export const yesText = (<EuiI18n token="sg.common.yes.text" default="Yes" />);
 export const cloneText = (<EuiI18n token="sg.common.clone.text" default="Clone" />);
 export const inspectText = (<EuiI18n token="sg.common.inspect.text" default="Inspect" />);
-export const requiredText = (<EuiI18n token="sg.common.required.text" default="Required" />);
+export const requiredText = (<EuiI18n token="sg.common.requiredField.text" default="Required Field" />);
 export const confirmDeleteText = (<EuiI18n token="sg.common.confirmDelete.text" default="Confirm Delete" />);
 export const problemWithValidationTryAgainText = (
   <EuiI18n token="sg.common.problemWithValidationTryAgain.text" default="Problem with validation. Please try again" />

@@ -3,6 +3,7 @@ import { EuiI18n } from '@elastic/eui';
 
 export const createAccountText = (<EuiI18n token="sg.account.createAccount.text" default="Create Account" />);
 export const updateAccountText = (<EuiI18n token="sg.account.updateAccount.text" default="Update Account" />);
+export const readAccountText = (<EuiI18n token="sg.account.readAccount.text" default="Read Account" />);
 export const accountText = (<EuiI18n token="sg.account.account.text" default="Account" />);
 export const accountsText = (<EuiI18n token="sg.account.accounts.text" default="Accounts" />);
 export const hostText = (<EuiI18n token="sg.account.host.text" default="Host" />);

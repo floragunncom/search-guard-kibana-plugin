@@ -17,15 +17,23 @@
 import React from 'react';
 import ShallowRenderer from 'react-test-renderer/shallow';
 import { LoginPage } from './LoginPage';
-import { UiConfigService } from '../../../services/UiConfigService';
+import { ConfigService } from '../../../services';
+import { setupApiServiceMock, setupCoreMock, setupCoreContextMock } from '../../../utils/mocks';
 
 describe(LoginPage.name, () => {
   let httpClient;
   let renderer;
   let basePath;
   let systeminfo;
+  let uiSettings;
+  let coreContext;
+  let apiService;
 
   beforeEach(() => {
+    uiSettings = setupCoreMock({
+      uiSettingsGet: (setting) => setting !== 'theme:darkMode',
+    }).uiSettings;
+    apiService = setupApiServiceMock();
     httpClient = () => null;
     renderer = new ShallowRenderer();
     basePath = 'abc';
@@ -39,28 +47,33 @@ describe(LoginPage.name, () => {
   });
 
   test('can render the page with a license and the basicauth login defaults', () => {
-    const configService = new UiConfigService({
+    const configGet = jest.fn(() => ({
+      basicauth: {
+        alternative_login: {
+          headers: [],
+          show_for_parameter: '',
+          valid_redirects: [],
+          button_text: 'Login with provider',
+          buttonstyle: '',
+        },
+        login: {
+          title: 'Please login to Kibana',
+          subtitle:
+            'If you have forgotten your username or password, please ask your system administrator',
+          showbrandimage: true,
+          brandimage: 'plugins/searchguard/assets/searchguard_logo.svg',
+          buttonstyle: '',
+        },
+      },
+    }));
+    coreContext = setupCoreContextMock({ configGet });
+
+    const configService = new ConfigService({
+      uiSettings,
+      coreContext,
+      apiService,
       config: {
         systeminfo,
-        searchguard: {
-          basicauth: {
-            alternative_login: {
-              headers: [],
-              show_for_parameter: '',
-              valid_redirects: [],
-              button_text: 'Login with provider',
-              buttonstyle: '',
-            },
-            login: {
-              title: 'Please login to Kibana',
-              subtitle:
-                'If you have forgotten your username or password, please ask your system administrator',
-              showbrandimage: true,
-              brandimage: 'plugins/searchguard/assets/searchguard_logo.svg',
-              buttonstyle: '',
-            },
-          },
-        },
       },
     });
 
@@ -71,28 +84,33 @@ describe(LoginPage.name, () => {
   });
 
   test('can render the page with HTML in login title and subtitle', () => {
-    const configService = new UiConfigService({
+    const configGet = jest.fn(() => ({
+      basicauth: {
+        alternative_login: {
+          headers: [],
+          show_for_parameter: '',
+          valid_redirects: [],
+          button_text: 'Login with provider',
+          buttonstyle: '',
+        },
+        login: {
+          title: '<h1 style="color:blue;text-align:center;">Login</h1>',
+          subtitle:
+            '<div style="color:red;background:#ffe5e5;"><ul><li>abc</li><li>def</li></ul></div>',
+          showbrandimage: true,
+          brandimage: 'plugins/searchguard/assets/my_logo.png',
+          buttonstyle: 'background-color:#4CAF50;border:none;color:white;font-size:16px;',
+        },
+      },
+    }));
+    coreContext = setupCoreContextMock({ configGet });
+
+    const configService = new ConfigService({
+      uiSettings,
+      coreContext,
+      apiService,
       config: {
         systeminfo,
-        searchguard: {
-          basicauth: {
-            alternative_login: {
-              headers: [],
-              show_for_parameter: '',
-              valid_redirects: [],
-              button_text: 'Login with provider',
-              buttonstyle: '',
-            },
-            login: {
-              title: '<h1 style="color:blue;text-align:center;">Login</h1>',
-              subtitle:
-                '<div style="color:red;background:#ffe5e5;"><ul><li>abc</li><li>def</li></ul></div>',
-              showbrandimage: true,
-              brandimage: 'plugins/searchguard/assets/my_logo.png',
-              buttonstyle: 'background-color:#4CAF50;border:none;color:white;font-size:16px;',
-            },
-          },
-        },
       },
     });
 

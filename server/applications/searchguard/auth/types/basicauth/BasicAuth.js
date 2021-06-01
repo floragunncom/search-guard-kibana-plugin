@@ -20,7 +20,7 @@ import MissingRoleError from '../../errors/missing_role_error';
 import { ensureRawRequest } from '../../../../../../../../src/core/server/http/router';
 import { defineRoutes } from './routes';
 import { APP_ROOT } from '../../../../../utils/constants';
-import { stringify } from 'querystring';
+import path from 'path';
 
 export default class BasicAuth extends AuthType {
   constructor({
@@ -188,28 +188,27 @@ export default class BasicAuth extends AuthType {
   }
 
   getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false) {
-    const queryParamsObject = {};
-    if (!isAJAX) {
-      queryParamsObject.nextUrl = this.getNextUrl(request);
-    }
+    let url = new URL(request.url.href);
+    const appRoot = path.posix.join(this.basePath, APP_ROOT);
 
-    let redirectTo = `${this.basePath}${APP_ROOT}/login`;
+    if (!isAJAX) {
+      url.searchParams.set('nextUrl', this.getNextUrl(request));
+      // Delete sg_tenant because we have it already as a param in the nextUrl
+      url.searchParams.delete('sg_tenant');
+    }
 
     if (error && error instanceof MissingRoleError) {
-      queryParamsObject.type = 'missingRole';
-      redirectTo = this.basePath + '/customerror';
+      url.searchParams.set('type', 'missingRole');
+      url.pathname = path.posix.join(appRoot, '/customerror');
+    } else if (this.anonymousAuthEnabled) {
+      url.pathname = path.posix.join(appRoot, '/auth/anonymous');
+    } else if (this.loadBalancerURL) {
+      url = new URL(path.posix.join(appRoot, '/login'), this.loadBalancerURL);
+    } else {
+      url.pathname = path.posix.join(appRoot, '/login');
     }
 
-    if (this.anonymousAuthEnabled) {
-      redirectTo = `${this.basePath}${APP_ROOT}/auth/anonymous`;
-    }
-
-    if (this.loadBalancerURL) {
-      redirectTo = `${this.loadBalancerURL}${this.basePath}${APP_ROOT}/login`;
-    }
-    const queryParameterString = stringify(queryParamsObject);
-
-    return queryParameterString ? `${redirectTo}?${queryParameterString}` : `${redirectTo}`;
+    return url.pathname + url.search + url.hash;
   }
 
   onUnAuthenticated(request, response, toolkit, error = null) {
