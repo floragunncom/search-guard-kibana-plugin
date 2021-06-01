@@ -10,7 +10,6 @@ import { buildFormikThrottle } from './buildFormikThrottle';
 import { buildFormikCheckBlock } from '../components/BlocksWatch/utils/checkBlocks';
 import {
   GRAPH_DEFAULTS,
-  WATCH_TYPES,
   DEFAULT_WATCH,
   RESULT_FIELD_DEFAULTS,
   SEVERITY_META_DEFAULTS,
@@ -145,15 +144,13 @@ export function buildFormikChecksBlocks(checks = []) {
 }
 
 export const buildFormikMeta = ({ _ui = {}, checks = [], trigger } = {}) => {
-  const ui = {
+  return {
     ...cloneDeep(GRAPH_DEFAULTS),
     ...RESULT_FIELD_DEFAULTS,
     checksBlocks: buildFormikChecksBlocks(checks),
     ...buildFormikSchedule({ trigger }),
     ..._ui,
   };
-
-  return !isEmpty(_ui) ? ui : Object.assign(ui, { watchType: WATCH_TYPES.JSON });
 };
 
 export const buildFormikIndexAction = (action = {}) => ({

@@ -27,7 +27,13 @@ import {
 
 const MainContext = React.createContext();
 
-const MainContextProvider = ({ children, httpClient, chromeHelper, configService }) => {
+const MainContextProvider = ({
+  children,
+  httpClient,
+  chromeHelper,
+  configService,
+  kibanaApplication,
+}) => {
   const [toasts, setToasts] = useState([]);
   const [modal, setModal] = useState(null);
 
@@ -60,6 +66,7 @@ const MainContextProvider = ({ children, httpClient, chromeHelper, configService
     <>
       <MainContext.Provider
         value={{
+          kibanaApplication,
           httpClient,
           chromeHelper,
           configService,

@@ -25,6 +25,7 @@ import SessionExpiredError from '../errors/session_expired_error';
 import filterAuthHeaders from '../filter_auth_headers';
 import MissingTenantError from '../errors/missing_tenant_error';
 import MissingRoleError from '../errors/missing_role_error';
+import path from 'path';
 
 export default class AuthType {
   constructor({
@@ -64,8 +65,6 @@ export default class AuthType {
 
     this.sessionTTL = this.config.get('searchguard.session.ttl');
     this.sessionKeepAlive = this.config.get('searchguard.session.keepalive');
-
-    this.unauthenticatedRoutes.push('/api/v1/systeminfo');
 
     /**
      * The authType is saved in the auth cookie for later reference
@@ -164,7 +163,7 @@ export default class AuthType {
    * @returns {string}
    */
   getNextUrl(request) {
-    return this.basePath + request.url.pathname;
+    return path.posix.join(this.basePath, request.url.pathname) + request.url.search;
   }
 
   setupRoutes() {
@@ -559,7 +558,7 @@ export default class AuthType {
    * @returns {*}
    * @private
    */
-  _handleAuthResponse(request, credentials, authResponse, additionalAuthHeaders = {}) {
+  async _handleAuthResponse(request, credentials, authResponse, additionalAuthHeaders = {}) {
     // Make sure the user has a tenant that they can use
     if (
       this.validateAvailableTenants &&
@@ -595,6 +594,9 @@ export default class AuthType {
     if (Object.keys(additionalAuthHeaders).length) {
       authResponse.session.additionalAuthHeaders = additionalAuthHeaders;
     }
+
+    const cookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+    authResponse.session = { ...cookie, ...authResponse.session };
 
     this.sessionStorageFactory.asScoped(request).set(authResponse.session);
 

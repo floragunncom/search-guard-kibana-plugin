@@ -25,7 +25,7 @@ import {
   TableIdCell,
   TableTextCell,
   AddButton,
-  CreateButton,
+  PopoverButton,
 } from '../../components';
 import {
   noText,
@@ -45,7 +45,9 @@ import {
   dateFormat,
   actionAndWatchStatusToIconProps,
   getResourceEditUri,
+  getResourceReadUri,
   getWatchRelatedAlertsUri,
+  isJsonWatch,
 } from './utils';
 import {
   checksText,
@@ -59,6 +61,7 @@ import {
   lastStatusText,
   lastExecutionText,
   severityText,
+  jsonText,
 } from '../../utils/i18n/watch';
 import { buildESQuery } from './utils/helpers';
 import { APP_PATH, FLYOUTS, WATCH_STATUS } from '../../utils/constants';
@@ -81,6 +84,7 @@ class Watches extends Component {
       watches: [],
       tableSelection: [],
       query: initialQuery,
+      isNewWatchMenuOpen: false,
     };
 
     this.watchService = new WatchService(context.httpClient);
@@ -102,6 +106,10 @@ class Watches extends Component {
       this.getWatches();
     }
   }
+
+  triggerNewWatchMenu = () => {
+    this.setState((prevState) => ({ isNewWatchMenuOpen: !prevState.isNewWatchMenuOpen }));
+  };
 
   putWatch = async ({ _id, ...watch }) => {
     const watchToSubmit = formikToWatch(watch);
@@ -528,12 +536,36 @@ class Watches extends Component {
     );
   };
 
+  addWatchExample = () => {
+    const { triggerFlyout, editorTheme, editorOptions } = this.context;
+    const { error, isLoading } = this.state;
+
+    triggerFlyout({
+      type: FLYOUTS.WATCHES_HELP,
+      payload: {
+        onPutWatch: this.putWatch,
+        error,
+        isLoading,
+        editorTheme,
+        editorOptions,
+      },
+    });
+  };
+
   render() {
     const { history } = this.props;
-    const { triggerFlyout, editorTheme, editorOptions } = this.context;
-    const { watches, isLoading, error } = this.state;
+    const { watches, isLoading, error, isNewWatchMenuOpen } = this.state;
 
     const actions = [
+      {
+        'data-test-subj': 'sgTableCol-jsonWatch',
+        name: jsonText,
+        description: 'Watch JSON',
+        icon: 'document',
+        type: 'icon',
+        available: (watch) => !isJsonWatch(watch),
+        onClick: (watch) => history.push(getResourceReadUri(watch)),
+      },
       {
         'data-test-subj': 'sgTableCol-ActionAcknowledge',
         name: acknowledgeText,
@@ -593,11 +625,11 @@ class Watches extends Component {
         alignment: LEFT_ALIGNMENT,
         truncateText: true,
         sortable: true,
-        render: watchId => (
+        render: (id, watch) => (
           <TableIdCell
-            name={watchId}
-            value={watchId}
-            onClick={() => history.push(getResourceEditUri(watchId))}
+            name={id}
+            value={id}
+            onClick={() => history.push(getResourceEditUri(watch))}
           />
         ),
       },
@@ -650,26 +682,39 @@ class Watches extends Component {
       },
     };
 
+    const newWatchMenu = [
+      {
+        id: 0,
+        title: 'Watches',
+        items: [
+          {
+            name: 'Watch',
+            onClick: () => {
+              history.push(APP_PATH.DEFINE_WATCH);
+            },
+          },
+          {
+            name: 'Watch JSON',
+            onClick: () => {
+              history.push(APP_PATH.DEFINE_JSON_WATCH);
+            },
+          },
+        ],
+      },
+    ];
+
     return (
       <ContentPanel
         title="Watches"
         actions={[
-          <AddButton
-            value={addExampleText}
-            onClick={() => {
-              triggerFlyout({
-                type: FLYOUTS.WATCHES_HELP,
-                payload: {
-                  onPutWatch: this.putWatch,
-                  error,
-                  isLoading,
-                  editorTheme,
-                  editorOptions,
-                },
-              });
-            }}
+          <AddButton value={addExampleText} onClick={this.addWatchExample} />,
+          <PopoverButton
+            name="newWatch"
+            isLoading={isLoading}
+            isPopoverOpen={isNewWatchMenuOpen}
+            onClick={this.triggerNewWatchMenu}
+            contextMenuPanels={newWatchMenu}
           />,
-          <CreateButton onClick={() => history.push(APP_PATH.DEFINE_WATCH)} />,
         ]}
       >
         {this.renderSearchBar()}

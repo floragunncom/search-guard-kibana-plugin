@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 floragunn GmbH
+ *    Copyright 2021 floragunn GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ export function defineRoutes({
           const search = new URLSearchParams(window.location.search);
           if (search.get('nextUrl')) {
             search.set('nextUrl', encodeURIComponent(search.get('nextUrl') + window.location.hash));
-            window.location = "${APP_ROOT}${routesPath}login?" + search.toString()
+            window.location = "${APP_ROOT}${routesPath}login?" + search.toString();
           } else {
             window.location = "${APP_ROOT}${routesPath}login"
           }
@@ -203,7 +203,7 @@ export function logoutHandler({
     // Clear the cookie credentials
     await authInstance.clear(request);
 
-    const requestQueryParameters = `?post_logout_redirect_uri=${baseRedirectUrl}${basePath}/app/home`;
+    const requestQueryParameters = `?post_logout_redirect_uri=${baseRedirectUrl}${basePath}/`;
 
     // If we don't have an "end_session_endpoint" in the .well-known list,
     // we may have a custom logout_url defined in the config.
@@ -264,8 +264,14 @@ export function loginHandler({
     }
 
     const baseRedirectUrl = `${getBaseRedirectUrl({ kibanaCore, config })}${basePath}`;
-    debugLog('Base redirect url: ' + baseRedirectUrl);
-    const redirectUri = encodeURI(baseRedirectUrl + routesPath + 'login');
+    let redirectUri = new URL(encodeURI(baseRedirectUrl + routesPath + 'login'));
+    if (request.url.searchParams.has('nextUrl')) {
+      redirectUri.searchParams.set('nextUrl', request.url.searchParams.get('nextUrl'));
+    }
+    redirectUri = redirectUri.toString();
+
+    debugLog('Base redirect url: ' + redirectUri);
+
     const authCode = request.url.searchParams.get('code');
 
     // Could not find any info about length of the nonce in
@@ -334,9 +340,12 @@ export function loginHandler({
         authHeaderValue: 'Bearer ' + idpPayload.id_token,
       });
 
-      let redirectTo = '/app/home';
-      if (cookieOpenId.query && cookieOpenId.query.nextUrl) {
-        redirectTo = sanitizeNextUrl(decodeURIComponent(cookieOpenId.query.nextUrl), basePath);
+      let redirectTo = '/';
+      if (request.url.searchParams.has('nextUrl')) {
+        redirectTo = sanitizeNextUrl(
+          decodeURIComponent(request.url.searchParams.get('nextUrl')),
+          basePath
+        );
       }
 
       // All good, redirect to home
@@ -398,16 +407,34 @@ async function handleAuthRequest({
   const sessionCookie = (await sessionStorageFactory.asScoped(request).get()) || {};
 
   sessionCookie.openId = { nonce, query: {} };
-  for (const [key, value] of request.url.searchParams) {
-    sessionCookie.openId.query[key] = value;
+  for (const [key, value] of request.url.searchParams.entries()) {
+    // We don't want to store the nextUrl in cookie because it can be huge,
+    // larger than the cookie size limit.
+    if (key !== 'nextUrl') sessionCookie.openId.query[key] = value;
   }
 
   await sessionStorageFactory.asScoped(request).set(sessionCookie);
 
-  const idpAuthLocation = openIdEndPoints.authorization_endpoint + '?' + stringify(query);
+  const idpAuthLocation = new URL(openIdEndPoints.authorization_endpoint);
+  for (const [key, value] of Object.entries(query)) {
+    idpAuthLocation.searchParams.set(key, value);
+  }
+
+  const redirectURI = new URL(idpAuthLocation.searchParams.get('redirect_uri'));
+  const nextUrl = decodeURIComponent(request.url.searchParams.get('nextUrl'));
+  // Do not add the nextUrl to the redirect_uri to avoid the following braking
+  // change for the users that use normal URL to authenticate.
+  if (nextUrl === '/') redirectURI.searchParams.delete('nextUrl');
+  // Add the nextUrl to the redirect_uri as a parameter. The IDP uses the redirect_uri to redirect the user after successful authentication.
+  // For example, it is used to redirect user to the correct dashboard if the user put shared URL in the browser address input before authentication.
+  // To make this work, append the wildcard (*) to the valid redirect URI in the IDP configuration, for example
+  // https://kibana.example.com:5601/auth/openid/login*
+  else if (nextUrl) redirectURI.searchParams.set('nextUrl', nextUrl);
+  idpAuthLocation.searchParams.set('redirect_uri', redirectURI.toString());
+
   return response.redirected({
     headers: {
-      location: idpAuthLocation,
+      location: idpAuthLocation.toString(),
     },
   });
 }

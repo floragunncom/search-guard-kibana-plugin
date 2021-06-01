@@ -1,7 +1,13 @@
 import React, { useContext } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
-import { ContentPanel, FormikFieldText, FormikFieldPassword } from '../../../../components';
+import { EuiSpacer } from '@elastic/eui';
+import {
+  ContentPanel,
+  FormikFieldText,
+  FormikFieldPassword,
+  FormikErrorsCallOut,
+} from '../../../../components';
 import { isInvalid, hasError, validateName, validateEmptyField } from '../../../../utils/validate';
 import { AccountsService } from '../../../../services';
 import { accountText } from '../../../../utils/i18n/account';
@@ -37,7 +43,7 @@ const renderTextField = (path, label, validate) => {
   );
 };
 
-const JiraAccount = ({ formik: { values }, id }) => {
+const JiraAccount = ({ formik: { values, errors }, id }) => {
   const { httpClient } = useContext(Context);
   const isUpdatingName = id !== values._id;
 
@@ -50,6 +56,9 @@ const JiraAccount = ({ formik: { values }, id }) => {
         </p>
       }
     >
+      <FormikErrorsCallOut errors={errors} />
+      <EuiSpacer />
+
       {renderTextField(
         '_id',
         nameText,

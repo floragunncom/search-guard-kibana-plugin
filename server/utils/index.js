@@ -13,6 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { get } from 'lodash';
 
 export { fetchAllFromScroll } from './fetch_all_from_scroll';
 export { wrapForCustomError } from './wrap_elasticsearch_error';
+
+export function isAuthorized(result, authHeaderName = 'authorization') {
+  const credentials = get(result, `meta.request.params.headers${authHeaderName}`, '');
+  return !!credentials.length;
+}

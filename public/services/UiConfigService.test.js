@@ -1,6 +1,7 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import { UiConfigService as ConfigService, CONFIG_DEFAULTS } from './UiConfigService';
-import { setupApiServiceMock, setupCoreMock, setupCoreContextMock } from '../utils/mocks';
+import { UiConfigService as ConfigService } from './UiConfigService';
+import { ApiService } from './ApiService';
+import { setupCoreMock, setupCoreContextMock } from '../utils/mocks';
 
 describe('UiConfigService', () => {
   beforeEach(() => {
@@ -8,204 +9,215 @@ describe('UiConfigService', () => {
   });
 
   test('can construct the default config', () => {
-    const configService = new ConfigService();
+    const uiSettingsGet = jest.fn(() => true);
+    const uiSettings = setupCoreMock({ uiSettingsGet }).uiSettings;
 
+    const configGet = jest.fn(() => ({
+      enabled: true,
+      auth: {
+        type: 'basicauth',
+      },
+    }));
+    const coreContext = setupCoreContextMock({ configGet });
+
+    const configService = new ConfigService({ coreContext, uiSettings });
+
+    expect(uiSettingsGet).toHaveBeenCalledTimes(1);
+    expect(configGet).toHaveBeenCalledTimes(1);
     expect(configService).toBeInstanceOf(ConfigService);
-    expect(configService.getConfig()).toEqual(CONFIG_DEFAULTS);
+    expect(configService.getConfig()).toEqual({
+      authinfo: {},
+      elasticsearch: {},
+      is_dark_mode: true,
+      kibana: {},
+      restapiinfo: {},
+      searchguard: {},
+      searchguard: {
+        auth: {
+          type: 'basicauth',
+        },
+        enabled: true,
+      },
+      server: {},
+      systeminfo: {},
+    });
   });
 
-  describe('init', () => {
+  describe('fetchConfig', () => {
+    let uiSettingsGet;
+    let uiSettings;
+    let configGet;
+    let coreContext;
+
     beforeEach(() => {
-      jest.resetAllMocks();
+      uiSettingsGet = jest.fn(() => true);
+      uiSettings = setupCoreMock({ uiSettingsGet }).uiSettings;
+
+      configGet = jest.fn(() => ({
+        enabled: true,
+        auth: {
+          type: 'basicauth',
+        },
+      }));
+      coreContext = setupCoreContextMock({ configGet });
     });
 
-    test('instantiate config if NOT authenticated', async () => {
-      const core = setupCoreMock({
-        uiSettingsGetImplementation: () => true,
-      });
-      const uiSettings = core.uiSettings;
-
-      const coreContext = setupCoreContextMock({
-        configGetImplementation: () => ({
-          enabled: true,
-          auth: {
-            type: 'basicauth',
-          },
-          multitenancy: {},
-          basicauth: {},
-          configuration: {},
-        }),
-      });
-
-      const error401 = new Error('Unauthorized');
-      error401.code = 401;
-
-      const apiService = setupApiServiceMock({
-        loadRestInfoImplementation: () => Promise.reject(error401),
-        loadSystemInfoImplementation: () =>
-          Promise.resolve({
-            cluster_name: 'searchguard_demo',
-            sg_license: {
-              type: 'TRIAL',
-            },
-            modules: {},
-          }),
-        loadAuthInfoImplementation: () => Promise.reject(error401),
-        loadKibanaConfigImplementation: () => Promise.reject(error401),
-      });
-
-      const configService = new ConfigService({
-        uiSettings,
-        apiService,
-        coreContext,
-      });
-
-      await configService.init();
-
-      expect(configService).toBeInstanceOf(ConfigService);
-
-      const expected = {
-        searchguard: {
-          enabled: true,
-          auth: {
-            type: 'basicauth',
-          },
-          basicauth: {},
-          multitenancy: {},
-          configuration: {},
+    test('fetch limited config', async () => {
+      const httpClient = {
+        get: (path) => {
+          if (path.includes('systeminfo')) {
+            return Promise.resolve({
+              data: {
+                cluster_name: 'searchguard_demo',
+                sg_license: {
+                  type: 'TRIAL',
+                },
+                modules: {},
+              },
+            });
+          }
         },
+      };
+      const apiService = new ApiService(httpClient);
+
+      const configService = new ConfigService({ coreContext, uiSettings, apiService });
+      configService.isLoginPage = () => true;
+      await configService.fetchConfig();
+
+      expect(configService.config).toEqual({
+        authinfo: {},
+        elasticsearch: {},
+        is_dark_mode: true,
+        kibana: {},
         restapiinfo: {},
+        searchguard: {
+          auth: {
+            type: 'basicauth',
+          },
+          enabled: true,
+        },
+        server: {},
         systeminfo: {
           cluster_name: 'searchguard_demo',
+          modules: {},
           sg_license: {
             type: 'TRIAL',
           },
-          modules: {},
         },
-        authinfo: {},
-        is_dark_mode: true,
-      };
-
-      expect(configService.getConfig()).toEqual(expected);
-      expect(JSON.parse(global.sessionStorage.searchguard)).toEqual({
-        restapiinfo: expected.restapiinfo,
-        authinfo: expected.authinfo,
-        systeminfo: expected.systeminfo,
       });
     });
 
-    test('instantiate config if authenticated', async () => {
-      const core = setupCoreMock({
-        uiSettingsGetImplementation: () => true,
-      });
-      const uiSettings = core.uiSettings;
+    test('fetch unlimited config', async () => {
+      const httpClient = {
+        get: (path) => {
+          const resp = { data: {} };
 
-      const coreContext = setupCoreContextMock({
-        configGetImplementation: () => ({
-          enabled: true,
-          auth: {
-            type: 'basicauth',
-          },
-          multitenancy: {},
-          basicauth: {},
-          configuration: {},
-        }),
-      });
-
-      const apiService = setupApiServiceMock({
-        loadRestInfoImplementation: () =>
-          Promise.resolve({
-            user: 'User [name=admin, backend_roles=[admin], requestedTenant=__user__]',
-            user_name: 'admin',
-            has_api_access: true,
-            disabled_endpoints: {},
-          }),
-        loadSystemInfoImplementation: () =>
-          Promise.resolve({
-            cluster_name: 'searchguard_demo',
-            sg_license: {
-              type: 'TRIAL',
-            },
-            modules: {},
-          }),
-        loadAuthInfoImplementation: () =>
-          Promise.resolve({
-            secret: 'secret',
-            user_requested_tenant: 'admin_tenant',
-          }),
-        loadKibanaConfigImplementation: () =>
-          Promise.resolve({
-            searchguard: {
-              enabled: true,
-              auth: {
-                type: 'basicauth',
+          if (path.includes('kibana_config')) {
+            resp.data = {
+              searchguard: {
+                enabled: true,
+                auth: {
+                  type: 'basicauth',
+                },
               },
-            },
-            elasticsearch: {
-              username: 'kibanaserver',
-            },
-            kibana: {
-              index: '.kibana',
-            },
-          }),
-      });
+              elasticsearch: {
+                username: 'kibanaserver',
+              },
+              kibana: {
+                index: '.kibana',
+              },
+            };
+          } else if (path.includes('authinfo')) {
+            resp.data = {
+              secret: 'secret',
+              user_name: 'admin',
+              user_requested_tenant: 'admin_tenant',
+            };
+          } else if (path.includes('systeminfo')) {
+            resp.data = {
+              cluster_name: 'searchguard_demo',
+              sg_license: {
+                type: 'TRIAL',
+              },
+              modules: {},
+            };
+          } else if (path.includes('restapiinfo')) {
+            resp.data = {
+              user: 'User [name=admin, backend_roles=[admin], requestedTenant=__user__]',
+              user_name: 'admin',
+              has_api_access: true,
+              disabled_endpoints: {},
+            };
+          }
 
-      const configService = new ConfigService({
-        uiSettings,
-        apiService,
-        coreContext,
-      });
+          return Promise.resolve(resp);
+        },
+      };
+      const apiService = new ApiService(httpClient);
 
-      await configService.init();
+      const configService = new ConfigService({ coreContext, uiSettings, apiService });
+      configService.isLoginPage = () => false;
+      await configService.fetchConfig();
 
-      const expected = {
-        searchguard: {
-          enabled: true,
-          auth: {
-            type: 'basicauth',
-          },
-          basicauth: {},
-          multitenancy: {},
-          configuration: {},
+      expect(configService.config).toEqual({
+        authinfo: {
+          user_name: 'admin',
+          user_requested_tenant: 'admin_tenant',
         },
         elasticsearch: {
           username: 'kibanaserver',
         },
+        is_dark_mode: true,
         kibana: {
           index: '.kibana',
         },
         restapiinfo: {
+          disabled_endpoints: {},
+          has_api_access: true,
           user: 'User [name=admin, backend_roles=[admin], requestedTenant=__user__]',
           user_name: 'admin',
-          has_api_access: true,
-          disabled_endpoints: {},
         },
+        searchguard: {
+          auth: {
+            type: 'basicauth',
+          },
+          enabled: true,
+        },
+        server: {},
         systeminfo: {
           cluster_name: 'searchguard_demo',
+          modules: {},
           sg_license: {
             type: 'TRIAL',
           },
-          modules: {},
         },
-        authinfo: {
-          user_requested_tenant: 'admin_tenant',
-        },
-        is_dark_mode: true,
-      };
-
-      expect(configService).toBeInstanceOf(ConfigService);
-      expect(configService.getConfig()).toEqual(expected);
-      expect(JSON.parse(global.sessionStorage.searchguard)).toEqual({
-        restapiinfo: expected.restapiinfo,
-        authinfo: expected.authinfo,
-        systeminfo: expected.systeminfo,
       });
     });
   });
 
   describe('helpers', () => {
+    let uiSettingsGet;
+    let uiSettings;
+    let configGet;
+    let coreContext;
+
+    beforeEach(() => {
+      uiSettingsGet = jest.fn(() => true);
+      uiSettings = setupCoreMock({ uiSettingsGet }).uiSettings;
+
+      configGet = jest.fn(() => ({
+        enabled: true,
+        auth: {
+          type: 'basicauth',
+        },
+      }));
+      coreContext = setupCoreContextMock({ configGet });
+    });
+
     test('restApiEnbled', () => {
       let configService = new ConfigService({
+        uiSettings,
+        coreContext,
         config: {
           systeminfo: {
             modules: {
@@ -218,6 +230,8 @@ describe('UiConfigService', () => {
       expect(configService.restApiEnabled()).toBe(true);
 
       configService = new ConfigService({
+        uiSettings,
+        coreContext,
         config: {
           systeminfo: {
             modules: {},
@@ -230,6 +244,8 @@ describe('UiConfigService', () => {
 
     test('hasApiAccess', () => {
       let configService = new ConfigService({
+        uiSettings,
+        coreContext,
         config: {
           systeminfo: {
             modules: {
@@ -245,6 +261,8 @@ describe('UiConfigService', () => {
       expect(configService.hasApiAccess()).toBe(true);
 
       configService = new ConfigService({
+        uiSettings,
+        coreContext,
         config: {
           systeminfo: {
             modules: {},
@@ -256,6 +274,8 @@ describe('UiConfigService', () => {
       expect(configService.hasApiAccess()).toBe(false);
 
       configService = new ConfigService({
+        uiSettings,
+        coreContext,
         config: {
           systeminfo: {
             modules: {
@@ -269,6 +289,8 @@ describe('UiConfigService', () => {
       expect(configService.hasApiAccess()).toBe(false);
 
       configService = new ConfigService({
+        uiSettings,
+        coreContext,
         config: {
           systeminfo: {
             modules: {},
@@ -284,6 +306,8 @@ describe('UiConfigService', () => {
 
     test('dlsFlsEnabled', () => {
       let configService = new ConfigService({
+        uiSettings,
+        coreContext,
         config: {
           systeminfo: {
             modules: {
@@ -296,6 +320,8 @@ describe('UiConfigService', () => {
       expect(configService.dlsFlsEnabled()).toBe(true);
 
       configService = new ConfigService({
+        uiSettings,
+        coreContext,
         config: {
           systeminfo: {
             modules: {},
@@ -308,6 +334,8 @@ describe('UiConfigService', () => {
 
     test('multiTenancyEnabled', () => {
       let configService = new ConfigService({
+        uiSettings,
+        coreContext,
         config: {
           systeminfo: {
             modules: {
@@ -320,6 +348,8 @@ describe('UiConfigService', () => {
       expect(configService.multiTenancyEnabled()).toBe(true);
 
       configService = new ConfigService({
+        uiSettings,
+        coreContext,
         config: {
           systeminfo: {
             MULTITENANCY: {},
@@ -332,6 +362,8 @@ describe('UiConfigService', () => {
 
     test('compliancyFeaturesEnabled', () => {
       let configService = new ConfigService({
+        uiSettings,
+        coreContext,
         config: {
           systeminfo: {
             sg_license: {
@@ -344,6 +376,8 @@ describe('UiConfigService', () => {
       expect(configService.complianceFeaturesEnabled()).toBe(true);
 
       configService = new ConfigService({
+        uiSettings,
+        coreContext,
         config: {
           systeminfo: {
             sg_license: {
@@ -356,42 +390,10 @@ describe('UiConfigService', () => {
       expect(configService.complianceFeaturesEnabled()).toBe(false);
     });
 
-    test('endpointAndMethodEnabled', () => {
-      let configService = new ConfigService({
-        config: {
-          restapiinfo: {},
-        },
-      });
-
-      expect(configService.endpointAndMethodEnabled()).toBe(false);
-
-      configService = new ConfigService({
-        config: {
-          restapiinfo: { disabled_endpoints: {} },
-        },
-      });
-
-      expect(configService.endpointAndMethodEnabled()).toBe(true);
-
-      configService = new ConfigService({
-        config: {
-          restapiinfo: { disabled_endpoints: { a: [] } },
-        },
-      });
-
-      expect(configService.endpointAndMethodEnabled('a', 'b')).toBe(true);
-
-      configService = new ConfigService({
-        config: {
-          restapiinfo: { disabled_endpoints: { a: ['b'] } },
-        },
-      });
-
-      expect(configService.endpointAndMethodEnabled('a', 'b')).toBe(false);
-    });
-
     test('licenseRequired', () => {
       let configService = new ConfigService({
+        uiSettings,
+        coreContext,
         config: {
           systeminfo: {
             sg_license: {
@@ -404,6 +406,8 @@ describe('UiConfigService', () => {
       expect(configService.licenseRequired()).toBe(true);
 
       configService = new ConfigService({
+        uiSettings,
+        coreContext,
         config: {
           systeminfo: {},
         },
@@ -414,6 +418,8 @@ describe('UiConfigService', () => {
 
     test('licenseValid', () => {
       let configService = new ConfigService({
+        uiSettings,
+        coreContext,
         config: {
           systeminfo: {
             sg_license: {
@@ -427,6 +433,8 @@ describe('UiConfigService', () => {
       expect(configService.licenseValid()).toBe(true);
 
       configService = new ConfigService({
+        uiSettings,
+        coreContext,
         config: {
           systeminfo: {
             sg_license: {
@@ -439,6 +447,8 @@ describe('UiConfigService', () => {
       expect(configService.licenseValid()).toBe(true);
 
       configService = new ConfigService({
+        uiSettings,
+        coreContext,
         config: {
           systeminfo: {
             sg_license: {
@@ -454,6 +464,8 @@ describe('UiConfigService', () => {
 
     test('isTrialLicense', () => {
       let configService = new ConfigService({
+        uiSettings,
+        coreContext,
         config: {
           systeminfo: {
             sg_license: {
@@ -466,6 +478,8 @@ describe('UiConfigService', () => {
       expect(configService.isTrialLicense()).toBe(false);
 
       configService = new ConfigService({
+        uiSettings,
+        coreContext,
         config: {
           systeminfo: {
             sg_license: {
@@ -481,6 +495,8 @@ describe('UiConfigService', () => {
 
     test('licenseExpiresIn', () => {
       let configService = new ConfigService({
+        uiSettings,
+        coreContext,
         config: {
           systeminfo: {
             sg_license: {
@@ -493,6 +509,8 @@ describe('UiConfigService', () => {
       expect(configService.licenseExpiresIn()).toBe(1);
 
       configService = new ConfigService({
+        uiSettings,
+        coreContext,
         config: {
           systeminfo: {},
         },

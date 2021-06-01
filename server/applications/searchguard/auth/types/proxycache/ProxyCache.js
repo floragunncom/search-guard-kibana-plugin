@@ -19,8 +19,7 @@ import AuthType from '../AuthType';
 import MissingTenantError from '../../errors/missing_tenant_error';
 import SessionExpiredError from '../../errors/session_expired_error';
 import MissingRoleError from '../../errors/missing_role_error';
-import { parseLoginEndpoint } from './parse_login_endpoint';
-import { stringify } from 'querystring';
+import path from 'path';
 
 export default class ProxyCache extends AuthType {
   constructor({
@@ -156,39 +155,39 @@ export default class ProxyCache extends AuthType {
   }
 
   getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false) {
-    const queryParamsObject = {
-      type: 'proxycacheAuthError',
-    };
-    const redirectTo = `${this.basePath}/customerror`;
+    let url = new URL(request.url.href);
+    url.pathname = path.posix.join(this.basePath, '/customerror');
 
     if (error instanceof MissingTenantError) {
-      queryParamsObject.type = 'missingTenant';
+      url.searchParams.set('type', 'missingTenant');
     } else if (error instanceof MissingRoleError) {
-      queryParamsObject.type = 'missingRole';
+      url.searchParams.set('type', 'missingRole');
+    } else if (error instanceof SessionExpiredError) {
+      url.searchParams.set('type', 'SessionExpiredError');
     } else {
       // The customer may use a login endpoint, to which we can redirect
       // if the user isn't authenticated.
       const loginEndpoint = this.config.get('searchguard.proxycache.login_endpoint');
       if (loginEndpoint) {
         try {
-          const redirectUrl = parseLoginEndpoint(
-            loginEndpoint,
-            isAJAX ? null : request, // Don't add the current request for AJAX requests
-            this.basePath
-          );
-          return redirectUrl;
+          url = new URL(loginEndpoint);
+
+          if (!isAJAX && !url.searchParams.has('nextUrl')) {
+            url.searchParams.set('nextUrl', this.getNextUrl(request));
+            // Delete sg_tenant because we have it already as a param in the nextUrl
+            url.searchParams.delete('sg_tenant');
+          }
+
+          return url.toString();
         } catch (error) {
           this.logger.error(
             'An error occured while parsing the searchguard.proxycache.login_endpoint value'
           );
         }
-      } else if (error instanceof SessionExpiredError) {
-        queryParamsObject.type = 'SessionExpiredError';
       }
     }
 
-    const queryParameterString = stringify(queryParamsObject);
-    return queryParameterString ? `${redirectTo}?${queryParameterString}` : `${redirectTo}`;
+    return url.pathname + url.search + url.hash;
   }
 
   onUnAuthenticated(request, response, tookit, error = null) {

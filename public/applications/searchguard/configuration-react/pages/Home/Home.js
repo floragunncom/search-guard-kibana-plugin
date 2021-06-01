@@ -16,7 +16,6 @@
 
 import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
-import { isEmpty } from 'lodash';
 import {
   EuiFlexGroup,
   EuiFlexItem,
@@ -26,8 +25,7 @@ import {
   EuiCallOut,
 } from '@elastic/eui';
 import { ContentPanel, Icon } from '../../components';
-import { APP_PATH } from '../../utils/constants';
-import { ENDPOINTS, METHODS_FOR_ENDPOINTS } from './utils/constants';
+import { APP_PATH, PAGE_NAMES } from '../../utils/constants';
 import {
   authenticationBackendsText,
   systemText,
@@ -60,15 +58,13 @@ import { Context } from '../../Context';
 const Home = ({ history, onPurgeCache, purgingCache }) => {
   const { configService } = useContext(Context);
 
-  const filterDisabledCards = (cards = []) => {
-    return cards.filter(({ endpoint }) => {
-      return configService.endpointAndMethodEnabled(endpoint, METHODS_FOR_ENDPOINTS[endpoint]);
-    });
-  };
+  function filterDisabledCards(cards = []) {
+    return cards.filter(({ id }) => configService.get(`searchguard.configuration.${id}.enabled`));
+  }
 
   const authenticationBackendsCards = filterDisabledCards([
     {
-      endpoint: ENDPOINTS.INTERNALUSERS,
+      id: PAGE_NAMES.internal_users_page,
       icon: <Icon size="xxl" type="internalUsersDatabase" />,
       title: internalUsersDatabaseText,
       description: internalUsersDatabaseDescription,
@@ -78,21 +74,21 @@ const Home = ({ history, onPurgeCache, purgingCache }) => {
 
   const systemCards = filterDisabledCards([
     {
-      endpoint: ENDPOINTS.SGCONFIG,
+      id: PAGE_NAMES.auth_page,
       icon: <Icon size="xxl" type="authcAndAuthz" />,
       title: authenticationAndAuthorizationText,
       description: authenticationAndAuthorizationDescription,
       onClick: () => history.push(APP_PATH.AUTH),
     },
     {
-      endpoint: ENDPOINTS.LICENSE,
+      id: PAGE_NAMES.system_status_page,
       icon: <Icon size="xxl" type="systemStatus" />,
       title: systemStatusText,
       description: systemStatusDescription,
       onClick: () => history.push(APP_PATH.SYSTEM_STATUS),
     },
     {
-      endpoint: ENDPOINTS.CACHE,
+      id: PAGE_NAMES.cache_page,
       icon: <Icon size="xxl" type="purgeCache" />,
       title: purgeCacheText,
       description: purgingCache ? <EuiLoadingSpinner size="xl" /> : purgeCacheDescription,
@@ -102,28 +98,28 @@ const Home = ({ history, onPurgeCache, purgingCache }) => {
 
   const permissionsAndRolesCards = filterDisabledCards([
     {
-      endpoint: ENDPOINTS.ROLESMAPPING,
+      id: PAGE_NAMES.role_mappings_page,
       icon: <Icon size="xxl" type="roleMappings" />,
       title: roleMappingsText,
       description: roleMappingsDescription,
       onClick: () => history.push(APP_PATH.ROLE_MAPPINGS),
     },
     {
-      endpoint: ENDPOINTS.ROLES,
+      id: PAGE_NAMES.roles_page,
       icon: <Icon size="xxl" type="roles" />,
       title: rolesText,
       description: rolesDescription,
       onClick: () => history.push(APP_PATH.ROLES),
     },
     {
-      endpoint: ENDPOINTS.ACTIONGROUPS,
+      id: PAGE_NAMES.action_groups_page,
       icon: <Icon size="xxl" type="actionGroups" />,
       title: actionGroupsText,
       description: actionGroupsDescription,
       onClick: () => history.push(APP_PATH.ACTION_GROUPS),
     },
     {
-      endpoint: ENDPOINTS.TENANTS,
+      id: PAGE_NAMES.tenants_page,
       icon: <Icon size="xxl" type="tenants" />,
       title: tenantsText,
       description: tenantsDescription,
@@ -132,15 +128,15 @@ const Home = ({ history, onPurgeCache, purgingCache }) => {
   ]);
 
   const renderCards = (cards) =>
-    cards.map(({ endpoint, ...props }, i) => (
+    cards.map(({ id, ...props }, i) => (
       <EuiFlexItem key={i} grow={false} className="sgHomeMenu__card">
-        <EuiCard data-test-subj={`sgHomeMenu-${endpoint.toLowerCase()}`} {...props} />
+        <EuiCard data-test-subj={`sgHomeMenu-${id.toLowerCase()}`} {...props} />
       </EuiFlexItem>
     ));
 
-  const isNoPermissionsAndRoles = isEmpty(permissionsAndRolesCards);
-  const isNoEuthenticationBackends = isEmpty(authenticationBackendsCards);
-  const isNoSystem = isEmpty(systemCards);
+  const isNoPermissionsAndRoles = !permissionsAndRolesCards.length;
+  const isNoEuthenticationBackends = !authenticationBackendsCards.length;
+  const isNoSystem = !systemCards.length;
 
   return (
     <Fragment>
@@ -161,7 +157,6 @@ const Home = ({ history, onPurgeCache, purgingCache }) => {
           <EuiFlexGroup>{renderCards(permissionsAndRolesCards)}</EuiFlexGroup>
         </ContentPanel>
       )}
-
       <EuiSpacer size="xl" />
 
       {isNoEuthenticationBackends ? (
@@ -175,7 +170,6 @@ const Home = ({ history, onPurgeCache, purgingCache }) => {
           <EuiFlexGroup>{renderCards(authenticationBackendsCards)}</EuiFlexGroup>
         </ContentPanel>
       )}
-
       <EuiSpacer size="xl" />
 
       {isNoSystem ? (

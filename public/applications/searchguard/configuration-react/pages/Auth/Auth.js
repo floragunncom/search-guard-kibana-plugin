@@ -6,7 +6,6 @@ import {
   EuiFlexItem,
   EuiFlexGroup,
   EuiSideNav,
-  EuiTextColor,
   EuiFlexGrid,
   EuiCodeEditor,
   EuiText,
@@ -15,7 +14,7 @@ import { ContentPanel, CancelButton } from '../../components';
 import { get, isEmpty, map, toString, startCase } from 'lodash';
 import { APP_PATH } from '../../utils/constants';
 import { stringifyPretty } from '../../utils/helpers';
-import { navigateText, disabledText } from '../../utils/i18n/common';
+import { navigateText } from '../../utils/i18n/common';
 import { SELECTED_SIDE_NAV_ITEM_NAME } from './utils/constants';
 import { resourcesToUiResources, getSideNavItems } from './utils';
 import { SgConfigService } from '../../services';
@@ -90,7 +89,7 @@ export class Auth extends Component {
   getResource = resource => {
     if (isEmpty(resource)) return {};
     const common = {
-      enaledOnREST: resource.http_enabled,
+      enabledOnREST: resource.http_enabled,
       enabledOnTransport: resource.transport_enabled,
     };
 
@@ -132,23 +131,6 @@ export class Auth extends Component {
     />
   );
 
-  renderPanelTitle = selectedSideNavItemName => {
-    const disabled =
-      !isEmpty(this.state.resources) &&
-      !this.state.resources[selectedSideNavItemName].transport_enabled;
-
-    return (
-      <Fragment>
-        {startCase(selectedSideNavItemName)}{' '}
-        {disabled && (
-          <EuiTextColor data-test-subj="sgAuthContentPanelDisabledTag" color="danger">
-            {disabledText}
-          </EuiTextColor>
-        )}
-      </Fragment>
-    );
-  };
-
   render() {
     const { history } = this.props;
     const { selectedSideNavItemName, resources, isSideNavOpenOnMobile } = this.state;
@@ -162,7 +144,7 @@ export class Auth extends Component {
     const resource = this.getResource(resources[selectedSideNavItemName]);
 
     return (
-      <EuiFlexGroup>
+      <EuiFlexGroup data-test-subj="sgConfiguration-Auth">
         <EuiFlexItem grow={false}>
           <EuiSideNav
             mobileTitle={navigateText}
@@ -175,7 +157,7 @@ export class Auth extends Component {
 
         <EuiFlexItem>
           <ContentPanel
-            title={this.renderPanelTitle(selectedSideNavItemName)}
+            title={startCase(selectedSideNavItemName)}
             actions={[<CancelButton onClick={() => history.push(APP_PATH.HOME)} />]}
           >
             <AuthContent resource={resource} />

@@ -1,4 +1,20 @@
 /*
+ *    Copyright 2021 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
  *    Copyright 2020 floragunn GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -63,15 +79,16 @@ export class ServerPlugin {
 
     (async () => {
       const [{ elasticsearch, savedObjects }] = await core.getStartServices();
-      const searchGuardBackend = new SearchGuardBackend({ elasticsearch });
-      const searchGuardConfigurationBackend = new SearchGuardConfigurationBackend({
-        elasticsearch,
-      });
 
       const configService = await getConfigService({
         logger: this.logger,
         initContext: this.initContext,
         clusterClient: elasticsearch.client,
+      });
+
+      const searchGuardBackend = new SearchGuardBackend({ elasticsearch });
+      const searchGuardConfigurationBackend = new SearchGuardConfigurationBackend({
+        elasticsearch,
       });
 
       const tenantService = new TenantService({
@@ -94,6 +111,7 @@ export class ServerPlugin {
         searchGuardBackend,
         searchGuardConfigurationBackend,
         spacesService,
+        elasticsearch,
       });
 
       const isMtEnabled = configService.get('searchguard.multitenancy.enabled');

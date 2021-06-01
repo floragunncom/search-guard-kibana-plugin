@@ -1,6 +1,5 @@
-import { INDEX_PERMISSIONS, CLUSTER_PERMISSIONS } from '../constants';
-import { get, reduce, sortBy, uniqBy, map, filter } from 'lodash';
-import { configure } from 'enzyme';
+import { assign, cloneDeep, reduce, sortBy, uniqBy, map, filter } from 'lodash';
+import { INDEX_PERMISSIONS, CLUSTER_PERMISSIONS, PAGE_NAMES, PAGE_CONFIGS } from '../constants';
 
 export { default as sideNavItem } from './sideNavItem';
 
@@ -70,3 +69,35 @@ export const getAllUiIndexPermissions = () => map(INDEX_PERMISSIONS, ({ name }) 
 export const filterReservedStaticTableResources = (resources = [], isShowingSystemItems = false) => !isShowingSystemItems
   ? filter(resources, resource => !resource.reserved && !resource.static)
   : resources;
+
+export function isEndpointAndMethodEnabled(restapiinfo, endpoint, method) {
+  if (restapiinfo && restapiinfo.disabled_endpoints) {
+    if (restapiinfo.disabled_endpoints[endpoint]) {
+      return restapiinfo.disabled_endpoints[endpoint].indexOf(method) === -1;
+    } else {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export function buildSeardGuardConfiguration({ restapiinfo, searchguard }) {
+  const searchguardConfiguration = cloneDeep(searchguard.configuration);
+  const pagesConfiguration = Object.keys(PAGE_NAMES).reduce((pagesConfiguration, pageName) => {
+    pagesConfiguration[pageName] = {
+      enabled:
+        searchguardConfiguration[pageName].enabled &&
+        isEndpointAndMethodEnabled(
+          restapiinfo,
+          PAGE_CONFIGS[pageName].api.endpoint,
+          PAGE_CONFIGS[pageName].api.method
+        ),
+    };
+
+    return pagesConfiguration;
+  }, {});
+
+  assign(searchguardConfiguration, pagesConfiguration);
+  return searchguardConfiguration;
+}
