@@ -20,7 +20,15 @@ import { API_ROOT } from '../../../utils/constants';
 export function migrateTenants({
   searchGuardBackend,
   KibanaMigrator,
-  migratorDeps: { client, kibanaConfig, typeRegistry, logger, kibanaVersion, soMigrationsConfig },
+  migratorDeps: {
+    client,
+    kibanaConfig,
+    typeRegistry,
+    logger,
+    kibanaVersion,
+    savedObjectsConfig,
+    savedObjectValidations,
+  },
 }) {
   return async function (context, request, response) {
     try {
@@ -53,7 +61,8 @@ export function migrateTenants({
               typeRegistry,
               logger,
               kibanaVersion,
-              soMigrationsConfig,
+              savedObjectsConfig,
+              savedObjectValidations,
             });
 
             kibanaMigrator.prepareMigrations();
@@ -81,7 +90,8 @@ export function migrateTenants({
         typeRegistry,
         logger,
         kibanaVersion,
-        soMigrationsConfig,
+        savedObjectsConfig,
+        savedObjectValidations,
       });
 
       kibanaMigrator.prepareMigrations();

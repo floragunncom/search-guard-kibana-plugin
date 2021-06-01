@@ -1,17 +1,18 @@
-/*
- *    Copyright 2021 floragunn GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/* eslint-disable @kbn/eslint/require-license-header */
+/**
+ *    Copyright 2020 floragunn GmbH
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
  */
 
 import { migrationRetryCallCluster } from '../../../../../src/core/server/elasticsearch/client';
@@ -30,7 +31,7 @@ function setupMigratorDependencies({
     'searchguard.multitenancy.saved_objects_migration'
   );
 
-  const soMigrationsConfig = {
+  const savedObjectsConfig = {
     batchSize: savedObjectsMigrationConfig.batch_size,
     scrollDuration: savedObjectsMigrationConfig.scroll_duration,
     pollInterval: savedObjectsMigrationConfig.poll_interval,
@@ -47,10 +48,11 @@ function setupMigratorDependencies({
     typeRegistry,
     logger,
     kibanaVersion,
-    soMigrationsConfig,
+    savedObjectsConfig,
+    savedObjectValidations: {}, // Kibana NP doesn't have this yet.
   };
 
-  return { soMigrationsConfig, typeRegistry, kibanaConfig, migratorDeps };
+  return { savedObjectsConfig, typeRegistry, kibanaConfig, migratorDeps };
 }
 
 export class TenantsMigrationService {
@@ -81,7 +83,7 @@ export class TenantsMigrationService {
     this.logger.debug('Start tenants saved objects migration');
 
     try {
-      const { soMigrationsConfig, migratorDeps, kibanaConfig } = setupMigratorDependencies({
+      const { savedObjectsConfig, migratorDeps, kibanaConfig } = setupMigratorDependencies({
         configService,
         esClient,
         savedObjects,
@@ -103,9 +105,9 @@ export class TenantsMigrationService {
         mappings: migrator.getActiveMappings(),
       });
 
-      const isMigrationNeeded = soMigrationsConfig.skip || !!this.tenantIndices.length;
+      const isMigrationNeeded = savedObjectsConfig.skip || !!this.tenantIndices.length;
       if (!isMigrationNeeded) {
-        if (soMigrationsConfig.skip) {
+        if (savedObjectsConfig.skip) {
           this.logger.info('You configured to skip tenants saved objects migration.');
         } else {
           this.logger.info(

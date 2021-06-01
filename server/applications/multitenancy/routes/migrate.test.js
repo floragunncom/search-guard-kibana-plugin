@@ -40,6 +40,10 @@ function setupSavedObjectsConfigMock() {
   };
 }
 
+function setupSavedObjectValidationsMock() {
+  return {};
+}
+
 function setupTypeRegistryMock() {
   // All the registered Saved Objects docs
   return {
@@ -107,7 +111,8 @@ const migratorDeps = {
   kibanaConfig: setupKibanaConfigMock(),
   typeRegistry: setupTypeRegistryMock(),
   logger: setupLoggerMock(),
-  soMigrationsConfig: setupSavedObjectsConfigMock(),
+  savedObjectsConfig: setupSavedObjectsConfigMock(),
+  savedObjectValidations: setupSavedObjectValidationsMock(),
   kibanaVersion,
 };
 
