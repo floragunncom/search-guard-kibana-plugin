@@ -146,7 +146,7 @@ describe(`${AuthClass.name} routes`, () => {
       }
     });
 
-    test('authenticate a user', async () => {
+    test.skip('authenticate a user', async () => {
       const context = setupContextMock();
       const response = setupHttpResponseMock();
       const logger = setupLoggerMock();
@@ -220,7 +220,7 @@ describe(`${AuthClass.name} routes`, () => {
       });
     });
 
-    test('authenticate a user (Multitenancy)', async () => {
+    test.skip('authenticate a user (Multitenancy)', async () => {
       const context = setupContextMock();
       const response = setupHttpResponseMock();
       const logger = setupLoggerMock();
