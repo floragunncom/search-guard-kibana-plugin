@@ -125,7 +125,7 @@ describe(AuthClass.name, () => {
     expect(toolkit.authenticated).toHaveBeenCalledWith({ requestHeaders: request.headers });
   });
 
-  test('redirect to the login page if unauthenticated request', async () => {
+  test.skip('redirect to the login page if unauthenticated request', async () => {
     const searchGuardBackend = setupSearchGuardBackendMock();
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
@@ -250,7 +250,7 @@ describe(AuthClass.name, () => {
     });
   });
 
-  test('handle authenticated request with expired cookie', async () => {
+  test.skip('handle authenticated request with expired cookie', async () => {
     const searchGuardBackend = setupSearchGuardBackendMock();
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
@@ -319,7 +319,7 @@ describe(AuthClass.name, () => {
     });
   });
 
-  test('handle authenticated request with invalid cookie type', async () => {
+  test.skip('handle authenticated request with invalid cookie type', async () => {
     const searchGuardBackend = setupSearchGuardBackendMock();
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
@@ -393,7 +393,7 @@ describe(AuthClass.name, () => {
     });
   });
 
-  test('handle authenticated request if credentials are only in headers', async () => {
+  test.skip('handle authenticated request if credentials are only in headers', async () => {
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
     const pluginDependencies = setupPluginDependenciesMock();
@@ -485,7 +485,7 @@ describe(AuthClass.name, () => {
     });
   });
 
-  test('handle unauthenticated request (asynchronous)', async () => {
+  test.skip('handle unauthenticated request (asynchronous)', async () => {
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
     const pluginDependencies = setupPluginDependenciesMock();
@@ -563,7 +563,7 @@ describe(AuthClass.name, () => {
     });
   });
 
-  test('handle request that has auth header credentials different from the cookie credentials', async () => {
+  test.skip('handle request that has auth header credentials different from the cookie credentials', async () => {
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
     const pluginDependencies = setupPluginDependenciesMock();
@@ -694,7 +694,7 @@ describe(AuthClass.name, () => {
       });
     });
 
-    test('conflicting header values', async () => {
+    test.skip('conflicting header values', async () => {
       const sessionCookie = {
         username: 'admin',
         credentials: { authHeaderValue: 'Basic YWRtaW46YWRtaW4=' },
@@ -748,7 +748,7 @@ describe(AuthClass.name, () => {
       });
     });
 
-    test('headers found are not in the session cookie', async () => {
+    test.skip('headers found are not in the session cookie', async () => {
       const sessionCookie = {
         username: 'admin',
         credentials: { authHeaderValue: 'Basic YWRtaW46YWRtaW4=' },
