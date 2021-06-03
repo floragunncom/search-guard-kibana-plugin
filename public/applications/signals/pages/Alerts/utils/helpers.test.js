@@ -62,6 +62,7 @@ describe('buildESQuery', () => {
         must: [
           {
             simple_query_string: {
+              analyze_wildcard: true,
               fields: SIMPLE_QUERY_FIELDS,
               query: 'failed*',
             },
