@@ -46,6 +46,7 @@ export const buildESQuery = ({ query, gte, lte, watchId }) => {
       query.bool.must[index].simple_query_string.fields = SIMPLE_QUERY_FIELDS;
       if (query.bool.must[index].simple_query_string.query.slice(-1) !== '*') {
         query.bool.must[index].simple_query_string.query += '*';
+        query.bool.must[index].simple_query_string.analyze_wildcard = true;
       }
     }
   }
