@@ -20,7 +20,7 @@ import MissingTenantError from '../../errors/missing_tenant_error';
 import AuthenticationError from '../../errors/authentication_error';
 import MissingRoleError from '../../errors/missing_role_error';
 import { defineRoutes } from './routes';
-import { stringify } from 'querystring';
+import path from 'path';
 
 export default class OpenId extends AuthType {
   constructor({
@@ -101,24 +101,26 @@ export default class OpenId extends AuthType {
   }
 
   getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false) {
-    const queryParamsObject = {};
-    let redirectTo = this.basePath + '/customerror';
+    const url = new URL(request.url.href, 'http://abc');
+    url.pathname = path.posix.join(this.basePath, '/customerror');
+
     // If we don't have any tenant we need to show the custom error page
     if (error instanceof MissingTenantError) {
-      queryParamsObject.type = 'missingTenant';
+      url.searchParams.set('type', 'missingTenant');
     } else if (error instanceof MissingRoleError) {
-      queryParamsObject.type = 'missingRole';
+      url.searchParams.set('type', 'missingRole');
     } else if (error instanceof AuthenticationError) {
-      queryParamsObject.type = 'authError';
+      url.searchParams.set('type', 'authError');
     } else {
       if (!isAJAX) {
-        queryParamsObject.nextUrl = this.getNextUrl(request);
+        url.searchParams.set('nextUrl', this.getNextUrl(request));
+        // Delete sg_tenant because we have it already as a param in the nextUrl
+        url.searchParams.delete('sg_tenant');
       }
-      redirectTo = `${this.basePath}/auth/openid/encode`;
+      url.pathname = path.posix.join(this.basePath, '/auth/openid/encode');
     }
 
-    const queryParameterString = stringify(queryParamsObject);
-    return queryParameterString ? `${redirectTo}?${queryParameterString}` : `${redirectTo}`;
+    return url.pathname + url.search + url.hash;
   }
 
   onUnAuthenticated(request, response, toolkit, error) {

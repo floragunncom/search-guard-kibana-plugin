@@ -7,6 +7,7 @@ const { SECONDS } = TIME_PERIOD_UNITS;
 
 const COMMON = {
   checks: '[]',
+  checksBlocks: [],
   severity: [],
   throttle_period: {
     advInterval: '1h30m15s',

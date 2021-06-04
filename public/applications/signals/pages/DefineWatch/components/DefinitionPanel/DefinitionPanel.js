@@ -6,7 +6,6 @@ import { get } from 'lodash';
 import { EuiButton, EuiSpacer, EuiErrorBoundary } from '@elastic/eui';
 import { useCheckTemplates, useWatchChecks } from '../../hooks';
 import { FormikSelect, ContentPanel } from '../../../../components';
-import JsonWatch from '../JsonWatch';
 import { BlocksWatch } from '../BlocksWatch';
 import GraphWatch from '../GraphWatch';
 import QueryStat from '../QueryStat';
@@ -84,22 +83,6 @@ const DefinitionPanel = ({ formik: { values, setFieldValue } }) => {
   let watch;
 
   switch (watchType) {
-    case WATCH_TYPES.JSON:
-      contentPanleActions = [addChecksBtn, execChecksBtn];
-
-      watch = (
-        <EuiErrorBoundary>
-          <EuiSpacer />
-          <JsonWatch
-            isResultVisible={isResultVisible}
-            editorResult={editorResult}
-            onCloseResult={closeResult}
-          />
-          <QueryStat />
-          {isSeverity && renderSeverity()}
-        </EuiErrorBoundary>
-      );
-      break;
     case WATCH_TYPES.BLOCKS:
       contentPanleActions = [addChecksBtn, execChecksBtn];
 

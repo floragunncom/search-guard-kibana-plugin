@@ -14,7 +14,6 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { parseLoginEndpoint } from './parse_login_endpoint';
 import { customError as customErrorRoute } from '../common/routes';
 import { APP_ROOT, API_ROOT } from '../../../../../utils/constants';
 

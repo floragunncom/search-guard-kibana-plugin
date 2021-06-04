@@ -1,4 +1,19 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/*
+ *    Copyright 2021 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -14,15 +29,13 @@ import { cloneDeep, get } from 'lodash';
 import { AccountsService } from '../../services';
 import {
   ContentPanel,
-  TableDeleteAction,
-  TableCloneAction,
   TableMultiDeleteButton,
   TableIdCell,
   TableTextCell,
   PopoverButton,
 } from '../../components';
-import { buildESQuery, getResourceEditUri } from './utils/helpers';
-import { deleteText, cloneText, saveText, typeText } from '../../utils/i18n/common';
+import { buildESQuery, getResourceEditUri, getResourceReadUri } from './utils/helpers';
+import { deleteText, cloneText, saveText, typeText, jsonText } from '../../utils/i18n/common';
 import { accountsText } from '../../utils/i18n/account';
 import { TABLE_SORT_FIELD, TABLE_SORT_DIRECTION, ACCOUNT_TYPE } from './utils/constants';
 import { APP_PATH } from '../../utils/constants';
@@ -98,7 +111,7 @@ class Accounts extends Component {
     this.setState({ isLoading: false });
   };
 
-  handleCloneAccount = async account => {
+  handleCloneAccount = async (account) => {
     this.setState({ isLoading: true, error: null });
     try {
       const { _id: id, ...rest } = account;
@@ -132,7 +145,7 @@ class Accounts extends Component {
             </p>
           );
         })
-        .catch(error => {
+        .catch((error) => {
           console.error('Accounts -- deleteAccounts', error);
           this.context.addErrorToast(error);
           this.setState({ error });
@@ -165,12 +178,12 @@ class Accounts extends Component {
   };
 
   triggerAddAccountPopover = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       isAddAccountPopoverOpen: !prevState.isAddAccountPopoverOpen,
     }));
   };
 
-  addAccount = accountType => {
+  addAccount = (accountType) => {
     this.triggerAddAccountPopover();
     this.props.history.push(`${APP_PATH.DEFINE_ACCOUNT}?accountType=${accountType}`);
   };
@@ -224,17 +237,29 @@ class Accounts extends Component {
 
     const actions = [
       {
-        render: account => (
-          <TableCloneAction name={account._id} onClick={() => this.handleCloneAccount(account)} />
-        ),
+        'data-test-subj': 'sgTableCol-jsonAccount',
+        name: jsonText,
+        description: 'Account JSON',
+        icon: 'document',
+        type: 'icon',
+        onClick: ({ _id, type }) => history.push(getResourceReadUri(_id, type)),
       },
       {
-        render: account => (
-          <TableDeleteAction
-            name={account._id}
-            onClick={() => this.handleDeleteAccounts([account])}
-          />
-        ),
+        'data-test-subj': 'sgTableCol-ActionClone',
+        name: cloneText,
+        description: 'Clone the watch',
+        icon: 'copy',
+        type: 'icon',
+        onClick: this.handleCloneAccount,
+      },
+      {
+        'data-test-subj': 'sgTableCol-ActionDelete',
+        name: deleteText,
+        description: 'Delete the watch',
+        icon: 'trash',
+        type: 'icon',
+        color: 'danger',
+        onClick: (account) => this.handleDeleteAccounts([account]),
       },
     ];
 
@@ -268,8 +293,8 @@ class Accounts extends Component {
     ];
 
     const selection = {
-      selectable: doc => doc._id,
-      onSelectionChange: tableSelection => this.setState({ tableSelection }),
+      selectable: (doc) => doc._id,
+      onSelectionChange: (tableSelection) => this.setState({ tableSelection }),
     };
 
     const sorting = {

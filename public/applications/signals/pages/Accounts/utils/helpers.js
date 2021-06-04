@@ -15,7 +15,7 @@
  */
 
 import { get } from 'lodash';
-import { APP_PATH } from '../../../utils/constants';
+import { APP_PATH, ACCOUNT_ACTIONS } from '../../../utils/constants';
 
 export const buildESQuery = (query) => {
   const must = get(query, 'bool.must', []);
@@ -27,6 +27,7 @@ export const buildESQuery = (query) => {
       query.bool.must[index].simple_query_string.fields = ['_name', 'type'];
       if (query.bool.must[index].simple_query_string.query.slice(-1) !== '*') {
         query.bool.must[index].simple_query_string.query += '*';
+        query.bool.must[index].simple_query_string.analyze_wildcard = true;
       }
     }
   }
@@ -36,3 +37,9 @@ export const buildESQuery = (query) => {
 
 export const getResourceEditUri = (id, type) =>
   `${APP_PATH.DEFINE_ACCOUNT}?id=${encodeURIComponent(id)}&accountType=${type}`;
+
+export const getResourceReadUri = (id, type) => {
+  return `${APP_PATH.DEFINE_JSON_ACCOUNT}?id=${encodeURIComponent(id)}&accountType=${type}&action=${
+    ACCOUNT_ACTIONS.READ_ACCOUNT
+  }`;
+};

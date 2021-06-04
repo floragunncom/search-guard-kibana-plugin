@@ -7,7 +7,7 @@ export class CustomErrorApp {
 
   mount({ core, configService }) {
     return async (params) => {
-      const [{ renderApp }] = await Promise.all([import('./npstart'), configService.init()]);
+      const [{ renderApp }] = await Promise.all([import('./npstart'), configService.fetchConfig()]);
 
       return renderApp({
         element: params.element,

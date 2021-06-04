@@ -8,8 +8,9 @@ import { get } from 'lodash';
 import { WatchService } from '../../services';
 import { watchToFormik, formikToWatch } from './utils';
 import { DEFAULT_WATCH, WATCH_TYPES, AGGREGATIONS_TYPES } from './utils/constants';
-import { GeneralPanel, DefinitionPanel, ActionPanel, ResolveActionPanel } from './components';
-import { CancelButton, SaveButton } from '../../components';
+import { GeneralPanel, DefinitionPanel, ActionPanel } from './components';
+import { CancelButton, SaveButton, FormikErrorsCallOut } from '../../components';
+import { getResourceEditUri, isJsonWatch } from '../Watches/utils/helpers';
 import { APP_PATH } from '../../utils/constants';
 import { createWatchText, updateWatchText, requiredText } from '../../utils/i18n/watch';
 import { updateText, createText, saveText } from '../../utils/i18n/common';
@@ -46,11 +47,13 @@ class DefineWatch extends Component {
     if (!id) return;
 
     let initialValues;
-    let watch;
     try {
-      const { resp } = await this.watchService.get(id);
-      watch = resp;
+      const { resp: watch } = await this.watchService.get(id);
       console.debug('DefineWatch -- fetchWatch -- watch', watch);
+
+      // It is for the backwards compatibility. In the past, the JSON watch was a mode under the DefineWatch.
+      // Now there is a separate page for the JSON watch. Thus we must redirect.
+      if (isJsonWatch(watch)) history.push(getResourceEditUri(watch));
 
       initialValues = watchToFormik(watch);
       this.setState({ initialValues });
@@ -70,11 +73,7 @@ class DefineWatch extends Component {
   };
 
   onCancel = () => {
-    const { history } = this.props;
-    if (this.state.isEdit) {
-      history.goBack();
-    }
-    history.push(APP_PATH.WATCHES);
+    this.props.history.push(APP_PATH.WATCHES);
   };
 
   onSubmit = async (values, { setSubmitting, setFieldError }) => {
@@ -120,6 +119,7 @@ class DefineWatch extends Component {
       const mustCancelSubmit =
         shouldSetAggregationField || shouldSetSeverityField || shouldSetTopHitsField;
       if (mustCancelSubmit) {
+        console.debug('DefineWatch, this.onSubmit, mustCancelSubmit');
         setSubmitting(false);
         return;
       }
@@ -155,7 +155,7 @@ class DefineWatch extends Component {
           validateOnChange={false}
           enableReinitialize
         >
-          {({ handleSubmit, isSubmitting, values }) => {
+          {({ handleSubmit, isSubmitting, values, errors }) => {
             const isResolveActions = get(values, '_ui.isResolveActions', false);
 
             return (
@@ -176,10 +176,16 @@ class DefineWatch extends Component {
                   </EuiFlexItem>
                 </EuiFlexGroup>
                 <EuiSpacer />
+
+                <FormikErrorsCallOut errors={errors} />
+                {!!Object.keys(errors) && <EuiSpacer />}
+
                 <GeneralPanel location={location} />
                 <EuiSpacer />
+
                 <DefinitionPanel />
                 <EuiSpacer />
+
                 <FieldArray name="actions">
                   {(arrayHelpers) => (
                     <ActionPanel isLoading={isLoading} arrayHelpers={arrayHelpers} />
@@ -190,12 +196,17 @@ class DefineWatch extends Component {
                     <EuiSpacer />
                     <FieldArray name="resolve_actions">
                       {(arrayHelpers) => (
-                        <ResolveActionPanel isLoading={isLoading} arrayHelpers={arrayHelpers} />
+                        <ActionPanel
+                          isLoading={isLoading}
+                          arrayHelpers={arrayHelpers}
+                          isResolveActions={true}
+                        />
                       )}
                     </FieldArray>
                   </>
                 )}
                 <EuiSpacer />
+
                 <EuiFlexGroup alignItems="center" justifyContent="flexEnd">
                   <EuiFlexItem grow={false}>
                     <CancelButton onClick={this.onCancel} />

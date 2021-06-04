@@ -4,5 +4,7 @@ export {
   actionAndWatchStatusToIconProps,
   dateFormat,
   getResourceEditUri,
+  getResourceReadUri,
   getWatchRelatedAlertsUri,
+  isJsonWatch,
 } from './helpers';

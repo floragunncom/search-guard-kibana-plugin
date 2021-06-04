@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { get } from 'lodash';
-import { WATCH_ACTION_STATUS, WATCH_STATUS, APP_PATH } from '../../../utils/constants';
+import { WATCH_ACTION_STATUS, WATCH_STATUS, APP_PATH, WATCH_ACTIONS } from '../../../utils/constants';
 import {
   failedText,
   acknowledgedText,
@@ -9,9 +9,9 @@ import {
   unknownStatusText,
   executedText,
 } from '../../../utils/i18n/watch';
+import { WATCH_TYPES } from '../../DefineWatch/utils/constants';
 
 const { ACTION_FAILED, ACKED, ACTION_THROTTLED, ACTION_EXECUTED } = WATCH_ACTION_STATUS;
-
 const { EXECUTION_FAILED, NO_ACTION } = WATCH_STATUS;
 
 const SIMPLE_QUERY_FIELDS = [
@@ -114,6 +114,7 @@ export const buildESQuery = query => {
       query.bool.must[index].simple_query_string.fields = SIMPLE_QUERY_FIELDS;
       if (query.bool.must[index].simple_query_string.query.slice(-1) !== '*') {
         query.bool.must[index].simple_query_string.query += '*';
+        query.bool.must[index].simple_query_string.analyze_wildcard = true;
       }
     }
   }
@@ -121,6 +122,22 @@ export const buildESQuery = query => {
   return query;
 };
 
-export const getResourceEditUri = (id) => `${APP_PATH.DEFINE_WATCH}?id=${encodeURIComponent(id)}`;
+export function isJsonWatch(watch) {
+  const watchType = get(watch, '_ui.watchType');
+  return !watchType || watchType === WATCH_TYPES.JSON;
+}
+
+export const getResourceEditUri = (watch) => {
+  return isJsonWatch(watch)
+    ? `${APP_PATH.DEFINE_JSON_WATCH}?id=${encodeURIComponent(watch._id)}`
+    : `${APP_PATH.DEFINE_WATCH}?id=${encodeURIComponent(watch._id)}`;
+};
+
+export const getResourceReadUri = (watch) => {
+  return `${APP_PATH.DEFINE_JSON_WATCH}?id=${encodeURIComponent(watch._id)}&action=${
+    WATCH_ACTIONS.READ_WATCH
+  }`;
+};
+
 export const getWatchRelatedAlertsUri = (id) =>
   `${APP_PATH.ALERTS}?watchId=${encodeURIComponent(id)}`;
