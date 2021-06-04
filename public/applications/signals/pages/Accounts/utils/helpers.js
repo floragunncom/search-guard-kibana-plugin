@@ -27,6 +27,7 @@ export const buildESQuery = (query) => {
       query.bool.must[index].simple_query_string.fields = ['_name', 'type'];
       if (query.bool.must[index].simple_query_string.query.slice(-1) !== '*') {
         query.bool.must[index].simple_query_string.query += '*';
+        query.bool.must[index].simple_query_string.analyze_wildcard = true;
       }
     }
   }
