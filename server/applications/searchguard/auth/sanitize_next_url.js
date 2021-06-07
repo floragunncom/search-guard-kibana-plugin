@@ -16,6 +16,7 @@
  */
 
 import { parse } from 'url';
+import path from 'path';
 
 /**
  *
@@ -33,11 +34,8 @@ export function sanitizeNextUrl(nextUrl, basePath) {
   }
 
   // We always need the base path
-  if (!String(parsedNextUrl.pathname).startsWith(basePath)) {
-    if (nextUrl && nextUrl != null && nextUrl.startsWith('/')) {
-      nextUrl = nextUrl.substring(1);
-    }
-    return `${basePath}/${nextUrl}`;
+  if (nextUrl && basePath && !parsedNextUrl.pathname.startsWith(basePath)) {
+    return path.posix.join(basePath, nextUrl);
   }
 
   // All valid

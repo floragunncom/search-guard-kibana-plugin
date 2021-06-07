@@ -17,10 +17,10 @@
 
 import AuthType from '../AuthType';
 import MissingRoleError from '../../errors/missing_role_error';
-import { ensureRawRequest } from '../../../../../../../../src/core/server/http/router';
 import { defineRoutes } from './routes';
 import { APP_ROOT } from '../../../../../utils/constants';
 import path from 'path';
+import { AUTH_TYPE_NAMES } from '../../AuthManager';
 
 export default class BasicAuth extends AuthType {
   constructor({
@@ -46,7 +46,7 @@ export default class BasicAuth extends AuthType {
      * The authType is saved in the auth cookie for later reference
      * @type {string}
      */
-    this.type = 'basicauth';
+    this.type = AUTH_TYPE_NAMES.BASIC;
 
     /**
      * The name of the authorization header to be used
@@ -65,131 +65,11 @@ export default class BasicAuth extends AuthType {
      * @type {boolean}
      */
     this.anonymousAuthEnabled = this.config.get('searchguard.auth.anonymous_auth_enabled');
-
-    this.handleUnauthenticated();
   }
 
-  debugLog(message, label = 'basicauth') {
-    super.debugLog(message, label);
-  }
-
-  /**
-   * Handle the case where a logged in user's password was changed
-   * and we receive a 401 despite having a valid auth cookie.
-   * The main goal here is to make sure that the cookie is deleted,
-   * and also to prevent the browser auth dialog from showing up.
-   *
-   * The user would still see a screen with an error message,
-   * but after a page reload they will be redirectd to the
-   * login page. This is expected.
-   *
-   * @todo Investigate if we can safely just automatically
-   * redirect to the login page using OnUnAuthenticted()
-   */
-  handleUnauthenticated() {
-    this.kibanaCore.http.registerOnPreResponse(async (request, response, toolkit) => {
-      try {
-        // @todo Try to get away from Hapi here
-        request = ensureRawRequest(request);
-
-        let has401 = false;
-        if (request.response.statusCode === 401) {
-          has401 = true;
-        } else if (request.response.output && request.response.output.statusCode === 401) {
-          has401 = true;
-        }
-
-        if (has401) {
-          // Make sure we don't have an auth cookie anymore if we receive a 401.
-          // Most likely, the current user's password was changed, leading to the 401.
-          await this.clear(request);
-          if (request.response.output && request.response.output.headers) {
-            delete request.response.output.headers['www-authenticate'];
-            delete request.response.output.headers['WWW-Authenticate'];
-            delete request.response.wwwAuthenticateDirective;
-          }
-          this.debugLog(
-            'Received a 401 auth exception. If we had a cookie, the password was most likely changed elsewhere',
-            'basicAuth'
-          );
-
-          // @todo Maybe we just redirect to the login page here? return this.onUnAuthenticated(...)
-        }
-      } catch (error) {
-        this.logger.error(`An error occurred while checking for 401 Unauthorized: ${error.stack}`);
-      }
-
-      return toolkit.next();
-    });
-  }
-
-  /**
-   * Checks if we have an authorization header.
-   *
-   * Pass the existing session credentials to compare with the authorization header.
-   *
-   * @param request
-   * @param sessionCredentials
-   * @returns {object|null} - credentials for the authentication
-   */
-  detectAuthHeaderCredentials(request, sessionCredentials = null) {
-    if (request.headers[this.authHeaderName]) {
-      const authHeaderValue = request.headers[this.authHeaderName];
-      const headerTrumpsSession = this.config.get('searchguard.basicauth.header_trumps_session');
-
-      // If we have sessionCredentials AND auth headers we need to check if they are the same.
-      if (sessionCredentials !== null && sessionCredentials.authHeaderValue === authHeaderValue) {
-        // The auth header credentials are the same as those in the session,
-        // no need to return new credentials so we're just nulling the token here
-        return null;
-      }
-
-      // We may have an auth header for a different user than the user saved in the session.
-      // To avoid confusion, we do NOT override the cookie user, unless explicitly configured to do so.
-      if (sessionCredentials !== null && !headerTrumpsSession) {
-        return null;
-      }
-
-      return {
-        authHeaderValue: authHeaderValue,
-      };
-    }
-
-    return null;
-  }
-
-  async authenticate(credentials, options = {}, additionalAuthHeaders = {}) {
-    // A login can happen via a POST request (login form) or when we have request headers with user credentials.
-    // We also need to re-authenticate if the credentials (headers) don't match what's in the session.
-    try {
-      const user = await this.searchGuardBackend.authenticateWithHeader(
-        this.authHeaderName,
-        credentials.authHeaderValue,
-        additionalAuthHeaders
-      );
-      const session = {
-        username: user.username,
-        credentials: credentials,
-        authType: this.type,
-        isAnonymousAuth: options && options.isAnonymousAuth === true ? true : false,
-      };
-
-      if (this.sessionTTL) {
-        session.expiryTime = Date.now() + this.sessionTTL;
-      }
-
-      return {
-        session,
-        user,
-      };
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false) {
-    let url = new URL(request.url.href);
-    const appRoot = path.posix.join(this.basePath, APP_ROOT);
+  async getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false) {
+    const url = new URL(request.url.href);
+    let appRoot = path.posix.join(this.basePath, APP_ROOT);
 
     if (!isAJAX) {
       url.searchParams.set('nextUrl', this.getNextUrl(request));
@@ -200,25 +80,26 @@ export default class BasicAuth extends AuthType {
     if (error && error instanceof MissingRoleError) {
       url.searchParams.set('type', 'missingRole');
       url.pathname = path.posix.join(appRoot, '/customerror');
-    } else if (this.anonymousAuthEnabled) {
-      url.pathname = path.posix.join(appRoot, '/auth/anonymous');
-    } else if (this.loadBalancerURL) {
-      url = new URL(path.posix.join(appRoot, '/login'), this.loadBalancerURL);
+    } else if (0 && this.loadBalancerURL) {
+      //url = new URL(path.posix.join(appRoot, '/login'), this.loadBalancerURL);
     } else {
+      try {
+        const authConfig = await this.searchGuardBackend.getAuthConfig(
+          this.config.get('elasticsearch.username'),
+          this.config.get('elasticsearch.password')
+        );
+
+        if (authConfig && authConfig.frontend_base_url) {
+          appRoot = authConfig.frontend_base_url;
+        }
+      } catch (error) {
+        // Ignore
+      }
+
       url.pathname = path.posix.join(appRoot, '/login');
     }
 
     return url.pathname + url.search + url.hash;
-  }
-
-  onUnAuthenticated(request, response, toolkit, error = null) {
-    const redirectTo = this.getRedirectTargetForUnauthenticated(request, error);
-
-    return response.redirected({
-      headers: {
-        location: `${redirectTo}`,
-      },
-    });
   }
 
   setupRoutes() {

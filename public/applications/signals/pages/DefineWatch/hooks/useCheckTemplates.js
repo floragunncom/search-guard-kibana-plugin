@@ -22,10 +22,6 @@ export function getFormikChecksPlusTemplate({ template, values, checksPath }) {
   const watchType = get(values, '_ui.watchType', WATCH_TYPES.GRAPH);
   let formikChecks;
 
-  console.log('values', values);
-  console.log('template', template);
-  console.log('checksPath', checksPath);
-
   if (watchType === WATCH_TYPES.BLOCKS) {
     const rawChecks = buildChecksFromChecksBlocks(get(values, checksPath, '[]'));
     formikChecks = buildFormikChecksBlocks([...rawChecks, template]);

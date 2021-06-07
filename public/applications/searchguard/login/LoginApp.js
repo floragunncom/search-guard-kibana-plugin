@@ -8,19 +8,14 @@ export class LoginApp {
     this.appUpdater = new BehaviorSubject(() => ({}));
   }
 
-  mount({ core, configService, httpClient }) {
+  mount({ configService, httpClient }) {
     return async (params) => {
-      const [{ renderApp }] = await Promise.all([
-        import('./npstart'),
-        configService.fetchConfig(),
-      ]);
+      const [{ renderApp }] = await Promise.all([import('./npstart'), configService.fetchConfig()]);
 
       const authType = configService.get('searchguard.auth.type');
-
-      if (authType === 'basicauth') {
+      if (authType !== 'kerberos' && authType !== 'proxy') {
         return renderApp({
           element: params.element,
-          basePath: core.http.basePath.get(),
           config: configService,
           httpClient,
         });
