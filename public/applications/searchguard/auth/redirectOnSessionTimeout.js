@@ -1,4 +1,20 @@
 /*
+ *    Copyright 2021 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
  *    Copyright 2020 floragunn GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +31,7 @@
  */
 
 export function redirectOnSessionTimeout(authType, coreHttp) {
-  if (!authType) {
+  if (authType === 'kerberos' || authType === 'proxy') {
     return;
   }
 
@@ -32,15 +48,6 @@ export function redirectOnSessionTimeout(authType, coreHttp) {
       const errorBody = httpResponseError.body || {};
       // We're only redirecting on 401s at the moment
       if (errorBody.statusCode !== 401) {
-        return;
-      }
-
-      // Handles 401s, but only if we've explicitly set the Session Expired on the response
-      // or if we're using basic auth.
-      // The extra path for basic auth comes from SGCS-277 - the case where a logged in
-      // user's password is changed externally (e.g. LDAP).
-      //  @todo Test this together with the LDAP stuff, really neededd?
-      if (authType !== 'basicauth' && errorBody.message !== 'Session expired') {
         return;
       }
 

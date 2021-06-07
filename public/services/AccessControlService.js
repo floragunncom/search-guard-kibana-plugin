@@ -2,6 +2,7 @@
 export class AccessControlService {
   constructor({ httpClient, authType = null }) {
     this.httpClient = httpClient;
+    // @todo AuthType should be obsolete
     this.authType = authType;
   }
 
@@ -12,19 +13,14 @@ export class AccessControlService {
       localStorage.clear();
       sessionStorage.clear();
 
-      if (this.authType && ['openid', 'saml'].indexOf(this.authType) > -1) {
-        if (response.data.redirectURL) {
-          window.location.href = response.data.redirectURL;
-        } else {
-          window.location.href = `${basePath}/customerror`;
-        }
-      } else {
-        if (logoutUrl && logoutUrl.length > 0) {
-          window.location.href = logoutUrl;
-        } else {
-          window.location.href = `${basePath}/login?type=${this.authType || ''}Logout`;
-        }
+      // @todo Try to make all of the following code obsolete, in favor
+      // of passing a redirectURL when logging out from the backend
+      if (response.data.redirectURL) {
+        window.location.href = response.data.redirectURL;
+        return;
       }
+
+      window.location.href = `${basePath}/login`;
     });
   }
 }
