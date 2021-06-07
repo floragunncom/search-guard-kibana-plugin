@@ -21,15 +21,11 @@ import { LoginPage } from './LoginPage';
 import { HashRouter as Router, Route } from 'react-router-dom';
 import { I18nProvider } from '@kbn/i18n/react';
 
-export const renderApp = ({ element, basePath, config, httpClient }) => {
+export const renderApp = ({ element, config, httpClient }) => {
   ReactDOM.render(
     <I18nProvider>
       <Router>
-        <Route
-          render={() => (
-            <LoginPage httpClient={httpClient} basePath={basePath} configService={config} />
-          )}
-        />
+        <Route render={() => <LoginPage httpClient={httpClient} configService={config} />} />
       </Router>
     </I18nProvider>,
     element

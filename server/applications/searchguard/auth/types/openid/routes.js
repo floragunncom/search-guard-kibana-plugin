@@ -14,25 +14,15 @@
  * limitations under the License.
  */
 
-import { stringify } from 'querystring';
-import { randomString } from 'cryptiles';
+import { schema } from '@kbn/config-schema';
 import { sanitizeNextUrl } from '../../sanitize_next_url';
 import MissingTenantError from '../../errors/missing_tenant_error';
 import MissingRoleError from '../../errors/missing_role_error';
-import { customError as customErrorRoute } from '../common/routes';
-import { APP_ROOT, API_ROOT } from '../../../../../utils/constants';
+import { APP_ROOT } from '../../../../../utils/constants';
 
-async function getOIDCWellKnown({ searchGuardBackend }) {
-  const oidcWellKnown = await searchGuardBackend.getOIDCWellKnown();
-
-  const endPoints = {
-    authorization_endpoint: oidcWellKnown.authorization_endpoint,
-    token_endpoint: oidcWellKnown.token_endpoint_proxy,
-    end_session_endpoint: oidcWellKnown.end_session_endpoint || null,
-  };
-
-  return endPoints;
-}
+export const OIDC_ROUTES = {
+  LOGIN: `${APP_ROOT}/auth/openid/login`,
+};
 
 export function defineRoutes({
   authInstance,
@@ -44,252 +34,68 @@ export function defineRoutes({
 }) {
   const config = kibanaConfig;
   const basePath = kibanaCore.http.basePath.serverBasePath;
-  const httpResources = kibanaCore.http.resources;
   const router = kibanaCore.http.createRouter();
   const routesPath = '/auth/openid/';
 
-  httpResources.register(
-    {
-      path: `${APP_ROOT}${routesPath}encode-js`,
-      options: { authRequired: false },
-      validate: false,
-    },
-    (context, request, response) => {
-      return response.renderJs({
-        body: `
-          const search = new URLSearchParams(window.location.search);
-          if (search.get('nextUrl')) {
-            search.set('nextUrl', encodeURIComponent(search.get('nextUrl') + window.location.hash));
-            window.location = "${APP_ROOT}${routesPath}login?" + search.toString();
-          } else {
-            window.location = "${APP_ROOT}${routesPath}login"
-          }
-          `,
-      });
-    }
-  );
-
-  // This path is there to render a JavaScript snippet that
-  // encodes the location.hash. Otherwise, everything behind
-  // the # symbol will get lost in the redirect flow.
-  // I would have preferred an inline script here, but it
-  // seems like Kibana's CSP block that.
-  // Hence the extra JS route above.
-  httpResources.register(
-    {
-      path: `${APP_ROOT}${routesPath}encode`,
-      options: { authRequired: false },
-      validate: false,
-    },
-    (context, request, response) => {
-      return response.renderHtml({
-        body: `
-          <html>
-            <head>
-            <script src="${APP_ROOT}${routesPath}encode-js"></script>
-            </head>
-            <body></body>
-          </html>
-          `,
-      });
-    }
-  );
-
-  // OpenId config
-  const clientId = config.get('searchguard.openid.client_id');
-  const clientSecret = config.get('searchguard.openid.client_secret');
-
-  // Scope must include "openid" if we need an id_token
-  // Other available scopes as per the spec: https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims
-  const scope = config.get('searchguard.openid.scope').split(' ');
-  if (scope.indexOf('openid') === -1) {
-    scope.push('openid');
-  }
-
   const loginSettings = {
     path: `${APP_ROOT}${routesPath}login`,
-    validate: false,
+    validate: {
+      query: schema.object(
+        {
+          nextUrl: schema.maybe(schema.string()), // it comes from our login page
+          next_url: schema.maybe(schema.string()), // it comes from the IDP login page
+        },
+        { unknowns: 'allow' }
+      ),
+    },
     options: {
       authRequired: false,
     },
   };
 
-  const finalLoginHandler = loginHandler({
-    basePath,
-    kibanaCore,
-    config,
-    routesPath,
-    debugLog,
-    authInstance,
-    clientId,
-    clientSecret,
-    logger,
-    scope,
-    searchGuardBackend,
-  });
+  router.get(
+    loginSettings,
+    loginHandler({
+      basePath,
+      kibanaCore,
+      config,
+      routesPath,
+      debugLog,
+      authInstance,
+      logger,
+      searchGuardBackend,
+    })
+  );
 
-  router.get(loginSettings, finalLoginHandler);
-  router.post(loginSettings, finalLoginHandler);
-
-  /**
-   * The error page.
-   */
-  customErrorRoute({ httpResources });
-
-  /**
-   * Clears the session and logs the user out from the IdP (if we have an endpoint available)
-   * @url http://openid.net/specs/openid-connect-session-1_0.html#RPLogout
-   */
+  // Keep a POST route in case the IdP uses POSTs
   router.post(
-    {
-      path: `${API_ROOT}/auth/logout`,
-      validate: false,
-      options: {
-        // We may need false here if the cookie has already expired
-        authRequired: false,
-      },
-    },
-    logoutHandler({ searchGuardBackend, kibanaCore, config, authInstance, basePath, logger })
+    loginSettings,
+    loginHandler({
+      basePath,
+      kibanaCore,
+      config,
+      routesPath,
+      debugLog,
+      authInstance,
+      logger,
+      searchGuardBackend,
+    })
   );
 } //end module
 
-/**
- * The redirect uri can't always be resolved automatically.
- * Instead, we have the searchguard.openid.base_redirect_uri config option.
- * @returns {string}
- */
-function getBaseRedirectUrl({ kibanaCore, config }) {
-  const configuredBaseRedirectUrl = config.get('searchguard.openid.base_redirect_url');
-  if (configuredBaseRedirectUrl) {
-    return configuredBaseRedirectUrl.endsWith('/')
-      ? configuredBaseRedirectUrl.slice(0, -1)
-      : configuredBaseRedirectUrl;
-  }
-
-  // Config option not used, try to get the correct protocol and host
-  const serverInfo = kibanaCore.http.getServerInfo();
-  let host = serverInfo.hostname;
-  const port = serverInfo.port;
-  if (port) {
-    host = host + ':' + port;
-  }
-
-  const baseRedirectUrl = `${serverInfo.protocol}://${host}`;
-  return baseRedirectUrl;
-}
-
-export function logoutHandler({
-  searchGuardBackend,
-  kibanaCore,
-  config,
-  authInstance,
-  basePath,
-  logger,
-}) {
-  return async (context, request, response) => {
-    let openIdEndPoints = {};
-    try {
-      openIdEndPoints = await getOIDCWellKnown({ searchGuardBackend });
-    } catch (error) {
-      logger.error(
-        `Error when trying to retrieve the well-known endpoints from your IdP: ${error.stack}`
-      );
-    }
-    // Build the redirect uri needed by the provider
-    const baseRedirectUrl = getBaseRedirectUrl({ kibanaCore, config });
-
-    const sessionCookie = (await authInstance.sessionStorageFactory.asScoped(request).get()) || {};
-
-    // Clear the cookie credentials
-    await authInstance.clear(request);
-
-    const requestQueryParameters = `?post_logout_redirect_uri=${baseRedirectUrl}${basePath}/`;
-
-    // If we don't have an "end_session_endpoint" in the .well-known list,
-    // we may have a custom logout_url defined in the config.
-    // The custom url trumps the .well-known endpoint if both are available.
-    const customLogoutUrl = config.get('searchguard.openid.logout_url');
-    let endSessionUrl = null;
-    if (customLogoutUrl) {
-      // Pass the post_logout_uri just in case, but not the token
-      endSessionUrl = customLogoutUrl + requestQueryParameters;
-    } else if (openIdEndPoints.end_session_endpoint) {
-      endSessionUrl = openIdEndPoints.end_session_endpoint + requestQueryParameters;
-
-      // Pass the token to the IdP when logging out (id_token_hint)
-      try {
-        let idTokenHint = '';
-        if (sessionCookie.credentials && sessionCookie.credentials.authHeaderValue) {
-          idTokenHint = sessionCookie.credentials.authHeaderValue.split(' ')[1];
-          endSessionUrl = endSessionUrl + '&id_token_hint=' + idTokenHint;
-        }
-      } catch (error) {
-        logger.info('Could not add the id_token_hint to the logout url');
-      }
-    }
-
-    return response.ok({
-      body: { redirectURL: endSessionUrl },
-    });
-  };
-}
-
-export function loginHandler({
-  basePath,
-  kibanaCore,
-  config,
-  routesPath,
-  debugLog,
-  authInstance,
-  logger,
-  clientId,
-  clientSecret,
-  scope,
-  searchGuardBackend,
-}) {
+export function loginHandler({ basePath, config, authInstance, logger, searchGuardBackend }) {
   return async function (context, request, response) {
-    let openIdEndPoints;
-    try {
-      openIdEndPoints = await getOIDCWellKnown({ searchGuardBackend });
-    } catch (error) {
-      logger.error(
-        `Error when trying to retrieve the well-known endpoints from your IdP: ${error.stack}`
-      );
-
-      return response.redirected({
-        headers: {
-          location: basePath + '/customerror?type=authError',
-        },
-      });
-    }
-
-    const baseRedirectUrl = `${getBaseRedirectUrl({ kibanaCore, config })}${basePath}`;
-    let redirectUri = new URL(encodeURI(baseRedirectUrl + routesPath + 'login'));
-    if (request.url.searchParams.has('nextUrl')) {
-      redirectUri.searchParams.set('nextUrl', request.url.searchParams.get('nextUrl'));
-    }
-    redirectUri = redirectUri.toString();
-
-    debugLog('Base redirect url: ' + redirectUri);
-
     const authCode = request.url.searchParams.get('code');
-
-    // Could not find any info about length of the nonce in
-    // the OpenId spec, so I went with what we had before
-    // the migration.
-    const nonce = randomString(22);
 
     if (!authCode) {
       return handleAuthRequest({
         request,
         response,
+        basePath,
+        config,
+        searchGuardBackend,
         sessionStorageFactory: authInstance.sessionStorageFactory,
-        clientId,
-        clientSecret,
-        redirectUri,
-        nonce,
-        scope,
-        openIdEndPoints,
+        logger,
       });
     }
 
@@ -320,32 +126,23 @@ export function loginHandler({
       // internally, but state when we pass a parameter to the IdP to make sure
       // I don't introduce any change here - it seems to have worked well with
       // all IdPs
-      if (!cookieOpenId.nonce || cookieOpenId.nonce !== request.url.searchParams.get('state')) {
+      if (!cookieOpenId.nonce || cookieOpenId.nonce !== 'oidc_nonce:' + request.url.searchParams.get('state')) {
         throw new Error('There was a state mismatch between the cookie and the IdP response');
       }
 
-      // Get the tokens from the IdP
-      const idpPayload = await handleIdTokenRequest({
-        logger,
-        clientId,
-        clientSecret,
-        authCode,
-        redirectUri,
-        openIdEndPoints,
-        searchGuardBackend,
-      });
+      const credentials = {
+        mode: 'oidc',
+        sso_result: request.url.href,
+        sso_context: cookieOpenId.nonce,
+        id: cookieOpenId.authTypeId,
+      };
 
       // Authenticate with the token given to us by the IdP
-      await authInstance.handleAuthenticate(request, {
-        authHeaderValue: 'Bearer ' + idpPayload.id_token,
-      });
+      await authInstance.handleAuthenticate(request, credentials);
 
       let redirectTo = '/';
-      if (request.url.searchParams.has('nextUrl')) {
-        redirectTo = sanitizeNextUrl(
-          decodeURIComponent(request.url.searchParams.get('nextUrl')),
-          basePath
-        );
+      if (request.url.searchParams.get(next_url)) {
+        redirectTo = sanitizeNextUrl(decodeURIComponent(request.url.searchParams.get('next_url')), basePath);
       }
 
       // All good, redirect to home
@@ -388,98 +185,77 @@ export function loginHandler({
 async function handleAuthRequest({
   request,
   response,
+  basePath,
+  config,
+  searchGuardBackend,
   sessionStorageFactory,
-  clientId,
-  redirectUri,
-  nonce,
-  scope,
-  openIdEndPoints,
+  logger,
 }) {
-  // Build the query parameters that will be sent to the IdP
-  const query = {
-    client_id: clientId,
-    response_type: 'code',
-    redirect_uri: redirectUri,
-    state: nonce,
-    scope: scope.join(' '),
-  };
-
-  const sessionCookie = (await sessionStorageFactory.asScoped(request).get()) || {};
-
-  sessionCookie.openId = { nonce, query: {} };
-  for (const [key, value] of request.url.searchParams.entries()) {
-    // We don't want to store the nextUrl in cookie because it can be huge,
-    // larger than the cookie size limit.
-    if (key !== 'nextUrl') sessionCookie.openId.query[key] = value;
-  }
-
-  await sessionStorageFactory.asScoped(request).set(sessionCookie);
-
-  const idpAuthLocation = new URL(openIdEndPoints.authorization_endpoint);
-  for (const [key, value] of Object.entries(query)) {
-    idpAuthLocation.searchParams.set(key, value);
-  }
-
-  const redirectURI = new URL(idpAuthLocation.searchParams.get('redirect_uri'));
-  const nextUrl = decodeURIComponent(request.url.searchParams.get('nextUrl'));
-  // Do not add the nextUrl to the redirect_uri to avoid the following braking
-  // change for the users that use normal URL to authenticate.
-  if (nextUrl === '/') redirectURI.searchParams.delete('nextUrl');
   // Add the nextUrl to the redirect_uri as a parameter. The IDP uses the redirect_uri to redirect the user after successful authentication.
   // For example, it is used to redirect user to the correct dashboard if the user put shared URL in the browser address input before authentication.
   // To make this work, append the wildcard (*) to the valid redirect URI in the IDP configuration, for example
   // https://kibana.example.com:5601/auth/openid/login*
-  else if (nextUrl) redirectURI.searchParams.set('nextUrl', nextUrl);
-  idpAuthLocation.searchParams.set('redirect_uri', redirectURI.toString());
+  let nextUrl = null;
+  try {
+    if (request.url.searchParams.get('nextUrl') && decodeURIComponent(request.url.searchParams.get('nextUrl')) !== '/') {
+      // Do not add the nextUrl to the redirect_uri to avoid the following breaking
+      // change for the users that use normal URL to authenticate.
+      nextUrl = sanitizeNextUrl(request.url.searchParams.get('nextUrl'));
+    }
+  } catch (error) {
+    // We may have received a malformed URL, caught by decodedURIComponent.
+    // In this case we just proceed without a nextUrl.
+  }
+
+  let authConfig;
+  const sessionCookie = (await sessionStorageFactory.asScoped(request).get()) || {};
+  // We may have multiple OIDC configurations.
+  // The authTypeId may still be in the cookie. This happens when
+  // a session token expires and no explicit logout is made. We need
+  // this behaviour so that we can "refresh" the credentials from the IdP.
+  // (not to be confused with the OIDC refresh flow)
+
+  const requestedAuthTypeId = request.url.searchParams.get('authTypeId') || sessionCookie.authTypeId;
+  // Delete this again, otherwise the user won't get back to the login page
+  // if trying to access Kibana again
+  delete sessionCookie.authTypeId;
+  delete sessionCookie.authType;
+
+  const authConfigFinder = requestedAuthTypeId
+    ? (config) => {
+        return config.id === requestedAuthTypeId;
+      }
+    : (config) => {
+        return config.method === 'oidc';
+      };
+
+  try {
+    const username = config.get('elasticsearch.username');
+    const password = config.get('elasticsearch.password');
+    authConfig = (
+      await searchGuardBackend.getAuthConfig(username, password, nextUrl)
+    ).auth_methods.find(authConfigFinder);
+
+    if (!authConfig) {
+      throw new Error('Auth config not found');
+    }
+  } catch (error) {
+    logger.error(`Error when trying to load the configuration for your IdP: ${error.stack}`);
+
+    return response.redirected({
+      headers: {
+        location: basePath + '/customerror?type=authError',
+      },
+    });
+  }
+
+  const nonce = authConfig.sso_context;
+  sessionCookie.openId = { nonce, authTypeId: authConfig.id || null, query: {} };
+  await sessionStorageFactory.asScoped(request).set(sessionCookie);
 
   return response.redirected({
     headers: {
-      location: idpAuthLocation.toString(),
+      location: authConfig.sso_location,
     },
   });
-}
-
-/**
- * Handle the request to obtain the id_token that we need to authenticate with
- * @param logger
- * @param clientId
- * @param clientSecret
- * @param authCode
- * @param redirectUri
- * @returns {Promise<{payload}>}
- */
-async function handleIdTokenRequest({
-  logger,
-  clientId,
-  clientSecret,
-  authCode,
-  redirectUri,
-  openIdEndPoints,
-  searchGuardBackend,
-}) {
-  const query = {
-    client_id: clientId,
-    client_secret: clientSecret,
-    grant_type: 'authorization_code',
-    code: authCode,
-    redirect_uri: redirectUri,
-  };
-
-  // Get the necessary token from the IdP
-  try {
-    const idpResponse = await searchGuardBackend.getOIDCToken({
-      tokenEndpoint: openIdEndPoints.token_endpoint,
-      // Only "application/x-www-form-urlencoded" possible
-      body: stringify(query),
-    });
-
-    if (!idpResponse.id_token) {
-      throw new Error('IdP response is missing the id_token');
-    }
-
-    return idpResponse;
-  } catch (error) {
-    logger.error(`Error while retrieving the token from the IdP: ${error.stack}`);
-    throw error;
-  }
 }

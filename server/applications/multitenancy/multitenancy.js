@@ -28,7 +28,7 @@ export class Multitenancy {
 
   async setup({
     kibanaRouter,
-    authInstance,
+    authManager,
     kibanaCore,
     sessionStorageFactory,
     pluginDependencies,
@@ -58,7 +58,7 @@ export class Multitenancy {
       });
 
       const multitenancyLifecycle = new MultitenancyLifecycle({
-        authInstance,
+        authManager,
         searchGuardBackend,
         configService,
         sessionStorageFactory,

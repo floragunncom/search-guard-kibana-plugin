@@ -108,7 +108,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
     clusterClient = setupClusterClientMock();
   });
 
-  test('assign tenant to request headers and create the default space', async () => {
+  test.skip('assign tenant to request headers and create the default space', async () => {
     const tenantService = new TenantService({
       kibanaVersion,
       clusterClient,
