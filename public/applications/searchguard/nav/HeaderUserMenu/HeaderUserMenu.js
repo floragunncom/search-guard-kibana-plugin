@@ -96,6 +96,7 @@ export function HeaderUserMenu({ httpClient, configService }) {
   const authType = configService.get('searchguard.auth.type');
   const logoutUrl = configService.get('searchguard.auth.logout_url');
   const isAccountInfoEnabled = configService.get('searchguard.accountinfo.enabled');
+  const uiHelpers = configService.get('uiHelpers');
   const acService = new AccessControlService({ httpClient, authType });
 
   const [isOpen, setIsOpen] = useState(false);
@@ -137,7 +138,8 @@ export function HeaderUserMenu({ httpClient, configService }) {
 
   const appList = [];
 
-  if (authType !== 'kerberos' && authType !== 'proxy') {
+  // @todo We need to update away from authType here most likely
+  if (uiHelpers.hasAuthCookie && authType !== 'kerberos' && authType !== 'proxy') {
     appList.push({
       label: logoutText,
       color: 'primary',

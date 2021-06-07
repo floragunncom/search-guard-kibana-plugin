@@ -82,6 +82,15 @@ export class ServerPlugin {
         searchGuardConfigurationBackend,
       });
 
+      // Helper for the routes
+      core.http.registerRouteHandlerContext('searchGuard', () => {
+        return {
+          sessionStorageFactory,
+          // @todo This will change to the authManager with the multiple auth type support
+          authInstance,
+        };
+      });
+
       const isMtEnabled = configService.get('searchguard.multitenancy.enabled');
       if (isMtEnabled) {
         this.multiTenancyApp.setup({

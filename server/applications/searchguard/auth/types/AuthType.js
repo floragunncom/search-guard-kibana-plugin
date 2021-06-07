@@ -217,6 +217,7 @@ export default class AuthType {
       }
     } else {
       // No (valid) cookie, we need to check for headers
+      /* @todo Clean this up. Not needed anymore at this point (session based auth)
       const authHeaderCredentials = this.detectAuthHeaderCredentials(request);
       if (authHeaderCredentials) {
         try {
@@ -231,15 +232,49 @@ export default class AuthType {
           throw error;
         }
       }
+
+       */
     }
 
     return sessionCookie;
   }
 
   checkAuth = async (request, response, toolkit) => {
+    let sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+
+    // Skip auth if we have an authorization header
+    if (request.headers[this.authHeaderName]) {
+
+      // @todo START HERE IN THE MORNING - DEBUG IF THE AWAIT DOES
+
+      if (sessionCookie.credentials) {
+        // In case we already had a session BEFORE we encountered a request
+        // with auth headers, we may need to clear the cookie.
+        // This is a bit tricky since we do add an authorization header in the pre auth lifecycle handlers,
+        // in which case the cookie should stay.
+        // Hence, we compare what we have in the cookie with what's in the header.
+        // If the values are different, we need to clear the cookie
+        const differentAuthHeaderCredentials = this.detectAuthHeaderCredentials(
+          request,
+          sessionCookie.credentials
+        );
+
+        if (differentAuthHeaderCredentials) {
+          // Make sure to clear any auth related cookie info if we detect a different header
+          // @todo Multiple auth type support may require an explicit logout
+          await this.clear(request);
+          // @todo It may make sense to reload the browser at this point - we may have a new user.
+          // @todo That would only apply to ajax requests, though.
+        }
+      }
+
+
+      return toolkit.authenticated({
+        requestHeaders: request.headers,
+      });
+    }
+
     if (this.routesToIgnore.includes(request.url.pathname)) {
-      // @todo This should probable be toolkit.authenticated(), but that threw an error.
-      // Change back after everything has been implemented
       return toolkit.notHandled();
     }
 
@@ -252,8 +287,6 @@ export default class AuthType {
         requestHeaders: request.headers,
       });
     }
-
-    let sessionCookie = {};
 
     try {
       sessionCookie = await this.getCookieWithCredentials(request);
@@ -293,6 +326,7 @@ export default class AuthType {
 
     // @todo Checking auth headers will probably go away
     // Check if we have auth header credentials set that are different from the cookie credentials
+    /*
     const differentAuthHeaderCredentials = this.detectAuthHeaderCredentials(
       request,
       sessionCookie.credentials
@@ -310,6 +344,8 @@ export default class AuthType {
         throw error;
       }
     }
+
+     */
 
 
 
