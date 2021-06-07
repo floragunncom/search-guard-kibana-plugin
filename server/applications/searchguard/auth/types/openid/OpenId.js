@@ -19,7 +19,7 @@ import AuthType from '../AuthType';
 import MissingTenantError from '../../errors/missing_tenant_error';
 import AuthenticationError from '../../errors/authentication_error';
 import MissingRoleError from '../../errors/missing_role_error';
-import { defineRoutes, OIDC_ROUTES } from './routes';
+import { defineRoutes, getBaseRedirectUrl, getOIDCWellKnown, OIDC_ROUTES } from './routes';
 import path from 'path';
 import { AUTH_TYPE_NAMES } from '../../AuthManager';
 
@@ -53,7 +53,6 @@ export default class OpenId extends AuthType {
      * @type {string|null}
      */
     this.loginURL = OIDC_ROUTES.LOGIN;
-
 
     try {
       this.authHeaderName = this.config.get('searchguard.openid.header').toLowerCase();
@@ -153,7 +152,7 @@ export default class OpenId extends AuthType {
   }
 
   // @todo Pending changes in the source branch
-  async logout({context = null, request, response}) {
+  async logout({ context = null, request, response }) {
     const basePath = this.kibanaCore.http.basePath.serverBasePath;
     let openIdEndPoints = {};
     try {
@@ -164,7 +163,10 @@ export default class OpenId extends AuthType {
       );
     }
     // Build the redirect uri needed by the provider
-    const baseRedirectUrl = getBaseRedirectUrl({ kibanaCore: this.kibanaCore, config: this.config });
+    const baseRedirectUrl = getBaseRedirectUrl({
+      kibanaCore: this.kibanaCore,
+      config: this.config,
+    });
 
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
 

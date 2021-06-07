@@ -69,7 +69,7 @@ export class SearchGuard {
 
       const authManager = new AuthManager({
         kibanaCore: core,
-        configService: this.configService,
+        configService,
         sessionStorageFactory,
       });
 
@@ -151,12 +151,11 @@ export class SearchGuard {
               // @todo Getting the routes probably needs to be backported
               /*
               const openId = new OpenId({
-                searchGuardBackend: this.searchGuardBackend,
+                searchGuardBackend,
                 kibanaCore: core,
                 config: this.configService,
                 logger: this.coreContext.logger.get('searchguard-auth'),
                 sessionStorageFactory,
-                elasticsearch,
                 pluginDependencies,
                 authManager,
               });
@@ -168,12 +167,11 @@ export class SearchGuard {
                */
 
               const jwt = new JWT({
-                searchGuardBackend: this.searchGuardBackend,
+                searchGuardBackend,
                 kibanaCore: core,
-                config: this.configService,
+                config: configService,
                 logger: this.coreContext.logger.get('searchguard-auth'),
                 sessionStorageFactory,
-                elasticsearch,
                 pluginDependencies,
                 authManager,
               });
@@ -182,12 +180,11 @@ export class SearchGuard {
               authManager.registerAuthInstance(AUTH_TYPE_NAMES.JWT, jwt);
 
               const saml = new Saml({
-                searchGuardBackend: this.searchGuardBackend,
+                searchGuardBackend,
                 kibanaCore: core,
-                config: this.configService,
+                config: configService,
                 logger: this.coreContext.logger.get('searchguard-auth'),
                 sessionStorageFactory,
-                elasticsearch,
                 pluginDependencies,
                 authManager,
               });
@@ -197,12 +194,11 @@ export class SearchGuard {
 
               // @todo Check params after merge
               const basicAuth = new BasicAuth({
-                searchGuardBackend: this.searchGuardBackend,
+                searchGuardBackend,
                 kibanaCore: core,
-                config: this.configService,
+                config: configService,
                 logger: this.coreContext.logger.get('searchguard-auth'),
                 sessionStorageFactory,
-                elasticsearch,
                 pluginDependencies,
                 authManager,
               });

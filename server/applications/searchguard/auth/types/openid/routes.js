@@ -26,7 +26,7 @@ export const OIDC_ROUTES = {
   LOGIN: `${APP_ROOT}/auth/openid/encode`, // @todo Update this later - the auth selector page should probably do all the encoding
 };
 
-async function getOIDCWellKnown({ searchGuardBackend }) {
+export async function getOIDCWellKnown({ searchGuardBackend }) {
   const oidcWellKnown = await searchGuardBackend.getOIDCWellKnown();
 
   const endPoints = {
@@ -163,7 +163,7 @@ export function defineRoutes({
  * Instead, we have the searchguard.openid.base_redirect_uri config option.
  * @returns {string}
  */
-function getBaseRedirectUrl({ kibanaCore, config }) {
+export function getBaseRedirectUrl({ kibanaCore, config }) {
   const configuredBaseRedirectUrl = config.get('searchguard.openid.base_redirect_url');
   if (configuredBaseRedirectUrl) {
     return configuredBaseRedirectUrl.endsWith('/')

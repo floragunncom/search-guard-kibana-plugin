@@ -81,8 +81,6 @@ export class AuthManager {
     // a bit clearer and less error prone.
 
     // @todo Test this with different users. Needs to be tested in conjuction with authType.getCookieWithCredentials()
-    const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
-    console.log('------ What is the cookie?', sessionCookie);
     const authInstanceByCookie = await this.getAuthInstanceByCookie({ request });
     if (authInstanceByCookie) {
       return authInstanceByCookie;
