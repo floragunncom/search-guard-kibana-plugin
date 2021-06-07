@@ -34,6 +34,39 @@ export default class SearchGuardBackend {
     return body;
   };
 
+  async authenticateWithSession(credentials) {
+    try {
+      const response = await this._client({
+        path: '/_searchguard/auth/session',
+        method: 'POST',
+        body: credentials,
+      });
+
+      return response;
+    } catch (error) {
+      if (error.statusCode === 401) {
+        throw new AuthenticationError('Invalid username or password', error);
+      }
+      throw error;
+    }
+  }
+
+  async logoutSession(headers) {
+    try {
+      return await this._client({
+        path: '/_searchguard/auth/session',
+        method: 'DELETE',
+        headers,
+      });
+    } catch (error) {
+      if (error.statusCode === 401) {
+        throw new AuthenticationError('Invalid username or password', error);
+      }
+      throw error;
+    }
+  }
+
+
   authenticate = async (credentials) => {
     const authHeader = Buffer.from(`${credentials.username}:${credentials.password}`).toString(
       'base64'

@@ -291,6 +291,7 @@ export default class AuthType {
       throw new InvalidSessionError('Invalid cookie');
     }
 
+    // @todo Checking auth headers will probably go away
     // Check if we have auth header credentials set that are different from the cookie credentials
     const differentAuthHeaderCredentials = this.detectAuthHeaderCredentials(
       request,
@@ -310,12 +311,19 @@ export default class AuthType {
       }
     }
 
+
+
+    //@todo Additional auth headers will most likely go away
     // Make sure we don't have any conflicting auth headers
     if (!this.validateAdditionalAuthHeaders(request, sessionCookie)) {
       this.debugLog('Validation of different auth headers failed. Clearing cookies.');
       await this.clear(request);
       throw new InvalidSessionError('Validation of different auth headers failed');
     }
+
+
+    // @todo Checking TTL/expiry will probably move to the backend
+    // @todo We still need to handle an expired token though
 
     // If we are still here, we need to compare the expiration time
     // JWT's .exp is denoted in seconds, not milliseconds.

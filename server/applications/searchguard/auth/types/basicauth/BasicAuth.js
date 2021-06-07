@@ -159,19 +159,48 @@ export default class BasicAuth extends AuthType {
   async authenticate(credentials, options = {}, additionalAuthHeaders = {}) {
     // A login can happen via a POST request (login form) or when we have request headers with user credentials.
     // We also need to re-authenticate if the credentials (headers) don't match what's in the session.
+
     try {
+      const response = await this.searchGuardBackend.authenticateWithSession({
+        mode: 'basic',
+        user: credentials.username,
+        password: credentials.password,
+      });
+
+      const sessionCredentials = {
+        authHeaderValue: 'Bearer ' + response.token,
+      };
+
+      // @todo This call will probably become redundant with
+      // the next SG update. The authenticate call will return the required info.
+      const authInfoResponse = await this.searchGuardBackend.authinfo({
+        [this.authHeaderName]: sessionCredentials.authHeaderValue,
+      });
+
+      const user = this.searchGuardBackend.buildSessionResponse(
+        sessionCredentials,
+        authInfoResponse
+      );
+
+      /*
+
       const user = await this.searchGuardBackend.authenticateWithHeader(
         this.authHeaderName,
         credentials.authHeaderValue,
         additionalAuthHeaders
       );
+
+       */
       const session = {
         username: user.username,
-        credentials: credentials,
+        credentials: {
+          authHeaderValue: 'Bearer ' + response.token,
+        },
         authType: this.type,
         isAnonymousAuth: options && options.isAnonymousAuth === true ? true : false,
       };
 
+      // @todo This will probably go away
       if (this.sessionTTL) {
         session.expiryTime = Date.now() + this.sessionTTL;
       }
@@ -228,5 +257,24 @@ export default class BasicAuth extends AuthType {
       sessionStorageFactory: this.sessionStorageFactory,
       logger: this.logger,
     });
+  }
+
+  /**
+   * @todo Move this to authType if we launch session support for all auth types at once
+   * @param request
+   * @returns {Promise<*>}
+   */
+  async clear(request) {
+    const authHeaders = await this.getAllAuthHeaders(request);
+    // Only try to delete the session if we really have auth headers
+    if (authHeaders) {
+      try {
+        await this.searchGuardBackend.logoutSession(request.headers);
+      } catch (error) {
+        this.logger.error(`Failed to delete the session token: ${error.stack}`);
+      }
+    }
+
+    return super.clear(request);
   }
 }
