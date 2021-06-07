@@ -28,6 +28,7 @@ const {
     basicauth: basicauthDefaults,
     multitenancy: multitenancyDefaults,
     jwt: jwtDefaults,
+    login: loginDefaults,
     ...searchguardDefaults
   } = {},
 } = DEFAULT_CONFIG;
@@ -149,6 +150,7 @@ export const ConfigSchema = schema.object({
     header_trumps_session: schema.boolean({
       defaultValue: basicauthDefaults.header_trumps_session,
     }),
+    loadbalancer_url: schema.nullable(schema.string()),
     alternative_login: schema.object({
       headers: schema.arrayOf(schema.string(), {
         defaultValue: basicauthDefaults.alternative_login.headers,
@@ -162,18 +164,21 @@ export const ConfigSchema = schema.object({
       button_text: schema.string({ defaultValue: basicauthDefaults.alternative_login.button_text }),
       buttonstyle: schema.string({ defaultValue: basicauthDefaults.alternative_login.buttonstyle }),
     }),
-    loadbalancer_url: schema.nullable(schema.string()),
-    login: schema.object({
-      title: schema.string({ defaultValue: basicauthDefaults.login.title }),
-      subtitle: schema.string({
-        defaultValue: basicauthDefaults.login.subtitle,
-      }),
-      showbrandimage: schema.boolean({ defaultValue: basicauthDefaults.login.showbrandimage }),
-      brandimage: schema.string({
-        defaultValue: basicauthDefaults.login.brandimage,
-      }),
-      buttonstyle: schema.string({ defaultValue: basicauthDefaults.login.buttonstyle }),
+  }),
+
+  /**
+   * Login page
+   */
+  login: schema.object({
+    title: schema.string({ defaultValue: loginDefaults.title }),
+    subtitle: schema.string({
+      defaultValue: loginDefaults.subtitle,
     }),
+    showbrandimage: schema.boolean({ defaultValue: loginDefaults.showbrandimage }),
+    brandimage: schema.string({
+      defaultValue: loginDefaults.brandimage,
+    }),
+    buttonstyle: schema.string({ defaultValue: loginDefaults.buttonstyle }),
   }),
 
   /**
@@ -319,6 +324,7 @@ export const config = {
     accountinfo: true,
     readonly_mode: true,
     sgVersion: true,
+    login: true,
   },
   schema: ConfigSchema,
   deprecations: ({ unusedFromRoot }) => {

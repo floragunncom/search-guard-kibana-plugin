@@ -11,6 +11,8 @@ import {
 } from './sanity_checks';
 import { getSecurityCookieOptions, extendSecurityCookieOptions } from './session/security_cookie';
 import { ReadOnlyMode } from './authorization/ReadOnlyMode';
+import { AuthManager } from './auth/AuthManager';
+import { defineAuthRoutes } from './auth/routes_auth';
 
 export class SearchGuard {
   constructor(coreContext) {
@@ -69,17 +71,41 @@ export class SearchGuard {
       // We must extend the cookie options.
       // Because Kibana doesn't support all the options we need.
       extendSecurityCookieOptions(cookieOptions);
-
       const authType = configService.get('searchguard.auth.type', null);
-      let AuthClass = null;
-      let authInstance = null;
 
-      // Proxy authentication is handled implicitly.
-      if (
-        authType &&
-        authType !== '' &&
-        ['basicauth', 'jwt', 'openid', 'saml', 'proxycache'].indexOf(authType) > -1
-      ) {
+      let authManager = null;
+
+      // Handle Kerberos separately because we don't want to bring up entire jungle from AuthType here.
+      if (authType === 'kerberos') {
+        core.http.registerAuth(
+          new Kerberos({
+            pluginDependencies,
+            config: configService,
+            searchGuardBackend,
+            logger: this.coreContext.logger.get('searchguard-kerberos-auth'),
+          }).checkAuth
+        );
+      } else if (authType !== 'proxy') {
+        authManager = new AuthManager({
+          kibanaCore: core,
+          sessionStorageFactory,
+          pluginDependencies,
+          logger: this.coreContext.logger.get('searchguard-auth'),
+          searchGuardBackend,
+          configService,
+        });
+        authManager.registerAuthInstances();
+        defineAuthRoutes({ kibanaCore: core, authManager, searchGuardBackend, configService });
+        if (authManager) {
+          // authManager.onPreAuth needs to run before any other handler
+          // that manipulates the request headers (e.g. MT)
+          core.http.registerOnPreAuth(authManager.onPreAuth);
+          core.http.registerAuth(authManager.checkAuth);
+          core.http.registerOnPostAuth(authManager.onPostAuth);
+        }
+      }
+
+      if (authType && ['proxy', 'kerberos'].indexOf(authType) === -1) {
         try {
           this.logger.info('Initialising Search Guard authentication plugin.');
 
@@ -97,58 +123,13 @@ export class SearchGuard {
               "'searchguard.cookie.secure' is set to false, cookies are transmitted over unsecure HTTP connection. Consider using HTTPS and set this key to 'true'"
             );
           }
-
-          switch (authType) {
-            case 'openid':
-              AuthClass = require('./auth/types/openid/OpenId');
-              break;
-
-            case 'basicauth':
-              AuthClass = require('./auth/types/basicauth/BasicAuth');
-              break;
-
-            case 'jwt':
-              AuthClass = require('./auth/types/jwt/Jwt');
-              break;
-
-            case 'saml':
-              AuthClass = require('./auth/types/saml/Saml');
-              break;
-
-            case 'proxycache':
-              AuthClass = require('./auth/types/proxycache/ProxyCache');
-              break;
-          }
-
-          if (AuthClass) {
-            try {
-              // Check that one of the auth types didn't already require an authInstance
-              if (!authInstance) {
-                authInstance = new AuthClass({
-                  searchGuardBackend,
-                  kibanaCore: core,
-                  config: configService,
-                  logger: this.coreContext.logger.get('searchguard-auth'),
-                  sessionStorageFactory,
-                  pluginDependencies,
-                  spacesService,
-                });
-              }
-
-              await authInstance.init();
-              this.logger.info('Search Guard session management enabled.');
-            } catch (error) {
-              this.logger.error(`An error occurred while enabling session management: ${error}`);
-              throw error;
-            }
-          }
         } catch (error) {
           this.logger.error(`An error occurred registering server plugins: ${error}`);
           throw error;
         }
       }
 
-      if (authType !== 'jwt') {
+      if (!configService.get('searchguard.jwt.enabled')) {
         this.logger.warn('Search Guard copy JWT params disabled');
       }
 
@@ -179,34 +160,16 @@ export class SearchGuard {
 
       this.logger.info('Search Guard system routes registered.');
 
-      if (authInstance) {
-        core.http.registerAuth(authInstance.checkAuth);
-        core.http.registerOnPostAuth(authInstance.onPostAuth);
-      }
-
-      // Handle Kerberos separately because we don't want to bring up entire jungle from AuthType here.
-      if (authType === 'kerberos') {
-        core.http.registerAuth(
-          new Kerberos({
-            pluginDependencies,
-            config: configService,
-            searchGuardBackend,
-            logger: this.coreContext.logger.get('searchguard-kerberos-auth'),
-          }).checkAuth
-        );
-      }
-
       if (configService.get('searchguard.readonly_mode.enabled')) {
         const readOnlyMode = new ReadOnlyMode(this.coreContext.logger.get('searchguard-readonly'));
         readOnlyMode.setupSync({
           kibanaCoreSetup: core,
           searchGuardBackend,
           configService,
-          authInstance,
         });
       }
 
-      return { authInstance, sessionStorageFactory };
+      return { authManager, sessionStorageFactory };
     } catch (error) {
       this.logger.error(error);
       throw error;

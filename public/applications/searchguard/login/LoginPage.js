@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 floragunn GmbH
+ *    Copyright 2021 floragunn GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import React, { Component, Fragment } from 'react';
+import React, { useState, useEffect } from 'react';
 import dompurify from 'dompurify';
 import {
   EuiSpacer,
@@ -27,6 +27,10 @@ import {
   EuiImage,
   EuiButton,
   EuiPanel,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiErrorBoundary,
+  EuiLoadingKibana,
 } from '@elastic/eui';
 import { LicenseWarningCallout } from '../../components';
 import { stringCSSToReactStyle } from '../../../utils/cssHelper';
@@ -36,9 +40,289 @@ import { API_ROOT } from '../../../utils/constants';
 // @todo Move this to the new app
 import { sanitizeNextUrlFromFullUrl } from './sanitize_next_url';
 
-export class LoginPage extends Component {
-  constructor(props) {
-    super(props);
+export function isInvalid(error) {
+  return error !== null;
+}
+
+export function UserNameInput({ isInvalid, userName, onChange }) {
+  return (
+    <EuiFormRow id="sg.username" label="Username" isInvalid={isInvalid} fullWidth>
+      <EuiFieldText
+        id="sg.username"
+        data-test-subj="sg.username"
+        name="userName"
+        required={true}
+        placeholder="Username"
+        value={userName}
+        onChange={onChange}
+        autoFocus
+        icon="user"
+        autoComplete="off"
+        isInvalid={isInvalid}
+      />
+    </EuiFormRow>
+  );
+}
+
+export function UserPasswordInput({ isInvalid, password, onChange }) {
+  return (
+    <EuiFormRow id="sg.password" label="Password" isInvalid={isInvalid} fullWidth>
+      <EuiFieldPassword
+        id="sg.password"
+        data-test-subj="sg.password"
+        name="password"
+        required={true}
+        placeholder="Password"
+        value={password}
+        onChange={onChange}
+        autoComplete="off"
+        isInvalid={isInvalid}
+      />
+    </EuiFormRow>
+  );
+}
+
+export function ErrorCallout({ error, euiFlexItemProps = {} } = {}) {
+  if (!error) return null;
+
+  return (
+    <EuiFlexItem {...euiFlexItemProps}>
+      <EuiErrorBoundary>
+        <EuiCallOut
+          id="sg.errorMessage"
+          data-test-subj="sg.errorMessage"
+          title="Error"
+          color="danger"
+          iconType="alert"
+        >
+          <EuiText data-test-subj="sg.errorMessage-text">
+            <p>{error}</p>
+          </EuiText>
+        </EuiCallOut>
+      </EuiErrorBoundary>
+    </EuiFlexItem>
+  );
+}
+
+export function AuthTypesMenu({ authTypes = [] }) {
+  const _authTypes = authTypes.filter((authType) => authType.type !== 'basicauth');
+  if (!_authTypes.length) return null;
+
+  return (
+    <EuiFlexItem>
+      <EuiErrorBoundary>
+        <EuiFlexGroup direction="column" gutterSize="s" responsive={false} wrap data-test-sub="sg.login.authMenu">
+          {_authTypes.map((auth, index) => {
+            return (
+              <EuiFlexItem key={index} grow={false}>
+                <EuiErrorBoundary>
+                  <EuiButton
+                    fill
+                    key={index}
+                    data-test-subj={`sg.login.authMenu.item.openid`}
+                    href={auth.loginURL}
+                  >
+                    {auth.title}
+                  </EuiButton>
+                </EuiErrorBoundary>
+              </EuiFlexItem>
+            );
+          })}
+        </EuiFlexGroup>
+      </EuiErrorBoundary>
+    </EuiFlexItem>
+  );
+}
+
+export function HTMLTitle({ text, euiTextProps = {}, HTMLTag = 'h1' } = {}) {
+  return (
+    <EuiErrorBoundary>
+      <EuiText textAlign="center" {...euiTextProps}>
+        <HTMLTag
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: dompurify.sanitize(text) }}
+        />
+      </EuiText>
+    </EuiErrorBoundary>
+  );
+}
+
+export function BasicLogin({ httpClient, basicLoginConfig, loginPageConfig }) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  if (!basicLoginConfig) return null;
+
+  const loginButtonStyles = stringCSSToReactStyle(loginPageConfig.buttonstyle);
+
+  function redirectToKibana() {
+    const nextUrl = sanitizeNextUrlFromFullUrl(
+      window.location.href,
+      httpClient.http.basePath.basePath
+    );
+    window.location.href = nextUrl;
+  }
+
+  async function handleSubmit() {
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      await httpClient.post(`${API_ROOT}/auth/login`, { username, password });
+      redirectToKibana();
+    } catch (error) {
+      console.error('BasicLogin, handleSubmit', error);
+
+      let _error =
+        'An error occurred while checking your credentials, make sure you have an Elasticsearch cluster secured by Search Guard running.';
+      if (error.body) error = error.body;
+
+      if (error.statusCode && error.statusCode === 401) {
+        _error = 'Invalid username or password, please try again';
+      } else if (error.statusCode && error.statusCode === 404) {
+        // This happens either when the user doesn't have any valid tenants or roles
+        _error = error.message;
+      }
+
+      setError(_error);
+    }
+
+    setIsLoading(false);
+  }
+
+  return (
+    <EuiFlexItem style={{ minWidth: 350, maxWidth: 350 }}>
+      <EuiErrorBoundary>
+        <EuiPanel grow={false}>
+          <EuiFlexGroup direction="column">
+            <EuiFlexItem>
+              <HTMLTitle
+                HTMLTag="p"
+                text={basicLoginConfig.message}
+                euiTextProps={{ 'data-test-subj': 'sg.login.subTitle' }}
+              />
+            </EuiFlexItem>
+            <EuiFlexItem>
+              <form onSubmit={(event) => event.preventDefault()}>
+                <EuiForm>
+                  <input
+                    autoComplete="anyrandomstring"
+                    name="hidden"
+                    type="text"
+                    style={{ display: 'none' }}
+                  />
+                  <UserNameInput
+                    isInvalid={isInvalid(error)}
+                    userName={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
+                  <EuiSpacer />
+
+                  <UserPasswordInput
+                    isInvalid={isInvalid(error)}
+                    password={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <EuiSpacer size="l" />
+
+                  <EuiButton
+                    id="sg.login"
+                    data-test-subj="sg.login"
+                    fill
+                    fullWidth={true}
+                    style={loginButtonStyles}
+                    onClick={handleSubmit}
+                    type="submit"
+                    isLoading={isLoading}
+                  >
+                    Log in
+                  </EuiButton>
+
+                </EuiForm>
+              </form>
+            </EuiFlexItem>
+            <ErrorCallout error={error} />
+          </EuiFlexGroup>
+        </EuiPanel>
+      </EuiErrorBoundary>
+    </EuiFlexItem>
+  );
+}
+
+export function BrandImage({ configService, httpClient }) {
+  const { showbrandimage: showBrandImage, brandimage: brandImage } = configService.get(
+    'searchguard.login'
+  );
+
+  if (!showBrandImage) return null;
+  return (
+    <EuiErrorBoundary>
+      <div style={{ maxWidth: 350 }}>
+        <EuiImage
+          data-test-subj="sg.login.brandImage"
+          alt="Brand image"
+          size="fullWidth"
+          url={
+            brandImage.startsWith('/plugins')
+              ? httpClient.http.basePath.basePath + brandImage
+              : brandImage
+          }
+        />
+      </div>
+    </EuiErrorBoundary>
+  );
+}
+
+export function authTypesToUiAuthTypes(authTypes, { basePath = '' } = {}) {
+  return authTypes.map((authType) => {
+    return {
+      ...authType, loginURL: extendLoginURL(authType.loginURL)
+    };
+  });
+
+  function extendLoginURL(loginURL) {
+    if (!loginURL) loginURL = basePath + '/login';
+    const currURL = new URL(window.location.href);
+
+    try {
+      loginURL = new URL(loginURL);
+    } catch (error) {
+      loginURL = new URL(loginURL, 'http://sgurlplaceholder');
+    }
+
+    let nextURL = currURL.searchParams.get('nextUrl');
+    if (nextURL) {
+      if (currURL.hash) nextURL += currURL.hash;
+      loginURL.searchParams.set('nextUrl', nextURL);
+    }
+
+    if (loginURL.hostname.startsWith('sgurlplaceholder')) {
+      return loginURL.pathname + loginURL.search;
+    }
+
+    return loginURL.toString();
+  }
+}
+
+export function LoginPage({ httpClient, configService }) {
+  const [loginPageConfig, setLoginPageConfig] = useState({});
+  const [authTypes, setAuthTypes] = useState([]);
+  const [basicLoginConfig, setBasicLoginConfig] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+
+
+  async function fetchData() {
+    setError(null);
+    setIsLoading(true);
 
     // if session was not terminated by logout, clear any remaining
     // stored paths etc. from previous users, to avoid issues
@@ -46,259 +330,54 @@ export class LoginPage extends Component {
     localStorage.clear();
     sessionStorage.clear();
 
-    const { configService } = props;
-
-    this.basicAuthConfig = configService.get('searchguard.basicauth');
-    this.loginButtonStyles = stringCSSToReactStyle(
-      configService.get('searchguard.basicauth.login.buttonstyle')
-    );
-    this.alternativeLoginButtonStyles = stringCSSToReactStyle(
-      configService.get('searchguard.basicauth.alternative_login.buttonstyle')
-    );
-
-    // Custom styling
-    this.state = {
-      userName: '',
-      password: '',
-      alternativeLogin: this.getAlternativeLogin(this.basicAuthConfig.alternative_login),
-      errorMessage: null,
-    };
-  }
-
-  getAlternativeLogin(alternativeLoginConfig) {
-    // Prepare alternative login for the view
-    let alternativeLogin = null;
-
-    if (alternativeLoginConfig.show_for_parameter) {
-      // Build an object from the query parameters
-      // Strip the first ? from the query parameters, if we have any
-      const queryString = window.location.search.trim().replace(/^(\?)/, '');
-      const queryObject = {};
-      if (queryString) {
-        queryString.split('&').map((parameter) => {
-          const parameterParts = parameter.split('=');
-          if (parameterParts[1]) {
-            queryObject[encodeURIComponent(parameterParts[0])] = parameterParts[1];
-          }
-        });
-      }
-
-      const alternativeLoginURL = queryObject[alternativeLoginConfig.show_for_parameter];
-      let validRedirect = false;
-
-      try {
-        alternativeLoginConfig.valid_redirects.forEach((redirect) => {
-          if (new RegExp(redirect).test(alternativeLoginURL)) {
-            validRedirect = true;
-          }
-        });
-      } catch (error) {
-        console.warn('LoginPage, getAlternativeLogin', error);
-      }
-
-      if (validRedirect) {
-        alternativeLogin = {
-          url: queryObject[alternativeLoginConfig.show_for_parameter],
-        };
-      }
-
-      return alternativeLogin;
-    }
-  }
-
-  /**
-   * Update the credentials
-   * @param event
-   */
-  onChange = (event) => {
-    const { name, value } = event.target;
-
-    this.setState({
-      [name]: value,
-    });
-  };
-
-  handleSubmit = async () => {
-    const { httpClient, basePath } = this.props;
-    this.setState({
-      errorMessage: null,
-    });
-
     try {
-      const nextUrl = sanitizeNextUrlFromFullUrl(window.location.href, basePath);
-
-      httpClient
-        .post(`${API_ROOT}/auth/login`, {
-          username: this.state.userName,
-          password: this.state.password,
-        })
-        .then(
-          () => {
-            window.location.href = nextUrl;
-          },
-          (error) => {
-            error = error.body;
-            let errorMessage =
-              'An error occurred while checking your credentials, make sure you have an Elasticsearch cluster secured by Search Guard running.';
-
-            if (error.statusCode && error.statusCode === 401) {
-              errorMessage = 'Invalid username or password, please try again';
-            } else if (error.statusCode && error.statusCode === 404) {
-              // This happens either when the user doesn't have any valid tenants or roles
-              errorMessage = error.message;
-            }
-
-            this.setState({
-              errorMessage,
-            });
-          }
-        );
+      const { data } = await httpClient.get(`${API_ROOT}/auth/config`);
+      let authTypes = data.authTypes;
+      authTypes = authTypesToUiAuthTypes(authTypes, httpClient.http.basePath.basePath);
+      console.debug('LoginPage, fetchData, authTypes', authTypes);
+      setLoginPageConfig(data.loginPage);
+      setAuthTypes(authTypes);
+      setBasicLoginConfig(authTypes.find(({ type }) => type === 'basicauth'));
     } catch (error) {
-      this.errorMessage = 'An internal error has occured.';
+      console.error('LoginPage, fetchData', error);
+      setError(error.message);
     }
-  };
 
-  render() {
-    const { basePath, configService } = this.props;
-    const {
-      showbrandimage: showBrandImage,
-      brandimage: brandImage,
-      title: loginTitle,
-      subtitle: loginSubTitle,
-    } = this.basicAuthConfig.login;
-
-    const { button_text: alternativeButtonLabel } = this.basicAuthConfig.alternative_login;
-
-    return (
-      <div
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}
-      >
-        <EuiPanel style={{ maxWidth: '350px' }}>
-          {showBrandImage ? (
-            <div style={{ margin: 'auto', maxWidth: '300px' }}>
-              <EuiImage
-                data-test-subj="sg.login.brandImage"
-                alt="Brand image"
-                size="fullWidth"
-                url={brandImage.startsWith('/plugins') ? basePath + brandImage : brandImage}
-              />
-            </div>
-          ) : (
-            <EuiSpacer size="l" />
-          )}
-
-          <EuiText textAlign="center" data-test-subj="sg.login.title">
-            <h2
-              // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{ __html: dompurify.sanitize(loginTitle) }}
-            />
-          </EuiText>
-          <EuiText textAlign="center" data-test-subj="sg.login.subTitle">
-            <p
-              // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{ __html: dompurify.sanitize(loginSubTitle) }}
-            />
-          </EuiText>
-
-          <LicenseWarningCallout configService={configService} />
-
-          <form onSubmit={(event) => event.preventDefault()}>
-            <EuiForm>
-              <input
-                autoComplete="anyrandomstring"
-                name="hidden"
-                type="text"
-                style={{ display: 'none' }}
-              />
-              <EuiFormRow
-                id="sg.username"
-                label="Username"
-                isInvalid={this.state.errorMessage !== null}
-              >
-                <EuiFieldText
-                  id="sg.username"
-                  data-test-subj="sg.username"
-                  name="userName"
-                  required={true}
-                  placeholder="Username"
-                  value={this.state.userName}
-                  onChange={this.onChange}
-                  autoFocus
-                  icon="user"
-                  autoComplete="off"
-                  isInvalid={this.state.errorMessage !== null}
-                />
-              </EuiFormRow>
-
-              <EuiSpacer />
-              <EuiFormRow
-                id="sg.password"
-                label="Password"
-                isInvalid={this.state.errorMessage !== null}
-              >
-                <EuiFieldPassword
-                  id="sg.password"
-                  data-test-subj="sg.password"
-                  name="password"
-                  required={true}
-                  placeholder="Password"
-                  value={this.state.password}
-                  onChange={this.onChange}
-                  autoComplete="off"
-                  isInvalid={this.state.errorMessage !== null}
-                />
-              </EuiFormRow>
-              <EuiSpacer size="l" />
-
-              <EuiButton
-                id="sg.login"
-                data-test-subj="sg.login"
-                fill
-                fullWidth={true}
-                style={this.loginButtonStyles}
-                onClick={this.handleSubmit}
-                type="submit"
-              >
-                Log in
-              </EuiButton>
-
-              {this.state.alternativeLogin && (
-                <Fragment>
-                  <EuiSpacer size="l" />
-
-                  <EuiButton
-                    id="sg.alternative_login"
-                    data-test-subj="sg.alternative_login"
-                    fill
-                    fullWidth={true}
-                    href={this.state.alternativeLogin.url}
-                    style={this.alternativeLoginButtonStyles}
-                  >
-                    {alternativeButtonLabel}
-                  </EuiButton>
-                </Fragment>
-              )}
-            </EuiForm>
-          </form>
-
-          {this.state.errorMessage && (
-            <Fragment>
-              <EuiSpacer size="l" />
-              <EuiCallOut
-                id="sg.errorMessage"
-                data-test-subj="sg.errorMessage"
-                title="Error"
-                color="danger"
-                iconType="alert"
-              >
-                <EuiText data-test-subj="sg.errorMessage-text">
-                  <p>{this.state.errorMessage}</p>
-                </EuiText>
-              </EuiCallOut>
-            </Fragment>
-          )}
-        </EuiPanel>
-      </div>
-    );
+    setIsLoading(false);
   }
+
+  return (
+      <EuiFlexGroup direction="column" justifyContent="center" alignItems="center" style={{ padding: '100px 10px' }}>
+        <EuiFlexItem>
+          <BrandImage configService={configService} httpClient={httpClient} />
+        </EuiFlexItem>
+        <EuiFlexItem>
+          <HTMLTitle
+            HTMLTag="h2"
+            text={loginPageConfig.title}
+            euiTextProps={{ 'data-test-subj': 'sg.login.title' }}
+          />
+        </EuiFlexItem>
+        <ErrorCallout error={error} euiFlexItemProps={{ style: { minWidth: 350 } }} />
+        <LicenseWarningCallout
+          configService={configService}
+          euiFlexItemProps={{ style: { minWidth: 350 } }}
+        />
+        <EuiFlexItem>
+          {isLoading ? (
+            <EuiLoadingKibana size="xl" />
+          ) : (
+            <EuiFlexGroup gutterSize="m">
+              <BasicLogin
+                basicLoginConfig={basicLoginConfig}
+                configService={configService}
+                httpClient={httpClient}
+                loginPageConfig={loginPageConfig}
+              />
+              <AuthTypesMenu authTypes={authTypes} />
+            </EuiFlexGroup>
+          )}
+        </EuiFlexItem>
+      </EuiFlexGroup>
+  );
 }
