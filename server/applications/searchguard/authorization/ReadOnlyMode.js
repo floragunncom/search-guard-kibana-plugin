@@ -9,12 +9,12 @@ export class ReadOnlyMode {
     this.multiTenancyEnabled = false;
   }
 
-  setupSync({ kibanaCoreSetup, searchGuardBackend, configService, authInstance }) {
+  setupSync({ kibanaCoreSetup, searchGuardBackend, configService }) {
     this.readOnlyModeRoles = configService.get('searchguard.readonly_mode.roles');
     this.multiTenancyEnabled = configService.get('searchguard.multitenancy.enabled');
 
     if (this.readOnlyModeRoles.length || this.multiTenancyEnabled) {
-      this.registerSwitcher({ kibanaCoreSetup, searchGuardBackend, configService, authInstance });
+      this.registerSwitcher({ kibanaCoreSetup, searchGuardBackend, configService});
     }
   }
 

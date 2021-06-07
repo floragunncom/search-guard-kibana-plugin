@@ -10,9 +10,9 @@ export function renderApp({ element, basePath, config }) {
   ReactDOM.render(
     <CustomErrorPage
       basePath={basePath}
-      brandImagePath={config.searchguard.basicauth.login.brandimage}
-      showBrandImage={config.searchguard.basicauth.login.showbrandimage}
-      backButtonStyle={stringCSSToReactStyle(config.searchguard.basicauth.login.buttonstyle)}
+      brandImagePath={config.searchguard.login.brandimage}
+      showBrandImage={config.searchguard.login.showbrandimage}
+      backButtonStyle={stringCSSToReactStyle(config.searchguard.login.buttonstyle)}
     />,
     element
   );
