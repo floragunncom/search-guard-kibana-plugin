@@ -12,6 +12,8 @@ import {
 } from './sanity_checks';
 import { getSecurityCookieOptions, extendSecurityCookieOptions } from './session/security_cookie';
 import { ReadOnlyMode } from './authorization/ReadOnlyMode';
+import { AUTH_TYPE_NAMES, AuthManager } from './auth/AuthManager';
+import {defineAuthRoutes} from "./auth/routes_auth";
 
 export class SearchGuard {
   constructor(coreContext) {
@@ -63,7 +65,15 @@ export class SearchGuard {
 
       const authType = configService.get('searchguard.auth.type', null);
       let AuthClass = null;
-      let authInstance = null;
+      const authInstance = null;
+
+      const authManager = new AuthManager({
+        kibanaCore: core,
+        configService: this.configService,
+        sessionStorageFactory,
+      });
+
+      defineAuthRoutes({ kibanaCore: core, authManager });
 
       // Proxy authentication is handled implicitly.
       if (
@@ -114,6 +124,7 @@ export class SearchGuard {
           if (AuthClass) {
             try {
               // Check that one of the auth types didn't already require an authInstance
+              /*
               if (!authInstance) {
                 authInstance = new AuthClass({
                   searchGuardBackend,
@@ -125,7 +136,80 @@ export class SearchGuard {
                 });
               }
 
+
+
               await authInstance.init();
+
+               */
+
+              // @todo PoC, this needs to be configurable
+              const OpenId = require('./auth/types/openid/OpenId');
+              const BasicAuth = require('./auth/types/basicauth/BasicAuth');
+              const JWT = require('./auth/types/jwt/Jwt');
+              const Saml = require('./auth/types/saml/Saml');
+
+              // @todo Getting the routes probably needs to be backported
+              /*
+              const openId = new OpenId({
+                searchGuardBackend: this.searchGuardBackend,
+                kibanaCore: core,
+                config: this.configService,
+                logger: this.coreContext.logger.get('searchguard-auth'),
+                sessionStorageFactory,
+                elasticsearch,
+                pluginDependencies,
+                authManager,
+              });
+
+              openId.init();
+
+              authManager.registerAuthInstance(AUTH_TYPE_NAMES.OIDC, openId);
+
+               */
+
+              const jwt = new JWT({
+                searchGuardBackend: this.searchGuardBackend,
+                kibanaCore: core,
+                config: this.configService,
+                logger: this.coreContext.logger.get('searchguard-auth'),
+                sessionStorageFactory,
+                elasticsearch,
+                pluginDependencies,
+                authManager,
+              });
+
+              //jwt.init();
+              //authManager.registerAuthInstance(AUTH_TYPE_NAMES.JWT, jwt);
+
+              const saml = new Saml({
+                searchGuardBackend: this.searchGuardBackend,
+                kibanaCore: core,
+                config: this.configService,
+                logger: this.coreContext.logger.get('searchguard-auth'),
+                sessionStorageFactory,
+                elasticsearch,
+                pluginDependencies,
+                authManager,
+              });
+
+              //saml.init();
+              //authManager.registerAuthInstance(AUTH_TYPE_NAMES.SAML, saml);
+
+              // @todo Check params after merge
+              const basicAuth = new BasicAuth({
+                searchGuardBackend: this.searchGuardBackend,
+                kibanaCore: core,
+                config: this.configService,
+                logger: this.coreContext.logger.get('searchguard-auth'),
+                sessionStorageFactory,
+                elasticsearch,
+                pluginDependencies,
+                authManager,
+              });
+
+              basicAuth.init();
+              authManager.registerAuthInstance(AUTH_TYPE_NAMES.BASIC, basicAuth);
+
               this.logger.info('Search Guard session management enabled.');
             } catch (error) {
               this.logger.error(`An error occurred while enabling session management: ${error}`);
@@ -169,8 +253,9 @@ export class SearchGuard {
 
       this.logger.info('Search Guard system routes registered.');
 
-      if (authInstance) {
-        core.http.registerAuth(authInstance.checkAuth);
+      // @todo AuthManager
+      if (authManager) {
+        core.http.registerAuth(authManager.checkAuth);
       }
 
       // Handle Kerberos separately because we don't want to bring up entire jungle from AuthType here.
@@ -195,7 +280,7 @@ export class SearchGuard {
         });
       }
 
-      return { authInstance, sessionStorageFactory };
+      return { authManager, sessionStorageFactory };
     } catch (error) {
       this.logger.error(error);
       throw error;

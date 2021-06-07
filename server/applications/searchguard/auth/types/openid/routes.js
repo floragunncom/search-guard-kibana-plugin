@@ -22,6 +22,10 @@ import MissingRoleError from '../../errors/missing_role_error';
 import { customError as customErrorRoute } from '../common/routes';
 import { APP_ROOT, API_ROOT } from '../../../../../utils/constants';
 
+export const OIDC_ROUTES = {
+  LOGIN: `${APP_ROOT}/auth/openid/encode`, // @todo Update this later - the auth selector page should probably do all the encoding
+};
+
 async function getOIDCWellKnown({ searchGuardBackend }) {
   const oidcWellKnown = await searchGuardBackend.getOIDCWellKnown();
 
@@ -134,7 +138,8 @@ export function defineRoutes({
   /**
    * The error page.
    */
-  customErrorRoute({ httpResources });
+  // @todo Disabling for now, conflicting routes
+  //customErrorRoute({ httpResources });
 
   /**
    * Clears the session and logs the user out from the IdP (if we have an endpoint available)
@@ -142,7 +147,7 @@ export function defineRoutes({
    */
   router.post(
     {
-      path: `${API_ROOT}/auth/logout`,
+      path: `${API_ROOT}/auth/logoutOPENIDTEMP`,
       validate: false,
       options: {
         // We may need false here if the cookie has already expired
@@ -178,6 +183,7 @@ function getBaseRedirectUrl({ kibanaCore, config }) {
   return baseRedirectUrl;
 }
 
+// @todo Remove this, redundant now. Handled by the authManager and authInstance
 export function logoutHandler({
   searchGuardBackend,
   kibanaCore,

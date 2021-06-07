@@ -150,6 +150,7 @@ export function loginAuthHandler({ config, authInstance, logger }) {
   };
 }
 
+// @todo Remove this, redundant now. Handled by the authManager and authInstance
 export function logoutHandler({ authInstance }) {
   return async function (context, request, response) {
     await authInstance.clear(request);
@@ -169,7 +170,8 @@ export function defineRoutes({
   const httpResources = kibanaCore.http.resources;
   const router = kibanaCore.http.createRouter();
 
-  customErrorRoute({ httpResources });
+  // @todo Disabling for now, conflicting routes
+  //customErrorRoute({ httpResources });
 
   /**
    * The login page.
@@ -203,7 +205,7 @@ export function defineRoutes({
 
   router.post(
     {
-      path: `${API_ROOT}/auth/logout`,
+      path: `${API_ROOT}/auth/logoutBASICAUTHTEMP`,
       validate: false,
     },
     logoutHandler({ authInstance })

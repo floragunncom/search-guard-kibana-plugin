@@ -20,6 +20,7 @@ import MissingTenantError from '../../errors/missing_tenant_error';
 import SessionExpiredError from '../../errors/session_expired_error';
 import MissingRoleError from '../../errors/missing_role_error';
 import path from 'path';
+import { AUTH_TYPE_NAMES } from '../../AuthManager';
 
 export default class Jwt extends AuthType {
   constructor({
@@ -43,7 +44,7 @@ export default class Jwt extends AuthType {
      * The authType is saved in the auth cookie for later reference
      * @type {string}
      */
-    this.type = 'jwt';
+    this.type = AUTH_TYPE_NAMES.JWT;
 
     try {
       this.authHeaderName = this.config.get('searchguard.jwt.header').toLowerCase();
@@ -53,7 +54,7 @@ export default class Jwt extends AuthType {
     }
   }
 
-  debugLog(message, label = 'jwt') {
+  debugLog(message, label = AUTH_TYPE_NAMES.JWT) {
     super.debugLog(message, label);
   }
 

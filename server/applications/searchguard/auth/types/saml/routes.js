@@ -270,14 +270,16 @@ export default function ({
   /**
    * The custom error page.
    */
-  customErrorRoute({ httpResources });
+  // @todo Disabling for now, conflicting routes
+  //customErrorRoute({ httpResources });
 
   /**
    * Logout
    */
+  // @todo Remove this, redundant now. Handled by the authManager and authInstance
   router.post(
     {
-      path: `${API_ROOT}/auth/logout`,
+      path: `${API_ROOT}/auth/logoutSAMLTEMP`,
       validate: false,
       options: {
         authRequired: false,

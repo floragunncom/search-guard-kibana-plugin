@@ -66,6 +66,14 @@ export default class AuthType {
     this.type = null;
 
     /**
+     * If a loginURL is defined, we can skip the auth selector page
+     * if the customer only has one auth type enabled.
+     * // @todo This will probably need to change - we may e.g. have multiple OIDC configurations
+     * @type {string|null}
+     */
+    this.loginURL = null;
+
+    /**
      * Tells the sessionPlugin whether or not to validate the number of tenants when authenticating
      * @type {boolean}
      */
@@ -218,6 +226,9 @@ export default class AuthType {
     } else {
       // No (valid) cookie, we need to check for headers
       /* @todo Clean this up. Not needed anymore at this point (session based auth)
+      // @todo If we DO need to use it, e.g. for JWT, then watch out with
+      // kibana_config - the place where we set hasAuthCookie.
+      // hasAuthCookie should only be true if we have cookie credentials
       const authHeaderCredentials = this.detectAuthHeaderCredentials(request);
       if (authHeaderCredentials) {
         try {
@@ -609,15 +620,27 @@ export default class AuthType {
     return authResponse;
   }
 
+  async logout({ context = null, request, response }) {
+    await this.clear(request, true);
+    return response.ok({
+      body: {
+        authType: this.type,
+        redirectURL: this.basePath + '/login?type=' + this.type + 'Logout',
+      },
+    });
+  }
+
   /**
    * Remove the credentials from the session cookie
    */
-  async clear(request) {
+  async clear(request, explicitlyRemoveAuthType = false) {
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
     // @todo Consider refactoring anything auth related into an "auth" property.
     delete sessionCookie.credentials;
     delete sessionCookie.username;
-    delete sessionCookie.authType;
+    if (explicitlyRemoveAuthType) {
+      delete sessionCookie.authType;
+    }
     delete sessionCookie.additionalAuthHeaders;
     delete sessionCookie.isAnonymousAuth;
 

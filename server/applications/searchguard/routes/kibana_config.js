@@ -25,11 +25,12 @@ export function handleKibanaConfig({ config, logger }) {
 
         // At the moment we use this to decide whether or not to display the logout button
         kibanaConfig.uiHelpers = {};
-        const sessionCookie =
-          (await context.searchGuard.sessionStorageFactory.asScoped(request).get()) || {};
+
         // @todo For multiple auth types, this would be authManager instead of authInstance
+        // @todo Maybe switch to another method that only checks for a cookie?
+        // @todo Or uses the getAuthInstanceBy* methods
         kibanaConfig.uiHelpers.hasAuthCookie =
-          context.searchGuard.authInstance.getAuthHeader(sessionCookie) === false ? false : true;
+          (await context.searchGuard.authManager.getAuthHeader(request)) === false ? false : true;
 
         config.searchguard.multitenancy = config.searchguard.multitenancy || {};
         kibanaConfig.searchguard.multitenancy = {

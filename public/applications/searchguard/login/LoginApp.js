@@ -1,6 +1,7 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { BehaviorSubject } from 'rxjs';
 import { AppNavLinkStatus } from '../../../../../../src/core/public';
+import { API_ROOT } from '../../../utils/constants';
 
 export class LoginApp {
   constructor(coreContext) {
@@ -10,21 +11,24 @@ export class LoginApp {
 
   mount({ core, configService, httpClient }) {
     return async (params) => {
-      const [{ renderApp }] = await Promise.all([
+      const [{ renderApp }, { data: authTypes }] = await Promise.all([
         import('./npstart'),
+        httpClient.get(`${API_ROOT}/auth/types`),
         configService.fetchConfig(),
       ]);
 
-      const authType = configService.get('searchguard.auth.type');
+      //const authType = configService.get('searchguard.auth.type');
 
-      if (authType === 'basicauth') {
+      // @todo Remove basicauth condition. Proxy + Kerberos?
+      //if (authType === 'basicauth') {
         return renderApp({
           element: params.element,
           basePath: core.http.basePath.get(),
           config: configService,
           httpClient,
+          authTypes,
         });
-      }
+      //}
     };
   }
 

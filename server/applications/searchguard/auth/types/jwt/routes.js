@@ -24,7 +24,8 @@ module.exports = function ({ authInstance, kibanaCore }) {
 
   router.get(
     {
-      path: `${APP_ROOT}/login`,
+      // @todo Do we need a route for this?
+      path: `${APP_ROOT}/loginTEMPJWT`,
       validate: false,
       options: {
         authRequired: false,
@@ -40,11 +41,13 @@ module.exports = function ({ authInstance, kibanaCore }) {
   /**
    * The error page.
    */
-  customErrorRoute({ httpResources });
+  // @todo Disabling for now, conflicting routes
+  //customErrorRoute({ httpResources });
 
+  // @todo Remove this, redundant now. Handled by the authManager and authInstance
   router.post(
     {
-      path: `${API_ROOT}/auth/logout`,
+      path: `${API_ROOT}/auth/logoutJWTTEMP`,
       validate: false,
       options: {
         authRequired: false,
