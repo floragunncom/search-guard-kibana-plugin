@@ -19,7 +19,7 @@ import { ensureRawRequest } from '../../../../../src/core/server/http/router';
 
 export class MultitenancyLifecycle {
   constructor({
-    authInstance,
+    authManager,
     searchGuardBackend,
     configService,
     sessionStorageFactory,
@@ -27,7 +27,7 @@ export class MultitenancyLifecycle {
     clusterClient,
     pluginDependencies,
   }) {
-    this.authInstance = authInstance;
+    this.authManager = authManager;
     this.searchGuardBackend = searchGuardBackend;
     this.configService = configService;
     this.sessionStorageFactory = sessionStorageFactory;
@@ -40,8 +40,8 @@ export class MultitenancyLifecycle {
     const sessionCookie = await this.sessionStorageFactory.asScoped(request).get();
     let authHeaders = request.headers;
 
-    if (this.authInstance) {
-      const authCredentialsHeaders = await this.authInstance.getAllAuthHeaders(request);
+    if (this.authManager) {
+      const authCredentialsHeaders = await this.authManager.getAllAuthHeaders(request);
       if (authCredentialsHeaders) {
         authHeaders = authCredentialsHeaders;
       }
