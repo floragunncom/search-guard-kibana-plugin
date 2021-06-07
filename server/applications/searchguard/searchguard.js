@@ -178,8 +178,8 @@ export class SearchGuard {
                 authManager,
               });
 
-              //jwt.init();
-              //authManager.registerAuthInstance(AUTH_TYPE_NAMES.JWT, jwt);
+              jwt.init();
+              authManager.registerAuthInstance(AUTH_TYPE_NAMES.JWT, jwt);
 
               const saml = new Saml({
                 searchGuardBackend: this.searchGuardBackend,

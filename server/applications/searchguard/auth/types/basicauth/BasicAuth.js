@@ -265,7 +265,7 @@ export default class BasicAuth extends AuthType {
    * @param request
    * @returns {Promise<*>}
    */
-  async clear(request) {
+  async clear(request, explicitlyRemoveAuthType = false) {
     const authHeaders = await this.getAllAuthHeaders(request);
     // Only try to delete the session if we really have auth headers
     if (authHeaders) {
@@ -276,6 +276,6 @@ export default class BasicAuth extends AuthType {
       }
     }
 
-    return super.clear(request);
+    return super.clear(request, explicitlyRemoveAuthType);
   }
 }

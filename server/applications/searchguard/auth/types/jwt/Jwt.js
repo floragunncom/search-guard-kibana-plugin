@@ -58,14 +58,7 @@ export default class Jwt extends AuthType {
     super.debugLog(message, label);
   }
 
-  /**
-   * Detect authorization header value, either as an http header or as a query parameter
-   * @param request
-   * @param sessionCredentials
-   * @returns {*}
-   */
-  detectAuthHeaderCredentials(request, sessionCredentials = null) {
-    let authHeaderValue = null;
+  async detectCredentialsByRequest({ request }) {
     const urlparamname = this.config.get('searchguard.jwt.url_param').toLowerCase();
 
     // Go through all given query parameters and make them lowercase
@@ -78,6 +71,43 @@ export default class Jwt extends AuthType {
     }
 
     const jwtAuthParam = lowerCaseQueryParameters[urlparamname] || null;
+
+    this.debugLog('JWT from url parameter: ' + jwtAuthParam);
+
+    // @todo Maybe compare with an existing cookie here?
+    if (jwtAuthParam) {
+      return {
+        authHeaderValue: 'Bearer ' + jwtAuthParam,
+      };
+    }
+
+    return null;
+  }
+
+  /**
+   * Detect authorization header value, either as an http header or as a query parameter
+   * @param request
+   * @param sessionCredentials
+   * @returns {*}
+   */
+  async detectAuthHeaderCredentials(request, sessionCredentials = null) {
+    let authHeaderValue = null;
+    /*
+    const urlparamname = this.config.get('searchguard.jwt.url_param').toLowerCase();
+
+    // Go through all given query parameters and make them lowercase
+    // to avoid confusion when using uppercase or perhaps mixed caps
+    const lowerCaseQueryParameters = {};
+    if (request.url.query) {
+      Object.keys(request.url.query).forEach((query) => {
+        lowerCaseQueryParameters[query.toLowerCase()] = request.url.query[query];
+      });
+    }
+
+     */
+
+    // @todo Cealn up again
+    const jwtAuthParam = null; // await this.detectCredentialsByRequest({request});
 
     this.debugLog('JWT from url parameter: ' + jwtAuthParam);
 

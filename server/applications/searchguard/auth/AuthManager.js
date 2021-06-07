@@ -76,20 +76,31 @@ export class AuthManager {
     // only return the authInstance,
     // but also create/update a cookie
 
-    const matchedAuthInstance = this.getAuthInstanceByAuthTypes({ request });
+    // @todo Now an existing cookie would take precedence over any auth specific
+    // ways to authenticate. This limits us a bit, but it should make the flow
+    // a bit clearer and less error prone.
+
+    // @todo Test this with different users. Needs to be tested in conjuction with authType.getCookieWithCredentials()
+    const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+    console.log('------ What is the cookie?', sessionCookie);
+    const authInstanceByCookie = await this.getAuthInstanceByCookie({ request });
+    if (authInstanceByCookie) {
+      return authInstanceByCookie;
+    }
+
+    const matchedAuthInstance = await this.getAuthInstanceByAuthTypes({ request });
     // matchedAuthInstance will be null if we didn't get a match
     if (matchedAuthInstance) {
       return matchedAuthInstance;
     }
 
-    // If none of the authTypes matched, we check for an existing cookie
-    return this.getAuthInstanceByCookie({ request });
+    return null;
   }
 
-  getAuthInstanceByAuthTypes({ request }) {
+  async getAuthInstanceByAuthTypes({ request }) {
     for (const authType in this.authInstances) {
       const authInstance = this.getAuthInstanceByName(authType);
-      const authInstanceResult = authInstance.detectAuthHeaderCredentials(request);
+      const authInstanceResult = await authInstance.detectCredentialsByRequest({ request });
       if (authInstanceResult !== null) {
         console.warn('--- We did find something that we need to act on?', authInstanceResult);
         return authInstance;
@@ -104,6 +115,8 @@ export class AuthManager {
     if (sessionCookie.authType && this.authInstances[sessionCookie.authType]) {
       return this.getAuthInstanceByName(sessionCookie.authType);
     }
+
+    return null;
   }
 
   checkAuth = async (request, response, toolkit) => {
@@ -158,6 +171,7 @@ export class AuthManager {
     });
   };
 
+  // @todo Not needed for 7.10?
   onPostAuth = async (request, response, toolkit) => {
     if (request.route.path === '/api/core/capabilities') {
       const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};

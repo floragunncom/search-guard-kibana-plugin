@@ -114,6 +114,22 @@ export default class AuthType {
   }
 
   /**
+   * Can be used by auth types that need to handle cases
+   * where the credentials are passed together with the
+   * request.
+   * Example: JWT supports passing the bearer token per query parameter
+   *
+   * NB: Should NOT be used to detect pre-authenticated requests.
+   * For those, we don't want to create a cookie.
+   *
+   * @param request
+   * @returns {Promise<null>}
+   */
+  async detectCredentialsByRequest({ request }) {
+    return null;
+  }
+
+  /**
    * Checks if we have an authorization header.
    *
    * Pass the existing session credentials to compare with the authorization header.
@@ -225,11 +241,12 @@ export default class AuthType {
       }
     } else {
       // No (valid) cookie, we need to check for headers
-      /* @todo Clean this up. Not needed anymore at this point (session based auth)
+
+      //@todo Clean this up. Not needed anymore at this point (session based auth)
       // @todo If we DO need to use it, e.g. for JWT, then watch out with
       // kibana_config - the place where we set hasAuthCookie.
       // hasAuthCookie should only be true if we have cookie credentials
-      const authHeaderCredentials = this.detectAuthHeaderCredentials(request);
+      const authHeaderCredentials = await this.detectCredentialsByRequest({ request });
       if (authHeaderCredentials) {
         try {
           this.debugLog('Got auth header credentials, trying to authenticate');
@@ -244,7 +261,6 @@ export default class AuthType {
         }
       }
 
-       */
     }
 
     return sessionCookie;
