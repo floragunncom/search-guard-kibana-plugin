@@ -73,7 +73,7 @@ export class ServerPlugin {
         clusterClient: elasticsearch.client,
       });
 
-      const { authInstance, sessionStorageFactory } = await this.searchGuardApp.setup({
+      const { authManager, sessionStorageFactory } = await this.searchGuardApp.setup({
         core,
         pluginDependencies,
         configService,
@@ -82,10 +82,18 @@ export class ServerPlugin {
         searchGuardConfigurationBackend,
       });
 
+      // Helper for the routes
+      core.http.registerRouteHandlerContext('searchGuard', () => {
+        return {
+          sessionStorageFactory,
+          authManager,
+        };
+      });
+
       const isMtEnabled = configService.get('searchguard.multitenancy.enabled');
       if (isMtEnabled) {
         this.multiTenancyApp.setup({
-          authInstance,
+          authManager,
           kibanaCore: core,
           sessionStorageFactory,
           pluginDependencies,

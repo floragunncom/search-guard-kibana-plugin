@@ -1,11 +1,17 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { EuiCallOut, EuiText, EuiSpacer, EuiErrorBoundary } from '@elastic/eui';
+import { EuiCallOut, EuiText, EuiSpacer, EuiErrorBoundary, EuiFlexItem } from '@elastic/eui';
 import { isEmpty } from 'lodash';
 
-export function LicenseWarningCallout({ configService, errorMessage }) {
+export function LicenseWarningCallout({
+  configService,
+  errorMessage,
+  euiSpacerProps = {},
+  euiFlexItemProps = {},
+} = {}) {
   const service = configService;
+  const isFlexItem = typeof euiFlexItemProps === 'object' && !!Object.keys(euiFlexItemProps).length;
 
   const [licenseValid, setLicenseValid] = useState(true);
   const [error, setError] = useState(null);
@@ -56,7 +62,7 @@ export function LicenseWarningCallout({ configService, errorMessage }) {
     }
   }
 
-  return (
+  const content = (
     <EuiErrorBoundary>
       {!licenseValid && (
         <>
@@ -71,7 +77,7 @@ export function LicenseWarningCallout({ configService, errorMessage }) {
               <p>{error}</p>
             </EuiText>
           </EuiCallOut>
-          <EuiSpacer />
+          <EuiSpacer {...euiSpacerProps} />
         </>
       )}
 
@@ -88,11 +94,14 @@ export function LicenseWarningCallout({ configService, errorMessage }) {
               <p>{warning}</p>
             </EuiText>
           </EuiCallOut>
-          <EuiSpacer />
+          <EuiSpacer {...euiSpacerProps} />
         </>
       )}
     </EuiErrorBoundary>
   );
+
+  if (isFlexItem) return <EuiFlexItem {...euiFlexItemProps}>{content}</EuiFlexItem>;
+  else return content;
 }
 
 LicenseWarningCallout.defaultProps = {

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 floragunn GmbH
+ *    Copyright 2021 floragunn GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,64 @@ export default class SearchGuardBackend {
 
     return body;
   };
+
+  getAuthConfig = async (username, password, nextUrl = null) => {
+    try {
+      const authHeaderValue = Buffer.from(`${username}:${password}`).toString('base64');
+      let path = '/_searchguard/auth/config/';
+      if (nextUrl) {
+        path = path + '?next_url=' + encodeURIComponent(nextUrl);
+      }
+      const response = await this._client({
+        path,
+        method: 'GET',
+        headers: {
+          authorization: 'Basic ' + authHeaderValue,
+        },
+      });
+
+      return response;
+    } catch (error) {
+      if (error.statusCode === 401) {
+        throw new AuthenticationError('Invalid username or password', error);
+      }
+      throw error;
+    }
+  };
+
+  async authenticateWithSession(credentials) {
+    try {
+      const response = await this._client({
+        path: '/_searchguard/auth/session',
+        method: 'POST',
+        body: credentials,
+      });
+
+      return response;
+    } catch (error) {
+      if (error.statusCode === 401) {
+        throw new AuthenticationError('Invalid username or password', error);
+      }
+      throw error;
+    }
+  }
+
+  async logoutSession(headers) {
+    try {
+      return await this._client({
+        path: '/_searchguard/auth/session',
+        method:
+          'DELETE',
+        headers,
+      });
+    } catch (error) {
+      if (error.statusCode === 401) {
+        throw new AuthenticationError('Invalid username or password', error);
+      }
+      throw error;
+    }
+  }
+
 
   authenticate = async (credentials) => {
     const authHeader = Buffer.from(`${credentials.username}:${credentials.password}`).toString(
@@ -153,95 +211,6 @@ export default class SearchGuardBackend {
         path: '/_searchguard/authinfo',
         method: 'get',
         headers,
-      });
-    } catch (error) {
-      if (error.statusCode === 401) {
-        throw new AuthenticationError(error.message, error);
-      }
-      throw error;
-    }
-  };
-
-  getOIDCWellKnown = async () => {
-    try {
-      return await this._client({
-        path: '/_searchguard/auth_domain/_first/openid/config',
-        method: 'get',
-      });
-    } catch (error) {
-      if (error.statusCode === 401) {
-        throw new AuthenticationError(error.message, error);
-      }
-      throw error;
-    }
-  };
-
-  /**
-   * Get the id_token
-   * @param tokenEndpoint
-   * @param body
-   * @returns {Promise<*>}
-   */
-  getOIDCToken = async ({ tokenEndpoint, body }) => {
-    try {
-      return await this._client({
-        path: tokenEndpoint,
-        method: 'post',
-        body,
-      });
-    } catch (error) {
-      if (error.statusCode === 401) {
-        throw new AuthenticationError(error.message, error);
-      }
-      throw error;
-    }
-  };
-
-  getSamlHeader = async () => {
-    try {
-      return await this._client({
-        path: '/_searchguard/authinfo',
-        method: 'get',
-      });
-    } catch (error) {
-      const wwwAuthenticateDirective = error.meta.headers['www-authenticate'];
-      if (!wwwAuthenticateDirective) {
-        throw error;
-      }
-
-      try {
-        const locationRegExp = /location="(.*?)"/;
-        const requestIdRegExp = /requestId="(.*?)"/;
-
-        return {
-          location: locationRegExp.exec(wwwAuthenticateDirective)[1],
-          requestId: requestIdRegExp.exec(wwwAuthenticateDirective)[1],
-        };
-      } catch (error) {
-        throw new AuthenticationError(error.message, error);
-      }
-    }
-  };
-
-  /**
-   * Exchanges a SAMLResponse from the IdP against a token for internal use
-   * @param RequestId
-   * @param SAMLResponse
-   * @param acsEndpoint
-   * @returns {Promise<Promise<*>|*>}
-   */
-  authtoken = async (RequestId, SAMLResponse, acsEndpoint = null) => {
-    const body = {
-      RequestId,
-      SAMLResponse,
-      acsEndpoint,
-    };
-
-    try {
-      return await this._client({
-        path: '/_searchguard/api/authtoken',
-        method: 'post',
-        body,
       });
     } catch (error) {
       if (error.statusCode === 401) {
