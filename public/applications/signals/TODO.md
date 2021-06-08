@@ -1,1 +1,0 @@
-Move signals app code here before merging NP feature branch into master
