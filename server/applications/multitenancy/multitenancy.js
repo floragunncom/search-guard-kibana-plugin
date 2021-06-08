@@ -27,7 +27,7 @@ export class Multitenancy {
   }
 
   async setup({
-    authInstance,
+    authManager,
     kibanaCore,
     sessionStorageFactory,
     pluginDependencies,
@@ -48,7 +48,7 @@ export class Multitenancy {
       const [{ elasticsearch }] = await kibanaCore.getStartServices();
 
       const multitenancyLifecycle = new MultitenancyLifecycle({
-        authInstance,
+        authManager,
         searchGuardBackend,
         configService,
         sessionStorageFactory,
