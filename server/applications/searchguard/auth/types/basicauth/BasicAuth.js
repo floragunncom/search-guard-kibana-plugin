@@ -266,11 +266,12 @@ export default class BasicAuth extends AuthType {
    * @returns {Promise<*>}
    */
   async clear(request, explicitlyRemoveAuthType = false) {
-    const authHeaders = await this.getAllAuthHeaders(request);
+    const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+    const authHeaders = await this.getAuthHeader(sessionCookie);
     // Only try to delete the session if we really have auth headers
     if (authHeaders) {
       try {
-        await this.searchGuardBackend.logoutSession(request.headers);
+        await this.searchGuardBackend.logoutSession(authHeaders);
       } catch (error) {
         this.logger.error(`Failed to delete the session token: ${error.stack}`);
       }

@@ -236,7 +236,7 @@ export default class AuthType {
         // We can return early here. Even if we have valid request headers,
         // the cookie would have been updated in the validator.
         // Logging this as info since it isn't really an error, but just a part of the flow.
-        this.logger.info(`Got auth header credentials, but authentication failed: ${error.stack}`);
+        this.logger.info(`Got credentials, but the validation failed: ${error.stack}`);
         throw error;
       }
     } else {
