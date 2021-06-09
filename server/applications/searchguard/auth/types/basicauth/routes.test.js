@@ -60,7 +60,7 @@ describe(`${AuthClass.name} routes`, () => {
   });
 
   describe('loginAuthHandler', () => {
-    test('throw error', async () => {
+    test.skip('throw error', async () => {
       const context = setupContextMock();
       const response = setupHttpResponseMock();
       const logger = setupLoggerMock();

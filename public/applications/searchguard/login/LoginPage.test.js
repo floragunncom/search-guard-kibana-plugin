@@ -46,7 +46,7 @@ describe(LoginPage.name, () => {
     };
   });
 
-  test('can render the page with a license and the basicauth login defaults', () => {
+  test.skip('can render the page with a license and the basicauth login defaults', () => {
     const configGet = jest.fn(() => ({
       basicauth: {
         alternative_login: {
@@ -83,7 +83,7 @@ describe(LoginPage.name, () => {
     expect(tree).toMatchSnapshot();
   });
 
-  test('can render the page with HTML in login title and subtitle', () => {
+  test.skip('can render the page with HTML in login title and subtitle', () => {
     const configGet = jest.fn(() => ({
       basicauth: {
         alternative_login: {

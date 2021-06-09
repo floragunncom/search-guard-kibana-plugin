@@ -150,7 +150,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
     });
   });
 
-  test('assign tenant to request headers and create the default space', async () => {
+  test.skip('assign tenant to request headers and create the default space', async () => {
     const {
       elasticsearchClientAsScopedAsCurrentUserCreate,
       elasticsearchClientAsScopedAsCurrentUserTransportRequest,

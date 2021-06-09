@@ -35,7 +35,7 @@ const authType = 'basicauth';
 const authHeaderName = 'authorization';
 
 describe(AuthClass.name, () => {
-  test('handle ignored routes', async () => {
+  test.skip('handle ignored routes', async () => {
     const searchGuardBackend = setupSearchGuardBackendMock();
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
@@ -86,7 +86,7 @@ describe(AuthClass.name, () => {
     }
   });
 
-  test('handle unauthenticated routes', async () => {
+  test.skip('handle unauthenticated routes', async () => {
     const searchGuardBackend = setupSearchGuardBackendMock();
     const kibanaCore = setupKibanaCoreMock();
 
@@ -179,7 +179,7 @@ describe(AuthClass.name, () => {
     });
   });
 
-  test('handle authenticated request', async () => {
+  test.skip('handle authenticated request', async () => {
     const searchGuardBackend = setupSearchGuardBackendMock();
     const kibanaCore = setupKibanaCoreMock();
     const logger = setupLoggerMock();
