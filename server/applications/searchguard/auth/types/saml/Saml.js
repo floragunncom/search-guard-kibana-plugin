@@ -22,6 +22,7 @@ import MissingRoleError from '../../errors/missing_role_error';
 import path from 'path';
 import { APP_ROOT } from '../../../../../utils/constants';
 import { AUTH_TYPE_NAMES } from '../../AuthManager';
+import { defineRoutes, SAML_ROUTES } from './routes';
 
 export default class Saml extends AuthType {
   constructor({
@@ -46,6 +47,13 @@ export default class Saml extends AuthType {
      * @type {string}
      */
     this.type = AUTH_TYPE_NAMES.SAML;
+
+    /**
+     * If a loginURL is defined, we can skip the auth selector page
+     * if the customer only has one auth type enabled.
+     * @type {string|null}
+     */
+    //this.loginURL = SAML_ROUTES.LOGIN;
 
     this.routesToIgnore = [
       ...this.routesToIgnore,
@@ -136,14 +144,14 @@ export default class Saml extends AuthType {
   }
 
   setupRoutes() {
-    require('./routes')({
+    defineRoutes({
       authInstance: this,
       searchGuardBackend: this.searchGuardBackend,
       kibanaCore: this.kibanaCore,
-      kibanaConfig: this.config,
       debugLog: this.debugLog.bind(this),
       sessionStorageFactory: this.sessionStorageFactory,
       logger: this.logger,
+      configService: this.config,
     });
   }
 

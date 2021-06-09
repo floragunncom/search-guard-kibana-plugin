@@ -21,13 +21,18 @@ import { customError as customErrorRoute } from '../common/routes';
 import { schema } from '@kbn/config-schema';
 import { APP_ROOT, API_ROOT } from '../../../../../utils/constants';
 
-export default function ({
+export const SAML_ROUTES = {
+  LOGIN: `${APP_ROOT}/auth/saml/login`, // @todo Update this later - the auth selector page should probably do all the encoding
+};
+
+export function defineRoutes({
   authInstance,
   searchGuardBackend,
   kibanaCore,
   debugLog,
   sessionStorageFactory,
   logger,
+  configService,
 }) {
   const basePath = kibanaCore.http.basePath.serverBasePath;
   const httpResources = kibanaCore.http.resources;
@@ -70,7 +75,13 @@ export default function ({
         }
 
         // Grab the request for SAML
-        const samlHeader = await searchGuardBackend.getSamlHeader();
+        //const samlHeader = await searchGuardBackend.getSamlHeader();
+        const username = configService.get('elasticsearch.username');
+        const password = configService.get('elasticsearch.password');
+        // @todo Multiple configs for Saml possible(?)
+        const authConfigForSaml = (await searchGuardBackend.getAuthConfig(username, password)).auth_methods.find(method => method.method === 'saml')
+
+
         /*
         When logging in,
         samlHeader = {
@@ -83,13 +94,15 @@ export default function ({
         // When logging in, sessionCookie={}
 
         sessionCookie['temp-saml'] = {
-          requestId: samlHeader.requestId,
+          //requestId: samlHeader.requestId,
+          sso_context: authConfigForSaml.sso_context,
           nextUrl,
         };
 
         await sessionStorageFactory.asScoped(request).set(sessionCookie);
 
-        return response.redirected({ headers: { location: samlHeader.location } });
+        //return response.redirected({ headers: { location: samlHeader.location } });
+        return response.redirected({ headers: { location: authConfigForSaml.sso_location } });
       } catch (error) {
         logger.error(`SAML auth, fail to obtain the SAML header: ${error.stack}`);
         return response.redirected({
@@ -147,6 +160,15 @@ export default function ({
         const { 'temp-saml': storedRequestInfo, ...restSessionCookie } = sessionCookie;
         await sessionStorageFactory.asScoped(request).set(restSessionCookie);
 
+
+        const result = await searchGuardBackend.authenticateWithSession({
+          mode: 'saml',
+          saml_response: SAMLResponse,
+          sso_context: storedRequestInfo.sso_context,
+        });
+
+      /*
+
         if (!storedRequestInfo.requestId) {
           return response.redirected({
             headers: { location: `${basePath}/customerror?type=samlAuthError` },
@@ -159,6 +181,8 @@ export default function ({
           storedRequestInfo.requestId || null,
           SAMLResponse
         );
+
+       */
         /*
         When logging in,
         credentials = {
@@ -167,7 +191,7 @@ export default function ({
         */
 
         await authInstance.handleAuthenticate(request, {
-          authHeaderValue: credentials.authorization,
+          authHeaderValue: 'Bearer ' + result.token,
         });
 
         const nextUrl = storedRequestInfo.nextUrl;
