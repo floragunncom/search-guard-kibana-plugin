@@ -254,7 +254,8 @@ export function loginHandler({
   searchGuardBackend,
 }) {
   return async function (context, request, response) {
-    let openIdEndPoints;
+    let openIdEndPoints = {};
+    /*
     try {
       openIdEndPoints = await getOIDCWellKnown({ searchGuardBackend });
     } catch (error) {
@@ -269,6 +270,8 @@ export function loginHandler({
       });
     }
 
+     */
+
     const baseRedirectUrl = `${getBaseRedirectUrl({ kibanaCore, config })}${basePath}`;
     let redirectUri = new URL(encodeURI(baseRedirectUrl + routesPath + 'login'));
     if (request.url.query.nextUrl) {
@@ -278,12 +281,21 @@ export function loginHandler({
 
     debugLog('Base redirect url: ' + redirectUri);
 
+    const username = config.get('elasticsearch.username');
+    const password = config.get('elasticsearch.password');
+    // @todo Multiple configs possible
+    const authConfig = (await searchGuardBackend.getAuthConfig(username, password)).auth_methods.find(method => method.method === 'oidc')
+
+
+    openIdEndPoints.authorization_endpoint = authConfig.sso_location
+
     const authCode = request.url.query.code;
 
     // Could not find any info about length of the nonce in
     // the OpenId spec, so I went with what we had before
     // the migration.
-    const nonce = randomString(22);
+    //const nonce = randomString(22);
+    const nonce = authConfig.sso_context;
 
     if (!authCode) {
       return handleAuthRequest({
@@ -326,12 +338,17 @@ export function loginHandler({
       // internally, but state when we pass a parameter to the IdP to make sure
       // I don't introduce any change here - it seems to have worked well with
       // all IdPs
-      if (!cookieOpenId.nonce || cookieOpenId.nonce !== request.url.query.state) {
+      console.log({
+        requestState: request.url.query.state,
+        cookieNonce: cookieOpenId.nonce,
+      })
+      if (!cookieOpenId.nonce || cookieOpenId.nonce !== 'oidc_nonce:' + request.url.query.state) {
         throw new Error('There was a state mismatch between the cookie and the IdP response');
       }
 
       // Get the tokens from the IdP
       const idpPayload = await handleIdTokenRequest({
+        request,
         logger,
         clientId,
         clientSecret,
@@ -339,11 +356,14 @@ export function loginHandler({
         redirectUri,
         openIdEndPoints,
         searchGuardBackend,
+        kibanaCore,
+        config,
+        nonce: cookieOpenId.nonce,
       });
 
       // Authenticate with the token given to us by the IdP
       await authInstance.handleAuthenticate(request, {
-        authHeaderValue: 'Bearer ' + idpPayload.id_token,
+        authHeaderValue: 'Bearer ' + idpPayload.token,
       });
 
       let redirectTo = '/';
@@ -413,14 +433,14 @@ async function handleAuthRequest({
   for (const [key, value] of Object.entries(request.url.query)) {
     // We don't want to store the nextUrl in cookie because it can be huge,
     // larger than the cookie size limit.
-    if (key !== 'nextUrl') sessionCookie.openId.query[key] = value;
+    //if (key !== 'nextUrl') sessionCookie.openId.query[key] = value;
   }
 
   await sessionStorageFactory.asScoped(request).set(sessionCookie);
 
   const idpAuthLocation = new URL(openIdEndPoints.authorization_endpoint);
   for (const [key, value] of Object.entries(query)) {
-    idpAuthLocation.searchParams.set(key, value);
+    //idpAuthLocation.searchParams.set(key, value);
   }
 
   const redirectURI = new URL(idpAuthLocation.searchParams.get('redirect_uri'));
@@ -437,7 +457,8 @@ async function handleAuthRequest({
 
   return response.redirected({
     headers: {
-      location: idpAuthLocation.toString(),
+      //location: idpAuthLocation.toString(),
+      location: openIdEndPoints.authorization_endpoint,
     },
   });
 }
@@ -452,6 +473,7 @@ async function handleAuthRequest({
  * @returns {Promise<{payload}>}
  */
 async function handleIdTokenRequest({
+  request,
   logger,
   clientId,
   clientSecret,
@@ -459,6 +481,9 @@ async function handleIdTokenRequest({
   redirectUri,
   openIdEndPoints,
   searchGuardBackend,
+  kibanaCore,
+  config,
+  nonce
 }) {
   const query = {
     client_id: clientId,
@@ -470,13 +495,25 @@ async function handleIdTokenRequest({
 
   // Get the necessary token from the IdP
   try {
+    /*
     const idpResponse = await searchGuardBackend.getOIDCToken({
       tokenEndpoint: openIdEndPoints.token_endpoint,
       // Only "application/x-www-form-urlencoded" possible
       body: stringify(query),
     });
+     */
 
-    if (!idpResponse.id_token) {
+    const baseKibanaUrl = getBaseRedirectUrl({kibanaCore, config});
+
+
+    const idpResponse = await searchGuardBackend.authenticateWithSession({
+      mode: 'oidc',
+      sso_result: baseKibanaUrl + request.url.href,
+      sso_context: nonce
+    })
+
+
+    if (!idpResponse.token) {
       throw new Error('IdP response is missing the id_token');
     }
 
