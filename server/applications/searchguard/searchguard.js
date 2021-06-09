@@ -67,6 +67,12 @@ export class SearchGuard {
       let AuthClass = null;
       const authInstance = null;
 
+      /* @todo Use the API endpoint to get the config. Probably move this to the auth manager.
+      const username = configService.get('elasticsearch.username');
+      const password = configService.get('elasticsearch.password');
+      const authConfig = await searchGuardBackend.getAuthConfig(username, password);
+       */
+
       const authManager = new AuthManager({
         kibanaCore: core,
         configService,
@@ -148,12 +154,10 @@ export class SearchGuard {
               const JWT = require('./auth/types/jwt/Jwt');
               const Saml = require('./auth/types/saml/Saml');
 
-              // @todo Getting the routes probably needs to be backported
-              /*
               const openId = new OpenId({
                 searchGuardBackend,
                 kibanaCore: core,
-                config: this.configService,
+                config: configService,
                 logger: this.coreContext.logger.get('searchguard-auth'),
                 sessionStorageFactory,
                 pluginDependencies,
@@ -163,8 +167,6 @@ export class SearchGuard {
               openId.init();
 
               authManager.registerAuthInstance(AUTH_TYPE_NAMES.OIDC, openId);
-
-               */
 
               const jwt = new JWT({
                 searchGuardBackend,
@@ -176,8 +178,8 @@ export class SearchGuard {
                 authManager,
               });
 
-              jwt.init();
-              authManager.registerAuthInstance(AUTH_TYPE_NAMES.JWT, jwt);
+              //jwt.init();
+              //authManager.registerAuthInstance(AUTH_TYPE_NAMES.JWT, jwt);
 
               const saml = new Saml({
                 searchGuardBackend,
@@ -189,8 +191,8 @@ export class SearchGuard {
                 authManager,
               });
 
-              //saml.init();
-              //authManager.registerAuthInstance(AUTH_TYPE_NAMES.SAML, saml);
+              saml.init();
+              authManager.registerAuthInstance(AUTH_TYPE_NAMES.SAML, saml);
 
               // @todo Check params after merge
               const basicAuth = new BasicAuth({
@@ -249,7 +251,6 @@ export class SearchGuard {
 
       this.logger.info('Search Guard system routes registered.');
 
-      // @todo AuthManager
       if (authManager) {
         core.http.registerAuth(authManager.checkAuth);
       }

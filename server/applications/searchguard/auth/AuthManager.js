@@ -120,6 +120,38 @@ export class AuthManager {
   checkAuth = async (request, response, toolkit) => {
     // @todo Here's where we will check for existing auth headers
     // and skip the rest if we have something.
+    // Skip auth if we have an authorization header
+    let sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+    if (request.headers.authorization) {
+
+
+      /* @todo We may need to clear any existing cookies before we proceed?
+      if (sessionCookie.credentials) {
+        // In case we already had a session BEFORE we encountered a request
+        // with auth headers, we may need to clear the cookie.
+        // This is a bit tricky since we do add an authorization header in the pre auth lifecycle handlers,
+        // in which case the cookie should stay.
+        // Hence, we compare what we have in the cookie with what's in the header.
+        // If the values are different, we need to clear the cookie
+        const differentAuthHeaderCredentials = this.detectAuthHeaderCredentials(
+          request,
+          sessionCookie.credentials
+        );
+
+        if (differentAuthHeaderCredentials) {
+          // Make sure to clear any auth related cookie info if we detect a different header
+          // @todo Multiple auth type support may require an explicit logout
+          await this.clear(request);
+          // @todo It may make sense to reload the browser at this point - we may have a new user.
+          // @todo That would only apply to ajax requests, though.
+        }
+      }
+
+       */
+      return toolkit.authenticated({
+        requestHeaders: request.headers,
+      });
+    }
 
     if (this.routesToIgnore.includes(request.url.pathname)) {
       // Change back after everything has been implemented

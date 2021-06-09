@@ -34,8 +34,9 @@ export default class SearchGuardBackend {
     return body;
   };
 
-  getAuthConfig = async () => {
+  getAuthConfig = async (username, password) => {
     // @todo For some reason, the call below breaks things, so we just hardcode here for now
+    /*
     return {
       auth_methods: [
         //{ method: 'session', session: false, label: 'Session' },
@@ -45,11 +46,11 @@ export default class SearchGuardBackend {
       ]
     }
 
+     */
+
 
     try {
       // @todo Probably easier to test if we pass the credentials into the method
-      const username = this.configService.get('elasticsearch.username');
-      const password = this.configService.get('elasticsearch.password');
       const authHeaderValue = Buffer.from(`${username}:${password}`).toString('base64');
       const response = await this._client({
         path: '/_searchguard/auth/config',
