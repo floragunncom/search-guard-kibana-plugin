@@ -77,7 +77,7 @@ powershell -ExecutionPolicy Bypass -File install_demo_configuration.ps1
 
 See the [kibana contributing guide](https://github.com/elastic/kibana/blob/master/CONTRIBUTING.md) and the Search Guard documentation above for instructions setting up your development environment. Once you have completed that, use the following yarn scripts.
 
-  - `yarn`
+  - `yarn kbn bootstrap`
 
     Install dependencies and crosslink Kibana and all projects/plugins.
 
