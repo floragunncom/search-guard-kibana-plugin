@@ -52,19 +52,19 @@ export class LoginPage extends Component {
 
     const { configService } = props;
 
-    this.basicAuthConfig = configService.get('searchguard.basicauth');
-    this.loginButtonStyles = stringCSSToReactStyle(
-      configService.get('searchguard.basicauth.login.buttonstyle')
-    );
+    this.loginPageConfig = configService.get('searchguard.login');
+    this.loginButtonStyles = stringCSSToReactStyle(this.loginPageConfig.buttonstyle);
+
+    this.alternativeLoginConfig = configService.get('searchguard.basicauth.alternative_login');
+    this.alternativeLogin = this.getAlternativeLogin(this.alternativeLoginConfig);
     this.alternativeLoginButtonStyles = stringCSSToReactStyle(
-      configService.get('searchguard.basicauth.alternative_login.buttonstyle')
+      this.alternativeLoginConfig.buttonstyle
     );
 
     // Custom styling
     this.state = {
       userName: '',
       password: '',
-      alternativeLogin: this.getAlternativeLogin(this.basicAuthConfig.alternative_login),
       errorMessage: null,
     };
   }
@@ -188,16 +188,18 @@ export class LoginPage extends Component {
 
   render() {
     const { basePath, configService } = this.props;
-    const additionalAuthTypes = this.props.authTypes.filter((authType) => authType.title !== 'basicauth');
+    const additionalAuthTypes = this.props.authTypes.filter(
+      (authType) => authType.title !== 'basicauth'
+    );
 
     const {
       showbrandimage: showBrandImage,
       brandimage: brandImage,
       title: loginTitle,
       subtitle: loginSubTitle,
-    } = this.basicAuthConfig.login;
+    } = this.loginPageConfig;
 
-    const { button_text: alternativeButtonLabel } = this.basicAuthConfig.alternative_login;
+    const { button_text: alternativeButtonLabel } = this.alternativeLoginConfig;
 
     return (
       <div
@@ -305,7 +307,7 @@ export class LoginPage extends Component {
                         Log in
                       </EuiButton>
 
-                      {this.state.alternativeLogin && (
+                      {this.alternativeLogin && (
                         <Fragment>
                           <EuiSpacer size="l" />
 
@@ -314,7 +316,7 @@ export class LoginPage extends Component {
                             data-test-subj="sg.alternative_login"
                             fill
                             fullWidth={true}
-                            href={this.state.alternativeLogin.url}
+                            href={this.alternativeLogin.url}
                             style={this.alternativeLoginButtonStyles}
                           >
                             {alternativeButtonLabel}

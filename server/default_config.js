@@ -46,6 +46,7 @@ export const DEFAULT_CONFIG = {
       forbidden_usernames: [],
       allowed_usernames: null,
       header_trumps_session: false,
+      loadbalancer_url: null,
       alternative_login: {
         headers: [],
         show_for_parameter: '',
@@ -53,15 +54,14 @@ export const DEFAULT_CONFIG = {
         button_text: 'Login with provider',
         buttonstyle: '',
       },
-      loadbalancer_url: null,
-      login: {
-        title: 'Please login to Kibana',
-        subtitle:
-          'If you have forgotten your username or password, please ask your system administrator',
-        showbrandimage: true,
-        brandimage: 'plugins/searchguard/assets/searchguard_logo.svg',
-        buttonstyle: '',
-      },
+    },
+    login: {
+      title: 'Please login to Kibana',
+      subtitle:
+        'If you have forgotten your username or password, please ask your system administrator',
+      showbrandimage: true,
+      brandimage: 'plugins/searchguard/assets/searchguard_logo.svg',
+      buttonstyle: '',
     },
     multitenancy: {
       enabled: false,
