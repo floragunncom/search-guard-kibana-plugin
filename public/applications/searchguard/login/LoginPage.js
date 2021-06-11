@@ -175,25 +175,27 @@ export function AuthTypesMenu({ authTypes = [] }) {
   if (!_authTypes.length) return null;
 
   return (
-    <EuiErrorBoundary>
-      <EuiFlexGroup direction="column" gutterSize="m">
-        {_authTypes.map((auth, index) => (
-          <EuiFlexItem key={index} style={{ maxWidth: 400 }}>
-            <EuiErrorBoundary>
-              <EuiCard
-                key={index}
-                layout="horizontal"
-                paddingSize="s"
-                icon={<EuiIcon size="xl" type="empty" />}
-                title={auth.title}
-                description={auth.description}
-                href={auth.loginURL}
-              />
-            </EuiErrorBoundary>
-          </EuiFlexItem>
-        ))}
-      </EuiFlexGroup>
-    </EuiErrorBoundary>
+    <EuiFlexItem>
+      <EuiErrorBoundary>
+        <EuiFlexGroup direction="column" gutterSize="m">
+          {_authTypes.map((auth, index) => (
+            <EuiFlexItem key={index} style={{ maxWidth: 400 }}>
+              <EuiErrorBoundary>
+                <EuiCard
+                  key={index}
+                  layout="horizontal"
+                  paddingSize="s"
+                  icon={<EuiIcon size="xl" type="empty" />}
+                  title={auth.title}
+                  description={auth.description}
+                  href={auth.loginURL}
+                />
+              </EuiErrorBoundary>
+            </EuiFlexItem>
+          ))}
+        </EuiFlexGroup>
+      </EuiErrorBoundary>
+    </EuiFlexItem>
   );
 }
 
@@ -258,60 +260,62 @@ export function BasicLogin({ configService, httpClient, isEnabled }) {
   }
 
   return (
-    <EuiErrorBoundary>
-      <EuiPanel grow={false} style={{ maxWidth: 400 }}>
-        <EuiFlexGroup direction="column">
-          <EuiFlexItem>
-            <HTMLTitle
-              HTMLTag="p"
-              text={loginPageConfig.subtitle}
-              euiTextProps={{ 'data-test-subj': 'sg.login.subTitle' }}
-            />
-          </EuiFlexItem>
-          <EuiFlexItem>
-            <form onSubmit={(event) => event.preventDefault()}>
-              <EuiForm>
-                <input
-                  autoComplete="anyrandomstring"
-                  name="hidden"
-                  type="text"
-                  style={{ display: 'none' }}
-                />
-                <UserNameInput
-                  isInvalid={isInvalid(error)}
-                  userName={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                />
-                <EuiSpacer />
+    <EuiFlexItem>
+      <EuiErrorBoundary>
+        <EuiPanel grow={false} style={{ maxWidth: 400 }}>
+          <EuiFlexGroup direction="column">
+            <EuiFlexItem>
+              <HTMLTitle
+                HTMLTag="p"
+                text={loginPageConfig.subtitle}
+                euiTextProps={{ 'data-test-subj': 'sg.login.subTitle' }}
+              />
+            </EuiFlexItem>
+            <EuiFlexItem>
+              <form onSubmit={(event) => event.preventDefault()}>
+                <EuiForm>
+                  <input
+                    autoComplete="anyrandomstring"
+                    name="hidden"
+                    type="text"
+                    style={{ display: 'none' }}
+                  />
+                  <UserNameInput
+                    isInvalid={isInvalid(error)}
+                    userName={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
+                  <EuiSpacer />
 
-                <UserPasswordInput
-                  isInvalid={isInvalid(error)}
-                  password={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <EuiSpacer size="l" />
+                  <UserPasswordInput
+                    isInvalid={isInvalid(error)}
+                    password={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <EuiSpacer size="l" />
 
-                <EuiButton
-                  id="sg.login"
-                  data-test-subj="sg.login"
-                  fill
-                  fullWidth={true}
-                  style={loginButtonStyles}
-                  onClick={handleSubmit}
-                  type="submit"
-                  isLoading={isLoading}
-                >
-                  Log in
-                </EuiButton>
+                  <EuiButton
+                    id="sg.login"
+                    data-test-subj="sg.login"
+                    fill
+                    fullWidth={true}
+                    style={loginButtonStyles}
+                    onClick={handleSubmit}
+                    type="submit"
+                    isLoading={isLoading}
+                  >
+                    Log in
+                  </EuiButton>
 
-                <AlternativeLoginButton alternativeLoginConfig={alternativeLoginConfig} />
-              </EuiForm>
-            </form>
-          </EuiFlexItem>
-          <ErrorCallout error={error} />
-        </EuiFlexGroup>
-      </EuiPanel>
-    </EuiErrorBoundary>
+                  <AlternativeLoginButton alternativeLoginConfig={alternativeLoginConfig} />
+                </EuiForm>
+              </form>
+            </EuiFlexItem>
+            <ErrorCallout error={error} />
+          </EuiFlexGroup>
+        </EuiPanel>
+      </EuiErrorBoundary>
+    </EuiFlexItem>
   );
 }
 
@@ -322,20 +326,22 @@ export function BrandImage({ configService, httpClient }) {
 
   if (!showBrandImage) return null;
   return (
-    <EuiErrorBoundary>
-      <div style={{ maxWidth: '300px' }}>
-        <EuiImage
-          data-test-subj="sg.login.brandImage"
-          alt="Brand image"
-          size="fullWidth"
-          url={
-            brandImage.startsWith('/plugins')
-              ? httpClient.http.basePath.basePath + brandImage
-              : brandImage
-          }
-        />
-      </div>
-    </EuiErrorBoundary>
+    <EuiFlexItem>
+      <EuiErrorBoundary>
+        <div style={{ maxWidth: '300px' }}>
+          <EuiImage
+            data-test-subj="sg.login.brandImage"
+            alt="Brand image"
+            size="fullWidth"
+            url={
+              brandImage.startsWith('/plugins')
+                ? httpClient.http.basePath.basePath + brandImage
+                : brandImage
+            }
+          />
+        </div>
+      </EuiErrorBoundary>
+    </EuiFlexItem>
   );
 }
 
@@ -378,9 +384,7 @@ export function LoginPage({ httpClient, configService }) {
   return (
     <div style={{ padding: 100 }}>
       <EuiFlexGroup direction="column" alignItems="center" justifyContent="center">
-        <EuiFlexItem>
-          <BrandImage configService={configService} httpClient={httpClient} />
-        </EuiFlexItem>
+        <BrandImage configService={configService} httpClient={httpClient} />
         <EuiFlexItem>
           <HTMLTitle
             HTMLTag="h2"
@@ -398,16 +402,12 @@ export function LoginPage({ httpClient, configService }) {
             <EuiLoadingKibana size="xl" />
           ) : (
             <EuiFlexGroup gutterSize="m">
-              <EuiFlexItem>
-                <BasicLogin
-                  isEnabled={isBasicLogin}
-                  configService={configService}
-                  httpClient={httpClient}
-                />
-              </EuiFlexItem>
-              <EuiFlexItem>
-                <AuthTypesMenu authTypes={authTypes} />
-              </EuiFlexItem>
+              <BasicLogin
+                isEnabled={isBasicLogin}
+                configService={configService}
+                httpClient={httpClient}
+              />
+              <AuthTypesMenu authTypes={authTypes} />
             </EuiFlexGroup>
           )}
         </EuiFlexItem>
