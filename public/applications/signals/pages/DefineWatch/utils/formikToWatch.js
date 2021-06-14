@@ -68,15 +68,22 @@ export function buildSeverity(watch) {
 
 export function buildWebhookAction(action = {}) {
   let headers = {};
+  const _action = cloneDeep(action);
+
   try {
     headers = JSON.parse(action.request.headers);
   } catch (error) {
     // do nothing
   }
 
+  for (const [key, value] of Object.entries(_action)) {
+    if (typeof value === 'string' && !value.length)
+      delete _action[key];
+  }
+
   return {
-    ...action,
-    request: { ...action.request, headers },
+    ..._action,
+    request: { ..._action.request, headers },
   };
 }
 

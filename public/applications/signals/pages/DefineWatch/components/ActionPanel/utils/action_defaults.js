@@ -19,6 +19,7 @@ const COMMON = {
 export const webhook = {
   type: ACTION_TYPE.WEBHOOK,
   name: 'mywebhook',
+  proxy: '',
   request: {
     method: 'POST',
     url: '',

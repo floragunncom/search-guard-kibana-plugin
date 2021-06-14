@@ -21,6 +21,7 @@ export const cancelText = (<EuiI18n token="sg.common.cancel.text" default="Cance
 export const confirmText = (<EuiI18n token="sg.common.confirm.text" default="Confirm" />);
 export const deleteText = (<EuiI18n token="sg.common.delete.text" default="Delete" />);
 export const urlText = (<EuiI18n token="sg.common.url.text" default="Url" />);
+export const proxyText = (<EuiI18n token="sg.common.proxy.text" default="Proxy" />);
 export const bodyText = (<EuiI18n token="sg.common.body.text" default="Body" />);
 export const headersText = (<EuiI18n token="sg.common.headers.text" default="Headers" />);
 export const noText = (<EuiI18n token="sg.common.no.text" default="No" />);

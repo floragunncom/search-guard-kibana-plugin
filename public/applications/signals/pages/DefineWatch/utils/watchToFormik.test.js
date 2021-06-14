@@ -3520,6 +3520,7 @@ describe('watchToFormik', () => {
             unit: 'm',
           },
           severity: [],
+          proxy: '',
           request: {
             method: 'POST',
             url: 'https://hooks.slack.com/services/111/111/111',

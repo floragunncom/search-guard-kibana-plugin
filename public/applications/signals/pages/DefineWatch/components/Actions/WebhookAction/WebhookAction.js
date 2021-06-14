@@ -15,6 +15,7 @@ import {
   bodyText,
   headersText,
   methodText,
+  proxyText,
 } from '../../../../../utils/i18n/common';
 import { severityText, resolvesSeverityText } from '../../../../../utils/i18n/watch';
 import { RowHelpTextMustacheRuntimeDataField } from '../../RowHelpText';
@@ -55,6 +56,7 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
   const namePath = `${actionsRootPath}[${index}].name`;
   const requestMethodPath = `${actionsRootPath}[${index}].request.method`;
   const requestUrlPath = `${actionsRootPath}[${index}].request.url`;
+  const requestProxyPath = `${actionsRootPath}[${index}].proxy`;
   const requestHeadersPath = `${actionsRootPath}[${index}].request.headers`;
   const requestBodyPath = `${actionsRootPath}[${index}].request.body`;
   const requestBodyPreviewTemplate = get(values, `${actionsRootPath}[${index}].request.body`, '');
@@ -127,6 +129,21 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
             }}
             formikFieldProps={{
               validate: validateEmptyField,
+            }}
+          />
+          <FormikFieldText
+            name={requestProxyPath}
+            formRow
+            rowProps={{
+              label: proxyText,
+              isInvalid,
+              error: hasError,
+            }}
+            elementProps={{
+              isInvalid,
+              onFocus: (e, field, form) => {
+                form.setFieldError(field.name, undefined);
+              },
             }}
           />
         </EuiFlexItem>
