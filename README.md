@@ -111,6 +111,8 @@ For more information about any of these commands run `yarn ${task} --help`. For 
 
 ### Development tips
 
+  - Use [NVM](https://github.com/nvm-sh/nvm) to manage multiple versions of Node.js.
+
   - Comment `/plugins` in Kibana .eslintignore file to make the eslint working in your IDE.
 
 ### Integration tests
