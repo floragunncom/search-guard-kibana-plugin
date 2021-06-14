@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 floragunn GmbH
+ *    Copyright 2021 floragunn GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,26 +34,15 @@ export default class SearchGuardBackend {
     return body;
   };
 
-  getAuthConfig = async (username, password) => {
-    // @todo For some reason, the call below breaks things, so we just hardcode here for now
-    /*
-    return {
-      auth_methods: [
-        //{ method: 'session', session: false, label: 'Session' },
-        { method: 'basic', session: true, label: 'Basic auth login' },
-        { method: 'openid', session: true, label: 'My IdP OIDC domain', sso_location: 'here we will have the oidc login flow entry point', sso_context: 'Not always used' }
-        // ... the rest
-      ]
-    }
-
-     */
-
-
+  getAuthConfig = async (username, password, nextUrl = null) => {
     try {
-      // @todo Probably easier to test if we pass the credentials into the method
       const authHeaderValue = Buffer.from(`${username}:${password}`).toString('base64');
+      let path = '/_searchguard/auth/config/';
+      if (nextUrl) {
+        path = path + '?next_url=' + nextUrl;
+      }
       const response = await this._client({
-        path: '/_searchguard/auth/config',
+        path,
         method: 'GET',
         headers: {
           authorization: 'Basic ' + authHeaderValue,
@@ -67,7 +56,7 @@ export default class SearchGuardBackend {
       }
       throw error;
     }
-  }
+  };
 
   async authenticateWithSession(credentials) {
     try {

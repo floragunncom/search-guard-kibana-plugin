@@ -15,6 +15,7 @@
  */
 
 import { API_ROOT, APP_ROOT } from '../../../utils/constants';
+import { AUTH_TYPE_NAMES } from './AuthManager';
 
 /*
 export function authInfoHandler({ searchGuardBackend, logger }) {
@@ -34,7 +35,7 @@ export function authInfoHandler({ searchGuardBackend, logger }) {
 
  */
 
-export function defineAuthRoutes({ kibanaCore, authManager }) {
+export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, configService }) {
   const router = kibanaCore.http.createRouter();
 
   router.post(
@@ -53,7 +54,7 @@ export function defineAuthRoutes({ kibanaCore, authManager }) {
         authRequired: false,
       },
     },
-    listAuthTypesHandler({ authManager })
+    listAuthTypesHandler({ authManager, searchGuardBackend, configService })
   );
 }
 
@@ -63,22 +64,50 @@ export function logoutHandler({ authManager }) {
   };
 }
 
-export function listAuthTypesHandler({ authManager }) {
+export function listAuthTypesHandler({ authManager, searchGuardBackend, configService }) {
   return async function (context, request, response) {
     // @todo The registered authInstances are most likely not the best source for this.
     // @todo We may have multiple OIDCs, and also the authtype is probably not the best
     // title
     // @todo Use the backend auth config for this
-    const authTypes = Object.keys(authManager.authInstances).map((authInstanceName) => {
-      const authInstance = authManager.authInstances[authInstanceName];
-      return {
-        // @todo I think we need a type property here too. In case we have multiple OIDC for example.
-        title: authInstanceName,
-        description: '@todo Get a description for this method somewhere',
-        loginURL: authInstance.loginURL,
-        icon: null, // @todo
-      };
-    });
+
+    const username = configService.get('elasticsearch.username');
+    const password = configService.get('elasticsearch.password');
+    const authConfig = (await searchGuardBackend.getAuthConfig(username, password)).auth_methods;
+
+    console.log('What the authConfig?', authConfig);
+
+    // @todo Figure out if this is really necessary
+    const backendMethodToFrontendMethod = {
+      basic: AUTH_TYPE_NAMES.BASIC,
+      oidc: AUTH_TYPE_NAMES.OIDC,
+      saml: AUTH_TYPE_NAMES.SAML,
+      jwt: AUTH_TYPE_NAMES.JWT,
+    };
+
+    const authTypes = authConfig
+      .filter((config) => authManager.authInstances[backendMethodToFrontendMethod[config.method]])
+      .map((config) => {
+        const authInstance =
+          authManager.authInstances[backendMethodToFrontendMethod[config.method]];
+        if (authInstance) {
+          let loginURL = authInstance.loginURL;
+          if (config.id) {
+            // All loginURLs are relative
+            loginURL = new URL(authInstance.loginURL, 'http://abc');
+            loginURL.searchParams.set('configTypeId', config.id);
+            loginURL = loginURL.href.replace(loginURL.origin, '');
+          }
+          return {
+            // @todo I think we need a type property here too. In case we have multiple OIDC for example.
+            type: backendMethodToFrontendMethod[config.method],
+            title: config.label,
+            description: '@todo Get a description for this method somewhere',
+            loginURL,
+            icon: null, // @todo
+          };
+        }
+      });
 
     return response.ok({
       body: authTypes,

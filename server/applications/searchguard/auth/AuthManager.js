@@ -16,6 +16,7 @@
 
 import { ensureRawRequest, KibanaResponse } from '../../../../../../src/core/server/http/router';
 import { assign } from 'lodash';
+import path from 'path';
 
 export const AUTH_TYPE_NAMES = {
   BASIC: 'basicauth',
@@ -121,10 +122,8 @@ export class AuthManager {
     // @todo Here's where we will check for existing auth headers
     // and skip the rest if we have something.
     // Skip auth if we have an authorization header
-    let sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+    const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
     if (request.headers.authorization) {
-
-
       /* @todo We may need to clear any existing cookies before we proceed?
       if (sessionCookie.credentials) {
         // In case we already had a session BEFORE we encountered a request
@@ -196,7 +195,7 @@ export class AuthManager {
 
     return response.redirected({
       headers: {
-        location: `/login`,
+        location: `/login?nextUrl=` + this.getNextUrl(request),
       },
     });
   };
@@ -230,6 +229,13 @@ export class AuthManager {
 
     return toolkit.next();
   };
+
+  getNextUrl(request) {
+    let nextUrl = path.posix.join(this.basePath, request.url.pathname);
+    if (request.url.search) nextUrl += request.url.search;
+
+    return nextUrl;
+  }
 
   /**
    * Get credentials from an existing cookie only

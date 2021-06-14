@@ -79,7 +79,7 @@ export class SearchGuard {
         sessionStorageFactory,
       });
 
-      defineAuthRoutes({ kibanaCore: core, authManager });
+      defineAuthRoutes({ kibanaCore: core, authManager, searchGuardBackend, configService });
 
       // Proxy authentication is handled implicitly.
       if (

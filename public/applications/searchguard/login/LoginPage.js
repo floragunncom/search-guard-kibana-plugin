@@ -171,7 +171,7 @@ export function ErrorCallout({ error, euiFlexItemProps = {} } = {}) {
 }
 
 export function AuthTypesMenu({ authTypes = [] }) {
-  const _authTypes = authTypes.filter((authType) => authType.title !== 'basicauth');
+  const _authTypes = authTypes.filter((authType) => authType.type !== 'basicauth');
   if (!_authTypes.length) return null;
 
   return (
@@ -372,7 +372,7 @@ export function LoginPage({ httpClient, configService }) {
       const { data: authTypes } = await httpClient.get(`${API_ROOT}/auth/types`);
 
       setAuthTypes(authTypes);
-      setIsBasicLogin(authTypes.some(({ title }) => title === 'basicauth'));
+      setIsBasicLogin(authTypes.some(({ type }) => type === 'basicauth'));
     } catch (error) {
       console.error('LoginPage, fetchData', error);
       setError(error.message);
