@@ -211,10 +211,11 @@ export default class AuthType {
           request.headers['content-type'].indexOf('application/json') > -1)
       ) {
         this.debugLog('Not authenticated, detected AJAX request');
+        const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
 
         return response.unauthorized({
           headers: {
-            sg_redirectTo: this.getRedirectTargetForUnauthenticated(request, error, true),
+            sg_redirectTo: this.getRedirectTargetForUnauthenticated(request, error, true, sessionCookie),
           },
           body: { message: 'Session expired' },
         });
@@ -656,6 +657,7 @@ export default class AuthType {
     delete sessionCookie.username;
     if (explicitlyRemoveAuthType) {
       delete sessionCookie.authType;
+      delete sessionCookie.authTypeId;
     }
     delete sessionCookie.additionalAuthHeaders;
     delete sessionCookie.isAnonymousAuth;

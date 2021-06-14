@@ -1,25 +1,23 @@
-/* eslint-disable @kbn/eslint/require-license-header */
-/**
- *    Copyright 2018 floragunn GmbH
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
+/*
+ *    Copyright 2021 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 import AuthType from '../AuthType';
 import MissingTenantError from '../../errors/missing_tenant_error';
 import AuthenticationError from '../../errors/authentication_error';
 import MissingRoleError from '../../errors/missing_role_error';
-import { defineRoutes, getBaseRedirectUrl, getOIDCWellKnown, OIDC_ROUTES } from './routes';
+import { defineRoutes, OIDC_ROUTES } from './routes';
 import path from 'path';
 import { AUTH_TYPE_NAMES } from '../../AuthManager';
 
@@ -53,13 +51,6 @@ export default class OpenId extends AuthType {
      * @type {string|null}
      */
     this.loginURL = OIDC_ROUTES.LOGIN;
-
-    try {
-      this.authHeaderName = this.config.get('searchguard.openid.header').toLowerCase();
-    } catch (error) {
-      this.logger.warn('No authorization header name defined for OpenId, using "authorization"');
-      this.authHeaderName = 'authorization';
-    }
   }
 
   debugLog(message, label = 'openid') {
@@ -67,15 +58,31 @@ export default class OpenId extends AuthType {
   }
 
   async authenticate(credentials, options = {}, additionalAuthHeaders = {}) {
-    // A "login" can happen when we have a token (as header or as URL parameter but no session,
-    // or when we have an existing session, but the passed token does not match what's in the session.
     try {
-      this.debugLog('Authenticating using ' + credentials.authHeaderValue);
+      this.debugLog('Authenticating using ' + credentials);
+      const sessionResponse = await this.searchGuardBackend.authenticateWithSession(credentials);
+      const sessionCredentials = {
+        authHeaderValue: 'Bearer ' + sessionResponse.token,
+      };
+
+      // @todo This call will probably become redundant with
+      // the next SG update. The authenticate call will return the required info.
       const user = await this.searchGuardBackend.authenticateWithHeader(
         this.authHeaderName,
-        credentials.authHeaderValue,
+        sessionCredentials.authHeaderValue,
         additionalAuthHeaders
       );
+
+      const session = {
+        username: user.username,
+        credentials: sessionCredentials,
+        authType: this.type,
+      };
+
+      // @todo CLEAN UP THIS PART WHEN COOKIE VALIDATION IS CLEAR, MOST LIKELY NOT NEEDED ANYMORE.
+      // @todo Pending cooke validation / expiration
+      // @todo AND THE EXP IS DEBUGGING CODE.
+
       let tokenPayload = {};
       try {
         tokenPayload = JSON.parse(
@@ -84,12 +91,12 @@ export default class OpenId extends AuthType {
       } catch (error) {
         // Something went wrong while parsing the payload, but the user was authenticated correctly.
       }
+      /* @todo Remove this. Just using this to simulate an expired session.
+      const exp = (Date.now() / 1000) + 30;
+      console.log('What is date', exp)
+      tokenPayload.exp = exp;
 
-      const session = {
-        username: user.username,
-        credentials: credentials,
-        authType: this.type,
-      };
+       */
 
       if (tokenPayload.exp) {
         // The token's exp value trumps the config setting
@@ -108,7 +115,10 @@ export default class OpenId extends AuthType {
     }
   }
 
-  getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false) {
+  // @todo Do we even need most of this stuff anymore? We either redirect
+  // to the login page for normal requests, and then to the IdP if the session
+  // has expired
+  getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false, sessionCookie = {}) {
     const url = new URL(request.url.href, 'http://abc');
     url.pathname = path.posix.join(this.basePath, '/customerror');
 
@@ -125,13 +135,15 @@ export default class OpenId extends AuthType {
         // Delete sg_tenant because we have it already as a param in the nextUrl
         url.searchParams.delete('sg_tenant');
       }
-      url.pathname = path.posix.join(this.basePath, '/auth/openid/encode');
+
+      url.searchParams.set('configAuthTypeId', sessionCookie.authTypeId || null);
+      url.pathname = path.posix.join(this.basePath, this.loginURL);
     }
 
     return url.pathname + url.search + url.hash;
   }
 
-  onUnAuthenticated(request, response, toolkit, error) {
+  async onUnAuthenticated(request, response, toolkit, error) {
     const redirectTo = this.getRedirectTargetForUnauthenticated(request, error);
     return response.redirected({
       headers: {
@@ -151,58 +163,47 @@ export default class OpenId extends AuthType {
     });
   }
 
-  // @todo Pending changes in the source branch
+  /**
+   * Clears the session and logs the user out from the IdP (if we have an endpoint available)
+   * @url http://openid.net/specs/openid-connect-session-1_0.html#RPLogout
+   * @param context
+   * @param request
+   * @param response
+   * @returns {Promise<*>}
+   */
   async logout({ context = null, request, response }) {
-    const basePath = this.kibanaCore.http.basePath.serverBasePath;
-    let openIdEndPoints = {};
-    try {
-      openIdEndPoints = await getOIDCWellKnown({ searchGuardBackend: this.searchGuardBackend });
-    } catch (error) {
-      this.logger.error(
-        `Error when trying to retrieve the well-known endpoints from your IdP: ${error.stack}`
-      );
-    }
-    // Build the redirect uri needed by the provider
-    const baseRedirectUrl = getBaseRedirectUrl({
-      kibanaCore: this.kibanaCore,
-      config: this.config,
-    });
-
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
-
+    const authInfo = await this.searchGuardBackend.authinfo(this.getAuthHeader(sessionCookie));
     // Clear the cookie credentials
     await this.clear(request, true);
-
-    const requestQueryParameters = `?post_logout_redirect_uri=${baseRedirectUrl}${basePath}/app/home`;
-
-    // If we don't have an "end_session_endpoint" in the .well-known list,
-    // we may have a custom logout_url defined in the config.
-    // The custom url trumps the .well-known endpoint if both are available.
-    const customLogoutUrl = this.config.get('searchguard.openid.logout_url');
-    let endSessionUrl = null;
-    if (customLogoutUrl) {
-      // Pass the post_logout_uri just in case, but not the token
-      endSessionUrl = customLogoutUrl + requestQueryParameters;
-    } else if (openIdEndPoints.end_session_endpoint) {
-      endSessionUrl = openIdEndPoints.end_session_endpoint + requestQueryParameters;
-
-      // Pass the token to the IdP when logging out (id_token_hint)
-      try {
-        let idTokenHint = '';
-        if (sessionCookie.credentials && sessionCookie.credentials.authHeaderValue) {
-          idTokenHint = sessionCookie.credentials.authHeaderValue.split(' ')[1];
-          endSessionUrl = endSessionUrl + '&id_token_hint=' + idTokenHint;
-        }
-      } catch (error) {
-        this.logger.info('Could not add the id_token_hint to the logout url');
-      }
-    }
 
     return response.ok({
       body: {
         authType: this.type,
-        redirectURL: endSessionUrl,
+        // sso_logout_url doesn't always exist
+        redirectURL:
+          authInfo.sso_logout_url || this.basePath + '/login?type=' + this.type + 'Logout',
       },
     });
+  }
+
+  /**
+   * @todo Move this to authType if we launch session support for all auth types at once
+   * @param request
+   * @returns {Promise<*>}
+   */
+  async clear(request, explicitlyRemoveAuthType = false) {
+    const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+    const authHeaders = await this.getAuthHeader(sessionCookie);
+    // Only try to delete the session if we really have auth headers
+    if (authHeaders) {
+      try {
+        await this.searchGuardBackend.logoutSession(authHeaders);
+      } catch (error) {
+        this.logger.error(`Failed to delete the session token: ${error.stack}`);
+      }
+    }
+
+    return super.clear(request, explicitlyRemoveAuthType);
   }
 }

@@ -158,9 +158,6 @@ export default class BasicAuth extends AuthType {
   }
 
   async authenticate(credentials, options = {}, additionalAuthHeaders = {}) {
-    // A login can happen via a POST request (login form) or when we have request headers with user credentials.
-    // We also need to re-authenticate if the credentials (headers) don't match what's in the session.
-
     try {
       const response = await this.searchGuardBackend.authenticateWithSession({
         mode: 'basic',
@@ -183,15 +180,6 @@ export default class BasicAuth extends AuthType {
         authInfoResponse
       );
 
-      /*
-
-      const user = await this.searchGuardBackend.authenticateWithHeader(
-        this.authHeaderName,
-        credentials.authHeaderValue,
-        additionalAuthHeaders
-      );
-
-       */
       const session = {
         username: user.username,
         credentials: {
