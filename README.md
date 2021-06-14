@@ -109,6 +109,10 @@ See the [kibana contributing guide](https://github.com/elastic/kibana/blob/maste
 
 For more information about any of these commands run `yarn ${task} --help`. For a full list of tasks checkout the `package.json` file, or run `yarn run`.
 
+### Development tips
+
+  - Comment `/plugins` in Kibana .eslintignore file to make the eslint working in your IDE.
+
 ### Integration tests
 #### Custom branch
   You can make CI to run integration tests against specific Kibana branch or/and specific branch of Search Guard Suite plugin, for example: 
