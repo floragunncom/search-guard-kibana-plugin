@@ -163,7 +163,7 @@ export function loginHandler({ basePath, config, authInstance, logger, searchGua
         mode: 'oidc',
         sso_result: request.url.href,
         sso_context: cookieOpenId.nonce,
-        id: sessionCookie.authTypeId,
+        id: cookieOpenId.authTypeId,
       };
 
       // Authenticate with the token given to us by the IdP
@@ -230,7 +230,7 @@ async function handleAuthRequest({
     if (request.url.query.nextUrl && decodeURIComponent(request.url.query.nextUrl) !== '/') {
       // Do not add the nextUrl to the redirect_uri to avoid the following breaking
       // change for the users that use normal URL to authenticate.
-      nextUrl = request.url.query.nextUrl;
+      nextUrl = sanitizeNextUrl(request.url.query.nextUrl);
     }
   } catch (error) {
     // We may have received a malformed URL, caught by decodedURIComponent.
@@ -238,11 +238,11 @@ async function handleAuthRequest({
   }
 
   let authConfig;
-  const requestedAuthConfigTypeId = request.url.query.configTypeId;
-  // We may have multiple instances of OIDC
-  const authConfigFinder = requestedAuthConfigTypeId
+  // We may have multiple OIDC configurations
+  const requestedAuthTypeId = request.url.query.authTypeId;
+  const authConfigFinder = requestedAuthTypeId
     ? (config) => {
-        return config.id === requestedAuthConfigTypeId;
+        return config.id === requestedAuthTypeId;
       }
     : (config) => {
         return config.method === 'oidc';
@@ -271,8 +271,7 @@ async function handleAuthRequest({
 
   const nonce = authConfig.sso_context;
   const sessionCookie = (await sessionStorageFactory.asScoped(request).get()) || {};
-  sessionCookie.openId = { nonce, query: {} };
-  sessionCookie.authTypeId = authConfig.id || null;
+  sessionCookie.openId = { nonce, authTypeId: authConfig.id || null, query: {} };
   await sessionStorageFactory.asScoped(request).set(sessionCookie);
 
   return response.redirected({

@@ -75,8 +75,10 @@ export default class OpenId extends AuthType {
 
       const session = {
         username: user.username,
+        // The session token
         credentials: sessionCredentials,
         authType: this.type,
+        authTypeId: credentials.id,
       };
 
       // @todo CLEAN UP THIS PART WHEN COOKIE VALIDATION IS CLEAR, MOST LIKELY NOT NEEDED ANYMORE.
@@ -172,38 +174,26 @@ export default class OpenId extends AuthType {
    * @returns {Promise<*>}
    */
   async logout({ context = null, request, response }) {
+    // @todo Auth error isn't the best message for this. We still
+    // get logged out from Kibana, but the IdP logout may fail.
+    let redirectURL = `${this.basePath}/customerror?type=authError`;
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
-    const authInfo = await this.searchGuardBackend.authinfo(this.getAuthHeader(sessionCookie));
     // Clear the cookie credentials
     await this.clear(request, true);
+    try {
+      const authInfo = await this.searchGuardBackend.authinfo(this.getAuthHeader(sessionCookie));
+      // sso_logout_url doesn't always exist
+      redirectURL =
+        authInfo.sso_logout_url || this.basePath + '/login?type=' + this.type + 'Logout';
+    } catch (error) {
+      this.logger.error(`OIDC auth logout failed while retrieving the sso_logout_url: ${error.stack}`);
+    }
 
     return response.ok({
       body: {
         authType: this.type,
-        // sso_logout_url doesn't always exist
-        redirectURL:
-          authInfo.sso_logout_url || this.basePath + '/login?type=' + this.type + 'Logout',
+        redirectURL,
       },
     });
-  }
-
-  /**
-   * @todo Move this to authType if we launch session support for all auth types at once
-   * @param request
-   * @returns {Promise<*>}
-   */
-  async clear(request, explicitlyRemoveAuthType = false) {
-    const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
-    const authHeaders = await this.getAuthHeader(sessionCookie);
-    // Only try to delete the session if we really have auth headers
-    if (authHeaders) {
-      try {
-        await this.searchGuardBackend.logoutSession(authHeaders);
-      } catch (error) {
-        this.logger.error(`Failed to delete the session token: ${error.stack}`);
-      }
-    }
-
-    return super.clear(request, explicitlyRemoveAuthType);
   }
 }

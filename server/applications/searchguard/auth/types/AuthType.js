@@ -652,6 +652,7 @@ export default class AuthType {
    */
   async clear(request, explicitlyRemoveAuthType = false) {
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+    const authHeaders = await this.getAuthHeader(sessionCookie);
     // @todo Consider refactoring anything auth related into an "auth" property.
     delete sessionCookie.credentials;
     delete sessionCookie.username;
@@ -661,6 +662,15 @@ export default class AuthType {
     }
     delete sessionCookie.additionalAuthHeaders;
     delete sessionCookie.isAnonymousAuth;
+
+    // Only try to delete the session if we really have auth headers
+    if (authHeaders) {
+      try {
+        await this.searchGuardBackend.logoutSession(authHeaders);
+      } catch (error) {
+        this.logger.error(`Failed to delete the session token: ${error.stack}`);
+      }
+    }
 
     return await this.sessionStorageFactory.asScoped(request).set(sessionCookie);
   }

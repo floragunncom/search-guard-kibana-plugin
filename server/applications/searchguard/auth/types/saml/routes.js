@@ -19,7 +19,7 @@ import { sanitizeNextUrl } from '../../sanitize_next_url';
 import MissingTenantError from '../../errors/missing_tenant_error';
 import { customError as customErrorRoute } from '../common/routes';
 import { schema } from '@kbn/config-schema';
-import { APP_ROOT, API_ROOT } from '../../../../../utils/constants';
+import { APP_ROOT } from '../../../../../utils/constants';
 
 export const SAML_ROUTES = {
   LOGIN: `${APP_ROOT}/auth/saml/login`, // @todo Update this later - the auth selector page should probably do all the encoding
@@ -53,56 +53,66 @@ export function defineRoutes({
       },
     },
     async function (context, request, response) {
-      try {
-        /*
-        When successful logout,
+      /*
+      When successful logout,
+        headers: {
+          cookie: 'searchguard_authentication='
+        },
+      */
+      if (httpAuth.isAuthenticated(request)) {
+        return response.redirected({
           headers: {
-            cookie: 'searchguard_authentication='
+            location: `${basePath}/app/kibana`,
           },
-        */
-        if (httpAuth.isAuthenticated(request)) {
-          return response.redirected({
-            headers: {
-              location: `${basePath}/app/kibana`,
-            },
-          });
-        }
+        });
+      }
 
-        let nextUrl = null;
-        if (request.url && request.url.query && request.url.query.nextUrl) {
-          nextUrl = sanitizeNextUrl(request.url.query.nextUrl, basePath);
-          // When logging in, nextUrl = /app/kibana
-        }
+      // Add the nextUrl to the redirect_uri as a parameter. The IDP uses the redirect_uri to redirect the user after successful authentication.
+      // For example, it is used to redirect user to the correct dashboard if the user put shared URL in the browser address input before authentication.
+      // To make this work, append the wildcard (*) to the valid redirect URI in the IDP configuration, for example
+      // https://kibana.example.com:5601/auth/openid/login*
+      let nextUrl = null;
 
-        // Grab the request for SAML
-        //const samlHeader = await searchGuardBackend.getSamlHeader();
+      try {
+        if (request.url.query.nextUrl && decodeURIComponent(request.url.query.nextUrl) !== '/') {
+          // Do not add the nextUrl to the redirect_uri to avoid the following breaking
+          // change for the users that use normal URL to authenticate.
+          nextUrl = sanitizeNextUrl(request.url.query.nextUrl);
+        }
+      } catch (error) {
+        // We may have received a malformed URL, caught by decodedURIComponent.
+        // In this case we just proceed without a nextUrl.
+      }
+
+      try {
+        // We may have multiple SAML configurations
+        const requestedAuthTypeId = request.url.query.authTypeId;
+        const authConfigFinder = requestedAuthTypeId
+          ? (config) => {
+              return config.id === requestedAuthTypeId;
+            }
+          : (config) => {
+              return config.method === 'saml';
+            };
         const username = configService.get('elasticsearch.username');
         const password = configService.get('elasticsearch.password');
-        // @todo Multiple configs for Saml possible(?)
-        const authConfigForSaml = (await searchGuardBackend.getAuthConfig(username, password)).auth_methods.find(method => method.method === 'saml')
+        const authConfig = (
+          await searchGuardBackend.getAuthConfig(username, password, nextUrl)
+        ).auth_methods.find(authConfigFinder);
 
-
-        /*
-        When logging in,
-        samlHeader = {
-          location: 'http://keycloak.example.com:8080/auth/realms/master/protocol/saml?SAMLRequest=fVJdTyoxEP0rm74v3S2yYgMkKHov...',
-          requestId: 'ONELOGIN_22c8c6a6-1a96-43aa-8ed9-2e5de6373cd7'
+        if (!authConfig) {
+          throw new Error('Auth config not found');
         }
-        */
 
         const sessionCookie = (await sessionStorageFactory.asScoped(request).get()) || {};
         // When logging in, sessionCookie={}
-
         sessionCookie['temp-saml'] = {
-          //requestId: samlHeader.requestId,
-          sso_context: authConfigForSaml.sso_context,
-          nextUrl,
+          sso_context: authConfig.sso_context,
+          authTypeId: authConfig.id || null,
         };
-
         await sessionStorageFactory.asScoped(request).set(sessionCookie);
 
-        //return response.redirected({ headers: { location: samlHeader.location } });
-        return response.redirected({ headers: { location: authConfigForSaml.sso_location } });
+        return response.redirected({ headers: { location: authConfig.sso_location } });
       } catch (error) {
         logger.error(`SAML auth, fail to obtain the SAML header: ${error.stack}`);
         return response.redirected({
@@ -114,10 +124,6 @@ export function defineRoutes({
 
   /*
   The page that the IDP redirects to after a successful SP-initiated login.
-
-  TODO: The Kibana callback URL for the acs endpoint is encoded in the SAMLRequest,
-  which you get after calling /_searchguard/authinfo. For now, SG BE doesn't support adding query parameters.
-  That's why we can't redirect an unauthenticated user that uses the shared dashboard URL.
   */
   router.post(
     {
@@ -130,6 +136,7 @@ export function defineRoutes({
         body: schema.object(
           {
             SAMLResponse: schema.string(),
+            RelayState: schema.maybe(schema.string()),
           },
           { unknowns: 'allow' }
         ),
@@ -137,7 +144,7 @@ export function defineRoutes({
     },
     async (context, request, response) => {
       try {
-        const { body: { SAMLResponse } = {} } = request;
+        const { body: { SAMLResponse, RelayState } = {} } = request;
         /*
         When logging in,
         SAMLResponse = PHNhbWxwOlJlc3BvbnNlIHhtbG5zOnNhbWxwPSJ1cm46b2Fza...
@@ -160,42 +167,14 @@ export function defineRoutes({
         const { 'temp-saml': storedRequestInfo, ...restSessionCookie } = sessionCookie;
         await sessionStorageFactory.asScoped(request).set(restSessionCookie);
 
-
-        const result = await searchGuardBackend.authenticateWithSession({
+        await authInstance.handleAuthenticate(request, {
           mode: 'saml',
           saml_response: SAMLResponse,
           sso_context: storedRequestInfo.sso_context,
+          id: storedRequestInfo.authTypeId,
         });
 
-      /*
-
-        if (!storedRequestInfo.requestId) {
-          return response.redirected({
-            headers: { location: `${basePath}/customerror?type=samlAuthError` },
-          });
-        }
-
-        debugLog({ requestId: storedRequestInfo.requestId, SAMLResponse });
-
-        const credentials = await searchGuardBackend.authtoken(
-          storedRequestInfo.requestId || null,
-          SAMLResponse
-        );
-
-       */
-        /*
-        When logging in,
-        credentials = {
-          authorization: 'bearer eyJhbGciOiJIUzUxMiJ9.eyJuYmYiOjE2...'
-        }
-        */
-
-        await authInstance.handleAuthenticate(request, {
-          authHeaderValue: 'Bearer ' + result.token,
-        });
-
-        const nextUrl = storedRequestInfo.nextUrl;
-        // When logging in, nextUrl = /app/kibana
+        const nextUrl = RelayState;
 
         if (nextUrl) {
           return response.redirected({
@@ -204,7 +183,7 @@ export function defineRoutes({
         }
 
         return response.redirected({
-          headers: { location: `${basePath}/app/kibana` },
+          headers: { location: `${basePath}/app/home` },
         });
       } catch (error) {
         logger.error(`SAML auth, failed to authorize: ${error.stack}`);
@@ -242,15 +221,22 @@ export function defineRoutes({
     },
     async (context, request, response) => {
       try {
-        const acsEndpoint = `${APP_ROOT}/searchguard/saml/acs/idpinitiated`;
+        // @todo Check if this is still needed
+        //const acsEndpoint = `${APP_ROOT}/searchguard/saml/acs/idpinitiated`;
+        /*
         const credentials = await searchGuardBackend.authtoken(
           null,
           request.body.SAMLResponse,
           acsEndpoint
         );
 
+         */
+
         await authInstance.handleAuthenticate(request, {
-          authHeaderValue: credentials.authorization,
+          mode: 'saml',
+          saml_response: request.body.SAMLResponse,
+          //sso_context: storedRequestInfo.sso_context,
+          id: null,
         });
 
         debugLog('Got SAMLResponse: ' + request.body.SAMLResponse);
@@ -274,7 +260,10 @@ export function defineRoutes({
   );
 
   /**
-   * Redirect to logout page after an IdP redirect
+   * Redirect to logout page after an IdP redirect.
+   * This is called after we log out from Kibana,
+   * redirect to the IdP and then the IdP redirects
+   * back to Kibana.
    */
   const logoutPath = `${APP_ROOT}/searchguard/saml/logout`;
   const logoutOptions = {
@@ -296,80 +285,4 @@ export function defineRoutes({
    */
   // @todo Disabling for now, conflicting routes
   //customErrorRoute({ httpResources });
-
-  /**
-   * Logout
-   */
-  // @todo Remove this, redundant now. Handled by the authManager and authInstance
-  router.post(
-    {
-      path: `${API_ROOT}/auth/logoutSAMLTEMP`,
-      validate: false,
-      options: {
-        authRequired: false,
-      },
-    },
-    async function (context, request, response) {
-      try {
-        const sessionCookie = await sessionStorageFactory.asScoped(request).get();
-        if (!sessionCookie || !sessionCookie.credentials) {
-          throw new Error('The session cookie or credentials is absent.');
-        }
-        /*
-        When logging in,
-        sessionCookie = {
-          username: 'admin',
-          credentials: {
-            authHeaderValue: 'bearer eyJhbGciOiJIUzUxMiJ9.eyJuYmYiOjE2MDEw...'
-          },
-          authType: 'saml',
-          exp: 1601046190,
-          additionalAuthHeaders: null
-        }
-        */
-
-        const authHeader = {
-          [authInstance.authHeaderName]: sessionCookie.credentials.authHeaderValue,
-        };
-
-        const authInfo = await searchGuardBackend.authinfo(authHeader);
-        /*
-        When logging in,
-        authInfo = {
-          user: 'User [name=admin, backend_roles=[manage-account, ...], requestedTenant=null]',
-          ...,
-          sso_logout_url: 'http://keycloak.example.com:8080/auth/realms/master/protocol/saml?SAMLRequest=fVLRatwwEPwVo3edZdmKbXFnKF...'
-        }
-        */
-
-        await authInstance.clear(request);
-
-        if (authInfo && authInfo.sso_logout_url) {
-          return response.ok({
-            body: { redirectURL: authInfo.sso_logout_url },
-          });
-        }
-
-        const redirectURL =
-          authInfo && authInfo.sso_logout_url
-            ? authInfo.sso_logout_url
-            : `${APP_ROOT}/customerror?type=samlLogoutSuccess`;
-
-        // The logout procedure:
-        // 1. Logout from IDP.
-        // 2. Logout from Kibana.
-        return response.ok({ body: { redirectURL } });
-      } catch (error) {
-        logger.error(`SAML auth logout: ${error.stack}`);
-
-        // The authenticated user is redirected back to Kibana home if his session is still active on IDP.
-        // For some reason, response.redirected() doesn't pass query params to the customerror page here.
-        return response.ok({
-          body: {
-            redirectURL: `${basePath}/customerror?type=samlAuthError`,
-          },
-        });
-      }
-    }
-  );
 } //end module

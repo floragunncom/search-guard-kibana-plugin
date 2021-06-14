@@ -20,7 +20,6 @@ import MissingTenantError from '../../errors/missing_tenant_error';
 import AuthenticationError from '../../errors/authentication_error';
 import MissingRoleError from '../../errors/missing_role_error';
 import path from 'path';
-import { APP_ROOT } from '../../../../../utils/constants';
 import { AUTH_TYPE_NAMES } from '../../AuthManager';
 import { defineRoutes, SAML_ROUTES } from './routes';
 
@@ -53,7 +52,7 @@ export default class Saml extends AuthType {
      * if the customer only has one auth type enabled.
      * @type {string|null}
      */
-    //this.loginURL = SAML_ROUTES.LOGIN;
+    this.loginURL = SAML_ROUTES.LOGIN;
 
     this.routesToIgnore = [
       ...this.routesToIgnore,
@@ -72,12 +71,18 @@ export default class Saml extends AuthType {
     // or when we have an existing session, but the passed token does not match what's in the session.
     try {
       this.debugLog('Authenticating using ' + credentials.authHeaderValue);
+      const sessionResponse = await this.searchGuardBackend.authenticateWithSession(credentials);
+      const sessionCredentials = {
+        authHeaderValue: 'Bearer ' + sessionResponse.token,
+      };
       const user = await this.searchGuardBackend.authenticateWithHeader(
         this.authHeaderName,
-        credentials.authHeaderValue,
+        sessionCredentials.authHeaderValue,
         additionalAuthHeaders
       );
 
+      // @todo CLEAN UP THIS PART WHEN COOKIE VALIDATION IS CLEAR, MOST LIKELY NOT NEEDED ANYMORE.
+      // @todo Pending cooke validation / expiration
       let tokenPayload = {};
       try {
         tokenPayload = JSON.parse(
@@ -89,8 +94,10 @@ export default class Saml extends AuthType {
 
       const session = {
         username: user.username,
-        credentials: credentials,
+        // The session token
+        credentials: sessionCredentials,
         authType: this.type,
+        authTypeId: credentials.id,
       };
 
       if (tokenPayload.exp) {
@@ -156,76 +163,33 @@ export default class Saml extends AuthType {
   }
 
   async logout({ context = null, request, response }) {
+    // @todo Auth error isn't the best message for this. We still
+    // get logged out from Kibana, but the IdP logout may fail.
+    let redirectURL = `${this.basePath}/customerror?type=samlAuthError`;
+    const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+
+    const authHeader = this.getAuthHeader(sessionCookie);
+    console.log('Hmmmmm', {
+      authHeader,
+      sessionCookie
+    })
+    // Clear the cookie credentials
+    await this.clear(request, true);
     try {
-      const sessionCookie = await this.sessionStorageFactory.asScoped(request).get();
-      if (!sessionCookie || !sessionCookie.credentials) {
-        throw new Error('The session cookie or credentials is absent.');
-      }
-      /*
-      When logging in,
-      sessionCookie = {
-        username: 'admin',
-        credentials: {
-          authHeaderValue: 'bearer eyJhbGciOiJIUzUxMiJ9.eyJuYmYiOjE2MDEw...'
-        },
-        authType: 'saml',
-        exp: 1601046190,
-        additionalAuthHeaders: null
-      }
-      */
-
-      // @todo This should probably use all authHeaders instead
-      const authHeader = {
-        [this.authHeaderName]: sessionCookie.credentials.authHeaderValue,
-      };
-
       const authInfo = await this.searchGuardBackend.authinfo(authHeader);
-      /*
-      When logging in,
-      authInfo = {
-        user: 'User [name=admin, backend_roles=[manage-account, ...], requestedTenant=null]',
-        ...,
-        sso_logout_url: 'http://keycloak.example.com:8080/auth/realms/master/protocol/saml?SAMLRequest=fVLRatwwEPwVo3edZdmKbXFnKF...'
-      }
-      */
-
-      await this.clear(request, true);
-
-      if (authInfo && authInfo.sso_logout_url) {
-        return response.ok({
-          body: {
-            authType: this.type,
-            redirectURL: authInfo.sso_logout_url,
-          },
-        });
-      }
-
-      // @todo Why do we repeat this?
-      const redirectURL =
-        authInfo && authInfo.sso_logout_url
-          ? authInfo.sso_logout_url
-          : `${APP_ROOT}/customerror?type=samlLogoutSuccess`;
-
-      // The logout procedure:
-      // 1. Logout from IDP.
-      // 2. Logout from Kibana.
-      return response.ok({
-        body: {
-          authType: this.type,
-          redirectURL,
-        },
-      });
+      redirectURL =
+        authInfo.sso_logout_url || this.basePath + '/login?type=' + this.type + 'Logout';
     } catch (error) {
-      this.logger.error(`SAML auth logout: ${error.stack}`);
-
-      // The authenticated user is redirected back to Kibana home if his session is still active on IDP.
-      // For some reason, response.redirected() doesn't pass query params to the customerror page here.
-      // @todo Customerror still available?
-      return response.ok({
-        body: {
-          redirectURL: `${this.basePath}/customerror?type=samlAuthError`,
-        },
-      });
+      this.logger.error(
+        `SAML auth logout failed while retrieving the sso_logout_url: ${error.stack}`
+      );
     }
+
+    return response.ok({
+      body: {
+        authType: this.type,
+        redirectURL,
+      },
+    });
   }
 }

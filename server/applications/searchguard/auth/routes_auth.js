@@ -95,7 +95,7 @@ export function listAuthTypesHandler({ authManager, searchGuardBackend, configSe
           if (config.id) {
             // All loginURLs are relative
             loginURL = new URL(authInstance.loginURL, 'http://abc');
-            loginURL.searchParams.set('configTypeId', config.id);
+            loginURL.searchParams.set('authTypeId', config.id);
             loginURL = loginURL.href.replace(loginURL.origin, '');
           }
           return {
