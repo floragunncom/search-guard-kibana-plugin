@@ -371,6 +371,7 @@ export function LoginPage({ httpClient, configService }) {
 
     try {
       const { data: authTypes } = await httpClient.get(`${API_ROOT}/auth/types`);
+      console.debug('LoginPage, fetchData, authTypes', authTypes);
 
       setAuthTypes(authTypes);
       setIsBasicLogin(authTypes.some(({ type }) => type === 'basicauth'));

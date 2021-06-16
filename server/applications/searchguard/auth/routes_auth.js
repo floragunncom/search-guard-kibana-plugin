@@ -64,9 +64,11 @@ export function listAuthTypesHandler({ authManager, searchGuardBackend, configSe
     console.log('What the authConfig?', authConfig);
 
     // @todo Figure out if this is really necessary
+    // @todo Maybe we should refactor our code to support the SG auth type name without any map?
     const backendMethodToFrontendMethod = {
       basic: AUTH_TYPE_NAMES.BASIC,
       oidc: AUTH_TYPE_NAMES.OIDC,
+      openid: AUTH_TYPE_NAMES.OIDC,
       saml: AUTH_TYPE_NAMES.SAML,
       jwt: AUTH_TYPE_NAMES.JWT,
     };
