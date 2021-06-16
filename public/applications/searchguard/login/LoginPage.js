@@ -177,12 +177,13 @@ export function AuthTypesMenu({ authTypes = [] }) {
   return (
     <EuiFlexItem>
       <EuiErrorBoundary>
-        <EuiFlexGroup direction="column" gutterSize="m">
+        <EuiFlexGroup direction="column" gutterSize="m" data-test-sub="sg.login.authMenu">
           {_authTypes.map((auth, index) => (
             <EuiFlexItem key={index} style={{ maxWidth: 400 }}>
               <EuiErrorBoundary>
                 <EuiCard
                   key={index}
+                  data-test-subj={`sg.login.authMenu.item.openid`}
                   layout="horizontal"
                   paddingSize="s"
                   icon={<EuiIcon size="xl" type="empty" />}
