@@ -17,7 +17,6 @@
 
 import { sanitizeNextUrl } from '../../sanitize_next_url';
 import MissingTenantError from '../../errors/missing_tenant_error';
-import { customError as customErrorRoute } from '../common/routes';
 import { schema } from '@kbn/config-schema';
 import { APP_ROOT } from '../../../../../utils/constants';
 
@@ -279,10 +278,4 @@ export function defineRoutes({
   // Logout route accepts both GET and POST
   router.get({ path: logoutPath, options: logoutOptions, validate: false }, logoutHandler);
   router.post({ path: logoutPath, options: logoutOptions, validate: false }, logoutHandler);
-
-  /**
-   * The custom error page.
-   */
-  // @todo Disabling for now, conflicting routes
-  //customErrorRoute({ httpResources });
 } //end module

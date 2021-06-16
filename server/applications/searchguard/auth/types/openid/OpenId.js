@@ -178,16 +178,20 @@ export default class OpenId extends AuthType {
     // get logged out from Kibana, but the IdP logout may fail.
     let redirectURL = `${this.basePath}/customerror?type=authError`;
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
-    // Clear the cookie credentials
-    await this.clear(request, true);
+    const authHeader = this.getAuthHeader(sessionCookie);
     try {
-      const authInfo = await this.searchGuardBackend.authinfo(this.getAuthHeader(sessionCookie));
+      const authInfo = await this.searchGuardBackend.authinfo(authHeader);
       // sso_logout_url doesn't always exist
       redirectURL =
         authInfo.sso_logout_url || this.basePath + '/login?type=' + this.type + 'Logout';
     } catch (error) {
-      this.logger.error(`OIDC auth logout failed while retrieving the sso_logout_url: ${error.stack}`);
+      this.logger.error(
+        `OIDC auth logout failed while retrieving the sso_logout_url: ${error.stack}`
+      );
     }
+
+    // Clear the cookie credentials
+    await this.clear(request, true);
 
     return response.ok({
       body: {

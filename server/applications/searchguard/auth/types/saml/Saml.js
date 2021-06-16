@@ -167,14 +167,7 @@ export default class Saml extends AuthType {
     // get logged out from Kibana, but the IdP logout may fail.
     let redirectURL = `${this.basePath}/customerror?type=samlAuthError`;
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
-
     const authHeader = this.getAuthHeader(sessionCookie);
-    console.log('Hmmmmm', {
-      authHeader,
-      sessionCookie
-    })
-    // Clear the cookie credentials
-    await this.clear(request, true);
     try {
       const authInfo = await this.searchGuardBackend.authinfo(authHeader);
       redirectURL =
@@ -184,6 +177,9 @@ export default class Saml extends AuthType {
         `SAML auth logout failed while retrieving the sso_logout_url: ${error.stack}`
       );
     }
+
+    // Clear the cookie credentials
+    await this.clear(request, true);
 
     return response.ok({
       body: {

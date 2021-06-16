@@ -16,27 +16,13 @@
 
 import { API_ROOT, APP_ROOT } from '../../../utils/constants';
 import { AUTH_TYPE_NAMES } from './AuthManager';
+import { customError as customErrorRoute } from './types/common/routes';
 
-/*
-export function authInfoHandler({ searchGuardBackend, logger }) {
-  return async function (context, request, response) {
-    try {
-      const body = await searchGuardBackend.authinfo(request.headers);
-      // Avoid Internal IP Disclosure Pattern
-      // https://floragunn.atlassian.net/browse/ITT-2387
-      delete body.remote_address;
-      return response.ok({ body });
-    } catch (error) {
-      logger.error(`authInfoHandler: ${error.stack}`);
-      return response.internalError({ body: error });
-    }
-  };
-}
-
- */
 
 export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, configService }) {
   const router = kibanaCore.http.createRouter();
+  const httpResources = kibanaCore.http.resources;
+  customErrorRoute({ httpResources });
 
   router.post(
     {
