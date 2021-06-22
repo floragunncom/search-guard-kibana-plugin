@@ -26,15 +26,22 @@ export const AUTH_TYPE_NAMES = {
 };
 
 export class AuthManager {
-  constructor({ kibanaCore, configService, sessionStorageFactory }) {
+  constructor({
+    kibanaCore,
+    sessionStorageFactory,
+    pluginDependencies,
+    logger,
+    searchGuardBackend,
+    configService,
+  }) {
     this.kibanaCore = kibanaCore;
-    this.authTypeName = null;
-    this.authInstance = null;
-    // @todo Where do we set these?
-    this.authInstances = {};
-    this.configService = configService;
     this.sessionStorageFactory = sessionStorageFactory;
+    this.searchGuardBackend = searchGuardBackend;
+    this.logger = logger;
+    this.pluginDependencies = pluginDependencies;
+    this.configService = configService;
 
+    this.authInstances = {};
     this.unauthenticatedRoutes = this.configService.get('searchguard.auth.unauthenticated_routes');
 
     /**
@@ -51,6 +58,28 @@ export class AuthManager {
     ];
 
     this.basePath = kibanaCore.http.basePath.get();
+  }
+
+  registerAuthInstances() {
+    [
+      require('./types/openid/OpenId'),
+      require('./types/basicauth/BasicAuth'),
+      require('./types/jwt/Jwt'),
+      require('./types/saml/Saml'),
+    ].forEach((AuthClass) => {
+      const authInstance = new AuthClass({
+        kibanaCore: this.kibanaCore,
+        sessionStorageFactory: this.sessionStorageFactory,
+        pluginDependencies: this.pluginDependencies,
+        logger: this.logger,
+        searchGuardBackend: this.searchGuardBackend,
+        config: this.configService,
+        authManager: this, // @todo Is the authManager used?
+      });
+      console.log('AuthClass?', authInstance.type);
+      authInstance.init();
+      this.authInstances[authInstance.type] = authInstance;
+    });
   }
 
   registerAuthInstance(authTypeName, authInstance) {
@@ -124,29 +153,27 @@ export class AuthManager {
     // Skip auth if we have an authorization header
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
     if (request.headers.authorization) {
-      /* @todo We may need to clear any existing cookies before we proceed?
-      if (sessionCookie.credentials) {
+      const authInstance = await this.getAuthInstanceByCookie({ request });
+      if (sessionCookie && authInstance) {
         // In case we already had a session BEFORE we encountered a request
         // with auth headers, we may need to clear the cookie.
         // This is a bit tricky since we do add an authorization header in the pre auth lifecycle handlers,
         // in which case the cookie should stay.
         // Hence, we compare what we have in the cookie with what's in the header.
         // If the values are different, we need to clear the cookie
-        const differentAuthHeaderCredentials = this.detectAuthHeaderCredentials(
+        // @todo This can probably be simplified by just comparing the session token with the header
+        // ...or we leave it like this as a good hook
+        const differentAuthHeaderCredentials = authInstance.detectAuthHeaderCredentials(
           request,
           sessionCookie.credentials
         );
 
         if (differentAuthHeaderCredentials) {
           // Make sure to clear any auth related cookie info if we detect a different header
-          // @todo Multiple auth type support may require an explicit logout
-          await this.clear(request);
-          // @todo It may make sense to reload the browser at this point - we may have a new user.
-          // @todo That would only apply to ajax requests, though.
+          await authInstance.clear(request, true);
         }
       }
 
-       */
       return toolkit.authenticated({
         requestHeaders: request.headers,
       });
