@@ -178,22 +178,24 @@ export function AuthTypesMenu({ authTypes = [] }) {
     <EuiFlexItem>
       <EuiErrorBoundary>
         <EuiFlexGroup direction="column" gutterSize="m" data-test-sub="sg.login.authMenu">
-          {_authTypes.map((auth, index) => (
-            <EuiFlexItem key={index} style={{ maxWidth: 400 }}>
-              <EuiErrorBoundary>
-                <EuiCard
-                  key={index}
-                  data-test-subj={`sg.login.authMenu.item.openid`}
-                  layout="horizontal"
-                  paddingSize="s"
-                  icon={<EuiIcon size="xl" type="empty" />}
-                  title={auth.title}
-                  description={auth.description}
-                  href={auth.loginURL}
-                />
-              </EuiErrorBoundary>
-            </EuiFlexItem>
-          ))}
+          {_authTypes.map((auth, index) => {
+            return (
+              <EuiFlexItem key={index} style={{ minWidth: 400 }}>
+                <EuiErrorBoundary>
+                  <EuiCard
+                    key={index}
+                    data-test-subj={`sg.login.authMenu.item.openid`}
+                    layout="horizontal"
+                    paddingSize="s"
+                    icon={<EuiIcon size="xl" type="empty" />}
+                    title={auth.title}
+                    description=""
+                    href={auth.loginURL}
+                  />
+                </EuiErrorBoundary>
+              </EuiFlexItem>
+            );
+          })}
         </EuiFlexGroup>
       </EuiErrorBoundary>
     </EuiFlexItem>
@@ -346,6 +348,37 @@ export function BrandImage({ configService, httpClient }) {
   );
 }
 
+export function authTypesToUiAuthTypes(authTypes, { basePath = '' } = {}) {
+  return authTypes.map((authType) => {
+    return {
+      ...authType, loginURL: extendLoginURL(authType.loginURL)
+    };
+  });
+
+  function extendLoginURL(loginURL) {
+    if (!loginURL) loginURL = basePath + '/login';
+    const currURL = new URL(window.location.href);
+
+    try {
+      loginURL = new URL(loginURL);
+    } catch (error) {
+      loginURL = new URL(loginURL, 'http://sgurlplaceholder');
+    }
+    
+    let nextURL = currURL.searchParams.get('nextUrl');
+    if (nextURL) {
+      if (currURL.hash) nextURL += currURL.hash;
+      loginURL.searchParams.set('nextUrl', nextURL);
+    }
+
+    if (loginURL.hostname.startsWith('sgurlplaceholder')) {
+      return loginURL.pathname + loginURL.search;
+    }
+
+    return loginURL.toString();
+  }
+}
+
 export function LoginPage({ httpClient, configService }) {
   const [authTypes, setAuthTypes] = useState([]);
   const [isBasicLogin, setIsBasicLogin] = useState(false);
@@ -370,7 +403,8 @@ export function LoginPage({ httpClient, configService }) {
     sessionStorage.clear();
 
     try {
-      const { data: authTypes } = await httpClient.get(`${API_ROOT}/auth/types`);
+      let { data: authTypes } = await httpClient.get(`${API_ROOT}/auth/types`);
+      authTypes = authTypesToUiAuthTypes(authTypes, httpClient.http.basePath.basePath);
       console.debug('LoginPage, fetchData, authTypes', authTypes);
 
       setAuthTypes(authTypes);

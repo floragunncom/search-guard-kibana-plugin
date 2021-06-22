@@ -95,6 +95,7 @@ export function defineRoutes({
             };
         const username = configService.get('elasticsearch.username');
         const password = configService.get('elasticsearch.password');
+
         const authConfig = (
           await searchGuardBackend.getAuthConfig(username, password, nextUrl)
         ).auth_methods.find(authConfigFinder);
@@ -158,7 +159,6 @@ export function defineRoutes({
           sessionCookie = {
             "temp-saml": {
               requestId: 'ONELOGIN_a0503578-1ae5-4621-80d5-49336f6d8673',
-              nextUrl: '/app/kibana'
             }
           }
         */

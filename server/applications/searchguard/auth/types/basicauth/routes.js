@@ -15,12 +15,12 @@
  limitations under the License.
  */
 
+import { schema } from '@kbn/config-schema';
 import AuthenticationError from '../../errors/authentication_error';
 import MissingTenantError from '../../errors/missing_tenant_error';
 import MissingRoleError from '../../errors/missing_role_error';
 import { sanitizeNextUrl } from '../../sanitize_next_url';
 import { customError as customErrorRoute } from '../common/routes';
-import { schema } from '@kbn/config-schema';
 import { APP_ROOT, API_ROOT } from '../../../../../utils/constants';
 
 export function loginHandler({ config, authInstance, logger, basePath }) {

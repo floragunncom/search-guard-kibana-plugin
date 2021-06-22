@@ -39,7 +39,7 @@ export default class SearchGuardBackend {
       const authHeaderValue = Buffer.from(`${username}:${password}`).toString('base64');
       let path = '/_searchguard/auth/config/';
       if (nextUrl) {
-        path = path + '?next_url=' + nextUrl;
+        path = path + '?next_url=' + encodeURIComponent(nextUrl);
       }
       const response = await this._client({
         path,

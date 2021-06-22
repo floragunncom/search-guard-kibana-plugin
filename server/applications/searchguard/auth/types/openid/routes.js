@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+import { schema } from '@kbn/config-schema';
 import { sanitizeNextUrl } from '../../sanitize_next_url';
 import MissingTenantError from '../../errors/missing_tenant_error';
 import MissingRoleError from '../../errors/missing_role_error';
 import { APP_ROOT } from '../../../../../utils/constants';
 
 export const OIDC_ROUTES = {
-  LOGIN: `${APP_ROOT}/auth/openid/encode`, // @todo Update this later - the auth selector page should probably do all the encoding
+  LOGIN: `${APP_ROOT}/auth/openid/login`, // @todo Update this later - the auth selector page should probably do all the encoding
 };
 
 export function defineRoutes({
@@ -33,64 +34,21 @@ export function defineRoutes({
 }) {
   const config = kibanaConfig;
   const basePath = kibanaCore.http.basePath.serverBasePath;
-  const httpResources = kibanaCore.http.resources;
   const router = kibanaCore.http.createRouter();
   const routesPath = '/auth/openid/';
 
-  httpResources.register(
-    {
-      path: `${APP_ROOT}${routesPath}encode-js`,
-      options: { authRequired: false },
-      validate: false,
-    },
-    (context, request, response) => {
-      return response.renderJs({
-        body: `
-          const search = new URLSearchParams(window.location.search);
-          if (search.get('nextUrl')) {
-            search.set('nextUrl', encodeURIComponent(search.get('nextUrl') + window.location.hash));
-          }
-          window.location = "${APP_ROOT}${routesPath}login?" + search.toString();
-          `,
-      });
-    }
-  );
-
-  // This path is there to render a JavaScript snippet that
-  // encodes the location.hash. Otherwise, everything behind
-  // the # symbol will get lost in the redirect flow.
-  // I would have preferred an inline script here, but it
-  // seems like Kibana's CSP blocks that.
-  // Hence the extra JS route above.
-  httpResources.register(
-    {
-      path: `${APP_ROOT}${routesPath}encode`,
-      options: { authRequired: false },
-      validate: false,
-    },
-    (context, request, response) => {
-      return response.renderHtml({
-        body: `
-          <html>
-            <head>
-            <script src="${APP_ROOT}${routesPath}encode-js"></script>
-            </head>
-            <body></body>
-          </html>
-          `,
-      });
-    }
-  );
-
-  const loginSettings = {
+  router.get({
     path: `${APP_ROOT}${routesPath}login`,
-    validate: false,
+    validate: {
+      query: schema.object({
+        nextUrl: schema.maybe(schema.string()), // it comes from our login page
+        next_url: schema.maybe(schema.string()), // it comes from the IDP login page
+      }, { unknowns: 'allow' }),
+    },
     options: {
       authRequired: false,
     },
-  };
-
-  const finalLoginHandler = loginHandler({
+  }, loginHandler({
     basePath,
     kibanaCore,
     config,
@@ -99,10 +57,7 @@ export function defineRoutes({
     authInstance,
     logger,
     searchGuardBackend,
-  });
-
-  router.get(loginSettings, finalLoginHandler);
-  router.post(loginSettings, finalLoginHandler);
+  }));
 
   /**
    * The error page.
@@ -169,7 +124,6 @@ export function loginHandler({ basePath, config, authInstance, logger, searchGua
       await authInstance.handleAuthenticate(request, credentials);
 
       let redirectTo = '/';
-      // @todo At the moment, the backend would report next_url back, not nextUrl
       if (request.url.query.next_url) {
         redirectTo = sanitizeNextUrl(decodeURIComponent(request.url.query.next_url), basePath);
       }
@@ -266,7 +220,6 @@ async function handleAuthRequest({
       },
     });
   }
-
 
   const nonce = authConfig.sso_context;
   const sessionCookie = (await sessionStorageFactory.asScoped(request).get()) || {};
