@@ -68,9 +68,6 @@ export default class BasicAuth extends AuthType {
     this.handleUnauthenticated();
   }
 
-  debugLog(message, label = AUTH_TYPE_NAMES.BASIC) {
-    super.debugLog(message, label);
-  }
 
   /**
    * Handle the case where a logged in user's password was changed
@@ -157,52 +154,6 @@ export default class BasicAuth extends AuthType {
     return null;
   }
 
-  async authenticate(credentials, options = {}, additionalAuthHeaders = {}) {
-    try {
-      const response = await this.searchGuardBackend.authenticateWithSession({
-        mode: 'basic',
-        user: credentials.username,
-        password: credentials.password,
-      });
-
-      const sessionCredentials = {
-        authHeaderValue: 'Bearer ' + response.token,
-      };
-
-      // @todo This call will probably become redundant with
-      // the next SG update. The authenticate call will return the required info.
-      const authInfoResponse = await this.searchGuardBackend.authinfo({
-        [this.authHeaderName]: sessionCredentials.authHeaderValue,
-      });
-
-      const user = this.searchGuardBackend.buildSessionResponse(
-        sessionCredentials,
-        authInfoResponse
-      );
-
-      const session = {
-        username: user.username,
-        credentials: {
-          authHeaderValue: 'Bearer ' + response.token,
-        },
-        authType: this.type,
-        isAnonymousAuth: options && options.isAnonymousAuth === true ? true : false,
-      };
-
-      // @todo This will probably go away
-      if (this.sessionTTL) {
-        session.expiryTime = Date.now() + this.sessionTTL;
-      }
-
-      return {
-        session,
-        user,
-      };
-    } catch (error) {
-      throw error;
-    }
-  }
-
   getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false) {
     let url = new URL(request.url.href, 'http://abc');
     const appRoot = path.posix.join(this.basePath, APP_ROOT);
@@ -225,16 +176,6 @@ export default class BasicAuth extends AuthType {
     }
 
     return url.pathname + url.search + url.hash;
-  }
-
-  onUnAuthenticated(request, response, toolkit, error = null) {
-    const redirectTo = this.getRedirectTargetForUnauthenticated(request, error);
-
-    return response.redirected({
-      headers: {
-        location: `${redirectTo}`,
-      },
-    });
   }
 
   setupRoutes() {

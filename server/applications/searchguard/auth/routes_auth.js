@@ -61,7 +61,7 @@ export function listAuthTypesHandler({ authManager, searchGuardBackend, configSe
     const password = configService.get('elasticsearch.password');
     const authConfig = (await searchGuardBackend.getAuthConfig(username, password)).auth_methods;
 
-    console.log('What the authConfig?', authConfig);
+    //console.log('What the authConfig?', authConfig);
 
     // @todo Figure out if this is really necessary
     // @todo Maybe we should refactor our code to support the SG auth type name without any map?
@@ -87,12 +87,10 @@ export function listAuthTypesHandler({ authManager, searchGuardBackend, configSe
             loginURL = loginURL.href.replace(loginURL.origin, '');
           }
           return {
-            // @todo I think we need a type property here too. In case we have multiple OIDC for example.
+            id: config.id,
             type: backendMethodToFrontendMethod[config.method],
             title: config.label,
-            description: '@todo Get a description for this method somewhere',
             loginURL,
-            icon: null, // @todo
           };
         }
       });

@@ -59,6 +59,10 @@ export default class SearchGuardBackend {
   };
 
   async authenticateWithSession(credentials) {
+    // Clean up the id if it is set, but falsey
+    if (typeof credentials !== 'undefined' && !credentials) {
+      delete credentials.id;
+    }
     try {
       const response = await this._client({
         path: '/_searchguard/auth/session',
@@ -210,95 +214,6 @@ export default class SearchGuardBackend {
         path: '/_searchguard/authinfo',
         method: 'get',
         headers,
-      });
-    } catch (error) {
-      if (error.statusCode === 401) {
-        throw new AuthenticationError(error.message, error);
-      }
-      throw error;
-    }
-  };
-
-  getOIDCWellKnown = async () => {
-    try {
-      return await this._client({
-        path: '/_searchguard/auth_domain/_first/openid/config',
-        method: 'get',
-      });
-    } catch (error) {
-      if (error.statusCode === 401) {
-        throw new AuthenticationError(error.message, error);
-      }
-      throw error;
-    }
-  };
-
-  /**
-   * Get the id_token
-   * @param tokenEndpoint
-   * @param body
-   * @returns {Promise<*>}
-   */
-  getOIDCToken = async ({ tokenEndpoint, body }) => {
-    try {
-      return await this._client({
-        path: tokenEndpoint,
-        method: 'post',
-        body,
-      });
-    } catch (error) {
-      if (error.statusCode === 401) {
-        throw new AuthenticationError(error.message, error);
-      }
-      throw error;
-    }
-  };
-
-  getSamlHeader = async () => {
-    try {
-      return await this._client({
-        path: '/_searchguard/authinfo',
-        method: 'get',
-      });
-    } catch (error) {
-      const wwwAuthenticateDirective = error.meta.headers['www-authenticate'];
-      if (!wwwAuthenticateDirective) {
-        throw error;
-      }
-
-      try {
-        const locationRegExp = /location="(.*?)"/;
-        const requestIdRegExp = /requestId="(.*?)"/;
-
-        return {
-          location: locationRegExp.exec(wwwAuthenticateDirective)[1],
-          requestId: requestIdRegExp.exec(wwwAuthenticateDirective)[1],
-        };
-      } catch (error) {
-        throw new AuthenticationError(error.message, error);
-      }
-    }
-  };
-
-  /**
-   * Exchanges a SAMLResponse from the IdP against a token for internal use
-   * @param RequestId
-   * @param SAMLResponse
-   * @param acsEndpoint
-   * @returns {Promise<Promise<*>|*>}
-   */
-  authtoken = async (RequestId, SAMLResponse, acsEndpoint = null) => {
-    const body = {
-      RequestId,
-      SAMLResponse,
-      acsEndpoint,
-    };
-
-    try {
-      return await this._client({
-        path: '/_searchguard/api/authtoken',
-        method: 'post',
-        body,
       });
     } catch (error) {
       if (error.statusCode === 401) {

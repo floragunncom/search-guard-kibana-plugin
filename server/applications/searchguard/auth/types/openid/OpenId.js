@@ -53,69 +53,6 @@ export default class OpenId extends AuthType {
     this.loginURL = OIDC_ROUTES.LOGIN;
   }
 
-  debugLog(message, label = 'openid') {
-    super.debugLog(message, label);
-  }
-
-  async authenticate(credentials, options = {}, additionalAuthHeaders = {}) {
-    try {
-      this.debugLog('Authenticating using ' + credentials);
-      const sessionResponse = await this.searchGuardBackend.authenticateWithSession(credentials);
-      const sessionCredentials = {
-        authHeaderValue: 'Bearer ' + sessionResponse.token,
-      };
-
-      // @todo This call will probably become redundant with
-      // the next SG update. The authenticate call will return the required info.
-      const user = await this.searchGuardBackend.authenticateWithHeader(
-        this.authHeaderName,
-        sessionCredentials.authHeaderValue,
-        additionalAuthHeaders
-      );
-
-      const session = {
-        username: user.username,
-        // The session token
-        credentials: sessionCredentials,
-        authType: this.type,
-        authTypeId: credentials.id,
-      };
-
-      // @todo CLEAN UP THIS PART WHEN COOKIE VALIDATION IS CLEAR, MOST LIKELY NOT NEEDED ANYMORE.
-      // @todo Pending cooke validation / expiration
-      // @todo AND THE EXP IS DEBUGGING CODE.
-
-      let tokenPayload = {};
-      try {
-        tokenPayload = JSON.parse(
-          Buffer.from(credentials.authHeaderValue.split('.')[1], 'base64').toString()
-        );
-      } catch (error) {
-        // Something went wrong while parsing the payload, but the user was authenticated correctly.
-      }
-      /* @todo Remove this. Just using this to simulate an expired session.
-      const exp = (Date.now() / 1000) + 30;
-      console.log('What is date', exp)
-      tokenPayload.exp = exp;
-
-       */
-
-      if (tokenPayload.exp) {
-        // The token's exp value trumps the config setting
-        this.sessionKeepAlive = false;
-        session.exp = parseInt(tokenPayload.exp, 10);
-      } else if (this.sessionTTL) {
-        session.expiryTime = Date.now() + this.sessionTTL;
-      }
-
-      return {
-        session,
-        user,
-      };
-    } catch (error) {
-      throw error;
-    }
-  }
 
   // @todo Do we even need most of this stuff anymore? We either redirect
   // to the login page for normal requests, and then to the IdP if the session
@@ -143,15 +80,6 @@ export default class OpenId extends AuthType {
     }
 
     return url.pathname + url.search + url.hash;
-  }
-
-  async onUnAuthenticated(request, response, toolkit, error) {
-    const redirectTo = this.getRedirectTargetForUnauthenticated(request, error);
-    return response.redirected({
-      headers: {
-        location: `${redirectTo}`,
-      },
-    });
   }
 
   setupRoutes() {

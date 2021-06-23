@@ -54,67 +54,6 @@ export default class Saml extends AuthType {
      */
     this.loginURL = SAML_ROUTES.LOGIN;
 
-    this.routesToIgnore = [
-      ...this.routesToIgnore,
-      '/searchguard/saml/acs',
-      '/searchguard/saml/acs/idpinitiated',
-      '/searchguard/saml/logout',
-    ];
-  }
-
-  debugLog(message, label = AUTH_TYPE_NAMES.SAML) {
-    super.debugLog(message, label);
-  }
-
-  async authenticate(credentials, options, additionalAuthHeaders = {}) {
-    // A "login" can happen when we have a token (as header or as URL parameter but no session,
-    // or when we have an existing session, but the passed token does not match what's in the session.
-    try {
-      this.debugLog('Authenticating using ' + credentials.authHeaderValue);
-      const sessionResponse = await this.searchGuardBackend.authenticateWithSession(credentials);
-      const sessionCredentials = {
-        authHeaderValue: 'Bearer ' + sessionResponse.token,
-      };
-      const user = await this.searchGuardBackend.authenticateWithHeader(
-        this.authHeaderName,
-        sessionCredentials.authHeaderValue,
-        additionalAuthHeaders
-      );
-
-      // @todo CLEAN UP THIS PART WHEN COOKIE VALIDATION IS CLEAR, MOST LIKELY NOT NEEDED ANYMORE.
-      // @todo Pending cooke validation / expiration
-      let tokenPayload = {};
-      try {
-        tokenPayload = JSON.parse(
-          Buffer.from(credentials.authHeaderValue.split('.')[1], 'base64').toString()
-        );
-      } catch (error) {
-        // Something went wrong while parsing the payload, but the user was authenticated correctly.
-      }
-
-      const session = {
-        username: user.username,
-        // The session token
-        credentials: sessionCredentials,
-        authType: this.type,
-        authTypeId: credentials.id,
-      };
-
-      if (tokenPayload.exp) {
-        // The token's exp value trumps the config setting
-        this.sessionKeepAlive = false;
-        session.exp = parseInt(tokenPayload.exp, 10);
-      } else if (this.sessionTTL) {
-        session.expiryTime = Date.now() + this.sessionTTL;
-      }
-
-      return {
-        session,
-        user,
-      };
-    } catch (error) {
-      throw error;
-    }
   }
 
   getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false) {
@@ -138,16 +77,6 @@ export default class Saml extends AuthType {
     }
 
     return url.pathname + url.search + url.hash;
-  }
-
-  onUnAuthenticated(request, response, toolkit, error) {
-    if (error) {
-      this.logger.error(`SAML on unauthenticated: ${error} ${error.stack}`);
-    }
-
-    const redirectTo = this.getRedirectTargetForUnauthenticated(request, error);
-
-    return response.redirected({ headers: { location: redirectTo } });
   }
 
   setupRoutes() {

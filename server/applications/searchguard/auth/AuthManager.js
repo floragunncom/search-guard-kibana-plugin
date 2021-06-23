@@ -55,6 +55,10 @@ export class AuthManager {
       '/bootstrap.js',
       '/bundles/app/core/bootstrap.js',
       '/bundles/app/searchguard-customerror/bootstrap.js',
+      // SAML specific
+      '/searchguard/saml/acs',
+      '/searchguard/saml/acs/idpinitiated',
+      '/searchguard/saml/logout',
     ];
 
     this.basePath = kibanaCore.http.basePath.get();
@@ -76,7 +80,7 @@ export class AuthManager {
         config: this.configService,
         authManager: this, // @todo Is the authManager used?
       });
-      console.log('AuthClass?', authInstance.type);
+
       authInstance.init();
       this.authInstances[authInstance.type] = authInstance;
     });
@@ -215,7 +219,7 @@ export class AuthManager {
           headers: {
             sg_redirectTo: '/login',
           },
-          body: { message: 'Session expired' },
+          body: { message: 'Session expired or invalid username and password' },
         });
       }
     }

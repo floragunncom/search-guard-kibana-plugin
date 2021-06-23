@@ -39,25 +39,8 @@ export default class AuthType {
     this.pluginDependencies = pluginDependencies;
 
     this.basePath = kibanaCore.http.basePath.get();
-    this.unauthenticatedRoutes = this.config.get('searchguard.auth.unauthenticated_routes');
 
     this.authDebugEnabled = this.config.get('searchguard.auth.debug');
-
-    /**
-     * Loading bundles are now behind auth.
-     * We need to skip auth for the bundles for the login page and the error page
-     */
-    this.routesToIgnore = [
-      '/login',
-      '/customerror',
-      '/bootstrap.js',
-      '/bundles/app/core/bootstrap.js',
-      '/bundles/app/searchguard-customerror/bootstrap.js',
-      '/api/core/capabilities',
-    ];
-
-    this.sessionTTL = this.config.get('searchguard.session.ttl');
-    this.sessionKeepAlive = this.config.get('searchguard.session.keepalive');
 
     /**
      * The authType is saved in the auth cookie for later reference
@@ -145,7 +128,7 @@ export default class AuthType {
       // If we have sessionCredentials AND auth headers we need to check if they are the same.
       if (sessionCredentials !== null && sessionCredentials.authHeaderValue === authHeaderValue) {
         // The auth header credentials are the same as those in the session,
-        // no need to return new credentials so we're just nulling the token here
+        // no need to return new credentials so we're just returning null here
         return null;
       }
 
@@ -157,18 +140,52 @@ export default class AuthType {
     return null;
   }
 
-  authenticate() {
-    throw new Error('The authenticate method must be implemented by the sub class');
-  }
-
-  onUnAuthenticated() {
-    throw new Error('The onUnAuthenticated method must be implemented by the sub class');
-  }
-
   getRedirectTargetForUnauthenticated() {
     throw new Error(
       'The getRedirectTargetForUnauthenticated method must be implemented by the sub class'
     );
+  }
+
+  async authenticate(credentials, options = {}, additionalAuthHeaders = {}) {
+    try {
+      this.debugLog('Authenticating using ' + credentials);
+      const sessionResponse = await this.searchGuardBackend.authenticateWithSession(credentials);
+      const sessionCredentials = {
+        authHeaderValue: 'Bearer ' + sessionResponse.token,
+      };
+      this.debugLog('Token ' + sessionCredentials.authHeaderValue);
+
+      const user = await this.searchGuardBackend.authenticateWithHeader(
+        this.authHeaderName,
+        sessionCredentials.authHeaderValue,
+        additionalAuthHeaders
+      );
+
+      const session = {
+        username: user.username,
+        // The session token
+        credentials: sessionCredentials,
+        authType: this.type,
+        authTypeId: credentials.id,
+      };
+
+      return {
+        session,
+        user,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  onUnAuthenticated(request, response, toolkit, error = null) {
+    const redirectTo = this.getRedirectTargetForUnauthenticated(request, error);
+
+    return response.redirected({
+      headers: {
+        location: `${redirectTo}`,
+      },
+    });
   }
 
   /**
@@ -215,7 +232,12 @@ export default class AuthType {
 
         return response.unauthorized({
           headers: {
-            sg_redirectTo: this.getRedirectTargetForUnauthenticated(request, error, true, sessionCookie),
+            sg_redirectTo: this.getRedirectTargetForUnauthenticated(
+              request,
+              error,
+              true,
+              sessionCookie
+            ),
           },
           body: { message: 'Session expired' },
         });
@@ -226,10 +248,7 @@ export default class AuthType {
 
   async getCookieWithCredentials(request) {
     let sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
-    // @todo Maybe check the headers before the cookie. Since we check the headers
-    // in the cookie validation and if headers are present, we overwrite the cookie
-    // with the header value. Hence, the end result would be the same, but with less code.
-
+    // @todo Change the order here
     if (sessionCookie.credentials) {
       try {
         sessionCookie = await this.validateSessionCookie(request, sessionCookie);
@@ -269,52 +288,6 @@ export default class AuthType {
 
   checkAuth = async (request, response, toolkit) => {
     let sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
-
-    // Skip auth if we have an authorization header
-    if (request.headers[this.authHeaderName]) {
-
-      // @todo START HERE IN THE MORNING - DEBUG IF THE AWAIT DOES
-
-      if (sessionCookie.credentials) {
-        // In case we already had a session BEFORE we encountered a request
-        // with auth headers, we may need to clear the cookie.
-        // This is a bit tricky since we do add an authorization header in the pre auth lifecycle handlers,
-        // in which case the cookie should stay.
-        // Hence, we compare what we have in the cookie with what's in the header.
-        // If the values are different, we need to clear the cookie
-        const differentAuthHeaderCredentials = this.detectAuthHeaderCredentials(
-          request,
-          sessionCookie.credentials
-        );
-
-        if (differentAuthHeaderCredentials) {
-          // Make sure to clear any auth related cookie info if we detect a different header
-          // @todo Multiple auth type support may require an explicit logout
-          await this.clear(request);
-          // @todo It may make sense to reload the browser at this point - we may have a new user.
-          // @todo That would only apply to ajax requests, though.
-        }
-      }
-
-
-      return toolkit.authenticated({
-        requestHeaders: request.headers,
-      });
-    }
-
-    if (this.routesToIgnore.includes(request.url.pathname)) {
-      return toolkit.notHandled();
-    }
-
-    if (this.unauthenticatedRoutes.includes(request.url.pathname)) {
-      // @todo Why does this work? If we return notHandled here, searchguard throws an error.
-      // If we do this, we don't really assign any relevant headers
-      // Until now, we got the kibana server user here, but those credentials were
-      // not really used, it seems
-      return toolkit.authenticated({
-        requestHeaders: request.headers,
-      });
-    }
 
     try {
       sessionCookie = await this.getCookieWithCredentials(request);
@@ -505,12 +478,10 @@ export default class AuthType {
     }
   }
 
-  debugLog(message, label = '') {
+  debugLog(message, label = this.type) {
     if (this.authDebugEnabled) {
       try {
         if (typeof message !== 'string') {
-          // @todo It seems like the logger should support passing
-          // an arbitrary object, but the object is never shown...
           message = JSON.stringify(message);
         }
         this.logger.info(`${label} ${message}`);
@@ -536,47 +507,6 @@ export default class AuthType {
       );
       // authResponse is an object with .session and .user
       const authResponse = await this.authenticate(credentials, options, additionalAuthHeaders);
-      return this._handleAuthResponse(request, credentials, authResponse, additionalAuthHeaders);
-    } catch (error) {
-      // Make sure we clear any existing cookies if something went wrong
-      this.clear(request);
-      throw error;
-    }
-  }
-
-  async handleAuthenticateWithHeaders(request, credentials = {}) {
-    try {
-      const additionalAuthHeaders = filterAuthHeaders(
-        request.headers,
-        this.allowedAdditionalAuthHeaders
-      );
-      const user = await this.searchGuardBackend.authenticateWithHeaders(
-        request.headers,
-        credentials,
-        additionalAuthHeaders
-      );
-      const session = {
-        username: user.username,
-        credentials: credentials,
-        authType: this.type,
-        /**
-         * Used later to signal that we should not assign any specific auth header in AuthType
-         */
-        assignAuthHeader: false,
-      };
-
-      // @todo Why is this only set here, but not in handleAuthenticate? This should be done by the session validation?
-      const sessionTTL = this.config.get('searchguard.session.ttl');
-
-      if (sessionTTL) {
-        session.expiryTime = Date.now() + sessionTTL;
-      }
-
-      const authResponse = {
-        session,
-        user,
-      };
-
       return this._handleAuthResponse(request, credentials, authResponse, additionalAuthHeaders);
     } catch (error) {
       // Make sure we clear any existing cookies if something went wrong
@@ -637,7 +567,7 @@ export default class AuthType {
     return authResponse;
   }
 
-  async logout({ context = null, request, response }) {
+  async logout({ request, response }) {
     await this.clear(request, true);
     return response.ok({
       body: {
@@ -652,7 +582,7 @@ export default class AuthType {
    */
   async clear(request, explicitlyRemoveAuthType = false) {
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
-    const authHeaders = await this.getAuthHeader(sessionCookie);
+    const authHeaders = this.getAuthHeader(sessionCookie);
     // @todo Consider refactoring anything auth related into an "auth" property.
     delete sessionCookie.credentials;
     delete sessionCookie.username;
