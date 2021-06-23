@@ -139,9 +139,9 @@ export function HeaderUserMenu({ httpClient, configService }) {
   const appList = [];
 
   // @todo We need to update away from authType here most likely
-  if (uiHelpers.hasAuthCookie && authType !== 'kerberos' && authType !== 'proxy') {
+  if ((uiHelpers.hasAuthCookie || userName === 'sg_anonymous') && authType !== 'kerberos' && authType !== 'proxy') {
     appList.push({
-      label: logoutText,
+      label: userName !== 'sg_anonymous' ? logoutText : 'Login',
       color: 'primary',
       onClick: logOut,
       'data-test-subj': 'sg.userMenu.button-logout',

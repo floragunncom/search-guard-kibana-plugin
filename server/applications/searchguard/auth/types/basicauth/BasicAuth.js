@@ -115,8 +115,6 @@ export default class BasicAuth extends AuthType {
     if (error && error instanceof MissingRoleError) {
       url.searchParams.set('type', 'missingRole');
       url.pathname = path.posix.join(appRoot, '/customerror');
-    } else if (this.anonymousAuthEnabled) {
-      url.pathname = path.posix.join(appRoot, '/auth/anonymous');
     } else if (this.loadBalancerURL) {
       url = new URL(path.posix.join(appRoot, '/login'), this.loadBalancerURL);
     } else {

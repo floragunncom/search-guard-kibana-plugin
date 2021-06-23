@@ -23,50 +23,8 @@ import { sanitizeNextUrl } from '../../sanitize_next_url';
 import { customError as customErrorRoute } from '../common/routes';
 import { APP_ROOT, API_ROOT } from '../../../../../utils/constants';
 
-export function loginHandler({ config, authInstance, logger, basePath }) {
+export function loginHandler() {
   return async function (context, request, response) {
-    try {
-      // Check if we have alternative login headers
-      const alternativeHeaders = config.get('searchguard.basicauth.alternative_login.headers');
-      if (alternativeHeaders && alternativeHeaders.length) {
-        const requestHeaders = Object.keys(request.headers).map((header) => header.toLowerCase());
-        const foundHeaders = alternativeHeaders.filter(
-          (header) => requestHeaders.indexOf(header.toLowerCase()) > -1
-        );
-        if (foundHeaders.length) {
-          await authInstance.handleAuthenticateWithHeaders(request);
-
-          let nextUrl = null;
-          if (request.url && request.url.query && request.url.query.nextUrl) {
-            nextUrl = sanitizeNextUrl(request.url.query.nextUrl, basePath);
-          }
-
-          if (nextUrl) {
-            nextUrl = sanitizeNextUrl(nextUrl, basePath);
-          } else {
-            nextUrl = basePath + '/app/kibana';
-          }
-
-          return response.redirected({
-            headers: { location: nextUrl },
-          });
-        }
-      }
-    } catch (error) {
-      logger.error(`An error occurred while checking for alternative login headers: ${error}`);
-
-      if (error instanceof MissingRoleError) {
-        return response.redirected({
-          headers: { location: `${basePath}/customerror?type=missingRole` },
-        });
-      } else if (error instanceof MissingTenantError) {
-        return response.redirected({
-          headers: { location: `${basePath}/customerror?type=missingTenant` },
-        });
-      }
-      // Let normal authentication errors through(?) and just go to the regular login page?
-    }
-
     return response.renderAnonymousCoreApp();
   };
 }
@@ -184,7 +142,7 @@ export function defineRoutes({
         authRequired: false,
       },
     },
-    loginHandler({ config, authInstance, logger, basePath })
+    loginHandler()
   );
 
   router.post(
@@ -200,65 +158,6 @@ export function defineRoutes({
         authRequired: false,
       },
     },
-    loginAuthHandler({ config, authInstance, logger })
-  );
-
-  router.post(
-    {
-      path: `${API_ROOT}/auth/logoutBASICAUTHTEMP`,
-      validate: false,
-    },
-    logoutHandler({ authInstance })
-  );
-
-  router.get(
-    {
-      path: `${APP_ROOT}/auth/anonymous`,
-      validate: false,
-      options: {
-        authRequired: false,
-      },
-    },
-    async (context, request, response) => {
-      if (config.get('searchguard.auth.anonymous_auth_enabled')) {
-        try {
-          await authInstance.handleAuthenticate(request, {}, { isAnonymousAuth: true });
-
-          let nextUrl = null;
-          if (request.url && request.url.query && request.url.query.nextUrl) {
-            nextUrl = sanitizeNextUrl(request.url.query.nextUrl, basePath);
-          }
-
-          let redirectTo = basePath + '/app/kibana';
-
-          if (nextUrl) {
-            redirectTo = sanitizeNextUrl(nextUrl, basePath);
-          }
-
-          return response.redirected({
-            headers: { location: redirectTo },
-          });
-        } catch (error) {
-          logger.error(`Basic auth anonymous ${error}`);
-
-          let errorType = 'anonymousAuthError';
-          if (error instanceof MissingRoleError) {
-            errorType = 'missingRole';
-          } else if (error instanceof MissingTenantError) {
-            errorType = 'missingTenant';
-          }
-
-          const redirectTo = basePath + '/customerror?type=' + errorType;
-          return response.redirected({
-            headers: { location: redirectTo },
-          });
-        }
-      } else {
-        const redirectTo = `${APP_ROOT}/login`;
-        return response.redirected({
-          headers: { location: redirectTo },
-        });
-      }
-    }
+    loginAuthHandler({ config, authInstance, logger, searchGuardBackend })
   );
 } //end module

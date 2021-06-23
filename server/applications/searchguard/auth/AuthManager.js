@@ -204,6 +204,18 @@ export class AuthManager {
       return authInstanceByRequest.checkAuth(request, response, toolkit);
     }
 
+    // @todo Does it make sense to only allow this if the cookie is/isn't empty?
+    // Problem is AJAX requests right, so how to handle that?
+
+    if (
+      !sessionCookie.authType &&
+      this.configService.get('searchguard.auth.anonymous_auth_enabled')
+    ) {
+      return toolkit.authenticated({
+        requestHeaders: request.headers,
+      });
+    }
+
     // Check for ajax requests
     // @todo Share this function with the authInstance?
     if (request.headers) {

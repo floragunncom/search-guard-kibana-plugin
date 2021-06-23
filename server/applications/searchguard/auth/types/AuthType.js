@@ -297,7 +297,7 @@ export default class AuthType {
 
     if (sessionCookie.credentials) {
       const authHeaders = await this.getAllAuthHeaders(request, sessionCookie);
-      if (!authHeaders && !sessionCookie.isAnonymousAuth) {
+      if (!authHeaders) {
         this.logger.error(
           `An error occurred while computing auth headers, clearing session: No headers found in the session cookie`
         );
@@ -566,7 +566,6 @@ export default class AuthType {
       delete sessionCookie.authTypeId;
     }
     delete sessionCookie.additionalAuthHeaders;
-    delete sessionCookie.isAnonymousAuth;
 
     // Only try to delete the session if we really have auth headers
     if (authHeaders) {
