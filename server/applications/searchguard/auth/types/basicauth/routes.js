@@ -29,37 +29,28 @@ export function loginHandler() {
   };
 }
 
-export function loginAuthHandler({ config, authInstance, logger }) {
+export function loginAuthHandler({ config, authInstance, logger, searchGuardBackend }) {
   return async function (context, request, response) {
+    const authMethodName = 'basic';
     const username = request.body.username;
     const password = request.body.password;
 
     try {
-      // In order to prevent direct access for certain usernames (e.g. service users like
-      // kibanaserver, logstash etc.) we can add them to basicauth.forbidden_usernames.
-      // If the username in the payload matches an item in the forbidden array, we throw an AuthenticationError
+      // We get the authConfig so that we can add a config.id just
+      // in case there is an id. This assumes we only have one
+      // config for basic auth. If that should change, we should
+      // update the LoginPage.js to pass the corresponding id.
+      const authConfig = (
+        await searchGuardBackend.getAuthConfig(username, password)
+      ).auth_methods.find((config) => config.method === authMethodName);
+      const credentials = {
+        mode: authMethodName,
+        user: username,
+        password: password,
+        id: authConfig.id,
+      };
 
-      const basicAuthConfig = config.get('searchguard.basicauth');
-      if (basicAuthConfig.forbidden_usernames && basicAuthConfig.forbidden_usernames.length) {
-        if (basicAuthConfig.forbidden_usernames.indexOf(username) > -1) {
-          throw new AuthenticationError('Invalid username or password');
-        }
-      }
-
-      if (basicAuthConfig.allowed_usernames && Array.isArray(basicAuthConfig.allowed_usernames)) {
-        try {
-          if (basicAuthConfig.allowed_usernames.indexOf(username) === -1) {
-            throw new AuthenticationError('Invalid username or password');
-          }
-        } catch (error) {
-          throw new AuthenticationError('Invalid username or password');
-        }
-      }
-
-      const { user } = await authInstance.handleAuthenticate(request, {
-        username,
-        password,
-      });
+      const { user } = await authInstance.handleAuthenticate(request, credentials);
 
       // handle tenants if MT is enabled
       if (config.get('searchguard.multitenancy.enabled')) {
@@ -108,28 +99,17 @@ export function loginAuthHandler({ config, authInstance, logger }) {
   };
 }
 
-// @todo Remove this, redundant now. Handled by the authManager and authInstance
-export function logoutHandler({ authInstance }) {
-  return async function (context, request, response) {
-    await authInstance.clear(request);
-    return response.ok();
-  };
-}
-
 export function defineRoutes({
   authInstance,
   kibanaCore,
   kibanaConfig,
-  sessionStorageFactory,
   logger,
+  searchGuardBackend,
 }) {
   const config = kibanaConfig;
   const basePath = kibanaCore.http.basePath.serverBasePath;
   const httpResources = kibanaCore.http.resources;
   const router = kibanaCore.http.createRouter();
-
-  // @todo Disabling for now, conflicting routes
-  //customErrorRoute({ httpResources });
 
   /**
    * The login page.
