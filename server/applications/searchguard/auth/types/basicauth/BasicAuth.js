@@ -17,7 +17,6 @@
 
 import AuthType from '../AuthType';
 import MissingRoleError from '../../errors/missing_role_error';
-import { ensureRawRequest } from '../../../../../../../../src/core/server/http/router';
 import { defineRoutes } from './routes';
 import { APP_ROOT } from '../../../../../utils/constants';
 import path from 'path';
@@ -65,59 +64,8 @@ export default class BasicAuth extends AuthType {
      */
     this.anonymousAuthEnabled = this.config.get('searchguard.auth.anonymous_auth_enabled');
 
-    this.handleUnauthenticated();
   }
 
-
-  /**
-   * Handle the case where a logged in user's password was changed
-   * and we receive a 401 despite having a valid auth cookie.
-   * The main goal here is to make sure that the cookie is deleted,
-   * and also to prevent the browser auth dialog from showing up.
-   *
-   * The user would still see a screen with an error message,
-   * but after a page reload they will be redirectd to the
-   * login page. This is expected.
-   *
-   * @todo Investigate if we can safely just automatically
-   * redirect to the login page using OnUnAuthenticted()
-   */
-  handleUnauthenticated() {
-    this.kibanaCore.http.registerOnPreResponse(async (request, response, toolkit) => {
-      try {
-        // @todo Try to get away from Hapi here
-        request = ensureRawRequest(request);
-
-        let has401 = false;
-        if (request.response.statusCode === 401) {
-          has401 = true;
-        } else if (request.response.output && request.response.output.statusCode === 401) {
-          has401 = true;
-        }
-
-        if (has401) {
-          // Make sure we don't have an auth cookie anymore if we receive a 401.
-          // Most likely, the current user's password was changed, leading to the 401.
-          await this.clear(request);
-          if (request.response.output && request.response.output.headers) {
-            delete request.response.output.headers['www-authenticate'];
-            delete request.response.output.headers['WWW-Authenticate'];
-            delete request.response.wwwAuthenticateDirective;
-          }
-          this.debugLog(
-            'Received a 401 auth exception. If we had a cookie, the password was most likely changed elsewhere',
-            'basicAuth'
-          );
-
-          // @todo Maybe we just redirect to the login page here? return this.onUnAuthenticated(...)
-        }
-      } catch (error) {
-        this.logger.error(`An error occurred while checking for 401 Unauthorized: ${error.stack}`);
-      }
-
-      return toolkit.next();
-    });
-  }
 
   /**
    * Checks if we have an authorization header.

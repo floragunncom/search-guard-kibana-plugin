@@ -191,8 +191,20 @@ async function handleAuthRequest({
   }
 
   let authConfig;
-  // We may have multiple OIDC configurations
-  const requestedAuthTypeId = request.url.query.authTypeId;
+  const sessionCookie = (await sessionStorageFactory.asScoped(request).get()) || {};
+  // We may have multiple OIDC configurations.
+  // The authTypeId may still be in the cookie. This happens when
+  // a session token expires and no explicit logout is made. We need
+  // this behaviour so that we can "refresh" the credentials from the IdP.
+  // (not to be confused with the OIDC refresh flow)
+
+  const requestedAuthTypeId = request.url.query.authTypeId || sessionCookie.authTypeId;
+  // Delete this again, otherwise the user won't get back to the login page
+  // if trying to access Kibana again
+  delete sessionCookie.authTypeId;
+  delete sessionCookie.authType;
+
+  console.log('---- DO WE STILL HAVGE AUTHTYPEID', request.url.query.authTypeId);
   const authConfigFinder = requestedAuthTypeId
     ? (config) => {
         return config.id === requestedAuthTypeId;
@@ -222,7 +234,6 @@ async function handleAuthRequest({
   }
 
   const nonce = authConfig.sso_context;
-  const sessionCookie = (await sessionStorageFactory.asScoped(request).get()) || {};
   sessionCookie.openId = { nonce, authTypeId: authConfig.id || null, query: {} };
   await sessionStorageFactory.asScoped(request).set(sessionCookie);
 

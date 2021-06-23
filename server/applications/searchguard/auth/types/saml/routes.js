@@ -52,6 +52,7 @@ export function defineRoutes({
       },
     },
     async function (context, request, response) {
+      const sessionCookie = (await sessionStorageFactory.asScoped(request).get()) || {};
       /*
       When successful logout,
         headers: {
@@ -84,8 +85,16 @@ export function defineRoutes({
       }
 
       try {
-        // We may have multiple SAML configurations
-        const requestedAuthTypeId = request.url.query.authTypeId;
+        // We may have multiple SAML configurations.
+        // The authTypeId may still be in the cookie. This happens when
+        // a session token expires and no explicit logout is made. We need
+        // this behaviour so that we can "refresh" the credentials from the IdP.
+        const requestedAuthTypeId = request.url.query.authTypeId || sessionCookie.authTypeId;
+        // Delete this again, otherwise the user won't get back to the login page
+        // if trying to access Kibana again
+        delete sessionCookie.authTypeId;
+        delete sessionCookie.authType;
+
         const authConfigFinder = requestedAuthTypeId
           ? (config) => {
               return config.id === requestedAuthTypeId;
@@ -104,7 +113,6 @@ export function defineRoutes({
           throw new Error('Auth config not found');
         }
 
-        const sessionCookie = (await sessionStorageFactory.asScoped(request).get()) || {};
         // When logging in, sessionCookie={}
         sessionCookie['temp-saml'] = {
           sso_context: authConfig.sso_context,

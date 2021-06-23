@@ -325,31 +325,33 @@ export default class AuthType {
       throw new InvalidSessionError('Invalid cookie');
     }
 
-    // @todo Checking auth headers will probably go away
-    // Check if we have auth header credentials set that are different from the cookie credentials
-    /*
-    const differentAuthHeaderCredentials = this.detectAuthHeaderCredentials(
-      request,
-      sessionCookie.credentials
-    );
-    if (differentAuthHeaderCredentials) {
+    const checkTokenExpirationTime = Date.now();
+    if (
+      !sessionCookie.checkTokenExpirationTime ||
+      checkTokenExpirationTime - sessionCookie.checkTokenExpirationTime > 15000
+    ) {
+      console.log('--- Would check exp for the request', request.url.pathname);
       try {
-        this.debugLog('Authenticated, but found different auth headers. Trying to re-authenticate');
-        const authResponse = await this.handleAuthenticate(request, differentAuthHeaderCredentials);
-        return authResponse.session;
-      } catch (error) {
-        this.debugLog(
-          'Authenticated, but found different auth headers and re-authentication failed. Clearing cookies.'
+        const authHeader = this.getAuthHeader(sessionCookie);
+        const authInfoResponse = await this.searchGuardBackend.authinfo(
+          authHeader || request.headers
         );
-        await this.clear(request); // The validator should handle this for us really
-        throw error;
+        sessionCookie.checkTokenExpirationTime = checkTokenExpirationTime;
+        await this.sessionStorageFactory.asScoped(request).set(sessionCookie);
+        if (authInfoResponse.user_name !== sessionCookie.username) {
+          throw new Error(
+            'We have a different user in the cookie. Most likely because of anonymous auth.'
+          );
+        }
+
+      } catch (error) {
+        console.log('<<<<<<----------------------- Session expired', error, sessionCookie);
+        await this.clear(request);
+        throw new SessionExpiredError('Session expired');
       }
     }
 
-     */
-
-
-
+    // @todo Talk to Nils about this! sg_impersonate_as, and ProxyCache
     //@todo Additional auth headers will most likely go away
     // Make sure we don't have any conflicting auth headers
     if (!this.validateAdditionalAuthHeaders(request, sessionCookie)) {
@@ -358,34 +360,7 @@ export default class AuthType {
       throw new InvalidSessionError('Validation of different auth headers failed');
     }
 
-
-    // @todo Checking TTL/expiry will probably move to the backend
-    // @todo We still need to handle an expired token though
-
-    // If we are still here, we need to compare the expiration time
-    // JWT's .exp is denoted in seconds, not milliseconds.
-    if (sessionCookie.exp && sessionCookie.exp < Math.floor(Date.now() / 1000)) {
-      this.debugLog('Session expired - .exp is in the past. Clearing cookies');
-      await this.clear(request);
-      throw new SessionExpiredError('Session expired');
-    } else if (!sessionCookie.exp && this.sessionTTL) {
-      if (!sessionCookie.expiryTime || sessionCookie.expiryTime < Date.now()) {
-        this.debugLog(
-          'Session expired - the credentials .expiryTime is in the past. Clearing cookies.'
-        );
-        await this.clear(request);
-        throw new SessionExpiredError('Session expired');
-      }
-
-      if (this.sessionKeepAlive) {
-        sessionCookie.expiryTime = Date.now() + this.sessionTTL;
-        // According to the documentation, returning the cookie in the cookie
-        // should be equivalent to calling request.auth.cookie.set(),
-        // but it seems like the cookie's browser lifetime isn't updated.
-        // Hence, we need to set it explicitly.
-        this.sessionStorageFactory.asScoped(request).set(sessionCookie);
-      }
-    }
+    // @todo Talk to Nils - remove all this?
 
     return sessionCookie;
   }
