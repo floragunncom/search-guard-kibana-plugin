@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 floragunn GmbH
+ *    Copyright 2021 floragunn GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 import { API_ROOT } from '../../../utils/constants';
 import { AUTH_TYPE_NAMES } from './AuthManager';
 import { customError as customErrorRoute } from './types/common/routes';
-
 
 export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, configService }) {
   const router = kibanaCore.http.createRouter();
@@ -40,7 +39,7 @@ export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, 
         authRequired: false,
       },
     },
-    listAuthTypesHandler({ authManager, searchGuardBackend, configService })
+    authConfigHandler({ authManager, searchGuardBackend, configService })
   );
 }
 
@@ -50,21 +49,12 @@ export function logoutHandler({ authManager }) {
   };
 }
 
-export function listAuthTypesHandler({ authManager, searchGuardBackend, configService }) {
+export function authConfigHandler({ authManager, searchGuardBackend, configService }) {
   return async function (context, request, response) {
-    // @todo The registered authInstances are most likely not the best source for this.
-    // @todo We may have multiple OIDCs, and also the authtype is probably not the best
-    // title
-    // @todo Use the backend auth config for this
-
     const username = configService.get('elasticsearch.username');
     const password = configService.get('elasticsearch.password');
-    const authConfig = (await searchGuardBackend.getAuthConfig(username, password));
+    const authConfig = await searchGuardBackend.getAuthConfig(username, password);
 
-    //console.log('What the authConfig?', authConfig);
-
-    // @todo Figure out if this is really necessary
-    // @todo Maybe we should refactor our code to support the SG auth type name without any map?
     const backendMethodToFrontendMethod = {
       basic: AUTH_TYPE_NAMES.BASIC,
       oidc: AUTH_TYPE_NAMES.OIDC,
@@ -73,7 +63,6 @@ export function listAuthTypesHandler({ authManager, searchGuardBackend, configSe
       jwt: AUTH_TYPE_NAMES.JWT,
       link: AUTH_TYPE_NAMES.JWT,
     };
-
 
     const authTypes = authConfig.auth_methods
       .filter((config) => authManager.authInstances[backendMethodToFrontendMethod[config.method]])
@@ -108,26 +97,8 @@ export function listAuthTypesHandler({ authManager, searchGuardBackend, configSe
     return response.ok({
       body: {
         authTypes,
-        loginPage: authConfig.login_page
+        loginPage: authConfig.login_page,
       },
     });
   };
 }
-
-/*
-export function defineAuthInfoRoutes({ searchGuardBackend, kibanaCore, logger }) {
-  const router = kibanaCore.http.createRouter();
-
-  router.get(
-    {
-      path: `${API_ROOT}/auth/authinfo`,
-      validate: false,
-      options: {
-        authRequired: true,
-      },
-    },
-    authInfoHandler({ searchGuardBackend, logger })
-  );
-} // end module
-
- */
