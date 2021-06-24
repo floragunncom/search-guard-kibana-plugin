@@ -45,6 +45,8 @@ export default class Jwt extends AuthType {
      * @type {string}
      */
     this.type = AUTH_TYPE_NAMES.JWT;
+
+    this.loginURL = null;
   }
 
   /*

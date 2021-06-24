@@ -153,15 +153,14 @@ export function HTMLTitle({ text, euiTextProps = {}, HTMLTag = 'h1' } = {}) {
   );
 }
 
-export function BasicLogin({ configService, httpClient, isEnabled }) {
+export function BasicLogin({ httpClient, basicLoginConfig, loginPageConfig }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  if (!isEnabled) return null;
+  if (!basicLoginConfig) return null;
 
-  const loginPageConfig = configService.get('searchguard.login');
   const loginButtonStyles = stringCSSToReactStyle(loginPageConfig.buttonstyle);
 
   function redirectToKibana() {
@@ -207,7 +206,7 @@ export function BasicLogin({ configService, httpClient, isEnabled }) {
             <EuiFlexItem>
               <HTMLTitle
                 HTMLTag="p"
-                text={loginPageConfig.subtitle}
+                text={basicLoginConfig.message}
                 euiTextProps={{ 'data-test-subj': 'sg.login.subTitle' }}
               />
             </EuiFlexItem>
@@ -300,7 +299,7 @@ export function authTypesToUiAuthTypes(authTypes, { basePath = '' } = {}) {
     } catch (error) {
       loginURL = new URL(loginURL, 'http://sgurlplaceholder');
     }
-    
+
     let nextURL = currURL.searchParams.get('nextUrl');
     if (nextURL) {
       if (currURL.hash) nextURL += currURL.hash;
@@ -316,8 +315,9 @@ export function authTypesToUiAuthTypes(authTypes, { basePath = '' } = {}) {
 }
 
 export function LoginPage({ httpClient, configService }) {
+  const [loginPageConfig, setLoginPageConfig] = useState({});
   const [authTypes, setAuthTypes] = useState([]);
-  const [isBasicLogin, setIsBasicLogin] = useState(false);
+  const [basicLoginConfig, setBasicLoginConfig] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -326,7 +326,7 @@ export function LoginPage({ httpClient, configService }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loginPageConfig = configService.get('searchguard.login');
+
 
   async function fetchData() {
     setError(null);
@@ -339,12 +339,13 @@ export function LoginPage({ httpClient, configService }) {
     sessionStorage.clear();
 
     try {
-      let { data: authTypes } = await httpClient.get(`${API_ROOT}/auth/types`);
+      const { data } = await httpClient.get(`${API_ROOT}/auth/config`);
+      let authTypes = data.authTypes;
       authTypes = authTypesToUiAuthTypes(authTypes, httpClient.http.basePath.basePath);
       console.debug('LoginPage, fetchData, authTypes', authTypes);
-
+      setLoginPageConfig(data.loginPage);
       setAuthTypes(authTypes);
-      setIsBasicLogin(authTypes.some(({ type }) => type === 'basicauth'));
+      setBasicLoginConfig(authTypes.find(({ type }) => type === 'basicauth'));
     } catch (error) {
       console.error('LoginPage, fetchData', error);
       setError(error.message);
@@ -375,9 +376,10 @@ export function LoginPage({ httpClient, configService }) {
           ) : (
             <EuiFlexGroup gutterSize="m">
               <BasicLogin
-                isEnabled={isBasicLogin}
+                basicLoginConfig={basicLoginConfig}
                 configService={configService}
                 httpClient={httpClient}
+                loginPageConfig={loginPageConfig}
               />
               <AuthTypesMenu authTypes={authTypes} />
             </EuiFlexGroup>

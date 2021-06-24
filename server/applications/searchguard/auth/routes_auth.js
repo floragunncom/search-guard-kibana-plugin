@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { API_ROOT, APP_ROOT } from '../../../utils/constants';
+import { API_ROOT } from '../../../utils/constants';
 import { AUTH_TYPE_NAMES } from './AuthManager';
 import { customError as customErrorRoute } from './types/common/routes';
 
@@ -34,7 +34,7 @@ export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, 
 
   router.get(
     {
-      path: `${API_ROOT}/auth/types`,
+      path: `${API_ROOT}/auth/config`,
       validate: false,
       options: {
         authRequired: false,
@@ -59,7 +59,7 @@ export function listAuthTypesHandler({ authManager, searchGuardBackend, configSe
 
     const username = configService.get('elasticsearch.username');
     const password = configService.get('elasticsearch.password');
-    const authConfig = (await searchGuardBackend.getAuthConfig(username, password)).auth_methods;
+    const authConfig = (await searchGuardBackend.getAuthConfig(username, password));
 
     //console.log('What the authConfig?', authConfig);
 
@@ -75,7 +75,7 @@ export function listAuthTypesHandler({ authManager, searchGuardBackend, configSe
     };
 
 
-    const authTypes = authConfig
+    const authTypes = authConfig.auth_methods
       .filter((config) => authManager.authInstances[backendMethodToFrontendMethod[config.method]])
       .map((config) => {
         const authInstance =
@@ -88,17 +88,28 @@ export function listAuthTypesHandler({ authManager, searchGuardBackend, configSe
             loginURL.searchParams.set('authTypeId', config.id);
             loginURL = loginURL.href.replace(loginURL.origin, '');
           }
+
+          // For example, we don't have a loginURL flow for JWT. Instead,
+          // we can use the sso_location directly
+          if (!authInstance.loginURL && config.sso_location) {
+            loginURL = config.sso_location;
+          }
+
           return {
             id: config.id,
             type: backendMethodToFrontendMethod[config.method],
             title: config.label,
             loginURL,
+            message: config.message,
           };
         }
       });
 
     return response.ok({
-      body: authTypes,
+      body: {
+        authTypes,
+        loginPage: authConfig.login_page
+      },
     });
   };
 }
