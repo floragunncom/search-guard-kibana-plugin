@@ -84,69 +84,7 @@ export function UserPasswordInput({ isInvalid, password, onChange }) {
   );
 }
 
-export function AlternativeLoginButton({ alternativeLoginConfig }) {
-  const alternativeLogin = getAlternativeLogin(alternativeLoginConfig);
-  if (!alternativeLogin) return null;
 
-  const alternativeLoginButtonStyles = stringCSSToReactStyle(alternativeLoginConfig.buttonstyle);
-  const { button_text: alternativeButtonLabel } = alternativeLoginConfig;
-
-  function getAlternativeLogin(alternativeLoginConfig) {
-    // Prepare alternative login for the view
-    let alternativeLogin = null;
-
-    if (alternativeLoginConfig.show_for_parameter) {
-      // Build an object from the query parameters
-      // Strip the first ? from the query parameters, if we have any
-      const queryString = window.location.search.trim().replace(/^(\?)/, '');
-      const queryObject = {};
-      if (queryString) {
-        queryString.split('&').map((parameter) => {
-          const parameterParts = parameter.split('=');
-          if (parameterParts[1]) {
-            queryObject[encodeURIComponent(parameterParts[0])] = parameterParts[1];
-          }
-        });
-      }
-
-      const alternativeLoginURL = queryObject[alternativeLoginConfig.show_for_parameter];
-      let validRedirect = false;
-
-      try {
-        alternativeLoginConfig.valid_redirects.forEach((redirect) => {
-          if (new RegExp(redirect).test(alternativeLoginURL)) {
-            validRedirect = true;
-          }
-        });
-      } catch (error) {
-        console.warn('LoginPage, getAlternativeLogin', error);
-      }
-
-      if (validRedirect) {
-        alternativeLogin = {
-          url: queryObject[alternativeLoginConfig.show_for_parameter],
-        };
-      }
-
-      return alternativeLogin;
-    }
-  }
-
-  return (
-    <EuiErrorBoundary>
-      <EuiButton
-        id="sg.alternative_login"
-        data-test-subj="sg.alternative_login"
-        fill
-        fullWidth={true}
-        href={alternativeLogin.url}
-        style={alternativeLoginButtonStyles}
-      >
-        {alternativeButtonLabel}
-      </EuiButton>
-    </EuiErrorBoundary>
-  );
-}
 
 export function ErrorCallout({ error, euiFlexItemProps = {} } = {}) {
   if (!error) return null;
@@ -225,7 +163,6 @@ export function BasicLogin({ configService, httpClient, isEnabled }) {
 
   const loginPageConfig = configService.get('searchguard.login');
   const loginButtonStyles = stringCSSToReactStyle(loginPageConfig.buttonstyle);
-  const alternativeLoginConfig = configService.get('searchguard.basicauth.alternative_login');
 
   function redirectToKibana() {
     const nextUrl = sanitizeNextUrlFromFullUrl(
@@ -310,7 +247,6 @@ export function BasicLogin({ configService, httpClient, isEnabled }) {
                     Log in
                   </EuiButton>
 
-                  <AlternativeLoginButton alternativeLoginConfig={alternativeLoginConfig} />
                 </EuiForm>
               </form>
             </EuiFlexItem>
