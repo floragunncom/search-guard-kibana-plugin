@@ -100,34 +100,16 @@ export class AuthManager {
   }
 
   async getAuthInstanceByRequest({ request }) {
-    // @todo Allow registering "hooks" here - e.g. JWT's query param
-    // If we find a match, return that authType.
-    // Alternatively, we could just loop through all registered methods and
-    // then use what is already there, keeping in mind that we will
-    // skip creating a cookie for existing request headers.
-
-    // @todo What happens if we already have a cookie for basic auth,
-    // and then we also have a JWT query parameter? We may need to not
-    // only return the authInstance,
-    // but also create/update a cookie
-
-    // @todo Now an existing cookie would take precedence over any auth specific
-    // ways to authenticate. This limits us a bit, but it should make the flow
-    // a bit clearer and less error prone.
-
     const matchedAuthInstance = await this.getAuthInstanceByAuthTypes({ request });
     // matchedAuthInstance will be null if we didn't get a match
     if (matchedAuthInstance) {
       return matchedAuthInstance;
     }
 
-    // @todo Test this with different users. Needs to be tested in conjuction with authType.getCookieWithCredentials()
     const authInstanceByCookie = await this.getAuthInstanceByCookie({ request });
     if (authInstanceByCookie) {
       return authInstanceByCookie;
     }
-
-
 
     return null;
   }
@@ -312,13 +294,6 @@ export class AuthManager {
   }
 
   async logout({ context, request, response }) {
-    // We only check for authInstance by cookie when logging out.
-    // @todo Reason is that if we use the check for authTypes, we
-    // may run into problems because of the preAuth lifecycle handler:
-    // If we have a JWT bearer token attached to the request, OpenId
-    // would detect an authHeader and then we would have OpenId as authInstance.
-    // @todo This may all go away though depending on how the final code
-    // regarding the auth header check works
     const authInstance = await this.getAuthInstanceByCookie({ request });
     if (authInstance) {
       return await authInstance.logout({ context, request, response });

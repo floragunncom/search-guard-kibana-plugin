@@ -63,11 +63,6 @@ export class SearchGuard {
       // Because Kibana doesn't support all the options we need.
       extendSecurityCookieOptions(cookieOptions);
       const authType = configService.get('searchguard.auth.type', null);
-      /* @todo Use the API endpoint to get the config. Probably move this to the auth manager.
-      const username = configService.get('elasticsearch.username');
-      const password = configService.get('elasticsearch.password');
-      const authConfig = await searchGuardBackend.getAuthConfig(username, password);
-       */
 
       let authManager = null;
 

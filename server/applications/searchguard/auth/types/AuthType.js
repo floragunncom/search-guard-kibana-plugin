@@ -50,7 +50,6 @@ export default class AuthType {
     /**
      * If a loginURL is defined, we can skip the auth selector page
      * if the customer only has one auth type enabled.
-     * // @todo This will probably need to change - we may e.g. have multiple OIDC configurations
      * @type {string|null}
      */
     this.loginURL = null;
@@ -247,7 +246,6 @@ export default class AuthType {
 
   async getCookieWithCredentials(request) {
     let sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
-    // @todo Change the order here
 
     const authHeaderCredentials = await this.detectCredentialsByRequest({ request });
     if (authHeaderCredentials) {

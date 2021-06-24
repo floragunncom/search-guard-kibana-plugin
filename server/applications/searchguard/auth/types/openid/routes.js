@@ -21,7 +21,7 @@ import MissingRoleError from '../../errors/missing_role_error';
 import { APP_ROOT } from '../../../../../utils/constants';
 
 export const OIDC_ROUTES = {
-  LOGIN: `${APP_ROOT}/auth/openid/login`, // @todo Update this later - the auth selector page should probably do all the encoding
+  LOGIN: `${APP_ROOT}/auth/openid/login`,
 };
 
 export function defineRoutes({
@@ -37,33 +37,33 @@ export function defineRoutes({
   const router = kibanaCore.http.createRouter();
   const routesPath = '/auth/openid/';
 
-  router.get({
-    path: `${APP_ROOT}${routesPath}login`,
-    validate: {
-      query: schema.object({
-        nextUrl: schema.maybe(schema.string()), // it comes from our login page
-        next_url: schema.maybe(schema.string()), // it comes from the IDP login page
-      }, { unknowns: 'allow' }),
+  router.get(
+    {
+      path: `${APP_ROOT}${routesPath}login`,
+      validate: {
+        query: schema.object(
+          {
+            nextUrl: schema.maybe(schema.string()), // it comes from our login page
+            next_url: schema.maybe(schema.string()), // it comes from the IDP login page
+          },
+          { unknowns: 'allow' }
+        ),
+      },
+      options: {
+        authRequired: false,
+      },
     },
-    options: {
-      authRequired: false,
-    },
-  }, loginHandler({
-    basePath,
-    kibanaCore,
-    config,
-    routesPath,
-    debugLog,
-    authInstance,
-    logger,
-    searchGuardBackend,
-  }));
-
-  /**
-   * The error page.
-   */
-  // @todo Disabling for now, conflicting routes
-  //customErrorRoute({ httpResources });
+    loginHandler({
+      basePath,
+      kibanaCore,
+      config,
+      routesPath,
+      debugLog,
+      authInstance,
+      logger,
+      searchGuardBackend,
+    })
+  );
 } //end module
 
 export function loginHandler({ basePath, config, authInstance, logger, searchGuardBackend }) {

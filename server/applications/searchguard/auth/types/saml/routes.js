@@ -21,7 +21,7 @@ import { schema } from '@kbn/config-schema';
 import { APP_ROOT } from '../../../../../utils/constants';
 
 export const SAML_ROUTES = {
-  LOGIN: `${APP_ROOT}/auth/saml/login`, // @todo Update this later - the auth selector page should probably do all the encoding
+  LOGIN: `${APP_ROOT}/auth/saml/login`,
 };
 
 export function defineRoutes({
@@ -228,17 +228,6 @@ export function defineRoutes({
     },
     async (context, request, response) => {
       try {
-        // @todo Check if this is still needed
-        //const acsEndpoint = `${APP_ROOT}/searchguard/saml/acs/idpinitiated`;
-        /*
-        const credentials = await searchGuardBackend.authtoken(
-          null,
-          request.body.SAMLResponse,
-          acsEndpoint
-        );
-
-         */
-
         await authInstance.handleAuthenticate(request, {
           mode: 'saml',
           saml_response: request.body.SAMLResponse,
