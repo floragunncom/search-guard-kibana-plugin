@@ -36,6 +36,28 @@ export function loginAuthHandler({ config, authInstance, logger, searchGuardBack
     const password = request.body.password;
 
     try {
+      // In order to prevent direct access for certain usernames (e.g. service users like
+      // kibanaserver, logstash etc.) we can add them to basicauth.forbidden_usernames.
+      // If the username in the payload matches an item in the forbidden array, we throw an AuthenticationError
+
+      const basicAuthConfig = config.get('searchguard.basicauth');
+      if (basicAuthConfig.forbidden_usernames && basicAuthConfig.forbidden_usernames.length) {
+        if (basicAuthConfig.forbidden_usernames.indexOf(username) > -1) {
+          throw new AuthenticationError('Invalid username or password');
+        }
+      }
+
+      if (basicAuthConfig.allowed_usernames && Array.isArray(basicAuthConfig.allowed_usernames)) {
+        try {
+          if (basicAuthConfig.allowed_usernames.indexOf(username) === -1) {
+            throw new AuthenticationError('Invalid username or password');
+          }
+        } catch (error) {
+          throw new AuthenticationError('Invalid username or password');
+        }
+      }
+
+
       // We get the authConfig so that we can add a config.id just
       // in case there is an id. This assumes we only have one
       // config for basic auth. If that should change, we should

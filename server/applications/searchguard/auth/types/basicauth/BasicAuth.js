@@ -67,41 +67,6 @@ export default class BasicAuth extends AuthType {
   }
 
 
-  /**
-   * Checks if we have an authorization header.
-   *
-   * Pass the existing session credentials to compare with the authorization header.
-   *
-   * @param request
-   * @param sessionCredentials
-   * @returns {object|null} - credentials for the authentication
-   */
-  detectAuthHeaderCredentials(request, sessionCredentials = null) {
-    if (request.headers[this.authHeaderName]) {
-      const authHeaderValue = request.headers[this.authHeaderName];
-      const headerTrumpsSession = this.config.get('searchguard.basicauth.header_trumps_session');
-
-      // If we have sessionCredentials AND auth headers we need to check if they are the same.
-      if (sessionCredentials !== null && sessionCredentials.authHeaderValue === authHeaderValue) {
-        // The auth header credentials are the same as those in the session,
-        // no need to return new credentials so we're just nulling the token here
-        return null;
-      }
-
-      // We may have an auth header for a different user than the user saved in the session.
-      // To avoid confusion, we do NOT override the cookie user, unless explicitly configured to do so.
-      if (sessionCredentials !== null && !headerTrumpsSession) {
-        return null;
-      }
-
-      return {
-        authHeaderValue: authHeaderValue,
-      };
-    }
-
-    return null;
-  }
-
   getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false) {
     let url = new URL(request.url.href, 'http://abc');
     const appRoot = path.posix.join(this.basePath, APP_ROOT);

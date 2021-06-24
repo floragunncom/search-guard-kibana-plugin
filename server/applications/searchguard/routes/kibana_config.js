@@ -29,8 +29,11 @@ export function handleKibanaConfig({ config, logger }) {
         // @todo For multiple auth types, this would be authManager instead of authInstance
         // @todo Maybe switch to another method that only checks for a cookie?
         // @todo Or uses the getAuthInstanceBy* methods
-        kibanaConfig.uiHelpers.hasAuthCookie =
-          (await context.searchGuard.authManager.getAuthHeader(request)) === false ? false : true;
+        if (context.searchGuard.authManager) {
+          kibanaConfig.uiHelpers.hasAuthCookie =
+            (await context.searchGuard.authManager.getAuthHeader(request)) === false ? false : true;
+        }
+
 
         config.searchguard.multitenancy = config.searchguard.multitenancy || {};
         kibanaConfig.searchguard.multitenancy = {

@@ -19,7 +19,6 @@ import InvalidSessionError from '../errors/invalid_session_error';
 import SessionExpiredError from '../errors/session_expired_error';
 import filterAuthHeaders from '../filter_auth_headers';
 import MissingTenantError from '../errors/missing_tenant_error';
-import MissingRoleError from '../errors/missing_role_error';
 import path from 'path';
 
 export default class AuthType {
@@ -249,7 +248,18 @@ export default class AuthType {
   async getCookieWithCredentials(request) {
     let sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
     // @todo Change the order here
-    if (sessionCookie.credentials) {
+
+    const authHeaderCredentials = await this.detectCredentialsByRequest({ request });
+    if (authHeaderCredentials) {
+      try {
+        this.debugLog('Got auth header credentials, trying to authenticate');
+        const { session } = await this.handleAuthenticate(request, authHeaderCredentials);
+        sessionCookie = session;
+      } catch (error) {
+        this.logger.error(`Got auth header credentials, but authentication failed: ${error.stack}`);
+        throw error;
+      }
+    } else if (sessionCookie.credentials) {
       try {
         sessionCookie = await this.validateSessionCookie(request, sessionCookie);
       } catch (error) {
@@ -261,26 +271,6 @@ export default class AuthType {
       }
     } else {
       // No (valid) cookie, we need to check for headers
-
-      //@todo Clean this up. Not needed anymore at this point (session based auth)
-      // @todo If we DO need to use it, e.g. for JWT, then watch out with
-      // kibana_config - the place where we set hasAuthCookie.
-      // hasAuthCookie should only be true if we have cookie credentials
-      const authHeaderCredentials = await this.detectCredentialsByRequest({ request });
-      if (authHeaderCredentials) {
-        try {
-          this.debugLog('Got auth header credentials, trying to authenticate');
-          this.debugLog({ authHeaderCredentials });
-          const { session } = await this.handleAuthenticate(request, authHeaderCredentials);
-          sessionCookie = session;
-        } catch (error) {
-          this.logger.error(
-            `Got auth header credentials, but authentication failed: ${error.stack}`
-          );
-          throw error;
-        }
-      }
-
     }
 
     return sessionCookie;
@@ -343,7 +333,6 @@ export default class AuthType {
             'We have a different user in the cookie. Most likely because of anonymous auth.'
           );
         }
-
       } catch (error) {
         console.log('<<<<<<----------------------- Session expired', error, sessionCookie);
         await this.clear(request);
@@ -520,15 +509,8 @@ export default class AuthType {
       }
     }
 
-    // Validate that the user has at least one valid role
-    const userHasARole = Array.isArray(authResponse.user.roles) && !!authResponse.user.roles.length;
-    if (!userHasARole) {
-      throw new MissingRoleError(
-        'No roles available for this user, please contact your system administrator.'
-      );
-    }
-
     // If we used any additional auth headers when authenticating, we need to store them in the session
+    // @todo Remove this?????
     authResponse.session.additionalAuthHeaders = null;
     if (Object.keys(additionalAuthHeaders).length) {
       authResponse.session.additionalAuthHeaders = additionalAuthHeaders;
@@ -537,7 +519,7 @@ export default class AuthType {
     const cookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
     authResponse.session = { ...cookie, ...authResponse.session };
 
-    this.sessionStorageFactory.asScoped(request).set(authResponse.session);
+    await this.sessionStorageFactory.asScoped(request).set(authResponse.session);
 
     return authResponse;
   }

@@ -71,7 +71,9 @@ export function listAuthTypesHandler({ authManager, searchGuardBackend, configSe
       openid: AUTH_TYPE_NAMES.OIDC,
       saml: AUTH_TYPE_NAMES.SAML,
       jwt: AUTH_TYPE_NAMES.JWT,
+      link: AUTH_TYPE_NAMES.JWT,
     };
+
 
     const authTypes = authConfig
       .filter((config) => authManager.authInstances[backendMethodToFrontendMethod[config.method]])

@@ -45,20 +45,20 @@ export default class Jwt extends AuthType {
      * @type {string}
      */
     this.type = AUTH_TYPE_NAMES.JWT;
-
-    try {
-      this.authHeaderName = this.config.get('searchguard.jwt.header').toLowerCase();
-    } catch (error) {
-      this.logger.warn('No authorization header name defined for JWT, using "authorization"');
-      this.authHeaderName = 'authorization';
-    }
   }
 
+  /*
   debugLog(message, label = AUTH_TYPE_NAMES.JWT) {
     super.debugLog(message, label);
   }
 
-  async detectCredentialsByRequest({ request }) {
+   */
+
+  detectCredentialsByRequest({ request }) {
+    if (!this.config.get('searchguard.jwt.enabled')) {
+      return null;
+    }
+
     const urlparamname = this.config.get('searchguard.jwt.url_param').toLowerCase();
 
     // Go through all given query parameters and make them lowercase
@@ -72,121 +72,17 @@ export default class Jwt extends AuthType {
 
     const jwtAuthParam = lowerCaseQueryParameters[urlparamname] || null;
 
-    this.debugLog('JWT from url parameter: ' + jwtAuthParam);
-
-    // @todo Maybe compare with an existing cookie here?
     if (jwtAuthParam) {
-      return {
-        authHeaderValue: 'Bearer ' + jwtAuthParam,
+      const credentials = {
+        method: 'jwt',
+        jwt: jwtAuthParam,
       };
+
+      this.debugLog('JWT from url parameter: ' + jwtAuthParam);
+      return credentials;
     }
 
     return null;
-  }
-
-  /**
-   * Detect authorization header value, either as an http header or as a query parameter
-   * @param request
-   * @param sessionCredentials
-   * @returns {*}
-   */
-  async detectAuthHeaderCredentials(request, sessionCredentials = null) {
-    let authHeaderValue = null;
-    /*
-    const urlparamname = this.config.get('searchguard.jwt.url_param').toLowerCase();
-
-    // Go through all given query parameters and make them lowercase
-    // to avoid confusion when using uppercase or perhaps mixed caps
-    const lowerCaseQueryParameters = {};
-    if (request.url.query) {
-      Object.keys(request.url.query).forEach((query) => {
-        lowerCaseQueryParameters[query.toLowerCase()] = request.url.query[query];
-      });
-    }
-
-     */
-
-    // @todo Cealn up again
-    const jwtAuthParam = null; // await this.detectCredentialsByRequest({request});
-
-    this.debugLog('JWT from url parameter: ' + jwtAuthParam);
-
-    // The token may be passed via a query parameter
-    if (jwtAuthParam != null) {
-      authHeaderValue = 'Bearer ' + jwtAuthParam;
-    } else if (request.headers[this.authHeaderName]) {
-      try {
-        authHeaderValue = request.headers[this.authHeaderName];
-        this.debugLog('JWT from request header: ' + authHeaderValue);
-      } catch (error) {
-        this.logger.error(
-          'Something went wrong when getting the JWT bearer from the header',
-          request.headers
-        );
-      }
-    }
-
-    // If we have sessionCredentials AND auth headers we need to check if they are the same.
-    if (
-      authHeaderValue !== null &&
-      sessionCredentials !== null &&
-      sessionCredentials.authHeaderValue === authHeaderValue
-    ) {
-      // The auth header credentials are the same as those in the session,
-      // no need to return new credentials so we're just nulling the token here
-      return null;
-    }
-
-    if (authHeaderValue !== null) {
-      return {
-        authHeaderValue: authHeaderValue,
-      };
-    }
-
-    return authHeaderValue;
-  }
-
-  async authenticate(credentials, options, additionalAuthHeaders = {}) {
-    // A "login" can happen when we have a token (as header or as URL parameter but no session,
-    // or when we have an existing session, but the passed token does not match what's in the session.
-    try {
-      this.debugLog('Authenticating using ' + credentials.authHeaderValue);
-      const user = await this.searchGuardBackend.authenticateWithHeader(
-        this.authHeaderName,
-        credentials.authHeaderValue,
-        additionalAuthHeaders
-      );
-      let tokenPayload = {};
-      try {
-        tokenPayload = JSON.parse(
-          Buffer.from(credentials.authHeaderValue.split('.')[1], 'base64').toString()
-        );
-      } catch (error) {
-        // Something went wrong while parsing the payload, but the user was authenticated correctly.
-      }
-
-      const session = {
-        username: user.username,
-        credentials: credentials,
-        authType: this.type,
-      };
-
-      if (tokenPayload.exp) {
-        // The token's exp value trumps the config setting
-        this.sessionKeepAlive = false;
-        session.exp = parseInt(tokenPayload.exp, 10);
-        this.debugLog('Setting token .exp: ' + session.exp);
-      } else if (this.sessionTTL) {
-        session.expiryTime = Date.now() + this.sessionTTL;
-      }
-
-      return {
-        session,
-        user,
-      };
-    } catch (error) {
-      throw error;
-    }
   }
 
   getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false) {
@@ -229,14 +125,6 @@ export default class Jwt extends AuthType {
     }
 
     return url.pathname + url.search + url.hash;
-  }
-
-  onUnAuthenticated(request, response, toolkit, error = null) {
-    const redirectTo = this.getRedirectTargetForUnauthenticated(request, error);
-
-    return response.redirected({
-      headers: { location: redirectTo },
-    });
   }
 
   setupRoutes() {

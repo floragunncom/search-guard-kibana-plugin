@@ -71,6 +71,7 @@ export class AuthManager {
       require('./types/jwt/Jwt'),
       require('./types/saml/Saml'),
     ].forEach((AuthClass) => {
+      // @todo This needs to respect the order as given by the backend
       const authInstance = new AuthClass({
         kibanaCore: this.kibanaCore,
         sessionStorageFactory: this.sessionStorageFactory,
@@ -114,22 +115,26 @@ export class AuthManager {
     // ways to authenticate. This limits us a bit, but it should make the flow
     // a bit clearer and less error prone.
 
-    // @todo Test this with different users. Needs to be tested in conjuction with authType.getCookieWithCredentials()
-    const authInstanceByCookie = await this.getAuthInstanceByCookie({ request });
-    if (authInstanceByCookie) {
-      return authInstanceByCookie;
-    }
-
     const matchedAuthInstance = await this.getAuthInstanceByAuthTypes({ request });
     // matchedAuthInstance will be null if we didn't get a match
     if (matchedAuthInstance) {
       return matchedAuthInstance;
     }
 
+    // @todo Test this with different users. Needs to be tested in conjuction with authType.getCookieWithCredentials()
+    const authInstanceByCookie = await this.getAuthInstanceByCookie({ request });
+    if (authInstanceByCookie) {
+      return authInstanceByCookie;
+    }
+
+
+
     return null;
   }
 
   async getAuthInstanceByAuthTypes({ request }) {
+    // @todo This needs to be changed to respect the order as returned by
+    // the backend's auth/config response
     for (const authType in this.authInstances) {
       const authInstance = this.getAuthInstanceByName(authType);
       const authInstanceResult = await authInstance.detectCredentialsByRequest({ request });
@@ -151,33 +156,34 @@ export class AuthManager {
     return null;
   }
 
-  checkAuth = async (request, response, toolkit) => {
-    // @todo Here's where we will check for existing auth headers
-    // and skip the rest if we have something.
-    // Skip auth if we have an authorization header
-    const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+  /**
+   * This needs to be the very first onPreAuth handler that
+   * we register for the plugin
+   * @param request
+   * @param response
+   * @param toolkit
+   * @returns {Promise<*>}
+   */
+  onPreAuth = async (request, response, toolkit) => {
+
     if (request.headers.authorization) {
+      const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
       const authInstance = await this.getAuthInstanceByCookie({ request });
-      if (sessionCookie && authInstance) {
+      if (sessionCookie.credentials && authInstance) {
         // In case we already had a session BEFORE we encountered a request
         // with auth headers, we may need to clear the cookie.
-        // This is a bit tricky since we do add an authorization header in the pre auth lifecycle handlers,
-        // in which case the cookie should stay.
-        // Hence, we compare what we have in the cookie with what's in the header.
-        // If the values are different, we need to clear the cookie
-        // @todo This can probably be simplified by just comparing the session token with the header
-        // ...or we leave it like this as a good hook
-        const differentAuthHeaderCredentials = authInstance.detectAuthHeaderCredentials(
-          request,
-          sessionCookie.credentials
-        );
-
-        if (differentAuthHeaderCredentials) {
-          // Make sure to clear any auth related cookie info if we detect a different header
-          await authInstance.clear(request, true);
-        }
+        // Make sure to clear any auth related cookie info if we detect a different header
+        await authInstance.clear(request, true);
       }
+    }
+    return toolkit.next();
+  }
 
+  checkAuth = async (request, response, toolkit) => {
+
+    const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+
+    if (request.headers.authorization) {
       return toolkit.authenticated({
         requestHeaders: request.headers,
       });
@@ -197,16 +203,14 @@ export class AuthManager {
       });
     }
 
-    // Detect authType. Keep in mind that we don't want to create a cookie based on headers only anymore.
-    // @todo ProxyCache being the exception? Shouldn't matter at this place though
     const authInstanceByRequest = await this.getAuthInstanceByRequest({ request });
     if (authInstanceByRequest) {
       return authInstanceByRequest.checkAuth(request, response, toolkit);
     }
 
-    // @todo Does it make sense to only allow this if the cookie is/isn't empty?
-    // Problem is AJAX requests right, so how to handle that?
-
+    // @todo This way of handling anonymous auth unfortunately
+    // doesn't provide a good way of showing an error message
+    // if the SG backend hasn't been configured properly
     if (
       !sessionCookie.authType &&
       this.configService.get('searchguard.auth.anonymous_auth_enabled')
@@ -246,8 +250,8 @@ export class AuthManager {
   // @todo Not needed for 7.10?
   onPostAuth = async (request, response, toolkit) => {
     if (request.route.path === '/api/core/capabilities') {
-      const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
-      if (sessionCookie.isAnonymousAuth) return toolkit.next();
+      //const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+      //if (sessionCookie.isAnonymousAuth) return toolkit.next();
 
       const authHeaders = await this.getAllAuthHeaders(request);
       if (authHeaders === false) {
@@ -296,6 +300,9 @@ export class AuthManager {
   }
 
   async getAllAuthHeaders(request) {
+    if (request.headers.authorization) {
+      return false;
+    }
     const authInstance = await this.getAuthInstanceByRequest({ request });
     if (authInstance) {
       return authInstance.getAllAuthHeaders(request);

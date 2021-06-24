@@ -15,49 +15,8 @@
  limitations under the License.
  */
 
-import { customError as customErrorRoute } from '../common/routes';
-import { APP_ROOT, API_ROOT } from '../../../../../utils/constants';
+
 
 module.exports = function ({ authInstance, kibanaCore }) {
-  const httpResources = kibanaCore.http.resources;
-  const router = kibanaCore.http.createRouter();
 
-  router.get(
-    {
-      // @todo Do we need a route for this?
-      path: `${APP_ROOT}/loginTEMPJWT`,
-      validate: false,
-      options: {
-        authRequired: false,
-      },
-    },
-    async (context, request, response) => {
-      return response.redirected({
-        headers: { location: `${APP_ROOT}/customerror` },
-      });
-    }
-  );
-
-  /**
-   * The error page.
-   */
-  // @todo Disabling for now, conflicting routes
-  //customErrorRoute({ httpResources });
-
-  // @todo Remove this, redundant now. Handled by the authManager and authInstance
-  router.post(
-    {
-      path: `${API_ROOT}/auth/logoutJWTTEMP`,
-      validate: false,
-      options: {
-        authRequired: false,
-      },
-    },
-    async (context, request, response) => {
-      await authInstance.clear(request);
-      return response.ok({
-        body: {},
-      });
-    }
-  );
 }; //end module
