@@ -27,8 +27,6 @@ import {
   EuiImage,
   EuiButton,
   EuiPanel,
-  EuiCard,
-  EuiIcon,
   EuiFlexGroup,
   EuiFlexItem,
   EuiErrorBoundary,
@@ -111,23 +109,21 @@ export function AuthTypesMenu({ authTypes = [] }) {
   if (!_authTypes.length) return null;
 
   return (
-    <EuiFlexItem style={{ minWidth: 350, maxWidth: 350 }}>
+    <EuiFlexItem>
       <EuiErrorBoundary>
-        <EuiFlexGroup direction="column" gutterSize="m" data-test-sub="sg.login.authMenu">
+        <EuiFlexGroup direction="column" gutterSize="s" responsive={false} wrap data-test-sub="sg.login.authMenu">
           {_authTypes.map((auth, index) => {
             return (
-              <EuiFlexItem key={index}>
+              <EuiFlexItem key={index} grow={false}>
                 <EuiErrorBoundary>
-                  <EuiCard
+                  <EuiButton
+                    fill
                     key={index}
                     data-test-subj={`sg.login.authMenu.item.openid`}
-                    layout="horizontal"
-                    paddingSize="s"
-                    icon={<EuiIcon size="xl" type="empty" />}
-                    title={auth.title}
-                    description=""
                     href={auth.loginURL}
-                  />
+                  >
+                    {auth.title}
+                  </EuiButton>
                 </EuiErrorBoundary>
               </EuiFlexItem>
             );
@@ -351,8 +347,7 @@ export function LoginPage({ httpClient, configService }) {
   }
 
   return (
-    <div style={{ padding: 100 }}>
-      <EuiFlexGroup direction="column" justifyContent="center" alignItems="center">
+      <EuiFlexGroup direction="column" justifyContent="center" alignItems="center" style={{ padding: 10 }}>
         <EuiFlexItem>
           <BrandImage configService={configService} httpClient={httpClient} />
         </EuiFlexItem>
@@ -384,6 +379,5 @@ export function LoginPage({ httpClient, configService }) {
           )}
         </EuiFlexItem>
       </EuiFlexGroup>
-    </div>
   );
 }
