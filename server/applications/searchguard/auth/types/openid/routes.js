@@ -141,17 +141,11 @@ export function loginHandler({ basePath, config, authInstance, logger, searchGua
       await authInstance.handleAuthenticate(request, credentials);
 
       let redirectTo = '/';
-<<<<<<< Upstream, based on origin/master
-
-      if (cookieOpenId.query && cookieOpenId.query.nextUrl) {
-        redirectTo = sanitizeNextUrl(decodeURIComponent(cookieOpenId.query.nextUrl), basePath);
-=======
       if (request.url.searchParams.get(next_url)) {
         redirectTo = sanitizeNextUrl(decodeURIComponent(request.url.searchParams.get('next_url')), basePath);
->>>>>>> 326c941 Convert auth to support the new session-based auth from BE. Introduce support for multiple auth on the login page.
       }
 
-      // All good, redirect
+      // All good, redirect to home
       return response.redirected({
         headers: {
           location: redirectTo,
@@ -197,30 +191,6 @@ async function handleAuthRequest({
   sessionStorageFactory,
   logger,
 }) {
-<<<<<<< Upstream, based on origin/master
-  // Build the query parameters that will be sent to the IdP
-  const query = {
-    client_id: clientId,
-    response_type: 'code',
-    redirect_uri: redirectUri,
-    state: nonce,
-    scope: scope.join(' '),
-  };
-
-  const sessionCookie = (await sessionStorageFactory.asScoped(request).get()) || {};
-
-  sessionCookie.openId = { nonce, query: {} };
-  for (const [key, value] of request.url.searchParams.entries()) {
-    sessionCookie.openId.query[key] = value;
-  }
-
-  await sessionStorageFactory.asScoped(request).set(sessionCookie);
-
-  const idpAuthLocation = new URL(openIdEndPoints.authorization_endpoint);
-  for (const [key, value] of Object.entries(query)) {
-    idpAuthLocation.searchParams.set(key, value);
-  }
-=======
   // Add the nextUrl to the redirect_uri as a parameter. The IDP uses the redirect_uri to redirect the user after successful authentication.
   // For example, it is used to redirect user to the correct dashboard if the user put shared URL in the browser address input before authentication.
   // To make this work, append the wildcard (*) to the valid redirect URI in the IDP configuration, for example
@@ -282,7 +252,6 @@ async function handleAuthRequest({
   const nonce = authConfig.sso_context;
   sessionCookie.openId = { nonce, authTypeId: authConfig.id || null, query: {} };
   await sessionStorageFactory.asScoped(request).set(sessionCookie);
->>>>>>> 326c941 Convert auth to support the new session-based auth from BE. Introduce support for multiple auth on the login page.
 
   return response.redirected({
     headers: {
