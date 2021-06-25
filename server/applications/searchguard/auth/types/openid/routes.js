@@ -141,7 +141,7 @@ export function loginHandler({ basePath, config, authInstance, logger, searchGua
       await authInstance.handleAuthenticate(request, credentials);
 
       let redirectTo = '/';
-      if (request.url.searchParams.get(next_url)) {
+      if (request.url.searchParams.get('next_url')) {
         redirectTo = sanitizeNextUrl(decodeURIComponent(request.url.searchParams.get('next_url')), basePath);
       }
 
