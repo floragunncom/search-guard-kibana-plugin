@@ -57,7 +57,7 @@ export default class OpenId extends AuthType {
   // @todo Do we even need most of this stuff anymore? We either redirect
   // to the login page for normal requests, and then to the IdP if the session
   // has expired
-  getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false, sessionCookie = {}) {
+  async getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false, sessionCookie = {}) {
     const url = new URL(request.url.href, 'http://abc');
     url.pathname = path.posix.join(this.basePath, '/customerror');
 

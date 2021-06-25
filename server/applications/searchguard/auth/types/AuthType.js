@@ -138,7 +138,7 @@ export default class AuthType {
     return null;
   }
 
-  getRedirectTargetForUnauthenticated() {
+  async getRedirectTargetForUnauthenticated() {
     throw new Error(
       'The getRedirectTargetForUnauthenticated method must be implemented by the sub class'
     );
@@ -176,8 +176,8 @@ export default class AuthType {
     }
   }
 
-  onUnAuthenticated(request, response, toolkit, error = null) {
-    const redirectTo = this.getRedirectTargetForUnauthenticated(request, error);
+  async onUnAuthenticated(request, response, toolkit, error = null) {
+    const redirectTo = await this.getRedirectTargetForUnauthenticated(request, error);
 
     return response.redirected({
       headers: {
@@ -230,7 +230,7 @@ export default class AuthType {
 
         return response.unauthorized({
           headers: {
-            sg_redirectTo: this.getRedirectTargetForUnauthenticated(
+            sg_redirectTo: await this.getRedirectTargetForUnauthenticated(
               request,
               error,
               true,
@@ -318,7 +318,7 @@ export default class AuthType {
       !sessionCookie.checkTokenExpirationTime ||
       checkTokenExpirationTime - sessionCookie.checkTokenExpirationTime > 15000
     ) {
-      console.log('--- Would check exp for the request', request.url.pathname);
+
       try {
         const authHeader = this.getAuthHeader(sessionCookie);
         const authInfoResponse = await this.searchGuardBackend.authinfo(
@@ -332,63 +332,14 @@ export default class AuthType {
           );
         }
       } catch (error) {
-        console.log('<<<<<<----------------------- Session expired', error, sessionCookie);
         await this.clear(request);
         throw new SessionExpiredError('Session expired');
       }
     }
 
-    // @todo Talk to Nils about this! sg_impersonate_as, and ProxyCache
-    //@todo Additional auth headers will most likely go away
-    // Make sure we don't have any conflicting auth headers
-    if (!this.validateAdditionalAuthHeaders(request, sessionCookie)) {
-      this.debugLog('Validation of different auth headers failed. Clearing cookies.');
-      await this.clear(request);
-      throw new InvalidSessionError('Validation of different auth headers failed');
-    }
-
-    // @todo Talk to Nils - remove all this?
-
     return sessionCookie;
   }
 
-  /**
-   * Validates
-   * @param request
-   * @param session
-   * @returns {boolean}
-   */
-  validateAdditionalAuthHeaders(request, session) {
-    // Check if the request has any of the headers that can be used on authentication
-    const authHeadersInRequest = filterAuthHeaders(
-      request.headers,
-      this.allowedAdditionalAuthHeaders
-    );
-
-    if (Object.keys(authHeadersInRequest).length === 0) {
-      return true;
-    }
-
-    // If we have applicable headers in the request, but not in the session, the validation fails
-    if (!session.additionalAuthHeaders) {
-      this.debugLog(
-        'Additional auth header validation failed - headers found are not in the session.'
-      );
-      return false;
-    }
-
-    // If the request has a conflicting auth header we log out the user
-    for (const header in session.additionalAuthHeaders) {
-      if (session.additionalAuthHeaders[header] !== authHeadersInRequest[header]) {
-        this.debugLog(
-          'Validation of different auth headers failed due to conflicting header values'
-        );
-        return false;
-      }
-    }
-
-    return true;
-  }
 
   /**
    * Get all auth headers based on the current request.
@@ -421,6 +372,8 @@ export default class AuthType {
   }
 
   /**
+   * @deprecated
+   *
    * Method for adding additional auth type specific authentication headers.
    * Override this in the auth type for type specific headers.
    *
@@ -472,7 +425,7 @@ export default class AuthType {
       return this._handleAuthResponse(request, credentials, authResponse, additionalAuthHeaders);
     } catch (error) {
       // Make sure we clear any existing cookies if something went wrong
-      this.clear(request);
+      this.clear(request, true);
       throw error;
     }
   }
@@ -508,11 +461,13 @@ export default class AuthType {
     }
 
     // If we used any additional auth headers when authenticating, we need to store them in the session
-    // @todo Remove this?????
+    /* @todo Was used with sg_impersonate_as
     authResponse.session.additionalAuthHeaders = null;
     if (Object.keys(additionalAuthHeaders).length) {
       authResponse.session.additionalAuthHeaders = additionalAuthHeaders;
     }
+
+     */
 
     const cookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
     authResponse.session = { ...cookie, ...authResponse.session };
@@ -527,6 +482,7 @@ export default class AuthType {
     return response.ok({
       body: {
         authType: this.type,
+        // @todo Use the kibana_url from the config?
         redirectURL: this.basePath + '/login?type=' + this.type + 'Logout',
       },
     });

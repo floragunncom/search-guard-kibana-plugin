@@ -59,10 +59,6 @@ export default class SearchGuardBackend {
   };
 
   async authenticateWithSession(credentials) {
-    // Clean up the id if it is set, but falsey
-    if (typeof credentials !== 'undefined' && !credentials) {
-      delete credentials.id;
-    }
     try {
       const response = await this._client({
         path: '/_searchguard/auth/session',
@@ -83,7 +79,8 @@ export default class SearchGuardBackend {
     try {
       return await this._client({
         path: '/_searchguard/auth/session',
-        method: 'DELETE',
+        method:
+          'DELETE',
         headers,
       });
     } catch (error) {

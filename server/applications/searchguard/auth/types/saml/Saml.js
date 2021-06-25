@@ -56,7 +56,7 @@ export default class Saml extends AuthType {
 
   }
 
-  getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false) {
+  async getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false) {
     const url = new URL(request.url.href, 'http://abc');
     url.pathname = path.posix.join(this.basePath, '/customerror');
 

@@ -56,7 +56,7 @@ export default class Jwt extends AuthType {
 
    */
 
-  detectCredentialsByRequest({ request }) {
+  async detectCredentialsByRequest({ request }) {
     if (!this.config.get('searchguard.jwt.enabled')) {
       return null;
     }
@@ -87,7 +87,7 @@ export default class Jwt extends AuthType {
     return null;
   }
 
-  getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false) {
+  async getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false) {
     let url = new URL(request.url.href, 'http://abc');
     url.pathname = path.posix.join(this.basePath, '/customerror');
 
@@ -96,14 +96,26 @@ export default class Jwt extends AuthType {
       url.searchParams.set('type', 'missingTenant');
     } else if (error instanceof MissingRoleError) {
       url.searchParams.set('type', 'missingRole');
-    } else if (error instanceof SessionExpiredError) {
-      url.searchParams.set('type', 'sessionExpired');
     } else {
+      const authConfig = (
+        await this.searchGuardBackend.getAuthConfig(
+          this.config.get('elasticsearch.username'),
+          this.config.get('elasticsearch.password')
+        )
+      ).auth_methods.find((config) => config.method === 'link');
+
       // The customer may use a login endpoint, to which we can redirect
       // if the user isn't authenticated.
-      const loginEndpoint = this.config.get('searchguard.jwt.login_endpoint');
+      const loginEndpoint = authConfig ? authConfig.sso_location : null;
       if (loginEndpoint) {
         try {
+          const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+          // Delete this again, otherwise the user won't get back to the login page
+          // if trying to access Kibana again
+          delete sessionCookie.authTypeId;
+          delete sessionCookie.authType;
+          await this.sessionStorageFactory.asScoped(request).set(sessionCookie);
+
           // Parse the login endpoint so that we can append our nextUrl
           // if the customer has defined query parameters in the endpoint
           url = new URL(loginEndpoint);

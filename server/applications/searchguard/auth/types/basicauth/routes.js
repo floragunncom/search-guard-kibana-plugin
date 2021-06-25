@@ -57,19 +57,10 @@ export function loginAuthHandler({ config, authInstance, logger, searchGuardBack
         }
       }
 
-
-      // We get the authConfig so that we can add a config.id just
-      // in case there is an id. This assumes we only have one
-      // config for basic auth. If that should change, we should
-      // update the LoginPage.js to pass the corresponding id.
-      const authConfig = (
-        await searchGuardBackend.getAuthConfig(username, password)
-      ).auth_methods.find((config) => config.method === authMethodName);
       const credentials = {
         mode: authMethodName,
         user: username,
         password: password,
-        id: authConfig.id,
       };
 
       const { user } = await authInstance.handleAuthenticate(request, credentials);

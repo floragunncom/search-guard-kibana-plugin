@@ -12,15 +12,14 @@ export class LoginApp {
     return async (params) => {
       const [{ renderApp }] = await Promise.all([import('./npstart'), configService.fetchConfig()]);
 
-      //const authType = configService.get('searchguard.auth.type');
-      // @todo Remove basicauth condition. Proxy + Kerberos?
-      //if (authType === 'basicauth') {
-      return renderApp({
-        element: params.element,
-        config: configService,
-        httpClient,
-      });
-      //}
+      const authType = configService.get('searchguard.auth.type');
+      if (authType !== 'kerberos' && authType !== 'proxy') {
+        return renderApp({
+          element: params.element,
+          config: configService,
+          httpClient,
+        });
+      }
     };
   }
 

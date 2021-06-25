@@ -63,13 +63,11 @@ export default class BasicAuth extends AuthType {
      * @type {boolean}
      */
     this.anonymousAuthEnabled = this.config.get('searchguard.auth.anonymous_auth_enabled');
-
   }
 
-
-  getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false) {
-    let url = new URL(request.url.href, 'http://abc');
-    const appRoot = path.posix.join(this.basePath, APP_ROOT);
+  async getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false) {
+    const url = new URL(request.url.href, 'http://abc');
+    let appRoot = path.posix.join(this.basePath, APP_ROOT);
 
     if (!isAJAX) {
       url.searchParams.set('nextUrl', this.getNextUrl(request));
@@ -80,9 +78,22 @@ export default class BasicAuth extends AuthType {
     if (error && error instanceof MissingRoleError) {
       url.searchParams.set('type', 'missingRole');
       url.pathname = path.posix.join(appRoot, '/customerror');
-    } else if (this.loadBalancerURL) {
-      url = new URL(path.posix.join(appRoot, '/login'), this.loadBalancerURL);
+    } else if (0 && this.loadBalancerURL) {
+      //url = new URL(path.posix.join(appRoot, '/login'), this.loadBalancerURL);
     } else {
+      try {
+        const authConfig = await this.searchGuardBackend.getAuthConfig(
+          this.config.get('elasticsearch.username'),
+          this.config.get('elasticsearch.password')
+        );
+
+        if (authConfig && authConfig.frontend_base_url) {
+          appRoot = authConfig.frontend_base_url;
+        }
+      } catch (error) {
+        // Ignore
+      }
+
       url.pathname = path.posix.join(appRoot, '/login');
     }
 

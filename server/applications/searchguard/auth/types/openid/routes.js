@@ -37,22 +37,39 @@ export function defineRoutes({
   const router = kibanaCore.http.createRouter();
   const routesPath = '/auth/openid/';
 
-  router.get(
-    {
-      path: `${APP_ROOT}${routesPath}login`,
-      validate: {
-        query: schema.object(
-          {
-            nextUrl: schema.maybe(schema.string()), // it comes from our login page
-            next_url: schema.maybe(schema.string()), // it comes from the IDP login page
-          },
-          { unknowns: 'allow' }
-        ),
-      },
-      options: {
-        authRequired: false,
-      },
+  const loginSettings = {
+    path: `${APP_ROOT}${routesPath}login`,
+    validate: {
+      query: schema.object(
+        {
+          nextUrl: schema.maybe(schema.string()), // it comes from our login page
+          next_url: schema.maybe(schema.string()), // it comes from the IDP login page
+        },
+        { unknowns: 'allow' }
+      ),
     },
+    options: {
+      authRequired: false,
+    },
+  };
+
+  router.get(
+    loginSettings,
+    loginHandler({
+      basePath,
+      kibanaCore,
+      config,
+      routesPath,
+      debugLog,
+      authInstance,
+      logger,
+      searchGuardBackend,
+    })
+  );
+
+  // Keep a POST route in case the IdP uses POSTs
+  router.post(
+    loginSettings,
     loginHandler({
       basePath,
       kibanaCore,
@@ -204,7 +221,6 @@ async function handleAuthRequest({
   delete sessionCookie.authTypeId;
   delete sessionCookie.authType;
 
-  console.log('---- DO WE STILL HAVGE AUTHTYPEID', request.url.query.authTypeId);
   const authConfigFinder = requestedAuthTypeId
     ? (config) => {
         return config.id === requestedAuthTypeId;

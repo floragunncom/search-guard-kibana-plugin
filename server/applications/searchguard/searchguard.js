@@ -66,7 +66,6 @@ export class SearchGuard {
 
       let authManager = null;
 
-      // @todo How to handle Proxy?
       // Handle Kerberos separately because we don't want to bring up entire jungle from AuthType here.
       if (authType === 'kerberos') {
         core.http.registerAuth(

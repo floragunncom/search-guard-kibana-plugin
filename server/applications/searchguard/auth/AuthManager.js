@@ -115,8 +115,6 @@ export class AuthManager {
   }
 
   async getAuthInstanceByAuthTypes({ request }) {
-    // @todo This needs to be changed to respect the order as returned by
-    // the backend's auth/config response
     for (const authType in this.authInstances) {
       const authInstance = this.getAuthInstanceByName(authType);
       const authInstanceResult = await authInstance.detectCredentialsByRequest({ request });
@@ -147,7 +145,6 @@ export class AuthManager {
    * @returns {Promise<*>}
    */
   onPreAuth = async (request, response, toolkit) => {
-
     if (request.headers.authorization) {
       const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
       const authInstance = await this.getAuthInstanceByCookie({ request });
@@ -159,10 +156,9 @@ export class AuthManager {
       }
     }
     return toolkit.next();
-  }
+  };
 
   checkAuth = async (request, response, toolkit) => {
-
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
 
     if (request.headers.authorization) {
@@ -213,6 +209,7 @@ export class AuthManager {
         (request.headers['content-type'] &&
           request.headers['content-type'].indexOf('application/json') > -1)
       ) {
+        // @todo Use the kibana_url from the config?
         return response.unauthorized({
           headers: {
             sg_redirectTo: '/login',
@@ -224,6 +221,7 @@ export class AuthManager {
 
     const loginPageURL = path.posix.join(this.basePath, 'login') + `?nextUrl=${this.getNextUrl(request)}`
 
+    // @todo Use the kibana_url from the config?
     return response.redirected({
       headers: {
         location: loginPageURL,
