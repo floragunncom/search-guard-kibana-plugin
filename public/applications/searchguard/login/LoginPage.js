@@ -48,7 +48,7 @@ export function isInvalid(error) {
 
 export function UserNameInput({ isInvalid, userName, onChange }) {
   return (
-    <EuiFormRow id="sg.username" label="Username" isInvalid={isInvalid}>
+    <EuiFormRow id="sg.username" label="Username" isInvalid={isInvalid} fullWidth>
       <EuiFieldText
         id="sg.username"
         data-test-subj="sg.username"
@@ -68,7 +68,7 @@ export function UserNameInput({ isInvalid, userName, onChange }) {
 
 export function UserPasswordInput({ isInvalid, password, onChange }) {
   return (
-    <EuiFormRow id="sg.password" label="Password" isInvalid={isInvalid}>
+    <EuiFormRow id="sg.password" label="Password" isInvalid={isInvalid} fullWidth>
       <EuiFieldPassword
         id="sg.password"
         data-test-subj="sg.password"
@@ -83,8 +83,6 @@ export function UserPasswordInput({ isInvalid, password, onChange }) {
     </EuiFormRow>
   );
 }
-
-
 
 export function ErrorCallout({ error, euiFlexItemProps = {} } = {}) {
   if (!error) return null;
@@ -118,7 +116,7 @@ export function AuthTypesMenu({ authTypes = [] }) {
         <EuiFlexGroup direction="column" gutterSize="m" data-test-sub="sg.login.authMenu">
           {_authTypes.map((auth, index) => {
             return (
-              <EuiFlexItem key={index} style={{ minWidth: 400 }}>
+              <EuiFlexItem key={index} style={{ maxWidth: 400 }}>
                 <EuiErrorBoundary>
                   <EuiCard
                     key={index}
@@ -199,9 +197,9 @@ export function BasicLogin({ httpClient, basicLoginConfig, loginPageConfig }) {
   }
 
   return (
-    <EuiFlexItem>
+    <EuiFlexItem style={{ maxWidth: 400 }}>
       <EuiErrorBoundary>
-        <EuiPanel grow={false} style={{ maxWidth: 400 }}>
+        <EuiPanel grow={false}>
           <EuiFlexGroup direction="column">
             <EuiFlexItem>
               <HTMLTitle
@@ -264,22 +262,20 @@ export function BrandImage({ configService, httpClient }) {
 
   if (!showBrandImage) return null;
   return (
-    <EuiFlexItem>
-      <EuiErrorBoundary>
-        <div style={{ maxWidth: '300px' }}>
-          <EuiImage
-            data-test-subj="sg.login.brandImage"
-            alt="Brand image"
-            size="fullWidth"
-            url={
-              brandImage.startsWith('/plugins')
-                ? httpClient.http.basePath.basePath + brandImage
-                : brandImage
-            }
-          />
-        </div>
-      </EuiErrorBoundary>
-    </EuiFlexItem>
+    <EuiErrorBoundary>
+      <div style={{ maxWidth: 400 }}>
+        <EuiImage
+          data-test-subj="sg.login.brandImage"
+          alt="Brand image"
+          size="fullWidth"
+          url={
+            brandImage.startsWith('/plugins')
+              ? httpClient.http.basePath.basePath + brandImage
+              : brandImage
+          }
+        />
+      </div>
+    </EuiErrorBoundary>
   );
 }
 
@@ -356,8 +352,10 @@ export function LoginPage({ httpClient, configService }) {
 
   return (
     <div style={{ padding: 100 }}>
-      <EuiFlexGroup direction="column" alignItems="center" justifyContent="center">
-        <BrandImage configService={configService} httpClient={httpClient} />
+      <EuiFlexGroup direction="column" justifyContent="center" alignItems="center">
+        <EuiFlexItem>
+          <BrandImage configService={configService} httpClient={httpClient} />
+        </EuiFlexItem>
         <EuiFlexItem>
           <HTMLTitle
             HTMLTag="h2"
@@ -365,11 +363,8 @@ export function LoginPage({ httpClient, configService }) {
             euiTextProps={{ 'data-test-subj': 'sg.login.title' }}
           />
         </EuiFlexItem>
-        <ErrorCallout error={error} euiFlexItemProps={{ style: { minWidth: 400 } }} />
-        <LicenseWarningCallout
-          configService={configService}
-          euiFlexItemProps={{ style: { minWidth: 400 } }}
-        />
+        <ErrorCallout error={error} />
+        <LicenseWarningCallout configService={configService} />
         <EuiFlexItem>
           {isLoading ? (
             <EuiLoadingKibana size="xl" />
