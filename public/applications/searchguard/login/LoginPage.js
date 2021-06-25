@@ -347,7 +347,7 @@ export function LoginPage({ httpClient, configService }) {
   }
 
   return (
-      <EuiFlexGroup direction="column" justifyContent="center" alignItems="center" style={{ padding: 10 }}>
+      <EuiFlexGroup direction="column" justifyContent="center" alignItems="center" style={{ padding: '100px 10px' }}>
         <EuiFlexItem>
           <BrandImage configService={configService} httpClient={httpClient} />
         </EuiFlexItem>
