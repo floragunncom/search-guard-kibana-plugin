@@ -111,12 +111,12 @@ export function AuthTypesMenu({ authTypes = [] }) {
   if (!_authTypes.length) return null;
 
   return (
-    <EuiFlexItem>
+    <EuiFlexItem style={{ minWidth: 350, maxWidth: 350 }}>
       <EuiErrorBoundary>
         <EuiFlexGroup direction="column" gutterSize="m" data-test-sub="sg.login.authMenu">
           {_authTypes.map((auth, index) => {
             return (
-              <EuiFlexItem key={index} style={{ maxWidth: 400 }}>
+              <EuiFlexItem key={index}>
                 <EuiErrorBoundary>
                   <EuiCard
                     key={index}
@@ -197,7 +197,7 @@ export function BasicLogin({ httpClient, basicLoginConfig, loginPageConfig }) {
   }
 
   return (
-    <EuiFlexItem style={{ maxWidth: 400 }}>
+    <EuiFlexItem style={{ minWidth: 350, maxWidth: 350 }}>
       <EuiErrorBoundary>
         <EuiPanel grow={false}>
           <EuiFlexGroup direction="column">
@@ -263,7 +263,7 @@ export function BrandImage({ configService, httpClient }) {
   if (!showBrandImage) return null;
   return (
     <EuiErrorBoundary>
-      <div style={{ maxWidth: 400 }}>
+      <div style={{ maxWidth: 350 }}>
         <EuiImage
           data-test-subj="sg.login.brandImage"
           alt="Brand image"
@@ -363,8 +363,11 @@ export function LoginPage({ httpClient, configService }) {
             euiTextProps={{ 'data-test-subj': 'sg.login.title' }}
           />
         </EuiFlexItem>
-        <ErrorCallout error={error} />
-        <LicenseWarningCallout configService={configService} />
+        <ErrorCallout error={error} euiFlexItemProps={{ style: { minWidth: 350 } }} />
+        <LicenseWarningCallout
+          configService={configService}
+          euiFlexItemProps={{ style: { minWidth: 350 } }}
+        />
         <EuiFlexItem>
           {isLoading ? (
             <EuiLoadingKibana size="xl" />
