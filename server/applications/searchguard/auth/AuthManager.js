@@ -222,9 +222,11 @@ export class AuthManager {
       }
     }
 
+    const loginPageURL = path.posix.join(this.basePath, 'login') + `?nextUrl=${this.getNextUrl(request)}`
+
     return response.redirected({
       headers: {
-        location: `/login?nextUrl=` + this.getNextUrl(request),
+        location: loginPageURL,
       },
     });
   };
