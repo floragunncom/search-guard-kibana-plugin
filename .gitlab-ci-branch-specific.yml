@@ -10,7 +10,7 @@
 variables:
   ES_TEST_VERSION: "7.13.2"
   SG_PLUGIN_TEST_VERSION: "7.13.2-51.0.0-SNAPSHOT"
-  SGADMIN_PLUGIN_TEST_VERSION: "b-session-auth-es-7.10.2-SNAPSHOT"
+  SGADMIN_PLUGIN_TEST_VERSION: "7.10.2-master-SNAPSHOT"
 
 ##Specify custom Kibana branch which should be used as the source for Kibana build for further use in integration tests
 #variables:
