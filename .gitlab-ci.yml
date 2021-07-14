@@ -272,7 +272,7 @@ deploy_release:
       git tag "kibana-$CI_COMMIT_TAG" || true
       echo "Tag created in int repo"
       git show-ref "kibana-$CI_COMMIT_TAG"
-      #git push --tags || true
+      git push --tags || true
 
       echo "Deploying Release to Production repo. In future"
-      #$MAVEN_HOME/bin/mvn -B -s settings.xml -Drelease=true -Drevision="$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION" clean deploy
+      $MAVEN_HOME/bin/mvn -B -s settings.xml -Drelease=true -Drevision="$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION" clean deploy
