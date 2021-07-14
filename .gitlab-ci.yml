@@ -27,6 +27,10 @@ unit_tests:
   stage: build
   tags:
     - openstack-runner
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
+      when: never
+    - when: always
   before_script:
     - |
       curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh| bash
@@ -37,6 +41,38 @@ unit_tests:
   script:
     - ./build.sh install-local
   interruptible: true
+  artifacts:
+    when: always
+    paths:
+      - "build.log"
+      - "build/kibana/*"
+    expire_in: 24h
+
+#This case is for release tag commit to the branch, doing only unit testing and local build
+unit_tests_release:
+  stage: build
+  tags:
+    - openstack-runner
+  before_script:
+    - |
+      curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh| bash
+      export NVM_HOME=~/.nvm
+      export NVM_DIR="$HOME/.nvm"
+      [ -s "$NVM_DIR/nvm.sh" ]; \. "$NVM_DIR/nvm.sh"
+      export MAVEN_HOME=/opt/apache-maven
+  script:
+    - |
+      export KIBANA_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f4)
+      export KIBANA_PLUGIN_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f2|cut -d. -f2-)'.0'
+      sed -i -e "s#\"version\":.*\"#\"version\": \"$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT\"#" package.json
+      sed -i -e "s#\"version\":.*\"#\"version\": \"$KIBANA_VERSION\"#" kibana.json
+      ./build.sh install-local
+      mv "build/kibana/searchguard-kibana-$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT" "build/kibana/searchguard-kibana-$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION"
+      sed -i -e "s/\"version\":\".*\"/\"version\": \"$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION\"/" package.json
+      sed -i -e "s/\"version\":\".*\"/\"version\": \"$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION\"/" "build/kibana/searchguard-kibana-$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION/package.json"
+  interruptible: true
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
   artifacts:
     when: always
     paths:
@@ -172,7 +208,7 @@ deploy_staging:
       export KI_PLUGIN_VERSION="$SG_VERSION"
 
   needs:
-    - job: unit_tests
+    - job: unit_tests_release
       artifacts: true
   rules:
     - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
