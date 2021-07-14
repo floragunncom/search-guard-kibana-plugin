@@ -156,6 +156,7 @@ deploy_staging:
     - openstack-runner
   script:
     - |
+      ./dev/setup_gpg.sh || true
       KIBANA_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f4) && echo KIBANA_VERSION="${KIBANA_VERSION}" >> environment.env
       KIBANA_PLUGIN_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f2|cut -d. -f2-)'.0' && echo KI_PLUGIN_VERSION="${KIBANA_PLUGIN_VERSION}"  >> environment.env
       MAJOR=$(echo $KIBANA_VERSION | cut -d. -f1-2)  && echo MAJOR="${MAJOR}"  >> environment.env
@@ -263,6 +264,7 @@ deploy_release:
     - openstack-runner
   script:
     - |
+      ./dev/setup_gpg.sh || true
       export KIBANA_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f4)
       export KIBANA_PLUGIN_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f2|cut -d. -f2-)'.0'
       echo "KIBANA_PLUGIN_VERSION is $KIBANA_PLUGIN_VERSION and KIBANA_VERSION is $KIBANA_VERSION"
