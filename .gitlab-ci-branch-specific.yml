@@ -1,0 +1,17 @@
+##Specify SG Suite and ES version for integration tests
+##in case SG Suite plugin version != Kibana plugin version
+#variables:
+#  ES_VERSION: "7.12.1"
+#  SG_PLUGIN_VERSION: "7.12.1-master-SNAPSHOT"
+
+
+##Specify SG Suite, SGAdmin and ES version for integration tests
+##in case SG Suite plugin version != Kibana plugin version AND SG Suite plugin version != SG Admin version
+variables:
+  ES_TEST_VERSION: "7.13.2"
+  SG_PLUGIN_TEST_VERSION: "7.13.2-51.0.0"
+  SGADMIN_PLUGIN_TEST_VERSION: "7.10.2-49.0.0"
+
+##Specify custom Kibana branch which should be used as the source for Kibana build for further use in integration tests
+#variables:
+#  KIBANA_TEST_BRANCH:
