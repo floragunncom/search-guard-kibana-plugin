@@ -278,6 +278,9 @@ deploy_release:
 
       echo "KIBANA_PLUGIN_VERSION is $KIBANA_PLUGIN_VERSION and KIBANA_VERSION is $KIBANA_VERSION"
 
+      echo "Removing current release from Staging"
+      curl -u "$ARTIFACTORY_USER:$ARTIFACTORY_PASSWORD" -X DELETE "https://maven.search-guard.com/artifactory/search-guard-kibana-plugin-staging/com/floragunn/search-guard-kibana-plugin/$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION" || true
+
       cd search-guard-integration-tests
       git clone git@git.floragunn.com:private/search-guard-integration-tests.git
       cd search-guard-integration-tests
