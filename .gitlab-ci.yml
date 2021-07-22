@@ -89,11 +89,12 @@ deploy_snapshot:
   script:
     - |
       KIBANA_VERSION=$(cat package.json | jq --raw-output '.version' | cut -d "-" -f1) && echo KIBANA_VERSION="${KIBANA_VERSION}" >> environment.env
-      KIBANA_PLUGIN_VERSION=$(cat package.json | jq --raw-output '.version' | cut -d'-' -f2) && echo KI_PLUGIN_VERSION="${KIBANA_PLUGIN_VERSION}"  >> environment.env
+      KIBANA_PLUGIN_VERSION=b-$CI_COMMIT_REF_NAME-SNAPSHOT
+      echo KI_PLUGIN_VERSION="${KIBANA_PLUGIN_VERSION}"  >> environment.env
       MAJOR=$(echo $KIBANA_VERSION | cut -d. -f1-2)  && echo MAJOR="${MAJOR}"  >> environment.env
 
       echo "Deploying snapshot: $KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT"
-      mvn clean deploy -s settings.xml -Drevision="$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT" | tee deploy.out
+      mvn clean deploy -s settings.xml -Drevision="$KIBANA_PLUGIN_VERSION" | tee deploy.out
 
       KI_SNAPSHOT=$(grep -E "Uploaded to .*: https://.*/search-guard-kibana-plugin-.*[0-9]+.zip " deploy.out| grep -o 'http.*zip')
       echo "Debug: KI_SNAPSHOT is ${KI_SNAPSHOT}"
