@@ -187,7 +187,7 @@ fi
 echo ${auditResult::limit} >>"$WORK_DIR/build.log" 2>&1
 
 echo "+++ Installing plugin node modules +++"
-yarn kbn bootstrap >>"$WORK_DIR/build.log" 2>&1
+yarn kbn bootstrap --oss
 if [ $? != 0 ]; then
     echo "Installing node modules failed"
     exit 1
