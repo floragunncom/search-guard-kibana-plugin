@@ -100,7 +100,7 @@ export function LicenseWarningCallout({
     </EuiErrorBoundary>
   );
 
-  if (isFlexItem) return <EuiFlexItem {...euiFlexItemProps}>{content}</EuiFlexItem>;
+  if (isFlexItem) return <EuiFlexItem grow={false} {...euiFlexItemProps}>{content}</EuiFlexItem>;
   else return content;
 }
 
