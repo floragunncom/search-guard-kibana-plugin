@@ -59,11 +59,11 @@ export default class Jwt extends AuthType {
    */
 
   async detectCredentialsByRequest({ request }) {
-    if (!this.config.get('searchguard.jwt.enabled')) {
+    if (!this.config.get('searchguard.auth.jwt.enabled')) {
       return null;
     }
 
-    const urlparamname = this.config.get('searchguard.jwt.url_param').toLowerCase();
+    const urlparamname = this.config.get('searchguard.auth.jwt.url_param').toLowerCase();
 
     // Go through all given query parameters and make them lowercase
     // to avoid confusion when using uppercase or perhaps mixed caps
@@ -98,10 +98,7 @@ export default class Jwt extends AuthType {
       url.searchParams.set('type', 'missingRole');
     } else {
       const authConfig = (
-        await this.searchGuardBackend.getAuthConfig(
-          this.config.get('elasticsearch.username'),
-          this.config.get('elasticsearch.password')
-        )
+        await this.searchGuardBackend.getAuthConfig()
       ).auth_methods.find((config) => config.method === 'link');
 
       // The customer may use a login endpoint, to which we can redirect
