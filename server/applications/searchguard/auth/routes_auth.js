@@ -39,7 +39,7 @@ export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, 
         authRequired: false,
       },
     },
-    authConfigHandler({ authManager, searchGuardBackend, configService })
+    authConfigHandler({ authManager, searchGuardBackend, configService, kibanaCore })
   );
 }
 
@@ -49,11 +49,9 @@ export function logoutHandler({ authManager }) {
   };
 }
 
-export function authConfigHandler({ authManager, searchGuardBackend, configService }) {
+export function authConfigHandler({ authManager, searchGuardBackend, configService, kibanaCore }) {
   return async function (context, request, response) {
-    const username = configService.get('elasticsearch.username');
-    const password = configService.get('elasticsearch.password');
-    const authConfig = await searchGuardBackend.getAuthConfig(username, password);
+    const authConfig = await searchGuardBackend.getAuthConfig();
 
     const backendMethodToFrontendMethod = {
       basic: AUTH_TYPE_NAMES.BASIC,
@@ -73,9 +71,7 @@ export function authConfigHandler({ authManager, searchGuardBackend, configServi
           let loginURL = authInstance.loginURL;
           if (config.id) {
             // All loginURLs are relative
-            loginURL = new URL(authInstance.loginURL, 'http://abc');
-            loginURL.searchParams.set('authTypeId', config.id);
-            loginURL = loginURL.href.replace(loginURL.origin, '');
+            loginURL = kibanaCore.http.basePath.get() + authInstance.loginURL + "?authTypeId=" + encodeURIComponent(config.id);
           }
 
           // For example, we don't have a loginURL flow for JWT. Instead,
@@ -90,6 +86,7 @@ export function authConfigHandler({ authManager, searchGuardBackend, configServi
             title: config.label,
             loginURL,
             message: config.message,
+			unavailable: config.unavailable,
           };
         }
       });

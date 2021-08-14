@@ -19,6 +19,8 @@ import { version as sgVersion } from '../package.json';
 export const DEFAULT_CONFIG = {
   searchguard: {
     enabled: true,
+    sg_frontend_config_id: "default",
+	frontend_base_url: null,
     allow_client_certificates: false,
     readonly_mode: { enabled: true, roles: [] },
     xff: { enabled: false },
@@ -41,6 +43,10 @@ export const DEFAULT_CONFIG = {
       unauthenticated_routes: ['/api/status'],
       logout_url: '',
       debug: false,
+      jwt_param: {
+        enabled: false,
+        url_param: 'authorization',
+      },
     },
     basicauth: {
       forbidden_usernames: [],

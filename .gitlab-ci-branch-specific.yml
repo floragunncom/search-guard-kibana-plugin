@@ -1,5 +1,5 @@
 variables:
   IT_BRANCH: "7.16.x"
   ES_VERSION: "7.16.1"
-  SG_ES_PLUGIN: "b-master-SNAPSHOT"
-  SG_ADMIN: "b-master-SNAPSHOT"
+  SG_ES_PLUGIN: "b-session-auth-SNAPSHOT"
+  SG_ADMIN: "b-session-auth-SNAPSHOT"

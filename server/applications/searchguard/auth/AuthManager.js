@@ -33,6 +33,7 @@ export class AuthManager {
     logger,
     searchGuardBackend,
     configService,
+    spacesService,
   }) {
     this.kibanaCore = kibanaCore;
     this.sessionStorageFactory = sessionStorageFactory;
@@ -40,7 +41,7 @@ export class AuthManager {
     this.logger = logger;
     this.pluginDependencies = pluginDependencies;
     this.configService = configService;
-
+    this.spacesService = spacesService;
     this.authInstances = {};
     this.unauthenticatedRoutes = this.configService.get('searchguard.auth.unauthenticated_routes');
 
@@ -80,6 +81,7 @@ export class AuthManager {
         searchGuardBackend: this.searchGuardBackend,
         config: this.configService,
         authManager: this, // @todo Is the authManager used?
+        spacesService: this.spacesService
       });
 
       authInstance.init();
@@ -197,6 +199,32 @@ export class AuthManager {
         requestHeaders: request.headers,
       });
     }
+    
+    let loginPageURL = this.basePath + '/login' + `?nextUrl=${this.getNextUrl(request)}`
+    
+    try {
+      const authConfig = await this.searchGuardBackend.getAuthConfig(
+        this.getNextUrl(request)
+      );
+      
+      if (authConfig && authConfig.auth_methods && authConfig.auth_methods.length == 1 && authConfig.auth_methods[0].sso_location) {
+    	  const config = authConfig.auth_methods[0];
+    	  loginPageURL = config.sso_location;
+    	      	  
+    	  const authInstance = this.authInstances[config.method == "oidc" ? "openid": config.method];
+          if (authInstance && authInstance.loginURL) {
+              loginPageURL = this.basePath + authInstance.loginURL;
+              if (config.id) {
+                // All loginURLs are relative
+            	loginPageURL = new URL(loginPageURL, 'http://abc');
+            	loginPageURL.searchParams.set('authTypeId', config.id);
+            	loginPageURL = loginPageURL.href.replace(loginPageURL.origin, '');
+              }
+          }
+      }
+    } catch (error) {
+        console.warn("Error while retrieving auth config", error);
+    }
 
     // Check for ajax requests
     // @todo Share this function with the authInstance?
@@ -209,17 +237,15 @@ export class AuthManager {
         (request.headers['content-type'] &&
           request.headers['content-type'].indexOf('application/json') > -1)
       ) {
-        // @todo Use the kibana_url from the config?
         return response.unauthorized({
           headers: {
-            sg_redirectTo: '/login',
+            sg_redirectTo: loginPageURL,
           },
           body: { message: 'Session expired or invalid username and password' },
         });
       }
     }
 
-    const loginPageURL = path.posix.join(this.basePath, 'login') + `?nextUrl=${this.getNextUrl(request)}`
 
     // @todo Use the kibana_url from the config?
     return response.redirected({

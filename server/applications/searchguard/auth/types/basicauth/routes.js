@@ -87,26 +87,19 @@ export function loginAuthHandler({ config, authInstance, logger, searchGuardBack
       }
     } catch (error) {
       logger.error(`Basic auth login authorization ${error.stack}`);
-      if (error instanceof AuthenticationError) {
+      if (error.meta?.body && error.meta?.statusCode == 401) {
+        return response.unauthorized({
+          body: { attributes: error.meta.body, message: error.meta.body.error ? error.meta.body.error : error.message  },
+		  headers: {
+    		'content-type': 'application/json'
+  		  }
+        });
+      } else {
         return response.unauthorized({
           body: {
             message: error.message,
           },
-        });
-      } else if (error instanceof MissingTenantError) {
-        return response.notFound({
-          body: {
-            message: error.message,
-          },
-        });
-      } else if (error instanceof MissingRoleError) {
-        return response.notFound({
-          body: {
-            message: error.message,
-          },
-        });
-      } else {
-        return response.internalError();
+        });	
       }
     }
   };
