@@ -118,7 +118,8 @@ else
   KIBANA_BRANCH_NAME="v$KIBANA_VERSION"
 fi
 
-echo "+++ Cloning https://github.com/elastic/kibana.git $KIBANA_BRANCH_NAME +++"
+echo -e "\e[0Ksection_start:`date +%s`:kibana_clone\r\e[0KCloning https://github.com/elastic/kibana.git $KIBANA_BRANCH_NAME"
+
 git clone --depth 1 --branch $KIBANA_BRANCH_NAME https://github.com/elastic/kibana.git >>"$WORK_DIR/build.log" &> $output
 if [ $? != 0 ]; then
     echo "Failed to clone Kibana"
@@ -126,12 +127,16 @@ if [ $? != 0 ]; then
     exit 1
 fi
 
+echo -e "\e[0Ksection_end:`date +%s`:kibana_clone\r\e[0K"
+
 cd "kibana"
 
 #This is taken from Kibana GIT
 KIBANA_APP_VERSION=$(grep -e '\bversion\b' package.json | tr -d "[:blank:]" | sed -E 's/"version":"(.*)",/\1/')
 
 echo "KIBANA_APP_VERSION: $KIBANA_APP_VERSION"
+
+echo -e "\e[0Ksection_start:`date +%s`:node_install\r\e[0KInstalling node"
 
 echo "+++ Installing node version $(cat .node-version) +++"
 nvm install "$(cat .node-version)" >>"$WORK_DIR/build.log" &> $output
@@ -142,6 +147,10 @@ if [ $? != 0 ]; then
 else
     echo "    -> $(cat .node-version)"
 fi
+
+echo -e "\e[0Ksection_end:`date +%s`:node_install\r\e[0K"
+
+echo -e "\e[0Ksection_start:`date +%s`:yarn_install\r\e[0KSourcing Yarn"
 
 echo "+++ Sourcing Yarn +++"
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
@@ -157,6 +166,10 @@ if ! [ -x "$(command -v yarn)" ]; then
 else
 echo "    -> $(yarn -v)"
 fi
+
+echo -e "\e[0Ksection_end:`date +%s`:yarn_install\r\e[0K"
+
+
 if [ "$COMMAND" == "build-kibana" ] ; then
   echo "Building Kibana package from checkout Kibana branch (see above) "
   yarn kbn bootstrap && yarn build --skip-os-packages --no-oss
@@ -178,6 +191,8 @@ cp -a "$WORK_DIR/tests" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/__mocks__" "$BUILD_STAGE_PLUGIN_DIR"
 cd $BUILD_STAGE_PLUGIN_DIR
 
+echo -e "\e[0Ksection_start:`date +%s`:yarn_audit\r\e[0KChecking yarn packages for vulnerabilities"
+
 echo "+++ Checking yarn packages for vulnerabilities +++"
 auditResult=`yarn audit --groups dependencies --level 4 2>&1`
 isNoVulnerability="[^\d]0 vulnerabilities found.*$"
@@ -188,6 +203,10 @@ if [[ ! $auditResult =~ $isNoVulnerability && $EXIT_IF_VULNERABILITY = true ]]; 
 fi
 echo ${auditResult::limit} >>"$WORK_DIR/build.log" 2>&1
 
+echo -e "\e[0Ksection_end:`date +%s`:yarn_audit\r\e[0K"
+
+echo -e "\e[0Ksection_start:`date +%s`:yarn_kbn_bootstrap\r\e[0KInstalling plugin node modules"
+
 echo "+++ Installing plugin node modules +++"
 yarn kbn bootstrap >>"$WORK_DIR/build.log" &> $output
 if [ $? != 0 ]; then
@@ -195,6 +214,10 @@ if [ $? != 0 ]; then
     cat $output
     exit 1
 fi
+
+echo -e "\e[0Ksection_end:`date +%s`:yarn_kbn_bootstrap\r\e[0K"
+
+echo -e "\e[0Ksection_start:`date +%s`:tests\r\e[0KTests"
 
 echo "+++ Testing UI +++"
 uitestsResult=`../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --silent --json`
@@ -211,6 +234,10 @@ if [[ ! $srvtestsResult =~ .*\"numFailedTests\":0.* || ! $srvtestsResult =~ .*\"
     echo "Server unit tests failed"
     exit 1
 fi
+
+echo -e "\e[0Ksection_end:`date +%s`:tests\r\e[0K"
+
+echo -e "\e[0Ksection_start:`date +%s`:package\r\e[0KPackaging"
 
 echo "+++ Installing plugin node modules for production +++"
 rm -rf "node_modules"
@@ -238,16 +265,23 @@ rm -rf build
 mv "$BUILD_STAGE_PLUGIN_DIR/build" build
 mv build/kibana/searchguard "build/kibana/$PLUGIN_NAME"
 
+echo -e "\e[0Ksection_end:`date +%s`:package\r\e[0K"
+
+
 end=`date +%s`
 echo "Build time: $((end-start)) sec"
 
 if [ "$COMMAND" == "deploy-snapshot-maven" ] ; then
+	echo -e "\e[0Ksection_start:`date +%s`:deploy[collapsed=true]\r\e[0KDeploying"
+
     echo "+++ mvn clean deploy +++"
     $MAVEN_HOME/bin/mvn clean deploy -s settings.xml -Drevision="$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT"
     if [ $? != 0 ]; then
         echo "$MAVEN_HOME/bin/mvn clean deploy failed"
         exit 1
     fi
+    
+    echo -e "\e[0Ksection_end:`date +%s`:deploy\r\e[0K"
 fi
 
 if [ "$COMMAND" == "install-local" ] ; then
