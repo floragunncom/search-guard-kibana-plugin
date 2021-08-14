@@ -93,6 +93,7 @@ export class SearchGuard {
           logger: this.coreContext.logger.get('searchguard-auth'),
           searchGuardBackend,
           configService,
+          spacesService,
         });
         authManager.registerAuthInstances();
         defineAuthRoutes({ kibanaCore: core, authManager, searchGuardBackend, configService });
@@ -127,10 +128,6 @@ export class SearchGuard {
           this.logger.error(`An error occurred registering server plugins: ${error}`);
           throw error;
         }
-      }
-
-      if (!configService.get('searchguard.jwt.enabled')) {
-        this.logger.warn('Search Guard copy JWT params disabled');
       }
 
       // @todo TEST

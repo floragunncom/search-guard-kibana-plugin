@@ -109,29 +109,61 @@ export function AuthTypesMenu({ authTypes = [] }) {
   if (!_authTypes.length) return null;
 
   return (
-    <EuiFlexItem>
+    <EuiFlexItem style={{ minWidth: 350, maxWidth: 350 }}>
+	<EuiPanel>
       <EuiErrorBoundary>
-        <EuiFlexGroup direction="column" gutterSize="s" responsive={false} wrap data-test-sub="sg.login.authMenu">
+        <EuiFlexGroup direction="column" gutterSize="xl" responsive={false} wrap data-test-sub="sg.login.authMenu">
           {_authTypes.map((auth, index) => {
             return (
               <EuiFlexItem key={index} grow={false}>
                 <EuiErrorBoundary>
-                  <EuiButton
-                    fill
-                    key={index}
-                    data-test-subj={`sg.login.authMenu.item.openid`}
-                    href={auth.loginURL}
-                  >
-                    {auth.title}
-                  </EuiButton>
+                  <EuiFlexGroup direction="column" gutterSize="m" responsive={false} wrap>
+                    <EuiButton
+                      key={index}
+                      data-test-subj={`sg.login.authMenu.item.openid`}
+                      href={auth.loginURL}
+                      isDisabled={auth.unavailable}
+                    >
+                      {auth.title}
+                    </EuiButton>
+					{auth.unavailable && auth.message ?
+					<p style={{textAlign: "center", fontSize: "77%", marginTop: "0.5em", marginLeft: "1.7em", marginRight: "1.7em"}}>{auth.message}</p>
+					: null}			
+				  </EuiFlexGroup>
                 </EuiErrorBoundary>
               </EuiFlexItem>
             );
           })}
         </EuiFlexGroup>
       </EuiErrorBoundary>
+	</EuiPanel>
     </EuiFlexItem>
   );
+}
+
+export function DebugTable({debugInfo = []}) {
+	if (!debugInfo || debugInfo.length == 0) {
+		return null;
+	}
+	
+	return (
+    <EuiErrorBoundary>
+      <EuiCallOut title="Debug Information" color="warning" iconType="help">
+        <table style={{width: "60vw"}}>
+          {debugInfo.map((row, index) => {
+	        return (
+		      <tr style={{borderBottom:"1px solid #8a6a0a"}}>
+                <td style={{width:"10ex", padding:"0 1ex", verticalAlign:"top"}}><div style={{width:"10ex", overflow:"hidden"}}>{row.method}</div></td>
+                <td style={{width:"8ex", padding:"0 1ex", verticalAlign:"top"}}>{row.success ? "success" : "fail"}</td>
+                <td style={{width:"40%", padding:"0 1ex", verticalAlign:"top"}}>{row.message}</td>
+                <td style={{padding:"0 1ex", verticalAlign:"top", width:"40%"}}>{row.details ? (<textarea style={{height: "3.6em", width: "100%", fontSize: "9px", border: "none"}}>{JSON.stringify(row.details)}</textarea>) : null}</td>
+              </tr>  
+	        );
+          })}
+        </table>
+      </EuiCallOut>  
+    </EuiErrorBoundary>
+    );
 }
 
 export function HTMLTitle({ text, euiTextProps = {}, HTMLTag = 'h1' } = {}) {
@@ -147,7 +179,7 @@ export function HTMLTitle({ text, euiTextProps = {}, HTMLTag = 'h1' } = {}) {
   );
 }
 
-export function BasicLogin({ httpClient, basicLoginConfig, loginPageConfig }) {
+export function BasicLogin({ httpClient, basicLoginConfig, loginPageConfig, setDebugInfo }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
@@ -170,23 +202,27 @@ export function BasicLogin({ httpClient, basicLoginConfig, loginPageConfig }) {
     setIsLoading(true);
 
     try {
-      await httpClient.post(`${API_ROOT}/auth/login`, { username, password });
+      await httpClient.post(`${API_ROOT}/auth/login`, { username, password }, { asResponse: true });
       redirectToKibana();
     } catch (error) {
       console.error('BasicLogin, handleSubmit', error);
-
       let _error =
         'An error occurred while checking your credentials, make sure you have an Elasticsearch cluster secured by Search Guard running.';
-      if (error.body) error = error.body;
 
-      if (error.statusCode && error.statusCode === 401) {
-        _error = 'Invalid username or password, please try again';
-      } else if (error.statusCode && error.statusCode === 404) {
-        // This happens either when the user doesn't have any valid tenants or roles
-        _error = error.message;
+      if (error.body?.attributes?.error) {
+        _error = error.body.attributes.error;
       }
 
+      if (_error == "Authentication failed") {
+	    _error = "Invalid username or password, please try again";
+      } 
+
       setError(_error);
+
+      if (error.body?.attributes?.debug && setDebugInfo) {
+	    setDebugInfo(error.body.attributes.debug);
+	  }
+
     }
 
     setIsLoading(false);
@@ -199,9 +235,9 @@ export function BasicLogin({ httpClient, basicLoginConfig, loginPageConfig }) {
           <EuiFlexGroup direction="column">
             <EuiFlexItem>
               <HTMLTitle
-                HTMLTag="p"
+                HTMLTag="div"
                 text={basicLoginConfig.message}
-                euiTextProps={{ 'data-test-subj': 'sg.login.subTitle' }}
+                euiTextProps={{ 'data-test-subj': 'sg.login.subTitle', size: 'xs' }}
               />
             </EuiFlexItem>
             <EuiFlexItem>
@@ -312,6 +348,7 @@ export function LoginPage({ httpClient, configService }) {
   const [basicLoginConfig, setBasicLoginConfig] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [debugInfo, setDebugInfo] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -338,6 +375,23 @@ export function LoginPage({ httpClient, configService }) {
       setLoginPageConfig(data.loginPage);
       setAuthTypes(authTypes);
       setBasicLoginConfig(authTypes.find(({ type }) => type === 'basicauth'));
+
+	  const errorMessage = getErrorInfoFromCookie("sg_err");
+
+      if (errorMessage) {
+	  	setError(errorMessage);
+	  }
+
+      const debugInfo = getErrorInfoFromCookie("sg_dbg");
+
+      if (debugInfo) {
+	     try {
+	       setDebugInfo(JSON.parse(debugInfo));
+         } catch (e) {
+	       setDebugInfo([debugInfo]);
+         }
+      }
+
     } catch (error) {
       console.error('LoginPage, fetchData', error);
       setError(error.message);
@@ -346,38 +400,59 @@ export function LoginPage({ httpClient, configService }) {
     setIsLoading(false);
   }
 
+  function getErrorInfoFromCookie(cookieName) {
+	const errorParam = new URL(location.href).searchParams.get("err");
+
+	if (!errorParam) {
+		return undefined;
+	}
+	
+	const errorCookie = document.cookie.split(/\s*;\s*/).find(row => row.startsWith(cookieName + '='));
+	
+	if (errorCookie && errorCookie.length > 7) {
+		document.cookie = cookieName + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
+		return decodeURIComponent(errorCookie.substring(cookieName.length + 1));
+	} else {
+		return "The login failed. Please try again later or contact your system adminstrator if the problem persists.";
+	}
+  }
+
   return (
-      <EuiFlexGroup direction="column" justifyContent="center" alignItems="center" style={{ padding: '100px 10px' }}>
-        <EuiFlexItem>
+      <EuiFlexGroup direction="column" alignItems="center" style={{ padding: '100px 10px' }}>
+        <EuiFlexItem  grow={false}>
           <BrandImage configService={configService} httpClient={httpClient} />
         </EuiFlexItem>
-        <EuiFlexItem>
+        <EuiFlexItem  grow={false}>
           <HTMLTitle
             HTMLTag="h2"
             text={loginPageConfig.title}
             euiTextProps={{ 'data-test-subj': 'sg.login.title' }}
           />
         </EuiFlexItem>
-        <ErrorCallout error={error} euiFlexItemProps={{ style: { minWidth: 350 } }} />
+        <ErrorCallout grow={false} error={error} euiFlexItemProps={{ style: { minWidth: 350 }, grow: false }} />
         <LicenseWarningCallout
           configService={configService}
           euiFlexItemProps={{ style: { minWidth: 350 } }}
         />
-        <EuiFlexItem>
+        <EuiFlexItem  grow={false}>
           {isLoading ? (
             <EuiLoadingKibana size="xl" />
           ) : (
-            <EuiFlexGroup gutterSize="m">
+            <EuiFlexGroup gutterSize="m" direction="column">
               <BasicLogin
                 basicLoginConfig={basicLoginConfig}
                 configService={configService}
                 httpClient={httpClient}
                 loginPageConfig={loginPageConfig}
+                setDebugInfo={setDebugInfo}
               />
               <AuthTypesMenu authTypes={authTypes} />
             </EuiFlexGroup>
           )}
         </EuiFlexItem>
+        <EuiFlexItem  grow={false}>
+		  <DebugTable debugInfo={debugInfo}/>
+		</EuiFlexItem>
       </EuiFlexGroup>
   );
 }

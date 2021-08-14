@@ -208,7 +208,7 @@ echo -e "\e[0Ksection_end:`date +%s`:yarn_audit\r\e[0K"
 echo -e "\e[0Ksection_start:`date +%s`:yarn_kbn_bootstrap\r\e[0KInstalling plugin node modules"
 
 echo "+++ Installing plugin node modules +++"
-yarn kbn bootstrap >>"$WORK_DIR/build.log" &> $output
+yarn kbn bootstrap --oss
 if [ $? != 0 ]; then
     echo "Installing node modules failed"
     cat $output
