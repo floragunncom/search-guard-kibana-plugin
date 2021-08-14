@@ -352,17 +352,6 @@ export function TenantsMenu() {
       });
       console.debug('TenantsMenu, applyTenant, newTenant', newTenant);
 
-      // Clear lastUrls from nav links to avoid not found errors.
-      // Make sure that the app is really enabled before accessing.
-      // If chromeWrapper.resetLastSubUrl is used, the check for enabled apps is redundant.
-      // Keeping this to make the merges a bit easier.
-      const appsToReset = ['visualize', 'dashboards', 'discover', 'timelion'];
-      chromeHelper.getNavLinks().forEach((navLink) => {
-        if (appsToReset.indexOf(navLink.id) > -1) {
-          chromeHelper.resetLastUrl(navLink.id);
-        }
-      });
-
       // Clear last urls, but leave our own items untouched. Take safe mutation approach.
       const lastUrls = [];
       for (let i = 0; i < sessionStorage.length; i++) {
