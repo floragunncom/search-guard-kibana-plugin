@@ -112,8 +112,14 @@ rm -f "$WORK_DIR/build.log"
 
 echo "Logfile: $WORK_DIR/build.log"
 
-echo "+++ Cloning https://github.com/elastic/kibana.git +++"
-git clone https://github.com/elastic/kibana.git >>"$WORK_DIR/build.log" &> $output
+if [ -n "$KIBANA_APP_BRANCH" ]; then
+  KIBANA_BRANCH_NAME="$KIBANA_APP_BRANCH"
+else
+  KIBANA_BRANCH_NAME="v$KIBANA_VERSION"
+fi
+
+echo "+++ Cloning https://github.com/elastic/kibana.git $KIBANA_BRANCH_NAME +++"
+git clone --depth 1 --branch $KIBANA_BRANCH_NAME https://github.com/elastic/kibana.git >>"$WORK_DIR/build.log" &> $output
 if [ $? != 0 ]; then
     echo "Failed to clone Kibana"
     cat $output
@@ -121,29 +127,12 @@ if [ $? != 0 ]; then
 fi
 
 cd "kibana"
-git fetch >>"$WORK_DIR/build.log" &> $output
-if [ $? != 0 ]; then
-    echo "Failed to fetch Kibana"
-    exit 1
-fi
-
-echo "+++ Going to choose Kibana repo branch +++"
-if [ -n "$KIBANA_APP_BRANCH" ]; then
-  (git checkout "$KIBANA_APP_BRANCH" && echo "+++ Changed to $KIBANA_APP_BRANCH +++")  # >>"$WORK_DIR/build.log" 2>&1
-    if [ $? != 0 ]; then
-      echo "Switching to Kibana $KIBANA_APP_BRANCH failed"
-      exit 1
-    fi
-else
-  (git checkout "tags/v$KIBANA_VERSION" && echo "+++ Changed Kibana repository to v$KIBANA_VERSION +++")
-    if [ $? != 0 ]; then
-      echo "Switching to Kibana  $KIBANA_VERSION failed"
-      exit 1
-    fi
-fi
 
 #This is taken from Kibana GIT
 KIBANA_APP_VERSION=$(grep -e '\bversion\b' package.json | tr -d "[:blank:]" | sed -E 's/"version":"(.*)",/\1/')
+
+echo "KIBANA_APP_VERSION: $KIBANA_APP_VERSION"
+
 echo "+++ Installing node version $(cat .node-version) +++"
 nvm install "$(cat .node-version)" >>"$WORK_DIR/build.log" &> $output
 if [ $? != 0 ]; then
