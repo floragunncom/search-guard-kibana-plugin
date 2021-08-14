@@ -36,45 +36,4 @@ export class ChromeHelper {
   getNavLinkById(id) {
     return this.chrome.navLinks.get(id);
   }
-
-  hideNavLink(id, isHidden, skipTracking = false) {
-    // This is a bit of a hack to make sure that we detect
-    // changes that happen between reading the original
-    // state and resolving our info in the readOnly feature
-    if (skipTracking === false) {
-      this.changedVisibility[id] = isHidden;
-    }
-
-    this.updateNavLinkProperty(id, 'hidden', isHidden);
-  }
-
-  /**
-   * Update a nav link property.
-   * Starting from / as of 7.2, only the following attributes
-   * can be updated:
-   * active, disabled, hidden, url and subUrlBase
-   * @param id
-   * @param property
-   * @param value
-   */
-  updateNavLinkProperty(id, property, value) {
-    this.chrome.navLinks.update(id, {
-      [property]: value,
-    });
-  }
-
-  /**
-   * With 7.2, it seems like the way the lastSubUrl is handled changed
-   *
-   * If the requested id is enabled, the link to the last subUrl is reset.
-   * @param id
-   */
-  resetLastUrl(id) {
-    const navLink = this.getNavLinkById(id);
-    if (!navLink) {
-      return;
-    }
-
-    this.updateNavLinkProperty(id, 'url', navLink.baseUrl);
-  }
 }
