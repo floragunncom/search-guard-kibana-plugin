@@ -65,6 +65,10 @@ const getProxyCacheSchema = (isSelectedAuthType) => {
 // @todo We need to go through all of these and double check the default values, nullable, allow empty string etc.
 export const ConfigSchema = schema.object({
   enabled: schema.boolean({ defaultValue: searchguardDefaults.enabled }),
+  
+  sg_frontend_config_id: schema.string({ defaultValue: searchguardDefaults.sg_frontend_config_id }),
+
+  frontend_base_url: schema.string({ defaultValue: searchguardDefaults.frontend_base_url }),
 
   allow_client_certificates: schema.boolean({
     defaultValue: searchguardDefaults.allow_client_certificates,
@@ -136,6 +140,12 @@ export const ConfigSchema = schema.object({
       Caution: Enabling this may cause sensitive authentication information (e.g. credentials) to be logged
     */
     debug: schema.boolean({ defaultValue: authDefaults.debug }),
+
+  	jwt_param: schema.object({
+    	enabled: schema.boolean({ defaultValue: authDefaults.jwt_param.enabled }),
+    	login_endpoint: schema.maybe(schema.string()),
+    	url_param: schema.string({ defaultValue: authDefaults.jwt_param.url_param })
+  	}),
   }),
 
   /**
@@ -300,13 +310,6 @@ export const ConfigSchema = schema.object({
     getProxyCacheSchema(true),
     getProxyCacheSchema(false)
   ),
-
-  jwt: schema.object({
-    enabled: schema.boolean({ defaultValue: jwtDefaults.enabled }),
-    login_endpoint: schema.maybe(schema.string()),
-    url_param: schema.string({ defaultValue: jwtDefaults.url_param }),
-    header: schema.string({ defaultValue: jwtDefaults.header }),
-  }),
 
   sgVersion: schema.string({ defaultValue: sgVersion }),
 });

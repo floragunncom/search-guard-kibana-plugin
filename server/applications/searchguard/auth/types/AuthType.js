@@ -45,6 +45,12 @@ export default class AuthType {
     this.spacesService = spacesService;
 
     this.basePath = kibanaCore.http.basePath.get();
+	this.frontendBaseUrl = this.config.get('searchguard.frontend_base_url') || kibanaCore.http.basePath.publicBaseUrl;
+	
+	if (!this.frontendBaseUrl) {
+		let serverInfo = kibanaCore.http.getServerInfo();
+		this.frontendBaseUrl = serverInfo.protocol + "://" + serverInfo.hostname + ":" + serverInfo.port + "/" + kibanaCore.http.basePath.serverBasePath;
+	}	
 
     this.authDebugEnabled = this.config.get('searchguard.auth.debug');
 
@@ -154,6 +160,9 @@ export default class AuthType {
   async authenticate(credentials, options = {}, additionalAuthHeaders = {}) {
     try {
       this.debugLog('Authenticating using ' + credentials);
+
+	  credentials.frontend_base_url = this.frontendBaseUrl;
+
       const sessionResponse = await this.searchGuardBackend.authenticateWithSession(credentials);
       const sessionCredentials = {
         authHeaderValue: 'Bearer ' + sessionResponse.token,
