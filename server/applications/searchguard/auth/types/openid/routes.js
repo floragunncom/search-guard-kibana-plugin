@@ -16,8 +16,6 @@
 
 import { schema } from '@kbn/config-schema';
 import { sanitizeNextUrl } from '../../sanitize_next_url';
-import MissingTenantError from '../../errors/missing_tenant_error';
-import MissingRoleError from '../../errors/missing_role_error';
 import { APP_ROOT } from '../../../../../utils/constants';
 
 export const OIDC_ROUTES = {
@@ -83,7 +81,7 @@ export function defineRoutes({
   );
 } //end module
 
-export function loginHandler({ basePath, config, authInstance, logger, searchGuardBackend }) {
+export function loginHandler({ basePath, config, authInstance, logger, searchGuardBackend, kibanaCore }) {
   return async function (context, request, response) {
     const authCode = request.url.query.code;
 
@@ -122,14 +120,6 @@ export function loginHandler({ basePath, config, authInstance, logger, searchGua
       delete sessionCookie.openId;
       await authInstance.sessionStorageFactory.asScoped(request).set(sessionCookie);
 
-      // The usage of nonce vs. state is a bit confusing here. Keeping with nonce
-      // internally, but state when we pass a parameter to the IdP to make sure
-      // I don't introduce any change here - it seems to have worked well with
-      // all IdPs
-      if (!cookieOpenId.nonce || cookieOpenId.nonce !== 'oidc_nonce:' + request.url.query.state) {
-        throw new Error('There was a state mismatch between the cookie and the IdP response');
-      }
-
       const credentials = {
         mode: 'oidc',
         sso_result: request.url.href,
@@ -152,20 +142,30 @@ export function loginHandler({ basePath, config, authInstance, logger, searchGua
         },
       });
     } catch (error) {
-      logger.error(`Error while trying to authenticate ${error.stack}`);
-      // If we've come this far, we should have already logged an error
-      let redirectTo = basePath + '/customerror?type=authError';
+      logger.error('Error while trying to authenticate', error.meta ? JSON.stringify(error.meta) : error);
 
-      if (error instanceof MissingTenantError) {
-        redirectTo = basePath + '/customerror?type=missingTenant';
-      } else if (error instanceof MissingRoleError) {
-        redirectTo = basePath + '/customerror?type=missingRole';
+	  var headers = {
+		location: basePath + '/login?err=oidc',
+	  };
+
+      var cookies = [];
+
+      if (error.meta?.body?.error) {
+	     cookies.push('sg_err=' + encodeURIComponent(error.meta?.body?.error) + "; Path=/");
+	  } else if (error.message) {
+	     cookies.push('sg_err=' + encodeURIComponent(error.message) + "; Path=/");
+	  }
+
+      if (error.meta?.body?.debug) {
+	     cookies.push('sg_dbg=' + encodeURIComponent(JSON.stringify(error.meta?.body?.debug)) + "; Path=/");
+	  }
+
+	  if (cookies.length > 0) {
+        headers['set-cookie'] = cookies;		
       }
 
       return response.redirected({
-        headers: {
-          location: redirectTo,
-        },
+        headers,
       });
     }
   };
@@ -230,10 +230,8 @@ async function handleAuthRequest({
       };
 
   try {
-    const username = config.get('elasticsearch.username');
-    const password = config.get('elasticsearch.password');
     authConfig = (
-      await searchGuardBackend.getAuthConfig(username, password, nextUrl)
+      await searchGuardBackend.getAuthConfig(nextUrl)
     ).auth_methods.find(authConfigFinder);
 
     if (!authConfig) {
@@ -242,10 +240,28 @@ async function handleAuthRequest({
   } catch (error) {
     logger.error(`Error when trying to load the configuration for your IdP: ${error.stack}`);
 
+	var headers = {
+		location: basePath + '/login?err=oidc_init',
+	};
+
+    var cookies = [];
+
+    if (error.meta?.body?.error) {
+	   cookies.push('sg_err=' + encodeURIComponent(error.meta?.body?.error) + "; Path=/");
+	} else if (error.message) {
+	   cookies.push('sg_err=' + encodeURIComponent(error.message) + "; Path=/");
+	}
+
+    if (error.meta?.body?.debug) {
+	   cookies.push('sg_dbg=' + encodeURIComponent(JSON.stringify(error.meta?.body?.debug)) + "; Path=/");
+	}
+
+	if (cookies.length > 0) {
+      headers['set-cookie'] = cookies;		
+    }
+
     return response.redirected({
-      headers: {
-        location: basePath + '/customerror?type=authError',
-      },
+        headers,
     });
   }
 
