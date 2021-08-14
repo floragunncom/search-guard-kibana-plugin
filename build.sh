@@ -12,7 +12,7 @@ if [ -z "$COMMAND" ]; then
     exit 1
 fi
 
-if [ "$COMMAND" != "deploy-snapshot-maven" ] && [ "$COMMAND" != "install-local" ] && [ "$COMMAND" != "build-kibana" ]; then
+if [ "$COMMAND" != "deploy-snapshot-maven" ] && [ "$COMMAND" != "install-local" ] && [ "$COMMAND" != "build-kibana" ] && [ "$COMMAND" != "build" ]; then
     echo "Usage: ./build.sh <install-local|deploy-snapshot-maven|build-kibana>"
     echo "Unknown command: $COMMAND"
     exit 1

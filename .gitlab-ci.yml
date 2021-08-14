@@ -39,7 +39,7 @@ unit_tests:
       [ -s "$NVM_DIR/nvm.sh" ]; \. "$NVM_DIR/nvm.sh"
       export MAVEN_HOME=/opt/apache-maven
   script:
-    - ./build.sh install-local
+    - ./build.sh build
   interruptible: true
   artifacts:
     when: always
