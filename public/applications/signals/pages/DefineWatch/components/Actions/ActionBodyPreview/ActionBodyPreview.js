@@ -18,7 +18,6 @@ const ActionBodyPreview = ({
   view,
   fullWidth,
   fontSize,
-  language,
   isHTML,
   formik: { values },
 }) => {
@@ -52,7 +51,6 @@ const ActionBodyPreview = ({
       ) : (
         <EuiCodeBlock
           fontSize={fontSize}
-          language={language}
           data-test-subj="sgWatchAction-MustachePreview"
         >
           {previewBody}
@@ -65,7 +63,6 @@ const ActionBodyPreview = ({
 ActionBodyPreview.defaultProps = {
   view: {},
   isHTML: false,
-  language: 'text',
   fontSize: 'm',
   fullWidth: true,
 };
@@ -75,7 +72,6 @@ ActionBodyPreview.propTypes = {
   formik: PropTypes.object.isRequired,
   isHTML: PropTypes.bool,
   view: PropTypes.object,
-  language: PropTypes.string,
   fontSize: PropTypes.string,
   fullWidth: PropTypes.bool,
 };
