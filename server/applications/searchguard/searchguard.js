@@ -93,6 +93,7 @@ export class SearchGuard {
           logger: this.coreContext.logger.get('searchguard-auth'),
           searchGuardBackend,
           configService,
+          spacesService,
         });
         authManager.registerAuthInstances();
         defineAuthRoutes({ kibanaCore: core, authManager, searchGuardBackend, configService });
