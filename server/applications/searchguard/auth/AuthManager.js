@@ -204,8 +204,6 @@ export class AuthManager {
     
     try {
       const authConfig = await this.searchGuardBackend.getAuthConfig(
-        this.configService.get('elasticsearch.username'),
-        this.configService.get('elasticsearch.password'),
         this.getNextUrl(request)
       );
       

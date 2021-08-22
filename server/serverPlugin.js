@@ -86,7 +86,7 @@ export class ServerPlugin {
         clusterClient: elasticsearch.client,
       });
 
-      const searchGuardBackend = new SearchGuardBackend({ elasticsearch });
+      const searchGuardBackend = new SearchGuardBackend({ elasticsearch, configService });
       const searchGuardConfigurationBackend = new SearchGuardConfigurationBackend({
         elasticsearch,
       });

@@ -51,9 +51,7 @@ export function logoutHandler({ authManager }) {
 
 export function authConfigHandler({ authManager, searchGuardBackend, configService }) {
   return async function (context, request, response) {
-    const username = configService.get('elasticsearch.username');
-    const password = configService.get('elasticsearch.password');
-    const authConfig = await searchGuardBackend.getAuthConfig(username, password);
+    const authConfig = await searchGuardBackend.getAuthConfig();
 
     const backendMethodToFrontendMethod = {
       basic: AUTH_TYPE_NAMES.BASIC,

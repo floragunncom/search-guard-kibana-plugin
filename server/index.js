@@ -65,6 +65,8 @@ const getProxyCacheSchema = (isSelectedAuthType) => {
 // @todo We need to go through all of these and double check the default values, nullable, allow empty string etc.
 export const ConfigSchema = schema.object({
   enabled: schema.boolean({ defaultValue: searchguardDefaults.enabled }),
+  
+  sg_frontend_config_id: schema.string({ defaultValue: searchguardDefaults.sg_frontend_config_id }),
 
   allow_client_certificates: schema.boolean({
     defaultValue: searchguardDefaults.allow_client_certificates,

@@ -230,10 +230,8 @@ async function handleAuthRequest({
       };
 
   try {
-    const username = config.get('elasticsearch.username');
-    const password = config.get('elasticsearch.password');
     authConfig = (
-      await searchGuardBackend.getAuthConfig(username, password, nextUrl)
+      await searchGuardBackend.getAuthConfig(nextUrl)
     ).auth_methods.find(authConfigFinder);
 
     if (!authConfig) {

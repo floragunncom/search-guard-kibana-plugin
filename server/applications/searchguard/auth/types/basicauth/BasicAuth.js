@@ -84,10 +84,7 @@ export default class BasicAuth extends AuthType {
       //url = new URL(path.posix.join(appRoot, '/login'), this.loadBalancerURL);
     } else {
       try {
-        const authConfig = await this.searchGuardBackend.getAuthConfig(
-          this.config.get('elasticsearch.username'),
-          this.config.get('elasticsearch.password')
-        );
+        const authConfig = await this.searchGuardBackend.getAuthConfig();
 
         if (authConfig && authConfig.frontend_base_url) {
           appRoot = authConfig.frontend_base_url;

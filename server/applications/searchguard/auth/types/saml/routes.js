@@ -102,8 +102,6 @@ export function defineRoutes({
           : (config) => {
               return config.method === 'saml';
             };
-        const username = configService.get('elasticsearch.username');
-        const password = configService.get('elasticsearch.password');
 
         const authConfig = (
           await searchGuardBackend.getAuthConfig(username, password, nextUrl)

@@ -19,6 +19,7 @@ import { version as sgVersion } from '../package.json';
 export const DEFAULT_CONFIG = {
   searchguard: {
     enabled: true,
+    sg_frontend_config_id: "default",
     allow_client_certificates: false,
     readonly_mode: { enabled: true, roles: [] },
     xff: { enabled: false },
