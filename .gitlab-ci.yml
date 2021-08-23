@@ -7,6 +7,7 @@ cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
     - ./node_modules/
+    - ./build_stage/kibana/node_modules/
 
 workflow:
   rules:
@@ -143,9 +144,6 @@ deploy_snapshot:
       cat build.env
   artifacts:
     when: always
-    paths:
-      - components/search-guard-kibana-plugin/kibana-linux-x86_64.tar.gz
-      - deploy.out
     expire_in: 7 days
     reports:
       dotenv: build.env
@@ -211,10 +209,6 @@ deploy_staging:
     - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
   artifacts:
     when: always
-    paths:
-      - components/search-guard-kibana-plugin/kibana-linux-x86_64.tar.gz
-      - deploy.out
-      - environment.env
     expire_in: 7 days
     reports:
       dotenv: build.env
