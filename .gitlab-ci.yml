@@ -115,7 +115,7 @@ deploy_snapshot:
       fi
       if [[ ! "$SG_ES_PLUGIN" =~ ^https?:.*$ ]]; then
         if [[ "$SG_ES_PLUGIN" =~ .*SNAPSHOT.* ]]; then
-          SG_ES_PLUGIN_FILE=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-suite-plugin&v=$SG_ES_PLUGIN&repos=search-guard-suite-release"| grep zip|grep sgadmin|sed -E "s/([^\/]*)\/([^\/]*).zip(.*)/\2/"|sort|uniq|tail -n 1) 
+          SG_ES_PLUGIN_FILE=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-suite-plugin&v=$SG_ES_PLUGIN&repos=search-guard-suite-snapshot"| grep zip|grep sgadmin|sed -E "s/([^\/]*)\/([^\/]*).zip(.*)/\2/"|sort|uniq|tail -n 1) 
           SG_ES_PLUGIN=https://maven.search-guard.com/artifactory/search-guard-suite-snapshot/com/floragunn/search-guard-suite-plugin/$SG_ES_PLUGIN/$SG_ES_PLUGIN_FILE.zip
           echo "Found: $SG_ES_PLUGIN"
         else
