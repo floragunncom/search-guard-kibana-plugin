@@ -3,11 +3,11 @@ variables:
 
 image: circleci/openjdk:${SG_JAVA_BUILD_VERSION}-jdk-browsers
 
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - ./node_modules/
-    - ./build_stage/kibana/node_modules/
+#cache:
+#  key: ${CI_COMMIT_REF_SLUG}
+#  paths:
+#    - ./node_modules/
+#    - ./build_stage/kibana/node_modules/
 
 workflow:
   rules:
