@@ -200,8 +200,10 @@ export class AuthManager {
       });
     }
     
-    let loginPageURL = path.posix.join(this.basePath, 'login') + `?nextUrl=${this.getNextUrl(request)}`
+    let loginPageURL = this.basePath + '/login' + `?nextUrl=${this.getNextUrl(request)}`
     
+    console.log("loginPageUrl: ", loginPageURL, this.basePath);
+
     try {
       const authConfig = await this.searchGuardBackend.getAuthConfig(
         this.getNextUrl(request)

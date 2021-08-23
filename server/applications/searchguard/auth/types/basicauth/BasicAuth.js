@@ -89,13 +89,16 @@ export default class BasicAuth extends AuthType {
         if (authConfig && authConfig.frontend_base_url) {
           appRoot = authConfig.frontend_base_url;
 		  const frontendURL = new URL(path.posix.join(appRoot, '/login'));
+
+	      console.log("frontendURL in BasicAuth", frontendURL, appRoot);
+
           if (!isAJAX) {
 	        frontendURL.searchParams.set('nextUrl', this.getNextUrl(request));
           }
           return frontendURL;
         }
       } catch (error) {
-        // Ignore
+        console.warn(error);
       }
 
       url.pathname = path.posix.join(appRoot, '/login');
