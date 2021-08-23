@@ -98,6 +98,7 @@ deploy_snapshot:
       when: never
   script:
     - |
+      set -x
       mvn --batch-mode -s settings.xml -Drevision="b-$CI_COMMIT_REF_NAME-SNAPSHOT" clean deploy | tee deploy.out
       SG_KI_PLUGIN=$(grep -E "Uploaded to .*: https://.*/search-guard-kibana-plugin-.*[0-9]+.zip " deploy.out| grep -o 'http.*zip')
       KI_VERSION=$(cat package.json | jq --raw-output '.version' | cut -d "-" -f1)
@@ -134,7 +135,6 @@ deploy_snapshot:
           echo "Found: $SG_ADMIN"
         fi
       fi	
-
       echo "SG_ES_PLUGIN=$SG_ES_PLUGIN" >> build.env
       echo "SG_ADMIN=$SG_ADMIN" >> build.env
       echo "ES_VERSION=$ES_VERSION" >>build.env
