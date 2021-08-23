@@ -124,10 +124,10 @@ deploy_snapshot:
       fi	
       if [[ ! "$SG_ADMIN" =~ ^https?:.*$ ]]; then
         if [[ "$SG_ADMIN" =~ .*SNAPSHOT.* ]]; then
-          SG_ADMIN=$(ci/artifact_uri.sh search-guard-suite-snapshot search-guard-suite-plugin $SG_ES_PLUGIN sgadmin-standalone.zip)
+          SG_ADMIN=$(ci/artifact_uri.sh search-guard-suite-snapshot search-guard-suite-plugin $SG_ADMIN sgadmin-standalone.zip)
           echo "Found: $SG_ADMIN"
         else
-          SG_ADMIN=$(ci/artifact_uri.sh search-guard-suite-release search-guard-suite-plugin $SG_ES_PLUGIN sgadmin-standalone.zip)
+          SG_ADMIN=$(ci/artifact_uri.sh search-guard-suite-release search-guard-suite-plugin $SG_ADMIN sgadmin-standalone.zip)
           echo "Found: $SG_ADMIN"
         fi
       fi	

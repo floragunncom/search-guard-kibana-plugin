@@ -110,7 +110,7 @@ fe_kerberos:
   stage: "Frontend Int Tests Core"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: manual
+      when: on_success
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
   variables:
