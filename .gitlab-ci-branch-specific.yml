@@ -1,17 +1,6 @@
-##Specify SG Suite and ES version for integration tests
-##in case SG Suite plugin version != Kibana plugin version
-#variables:
-#  ES_VERSION: "7.12.1"
-#  SG_PLUGIN_VERSION: "7.12.1-master-SNAPSHOT"
-
-
-##Specify SG Suite, SGAdmin and ES version for integration tests
-##in case SG Suite plugin version != Kibana plugin version AND SG Suite plugin version != SG Admin version
 variables:
-  ES_TEST_VERSION: "7.14.0"
-  SG_PLUGIN_TEST_VERSION: "b-session-auth-SNAPSHOT"
-  SGADMIN_PLUGIN_TEST_VERSION: "b-session-auth-SNAPSHOT"
+  IT_BRANCH: "session-auth"
+  ES_VERSION: "7.14.0"
+  SG_ES_PLUGIN: "b-session-auth-SNAPSHOT"
+  SG_ADMIN: "b-session-auth-SNAPSHOT"
 
-##Specify custom Kibana branch which should be used as the source for Kibana build for further use in integration tests
-#variables:
-#  KIBANA_TEST_BRANCH:
