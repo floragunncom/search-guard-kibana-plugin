@@ -104,7 +104,7 @@ export function defineRoutes({
             };
 
         const authConfig = (
-          await searchGuardBackend.getAuthConfig(username, password, nextUrl)
+          await searchGuardBackend.getAuthConfig(nextUrl)
         ).auth_methods.find(authConfigFinder);
 
         if (!authConfig) {
