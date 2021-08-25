@@ -267,7 +267,7 @@ export function defineRoutes({
   const logoutHandler = async (context, request, response) => {
     await authInstance.clear(request);
     return response.redirected({
-      headers: { location: `${basePath}/login?type=samlLogoutSuccess` },
+      headers: { location: `${basePath}/` },
     });
   };
   // Logout route accepts both GET and POST
