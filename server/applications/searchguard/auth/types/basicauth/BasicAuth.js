@@ -58,7 +58,7 @@ export default class BasicAuth extends AuthType {
      * Redirect to a loadbalancer url instead of a relative path when unauthenticated?
      * @type {boolean}
      */
-    this.loadBalancerURL = this.config.get('searchguard.basicauth.loadbalancer_url');
+    this.loadBalancerURL = this.config.get('server.publicBaseUrl') || this.config.get('searchguard.frontend_base_url') || this.config.get('searchguard.basicauth.loadbalancer_url');
 
     /**
      * Allow anonymous access?
@@ -80,27 +80,9 @@ export default class BasicAuth extends AuthType {
     if (error && error instanceof MissingRoleError) {
       url.searchParams.set('type', 'missingRole');
       url.pathname = path.posix.join(appRoot, '/customerror');
-    } else if (0 && this.loadBalancerURL) {
-      //url = new URL(path.posix.join(appRoot, '/login'), this.loadBalancerURL);
+    } else if (this.loadBalancerURL) {
+      url = new URL(path.posix.join(appRoot, '/login'), this.loadBalancerURL);
     } else {
-      try {
-        const authConfig = await this.searchGuardBackend.getAuthConfig();
-
-        if (authConfig && authConfig.frontend_base_url) {
-          appRoot = authConfig.frontend_base_url;
-		  const frontendURL = new URL(path.posix.join(appRoot, '/login'));
-
-	      console.log("frontendURL in BasicAuth", frontendURL, appRoot);
-
-          if (!isAJAX) {
-	        frontendURL.searchParams.set('nextUrl', this.getNextUrl(request));
-          }
-          return frontendURL;
-        }
-      } catch (error) {
-        console.warn(error);
-      }
-
       url.pathname = path.posix.join(appRoot, '/login');
     }
 

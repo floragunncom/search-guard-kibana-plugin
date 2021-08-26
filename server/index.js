@@ -68,6 +68,8 @@ export const ConfigSchema = schema.object({
   
   sg_frontend_config_id: schema.string({ defaultValue: searchguardDefaults.sg_frontend_config_id }),
 
+  frontend_base_url: schema.string({ defaultValue: searchguardDefaults.frontend_base_url }),
+
   allow_client_certificates: schema.boolean({
     defaultValue: searchguardDefaults.allow_client_certificates,
   }),
