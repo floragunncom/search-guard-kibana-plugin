@@ -63,7 +63,7 @@ export default class BasicAuth extends AuthType {
 
   async getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false) {
     const url = new URL(request.url.href);
-    let appRoot = path.posix.join(this.basePath, APP_ROOT);
+    let appRoot = path.posix.join(this.frontendBaseUrl, APP_ROOT);
 
     if (!isAJAX) {
       url.searchParams.set('nextUrl', this.getNextUrl(request));

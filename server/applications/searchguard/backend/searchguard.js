@@ -41,7 +41,13 @@ export default class SearchGuardBackend {
 	  const username = this.configService.get('elasticsearch.username');
 	  const password = this.configService.get('elasticsearch.password');
       const sgFrontendConfigId = this.configService.get('searchguard.sg_frontend_config_id') || 'default'; 
-	  const frontendBaseUrl = this.configService.get('searchguard.frontend_base_url') || this.core.http.basePath.get();
+	  const frontendBaseUrl = this.config.get('searchguard.frontend_base_url') || this.core.http.basePath.publicBaseUrl;
+	
+	  if (!frontendBaseUrl) {
+		let serverInfo = this.core.http.getServerInfo();
+		frontendBaseUrl = serverInfo.protocol + "://" + serverInfo.hostname + ":" + serverInfo.port + "/" + this.core.http.basePath.serverBasePath;
+	  }	
+	
       const authHeaderValue = Buffer.from(`${username}:${password}`).toString('base64');
       let path = '/_searchguard/auth/config/?config_id=' + encodeURIComponent(sgFrontendConfigId) + '&frontend_base_url=' + encodeURIComponent(frontendBaseUrl);
       if (nextUrl) {
