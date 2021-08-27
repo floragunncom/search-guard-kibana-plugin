@@ -55,12 +55,6 @@ export default class BasicAuth extends AuthType {
     this.authHeaderName = 'authorization';
 
     /**
-     * Redirect to a loadbalancer url instead of a relative path when unauthenticated?
-     * @type {boolean}
-     */
-    this.loadBalancerURL = this.config.get('server.publicBaseUrl') || this.config.get('searchguard.frontend_base_url') || this.config.get('searchguard.basicauth.loadbalancer_url');
-
-    /**
      * Allow anonymous access?
      * @type {boolean}
      */
@@ -80,8 +74,6 @@ export default class BasicAuth extends AuthType {
     if (error && error instanceof MissingRoleError) {
       url.searchParams.set('type', 'missingRole');
       url.pathname = path.posix.join(appRoot, '/customerror');
-    } else if (this.loadBalancerURL) {
-      url = new URL(path.posix.join(appRoot, '/login'), this.loadBalancerURL);
     } else {
       url.pathname = path.posix.join(appRoot, '/login');
     }

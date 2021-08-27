@@ -22,9 +22,10 @@ import User from '../auth/user';
  * The SearchGuard  backend.
  */
 export default class SearchGuardBackend {
-  constructor({ elasticsearch, configService }) {
+  constructor({ elasticsearch, configService, core }) {
     this.elasticsearch = elasticsearch;
 	this.configService = configService;
+	this.core = core;
   }
 
   _client = async ({ headers = {}, asWho = 'asCurrentUser', ...options }) => {
@@ -40,8 +41,7 @@ export default class SearchGuardBackend {
 	  const username = this.configService.get('elasticsearch.username');
 	  const password = this.configService.get('elasticsearch.password');
       const sgFrontendConfigId = this.configService.get('searchguard.sg_frontend_config_id') || 'default'; 
-	  const frontendBaseUrl = this.configService.get('server.publicBaseUrl') || this.configService.get('searchguard.frontend_base_url') || 
-			((this.configService.get('server.ssl.enabled') ? 'https://' : 'http://') + this.configService.get('server.host') + ':' + this.configService.get('server.port') + this.configService.get('server.basepath'));
+	  const frontendBaseUrl = this.configService.get('searchguard.frontend_base_url') || this.core.http.basePath.get();
       const authHeaderValue = Buffer.from(`${username}:${password}`).toString('base64');
       let path = '/_searchguard/auth/config/?config_id=' + encodeURIComponent(sgFrontendConfigId) + '&frontend_base_url=' + encodeURIComponent(frontendBaseUrl);
       if (nextUrl) {

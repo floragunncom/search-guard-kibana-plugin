@@ -86,7 +86,7 @@ export class ServerPlugin {
         clusterClient: elasticsearch.client,
       });
 
-      const searchGuardBackend = new SearchGuardBackend({ elasticsearch, configService });
+      const searchGuardBackend = new SearchGuardBackend({ elasticsearch, configService, core });
       const searchGuardConfigurationBackend = new SearchGuardConfigurationBackend({
         elasticsearch,
       });
@@ -149,7 +149,7 @@ export class ServerPlugin {
         clusterClient: core.elasticsearch.client,
       });
 
-      const searchGuardBackend = new SearchGuardBackend({ elasticsearch: core.elasticsearch, configService });
+      const searchGuardBackend = new SearchGuardBackend({ elasticsearch: core.elasticsearch, configService, core });
 
       this.signalsApp.start({
         core,

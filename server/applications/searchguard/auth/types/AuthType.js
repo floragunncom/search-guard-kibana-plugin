@@ -155,10 +155,7 @@ export default class AuthType {
     try {
       this.debugLog('Authenticating using ' + credentials);
 
-	  const frontendBaseUrl = this.config.get('server.publicBaseUrl') || this.config.get('searchguard.frontend_base_url') || 
-			((this.config.get('server.ssl.enabled') ? 'https://' : 'http://') + this.config.get('server.host') + ':' + this.config.get('server.port') + this.config.get('server.basepath'));
-
-	  credentials.frontend_base_url = frontendBaseUrl;
+	  credentials.frontend_base_url = this.basePath;
 
       const sessionResponse = await this.searchGuardBackend.authenticateWithSession(credentials);
       const sessionCredentials = {
