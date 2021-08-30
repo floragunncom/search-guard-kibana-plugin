@@ -130,10 +130,6 @@ export class SearchGuard {
         }
       }
 
-      if (!configService.get('searchguard.jwt.enabled')) {
-        this.logger.warn('Search Guard copy JWT params disabled');
-      }
-
       // @todo TEST
       if (configService.get('searchguard.xff.enabled')) {
         require('./xff/xff')(core);

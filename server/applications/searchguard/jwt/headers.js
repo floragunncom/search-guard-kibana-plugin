@@ -16,13 +16,14 @@
 
 import { assign } from 'lodash';
 
+// TODO what is this used for?
 export default function (pluginRoot, server, APP_ROOT, API_ROOT) {
 
     const config = server.config();
     const basePath = config.get('server.basePath');
     const backend = server.plugins.searchguard.getSearchGuardBackend();
-    const urlparamname = server.config().get('searchguard.jwt.url_param');
-    const headername = server.config().get('searchguard.jwt.header');
+    const urlparamname = server.config().get('searchguard.auth.jwt.url_param');
+    const headername = "Authorization";
 
     server.ext('onPostAuth', async function (request, next) {
 

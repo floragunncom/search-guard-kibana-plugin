@@ -140,6 +140,12 @@ export const ConfigSchema = schema.object({
       Caution: Enabling this may cause sensitive authentication information (e.g. credentials) to be logged
     */
     debug: schema.boolean({ defaultValue: authDefaults.debug }),
+
+  	jwt_param: schema.object({
+    	enabled: schema.boolean({ defaultValue: authDefaults.jwt_param.enabled }),
+    	login_endpoint: schema.maybe(schema.string()),
+    	url_param: schema.string({ defaultValue: authDefaults.jwt_param.url_param })
+  	}),
   }),
 
   /**
@@ -304,13 +310,6 @@ export const ConfigSchema = schema.object({
     getProxyCacheSchema(true),
     getProxyCacheSchema(false)
   ),
-
-  jwt: schema.object({
-    enabled: schema.boolean({ defaultValue: jwtDefaults.enabled }),
-    login_endpoint: schema.maybe(schema.string()),
-    url_param: schema.string({ defaultValue: jwtDefaults.url_param }),
-    header: schema.string({ defaultValue: jwtDefaults.header }),
-  }),
 
   sgVersion: schema.string({ defaultValue: sgVersion }),
 });

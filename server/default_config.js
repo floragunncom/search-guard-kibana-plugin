@@ -43,6 +43,10 @@ export const DEFAULT_CONFIG = {
       unauthenticated_routes: ['/api/status'],
       logout_url: '',
       debug: false,
+      jwt_param: {
+        enabled: false,
+        url_param: 'authorization',
+      },
     },
     basicauth: {
       forbidden_usernames: [],
