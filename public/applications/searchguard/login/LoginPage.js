@@ -206,9 +206,9 @@ export function BasicLogin({ httpClient, basicLoginConfig, loginPageConfig }) {
           <EuiFlexGroup direction="column">
             <EuiFlexItem>
               <HTMLTitle
-                HTMLTag="p"
+                HTMLTag="div"
                 text={basicLoginConfig.message}
-                euiTextProps={{ 'data-test-subj': 'sg.login.subTitle' }}
+                euiTextProps={{ 'data-test-subj': 'sg.login.subTitle', size: 'xs' }}
               />
             </EuiFlexItem>
             <EuiFlexItem>
