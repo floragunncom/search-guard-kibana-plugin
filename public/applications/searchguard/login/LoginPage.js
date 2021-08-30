@@ -109,27 +109,34 @@ export function AuthTypesMenu({ authTypes = [] }) {
   if (!_authTypes.length) return null;
 
   return (
-    <EuiFlexItem>
+    <EuiFlexItem style={{ minWidth: 350, maxWidth: 350 }}>
+	<EuiPanel>
       <EuiErrorBoundary>
-        <EuiFlexGroup direction="column" gutterSize="s" responsive={false} wrap data-test-sub="sg.login.authMenu">
+        <EuiFlexGroup direction="column" gutterSize="xl" responsive={false} wrap data-test-sub="sg.login.authMenu">
           {_authTypes.map((auth, index) => {
             return (
               <EuiFlexItem key={index} grow={false}>
                 <EuiErrorBoundary>
-                  <EuiButton
-                    fill
-                    key={index}
-                    data-test-subj={`sg.login.authMenu.item.openid`}
-                    href={auth.loginURL}
-                  >
-                    {auth.title}
-                  </EuiButton>
+                  <EuiFlexGroup direction="column" gutterSize="m" responsive={false} wrap>
+                    <EuiButton
+                      key={index}
+                      data-test-subj={`sg.login.authMenu.item.openid`}
+                      href={auth.loginURL}
+                      isDisabled={auth.unavailable}
+                    >
+                      {auth.title}
+                    </EuiButton>
+					{auth.unavailable && auth.message ?
+					<p style={{textAlign: "center", fontSize: "77%", marginTop: "0.5em", marginLeft: "1.7em", marginRight: "1.7em"}}>{auth.message}</p>
+					: null}			
+				  </EuiFlexGroup>
                 </EuiErrorBoundary>
               </EuiFlexItem>
             );
           })}
         </EuiFlexGroup>
       </EuiErrorBoundary>
+	</EuiPanel>
     </EuiFlexItem>
   );
 }
@@ -347,11 +354,11 @@ export function LoginPage({ httpClient, configService }) {
   }
 
   return (
-      <EuiFlexGroup direction="column" justifyContent="center" alignItems="center" style={{ padding: '100px 10px' }}>
-        <EuiFlexItem>
+      <EuiFlexGroup direction="column" alignItems="center" style={{ padding: '100px 10px' }}>
+        <EuiFlexItem  grow={false}>
           <BrandImage configService={configService} httpClient={httpClient} />
         </EuiFlexItem>
-        <EuiFlexItem>
+        <EuiFlexItem  grow={false}>
           <HTMLTitle
             HTMLTag="h2"
             text={loginPageConfig.title}
@@ -363,11 +370,11 @@ export function LoginPage({ httpClient, configService }) {
           configService={configService}
           euiFlexItemProps={{ style: { minWidth: 350 } }}
         />
-        <EuiFlexItem>
+        <EuiFlexItem  grow={false}>
           {isLoading ? (
             <EuiLoadingKibana size="xl" />
           ) : (
-            <EuiFlexGroup gutterSize="m">
+            <EuiFlexGroup gutterSize="m" direction="column">
               <BasicLogin
                 basicLoginConfig={basicLoginConfig}
                 configService={configService}
