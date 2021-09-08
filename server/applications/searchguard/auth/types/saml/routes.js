@@ -16,7 +16,6 @@
  */
 
 import { sanitizeNextUrl } from '../../sanitize_next_url';
-import MissingTenantError from '../../errors/missing_tenant_error';
 import { schema } from '@kbn/config-schema';
 import { APP_ROOT } from '../../../../../utils/constants';
 
@@ -121,9 +120,31 @@ export function defineRoutes({
         return response.redirected({ headers: { location: authConfig.sso_location } });
       } catch (error) {
         logger.error(`SAML auth, fail to obtain the SAML header: ${error.stack}`);
+
+        var headers = {
+		  location: basePath + '/login?err=saml_init',
+	    };
+
+        var cookies = [];
+
+        if (error.meta?.body?.error) {
+	     cookies.push('sg_err=' + encodeURIComponent(error.meta?.body?.error) + "; Path=/");
+	    } else if (error.message) {
+	     cookies.push('sg_err=' + encodeURIComponent(error.message) + "; Path=/");
+	    }
+
+        if (error.meta?.body?.debug) {
+	     cookies.push('sg_dbg=' + encodeURIComponent(JSON.stringify(error.meta?.body?.debug)) + "; Path=/");
+	    }
+
+	    if (cookies.length > 0) {
+          headers['set-cookie'] = cookies;		
+        }
+
         return response.redirected({
-          headers: { location: `${basePath}/customerror?type=samlConfigError` },
+          headers,
         });
+
       }
     }
   );
@@ -193,13 +214,28 @@ export function defineRoutes({
       } catch (error) {
         logger.error(`SAML auth, failed to authorize: ${error.stack}`);
 
-        let errorType = 'samlAuthError';
-        if (error instanceof MissingTenantError) {
-          errorType = 'missingTenant';
+        var headers = {
+		  location: basePath + '/login?err=saml',
+	    };
+
+        var cookies = [];
+
+        if (error.meta?.body?.error) {
+	     cookies.push('sg_err=' + encodeURIComponent(error.meta?.body?.error) + "; Path=/");
+	    } else if (error.message) {
+	     cookies.push('sg_err=' + encodeURIComponent(error.message) + "; Path=/");
+	    }
+
+        if (error.meta?.body?.debug) {
+	     cookies.push('sg_dbg=' + encodeURIComponent(JSON.stringify(error.meta?.body?.debug)) + "; Path=/");
+	    }
+
+	    if (cookies.length > 0) {
+          headers['set-cookie'] = cookies;		
         }
 
         return response.redirected({
-          headers: { location: `${basePath}/customerror?type=${errorType}` },
+          headers,
         });
       }
     }
@@ -241,13 +277,28 @@ export function defineRoutes({
       } catch (error) {
         logger.error(`SAML IDP initiated authorization failed: ${error.stack}`);
 
-        let errorType = 'samlAuthError';
-        if (error instanceof MissingTenantError) {
-          errorType = 'missingTenant';
+        var headers = {
+		  location: basePath + '/login?err=saml_idpinitiated',
+	    };
+
+        var cookies = [];
+
+        if (error.meta?.body?.error) {
+	     cookies.push('sg_err=' + encodeURIComponent(error.meta?.body?.error) + "; Path=/");
+	    } else if (error.message) {
+	     cookies.push('sg_err=' + encodeURIComponent(error.message) + "; Path=/");
+	    }
+
+        if (error.meta?.body?.debug) {
+	     cookies.push('sg_dbg=' + encodeURIComponent(JSON.stringify(error.meta?.body?.debug)) + "; Path=/");
+	    }
+
+	    if (cookies.length > 0) {
+          headers['set-cookie'] = cookies;		
         }
 
         return response.redirected({
-          headers: { location: `${basePath}/customerror?type=${errorType}` },
+          headers,
         });
       }
     }

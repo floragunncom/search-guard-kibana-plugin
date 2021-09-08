@@ -80,9 +80,8 @@ export default class SearchGuardBackend {
 
       return response;
     } catch (error) {
-      if (error.statusCode === 401) {
-        throw new AuthenticationError('Invalid username or password', error);
-      }
+		// TODO remove
+      console.log(error);
       throw error;
     }
   }
