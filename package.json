@@ -33,6 +33,7 @@
   },
   "devDependencies": {
     "core-js": "^3.6.5",
+    "jest-junit": "^12.2.0",
     "ts-jest": "^26.4.1"
   }
 }
