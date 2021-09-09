@@ -199,5 +199,5 @@ fe_kerberos:
       - search-guard-integration-tests/environment.env
     reports:
       junit:
-        - "search-guard-integration-tests/test/testresults/junit/Test*.xml"
+        - "search-guard-integration-tests/test/testresults/Test*.xml"
     expire_in: 30 days
