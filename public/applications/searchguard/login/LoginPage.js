@@ -211,6 +211,10 @@ export function BasicLogin({ httpClient, basicLoginConfig, loginPageConfig, setD
 
       if (error.body?.attributes?.error) {
         _error = error.body.attributes.error;
+      }
+
+      if (_error == "Authentication failed") {
+	    _error = "Invalid username or password, please try again";
       } 
 
       setError(_error);
