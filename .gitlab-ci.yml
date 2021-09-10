@@ -9,19 +9,12 @@ image: circleci/openjdk:${SG_JAVA_BUILD_VERSION}-jdk-browsers
 #    - ./node_modules/
 #    - ./build_stage/kibana/node_modules/
 
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - when: always
 
-
-before_script:
-  - |
-    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh| bash
-    export NVM_HOME=~/.nvm
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ]; \. "$NVM_DIR/nvm.sh"
-    export MAVEN_HOME=/opt/apache-maven
-    PACKAGE_VERSION=$(cat package.json | jq --raw-output '.version') && echo "PACKAGE_VERSION: $PACKAGE_VERSION"
-    ES_VERSION=$(echo $PACKAGE_VERSION | cut -d'-' -f1) && echo "ES_VERSION: $ES_VERSION"
-    PLUGIN_VERSION=$(echo $PACKAGE_VERSION | cut -d'-' -f2) && echo "PLUGIN_VERSION: $PLUGIN_VERSION"
-    SNAPSHOT=$(echo $PACKAGE_VERSION | cut -d'-' -f3) && echo "SNAPSHOT: $SNAPSHOT"
 
 stages:
   - build
@@ -31,31 +24,58 @@ stages:
   - "Frontend Int Tests External Features"
   - release
 
-
-unittest_and_build:
+#This case is for usual commit to the branch, doing only unit testing and local build
+unit_tests:
   stage: build
+  tags:
+    - openstack-runner
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
+      when: never
+    - when: always
+  before_script:
+    - |
+      curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh| bash
+      export NVM_HOME=~/.nvm
+      export NVM_DIR="$HOME/.nvm"
+      [ -s "$NVM_DIR/nvm.sh" ]; \. "$NVM_DIR/nvm.sh"
+      export MAVEN_HOME=/opt/apache-maven
   script:
-    - if [ "$SNAPSHOT" == "SNAPSHOT" ]; then ./build.sh deploy-snapshot-maven; else echo "Can only deploy SNAPSHOT versions" && exit -1; fi
-  except:
-    - merge_requests
+    - ./build.sh build
+  interruptible: true
   artifacts:
     when: always
     paths:
-      - build.log
-    expire_in: 30 days
-  only:
-    variables:
-      - $CI_JOB == null || $CI_JOB == ""
+      - "build.log"
+      - "build/kibana/*"
+    expire_in: 24h
 
-kibana_build:
+#This case is for release tag commit to the branch, doing only unit testing and local build
+unit_tests_release:
   stage: build
+  tags:
+    - openstack-runner
+  before_script:
+    - |
+      curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh| bash
+      export NVM_HOME=~/.nvm
+      export NVM_DIR="$HOME/.nvm"
+      [ -s "$NVM_DIR/nvm.sh" ]; \. "$NVM_DIR/nvm.sh"
+      export MAVEN_HOME=/opt/apache-maven
   script:
-    - ./build.sh build-kibana
-  except:
-    - merge_requests
-  only:
-    variables:
-      - $CI_JOB == "build_kibana"
+    - |
+      export KIBANA_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f4)
+      export KIBANA_PLUGIN_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f2|cut -d. -f2-)'.0'
+      sed -i -e "s#\"version\":.*\"#\"version\": \"$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT\"#" package.json
+      sed -i -e "s#\"version\":.*\"#\"version\": \"$KIBANA_VERSION\"#" kibana.json
+      ./build.sh install-local
+      mv "build/kibana/searchguard-kibana-$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT" "build/kibana/searchguard-kibana-$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION"
+      sed -i -e "s/\"version\":\".*\"/\"version\": \"$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION\"/" package.json
+      sed -i -e "s#\"version\":.*\"#\"version\": \"$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION\"#" package.json
+      sed -i -e "s#\"version\":.*\"#\"version\": \"$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION\"#" "build/kibana/searchguard-kibana-$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION/package.json"
+  interruptible: true
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
   artifacts:
     when: always
     paths:
@@ -124,8 +144,11 @@ deploy_snapshot:
     reports:
       dotenv: build.env
 
-unit_build_and_int_tests:
-  stage: build
+
+deploy_staging:
+  stage: package
+  tags:
+    - openstack-runner
   script:
     - |
       ./dev/setup_gpg.sh || true
