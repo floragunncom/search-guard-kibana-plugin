@@ -4,6 +4,7 @@ start=`date +%s`
 # WARNING! Do not use jq here, only bash.
 COMMAND="$1"
 EXIT_IF_VULNERABILITY=true
+output=$(mktemp)
 
 # sanity checks for options
 if [ -z "$COMMAND" ]; then
@@ -11,7 +12,7 @@ if [ -z "$COMMAND" ]; then
     exit 1
 fi
 
-if [ "$COMMAND" != "deploy-snapshot-maven" ] && [ "$COMMAND" != "install-local" ] && [ "$COMMAND" != "build-kibana" ]; then
+if [ "$COMMAND" != "deploy-snapshot-maven" ] && [ "$COMMAND" != "install-local" ] && [ "$COMMAND" != "build-kibana" ] && [ "$COMMAND" != "build" ]; then
     echo "Usage: ./build.sh <install-local|deploy-snapshot-maven|build-kibana>"
     echo "Unknown command: $COMMAND"
     exit 1
@@ -68,9 +69,10 @@ fi
 # check for snapshot
 WORK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $WORK_DIR
-grep "\-SNAPSHOT" package.json > /dev/null 2>&1
+grep "\-SNAPSHOT" package.json > /dev/null &> $output
 if [ $? != 0 ]; then
     echo "Not a snapshot version in package.json"
+    cat $output
     exit 1
 fi
 
@@ -110,51 +112,64 @@ rm -f "$WORK_DIR/build.log"
 
 echo "Logfile: $WORK_DIR/build.log"
 
-echo "+++ Cloning https://github.com/elastic/kibana.git +++"
-git clone https://github.com/elastic/kibana.git >>"$WORK_DIR/build.log" 2>&1
+if [ -n "$KIBANA_APP_BRANCH" ]; then
+  KIBANA_BRANCH_NAME="$KIBANA_APP_BRANCH"
+else
+  KIBANA_BRANCH_NAME="v$KIBANA_VERSION"
+fi
+
+echo -e "\e[0Ksection_start:`date +%s`:kibana_clone\r\e[0KCloning https://github.com/elastic/kibana.git $KIBANA_BRANCH_NAME"
+
+git clone --depth 1 --branch $KIBANA_BRANCH_NAME https://github.com/elastic/kibana.git >>"$WORK_DIR/build.log" &> $output
+if [ $? != 0 ]; then
+    echo "Failed to clone Kibana"
+    cat $output
+    exit 1
+fi
+
+echo -e "\e[0Ksection_end:`date +%s`:kibana_clone\r\e[0K"
 
 cd "kibana"
-git fetch >>"$WORK_DIR/build.log" 2>&1
-
-echo "+++ Going to choose Kibana repo branch +++"
-if [ -n "$KIBANA_APP_BRANCH" ]; then
-  (git checkout "$KIBANA_APP_BRANCH" && echo "+++ Changed to $KIBANA_APP_BRANCH +++")  # >>"$WORK_DIR/build.log" 2>&1
-    if [ $? != 0 ]; then
-      echo "Switching to Kibana $KIBANA_APP_BRANCH failed"
-      exit 1
-    fi
-else
-  (git checkout "tags/v$KIBANA_VERSION" && echo "+++ Changed Kibana repository to v$KIBANA_VERSION +++")
-    if [ $? != 0 ]; then
-      echo "Switching to Kibana  $KIBANA_VERSION failed"
-      exit 1
-    fi
-fi
 
 #This is taken from Kibana GIT
 KIBANA_APP_VERSION=$(grep -e '\bversion\b' package.json | tr -d "[:blank:]" | sed -E 's/"version":"(.*)",/\1/')
+
+echo "KIBANA_APP_VERSION: $KIBANA_APP_VERSION"
+
+echo -e "\e[0Ksection_start:`date +%s`:node_install\r\e[0KInstalling node"
+
 echo "+++ Installing node version $(cat .node-version) +++"
-nvm install "$(cat .node-version)" >>"$WORK_DIR/build.log" 2>&1
+nvm install "$(cat .node-version)" >>"$WORK_DIR/build.log" &> $output
 if [ $? != 0 ]; then
     echo "Installing node $(cat .node-version) failed"
+    cat $output
     exit 1
 else
     echo "    -> $(cat .node-version)"
 fi
+
+echo -e "\e[0Ksection_end:`date +%s`:node_install\r\e[0K"
+
+echo -e "\e[0Ksection_start:`date +%s`:yarn_install\r\e[0KSourcing Yarn"
 
 echo "+++ Sourcing Yarn +++"
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 
 if ! [ -x "$(command -v yarn)" ]; then
     echo "+++ Installing Yarn +++"
-    curl -Ss -o- -L https://yarnpkg.com/install.sh | bash >>"$WORK_DIR/build.log" 2>&1
+    curl -Ss -o- -L https://yarnpkg.com/install.sh | bash >>"$WORK_DIR/build.log" &> $output
     if [ $? != 0 ]; then
         echo "Installing Yarn failed"
+        cat $output
         exit 1
     fi
 else
 echo "    -> $(yarn -v)"
 fi
+
+echo -e "\e[0Ksection_end:`date +%s`:yarn_install\r\e[0K"
+
+
 if [ "$COMMAND" == "build-kibana" ] ; then
   echo "Building Kibana package from checkout Kibana branch (see above) "
   yarn kbn bootstrap && yarn build --skip-os-packages --no-oss
@@ -176,6 +191,8 @@ cp -a "$WORK_DIR/tests" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/__mocks__" "$BUILD_STAGE_PLUGIN_DIR"
 cd $BUILD_STAGE_PLUGIN_DIR
 
+echo -e "\e[0Ksection_start:`date +%s`:yarn_audit\r\e[0KChecking yarn packages for vulnerabilities"
+
 echo "+++ Checking yarn packages for vulnerabilities +++"
 auditResult=`yarn audit --groups dependencies --level 4 2>&1`
 isNoVulnerability="[^\d]0 vulnerabilities found.*$"
@@ -186,12 +203,21 @@ if [[ ! $auditResult =~ $isNoVulnerability && $EXIT_IF_VULNERABILITY = true ]]; 
 fi
 echo ${auditResult::limit} >>"$WORK_DIR/build.log" 2>&1
 
+echo -e "\e[0Ksection_end:`date +%s`:yarn_audit\r\e[0K"
+
+echo -e "\e[0Ksection_start:`date +%s`:yarn_kbn_bootstrap\r\e[0KInstalling plugin node modules"
+
 echo "+++ Installing plugin node modules +++"
 yarn kbn bootstrap --oss
 if [ $? != 0 ]; then
     echo "Installing node modules failed"
+    cat $output
     exit 1
 fi
+
+echo -e "\e[0Ksection_end:`date +%s`:yarn_kbn_bootstrap\r\e[0K"
+
+echo -e "\e[0Ksection_start:`date +%s`:tests\r\e[0KTests"
 
 echo "+++ Testing UI +++"
 uitestsResult=`../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --silent --json`
@@ -209,11 +235,16 @@ if [[ ! $srvtestsResult =~ .*\"numFailedTests\":0.* || ! $srvtestsResult =~ .*\"
     exit 1
 fi
 
+echo -e "\e[0Ksection_end:`date +%s`:tests\r\e[0K"
+
+echo -e "\e[0Ksection_start:`date +%s`:package\r\e[0KPackaging"
+
 echo "+++ Installing plugin node modules for production +++"
-rm -rf "node_modules" yarn.lock
-yarn install --production >>"$WORK_DIR/build.log" 2>&1
+rm -rf "node_modules"
+yarn install --production >>"$WORK_DIR/build.log" &> $output
 if [ $? != 0 ]; then
     echo "Installing node modules failed"
+    cat $output
     exit 1
 fi
 
@@ -234,16 +265,23 @@ rm -rf build
 mv "$BUILD_STAGE_PLUGIN_DIR/build" build
 mv build/kibana/searchguard "build/kibana/$PLUGIN_NAME"
 
+echo -e "\e[0Ksection_end:`date +%s`:package\r\e[0K"
+
+
 end=`date +%s`
 echo "Build time: $((end-start)) sec"
 
 if [ "$COMMAND" == "deploy-snapshot-maven" ] ; then
+	echo -e "\e[0Ksection_start:`date +%s`:deploy[collapsed=true]\r\e[0KDeploying"
+
     echo "+++ mvn clean deploy +++"
     $MAVEN_HOME/bin/mvn clean deploy -s settings.xml -Drevision="$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT"
     if [ $? != 0 ]; then
         echo "$MAVEN_HOME/bin/mvn clean deploy failed"
         exit 1
     fi
+    
+    echo -e "\e[0Ksection_end:`date +%s`:deploy\r\e[0K"
 fi
 
 if [ "$COMMAND" == "install-local" ] ; then
