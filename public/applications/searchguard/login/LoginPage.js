@@ -206,6 +206,9 @@ export function BasicLogin({ httpClient, basicLoginConfig, loginPageConfig, setD
       redirectToKibana();
     } catch (error) {
       console.error('BasicLogin, handleSubmit', error);
+	  if (error.body) {
+		console.log(JSON.stringify(error.body));
+	  }
       let _error =
         'An error occurred while checking your credentials, make sure you have an Elasticsearch cluster secured by Search Guard running.';
 
