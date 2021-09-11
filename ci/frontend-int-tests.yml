@@ -192,11 +192,6 @@ fe_kerberos:
        cp ci-tools/*.sh ./
        echo "Executing submit_test.sh"
        ./submit_test.sh "$TEST" ""
-       result=$?
-       if [ $result -ne 0 ]; then
-          echo "./submit_test.sh failed with exit code $result"
-          exit 1
-       fi
   needs:
     - job: deploy_snapshot
       artifacts: true
