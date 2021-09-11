@@ -207,15 +207,19 @@ echo -e "\e[0Ksection_end:`date +%s`:yarn_audit\r\e[0K"
 
 echo -e "\e[0Ksection_start:`date +%s`:yarn_kbn_bootstrap\r\e[0KInstalling plugin node modules"
 
+cd "$BUILD_STAGE_DIR/OpenSearch-Dashboards"
+
 echo "+++ Installing plugin node modules +++"
 yarn osd bootstrap --oss
 if [ $? != 0 ]; then
     echo "Installing node modules failed"
-    cat $output
     exit 1
 fi
 
 echo -e "\e[0Ksection_end:`date +%s`:yarn_kbn_bootstrap\r\e[0K"
+
+cd $BUILD_STAGE_PLUGIN_DIR
+
 
 echo -e "\e[0Ksection_start:`date +%s`:tests\r\e[0KTests"
 
@@ -252,18 +256,18 @@ echo "+++ Building webpack bundles for the the browser code  +++"
 echo "+++ And transpiling the server code  +++"
 yarn build -v $KIBANA_VERSION --skip-archive
 # The following files may be omitted by the Kibana build helpers but we must have them.
-mv node_modules build/opensearch-dashboards/plugins/search-guard
-cp -a "$WORK_DIR/public" build/opensearch-dashboards/plugins/search-guard
-cp -a "$WORK_DIR/package.json" build/opensearch-dashboards/plugins/search-guard
-cp -a "$WORK_DIR/install_demo_configuration.ps1" build/opensearch-dashboards/plugins/search-guard
-cp -a "$WORK_DIR/install_demo_configuration.sh" build/opensearch-dashboards/plugins/search-guard
-cp -a "$WORK_DIR/install_demo_configuration.js" build/opensearch-dashboards/plugins/search-guard
+mv node_modules build/opensearch-dashboards/searchguard
+cp -a "$WORK_DIR/public" build/opensearch-dashboards/searchguard
+cp -a "$WORK_DIR/package.json" build/opensearch-dashboards/searchguard
+cp -a "$WORK_DIR/install_demo_configuration.ps1" build/opensearch-dashboards/searchguard
+cp -a "$WORK_DIR/install_demo_configuration.sh" build/opensearch-dashboards/searchguard
+cp -a "$WORK_DIR/install_demo_configuration.js" build/opensearch-dashboards/searchguard
 
 echo "+++ Copy plugin contents to finalize build +++"
 cd "$WORK_DIR"
 rm -rf build
 mv "$BUILD_STAGE_PLUGIN_DIR/build" build
-mv build/opensearch-dashboards/plugins/search-guard "build/opensearch-dashboards/$PLUGIN_NAME"
+mv build/opensearch-dashboards/searchguard "build/opensearch-dashboards/$PLUGIN_NAME"
 
 echo -e "\e[0Ksection_end:`date +%s`:package\r\e[0K"
 
