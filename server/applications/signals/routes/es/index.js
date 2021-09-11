@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { searchEsRoute } from './search';
 import { getIndicesRoute } from './get_indices';
 import { getAliasesRoute } from './get_aliases';

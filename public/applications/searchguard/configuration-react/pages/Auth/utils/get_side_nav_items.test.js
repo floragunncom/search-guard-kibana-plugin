@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { getSideNavItems } from './get_side_nav_items';
 
 describe('public/configuration/pages/auth/get_side_nav_items', () => {

@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 export const SELECTED_SIDE_NAV_ITEM_NAME = 'basicInternalAuthDomain';
 export const SIDE_NAV = {
   AUTHENTICATION: 'authentication',

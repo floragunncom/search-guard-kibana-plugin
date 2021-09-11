@@ -47,7 +47,7 @@ unit_tests:
     when: always
     paths:
       - "build.log"
-      - "build/kibana/*"
+      - "build/opensearch-dashboards/*"
     expire_in: 24h
 
 #This case is for release tag commit to the branch, doing only unit testing and local build
@@ -80,7 +80,7 @@ unit_tests_release:
     when: always
     paths:
       - "build.log"
-      - "build/kibana/*"
+      - "build/opensearch-dashboards/*"
     expire_in: 24h
 
 

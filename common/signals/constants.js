@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 export const APP_NAME = 'searchguard-signals';
 export const APP_DESCRIPTION = 'Search Guard Signals';
 

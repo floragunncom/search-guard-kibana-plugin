@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 /*
  *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *

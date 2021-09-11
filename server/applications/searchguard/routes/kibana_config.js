@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { pick } from 'lodash';
 import { API_ROOT } from '../../../utils/constants';
 

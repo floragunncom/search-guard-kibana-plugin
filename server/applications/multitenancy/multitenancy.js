@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 /**
  *    Copyright 2020 floragunn GmbH
 
@@ -36,16 +36,16 @@ export class Multitenancy {
   }) {
     this.logger.debug('Setup app');
 
-    const requestHeadersWhitelist = configService.get('elasticsearch.requestHeadersWhitelist');
+    const requestHeadersWhitelist = configService.get('opensearch.requestHeadersWhitelist');
     if (!requestHeadersWhitelist.includes('sgtenant')) {
       throw new Error(
-        'No tenant header found in whitelist. Please add sgtenant to elasticsearch.requestHeadersWhitelist in kibana.yml'
+        'No tenant header found in whitelist. Please add sgtenant to opensearch.requestHeadersWhitelist in opensearch_dashboards.yml'
       );
     }
 
     try {
       const router = kibanaCore.http.createRouter();
-      const [{ elasticsearch }] = await kibanaCore.getStartServices();
+      const [{ opensearch }] = await kibanaCore.getStartServices();
 
       const multitenancyLifecycle = new MultitenancyLifecycle({
         authManager,
@@ -53,7 +53,7 @@ export class Multitenancy {
         configService,
         sessionStorageFactory,
         logger: this.logger,
-        clusterClient: elasticsearch.client,
+        clusterClient: opensearch.client,
         pluginDependencies,
       });
       kibanaCore.http.registerOnPreAuth(multitenancyLifecycle.onPreAuth);
@@ -64,7 +64,7 @@ export class Multitenancy {
         config: configService,
         sessionStorageFactory,
         logger: this.logger,
-        clusterClient: elasticsearch.client,
+        clusterClient: opensearch.client,
       });
     } catch (error) {
       this.logger.error(`setup: ${error.toString()} ${error.stack}`);
@@ -74,7 +74,7 @@ export class Multitenancy {
   async start({ core, kibanaRouter, searchGuardBackend, configService }) {
     this.logger.debug('Start app');
     const savedObjects = core.savedObjects;
-    const esClient = core.elasticsearch.client;
+    const esClient = core.opensearch.client;
 
     try {
       await this.tenantsMigration.start({

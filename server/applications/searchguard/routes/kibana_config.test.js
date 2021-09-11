@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { handleKibanaConfig } from './kibana_config';
 import { setupLoggerMock, setupHttpResponseMock } from '../../../utils/mocks';
 

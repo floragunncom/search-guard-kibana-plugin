@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 /**
  *    Copyright 2018 floragunn GmbH
 
@@ -16,7 +16,7 @@
  */
 
 import { sanitizeNextUrl } from '../../sanitize_next_url';
-import { schema } from '@kbn/config-schema';
+import { schema } from '@osd/config-schema';
 import { APP_ROOT } from '../../../../../utils/constants';
 
 export const SAML_ROUTES = {
@@ -61,7 +61,7 @@ export function defineRoutes({
       if (httpAuth.isAuthenticated(request)) {
         return response.redirected({
           headers: {
-            location: `${basePath}/app/kibana`,
+            location: `${basePath}/app/opensearch-dashboards`,
           },
         });
       }
@@ -272,7 +272,7 @@ export function defineRoutes({
         debugLog('Got SAMLResponse: ' + request.body.SAMLResponse);
 
         return response.redirected({
-          headers: { location: `${basePath}/app/kibana` },
+          headers: { location: `${basePath}/app/opensearch-dashboards` },
         });
       } catch (error) {
         logger.error(`SAML IDP initiated authorization failed: ${error.stack}`);

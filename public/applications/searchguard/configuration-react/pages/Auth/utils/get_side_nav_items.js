@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { isEmpty, forEach, startCase } from 'lodash';
 import { sideNavItem } from '../../../utils/helpers';
 import { SIDE_NAV } from './constants';

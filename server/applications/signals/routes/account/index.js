@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { getAccountRoute } from './get';
 import { createAccountRoute } from './create';
 import { deleteAccountRoute } from './delete';

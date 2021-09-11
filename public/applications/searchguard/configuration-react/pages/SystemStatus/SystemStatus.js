@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 /* eslint-disable import/namespace */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';

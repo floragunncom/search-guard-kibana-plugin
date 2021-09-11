@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 /**
  *    Copyright 2020 floragunn GmbH
 
@@ -15,9 +15,9 @@
  limitations under the License.
  */
 
-import { migrationRetryCallCluster } from '../../../../../src/core/server/elasticsearch/client';
-import { createMigrationEsClient } from '../../../../../src/core/server/saved_objects/migrations/core';
-import { KibanaMigrator } from '../../../../../src/core/server/saved_objects/migrations';
+import { migrationRetryCallCluster } from '../../../../../src/core/server/opensearch/client';
+import { createMigrationOpenSearchClient } from '../../../../../src/core/server/saved_objects/migrations/core';
+import { OpenSearchDashboardsMigrator } from '../../../../../src/core/server/saved_objects/migrations';
 
 import { defineMigrateRoutes } from './routes';
 
@@ -52,10 +52,10 @@ export class TenantsMigrationService {
         !tenantIndices || typeof tenantIndices !== 'object' ? [] : Object.keys(tenantIndices);
 
       const typeRegistry = savedObjects.getTypeRegistry();
-      const kibanaConfig = configService.get('kibana');
+      const kibanaConfig = configService.get('opensearchDashboards');
 
       const migratorDeps = {
-        client: createMigrationEsClient(esClient.asInternalUser, this.logger),
+        client: createMigrationOpenSearchClient(esClient.asInternalUser, this.logger),
         kibanaConfig,
         typeRegistry,
         logger: this.logger,
@@ -65,13 +65,13 @@ export class TenantsMigrationService {
       };
 
       defineMigrateRoutes({
-        KibanaMigrator,
+        OpenSearchDashboardsMigrator,
         migratorDeps,
         kibanaRouter,
         searchGuardBackend,
       });
 
-      const migrator = new KibanaMigrator(migratorDeps);
+      const migrator = new OpenSearchDashboardsMigrator(migratorDeps);
 
       this.logger.info('Putting the tenants index template in Elasticsearch ...');
       await putTenantIndexTemplate({
@@ -103,7 +103,7 @@ export class TenantsMigrationService {
           // We execute the index migration sequentially because Elasticsearch doesn't keep up
           // with parallel migration for a large number of indices (tenants).
           // https://git.floragunn.com/search-guard/search-guard-kibana-plugin/-/issues/315
-          response = await new KibanaMigrator({
+          response = await new OpenSearchDashboardsMigrator({
             ...migratorDeps,
             kibanaConfig: { ...kibanaConfig, index: this.tenantIndices[i] },
           }).runMigrations();

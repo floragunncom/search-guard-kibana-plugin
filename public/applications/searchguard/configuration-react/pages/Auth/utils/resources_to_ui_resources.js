@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { reduce, camelCase } from 'lodash';
 
 const resourcesToUiResources = ({ authc, authz }) => {

@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { cloneDeep, omit, get } from 'lodash';
 import buildSchedule from './buildSchedule';
 import { buildThrottle } from './buildThrottle';

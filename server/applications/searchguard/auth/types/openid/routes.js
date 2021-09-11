@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { schema } from '@kbn/config-schema';
+import { schema } from '@osd/config-schema';
 import { sanitizeNextUrl } from '../../sanitize_next_url';
 import { APP_ROOT } from '../../../../../utils/constants';
 

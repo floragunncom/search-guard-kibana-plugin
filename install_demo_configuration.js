@@ -92,7 +92,7 @@ function getCommonSettings({ certsFolder }) {
         key: path.resolve(certsFolder, TLS_PRIV_KEY_FILENAME),
       },
     },
-    elasticsearch: {
+    opensearch: {
       hosts: 'https://localhost:9200',
       username: 'kibanaserver',
       password: 'kibanaserver',

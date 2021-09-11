@@ -71,7 +71,7 @@ export class MultitenancyLifecycle {
     if (
       !path.startsWith('/internal') &&
       !path.startsWith('/goto') &&
-      !path.startsWith('/elasticsearch') &&
+      !path.startsWith('/opensearch') &&
       !path.startsWith('/api') &&
       !path.startsWith('/app') &&
       path !== '/'
@@ -217,7 +217,7 @@ export class MultitenancyLifecycle {
    * @returns {Promise<void|boolean>}
    */
   createDefaultSpace = async ({ request, selectedTenant }) => {
-    const kibanaIndex = this.configService.get('kibana.index');
+    const kibanaIndex = this.configService.get('opensearchDashboards.index');
     const defaultSpaceId = 'space:default';
     // If the spaces doesn't work, check the default doc structure
     // in the Kibana version you use. Maybe the doc changed.

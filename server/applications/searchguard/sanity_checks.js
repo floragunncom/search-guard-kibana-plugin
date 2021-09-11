@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { DEFAULT_CONFIG } from '../../default_config';
 
 export const xPackSecurityErrorText =
@@ -11,13 +11,13 @@ export const failedCheckDoNotFailOnForbiddenText =
   'Failed to verify the "not_fail_on_forbidden_enabled" option.';
 
 export const allowClientCertificatesNeededForSSLCertificateErrorText =
-  '"elasticsearch.ssl.certificate" can not be used without setting "searchguard.allow_client_certificates" to "true" in kibana.yml. Please refer to the documentation for more information about the implications of doing so: https://docs.search-guard.com/latest/kibana-plugin-installation#client-certificates-elasticsearchsslcertificate';
+  '"opensearch.ssl.certificate" can not be used without setting "searchguard.allow_client_certificates" to "true" in kibana.yml. Please refer to the documentation for more information about the implications of doing so: https://docs.search-guard.com/latest/kibana-plugin-installation#client-certificates-elasticsearchsslcertificate';
 
 export const alwaysPresentCertificateWarnText =
-  "'elasticsearch.ssl.alwaysPresentCertificate' may lead to requests being executed as the user attached to the certificate configured in 'elasticsearch.ssl.certificate'.";
+  "'opensearch.ssl.alwaysPresentCertificate' may lead to requests being executed as the user attached to the certificate configured in 'elasticsearch.ssl.certificate'.";
 
 export const defaultCookiePasswordWarnText =
-  "Default cookie password detected, please set a password in kibana.yml by setting 'searchguard.cookie.password' (min. 32 characters).";
+  "Default cookie password detected, please set a password in opensearch_dashboards.yml by setting 'searchguard.cookie.password' (min. 32 characters).";
 
 export const cookieSecureFalseWarnText =
   "'searchguard.cookie.secure' is set to false, cookies are transmitted over unsecure HTTP connection. Consider using HTTPS and set this key to 'true'";
@@ -41,7 +41,7 @@ export async function checkDoNotFailOnForbidden({ searchGuardBackend, logger }) 
 }
 
 export function checkTLSConfig({ configService, logger }) {
-  const sslConfig = configService.get('elasticsearch.ssl', {});
+  const sslConfig = configService.get('opensearch.ssl', {});
 
   if (typeof sslConfig.certificate !== 'undefined' && sslConfig.certificate !== false) {
     if (configService.get('searchguard.allow_client_certificates') !== true) {

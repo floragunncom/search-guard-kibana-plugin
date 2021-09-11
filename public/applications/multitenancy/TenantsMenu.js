@@ -206,8 +206,8 @@ function ConfigurationCheckCallOut() {
   const { httpClient, configService, addErrorToast } = useContext(MainContext);
   const [error, setError] = useState(null);
 
-  const kibanaServerUser = configService.get('elasticsearch.username');
-  const kibanaIndex = configService.get('kibana.index');
+  const kibanaServerUser = configService.get('opensearch.username');
+  const kibanaIndex = configService.get('opensearchDashboards.index');
 
   useEffect(() => {
     fetchData();

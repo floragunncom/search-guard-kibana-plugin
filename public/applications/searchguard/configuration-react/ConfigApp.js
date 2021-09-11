@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { BehaviorSubject } from 'rxjs';
 import { AppNavLinkStatus } from '../../../../../../src/core/public';
 import { SEARCHGUARD_APP_CATEGORY } from '../../../utils/constants';

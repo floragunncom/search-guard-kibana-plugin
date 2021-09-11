@@ -26,10 +26,10 @@ describe('SearchGuardConfigurationBackend', () => {
 
   test('client encodes URI if it is not encoded', async () => {
     const asCurrentUserTransportRequest = jest.fn().mockResolvedValue({});
-    const elasticsearch = { client: setupClusterClientMock({ asCurrentUserTransportRequest }) };
-    const getElasticsearch = jest.fn().mockResolvedValue(elasticsearch);
+    const opensearch = { client: setupClusterClientMock({ asCurrentUserTransportRequest }) };
+    const getOpensearch = jest.fn().mockResolvedValue(opensearch);
 
-    const backend = new SearchGuardConfigurationBackend({ configService, getElasticsearch });
+    const backend = new SearchGuardConfigurationBackend({ configService, getOpensearch });
     backend._client = jest.fn().mockResolvedValue({});
 
     const resourceName = 'resourceName';

@@ -1,5 +1,5 @@
-/* eslint-disable @kbn/eslint/require-license-header */
-import { schema } from '@kbn/config-schema';
+/* eslint-disable @osd/eslint/require-license-header */
+import { schema } from '@osd/config-schema';
 import { API_ROOT } from '../../../utils/constants';
 
 export function migrateTenants({

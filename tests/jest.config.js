@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 module.exports = {
   rootDir: '../',
   setupFiles: ['<rootDir>/tests/setup_tests.js'],

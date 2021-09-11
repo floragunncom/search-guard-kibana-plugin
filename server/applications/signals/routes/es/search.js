@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { schema } from '@kbn/config-schema';
+import { schema } from '@osd/config-schema';
 import { serverError } from '../../lib/errors';
 import { BASE_URI, MAX_DOC_COUNT_SEARCH } from '../../../../../common/signals/constants';
 

@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 export default [
   { name: 'indices:admin/aliases' },
   { name: 'indices:admin/aliases/exists' },
