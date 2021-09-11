@@ -33,7 +33,6 @@ export class AuthManager {
     logger,
     searchGuardBackend,
     configService,
-    spacesService,
   }) {
     this.kibanaCore = kibanaCore;
     this.sessionStorageFactory = sessionStorageFactory;
@@ -41,7 +40,6 @@ export class AuthManager {
     this.logger = logger;
     this.pluginDependencies = pluginDependencies;
     this.configService = configService;
-    this.spacesService = spacesService;
     this.authInstances = {};
     this.unauthenticatedRoutes = this.configService.get('searchguard.auth.unauthenticated_routes');
 
@@ -81,7 +79,6 @@ export class AuthManager {
         searchGuardBackend: this.searchGuardBackend,
         config: this.configService,
         authManager: this, // @todo Is the authManager used?
-        spacesService: this.spacesService
       });
 
       authInstance.init();
