@@ -161,15 +161,15 @@ fe_kerberos:
        echo "============================================="
        if [[ ! "$TEST_SG_KI_PLUGIN" =~ ^https?:.*$ ]]; then
          if [[ "$TEST_SG_KI_PLUGIN" =~ .*SNAPSHOT.* ]]; then
-          SG_KI_PLUGIN_FILE=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-kibana-plugin&v=$TEST_SG_KI_PLUGIN&repos=search-guard-kibana-plugin-snapshot"| grep zip|sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1) 
+          SG_KI_PLUGIN_FILE=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-kibana-plugin&v=$TEST_SG_KI_PLUGIN&repos=search-guard-kibana-plugin-snapshot"| grep zip|sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1)
           TEST_SG_KI_PLUGIN=https://maven.search-guard.com/artifactory/search-guard-kibana-plugin-snapshot/com/floragunn/search-guard-kibana-plugin/$TEST_SG_KI_PLUGIN/$SG_KI_PLUGIN_FILE.zip
           echo "Found: $TEST_SG_KI_PLUGIN"
          else
-          SG_KI_PLUGIN_FILE=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-kibana-plugin&v=$TEST_SG_KI_PLUGIN&repos=search-guard-kibana-plugin-release"| grep zip|sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1) 
+          SG_KI_PLUGIN_FILE=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-kibana-plugin&v=$TEST_SG_KI_PLUGIN&repos=search-guard-kibana-plugin-release"| grep zip|sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1)
           TEST_SG_KI_PLUGIN=https://maven.search-guard.com/artifactory/search-guard-kibana-plugin-release/com/floragunn/search-guard-kibana-plugin/$TEST_SG_KI_PLUGIN/$SG_KI_PLUGIN_FILE.zip
           echo "Found: $TEST_SG_KI_PLUGIN"
          fi
-       fi		
+       fi
        echo "export SG_SNAPSHOT=${TEST_SG_ES_PLUGIN}" >> $CI_PROJECT_DIR/environment.env
        echo "export SGADMIN_SNAPSHOT=${TEST_SG_ADMIN}" >> $CI_PROJECT_DIR/environment.env
        echo "export SG_SOURCE=snapshot" >> $CI_PROJECT_DIR/environment.env
@@ -192,6 +192,11 @@ fe_kerberos:
        cp ci-tools/*.sh ./
        echo "Executing submit_test.sh"
        ./submit_test.sh "$TEST" ""
+       result=$?
+       if [ $result -ne 0 ]; then
+          echo "./submit_test.sh failed with exit code $result"
+          exit 1
+       fi
   needs:
     - job: deploy_snapshot
       artifacts: true
