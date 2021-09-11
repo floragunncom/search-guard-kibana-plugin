@@ -81,7 +81,8 @@ SG_TEST_VERSION=$(grep -e '\btest_sg_version\b' package.json | tr -d "[:blank:]"
 
 ES_VERSION=$(echo $SG_TEST_VERSION | cut -d "-" -f 1)
 KIBANA_APP_BRANCH=$(grep -e '\bkibana_branch\b' package.json | tr -d "[:blank:]" | sed -E 's/"kibana_branch":"(.*)"(.*)/\1/')
-KIBANA_VERSION=$(echo $VERSION | cut -d "-" -f 1)
+KIBANA_VERSION="1.0.0"
+#KIBANA_VERSION=$(echo $VERSION | cut -d "-" -f 1)
 KIBANA_PLUGIN_VERSION=$(echo $VERSION | cut -d "-" -f 2)
 
 SNAPSHOT=$(echo $VERSION | cut -d "-" -f 3)
@@ -99,7 +100,7 @@ if [ $? != 0 ]; then
 fi
 
 # prepare artefacts
-PLUGIN_NAME="searchguard-kibana-$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT"
+PLUGIN_NAME="searchguard-osd-$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT"
 echo "+++ Building $PLUGIN_NAME.zip +++"
 
 WORK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -177,7 +178,7 @@ if [ "$COMMAND" == "build-osd" ] ; then
 fi
 
 echo "+++ Copy plugin contents to build stage +++"
-BUILD_STAGE_PLUGIN_DIR="$BUILD_STAGE_DIR/OpenSearch-Dashboards/plugins/search-guard-kibana-plugin"
+BUILD_STAGE_PLUGIN_DIR="$BUILD_STAGE_DIR/OpenSearch-Dashboards/plugins/search-guard"
 mkdir -p $BUILD_STAGE_PLUGIN_DIR
 cp -a "$WORK_DIR/babel.config.js" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/package.json" "$BUILD_STAGE_PLUGIN_DIR"
@@ -251,18 +252,18 @@ echo "+++ Building webpack bundles for the the browser code  +++"
 echo "+++ And transpiling the server code  +++"
 yarn build -v $KIBANA_VERSION --skip-archive
 # The following files may be omitted by the Kibana build helpers but we must have them.
-mv node_modules build/opensearch-dashboards/searchguard
-cp -a "$WORK_DIR/public" build/opensearch-dashboards/searchguard
-cp -a "$WORK_DIR/package.json" build/opensearch-dashboards/searchguard
-cp -a "$WORK_DIR/install_demo_configuration.ps1" build/opensearch-dashboards/searchguard
-cp -a "$WORK_DIR/install_demo_configuration.sh" build/opensearch-dashboards/searchguard
-cp -a "$WORK_DIR/install_demo_configuration.js" build/opensearch-dashboards/searchguard
+mv node_modules build/opensearch-dashboards/plugins/search-guard
+cp -a "$WORK_DIR/public" build/opensearch-dashboards/plugins/search-guard
+cp -a "$WORK_DIR/package.json" build/opensearch-dashboards/plugins/search-guard
+cp -a "$WORK_DIR/install_demo_configuration.ps1" build/opensearch-dashboards/plugins/search-guard
+cp -a "$WORK_DIR/install_demo_configuration.sh" build/opensearch-dashboards/plugins/search-guard
+cp -a "$WORK_DIR/install_demo_configuration.js" build/opensearch-dashboards/plugins/search-guard
 
 echo "+++ Copy plugin contents to finalize build +++"
 cd "$WORK_DIR"
 rm -rf build
 mv "$BUILD_STAGE_PLUGIN_DIR/build" build
-mv build/opensearch-dashboards/searchguard "build/opensearch-dashboards/$PLUGIN_NAME"
+mv build/opensearch-dashboards/plugins/search-guard "build/opensearch-dashboards/$PLUGIN_NAME"
 
 echo -e "\e[0Ksection_end:`date +%s`:package\r\e[0K"
 
