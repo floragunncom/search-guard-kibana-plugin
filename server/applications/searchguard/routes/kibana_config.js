@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { pick } from 'lodash';
 import { API_ROOT } from '../../../utils/constants';
 
@@ -13,8 +13,8 @@ export function handleKibanaConfig({ config, logger }) {
       if (typeof config === 'object' && config !== null) {
         kibanaConfig = {
           searchguard: pick(config.searchguard || {}, ['enabled', 'sgVersion']),
-          elasticsearch: pick(config.elasticsearch || {}, ['username']),
-          kibana: pick(config.kibana || {}, ['index']),
+          opensearch: pick(config.opensearch || {}, ['username']),
+          opensearchDashboards: pick(config.opensearchDashboards || {}, ['index']),
         };
 
         config.searchguard.readonly_mode = config.searchguard.readonly_mode || {};

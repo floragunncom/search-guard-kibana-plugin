@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 /* eslint-disable camelcase */
 export { SvgActionGroups as actionGroups } from './action_groups';
 export { SvgActionGroupsDark as actionGroups_dark } from './action_groups_dark';

@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import SignalsService from './SignalsService';
 import { ROUTE_PATH } from '../utils/constants';
 

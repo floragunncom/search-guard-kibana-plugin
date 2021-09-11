@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import React from 'react';
 import { EuiFormRow, EuiText, EuiLink, EuiCodeEditor, EuiSpacer } from '@elastic/eui';
 import { responseText, closeText } from '../../../../../utils/i18n/watch';

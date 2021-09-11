@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import ace from 'brace';
 import 'brace/mode/json';
 import 'brace/ext/language_tools';

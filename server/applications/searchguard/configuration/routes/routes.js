@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { schema } from '@kbn/config-schema';
+import { schema } from '@osd/config-schema';
 import { wrapForCustomError } from '../../../../utils/wrap_elasticsearch_error';
 import { API_ROOT } from '../../../../utils/constants';
 

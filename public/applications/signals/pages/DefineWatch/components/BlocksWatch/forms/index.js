@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 export { StaticCheckBlockForm } from './StaticCheckBlockForm';
 export { SearchCheckBlockForm } from './SearchCheckBlockForm';
 export { HttpCheckBlockForm } from './HttpCheckBlockForm';

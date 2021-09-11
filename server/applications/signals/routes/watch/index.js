@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { ackWatchRoute } from './ack';
 import { createWatchRoute } from './create';
 import { deleteWatchRoute } from './delete';

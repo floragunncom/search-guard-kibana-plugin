@@ -23,10 +23,10 @@ if [[ "$COMMAND" == "dev" ]]; then
 fi
 
 echo
-echo "Patching Kibana and Elasticsearch versions incompatibility in Kibana source code"
+echo "Patching versions incompatibility"
 echo
 
-FILE_PATH="../../src/core/server/elasticsearch/version_check/ensure_es_version.$EXT"
+FILE_PATH="../../src/core/server/opensearch/version_check/ensure_opensearch_version.$EXT"
 sed -i.bak 's/isCompatible: ignoreVersionMismatch || incompatibleNodes.length === 0/isCompatible: true/' $FILE_PATH 
 
 echo "Patched $FILE_PATH. The original file backup is in $FILE_PATH.bak"

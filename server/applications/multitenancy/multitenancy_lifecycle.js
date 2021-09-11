@@ -82,7 +82,7 @@ export class MultitenancyLifecycle {
     if (
       !path.startsWith('/internal') &&
       !path.startsWith('/goto') &&
-      !path.startsWith('/elasticsearch') &&
+      !path.startsWith('/opensearch') &&
       !path.startsWith('/api') &&
       !path.startsWith('/app') &&
       path !== '/'
@@ -141,7 +141,7 @@ export class MultitenancyLifecycle {
       // We need the user's data from the backend to validate the selected tenant
       authInfoResponse = await backend.authinfo(authHeaders);
     } catch (error) {
-      this.logger.error(`Multitenancy: Could not get authinfo ${error}`);
+      this.logger.error(`Multitenancy: Could not get authinfo ${error}`, error);
       return null;
     }
 
@@ -228,7 +228,7 @@ export class MultitenancyLifecycle {
    * @returns {Promise<void|boolean>}
    */
   createDefaultSpace = async ({ request, selectedTenant }) => {
-    const kibanaIndex = this.configService.get('kibana.index');
+    const kibanaIndex = this.configService.get('opensearchDashboards.index');
     const defaultSpaceId = 'space:default';
     // If the spaces doesn't work, check the default doc structure
     // in the Kibana version you use. Maybe the doc changed.

@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { registerRoutes } from './routes';
 import { Kerberos } from './auth/types';
 import { defineAuthInfoRoutes } from './auth/routes_authinfo';
@@ -108,7 +108,7 @@ export class SearchGuard {
             'searchguard_cookie_default_password'
           ) {
             this.logger.warn(
-              "Default cookie password detected, please set a password in kibana.yml by setting 'searchguard.cookie.password' (min. 32 characters)."
+              "Default cookie password detected, please set a password in opensearch_dashboards.yml by setting 'searchguard.cookie.password' (min. 32 characters)."
             );
           }
 

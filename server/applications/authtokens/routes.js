@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { schema } from '@kbn/config-schema';
+import { schema } from '@osd/config-schema';
 import { fetchAllFromScroll, wrapForCustomError } from '../../utils';
 import { API_ROOT } from '../../utils/constants';
 

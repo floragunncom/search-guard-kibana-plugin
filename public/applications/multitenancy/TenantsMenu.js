@@ -206,8 +206,8 @@ function ConfigurationCheckCallOut() {
   const { httpClient, configService, addErrorToast } = useContext(MainContext);
   const [error, setError] = useState(null);
 
-  const kibanaServerUser = configService.get('elasticsearch.username');
-  const kibanaIndex = configService.get('kibana.index');
+  const kibanaServerUser = configService.get('opensearch.username');
+  const kibanaIndex = configService.get('opensearchDashboards.index');
 
   useEffect(() => {
     fetchData();
@@ -226,20 +226,20 @@ function ConfigurationCheckCallOut() {
 
       if (mtInfo.kibana_server_user !== kibanaServerUser) {
         errorMessage =
-          'Mismatch between the configured Kibana server usernames on Elasticsearch and Kibana, multitenancy will not work! ' +
-          'Configured username on Kibana: "' +
+          'Mismatch between the configured Kibana server usernames on OpenSearch and Dashboards, multitenancy will not work! ' +
+          'Configured username on Dashboards: "' +
           kibanaServerUser +
-          '", configured username on Elasticsearch: "' +
+          '", configured username on OpenSearch: "' +
           mtInfo.kibana_server_user +
           '"';
       }
 
       if (mtInfo.kibana_index !== kibanaIndex) {
         errorMessage =
-          'Mismatch between the configured Kibana index names on Elasticsearch and Kibana, multitenancy will not work! ' +
-          'Configured index name on Kibana: "' +
+          'Mismatch between the configured Kibana index names on OpenSearch and Dashboards, multitenancy will not work! ' +
+          'Configured index name on Dashboards: "' +
           kibanaIndex +
-          '", configured index name on Elasticsearch: "' +
+          '", configured index name on OpenSearch: "' +
           mtInfo.kibana_index +
           '"';
       }

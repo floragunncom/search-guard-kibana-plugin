@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?><!-- Copyright 
-	2015-2017 floragunn GmbH Licensed under the Apache License, Version 2.0 (the 
-	"License"); you may not use this file except in compliance with the License. 
-	You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
-	Unless required by applicable law or agreed to in writing, software distributed 
+<?xml version="1.0" encoding="UTF-8"?><!-- Copyright 2015-2017 floragunn 
+	GmbH Licensed under the Apache License, Version 2.0 (the "License"); you 
+	may not use this file except in compliance with the License. You may obtain 
+	a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless 
+	required by applicable law or agreed to in writing, software distributed 
 	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
 	OR CONDITIONS OF ANY KIND, either express or implied. See the License for 
 	the specific language governing permissions and limitations under the License. -->
@@ -15,12 +15,13 @@
 		<artifactId>search-guard-parent</artifactId>
 		<version>6.22.0</version>
 	</parent>
-	<artifactId>search-guard-flx-kibana-plugin</artifactId>
+	<groupId>com.floragunn</groupId>
+	<artifactId>search-guard-flx-opensearch-dashboards-plugin</artifactId>
 	<packaging>pom</packaging>
 	<version>${revision}</version>
-	<name>Search Guard FLX Plugin for Kibana</name>
-	<description>Provides Search Guard based authentication to Kibana</description>
-	<url>https://git.floragunn.com/search-guard/search-guard-kibana-plugin</url>
+	<name>Search Guard FLX Plugin for OpenSearch Dashboards</name>
+	<description>Provides Search Guard based authentication to OpenSearch Dashboards</description>
+	<url>https://git.floragunn.com/search-guard</url>
 	<inceptionYear>2016</inceptionYear>
 	<licenses>
 		<license>
@@ -79,4 +80,3 @@
 		</plugins>
 	</build>
 </project>
-

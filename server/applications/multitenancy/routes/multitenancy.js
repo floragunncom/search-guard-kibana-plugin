@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 /**
  *    Copyright 2016 floragunn GmbH
 
@@ -16,7 +16,7 @@
  */
 
 import { API_ROOT } from '../../../utils/constants';
-import { schema } from '@kbn/config-schema';
+import { schema } from '@osd/config-schema';
 
 export function multitenancyRoutes({
   router,

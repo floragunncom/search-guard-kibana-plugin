@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 /* eslint-disable no-restricted-imports */
 import { get as _get, set as _set, cloneDeep } from 'lodash';
 

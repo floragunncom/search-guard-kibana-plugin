@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 /**
  *    Copyright 2018 floragunn GmbH
 
@@ -15,7 +15,7 @@
  limitations under the License.
  */
 
-import { schema } from '@kbn/config-schema';
+import { schema } from '@osd/config-schema';
 import AuthenticationError from '../../errors/authentication_error';
 import MissingTenantError from '../../errors/missing_tenant_error';
 import MissingRoleError from '../../errors/missing_role_error';

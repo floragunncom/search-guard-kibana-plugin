@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { startCase, cloneDeep } from 'lodash';
 
 export const WATCH_TYPES = {

@@ -11,7 +11,7 @@
       <outputDirectory>${file.separator}</outputDirectory>
       <useDefaultExcludes>false</useDefaultExcludes>
       <includes>
-        <include>kibana/**</include>
+        <include>opensearch-dashboards/**</include>
       </includes>
       <fileMode>0755</fileMode>
     </fileSet>

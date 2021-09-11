@@ -15,7 +15,7 @@
  */
 
 import { API_ROOT } from '../../../utils/constants';
-import { schema } from '@kbn/config-schema';
+import { schema } from '@osd/config-schema';
 
 export function systemInfoHandler({ searchGuardBackend, logger }) {
   return async function (context, request, response) {

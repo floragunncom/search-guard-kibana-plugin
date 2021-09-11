@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { schema } from '@kbn/config-schema';
+import { schema } from '@osd/config-schema';
 import { ServerPlugin } from './serverPlugin';
 import { version as sgVersion } from '../package.json';
 import { DEFAULT_CONFIG } from './default_config';

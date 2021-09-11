@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { getFieldsFromPayload, getFieldsForType } from '../../../utils/helpers';
 import { arrayToComboBoxOptions } from '../../../../../utils/helpers';
 

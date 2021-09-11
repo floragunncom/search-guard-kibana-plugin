@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 export { default as ContentPanel } from './ContentPanel';
 export { default as SubHeader } from './SubHeader';
 export { default as EmptyPrompt } from './EmptyPrompt';

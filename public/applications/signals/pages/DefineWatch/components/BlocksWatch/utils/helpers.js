@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 export function reorderBlocks(list, startIndex, endIndex) {
   const result = [...list];
   const [removed] = result.splice(startIndex, 1);

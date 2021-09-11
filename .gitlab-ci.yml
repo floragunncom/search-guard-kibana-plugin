@@ -1,19 +1,19 @@
 variables:
   SG_JAVA_BUILD_VERSION: "8"
   # Mnemonic: SF: Search Frontend; SB: Search Backend
-  SF_PRODUCT: kibana
-  SF_JSON: kibana.json
-  SF_REPO_URL: "https://github.com/elastic/kibana.git"
-  SF_REPO_DIR: $SF_PRODUCT
-  SB_PRODUCT: elasticsearch
+  SF_PRODUCT: opensearch-dashboards
+  SF_JSON: opensearch_dashboards.json
+  SF_REPO_URL: "https://github.com/opensearch-project/OpenSearch-Dashboards.git"
+  SF_REPO_DIR: OpenSearch-Dashboards
+  SB_PRODUCT: opensearch
   SG_SB_PLUGIN_SNAPSHOT_REPO: search-guard-flx-snapshot
   SG_SB_PLUGIN_STAGING_REPO: search-guard-flx-staging
   SG_SB_PLUGIN_RELEASE_REPO: search-guard-flx-release
   SG_SF_PLUGIN_SNAPSHOT_REPO: search-guard-flx-snapshot
   SG_SF_PLUGIN_STAGING_REPO: search-guard-flx-staging
   SG_SF_PLUGIN_RELEASE_REPO: search-guard-flx-release
-  SG_SF_PLUGIN_NAME: search-guard-flx-kibana-plugin
-  SG_SB_PLUGIN_NAME: search-guard-flx-elasticsearch-plugin
+  SG_SF_PLUGIN_NAME: search-guard-flx-opensearch-dashboards-plugin
+  SG_SB_PLUGIN_NAME: search-guard-flx-opensearch-plugin
   NODE_VERSION: 14.17.3
 
 image: circleci/openjdk:${SG_JAVA_BUILD_VERSION}-jdk-browsers

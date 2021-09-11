@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import React from 'react';
 import { FormikFieldText } from '../../../../../components';
 import { typeText } from '../../../../../utils/i18n/watch';

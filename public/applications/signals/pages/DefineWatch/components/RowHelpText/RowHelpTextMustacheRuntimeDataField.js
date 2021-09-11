@@ -1,5 +1,5 @@
 
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import React, { useContext } from 'react';
 import { connect as connectFormik } from 'formik';
 import { EuiCodeEditor, EuiFormRow, EuiLink, EuiErrorBoundary } from '@elastic/eui';

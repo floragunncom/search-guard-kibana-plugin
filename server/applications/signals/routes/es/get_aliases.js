@@ -15,7 +15,7 @@
  */
 
 import Boom from 'boom';
-import { schema } from '@kbn/config-schema';
+import { schema } from '@osd/config-schema';
 import { serverError } from '../../lib/errors';
 import { BASE_URI } from '../../../../../common/signals/constants';
 

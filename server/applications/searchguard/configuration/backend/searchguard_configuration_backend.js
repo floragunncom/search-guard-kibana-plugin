@@ -20,12 +20,12 @@ import NotFoundError from './../../backend/errors/not_found';
  * The SearchGuard  backend.
  */
 export default class SearchGuardConfigurationBackend {
-  constructor({ elasticsearch }) {
-    this.elasticsearch = elasticsearch;
+  constructor({ opensearch }) {
+    this.opensearch = opensearch;
   }
 
   _client = async ({ headers = {}, asWho = 'asCurrentUser', ...options }) => {
-    const { body } = await this.elasticsearch.client
+    const { body } = await this.opensearch.client
       .asScoped({ headers })
       [asWho].transport.request(options);
 
@@ -49,7 +49,7 @@ export default class SearchGuardConfigurationBackend {
 
   indices = async ({ headers, index = [] } = {}) => {
     try {
-      const { body: response } = await this.elasticsearch.client
+      const { body: response } = await this.opensearch.client
         .asScoped({ headers })
         .asCurrentUser.cat.indices({
           index,
@@ -68,7 +68,7 @@ export default class SearchGuardConfigurationBackend {
 
   aliases = async ({ headers, alias = [] } = {}) => {
     try {
-      const { body: response } = await this.elasticsearch.client
+      const { body: response } = await this.opensearch.client
         .asScoped({ headers })
         .asCurrentUser.cat.aliases({
           alias,
@@ -190,7 +190,7 @@ export default class SearchGuardConfigurationBackend {
 
   getIndexMappings = async ({ headers, body: { index } }) => {
     try {
-      const { body: mappings } = await this.elasticsearch.client
+      const { body: mappings } = await this.opensearch.client
         .asScoped({ headers })
         .asCurrentUser.indices.getMapping({
           index: index.join(','),

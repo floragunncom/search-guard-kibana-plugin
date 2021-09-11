@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import {
   checkXPackSecurityDisabled,
   xPackSecurityErrorText,
@@ -98,9 +98,9 @@ describe('sanity_checks', () => {
       mockLogger = setupLoggerMock();
     });
 
-    test('log and throw error if elasticsearch.ssl.certificate is used, but not explicitly allowed', () => {
+    test('log and throw error if opensearch.ssl.certificate is used, but not explicitly allowed', () => {
       const configService = new ConfigService({
-        elasticsearch: {
+        opensearch: {
           ssl: {
             certificate: '/path/to/certificate',
           },
@@ -117,9 +117,9 @@ describe('sanity_checks', () => {
       );
     });
 
-    test('do not log error if elasticsearch.ssl.certificate is used and explicitly allowed', () => {
+    test('do not log error if opensearch.ssl.certificate is used and explicitly allowed', () => {
       const configService = new ConfigService({
-        elasticsearch: {
+        opensearch: {
           ssl: {
             certificate: '/path/to/certificate',
           },
@@ -135,9 +135,9 @@ describe('sanity_checks', () => {
       expect(mockLogger.error.mock.calls.length).toBe(0);
     });
 
-    test('log error if elasticsearch.ssl.certificate is used and alwaysPresentCertificate is true', () => {
+    test('log error if opensearch.ssl.certificate is used and alwaysPresentCertificate is true', () => {
       const configService = new ConfigService({
-        elasticsearch: {
+        opensearch: {
           ssl: {
             certificate: '/path/to/certificate',
             alwaysPresentCertificate: true,

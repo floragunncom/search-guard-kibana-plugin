@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { ApiService } from './ApiService';
 
 const RESOURCE = 'tenants';

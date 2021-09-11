@@ -113,23 +113,23 @@ rm -f "$WORK_DIR/build.log"
 echo "Logfile: $WORK_DIR/build.log"
 
 if [ -n "$KIBANA_APP_BRANCH" ]; then
-  KIBANA_BRANCH_NAME="$KIBANA_APP_BRANCH"
+  OSD_BRANCH_NAME="$KIBANA_APP_BRANCH"
 else
-  KIBANA_BRANCH_NAME="v$KIBANA_VERSION"
+  OSD_BRANCH_NAME="$KIBANA_VERSION"
 fi
 
-echo -e "\e[0Ksection_start:`date +%s`:kibana_clone\r\e[0KCloning https://github.com/elastic/kibana.git $KIBANA_BRANCH_NAME"
+echo -e "\e[0Ksection_start:`date +%s`:kibana_clone\r\e[0KCloning https://github.com/opensearch-project/OpenSearch-Dashboards.git $OSD_BRANCH_NAME"
 
-git clone --depth 1 --branch $KIBANA_BRANCH_NAME https://github.com/elastic/kibana.git >>"$WORK_DIR/build.log" &> $output
+git clone --depth 1 --branch $OSD_BRANCH_NAME https://github.com/opensearch-project/OpenSearch-Dashboards.git >>"$WORK_DIR/build.log" &> $output
 if [ $? != 0 ]; then
-    echo "Failed to clone Kibana"
+    echo "Failed to clone OSD"
     cat $output
     exit 1
 fi
 
 echo -e "\e[0Ksection_end:`date +%s`:kibana_clone\r\e[0K"
 
-cd "kibana"
+cd "OpenSearch-Dashboards"
 
 #This is taken from Kibana GIT
 KIBANA_APP_VERSION=$(grep -e '\bversion\b' package.json | tr -d "[:blank:]" | sed -E 's/"version":"(.*)",/\1/')
@@ -170,19 +170,18 @@ fi
 echo -e "\e[0Ksection_end:`date +%s`:yarn_install\r\e[0K"
 
 
-if [ "$COMMAND" == "build-kibana" ] ; then
-  echo "Building Kibana package from checkout Kibana branch (see above) "
-  yarn kbn bootstrap && yarn build --skip-os-packages --no-oss
-  mv "/builds/search-guard/search-guard-kibana-plugin/build_stage/kibana/target/kibana-$KIBANA_APP_VERSION-SNAPSHOT-linux-x86_64.tar.gz" /builds/search-guard/search-guard-kibana-plugin/build_stage/kibana/target/kibana-linux-x86_64.tar.gz ||true
+if [ "$COMMAND" == "build-osd" ] ; then
+  echo "Building OSD package from checkout OSD branch (see above) "
+  yarn osd bootstrap && yarn build --skip-os-packages --no-oss
   exit 0
 fi
 
 echo "+++ Copy plugin contents to build stage +++"
-BUILD_STAGE_PLUGIN_DIR="$BUILD_STAGE_DIR/kibana/plugins/search-guard-kibana-plugin"
+BUILD_STAGE_PLUGIN_DIR="$BUILD_STAGE_DIR/OpenSearch-Dashboards/plugins/search-guard-kibana-plugin"
 mkdir -p $BUILD_STAGE_PLUGIN_DIR
 cp -a "$WORK_DIR/babel.config.js" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/package.json" "$BUILD_STAGE_PLUGIN_DIR"
-cp -a "$WORK_DIR/kibana.json" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/opensearch_dashboards.json" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/tsconfig.json" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/public" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/server" "$BUILD_STAGE_PLUGIN_DIR"
@@ -208,7 +207,7 @@ echo -e "\e[0Ksection_end:`date +%s`:yarn_audit\r\e[0K"
 echo -e "\e[0Ksection_start:`date +%s`:yarn_kbn_bootstrap\r\e[0KInstalling plugin node modules"
 
 echo "+++ Installing plugin node modules +++"
-yarn kbn bootstrap --oss
+yarn osd bootstrap --oss
 if [ $? != 0 ]; then
     echo "Installing node modules failed"
     cat $output
@@ -252,18 +251,18 @@ echo "+++ Building webpack bundles for the the browser code  +++"
 echo "+++ And transpiling the server code  +++"
 yarn build -v $KIBANA_VERSION --skip-archive
 # The following files may be omitted by the Kibana build helpers but we must have them.
-mv node_modules build/kibana/searchguard
-cp -a "$WORK_DIR/public" build/kibana/searchguard
-cp -a "$WORK_DIR/package.json" build/kibana/searchguard
-cp -a "$WORK_DIR/install_demo_configuration.ps1" build/kibana/searchguard
-cp -a "$WORK_DIR/install_demo_configuration.sh" build/kibana/searchguard
-cp -a "$WORK_DIR/install_demo_configuration.js" build/kibana/searchguard
+mv node_modules build/opensearch-dashboards/searchguard
+cp -a "$WORK_DIR/public" build/opensearch-dashboards/searchguard
+cp -a "$WORK_DIR/package.json" build/opensearch-dashboards/searchguard
+cp -a "$WORK_DIR/install_demo_configuration.ps1" build/opensearch-dashboards/searchguard
+cp -a "$WORK_DIR/install_demo_configuration.sh" build/opensearch-dashboards/searchguard
+cp -a "$WORK_DIR/install_demo_configuration.js" build/opensearch-dashboards/searchguard
 
 echo "+++ Copy plugin contents to finalize build +++"
 cd "$WORK_DIR"
 rm -rf build
 mv "$BUILD_STAGE_PLUGIN_DIR/build" build
-mv build/kibana/searchguard "build/kibana/$PLUGIN_NAME"
+mv build/opensearch-dashboards/searchguard "build/opensearch-dashboards/$PLUGIN_NAME"
 
 echo -e "\e[0Ksection_end:`date +%s`:package\r\e[0K"
 

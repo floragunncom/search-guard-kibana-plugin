@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { AccessControlService } from '../../../../services';
 
 export const API_ROOT = '../api/v1/configuration';
