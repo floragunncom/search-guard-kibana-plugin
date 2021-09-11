@@ -48,7 +48,7 @@ export const DOC_LINKS = {
     STATIC: 'https://docs.search-guard.com/latest/elasticsearch-alerting-inputs-static',
     HTTP: 'https://docs.search-guard.com/latest/elasticsearch-alerting-inputs-http',
     SEARCH_REQUEST:
-      'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html',
+      'https://opensearch.org/docs/opensearch/query-dsl/index/',
   },
   CONDITIONS: 'https://docs.search-guard.com/latest/elasticsearch-alerting-conditions-script',
   TRANSFORMS: 'https://docs.search-guard.com/latest/elasticsearch-alerting-transformations',

@@ -3,7 +3,7 @@ import {ReadOnlyMode} from "./lib/authorization/ReadOnlyMode";
 const pluginRoot = require('requirefrom')('');
 import { resolve, join, sep } from 'path';
 import { has } from 'lodash';
-import indexTemplate from './lib/elasticsearch/setup_index_template';
+import indexTemplate from './lib/opensearch/setup_index_template';
 import { migrateTenants } from './lib/multitenancy/migrate_tenants';
 import { version as sgVersion } from './package.json';
 import { first } from 'rxjs/operators';

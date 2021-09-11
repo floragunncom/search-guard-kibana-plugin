@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import React, { Component } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';

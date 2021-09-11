@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 export { default as LocalStorageService } from './LocalStorageService';
 export { default as ElasticsearchService } from './ElasticsearchService';
 

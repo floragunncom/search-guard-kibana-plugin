@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 /**
  *    Copyright 2020 floragunn GmbH
 
@@ -34,7 +34,7 @@ export function CustomErrorPage({
   showBrandImage = false,
   backButtonStyle = {},
 }) {
-  const buttonHref = basePath + '/app/kibana';
+  const buttonHref = basePath + '/';
 
   // If session was not terminated by logout, clear any remaining
   // stored paths etc. from previous users, to avoid issues
@@ -97,7 +97,7 @@ export function CustomErrorPage({
                   id="sg.custom.home"
                   style={backButtonStyle}
                 >
-                  Back to Kibana Home
+                  Back
                 </EuiButton>
               </EuiFlexItem>
             </EuiFlexGroup>

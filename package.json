@@ -1,15 +1,12 @@
 {
   "name": "searchguard",
-  "version": "7.10.2-master-SNAPSHOT",
-  "description": "Search Guard features for Kibana",
+  "version": "os-SNAPSHOT",
+  "description": "Search Guard features for Open Search Dashboards",
   "homepage": "https://search-guard.com",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/floragunncom/search-guard-kibana-plugin"
-  },
-  "searchguard": {
-    "test_sg_version": "7.10.2-master-SNAPSHOT"
   },
   "scripts": {
     "build": "yarn plugin-helpers build",

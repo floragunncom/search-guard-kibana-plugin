@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { reorderBlocks, deleteBlock, shorterCheckName } from './helpers';
 
 describe('BlocksWatch helpers', () => {

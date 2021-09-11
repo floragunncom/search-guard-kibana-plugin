@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { UiConfigService as ConfigService } from './UiConfigService';
 import { ApiService } from './ApiService';
 import { setupCoreMock, setupCoreContextMock } from '../utils/mocks';

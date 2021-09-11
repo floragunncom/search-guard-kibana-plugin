@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { APP_ROOT } from '../../../../../../utils/constants';
 
 export function customError({ httpResources }) {

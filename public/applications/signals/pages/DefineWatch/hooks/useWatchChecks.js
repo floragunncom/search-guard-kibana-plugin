@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { useState, useContext } from 'react';
 import { WatchService } from '../../../services';
 import { formikToWatch } from '../utils';

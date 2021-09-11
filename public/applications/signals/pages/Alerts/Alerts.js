@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import React, { Component, Fragment } from 'react';
 import queryString from 'query-string';
 import PropTypes from 'prop-types';

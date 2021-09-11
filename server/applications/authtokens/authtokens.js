@@ -25,7 +25,7 @@ export class AuthTokens {
     this.logger.debug('Start app');
 
     try {
-      this.clusterClient = core.elasticsearch.client;
+      this.clusterClient = core.opensearch.client;
 
       registerRoutes({
         router: kibanaRouter,

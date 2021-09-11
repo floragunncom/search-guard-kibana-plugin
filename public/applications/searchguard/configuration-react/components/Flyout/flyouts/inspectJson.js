@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import React from 'react';
 import { EuiCodeEditor, EuiText, EuiTitle } from '@elastic/eui';
 import { jsonText } from '../../../utils/i18n/common';

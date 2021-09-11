@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import React, { Component } from 'react';
 import { EuiSuperDatePicker, EuiErrorBoundary } from '@elastic/eui';
 import PropTypes from 'prop-types';

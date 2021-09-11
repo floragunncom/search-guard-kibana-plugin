@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { cloneDeep, defaultsDeep, pickBy, identity, omit } from 'lodash';
 import uuid from 'uuid/v4';
 import {

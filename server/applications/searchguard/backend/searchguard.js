@@ -22,14 +22,14 @@ import User from '../auth/user';
  * The SearchGuard  backend.
  */
 export default class SearchGuardBackend {
-  constructor({ elasticsearch, configService, core }) {
-    this.elasticsearch = elasticsearch;
+  constructor({ opensearch, configService, core }) {
+    this.opensearch = opensearch;
 	this.configService = configService;
 	this.core = core;
   }
 
   _client = async ({ headers = {}, asWho = 'asCurrentUser', ...options }) => {
-    const { body } = await this.elasticsearch.client
+    const { body } = await this.opensearch.client
       .asScoped({ headers })
       [asWho].transport.request(options);
 
@@ -422,7 +422,7 @@ export default class SearchGuardBackend {
       return null;
     }
 
-    // Evaluate preferredTenants from kibana config
+    // Evaluate preferredTenants from config
     if (preferredTenants && !_.isEmpty(preferredTenants)) {
       for (let i = 0; i < preferredTenants.length; i++) {
         const check = preferredTenants[i].toLowerCase();
@@ -448,7 +448,7 @@ export default class SearchGuardBackend {
       }
     }
 
-    // no pref in cookie, no preferred tenant in kibana, use GLOBAL, Private or the first tenant in the list
+    // no pref in cookie, no preferred tenant, use GLOBAL, Private or the first tenant in the list
     if (globalEnabled) {
       return '';
     }

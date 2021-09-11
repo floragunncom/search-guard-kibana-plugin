@@ -29,7 +29,7 @@ async function getConfigService({ logger, initContext, clusterClient }) {
 
     return new ConfigService({
       ...kibanaConfig,
-      elasticsearch: clusterClient.config,
+      opensearch: clusterClient.config,
       searchguard: sgConfig,
     });
   } catch (error) {
@@ -61,18 +61,18 @@ export class ServerPlugin {
     this.kibanaRouter = core.http.createRouter();
 
     (async () => {
-      const [{ elasticsearch }] = await core.getStartServices();
+      const [{ opensearch }] = await core.getStartServices();
 
       const configService = await getConfigService({
         logger: this.logger,
         initContext: this.initContext,
-        clusterClient: elasticsearch.client,
+        clusterClient: opensearch.client,
       });
 
-      const searchGuardBackend = new SearchGuardBackend({ elasticsearch, configService, core });
+      const searchGuardBackend = new SearchGuardBackend({ opensearch, configService, core });
 
       const searchGuardConfigurationBackend = new SearchGuardConfigurationBackend({
-        elasticsearch,
+        opensearch,
       });
 
       const { authManager, sessionStorageFactory } = await this.searchGuardApp.setup({
@@ -111,10 +111,10 @@ export class ServerPlugin {
       const configService = await getConfigService({
         logger: this.logger,
         initContext: this.initContext,
-        clusterClient: core.elasticsearch.client,
+        clusterClient: core.opensearch.client,
       });
 
-      const searchGuardBackend = new SearchGuardBackend({ elasticsearch: core.elasticsearch, configService, core });
+      const searchGuardBackend = new SearchGuardBackend({ opensearch: core.opensearch, configService, core });
 
       this.signalsApp.start({
         core,

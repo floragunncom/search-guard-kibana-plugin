@@ -14,12 +14,12 @@
     <version>6.22.0</version>
   </parent>
   <groupId>com.floragunn</groupId>
-  <artifactId>search-guard-kibana-plugin</artifactId>
+  <artifactId>search-guard-opensearch-dashboards-plugin</artifactId>
   <packaging>pom</packaging>
   <version>${revision}</version>
-  <name>Search Guard Kibana Plugin</name>
-  <description>Search Guard Kibana Plugin for Elasticsearch</description>
-  <url>https://github.com/floragunncom/search-guard</url>
+  <name>Search Guard OpenSearch Dashboards Plugin</name>
+  <description>Search Guard OpenSearch Dashboards Plugin</description>
+  <url>https://git.floragunn.com/search-guard</url>
   <inceptionYear>2016</inceptionYear>
   <licenses>
     <license>
@@ -100,7 +100,7 @@
           <repository>
             <id>central</id>
             <name>releases</name>
-            <url>https://maven.search-guard.com:443/search-guard-kibana-plugin-alpha</url>
+            <url>https://maven.search-guard.com:443/search-guard-suite-alpha</url>
           </repository>
         </distributionManagement>
       </profile>

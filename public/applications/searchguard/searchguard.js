@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { HeaderUserMenuApp } from './nav';
 import { ConfigApp } from './configuration-react';
 import { CustomErrorApp } from './customerror';

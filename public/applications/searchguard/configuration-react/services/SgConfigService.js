@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { API_ROOT } from './ApiService';
 
 const RESOURCE = 'sgconfig';

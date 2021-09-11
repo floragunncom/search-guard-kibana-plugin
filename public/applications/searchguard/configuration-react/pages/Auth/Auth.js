@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 /* eslint import/namespace: ['error', { allowComputed: true }] */
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';

@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { getChecksExecutionResponse } from './helpers';
 import { stringifyPretty } from '../../../../utils/helpers';
 

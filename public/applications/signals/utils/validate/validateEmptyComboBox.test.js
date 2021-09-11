@@ -1,4 +1,4 @@
-/* eslint-disable @kbn/eslint/require-license-header */
+/* eslint-disable @osd/eslint/require-license-header */
 import { validateEmptyComboBox } from './validateEmptyComboBox';
 import { requiredText } from '../i18n/common';
 
