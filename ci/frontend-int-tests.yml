@@ -64,6 +64,14 @@ fe_openid_keycloak:
     TEST_ENVIRONMENT: "kibana_noxpack_openid"
     TEST_KI_CONFIG: "openid_keycloak"
 
+fe_openid_auth0:
+  extends:
+    - .fe_integration_test
+  variables:
+    TEST: "kibana_openid_auth0"
+    TEST_ENVIRONMENT: "kibana_noxpack"
+    TEST_KI_CONFIG: "openid_auth0"
+
 fe_saml_keycloak:
   extends:
     - .fe_integration_test
@@ -79,6 +87,14 @@ fe_saml_auth0:
     TEST: "kibana_saml_auth0"
     TEST_ENVIRONMENT: "kibana_noxpack"
     TEST_KI_CONFIG: "saml"
+
+fe_session_auth:
+  extends:
+    - .fe_integration_test
+  variables:
+    TEST: "kibana_session_auth"
+    TEST_ENVIRONMENT: "kibana_noxpack"
+    TEST_KI_CONFIG: "session_auth"
 
 fe_sso_proxy:
   extends:
