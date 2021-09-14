@@ -59,11 +59,11 @@ export default class Jwt extends AuthType {
    */
 
   async detectCredentialsByRequest({ request }) {
-    if (!this.config.get('searchguard.auth.jwt.enabled')) {
+    if (!this.config.get('searchguard.auth.jwt_param.enabled')) {
       return null;
     }
 
-    const urlparamname = this.config.get('searchguard.auth.jwt.url_param').toLowerCase();
+    const urlparamname = this.config.get('searchguard.auth.jwt_param.url_param').toLowerCase();
 
     // Go through all given query parameters and make them lowercase
     // to avoid confusion when using uppercase or perhaps mixed caps
