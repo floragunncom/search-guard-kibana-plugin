@@ -76,7 +76,7 @@ export default class Jwt extends AuthType {
 
     if (jwtAuthParam) {
       const credentials = {
-        method: 'jwt',
+        mode: 'jwt',
         jwt: jwtAuthParam,
       };
 
