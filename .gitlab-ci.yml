@@ -64,15 +64,16 @@ unit_tests_release:
       export MAVEN_HOME=/opt/apache-maven
   script:
     - |
-      export KIBANA_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f4)
-      export KIBANA_PLUGIN_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f2|cut -d. -f2-)'.0'
-      sed -i -e "s#\"version\":.*\"#\"version\": \"$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT\"#" package.json
+      export KIBANA_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f2)
+      export KIBANA_PLUGIN_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f4)
+      ARTIFACT_VERSION=$KIBANA_PLUGIN_VERSION-es-$KIBANA_VERSION
+      sed -i -e "s#\"version\":.*\"#\"version\": \"$ARTIFACT_VERSION-SNAPSHOT\"#" package.json
       sed -i -e "s#\"version\":.*\"#\"version\": \"$KIBANA_VERSION\"#" kibana.json
       ./build.sh install-local
-      mv "build/kibana/searchguard-kibana-$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT" "build/kibana/searchguard-kibana-$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION"
-      sed -i -e "s/\"version\":\".*\"/\"version\": \"$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION\"/" package.json
-      sed -i -e "s#\"version\":.*\"#\"version\": \"$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION\"#" package.json
-      sed -i -e "s#\"version\":.*\"#\"version\": \"$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION\"#" "build/kibana/searchguard-kibana-$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION/package.json"
+      mv "build/kibana/searchguard-kibana-$ARTIFACT_VERSION-SNAPSHOT" "build/kibana/searchguard-kibana-$ARTIFACT_VERSION"
+      sed -i -e "s/\"version\":\".*\"/\"version\": \"$ARTIFACT_VERSION\"/" package.json
+      sed -i -e "s#\"version\":.*\"#\"version\": \"$ARTIFACT_VERSION\"#" package.json
+      sed -i -e "s#\"version\":.*\"#\"version\": \"$ARTIFACT_VERSION\"#" "build/kibana/searchguard-kibana-$ARTIFACT_VERSION/package.json"
   interruptible: true
   rules:
     - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
@@ -221,6 +222,9 @@ deploy_release:
   interruptible: true
   rules:
     - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
+  needs:
+    - job: unit_tests_release
+      artifacts: true
   before_script:
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
