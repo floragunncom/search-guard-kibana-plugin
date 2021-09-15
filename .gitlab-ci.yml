@@ -171,23 +171,19 @@ deploy_staging:
       fi
       if [[ ! "$SG_ES_PLUGIN" =~ ^https?:.*$ ]]; then
         if [[ "$SG_ES_PLUGIN" =~ .*SNAPSHOT.* ]]; then
-          SG_ES_PLUGIN_FILE=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-suite-plugin&v=$SG_ES_PLUGIN&repos=search-guard-suite-snapshot"| grep zip|grep -v sgadmin||sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1) 
-          SG_ES_PLUGIN=https://maven.search-guard.com/artifactory/search-guard-suite-snapshot/com/floragunn/search-guard-suite-plugin/$SG_ES_PLUGIN/$SG_ES_PLUGIN_FILE.zip
+          SG_ES_PLUGIN=$(ci/artifact_uri.sh search-guard-suite-snapshot search-guard-elasticsearch-plugin $SG_ES_PLUGIN .zip sgadmin-standalone.zip)
           echo "Found: $SG_ES_PLUGIN"
         else
-          SG_ES_PLUGIN_FILE=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-suite-plugin&v=$SG_ES_PLUGIN&repos=search-guard-suite-release"| grep zip|grep -v sgadmin||sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1) 
-          SG_ES_PLUGIN=https://maven.search-guard.com/artifactory/search-guard-suite-release/com/floragunn/search-guard-suite-plugin/$SG_ES_PLUGIN/$SG_ES_PLUGIN_FILE.zip
+          SG_ES_PLUGIN=$(ci/artifact_uri.sh search-guard-suite-alpha search-guard-elasticsearch-plugin $SG_ES_PLUGIN .zip sgadmin-standalone.zip)
           echo "Found: $SG_ES_PLUGIN"
         fi
       fi	
       if [[ ! "$SG_ADMIN" =~ ^https?:.*$ ]]; then
         if [[ "$SG_ADMIN" =~ .*SNAPSHOT.* ]]; then
-          SG_ADMIN_FILE=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-suite-plugin&v=$SG_ADMIN&repos=search-guard-suite-snapshot"| grep zip|grep sgadmin|sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1) 
-          SG_ADMIN=https://maven.search-guard.com/artifactory/search-guard-suite-snapshot/com/floragunn/search-guard-suite-plugin/$SG_ADMIN/$SG_ADMIN_FILE.zip
+          SG_ADMIN=$(ci/artifact_uri.sh search-guard-suite-snapshot search-guard-elasticsearch-plugin $SG_ADMIN sgadmin-standalone.zip)
           echo "Found: $SG_ADMIN"
         else
-          SG_ADMIN_FILE=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-suite-plugin&v=$SG_ES_PLUGIN&repos=search-guard-suite-release"| grep zip|grep sgadmin|sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1) 
-          SG_ADMIN=https://maven.search-guard.com/artifactory/search-guard-suite-release/com/floragunn/search-guard-suite-plugin/$SG_ADMIN/$SG_ADMIN_FILE.zip
+          SG_ADMIN=$(ci/artifact_uri.sh search-guard-suite-alpha search-guard-elasticsearch-plugin $SG_ADMIN sgadmin-standalone.zip)
           echo "Found: $SG_ADMIN"
         fi
       fi	
