@@ -70,10 +70,10 @@ unit_tests_release:
       sed -i -e "s#\"version\":.*\"#\"version\": \"$ARTIFACT_VERSION-SNAPSHOT\"#" package.json
       sed -i -e "s#\"version\":.*\"#\"version\": \"$KIBANA_VERSION\"#" opensearch_dashboards.json
       ./build.sh install-local
-      mv "build/kibana/searchguard-kibana-$ARTIFACT_VERSION-SNAPSHOT" "build/opensearch-dashboards/searchguard-opensearch-$ARTIFACT_VERSION"
+      mv "build/opensearch-dashboards/searchguard-osd-$ARTIFACT_VERSION-SNAPSHOT" "build/opensearch-dashboards/searchguard-osd-$ARTIFACT_VERSION"
       sed -i -e "s/\"version\":\".*\"/\"version\": \"$ARTIFACT_VERSION\"/" package.json
       sed -i -e "s#\"version\":.*\"#\"version\": \"$ARTIFACT_VERSION\"#" package.json
-      sed -i -e "s#\"version\":.*\"#\"version\": \"$ARTIFACT_VERSION\"#" "build/opensearch-dashboards/searchguard-opensearch-$ARTIFACT_VERSION/package.json"
+      sed -i -e "s#\"version\":.*\"#\"version\": \"$ARTIFACT_VERSION\"#" "build/opensearch-dashboards/searchguard-osd-$ARTIFACT_VERSION/package.json"
   interruptible: true
   rules:
     - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
@@ -148,6 +148,7 @@ deploy_snapshot:
 
 deploy_staging:
   stage: package
+  when: never # TODO
   tags:
     - openstack-runner
   script:
@@ -223,6 +224,9 @@ deploy_release:
   interruptible: true
   rules:
     - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
+  needs:
+    - job: unit_tests_release
+      artifacts: true
   before_script:
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
@@ -243,26 +247,26 @@ deploy_release:
 
       echo "KIBANA_PLUGIN_VERSION is $KIBANA_PLUGIN_VERSION and KIBANA_VERSION is $KIBANA_VERSION"
 
-      echo "Removing current release from Staging"
-      curl -u "$ARTIFACTORY_USER:$ARTIFACTORY_PASSWORD" -X DELETE "https://maven.search-guard.com/artifactory/search-guard-kibana-plugin-staging/com/floragunn/search-guard-opensearch-dashboards-plugin/$ARTIFACT_VERSION" || true
+      #echo "Removing current release from Staging"
+      #curl -u "$ARTIFACTORY_USER:$ARTIFACTORY_PASSWORD" -X DELETE "https://maven.search-guard.com/artifactory/search-guard-kibana-plugin-staging/com/floragunn/search-guard-opensearch-dashboards-plugin/$ARTIFACT_VERSION" || true
 
-      cd search-guard-integration-tests
-      git clone git@git.floragunn.com:private/search-guard-integration-tests.git
-      cd search-guard-integration-tests
-      if [ "$CI_COMMIT_TAG" != "master" ]; then
-        it_branch_exists=$(git show-ref $CI_COMMIT_TAG||true)
-       fi
-       if [ -n "$it_branch_exists" ]; then
-         IT_BRANCH="$CI_COMMIT_TAG"
-       else
-         IT_BRANCH="$MAJOR.x"
-       fi
-       git checkout "$IT_BRANCH"
+      #cd search-guard-integration-tests
+      #git clone git@git.floragunn.com:private/search-guard-integration-tests.git
+      #cd search-guard-integration-tests
+      #if [ "$CI_COMMIT_TAG" != "master" ]; then
+      #  it_branch_exists=$(git show-ref $CI_COMMIT_TAG||true)
+      # fi
+      # if [ -n "$it_branch_exists" ]; then
+      #   IT_BRANCH="$CI_COMMIT_TAG"
+      # else
+      #   IT_BRANCH="$MAJOR.x"
+      # fi
+      # git checkout "$IT_BRANCH"
 
-      git tag "osd-$CI_COMMIT_TAG" || true
+      #git tag "osd-$CI_COMMIT_TAG" || true
 
-      echo "Tag created in int repo"
-      git push --tags || true
+      #echo "Tag created in int repo"
+      #git push --tags || true
       cd
       echo "Deploying Release to Production repo"
       cd $CI_PROJECT_DIR
