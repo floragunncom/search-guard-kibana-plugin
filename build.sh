@@ -99,7 +99,7 @@ if [ $? != 0 ]; then
 fi
 
 # prepare artefacts
-PLUGIN_NAME="searchguard-kibana-$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT"
+PLUGIN_NAME="searchguard-kibana-$KIBANA_PLUGIN_VERSION-es-$KIBANA_VERSION-SNAPSHOT"
 echo "+++ Building $PLUGIN_NAME.zip +++"
 
 WORK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -275,7 +275,7 @@ if [ "$COMMAND" == "deploy-snapshot-maven" ] ; then
 	echo -e "\e[0Ksection_start:`date +%s`:deploy[collapsed=true]\r\e[0KDeploying"
 
     echo "+++ mvn clean deploy +++"
-    $MAVEN_HOME/bin/mvn clean deploy -s settings.xml -Drevision="$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT"
+    $MAVEN_HOME/bin/mvn clean deploy -s settings.xml -Drevision="$KIBANA_PLUGIN_VERSION-es-$KIBANA_VERSION-SNAPSHOT"
     if [ $? != 0 ]; then
         echo "$MAVEN_HOME/bin/mvn clean deploy failed"
         exit 1
@@ -286,7 +286,7 @@ fi
 
 if [ "$COMMAND" == "install-local" ] ; then
     echo "+++ mvn clean install +++"
-    $MAVEN_HOME/bin/mvn clean install -Drevision="$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT"
+    $MAVEN_HOME/bin/mvn clean install -Drevision="$KIBANA_PLUGIN_VERSION-es-$KIBANA_VERSION-SNAPSHOT"
     if [ $? != 0 ]; then
         echo "$MAVEN_HOME/bin/mvn clean install failed"
         exit 1
