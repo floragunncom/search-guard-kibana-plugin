@@ -1,4 +1,5 @@
-#variables:
+variables:
+ x:y
 #  IT_BRANCH: "session-auth"
 # ES_VERSION: "7.14.0"
 #  SG_ES_PLUGIN: "b-session-auth-SNAPSHOT"
