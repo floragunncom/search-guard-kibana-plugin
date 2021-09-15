@@ -100,7 +100,7 @@ if [ $? != 0 ]; then
 fi
 
 # prepare artefacts
-PLUGIN_NAME="searchguard-osd-$KIBANA_PLUGIN_VERSION-$KIBANA_VERSION-SNAPSHOT"
+PLUGIN_NAME="searchguard-osd-$KIBANA_PLUGIN_VERSION-os-$KIBANA_VERSION-SNAPSHOT"
 echo "+++ Building $PLUGIN_NAME.zip +++"
 
 WORK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
