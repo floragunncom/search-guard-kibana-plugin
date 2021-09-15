@@ -241,7 +241,7 @@ deploy_release:
       export MAVEN_HOME=/opt/apache-maven
       ./dev/setup_gpg.sh || true
       export KIBANA_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f4)
-      export KIBANA_PLUGIN_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f2|cut -d. -f2-)'.0'
+      export KIBANA_PLUGIN_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f2)
       export MAJOR=$(echo $KIBANA_VERSION | cut -d. -f1-2)
       ARTIFACT_VERSION=$KIBANA_PLUGIN_VERSION-os-$KIBANA_VERSION
 
