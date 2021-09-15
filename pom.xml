@@ -100,7 +100,7 @@
           <repository>
             <id>central</id>
             <name>releases</name>
-            <url>https://maven.search-guard.com:443/search-guard-kibana-plugin-release</url>
+            <url>https://maven.search-guard.com:443/search-guard-suite-alpha</url>
           </repository>
         </distributionManagement>
       </profile>
