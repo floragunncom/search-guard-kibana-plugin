@@ -148,7 +148,6 @@ deploy_snapshot:
 
 deploy_staging:
   stage: package
-  when: never # TODO
   tags:
     - openstack-runner
   script:
@@ -206,6 +205,7 @@ deploy_staging:
       artifacts: true
   rules:
     - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
+      when: never # TODO
   artifacts:
     when: always
     expire_in: 7 days
