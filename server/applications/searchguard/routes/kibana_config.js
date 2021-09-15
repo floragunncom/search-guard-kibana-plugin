@@ -14,7 +14,7 @@ export function handleKibanaConfig({ config, logger }) {
         kibanaConfig = {
           searchguard: pick(config.searchguard || {}, ['enabled', 'sgVersion']),
           elasticsearch: pick(config.elasticsearch || {}, ['username']),
-          kibana: pick(config.kibana || {}, ['index']),
+          kibana: pick(config.opensearchDashboards || {}, ['index']),
         };
 
         config.searchguard.readonly_mode = config.searchguard.readonly_mode || {};
