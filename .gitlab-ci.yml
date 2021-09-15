@@ -64,8 +64,8 @@ unit_tests_release:
       export MAVEN_HOME=/opt/apache-maven
   script:
     - |
-      export KIBANA_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f2)
-      export KIBANA_PLUGIN_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f4)
+      export KIBANA_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f4)
+      export KIBANA_PLUGIN_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f2)
       ARTIFACT_VERSION=$KIBANA_PLUGIN_VERSION-os-$KIBANA_VERSION
       sed -i -e "s#\"version\":.*\"#\"version\": \"$ARTIFACT_VERSION-SNAPSHOT\"#" package.json
       sed -i -e "s#\"version\":.*\"#\"version\": \"$KIBANA_VERSION\"#" opensearch_dashboards.json
