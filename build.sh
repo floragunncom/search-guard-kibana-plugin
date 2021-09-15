@@ -79,13 +79,13 @@ fi
 VERSION=$(grep -e '\bversion\b' package.json | tr -d "[:blank:]" | sed -E 's/"version":"(.*)"(.*)/\1/')
 SG_TEST_VERSION=$(grep -e '\btest_sg_version\b' package.json | tr -d "[:blank:]" | sed -E 's/"test_sg_version":"(.*)"(.*)/\1/')
 
-ES_VERSION=$(echo $SG_TEST_VERSION | cut -d "-" -f 1)
+ES_VERSION=$(echo $SG_TEST_VERSION | cut -d "-" -f 3)
 KIBANA_APP_BRANCH=$(grep -e '\bkibana_branch\b' package.json | tr -d "[:blank:]" | sed -E 's/"kibana_branch":"(.*)"(.*)/\1/')
 KIBANA_VERSION="1.0.0"
 #KIBANA_VERSION=$(echo $VERSION | cut -d "-" -f 1)
-KIBANA_PLUGIN_VERSION=$(echo $VERSION | cut -d "-" -f 2)
+KIBANA_PLUGIN_VERSION=$(echo $VERSION | cut -d "-" -f 1)
 
-SNAPSHOT=$(echo $VERSION | cut -d "-" -f 3)
+SNAPSHOT=$(echo $VERSION | cut -d "-" -f 4)
 
 if [ $SNAPSHOT != "SNAPSHOT" ]; then
     echo "$VERSION is not a SNAPSHOT version"
