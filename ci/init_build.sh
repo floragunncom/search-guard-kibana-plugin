@@ -2,8 +2,12 @@
 
 set -e 
 
-SF_BRANCH_NAME="v$SF_VERSION"
-
+if [ $SF_PRODUCT = "kibana" ]; then
+  SF_BRANCH_NAME="v$SF_VERSION"
+else
+  SF_BRANCH_NAME="$SF_VERSION"
+fi
+  
 if [[ -f $SF_REPO_DIR/.cached_version ]]; then
    CACHED_VERSION=`cat $SF_REPO_DIR/.cached_version`
 
