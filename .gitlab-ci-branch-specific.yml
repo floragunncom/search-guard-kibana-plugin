@@ -1,0 +1,6 @@
+variables:
+  IT_BRANCH: "7.14.x"
+  ES_VERSION: "7.14.0"
+  SG_ES_PLUGIN: "b-master-SNAPSHOT"
+  SG_ADMIN: "b-master-SNAPSHOT"
+
