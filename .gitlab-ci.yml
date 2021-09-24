@@ -14,7 +14,7 @@ variables:
   SG_SF_PLUGIN_RELEASE_REPO: search-guard-kibana-plugin-release
   SG_SF_PLUGIN_NAME: search-guard-kibana-plugin
   SG_SB_PLUGIN_NAME: search-guard-suite-plugin
-  NODE_VERSION: 14.17.3
+  NODE_VERSION: 14.17.6
 
 image: circleci/openjdk:${SG_JAVA_BUILD_VERSION}-jdk-browsers
 
