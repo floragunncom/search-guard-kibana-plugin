@@ -4,9 +4,6 @@
   "description": "Search Guard features for Kibana",
   "homepage": "https://search-guard.com",
   "license": "Apache-2.0",
-  "searchguard": {
-    "test_sg_version": "7.14.0-52.0.0-SNAPSHOT"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/floragunncom/search-guard-kibana-plugin"
@@ -36,6 +33,7 @@
   },
   "devDependencies": {
     "core-js": "^3.6.5",
+    "jest-junit": "^12.2.0",
     "ts-jest": "^26.4.1"
   }
 }

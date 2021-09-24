@@ -1,12 +1,22 @@
 variables:
   SG_JAVA_BUILD_VERSION: "8"
+  # Mnemonic: SF: Search Frontend; SB: Search Backend
+  SF_PRODUCT: kibana
+  SF_JSON: kibana.json
+  SF_REPO_URL: "https://github.com/elastic/kibana.git"
+  SF_REPO_DIR: $SF_PRODUCT
+  SB_PRODUCT: elasticsearch
+  SG_SB_PLUGIN_SNAPSHOT_REPO: search-guard-suite-snapshot
+  SG_SB_PLUGIN_STAGING_REPO: search-guard-suite-staging
+  SG_SB_PLUGIN_RELEASE_REPO: search-guard-suite-alpha
+  SG_SF_PLUGIN_SNAPSHOT_REPO: search-guard-kibana-plugin-snapshot
+  SG_SF_PLUGIN_STAGING_REPO: search-guard-kibana-plugin-staging
+  SG_SF_PLUGIN_RELEASE_REPO: search-guard-kibana-plugin-release
+  SG_SF_PLUGIN_NAME: search-guard-kibana-plugin
+  SG_SB_PLUGIN_NAME: search-guard-suite-plugin
+  NODE_VERSION: 14.17.3
 
 image: circleci/openjdk:${SG_JAVA_BUILD_VERSION}-jdk-browsers
-
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - ./node_modules/
 
 workflow:
   rules:
@@ -14,16 +24,36 @@ workflow:
       when: never
     - when: always
 
+before_script:
+  - |
+    source ci/utils.sh
+    if [ -d $SF_REPO_DIR ]; then du --summarize -h $SF_REPO_DIR; fi
+    if [[ $CI_COMMIT_TAG =~ ^sg-([a-z0-9\.]+)-([oe]s)-([0-9\.]+)$ ]]; then
+      export SG_SF_PLUGIN_VERSION=${BASH_REMATCH[1]}
+      export BUILD_VERSION="${BASH_REMATCH[1]}-${BASH_REMATCH[2]}-${BASH_REMATCH[3]}"
+      export SF_VERSION=${BASH_REMATCH[3]}
+    else    
+      export SG_SF_PLUGIN_VERSION="b-$CI_COMMIT_REF_NAME-SNAPSHOT"
+      export BUILD_VERSION="b-$CI_COMMIT_REF_NAME-SNAPSHOT"
+      export SF_VERSION=$(grep -e '\bversion\b' $SF_JSON | tr -d "[:blank:]" | sed -E 's/"version":"(.*)"(.*)/\1/')
+    fi
+    echo "================================="
+    echo "SG_SF_PLUGIN_VERSION: $SG_SF_PLUGIN_VERSION"
+    echo "BUILD_VERSION: $BUILD_VERSION"
+    echo "SF_VERSION: $SF_VERSION"
+    echo "================================="
 
 stages:
   - build
+  - "Unit Tests"
   - package
-  - kibana_build
-  - integration_sgkibana_tests
+  - "Frontend Int Tests Core"
+  - "Frontend Int Tests Features"
+  - "Frontend Int Tests External Features"
   - release
 
 #This case is for usual commit to the branch, doing only unit testing and local build
-unit_tests:
+build:
   stage: build
   tags:
     - openstack-runner
@@ -31,275 +61,159 @@ unit_tests:
     - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
       when: never
     - when: always
-  before_script:
-    - |
-      curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh| bash
-      export NVM_HOME=~/.nvm
-      export NVM_DIR="$HOME/.nvm"
-      [ -s "$NVM_DIR/nvm.sh" ]; \. "$NVM_DIR/nvm.sh"
-      export MAVEN_HOME=/opt/apache-maven
   script:
-    - ./build.sh build
+    - |
+      set -e
+      source ci/install_dependencies.sh
+      source ci/init_build.sh
+      cd $SF_REPO_DIR/plugins/search-guard
+      rm -rf "node_modules"
+      start_section build "Building Search Guard Plugin"
+      start_section yarn_install "Doing yarn install --production"
+      yarn install --production 
+      end_section yarn_install
+      start_section yarn_build "Doing yarn build -v $SF_VERSION --skip-archive"
+      yarn build -v $SF_VERSION --skip-archive
+      end_section yarn_build
+      end_section build
+      # Move build result from repo dir to the build folder in the CI root dir. 
+      cd $CI_PROJECT_DIR
+      rm -rf build
+      mv $SF_REPO_DIR/plugins/search-guard/build build
+      # Remove search-guard dir from repo to have a clean repo for the Gitlab CI cache
+      rm -rf $SF_REPO_DIR/plugins/search-guard
   interruptible: true
   artifacts:
     when: always
     paths:
       - "build.log"
-      - "build/kibana/*"
+      - "build/*"
     expire_in: 24h
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - ./${SF_REPO_DIR}
 
 #This case is for release tag commit to the branch, doing only unit testing and local build
-unit_tests_release:
+build_release:
   stage: build
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
   tags:
     - openstack-runner
-  before_script:
-    - |
-      curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh| bash
-      export NVM_HOME=~/.nvm
-      export NVM_DIR="$HOME/.nvm"
-      [ -s "$NVM_DIR/nvm.sh" ]; \. "$NVM_DIR/nvm.sh"
-      export MAVEN_HOME=/opt/apache-maven
   script:
     - |
-      export KIBANA_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f4)
-      export KIBANA_PLUGIN_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f2|cut -d. -f2-)'.0'
-      sed -i -e "s#\"version\":.*\"#\"version\": \"$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT\"#" package.json
-      sed -i -e "s#\"version\":.*\"#\"version\": \"$KIBANA_VERSION\"#" kibana.json
-      ./build.sh install-local
-      mv "build/kibana/searchguard-kibana-$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT" "build/kibana/searchguard-kibana-$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION"
-      sed -i -e "s/\"version\":\".*\"/\"version\": \"$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION\"/" package.json
-      sed -i -e "s#\"version\":.*\"#\"version\": \"$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION\"#" package.json
-      sed -i -e "s#\"version\":.*\"#\"version\": \"$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION\"#" "build/kibana/searchguard-kibana-$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION/package.json"
+      set -e
+      sed -i -e "s#\"version\":.*\"#\"version\": \"$SF_VERSION\"#" $SF_JSON
+      sed -i -e "s#\"version\":.*\"#\"version\": \"$BUILD_VERSION\"#" package.json
+      source ci/install_dependencies.sh
+      source ci/init_build.sh
+      cd $SF_REPO_DIR/plugins/search-guard
+      rm -rf "node_modules"
+      echo -e "\e[0Ksection_start:`date +%s`:yarn_install\r\e[0KDoing yarn install --production"
+      yarn install --production 
+      echo -e "\e[0Ksection_end:`date +%s`:yarn_install\r\e[0K"
+      echo -e "\e[0Ksection_start:`date +%s`:yarn_build\r\e[0KDoing yarn build -v $SF_VERSION --skip-archive"
+      yarn build -v $SF_VERSION --skip-archive
+      echo -e "\e[0Ksection_end:`date +%s`:yarn_build\r\e[0K"
+      cd $CI_PROJECT_DIR
+      rm -rf build
+      mv $SF_REPO_DIR/plugins/search-guard/build build
+      rm -rf $SF_REPO_DIR/plugins/search-guard
+  artifacts:
+    when: always
+    paths:
+      - "build.log"
+      - "build/*"
+    expire_in: 24h
+
+unit_tests:
+  stage: "Unit Tests"
   interruptible: true
   rules:
     - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
-  artifacts:
-    when: always
-    paths:
-      - "build.log"
-      - "build/kibana/*"
-    expire_in: 24h
-
-
-deploy_snapshot:
-  stage: package
+      when: never
+    - when: always
   tags:
     - openstack-runner
   script:
     - |
-      KIBANA_VERSION=$(cat package.json | jq --raw-output '.version' | cut -d "-" -f1) && echo KIBANA_VERSION="${KIBANA_VERSION}" >> environment.env
-      KIBANA_PLUGIN_VERSION=$(cat package.json | jq --raw-output '.version' | cut -d'-' -f2) && echo KI_PLUGIN_VERSION="${KIBANA_PLUGIN_VERSION}"  >> environment.env
-      MAJOR=$(echo $KIBANA_VERSION | cut -d. -f1-2)  && echo MAJOR="${MAJOR}"  >> environment.env
+      set -e
+      source ci/install_dependencies.sh
+      source ci/init_build.sh
+      start_section tests "Unit Tests"
+      cd $SF_REPO_DIR/plugins/search-guard
+      export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-server.xml
+      ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --reporters="jest-junit"
+      export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-public.xml
+      ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=public  --config ./tests/jest.config.js --reporters="jest-junit"
+      end_section tests
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - junit*.xml
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    policy: pull
+    paths:
+      - ./${SF_REPO_DIR}
 
-      echo "Deploying snapshot: $KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT"
-      mvn clean deploy -s settings.xml -Drevision="$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT" | tee deploy.out
-
-      KI_SNAPSHOT=$(grep -E "Uploaded to .*: https://.*/search-guard-kibana-plugin-.*[0-9]+.zip " deploy.out| grep -o 'http.*zip')
-      echo "Debug: KI_SNAPSHOT is ${KI_SNAPSHOT}"
-      echo KI_SNAPSHOT="${KI_SNAPSHOT}"  >> environment.env
-
-      [[ -n $ES_TEST_VERSION ]] && echo ES_VERSION="${ES_TEST_VERSION}"  >> environment.env || echo ES_VERSION="${KIBANA_VERSION}"  >> environment.env
-
-      [[ -n "$SG_PLUGIN_TEST_VERSION" ]] && SG_PLUGIN_VERSION=${SG_PLUGIN_TEST_VERSION} || SG_PLUGIN_VERSION=${KIBANA_PLUGIN_VERSION}
-      echo SG_VERSION="${SG_PLUGIN_VERSION}"  >> environment.env
-      RELEASE_SG_PLUGIN_ID=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-suite-plugin&v=$SG_PLUGIN_VERSION&repos=search-guard-suite-release"| grep zip|grep -v sgadmin|sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1) || true
-      [[ -n $RELEASE_SG_PLUGIN_ID ]] && echo SG_SNAPSHOT="https://maven.search-guard.com/artifactory/search-guard-suite-release/com/floragunn/search-guard-suite-plugin/$SG_PLUGIN_VERSION/$RELEASE_SG_PLUGIN_ID.zip"  >> environment.env
-      [[ -z $RELEASE_SG_PLUGIN_ID ]] && SNAPSHOT_SG_PLUGIN_ID=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-suite-plugin&v=$SG_PLUGIN_VERSION&repos=search-guard-suite-snapshot"| grep zip|grep -v sgadmin|sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1) || true
-      [[ -n $SNAPSHOT_SG_PLUGIN_ID ]] && echo SG_SNAPSHOT="https://maven.search-guard.com/artifactory/search-guard-suite-snapshot/com/floragunn/search-guard-suite-plugin/$SG_PLUGIN_VERSION/$SNAPSHOT_SG_PLUGIN_ID.zip" >> environment.env
-
-
-      [[ -n $SGADMIN_PLUGIN_TEST_VERSION ]] && SGADMIN_PLUGIN_VERSION=${SGADMIN_PLUGIN_TEST_VERSION} || SGADMIN_PLUGIN_VERSION=${SG_PLUGIN_VERSION}
-      RELEASE_SGADMIN_PLUGIN_ID=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-suite-plugin&v=$SGADMIN_PLUGIN_VERSION&repos=search-guard-suite-release"| grep zip|grep sgadmin|sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1) || true
-      [[ -n $RELEASE_SGADMIN_PLUGIN_ID ]] && echo SGADMIN_SNAPSHOT="https://maven.search-guard.com/artifactory/search-guard-suite-release/com/floragunn/search-guard-suite-plugin/$SGADMIN_PLUGIN_VERSION/$RELEASE_SGADMIN_PLUGIN_ID.zip"  >> environment.env
-      [[ -z $RELEASE_SGADMIN_PLUGIN_ID ]] && SNAPSHOT_SGADMIN_PLUGIN_ID=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-suite-plugin&v=$SGADMIN_PLUGIN_VERSION&repos=search-guard-suite-snapshot"| grep zip|grep sgadmin|sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1) || true
-      [[ -n $SNAPSHOT_SGADMIN_PLUGIN_ID ]] && echo SGADMIN_SNAPSHOT="https://maven.search-guard.com/artifactory/search-guard-suite-snapshot/com/floragunn/search-guard-suite-plugin/$SGADMIN_PLUGIN_VERSION/$SNAPSHOT_SGADMIN_PLUGIN_ID.zip" >> environment.env
-
-
-
-      if [[ -n $KIBANA_TEST_BRANCH ]];  then
-        KI_URL=local
-        echo "Building Kibana package for $KIBANA_APP_BRANCH. Please, be patient"
-        ./build.sh build-kibana
-        mkdir -p components/search-guard-kibana-plugin/ && cp build_stage/kibana/target/kibana-linux-x86_64.tar.gz components/search-guard-kibana-plugin/
-      else
-        KI_URL="https://artifacts.elastic.co/downloads/kibana/kibana-$KIBANA_VERSION-linux-x86_64.tar.gz"
-        echo "Debug: KI_URL=$KI_URL"
-      fi
-      echo KI_URL="${KI_URL}"  >> environment.env
-
-      echo "BASEIMAGE=0.9.3-open-jdk-11" >> environment.env
-      echo "SG_SOURCE=snapshot" >> environment.env
-      echo "TCNATIVE_SOURCE=download" >> environment.env
-      echo "TCNATIVE_URL=https://maven.search-guard.com/netty-tcnative/netty-tcnative-openssl-1.1.1c-static-2.0.25.Final-non-fedora-linux-x86_64.jar" >> environment.env
-      echo "KI_SOURCE=snapshot" >> environment.env
+deploy_snapshot:
+  stage: package
+  interruptible: true
+  tags:
+    - openstack-runner
   needs:
-    - job: unit_tests
+    - job: build
       artifacts: true
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule"'
     - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
       when: never
+  script:
+    - ci/deploy.sh
   artifacts:
     when: always
-    paths:
-      - components/search-guard-kibana-plugin/kibana-linux-x86_64.tar.gz
-      - deploy.out
-      - environment.env
     expire_in: 7 days
     reports:
-      dotenv: environment.env
-
+      dotenv: build.env
 
 deploy_staging:
   stage: package
   tags:
     - openstack-runner
   script:
-    - |
-      ./dev/setup_gpg.sh || true
-      KIBANA_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f4) && echo KIBANA_VERSION="${KIBANA_VERSION}" >> environment.env
-      KIBANA_PLUGIN_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f2|cut -d. -f2-)'.0' && echo KI_PLUGIN_VERSION="${KIBANA_PLUGIN_VERSION}"  >> environment.env
-      MAJOR=$(echo $KIBANA_VERSION | cut -d. -f1-2)  && echo MAJOR="${MAJOR}"  >> environment.env
-      echo "Deploying to Staging"
-      mvn -B -s settings.xml -Drevision="$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION" -Prelease clean deploy  | tee deploy.out
-      KI_SNAPSHOT=$(grep -E "Uploaded to .*: https://.*/search-guard-kibana-plugin-.*[0-9]+.zip " deploy.out| grep -o 'http.*zip')
-      echo "Debug: KI_SNAPSHOT is ${KI_SNAPSHOT}"
-      echo KI_SNAPSHOT="${KI_SNAPSHOT}"  >> environment.env
-      [[ -n $ES_TEST_VERSION ]] && echo ES_VERSION="${ES_TEST_VERSION}"  >> environment.env || echo ES_VERSION="${KIBANA_VERSION}"  >> environment.env
-
-      [[ -n "$SG_PLUGIN_TEST_VERSION" ]] && SG_PLUGIN_VERSION=${SG_PLUGIN_TEST_VERSION} || SG_PLUGIN_VERSION=${KIBANA_PLUGIN_VERSION}
-      echo SG_VERSION="${SG_PLUGIN_VERSION}"  >> environment.env
-      RELEASE_SG_PLUGIN_ID=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-suite-plugin&v=$SG_PLUGIN_VERSION&repos=search-guard-suite-release"| grep zip|grep -v sgadmin|sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1) || true
-      [[ -n $RELEASE_SG_PLUGIN_ID ]] && echo SG_SNAPSHOT="https://maven.search-guard.com/artifactory/search-guard-suite-release/com/floragunn/search-guard-suite-plugin/$SG_PLUGIN_VERSION/$RELEASE_SG_PLUGIN_ID.zip"  >> environment.env
-      [[ -z $RELEASE_SG_PLUGIN_ID ]] && SNAPSHOT_SG_PLUGIN_ID=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-suite-plugin&v=$SG_PLUGIN_VERSION&repos=search-guard-suite-snapshot"| grep zip|grep -v sgadmin|sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1) || true
-      [[ -n $SNAPSHOT_SG_PLUGIN_ID ]] && echo SG_SNAPSHOT="https://maven.search-guard.com/artifactory/search-guard-suite-snapshot/com/floragunn/search-guard-suite-plugin/$SG_PLUGIN_VERSION/$SNAPSHOT_SG_PLUGIN_ID.zip" >> environment.env
-
-
-      [[ -n $SGADMIN_PLUGIN_TEST_VERSION ]] && SGADMIN_PLUGIN_VERSION=${SGADMIN_PLUGIN_TEST_VERSION} || SGADMIN_PLUGIN_VERSION=${SG_PLUGIN_VERSION}
-      RELEASE_SGADMIN_PLUGIN_ID=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-suite-plugin&v=$SGADMIN_PLUGIN_VERSION&repos=search-guard-suite-release"| grep zip|grep sgadmin|sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1) || true
-      [[ -n $RELEASE_SGADMIN_PLUGIN_ID ]] && echo SGADMIN_SNAPSHOT="https://maven.search-guard.com/artifactory/search-guard-suite-release/com/floragunn/search-guard-suite-plugin/$SGADMIN_PLUGIN_VERSION/$RELEASE_SGADMIN_PLUGIN_ID.zip"  >> environment.env
-      [[ -z $RELEASE_SGADMIN_PLUGIN_ID ]] && SNAPSHOT_SGADMIN_PLUGIN_ID=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-suite-plugin&v=$SGADMIN_PLUGIN_VERSION&repos=search-guard-suite-snapshot"| grep zip|grep sgadmin|sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1) || true
-      [[ -n $SNAPSHOT_SGADMIN_PLUGIN_ID ]] && echo SGADMIN_SNAPSHOT="https://maven.search-guard.com/artifactory/search-guard-suite-snapshot/com/floragunn/search-guard-suite-plugin/$SGADMIN_PLUGIN_VERSION/$SNAPSHOT_SGADMIN_PLUGIN_ID.zip" >> environment.env
-
-      if [[ -n $KIBANA_TEST_BRANCH ]];  then
-        KI_URL=local
-        echo "Building Kibana package for $KIBANA_APP_BRANCH. Please, be patient"
-        ./build.sh build-kibana
-        mkdir -p components/search-guard-kibana-plugin/ && cp build_stage/kibana/target/kibana-linux-x86_64.tar.gz components/search-guard-kibana-plugin/
-      else
-        KI_URL="https://artifacts.elastic.co/downloads/kibana/kibana-$KIBANA_VERSION-linux-x86_64.tar.gz"
-        echo "Debug: KI_URL=$KI_URL"
-      fi
-      echo KI_URL="${KI_URL}"  >> environment.env
-
-      echo "BASEIMAGE=0.9.3-open-jdk-11" >> environment.env
-      echo "SG_SOURCE=snapshot" >> environment.env
-      echo "TCNATIVE_SOURCE=download" >> environment.env
-      echo "TCNATIVE_URL=https://maven.search-guard.com/netty-tcnative/netty-tcnative-openssl-1.1.1c-static-2.0.25.Final-non-fedora-linux-x86_64.jar" >> environment.env
-      echo "KI_SOURCE=staging" >> environment.env
-
-      export BASEIMAGES="$BASEIMAGES"
-      export ES_VERSION="$ES_VERSION"
-
-      export TCNATIVE_SOURCE=download
-      export TCNATIVE_URL="$TCNATIVE_URL"
-
-      export KI_SOURCE=staging
-      export KI_PLUGIN_VERSION="$SG_VERSION"
-
+    - ci/deploy.sh staging
   needs:
-    - job: unit_tests_release
+    - job: build_release
       artifacts: true
   rules:
     - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
   artifacts:
     when: always
-    paths:
-      - components/search-guard-kibana-plugin/kibana-linux-x86_64.tar.gz
-      - deploy.out
-      - environment.env
     expire_in: 7 days
     reports:
-      dotenv: environment.env
+      dotenv: build.env
 
-
-include:
-  - '.gitlab-ci-branch-specific.yml'
-  - project: 'private/search-guard-integration-tests'
-    ref: 7.13.x
-    file: 'ci-tools/ci-jobs-configuration/config_kibana_basicauth.yml'
-  - project: 'private/search-guard-integration-tests'
-    ref: 7.13.x
-    file: 'ci-tools/ci-jobs-configuration/config_kibana_multitenancy.yml'
-  - project: 'private/search-guard-integration-tests'
-    ref: 7.13.x
-    file: 'ci-tools/ci-jobs-configuration/config_kibana_configui.yml'
-  - project: 'private/search-guard-integration-tests'
-    ref: 7.13.x
-    file: 'ci-tools/ci-jobs-configuration/config_kibana_sso.yml'
-  - project: 'private/search-guard-integration-tests'
-    ref: 7.13.x
-    file: 'ci-tools/ci-jobs-configuration/config_kibana_impersonation.yml'
-  - project: 'private/search-guard-integration-tests'
-    ref: 7.13.x
-    file: 'ci-tools/ci-jobs-configuration/config_kibana_clientcert.yml'
-  - project: 'private/search-guard-integration-tests'
-    ref: 7.13.x
-    file: 'ci-tools/ci-jobs-configuration/config_kibana_signals.yml'
-  - project: 'private/search-guard-integration-tests'
-    ref: 7.13.x
-    file: 'ci-tools/ci-jobs-configuration/config_kibana_authtokens.yml'
-  - project: 'private/search-guard-integration-tests'
-    ref: 7.13.x
-    file: 'ci-tools/ci-jobs-configuration/config_kibana_anonymous_user.yml'
 
 deploy_release:
   stage: release
   interruptible: true
   rules:
     - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
-  before_script:
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan git.floragunn.com >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
   tags:
     - openstack-runner
   script:
     - |
-      export MAVEN_HOME=/opt/apache-maven
-      ./dev/setup_gpg.sh || true
-      export KIBANA_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f4)
-      export KIBANA_PLUGIN_VERSION=$(echo $CI_COMMIT_TAG | cut -d- -f2|cut -d. -f2-)'.0'
-      export MAJOR=$(echo $KIBANA_VERSION | cut -d. -f1-2)
-
-      echo "KIBANA_PLUGIN_VERSION is $KIBANA_PLUGIN_VERSION and KIBANA_VERSION is $KIBANA_VERSION"
-
       echo "Removing current release from Staging"
-      curl -u "$ARTIFACTORY_USER:$ARTIFACTORY_PASSWORD" -X DELETE "https://maven.search-guard.com/artifactory/search-guard-kibana-plugin-staging/com/floragunn/search-guard-kibana-plugin/$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION" || true
+      curl -u "$ARTIFACTORY_USER:$ARTIFACTORY_PASSWORD" -X DELETE "https://maven.search-guard.com/artifactory/$SG_SF_PLUGIN_STAGING_REPO/com/floragunn/$SG_SF_PLUGIN_NAME/$BUILD_VERSION" || true
+      start_section deploy "Deploying to release repository"
+      mvn -B -s settings.xml -Drevision="$BUILD_VERSION" deploy
+      end_section deploy
 
-      cd search-guard-integration-tests
-      git clone git@git.floragunn.com:private/search-guard-integration-tests.git
-      cd search-guard-integration-tests
-      if [ "$CI_COMMIT_TAG" != "master" ]; then
-        it_branch_exists=$(git show-ref $CI_COMMIT_TAG||true)
-       fi
-       if [ -n "$it_branch_exists" ]; then
-         IT_BRANCH="$CI_COMMIT_TAG"
-       else
-         IT_BRANCH="$MAJOR.x"
-       fi
-       git checkout "$IT_BRANCH"
-
-      git tag "kibana-$CI_COMMIT_TAG" || true
-
-      echo "Tag created in int repo"
-      git show-ref "kibana-$CI_COMMIT_TAG"
-      git push --tags || true
-      cd
-      echo "Deploying Release to Production repo"
-      cd $CI_PROJECT_DIR
-      $MAVEN_HOME/bin/mvn -B -s settings.xml -Drelease=true -Drevision="$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION" clean deploy
+include:
+  - local: '.gitlab-ci-branch-specific.yml'
+  - local: 'ci/frontend-int-tests.yml'
+  - local: 'ci/frontend-int-tests-features.yml'
+  - local: 'ci/frontend-int-tests-external-features.yml'
