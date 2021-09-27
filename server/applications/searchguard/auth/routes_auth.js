@@ -85,7 +85,9 @@ export function authConfigHandler({ authManager, searchGuardBackend, configServi
             type: backendMethodToFrontendMethod[config.method],
             title: config.label,
             loginURL,
-            message: config.message,
+            message_body: config.message_body,
+			message_title: config.message_title,
+			details: config.details,
 			unavailable: config.unavailable,
           };
         }
