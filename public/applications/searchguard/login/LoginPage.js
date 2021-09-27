@@ -126,8 +126,11 @@ export function AuthTypesMenu({ authTypes = [] }) {
                     >
                       {auth.title}
                     </EuiButton>
-					{auth.unavailable && auth.message ?
-					<p style={{textAlign: "center", fontSize: "77%", marginTop: "0.5em", marginLeft: "1.7em", marginRight: "1.7em"}}>{auth.message}</p>
+					{auth.unavailable && (auth.message_title || auth.message_body) ?
+					 <EuiCallOut title={auth.message_title} color="danger" iconType="alert">
+			            <p style={{fontSize: "12px"}}>{auth.message_body}</p>
+						{auth.details ? (<textarea style={{height: "3.6em", width: "100%", fontSize: "9px", border: "none"}}>{JSON.stringify(auth.details)}</textarea>) : null}
+			         </EuiCallOut>
 					: null}			
 				  </EuiFlexGroup>
                 </EuiErrorBoundary>
