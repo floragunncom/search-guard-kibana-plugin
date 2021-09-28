@@ -209,6 +209,7 @@ deploy_release:
     - openstack-runner
   script:
     - |
+      ci/setup_gpg.sh
       echo "Removing current release from Staging"
       curl -u "$ARTIFACTORY_USER:$ARTIFACTORY_PASSWORD" -X DELETE "https://maven.search-guard.com/artifactory/$SG_SF_PLUGIN_STAGING_REPO/com/floragunn/$SG_SF_PLUGIN_NAME/$BUILD_VERSION" || true
       start_section deploy "Deploying to release repository"
