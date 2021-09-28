@@ -177,6 +177,11 @@ fe_kerberos:
        echo "TEST_SG_KI_PLUGIN: $TEST_SG_KI_PLUGIN"
        echo "TEST_KI_VERSION: $TEST_KI_VERSION"
        echo "============================================="
+       if [[ "$TEST_SG_KI_PLUGIN" =~ .*staging.* ]]; then
+         echo "export KI_SOURCE=staging" >> $CI_PROJECT_DIR/environment.env
+       else
+         echo "export KI_SOURCE=snapshot" >> $CI_PROJECT_DIR/environment.env
+       fi	
        if [[ ! "$TEST_SG_KI_PLUGIN" =~ ^https?:.*$ ]]; then
          if [[ "$TEST_SG_KI_PLUGIN" =~ .*SNAPSHOT.* ]]; then
           SG_KI_PLUGIN_FILE=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-kibana-plugin&v=$TEST_SG_KI_PLUGIN&repos=search-guard-kibana-plugin-snapshot"| grep zip|sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1) 
@@ -187,10 +192,10 @@ fe_kerberos:
           TEST_SG_KI_PLUGIN=https://maven.search-guard.com/artifactory/search-guard-kibana-plugin-release/com/floragunn/search-guard-kibana-plugin/$TEST_SG_KI_PLUGIN/$SG_KI_PLUGIN_FILE.zip
           echo "Found: $TEST_SG_KI_PLUGIN"
          fi
-       fi		
+       fi
+       echo "export SG_SOURCE=snapshot" >> environment.env
        echo "export SG_SNAPSHOT=${TEST_SG_ES_PLUGIN}" >> $CI_PROJECT_DIR/environment.env
        echo "export SGADMIN_SNAPSHOT=${TEST_SG_ADMIN}" >> $CI_PROJECT_DIR/environment.env
-       echo "export SG_SOURCE=snapshot" >> $CI_PROJECT_DIR/environment.env
        echo "export SG_VERSION=whatever" >> environment.env
        echo "export BASEIMAGE=0.9.3-open-jdk-11" >> $CI_PROJECT_DIR/environment.env
        echo "export ES_VERSION=$TEST_ES_VERSION" >> $CI_PROJECT_DIR/environment.env
