@@ -4,6 +4,7 @@ set -e
  
 if [[ "$1" == "staging" ]]; then
    MVN_DEPLOY_OPTS="-DaltDeploymentRepository=staging::default::https://maven.search-guard.com:443/search-guard-suite-staging -Prelease"
+   ci/setup_gpg.sh
 else
    MVN_DEPLOY_OPTS=""
 fi
