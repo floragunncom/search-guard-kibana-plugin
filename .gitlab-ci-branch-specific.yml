@@ -1,5 +1,5 @@
 variables:
-  IT_BRANCH: "session-auth-es-7.10.2"
+  IT_BRANCH: "sg-tp2-es-7.10.2"
   ES_VERSION: "7.10.2"
-  SG_ES_PLUGIN: "b-session-auth-es-7.10.2-SNAPSHOT"
-  SG_ADMIN: "b-session-auth-es-7.10.2-SNAPSHOT"
+  SG_ES_PLUGIN: "https://maven.search-guard.com/search-guard-suite-alpha/com/floragunn/search-guard-elasticsearch-plugin/tp2-es-7.10.2/search-guard-elasticsearch-plugin-tp2-es-7.10.2.zip"
+  SG_ADMIN: "https://maven.search-guard.com/search-guard-suite-alpha/com/floragunn/search-guard-elasticsearch-plugin/tp2-es-7.10.2/search-guard-elasticsearch-plugin-tp2-es-7.10.2-sgadmin-standalone.zip"
