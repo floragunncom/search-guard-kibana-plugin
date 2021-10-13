@@ -92,10 +92,11 @@ export class ServerPlugin {
       });
 
       const tenantService = new TenantService({
-        kibanaVersion: this.initContext.env.packageInfo.version,
         clusterClient: elasticsearch.client,
         logger: this.logger,
         configService,
+        savedObjects,
+        coreContext: this.initContext,
       });
 
       const spacesService = new SpacesService({

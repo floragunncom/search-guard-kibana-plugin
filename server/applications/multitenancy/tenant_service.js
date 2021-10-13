@@ -15,10 +15,12 @@
  */
 
 import { get } from 'lodash';
+import { setupMigratorDependencies } from "./tenants_migration_service";
+import { KibanaMigrator } from '../../../../../src/core/server/saved_objects/migrations';
 
 export class TenantService {
-  constructor({ kibanaVersion, clusterClient, logger, configService }) {
-    this.kibanaVersion = kibanaVersion;
+  constructor({ clusterClient, logger, configService, savedObjects, coreContext}) {
+    this.kibanaVersion = coreContext.env.packageInfo.version;
     this.clusterClient = clusterClient;
     this.logger = logger;
     this.configService = configService;
@@ -32,6 +34,16 @@ export class TenantService {
     this.aliasName = this.configService.get('kibana.index');
     this.versionAliasName = this.aliasName + `_${this.kibanaVersion}`;
     this.versionIndexName = this.versionAliasName + '_001';
+
+    // we need the active mappings in order to apply it to newly created tenant indices
+    const { migratorDeps }  = setupMigratorDependencies({
+      configService,
+      esClient: clusterClient,
+      savedObjects,
+      kibanaVersion: this.kibanaVersion,
+      logger: this.logger,
+    });
+    this.activeMappings = new KibanaMigrator(migratorDeps).getActiveMappings();
   }
 
   logErrorDetails = (error, message) => {
@@ -130,6 +142,7 @@ export class TenantService {
     try {
       await this.clusterClient.asScoped(request).asCurrentUser.indices.create({
         index: versionIndexName,
+        body: {"mappings": this.activeMappings }
       });
 
       // We must create an alias and a version alias. The migration algorithm requires the alias.
