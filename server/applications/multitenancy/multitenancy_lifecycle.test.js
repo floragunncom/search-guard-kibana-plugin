@@ -17,9 +17,12 @@
 import { MultitenancyLifecycle } from './multitenancy_lifecycle';
 import { SpacesService } from './spaces_service';
 import { TenantService } from './tenant_service';
+import { DEFAULT_CONFIG } from '../../default_config';
+
 import {
   setupSearchGuardBackendMock,
   setupConfigMock,
+  setupSavedObjectsMock,
   setupLoggerMock,
   setupSessionStorageFactoryMock,
   setupHttpResponseMock,
@@ -36,8 +39,19 @@ function setupConfigServiceMock() {
       if (path === 'searchguard.multitenancy.tenants.preferred') return ['private'];
       if (path === 'searchguard.multitenancy.debug') return false;
       if (path === 'kibana.index') return '.kibana';
+      if (path === 'searchguard.multitenancy.saved_objects_migration') return DEFAULT_CONFIG.searchguard.multitenancy.saved_objects_migration;
     }),
   });
+}
+
+function setupCoreContextMock(kibanaVersion) {
+  return {
+    env: {
+      packageInfo: {
+        version: kibanaVersion
+      }
+    },
+  }
 }
 
 function setupClusterClientMock({ elasticsearchClientAsScoped = jest.fn() } = {}) {
@@ -55,8 +69,10 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
   let response;
   let toolkit;
   let configService;
+  let coreContext;
   let logger;
   let pluginDependencies;
+  let savedObjects;
 
   let sgtenant;
   let sessionCookie;
@@ -74,6 +90,8 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
     response = setupHttpResponseMock();
     toolkit = setupHttpToolkitMock();
     configService = setupConfigServiceMock();
+    coreContext = setupCoreContextMock(kibanaVersion);
+    savedObjects = setupSavedObjectsMock();
     logger = setupLoggerMock();
     pluginDependencies = setupPluginDependenciesMock();
 
@@ -110,10 +128,11 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
 
   test('assign tenant to request headers and create the default space', async () => {
     const tenantService = new TenantService({
-      kibanaVersion,
       clusterClient,
       logger,
       configService,
+      savedObjects,
+      coreContext
     });
     tenantService.createIndexForTenant = jest.fn();
     tenantService.createDoc = jest.fn();
@@ -227,10 +246,11 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
 
   test('do not create the default space if Kibana spaces plugin disabled', async () => {
     const tenantService = new TenantService({
-      kibanaVersion,
       clusterClient,
       logger,
       configService,
+      savedObjects,
+      coreContext,
     });
     tenantService.createIndexForTenant = jest.fn();
 
@@ -294,10 +314,11 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
     });
 
     const tenantService = new TenantService({
-      kibanaVersion,
       clusterClient,
       logger,
       configService,
+      savedObjects,
+      coreContext,
     });
     tenantService.createIndexForTenant = jest.fn();
 
@@ -370,10 +391,11 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
     });
 
     const tenantService = new TenantService({
-      kibanaVersion,
       clusterClient,
       logger,
       configService,
+      savedObjects,
+      coreContext,
     });
     tenantService.createIndexForTenant = jest.fn();
 
