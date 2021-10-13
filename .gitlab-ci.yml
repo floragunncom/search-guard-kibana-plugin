@@ -153,6 +153,9 @@ unit_tests:
     reports:
       junit:
         - junit*.xml
+    paths:
+      - "build.log"
+      - "junit*.xml"
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     policy: pull
