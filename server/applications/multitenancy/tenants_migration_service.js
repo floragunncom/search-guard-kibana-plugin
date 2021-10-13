@@ -19,7 +19,7 @@ import { KibanaMigrator } from '../../../../../src/core/server/saved_objects/mig
 
 import { defineMigrateRoutes } from './routes';
 
-function setupMigratorDependencies({
+export function setupMigratorDependencies({
   configService,
   esClient,
   savedObjects,
@@ -95,14 +95,6 @@ export class TenantsMigrationService {
 
       const migrator = new KibanaMigrator(migratorDeps);
 
-      this.logger.info('Putting the tenants index template in Elasticsearch ...');
-      await putTenantIndexTemplate({
-        esClient,
-        logger: this.logger,
-        kibanaIndexName: kibanaConfig.index,
-        mappings: migrator.getActiveMappings(),
-      });
-
       const isMigrationNeeded = soMigrationsConfig.skip || !!this.tenantIndices.length;
       if (!isMigrationNeeded) {
         if (soMigrationsConfig.skip) {
@@ -145,34 +137,4 @@ export class TenantsMigrationService {
       throw error;
     }
   }
-}
-
-function putTenantIndexTemplate({ esClient, logger, kibanaIndexName, mappings }) {
-  const params = {
-    name: 'tenant_template',
-    body: {
-      index_patterns: [
-        kibanaIndexName + '_-*_*',
-        kibanaIndexName + '_0*_*',
-        kibanaIndexName + '_1*_*',
-        kibanaIndexName + '_2*_*',
-        kibanaIndexName + '_3*_*',
-        kibanaIndexName + '_4*_*',
-        kibanaIndexName + '_5*_*',
-        kibanaIndexName + '_6*_*',
-        kibanaIndexName + '_7*_*',
-        kibanaIndexName + '_8*_*',
-        kibanaIndexName + '_9*_*',
-      ],
-      settings: {
-        number_of_shards: 1,
-      },
-      mappings,
-    },
-  };
-
-  return migrationRetryCallCluster(
-    () => esClient.asInternalUser.indices.putTemplate(params),
-    logger
-  );
 }

@@ -103,6 +103,34 @@ export function setupPluginDependenciesMock() {
   return jest.fn();
 }
 
+export function setupTypeRegistryMock({
+  getAllTypes = jest.fn().mockReturnValue([]),
+} = {}) {
+  return {
+    getAllTypes,
+  };
+}
+
+export function setupSavedObjectsMock({
+  getScopedClient = jest.fn(),
+  createInternalRepository = jest.fn(),
+  createScopedRepository= jest.fn(),
+  createSerializer = jest.fn(),
+  createExporter = jest.fn(),
+  createImporter= jest.fn(),
+  getTypeRegistry= setupTypeRegistryMock,
+} = {}) {
+  return {
+    getScopedClient,
+    createInternalRepository,
+    createScopedRepository,
+    createSerializer,
+    createExporter,
+    createImporter,
+    getTypeRegistry,
+  };
+}
+
 export function setupHttpResponseMock({
   ok = jest.fn(),
   redirected = jest.fn(),
