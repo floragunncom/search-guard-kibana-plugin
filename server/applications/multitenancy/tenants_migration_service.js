@@ -18,6 +18,7 @@ import { migrationRetryCallCluster } from '../../../../../src/core/server/elasti
 import { KibanaMigrator } from '../../../../../src/core/server/saved_objects/migrations';
 
 import { defineMigrateRoutes } from './routes';
+import { ByteSizeValue } from '@kbn/config-schema';
 
 export function setupMigratorDependencies({
   configService,
@@ -36,6 +37,7 @@ export function setupMigratorDependencies({
     pollInterval: savedObjectsMigrationConfig.poll_interval,
     skip: savedObjectsMigrationConfig.skip,
     enableV2: savedObjectsMigrationConfig.enableV2,
+    maxBatchSizeBytes: savedObjectsMigrationConfig.max_batch_size ? ByteSizeValue.parse(savedObjectsMigrationConfig.max_batch_size) : ByteSizeValue.parse('30kb'),
   };
 
   const typeRegistry = savedObjects.getTypeRegistry();
@@ -129,7 +131,7 @@ export class TenantsMigrationService {
           this.logger.debug(`Migration result:\n${JSON.stringify(response, null, 2)}`);
         } catch (error) {
           this.logger.error(
-            `Unable to fulfill migration for index ${this.tenantIndices[i]}, ${error}`
+            `Unable to fulfill migration for index ${this.tenantIndices[i]}, ${error}`, error
           );
         }
       }
