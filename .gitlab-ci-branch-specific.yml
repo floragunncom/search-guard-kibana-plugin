@@ -1,6 +1,6 @@
 variables:
   IT_BRANCH: "7.15.x"
-  ES_VERSION: "7.15.0"
-  SG_ES_PLUGIN: "b-prepare-es-7.15.x-SNAPSHOT"
-  SG_ADMIN: "b-prepare-es-7.15.x-SNAPSHOT"
+  ES_VERSION: "7.15.1"
+  SG_ES_PLUGIN: "b-master-SNAPSHOT"
+  SG_ADMIN: "b-master-SNAPSHOT"
 
