@@ -128,11 +128,12 @@ export function loginHandler({ basePath, config, authInstance, logger, searchGua
       };
 
       // Authenticate with the token given to us by the IdP
-      await authInstance.handleAuthenticate(request, credentials);
+      const authResponse = await authInstance.handleAuthenticate(request, credentials);
+console.log(JSON.stringify(authResponse));
 
       let redirectTo = '/';
-      if (request.url.query.next_url) {
-        redirectTo = sanitizeNextUrl(decodeURIComponent(request.url.query.next_url), basePath);
+      if (authResponse.redirectUri) {
+        redirectTo = sanitizeNextUrl(authResponse.redirectUri, basePath);
       }
 
       // All good, redirect to home

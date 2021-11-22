@@ -196,28 +196,31 @@ export class AuthManager {
         requestHeaders: request.headers,
       });
     }
-    
-    let loginPageURL = this.basePath + '/login' + `?nextUrl=${this.getNextUrl(request)}`
-    
+
+    const nextUrl = this.getNextUrl(request);
+    let loginPageURL = this.basePath + '/login' + `?nextUrl=${nextUrl}`;
+
     try {
-      const authConfig = await this.searchGuardBackend.getAuthConfig(
-        this.getNextUrl(request)
-      );
-      
+      const authConfig = await this.searchGuardBackend.getAuthConfig(nextUrl);
+
       if (authConfig && authConfig.auth_methods && authConfig.auth_methods.length == 1 && authConfig.auth_methods[0].sso_location) {
-    	  const config = authConfig.auth_methods[0];
-    	  loginPageURL = config.sso_location;
-    	      	  
-    	  const authInstance = this.authInstances[config.method == "oidc" ? "openid": config.method];
-          if (authInstance && authInstance.loginURL) {
-              loginPageURL = this.basePath + authInstance.loginURL;
-              if (config.id) {
-                // All loginURLs are relative
-            	loginPageURL = new URL(loginPageURL, 'http://abc');
-            	loginPageURL.searchParams.set('authTypeId', config.id);
-            	loginPageURL = loginPageURL.href.replace(loginPageURL.origin, '');
-              }
+        const config = authConfig.auth_methods[0];
+        loginPageURL = config.sso_location;
+
+        const authInstance = this.authInstances[config.method == "oidc" ? "openid": config.method];
+        if (authInstance && authInstance.loginURL) {
+          loginPageURL = new URL(this.basePath + authInstance.loginURL, 'http://abc');
+
+          if (config.id) {
+            loginPageURL.searchParams.set('authTypeId', config.id);
           }
+
+          if (nextUrl) {
+            loginPageURL.searchParams.set('nextUrl', nextUrl);
+          }
+
+          loginPageURL = loginPageURL.href.replace(loginPageURL.origin, '');
+        }
       }
     } catch (error) {
         console.warn("Error while retrieving auth config", error);
