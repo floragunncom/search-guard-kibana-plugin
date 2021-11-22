@@ -38,12 +38,20 @@ export default class AuthType {
     this.pluginDependencies = pluginDependencies;
 
     this.basePath = kibanaCore.http.basePath.get();
-	this.frontendBaseUrl = this.config.get('searchguard.frontend_base_url') || kibanaCore.http.basePath.publicBaseUrl;
-	
-	if (!this.frontendBaseUrl) {
-		let serverInfo = kibanaCore.http.getServerInfo();
-		this.frontendBaseUrl = serverInfo.protocol + "://" + serverInfo.hostname + ":" + serverInfo.port + "/" + kibanaCore.http.basePath.serverBasePath;
-	}	
+    this.frontendBaseUrl =
+      this.config.get('searchguard.frontend_base_url') || kibanaCore.http.basePath.publicBaseUrl;
+
+    if (!this.frontendBaseUrl) {
+      const serverInfo = kibanaCore.http.getServerInfo();
+      this.frontendBaseUrl =
+        serverInfo.protocol +
+        '://' +
+        serverInfo.hostname +
+        ':' +
+        serverInfo.port +
+        '/' +
+        kibanaCore.http.basePath.serverBasePath;
+    }
 
     this.authDebugEnabled = this.config.get('searchguard.auth.debug');
 
@@ -157,6 +165,10 @@ export default class AuthType {
 	  credentials.frontend_base_url = this.frontendBaseUrl;
 
       const sessionResponse = await this.searchGuardBackend.authenticateWithSession(credentials);
+console.log(JSON.stringify(credentials));
+
+console.log(JSON.stringify(sessionResponse));
+
       const sessionCredentials = {
         authHeaderValue: 'Bearer ' + sessionResponse.token,
       };
@@ -179,6 +191,7 @@ export default class AuthType {
       return {
         session,
         user,
+        redirectUri: sessionResponse.redirect_uri,
       };
     } catch (error) {
       throw error;
@@ -327,7 +340,6 @@ export default class AuthType {
       !sessionCookie.checkTokenExpirationTime ||
       checkTokenExpirationTime - sessionCookie.checkTokenExpirationTime > 15000
     ) {
-
       try {
         const authHeader = this.getAuthHeader(sessionCookie);
         const authInfoResponse = await this.searchGuardBackend.authinfo(
@@ -348,7 +360,6 @@ export default class AuthType {
 
     return sessionCookie;
   }
-
 
   /**
    * Get all auth headers based on the current request.
