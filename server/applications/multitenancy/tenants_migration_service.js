@@ -19,6 +19,7 @@ import { KibanaMigrator } from '../../../../../src/core/server/saved_objects/mig
 
 import { defineMigrateRoutes } from './routes';
 import { ByteSizeValue } from '@kbn/config-schema';
+import { DEFAULT_CONFIG } from '../../default_config';
 
 export function setupMigratorDependencies({
   configService,
@@ -37,7 +38,7 @@ export function setupMigratorDependencies({
     pollInterval: savedObjectsMigrationConfig.poll_interval,
     skip: savedObjectsMigrationConfig.skip,
     enableV2: savedObjectsMigrationConfig.enableV2,
-    maxBatchSizeBytes: savedObjectsMigrationConfig.max_batch_size ? ByteSizeValue.parse(savedObjectsMigrationConfig.max_batch_size) : ByteSizeValue.parse('30kb'),
+    maxBatchSizeBytes: savedObjectsMigrationConfig.max_batch_size ? ByteSizeValue.parse(savedObjectsMigrationConfig.max_batch_size) : ByteSizeValue.parse(DEFAULT_CONFIG.multitenancy.saved_objects_migration.max_batch_size),
   };
 
   const typeRegistry = savedObjects.getTypeRegistry();
