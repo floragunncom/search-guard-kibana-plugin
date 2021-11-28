@@ -200,6 +200,9 @@ export class AuthManager {
       });
     }
 
+    const isAjaxRequest = request.headers 
+         && ((request.headers.accept && request.headers.accept.split(',').indexOf('application/json') > -1) || (request.headers['content-type'] && request.headers['content-type'].indexOf('application/json') > -1));
+
     const nextUrl = this.getNextUrl(request);
     let loginPageURL = this.basePath + '/login' + `?nextUrl=${nextUrl}`;
 
@@ -224,33 +227,30 @@ export class AuthManager {
 
           loginPageURL = loginPageURL.href.replace(loginPageURL.origin, '');
         }
+
+        if (config.capture_url_fragment && nextUrl && !isAjaxRequest) {
+           return response.redirected({
+              headers: {
+                 'location': `${this.basePath}/auth/captureurlfragment?loginHandler=${this.basePath + authInstance.loginURL}&authTypeId=${config.id}&nextUrl=${encodeURIComponent(nextUrl)}`,
+              },
+           });
+        }
       }
     } catch (error) {
-        console.warn("Error while retrieving auth config", error);
+        console.error("Error while retrieving auth config", error);
     }
 
-    // Check for ajax requests
-    // @todo Share this function with the authInstance?
-    if (request.headers) {
+    if (isAjaxRequest) {
       // If the session has expired, we may receive ajax requests that can't handle a 302 redirect.
       // In this case, we trigger a 401 and let the interceptor handle the redirect on the client side.
-      if (
-        (request.headers.accept &&
-          request.headers.accept.split(',').indexOf('application/json') > -1) ||
-        (request.headers['content-type'] &&
-          request.headers['content-type'].indexOf('application/json') > -1)
-      ) {
-        return response.unauthorized({
-          headers: {
-            sg_redirectTo: loginPageURL,
-          },
-          body: { message: 'Session expired or invalid username and password' },
-        });
-      }
+      return response.unauthorized({
+        headers: {
+          sg_redirectTo: loginPageURL,
+        },
+        body: { message: 'Session expired or invalid username and password' },
+      });
     }
 
-
-    // @todo Use the kibana_url from the config?
     return response.redirected({
       headers: {
         location: loginPageURL,
