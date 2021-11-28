@@ -41,6 +41,53 @@ export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, 
     },
     authConfigHandler({ authManager, searchGuardBackend, configService, kibanaCore })
   );
+
+  httpResources.register(
+    {
+      path: `/auth/captureurlfragment`,
+      options: { authRequired: false },
+      validate: false,
+    },
+    (context, request, response) => {
+	  const loginHandler = request.url.searchParams.get('loginHandler');
+
+      if (!loginHandler.match(/\/[a-zA-Z0-9\/]+/)) {
+         return response.renderHtml({body: 'Bad Request'});
+      }
+
+      const authTypeId = request.url.searchParams.get('authTypeId');
+
+      if (authTypeId && !authTypeId.match(/[a-zA-Z0-9]+/)) {
+         return response.renderHtml({body: 'Bad Request'});
+      }
+	
+      return response.renderHtml({
+        body: `<html><head><script src="captureurlfragment.js"></script></head><body></body></html>`,
+      });
+    }
+  );
+
+  httpResources.register(
+    {
+      path: `/auth/captureurlfragment.js`,
+      options: { authRequired: false },
+      validate: false,
+    },
+    (context, request, response) => {	
+      return response.renderJs({
+        body: `
+          let searchParams = new URLSearchParams(window.location.search);
+          let loginHandler = searchParams.get('loginHandler');
+          let authTypeId = searchParams.get('authTypeId');
+          let nextUrl = searchParams.get('nextUrl');
+          if (!nextUrl) nextUrl = "/";
+          if (window.location.hash) nextUrl += window.location.hash;
+          window.location = loginHandler + "?authTypeId=" + encodeURIComponent(authTypeId) + "&nextUrl=" + encodeURIComponent(nextUrl);
+          `,
+      });
+    }
+  );
+
 }
 
 export function logoutHandler({ authManager }) {
