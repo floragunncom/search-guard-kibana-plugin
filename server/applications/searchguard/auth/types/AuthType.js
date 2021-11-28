@@ -40,6 +40,7 @@ export default class AuthType {
     this.basePath = kibanaCore.http.basePath.get();
     this.frontendBaseUrl =
       this.config.get('searchguard.frontend_base_url') || kibanaCore.http.basePath.publicBaseUrl;
+    this.sgFrontendConfigId = this.config.get('searchguard.sg_frontend_config_id') || 'default'; 
 
     if (!this.frontendBaseUrl) {
       const serverInfo = kibanaCore.http.getServerInfo();
@@ -163,11 +164,9 @@ export default class AuthType {
       this.debugLog('Authenticating using ' + credentials);
 
 	  credentials.frontend_base_url = this.frontendBaseUrl;
+      credentials.config_id = this.sgFrontendConfigId;
 
       const sessionResponse = await this.searchGuardBackend.authenticateWithSession(credentials);
-console.log(JSON.stringify(credentials));
-
-console.log(JSON.stringify(sessionResponse));
 
       const sessionCredentials = {
         authHeaderValue: 'Bearer ' + sessionResponse.token,
