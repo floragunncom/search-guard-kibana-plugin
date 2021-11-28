@@ -129,7 +129,6 @@ export function loginHandler({ basePath, config, authInstance, logger, searchGua
 
       // Authenticate with the token given to us by the IdP
       const authResponse = await authInstance.handleAuthenticate(request, credentials);
-console.log(JSON.stringify(authResponse));
 
       let redirectTo = '/';
       if (authResponse.redirectUri) {
