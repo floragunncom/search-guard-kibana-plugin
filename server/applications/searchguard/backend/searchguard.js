@@ -49,16 +49,18 @@ export default class SearchGuardBackend {
 	  }	
 	
       const authHeaderValue = Buffer.from(`${username}:${password}`).toString('base64');
-      let path = '/_searchguard/auth/config/?config_id=' + encodeURIComponent(sgFrontendConfigId) + '&frontend_base_url=' + encodeURIComponent(frontendBaseUrl);
-      if (nextUrl) {
-        path = path + '&next_url=' + encodeURIComponent(nextUrl);
-      }
+
       const response = await this._client({
-        path,
-        method: 'GET',
+        path: '/_searchguard/auth/config',
+        method: 'POST',
         headers: {
           authorization: 'Basic ' + authHeaderValue,
         },
+        body: {
+		  config_id: sgFrontendConfigId,
+          frontend_base_url: frontendBaseUrl,
+          next_url: nextUrl,
+		}
       });
 
       return response;
