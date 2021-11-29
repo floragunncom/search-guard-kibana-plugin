@@ -72,6 +72,14 @@ fe_openid_keycloak:
     TEST_ENVIRONMENT: "kibana_noxpack_openid"
     TEST_KI_CONFIG: "openid_keycloak"
 
+fe_openid_keycloak_non_default:
+  extends:
+    - .fe_integration_test
+  variables:
+    TEST: "kibana_openid_keycloak_non_default"
+    TEST_ENVIRONMENT: "kibana_noxpack_openid"
+    TEST_KI_CONFIG: "openid_keycloak_non_default"
+
 fe_saml_keycloak:
   extends:
     - .fe_integration_test
