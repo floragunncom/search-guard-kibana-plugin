@@ -38,8 +38,6 @@ export default class SearchGuardBackend {
 
   getAuthConfig = async (nextUrl = null) => {
     try {
-	  const username = this.configService.get('elasticsearch.username');
-	  const password = this.configService.get('elasticsearch.password');
       const sgFrontendConfigId = this.configService.get('searchguard.sg_frontend_config_id') || 'default'; 
 	  let frontendBaseUrl = this.configService.get('searchguard.frontend_base_url') || this.core.http.basePath.publicBaseUrl;
 	
@@ -48,14 +46,10 @@ export default class SearchGuardBackend {
 		frontendBaseUrl = serverInfo.protocol + "://" + serverInfo.hostname + ":" + serverInfo.port + "/" + this.core.http.basePath.serverBasePath;
 	  }	
 	
-      const authHeaderValue = Buffer.from(`${username}:${password}`).toString('base64');
-
       const response = await this._client({
         path: '/_searchguard/auth/config',
         method: 'POST',
-        headers: {
-          authorization: 'Basic ' + authHeaderValue,
-        },
+        asWho: 'asInternalUser',
         body: {
 		  config_id: sgFrontendConfigId,
           frontend_base_url: frontendBaseUrl,
