@@ -99,7 +99,7 @@ export function loginHandler({ basePath, config, authInstance, logger, searchGua
 
     // We have an auth code, now we need to try to exchange it for an id_token
     try {
-      // Validate the nonce/state to make sure that the request was really
+      // Validate the state to make sure that the request was really
       // requested by Kibana in this session
       const sessionCookie =
         (await authInstance.sessionStorageFactory.asScoped(request).get()) || {};
@@ -123,7 +123,7 @@ export function loginHandler({ basePath, config, authInstance, logger, searchGua
       const credentials = {
         mode: 'oidc',
         sso_result: request.url.href,
-        sso_context: cookieOpenId.nonce,
+        sso_context: cookieOpenId.ssoContext,
         id: cookieOpenId.authTypeId,
       };
 
@@ -265,8 +265,7 @@ async function handleAuthRequest({
     });
   }
 
-  const nonce = authConfig.sso_context;
-  sessionCookie.openId = { nonce, authTypeId: authConfig.id || null, query: {} };
+  sessionCookie.openId = { ssoContext: authConfig.sso_context, authTypeId: authConfig.id || null, query: {} };
   await sessionStorageFactory.asScoped(request).set(sessionCookie);
 
   return response.redirected({
