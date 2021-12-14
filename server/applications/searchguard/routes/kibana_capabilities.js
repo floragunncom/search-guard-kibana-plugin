@@ -20,7 +20,7 @@ import { wrapForCustomError } from '../../../utils/wrap_elasticsearch_error';
 export function handleKibanaCapabilities() {
   return function (context, request, response) {
     try {
-      const defaultCapabilities = { navLinks: {}, dashboard: {} };
+      const defaultCapabilities = { navLinks: {}, dashboard: {}, observabilityCases: {} };
       for (const appName of request.body.applications) {
         defaultCapabilities[appName] = {};
         defaultCapabilities.navLinks[appName] = true;
