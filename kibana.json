@@ -1,6 +1,6 @@
 {
     "id": "searchguard",
-    "version": "7.15.1",
+    "version": "7.16.1",
     "server": true,
     "ui": true,
     "optionalPlugins": [
@@ -8,8 +8,10 @@
       "security"
     ],
     "requiredPlugins": [
-      "home",
-      "securityOss"
+      "home"
     ],
-    "configPath": ["searchguard"]
+    "configPath": ["searchguard"],
+    "owner": {
+    	"name": "Search Guard"
+    }
 }

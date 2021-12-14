@@ -32,6 +32,7 @@ test('handleKibanaCapabilities', () => {
       b: {},
       c: {},
       dashboard: {},
+      observabilityCases: {},
       navLinks: {
         a: true,
         b: true,

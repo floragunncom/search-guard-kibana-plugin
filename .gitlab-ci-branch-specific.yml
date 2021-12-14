@@ -1,2 +1,6 @@
 variables:
-  IT_BRANCH: "7.15.x"
+  IT_BRANCH: "7.16.x"
+  ES_VERSION: "7.16.1"
+  SG_ES_PLUGIN: "7.16.1-52.5.0"
+  SG_ADMIN: "7.16.1-52.5.0"
+
