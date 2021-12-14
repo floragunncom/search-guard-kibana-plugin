@@ -202,6 +202,9 @@ export const ConfigSchema = schema.object({
       enableV2: schema.boolean({
         defaultValue: multitenancyDefaults.saved_objects_migration.enableV2,
       }),
+      max_batch_size: schema.string({
+        defaultValue: multitenancyDefaults.saved_objects_migration.max_batch_size
+      }),     
     }),
   }),
   configuration: schema.object({

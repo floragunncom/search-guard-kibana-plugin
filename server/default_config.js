@@ -75,6 +75,7 @@ export const DEFAULT_CONFIG = {
       },
       saved_objects_migration: {
         batch_size: 100,
+        max_batch_size: "100mb",
         scroll_duration: '15m',
         poll_interval: 1500,
         skip: false,
