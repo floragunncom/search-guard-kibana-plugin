@@ -227,6 +227,21 @@ export default class SearchGuardBackend {
     }
   };
 
+  sessionInfo = async (headers) => {
+    try {
+      return await this._client({
+        path: '/_searchguard/auth/session',
+        method: 'get',
+        headers,
+      });
+    } catch (error) {
+      if (error.statusCode === 401) {
+        throw new AuthenticationError(error.message, error);
+      }
+      throw error;
+    }
+  }
+
   getKibanaInfoWithInternalUser = async () => {
     try {
       return await this._client({
