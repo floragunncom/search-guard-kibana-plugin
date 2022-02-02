@@ -16,6 +16,7 @@ import { Context } from '../../../../../Context';
 
 const ActionChecks = ({
   actionIndex,
+  isResolveActions,
   formik: { values, setFieldValue, validateForm, submitForm },
 }) => {
   const { triggerFlyout, addErrorToast } = useContext(Context);
@@ -23,6 +24,8 @@ const ActionChecks = ({
   const checksPath =
     watchType === WATCH_TYPES.BLOCKS
       ? `actions[${actionIndex}].checksBlocks`
+      : isResolveActions
+      ? `resolve_actions[${actionIndex}].checks`
       : `actions[${actionIndex}].checks`;
 
   const { addTemplate } = useCheckTemplates({
