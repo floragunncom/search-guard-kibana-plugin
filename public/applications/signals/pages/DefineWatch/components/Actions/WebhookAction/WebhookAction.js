@@ -196,7 +196,7 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
       <ActionBodyPreview index={index} template={requestBodyPreviewTemplate} />
 
       <EuiSpacer />
-      {!isGraphWatch && <ActionChecks actionIndex={index} />}
+      {!isGraphWatch && <ActionChecks actionIndex={index} isResolveActions={isResolveActions} />}
     </Fragment>
   );
 };

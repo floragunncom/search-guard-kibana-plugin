@@ -12,11 +12,13 @@ import {
 import { throttlePeriodText } from '../../../../../utils/i18n/watch';
 import { DOC_LINKS } from '../../../../../utils/constants';
 
-const ActionThrottlePeriod = ({ index }) => (
+const ActionThrottlePeriod = ({ index, isResolveActions }) => (
   <>
     <Interval
       propsInterval={{
-        name: `actions[${index}].throttle_period.interval`,
+        name: isResolveActions
+          ? `resolve_actions[${index}].throttle_period.interval`
+          : `actions[${index}].throttle_period.interval`,
         rowProps: {
           label: throttlePeriodText,
           isInvalid,

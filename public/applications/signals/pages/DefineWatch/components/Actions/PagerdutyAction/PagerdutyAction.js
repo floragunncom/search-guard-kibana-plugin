@@ -177,7 +177,7 @@ const PagerdutyAction = ({ isResolveActions, index, accounts, formik: { values }
       <ActionBodyPreview index={index} template={descrPreviewTemplate} />
 
       <EuiSpacer />
-      {!isGraphWatch && <ActionChecks actionIndex={index} />}
+      {!isGraphWatch && <ActionChecks actionIndex={index} isResolveActions={isResolveActions} />}
     </>
   );
 };

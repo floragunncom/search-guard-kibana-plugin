@@ -69,7 +69,7 @@ const ElasticsearchAction = ({ isResolveActions, formik: { values }, index }) =>
           }}
         />
       )}
-      <ActionThrottlePeriod index={index} />
+      {!isResolveActions && <ActionThrottlePeriod index={index} />}
       <WatchIndex
         isClearable={false}
         httpClient={httpClient}
@@ -81,7 +81,7 @@ const ElasticsearchAction = ({ isResolveActions, formik: { values }, index }) =>
       />
 
       <EuiSpacer />
-      <ActionChecks actionIndex={index} />
+      <ActionChecks actionIndex={index} isResolveActions={isResolveActions} />
     </Fragment>
   );
 };

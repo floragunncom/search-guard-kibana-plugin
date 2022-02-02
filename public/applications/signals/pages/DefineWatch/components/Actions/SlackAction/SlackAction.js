@@ -162,7 +162,7 @@ const SlackAction = ({ isResolveActions, index, accounts, formik: { values } }) 
       <ActionBodyPreview index={index} template={bodyPreviewTemplate} />
 
       <EuiSpacer />
-      {!isGraphWatch && <ActionChecks actionIndex={index} />}
+      {!isGraphWatch && <ActionChecks actionIndex={index} isResolveActions={isResolveActions} />}
     </Fragment>
   );
 };
