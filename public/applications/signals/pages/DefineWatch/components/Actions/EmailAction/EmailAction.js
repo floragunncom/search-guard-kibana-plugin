@@ -274,7 +274,7 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
       <ActionBodyPreview template={htmlBodyPreviewTemplate} isHTML={true} />
 
       <EuiSpacer />
-      {!isGraphWatch && <ActionChecks actionIndex={index} />}
+      {!isGraphWatch && <ActionChecks actionIndex={index} isResolveActions={isResolveActions} />}
     </Fragment>
   );
 };
