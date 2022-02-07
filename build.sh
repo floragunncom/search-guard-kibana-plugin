@@ -79,12 +79,12 @@ fi
 VERSION=$(grep -e '\bversion\b' package.json | tr -d "[:blank:]" | sed -E 's/"version":"(.*)"(.*)/\1/')
 SG_TEST_VERSION=$(grep -e '\btest_sg_version\b' package.json | tr -d "[:blank:]" | sed -E 's/"test_sg_version":"(.*)"(.*)/\1/')
 
-ES_VERSION=$(echo $SG_TEST_VERSION | cut -d "-" -f 1)
+ES_VERSION=$(echo $SG_TEST_VERSION | cut -d "-" -f 3)
 KIBANA_APP_BRANCH=$(grep -e '\bkibana_branch\b' package.json | tr -d "[:blank:]" | sed -E 's/"kibana_branch":"(.*)"(.*)/\1/')
-KIBANA_VERSION=$(echo $VERSION | cut -d "-" -f 1)
-KIBANA_PLUGIN_VERSION=$(echo $VERSION | cut -d "-" -f 2)
+KIBANA_VERSION=$(echo $VERSION | cut -d "-" -f 3)
+KIBANA_PLUGIN_VERSION=$(echo $VERSION | cut -d "-" -f 1)
 
-SNAPSHOT=$(echo $VERSION | cut -d "-" -f 3)
+SNAPSHOT=$(echo $VERSION | cut -d "-" -f 4)
 
 if [ $SNAPSHOT != "SNAPSHOT" ]; then
     echo "$VERSION is not a SNAPSHOT version"
@@ -99,7 +99,7 @@ if [ $? != 0 ]; then
 fi
 
 # prepare artefacts
-PLUGIN_NAME="searchguard-kibana-$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT"
+PLUGIN_NAME="searchguard-kibana-$KIBANA_PLUGIN_VERSION-es-$KIBANA_VERSION-SNAPSHOT"
 echo "+++ Building $PLUGIN_NAME.zip +++"
 
 WORK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -275,7 +275,7 @@ if [ "$COMMAND" == "deploy-snapshot-maven" ] ; then
 	echo -e "\e[0Ksection_start:`date +%s`:deploy[collapsed=true]\r\e[0KDeploying"
 
     echo "+++ mvn clean deploy +++"
-    $MAVEN_HOME/bin/mvn clean deploy -s settings.xml -Drevision="$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT"
+    $MAVEN_HOME/bin/mvn clean deploy -s settings.xml -Drevision="$KIBANA_PLUGIN_VERSION-es-$KIBANA_VERSION-SNAPSHOT"
     if [ $? != 0 ]; then
         echo "$MAVEN_HOME/bin/mvn clean deploy failed"
         exit 1
@@ -286,7 +286,7 @@ fi
 
 if [ "$COMMAND" == "install-local" ] ; then
     echo "+++ mvn clean install +++"
-    $MAVEN_HOME/bin/mvn clean install -Drevision="$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT"
+    $MAVEN_HOME/bin/mvn clean install -Drevision="$KIBANA_PLUGIN_VERSION-es-$KIBANA_VERSION-SNAPSHOT"
     if [ $? != 0 ]; then
         echo "$MAVEN_HOME/bin/mvn clean install failed"
         exit 1
