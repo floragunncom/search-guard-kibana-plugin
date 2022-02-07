@@ -45,7 +45,6 @@ before_script:
 
 stages:
   - build
-  - "Unit Tests"
   - package
   - "Frontend Int Tests Core"
   - "Frontend Int Tests Features"
@@ -116,6 +115,16 @@ build_release:
       echo -e "\e[0Ksection_start:`date +%s`:yarn_build\r\e[0KDoing yarn build -v $SF_VERSION --skip-archive"
       yarn build -v $SF_VERSION --skip-archive
       echo -e "\e[0Ksection_end:`date +%s`:yarn_build\r\e[0K"
+      start_section tests "Unit Tests"
+      pwd
+      ls -la 
+      ls -la *
+      cd $SF_REPO_DIR/plugins/search-guard
+      export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-server.xml
+      ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --reporters="jest-junit" --reporters="default"
+      export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-public.xml
+      ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=public  --config ./tests/jest.config.js --reporters="jest-junit" --reporters="default"
+      end_section tests
       cd $CI_PROJECT_DIR
       rm -rf build
       mv $SF_REPO_DIR/plugins/search-guard/build build
@@ -126,38 +135,6 @@ build_release:
       - "build.log"
       - "build/*"
     expire_in: 24h
-
-unit_tests:
-  stage: "Unit Tests"
-  interruptible: true
-  rules:
-    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
-      when: never
-    - when: always
-  tags:
-    - openstack-runner
-  script:
-    - |
-      set -e
-      source ci/install_dependencies.sh
-      source ci/init_build.sh
-      start_section tests "Unit Tests"
-      cd $SF_REPO_DIR/plugins/search-guard
-      export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-server.xml
-      ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --reporters="jest-junit"
-      export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-public.xml
-      ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=public  --config ./tests/jest.config.js --reporters="jest-junit"
-      end_section tests
-  artifacts:
-    when: always
-    reports:
-      junit:
-        - junit*.xml
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    policy: pull
-    paths:
-      - ./${SF_REPO_DIR}
 
 deploy_snapshot:
   stage: package
