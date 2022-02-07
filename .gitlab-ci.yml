@@ -125,13 +125,6 @@ build_release:
       echo -e "\e[0Ksection_start:`date +%s`:yarn_build\r\e[0KDoing yarn build -v $SF_VERSION --skip-archive"
       yarn build -v $SF_VERSION --skip-archive
       echo -e "\e[0Ksection_end:`date +%s`:yarn_build\r\e[0K"
-      start_section tests "Unit Tests"
-      pwd
-      export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-server.xml
-      ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --reporters="jest-junit" --reporters="default"
-      export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-public.xml
-      ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=public  --config ./tests/jest.config.js --reporters="jest-junit" --reporters="default"
-      end_section tests
       cd $CI_PROJECT_DIR
       rm -rf build
       mv $SF_REPO_DIR/plugins/search-guard/build build
