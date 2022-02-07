@@ -40,13 +40,6 @@ fe_clientcert_basepath:
     TEST_ENVIRONMENT: "kibana_xpack_clientcert"
     TEST_KI_CONFIG: "clientcert"
 
-fe_impersonation:
-  extends:
-  - .fe_integration_test
-  variables:
-    TEST: "kibana_basicauth_impersonation"
-    TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "basicauth"
 
 fe_multitenancy:
   extends:
@@ -112,29 +105,6 @@ fe_sso_proxy:
     TEST_ENVIRONMENT: "kibana_noxpack"
     TEST_KI_CONFIG: "sso_proxy"
 
-fe_sso_jwt_header:
-  extends:
-  - .fe_integration_test
-  variables:
-    TEST: "kibana_sso_jwt_header"
-    TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "sso_jwt"
-
-fe_sso_jwt_param:
-  extends:
-  - .fe_integration_test
-  variables:
-    TEST: "kibana_sso_jwt_param"
-    TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "sso_jwt"
-
-fe_kerberos:
-  extends:
-  - .fe_integration_test
-  variables:
-    TEST: "kibana_kerberos"
-    TEST_ENVIRONMENT: "kibana_xpack"
-    TEST_KI_CONFIG: "kerberos"
 
 # -------------------------------------------------------------------------
 
