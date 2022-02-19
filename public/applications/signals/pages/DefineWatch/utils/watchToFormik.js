@@ -46,17 +46,18 @@ export function buildFormikSeverity(watch = {}) {
     valueString: value,
     order: order.toLowerCase(),
     thresholds: {
-      [SEVERITY.INFO]: 0,
-      [SEVERITY.WARNING]: 0,
-      [SEVERITY.ERROR]: 0,
-      [SEVERITY.CRITICAL]: 0,
+      [SEVERITY.INFO]: undefined,
+      [SEVERITY.WARNING]: undefined,
+      [SEVERITY.ERROR]: undefined,
+      [SEVERITY.CRITICAL]: undefined,
     },
   };
+
 
   newWatch.severity.mapping.forEach((mapping) => {
     severity.thresholds[mapping.level.toLowerCase()] = Number.isInteger(mapping.threshold)
       ? mapping.threshold
-      : 0;
+      : undefined;
   });
 
   newWatch._ui = { ...newWatch._ui, severity, isSeverity: true };
