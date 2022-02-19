@@ -40,7 +40,7 @@ export function validateSeverityThresholds(order, uiThresholds) {
   ];
 
   const sortedValues = availableLevelsSorted
-    .filter((level) => Number.isInteger(level.threshold) && level.threshold > 0)
+    .filter((level) => Number.isInteger(level.threshold))
     .sort((a, b) => {
       if (order === SEVERITY_ORDER.ASCENDING) {
         return a.threshold - b.threshold;
