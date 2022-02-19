@@ -265,9 +265,6 @@ export function loginHandler({
 
     const baseRedirectUrl = `${getBaseRedirectUrl({ kibanaCore, config })}${basePath}`;
     let redirectUri = new URL(encodeURI(baseRedirectUrl + routesPath + 'login'));
-    if (request.url.query.nextUrl) {
-      redirectUri.searchParams.set('nextUrl', request.url.query.nextUrl);
-    }
     redirectUri = redirectUri.toString();
 
     debugLog('Base redirect url: ' + redirectUri);
@@ -341,11 +338,12 @@ export function loginHandler({
       });
 
       let redirectTo = '/';
-      if (request.url.query.nextUrl) {
-        redirectTo = sanitizeNextUrl(decodeURIComponent(request.url.query.nextUrl), basePath);
+
+      if (cookieOpenId.query && cookieOpenId.query.nextUrl) {
+        redirectTo = sanitizeNextUrl(decodeURIComponent(cookieOpenId.query.nextUrl), basePath);
       }
 
-      // All good, redirect to home
+      // All good, redirect
       return response.redirected({
         headers: {
           location: redirectTo,
@@ -405,9 +403,7 @@ async function handleAuthRequest({
 
   sessionCookie.openId = { nonce, query: {} };
   for (const [key, value] of Object.entries(request.url.query)) {
-    // We don't want to store the nextUrl in cookie because it can be huge,
-    // larger than the cookie size limit.
-    if (key !== 'nextUrl') sessionCookie.openId.query[key] = value;
+     sessionCookie.openId.query[key] = value;
   }
 
   await sessionStorageFactory.asScoped(request).set(sessionCookie);
@@ -416,18 +412,6 @@ async function handleAuthRequest({
   for (const [key, value] of Object.entries(query)) {
     idpAuthLocation.searchParams.set(key, value);
   }
-
-  const redirectURI = new URL(idpAuthLocation.searchParams.get('redirect_uri'));
-  const nextUrl = decodeURIComponent(request.url.query.nextUrl);
-  // Do not add the nextUrl to the redirect_uri to avoid the following braking
-  // change for the users that use normal URL to authenticate.
-  if (nextUrl === '/') redirectURI.searchParams.delete('nextUrl');
-  // Add the nextUrl to the redirect_uri as a parameter. The IDP uses the redirect_uri to redirect the user after successful authentication.
-  // For example, it is used to redirect user to the correct dashboard if the user put shared URL in the browser address input before authentication.
-  // To make this work, append the wildcard (*) to the valid redirect URI in the IDP configuration, for example
-  // https://kibana.example.com:5601/auth/openid/login*
-  else if (nextUrl) redirectURI.searchParams.set('nextUrl', nextUrl);
-  idpAuthLocation.searchParams.set('redirect_uri', redirectURI.toString());
 
   return response.redirected({
     headers: {

@@ -117,7 +117,7 @@ export default class OpenId extends AuthType {
         // Delete sg_tenant because we have it already as a param in the nextUrl
         url.searchParams.delete('sg_tenant');
       }
-      url.pathname = path.posix.join(this.basePath, '/auth/openid/encode');
+      url.pathname = path.posix.join(this.basePath, '/auth/openid/login');
     }
 
     return url.pathname + url.search + url.hash;
