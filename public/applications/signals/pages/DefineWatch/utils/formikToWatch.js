@@ -40,10 +40,10 @@ export function buildSeverity(watch) {
 
   thresholdLevels.forEach((level) => {
     if (!Number.isInteger(thresholds[level])) {
-      thresholds[level] = 0;
+      thresholds[level] = undefined;
     }
 
-    if (thresholds[level]) {
+    if (typeof thresholds[level] !== 'undefined') {
       severity.mapping.push({
         level,
         threshold: thresholds[level],

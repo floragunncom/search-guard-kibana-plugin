@@ -107,7 +107,7 @@ class TriggerExpression extends Component {
 
       let severityThresholds = get(values, '_ui.severity.thresholds', {});
       severityThresholds = Object.values(severityThresholds)
-        .filter((value) => value)
+        .filter((value) => typeof value !== 'undefined' && value !== '')
         .join(',');
 
       thresholdDescr = 'severity conditions';
