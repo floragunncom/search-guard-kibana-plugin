@@ -112,6 +112,7 @@ export const DEFAULT_CONFIG = {
       logout_url: '',
       root_ca: '',
       verify_hostnames: true,
+      preserve_target: true,
     },
     proxycache: {
       user_header: undefined,
