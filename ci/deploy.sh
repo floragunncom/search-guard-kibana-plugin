@@ -1,9 +1,11 @@
 #!/bin/bash
  
 set -e
+set -x
  
 if [[ "$1" == "staging" ]]; then
    MVN_DEPLOY_OPTS="-DaltDeploymentRepository=staging::default::https://maven.search-guard.com:443/search-guard-suite-staging -Prelease"
+   ci/setup_gpg.sh
 else
    MVN_DEPLOY_OPTS=""
 fi
@@ -29,6 +31,13 @@ fi
 if [ -z "$ES_VERSION" ]; then
   ES_VERSION=$SF_VERSION
 fi
+if [ -z "$SG_ES_PLUGIN" ] && [ "$1" == "staging" ]; then
+  SG_ES_PLUGIN="$ES_VERSION-*"
+fi
+if [ -z "$SG_ADMIN" ] && [ "$1" == "staging" ]; then
+  SG_ADMIN="$ES_VERSION-*"
+fi
+
 if [[ ! "$SG_ES_PLUGIN" =~ ^https?:.*$ ]]; then
   if [[ "$SG_ES_PLUGIN" =~ .*SNAPSHOT.* ]]; then
     SG_ES_PLUGIN=$(ci/artifact_uri.sh $SG_SB_PLUGIN_SNAPSHOT_REPO $SG_SB_PLUGIN_NAME $SG_ES_PLUGIN .zip sgadmin-standalone.zip)

@@ -8,7 +8,7 @@ variables:
   SB_PRODUCT: elasticsearch
   SG_SB_PLUGIN_SNAPSHOT_REPO: search-guard-suite-snapshot
   SG_SB_PLUGIN_STAGING_REPO: search-guard-suite-staging
-  SG_SB_PLUGIN_RELEASE_REPO: search-guard-suite-alpha
+  SG_SB_PLUGIN_RELEASE_REPO: search-guard-suite-release
   SG_SF_PLUGIN_SNAPSHOT_REPO: search-guard-kibana-plugin-snapshot
   SG_SF_PLUGIN_STAGING_REPO: search-guard-kibana-plugin-staging
   SG_SF_PLUGIN_RELEASE_REPO: search-guard-kibana-plugin-release
