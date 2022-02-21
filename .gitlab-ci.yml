@@ -68,9 +68,9 @@ build:
       cd $SF_REPO_DIR/plugins/search-guard
       start_section tests "Unit Tests"
       export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-server.xml
-      ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --reporters="jest-junit" --reporters="default"
+      ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --reporters="default"
       export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-public.xml
-      ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=public  --config ./tests/jest.config.js --reporters="jest-junit" --reporters="default"
+      ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=public  --config ./tests/jest.config.js --reporters="default"
       end_section tests
       rm -rf "node_modules"
       start_section build "Building Search Guard Plugin"
@@ -127,9 +127,9 @@ build_release:
       echo -e "\e[0Ksection_end:`date +%s`:yarn_build\r\e[0K"
       start_section tests "Unit Tests"
       export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-server.xml
-      ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --reporters="jest-junit" --reporters="default"
+      ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --reporters="jest-junit"
       export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-public.xml
-      ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=public  --config ./tests/jest.config.js --reporters="jest-junit" --reporters="default"
+      ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=public  --config ./tests/jest.config.js --reporters="jest-junit"
       end_section tests
       cd $CI_PROJECT_DIR
       rm -rf build
@@ -140,6 +140,9 @@ build_release:
     paths:
       - "build.log"
       - "build/*"
+    reports:
+      junit:
+        - junit*.xml
     expire_in: 24h
 
 deploy_snapshot:
