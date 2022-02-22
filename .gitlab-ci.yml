@@ -14,7 +14,7 @@ variables:
   SG_SF_PLUGIN_RELEASE_REPO: search-guard-kibana-plugin-release
   SG_SF_PLUGIN_NAME: search-guard-kibana-plugin
   SG_SB_PLUGIN_NAME: search-guard-suite-plugin
-  NODE_VERSION: 14.17.3
+  NODE_VERSION: 10.23.1
 
 image: circleci/openjdk:${SG_JAVA_BUILD_VERSION}-jdk-browsers
 
@@ -118,6 +118,12 @@ build_release:
       source ci/install_dependencies.sh
       source ci/init_build.sh
       cd $SF_REPO_DIR/plugins/search-guard
+      start_section tests "Unit Tests"
+      export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-server.xml
+      ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --reporters="jest-junit"
+      export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-public.xml
+      ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=public  --config ./tests/jest.config.js --reporters="jest-junit"
+      end_section tests
       rm -rf "node_modules"
       echo -e "\e[0Ksection_start:`date +%s`:yarn_install\r\e[0KDoing yarn install --production"
       yarn install --production 
@@ -125,12 +131,6 @@ build_release:
       echo -e "\e[0Ksection_start:`date +%s`:yarn_build\r\e[0KDoing yarn build -v $SF_VERSION --skip-archive"
       yarn build -v $SF_VERSION --skip-archive
       echo -e "\e[0Ksection_end:`date +%s`:yarn_build\r\e[0K"
-      start_section tests "Unit Tests"
-      export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-server.xml
-      ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --reporters="jest-junit"
-      export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-public.xml
-      ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=public  --config ./tests/jest.config.js --reporters="jest-junit"
-      end_section tests
       cd $CI_PROJECT_DIR
       rm -rf build
       mv $SF_REPO_DIR/plugins/search-guard/build build
