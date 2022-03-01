@@ -50,13 +50,13 @@ export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, 
     },
     (context, request, response) => {
 	  try {
-	  const loginHandler = request.url.searchParams.get('loginHandler');
+	  const loginHandler = request.url.query.loginHandler;
 
       if (!loginHandler.match(/\/[a-zA-Z0-9\/]+/)) {
          return response.renderHtml({body: 'Bad Request'});
       }
 
-      const authTypeId = request.url.searchParams.get('authTypeId');
+      const authTypeId = request.url.query.authTypeId;
 
       if (authTypeId && !authTypeId.match(/[a-zA-Z0-9]+/)) {
          return response.renderHtml({body: 'Bad Request'});
