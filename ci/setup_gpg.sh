@@ -25,5 +25,5 @@ echo "$PASS" | gpg --pinentry-mode loopback --passphrase-fd 0 --allow-secret-key
 expect -c "spawn gpg --edit-key 4A61C8AE trust quit; send \"5\ry\r\"; expect eof" > /dev/null 2>&1 || true
 
 #cache key
-echo "123" > cl.txt
+echo "123"  > cl.txt
 echo "$PASS" | gpg --pinentry-mode loopback --passphrase-fd 0 --textmode --always-trust --default-key 4A61C8AE -z 0 -a --clearsign cl.txt > /dev/null 2>&1
