@@ -98,7 +98,7 @@
         </properties>
         <distributionManagement>
           <repository>
-            <id>central</id>
+            <id>release</id>
             <name>releases</name>
             <url>https://maven.search-guard.com:443/search-guard-suite-alpha</url>
           </repository>
