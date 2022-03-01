@@ -176,7 +176,7 @@ deploy_release:
       echo "Removing current release from Staging"
       curl -u "$ARTIFACTORY_USER:$ARTIFACTORY_PASSWORD" -X DELETE "https://maven.search-guard.com/artifactory/$SG_SF_PLUGIN_STAGING_REPO/com/floragunn/$SG_SF_PLUGIN_NAME/$BUILD_VERSION" || true
       start_section deploy "Deploying to release repository"
-      mvn -B -s settings.xml -Drevision="$BUILD_VERSION" deploy
+      mvn -B -s settings.xml -Drevision="$BUILD_VERSION" -Drelease=true deploy
       end_section deploy
 
 include:
