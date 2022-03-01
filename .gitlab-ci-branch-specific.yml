@@ -1,5 +1,5 @@
 variables:
   ES_VERSION: "1.2.4"
   SG_ES_PLUGIN: "tp3-os-1.2.4"
-  SG_ADMIN: "stp3-os-1.2.4"
+  SG_ADMIN: "tp3-os-1.2.4"
   IT_BRANCH: "session-auth-os"
