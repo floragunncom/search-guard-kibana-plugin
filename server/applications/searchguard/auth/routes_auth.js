@@ -49,6 +49,7 @@ export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, 
       validate: false,
     },
     (context, request, response) => {
+	  try {
 	  const loginHandler = request.url.searchParams.get('loginHandler');
 
       if (!loginHandler.match(/\/[a-zA-Z0-9\/]+/)) {
@@ -64,6 +65,10 @@ export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, 
       return response.renderHtml({
         body: `<html><head><script src="captureurlfragment.js"></script></head><body></body></html>`,
       });
+     } catch (e) {
+		console.error(e);
+		throw e;
+	}
     }
   );
 
@@ -73,7 +78,9 @@ export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, 
       options: { authRequired: false },
       validate: false,
     },
-    (context, request, response) => {	
+    (context, request, response) => {
+		  try {
+	
       return response.renderJs({
         body: `
           let searchParams = new URLSearchParams(window.location.search);
@@ -85,6 +92,10 @@ export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, 
           window.location = loginHandler + "?authTypeId=" + encodeURIComponent(authTypeId) + "&nextUrl=" + encodeURIComponent(nextUrl);
           `,
       });
+ } catch (e) {
+		console.error(e);
+		throw e;
+	}
     }
   );
 
