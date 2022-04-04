@@ -52,7 +52,7 @@
 		<repository>
 			<id>release</id>
 			<name>releases</name>
-			<url>https://maven.search-guard.com:443/search-guard-suite-alpha</url>
+			<url>https://maven.search-guard.com:443/search-guard-suite-release</url>
 		</repository>
 	</distributionManagement>
 	<build>
