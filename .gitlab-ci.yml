@@ -28,9 +28,9 @@ before_script:
   - |
     source ci/utils.sh
     if [ -d $SF_REPO_DIR ]; then du --summarize -h $SF_REPO_DIR; fi
-    if [[ $CI_COMMIT_TAG =~ ^sg-([a-z0-9\.]+)-([oe]s)-([0-9\.]+)$ ]]; then
+    if [[ $CI_COMMIT_TAG =~ ^sg-7\.([a-z0-9\.]+)-([oe]s)-([0-9\.]+)$ ]]; then
       export SG_SF_PLUGIN_VERSION=${BASH_REMATCH[1]}
-      export BUILD_VERSION="${BASH_REMATCH[1]}-${BASH_REMATCH[2]}-${BASH_REMATCH[3]}"
+      export BUILD_VERSION="${BASH_REMATCH[3]}-${BASH_REMATCH[1]}.0"
       export SF_VERSION=${BASH_REMATCH[3]}
     else    
       export SG_SF_PLUGIN_VERSION="b-$CI_COMMIT_REF_NAME-SNAPSHOT"
@@ -140,9 +140,6 @@ build_release:
     paths:
       - "build.log"
       - "build/*"
-    reports:
-      junit:
-        - junit*.xml
     expire_in: 24h
 
 deploy_snapshot:
