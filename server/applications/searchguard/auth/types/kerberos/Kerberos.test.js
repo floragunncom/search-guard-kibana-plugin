@@ -190,52 +190,5 @@ describe(AuthClass.name, () => {
         });
       }
     });
-
-    test('return the server proposal to do the basic authentication', async () => {
-      const error = new Error('Unauthorized.');
-      error.statusCode = 401;
-      error.inner = {
-        meta: {
-          headers: {
-            [WWW_AUTHENTICATE_HEADER_NAME.toLowerCase()]: 'Basic realm="Authorization Required"',
-          },
-        },
-      };
-
-      const backwardsCompatibilityError = new Error('Unauthorized.');
-      backwardsCompatibilityError.statusCode = 401;
-      backwardsCompatibilityError.inner = {
-        body: {
-          error: {
-            header: {
-              [WWW_AUTHENTICATE_HEADER_NAME]: 'Basic realm="Authorization Required"',
-            },
-          },
-        },
-      };
-
-      const errors = [error, backwardsCompatibilityError];
-
-      for (const error of errors) {
-        const authenticateWithHeaders = jest.fn().mockRejectedValue(error);
-        const searchGuardBackend = setupSearchGuardBackendMock({ authenticateWithHeaders });
-
-        const authInstance = new AuthClass({
-          logger,
-          config,
-          searchGuardBackend,
-        });
-
-        await authInstance.checkAuth(cloneDeep(request), response, toolkit);
-
-        // authInsance.authenticateWithSPNEGO
-        expect(authenticateWithHeaders).toHaveBeenCalledWith({});
-        expect(response.unauthorized).toHaveBeenCalledWith({
-          headers: {
-            [WWW_AUTHENTICATE_HEADER_NAME]: 'Basic realm="Authorization Required"',
-          },
-        });
-      }
-    });
   });
 });
