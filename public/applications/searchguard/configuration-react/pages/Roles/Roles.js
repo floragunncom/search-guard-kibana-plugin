@@ -89,6 +89,7 @@ class Roles extends Component {
       );
       this.setState({ resources, tableResources, error: null });
     } catch (error) {
+      console.error(error);
       this.setState({ error });
       this.context.triggerErrorCallout(error);
     }
