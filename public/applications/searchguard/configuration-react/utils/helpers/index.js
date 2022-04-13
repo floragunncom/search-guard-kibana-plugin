@@ -27,7 +27,7 @@ export const isSinglePermission = (permission = '') => {
     || permission.startsWith('signals:');
 };
 
-export const arrayToComboBoxOptions = array => sortBy(array.map(label => ({ label })), 'label');
+export const arrayToComboBoxOptions = (array = []) => sortBy(array.map(label => ({ label })), 'label');
 export const comboBoxOptionsToArray = array => sortBy(array.map(({ label }) => label));
 
 export const allowedActionsToPermissionsAndActiongroups = (allowedActions = []) => {
@@ -56,6 +56,10 @@ export const uiAttributesToAttributes = (attributes = []) => attributes.reduce((
 
 export const internalUsersToUiBackendRoles = (internalUsers = {}) => {
   return arrayToComboBoxOptions(uniqBy(sortBy(reduce(internalUsers, (result, user) => {
+	if (!user.backend_roles) {
+      return result;
+	}
+	
     user.backend_roles.forEach(role => {
       result.push(role);
     });
