@@ -133,8 +133,8 @@ export const excludeIndexPermissionToUiExcludeIndexPermission = (excludeIndexPer
     excludeIndexPermission.actions
   );
   const actions = {
-    actiongroups: arrayToComboBoxOptions(actiongroups),
-    permissions: arrayToComboBoxOptions(permissions),
+    actiongroups: arrayToComboBoxOptions(actiongroups || []),
+    permissions: arrayToComboBoxOptions(permissions || []),
   };
   const indexPatterns = arrayToComboBoxOptions(excludeIndexPermission.index_patterns);
 
@@ -147,7 +147,7 @@ export const excludeIndexPermissionToUiExcludeIndexPermission = (excludeIndexPer
 
 // The masked fields are grouped by their mask value: hash or regex.
 export function maskedFieldsToUiMaskedFields(maskedFields) {
-  if (maskedFields.length === 0) {
+  if (!maskedFields || maskedFields.length === 0) {
     return [cloneDeep(MASKED_FIELDS_DEFAULTS)];
   }
 
@@ -195,8 +195,8 @@ export const indexPermissionToUiIndexPermission = (indexPermission) => {
     _dls: indexPermission.dls,
     allowed_actions: allowedActions,
     index_patterns: indexPatterns,
-    masked_fields: maskedFieldsToUiMaskedFields(indexPermission.masked_fields),
-    masked_fields_advanced: arrayToComboBoxOptions(indexPermission.masked_fields),
+    masked_fields: maskedFieldsToUiMaskedFields(indexPermission.masked_fields || []),
+    masked_fields_advanced: arrayToComboBoxOptions(indexPermission.masked_fields || []),
     _isAdvanced: !isEmpty(allowedActions.permissions),
     _isAdvancedFLSMaskedFields: false,
   };
