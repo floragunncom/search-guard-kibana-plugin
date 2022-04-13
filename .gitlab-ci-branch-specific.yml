@@ -1,5 +1,5 @@
 variables:
   IT_BRANCH: "session-auth"
-  ES_VERSION: "7.16.1"
+  ES_VERSION: "7.16.3"
   SG_ES_PLUGIN: "b-session-auth-SNAPSHOT"
   SG_ADMIN: "b-session-auth-SNAPSHOT"
