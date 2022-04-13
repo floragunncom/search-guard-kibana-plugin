@@ -54,27 +54,27 @@ export class Kerberos {
       return toolkit.authenticated();
     } catch (error) {
       backendError = error.inner || error;
-    }
 
-    const negotiationProposal =
-      get(backendError, `body.error.header[${WWW_AUTHENTICATE_HEADER_NAME}]`, '') ||
-      get(backendError, `meta.headers[${WWW_AUTHENTICATE_HEADER_NAME.toLowerCase()}]`, '');
-    if (this.authDebugEnabled) this.logger.debug(`Negotiating: ${negotiationProposal}`);
+		  if (backendError && backendError.meta && backendError.meta.headers["www-authenticate"]) {
+			  let authenticateHeader = backendError.meta.headers["www-authenticate"];
+			  let parts = authenticateHeader.split(/\s*,\s*/);
 
-    const isNegotiating =
-      negotiationProposal.startsWith('Negotiate') || // Kerberos negotiation
-      negotiationProposal === 'Basic realm="Authorization Required"'; // Basic auth negotiation
+			  for (let negotiationProposal of parts) {
+				  if (negotiationProposal.startsWith('Negotiate')) {
+					  return response.unauthorized({
+						  headers: {
+							  [WWW_AUTHENTICATE_HEADER_NAME]: negotiationProposal,
+						  },
+					  });
+				  }
+			  }
 
-    // Forward the SG backend negotiation proposal to a client.
-    if (isNegotiating) {
-      return response.unauthorized({
-        headers: {
-          [WWW_AUTHENTICATE_HEADER_NAME]: negotiationProposal,
-        },
-      });
-    }
 
-    return response.unauthorized({ body: backendError });
+		  }
+
+		  return response.unauthorized({ body: backendError });
+	  }
+
   }
 
   checkAuth = async (request, response, toolkit) => {
