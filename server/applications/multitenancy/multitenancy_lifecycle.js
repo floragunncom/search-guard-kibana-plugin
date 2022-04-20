@@ -167,7 +167,7 @@ export class MultitenancyLifecycle {
     if (selectedTenant !== sessionCookie.tenant) {
       // save validated tenant in the cookie
       sessionCookie.tenant = selectedTenant;
-	console.error("s**** set tenant cookie " + JSON.stringify(request) + " " + JSON.stringify(sessionCookie));
+	console.error("s**** set tenant cookie " + request + " " + JSON.stringify(sessionCookie), new Error());
       await this.sessionStorageFactory.asScoped(request).set(sessionCookie);
     }
 
