@@ -41,6 +41,7 @@ export function ClusterExclusions({ allActionGroups, allSinglePermissions, value
           isClearable: true,
           onBlur: onComboBoxOnBlur,
           onChange: onComboBoxChange(),
+          onCreateOption: onComboBoxCreateOption(),
         }}
       />
       <FormikSwitch
