@@ -52,7 +52,6 @@ export class AuthManager {
     this.routesToIgnore = [
       //'/login',
       '/customerror',
-      '/api/core/capabilities',
       '/bootstrap.js',
       '/bundles/app/core/bootstrap.js',
       '/bundles/app/searchguard-customerror/bootstrap.js',
@@ -261,7 +260,12 @@ export class AuthManager {
   // @todo Not needed for 7.10?
   onPostAuth = async (request, response, toolkit) => {
     if (request.route.path === '/api/core/capabilities') {
-      if (request.url.searchParams.get('useDefaultCapabilities') === 'true') {
+      const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+      if (sessionCookie.isAnonymousAuth) return toolkit.next();
+
+      const authHeaders = await this.getAllAuthHeaders(request);
+
+      if (authHeaders === false && !request.headers.authorization) {
         /*
         We need this redirect because Kibana calls the capabilities on our login page. The Kibana checks if there is the default space in the Kibana index.
         The problem is that the Kibana call is scoped to the current request. And the current request doesn't contain any credentials in the headers because the user hasn't been authenticated yet.
@@ -273,12 +277,6 @@ export class AuthManager {
         return new KibanaResponse(307, undefined, {
           headers: { location: this.basePath + '/api/v1/searchguard/kibana_capabilities' },
         });
-      } else {
-        // Update the request with auth headers in order to allow Kibana to check the default space.
-        // Kibana page breaks if Kibana can't check the default space.
-        const rawRequest = ensureRawRequest(request);
-        const authHeaders = await this.getAllAuthHeaders(request);
-        assign(rawRequest.headers, authHeaders);
       }
     }
 
