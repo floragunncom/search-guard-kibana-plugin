@@ -6,6 +6,7 @@ describe('UI role mapping to role mapping', () => {
       backend_roles: ['a', 'b'],
       hosts: ['c', 'd'],
       users: ['e', 'f'],
+      ips: ['g', 'h'],
       description: ''
     };
 
@@ -16,6 +17,7 @@ describe('UI role mapping to role mapping', () => {
       backend_roles: ['b', 'a'],
       hosts: ['d', 'c'],
       users: ['f', 'e'],
+      ips: ['g', 'h'],
       and_backend_roles: [],
       description: '',
       _name: [{ label: 'A_MAP' }],
@@ -30,6 +32,10 @@ describe('UI role mapping to role mapping', () => {
       _users: [
         { label: 'e' },
         { label: 'f' }
+      ],
+      _ips: [
+        { label: 'g'},
+        { label: 'h'}
       ]
     };
 

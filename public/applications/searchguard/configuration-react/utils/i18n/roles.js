@@ -38,6 +38,7 @@ export const overviewText = (<EuiI18n token="sg.roles.overview.text" default="Ov
 export const membersText = (<EuiI18n token="sg.roles.members.text" default="Members" />);
 export const usersText = (<EuiI18n token="sg.roles.users.text" default="Users" />);
 export const hostsText = (<EuiI18n token="sg.roles.hosts.text" default="Hosts" />);
+export const ipsText = (<EuiI18n token="sg.roles.ips.text" default="IPs" />);
 export const includeOrExcludeFieldsText = (<EuiI18n token="sg.roles.includeOrExcludeFields.text" default="Include or exclude fields" />);
 export const fieldLevelSecurityText = (<EuiI18n token="sg.roles.fieldLevelSecurity.text" default="Field Level Security" />);
 export const anonymizeText = <EuiI18n token="sg.roles.anonymize.text" default="Anonymize" />;
