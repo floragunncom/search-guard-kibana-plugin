@@ -60,6 +60,7 @@ describe('role mapping to UI role mapping', () => {
       backend_roles: ['b', 'a'],
       hosts: ['d', 'c'],
       users: ['f', 'e'],
+      ips: ['g', 'h'],
       and_backend_roles: [],
       description: ''
     };
@@ -71,6 +72,7 @@ describe('role mapping to UI role mapping', () => {
       backend_roles: ['b', 'a'],
       hosts: ['d', 'c'],
       users: ['f', 'e'],
+      ips: ['g', 'h'],
       and_backend_roles: [],
       description: '',
       _name: [{ label: 'role_a' }],
@@ -85,6 +87,10 @@ describe('role mapping to UI role mapping', () => {
       _users: [
         { label: 'e' },
         { label: 'f' }
+      ],
+      _ips: [
+        { label: 'g' },
+        { label: 'h' }
       ]
     };
 
@@ -97,10 +103,12 @@ describe('role mapping to UI role mapping', () => {
       _hosts: [],
       _name: [],
       _users: [],
+      _ips: [],
       backend_roles: [],
       description: '',
       hosts: [],
-      users: []
+      users: [],
+      ips: [],
     };
 
     expect(roleMappingToFormik(DEFAULT_ROLE_MAPPING)).toEqual(uiResource);
