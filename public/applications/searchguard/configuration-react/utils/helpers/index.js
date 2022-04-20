@@ -28,7 +28,7 @@ export const isSinglePermission = (permission = '') => {
 };
 
 export const arrayToComboBoxOptions = (array = []) => sortBy(array.map(label => ({ label })), 'label');
-export const comboBoxOptionsToArray = array => sortBy(array.map(({ label }) => label));
+export const comboBoxOptionsToArray = (array = []) => sortBy(array.map(({ label }) => label));
 
 export const allowedActionsToPermissionsAndActiongroups = (allowedActions = []) => {
   const { actiongroups, permissions } = reduce(allowedActions, (result, permission) => {

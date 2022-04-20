@@ -13,6 +13,7 @@ import {
   backendRolesText,
   usersText,
   hostsText,
+  ipsText,
   createRoleText
 } from '../../utils/i18n/roles';
 import {
@@ -244,6 +245,21 @@ class CreateRoleMapping extends Component {
                   onBlur: onComboBoxOnBlur
                 }}
               />
+
+              <FormikComboBox
+                name="_ips"
+                formRow
+                rowProps={{
+                  label: ipsText,
+                }}
+                elementProps={{
+                  isClearable: true,
+                  onChange: onComboBoxChange(),
+                  onCreateOption: onComboBoxCreateOption(),
+                  onBlur: onComboBoxOnBlur
+                }}
+              />
+
             </ContentPanel>
           );
         }}
