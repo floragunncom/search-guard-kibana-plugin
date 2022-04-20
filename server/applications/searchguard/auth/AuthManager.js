@@ -259,9 +259,8 @@ export class AuthManager {
 
   // @todo Not needed for 7.10?
   onPostAuth = async (request, response, toolkit) => {
-    if (request.route.path === '/api/core/capabilities') {
-      const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
-      if (sessionCookie.isAnonymousAuth) return toolkit.next();
+    if (request.route.path === '/api/core/capabilities') {      
+      if (this.configService.get('searchguard.auth.anonymous_auth_enabled')) return toolkit.next();
 
       const authHeaders = await this.getAllAuthHeaders(request);
 
