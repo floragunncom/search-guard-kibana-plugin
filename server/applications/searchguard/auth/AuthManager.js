@@ -269,9 +269,9 @@ export class AuthManager {
 
       const authHeaders = await this.getAllAuthHeaders(request);
 
-		console.error("##### " + JSON.stringify(authHeaders) + " " + JSON.stringify(sessionCookie));
+		console.error("##### " + JSON.stringify(authHeaders) + " " + JSON.stringify(sessionCookie) + " " + JSON.stringify(request.headers));
 
-      if (authHeaders === false) {
+      if (authHeaders === false && !request.headers.authorization) {
         /*
         We need this redirect because Kibana calls the capabilities on our login page. The Kibana checks if there is the default space in the Kibana index.
         The problem is that the Kibana call is scoped to the current request. And the current request doesn't contain any credentials in the headers because the user hasn't been authenticated yet.
@@ -286,8 +286,8 @@ export class AuthManager {
       } else {
         // Update the request with auth headers in order to allow Kibana to check the default space.
         // Kibana page breaks if Kibana can't check the default space.
-        const rawRequest = ensureRawRequest(request);
-        assign(rawRequest.headers, authHeaders);
+        // const rawRequest = ensureRawRequest(request);
+        // assign(rawRequest.headers, authHeaders);
       }
     }
 
