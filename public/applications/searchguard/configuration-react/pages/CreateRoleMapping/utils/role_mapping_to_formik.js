@@ -35,6 +35,7 @@ export const roleMappingToFormik = (roleMapping = {}, label) => {
     ...roleMapping,
     _backendRoles: arrayToComboBoxOptions(roleMapping.backend_roles),
     _hosts: arrayToComboBoxOptions(roleMapping.hosts),
+    _ips: arrayToComboBoxOptions(roleMapping.ips),
     _users: arrayToComboBoxOptions(roleMapping.users)
   };
 
