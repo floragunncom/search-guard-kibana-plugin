@@ -107,6 +107,7 @@ export default class Jwt extends AuthType {
       if (loginEndpoint) {
         try {
           const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+	console.error("### Deleting " + JSON.stringify(sessionCookie), new Error());
           // Delete this again, otherwise the user won't get back to the login page
           // if trying to access Kibana again
           delete sessionCookie.authTypeId;

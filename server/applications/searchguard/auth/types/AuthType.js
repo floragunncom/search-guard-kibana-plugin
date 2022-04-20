@@ -194,6 +194,8 @@ export default class AuthType {
         authTypeId: credentials.id,
       };
 
+	console.error("Created session " + JSON.stringify(session), new Error("x"));
+
       return {
         session,
         user,
@@ -528,6 +530,8 @@ export default class AuthType {
 
     const cookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
     authResponse.session = { ...cookie, ...authResponse.session, authType: this.type };
+
+	console.error("Setting cookie: " + JSON.stringify(authResponse.session));
 
     await this.sessionStorageFactory.asScoped(request).set(authResponse.session);
 
