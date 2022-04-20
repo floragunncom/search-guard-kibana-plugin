@@ -131,7 +131,7 @@ export class AuthManager {
   async getAuthInstanceByCookie({ request }) {
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
 
-	console.error("### C " + sessionCookie.authType);
+	console.error("### C " + JSON.stringify(sessionCookie));
 
 
     if (sessionCookie.authType && this.authInstances[sessionCookie.authType]) {

@@ -527,7 +527,7 @@ export default class AuthType {
      */
 
     const cookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
-    authResponse.session = { ...cookie, ...authResponse.session };
+    authResponse.session = { ...cookie, ...authResponse.session, authType: this.type };
 
     await this.sessionStorageFactory.asScoped(request).set(authResponse.session);
 
