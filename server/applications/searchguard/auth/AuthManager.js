@@ -269,7 +269,7 @@ export class AuthManager {
 
       const authHeaders = await this.getAllAuthHeaders(request);
 
-		console.error("##### " + JSON.stringify(authHeaders));
+		console.error("##### " + JSON.stringify(authHeaders) + " " + JSON.stringify(sessionCookie));
 
       if (authHeaders === false) {
         /*
@@ -322,7 +322,7 @@ export class AuthManager {
     }
     const authInstance = await this.getAuthInstanceByRequest({ request });
 
-	console.error("### " + authInstance);
+	console.error("### authInstance " + authInstance);
 
     if (authInstance) {
       return authInstance.getAllAuthHeaders(request);
