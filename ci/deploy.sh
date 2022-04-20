@@ -1,6 +1,7 @@
 #!/bin/bash
  
 set -e
+set -x
  
 if [[ "$1" == "staging" ]]; then
    MVN_DEPLOY_OPTS="-DaltDeploymentRepository=staging::default::https://maven.search-guard.com:443/search-guard-suite-staging -Prelease"
