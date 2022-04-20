@@ -130,6 +130,10 @@ export class AuthManager {
 
   async getAuthInstanceByCookie({ request }) {
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+
+	console.error("### C " + sessionCookie.authType);
+
+
     if (sessionCookie.authType && this.authInstances[sessionCookie.authType]) {
       return this.getAuthInstanceByName(sessionCookie.authType);
     }
@@ -264,6 +268,9 @@ export class AuthManager {
       if (sessionCookie.isAnonymousAuth) return toolkit.next();
 
       const authHeaders = await this.getAllAuthHeaders(request);
+
+		console.error("##### " + JSON.stringify(authHeaders));
+
       if (authHeaders === false) {
         /*
         We need this redirect because Kibana calls the capabilities on our login page. The Kibana checks if there is the default space in the Kibana index.
@@ -314,6 +321,9 @@ export class AuthManager {
       return false;
     }
     const authInstance = await this.getAuthInstanceByRequest({ request });
+
+	console.error("### " + authInstance);
+
     if (authInstance) {
       return authInstance.getAllAuthHeaders(request);
     }
