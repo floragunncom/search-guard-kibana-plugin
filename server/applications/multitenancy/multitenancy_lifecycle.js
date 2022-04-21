@@ -103,7 +103,10 @@ export class MultitenancyLifecycle {
     const debugEnabled = this.configService.get('searchguard.multitenancy.debug');
     const backend = this.searchGuardBackend;
 
-    const externalTenant = this.getExternalTenant(request, debugEnabled);
+    // Make sure we have a sessionCookie object to work with
+    if (!sessionCookie) {
+      sessionCookie = {};
+    }
 
     // default is the tenant stored in the tenants cookie
     let selectedTenant =
@@ -112,6 +115,8 @@ export class MultitenancyLifecycle {
     if (debugEnabled) {
       this.logger.info(`Multitenancy: tenant_storagecookie ${selectedTenant}`);
     }
+
+    const externalTenant = this.getExternalTenant(request, debugEnabled);
 
     // MT is only relevant for some paths.
     // If we have an externalTenant, we need to update the cookie
@@ -159,7 +164,7 @@ export class MultitenancyLifecycle {
       }
     }
 
-    if (sessionCookie && selectedTenant !== sessionCookie.tenant) {
+    if (selectedTenant !== sessionCookie.tenant) {
       // save validated tenant in the cookie
       sessionCookie.tenant = selectedTenant;
       await this.sessionStorageFactory.asScoped(request).set(sessionCookie);
