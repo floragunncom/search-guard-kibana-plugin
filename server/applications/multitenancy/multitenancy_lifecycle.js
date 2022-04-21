@@ -103,6 +103,8 @@ export class MultitenancyLifecycle {
     const debugEnabled = this.configService.get('searchguard.multitenancy.debug');
     const backend = this.searchGuardBackend;
 
+	console.error("### getSelectedTenant sessionCookie "  + JSON.stringify(sessionCookie));
+
     // Make sure we have a sessionCookie object to work with
     if (!sessionCookie) {
       sessionCookie = {};
@@ -165,8 +167,11 @@ export class MultitenancyLifecycle {
     }
 
     if (selectedTenant !== sessionCookie.tenant) {
+
       // save validated tenant in the cookie
       sessionCookie.tenant = selectedTenant;
+		console.error("### getSelectedTenant setting sessionCookie "  + JSON.stringify(sessionCookie));
+
       await this.sessionStorageFactory.asScoped(request).set(sessionCookie);
     }
 

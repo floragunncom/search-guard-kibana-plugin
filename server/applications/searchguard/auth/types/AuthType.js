@@ -331,6 +331,8 @@ export default class AuthType {
   checkAuth = async (request, response, toolkit) => {
     let sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
 
+	console.error("### AT checkAuth " + request.url + " " + JSON.stringify(sessionCookie), new Error());
+
     try {
       sessionCookie = await this.getCookieWithCredentials(request);
     } catch (error) {
@@ -528,6 +530,9 @@ export default class AuthType {
 
     const cookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
     authResponse.session = { ...cookie, ...authResponse.session };
+
+	console.error("### AT _handleAuthResponse " + request.url + " " + JSON.stringify(authResponse.session), new Error());
+
 
     await this.sessionStorageFactory.asScoped(request).set(authResponse.session);
 

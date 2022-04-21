@@ -130,6 +130,9 @@ export class AuthManager {
 
   async getAuthInstanceByCookie({ request }) {
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+
+	console.error("### AM getAuthInstanceByCookie " + request.url + " " + JSON.stringify(sessionCookie), new Error());
+
     if (sessionCookie.authType && this.authInstances[sessionCookie.authType]) {
       return this.getAuthInstanceByName(sessionCookie.authType);
     }
@@ -148,6 +151,9 @@ export class AuthManager {
   onPreAuth = async (request, response, toolkit) => {
     if (request.headers.authorization) {
       const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+
+	console.error("### AM onPreAuth " + request.url + " " + JSON.stringify(sessionCookie), new Error());
+
       const authInstance = await this.getAuthInstanceByCookie({ request });
       if (sessionCookie.credentials && authInstance) {
         // In case we already had a session BEFORE we encountered a request
@@ -161,6 +167,9 @@ export class AuthManager {
 
   checkAuth = async (request, response, toolkit) => {
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+
+	console.error("### AM checkAuth " + request.url + " " + JSON.stringify(sessionCookie), new Error());
+
 
     if (request.headers.authorization) {
       return toolkit.authenticated({
