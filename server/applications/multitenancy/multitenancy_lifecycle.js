@@ -41,14 +41,20 @@ export class MultitenancyLifecycle {
   onPreAuth = async (request, response, toolkit) => {
     let authHeaders = request.headers;
 	let sessionCookie;
-	
-    if (this.authManager) {
- 	  const authInstance = await this.authManager.getAuthInstanceByRequest({ request });
-      sessionCookie = await authInstance.getCookieWithCredentials(request);
-	  authHeaders = authInstance.getAuthHeader(sessionCookie);	
-    } else {
-      sessionCookie = await this.sessionStorageFactory.asScoped(request).get();	
-	}
+
+	  if (this.authManager) {
+		  const authInstance = await this.authManager.getAuthInstanceByRequest({ request });
+
+		  if (authInstance) {
+			  sessionCookie = await authInstance.getCookieWithCredentials(request);
+			  authHeaders = authInstance.getAuthHeader(sessionCookie);
+		  } else {
+			  sessionCookie = await this.sessionStorageFactory.asScoped(request).get();
+
+		  }
+	  } else {
+		  sessionCookie = await this.sessionStorageFactory.asScoped(request).get();
+	  }
 
     const selectedTenant = await this.getSelectedTenant({
       request,
