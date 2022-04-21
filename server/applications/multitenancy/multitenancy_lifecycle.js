@@ -43,8 +43,8 @@ export class MultitenancyLifecycle {
 	let sessionCookie;
 	
     if (this.authManager) {
-      sessionCookie = await this.authManager.getCookieWithCredentials(request);
-  	  const authInstance = await this.authManager.getAuthInstanceByRequest({ request });
+ 	  const authInstance = await this.authManager.getAuthInstanceByRequest({ request });
+      sessionCookie = await authInstance.getCookieWithCredentials(request);
 	  authHeaders = authInstance.getAuthHeader(sessionCookie);	
     } else {
       sessionCookie = await this.sessionStorageFactory.asScoped(request).get();	
