@@ -53,26 +53,32 @@ export class Kerberos {
 
       return toolkit.authenticated();
     } catch (error) {
-      backendError = error.inner || error;
+		backendError = error.inner || error;
 
-		  if (backendError && backendError.meta && backendError.meta.headers["www-authenticate"]) {
-			  let authenticateHeader = backendError.meta.headers["www-authenticate"];
-			  let parts = authenticateHeader.split(/\s*,\s*/);
+		if (request.route.path === '/api/core/capabilities') {
+			return new KibanaResponse(307, undefined, {
+				headers: { location: this.basePath + '/api/v1/searchguard/kibana_capabilities' },
+			});
+		}
 
-			  for (let negotiationProposal of parts) {
-				  if (negotiationProposal.startsWith('Negotiate')) {
-					  return response.unauthorized({
-						  headers: {
-							  [WWW_AUTHENTICATE_HEADER_NAME]: negotiationProposal,
-						  },
-					  });
-				  }
-			  }
+		if (backendError && backendError.meta && backendError.meta.headers["www-authenticate"]) {
+			let authenticateHeader = backendError.meta.headers["www-authenticate"];
+			let parts = authenticateHeader.split(/\s*,\s*/);
+
+			for (let negotiationProposal of parts) {
+				if (negotiationProposal.startsWith('Negotiate')) {
+					return response.unauthorized({
+						headers: {
+							[WWW_AUTHENTICATE_HEADER_NAME]: negotiationProposal,
+						},
+					});
+				}
+			}
+		}
 
 
-		  }
 
-		  return response.unauthorized({ body: backendError });
+		return response.unauthorized({ body: backendError });
 	  }
 
   }
