@@ -64,6 +64,7 @@ describe(AuthClass.name, () => {
     const request = {
       url: {
         pathname: '/login',
+   		href: 'http://kibana.example.com/login'
       },
     };
 
@@ -113,6 +114,7 @@ describe(AuthClass.name, () => {
       headers: { a: 1 },
       url: {
         pathname: '/route/to/ignore/auth/for',
+		href: 'http://kibana.example.com/route/to/ignore/auth/for'
       },
     };
 
@@ -160,6 +162,7 @@ describe(AuthClass.name, () => {
       },
       url: {
         pathname: '/',
+   	    href: 'http://kibana.example.com/'
       },
     };
 
@@ -220,6 +223,7 @@ describe(AuthClass.name, () => {
       },
       url: {
         pathname: '/app/kibana',
+   		href: 'http://kibana.example.com/app/kibana'
       },
     };
 
@@ -281,6 +285,7 @@ describe(AuthClass.name, () => {
       },
       url: {
         pathname: '/app/kibana',
+   		href: 'http://kibana.example.com/app/kibana'
       },
     };
 

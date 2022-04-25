@@ -57,7 +57,7 @@ export default class AuthType {
     this.routesToIgnore = [
       '/login',
       '/customerror',
-      '/bootstrap.js',
+      '/bootstrap-anonymous.js',
       '/bundles/app/core/bootstrap.js',
       '/bundles/app/searchguard-customerror/bootstrap.js',
       '/api/core/capabilities',

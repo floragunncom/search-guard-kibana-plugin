@@ -5,13 +5,14 @@
     "ui": true,
     "optionalPlugins": [
       "spaces",
-      "security"
+      "security",
+      "home"      
     ],
     "requiredPlugins": [
-      "home"
     ],
     "configPath": ["searchguard"],
     "owner": {
     	"name": "Search Guard"
-    }
+    },
+    "enabledOnAnonymousPages": true
 }
