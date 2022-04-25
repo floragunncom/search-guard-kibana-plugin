@@ -119,7 +119,6 @@ export const PAGE_NAMES = {
   tenants_page: 'tenants_page',
   create_tenants_page: 'create_tenants_page',
   system_status_page: 'system_status_page',
-  auth_page: 'auth_page',
   license_page: 'license_page',
   cache_page: 'cache_page',
 };

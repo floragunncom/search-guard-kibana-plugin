@@ -38,41 +38,6 @@ const SystemStatusContent = ({ resource, sideNavItemName }) => {
         })}
       </EuiFlexGrid>
 
-      {isActiveModulesSection && (
-        <Fragment>
-          <EuiFlexGrid columns={3} className="sgFixedFormGroupItem">
-            <EuiFlexItem><EuiText><h3>{systemStatusI18nLabels.name}</h3></EuiText></EuiFlexItem>
-            <EuiFlexItem><EuiText><h3>{systemStatusI18nLabels.version}</h3></EuiText></EuiFlexItem>
-            <EuiFlexItem><EuiText><h3>{systemStatusI18nLabels.isEnterprise}</h3></EuiText></EuiFlexItem>
-          </EuiFlexGrid>
-          <EuiSpacer size="m" />
-        </Fragment>
-      )}
-
-      <EuiFlexGrid columns={3} className="sgFixedFormGroupItem">
-        {map(resource, (value, key) => {
-          return isActiveModulesSection && (
-            <Fragment key={key}>
-              <EuiFlexItem>
-                <EuiText data-test-subj={`sgSystemStatusContentActiveModulesName-${key}`}>
-                  {systemStatusI18nLabels[key]}
-                </EuiText>
-              </EuiFlexItem>
-              <EuiFlexItem>
-                <EuiText data-test-subj={`sgSystemStatusContentActiveModulesVersion-${key}`}>
-                  {value.version}
-                </EuiText>
-              </EuiFlexItem>
-              <EuiFlexItem>
-                <EuiText data-test-subj={`sgSystemStatusContentActiveModulesIsEnterprise-${key}`}>
-                  {toString(value.is_enterprise)}
-                </EuiText>
-              </EuiFlexItem>
-            </Fragment>
-          );
-        })}
-      </EuiFlexGrid>
-
     </Fragment>
   );
 };
