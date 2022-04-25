@@ -28,6 +28,7 @@ export function handleKibanaCapabilities() {
 
       return response.ok({ body: defaultCapabilities });
     } catch (error) {
+	  console.error(error);
       return response.customError(wrapForCustomError(error));
     }
   };
