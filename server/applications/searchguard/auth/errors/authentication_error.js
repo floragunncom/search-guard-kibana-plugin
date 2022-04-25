@@ -18,6 +18,8 @@ export default class AuthenticationError extends Error {
   constructor(message, ...params) {
     super(message, ...params);
 
+    this.statusCode = 401;
+
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, AuthenticationError);
     }
