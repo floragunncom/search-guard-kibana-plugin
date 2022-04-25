@@ -290,11 +290,6 @@ export const ConfigSchema = schema.object({
         defaultValue: searchguardDefaults.configuration.cache_page.enabled,
       }),
     }),
-    auth_page: schema.object({
-      enabled: schema.boolean({
-        defaultValue: searchguardDefaults.configuration.auth_page.enabled,
-      }),
-    }),
   }),
 
   accountinfo: schema.object({

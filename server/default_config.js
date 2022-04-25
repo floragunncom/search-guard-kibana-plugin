@@ -103,7 +103,6 @@ export const DEFAULT_CONFIG = {
       system_status_page: { enabled: true },
       license_page: { enabled: true },
       cache_page: { enabled: true },
-      auth_page: { enabled: false },
     },
     accountinfo: {
       enabled: true,
