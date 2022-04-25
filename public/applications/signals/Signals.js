@@ -33,8 +33,9 @@ export class Signals {
     }
   }
 
-  async setup({ httpClient }) {
+  async setup({ httpClient, configService }) {
     try {
+      if (configService.isLoginPage()) return;
       const sgService = new SearchGuardService(httpClient);
       this.hasPermissions = await sgService.hasPermissions();
     } catch (error) {
