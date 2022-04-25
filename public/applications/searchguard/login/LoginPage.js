@@ -242,7 +242,7 @@ export function BasicLogin({ httpClient, basicLoginConfig, loginPageConfig, setD
             <EuiFlexItem>
               <HTMLTitle
                 HTMLTag="div"
-                text={basicLoginConfig.message}
+                text={basicLoginConfig.message_body}
                 euiTextProps={{ 'data-test-subj': 'sg.login.subTitle', size: 'xs' }}
               />
             </EuiFlexItem>
@@ -293,12 +293,10 @@ export function BasicLogin({ httpClient, basicLoginConfig, loginPageConfig, setD
   );
 }
 
-export function BrandImage({ configService, httpClient }) {
-  const { showbrandimage: showBrandImage, brandimage: brandImage } = configService.get(
-    'searchguard.login'
-  );
+export function BrandImage({ loginPageConfig, httpClient }) {
+  const { show_brand_image: showBrandImage, brand_image: brandImage } = loginPageConfig;
 
-  if (!showBrandImage) return null;
+  if (!showBrandImage || !brandImage) return null;
   return (
     <EuiErrorBoundary>
       <div style={{ maxWidth: 350 }}>
@@ -426,7 +424,7 @@ export function LoginPage({ httpClient, configService }) {
   return (
       <EuiFlexGroup direction="column" alignItems="center" style={{ padding: '100px 10px' }}>
         <EuiFlexItem  grow={false}>
-          <BrandImage configService={configService} httpClient={httpClient} />
+          <BrandImage loginPageConfig={loginPageConfig} httpClient={httpClient} />
         </EuiFlexItem>
         <EuiFlexItem  grow={false}>
           <HTMLTitle
