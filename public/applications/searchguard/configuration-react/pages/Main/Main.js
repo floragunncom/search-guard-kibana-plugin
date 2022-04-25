@@ -162,9 +162,7 @@ class Main extends Component {
                       render={(props) => <InternalUsers {...props} />}
                     />
                   )}
-                  {this.configuration.auth_page.enabled && (
-                    <Route path={APP_PATH.AUTH} render={(props) => <Auth {...props} />} />
-                  )}
+
                   {this.configuration.system_status_page.enabled && (
                     <Route
                       path={APP_PATH.SYSTEM_STATUS}
