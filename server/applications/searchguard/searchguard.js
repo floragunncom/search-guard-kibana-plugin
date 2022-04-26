@@ -83,6 +83,7 @@ export class SearchGuard {
             config: configService,
             searchGuardBackend,
             logger: this.coreContext.logger.get('searchguard-kerberos-auth'),
+            kibanaCore: core,
           }).checkAuth
         );
       } else if (authType !== 'proxy') {
