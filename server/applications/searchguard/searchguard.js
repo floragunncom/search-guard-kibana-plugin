@@ -83,6 +83,7 @@ export class SearchGuard {
             config: configService,
             searchGuardBackend,
             logger: this.coreContext.logger.get('searchguard-kerberos-auth'),
+            basePath: core.http.basePath.get(),
           }).checkAuth
         );
       } else if (authType !== 'proxy') {

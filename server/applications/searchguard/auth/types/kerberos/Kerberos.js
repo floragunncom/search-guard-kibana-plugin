@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { get } from 'lodash';
+import { KibanaResponse } from '../../../../../../../../src/core/server/http/router/response';
 
 export const WWW_AUTHENTICATE_HEADER_NAME = 'WWW-Authenticate';
 
@@ -25,6 +25,7 @@ export class Kerberos {
     this.config = props.config;
     this.searchGuardBackend = props.searchGuardBackend;
     this.authDebugEnabled = this.config.get('searchguard.auth.debug');
+    this.basePath = props.basePath ? props.basePath : "/";
   }
 
   // See the Negotiate Operation Example for the authentication flow details
@@ -54,12 +55,6 @@ export class Kerberos {
       return toolkit.authenticated();
     } catch (error) {
 		backendError = error.inner || error;
-
-		if (request.route.path === '/api/core/capabilities') {
-			return new KibanaResponse(307, undefined, {
-				headers: { location: this.basePath + '/api/v1/searchguard/kibana_capabilities' },
-			});
-		}
 
 		if (backendError && backendError.meta && backendError.meta.headers["www-authenticate"]) {
 			let authenticateHeader = backendError.meta.headers["www-authenticate"];
