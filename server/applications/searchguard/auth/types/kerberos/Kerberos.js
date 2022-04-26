@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { get } from 'lodash';
+import { KibanaResponse } from '../../../../../../../../src/core/server/http/router/response';
 
 export const WWW_AUTHENTICATE_HEADER_NAME = 'WWW-Authenticate';
 
