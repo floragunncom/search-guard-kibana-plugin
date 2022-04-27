@@ -37,14 +37,5 @@ export class LoginApp {
     });
   }
 
-  start({ configService }) {
-    const authType = configService.get('searchguard.auth.type');
-
-    if (authType !== 'basicauth') {
-      this.appUpdater.next(() => ({
-        navLinkStatus: AppNavLinkStatus.disabled,
-        tooltip: 'Login disabled',
-      }));
-    }
-  }
+  start({ configService }) {}
 }
