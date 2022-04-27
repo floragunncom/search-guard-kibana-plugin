@@ -25,7 +25,7 @@ export class Kerberos {
     this.config = props.config;
     this.searchGuardBackend = props.searchGuardBackend;
     this.authDebugEnabled = this.config.get('searchguard.auth.debug');
-    this.basePath = props.kibanaCore.http.basePath.get();
+    this.basePath = props.basePath ? props.basePath : "/";
   }
 
   // See the Negotiate Operation Example for the authentication flow details
