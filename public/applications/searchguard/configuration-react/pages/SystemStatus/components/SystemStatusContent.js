@@ -12,12 +12,11 @@ import { SIDE_NAV } from '../utils/constants';
 import * as systemStatusI18nLabels from '../../../utils/i18n/system_status';
 
 const SystemStatusContent = ({ resource, sideNavItemName }) => {
-  const isActiveModulesSection = sideNavItemName === SIDE_NAV.ACTIVE_MODULES;
   return (
     <Fragment>
       <EuiFlexGrid columns={2} className="sgFixedFormGroupItem">
         {map(resource, (value, key) => {
-          return !isActiveModulesSection ? (
+          return (
             <Fragment key={key}>
               <EuiFlexItem>
                 <EuiText data-test-subj={`sgSystemStatusContentKey-${key}`}>
@@ -32,9 +31,7 @@ const SystemStatusContent = ({ resource, sideNavItemName }) => {
                 )}
               </EuiFlexItem>
             </Fragment>
-          ) : (
-            <EuiSpacer key={key} size="m" />
-          );
+          )
         })}
       </EuiFlexGrid>
 
@@ -43,7 +40,7 @@ const SystemStatusContent = ({ resource, sideNavItemName }) => {
 };
 
 SystemStatusContent.propTypes = {
-  selectSideNavItem: PropTypes.oneOf([SIDE_NAV.CLUSTER, SIDE_NAV.LICENSE, SIDE_NAV.ACTIVE_MODULES]),
+  selectSideNavItem: PropTypes.oneOf([SIDE_NAV.CLUSTER, SIDE_NAV.LICENSE]),
   resource: PropTypes.shape({
     clusterName: PropTypes.string,
     nodes: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
