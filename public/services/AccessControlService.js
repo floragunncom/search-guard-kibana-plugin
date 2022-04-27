@@ -1,12 +1,10 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 export class AccessControlService {
-  constructor({ httpClient, authType = null }) {
+  constructor({ httpClient }) {
     this.httpClient = httpClient;
-    // @todo AuthType should be obsolete
-    this.authType = authType;
   }
 
-  logout({ logoutUrl = null } = {}) {
+  logout() {
     const basePath = this.httpClient.getBasePath();
 
     return this.httpClient.post('/api/v1/auth/logout').then(response => {

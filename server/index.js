@@ -21,51 +21,18 @@ import { DEFAULT_CONFIG } from './default_config';
 
 const {
   searchguard: {
-    openid: openidDefaults,
-    proxycache: proxycacheDefaults,
     cookie: cookieDefaults,
     auth: authDefaults,
     basicauth: basicauthDefaults,
     multitenancy: multitenancyDefaults,
-    jwt: jwtDefaults,
-    login: loginDefaults,
     ...searchguardDefaults
   } = {},
 } = DEFAULT_CONFIG;
 
-const getOpenIdSchema = (isSelectedAuthType) => {
-  return schema.object({
-    header: schema.string({ defaultValue: openidDefaults.header }),
-    client_id: isSelectedAuthType ? schema.string() : schema.maybe(schema.string()),
-    client_secret: schema.string({ defaultValue: openidDefaults.client_secret }),
-    scope: schema.string({ defaultValue: openidDefaults.scope }),
-    base_redirect_url: schema.string({ defaultValue: openidDefaults.base_redirect_url }),
-    logout_url: schema.string({ defaultValue: openidDefaults.logout_url }),
-    /* @deprecated */
-    connect_url: schema.maybe(schema.string()),
-    /* @deprecated */
-    root_ca: schema.string({ defaultValue: openidDefaults.root_ca }),
-    /* @deprecated */
-    verify_hostnames: schema.boolean({ defaultValue: openidDefaults.verify_hostnames }),
-  });
-};
-
-const getProxyCacheSchema = (isSelectedAuthType) => {
-  return schema.object({
-    user_header: isSelectedAuthType ? schema.string() : schema.maybe(schema.string()),
-    roles_header: isSelectedAuthType ? schema.string() : schema.maybe(schema.string()),
-    proxy_header: schema.string({ defaultValue: proxycacheDefaults.proxy_header }),
-    proxy_header_ip: isSelectedAuthType ? schema.string() : schema.maybe(schema.string()),
-    login_endpoint: schema.nullable(
-      schema.string({ defaultValue: proxycacheDefaults.login_endpoint })
-    ),
-  });
-};
-
 // @todo We need to go through all of these and double check the default values, nullable, allow empty string etc.
 export const ConfigSchema = schema.object({
   enabled: schema.boolean({ defaultValue: searchguardDefaults.enabled }),
-  
+
   sg_frontend_config_id: schema.string({ defaultValue: searchguardDefaults.sg_frontend_config_id }),
 
   frontend_base_url: schema.string({ defaultValue: searchguardDefaults.frontend_base_url }),
@@ -88,11 +55,6 @@ export const ConfigSchema = schema.object({
   cookie: schema.object({
     secure: schema.boolean({ defaultValue: cookieDefaults.secure }),
     name: schema.string({ defaultValue: cookieDefaults.name }),
-    // @todo How do we deprecate this without breaking changes
-    storage_cookie_name: schema.string({ defaultValue: cookieDefaults.storage_cookie_name }),
-    preferences_cookie_name: schema.string({
-      defaultValue: cookieDefaults.preferences_cookie_name,
-    }),
     password: schema.string({
       minLength: 32,
       defaultValue: cookieDefaults.password,
@@ -109,10 +71,6 @@ export const ConfigSchema = schema.object({
       { defaultValue: cookieDefaults.isSameSite }
     ),
   }),
-  session: schema.object({
-    ttl: schema.number({ min: 0, defaultValue: searchguardDefaults.session.ttl }),
-    keepalive: schema.boolean({ defaultValue: searchguardDefaults.session.keepalive }),
-  }),
 
   /**
    * General auth
@@ -120,14 +78,9 @@ export const ConfigSchema = schema.object({
   auth: schema.object({
     type: schema.oneOf(
       [
-        schema.literal(''),
-        schema.literal('basicauth'),
-        schema.literal('jwt'),
-        schema.literal('openid'),
-        schema.literal('saml'),
+        schema.literal('default'),
         schema.literal('proxy'),
         schema.literal('kerberos'),
-        schema.literal('proxycache'),
       ],
       { defaultValue: authDefaults.type }
     ),
@@ -135,15 +88,13 @@ export const ConfigSchema = schema.object({
     unauthenticated_routes: schema.arrayOf(schema.string(), {
       defaultValue: authDefaults.unauthenticated_routes,
     }),
-    logout_url: schema.string({ defaultValue: authDefaults.logout_url }),
     /*
       Caution: Enabling this may cause sensitive authentication information (e.g. credentials) to be logged
     */
     debug: schema.boolean({ defaultValue: authDefaults.debug }),
 
-  	jwt_param: schema.object({
+    jwt_param: schema.object({
     	enabled: schema.boolean({ defaultValue: authDefaults.jwt_param.enabled }),
-    	login_endpoint: schema.maybe(schema.string()),
     	url_param: schema.string({ defaultValue: authDefaults.jwt_param.url_param })
   	}),
   }),
@@ -156,38 +107,7 @@ export const ConfigSchema = schema.object({
       defaultValue: basicauthDefaults.forbidden_usernames,
     }),
     allowed_usernames: schema.nullable(schema.arrayOf(schema.string())),
-    header_trumps_session: schema.boolean({
-      defaultValue: basicauthDefaults.header_trumps_session,
-    }),
-    loadbalancer_url: schema.nullable(schema.string()),
-    alternative_login: schema.object({
-      headers: schema.arrayOf(schema.string(), {
-        defaultValue: basicauthDefaults.alternative_login.headers,
-      }),
-      show_for_parameter: schema.string({
-        defaultValue: basicauthDefaults.alternative_login.show_for_parameter,
-      }),
-      valid_redirects: schema.arrayOf(schema.string(), {
-        defaultValue: basicauthDefaults.alternative_login.valid_redirects,
-      }),
-      button_text: schema.string({ defaultValue: basicauthDefaults.alternative_login.button_text }),
-      buttonstyle: schema.string({ defaultValue: basicauthDefaults.alternative_login.buttonstyle }),
-    }),
-  }),
 
-  /**
-   * Login page
-   */
-  login: schema.object({
-    title: schema.string({ defaultValue: loginDefaults.title }),
-    subtitle: schema.string({
-      defaultValue: loginDefaults.subtitle,
-    }),
-    showbrandimage: schema.boolean({ defaultValue: loginDefaults.showbrandimage }),
-    brandimage: schema.string({
-      defaultValue: loginDefaults.brandimage,
-    }),
-    buttonstyle: schema.string({ defaultValue: loginDefaults.buttonstyle }),
   }),
 
   /**
@@ -298,20 +218,6 @@ export const ConfigSchema = schema.object({
     enabled: schema.boolean({ defaultValue: searchguardDefaults.accountinfo.enabled }),
   }),
 
-  openid: schema.conditional(
-    schema.siblingRef('auth.type'),
-    'openid',
-    getOpenIdSchema(true),
-    getOpenIdSchema(false)
-  ),
-
-  proxycache: schema.conditional(
-    schema.siblingRef('auth.type'),
-    'proxycache',
-    getProxyCacheSchema(true),
-    getProxyCacheSchema(false)
-  ),
-
   sgVersion: schema.string({ defaultValue: sgVersion }),
 });
 
@@ -324,15 +230,10 @@ export const config = {
     accountinfo: true,
     readonly_mode: true,
     sgVersion: true,
-    login: true,
   },
   schema: ConfigSchema,
   deprecations: ({ unusedFromRoot }) => {
-    return [
-      unusedFromRoot('searchguard.openid.verify_hostnames'),
-      unusedFromRoot('searchguard.openid.root_ca'),
-      unusedFromRoot('searchguard.openid.connect_url'),
-    ];
+    return [];
   },
 };
 

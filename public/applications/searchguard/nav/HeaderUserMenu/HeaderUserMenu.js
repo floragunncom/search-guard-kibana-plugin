@@ -94,10 +94,9 @@ export function HeaderUserMenu({ httpClient, configService }) {
     </>
   );
   const authType = configService.get('searchguard.auth.type');
-  const logoutUrl = configService.get('searchguard.auth.logout_url');
   const isAccountInfoEnabled = configService.get('searchguard.accountinfo.enabled');
   const uiHelpers = configService.get('uiHelpers');
-  const acService = new AccessControlService({ httpClient, authType });
+  const acService = new AccessControlService({ httpClient });
 
   const [isOpen, setIsOpen] = useState(false);
   const [appModal, setAppModal] = useState(APP_MODAL_DEFAULTS);
@@ -111,7 +110,7 @@ export function HeaderUserMenu({ httpClient, configService }) {
   }
 
   function logOut() {
-    acService.logout({ logoutUrl });
+    acService.logout();
   }
 
   function closeAppListModal() {
@@ -138,7 +137,6 @@ export function HeaderUserMenu({ httpClient, configService }) {
 
   const appList = [];
 
-  // @todo We need to update away from authType here most likely
   if ((uiHelpers.hasAuthCookie || userName === 'sg_anonymous') && authType !== 'kerberos' && authType !== 'proxy') {
     appList.push({
       label: userName !== 'sg_anonymous' ? logoutText : 'Login',

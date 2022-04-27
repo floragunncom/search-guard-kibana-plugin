@@ -23,25 +23,19 @@ export const DEFAULT_CONFIG = {
 	frontend_base_url: null,
     allow_client_certificates: false,
     readonly_mode: { enabled: true, roles: [] },
-    xff: { enabled: false },
+    xff: { enabled: true },
     cookie: {
       secure: false,
       password: 'searchguard_cookie_default_password',
       name: 'searchguard_authentication',
-      storage_cookie_name: 'searchguard_storage',
-      preferences_cookie_name: 'searchguard_preferences',
-      ttl: 3600000,
+      ttl: null,
       isSameSite: 'Lax',
     },
-    session: {
-      ttl: 3600000,
-      keepalive: true,
-    },
     auth: {
-      type: 'basicauth',
+      // @todo This is still being used in the FE, does it really work?
+      type: 'default',
       anonymous_auth_enabled: false,
       unauthenticated_routes: ['/api/status'],
-      logout_url: '',
       debug: false,
       jwt_param: {
         enabled: false,
@@ -51,23 +45,6 @@ export const DEFAULT_CONFIG = {
     basicauth: {
       forbidden_usernames: [],
       allowed_usernames: null,
-      header_trumps_session: false,
-      loadbalancer_url: null,
-      alternative_login: {
-        headers: [],
-        show_for_parameter: '',
-        valid_redirects: [],
-        button_text: 'Login with provider',
-        buttonstyle: '',
-      },
-    },
-    login: {
-      title: 'Please login to Kibana',
-      subtitle:
-        'If you have forgotten your username or password, please ask your system administrator',
-      showbrandimage: true,
-      brandimage: 'plugins/searchguard/assets/searchguard_logo.svg',
-      buttonstyle: '',
     },
     multitenancy: {
       enabled: false,
@@ -108,30 +85,6 @@ export const DEFAULT_CONFIG = {
     },
     accountinfo: {
       enabled: true,
-    },
-    openid: {
-      connect_url: undefined,
-      header: 'Authorization',
-      client_id: undefined,
-      client_secret: '',
-      scope: 'openid profile email address phone',
-      base_redirect_url: '',
-      logout_url: '',
-      root_ca: '',
-      verify_hostnames: true,
-    },
-    proxycache: {
-      user_header: undefined,
-      roles_header: undefined,
-      proxy_header: 'x-forwarded-for',
-      proxy_header_ip: undefined,
-      login_endpoint: null,
-    },
-    jwt: {
-      enabled: false,
-      login_endpoint: undefined,
-      url_param: 'authorization',
-      header: 'Authorization',
     },
     sgVersion,
   },
