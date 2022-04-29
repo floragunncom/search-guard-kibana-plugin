@@ -56,12 +56,6 @@ export class Kerberos {
     } catch (error) {
 		backendError = error.inner || error;
 
-		if (request.route.path === '/api/core/capabilities') {
-			return new KibanaResponse(307, undefined, {
-				headers: { location: this.basePath + '/api/v1/searchguard/kibana_capabilities' },
-			});
-		}
-
 		if (backendError && backendError.meta && backendError.meta.headers["www-authenticate"]) {
 			let authenticateHeader = backendError.meta.headers["www-authenticate"];
 			let parts = authenticateHeader.split(/\s*,\s*/);
