@@ -260,8 +260,11 @@ export class AuthManager {
       if (this.configService.get('searchguard.auth.anonymous_auth_enabled')) return toolkit.next();
 
       const authHeaders = await this.getAllAuthHeaders(request);
+      
+      console.error("XXX " + JSON.stringify(authHeaders));
+      console.error("XXX A " + JSON.stringify(request.headers.authorization));
 
-      if (authHeaders === false && !request.headers.authorization) {
+      if (authHeaders === false) {
         /*
         We need this redirect because Kibana calls the capabilities on our login page. The Kibana checks if there is the default space in the Kibana index.
         The problem is that the Kibana call is scoped to the current request. And the current request doesn't contain any credentials in the headers because the user hasn't been authenticated yet.
