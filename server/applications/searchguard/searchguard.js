@@ -93,6 +93,7 @@ export class SearchGuard {
           // that manipulates the request headers (e.g. MT)
           core.http.registerOnPreAuth(authManager.onPreAuth);
           core.http.registerAuth(authManager.checkAuth);
+          core.http.registerOnPostAuth(authManager.onPostAuth);
         }
       }
 
