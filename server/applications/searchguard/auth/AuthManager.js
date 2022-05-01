@@ -237,6 +237,10 @@ export class AuthManager {
     }
 
     if (isAjaxRequest) {
+      if (request.route.path === '/api/core/capabilities') {
+	    return toolkit.notHandled();
+      }
+	
       // If the session has expired, we may receive ajax requests that can't handle a 302 redirect.
       // In this case, we trigger a 401 and let the interceptor handle the redirect on the client side.
       return response.unauthorized({
@@ -252,31 +256,6 @@ export class AuthManager {
         location: loginPageURL,
       },
     });
-  };
-
-  // @todo Not needed for 7.10?
-  onPostAuth = async (request, response, toolkit) => {
-    if (request.route.path === '/api/core/capabilities') {      
-      if (this.configService.get('searchguard.auth.anonymous_auth_enabled')) return toolkit.next();
-
-      const authHeaders = await this.getAllAuthHeaders(request);
-
-      if (authHeaders === false && !request.headers.authorization) {
-        /*
-        We need this redirect because Kibana calls the capabilities on our login page. The Kibana checks if there is the default space in the Kibana index.
-        The problem is that the Kibana call is scoped to the current request. And the current request doesn't contain any credentials in the headers because the user hasn't been authenticated yet.
-        As a result, the call fails with 401, and the user sees the Kibana error page instead of our login page.
-        We flank this issue by redirecting the Kibana call to our route /api/v1/searchguard/kibana_capabilities where we serve some
-        minimum amount of capabilities. We expect that Kibana fetches the capabilities again once the user logged in.
-        */
-        // The payload is passed together with the redirect despite of the undefined here
-        return new KibanaResponse(307, undefined, {
-          headers: { location: this.basePath + '/api/v1/searchguard/kibana_capabilities' },
-        });
-      }
-    }
-
-    return toolkit.next();
   };
 
   getNextUrl(request) {
