@@ -266,31 +266,33 @@ export default class AuthType {
   };
 
   async getCookieWithCredentials(request) {
-    let sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
-
     const authHeaderCredentials = await this.detectCredentialsByRequest({ request });
     if (authHeaderCredentials) {
       try {
         this.debugLog('Got auth header credentials, trying to authenticate');
         const { session } = await this.handleAuthenticate(request, authHeaderCredentials);
-        sessionCookie = session;
+        return session;
       } catch (error) {
         this.logger.error(`Got auth header credentials, but authentication failed: ${error.stack}`);
-        throw error;
+        // Fall through
       }
-    } else if (sessionCookie.credentials) {
+    } 
+
+    let sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+
+    if (sessionCookie.credentials) {
       try {
-        sessionCookie = await this.validateSessionCookie(request, sessionCookie);
+        return await this.validateSessionCookie(request, sessionCookie);
       } catch (error) {
         // We can return early here. Even if we have valid request headers,
         // the cookie would have been updated in the validator.
         // Logging this as info since it isn't really an error, but just a part of the flow.
         this.logger.info(`Got credentials, but the validation failed: ${error.stack}`);
-        throw error;
+        // Fall through
       }
-    } else {
-      // No (valid) cookie, we need to check for headers
-    }
+    } 
+
+    // No (valid) cookie, we need to check for headers
 
     return sessionCookie;
   }
