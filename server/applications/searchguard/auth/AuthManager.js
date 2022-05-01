@@ -143,6 +143,7 @@ export class AuthManager {
    * @returns {Promise<*>}
    */
   onPreAuth = async (request, response, toolkit) => {
+	try {
     if (request.headers.authorization) {
       const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
       const authInstance = await this.getAuthInstanceByCookie({ request });
@@ -154,6 +155,10 @@ export class AuthManager {
       }
     }
     return toolkit.next();
+} catch (e) {
+	console.log("#### ", e);
+	throw e;
+}
   };
 
   checkAuth = async (request, response, toolkit) => {

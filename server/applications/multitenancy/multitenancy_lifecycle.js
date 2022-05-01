@@ -37,6 +37,7 @@ export class MultitenancyLifecycle {
   }
 
   onPreAuth = async (request, response, toolkit) => {
+	try {
     let authHeaders = request.headers;
 	let sessionCookie;
 
@@ -70,6 +71,10 @@ export class MultitenancyLifecycle {
     }
 
     return toolkit.next();
+} catch (e) {
+	console.error("### mt ", e);
+	throw e;
+}
   };
 
   isRelevantPath = (request) => {
