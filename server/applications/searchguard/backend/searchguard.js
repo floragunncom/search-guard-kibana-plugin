@@ -200,6 +200,25 @@ export default class SearchGuardBackend {
     }
   };
 
+  createSessionWithHeaders = async (headers, additionalAuthHeaders = {}) => {
+    headers = {
+      ...additionalAuthHeaders,
+      ...headers
+    };
+
+    try {
+	  return await this._client({
+        path: '/_searchguard/auth/session/with_header',
+        method: 'POST',
+        headers,
+      });
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+
+
   buildSessionResponse(credentials, authInfoResponse) {
     return new User(
       authInfoResponse.user_name,

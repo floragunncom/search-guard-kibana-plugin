@@ -26,11 +26,14 @@ export class Kerberos {
     this.searchGuardBackend = props.searchGuardBackend;
     this.authDebugEnabled = this.config.get('searchguard.auth.debug');
     this.basePath = props.basePath ? props.basePath : "/";
+    this.sessionStorageFactory = props.sessionStorageFactory;
   }
 
   // See the Negotiate Operation Example for the authentication flow details
   // https://tools.ietf.org/html/rfc4559#section-5
-  async authenticateWithSPNEGO(request, response, toolkit) {
+
+  
+  async authenticateWithSPNEGO(request, response, toolkit, sessionCookie) {
     let backendError;
 
     try {
@@ -46,13 +49,29 @@ export class Kerberos {
 
       // Validate the request.
       // The headers.authorization may hold SPNEGO GSSAPI token or basic auth credentials.
-      const authInfo = await this.searchGuardBackend.authenticateWithHeaders(headers);
+      const createSessionResponse = await this.searchGuardBackend.createSessionWithHeaders(headers);
 
       if (this.authDebugEnabled) {
-        this.logger.debug(`Authenticated: ${JSON.stringify(authInfo, null, 2)}.`);
+        this.logger.debug(`Authenticated: ${JSON.stringify(createSessionResponse, null, 2)}.`);
       }
 
-      return toolkit.authenticated();
+      const authHeaders = {authorization: 'Bearer ' + createSessionResponse.token};
+
+      const user = await this.searchGuardBackend.authenticateWithHeader(
+        "authorization",
+        authHeaders.authorization
+      );
+
+      sessionCookie.username = user.username;
+      sessionCookie.credentials = {
+        authHeaderValue: authHeaders.authorization,
+      };
+
+      await this.sessionStorageFactory.asScoped(request).set(sessionCookie);
+
+      return toolkit.authenticated({
+        requestHeaders: authHeaders,
+      });
     } catch (error) {
 		backendError = error.inner || error;
 
@@ -79,6 +98,84 @@ export class Kerberos {
   }
 
   checkAuth = async (request, response, toolkit) => {
-    return this.authenticateWithSPNEGO(request, response, toolkit);
+	const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+    
+	if (sessionCookie.credentials && sessionCookie.credentials.authHeaderValue) {
+       const headers = {authorization: sessionCookie.credentials.authHeaderValue};
+
+       try {
+          const authInfoResponse = await this.searchGuardBackend.authinfo(headers);
+       } catch (e) {
+          return this.authenticateWithSPNEGO(request, response, toolkit, sessionCookie);
+       }
+
+       return toolkit.authenticated({
+        requestHeaders: headers,
+       });
+    }
+
+    return this.authenticateWithSPNEGO(request, response, toolkit, sessionCookie);
   };
+  
+  async getCookieWithCredentials(request) {
+    const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
+    
+    if (sessionCookie.credentials && sessionCookie.credentials.authHeaderValue) {
+       const headers = {authorization: sessionCookie.credentials.authHeaderValue};
+
+       try {
+          const authInfoResponse = await this.searchGuardBackend.authinfo(headers);
+       } catch (e) {
+          return this.authenticateWithSPNEGOtoCookie(request, sessionCookie);
+       }
+
+       return sessionCookie;
+    }
+
+    return this.authenticateWithSPNEGOtoCookie(request, sessionCookie);
+  }
+  
+  async authenticateWithSPNEGOtoCookie(request, sessionCookie) {
+    try {     
+      const headers = {};
+      if (request.headers.authorization) {
+        headers.authorization = request.headers.authorization;
+      }
+
+      // Validate the request.
+      // The headers.authorization may hold SPNEGO GSSAPI token or basic auth credentials.
+      const createSessionResponse = await this.searchGuardBackend.createSessionWithHeaders(headers);
+
+      if (this.authDebugEnabled) {
+        this.logger.debug(`Authenticated: ${JSON.stringify(createSessionResponse, null, 2)}.`);
+      }
+
+      const authHeaders = {authorization: 'Bearer ' + createSessionResponse.token};
+
+      const user = await this.searchGuardBackend.authenticateWithHeader(
+        "authorization",
+        authHeaders.authorization
+      );
+
+      sessionCookie.username = user.username;
+      sessionCookie.credentials = {
+        authHeaderValue: authHeaders.authorization,
+      };
+      
+      return sessionCookie;
+    } catch (error) {
+       console.error(error);
+       return sessionCookie;
+    }
+  }   
+  
+  getAuthHeader(session) {
+    if (session.credentials && session.credentials.authHeaderValue) {
+      return {
+        authorization: session.credentials.authHeaderValue,
+      };
+    }
+
+    return false;
+  }  
 }

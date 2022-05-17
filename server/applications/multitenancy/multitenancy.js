@@ -28,6 +28,7 @@ export class Multitenancy {
 
   async setup({
     authManager,
+    kerberos,
     kibanaCore,
     sessionStorageFactory,
     pluginDependencies,
@@ -49,6 +50,7 @@ export class Multitenancy {
 
       const multitenancyLifecycle = new MultitenancyLifecycle({
         authManager,
+        kerberos,
         searchGuardBackend,
         configService,
         sessionStorageFactory,

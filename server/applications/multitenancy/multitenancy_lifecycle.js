@@ -20,6 +20,7 @@ import { ensureRawRequest } from '../../../../../src/core/server/http/router';
 export class MultitenancyLifecycle {
   constructor({
     authManager,
+    kerberos,
     searchGuardBackend,
     configService,
     sessionStorageFactory,
@@ -34,6 +35,7 @@ export class MultitenancyLifecycle {
     this.logger = logger;
     this.clusterClient = clusterClient;
     this.pluginDependencies = pluginDependencies;
+    this.kerberos = kerberos;
   }
 
   onPreAuth = async (request, response, toolkit) => {
@@ -48,10 +50,12 @@ export class MultitenancyLifecycle {
 			  authHeaders = authInstance.getAuthHeader(sessionCookie);
 		  } else {
 			  sessionCookie = await this.sessionStorageFactory.asScoped(request).get();
-
 		  }
+    } else if (this.kerberos) {
+       sessionCookie = await this.kerberos.getCookieWithCredentials(request);
+       authHeaders = this.kerberos.getAuthHeader(sessionCookie);        
     } else {
-		  sessionCookie = await this.sessionStorageFactory.asScoped(request).get();
+       sessionCookie = await this.sessionStorageFactory.asScoped(request).get();
 	}
 
     const selectedTenant = await this.getSelectedTenant({
