@@ -74,17 +74,20 @@ export class SearchGuard {
       const authType = configService.get('searchguard.auth.type', null);
 
       let authManager = null;
+      let kerberos = null;
 
       // Handle Kerberos separately because we don't want to bring up entire jungle from AuthType here.
       if (authType === 'kerberos') {
-        core.http.registerAuth(
-          new Kerberos({
+        kerberos = new Kerberos({
             pluginDependencies,
             config: configService,
             searchGuardBackend,
             logger: this.coreContext.logger.get('searchguard-kerberos-auth'),
             basePath: core.http.basePath.get(),
-          }).checkAuth
+            sessionStorageFactory: sessionStorageFactory,
+          });
+        core.http.registerAuth(
+          kerberos.checkAuth
         );
       } else if (authType !== 'proxy') {
         authManager = new AuthManager({
@@ -167,7 +170,7 @@ export class SearchGuard {
         });
       }
 
-      return { authManager, sessionStorageFactory };
+      return { authManager, sessionStorageFactory, kerberos };
     } catch (error) {
       this.logger.error(error);
       throw error;

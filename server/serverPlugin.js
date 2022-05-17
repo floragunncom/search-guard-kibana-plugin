@@ -104,7 +104,7 @@ export class ServerPlugin {
         tenantService,
       });
 
-      const { authManager, sessionStorageFactory } = await this.searchGuardApp.setup({
+      const { authManager, sessionStorageFactory, kerberos } = await this.searchGuardApp.setup({
         core,
         pluginDependencies,
         configService,
@@ -128,6 +128,7 @@ export class ServerPlugin {
         this.multiTenancyApp.setup({
           kibanaRouter: this.kibanaRouter,
           authManager,
+          kerberos,
           kibanaCore: core,
           sessionStorageFactory,
           pluginDependencies,
