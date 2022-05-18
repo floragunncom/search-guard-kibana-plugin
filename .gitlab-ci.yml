@@ -6,14 +6,14 @@ variables:
   SF_REPO_URL: "https://github.com/elastic/kibana.git"
   SF_REPO_DIR: $SF_PRODUCT
   SB_PRODUCT: elasticsearch
-  SG_SB_PLUGIN_SNAPSHOT_REPO: search-guard-suite-snapshot
-  SG_SB_PLUGIN_STAGING_REPO: search-guard-suite-staging
-  SG_SB_PLUGIN_RELEASE_REPO: search-guard-suite-release
+  SG_SB_PLUGIN_SNAPSHOT_REPO: search-guard-flx-snapshot
+  SG_SB_PLUGIN_STAGING_REPO: search-guard-flx-staging
+  SG_SB_PLUGIN_RELEASE_REPO: search-guard-flx-release
   SG_SF_PLUGIN_SNAPSHOT_REPO: search-guard-kibana-plugin-snapshot
   SG_SF_PLUGIN_STAGING_REPO: search-guard-kibana-plugin-staging
   SG_SF_PLUGIN_RELEASE_REPO: search-guard-kibana-plugin-release
   SG_SF_PLUGIN_NAME: search-guard-kibana-plugin
-  SG_SB_PLUGIN_NAME: search-guard-suite-plugin
+  SG_SB_PLUGIN_NAME: search-guard-flx-elasticsearch-plugin
   NODE_VERSION: 16.13.0
 
 image: circleci/openjdk:${SG_JAVA_BUILD_VERSION}-jdk-browsers
