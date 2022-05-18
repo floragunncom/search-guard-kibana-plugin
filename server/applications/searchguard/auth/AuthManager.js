@@ -146,6 +146,7 @@ export class AuthManager {
    * @returns {Promise<*>}
    */
   onPreAuth = async (request, response, toolkit) => {
+    try {
     if (request.headers.authorization) {
       const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
       const authInstance = await this.getAuthInstanceByCookie({ request });
@@ -157,9 +158,14 @@ export class AuthManager {
       }
     }
     return toolkit.next();
+    } catch (e) {
+        console.error(e);
+        throw e;
+    }
   };
 
   checkAuth = async (request, response, toolkit) => {
+    try {
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
 
     if (request.headers.authorization) {
@@ -255,10 +261,15 @@ export class AuthManager {
         location: loginPageURL,
       },
     });
+     } catch (e) {
+        console.error(e);
+        throw e;
+    }
   };
 
   // @todo Not needed for 7.10?
   onPostAuth = async (request, response, toolkit) => {
+    try {
     if (request.route.path === '/api/core/capabilities') {      
       if (this.configService.get('searchguard.auth.anonymous_auth_enabled')) return toolkit.next();
 
@@ -280,6 +291,10 @@ export class AuthManager {
     }
 
     return toolkit.next();
+     } catch (e) {
+        console.error(e);
+        throw e;
+    }
   };
 
   getNextUrl(request) {
