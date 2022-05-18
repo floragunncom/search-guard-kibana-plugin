@@ -15,13 +15,12 @@
 		<artifactId>search-guard-parent</artifactId>
 		<version>6.22.0</version>
 	</parent>
-	<groupId>com.floragunn</groupId>
-	<artifactId>search-guard-kibana-plugin</artifactId>
+	<artifactId>search-guard-flx-kibana-plugin</artifactId>
 	<packaging>pom</packaging>
 	<version>${revision}</version>
-	<name>Search Guard Kibana Plugin</name>
-	<description>Search Guard Kibana Plugin for Elasticsearch</description>
-	<url>https://github.com/floragunncom/search-guard</url>
+	<name>Search Guard FLX Plugin for Kibana</name>
+	<description>Provides Search Guard based authentication to Kibana</description>
+	<url>https://git.floragunn.com/search-guard/search-guard-kibana-plugin</url>
 	<inceptionYear>2016</inceptionYear>
 	<licenses>
 		<license>
@@ -47,12 +46,12 @@
 		<snapshotRepository>
 			<id>snapshots</id>
 			<name>snapshots</name>
-			<url>https://maven.search-guard.com:443/search-guard-kibana-plugin-snapshot</url>
+			<url>https://maven.search-guard.com:443/search-guard-flx-snapshot</url>
 		</snapshotRepository>
 		<repository>
 			<id>release</id>
 			<name>releases</name>
-			<url>https://maven.search-guard.com:443/search-guard-suite-alpha</url>
+			<url>https://maven.search-guard.com:443/search-guard-flx-release</url>
 		</repository>
 	</distributionManagement>
 	<build>
