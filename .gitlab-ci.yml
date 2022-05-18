@@ -9,10 +9,10 @@ variables:
   SG_SB_PLUGIN_SNAPSHOT_REPO: search-guard-flx-snapshot
   SG_SB_PLUGIN_STAGING_REPO: search-guard-flx-staging
   SG_SB_PLUGIN_RELEASE_REPO: search-guard-flx-release
-  SG_SF_PLUGIN_SNAPSHOT_REPO: search-guard-kibana-plugin-snapshot
-  SG_SF_PLUGIN_STAGING_REPO: search-guard-kibana-plugin-staging
-  SG_SF_PLUGIN_RELEASE_REPO: search-guard-kibana-plugin-release
-  SG_SF_PLUGIN_NAME: search-guard-kibana-plugin
+  SG_SF_PLUGIN_SNAPSHOT_REPO: search-guard-flx-snapshot
+  SG_SF_PLUGIN_STAGING_REPO: search-guard-flx-staging
+  SG_SF_PLUGIN_RELEASE_REPO: search-guard-flx-release
+  SG_SF_PLUGIN_NAME: search-guard-flx-kibana-plugin
   SG_SB_PLUGIN_NAME: search-guard-flx-elasticsearch-plugin
   NODE_VERSION: 14.17.3
 
@@ -28,7 +28,7 @@ before_script:
   - |
     source ci/utils.sh
     if [ -d $SF_REPO_DIR ]; then du --summarize -h $SF_REPO_DIR; fi
-    if [[ $CI_COMMIT_TAG =~ ^sg-([a-z0-9\.]+)-([oe]s)-([0-9\.]+)$ ]]; then
+    if [[ $CI_COMMIT_TAG =~ ^sg-flx-([a-z0-9\.]+)-([oe]s)-([0-9\.]+)$ ]]; then
       export SG_SF_PLUGIN_VERSION=${BASH_REMATCH[1]}
       export BUILD_VERSION="${BASH_REMATCH[1]}-${BASH_REMATCH[2]}-${BASH_REMATCH[3]}"
       export SF_VERSION=${BASH_REMATCH[3]}
