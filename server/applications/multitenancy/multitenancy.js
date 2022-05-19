@@ -70,7 +70,7 @@ export class Multitenancy {
         spacesService,
         tenantService,
       });
-     // kibanaCore.http.registerOnPreAuth(multitenancyLifecycle.onPreAuth);
+      kibanaCore.http.registerOnPreAuth(multitenancyLifecycle.onPreAuth);
 
       defineMultitenancyRoutes({
         router: kibanaRouter,
