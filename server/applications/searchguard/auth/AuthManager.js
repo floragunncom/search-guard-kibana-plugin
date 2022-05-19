@@ -171,10 +171,10 @@ export class AuthManager {
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
 
     if (request.headers.authorization) {
-                console.error("checkAuth 1a " + request.url.pathname + " " + JSON.stringify(request.headers.authorization));
+                console.error("checkAuth 1a " + request.url.pathname + " " + JSON.stringify(request.headers) );
 
       return toolkit.authenticated({
-        requestHeaders: request.headers,
+        requestHeaders: { authorization: request.headers.authorization },
       });
     }
 
@@ -192,7 +192,7 @@ export class AuthManager {
               console.error("checkAuth 1c " + request.url.pathname);
 
       return toolkit.authenticated({
-        requestHeaders: request.headers,
+        requestHeaders: { },
       });
     }
 
@@ -216,7 +216,7 @@ export class AuthManager {
                 console.error("checkAuth 2a " + request.url.pathname);
         
       return toolkit.authenticated({
-        requestHeaders: request.headers,
+        requestHeaders: { },
       });
     }
 
