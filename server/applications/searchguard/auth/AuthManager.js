@@ -161,7 +161,7 @@ export class AuthManager {
 
     if (request.headers.authorization) {
       return toolkit.authenticated({
-        requestHeaders: request.headers,
+        requestHeaders: { authorization: request.headers.authorization },
       });
     }
 
@@ -175,7 +175,6 @@ export class AuthManager {
       // Until now, we got the kibana server user here, but those credentials were
       // not really used, it seems
       return toolkit.authenticated({
-        requestHeaders: request.headers,
       });
     }
 
@@ -192,7 +191,6 @@ export class AuthManager {
       this.configService.get('searchguard.auth.anonymous_auth_enabled')
     ) {
       return toolkit.authenticated({
-        requestHeaders: request.headers,
       });
     }
 
