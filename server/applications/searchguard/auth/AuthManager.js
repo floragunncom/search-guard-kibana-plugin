@@ -154,6 +154,7 @@ export class AuthManager {
         // In case we already had a session BEFORE we encountered a request
         // with auth headers, we may need to clear the cookie.
         // Make sure to clear any auth related cookie info if we detect a different header
+        console.error("onPreAuth clear");
         await authInstance.clear(request, true);
       }
     }
@@ -166,9 +167,12 @@ export class AuthManager {
 
   checkAuth = async (request, response, toolkit) => {
     try {
+        console.error("checkAuth 1 " + request.url.pathname);
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
 
     if (request.headers.authorization) {
+                console.error("checkAuth 1a " + request.url.pathname);
+
       return toolkit.authenticated({
         requestHeaders: request.headers,
       });
@@ -176,6 +180,8 @@ export class AuthManager {
 
     if (this.routesToIgnore.includes(request.url.pathname)) {
       // Change back after everything has been implemented
+              console.error("checkAuth 1b " + request.url.pathname);
+
       return toolkit.notHandled();
     }
 
@@ -183,6 +189,8 @@ export class AuthManager {
       // If we do this, we don't really assign any relevant headers
       // Until now, we got the kibana server user here, but those credentials were
       // not really used, it seems
+              console.error("checkAuth 1c " + request.url.pathname);
+
       return toolkit.authenticated({
         requestHeaders: request.headers,
       });
@@ -190,8 +198,13 @@ export class AuthManager {
 
     const authInstanceByRequest = await this.getAuthInstanceByRequest({ request });
     if (authInstanceByRequest) {
+                console.error("checkAuth 1d " + request.url.pathname + " " + authInstanceByRequest);
+
       return authInstanceByRequest.checkAuth(request, response, toolkit);
     }
+
+
+        console.error("checkAuth 2 " + request.url.pathname);
 
     // @todo This way of handling anonymous auth unfortunately
     // doesn't provide a good way of showing an error message
@@ -200,6 +213,8 @@ export class AuthManager {
       !sessionCookie.authType &&
       this.configService.get('searchguard.auth.anonymous_auth_enabled')
     ) {
+                console.error("checkAuth 2a " + request.url.pathname);
+        
       return toolkit.authenticated({
         requestHeaders: request.headers,
       });
@@ -270,6 +285,8 @@ export class AuthManager {
   // @todo Not needed for 7.10?
   onPostAuth = async (request, response, toolkit) => {
     try {
+                console.error("onPostAuth 1 " + request.url.pathname);
+
     if (request.route.path === '/api/core/capabilities') {      
       if (this.configService.get('searchguard.auth.anonymous_auth_enabled')) return toolkit.next();
 

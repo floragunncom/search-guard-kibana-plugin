@@ -207,6 +207,8 @@ export default class AuthType {
   async onUnAuthenticated(request, response, toolkit, error = null) {
     const redirectTo = await this.getRedirectTargetForUnauthenticated(request, error);
 
+                console.error("AuthType.onUnAuthenticated 2 " + this.type + " " + request.url.pathname);
+
     return response.redirected({
       headers: {
         location: `${redirectTo}`,
@@ -241,6 +243,9 @@ export default class AuthType {
    * @private
    */
   _handleUnAuthenticated = async (request, response, toolkit, error = null) => {
+    try {
+                console.error("AuthType._handleUnAuthenticated 1 " + this.type + " " + request.url.pathname);
+
     if (request.headers) {
       // If the session has expired, we may receive ajax requests that can't handle a 302 redirect.
       // In this case, we trigger a 401 and let the interceptor handle the redirect on the client side.
@@ -266,7 +271,14 @@ export default class AuthType {
         });
       }
     }
+                    console.error("AuthType._handleUnAuthenticated 2 " + this.type + " " + request.url.pathname);
+
+    
     return this.onUnAuthenticated(request, response, toolkit, error);
+    } catch (e) {
+        console.error(e);
+        throw e;
+    }
   };
 
   async getCookieWithCredentials(request) {
@@ -288,6 +300,7 @@ export default class AuthType {
       try {
         return await this.validateSessionCookie(request, sessionCookie);
       } catch (error) {
+        console.error(error);
         // We can return early here. Even if we have valid request headers,
         // the cookie would have been updated in the validator.
         // Logging this as info since it isn't really an error, but just a part of the flow.
@@ -331,13 +344,17 @@ export default class AuthType {
   };
 
   checkAuth = async (request, response, toolkit) => {
+    console.error("AuthType.checkAuth " + this.type + " " + request.url.pathname);
     let sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
 
     try {
       sessionCookie = await this.getCookieWithCredentials(request);
     } catch (error) {
+        console.error("AuthType.checkAuth 1a ", error);
       return this._handleUnAuthenticated(request, response, toolkit, error);
     }
+
+        console.error("AuthType.checkAuth 2 " + this.type + " " + request.url.pathname);
 
     if (sessionCookie.credentials) {
       const authHeaders = await this.getAllAuthHeaders(request, sessionCookie);
@@ -354,10 +371,14 @@ export default class AuthType {
         await this.spacesService.createDefaultSpace({ request: { headers: authHeaders } });
       }
 
+        console.error("AuthType.checkAuth 2a " + this.type + " " + request.url.pathname);
+
       return toolkit.authenticated({
         requestHeaders: authHeaders,
       });
     }
+
+        console.error("AuthType.checkAuth 3 " + this.type + " " + request.url.pathname);
 
     return this._handleUnAuthenticated(request, response, toolkit);
   };
@@ -408,11 +429,12 @@ export default class AuthType {
    * @returns {Promise<boolean|*>}
    */
   async getAllAuthHeaders(request, sessionCookie = null) {
+    try {
     if (!sessionCookie) {
       try {
         sessionCookie = await this.getCookieWithCredentials(request);
       } catch (error) {
-        this.logger.info(`Getting all auth headers failed: ${error.stack}`);
+        console.error(`Getting all auth headers failed: ${error.stack}`, error);
       }
     }
 
@@ -428,6 +450,10 @@ export default class AuthType {
     }
 
     return false;
+    } catch (e) {
+        console.error(e);
+        throw e;
+    }
   }
 
   /**
