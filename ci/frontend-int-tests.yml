@@ -135,6 +135,8 @@ fe_kerberos:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: on_success
+    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
+      when: on_success      
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
   variables:
@@ -195,8 +197,12 @@ fe_kerberos:
        echo "export KIBANA_VERSION=${TEST_KI_VERSION}"  >> $CI_PROJECT_DIR/environment.env
        echo "export KI_URL=https://artifacts.elastic.co/downloads/kibana/kibana-$TEST_KI_VERSION-linux-x86_64.tar.gz"
        echo "export KI_SNAPSHOT=${TEST_SG_KI_PLUGIN}"  >> $CI_PROJECT_DIR/environment.env
-       echo "export KI_SOURCE=snapshot" >> $CI_PROJECT_DIR/environment.env
        echo "export KI_PLUGIN_VERSION=whatever" >> environment.env
+       if [[ "$TEST_SG_KI_PLUGIN" =~ .*staging.* ]]; then
+         echo "export KI_SOURCE=staging" >> $CI_PROJECT_DIR/environment.env
+       else
+         echo "export KI_SOURCE=snapshot" >> $CI_PROJECT_DIR/environment.env
+       fi          
        cat environment.env
        echo "============================================="
        . ./environment.env

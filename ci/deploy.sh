@@ -1,9 +1,11 @@
 #!/bin/bash
  
 set -e
+set -x
  
 if [[ "$1" == "staging" ]]; then
-   MVN_DEPLOY_OPTS="-DaltDeploymentRepository=staging::default::https://maven.search-guard.com:443/search-guard-suite-staging -Prelease"
+   MVN_DEPLOY_OPTS="-DaltDeploymentRepository=staging::default::https://maven.search-guard.com:443/search-guard-flx-staging -Prelease"
+   ci/setup_gpg.sh
 else
    MVN_DEPLOY_OPTS=""
 fi
@@ -29,6 +31,13 @@ fi
 if [ -z "$ES_VERSION" ]; then
   ES_VERSION=$SF_VERSION
 fi
+if [ -z "$SG_ES_PLUGIN" ] && [ "$1" == "staging" ]; then
+  SG_ES_PLUGIN="$ES_VERSION-*"
+fi
+if [ -z "$SG_ADMIN" ] && [ "$1" == "staging" ]; then
+  SG_ADMIN="$ES_VERSION-*"
+fi
+
 if [[ ! "$SG_ES_PLUGIN" =~ ^https?:.*$ ]]; then
   if [[ "$SG_ES_PLUGIN" =~ .*SNAPSHOT.* ]]; then
     SG_ES_PLUGIN=$(ci/artifact_uri.sh $SG_SB_PLUGIN_SNAPSHOT_REPO $SG_SB_PLUGIN_NAME $SG_ES_PLUGIN .zip sgadmin-standalone.zip)
@@ -37,7 +46,7 @@ if [[ ! "$SG_ES_PLUGIN" =~ ^https?:.*$ ]]; then
     SG_ES_PLUGIN=$(ci/artifact_uri.sh $SG_SB_PLUGIN_RELEASE_REPO $SG_SB_PLUGIN_NAME $SG_ES_PLUGIN .zip sgadmin-standalone.zip)
     echo "Found: $SG_ES_PLUGIN"
   fi
-fi	
+fi  
 if [[ ! "$SG_ADMIN" =~ ^https?:.*$ ]]; then
   if [[ "$SG_ADMIN" =~ .*SNAPSHOT.* ]]; then
     SG_ADMIN=$(ci/artifact_uri.sh $SG_SB_PLUGIN_SNAPSHOT_REPO $SG_SB_PLUGIN_NAME $SG_ADMIN sgadmin-standalone.zip)
@@ -46,7 +55,7 @@ if [[ ! "$SG_ADMIN" =~ ^https?:.*$ ]]; then
     SG_ADMIN=$(ci/artifact_uri.sh $SG_SB_PLUGIN_RELEASE_REPO $SG_SB_PLUGIN_NAME $SG_ADMIN sgadmin-standalone.zip)
     echo "Found: $SG_ADMIN"
   fi
-fi	
+fi  
 
 echo "SG_ES_PLUGIN=$SG_ES_PLUGIN" >> build.env
 echo "SG_ADMIN=$SG_ADMIN" >> build.env
