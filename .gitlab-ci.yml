@@ -117,14 +117,6 @@ build_release:
       sed -i -e "s#\"version\":.*\"#\"version\": \"$BUILD_VERSION\"#" package.json
       source ci/install_dependencies.sh
       source ci/init_build.sh
-      cd $SF_REPO_DIR/plugins/search-guard
-      rm -rf "node_modules"
-      echo -e "\e[0Ksection_start:`date +%s`:yarn_install\r\e[0KDoing yarn install --production"
-      yarn install --production 
-      echo -e "\e[0Ksection_end:`date +%s`:yarn_install\r\e[0K"
-      echo -e "\e[0Ksection_start:`date +%s`:yarn_build\r\e[0KDoing yarn build -v $SF_VERSION --skip-archive"
-      yarn build -v $SF_VERSION --skip-archive
-      echo -e "\e[0Ksection_end:`date +%s`:yarn_build\r\e[0K"
       start_section tests "Unit Tests"
       cd $SF_REPO_DIR/plugins/search-guard
       export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-server.xml
@@ -132,6 +124,15 @@ build_release:
       export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-public.xml
       ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=public  --config ./tests/jest.config.js --reporters="jest-junit" --reporters="default"
       end_section tests
+      rm -rf "node_modules"
+      start_section build "Building Search Guard Plugin"
+      start_section yarn_install "Doing yarn install --production"
+      yarn install --production
+      end_section yarn_install       
+      start_section yarn_build "Doing yarn build -v $SF_VERSION --skip-archive"
+      yarn build -v $SF_VERSION --skip-archive
+      end_section yarn_build
+      end_section build
       cd $CI_PROJECT_DIR
       rm -rf build
       mv $SF_REPO_DIR/plugins/search-guard/build build
