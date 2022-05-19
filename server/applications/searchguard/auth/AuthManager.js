@@ -171,7 +171,7 @@ export class AuthManager {
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
 
     if (request.headers.authorization) {
-                console.error("checkAuth 1a " + request.url.pathname);
+                console.error("checkAuth 1a " + request.url.pathname + " " + JSON.stringify(request.headers.authorization));
 
       return toolkit.authenticated({
         requestHeaders: request.headers,
