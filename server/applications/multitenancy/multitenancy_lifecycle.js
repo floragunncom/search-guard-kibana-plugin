@@ -45,12 +45,19 @@ export class MultitenancyLifecycle {
     let authHeaders = request.headers;
 	let sessionCookie;
 
+    console.error("pre " + this.authManager);
+
 	if (this.authManager) {
 		  const authInstance = await this.authManager.getAuthInstanceByRequest({ request });
+
+            console.error("ai " + authInstance);
 
 		  if (authInstance) {
 			  sessionCookie = await authInstance.getCookieWithCredentials(request);
 			  authHeaders = authInstance.getAuthHeader(sessionCookie);
+              
+                          console.error("ah " + JSON.stringify(authHeaders));
+
 		  } else {
 			  sessionCookie = await this.sessionStorageFactory.asScoped(request).get();
 		  }
@@ -67,6 +74,8 @@ export class MultitenancyLifecycle {
       sessionCookie,
     });
 
+    console.error("st " + selectedTenant);
+
     if (selectedTenant !== null) {
       const rawRequest = ensureRawRequest(request);
       assign(rawRequest.headers, authHeaders, { sgtenant: selectedTenant || '' });
@@ -78,6 +87,9 @@ export class MultitenancyLifecycle {
         await this.spacesService.createDefaultSpace({ request, selectedTenant });
       }
     }
+    
+        console.error("next");
+
 
     return toolkit.next();
      } catch (e) {
