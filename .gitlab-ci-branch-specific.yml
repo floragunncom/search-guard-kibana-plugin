@@ -1,5 +1,5 @@
 variables:
   IT_BRANCH: "7.16.x"
   ES_VERSION: "7.16.3"
-  SG_ES_PLUGIN: "b-sg-flx-1.0.0-beta-es-7.16.3-SNAPSHOT"
-  SG_ADMIN: "b-sg-flx-1.0.0-beta-es-7.16.3-SNAPSHOT"
+  SG_ES_PLUGIN: "sg-flx-1.0.0-beta-1-es-7.16.3"
+  SG_ADMIN: "sg-flx-1.0.0-beta-1-es-7.16.3"
