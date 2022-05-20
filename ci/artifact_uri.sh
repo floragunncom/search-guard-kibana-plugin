@@ -17,6 +17,7 @@ else
 fi
 
 if [ -z $METADATA_URI ] | [ "$METADATA_URI" = "null" ]; then
+  echo "Could not find artifact $1 $2 $3 $4 $5" >&2 
   exit 1
 fi
 
