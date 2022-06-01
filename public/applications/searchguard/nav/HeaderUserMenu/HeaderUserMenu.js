@@ -137,9 +137,11 @@ export function HeaderUserMenu({ httpClient, configService }) {
 
   const appList = [];
 
-  if ((uiHelpers.hasAuthCookie || userName === 'sg_anonymous') && authType !== 'kerberos' && authType !== 'proxy') {
+  if (authType === 'default') {
+    // The logout link will display "Login" if the current user is anonymous
+    const logoutControlLabel = (uiHelpers.hasAuthCookie) ? logoutText : 'Login';
     appList.push({
-      label: userName !== 'sg_anonymous' ? logoutText : 'Login',
+      label: logoutControlLabel,
       color: 'primary',
       onClick: logOut,
       'data-test-subj': 'sg.userMenu.button-logout',
