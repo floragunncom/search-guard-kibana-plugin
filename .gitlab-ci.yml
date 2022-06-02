@@ -46,9 +46,9 @@ before_script:
 stages:
   - build
   - package
-  - "Frontend Int Tests Core"
-  - "Frontend Int Tests Features"
-  - "Frontend Int Tests External Features"
+#  - "Frontend Int Tests Core"
+#  - "Frontend Int Tests Features"
+#  - "Frontend Int Tests External Features"
   - release
 
 #This case is for usual commit to the branch, doing only unit testing and local build
@@ -195,6 +195,6 @@ deploy_release:
 
 include:
   - local: '.gitlab-ci-branch-specific.yml'
-  - local: 'ci/frontend-int-tests.yml'
-  - local: 'ci/frontend-int-tests-features.yml'
-  - local: 'ci/frontend-int-tests-external-features.yml'
+#  - local: 'ci/frontend-int-tests.yml'
+#  - local: 'ci/frontend-int-tests-features.yml'
+#  - local: 'ci/frontend-int-tests-external-features.yml'
