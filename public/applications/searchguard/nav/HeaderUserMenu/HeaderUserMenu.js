@@ -26,6 +26,7 @@ import {
   EuiText,
   EuiSpacer,
   EuiButton,
+  EuiOverlayMask,
   EuiModal,
   EuiModalBody,
   EuiModalFooter,
@@ -45,24 +46,26 @@ function AppListModal({ onAppClose, appModal }) {
   const body = appModal.component;
 
   return (
-    <EuiModal onClose={closeModal} style={{ maxWidth: 800 }} maxWidth={false}>
-      <EuiModalHeader data-test-subj={`sg.userMenu.appListModal.header.${appModal.id}`}>
-        <EuiModalHeaderTitle>
-          <h1>{title}</h1>
-        </EuiModalHeaderTitle>
-      </EuiModalHeader>
+    <EuiOverlayMask onClick={closeModal}>
+      <EuiModal onClose={closeModal} style={{ maxWidth: 800 }} maxWidth={false}>
+        <EuiModalHeader data-test-subj={`sg.userMenu.appListModal.header.${appModal.id}`}>
+          <EuiModalHeaderTitle>
+            <h1>{title}</h1>
+          </EuiModalHeaderTitle>
+        </EuiModalHeader>
 
-      <EuiModalBody data-test-subj={`sg.userMenu.appListModal.body.${appModal.id}`}>
-        {body}
-        <EuiSpacer />
-      </EuiModalBody>
+        <EuiModalBody data-test-subj={`sg.userMenu.appListModal.body.${appModal.id}`}>
+          {body}
+          <EuiSpacer />
+        </EuiModalBody>
 
-      <EuiModalFooter data-test-subj={`sg.userMenu.appListModal.footer.${appModal.id}`}>
-        <EuiButton onClick={closeModal} fill data-test-subj="sg.closeModal">
-          {closeText}
-        </EuiButton>
-      </EuiModalFooter>
-    </EuiModal>
+        <EuiModalFooter data-test-subj={`sg.userMenu.appListModal.footer.${appModal.id}`}>
+          <EuiButton onClick={closeModal} fill data-test-subj="sg.closeModal">
+            {closeText}
+          </EuiButton>
+        </EuiModalFooter>
+      </EuiModal>
+    </EuiOverlayMask>
   );
 }
 
