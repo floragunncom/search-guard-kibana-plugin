@@ -1,3 +1,5 @@
+/** @jest-environment jsdom */
+
 /* eslint-disable @osd/eslint/require-license-header */
 import { SEVERITY, SEVERITY_ORDER } from '../../../utils/constants';
 import { validateSeverityThresholds } from './validateSeverityThresholds';

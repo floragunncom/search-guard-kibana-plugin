@@ -1,3 +1,4 @@
+/** @jest-environment jsdom */
 import buildActionAccounts from './buildActionAccounts';
 
 describe('buildActionAccounts', () => {

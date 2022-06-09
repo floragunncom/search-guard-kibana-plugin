@@ -1,3 +1,4 @@
+/** @jest-environment jsdom */
 /* eslint-disable @osd/eslint/require-license-header */
 /* eslint-disable max-len */
 import {

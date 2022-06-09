@@ -1,3 +1,5 @@
+/** @jest-environment jsdom */
+
 /* eslint-disable @osd/eslint/require-license-header */
 import { reorderBlocks, deleteBlock, shorterCheckName } from './helpers';
 

@@ -1,3 +1,4 @@
+/** @jest-environment jsdom */
 import { validateIndex } from './validateIndex';
 import { mustSpecifyIndexText } from '../../../../utils/i18n/watch';
 

@@ -1,3 +1,4 @@
+/** @jest-environment jsdom */
 import { buildFormikThrottle } from './buildFormikThrottle';
 import { SCHEDULE_DEFAULTS, ADVANCED_TIME_PERIOD_UNIT } from './constants';
 

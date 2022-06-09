@@ -1,3 +1,4 @@
+/** @jest-environment jsdom */
 import { validateEmptyArray } from './validateEmptyArray';
 import { requiredText } from '../i18n/common';
 
