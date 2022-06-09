@@ -1,5 +1,5 @@
 /* eslint-disable @osd/eslint/require-license-header */
-import Statehood from 'statehood';
+//import Statehood from 'statehood';
 
 export function getSecurityCookieOptions(configService) {
   const options = {
@@ -17,14 +17,15 @@ export function getSecurityCookieOptions(configService) {
     sameSite: configService.get('searchguard.cookie.isSameSite'),
   };
 
-  if (configService.get('searchguard.cookie.domain')) {
-    options.domain = configService.get('searchguard.cookie.domain');
-  }
+  //if (configService.get('searchguard.cookie.domain')) {
+  //  options.domain = configService.get('searchguard.cookie.domain');
+  //}
 
   return options;
 }
 
 export function extendSecurityCookieOptions(options) {
+  /*  
   const { domain, ttl } = options;
   // https://github.com/hapijs/statehood/blob/master/lib/index.js#L442
   const origPrepareValue = Statehood.prepareValue;
@@ -41,5 +42,5 @@ export function extendSecurityCookieOptions(options) {
     }
 
     return origPrepareValue(name, value, origOptions);
-  };
+  };*/
 }
