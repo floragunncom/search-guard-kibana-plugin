@@ -253,6 +253,10 @@ export default class AuthType {
         this.debugLog('Not authenticated, detected AJAX request');
         const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
 
+        if (request.route.path === '/api/core/capabilities') {
+          return toolkit.notHandled();
+        }
+
         return response.unauthorized({
           headers: {
             sg_redirectTo: await this.getRedirectTargetForUnauthenticated(
