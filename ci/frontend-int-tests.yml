@@ -145,7 +145,6 @@ fe_kerberos:
     TEST_COMPOSEFILE: "docker-compose-kibana.yml"
     TEST_KI_CONFIG: "default"
     TEST_SG_ES_PLUGIN: "$SG_ES_PLUGIN"
-    TEST_SG_ADMIN: "$SG_ADMIN"
     TEST_ES_VERSION: "$ES_VERSION"
     TEST_SG_KI_PLUGIN: "$SG_KI_PLUGIN"
     TEST_KI_VERSION: "$KI_VERSION"
@@ -195,7 +194,7 @@ fe_kerberos:
        fi		
        echo "export SG_SOURCE=snapshot" >> environment.env
        echo "export SG_SNAPSHOT=${TEST_SG_ES_PLUGIN}" >> $CI_PROJECT_DIR/environment.env
-       echo "export SGADMIN_SNAPSHOT=${TEST_SG_ADMIN}" >> $CI_PROJECT_DIR/environment.env
+       echo "export SGADMIN_SNAPSHOT=https://maven.search-guard.com//search-guard-flx-release/com/floragunn/search-guard-flx-elasticsearch-plugin/1.0.0-beta-2-es-7.17.3/search-guard-flx-elasticsearch-plugin-1.0.0-beta-2-es-7.17.3-sgadmin-standalone.zip" >> $CI_PROJECT_DIR/environment.env
        echo "export SG_VERSION=whatever" >> environment.env
        echo "export BASEIMAGE=0.9.3-open-jdk-11" >> $CI_PROJECT_DIR/environment.env
        echo "export ES_VERSION=$TEST_ES_VERSION" >> $CI_PROJECT_DIR/environment.env
