@@ -30,7 +30,10 @@ fi
 if [ -z "$ES_VERSION" ]; then
   ES_VERSION=$SF_VERSION
 fi
+
 if [[ ! "$SG_ES_PLUGIN" =~ ^https?:.*$ ]]; then
+  # expand any variables in $SG_ES_PLUGIN
+  SG_ES_PLUGIN=$(eval echo $SG_ES_PLUGIN)
   if [[ "$SG_ES_PLUGIN" =~ .*SNAPSHOT.* ]]; then
     SG_ES_PLUGIN=$(ci/artifact_uri.sh $SG_SB_PLUGIN_SNAPSHOT_REPO $SG_SB_PLUGIN_NAME $SG_ES_PLUGIN .zip sgadmin-standalone.zip)
     echo "Found: $SG_ES_PLUGIN"
@@ -38,19 +41,9 @@ if [[ ! "$SG_ES_PLUGIN" =~ ^https?:.*$ ]]; then
     SG_ES_PLUGIN=$(ci/artifact_uri.sh $SG_SB_PLUGIN_RELEASE_REPO $SG_SB_PLUGIN_NAME $SG_ES_PLUGIN .zip sgadmin-standalone.zip)
     echo "Found: $SG_ES_PLUGIN"
   fi
-fi	
-if [[ ! "$SG_ADMIN" =~ ^https?:.*$ ]]; then
-  if [[ "$SG_ADMIN" =~ .*SNAPSHOT.* ]]; then
-    SG_ADMIN=$(ci/artifact_uri.sh $SG_SB_PLUGIN_SNAPSHOT_REPO $SG_SB_PLUGIN_NAME $SG_ADMIN sgadmin-standalone.zip)
-    echo "Found: $SG_ADMIN"
-  else
-    SG_ADMIN=$(ci/artifact_uri.sh $SG_SB_PLUGIN_RELEASE_REPO $SG_SB_PLUGIN_NAME $SG_ADMIN sgadmin-standalone.zip)
-    echo "Found: $SG_ADMIN"
-  fi
-fi	
+fi  
 
 echo "SG_ES_PLUGIN=$SG_ES_PLUGIN" >> build.env
-echo "SG_ADMIN=$SG_ADMIN" >> build.env
 echo "ES_VERSION=$ES_VERSION" >>build.env
 echo "SG_KI_PLUGIN=$SG_SF_PLUGIN" >>build.env
 echo "KI_VERSION=$SF_VERSION" >>build.env
