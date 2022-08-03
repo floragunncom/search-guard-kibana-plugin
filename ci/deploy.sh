@@ -39,17 +39,6 @@ if [[ ! "$SG_ES_PLUGIN" =~ ^https?:.*$ ]]; then
     echo "Found: $SG_ES_PLUGIN"
   fi
 fi	
-
-if [ -z "$SG_ES_PLUGIN" ]; then
-  #maybe we should use a tag for kibana releases like sg-flx-A.B.C-es-D.E-F-X.Y.Z
-  #where ABC is the version for the Kibana plugin release and XYZ is the ES version
-  #and, newly, DEF would be the sg plugin version to test against. 
-  echo "Set SG_ES_PLUGIN to SG_SF_PLUGIN_VERSION ($SG_SF_PLUGIN_VERSION)"
-  SG_ES_PLUGIN=$SG_SF_PLUGIN_VERSION
-fi
-
-
-
 if [[ ! "$SG_ADMIN" =~ ^https?:.*$ ]]; then
   if [[ "$SG_ADMIN" =~ .*SNAPSHOT.* ]]; then
     SG_ADMIN=$(ci/artifact_uri.sh $SG_SB_PLUGIN_SNAPSHOT_REPO $SG_SB_PLUGIN_NAME $SG_ADMIN sgadmin-standalone.zip)
@@ -58,11 +47,7 @@ if [[ ! "$SG_ADMIN" =~ ^https?:.*$ ]]; then
     SG_ADMIN=$(ci/artifact_uri.sh $SG_SB_PLUGIN_RELEASE_REPO $SG_SB_PLUGIN_NAME $SG_ADMIN sgadmin-standalone.zip)
     echo "Found: $SG_ADMIN"
   fi
-fi
-
-if [ -z "$SG_ADMIN" ]; then
-  echo "No SG_ADMIN set. SG Admin is not available nor neccessary for FLX"
-fi
+fi	
 
 echo "SG_ES_PLUGIN=$SG_ES_PLUGIN" >> build.env
 echo "SG_ADMIN=$SG_ADMIN" >> build.env
