@@ -28,7 +28,7 @@ export function deleteWatch({ clusterClient, logger }) {
 
       const path = `/_signals/watch/${encodeURIComponent(sgtenant)}/${encodeURIComponent(id)}`;
 
-      const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
+      const resp = await clusterClient.asScoped(request).asCurrentUser.transport.request({
         method: 'delete',
         path,
       });

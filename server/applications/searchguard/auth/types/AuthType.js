@@ -241,6 +241,15 @@ export default class AuthType {
    * @private
    */
   _handleUnAuthenticated = async (request, response, toolkit, error = null) => {
+    // We don't have valid cookie credentials, but we may have an optional auth
+    try {
+      if (request.route.options.authRequired === 'optional') {
+        return toolkit.next();
+      }
+    } catch (error) {
+      this.logger.info('Could not read auth options for the path: ' + request.url.pathname);
+    }
+
     if (request.headers) {
       // If the session has expired, we may receive ajax requests that can't handle a 302 redirect.
       // In this case, we trigger a 401 and let the interceptor handle the redirect on the client side.
@@ -358,9 +367,9 @@ export default class AuthType {
         await this.spacesService.createDefaultSpace({ request: { headers: authHeaders } });
       }
 
-      return toolkit.authenticated({
-        requestHeaders: authHeaders,
-      });
+      const rawRequest = ensureRawRequest(request);
+      assign(rawRequest.headers, authHeaders);
+      return toolkit.next();
     }
 
     return this._handleUnAuthenticated(request, response, toolkit);
@@ -546,7 +555,7 @@ export default class AuthType {
       body: {
         authType: this.type,
         // @todo Use the kibana_url from the config?
-        redirectURL: this.basePath + '/login?type=' + this.type + 'Logout',
+        redirectURL: this.basePath + '/searchguard/login?type=' + this.type + 'Logout',
       },
     });
   }

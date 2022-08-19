@@ -31,13 +31,11 @@ describe('routes/watch/delete', () => {
     const context = setupContextMock();
 
     const expectedResponse = {
-      body: {
-        _index: 'signals_main_watches',
-        _type: '_doc',
-        _id: 'id',
-        _version: 2,
-        result: 'deleted',
-      },
+      _index: 'signals_main_watches',
+      _type: '_doc',
+      _id: 'id',
+      _version: 2,
+      result: 'deleted',
     };
 
     const asCurrentUserTransportRequest = jest.fn().mockResolvedValue(expectedResponse);
@@ -60,7 +58,7 @@ describe('routes/watch/delete', () => {
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
-        resp: expectedResponse.body,
+        resp: expectedResponse,
       },
     });
   });

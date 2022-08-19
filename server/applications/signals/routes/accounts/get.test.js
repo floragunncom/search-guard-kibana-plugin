@@ -30,27 +30,25 @@ describe('routes/accounts/get', () => {
     const context = setupContextMock();
 
     const firstResponse = {
-      body: {
-        _scroll_id: 'FGluY2x1ZGVfY',
-        hits: {
-          hits: [
-            {
-              _id: 'email/mymailserver',
-              _index: '.signals_accounts',
-              _source: {
-                mime_layout: 'default',
-                port: 1025,
-                default_subject: 'SG Signals Message',
-                host: 'localhost',
-                type: 'EMAIL',
-                session_timeout: 120000,
-              },
+      _scroll_id: 'FGluY2x1ZGVfY',
+      hits: {
+        hits: [
+          {
+            _id: 'email/mymailserver',
+            _index: '.signals_accounts',
+            _source: {
+              mime_layout: 'default',
+              port: 1025,
+              default_subject: 'SG Signals Message',
+              host: 'localhost',
+              type: 'EMAIL',
+              session_timeout: 120000,
             },
-          ],
-        },
+          },
+        ],
       },
     };
-    const secondResponse = [...firstResponse.body.hits.hits];
+    const secondResponse = [...firstResponse.hits.hits];
 
     const asCurrentUserTransportRequest = jest.fn().mockResolvedValueOnce(firstResponse);
     const fetchAllFromScroll = jest.fn().mockResolvedValue(secondResponse);
@@ -67,7 +65,7 @@ describe('routes/accounts/get', () => {
       clusterClient,
       scroll: request.body.scroll,
       request,
-      response: firstResponse.body,
+      response: firstResponse,
     };
     const expectedResponse = [
       {

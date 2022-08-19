@@ -34,6 +34,7 @@ import {
 import { userAttributesText, complexAttributesText } from '../../../../utils/i18n/internal_users';
 
 import { Context } from '../../../../Context';
+import {FormikCodeEditorSG} from "../../../../../../components";
 
 function SimpleUserAttributes({ attributes }) {
   const { triggerConfirmDeletionModal } = useContext(Context);
@@ -102,7 +103,7 @@ function ComplexUserAttributes() {
   return (
     <div id="sgCreateInternalUser_complex_attributes">
       <EuiSpacer />
-      <FormikCodeEditor
+      <FormikCodeEditorSG
         name="_attributesString"
         formRow
         formikFieldProps={{

@@ -30,35 +30,33 @@ describe('routes/watch/execute_graph', () => {
     const context = setupContextMock();
 
     const expectedResponse = {
-      body: {
-        hits: {
-          total: {
-            value: 71,
-            relation: 'eq',
-          },
-          max_score: null,
-          hits: [],
+      hits: {
+        total: {
+          value: 71,
+          relation: 'eq',
         },
-        aggregations: {
-          over: {
-            buckets: [
-              {
-                key_as_string: '2019-07-23T09:00:00.000Z',
-                key: 1563872400000,
-                doc_count: 9,
-              },
-              {
-                key_as_string: '2019-07-23T10:00:00.000Z',
-                key: 1563876000000,
-                doc_count: 19,
-              },
-              {
-                key_as_string: '2019-07-23T11:00:00.000Z',
-                key: 1563879600000,
-                doc_count: 15,
-              },
-            ],
-          },
+        max_score: null,
+        hits: [],
+      },
+      aggregations: {
+        over: {
+          buckets: [
+            {
+              key_as_string: '2019-07-23T09:00:00.000Z',
+              key: 1563872400000,
+              doc_count: 9,
+            },
+            {
+              key_as_string: '2019-07-23T10:00:00.000Z',
+              key: 1563876000000,
+              doc_count: 19,
+            },
+            {
+              key_as_string: '2019-07-23T11:00:00.000Z',
+              key: 1563879600000,
+              doc_count: 15,
+            },
+          ],
         },
       },
     };
@@ -87,7 +85,7 @@ describe('routes/watch/execute_graph', () => {
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
-        resp: expectedResponse.body,
+        resp: expectedResponse,
       },
     });
   });

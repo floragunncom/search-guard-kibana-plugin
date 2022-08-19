@@ -28,7 +28,7 @@ export function executeWatch({ clusterClient, logger }) {
 
       const path = `/_signals/watch/${encodeURIComponent(sgtenant)}/_execute`;
 
-      const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
+      const resp = await clusterClient.asScoped(request).asCurrentUser.transport.request({
         method: 'post',
         path,
         body: {

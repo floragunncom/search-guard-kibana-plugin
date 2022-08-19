@@ -14,6 +14,7 @@ import {
 } from '../../../../utils/i18n/watch';
 
 import { Context } from '../../../../Context';
+import {CodeEditor} from "../../../../../components";
 
 function ResultsFlyout({ value }) {
   const { editorTheme, triggerFlyout } = useContext(Context);
@@ -27,7 +28,7 @@ function ResultsFlyout({ value }) {
             title: runtimeDataText(true),
             body: (
               <EuiFormRow fullWidth label={responseText}>
-                <EuiCodeEditor
+                <CodeEditor
                   theme={editorTheme}
                   mode="json"
                   width="100%"

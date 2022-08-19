@@ -122,7 +122,7 @@ export function defineRoutes({
         logger.error(`SAML auth, fail to obtain the SAML header: ${error.stack}`);
 
         var headers = {
-		  location: basePath + '/login?err=saml_init',
+		  location: basePath + '/searchguard/login?err=saml_init',
 	    };
 
         var cookies = [];

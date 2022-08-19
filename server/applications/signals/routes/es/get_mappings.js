@@ -22,7 +22,7 @@ export const getMappings = ({ clusterClient, logger }) => async (context, reques
   try {
     const { index } = request.body;
 
-    const { body: resp } = await clusterClient
+    const resp = await clusterClient
       .asScoped(request)
       .asCurrentUser.indices.getMapping({ index });
 

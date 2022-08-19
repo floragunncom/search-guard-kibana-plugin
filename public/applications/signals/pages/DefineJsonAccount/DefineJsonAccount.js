@@ -19,7 +19,7 @@ import queryString from 'query-string';
 import { Formik } from 'formik';
 import { EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
 import { AccountsService } from '../../services';
-import { ContentPanel, FormikCodeEditor, LabelAppendLink, CancelButton } from '../../components';
+import {ContentPanel, FormikCodeEditor, LabelAppendLink, CancelButton, FormikCodeEditorSG} from '../../components';
 import { jsonText } from '../../utils/i18n/common';
 import { readAccountText } from '../../utils/i18n/account';
 import { APP_PATH, DOC_LINKS } from '../../utils/constants';
@@ -73,7 +73,7 @@ export function DefineJsonAccount({ history, location }) {
 
   function renderEditor() {
     return (
-      <FormikCodeEditor
+      <FormikCodeEditorSG
         name="_json"
         formRow
         rowProps={{

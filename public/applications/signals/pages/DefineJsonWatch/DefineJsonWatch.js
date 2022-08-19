@@ -32,7 +32,7 @@ import {
   CancelButton,
   SaveButton,
   LabelAppendLink,
-  FormikErrorsCallOut,
+  FormikErrorsCallOut, FormikCodeEditorSG, CodeEditor,
 } from '../../../components';
 import { APP_PATH, DOC_LINKS, WATCH_ACTIONS } from '../../utils/constants';
 import { hasError, isInvalid, validateJsonString } from '../../utils/validate';
@@ -237,7 +237,7 @@ export function DefineJsonWatch({ history, location }) {
 
   function renderWatchEditor() {
     return (
-      <FormikCodeEditor
+      <FormikCodeEditorSG
         name="_json"
         formRow
         rowProps={{
@@ -290,7 +290,7 @@ export function DefineJsonWatch({ history, location }) {
           </EuiText>
         }
       >
-        <EuiCodeEditor
+        <CodeEditor
           mode="json"
           width="100%"
           theme={editorTheme}

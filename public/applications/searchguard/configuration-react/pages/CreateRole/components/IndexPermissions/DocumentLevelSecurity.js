@@ -27,6 +27,7 @@ import {
 import { isInvalid, hasError } from '../../../../utils/validation';
 
 import { Context } from '../../../../Context';
+import {FormikCodeEditorSG} from "../../../../../../components";
 
 const DocumentLevelSecurity = ({ index }) => {
   const { editorTheme, editorOptions, configService } = useContext(Context);
@@ -75,7 +76,7 @@ const DocumentLevelSecurity = ({ index }) => {
       </EuiButton>
       */}
       <EuiSpacer />
-      <FormikCodeEditor
+      <FormikCodeEditorSG
         name={fieldPath}
         formRow
         rowProps={{

@@ -31,15 +31,13 @@ describe('routes/watch/get', () => {
     const context = setupContextMock();
 
     const mockResponse = {
-      body: {
-        _source: {
-          trigger: {},
-          checks: [],
-          actions: [],
-          active: true,
-        },
-        _id: 'admin_tenant/id',
+      _source: {
+        trigger: {},
+        checks: [],
+        actions: [],
+        active: true,
       },
+      _id: 'admin_tenant/id',
     };
 
     const asCurrentUserTransportRequest = jest.fn().mockResolvedValue(mockResponse);
@@ -53,7 +51,7 @@ describe('routes/watch/get', () => {
       method: 'get',
       path: `/_signals/watch/${NO_MULTITENANCY_TENANT}/${encodeURIComponent(request.params.id)}`,
     };
-    const expectedResponse = { ...mockResponse.body._source, _id: 'id' };
+    const expectedResponse = { ...mockResponse._source, _id: 'id' };
 
     await getWatch({ clusterClient, logger })(context, request, response);
 

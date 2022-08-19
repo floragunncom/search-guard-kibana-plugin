@@ -110,7 +110,7 @@ export default class OpenId extends AuthType {
       const sessionInfo = await this.searchGuardBackend.sessionInfo(authHeader);
       // sso_logout_url doesn't always exist
       redirectURL =
-        sessionInfo.sso_logout_url || this.basePath + '/login?type=' + this.type + 'Logout';
+        sessionInfo.sso_logout_url || this.basePath + '/searchguard/login?type=' + this.type + 'Logout';
     } catch (error) {
       this.logger.error(
         `OIDC auth logout failed while retrieving the sso_logout_url: ${error.stack}`

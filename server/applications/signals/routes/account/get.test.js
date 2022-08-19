@@ -30,20 +30,18 @@ describe('routes/account/get', () => {
     const context = setupContextMock();
 
     const mockResponse = {
-      body: {
-        _id: 'email/mymailserver',
-        found: true,
-        _version: 18,
-        _seq_no: 23,
-        _primary_term: 4,
-        _source: {
-          mime_layout: 'default',
-          port: 1025,
-          default_subject: 'SG Signals Message',
-          host: 'localhost',
-          type: 'EMAIL',
-          session_timeout: 120000,
-        },
+      _id: 'email/mymailserver',
+      found: true,
+      _version: 18,
+      _seq_no: 23,
+      _primary_term: 4,
+      _source: {
+        mime_layout: 'default',
+        port: 1025,
+        default_subject: 'SG Signals Message',
+        host: 'localhost',
+        type: 'EMAIL',
+        session_timeout: 120000,
       },
     };
 
@@ -55,7 +53,7 @@ describe('routes/account/get', () => {
     };
 
     const expectedPath = `/_signals/account/${request.params.type}/${encodeURIComponent(request.params.id)}`;
-    const expectedResponse = { ...mockResponse.body._source, _id: 'mymailserver' };
+    const expectedResponse = { ...mockResponse._source, _id: 'mymailserver' };
 
     await getAccount({ clusterClient, logger })(context, request, response);
 

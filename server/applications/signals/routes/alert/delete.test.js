@@ -30,7 +30,7 @@ describe('routes/alert/delete', () => {
     const response = setupHttpResponseMock();
     const context = setupContextMock();
 
-    const expectedResponse = { body: { result: 'deleted' } };
+    const expectedResponse = { result: 'deleted' };
 
     const asCurrentUserDelete = jest.fn().mockResolvedValue(expectedResponse);
     const clusterClient = setupClusterClientMock({ asCurrentUserDelete });
@@ -55,7 +55,7 @@ describe('routes/alert/delete', () => {
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
-        resp: expectedResponse.body,
+        resp: expectedResponse,
       },
     });
   });

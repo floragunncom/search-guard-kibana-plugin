@@ -17,6 +17,7 @@ import buildWatchExamples from './utils/buildWatchExamples';
 import { watchExamplesText } from '../../../../utils/i18n/watch';
 import { addText } from '../../../../utils/i18n/common';
 import { WATCH_EXAMPLES } from '../../../../utils/constants';
+import {CodeEditor} from "../../../../../components";
 
 const watchExamples = buildWatchExamples();
 
@@ -39,7 +40,7 @@ export const TabContent = ({ watchName, onPutWatch, isLoading, editorOptions, ed
         label="Watch"
         labelAppend={<LabelAppendLink href={watchExamples[watchName].doc_link} name="WatchDoc" />}
       >
-        <EuiCodeEditor
+        <CodeEditor
           theme={editorTheme}
           setOptions={editorOptions}
           mode="json"

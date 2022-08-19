@@ -15,6 +15,7 @@ import { checksText } from '../../../../utils/i18n/watch';
 import { closeText, responseText } from '../../../../utils/i18n/common';
 
 import { Context } from '../../../../Context';
+import {CodeEditor} from "../../../../../components";
 
 const JsonWatch = ({
   onCloseResult,
@@ -91,7 +92,7 @@ const JsonWatch = ({
           </EuiText>
         }
       >
-        <EuiCodeEditor
+        <CodeEditor
           theme={editorTheme}
           mode="json"
           width="100%"

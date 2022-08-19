@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+import { assign } from 'lodash';
 import { KibanaResponse } from '../../../../../../../../src/core/server/http/router/response';
+import {ensureRawRequest} from "../../../../../../../../src/core/server/http/router";
 
 export const WWW_AUTHENTICATE_HEADER_NAME = 'WWW-Authenticate';
 
@@ -39,7 +41,7 @@ export class Kerberos {
     try {
       const whitelistRoutes = this.config.get('searchguard.auth.unauthenticated_routes');
       if (whitelistRoutes.includes(request.route.path)) {
-        return toolkit.authenticated();
+        return toolkit.next();
       }
 
       const headers = {};
@@ -68,10 +70,9 @@ export class Kerberos {
       };
 
       await this.sessionStorageFactory.asScoped(request).set(sessionCookie);
-
-      return toolkit.authenticated({
-        requestHeaders: authHeaders,
-      });
+      const rawRequest = ensureRawRequest(request);
+      assign(rawRequest.headers, headers);
+      return toolkit.next();
     } catch (error) {
 		backendError = error.inner || error;
 
@@ -109,9 +110,9 @@ export class Kerberos {
           return this.authenticateWithSPNEGO(request, response, toolkit, sessionCookie);
        }
 
-       return toolkit.authenticated({
-        requestHeaders: headers,
-       });
+       const rawRequest = ensureRawRequest(request);
+       assign(rawRequest.headers, headers);
+       return toolkit.next();
     }
 
     return this.authenticateWithSPNEGO(request, response, toolkit, sessionCookie);

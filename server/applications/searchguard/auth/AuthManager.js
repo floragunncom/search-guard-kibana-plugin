@@ -46,20 +46,13 @@ export class AuthManager {
     this.unauthenticatedRoutes = this.configService.get('searchguard.auth.unauthenticated_routes');
 
     /**
-     * Loading bundles are now behind auth.
-     * We need to skip auth for the bundles for the login page and the error page
+     * We used to have a list of paths that auth should ignore.
+     * Now, we check the route options instead - if no auth
+     * is required, we just skip the path.
+     *
+     * Keeping this in case there are exceptions to this rule.
      */
-    this.routesToIgnore = [
-      //'/login',
-      '/customerror',
-      '/bootstrap-anonymous.js',
-      '/bundles/app/core/bootstrap.js',
-      '/bundles/app/searchguard-customerror/bootstrap.js',
-      // SAML specific
-      '/searchguard/saml/acs',
-      '/searchguard/saml/acs/idpinitiated',
-      '/searchguard/saml/logout',
-    ];
+    this.routesToIgnore = [];
 
     this.basePath = kibanaCore.http.basePath.get();
   }
@@ -120,7 +113,6 @@ export class AuthManager {
       const authInstance = this.getAuthInstanceByName(authType);
       const authInstanceResult = await authInstance.detectCredentialsByRequest({ request });
       if (authInstanceResult !== null) {
-        console.warn('--- We did find something that we need to act on?', authInstanceResult);
         return authInstance;
       }
     }
@@ -162,23 +154,43 @@ export class AuthManager {
   checkAuth = async (request, response, toolkit) => {
     const sessionCookie = (await this.sessionStorageFactory.asScoped(request).get()) || {};
 
+    /**
+     * If we have an auth header, just let the request pass through
+     */
     if (request.headers.authorization) {
-      return toolkit.authenticated({
-        requestHeaders: { authorization: request.headers.authorization },
-      });
+      return toolkit.next();
     }
 
-    if (this.routesToIgnore.includes(request.url.pathname)) {
-      // Change back after everything has been implemented
-      return toolkit.notHandled();
+    try {
+      if (request.route.options.authRequired === false) {
+        return toolkit.next();
+      }
+    } catch (error) {
+      this.logger.info('Could not read auth options for the path: ' + request.url.pathname)
     }
 
+    /**
+     * This block isn't really needed since we started checking
+     * the route's auth options, but leaving it in case there
+     * are any edge cases
+     */
+    if (this.routesToIgnore.includes(request.url.pathname) || request.url.pathname.indexOf('/bundle') > -1) {
+      return toolkit.next();
+    }
+
+
+    /**
+     * This block isn't really needed since we started checking
+     * the route's auth options, but leaving it in case there
+     * are any edge cases.
+     * These routes are used configurable.
+     */
     if (this.unauthenticatedRoutes.includes(request.url.pathname)) {
       // If we do this, we don't really assign any relevant headers
       // Until now, we got the kibana server user here, but those credentials were
       // not really used, it seems
-      return toolkit.authenticated({
-      });
+
+     return toolkit.next();
     }
 
     const authInstanceByRequest = await this.getAuthInstanceByRequest({ request });
@@ -193,15 +205,30 @@ export class AuthManager {
       !sessionCookie.authType &&
       this.configService.get('searchguard.auth.anonymous_auth_enabled')
     ) {
+      /*
       return toolkit.authenticated({
       });
+      */
+
+      return toolkit.next();
+    }
+
+    // Here comes the not authenticated logic...
+
+    // We don't have any cookie, but we may have an optional auth
+    try {
+      if (request.route.options.authRequired === 'optional') {
+        return toolkit.next();
+      }
+    } catch (error) {
+      this.logger.info('Could not read auth options for the path: ' + request.url.pathname)
     }
 
     const isAjaxRequest = request.headers 
          && ((request.headers.accept && request.headers.accept.split(',').indexOf('application/json') > -1) || (request.headers['content-type'] && request.headers['content-type'].indexOf('application/json') > -1));
 
     const nextUrl = this.getNextUrl(request);
-    let loginPageURL = this.basePath + '/login' + `?nextUrl=${nextUrl}`;
+    let loginPageURL = this.basePath + '/searchguard/login' + `?nextUrl=${nextUrl}`;
 
     try {
       const authConfig = await this.searchGuardBackend.getAuthConfig(nextUrl);

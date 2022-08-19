@@ -37,15 +37,25 @@ import SearchGuardBackend from './applications/searchguard/backend/searchguard';
 import SearchGuardConfigurationBackend from './applications/searchguard/configuration/backend/searchguard_configuration_backend';
 import { SpacesService, TenantService } from './applications/multitenancy';
 
-async function getConfigService({ logger, initContext, clusterClient }) {
+async function getConfigService({ kibanaIndex, logger, initContext, clusterClient }) {
   try {
     const [kibanaConfig, sgConfig] = await Promise.all([
       initContext.config.legacy.globalConfig$.pipe(first()).toPromise(),
       initContext.config.create().pipe(first()).toPromise(),
     ]);
 
-    return new ConfigService({
+    // We most likely don't have any kibana config here,
+    // so we add the index name manually.
+    let extendedKibanaConfig = {
       ...kibanaConfig,
+      kibana: {
+        ...kibanaConfig.kibana,
+        index: kibanaIndex,
+      }
+    }
+
+    return new ConfigService({
+      ...extendedKibanaConfig,
       elasticsearch: clusterClient.config,
       searchguard: sgConfig,
     });
@@ -63,6 +73,7 @@ export class ServerPlugin {
     this.searchGuardApp = new SearchGuard(this.initContext);
     this.multiTenancyApp = new Multitenancy(this.initContext);
     this.authTokensApp = new AuthTokens(this.initContext);
+    this.kibanaIndex = '.kibana';
   }
 
   /*
@@ -80,7 +91,12 @@ export class ServerPlugin {
     (async () => {
       const [{ elasticsearch, savedObjects }] = await core.getStartServices();
 
+      // The core.savedObjects interface in setup() is different from in start()
+      // so we need to pass an instance variable to the config service
+      this.kibanaIndex = core.savedObjects.getKibanaIndex()
+
       const configService = await getConfigService({
+        kibanaIndex: this.kibanaIndex,
         logger: this.logger,
         initContext: this.initContext,
         clusterClient: elasticsearch.client,
@@ -146,6 +162,7 @@ export class ServerPlugin {
   start(core) {
     (async () => {
       const configService = await getConfigService({
+        kibanaIndex: this.kibanaIndex,
         logger: this.logger,
         initContext: this.initContext,
         clusterClient: core.elasticsearch.client,

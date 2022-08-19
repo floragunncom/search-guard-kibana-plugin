@@ -2,7 +2,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { EuiText, EuiLink } from '@elastic/eui';
-import { FormikCodeEditor } from '../../../../../components';
+import {FormikCodeEditor, FormikCodeEditorSG} from '../../../../../components';
 import { isInvalid, hasError } from '../../../utils/validate';
 import { valueText, documentationText } from '../../../../../utils/i18n/watch';
 
@@ -50,7 +50,7 @@ export function CheckCodeEditor({ rowProps, editorProps, formikFieldProps, value
   }
 
   return (
-    <FormikCodeEditor
+    <FormikCodeEditorSG
       formRow
       name={valuePath}
       rowProps={thisRowProps}

@@ -54,7 +54,7 @@ export const getAlerts = ({ clusterClient, fetchAllFromScroll, logger }) => asyn
       options.body = { sort, query };
     }
 
-    const { body: firstScrollResponse } = await clusterClient
+    const firstScrollResponse = await clusterClient
       .asScoped(request)
       .asCurrentUser.search(options);
 

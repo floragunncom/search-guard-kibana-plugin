@@ -29,9 +29,8 @@ export function getWatch({ clusterClient, logger }) {
 
       const path = `/_signals/watch/${encodeURIComponent(sgtenant)}/${encodeURIComponent(id)}`;
 
-      const {
-        body: { _source, _id },
-      } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
+      const { _source, _id }
+       = await clusterClient.asScoped(request).asCurrentUser.transport.request({
         method: 'get',
         path,
       });

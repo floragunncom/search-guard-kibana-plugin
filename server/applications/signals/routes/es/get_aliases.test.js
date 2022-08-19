@@ -29,8 +29,8 @@ describe('routes/es/get_aliases', () => {
     const response = setupHttpResponseMock();
     const context = setupContextMock();
 
-    const mockResponse = {
-      body: [
+    const mockResponse =
+      [
         {
           alias: 'testindex_alias',
           index: 'testindex',
@@ -39,8 +39,8 @@ describe('routes/es/get_aliases', () => {
           alias: '.kibana',
           index: '.kibana_2',
         },
-      ],
-    };
+      ]
+    ;
 
     const asCurrentUserCatAliases = jest.fn().mockResolvedValue(mockResponse);
     const clusterClient = setupClusterClientMock({ asCurrentUserCatAliases });

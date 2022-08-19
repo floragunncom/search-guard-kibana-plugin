@@ -7,7 +7,7 @@ import {
   FormikCodeEditor,
   FormikFieldText,
   FormikSelect,
-  FormikComboBox,
+  FormikComboBox, FormikCodeEditorSG,
 } from '../../../../../components';
 import {
   nameText,
@@ -131,7 +131,7 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
           />
         </EuiFlexItem>
         <EuiFlexItem>
-          <FormikCodeEditor
+          <FormikCodeEditorSG
             name={requestHeadersPath}
             formRow
             rowProps={{
@@ -162,7 +162,7 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
         </EuiFlexItem>
       </EuiFlexGroup>
       <EuiSpacer size="m" />
-      <FormikCodeEditor
+      <FormikCodeEditorSG
         name={requestBodyPath}
         formRow
         rowProps={{

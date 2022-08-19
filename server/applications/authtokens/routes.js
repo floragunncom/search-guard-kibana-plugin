@@ -26,7 +26,7 @@ export function getAuthTokens({ clusterClient, fetchAllFromScroll, logger }) {
       let allHits = [];
 
       if (scroll) {
-        const { body: firstScrollResponse } = await clusterClient
+        const firstScrollResponse = await clusterClient
           .asScoped(request)
           .asCurrentUser.transport.request({
             method: 'post',
@@ -41,7 +41,7 @@ export function getAuthTokens({ clusterClient, fetchAllFromScroll, logger }) {
           response: firstScrollResponse,
         });
       } else {
-        const { body } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
+        const body = await clusterClient.asScoped(request).asCurrentUser.transport.request({
           method: 'post',
           path: '/_searchguard/authtoken/_search',
           body: bodyProps,
@@ -66,7 +66,7 @@ export function deleteAuthToken({ clusterClient, logger }) {
         params: { id },
       } = request;
 
-      const { body } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
+      const body = await clusterClient.asScoped(request).asCurrentUser.transport.request({
         method: 'delete',
         path: `/_searchguard/authtoken/${id}`,
       });
@@ -86,7 +86,7 @@ export function getAuthToken({ clusterClient, logger }) {
         params: { id },
       } = request;
 
-      const { body } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
+      const body = await clusterClient.asScoped(request).asCurrentUser.transport.request({
         method: 'get',
         path: `/_searchguard/authtoken/${id}`,
       });
@@ -104,7 +104,7 @@ export function saveAuthToken({ clusterClient, logger }) {
     try {
       const { body: authToken } = request;
 
-      const { body } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
+      const body = await clusterClient.asScoped(request).asCurrentUser.transport.request({
         method: 'post',
         path: '/_searchguard/authtoken',
         body: authToken,
@@ -121,7 +121,7 @@ export function saveAuthToken({ clusterClient, logger }) {
 export function getAuthTokenServiceInfo({ clusterClient, logger }) {
   return async function (context, request, response) {
     try {
-      const { body } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
+      const body = await clusterClient.asScoped(request).asCurrentUser.transport.request({
         method: 'get',
         path: `/_searchguard/authtoken/_info`,
       });

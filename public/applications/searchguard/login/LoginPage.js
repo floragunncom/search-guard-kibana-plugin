@@ -30,7 +30,7 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiErrorBoundary,
-  EuiLoadingKibana,
+  EuiLoadingLogo,
 } from '@elastic/eui';
 import { LicenseWarningCallout } from '../../components';
 import { stringCSSToReactStyle } from '../../../utils/cssHelper';
@@ -437,7 +437,7 @@ export function LoginPage({ httpClient, configService }) {
         />
         <EuiFlexItem  grow={false}>
           {isLoading ? (
-            <EuiLoadingKibana size="xl" />
+            <EuiLoadingLogo size="xl" />
           ) : (
             <EuiFlexGroup gutterSize="m" direction="column">
               <BasicLogin

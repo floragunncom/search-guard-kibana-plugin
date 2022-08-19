@@ -24,13 +24,13 @@ export class LoginApp {
   }
 
   setupSync({ core, httpClient, configService }) {
-    core.http.anonymousPaths.register('/login');
+    core.http.anonymousPaths.register('/searchguard/login');
 
     core.application.register({
       id: 'searchguard-login',
       title: 'Login',
       chromeless: true,
-      appRoute: '/login',
+      appRoute: '/searchguard/login',
       euiIconType: 'user',
       updater$: this.appUpdater,
       mount: this.mount({ core, configService, httpClient }),

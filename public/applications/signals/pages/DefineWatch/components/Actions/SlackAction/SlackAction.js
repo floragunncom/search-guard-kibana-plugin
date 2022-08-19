@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect as connectFormik } from 'formik';
 import { get } from 'lodash';
 import { EuiSpacer } from '@elastic/eui';
-import { FormikCodeEditor, FormikFieldText, FormikComboBox } from '../../../../../components';
+import {FormikCodeEditor, FormikFieldText, FormikComboBox, FormikCodeEditorSG} from '../../../../../components';
 import ActionChecks from '../ActionChecks';
 import {
   fromText,
@@ -128,7 +128,7 @@ const SlackAction = ({ isResolveActions, index, accounts, formik: { values } }) 
         }}
       />
       <EuiSpacer size="m" />
-      <FormikCodeEditor
+      <FormikCodeEditorSG
         name={textPath}
         formRow
         rowProps={{

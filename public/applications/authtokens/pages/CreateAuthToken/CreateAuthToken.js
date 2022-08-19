@@ -40,7 +40,7 @@ import {
   LabelAppendLink,
   FormikFieldNumber,
   FormikSelect,
-  FormikSwitch,
+  FormikSwitch, FormikCodeEditorSG,
 } from '../../../components';
 import { AuthTokensService } from '../../services';
 import {
@@ -135,7 +135,7 @@ export function Permissions({ values, isReadOnly }) {
         name={`_isRequestedJSON`}
       />
       {values._isRequestedJSON && (
-        <FormikCodeEditor
+        <FormikCodeEditorSG
           name="_requested"
           formRow
           rowProps={{

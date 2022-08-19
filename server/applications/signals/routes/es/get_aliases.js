@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import Boom from 'boom';
 import { schema } from '@kbn/config-schema';
 import { serverError } from '../../lib/errors';
 import { BASE_URI } from '../../../../../common/signals/constants';
@@ -23,7 +22,7 @@ export const getAliases = ({ clusterClient, logger }) => async (context, request
   try {
     const { alias } = request.body;
 
-    const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.cat.aliases({
+    const resp = await clusterClient.asScoped(request).asCurrentUser.cat.aliases({
       alias,
       format: 'json',
       h: 'alias,index',

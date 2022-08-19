@@ -9,7 +9,7 @@ module.exports = {
       diagnostics: true,
     },
   },
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   moduleNameMapper: {
     '!!raw-loader!./worker.js': '<rootDir>/__mocks__/raw_loader.js',
     'ui/chrome': '<rootDir>/__mocks__/chrome.js',

@@ -7,7 +7,7 @@ import {
   FormikCodeEditor,
   FormikFieldText,
   FormikComboBox,
-  SubHeader,
+  SubHeader, FormikCodeEditorSG,
 } from '../../../../../components';
 import ActionChecks from '../ActionChecks';
 import { validateEmptyField, isInvalid, hasError } from '../../../../../utils/validate';
@@ -65,7 +65,7 @@ const renderCodeEditor = (path, label, editorTheme, editorOptions, checksResult,
   }
 
   return (
-    <FormikCodeEditor
+    <FormikCodeEditorSG
       name={path}
       formRow
       rowProps={{

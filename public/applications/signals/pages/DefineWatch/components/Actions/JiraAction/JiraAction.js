@@ -7,7 +7,7 @@ import {
   FormikCodeEditor,
   FormikFieldText,
   FormikComboBox,
-  SubHeader,
+  SubHeader, FormikCodeEditorSG,
 } from '../../../../../components';
 import ActionChecks from '../ActionChecks';
 import { validateEmptyField, isInvalid, hasError } from '../../../../../utils/validate';
@@ -129,7 +129,7 @@ const JiraAction = ({ isResolveActions, index, accounts, formik: { values } }) =
       {renderTextField(issueParentPath, parentText)}
       {renderTextField(issueLabelPath, labelText)}
       {renderTextField(issuePriorityPath, priorityText)}
-      <FormikCodeEditor
+      <FormikCodeEditorSG
         name={issueDescriptionPath}
         formRow
         rowProps={{

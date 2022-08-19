@@ -122,7 +122,7 @@ export class TenantsMigrationService {
           // https://git.floragunn.com/search-guard/search-guard-kibana-plugin/-/issues/315
           const kibanaMigrator = new KibanaMigrator({
             ...migratorDeps,
-            kibanaConfig: { ...kibanaConfig, index: this.tenantIndices[i] },
+            kibanaIndex: this.tenantIndices[i],
           });
 
           kibanaMigrator.prepareMigrations();

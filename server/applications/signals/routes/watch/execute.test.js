@@ -31,16 +31,14 @@ describe('routes/watch/execute', () => {
     const context = setupContextMock();
 
     const expectedResponse = {
-      body: {
-        data: {
-          mysearch: {
-            _shards: {},
-            hits: {
-              hits: [
-                { _id: '123', _source: { a: 'b' } },
-                { _id: '456', _source: { c: 'd' } },
-              ],
-            },
+      data: {
+        mysearch: {
+          _shards: {},
+          hits: {
+            hits: [
+              { _id: '123', _source: { a: 'b' } },
+              { _id: '456', _source: { c: 'd' } },
+            ],
           },
         },
       },
@@ -79,7 +77,7 @@ describe('routes/watch/execute', () => {
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
-        resp: expectedResponse.body,
+        resp: expectedResponse,
       },
     });
   });

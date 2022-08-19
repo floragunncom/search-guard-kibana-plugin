@@ -1,7 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import {
-  checkXPackSecurityDisabled,
-  xPackSecurityErrorText,
   checkDoNotFailOnForbidden,
   doNotFailOnForbiddenText,
   failedCheckDoNotFailOnForbiddenText,
@@ -18,24 +16,6 @@ import { ConfigService } from '../../../common';
 import { DEFAULT_CONFIG } from '../../default_config';
 
 describe('sanity_checks', () => {
-  describe('checkXPackSecurityDisabled', () => {
-    test('log and throw error if X-Pack security plugin enabled', () => {
-      const pluginDependencies = { security: true };
-      const mockLogger = setupLoggerMock();
-      const error = new Error(xPackSecurityErrorText);
-
-      expect(() =>
-        checkXPackSecurityDisabled({
-          pluginDependencies,
-          logger: mockLogger,
-        })
-      ).toThrow(error);
-
-      expect(mockLogger.error.mock.calls.length).toBe(1);
-      expect(mockLogger.error).toHaveBeenCalledWith(xPackSecurityErrorText);
-    });
-  });
-
   describe('checkDoNotFailOnForbidden', () => {
     let mockLogger;
     let mockSearchGuardBackend;

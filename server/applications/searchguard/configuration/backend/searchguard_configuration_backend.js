@@ -25,11 +25,11 @@ export default class SearchGuardConfigurationBackend {
   }
 
   _client = async ({ headers = {}, asWho = 'asCurrentUser', ...options }) => {
-    const { body } = await this.elasticsearch.client
+    const result = await this.elasticsearch.client
       .asScoped({ headers })
       [asWho].transport.request(options);
 
-    return body;
+    return result;
   };
 
   restapiinfo = async (headers) => {

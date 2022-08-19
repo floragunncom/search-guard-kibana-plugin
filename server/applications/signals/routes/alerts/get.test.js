@@ -41,17 +41,15 @@ describe('routes/alerts/get', () => {
       response = setupHttpResponseMock();
       context = setupContextMock();
       firstResponse = {
-        body: {
-          _scroll_id: 'FGluY2x1ZGVfY',
-          hits: {
-            hits: [
-              { _index: 'log', _id: '123', _source: { a: 'b' } },
-              { _index: 'log', _id: '456', _source: { c: 'd' } },
-            ],
-          },
+        _scroll_id: 'FGluY2x1ZGVfY',
+        hits: {
+          hits: [
+            { _index: 'log', _id: '123', _source: { a: 'b' } },
+            { _index: 'log', _id: '456', _source: { c: 'd' } },
+          ],
         },
       };
-      secondResponse = [...firstResponse.body.hits.hits];
+      secondResponse = [...firstResponse.hits.hits];
       asCurrentUserSearch = jest.fn().mockResolvedValueOnce(firstResponse);
       fetchAllFromScroll = jest.fn().mockResolvedValue(secondResponse);
       clusterClient = setupClusterClientMock({ asCurrentUserSearch });
@@ -94,7 +92,7 @@ describe('routes/alerts/get', () => {
         clusterClient,
         scroll: request.body.scroll,
         request,
-        response: firstResponse.body,
+        response: firstResponse,
       };
 
       expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
@@ -142,7 +140,7 @@ describe('routes/alerts/get', () => {
         clusterClient,
         scroll: request.body.scroll,
         request,
-        response: firstResponse.body,
+        response: firstResponse,
       };
 
       expect(clusterClient.asScoped).toHaveBeenCalledWith(request);
@@ -173,8 +171,6 @@ describe('routes/alerts/get', () => {
         },
         index: 'alerts',
         scroll: ES_SCROLL_SETTINGS.KEEPALIVE,
-        index: 'alerts',
-        scroll: ES_SCROLL_SETTINGS.KEEPALIVE,
       };
 
       await getAlerts({ clusterClient, fetchAllFromScroll, logger })(context, request, response);
@@ -183,7 +179,7 @@ describe('routes/alerts/get', () => {
         clusterClient,
         scroll: request.body.scroll,
         request,
-        response: firstResponse.body,
+        response: firstResponse,
       };
 
       expect(clusterClient.asScoped).toHaveBeenCalledWith(request);

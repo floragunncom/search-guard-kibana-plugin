@@ -31,57 +31,55 @@ describe('routes/watch/state', () => {
     const context = setupContextMock();
 
     const expectedResponse = {
-      body: {
-        actions: {
-          my_action: {
-            last_triggered: '2019-12-05T14:21:50.025735Z',
-            last_triage: '2019-12-05T14:21:50.025735Z',
-            last_triage_result: true,
-            last_execution: '2019-12-05T14:21:50.025735Z',
-            last_error: '2019-12-03T11:17:50.129348Z',
-            last_status: {
-              code: 'ACTION_TRIGGERED',
-            },
-            acked: {
-              on: '2019-12-05T14:23:21.373254Z',
-              by: 'test_user',
-            },
-            execution_count: 20,
+      actions: {
+        my_action: {
+          last_triggered: '2019-12-05T14:21:50.025735Z',
+          last_triage: '2019-12-05T14:21:50.025735Z',
+          last_triage_result: true,
+          last_execution: '2019-12-05T14:21:50.025735Z',
+          last_error: '2019-12-03T11:17:50.129348Z',
+          last_status: {
+            code: 'ACTION_TRIGGERED',
           },
+          acked: {
+            on: '2019-12-05T14:23:21.373254Z',
+            by: 'test_user',
+          },
+          execution_count: 20,
         },
-        last_execution: {
-          data: {
-            my_data: {
-              hits: {
-                hits: [],
-                total: {
-                  value: 1,
-                  relation: 'eq',
-                },
-                max_score: 1,
-              },
-            },
-          },
-          severity: {
-            level: 'error',
-            level_numeric: 3,
-            mapping_element: {
-              threshold: 1,
-              level: 'error',
-            },
-            value: 1,
-          },
-          trigger: {
-            scheduled_time: '2019-12-05T14:21:50Z',
-            triggered_time: '2019-12-05T14:21:50.006Z',
-          },
-          execution_time: '2019-12-05T14:21:50.009277Z',
-        },
-        last_status: {
-          code: 'ACTION_TRIGGERED',
-        },
-        node: 'my_node',
       },
+      last_execution: {
+        data: {
+          my_data: {
+            hits: {
+              hits: [],
+              total: {
+                value: 1,
+                relation: 'eq',
+              },
+              max_score: 1,
+            },
+          },
+        },
+        severity: {
+          level: 'error',
+          level_numeric: 3,
+          mapping_element: {
+            threshold: 1,
+            level: 'error',
+          },
+          value: 1,
+        },
+        trigger: {
+          scheduled_time: '2019-12-05T14:21:50Z',
+          triggered_time: '2019-12-05T14:21:50.006Z',
+        },
+        execution_time: '2019-12-05T14:21:50.009277Z',
+      },
+      last_status: {
+        code: 'ACTION_TRIGGERED',
+      },
+      node: 'my_node',
     };
 
     const asCurrentUserTransportRequest = jest.fn().mockResolvedValue(expectedResponse);
@@ -103,7 +101,7 @@ describe('routes/watch/state', () => {
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
-        resp: expectedResponse.body,
+        resp: expectedResponse,
       },
     });
   });

@@ -30,13 +30,11 @@ describe('routes/es/search', () => {
     const context = setupContextMock();
 
     const expectedResponse = {
-      body: {
-        hits: {
-          hits: [
-            { _id: '123', _source: { a: 'b' } },
-            { _id: '456', _source: { c: 'd' } },
-          ],
-        },
+      hits: {
+        hits: [
+          { _id: '123', _source: { a: 'b' } },
+          { _id: '456', _source: { c: 'd' } },
+        ],
       },
     };
 
@@ -64,7 +62,7 @@ describe('routes/es/search', () => {
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
-        resp: expectedResponse.body,
+        resp: expectedResponse,
       },
     });
   });

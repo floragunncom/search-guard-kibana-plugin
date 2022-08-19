@@ -30,24 +30,22 @@ describe('routes/es/get_indices', () => {
     const context = setupContextMock();
 
     const mockResponse = {
-      body: {
-        aggregations: {
-          indices: {
-            buckets: [
-              {
-                key: 'index_a',
-                doc_count: 65494,
-              },
-              {
-                key: 'index_b',
-                doc_count: 14005,
-              },
-              {
-                key: 'index_c',
-                doc_count: 13059,
-              },
-            ],
-          },
+      aggregations: {
+        indices: {
+          buckets: [
+            {
+              key: 'index_a',
+              doc_count: 65494,
+            },
+            {
+              key: 'index_b',
+              doc_count: 14005,
+            },
+            {
+              key: 'index_c',
+              doc_count: 13059,
+            },
+          ],
         },
       },
     };
@@ -63,7 +61,7 @@ describe('routes/es/get_indices', () => {
     };
 
     const expectedClusterCallOptions = {
-      ignoreUnavailable: true,
+      ignore_unavailable: true,
       index: request.body.index,
       body: {
         size: 0, // no hits

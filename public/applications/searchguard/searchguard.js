@@ -15,6 +15,7 @@ export class SearchGuard {
   }
 
   setupSync({ core, plugins, httpClient, configService }) {
+    redirectOnSessionTimeout(configService.get('searchguard.auth.type'), core.http);
     try {
       this.customErrorApp.setupSync({ core, configService });
       this.configApp.setupSync({ core, plugins, httpClient, configService });
@@ -35,8 +36,6 @@ export class SearchGuard {
         httpClient,
         configService,
       });
-
-      redirectOnSessionTimeout(configService.get('searchguard.auth.type'), core.http);
     } catch (error) {
       console.error(error);
       throw error;

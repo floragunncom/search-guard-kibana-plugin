@@ -31,7 +31,7 @@ export function ackWatch({ clusterClient, logger }) {
         path = `/_signals/watch/${encodeURIComponent(sgtenant)}/${encodeURIComponent(watchId)}/_ack/${actionId}`;
       }
 
-      const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
+      const resp = await clusterClient.asScoped(request).asCurrentUser.transport.request({
         method: 'put',
         path,
       });

@@ -22,7 +22,7 @@ export const getIndices = ({ clusterClient, logger }) => async (context, request
   try {
     const { index } = request.body;
     const options = {
-      ignoreUnavailable: true,
+      ignore_unavailable: true,
       index,
       body: {
         size: 0, // no hits
@@ -37,9 +37,8 @@ export const getIndices = ({ clusterClient, logger }) => async (context, request
       },
     };
 
-    const {
-      body: { aggregations: { indices: { buckets = [] } = {} } = {} } = {},
-    } = await clusterClient.asScoped(request).asCurrentUser.search(options);
+    const result = await clusterClient.asScoped(request).asCurrentUser.search(options);
+    const { aggregations: { indices: { buckets = [] } = {} } = {} } = result;
 
     return response.ok({
       body: {

@@ -102,7 +102,7 @@ export default class Saml extends AuthType {
     try {
       const sessionInfo = await this.searchGuardBackend.sessionInfo(authHeader);
       redirectURL =
-        sessionInfo.sso_logout_url || this.basePath + '/login?type=' + this.type + 'Logout';
+        sessionInfo.sso_logout_url || this.basePath + '/searchguard/login?type=' + this.type + 'Logout';
     } catch (error) {
       this.logger.error(
         `SAML auth logout failed while retrieving the sso_logout_url: ${error.stack}`

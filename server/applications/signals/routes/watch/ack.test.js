@@ -29,7 +29,7 @@ describe('routes/watch/ack', () => {
     const response = setupHttpResponseMock();
     const context = setupContextMock();
 
-    const mockResponse = { body: { status: 200 } };
+    const mockResponse = { status: 200 };
 
     const asCurrentUserTransportRequest = jest.fn().mockResolvedValue(mockResponse);
     const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });

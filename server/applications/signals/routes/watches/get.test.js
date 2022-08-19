@@ -34,17 +34,15 @@ describe('routes/watches/get', () => {
     const context = setupContextMock();
 
     const firstResponse = {
-      body: {
-        _scroll_id: 'uywfuhjwqvhb',
-        hits: {
-          hits: [
-            { _id: 'admin_tenant/123', _source: { a: 'b' } },
-            { _id: 'admin_tenant/456', _source: { c: 'd' } },
-          ],
-        },
+      _scroll_id: 'uywfuhjwqvhb',
+      hits: {
+        hits: [
+          { _id: 'admin_tenant/123', _source: { a: 'b' } },
+          { _id: 'admin_tenant/456', _source: { c: 'd' } },
+        ],
       },
     };
-    const secondResponse = [...firstResponse.body.hits.hits];
+    const secondResponse = [...firstResponse.hits.hits];
 
     const asCurrentUserTransportRequest = jest.fn().mockResolvedValueOnce(firstResponse);
     const fetchAllFromScroll = jest.fn().mockResolvedValue(secondResponse);
@@ -74,7 +72,7 @@ describe('routes/watches/get', () => {
       clusterClient,
       scroll: request.body.scroll,
       request,
-      response: firstResponse.body,
+      response: firstResponse,
     };
     const expectedResponse = [
       { _id: '123', a: 'b' },

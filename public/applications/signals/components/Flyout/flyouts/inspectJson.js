@@ -2,6 +2,7 @@ import React from 'react';
 import { EuiCodeEditor, EuiText, EuiTitle } from '@elastic/eui';
 import { jsonText } from '../../../utils/i18n/common';
 import { stringifyPretty } from '../../../utils/helpers';
+import {CodeEditor} from "../../../../components";
 
 const inspectJson = ({ title, json, editorTheme }) => ({
   flyoutProps: {
@@ -16,7 +17,7 @@ const inspectJson = ({ title, json, editorTheme }) => ({
   body: (
     <div>
       <EuiText>{jsonText}</EuiText>
-      <EuiCodeEditor
+      <CodeEditor
         mode="json"
         theme={editorTheme}
         height="600px"

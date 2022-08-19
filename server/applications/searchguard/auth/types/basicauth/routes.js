@@ -122,7 +122,7 @@ export function defineRoutes({
    */
   httpResources.register(
     {
-      path: `${APP_ROOT}/login`,
+      path: `${APP_ROOT}/searchguard/login`,
       validate: false,
       options: {
         authRequired: false,

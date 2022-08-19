@@ -2,13 +2,13 @@ import React from 'react';
 import {
   EuiFlexItem,
   EuiFlexGroup,
-  EuiLoadingKibana
+  EuiLoadingLogo
 } from '@elastic/eui';
 
 const LoadingPage = (
   <EuiFlexGroup justifyContent="spaceAround">
     <EuiFlexItem grow={false}>
-      <EuiLoadingKibana size="xl" />
+      <EuiLoadingLogo size="xl" />
     </EuiFlexItem>
   </EuiFlexGroup>
 );

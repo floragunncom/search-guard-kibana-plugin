@@ -22,7 +22,7 @@ export const deleteAlert = ({ clusterClient, logger }) => async (context, reques
   try {
     const { id, index } = request.params;
 
-    const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.delete({
+    const resp = await clusterClient.asScoped(request).asCurrentUser.delete({
       refresh: true,
       type: INDEX.ALERT_DOC_TYPE,
       index,

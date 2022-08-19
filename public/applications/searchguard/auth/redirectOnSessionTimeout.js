@@ -36,7 +36,7 @@ export function redirectOnSessionTimeout(authType, coreHttp) {
   }
 
   coreHttp.intercept({
-    responseError: async (httpResponseError) => {
+    responseError: async (httpResponseError, controller) => {
       const path = coreHttp.basePath.remove(window.location.pathname);
 
       // Don't run on login or logout. We shouldn't have any Ajax requests here,
@@ -79,8 +79,8 @@ export function redirectOnSessionTimeout(authType, coreHttp) {
       } catch (error) {
         console.debug('Could not handle query parameters on the redirect url', error);
       }
-
       window.location.href = redirectToFromHeader;
+      controller.halt();
     },
   });
 }

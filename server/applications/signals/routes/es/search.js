@@ -22,7 +22,7 @@ export const searchEs = ({ clusterClient, logger }) => async (context, request, 
   try {
     const { body, index, size } = request.body;
 
-    const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.search({
+    const resp = await clusterClient.asScoped(request).asCurrentUser.search({
       index,
       size,
       body,

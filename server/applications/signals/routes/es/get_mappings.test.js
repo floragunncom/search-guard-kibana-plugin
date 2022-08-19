@@ -30,19 +30,17 @@ describe('routes/es/get_mappings', () => {
     const context = setupContextMock();
 
     const expectedResponse = {
-      body: {
-        index_a: {
-          mappings: {
-            properties: {
-              f0: { type: 'float' },
-            },
+      index_a: {
+        mappings: {
+          properties: {
+            f0: { type: 'float' },
           },
         },
-        index_b: {
-          mappings: {
-            properties: {
-              f1: { type: 'keyword' },
-            },
+      },
+      index_b: {
+        mappings: {
+          properties: {
+            f1: { type: 'keyword' },
           },
         },
       },
@@ -66,7 +64,7 @@ describe('routes/es/get_mappings', () => {
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
-        resp: expectedResponse.body,
+        resp: expectedResponse,
       },
     });
   });

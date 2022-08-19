@@ -28,7 +28,7 @@ describe('ReadOnlyMode', () => {
       test('ignores anonymous pages', async () => {
         const logger = setupLoggerMock();
         const readOnly = new ReadOnlyMode(logger);
-        const pathsToIgnore = ['login', 'logout', 'customerror'];
+        const pathsToIgnore = ['/searchguard/login', 'logout', 'customerror'];
 
         pathsToIgnore.forEach((path) => {
           const request = {

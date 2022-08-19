@@ -22,13 +22,6 @@ export const defaultCookiePasswordWarnText =
 export const cookieSecureFalseWarnText =
   "'searchguard.cookie.secure' is set to false, cookies are transmitted over unsecure HTTP connection. Consider using HTTPS and set this key to 'true'";
 
-export function checkXPackSecurityDisabled({ pluginDependencies, logger }) {
-  if (pluginDependencies.security) {
-    logger.error(xPackSecurityErrorText);
-    throw new Error(xPackSecurityErrorText);
-  }
-}
-
 export async function checkDoNotFailOnForbidden({ searchGuardBackend, logger }) {
   try {
     const response = await searchGuardBackend.getKibanaInfoWithInternalUser();

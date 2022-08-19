@@ -5,6 +5,7 @@ import { EuiCodeEditor, EuiFormRow } from '@elastic/eui';
 import { responseText } from '../../../../../utils/i18n/watch';
 
 import { Context } from '../../../../../Context';
+import {CodeEditor} from "../../../../../../components";
 
 export function CheckResponse({ value = '', rowProps = {}, editorProps = {} } = {}) {
   const { editorTheme, editorOptions: defaultEditorOptions } = useContext(Context);
@@ -13,7 +14,7 @@ export function CheckResponse({ value = '', rowProps = {}, editorProps = {} } = 
 
   return (
     <EuiFormRow fullWidth label={responseText} {...rowProps}>
-      <EuiCodeEditor
+      <CodeEditor
         isReadOnly
         mode="json"
         theme={editorTheme}

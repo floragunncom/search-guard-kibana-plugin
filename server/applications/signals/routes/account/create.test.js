@@ -30,11 +30,9 @@ describe('routes/account/create', () => {
     const context = setupContextMock();
 
     const expectedResponse = {
-      body: {
-        _id: 'mydest',
-        _version: 21,
-        result: 'created',
-      },
+      _id: 'mydest',
+      _version: 21,
+      result: 'created',
     };
 
     const asCurrentUserTransportRequest = jest.fn().mockResolvedValue(expectedResponse);
@@ -57,7 +55,7 @@ describe('routes/account/create', () => {
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
-        resp: expectedResponse.body,
+        resp: expectedResponse,
       },
     });
   });

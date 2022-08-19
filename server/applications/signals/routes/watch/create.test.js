@@ -31,16 +31,14 @@ describe('routes/watch/create', () => {
     const context = setupContextMock();
 
     const expectedResponse = {
-      body: {
-        _source: {
-          trigger: {},
-          checks: [],
-          actions: [],
-          active: true,
-          log_runtime_data: false,
-        },
-        _id: 'id',
+      _source: {
+        trigger: {},
+        checks: [],
+        actions: [],
+        active: true,
+        log_runtime_data: false,
       },
+      _id: 'id',
     };
 
     const asCurrentUserTransportRequest = jest.fn().mockResolvedValue(expectedResponse);
@@ -71,7 +69,7 @@ describe('routes/watch/create', () => {
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
-        resp: expectedResponse.body,
+        resp: expectedResponse,
       },
     });
   });

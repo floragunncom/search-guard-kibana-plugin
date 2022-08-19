@@ -75,7 +75,7 @@ export default class BasicAuth extends AuthType {
       url.searchParams.set('type', 'missingRole');
       url.pathname = path.posix.join(appRoot, '/customerror');
     } else {
-      url.pathname = path.posix.join(appRoot, '/login');
+      url.pathname = path.posix.join(appRoot, '/searchguard/login');
     }
 
     return url.pathname + url.search + url.hash;

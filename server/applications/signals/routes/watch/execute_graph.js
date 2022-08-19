@@ -27,7 +27,7 @@ export function executeGraphWatch({ clusterClient, logger }) {
         },
       } = request;
 
-      const { body: resp } = await clusterClient.asScoped(request).asCurrentUser.search({
+      const resp = await clusterClient.asScoped(request).asCurrentUser.search({
         body,
         index,
       });

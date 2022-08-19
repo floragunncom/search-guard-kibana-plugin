@@ -30,28 +30,28 @@ describe('searchguard/configuration/routes', () => {
       const context = setupContextMock();
 
       const firstResponse = {
-        body: {
-          hits: {
-            hits: [
-              {
-                _id: '123',
-                _source: {
-                  token_name: 'token_1',
-                  user_name: 'user',
-                  expires_at: 1610733506000,
-                },
+
+        hits: {
+          hits: [
+            {
+              _id: '123',
+              _source: {
+                token_name: 'token_1',
+                user_name: 'user',
+                expires_at: 1610733506000,
               },
-              {
-                _id: '456',
-                _source: {
-                  token_name: 'token_2',
-                  user_name: 'user',
-                  expires_at: 1610733506000,
-                },
+            },
+            {
+              _id: '456',
+              _source: {
+                token_name: 'token_2',
+                user_name: 'user',
+                expires_at: 1610733506000,
               },
-            ],
-          },
+            },
+          ],
         },
+
       };
 
       const asCurrentUserTransportRequest = jest.fn().mockResolvedValueOnce(firstResponse);
@@ -105,31 +105,31 @@ describe('searchguard/configuration/routes', () => {
       const context = setupContextMock();
 
       const firstResponse = {
-        body: {
-          _scroll_id: 'FGluY2x1ZGVfY',
-          hits: {
-            hits: [
-              {
-                _id: '123',
-                _source: {
-                  token_name: 'token_1',
-                  user_name: 'user',
-                  expires_at: 1610733506000,
-                },
+
+        _scroll_id: 'FGluY2x1ZGVfY',
+        hits: {
+          hits: [
+            {
+              _id: '123',
+              _source: {
+                token_name: 'token_1',
+                user_name: 'user',
+                expires_at: 1610733506000,
               },
-              {
-                _id: '456',
-                _source: {
-                  token_name: 'token_2',
-                  user_name: 'user',
-                  expires_at: 1610733506000,
-                },
+            },
+            {
+              _id: '456',
+              _source: {
+                token_name: 'token_2',
+                user_name: 'user',
+                expires_at: 1610733506000,
               },
-            ],
-          },
+            },
+          ],
         },
+
       };
-      const secondResponse = [...firstResponse.body.hits.hits];
+      const secondResponse = [...firstResponse.hits.hits];
 
       const asCurrentUserTransportRequest = jest.fn().mockResolvedValueOnce(firstResponse);
       const fetchAllFromScroll = jest.fn().mockResolvedValue(secondResponse);
@@ -155,7 +155,7 @@ describe('searchguard/configuration/routes', () => {
         clusterClient,
         scroll: request.body.scroll,
         request,
-        response: firstResponse.body,
+        response: firstResponse,
       };
       const expectedResponse = [
         {

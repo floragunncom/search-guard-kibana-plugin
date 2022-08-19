@@ -5,14 +5,16 @@ import { defineSystemRoutes } from './system/routes';
 import { defineConfigurationRoutes } from './configuration/routes/routes';
 import {
   checkDoNotFailOnForbidden,
-  checkXPackSecurityDisabled,
   checkCookieConfig,
   checkTLSConfig,
 } from './sanity_checks';
-import { getSecurityCookieOptions, extendSecurityCookieOptions } from './session/security_cookie';
 import { ReadOnlyMode } from './authorization/ReadOnlyMode';
 import { AuthManager } from './auth/AuthManager';
 import { defineAuthRoutes } from './auth/routes_auth';
+import { ensureRawRequest } from "../../../../../src/core/server/http/router";
+
+import Statehood from '@hapi/statehood';
+import {CustomCookieWrapper, getSessionCookieOptions} from "./session/CustomCookieWrapper";
 
 export class SearchGuard {
   constructor(coreContext) {
@@ -35,16 +37,17 @@ export class SearchGuard {
     const kibanaVersionIndex =
       configService.get('kibana.index') + '_' + this.coreContext.env.packageInfo.version;
 
-    elasticsearch.client.rootScopedClient.on(
+    //https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/changelog-client.html#_move_from_emitter_like_interface_to_a_diagnostic_method
+    elasticsearch.client.rootScopedClient.diagnostic.on(
       'request',
       rootScopedClientRequestWrapper({ configService, kibanaVersionIndex })
     );
+
 
     try {
       // Sanity checks
       checkTLSConfig({ configService, logger: this.logger });
       checkCookieConfig({ configService, logger: this.logger });
-      checkXPackSecurityDisabled({ pluginDependencies, logger: this.logger });
       checkDoNotFailOnForbidden({
         searchGuardBackend,
         logger: this.logger,
@@ -63,14 +66,23 @@ export class SearchGuard {
         logger: this.logger,
       });
 
-      const cookieOptions = getSecurityCookieOptions(configService);
-      const sessionStorageFactory = await core.http.createCookieSessionStorageFactory(
-        cookieOptions
-      );
+      // Set up our own instance of Statehood
+      const cookieOptions = getSessionCookieOptions(configService, core.http.basePath.get());
+      const statehoodDefinitions = new Statehood.Definitions(cookieOptions);
+      const sessionCookieName = configService.get('searchguard.cookie.name')
+      statehoodDefinitions.add(sessionCookieName, cookieOptions);
 
-      // We must extend the cookie options.
-      // Because Kibana doesn't support all the options we need.
-      extendSecurityCookieOptions(cookieOptions);
+      const sessionStorageFactory = {
+        asScoped(request) {
+          return new CustomCookieWrapper(
+            statehoodDefinitions,
+            ensureRawRequest(request),
+            sessionCookieName,
+            cookieOptions
+          )
+        }
+      };
+
       const authType = configService.get('searchguard.auth.type', null);
 
       let authManager = null;
@@ -86,7 +98,7 @@ export class SearchGuard {
             basePath: core.http.basePath.get(),
             sessionStorageFactory: sessionStorageFactory,
           });
-        core.http.registerAuth(
+        core.http.registerOnPreAuth(
           kerberos.checkAuth
         );
       } else if (authType !== 'proxy') {
@@ -105,8 +117,9 @@ export class SearchGuard {
           // authManager.onPreAuth needs to run before any other handler
           // that manipulates the request headers (e.g. MT)
           core.http.registerOnPreAuth(authManager.onPreAuth);
-          core.http.registerAuth(authManager.checkAuth);
-          core.http.registerOnPostAuth(authManager.onPostAuth);
+          core.http.registerOnPreAuth(authManager.checkAuth);
+          // @todo Not really needed anymore after taking optional auth into account.
+          //core.http.registerOnPostAuth(authManager.onPostAuth);
         }
       }
 

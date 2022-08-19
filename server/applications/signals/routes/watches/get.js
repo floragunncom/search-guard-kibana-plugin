@@ -35,7 +35,7 @@ export function getWatches({ clusterClient, fetchAllFromScroll, logger }) {
         body.query = query;
       }
 
-      const { body: firstScrollResponse } = await clusterClient
+      const firstScrollResponse = await clusterClient
         .asScoped(request)
         .asCurrentUser.transport.request({
           method: 'post',

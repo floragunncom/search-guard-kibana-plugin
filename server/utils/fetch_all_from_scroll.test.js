@@ -38,16 +38,12 @@ describe('fetch_all_from_scroll', () => {
 
   test('return the hits and scroll until there are no hits', async () => {
     const asCurrentUserScroll = jest.fn().mockResolvedValueOnce({
-      body: {
-        hits: { hits: ['z'] },
-        _scroll_id: '2nd',
-      },
+      hits: { hits: ['z'] },
+      _scroll_id: '2nd',
     });
     asCurrentUserScroll.mockResolvedValue({
-      body: {
-        hits: { hits: [] },
-        _scroll_id: '3rd',
-      },
+      hits: { hits: [] },
+      _scroll_id: '3rd',
     });
     const clusterClient = setupClusterClientMock({ asCurrentUserScroll });
 

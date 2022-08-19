@@ -3,6 +3,7 @@ import React from 'react';
 import { EuiFormRow, EuiText, EuiLink, EuiCodeEditor, EuiSpacer } from '@elastic/eui';
 import { responseText, closeText } from '../../../../../utils/i18n/watch';
 import QueryStat from '../../QueryStat';
+import {CodeEditor} from "../../../../../../components";
 
 export function WatchResponse({ onCloseResult, editorTheme, editorResult }) {
   return (
@@ -18,7 +19,7 @@ export function WatchResponse({ onCloseResult, editorTheme, editorResult }) {
           </EuiText>
         }
       >
-        <EuiCodeEditor
+        <CodeEditor
           theme={editorTheme}
           mode="json"
           width="100%"

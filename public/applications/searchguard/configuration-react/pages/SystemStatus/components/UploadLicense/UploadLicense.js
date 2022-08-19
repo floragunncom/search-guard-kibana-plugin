@@ -19,9 +19,10 @@ import { validateTextField, isInvalid, hasError } from '../../../../utils/valida
 import { readFileAsText } from '../../../../utils/helpers';
 
 import { Context } from '../../../../Context';
+import {FormikCodeEditorSG} from "../../../../../../components";
 
 const LicenseEditor = ({ editorTheme, editorOptions }) => (
-  <FormikCodeEditor
+  <FormikCodeEditorSG
     name="license"
     formRow
     formikFieldProps={{ validate: validateTextField }}

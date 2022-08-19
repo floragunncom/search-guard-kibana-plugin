@@ -4,7 +4,7 @@ import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { isEmpty, get } from 'lodash';
 import { EuiSpacer } from '@elastic/eui';
-import { FormikCodeEditor, FormikFieldText, FormikComboBox } from '../../../../../components';
+import {FormikCodeEditor, FormikFieldText, FormikComboBox, FormikCodeEditorSG} from '../../../../../components';
 import { getCurrentAccount } from '../utils';
 import { nameText } from '../../../../../utils/i18n/common';
 import ActionChecks from '../ActionChecks';
@@ -210,7 +210,7 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
           validate: validateEmptyField,
         }}
       />
-      <FormikCodeEditor
+      <FormikCodeEditorSG
         name={textBodyPath}
         formRow
         rowProps={{
@@ -243,7 +243,7 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
       />
       <ActionBodyPreview template={textBodyPreviewTemplate} />
 
-      <FormikCodeEditor
+      <FormikCodeEditorSG
         name={htmlBodyPath}
         formRow
         rowProps={{

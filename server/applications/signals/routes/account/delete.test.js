@@ -30,11 +30,9 @@ describe('routes/account/delete', () => {
     const context = setupContextMock();
 
     const expectedResponse = {
-      body: {
-        _id: 'mymailserver',
-        _version: 20,
-        result: 'deleted',
-      },
+      _id: 'mymailserver',
+      _version: 20,
+      result: 'deleted',
     };
 
     const asCurrentUserTransportRequest = jest.fn().mockResolvedValue(expectedResponse);
@@ -55,7 +53,7 @@ describe('routes/account/delete', () => {
     expect(response.ok).toHaveBeenCalledWith({
       body: {
         ok: true,
-        resp: expectedResponse.body,
+        resp: expectedResponse,
       },
     });
   });
