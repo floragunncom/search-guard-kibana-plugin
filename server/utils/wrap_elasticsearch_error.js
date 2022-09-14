@@ -20,8 +20,8 @@ export function wrapForCustomError(error) {
   }
 
   const customError = {
-    statusCode: error.statusCode || 500,
-    body: { message: error.message || 'Internal Server Error' },
+    statusCode: error.statusCode || error.inner?.meta?.statusCode || 500,
+    body: { message: error.inner?.meta?.body?.message || error.message || 'Internal Server Error' },
   };
 
   if (error.body) {

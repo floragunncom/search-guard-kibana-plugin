@@ -87,7 +87,7 @@ export function loginAuthHandler({ config, authInstance, logger, searchGuardBack
       }
     } catch (error) {
       logger.error(`Basic auth login authorization ${error.stack}`);
-      if (error.meta?.body && error.meta?.statusCode == 401) {
+      if (error.meta?.body && (error.meta?.statusCode == 401 || error.meta?.statusCode === 403)) {
         return response.unauthorized({
           body: { attributes: error.meta.body, message: error.meta.body.error ? error.meta.body.error : error.message  },
 		  headers: {

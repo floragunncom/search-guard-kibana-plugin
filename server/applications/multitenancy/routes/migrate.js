@@ -49,7 +49,7 @@ export function migrateTenants({
           tenantIndices.map((index) => {
             const kibanaMigrator = new KibanaMigrator({
               client,
-              kibanaConfig: { ...kibanaConfig, index },
+              kibanaIndex: index,
               typeRegistry,
               logger,
               kibanaVersion,
@@ -77,7 +77,7 @@ export function migrateTenants({
 
       const kibanaMigrator = new KibanaMigrator({
         client,
-        kibanaConfig: { ...kibanaConfig, index: indexToMigrate },
+        kibanaIndex: indexToMigrate,
         typeRegistry,
         logger,
         kibanaVersion,

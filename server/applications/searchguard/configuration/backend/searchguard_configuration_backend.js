@@ -49,7 +49,7 @@ export default class SearchGuardConfigurationBackend {
 
   indices = async ({ headers, index = [] } = {}) => {
     try {
-      const { body: response } = await this.elasticsearch.client
+      const response = await this.elasticsearch.client
         .asScoped({ headers })
         .asCurrentUser.cat.indices({
           index,
@@ -68,7 +68,7 @@ export default class SearchGuardConfigurationBackend {
 
   aliases = async ({ headers, alias = [] } = {}) => {
     try {
-      const { body: response } = await this.elasticsearch.client
+      const response = await this.elasticsearch.client
         .asScoped({ headers })
         .asCurrentUser.cat.aliases({
           alias,
@@ -190,7 +190,7 @@ export default class SearchGuardConfigurationBackend {
 
   getIndexMappings = async ({ headers, body: { index } }) => {
     try {
-      const { body: mappings } = await this.elasticsearch.client
+      const mappings = await this.elasticsearch.client
         .asScoped({ headers })
         .asCurrentUser.indices.getMapping({
           index: index.join(','),

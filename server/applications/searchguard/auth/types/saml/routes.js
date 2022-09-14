@@ -35,7 +35,6 @@ export function defineRoutes({
   const basePath = kibanaCore.http.basePath.serverBasePath;
   const httpResources = kibanaCore.http.resources;
   const router = kibanaCore.http.createRouter();
-  const httpAuth = kibanaCore.http.auth;
 
   const routesPath = '/auth/saml/';
 
@@ -58,13 +57,6 @@ export function defineRoutes({
           cookie: 'searchguard_authentication='
         },
       */
-      if (httpAuth.isAuthenticated(request)) {
-        return response.redirected({
-          headers: {
-            location: `${basePath}/app/kibana`,
-          },
-        });
-      }
 
       // Add the nextUrl to the redirect_uri as a parameter. The IDP uses the redirect_uri to redirect the user after successful authentication.
       // For example, it is used to redirect user to the correct dashboard if the user put shared URL in the browser address input before authentication.
