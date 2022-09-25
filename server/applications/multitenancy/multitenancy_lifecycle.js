@@ -141,7 +141,7 @@ export class MultitenancyLifecycle {
       // We need the user's data from the backend to validate the selected tenant
       authInfoResponse = await backend.authinfo(authHeaders);
     } catch (error) {
-      this.logger.error(`Multitenancy: Could not get authinfo ${error}`, error);
+      this.logger.info(`Multitenancy: Could not get authinfo ${error}`, error);
       return null;
     }
 
