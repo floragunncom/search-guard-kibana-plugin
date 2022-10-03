@@ -17,7 +17,7 @@
 
 import { assign } from 'lodash';
 import { schema } from '@kbn/config-schema';
-import { ensureRawRequest } from '../../../../../../src/core/server/http/router';
+import { ensureRawRequest } from '@kbn/core-http-router-server-internal';
 import { API_ROOT } from '../../../utils/constants';
 
 export function multitenancyRoutes({

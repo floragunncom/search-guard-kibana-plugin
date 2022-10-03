@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import { migrationRetryCallCluster } from '../../../../../src/core/server/elasticsearch/client';
 import { KibanaMigrator } from '../../../../../src/core/server/saved_objects/migrations';
-
 import { defineMigrateRoutes } from './routes';
 import { ByteSizeValue } from '@kbn/config-schema';
 import { DEFAULT_CONFIG } from '../../default_config';
@@ -27,6 +25,7 @@ export function setupMigratorDependencies({
   savedObjects,
   kibanaVersion,
   logger,
+  docLinks,
 }) {
   const savedObjectsMigrationConfig = configService.get(
     'searchguard.multitenancy.saved_objects_migration'
@@ -51,6 +50,7 @@ export function setupMigratorDependencies({
     logger,
     kibanaVersion,
     soMigrationsConfig,
+    docLinks,
   };
 
   return { soMigrationsConfig, typeRegistry, kibanaConfig, migratorDeps };
@@ -63,7 +63,7 @@ export class TenantsMigrationService {
     this.logger = coreContext.logger.get('tenants-migration-service');
   }
 
-  async setup({ configService, savedObjects, esClient, kibanaRouter, searchGuardBackend }) {
+  async setup({ configService, savedObjects, esClient, kibanaRouter, searchGuardBackend, docLinksService }) {
     const { migratorDeps } = setupMigratorDependencies({
       configService,
       esClient,
@@ -77,10 +77,11 @@ export class TenantsMigrationService {
       migratorDeps,
       kibanaRouter,
       searchGuardBackend,
+      docLinksService
     });
   }
 
-  async start({ searchGuardBackend, esClient, configService, savedObjects }) {
+  async start({ searchGuardBackend, esClient, configService, savedObjects, docLinksStarted }) {
     this.logger.debug('Start tenants saved objects migration');
 
     try {
@@ -90,6 +91,7 @@ export class TenantsMigrationService {
         savedObjects,
         kibanaVersion: this.kibanaVersion,
         logger: this.logger,
+        docLinks: docLinksStarted,
       });
 
       const tenantIndices = await searchGuardBackend.getTenantInfoWithInternalUser();

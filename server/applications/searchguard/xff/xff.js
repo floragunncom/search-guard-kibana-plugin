@@ -1,5 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import { ensureRawRequest } from '../../../../../../src/core/server/http/router';
+import { ensureRawRequest } from '@kbn/core-http-router-server-internal';
 
 /**
  *    Copyright 2019 floragunn GmbH
