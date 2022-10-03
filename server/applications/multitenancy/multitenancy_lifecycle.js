@@ -15,7 +15,7 @@
  */
 
 import { assign } from 'lodash';
-import { ensureRawRequest } from '../../../../../src/core/server/http/router';
+import { ensureRawRequest } from '@kbn/core-http-router-server-internal';
 
 export class MultitenancyLifecycle {
   constructor({
@@ -55,7 +55,7 @@ export class MultitenancyLifecycle {
 		  }
     } else if (this.kerberos) {
        sessionCookie = await this.kerberos.getCookieWithCredentials(request);
-       authHeaders = this.kerberos.getAuthHeader(sessionCookie);        
+       authHeaders = this.kerberos.getAuthHeader(sessionCookie);
     } else {
        sessionCookie = await this.sessionStorageFactory.asScoped(request).get();
 	}

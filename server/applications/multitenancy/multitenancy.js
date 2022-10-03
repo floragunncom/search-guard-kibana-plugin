@@ -14,7 +14,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
+import { DocLinksService} from '@kbn/core-doc-links-server-internal';
 import { TenantsMigrationService } from './tenants_migration_service';
 import { defineMultitenancyRoutes } from './routes';
 import { MultitenancyLifecycle } from './multitenancy_lifecycle';
@@ -24,6 +24,8 @@ export class Multitenancy {
     this.coreContext = coreContext;
     this.logger = coreContext.logger.get('searchguard-multitenancy');
     this.tenantsMigration = new TenantsMigrationService(coreContext);
+    this.docLinksService = new DocLinksService(coreContext);
+    this.docLinksService.setup();
   }
 
   async setup({
@@ -56,6 +58,7 @@ export class Multitenancy {
         esClient: elasticsearch.client,
         kibanaRouter,
         searchGuardBackend,
+        docLinksService: this.docLinksService
       });
 
       const multitenancyLifecycle = new MultitenancyLifecycle({
@@ -90,6 +93,7 @@ export class Multitenancy {
     this.logger.debug('Start app');
     const esClient = core.elasticsearch.client;
     const savedObjects = core.savedObjects;
+    const docLinksStarted = this.docLinksService.start();
 
     try {
       await this.tenantsMigration.start({
@@ -97,6 +101,7 @@ export class Multitenancy {
         searchGuardBackend,
         configService,
         savedObjects,
+        docLinksStarted
       });
     } catch (error) {
       this.logger.error(`start: ${error.toString()} ${error.stack}`);
