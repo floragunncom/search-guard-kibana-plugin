@@ -11,7 +11,7 @@ import {
 import { ReadOnlyMode } from './authorization/ReadOnlyMode';
 import { AuthManager } from './auth/AuthManager';
 import { defineAuthRoutes } from './auth/routes_auth';
-import { ensureRawRequest } from "../../../../../src/core/server/http/router";
+import { ensureRawRequest } from '@kbn/core-http-router-server-internal';
 
 import Statehood from '@hapi/statehood';
 import {CustomCookieWrapper, getSessionCookieOptions} from "./session/CustomCookieWrapper";

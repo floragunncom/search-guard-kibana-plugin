@@ -21,12 +21,14 @@ export function migrateTenants({
   searchGuardBackend,
   KibanaMigrator,
   migratorDeps: { client, kibanaConfig, typeRegistry, logger, kibanaVersion, soMigrationsConfig },
+  docLinksService
 }) {
   return async function (context, request, response) {
     try {
       const { tenantIndex } = request.params;
       let body;
 
+      const docLinksStarted = docLinksService.start();
       if (!tenantIndex) {
         return response.badRequest({
           body: new Error('Tenant index name is required as the request parameter.'),
@@ -54,6 +56,7 @@ export function migrateTenants({
               logger,
               kibanaVersion,
               soMigrationsConfig,
+              docLinks: docLinksStarted
             });
 
             kibanaMigrator.prepareMigrations();
@@ -82,6 +85,7 @@ export function migrateTenants({
         logger,
         kibanaVersion,
         soMigrationsConfig,
+        docLinks: docLinksStarted
       });
 
       kibanaMigrator.prepareMigrations();
@@ -100,6 +104,7 @@ export function migrateTenantsRoute({
   searchGuardBackend,
   migratorDeps,
   KibanaMigrator,
+  docLinksService,
 }) {
   const options = {
     path: `${API_ROOT}/multitenancy/migrate/{tenantIndex}`,
@@ -110,6 +115,6 @@ export function migrateTenantsRoute({
     },
   };
 
-  kibanaRouter.post(options, migrateTenants({ searchGuardBackend, migratorDeps, KibanaMigrator }));
-  kibanaRouter.get(options, migrateTenants({ searchGuardBackend, migratorDeps, KibanaMigrator }));
+  kibanaRouter.post(options, migrateTenants({ searchGuardBackend, migratorDeps, KibanaMigrator, docLinksService }));
+  kibanaRouter.get(options, migrateTenants({ searchGuardBackend, migratorDeps, KibanaMigrator, docLinksService }));
 }

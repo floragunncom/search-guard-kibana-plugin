@@ -36,7 +36,7 @@ export class TenantService {
     this.versionIndexName = this.versionAliasName + '_001';
 
     // we need the active mappings in order to apply it to newly created tenant indices
-    const { migratorDeps }  = setupMigratorDependencies({
+    const { migratorDeps } = setupMigratorDependencies({
       configService,
       esClient: clusterClient,
       savedObjects,
