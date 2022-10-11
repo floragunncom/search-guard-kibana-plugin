@@ -1,234 +1,147 @@
-
-fe_anon_user:
+kibana_basicauth:
   extends:
-  - .fe_integration_test
+  - .be_integration_test
   variables:
-    TEST: "kibana_anonymous_user"
-    TEST_ENVIRONMENT: "kibana_anonymous_user"
-    TEST_COMPOSEFILE: "docker-compose-kibana-anonymous_user.yml"
-    TEST_KI_CONFIG: "anonymous_user"
+    TEST_DEFINITIONS: ".*kibana_basicauth.*"
 
-fe_basicauth:
+# kibana_signals_accounts:
+#   extends:
+#   - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_signals_accounts"
+
+# kibana_signals_accounts_edit:
+#   extends:
+#     - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_signals_accounts_edit"
+
+# kibana_signals_watches:
+#   extends:
+#   - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_signals_watches"
+
+# kibana_signals_watches_edit_1:
+#   extends:
+#     - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_signals_watches_edit_1"
+
+# kibana_signals_watches_edit_2:
+#   extends:
+#     - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_signals_watches_edit_2"
+
+kibana_saml:
   extends:
-  - .fe_integration_test
+  - .be_integration_test
   variables:
-    TEST: "kibana_basicauth"
-    TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "basicauth"
+    TEST_DEFINITIONS: ".*kibana_saml_keycloak.*" 
 
-fe_basicauth_basepath:
+kibana_oidc:
   extends:
-  - .fe_integration_test
+  - .be_integration_test
   variables:
-    TEST: "kibana_basicauth_basepath"
-    TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "basicauth_basepath"
+    TEST_DEFINITIONS: ".*kibana_oidc_keycloak.*"
 
-fe_basicauth_no_mt:
+kibana_proxy:
   extends:
-  - .fe_integration_test
+  - .be_integration_test
   variables:
-    TEST: "kibana_basicauth_multitenancy_disabled"
-    TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "basicauth_multitenancy_disabled"
+    TEST_DEFINITIONS: ".*kibana_proxy.*"
 
-fe_clientcert_basepath:
+kibana_jwt:
   extends:
-  - .fe_integration_test
+  - .be_integration_test
   variables:
-    TEST: "kibana_clientcert_basepath"
-    TEST_ENVIRONMENT: "kibana_xpack_clientcert"
-    TEST_KI_CONFIG: "clientcert"
+    TEST_DEFINITIONS: ".*kibana_jwt.*"
 
-fe_multitenancy:
+kibana_configui_1:
   extends:
-  - .fe_integration_test
+  - .be_integration_test
   variables:
-    TEST: "kibana_basicauth_multitenancy"
-    TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "basicauth"
+    TEST_DEFINITIONS: ".*kibana_configui_1.*" 
 
-fe_openid_auth0:
+kibana_configui_2:
   extends:
-    - .fe_integration_test
+  - .be_integration_test
   variables:
-    TEST: "kibana_openid_auth0"
-    TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "openid_auth0"
+    TEST_DEFINITIONS: ".*kibana_configui_2.*"  
 
-fe_openid_keycloak:
+kibana_configui_3:
   extends:
-    - .fe_integration_test
+  - .be_integration_test
   variables:
-    TEST: "kibana_openid_keycloak"
-    TEST_ENVIRONMENT: "kibana_noxpack_openid"
-    TEST_KI_CONFIG: "openid_keycloak"
+    TEST_DEFINITIONS: ".*kibana_configui_3.*"
 
-fe_openid_keycloak_non_default:
+kibana_authtokens:
   extends:
-    - .fe_integration_test
+  - .be_integration_test
   variables:
-    TEST: "kibana_openid_keycloak_non_default"
-    TEST_ENVIRONMENT: "kibana_noxpack_openid"
-    TEST_KI_CONFIG: "openid_keycloak_non_default"
+    TEST_DEFINITIONS: ".*kibana_authtokens.*"
 
-fe_saml_keycloak:
-  extends:
-    - .fe_integration_test
-  variables:
-    TEST: "kibana_saml_keycloak"
-    TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "saml"
+# kibana_configui_licensehandling:
+#   extends:
+#   - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_configui_licensehandling.*"
 
-fe_saml_auth0:
-  extends:
-    - .fe_integration_test
-  variables:
-    TEST: "kibana_saml_auth0"
-    TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "saml"
+# kibana_kerberos:
+#   extends:
+#   - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_kerberos.*"
 
-fe_session_auth:
-  extends:
-    - .fe_integration_test
-  variables:
-    TEST: "kibana_session_auth"
-    TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "session_auth"
-
-fe_sso_proxy:
-  extends:
-  - .fe_integration_test
-  variables:
-    TEST: "kibana_sso_proxy"
-    TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "sso_proxy"
-
-fe_sso_jwt_header:
-  extends:
-  - .fe_integration_test
-  variables:
-    TEST: "kibana_sso_jwt_header"
-    TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "sso_jwt"
-
-fe_sso_jwt_param:
-  extends:
-  - .fe_integration_test
-  variables:
-    TEST: "kibana_sso_jwt_param"
-    TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "sso_jwt"
-
-fe_kerberos:
-  extends:
-  - .fe_integration_test
-  variables:
-    TEST: "kibana_kerberos"
-    TEST_ENVIRONMENT: "kibana_xpack"
-    TEST_KI_CONFIG: "kerberos"
-
-# -------------------------------------------------------------------------
-
-.fe_integration_test:
-  stage: "Frontend Int Tests Core"
+.be_integration_test:
+  allow_failure: false
+  stage: "Frontend Int Tests"
+  tags:
+    - test-large
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: on_success
-    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
-      when: on_success
+      when: always
     - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: on_success
-  variables:
-    TEST: "«TBD»"
-    TEST_ENVIRONMENT: "default"
-    TEST_COMPOSEFILE: "docker-compose-kibana.yml"
-    TEST_KI_CONFIG: "default"
-    TEST_SG_ES_PLUGIN: "$SG_ES_PLUGIN"
-    TEST_SG_ADMIN: "$SG_ADMIN"
-    TEST_ES_VERSION: "$ES_VERSION"
-    TEST_SG_KI_PLUGIN: "$SG_KI_PLUGIN"
-    TEST_KI_VERSION: "$KI_VERSION"
-    TEST_IT_BRANCH: "$IT_BRANCH"
-  image: floragunncom/ci-docker-compose-openjdk11:19.03.1
-  before_script:
-    - sudo sysctl -w vm.max_map_count=262144
-    - docker-compose --version
-    - apk update
-    - apk add jq curl zip  openssh-client
-    - apk add python python-dev python py3-setuptools py-pip git
-    - pip install awscli --upgrade || true
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan git.floragunn.com >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
+      when: always
+    - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
+      when: always
+    - if: $FORCE_SGI
+      when: always
+    - if: '$CI_COMMIT_MESSAGE =~ /.*SKIP-SGI.*/'
+      when: never
+    - if: '$CI_COMMIT_MESSAGE =~ /.*SKIP-TESTS.*/'
+      when: never
+    - if: '$CI_COMMIT_MESSAGE =~ /.*FORCE_SGI.*/'
+      when: always
+  image: docker:${DOCKER_VERSION}
   services:
-    - docker:19.03-dind
-  tags:
-    - aws-runner
+    - docker:${DOCKER_VERSION}-dind
   script:
     - |
-       echo "============================================="
-       echo "TEST_IT_BRANCH: $TEST_IT_BRANCH"
-       echo "TEST_SG_ES_PLUGIN: $TEST_SG_ES_PLUGIN"
-       echo "TEST_ES_VERSION: $TEST_ES_VERSION"
-       echo "TEST_SG_KI_PLUGIN: $TEST_SG_KI_PLUGIN"
-       echo "TEST_KI_VERSION: $TEST_KI_VERSION"
-       echo "============================================="
-       if [[ "$TEST_SG_KI_PLUGIN" =~ .*staging.* ]]; then
-         echo "export KI_SOURCE=staging" >> $CI_PROJECT_DIR/environment.env
-       else
-         echo "export KI_SOURCE=snapshot" >> $CI_PROJECT_DIR/environment.env
-       fi	
-       if [[ ! "$TEST_SG_KI_PLUGIN" =~ ^https?:.*$ ]]; then
-         if [[ "$TEST_SG_KI_PLUGIN" =~ .*SNAPSHOT.* ]]; then
-          SG_KI_PLUGIN_FILE=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-kibana-plugin&v=$TEST_SG_KI_PLUGIN&repos=search-guard-kibana-plugin-snapshot"| grep zip|sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1) 
-          TEST_SG_KI_PLUGIN=https://maven.search-guard.com/artifactory/search-guard-kibana-plugin-snapshot/com/floragunn/search-guard-kibana-plugin/$TEST_SG_KI_PLUGIN/$SG_KI_PLUGIN_FILE.zip
-          echo "Found: $TEST_SG_KI_PLUGIN"
-         else
-          SG_KI_PLUGIN_FILE=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-kibana-plugin&v=$TEST_SG_KI_PLUGIN&repos=search-guard-kibana-plugin-release"| grep zip|sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1) 
-          TEST_SG_KI_PLUGIN=https://maven.search-guard.com/artifactory/search-guard-kibana-plugin-release/com/floragunn/search-guard-kibana-plugin/$TEST_SG_KI_PLUGIN/$SG_KI_PLUGIN_FILE.zip
-          echo "Found: $TEST_SG_KI_PLUGIN"
-         fi
-       fi		
-       echo "export SG_SOURCE=snapshot" >> environment.env
-       echo "export SG_SNAPSHOT=${TEST_SG_ES_PLUGIN}" >> $CI_PROJECT_DIR/environment.env
-       echo "export SGADMIN_SNAPSHOT=${TEST_SG_ADMIN}" >> $CI_PROJECT_DIR/environment.env
-       echo "export SG_VERSION=whatever" >> environment.env
-       echo "export BASEIMAGE=0.9.3-open-jdk-11" >> $CI_PROJECT_DIR/environment.env
-       echo "export ES_VERSION=$TEST_ES_VERSION" >> $CI_PROJECT_DIR/environment.env
-       echo "export KIBANA_VERSION=${TEST_KI_VERSION}"  >> $CI_PROJECT_DIR/environment.env
-       echo "export KI_URL=https://artifacts.elastic.co/downloads/kibana/kibana-$TEST_KI_VERSION-linux-x86_64.tar.gz"
-       echo "export KI_SNAPSHOT=${TEST_SG_KI_PLUGIN}"  >> $CI_PROJECT_DIR/environment.env
-       echo "export KI_PLUGIN_VERSION=whatever" >> environment.env
-       cat environment.env
-       echo "============================================="
-       . ./environment.env
-       git clone --depth 1 --branch $TEST_IT_BRANCH git@git.floragunn.com:private/search-guard-integration-tests.git > /dev/null
-       cd search-guard-integration-tests
-       echo "Copying variables file"
-       cp ../environment.env ./
-       echo "Copying scripts for CI test execution"
-       cp ci-tools/*.sh ./
-       echo "Executing submit_test.sh"
-       ./submit_test.sh "$TEST" ""
-  needs:
-    - job: deploy_snapshot
-      artifacts: true
-      optional: true
-    - job: deploy_staging
-      artifacts: true
-      optional: true
+       
+       sudo sysctl -w vm.max_map_count=262144
+       echo "SNAPSHOT_REVISION=$SNAPSHOT_REVISION"
+       echo "TEST_DEFINITIONS $TEST_DEFINITIONS"
+       
+       git clone --depth 1 --branch $IT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git > /dev/null
+       cd sgi8/server
+       rm -f docker/elasticsearch/search-guard.zip
+       rm -f docker/kibana/kibana-plugin.zip
+       
+       # We need a kibana plugin zip in/as docker/kibana/kibana-plugin.zip
+       # We also need a search guard zip in/as docker/elasticsearch/search-guard.zip
+       
+       wget -O docker/elasticsearch/search-guard.zip "$SG_ES_PLUGIN"
+       #wget -O docker/elasticsearch/search-guard.zip https://maven.search-guard.com//search-guard-flx-release/com/floragunn/search-guard-flx-elasticsearch-plugin/1.0.0-beta-4-es-8.2.3/search-guard-flx-elasticsearch-plugin-1.0.0-beta-4-es-8.2.3.zip
+       
+       cp ../../target/releases/search-guard-flx-kibana-plugin-b-prepare-es8-citest-SNAPSHOT.zip docker/kibana/kibana-plugin.zip       
+       ./run_test_definition.sh "$TEST_DEFINITIONS"
   artifacts:
     when: always
     paths:
-      - search-guard-integration-tests/test/logs/
-      - search-guard-integration-tests/test/testresults/
-      - search-guard-integration-tests/environment.env
+      - sgi8/client/test/testresults**/**/*
     reports:
       junit:
-        - "search-guard-integration-tests/test/testresults/Test*.xml"
-        - "search-guard-integration-tests/test/testresults/TEST*.xml"
+        - "sgi8/client/test/testresults**/junit/Test*.xml"
     expire_in: 30 days

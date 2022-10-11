@@ -2,11 +2,7 @@
 
 set -e 
 
-if [ $SF_PRODUCT = "kibana" ]; then
-  SF_BRANCH_NAME="v$SF_VERSION"
-else
-  SF_BRANCH_NAME="$SF_VERSION"
-fi
+SF_BRANCH_NAME="v$SF_VERSION"
   
 if [[ -f $SF_REPO_DIR/.cached_version ]]; then
    CACHED_VERSION=`cat $SF_REPO_DIR/.cached_version`
@@ -52,12 +48,29 @@ cp -a "../__mocks__" plugins/search-guard
 
 echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
 
-if [ $SF_PRODUCT = "kibana" ]; then
-  yarn kbn bootstrap --oss
-elif [ $SF_PRODUCT = "opensearch-dashboards" ]; then
-  yarn osd bootstrap
-fi
+yarn kbn bootstrap --oss
     
 echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
 
-cd ..
+start_section tests "Unit Tests"
+cd plugins/search-guard
+export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-server.xml
+../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --reporters="jest-junit" --reporters="default"
+export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-public.xml
+../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=public  --config ./tests/jest.config.js --reporters="jest-junit" --reporters="default"
+end_section tests
+rm -rf "node_modules"
+start_section build "Building Search Guard Plugin"
+start_section yarn_install "Doing yarn install --production"
+yarn install --production
+end_section yarn_install
+start_section yarn_build "Doing yarn build -v $SF_VERSION --skip-archive"
+yarn build -v $SF_VERSION --skip-archive
+end_section yarn_build
+end_section build
+# Move build result from repo dir to the build folder in the CI root dir. 
+cd $CI_PROJECT_DIR
+rm -rf build
+mv $SF_REPO_DIR/plugins/search-guard/build build
+# Remove search-guard dir from repo to have a clean repo for the Gitlab CI cache
+rm -rf $SF_REPO_DIR/plugins/search-guard
