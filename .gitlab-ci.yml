@@ -183,9 +183,7 @@ deploy_release:
     - |
       ci/setup_gpg.sh
       ci/deploy.sh
-      start_section deploy "Deploying to release repository"
       mvn -B -s settings.xml -Drevision="$BUILD_VERSION" deploy
-      end_section deploy
 
 include:
   - local: '.gitlab-ci-branch-specific.yml'
