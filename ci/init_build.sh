@@ -53,7 +53,7 @@ yarn kbn bootstrap --oss
 echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
 
 start_section tests "Unit Tests"
-cd plugins/search-guard
+
 export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-server.xml
 ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --reporters="jest-junit" --reporters="default"
 export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-public.xml
