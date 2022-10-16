@@ -53,6 +53,12 @@ yarn kbn bootstrap --oss
     
 echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
 
+echo -e "\e[0Ksection_start:`date +%s`:yarn_install[collapsed=true]\r\e[0KDoing yarn install"
+
+yarn install
+
+echo -e "\e[0Ksection_end:`date +%s`:yarn_install\r\e[0K"
+
 start_section tests "Unit Tests"
 
 export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-server.xml
