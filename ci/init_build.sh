@@ -35,6 +35,13 @@ if [[ -d plugins/search-guard ]]; then
   rm -rf plugins/search-guard 
 fi
 
+echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
+
+yarn add node-sass
+yarn kbn bootstrap --oss
+
+echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
+
 mkdir -p plugins/search-guard
 cp -a "../babel.config.js" plugins/search-guard
 cp -a "../package.json" plugins/search-guard
@@ -45,12 +52,13 @@ cp -a "../server" plugins/search-guard
 cp -a "../common" plugins/search-guard
 cp -a "../tests"  plugins/search-guard
 cp -a "../__mocks__" plugins/search-guard
+cd plugins/search-guard
 
-echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
+echo -e "\e[0Ksection_start:`date +%s`:yarn_install[collapsed=true]\r\e[0KDoing yarn install"
 
-yarn kbn bootstrap --oss
-    
-echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
+yarn install
+
+echo -e "\e[0Ksection_end:`date +%s`:yarn_install\r\e[0K"
 
 start_section tests "Unit Tests"
 
