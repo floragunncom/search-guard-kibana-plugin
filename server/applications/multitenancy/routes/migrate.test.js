@@ -100,6 +100,16 @@ function setupKibanaMigratorMock({
   return jest.fn(() => ({ runMigrations, prepareMigrations }));
 }
 
+function setupDocLinksServiceMock({
+ start = jest.fn(),
+ setup = jest.fn(),
+} = {}) {
+  return {
+    start,
+    setup
+  };
+}
+
 const kibanaVersion = '8.0.0';
 
 const migratorDeps = {
@@ -117,6 +127,7 @@ describe('multitenancy/routes/migrate', () => {
       const searchGuardBackend = setupSearchGuardBackendMock();
       const KibanaMigrator = setupKibanaMigratorMock();
       const response = setupHttpResponseMock();
+      const docLinksService = setupDocLinksServiceMock();
 
       const request = { params: {} };
 
@@ -124,6 +135,7 @@ describe('multitenancy/routes/migrate', () => {
         searchGuardBackend,
         KibanaMigrator,
         migratorDeps,
+        docLinksService
       })(null, request, response);
 
       expect(response.badRequest).toHaveBeenCalledWith({
@@ -134,7 +146,7 @@ describe('multitenancy/routes/migrate', () => {
     test('throw error if no indices found', async () => {
       const KibanaMigrator = setupKibanaMigratorMock();
       const response = setupHttpResponseMock();
-
+      const docLinksService = setupDocLinksServiceMock();
       const searchGuardBackend = setupSearchGuardBackendMock({
         getTenantInfoWithInternalUser: jest.fn().mockResolvedValue({}),
       });
@@ -145,6 +157,7 @@ describe('multitenancy/routes/migrate', () => {
         searchGuardBackend,
         KibanaMigrator,
         migratorDeps,
+        docLinksService
       })(null, request, response);
 
       expect(response.customError).toHaveBeenCalledWith({
@@ -162,7 +175,7 @@ describe('multitenancy/routes/migrate', () => {
           '.kibana_-152937574_admintenant': 'admin_tenant',
         }),
       });
-
+      const docLinksService = setupDocLinksServiceMock();
       const tenantIndex = 'kibana_3568561_trex';
       const request = { params: { tenantIndex } };
 
@@ -170,6 +183,7 @@ describe('multitenancy/routes/migrate', () => {
         searchGuardBackend,
         KibanaMigrator,
         migratorDeps,
+        docLinksService
       })(null, request, response);
 
       expect(response.customError).toHaveBeenCalledWith({
@@ -182,6 +196,7 @@ describe('multitenancy/routes/migrate', () => {
 
     test('throw error', async () => {
       const KibanaMigrator = setupKibanaMigratorMock();
+      const docLinksService = setupDocLinksServiceMock();
       const response = setupHttpResponseMock();
 
       const error = new Error('nasty!');
@@ -196,6 +211,7 @@ describe('multitenancy/routes/migrate', () => {
         searchGuardBackend,
         KibanaMigrator,
         migratorDeps,
+        docLinksService
       })(null, request, response);
 
       expect(response.internalError).toHaveBeenCalledWith({ body: error });
@@ -220,6 +236,7 @@ describe('multitenancy/routes/migrate', () => {
     const prepareMigrations = jest.fn();
     const runMigrations = jest.fn().mockResolvedValue(expectedMigrationResponse);
     const KibanaMigrator = setupKibanaMigratorMock({ prepareMigrations, runMigrations });
+    const docLinksService = setupDocLinksServiceMock();
 
     const searchGuardBackend = setupSearchGuardBackendMock({
       getTenantInfoWithInternalUser: jest.fn().mockResolvedValue(expectedTenantInfoResponse),
@@ -229,6 +246,7 @@ describe('multitenancy/routes/migrate', () => {
       searchGuardBackend,
       KibanaMigrator,
       migratorDeps,
+      docLinksService
     })(null, request, response);
 
     expect(prepareMigrations).toHaveBeenCalled();
@@ -261,6 +279,7 @@ describe('multitenancy/routes/migrate', () => {
 
     const response = setupHttpResponseMock();
 
+    const docLinksService = setupDocLinksServiceMock();
     const prepareMigrations = jest.fn();
     const runMigrations = jest
       .fn()
@@ -276,6 +295,7 @@ describe('multitenancy/routes/migrate', () => {
       searchGuardBackend,
       KibanaMigrator,
       migratorDeps,
+      docLinksService
     })(null, request, response);
 
     expect(prepareMigrations).toHaveBeenCalled();
