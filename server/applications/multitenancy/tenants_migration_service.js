@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { KibanaMigrator } from '../../../../../src/core/server/saved_objects/migrations';
+import { KibanaMigrator } from '@kbn/core-saved-objects-migration-server-internal';
 import { defineMigrateRoutes } from './routes';
 import { ByteSizeValue } from '@kbn/config-schema';
 import { DEFAULT_CONFIG } from '../../default_config';
