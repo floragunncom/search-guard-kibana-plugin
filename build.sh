@@ -131,6 +131,8 @@ echo -e "\e[0Ksection_end:`date +%s`:kibana_clone\r\e[0K"
 
 cd "kibana"
 
+nvm use
+
 #This is taken from Kibana GIT
 KIBANA_APP_VERSION=$(grep -e '\bversion\b' package.json | tr -d "[:blank:]" | sed -E 's/"version":"(.*)",/\1/')
 
@@ -190,6 +192,8 @@ cp -a "$WORK_DIR/common" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/tests" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/__mocks__" "$BUILD_STAGE_PLUGIN_DIR"
 cd $BUILD_STAGE_PLUGIN_DIR
+
+yarn install
 
 echo -e "\e[0Ksection_start:`date +%s`:yarn_audit\r\e[0KChecking yarn packages for vulnerabilities"
 
