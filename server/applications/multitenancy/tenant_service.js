@@ -16,7 +16,7 @@
 
 import { get } from 'lodash';
 import { setupMigratorDependencies } from "./tenants_migration_service";
-import { KibanaMigrator } from '../../../../../src/core/server/saved_objects/migrations';
+import { KibanaMigrator } from '@kbn/core-saved-objects-migration-server-internal';
 
 export class TenantService {
   constructor({ clusterClient, logger, configService, savedObjects, coreContext}) {
