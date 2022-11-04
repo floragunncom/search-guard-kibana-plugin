@@ -118,6 +118,7 @@ export class SearchGuard {
           // that manipulates the request headers (e.g. MT)
           core.http.registerOnPreAuth(authManager.onPreAuth);
           core.http.registerOnPreAuth(authManager.checkAuth);
+          core.http.registerOnPostAuth(authManager.handleAuthForOptionalRoutes);
           // @todo Not really needed anymore after taking optional auth into account.
           //core.http.registerOnPostAuth(authManager.onPostAuth);
         }
