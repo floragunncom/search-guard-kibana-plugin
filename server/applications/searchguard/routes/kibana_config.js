@@ -23,12 +23,13 @@ export function handleKibanaConfig({ config, logger }) {
         config.searchguard.auth = config.searchguard.auth || {};
         kibanaConfig.searchguard.auth = pick(config.searchguard.auth, ['type']);
 
-        // At the moment we use this to decide whether or not to display the logout button
+        // At the moment we use this to decide whether to display the logout button
         kibanaConfig.uiHelpers = {};
+        const resolvedContext = await context.resolve(['searchGuard']);
 
-        if (context.searchGuard.authManager) {
+        if (resolvedContext.searchGuard && resolvedContext.searchGuard.authManager) {
           kibanaConfig.uiHelpers.hasAuthCookie =
-            (await context.searchGuard.authManager.getAuthHeader(request)) === false ? false : true;
+            (await resolvedContext.searchGuard.authManager.getAuthHeader(request)) === false ? false : true;
         }
 
 

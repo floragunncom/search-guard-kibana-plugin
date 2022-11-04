@@ -21,8 +21,8 @@ import {
   EuiPage,
   EuiPageBody,
   EuiPageHeader,
-  EuiPageContent,
-  EuiPageContentBody,
+  EuiPageContent_Deprecated,
+  EuiPageContentBody_Deprecated,
 } from '@elastic/eui';
 import { Breadcrumbs, Callout } from '../../../components';
 import { AuthTokens } from '../AuthTokens';
@@ -41,8 +41,8 @@ export function Main({ history, ...rest }) {
           <Breadcrumbs history={history} onGetBreadcrumb={getBreadcrumb} {...rest} />
         </EuiPageHeader>
 
-        <EuiPageContent>
-          <EuiPageContentBody>
+        <EuiPageContent_Deprecated>
+          <EuiPageContentBody_Deprecated>
             <Callout callout={callout} onClose={() => setCallout(null)} />
             <Switch>
               <Route
@@ -52,8 +52,8 @@ export function Main({ history, ...rest }) {
               <Route path={APP_PATH.AUTH_TOKENS} render={(props) => <AuthTokens {...props} />} />
               <Redirect to={APP_PATH.AUTH_TOKENS} />
             </Switch>
-          </EuiPageContentBody>
-        </EuiPageContent>
+          </EuiPageContentBody_Deprecated>
+        </EuiPageContent_Deprecated>
       </EuiPageBody>
     </EuiPage>
   );

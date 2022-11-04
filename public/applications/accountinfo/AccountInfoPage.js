@@ -17,7 +17,7 @@
 import React, { Component, Fragment } from 'react';
 import { API_ROOT } from '../../utils/constants';
 
-import { EuiPage, EuiPageBody, EuiPageContent, EuiPageContentBody, EuiText } from '@elastic/eui';
+import { EuiPage, EuiPageBody, EuiPageContent_Deprecated, EuiPageContentBody_Deprecated, EuiText } from '@elastic/eui';
 import { LicenseWarningCallout } from '../components';
 
 import { MainContext } from './contexts/MainContextProvider';
@@ -68,8 +68,8 @@ export class AccountInfoPage extends Component {
     return (
       <EuiPage id={APP_NAME}>
         <EuiPageBody className="sg-container">
-          <EuiPageContent>
-            <EuiPageContentBody className="sg-page-content-body">
+          <EuiPageContent_Deprecated>
+            <EuiPageContentBody_Deprecated className="sg-page-content-body">
               <LicenseWarningCallout configService={this.context.configService} />
 
               {sgUser && (
@@ -106,8 +106,8 @@ export class AccountInfoPage extends Component {
                   </EuiText>
                 </EuiText>
               )}
-            </EuiPageContentBody>
-          </EuiPageContent>
+            </EuiPageContentBody_Deprecated>
+          </EuiPageContent_Deprecated>
         </EuiPageBody>
       </EuiPage>
     );
