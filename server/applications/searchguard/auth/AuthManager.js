@@ -17,6 +17,7 @@
 import { KibanaResponse } from '@kbn/core-http-server';
 import { assign } from 'lodash';
 import path from 'path';
+import { ensureRawRequest } from '@kbn/core-http-router-server-internal';
 
 export const AUTH_TYPE_NAMES = {
   BASIC: 'basicauth',
@@ -281,6 +282,85 @@ export class AuthManager {
       },
     });
   };
+
+  /**
+   * Handler for validating the auth state in routes with authRequired === optional.
+   *
+   * Our auth logic runs in the onPreAuth lifecycle step, and
+   * we let requests with optional auth pass through.
+   *
+   * Subsequently, Kibana's auth logic will consider the
+   * request authenticated in the default auth logic.
+   *
+   * If the optional route's handler behaves differently
+   * for authenticated request and makes calls to the
+   * backend, we may run into unexpected 401s.
+   *
+   * This handler tries to sync the authentication
+   * status with the rest of our auth logic.
+   * If there's no authorization header attached to the
+   * request, we will consider it unauthenticated.
+   *
+   * @see https://github.com/elastic/kibana/blob/6c438b331c703c507af524a13aab634cdbfbbb13/dev_docs/tutorials/endpoints.mdx?plain=1#L399
+   *
+   * @param request
+   * @param response
+   * @param toolkit
+   * @returns {Promise<*>}
+   */
+  handleAuthForOptionalRoutes = async (request, response, toolkit) => {
+    try {
+      if (request.route.options.authRequired === 'optional' && !request.headers.authorization) {
+        const rawRequest = ensureRawRequest(request);
+        rawRequest.auth.isAuthenticated = false;
+      }
+    } catch (error) {
+      this.logger.info('handleAuthForOptionalRoute could not read auth options for the path: ' + request.url.pathname)
+    }
+
+    return toolkit.next();
+  }
+
+  /**
+   * Handler for validating the auth state in routes with authRequired === optional.
+   *
+   * Our auth logic runs in the onPreAuth lifecycle step, and
+   * we let requests with optional auth pass through.
+   *
+   * Subsequently, Kibana's auth logic will consider the
+   * request authenticated in the default auth logic.
+   *
+   * If the optional route's handler behaves differently
+   * for authenticated request and makes calls to the
+   * backend, we may run into unexpected 401s.
+   *
+   * This handler tries to sync the authentication
+   * status with the rest of our auth logic.
+   * If there's no authorization header attached to the
+   * request, we will consider it unauthenticated.
+   *
+   * @see https://github.com/elastic/kibana/blob/6c438b331c703c507af524a13aab634cdbfbbb13/dev_docs/tutorials/endpoints.mdx?plain=1#L399
+   *
+   * @param request
+   * @param response
+   * @param toolkit
+   * @returns {Promise<*>}
+   */
+  handleAuthForOptionalRoutes = async (request, response, toolkit) => {
+    try {
+      if (request.auth.isAuthenticated === true && request.route.options.authRequired === 'optional' && !request.headers.authorization) {
+        // Set isAuthenticated to false
+        if (['/login'].indexOf(request.url.pathname) === -1) {
+          const rawRequest = ensureRawRequest(request);
+          rawRequest.auth.isAuthenticated = false;
+        }
+      }
+    } catch (error) {
+      this.logger.info('handleAuthForOptionalRoute could not read auth options for the path: ' + request.url.pathname)
+    }
+
+    return toolkit.next();
+  }
 
   // @todo Not needed for 7.10?
   onPostAuth = async (request, response, toolkit) => {

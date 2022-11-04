@@ -22,8 +22,8 @@ import {
   EuiPage,
   EuiPageBody,
   EuiPageHeader,
-  EuiPageContent,
-  EuiPageContentBody,
+  EuiPageContent_Deprecated,
+  EuiPageContentBody_Deprecated,
   EuiText,
   EuiListGroup,
   EuiListGroupItem,
@@ -144,8 +144,8 @@ class Main extends Component {
             <Breadcrumbs history={history} onGetBreadcrumb={getBreadcrumb} {...rest} />
           </EuiPageHeader>
 
-          <EuiPageContent>
-            <EuiPageContentBody>
+          <EuiPageContent_Deprecated>
+            <EuiPageContentBody_Deprecated>
               <Callout callout={callout} onClose={() => setCallout(null)} />
               {isAPIAccessPending && LoadingPage}
               {isAPIAccessOk && (
@@ -222,8 +222,8 @@ class Main extends Component {
                   />
                 </Switch>
               )}
-            </EuiPageContentBody>
-          </EuiPageContent>
+            </EuiPageContentBody_Deprecated>
+          </EuiPageContent_Deprecated>
         </EuiPageBody>
       </EuiPage>
     );

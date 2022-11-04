@@ -6,8 +6,8 @@ import {
   EuiPage,
   EuiPageBody,
   EuiPageHeader,
-  EuiPageContent,
-  EuiPageContentBody,
+  EuiPageContent_Deprecated,
+  EuiPageContentBody_Deprecated,
   EuiTab,
   EuiTabs,
   EuiSpacer,
@@ -110,8 +110,8 @@ class Main extends Component {
             <Breadcrumbs history={history} onGetBreadcrumb={getBreadcrumb} {...props} />
           </EuiPageHeader>
 
-          <EuiPageContent>
-            <EuiPageContentBody className="sg-page-content-body">
+          <EuiPageContent_Deprecated>
+            <EuiPageContentBody_Deprecated className="sg-page-content-body">
               <Switch>
                 <Route
                   exact
@@ -164,8 +164,8 @@ class Main extends Component {
                 />
                 <Redirect to={APP_PATH.WATCHES} />
               </Switch>
-            </EuiPageContentBody>
-          </EuiPageContent>
+            </EuiPageContentBody_Deprecated>
+          </EuiPageContent_Deprecated>
         </EuiPageBody>
       </EuiPage>
     );
