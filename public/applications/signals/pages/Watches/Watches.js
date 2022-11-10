@@ -72,18 +72,38 @@ import { Context } from '../../Context';
 
 const initialQuery = EuiSearchBar.Query.MATCH_ALL;
 
+// The table sorting properties are based on the underlying table data.
+// We use this to map those values to a more user friendly value
+const sortFieldToUIMapping = {
+  '_ui.state.last_status.code': 'status',
+  _id: 'id',
+  '_ui.state.last_execution.severity': 'severity',
+};
+
+const sortFieldFromUIMapping = {};
+Object.keys(sortFieldToUIMapping).forEach((field) => {
+  sortFieldFromUIMapping[sortFieldToUIMapping[field]] = field;
+});
+
 class Watches extends Component {
   static contextType = Context;
 
   constructor(props, context) {
     super(props, context);
 
+    const tableState = this.getTableFilters();
+    this.syncFiltersWithURL(tableState);
+
     this.state = {
       error: null,
       isLoading: true,
       watches: [],
       tableSelection: [],
-      query: initialQuery,
+
+      query: tableState.query,
+      pagination: tableState.page,
+      sorting: tableState.sort,
+
       isNewWatchMenuOpen: false,
     };
 
@@ -144,7 +164,7 @@ class Watches extends Component {
           .then(({ resp: state = {} } = {}) => {
             watches[i] = watchToFormik(watch, state);
           })
-          .catch(error => {
+          .catch((error) => {
             console.error('Watches -- fetchWatchesState', watch._id, error);
             // Default to empty state
             watches[i] = watchToFormik(watch);
@@ -208,9 +228,8 @@ class Watches extends Component {
 
   deleteWatches = async (watchIds = []) => {
     const promises = [];
-
     this.setState({ isLoading: true, error: null });
-    watchIds.forEach(id => {
+    watchIds.forEach((id) => {
       const promise = this.watchService
         .delete(id)
         .then(() => {
@@ -220,7 +239,7 @@ class Watches extends Component {
             </p>
           );
         })
-        .catch(error => {
+        .catch((error) => {
           console.error('Watches -- deleteWatches', error);
           this.context.addErrorToast(error);
           this.setState({ error });
@@ -257,13 +276,13 @@ class Watches extends Component {
 
       try {
         const promises = [];
-        watchIds.forEach(id => {
+        watchIds.forEach((id) => {
           promises.push(this.watchService.ack(id, actionId));
         });
 
         await Promise.all(promises);
 
-        watchIds.forEach(id => {
+        watchIds.forEach((id) => {
           const successMsg = !actionId ? (
             <EuiText>
               {acknowledgeText} watch {id}
@@ -308,12 +327,12 @@ class Watches extends Component {
     if (tableSelection.length === 0) return null;
 
     const handleMultiDelete = () => {
-      this.handleDeleteWatches(tableSelection.map(item => item._id));
+      this.handleDeleteWatches(tableSelection.map((item) => item._id));
       this.setState({ tableSelection: [] });
     };
 
     const handleMultiAcknowledge = () => {
-      this.handleAck(tableSelection.map(item => item._id));
+      this.handleAck(tableSelection.map((item) => item._id));
       this.setState({ tableSelection: [] });
     };
 
@@ -509,13 +528,138 @@ class Watches extends Component {
     );
   };
 
+  /**
+   * Get table filters
+   * Default values < Context values < Query Param values
+   * @returns {{query: (Query|*), sort: {field: *, direction: *}, page: {size: (number|*), index: (number|*)}}}
+   */
+  getTableFilters() {
+    const { history } = this.props;
+    const urlParamsData = {};
+    const urlParams = new URLSearchParams(history.location.search);
+
+    const validParams = ['query', 'sortField', 'sortDirection', 'pageIndex', 'pageSize'];
+    for (const [key, value] of urlParams.entries()) {
+      if (validParams.indexOf(key) > -1) {
+        urlParamsData[key] = decodeURIComponent(value);
+      }
+    }
+
+    const defaultFilters = {
+      query: initialQuery,
+      sort: {
+        field: 'id',
+        direction: TABLE_SORT_DIRECTION,
+      },
+      page: {
+        index: 0,
+        size: 10,
+      },
+    };
+
+    // Merge with whatever is stored in the context
+    const contextFilters = this.context.watchesFilters;
+    const withContextFilters = {
+      ...defaultFilters,
+      ...contextFilters,
+      sort: {
+        ...defaultFilters.sort,
+        ...contextFilters.sort,
+      },
+      page: {
+        ...defaultFilters.page,
+        ...contextFilters.page,
+      },
+    };
+
+    // ...and finally, merge with the query parameter filters
+    const filters = {
+      query:
+        urlParamsData.query !== undefined
+          ? EuiSearchBar.Query.parse(urlParamsData.query)
+          : withContextFilters.query,
+      sort: {
+        field:
+          urlParamsData.sortField !== undefined
+            ? urlParamsData.sortField
+            : withContextFilters.sort.field,
+        direction: urlParamsData.sortDirection || withContextFilters.sort.direction,
+      },
+      page: {
+        // pageIndex 0 would be falsey, but that's ok as long as the default is 0
+        index: urlParamsData.pageIndex
+          ? parseInt(urlParamsData.pageIndex, 10)
+          : withContextFilters.page.index,
+        size: urlParamsData.pageSize
+          ? parseInt(urlParamsData.pageSize, 10)
+          : withContextFilters.page.size,
+      },
+    };
+
+    // If the index isn't a number, weird things happen with the table
+    if (isNaN(filters.page.index)) {
+      filters.page.index = 0;
+    }
+
+    return filters;
+  }
+
+  /**
+   * Get the filters in a format that can be used
+   * to update the url's query parameters
+   * @param watchesFilters
+   */
+  syncFiltersWithURL(watchesFilters = null) {
+    const filters = watchesFilters || this.getTableFilters();
+
+    const params = {
+      query: filters.query.text || '',
+      pageIndex: filters.page.index,
+      pageSize: filters.page.size,
+      sortField: filters.sort.field,
+      sortDirection: filters.sort.direction,
+    };
+
+    this.updateTableFilters(params);
+  }
+
+  /**
+   * Stores the table filters as query parameters and in the context
+   * @param params
+   */
+  updateTableFilters(params) {
+    if (Object.keys(params).length === 0) {
+      return;
+    }
+    const { history } = this.props;
+    const urlParams = new URLSearchParams(history.location.search);
+
+    Object.keys(params).forEach((paramKey) => {
+      urlParams.set(paramKey, encodeURIComponent(params[paramKey]));
+    });
+
+    history.replace({
+      search: urlParams.toString(),
+    });
+
+    // Now update the context
+    const newContextFilters = this.getTableFilters();
+    this.context.setWatchesFilters(newContextFilters);
+  }
+
   handleSearchChange = ({ query, error }) => {
     if (error) {
       this.setState({ error });
     } else {
+      const newQuery = query.text ? query : initialQuery;
+
+      this.updateTableFilters({
+        query: newQuery.text,
+      });
+
       this.setState({
         error: null,
-        query: query.text ? query : initialQuery,
+        query: newQuery,
       });
     }
   };
@@ -530,7 +674,7 @@ class Watches extends Component {
           <EuiFlexItem grow={false}>{this.renderSearchBarToolsLeft()}</EuiFlexItem>
         )}
         <EuiFlexItem>
-          <EuiSearchBar onChange={this.handleSearchChange} />
+          <EuiSearchBar defaultQuery={this.state.query} onChange={this.handleSearchChange} />
         </EuiFlexItem>
       </EuiFlexGroup>
     );
@@ -573,7 +717,7 @@ class Watches extends Component {
         icon: 'check',
         type: 'icon',
         color: 'success',
-        onClick: watch => this.handleAck([watch._id]),
+        onClick: (watch) => this.handleAck([watch._id]),
       },
       {
         'data-test-subj': 'sgTableCol-ActionClone',
@@ -590,7 +734,7 @@ class Watches extends Component {
         icon: 'trash',
         type: 'icon',
         color: 'danger',
-        onClick: watch => this.handleDeleteWatches([watch._id]),
+        onClick: (watch) => this.handleDeleteWatches([watch._id]),
       },
     ];
 
@@ -669,16 +813,18 @@ class Watches extends Component {
     ];
 
     const selection = {
-      selectable: doc => doc._id,
-      onSelectionChange: tableSelection => {
+      selectable: (doc) => doc._id,
+      onSelectionChange: (tableSelection) => {
         this.setState({ tableSelection });
       },
     };
 
     const sorting = {
       sort: {
-        field: TABLE_SORT_FIELD,
-        direction: TABLE_SORT_DIRECTION,
+        field:
+          sortFieldFromUIMapping[this.state.sorting.field.toLowerCase()] ||
+          this.state.sorting.field,
+        direction: this.state.sorting.direction,
       },
     };
 
@@ -707,6 +853,16 @@ class Watches extends Component {
       <ContentPanel
         title="Watches"
         actions={[
+          <EuiButton
+            iconType="refresh"
+            onClick={() => {
+              this.getWatches();
+            }}
+            isDisabled={isLoading}
+            isLoading={isLoading}
+          >
+            Refresh
+          </EuiButton>,
           <AddButton value={addExampleText} onClick={this.addWatchExample} />,
           <PopoverButton
             name="newWatch"
@@ -730,8 +886,40 @@ class Watches extends Component {
               selection={selection}
               sorting={sorting}
               loading={isLoading}
+              onTableChange={(criteria) => {
+                // We only update params that have changed. A bit too
+                // much perhaps, but that keeps the URL clean(er).
+                const newParams = {};
+                if (criteria.page.index !== this.state.pagination.index) {
+                  newParams.pageIndex = criteria.page.index;
+                }
+                if (criteria.page.size !== this.state.pagination.size) {
+                  newParams.pageSize = criteria.page.size;
+                }
+
+                if (criteria.sort.field !== this.state.sorting.field) {
+                  // We may need to map the reported field name to a more user friendly value
+                  criteria.sort.field =
+                    sortFieldToUIMapping[criteria.sort.field] || criteria.sort.field;
+                  newParams.sortField = criteria.sort.field;
+                }
+
+                if (criteria.sort.direction !== this.state.sorting.direction) {
+                  newParams.sortDirection = criteria.sort.direction;
+                }
+
+                this.setState({
+                  pagination: criteria.page,
+                  sorting: criteria.sort,
+                });
+
+                this.updateTableFilters(newParams);
+              }}
               isSelectable
-              pagination
+              pagination={{
+                pageIndex: this.state.pagination.index,
+                pageSize: this.state.pagination.size,
+              }}
             />
           </EuiFlexItem>
         </EuiFlexGroup>
