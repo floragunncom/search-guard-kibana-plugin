@@ -47,6 +47,7 @@ class WatchAck extends Component {
       actionsAcked: null,
       actionsNotAcked: null,
       actionsNotAcknowledgeable: null,
+      actionsNotAcknowledgeable: null,
     };
 
     this.state = this.initialState;
@@ -197,6 +198,7 @@ class WatchAck extends Component {
   renderWatchNotFound() {
     return (
       <EuiFormRow>
+    // We show this message even if we have ack_enabled:false actions - those aren't displayed anywhere.
         <EuiCallOut color={'danger'} title={'Watch not found'} />
       </EuiFormRow>
     );

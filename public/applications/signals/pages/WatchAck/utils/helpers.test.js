@@ -17,6 +17,8 @@ import { groupActionsByAckState } from './helpers';
 
 // @todo Add test(s) for ack_enabled: false
 
+// @todo Add test(s) for ack_enabled: false
+
 function getSampleData() {
   const ackedActions = {
     slack1: {
