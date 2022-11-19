@@ -46,16 +46,9 @@ if [[ ! "$SG_ES_PLUGIN" =~ ^https?:.*$ ]]; then
     SG_ES_PLUGIN=$(ci/artifact_uri.sh $SG_SB_PLUGIN_RELEASE_REPO $SG_SB_PLUGIN_NAME $SG_ES_PLUGIN .zip sgadmin-standalone.zip)
     echo "Found: $SG_ES_PLUGIN"
   fi
-fi  
-if [[ ! "$SG_ADMIN" =~ ^https?:.*$ ]]; then
-  if [[ "$SG_ADMIN" =~ .*SNAPSHOT.* ]]; then
-    SG_ADMIN=$(ci/artifact_uri.sh $SG_SB_PLUGIN_SNAPSHOT_REPO $SG_SB_PLUGIN_NAME $SG_ADMIN sgadmin-standalone.zip)
-    echo "Found: $SG_ADMIN"
-  else
-    SG_ADMIN=$(ci/artifact_uri.sh $SG_SB_PLUGIN_RELEASE_REPO $SG_SB_PLUGIN_NAME $SG_ADMIN sgadmin-standalone.zip)
-    echo "Found: $SG_ADMIN"
-  fi
-fi  
+fi	
+
+SG_ADMIN="https://maven.search-guard.com/search-guard-suite-release/com/floragunn/search-guard-suite-plugin/7.10.2-53.5.0/search-guard-suite-plugin-7.10.2-53.5.0-sgadmin-standalone.zip"
 
 echo "SG_ES_PLUGIN=$SG_ES_PLUGIN" >> build.env
 echo "SG_ADMIN=$SG_ADMIN" >> build.env
