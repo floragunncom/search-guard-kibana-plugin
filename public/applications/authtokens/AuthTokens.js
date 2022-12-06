@@ -17,6 +17,7 @@ import { BehaviorSubject } from 'rxjs';
 import { AppNavLinkStatus } from '../../../../../src/core/public';
 import { AuthTokensService } from './services';
 import { SEARCHGUARD_APP_CATEGORY } from '../../utils/constants';
+import { appNaviFix } from '../../utils/appNaviFix';
 
 export class AuthTokens {
   constructor(coreContext) {
@@ -26,8 +27,21 @@ export class AuthTokens {
 
   mount({ core, httpClient, configService }) {
     return async (params) => {
+
+      // If the navigation came from "outside", e.g. from the
+      // side nav, we need to tell our router to render the
+      // corresponding page.
+      // If not, the URL will change, but the page content will not.
+      const removeExternalHistoryListener = appNaviFix(params.history);
+
       const [{ renderApp }] = await Promise.all([import('./app'), configService.fetchConfig()]);
-      return renderApp({ element: params.element, core, httpClient, configService });
+      return renderApp({
+        element: params.element,
+        core,
+        httpClient,
+        configService,
+        removeExternalHistoryListener,
+      });
     };
   }
 
