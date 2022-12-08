@@ -120,7 +120,6 @@ export class AuthManager {
       const authInstance = this.getAuthInstanceByName(authType);
       const authInstanceResult = await authInstance.detectCredentialsByRequest({ request });
       if (authInstanceResult !== null) {
-        console.warn('--- We did find something that we need to act on?', authInstanceResult);
         return authInstance;
       }
     }
