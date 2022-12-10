@@ -1,17 +1,18 @@
 {
     "id": "searchguard",
-    "version": "7.16.3",
+    "version": "7.17.7",
     "server": true,
     "ui": true,
     "optionalPlugins": [
       "spaces",
-      "security"
+      "security",
+      "home"      
     ],
     "requiredPlugins": [
-      "home"
     ],
     "configPath": ["searchguard"],
     "owner": {
     	"name": "Search Guard"
-    }
+    },
+    "enabledOnAnonymousPages": true
 }

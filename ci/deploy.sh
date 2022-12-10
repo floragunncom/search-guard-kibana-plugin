@@ -41,7 +41,7 @@ if [[ ! "$SG_ES_PLUGIN" =~ ^https?:.*$ ]]; then
     SG_ES_PLUGIN=$(ci/artifact_uri.sh $SG_SB_PLUGIN_RELEASE_REPO $SG_SB_PLUGIN_NAME $SG_ES_PLUGIN .zip sgadmin-standalone.zip)
     echo "Found: $SG_ES_PLUGIN"
   fi
-fi  
+fi
 
 echo "SG_ES_PLUGIN=$SG_ES_PLUGIN" >> build.env
 echo "ES_VERSION=$ES_VERSION" >>build.env

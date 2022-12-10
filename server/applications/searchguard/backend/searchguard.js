@@ -479,7 +479,7 @@ export default class SearchGuardBackend {
     }
 
     // sort tenants by putting the keys in an array first
-    const tenantkeys = [];
+    let tenantkeys = [];
     let k;
 
     for (k in tenants) {
@@ -488,6 +488,11 @@ export default class SearchGuardBackend {
       }
     }
     tenantkeys.sort();
+
+    if (!globalEnabled) {
+      tenantkeys = tenantkeys.filter((tenantKey) => tenantKey !== 'SGS_GLOBAL_TENANT');
+    }
+
     return tenantkeys[0];
   }
 
@@ -497,6 +502,10 @@ export default class SearchGuardBackend {
     // http://stackoverflow.com/questions/728360/how-do-i-correctly-clone-a-javascript-object
     const tenantsCopy = JSON.parse(JSON.stringify(tenants));
     delete tenantsCopy[username];
+
+    if (!globalEnabled) {
+      delete tenantsCopy.SGS_GLOBAL_TENANT;
+    }
 
     // sanity check: no global, no private, no other tenants -> no tenant available
     if (!globalEnabled && !privateEnabled && _.isEmpty(tenantsCopy)) {
