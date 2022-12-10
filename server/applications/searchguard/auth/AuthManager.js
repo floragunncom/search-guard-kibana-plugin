@@ -52,7 +52,7 @@ export class AuthManager {
     this.routesToIgnore = [
       //'/login',
       '/customerror',
-      '/bootstrap-anonymous.js',
+      '/bootstrap.js',
       '/bundles/app/core/bootstrap.js',
       '/bundles/app/searchguard-customerror/bootstrap.js',
       // SAML specific
