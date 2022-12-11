@@ -364,9 +364,9 @@ class Watches extends Component {
       const { nodeText, ...iconProps } = actionAndWatchStatusToIconProps(WATCH_STATUS.NO_ACTION);
 
       return (
-        <div>
+        <div style={{ overflow: 'hidden' }}>
           <EuiFlexGroup>
-            <EuiFlexItem grow={false}>
+            <EuiFlexItem grow={false} style={{ overflow: 'hidden' }}>
               <EuiToolTip content={nodeText}>
                 <EuiIcon data-test-subj={`sgTable-Actions-${watch._id}-NoAction`} {...iconProps} />
               </EuiToolTip>
@@ -378,55 +378,101 @@ class Watches extends Component {
     }
 
     return (
-      <div>
+      <div style={{ overflow: 'hidden', width: '100%' }}>
         {actions.map((action, key) => {
           const wasAcked = get(watch, `_ui.state.actions[${action.name}].acked`, false);
           const ackedBy = get(watch, `_ui.state.actions[${action.name}].acked.by`, 'admin');
           const ackedOn = get(watch, `_ui.state.actions[${action.name}].acked.on`);
 
-          const ackLinkContent = wasAcked ? (
+          // The action here is from the watch endpoint, not from state
+          const ackEnabled = action.ack_enabled !== false;
+          const actionCanBeAcked = ackEnabled && !wasAcked;
+
+          const statusCode = get(watch, `_ui.state.actions[${action.name}].last_status.code`);
+          const { nodeText, ...statusIconProps } = actionAndWatchStatusToIconProps(statusCode);
+
+          let iconProps = statusIconProps;
+
+          // If the action hasn't been executed yet, we'd get an exclamation mark.
+          // But since we know that the action can't be acked we can use the
+          // right action already.
+          if (!ackEnabled) {
+            iconProps = {
+              type: 'faceHappy',
+              color: '#007515',
+              'aria-label': 'Not acknowledgable',
+            };
+          }
+
+          // The action icon tooltip
+          let actionIconTooltip = nodeText;
+          if (!ackEnabled) {
+            actionIconTooltip = 'Not acknowledgeable';
+          }
+
+          // The tooltip for the action name
+          let ackLinkTooltip = wasAcked ? (
             <EuiText size="s">
               {acknowledgedText} {byText} {ackedBy} {onText} {dateFormat(ackedOn)}
             </EuiText>
           ) : (
             acknowledgeText
           );
+          // Change the default link tooltip for ack_enabled: false
+          if (!ackEnabled) {
+            ackLinkTooltip = 'Action not acknowledgeable';
+          }
 
+          // Lifting up the link content. There was an issue with
+          // the tooltip sticking around after acking an action
+          // As a fix we removed the tooltip for actions that
+          // can still be acknowledged, it only showed
+          // "Acknowledge" anyway
           const ackLink = (
-            <EuiFlexGroup key={key}>
-              <EuiFlexItem grow={false}>
-                <EuiToolTip content={wasAcked ? acknowledgedText : acknowledgeText}>
-                  <EuiLink
-                    color={wasAcked ? 'subdued' : 'primary'}
-                    disabled={wasAcked}
-                    onClick={() => this.handleAck([watch._id], action.name)}
-                    data-test-subj={`sgTableCol-Actions-ackbtn-${watch._id}-${action.name}`}
-                  >
-                    {ackLinkContent}
-                  </EuiLink>
-                </EuiToolTip>
-              </EuiFlexItem>
-            </EuiFlexGroup>
+            <EuiLink
+              color={'primary'}
+              style={{
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+                textOverflow: 'ellipsis',
+                width: '100%',
+              }}
+              onClick={() => this.handleAck([watch._id], action.name)}
+              data-test-subj={`sgTableCol-Actions-ackbtn-${watch._id}-${action.name}`}
+            >
+              Ack {action.name}
+            </EuiLink>
           );
-
-          const statusCode = get(watch, `_ui.state.actions[${action.name}].last_status.code`);
-          const { nodeText, ...iconProps } = actionAndWatchStatusToIconProps(statusCode);
 
           return (
             <div key={key}>
-              <EuiFlexGroup>
-                <EuiFlexItem grow={false}>
-                  <EuiToolTip content={nodeText}>
+              <EuiFlexGroup style={{ flexWrap: 'nowrap' }}>
+                <EuiFlexItem grow={false} style={{ maxWidth: '35px' }}>
+                  <EuiToolTip content={actionIconTooltip}>
                     <EuiIcon
                       data-test-subj={`sgTableCol-Actions-icon-${watch._id}-${action.name}`}
                       {...iconProps}
                     />
                   </EuiToolTip>
                 </EuiFlexItem>
-                <EuiFlexItem>{action.name}</EuiFlexItem>
-              </EuiFlexGroup>
-              <EuiFlexGroup>
-                <EuiFlexItem>{ackLink}</EuiFlexItem>
+                <EuiFlexItem style={{ overflow: 'hidden' }}>
+                  {actionCanBeAcked ? (
+                    <div>{ackLink}</div>
+                  ) : (
+                    <EuiToolTip content={ackLinkTooltip}>
+                      <div
+                        style={{
+                          overflow: 'hidden',
+                          whiteSpace: 'nowrap',
+                          textOverflow: 'ellipsis',
+                          width: '100%',
+                        }}
+                      >
+                        {action.name}
+                      </div>
+                    </EuiToolTip>
+                  )}
+                </EuiFlexItem>
               </EuiFlexGroup>
             </div>
           );
@@ -763,7 +809,7 @@ class Watches extends Component {
       },
       {
         field: '_id',
-        width: '20%',
+        width: '18%',
         name: 'Id',
         footer: 'Id',
         alignment: LEFT_ALIGNMENT,
@@ -796,8 +842,9 @@ class Watches extends Component {
         ),
       },
       {
-        width: '20%',
+        width: '17%',
         field: 'actions',
+        truncateText: true,
         name: actionsText,
         footer: actionsText,
         render: this.renderActionsColumn,
