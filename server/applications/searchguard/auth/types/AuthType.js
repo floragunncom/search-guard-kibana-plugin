@@ -521,6 +521,13 @@ export default class AuthType {
       );
 
       const allTenants = authResponse.user.tenants;
+
+      if (allTenants != null) {
+        // We're only here if the global tenant is not enabled,
+        // so we need to filter out the SGS_GLOBAL_TENANT too
+        delete allTenants.SGS_GLOBAL_TENANT;
+      }
+
       if (allTenants != null && !privateTenantEnabled) {
         delete allTenants[authResponse.user.username];
       }
