@@ -60,6 +60,7 @@ const ContentPanel = ({
   actions,
   children,
   isLoading = false,
+  showActions = true,
 }) => {
   return (
     <div style={{ ...panelStyles }} className="sgContentPanel" {...panelDivProps}>
@@ -75,11 +76,14 @@ const ContentPanel = ({
           </EuiTitle>
           {description && <EuiText>{description}</EuiText>}
         </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <EuiFlexGroup justifyContent="spaceBetween" alignItems="center">
-            {handleRenderActions(actions)}
-          </EuiFlexGroup>
-        </EuiFlexItem>
+        {showActions && (
+          <EuiFlexItem grow={false}>
+            <EuiFlexGroup justifyContent="spaceBetween" alignItems="center">
+              {handleRenderActions(actions)}
+            </EuiFlexGroup>
+          </EuiFlexItem>
+        )}
+
       </EuiFlexGroup>
 
       <EuiHorizontalRule margin={horizontalRuleMargin} />

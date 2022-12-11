@@ -72,6 +72,16 @@ class Breadcrumbs extends Component {
     const parseLocationHash = hash => hash.split('/').filter(route => !!route);
     const routes = parseLocationHash(window.location.hash);
 
+    const locationPaths = history.location.pathname.split('/');
+
+    // TODO Better way to deactivate the breadcrumbs in the template
+    // This is a special case for the ack action deeplink
+    // The path is /watch/:watchId/ack/:actionId?
+    if (locationPaths[1] === 'watch' && locationPaths[3] === 'ack') {
+      this.setState({ breadcrumbs: [] });
+      return;
+    }
+
     let rawBreadcrumbs = routes.map(route => this.props.onGetBreadcrumb(route));
     rawBreadcrumbs = flatten(rawBreadcrumbs).filter(breadcrumb => !!breadcrumb);
 
