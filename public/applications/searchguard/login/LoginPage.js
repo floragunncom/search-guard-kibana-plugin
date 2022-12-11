@@ -212,6 +212,10 @@ export function BasicLogin({ httpClient, basicLoginConfig, loginPageConfig, setD
       let _error =
         'An error occurred while checking your credentials, make sure you have an Elasticsearch cluster secured by Search Guard running.';
 
+      if (error.body?.message) {
+        _error = error.body.message;
+      }
+
       if (error.body?.attributes?.error) {
         _error = error.body.attributes.error;
       }
