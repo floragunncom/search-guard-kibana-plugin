@@ -13,7 +13,7 @@ import { ContextProvider } from './Context';
 import 'react-vis/dist/style.css';
 import './style.scss';
 
-export const renderApp = ({ core, httpClient, element }) => {
+export const renderApp = ({ core, httpClient, element, removeExternalHistoryListener }) => {
   ReactDOM.render(
     <I18nProvider>
       <Router>
@@ -29,5 +29,8 @@ export const renderApp = ({ core, httpClient, element }) => {
     element
   );
 
-  return () => ReactDOM.unmountComponentAtNode(element);
+  return () => {
+    removeExternalHistoryListener();
+    ReactDOM.unmountComponentAtNode(element);
+  };
 };
