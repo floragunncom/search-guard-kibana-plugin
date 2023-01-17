@@ -56,6 +56,8 @@ cd plugins/search-guard
 echo -e "\e[0Ksection_start:`date +%s`:yarn_install[collapsed=true]\r\e[0KDoing yarn install"
 
 yarn install
+yarn add --dev jest typescript
+yarn add --dev ts-jest @types/jest
 
 echo -e "\e[0Ksection_end:`date +%s`:yarn_install\r\e[0K"
 
