@@ -174,7 +174,7 @@ echo -e "\e[0Ksection_end:`date +%s`:yarn_install\r\e[0K"
 
 if [ "$COMMAND" == "build-kibana" ] ; then
   echo "Building Kibana package from checkout Kibana branch (see above) "
-  yarn kbn bootstrap && yarn build --skip-os-packages --no-oss
+  yarn kbn bootstrap --allow-root && yarn build --skip-os-packages --no-oss
   mv "/builds/search-guard/search-guard-kibana-plugin/build_stage/kibana/target/kibana-$KIBANA_APP_VERSION-SNAPSHOT-linux-x86_64.tar.gz" /builds/search-guard/search-guard-kibana-plugin/build_stage/kibana/target/kibana-linux-x86_64.tar.gz ||true
   exit 0
 fi
@@ -212,7 +212,7 @@ echo -e "\e[0Ksection_end:`date +%s`:yarn_audit\r\e[0K"
 echo -e "\e[0Ksection_start:`date +%s`:yarn_kbn_bootstrap\r\e[0KInstalling plugin node modules"
 
 echo "+++ Installing plugin node modules +++"
-yarn kbn bootstrap --oss
+yarn kbn bootstrap --allow-root
 if [ $? != 0 ]; then
     echo "Installing node modules failed"
     cat $output
