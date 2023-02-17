@@ -18,33 +18,33 @@ import React from 'react';
 import { EuiI18n } from '@elastic/eui';
 
 export const accountInformationText = (
-  <EuiI18n token="sg.accountinfo.accountInformation" default="Account Information" />
+  <EuiI18n token="sp.accountinfo.accountInformation" default="Account Information" />
 );
 
-export const userNameHeader = <EuiI18n token="sg.accountinfo.username_header" default="Username" />;
+export const userNameHeader = <EuiI18n token="sp.accountinfo.username_header" default="Username" />;
 export const sgRolesHeader = (
-  <EuiI18n token="sg.accountinfo.sgRoles_header" default="Search Guard roles" />
+  <EuiI18n token="sp.accountinfo.sgRoles_header" default="Security roles" />
 );
 
 export const sgRolesEmpty = (
   <EuiI18n
-    token="sg.accountinfo.sgRoles_empty"
-    default="No Search Guard roles found, please check the role mapping for this user."
+    token="sp.accountinfo.sgRoles_empty"
+    default="No roles found, please check the role mapping for this user."
   />
 );
 
 export const backendRolesHeader = (
-  <EuiI18n token="sg.accountinfo.backendRoles_header" default="Backend roles" />
+  <EuiI18n token="sp.accountinfo.backendRoles_header" default="Backend roles" />
 );
 
 export const backendRolesEmpty = (
-  <EuiI18n token="sg.accountinfo.backendRoles_empty" default="No backend roles found." />
+  <EuiI18n token="sp.accountinfo.backendRoles_empty" default="No backend roles found." />
 );
 export const accountPluginVersion = (pluginVersion) => {
   return (
     <EuiI18n
-      token="sg.accountinfo.sgPluginVersion"
-      default="Search Guard plugin version: {pluginVersion}"
+      token="sp.accountinfo.sgPluginVersion"
+      default="Eliatra Suite plugin version: {pluginVersion}"
       values={{ pluginVersion }}
     />
   );

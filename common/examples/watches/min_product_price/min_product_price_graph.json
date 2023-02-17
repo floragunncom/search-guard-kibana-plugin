@@ -9,7 +9,7 @@
     "index": [
       {
         "health": "green",
-        "label": "kibana_sample_data_ecommerce",
+        "label": "opensearch_dashboards_sample_data_ecommerce",
         "status": "open"
       }
     ],
@@ -42,7 +42,7 @@
       "target": "mysearch",
       "request": {
         "indices": [
-          "kibana_sample_data_ecommerce"
+          "opensearch_dashboards_sample_data_ecommerce"
         ],
         "body": {
           "size": 0,

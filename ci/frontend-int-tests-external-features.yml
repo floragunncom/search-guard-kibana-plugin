@@ -1,19 +1,11 @@
 
-fe_xp:
-  extends:
-  - .fe_integration_test_external_features
-  variables:
-    TEST: "kibana_basicauth_xpack"
-    TEST_ENVIRONMENT: "kibana_xpack"
-    TEST_KI_CONFIG: "xpack_basicauth"
-
 fe_smoke:
   extends:
   - .fe_integration_test_external_features
   variables:
     TEST: "kibana_basicauth_smoke"
     TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "basicauth"
+    TEST_OSD_CONFIG: "basicauth"
 
 fe_smoke_no_mt:
   extends:
@@ -21,25 +13,7 @@ fe_smoke_no_mt:
   variables:
     TEST: "kibana_basicauth_smoke_multitenancy_disabled"
     TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "basicauth_multitenancy_disabled"
-
-fe_spaces:
-  extends:
-  - .fe_integration_test_external_features
-  variables:
-    TEST: "kibana_basicauth_spaces"
-    TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "basicauth"
-
-fe_spaces_no_mt:
-  extends:
-  - .fe_integration_test_external_features
-  variables:
-    TEST: "kibana_basicauth_spaces_multitenancy_disabled"
-    TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "basicauth_multitenancy_disabled"
-
-
+    TEST_OSD_CONFIG: "basicauth_multitenancy_disabled"
 
 # -------------------------------------------------------------------------
 

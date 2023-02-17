@@ -43,8 +43,8 @@ describe('tenantsToUiTenants', () => {
     };
     const authinfo = {
       user_name: 'admin',
-      sg_tenants: {
-        SGS_GLOBAL_TENANT: true,
+       effective_tenants: {
+        GLOBAL_TENANT: true,
         admin: true,
         admin_tenant: true,
         trex: true,
@@ -67,7 +67,7 @@ describe('tenantsToUiTenants', () => {
         disabled: false,
         prepend: <TenantAvatar name="Global" />,
         append: readWriteText,
-        'data-test-subj': 'sg.tenantsMenu.tenant.global',
+        'data-test-subj': 'sp.tenantsMenu.tenant.global',
       },
       {
         'aria-label': 'Private',
@@ -77,7 +77,7 @@ describe('tenantsToUiTenants', () => {
         disabled: false,
         prepend: <TenantAvatar name="Private" />,
         append: readWriteText,
-        'data-test-subj': 'sg.tenantsMenu.tenant.private',
+        'data-test-subj': 'sp.tenantsMenu.tenant.private',
       },
       {
         'aria-label': 'admin_tenant',
@@ -87,7 +87,7 @@ describe('tenantsToUiTenants', () => {
         disabled: false,
         prepend: <TenantAvatar name="admin_tenant" />,
         append: readWriteText,
-        'data-test-subj': 'sg.tenantsMenu.tenant.admin_tenant',
+        'data-test-subj': 'sp.tenantsMenu.tenant.admin_tenant',
       },
       {
         'aria-label': 'trex',
@@ -97,7 +97,7 @@ describe('tenantsToUiTenants', () => {
         disabled: false,
         prepend: <TenantAvatar name="trex" />,
         append: readWriteText,
-        'data-test-subj': 'sg.tenantsMenu.tenant.trex',
+        'data-test-subj': 'sp.tenantsMenu.tenant.trex',
       },
     ];
 
@@ -122,8 +122,8 @@ describe('tenantsToUiTenants', () => {
     };
     const authinfo = {
       user_name: 'admin',
-      sg_tenants: {
-        SGS_GLOBAL_TENANT: true,
+       effective_tenants: {
+        GLOBAL_TENANT: true,
         admin: true,
         admin_tenant: true,
         trex: true,
@@ -146,7 +146,7 @@ describe('tenantsToUiTenants', () => {
         disabled: false,
         prepend: <TenantAvatar name="Private" />,
         append: readWriteText,
-        'data-test-subj': 'sg.tenantsMenu.tenant.private',
+        'data-test-subj': 'sp.tenantsMenu.tenant.private',
       },
       {
         'aria-label': 'admin_tenant',
@@ -156,7 +156,7 @@ describe('tenantsToUiTenants', () => {
         disabled: false,
         prepend: <TenantAvatar name="admin_tenant" />,
         append: readWriteText,
-        'data-test-subj': 'sg.tenantsMenu.tenant.admin_tenant',
+        'data-test-subj': 'sp.tenantsMenu.tenant.admin_tenant',
       },
       {
         'aria-label': 'trex',
@@ -166,7 +166,7 @@ describe('tenantsToUiTenants', () => {
         disabled: false,
         prepend: <TenantAvatar name="trex" />,
         append: readWriteText,
-        'data-test-subj': 'sg.tenantsMenu.tenant.trex',
+        'data-test-subj': 'sp.tenantsMenu.tenant.trex',
       },
     ];
 
@@ -191,8 +191,8 @@ describe('tenantsToUiTenants', () => {
     };
     const authinfo = {
       user_name: 'admin',
-      sg_tenants: {
-        SGS_GLOBAL_TENANT: true,
+       effective_tenants: {
+        GLOBAL_TENANT: true,
         admin: true,
         admin_tenant: true,
         trex: true,
@@ -215,7 +215,7 @@ describe('tenantsToUiTenants', () => {
         disabled: false,
         prepend: <TenantAvatar name="Global" />,
         append: readWriteText,
-        'data-test-subj': 'sg.tenantsMenu.tenant.global',
+        'data-test-subj': 'sp.tenantsMenu.tenant.global',
       },
       {
         'aria-label': 'admin_tenant',
@@ -225,7 +225,7 @@ describe('tenantsToUiTenants', () => {
         disabled: false,
         prepend: <TenantAvatar name="admin_tenant" />,
         append: readWriteText,
-        'data-test-subj': 'sg.tenantsMenu.tenant.admin_tenant',
+        'data-test-subj': 'sp.tenantsMenu.tenant.admin_tenant',
       },
       {
         'aria-label': 'trex',
@@ -235,7 +235,7 @@ describe('tenantsToUiTenants', () => {
         disabled: false,
         prepend: <TenantAvatar name="trex" />,
         append: readWriteText,
-        'data-test-subj': 'sg.tenantsMenu.tenant.trex',
+        'data-test-subj': 'sp.tenantsMenu.tenant.trex',
       },
     ];
 
@@ -260,8 +260,8 @@ describe('tenantsToUiTenants', () => {
     };
     const authinfo = {
       user_name: 'admin',
-      sg_tenants: {
-        SGS_GLOBAL_TENANT: true,
+       effective_tenants: {
+        GLOBAL_TENANT: true,
         admin: true,
         admin_tenant: true,
         trex: true,
@@ -284,7 +284,7 @@ describe('tenantsToUiTenants', () => {
         disabled: false,
         prepend: <TenantAvatar name="Global" />,
         append: readText,
-        'data-test-subj': 'sg.tenantsMenu.tenant.global',
+        'data-test-subj': 'sp.tenantsMenu.tenant.global',
       },
       {
         'aria-label': 'admin_tenant',
@@ -294,7 +294,7 @@ describe('tenantsToUiTenants', () => {
         disabled: false,
         prepend: <TenantAvatar name="admin_tenant" />,
         append: readText,
-        'data-test-subj': 'sg.tenantsMenu.tenant.admin_tenant',
+        'data-test-subj': 'sp.tenantsMenu.tenant.admin_tenant',
       },
       {
         'aria-label': 'trex',
@@ -304,7 +304,7 @@ describe('tenantsToUiTenants', () => {
         disabled: false,
         prepend: <TenantAvatar name="trex" />,
         append: readText,
-        'data-test-subj': 'sg.tenantsMenu.tenant.trex',
+        'data-test-subj': 'sp.tenantsMenu.tenant.trex',
       },
     ];
 
@@ -328,8 +328,8 @@ describe('tenantsToUiTenants', () => {
     };
     const authinfo = {
       user_name: 'admin',
-      sg_tenants: {
-        SGS_GLOBAL_TENANT: true,
+       effective_tenants: {
+        GLOBAL_TENANT: true,
         admin: true,
         admin_tenant: true,
         trex: false,
@@ -352,7 +352,7 @@ describe('tenantsToUiTenants', () => {
         disabled: false,
         prepend: <TenantAvatar name="Global" />,
         append: readWriteText,
-        'data-test-subj': 'sg.tenantsMenu.tenant.global',
+        'data-test-subj': 'sp.tenantsMenu.tenant.global',
       },
       {
         'aria-label': 'Private',
@@ -362,7 +362,7 @@ describe('tenantsToUiTenants', () => {
         disabled: false,
         prepend: <TenantAvatar name="Private" />,
         append: readWriteText,
-        'data-test-subj': 'sg.tenantsMenu.tenant.private',
+        'data-test-subj': 'sp.tenantsMenu.tenant.private',
       },
       {
         'aria-label': 'admin_tenant',
@@ -372,7 +372,7 @@ describe('tenantsToUiTenants', () => {
         disabled: false,
         prepend: <TenantAvatar name="admin_tenant" />,
         append: readWriteText,
-        'data-test-subj': 'sg.tenantsMenu.tenant.admin_tenant',
+        'data-test-subj': 'sp.tenantsMenu.tenant.admin_tenant',
       },
       {
         'aria-label': 'trex',
@@ -382,7 +382,7 @@ describe('tenantsToUiTenants', () => {
         disabled: true,
         prepend: <TenantAvatar name="trex" />,
         append: noTenantOrIndexText,
-        'data-test-subj': 'sg.tenantsMenu.tenant.trex',
+        'data-test-subj': 'sp.tenantsMenu.tenant.trex',
       },
     ];
 
@@ -405,7 +405,7 @@ describe('hasUserDashboardOnlyRole', () => {
       roles: [],
     };
     const authinfo = {
-      sg_roles: ['SGS_ALL_ACCESS', 'SGS_OWN_INDEX'],
+      effective_roles: ['ALL_ACCESS', 'OWN_INDEX'],
     };
 
     expect(hasUserDashboardOnlyRole({ readOnlyConfig, authinfo })).toBe(false);
@@ -416,7 +416,7 @@ describe('hasUserDashboardOnlyRole', () => {
       roles: ['ROLE_A'],
     };
     const authinfo = {
-      sg_roles: ['SGS_ALL_ACCESS', 'SGS_OWN_INDEX', 'ROLE_A'],
+      effective_roles: ['ALL_ACCESS', 'OWN_INDEX', 'ROLE_A'],
     };
 
     expect(hasUserDashboardOnlyRole({ readOnlyConfig, authinfo })).toBe(true);

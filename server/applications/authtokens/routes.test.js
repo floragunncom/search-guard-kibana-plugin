@@ -22,7 +22,7 @@ import {
 } from '../../utils/mocks';
 import { getAuthTokens } from './routes';
 
-describe('searchguard/configuration/routes', () => {
+describe('security/configuration/routes', () => {
   describe('getAuthTokens', () => {
     test('get auth tokens with ES query DSL', async () => {
       const logger = setupLoggerMock();
@@ -69,7 +69,7 @@ describe('searchguard/configuration/routes', () => {
         response
       );
 
-      const expectedPath = '/_searchguard/authtoken/_search';
+      const expectedPath = '/_eliatra/security/authtoken/_search';
       const expectedResponse = [
         {
           _id: '123',
@@ -150,7 +150,7 @@ describe('searchguard/configuration/routes', () => {
         response
       );
 
-      const expectedPath = `/_searchguard/authtoken/_search?scroll=${request.body.scroll}`;
+      const expectedPath = `/_eliatra/security/authtoken/_search?scroll=${request.body.scroll}`;
       const expectedFetchAllFromScrollOptions = {
         clusterClient,
         scroll: request.body.scroll,

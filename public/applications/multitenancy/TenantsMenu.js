@@ -102,29 +102,29 @@ export function tenantsToUiTenants({
   isDashboardOnlyRole,
 } = {}) {
   const userName = authinfo.user_name;
-  const tenants = { ...authinfo.sg_tenants };
+  const tenants = { ...authinfo. effective_tenants };
 
   const tenantToIndexMap = new Map();
   for (const [tenantIndex, tenantName] of Object.entries(tenantinfo)) {
     tenantToIndexMap.set(tenantName, tenantIndex);
   }
 
-  // If SGS_GLOBAL_TENANT is not available in tenant list, it needs to be
+  // If GLOBAL_TENANT is not available in tenant list, it needs to be
   // removed from UI display as well
   let globalUserWriteable = false;
   let globalUserVisible = false;
   delete tenants[userName];
 
-  // delete the SGS_GLOBAL_TENANT for the moment. We fall back the GLOBAL until
+  // delete the GLOBAL_TENANT for the moment. We fall back the GLOBAL until
   // RBAC is rolled out completely.
-  if (tenants.hasOwnProperty('SGS_GLOBAL_TENANT') && globalTenantEnabled) {
-    globalUserWriteable = tenants.SGS_GLOBAL_TENANT && !isDashboardOnlyRole;
+  if (tenants.hasOwnProperty('GLOBAL_TENANT') && globalTenantEnabled) {
+    globalUserWriteable = tenants.GLOBAL_TENANT && !isDashboardOnlyRole;
     globalUserVisible = true;
   }
-  delete tenants.SGS_GLOBAL_TENANT;
+  delete tenants.GLOBAL_TENANT;
 
   function creteDataTestSubj(tenantName) {
-    return 'sg.tenantsMenu.tenant.' + tenantName.toLowerCase();
+    return 'sp.tenantsMenu.tenant.' + tenantName.toLowerCase();
   }
 
   const uiTenants = Object.entries(tenants)
@@ -189,7 +189,7 @@ export function tenantsToUiTenants({
 
 export function hasUserDashboardOnlyRole({ readOnlyConfig = {}, authinfo = {} } = {}) {
   try {
-    return authinfo.sg_roles.filter((role) => {
+    return authinfo.effective_roles.filter((role) => {
       return readOnlyConfig.roles.indexOf(role) > -1;
     }).length
       ? true
@@ -221,7 +221,7 @@ function ConfigurationCheckCallOut() {
 
       if (!mtInfo.kibana_mt_enabled) {
         errorMessage =
-          'Either the Multitenancy module is not present on Elasticsearch Search Guard, or it is disabled.';
+          'Either the Multitenancy module is not present, or it is disabled.';
       }
 
       if (mtInfo.kibana_server_user !== kibanaServerUser) {
@@ -273,7 +273,7 @@ export function SelectedTenant({ selectedTenant }) {
     <div style={{ paddingTop: 10, textAlign: 'center' }}>
       <EuiToolTip content={selectedTenant.label}>
         <EuiText grow={false}>
-          <p id="sg.tenantsMenu.selectedTenant">
+          <p id="sp.tenantsMenu.selectedTenant">
             {selectedText}: {tenantName}
           </p>
         </EuiText>
@@ -290,10 +290,10 @@ export function TenantsMenu() {
   const {
     enable_global: globalTenantEnabled,
     enable_private: privateTenantEnabled,
-  } = configService.get('searchguard.multitenancy.tenants');
-  const readOnlyConfig = configService.get('searchguard.readonly_mode');
+  } = configService.get('eliatra.security.multitenancy.tenants');
+  const readOnlyConfig = configService.get('eliatra.security.readonly_mode');
   const isSGConfigEnabled =
-    configService.get('searchguard.configuration.enabled') && configService.hasApiAccess();
+    configService.get('eliatra.security.configuration.enabled') && configService.hasApiAccess();
   const id = htmlIdGenerator()();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -417,7 +417,7 @@ export function TenantsMenu() {
 
   function addMoreTenants() {
     kibanaApplication.navigateToUrl(
-      `${httpClient.http.basePath.basePath}/app/searchguard-configuration#/tenants`
+      `${httpClient.http.basePath.basePath}/app/security-plus-configuration#/tenants`
     );
   }
 
@@ -433,7 +433,7 @@ export function TenantsMenu() {
           aria-haspopup="true"
           aria-label={selectedTenant.searchableLabel}
           title={selectedTenant.searchableLabel}
-          data-test-subj="sg.tenantsMenu.popover.button"
+          data-test-subj="sp.tenantsMenu.popover.button"
           onClick={onMenuButtonClick}
         >
           {selectedTenant.prepend}
@@ -443,7 +443,7 @@ export function TenantsMenu() {
       anchorPosition="downLeft"
       closePopover={closePopover}
       panelPaddingSize="none"
-      data-test-subj="sg.tenantsMenu.popover"
+      data-test-subj="sp.tenantsMenu.popover"
     >
       <EuiSelectable
         isLoading={isLoading}
@@ -451,7 +451,7 @@ export function TenantsMenu() {
         searchProps={{
           placeholder: 'Find a tenant',
           compressed: true,
-          'data-test-subj': 'sg.tenantsMenu.selectable.search',
+          'data-test-subj': 'sp.tenantsMenu.selectable.search',
         }}
         options={tenants}
         singleSelection="always"
@@ -461,7 +461,7 @@ export function TenantsMenu() {
           rowHeight: 40,
           showIcons: false,
         }}
-        data-test-subj="sg.tenantsMenu.selectable"
+        data-test-subj="sp.tenantsMenu.selectable"
       >
         {(list, search) => {
           return (
@@ -476,7 +476,7 @@ export function TenantsMenu() {
                     size="s"
                     fullWidth
                     onClick={addMoreTenants}
-                    data-test-subj="sg.tenantsMenu.selectable.addMoreTenants"
+                    data-test-subj="sp.tenantsMenu.selectable.addMoreTenants"
                   >
                     {addMoreTenantsText}
                   </EuiButton>

@@ -9,7 +9,7 @@
     "index": [
       {
         "health": "green",
-        "label": "kibana_sample_data_logs",
+        "label": "opensearch_dashboards_sample_data_logs",
         "status": "open"
       }
     ],
@@ -42,7 +42,7 @@
       "target": "mysearch",
       "request": {
         "indices": [
-          "kibana_sample_data_logs"
+          "opensearch_dashboards_sample_data_logs"
         ],
         "body": {
           "size": 0,

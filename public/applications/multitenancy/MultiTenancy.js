@@ -23,7 +23,8 @@ import { TenantsMenu } from './TenantsMenu';
 
 export class MultiTenancy {
   start({ core, httpClient, configService } = {}) {
-    const isMTEnabled = configService.get('searchguard.multitenancy.enabled');
+    const isMTEnabled = configService.get('eliatra.security.multitenancy.enabled');
+
     if (!isMTEnabled) return;
 
     shareButtonEventListener();

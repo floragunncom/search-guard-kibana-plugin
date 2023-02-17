@@ -21,7 +21,7 @@ export class MultitenancyLifecycle {
   constructor({
     authManager,
     kerberos,
-    searchGuardBackend,
+    eliatraSuiteBackend,
     configService,
     sessionStorageFactory,
     logger,
@@ -29,7 +29,7 @@ export class MultitenancyLifecycle {
     pluginDependencies,
   }) {
     this.authManager = authManager;
-    this.searchGuardBackend = searchGuardBackend;
+    this.eliatraSuiteBackend = eliatraSuiteBackend;
     this.configService = configService;
     this.sessionStorageFactory = sessionStorageFactory;
     this.logger = logger;
@@ -39,6 +39,7 @@ export class MultitenancyLifecycle {
   }
 
   onPreAuth = async (request, response, toolkit) => {
+
     let authHeaders = request.headers;
 	let sessionCookie;
 
@@ -53,7 +54,7 @@ export class MultitenancyLifecycle {
 		  }
     } else if (this.kerberos) {
        sessionCookie = await this.kerberos.getCookieWithCredentials(request);
-       authHeaders = this.kerberos.getAuthHeader(sessionCookie);        
+       authHeaders = this.kerberos.getAuthHeader(sessionCookie);
     } else {
        sessionCookie = await this.sessionStorageFactory.asScoped(request).get();
 	}
@@ -66,7 +67,7 @@ export class MultitenancyLifecycle {
 
     if (selectedTenant !== null) {
       const rawRequest = ensureRawRequest(request);
-      assign(rawRequest.headers, authHeaders, { sgtenant: selectedTenant || '' });
+      assign(rawRequest.headers, authHeaders, { sp_tenant: selectedTenant || '' });
 
       if (this.pluginDependencies.spaces) {
         await this.createDefaultSpace({ request, selectedTenant });
@@ -101,13 +102,13 @@ export class MultitenancyLifecycle {
    * @returns {Promise<string|null>}
    */
   getSelectedTenant = async ({ request, authHeaders, sessionCookie }) => {
-    const globalEnabled = this.configService.get('searchguard.multitenancy.tenants.enable_global');
+    const globalEnabled = this.configService.get('eliatra.security.multitenancy.tenants.enable_global');
     const privateEnabled = this.configService.get(
-      'searchguard.multitenancy.tenants.enable_private'
+      'eliatra.security.multitenancy.tenants.enable_private'
     );
-    const preferredTenants = this.configService.get('searchguard.multitenancy.tenants.preferred');
-    const debugEnabled = this.configService.get('searchguard.multitenancy.debug');
-    const backend = this.searchGuardBackend;
+    const preferredTenants = this.configService.get('eliatra.security.multitenancy.tenants.preferred');
+    const debugEnabled = this.configService.get('eliatra.security.multitenancy.debug');
+    const backend = this.eliatraSuiteBackend;
 
     // Make sure we have a sessionCookie object to work with
     if (!sessionCookie) {
@@ -150,7 +151,7 @@ export class MultitenancyLifecycle {
       selectedTenant = backend.validateTenant(
         authInfoResponse.user_name,
         selectedTenant,
-        authInfoResponse.sg_tenants,
+        authInfoResponse.effective_tenants,
         globalEnabled,
         privateEnabled
       );
@@ -160,7 +161,7 @@ export class MultitenancyLifecycle {
         selectedTenant = backend.getTenantByPreference(
           request,
           authInfoResponse.user_name,
-          authInfoResponse.sg_tenants,
+          authInfoResponse. effective_tenants,
           preferredTenants,
           globalEnabled,
           privateEnabled
@@ -194,21 +195,16 @@ export class MultitenancyLifecycle {
   getExternalTenant = (request, debugEnabled = false) => {
     let externalTenant = null;
     // check for tenant information in HTTP header. E.g. when using the saved objects API
-    if (request.headers.sgtenant || request.headers.sg_tenant) {
-      externalTenant = request.headers.sgtenant
-        ? request.headers.sgtenant
-        : request.headers.sg_tenant;
+    if (request.headers.sp_tenant) {
+      externalTenant = request.headers.sp_tenant
 
       if (debugEnabled) {
         this.logger.info(`Multitenancy: tenant_http_header' ${externalTenant}`);
       }
     }
     // check for tenant information in GET parameter. E.g. when using a share link. Overwrites the HTTP header.
-    if (request.url.query && (request.url.query.sg_tenant || request.url.query.sgtenant)) {
-      externalTenant = request.url.query.sg_tenant
-        ? request.url.query.sg_tenant
-        : request.url.query.sgtenant;
-
+    if (request.url.searchParams && request.url.searchParams.has('sp_tenant')) {
+      externalTenant = request.url.searchParams.get('sp_tenant');
       if (debugEnabled) {
         this.logger.info(`Multitenancy: tenant_url_param' ${externalTenant}`);
       }

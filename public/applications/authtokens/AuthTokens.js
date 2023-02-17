@@ -16,7 +16,7 @@
 import { BehaviorSubject } from 'rxjs';
 import { AppNavLinkStatus } from '../../../../../src/core/public';
 import { AuthTokensService } from './services';
-import { SEARCHGUARD_APP_CATEGORY } from '../../utils/constants';
+import { ELIATRASUITE_APP_CATEGORY } from '../../utils/constants';
 
 export class AuthTokens {
   constructor(coreContext) {
@@ -36,9 +36,9 @@ export class AuthTokens {
       this.authTokensService = new AuthTokensService(httpClient);
 
       core.application.register({
-        id: 'searchguard-authtokens',
+        id: 'security-authtokens',
         title: 'Auth Tokens',
-        category: SEARCHGUARD_APP_CATEGORY,
+        category: ELIATRASUITE_APP_CATEGORY,
         updater$: this.appUpdater,
         mount: this.mount({ core, httpClient, configService }),
       });

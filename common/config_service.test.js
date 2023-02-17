@@ -4,26 +4,28 @@ import { ConfigService } from './config_service';
 describe('ConfigService', () => {
   test('can get config on path', () => {
     const configService = new ConfigService({
-      searchguard: {
-        cookies: {
-          password: 'password',
-        },
+      eliatra: {
+        security: {
+          cookies: {
+            password: 'password',
+          },
+        }
       },
     });
 
-    expect(configService.get('searchguard.cookies.password')).toBe('password');
+    expect(configService.get('eliatra.security.cookies.password')).toBe('password');
   });
 
   test('fail to get config on path', () => {
     const configService = new ConfigService({});
 
-    expect(configService.get('searchguard.cookies.password')).toBe(undefined);
+    expect(configService.get('eliatra.security.cookies.password')).toBe(undefined);
   });
 
   test('set a default value if fail to get config on path', () => {
     const configService = new ConfigService({});
 
-    expect(configService.get('searchguard.cookies.password', 'password')).toBe('password');
+    expect(configService.get('eliatra.security.cookies.password', 'password')).toBe('password');
   });
 
   test('the config is immutable', () => {
@@ -47,25 +49,25 @@ describe('ConfigService', () => {
     expect(configService.config).toEqual({ a: 1, b: { c: 3 } });
   });
 
-  describe('searchguard config', () => {
+  describe('security config', () => {
     test('get config', () => {
-      const configService = new ConfigService({ a: 1, searchguard: { c: 2 } });
+      const configService = new ConfigService({ a: 1, eliatra: { security: { c: 2 } } });
 
-      expect(configService.getSearchguardConfig('c')).toEqual(2);
+      expect(configService.getEliatrasuiteConfig('c')).toEqual(2);
     });
 
     test('set config', () => {
-      const configService = new ConfigService({ a: 1, searchguard: { c: 2 } });
-      configService.setSearchguardConfig('c', 3);
+      const configService = new ConfigService({ a: 1, eliatra: { security: { c: 2 } } });
+      configService.setEliatrasuiteConfig('c', 3);
 
-      expect(configService.config).toEqual({ a: 1, searchguard: { c: 3 } });
+      expect(configService.config).toEqual({ a: 1, eliatra: { security: { c: 3 } } });
     });
 
     test('throw error if wrong path', () => {
-      const configService = new ConfigService({ a: 1, searchguard: { c: 2 } });
+      const configService = new ConfigService({ a: 1, eliatrasuite: { c: 2 } });
 
-      expect(() => configService.setSearchguardConfig('searchguard.c', 3)).toThrow(
-        new Error('The path must not start with "searchguard".')
+      expect(() => configService.setEliatrasuiteConfig('eliatra.c', 3)).toThrow(
+        new Error('The path must not start with "eliatra".')
       );
     });
   });

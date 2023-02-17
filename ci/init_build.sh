@@ -2,11 +2,7 @@
 
 set -e 
 
-if [ $SF_PRODUCT = "kibana" ]; then
-  SF_BRANCH_NAME="v$SF_VERSION"
-else
-  SF_BRANCH_NAME="$SF_VERSION"
-fi
+SF_BRANCH_NAME="$SF_VERSION"
   
 if [[ -f $SF_REPO_DIR/.cached_version ]]; then
    CACHED_VERSION=`cat $SF_REPO_DIR/.cached_version`
@@ -35,28 +31,24 @@ nvm install
 
 echo -e "\e[0Ksection_end:`date +%s`:nvm_install\r\e[0K"
 
-if [[ -d plugins/search-guard ]]; then
-  rm -rf plugins/search-guard 
+if [[ -d plugins/eliatrasuite ]]; then
+  rm -rf plugins/eliatrasuite
 fi
 
-mkdir -p plugins/search-guard
-cp -a "../babel.config.js" plugins/search-guard
-cp -a "../package.json" plugins/search-guard
-cp -a "../$SF_JSON" plugins/search-guard
-cp -a "../tsconfig.json" plugins/search-guard
-cp -a "../public" plugins/search-guard
-cp -a "../server" plugins/search-guard
-cp -a "../common" plugins/search-guard
-cp -a "../tests"  plugins/search-guard
-cp -a "../__mocks__" plugins/search-guard
+mkdir -p plugins/eliatrasuite
+cp -a "../babel.config.js" plugins/eliatrasuite
+cp -a "../package.json" plugins/eliatrasuite
+cp -a "../$SF_JSON" plugins/eliatrasuite
+cp -a "../tsconfig.json" plugins/eliatrasuite
+cp -a "../public" plugins/eliatrasuite
+cp -a "../server" plugins/eliatrasuite
+cp -a "../common" plugins/eliatrasuite
+cp -a "../tests"  plugins/eliatrasuite
+cp -a "../__mocks__" plugins/eliatrasuite
 
 echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
 
-if [ $SF_PRODUCT = "kibana" ]; then
-  yarn kbn bootstrap --oss
-elif [ $SF_PRODUCT = "opensearch-dashboards" ]; then
-  yarn osd bootstrap
-fi
+yarn osd bootstrap
     
 echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
 

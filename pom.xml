@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?><!-- Copyright 2015-2017 floragunn 
-	GmbH Licensed under the Apache License, Version 2.0 (the "License"); you 
-	may not use this file except in compliance with the License. You may obtain 
-	a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless 
-	required by applicable law or agreed to in writing, software distributed 
-	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
-	OR CONDITIONS OF ANY KIND, either express or implied. See the License for 
+<?xml version="1.0" encoding="UTF-8"?><!-- Copyright 2015-2017 floragunn
+	GmbH Licensed under the Apache License, Version 2.0 (the "License"); you
+	may not use this file except in compliance with the License. You may obtain
+	a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless
+	required by applicable law or agreed to in writing, software distributed
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for
 	the specific language governing permissions and limitations under the License. -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -15,12 +15,12 @@
 		<artifactId>search-guard-parent</artifactId>
 		<version>6.22.0</version>
 	</parent>
-	<groupId>com.floragunn</groupId>
-	<artifactId>search-guard-flx-opensearch-dashboards-plugin</artifactId>
+	<groupId>com.eliatra.suite</groupId>
+	<artifactId>eliatra-suite-opensearch-dashboards-plugin</artifactId>
 	<packaging>pom</packaging>
 	<version>${revision}</version>
-	<name>Search Guard FLX Plugin for OpenSearch Dashboards</name>
-	<description>Provides Search Guard based authentication to OpenSearch Dashboards</description>
+	<name>Eliatra Suite Plugin for OpenSearch Dashboards</name>
+	<description>Provides Eliatra Suite Security based authentication to OpenSearch Dashboards</description>
 	<url>https://git.floragunn.com/search-guard</url>
 	<inceptionYear>2016</inceptionYear>
 	<licenses>
@@ -47,12 +47,12 @@
 		<snapshotRepository>
 			<id>snapshots</id>
 			<name>snapshots</name>
-			<url>https://maven.search-guard.com:443/search-guard-flx-snapshot</url>
+			<url>https://maven.eliatra.com/artifactory/eliatra-suite-snapshot</url>
 		</snapshotRepository>
 		<repository>
 			<id>release</id>
 			<name>releases</name>
-			<url>https://maven.search-guard.com:443/search-guard-flx-release</url>
+			<url>https://maven.eliatra.com/artifactory/eliatra-suite</url>
 		</repository>
 	</distributionManagement>
 	<build>

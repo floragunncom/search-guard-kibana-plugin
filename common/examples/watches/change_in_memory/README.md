@@ -6,16 +6,16 @@ The watch searches for the last X days (default to 1 month), aggregates by a hos
 
 # Requirements
 
-It is assumed you loaded [Kibana Sample Data Logs](https://www.elastic.co/guide/en/kibana/current/add-sample-data.html) index.
+It is assumed you loaded [OpenSearch Dashboards Sample Data Logs](https://github.com/opensearch-project/OpenSearch-Dashboards/tree/main/src/plugins/home/server/services/sample_data/data_sets/logs) index.
 
 Make sure you have correct Slack webhook URL in the action's `url`.
 
 # References
 
-* [Signals Alerting](https://docs.search-guard.com/latest/elasticsearch-alerting-getting-started)
-* [Derivative Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-derivative-aggregation.html)
-* [Sum Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-sum-aggregation.html)
-* [Date Histogram Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-datehistogram-aggregation.html)
-* [Terms Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html)
-* [Bool Query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html)
-* [Range Query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html)
+* [Eliatra Suite Alerting Plus](https://docs.search-guard.com/latest/elasticsearch-alerting-getting-started)
+* [Derivative Aggregation](https://opensearch.org/docs/latest/opensearch/pipeline-agg/)
+* [Sum Aggregation](https://opensearch.org/docs/2.0/opensearch/metric-agg/)
+* [Date Histogram Aggregation](https://opensearch.org/docs/latest/opensearch/pipeline-agg/)
+* [Terms Aggregation](https://opensearch.org/docs/latest/opensearch/aggregations/)
+* [Bool Query](https://opensearch.org/docs/latest/opensearch/query-dsl/bool/)
+* [Range Query](https://opensearch.org/docs/latest/opensearch/query-dsl/term/)

@@ -16,20 +16,20 @@
 
 import { API_ROOT } from '../../../utils/constants';
 
-export const getTenantInfo = ({ searchGuardBackend, logger }) => async (
+export const getTenantInfo = ({ eliatraSuiteBackend, logger }) => async (
   context,
   request,
   response
 ) => {
   try {
-    return response.ok({ body: await searchGuardBackend.getTenantInfoWithInternalUser() });
+    return response.ok({ body: await eliatraSuiteBackend.getTenantInfoWithInternalUser() });
   } catch (error) {
     logger.error(`getTenantInfo: ${error.stack}`);
     return response.internalError({ body: error });
   }
 };
 
-export function getTenantInfoRoute({ router, searchGuardBackend, logger }) {
+export function getTenantInfoRoute({ router, eliatraSuiteBackend, logger }) {
   router.get(
     {
       path: `${API_ROOT}/multitenancy/tenantinfo`,
@@ -38,6 +38,6 @@ export function getTenantInfoRoute({ router, searchGuardBackend, logger }) {
         authRequired: true,
       },
     },
-    getTenantInfo({ searchGuardBackend, logger })
+    getTenantInfo({ eliatraSuiteBackend, logger })
   );
 }

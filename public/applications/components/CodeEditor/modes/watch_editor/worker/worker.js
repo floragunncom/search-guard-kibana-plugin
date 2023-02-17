@@ -1,8 +1,8 @@
 /* eslint-disable */
 /*
- * Copyright 2013 Thorsten Lorenz. 
+ * Copyright 2013 Thorsten Lorenz.
  * All rights reserved.
- * 
+ *
  * https://opensource.org/licenses/MIT
  *
  * Permission is hereby granted, free of charge, to any person
@@ -16,7 +16,7 @@
  *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -1170,20 +1170,20 @@ ace.define(
     const error = function(message) {
       throw { name: 'SyntaxError', message, at, text };
     };
-  
+
     const next = function(c) {
       // If a c parameter is provided, verify that it matches the current character.
       if (c && c !== ch) {
         error('Expected \'' + c + '\' instead of \'' + ch + '\'');
       }
-  
+
       // Get the next character. When there are no more characters,
       // return the empty string.
       ch = text.charAt(at);
       at += 1;
       return ch;
     };
-  
+
     const nextPattern = function(stringPattern, errorMessage) {
       // Starting form the current index, verify that the text contains stringPattern,
       // for example, a string literal closing punctuation """.
@@ -1200,7 +1200,7 @@ ace.define(
       // Return the text slice between the first and the second stringPattern.
       return text.slice(previousAt, previousAt + i);
     };
-    
+
     const foundPattern = function(stringPattern, doTrim = true) {
       // Verify if text value at the current index is part of the provided stringPattern.
       return doTrim
@@ -1212,7 +1212,7 @@ ace.define(
       // Parse a number value.
       let number;
       let string = '';
-  
+
       if (ch === '-') {
         string = '-';
         next('-');
@@ -1259,7 +1259,7 @@ ace.define(
       let i;
       let string = '';
       let uffff;
-  
+
       // When parsing for string values, we must look for " and \ characters.
       if (ch === '"') {
         if (foundPattern(stringLiteralPattern)) {
@@ -1296,14 +1296,14 @@ ace.define(
       }
       error('Bad string');
     };
-  
+
     const white = function() {
       // Skip whitespace.
       while (ch && ch <= ' ') {
         next();
       }
     };
-  
+
     const word = function() {
       // true, false, or null.
       switch (ch) {
@@ -1329,13 +1329,13 @@ ace.define(
       }
       error('Unexpected \'' + ch + '\'');
     };
-  
+
     let value;  // Place holder for the value function.
-  
+
     const array = function() {
       // Parse an array value.
       const array = [];
-  
+
       if (ch === '[') {
         next('[');
         white();
@@ -1356,12 +1356,12 @@ ace.define(
       }
       error('Bad array');
     };
-  
+
     const object = function() {
       // Parse an object value.
       let key;
       const object = {};
-  
+
       if (ch === '{') {
         next('{');
         white();
@@ -1388,7 +1388,7 @@ ace.define(
       }
       error('Bad object');
     };
-  
+
     value = function() {
       // Parse a JSON value. It could be an object, an array, a string, a number,
       // or a word.
@@ -1406,12 +1406,12 @@ ace.define(
           return ch >= '0' && ch <= '9' ? number() : word();
       }
     };
-  
+
     // Return the json_parse function. It will have access to all of the above
     // functions and variables.
     return function(source, reviver) {
       let result;
-  
+
       text = source;
       at = 0;
       ch = ' ';
@@ -1420,7 +1420,7 @@ ace.define(
       if (ch) {
         error('Syntax error');
       }
-  
+
       // If there is a reviver function, we recursively walk the new structure,
       // passing each name/value pair to the reviver function for possible
       // transformation, starting with a temporary root object that holds the result

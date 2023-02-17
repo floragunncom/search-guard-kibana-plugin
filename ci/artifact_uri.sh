@@ -8,7 +8,7 @@ VERSION=$3
 TYPE=$4
 FILTER=$5
 
-SEARCH_RESULT=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=$ARTIFACT&v=$VERSION&repos=$REPOSITORY")
+SEARCH_RESULT=$(curl -Ss -u "$ARTIFACTORY_USER:$ARTIFACTORY_PASSWORD" --fail "https://maven.eliatra.com/artifactory/api/search/gavc?g=com.eliatra.suite&a=$ARTIFACT&v=$VERSION&repos=$REPOSITORY")
 
 if [ -z $FILTER ]; then
   METADATA_URI=$(echo $SEARCH_RESULT | jq -r ".results | map(select(.uri | endswith(\"$TYPE\"))) | max_by(.uri) | .uri")
@@ -21,6 +21,6 @@ if [ -z $METADATA_URI ] | [ "$METADATA_URI" = "null" ]; then
   exit 1
 fi
 
-METADATA=$(curl -Ss --fail $METADATA_URI)
+METADATA=$(curl -Ss --fail -u "$ARTIFACTORY_USER:$ARTIFACTORY_PASSWORD" $METADATA_URI)
 
 echo $(echo $METADATA | jq -r '.downloadUri')

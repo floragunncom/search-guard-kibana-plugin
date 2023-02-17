@@ -1,0 +1,20 @@
+#eliatrasuite-alerting-app .sp-container {
+  max-width: 100em;
+  margin: auto;
+}
+
+#eliatrasuite-alerting-app .sp-page-content-body {
+  padding: 1.563em 1.563em;
+}
+
+/*
+Prevent scrolling up when clicking at Ace editor input the first time
+https://github.com/ajaxorg/ace/issues/2963#issuecomment-297122112
+*/
+.ace_text-input {
+  position: absolute!important;
+}
+
+.euiAccordion__childWrapper {
+  transform: none;
+}

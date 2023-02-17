@@ -23,9 +23,9 @@ export function LicenseWarningCallout({
 
   async function verifyLicense() {
     const licenseCantBeLoadedText =
-      'The Search Guard license information could not be loaded. Please contact your system administrator.';
+      'The Eliatra Suite license information could not be loaded. Please contact your system administrator.';
     const licenseKeyIsInvalidText =
-      'The Search Guard license key is not valid for this cluster. Please contact your system administrator.';
+      'The Eliatra Suite license key is not valid for this cluster. Please contact your system administrator.';
 
     try {
       if (isEmpty(service.get('systeminfo'))) {
@@ -67,8 +67,8 @@ export function LicenseWarningCallout({
       {!licenseValid && (
         <>
           <EuiCallOut
-            id="sg.label.licensewarning"
-            data-test-subj="sg.callout.licenseWarning"
+            id="sp.label.licensewarning"
+            data-test-subj="sp.callout.licenseWarning"
             title="Error"
             color="danger"
             iconType="alert"
@@ -84,8 +84,8 @@ export function LicenseWarningCallout({
       {warning && (
         <>
           <EuiCallOut
-            id="sg.label.licensehint"
-            data-test-subj="sg.callout.licenseHint"
+            id="sp.label.licensehint"
+            data-test-subj="sp.callout.licenseHint"
             title="Warning"
             color="warning"
             iconType="help"

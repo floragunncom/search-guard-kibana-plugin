@@ -22,7 +22,7 @@ import { MultitenancyLifecycle } from './multitenancy_lifecycle';
 export class Multitenancy {
   constructor(coreContext) {
     this.coreContext = coreContext;
-    this.logger = coreContext.logger.get('searchguard-multitenancy');
+    this.logger = coreContext.logger.get('eliatrasuite-multitenancy');
     this.tenantsMigration = new TenantsMigrationService(coreContext);
   }
 
@@ -33,14 +33,14 @@ export class Multitenancy {
     sessionStorageFactory,
     pluginDependencies,
     configService,
-    searchGuardBackend,
+    eliatraSuiteBackend,
   }) {
     this.logger.debug('Setup app');
 
     const requestHeadersWhitelist = configService.get('opensearch.requestHeadersWhitelist');
-    if (!requestHeadersWhitelist.includes('sgtenant')) {
+    if (!requestHeadersWhitelist.includes('sp_tenant')) {
       throw new Error(
-        'No tenant header found in whitelist. Please add sgtenant to opensearch.requestHeadersWhitelist in opensearch_dashboards.yml'
+        'No tenant header found in whitelist. Please add sp_tenant to opensearch.requestHeadersWhitelist in opensearch_dashboards.yml'
       );
     }
 
@@ -51,7 +51,7 @@ export class Multitenancy {
       const multitenancyLifecycle = new MultitenancyLifecycle({
         authManager,
         kerberos,
-        searchGuardBackend,
+        eliatraSuiteBackend,
         configService,
         sessionStorageFactory,
         logger: this.logger,
@@ -62,7 +62,7 @@ export class Multitenancy {
 
       defineMultitenancyRoutes({
         router,
-        searchGuardBackend,
+        eliatraSuiteBackend,
         config: configService,
         sessionStorageFactory,
         logger: this.logger,
@@ -73,7 +73,7 @@ export class Multitenancy {
     }
   }
 
-  async start({ core, kibanaRouter, searchGuardBackend, configService }) {
+  async start({ core, kibanaRouter, eliatraSuiteBackend, configService }) {
     this.logger.debug('Start app');
     const savedObjects = core.savedObjects;
     const esClient = core.opensearch.client;
@@ -83,7 +83,7 @@ export class Multitenancy {
         esClient,
         kibanaRouter,
         savedObjects,
-        searchGuardBackend,
+        eliatraSuiteBackend,
         configService,
       });
     } catch (error) {

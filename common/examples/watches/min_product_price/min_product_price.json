@@ -22,7 +22,7 @@
       "target": "min_price",
       "request": {
         "indices": [
-          "kibana_sample_data_ecommerce"
+          "opensearch_dashboards_sample_data_ecommerce"
         ],
         "body": {
           "size": 0,

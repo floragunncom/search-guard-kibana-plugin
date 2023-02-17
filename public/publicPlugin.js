@@ -1,4 +1,4 @@
-/*
+  /*
  *    Copyright 2021 floragunn GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,16 +16,16 @@
 
 import { HttpWrapper } from './utils/httpWrapper';
 import { ApiService, ConfigService } from './services';
-import { Signals } from './applications/signals/Signals';
-import { SearchGuard } from './applications/searchguard';
+import { Alerting } from './applications/alerting/Alerting';
+import { Security } from './applications/security';
 import { AuthTokens } from './applications/authtokens';
 import { MultiTenancy } from './applications/multitenancy';
 
 export class PublicPlugin {
   constructor(initializerContext) {
     this.initializerContext = initializerContext;
-    this.signalsApp = new Signals();
-    this.searchGuardApp = new SearchGuard(this.initializerContext);
+    this.alertingApp = new Alerting();
+    this.securityApp = new Security(this.initializerContext);
     this.authTokensApp = new AuthTokens(this.initializerContext);
     this.multiTenancyApp = new MultiTenancy(this.initializerContext);
   }
@@ -45,7 +45,7 @@ export class PublicPlugin {
       coreContext: this.initializerContext,
     });
 
-    this.searchGuardApp.setupSync({
+    this.securityApp.setupSync({
       core,
       plugins,
       httpClient: this.httpClient,
@@ -58,15 +58,15 @@ export class PublicPlugin {
       configService: this.configService,
     });
 
-    this.signalsApp.setupSync({ core, httpClient: this.httpClient });
-    this.signalsApp.setup({ httpClient: this.httpClient, configService: this.configService });
+    this.alertingApp.setupSync({ core, httpClient: this.httpClient });
+    this.alertingApp.setup({ httpClient: this.httpClient, configService: this.configService });
   }
 
   start(core) {
     (async () => {
       await this.configService.fetchConfig();
 
-      this.searchGuardApp.start({
+      this.securityApp.start({
         core,
         httpClient: this.httpClient,
         configService: this.configService,
@@ -74,10 +74,9 @@ export class PublicPlugin {
 
       this.authTokensApp.start({
         configService: this.configService,
-        configService: this.configService,
       });
 
-      this.signalsApp.start({ httpClient: this.httpClient, configService: this.configService });
+      this.alertingApp.start({ httpClient: this.httpClient, configService: this.configService });
 
       this.multiTenancyApp.start({
         core,
