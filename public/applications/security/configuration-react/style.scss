@@ -1,0 +1,52 @@
+#securityDashboardsPlugin .container {
+  max-width: 100em;
+  margin: auto;
+}
+
+#securityDashboardsPlugin .sgHomeMenu__card {
+  width: 200px;
+}
+
+#securityDashboardsPlugin .sgContentPanel {
+  padding: 0px 0px;
+}
+
+#securityDashboardsPlugin .sgContentPanel .sgContentPanel__header {
+  padding: 0px 10px;
+}
+
+#securityDashboardsPlugin .sgContentPanel .sgContentPanel__body {
+  padding: 0px 10px;
+}
+
+#securityDashboardsPlugin .sgDynamicValuesForm {
+  margin-top: 5px;
+}
+
+#securityDashboardsPlugin .sgDynamicValuesForm__title, .sgDynamicValuesForm__item, .sgDynamicValuesForm__empty {
+  margin-bottom: 0px;
+}
+
+#securityDashboardsPlugin .sgSideNav {
+  width: 220px;
+}
+
+#securityDashboardsPlugin .sgFixedFormItem {
+  max-width: 400px;
+}
+
+#securityDashboardsPlugin .sgFixedFormGroupItem {
+  max-width: 800px;
+}
+
+#securityDashboardsPlugin .sgConfirmModalBody {
+  padding: 20px;
+}
+
+/*
+Prevent scrolling up when clicking at Ace editor input the first time
+https://github.com/ajaxorg/ace/issues/2963#issuecomment-297122112
+*/
+.ace_text-input {
+  position: absolute!important;
+}

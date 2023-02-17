@@ -5,9 +5,8 @@ target/
 /releases
 build/
 test/
-/search_guard_kibana_plugin.iml
+/*.iml
 /.idea
-/search-guard-kibana-plugin.iml
 # Logs
 logs
 *.log

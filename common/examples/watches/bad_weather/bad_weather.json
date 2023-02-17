@@ -23,7 +23,7 @@
       "target": "bad_weather_flights",
       "request": {
         "indices": [
-          "kibana_sample_data_flights"
+          "opensearch_dashboards_sample_data_flights"
         ],
         "body": {
           "size": "{{data.constants.max_num_of_flights}}",

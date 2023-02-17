@@ -2,9 +2,9 @@
 /* eslint-disable no-restricted-imports */
 import { get as _get, set as _set, cloneDeep } from 'lodash';
 
-function assertSearchguardPath(path) {
-  if (path.split('.')[0] === 'searchguard') {
-    throw new Error('The path must not start with "searchguard".');
+function assertEliatrasuitePath(path) {
+  if (path.split('.')[0] === 'eliatra') {
+    throw new Error('The path must not start with "eliatra".');
   }
 }
 
@@ -21,9 +21,9 @@ export class ConfigService {
     return cloneDeep(this.config);
   }
 
-  getSearchguardConfig(path = '', defaultValue) {
-    assertSearchguardPath(path);
-    path = path ? `searchguard.${path}` : 'searchguard';
+  getEliatrasuiteConfig(path = '', defaultValue) {
+    assertEliatrasuitePath(path);
+    path = path ? `eliatra.security.${path}` : 'eliatra';
     return this.get(path, defaultValue);
   }
 
@@ -31,8 +31,8 @@ export class ConfigService {
     _set(this.config, path, value);
   }
 
-  setSearchguardConfig(path, value) {
-    assertSearchguardPath(path);
-    this.set(`searchguard.${path}`, value);
+  setEliatrasuiteConfig(path, value) {
+    assertEliatrasuitePath(path);
+    this.set(`eliatra.security.${path}`, value);
   }
 }

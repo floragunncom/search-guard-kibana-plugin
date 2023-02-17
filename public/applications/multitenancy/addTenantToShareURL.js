@@ -19,7 +19,7 @@ import { tenantNameToUiTenantName } from '../../../common/multitenancy';
 
 export function getURLWithTenant({ tenant, url }) {
   const newURL = new URL(url);
-  newURL.searchParams.set('sg_tenant', tenantNameToUiTenantName(tenant));
+  newURL.searchParams.set('sp_tenant', tenantNameToUiTenantName(tenant));
   return newURL.toString();
 }
 
@@ -42,7 +42,7 @@ export function shareButtonEventListener() {
 
     // The copy event listens to Cmd + C too, so we need to make sure
     if (target && shareButton) {
-      const config = JSON.parse(sessionStorage.getItem('searchguard') || '{}');
+      const config = JSON.parse(sessionStorage.getItem('eliatrasuite') || '{}');
       const currentTenant = get(config, 'authinfo.user_requested_tenant');
 
       const origURL = target.textContent;

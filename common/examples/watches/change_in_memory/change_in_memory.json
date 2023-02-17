@@ -24,7 +24,7 @@
       "target": "change_in_memory",
       "request": {
         "indices": [
-          "kibana_sample_data_logs"
+          "opensearch_dashboards_sample_data_logs"
         ],
         "body": {
           "size": 0,

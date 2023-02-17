@@ -16,7 +16,7 @@
 
 import { MultitenancyLifecycle } from './multitenancy_lifecycle';
 import {
-  setupSearchGuardBackendMock,
+  setupeliatraSuiteBackendMock,
   setupConfigMock,
   setupLoggerMock,
   setupSessionStorageFactoryMock,
@@ -28,11 +28,11 @@ import {
 function setupConfigServiceMock() {
   return setupConfigMock({
     get: jest.fn((path) => {
-      if (path === 'searchguard.multitenancy.enabled') return true;
-      if (path === 'searchguard.multitenancy.tenants.enable_global') return false;
-      if (path === 'searchguard.multitenancy.tenants.enable_private') return true;
-      if (path === 'searchguard.multitenancy.tenants.preferred') return ['private'];
-      if (path === 'searchguard.multitenancy.debug') return false;
+      if (path === 'eliatra.security.multitenancy.enabled') return true;
+      if (path === 'eliatra.security.multitenancy.tenants.enable_global') return false;
+      if (path === 'eliatra.security.multitenancy.tenants.enable_private') return true;
+      if (path === 'eliatra.security.multitenancy.tenants.preferred') return ['private'];
+      if (path === 'eliatra.security.multitenancy.debug') return false;
       if (path === 'opensearchDashboards.index') return '.kibana';
     }),
   });
@@ -104,14 +104,14 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
   let logger;
   let pluginDependencies;
 
-  let sgtenant;
+  let sp_tenant;
   let sessionCookie;
   let request;
   let authinfoResponse;
 
   let sessionStorageFactoryGet;
   let sessionStorageFactory;
-  let searchGuardBackend;
+  let eliatraSuiteBackend;
 
   beforeEach(() => {
     authInstance = setupAuthInstanceMock();
@@ -121,10 +121,10 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
     logger = setupLoggerMock();
     pluginDependencies = setupPluginDependenciesMock();
 
-    sgtenant = 'admin_tenant';
+    sp_tenant = 'admin_tenant';
     sessionCookie = {
       username: 'admin',
-      tenant: sgtenant, // there is tenant in cookie
+      tenant: sp_tenant, // there is tenant in cookie
     };
     request = {
       headers: {}, // there is no tenant in the headers
@@ -135,7 +135,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
     authinfoResponse = {
       user: 'User [name=admin, backend_roles=[admin], requestedTenant=null]',
       user_name: 'admin',
-      sg_tenants: { admin_tenant: true, admin: true, SGS_GLOBAL_TENANT: true },
+      effective_tenants: { admin_tenant: true, admin: true, GLOBAL_TENANT: true },
     };
 
     sessionStorageFactoryGet = jest.fn(() => sessionCookie);
@@ -144,9 +144,9 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
         get: sessionStorageFactoryGet,
       })),
     });
-    searchGuardBackend = setupSearchGuardBackendMock({
+    eliatraSuiteBackend = setupeliatraSuiteBackendMock({
       authinfo: jest.fn().mockResolvedValue(authinfoResponse),
-      validateTenant: jest.fn().mockReturnValue(sgtenant),
+      validateTenant: jest.fn().mockReturnValue(sp_tenant),
     });
   });
 
@@ -160,7 +160,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
 
     const mtLifecycle = new MultitenancyLifecycle({
       authInstance,
-      searchGuardBackend,
+      eliatraSuiteBackend,
       configService,
       sessionStorageFactory,
       logger,
@@ -172,7 +172,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
     expect(sessionStorageFactory.asScoped).toHaveBeenCalledWith({
       ...request,
       headers: {
-        sgtenant,
+        sp_tenant,
       },
     });
     expect(sessionStorageFactoryGet).toHaveBeenCalledTimes(1);
@@ -181,29 +181,29 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
     expect(authInstance.getAllAuthHeaders).toHaveBeenCalledWith({
       ...request,
       headers: {
-        sgtenant,
+        sp_tenant,
       },
     });
 
     // Internals of getSelectedTenant()
-    expect(searchGuardBackend.authinfo).toHaveBeenCalledWith({ sgtenant });
-    expect(searchGuardBackend.validateTenant).toHaveBeenCalledWith(
+    expect(eliatraSuiteBackend.authinfo).toHaveBeenCalledWith({ sp_tenant });
+    expect(eliatraSuiteBackend.validateTenant).toHaveBeenCalledWith(
       authinfoResponse.user_name,
       'admin_tenant',
-      authinfoResponse.sg_tenants,
+      authinfoResponse. effective_tenants,
       false,
       true
     );
 
-    // If we have a selected tenant, the sgtenant header should be added to the request
-    expect(request.headers.sgtenant).toEqual(sgtenant);
+    // If we have a selected tenant, the sp_tenant header should be added to the request
+    expect(request.headers.sp_tenant).toEqual(sp_tenant);
 
     // Create the default space
     expect(elasticsearchClientAsScoped).toHaveBeenCalledTimes(2);
     expect(elasticsearchClientAsScoped).toHaveBeenCalledWith({
       ...request,
       headers: {
-        sgtenant,
+        sp_tenant,
       },
     });
     expect(elasticsearchClientAsScopedAsCurrentUserTransportRequest).toHaveBeenCalledWith({
@@ -230,73 +230,17 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
     expect(toolkit.next).toHaveBeenCalled();
   });
 
-  test('do not create the default space if exists', async () => {
-    const {
-      elasticsearchClientAsScopedAsCurrentUserCreate,
-      elasticsearchClientAsScopedAsCurrentUserTransportRequest,
-      elasticsearchClientAsScoped,
-      clusterClient,
-    } = setupForCreateDefaultSpace();
-
-    const mtLifecycle = new MultitenancyLifecycle({
-      authInstance,
-      searchGuardBackend,
-      configService,
-      sessionStorageFactory,
-      logger,
-      clusterClient,
-      pluginDependencies,
-    });
-    await mtLifecycle.onPreAuth(request, response, toolkit);
-
-    expect(elasticsearchClientAsScoped).toHaveBeenCalledTimes(1);
-    expect(elasticsearchClientAsScoped).toHaveBeenCalledWith({
-      ...request,
-      headers: {
-        sgtenant,
-      },
-    });
-    expect(elasticsearchClientAsScopedAsCurrentUserTransportRequest).toHaveBeenCalledWith({
-      method: 'get',
-      path: '/.kibana/_doc/space:default',
-    });
-    expect(elasticsearchClientAsScopedAsCurrentUserCreate).toHaveBeenCalledTimes(0);
-  });
-
-  test('do not create the default space if Kibana spaces plugin disabled', async () => {
-    pluginDependencies = {};
-    const {
-      elasticsearchClientAsScopedAsCurrentUserCreate,
-      elasticsearchClientAsScopedAsCurrentUserTransportRequest,
-      clusterClient,
-    } = setupForCreateDefaultSpace();
-
-    const mtLifecycle = new MultitenancyLifecycle({
-      authInstance,
-      searchGuardBackend,
-      configService,
-      sessionStorageFactory,
-      logger,
-      clusterClient,
-      pluginDependencies,
-    });
-    await mtLifecycle.onPreAuth(request, response, toolkit);
-
-    expect(elasticsearchClientAsScopedAsCurrentUserTransportRequest).toHaveBeenCalledTimes(0);
-    expect(elasticsearchClientAsScopedAsCurrentUserCreate).toHaveBeenCalledTimes(0);
-  });
-
   test('tenant is read from the cookie and validated', async () => {
-    const sgtenant = '__user__';
+    const sp_tenant = '__user__';
     const sessionCookie = {
-      tenant: sgtenant,
+      tenant: sp_tenant,
     };
     const request = {
       headers: {
-        cookie: 'searchguard_authentication=Fe26.2**925d29ddcc3aba',
+        cookie: 'eliatra_security_authentication=Fe26.2**925d29ddcc3aba',
       },
       url: {
-        pathname: '/api/v1/searchguard/kibana_config',
+        pathname: '/api/v1/security/kibana_config',
       },
     };
     const authHeaders = {
@@ -308,10 +252,10 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
     const authinfoResponse = {
       user: 'User [name=admin, backend_roles=[admin], requestedTenant=null]',
       user_name: 'admin',
-      sg_tenants: { admin_tenant: true, admin: true, SGS_GLOBAL_TENANT: true },
+       effective_tenants: { admin_tenant: true, admin: true, GLOBAL_TENANT: true },
     };
 
-    const searchGuardBackend = setupSearchGuardBackendMock({
+    const eliatraSuiteBackend = setupeliatraSuiteBackendMock({
       authinfo: jest.fn().mockResolvedValue(authinfoResponse),
       getAllAuthHeaders: jest.fn().mockReturnValue(allAuthHeaders),
       validateTenant: jest.fn().mockReturnValue('__user__'),
@@ -328,7 +272,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
 
     const mtLifecycle = new MultitenancyLifecycle({
       authInstance,
-      searchGuardBackend,
+      eliatraSuiteBackend,
       configService,
       sessionStorageFactory,
       logger,
@@ -342,28 +286,28 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       sessionCookie,
     });
 
-    expect(searchGuardBackend.authinfo).toHaveBeenCalledWith(authHeaders);
-    expect(searchGuardBackend.validateTenant).toHaveBeenCalledWith(
+    expect(eliatraSuiteBackend.authinfo).toHaveBeenCalledWith(authHeaders);
+    expect(eliatraSuiteBackend.validateTenant).toHaveBeenCalledWith(
       authinfoResponse.user_name,
-      sgtenant,
-      authinfoResponse.sg_tenants,
+      sp_tenant,
+      authinfoResponse. effective_tenants,
       false,
       true
     );
-    expect(selectedTenant).toEqual(sgtenant);
+    expect(selectedTenant).toEqual(sp_tenant);
   });
 
   test('cookie without tenant is updated with tenant preference', async () => {
-    const sgtenant = 'admin_tenant';
+    const sp_tenant = 'admin_tenant';
     const sessionCookie = {
       tenant: null,
     };
     const request = {
       headers: {
-        cookie: 'searchguard_authentication=Fe26.2**925d29ddcc3aba',
+        cookie: 'eliatra_security_authentication=Fe26.2**925d29ddcc3aba',
       },
       url: {
-        pathname: '/api/v1/searchguard/kibana_config',
+        pathname: '/api/v1/security/kibana_config',
       },
     };
     const authHeaders = {
@@ -372,10 +316,10 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
     const authinfoResponse = {
       user: 'User [name=admin, backend_roles=[admin], requestedTenant=null]',
       user_name: 'admin',
-      sg_tenants: { admin_tenant: true, admin: true, SGS_GLOBAL_TENANT: true },
+       effective_tenants: { admin_tenant: true, admin: true, GLOBAL_TENANT: true },
     };
 
-    const searchGuardBackend = setupSearchGuardBackendMock({
+    const eliatraSuiteBackend = setupeliatraSuiteBackendMock({
       authinfo: jest.fn().mockResolvedValue(authinfoResponse),
       getTenantByPreference: jest.fn().mockReturnValue('admin_tenant'),
     });
@@ -393,7 +337,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
 
     const mtLifecycle = new MultitenancyLifecycle({
       authInstance,
-      searchGuardBackend,
+      eliatraSuiteBackend,
       configService,
       sessionStorageFactory,
       logger,
@@ -407,18 +351,18 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       sessionCookie,
     });
 
-    expect(searchGuardBackend.authinfo).toHaveBeenCalledWith(authHeaders);
+    expect(eliatraSuiteBackend.authinfo).toHaveBeenCalledWith(authHeaders);
     expect(sessionStorageFactory.asScoped).toHaveBeenCalledWith(request);
-    expect(sessionStorageFactorySet).toHaveBeenCalledWith({ tenant: sgtenant });
-    expect(searchGuardBackend.validateTenant).toHaveBeenCalledTimes(0);
-    expect(searchGuardBackend.getTenantByPreference).toHaveBeenCalledWith(
+    expect(sessionStorageFactorySet).toHaveBeenCalledWith({ tenant: sp_tenant });
+    expect(eliatraSuiteBackend.validateTenant).toHaveBeenCalledTimes(0);
+    expect(eliatraSuiteBackend.getTenantByPreference).toHaveBeenCalledWith(
       request,
       authinfoResponse.user_name,
-      authinfoResponse.sg_tenants,
-      configService.get('searchguard.multitenancy.tenants.preferred'),
+      authinfoResponse. effective_tenants,
+      configService.get('eliatra.security.multitenancy.tenants.preferred'),
       false,
       true
     );
-    expect(selectedTenant).toEqual(sgtenant);
+    expect(selectedTenant).toEqual(sp_tenant);
   });
 });

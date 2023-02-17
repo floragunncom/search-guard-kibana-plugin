@@ -35,7 +35,7 @@ export function Main({ history, ...rest }) {
   const { callout, setCallout } = useContext(Context);
 
   return (
-    <EuiPage id="searchGuardAuthTokens">
+    <EuiPage id="eliatraSuiteAuthTokens">
       <EuiPageBody className="container">
         <EuiPageHeader>
           <Breadcrumbs history={history} onGetBreadcrumb={getBreadcrumb} {...rest} />

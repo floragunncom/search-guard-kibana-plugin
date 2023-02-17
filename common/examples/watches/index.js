@@ -7,7 +7,7 @@ import maxMemoryGraph from './max_memory/max_memory_graph.json';
 import memoryUsage from './memory_usage/memory_usage.json';
 import minProductPrice from './min_product_price/min_product_price.json';
 import minProductPriceGraph from './min_product_price/min_product_price_graph.json';
-import { WATCH_EXAMPLES } from '../../signals/constants';
+import { WATCH_EXAMPLES } from '../../alerting/constants';
 
 export default {
   [WATCH_EXAMPLES.AVG_TICKET_PRICE]: avgTicketPrice,

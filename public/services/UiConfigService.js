@@ -21,7 +21,7 @@ export const CONFIG_DEFAULTS = {
   restapiinfo: {},
   systeminfo: {},
   authinfo: {},
-  searchguard: {},
+  eliatra: {},
   kibana: {},
   elasticsearch: {},
   server: {},
@@ -34,8 +34,9 @@ export class UiConfigService extends ConfigService {
     this.coreContext = coreContext;
     this.apiService = apiService;
 
+
     defaultsDeep(this.config, CONFIG_DEFAULTS, {
-      searchguard: cloneDeep(this.coreContext.config.get()),
+      eliatra: cloneDeep(this.coreContext.config.get()),
       is_dark_mode: this.uiSettings.get('theme:darkMode'),
     });
   }
@@ -55,7 +56,7 @@ export class UiConfigService extends ConfigService {
 
       // ATTENTION! We must not expose any sensitive data to the browser session storage.
       sessionStorage.setItem(
-        'searchguard',
+        'eliatrasuite',
         JSON.stringify({
           systeminfo: this.config.systeminfo,
         })
@@ -93,7 +94,7 @@ export class UiConfigService extends ConfigService {
 
       // ATTENTION! We must not expose any sensitive data to the browser session storage.
       sessionStorage.setItem(
-        'searchguard',
+        'eliatrasuite',
         JSON.stringify({
           restapiinfo: this.config.restapiinfo,
           systeminfo: this.config.systeminfo,

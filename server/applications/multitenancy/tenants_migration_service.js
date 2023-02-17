@@ -27,13 +27,13 @@ export class TenantsMigrationService {
     this.logger = coreContext.logger.get('tenants-migration-service');
   }
 
-  async start({ savedObjects, searchGuardBackend, esClient, kibanaRouter, configService }) {
+  async start({ savedObjects, eliatraSuiteBackend, esClient, kibanaRouter, configService }) {
     this.logger.debug('Start tenants saved objects migration');
 
     try {
-      const savedObjectsConfig = configService.get('searchguard.saved_objects');
+      const savedObjectsConfig = configService.get('eliatra.security.saved_objects');
       const savedObjectsMigrationConfig = configService.get(
-        'searchguard.multitenancy.saved_objects_migration'
+        'eliatra.security.multitenancy.saved_objects_migration'
       );
 
       const config = {
@@ -47,19 +47,19 @@ export class TenantsMigrationService {
         },
       };
 
-      const tenantIndices = await searchGuardBackend.getTenantInfoWithInternalUser();
+      const tenantIndices = await eliatraSuiteBackend.getTenantInfoWithInternalUser();
       this.tenantIndices =
         !tenantIndices || typeof tenantIndices !== 'object' ? [] : Object.keys(tenantIndices);
 
       const typeRegistry = savedObjects.getTypeRegistry();
-      const kibanaConfig = configService.get('opensearchDashboards');
+      const opensearchDashboardsConfig = configService.get('opensearchDashboards');
 
       const migratorDeps = {
         client: createMigrationOpenSearchClient(esClient.asInternalUser, this.logger),
-        kibanaConfig,
+        opensearchDashboardsConfig,
         typeRegistry,
         logger: this.logger,
-        kibanaVersion: this.coreContext.env.packageInfo.version,
+        opensearchDashboardsVersion: this.coreContext.env.packageInfo.version,
         savedObjectsConfig: config.migration,
         savedObjectValidations: {}, // Kibana NP doesn't have this yet.
       };
@@ -68,16 +68,16 @@ export class TenantsMigrationService {
         OpenSearchDashboardsMigrator,
         migratorDeps,
         kibanaRouter,
-        searchGuardBackend,
+        eliatraSuiteBackend,
       });
 
       const migrator = new OpenSearchDashboardsMigrator(migratorDeps);
 
-      this.logger.info('Putting the tenants index template in Elasticsearch ...');
+      this.logger.info('Putting the tenants index template in OpenSearch ...');
       await putTenantIndexTemplate({
         esClient,
         logger: this.logger,
-        kibanaIndexName: kibanaConfig.index,
+        opensearchDashboardsIndexName: opensearchDashboardsConfig.index,
         mappings: migrator.getActiveMappings(),
       });
 
@@ -105,14 +105,17 @@ export class TenantsMigrationService {
           // https://git.floragunn.com/search-guard/search-guard-kibana-plugin/-/issues/315
           response = await new OpenSearchDashboardsMigrator({
             ...migratorDeps,
-            kibanaConfig: { ...kibanaConfig, index: this.tenantIndices[i] },
+            opensearchDashboardsConfig: {
+              ...opensearchDashboardsConfig,
+              index: this.tenantIndices[i]
+            },
           }).runMigrations();
 
           this.logger.info(`Fulfilled migration for index ${this.tenantIndices[i]}.`);
           this.logger.debug(`Migration result:\n${JSON.stringify(response, null, 2)}`);
         } catch (error) {
           this.logger.error(
-            `Unable to fulfill migration for index ${this.tenantIndices[i]}, ${error}`
+            `Unable to fulfill migration for index ${this.tenantIndices[i]}, ${error} ${error.stack}`
           );
         }
       }
@@ -122,22 +125,22 @@ export class TenantsMigrationService {
   }
 }
 
-function putTenantIndexTemplate({ esClient, logger, kibanaIndexName, mappings }) {
+function putTenantIndexTemplate({ esClient, logger, opensearchDashboardsIndexName, mappings }) {
   const params = {
     name: 'tenant_template',
     body: {
       index_patterns: [
-        kibanaIndexName + '_-*_*',
-        kibanaIndexName + '_0*_*',
-        kibanaIndexName + '_1*_*',
-        kibanaIndexName + '_2*_*',
-        kibanaIndexName + '_3*_*',
-        kibanaIndexName + '_4*_*',
-        kibanaIndexName + '_5*_*',
-        kibanaIndexName + '_6*_*',
-        kibanaIndexName + '_7*_*',
-        kibanaIndexName + '_8*_*',
-        kibanaIndexName + '_9*_*',
+        opensearchDashboardsIndexName + '_-*_*',
+        opensearchDashboardsIndexName + '_0*_*',
+        opensearchDashboardsIndexName + '_1*_*',
+        opensearchDashboardsIndexName + '_2*_*',
+        opensearchDashboardsIndexName + '_3*_*',
+        opensearchDashboardsIndexName + '_4*_*',
+        opensearchDashboardsIndexName + '_5*_*',
+        opensearchDashboardsIndexName + '_6*_*',
+        opensearchDashboardsIndexName + '_7*_*',
+        opensearchDashboardsIndexName + '_8*_*',
+        opensearchDashboardsIndexName + '_9*_*',
       ],
       settings: {
         number_of_shards: 1,

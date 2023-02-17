@@ -32,7 +32,7 @@ const PopoverButton = ({
   return (
     <EuiErrorBoundary>
       <EuiPopover
-        data-test-subj="sg.popover"
+        data-test-subj="sp.popover"
         id="notFormikContextMenu"
         button={button}
         isOpen={isPopoverOpen}
@@ -41,7 +41,7 @@ const PopoverButton = ({
         closePopover={onClick}
       >
         <EuiContextMenu
-          data-test-subj="sg.contextMenu"
+          data-test-subj="sp.contextMenu"
           initialPanelId={0}
           panels={contextMenuPanels}
         />

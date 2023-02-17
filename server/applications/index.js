@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-export { Signals } from './signals';
+export { Alerting } from './alerting';
 export { Multitenancy } from './multitenancy';
-export { SearchGuard } from './searchguard';
+export { Security } from './security';
 export { AuthTokens } from './authtokens';

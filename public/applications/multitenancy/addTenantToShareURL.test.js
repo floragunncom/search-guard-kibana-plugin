@@ -20,18 +20,18 @@ describe('addTenantToShareURL', () => {
   test('getURLWithTenant', () => {
     const origURL = 'https://kibana.example.com:5601/goto/c80be719ea4c4c5bdc3ade1d7ed785f0';
     let newURL =
-      'https://kibana.example.com:5601/goto/c80be719ea4c4c5bdc3ade1d7ed785f0?sg_tenant=Global';
+      'https://kibana.example.com:5601/goto/c80be719ea4c4c5bdc3ade1d7ed785f0?sp_tenant=Global';
 
     expect(getURLWithTenant({ url: origURL, tenant: '' })).toBe(newURL);
     expect(getURLWithTenant({ url: origURL, tenant: undefined })).toBe(newURL);
 
     newURL =
-      'https://kibana.example.com:5601/goto/c80be719ea4c4c5bdc3ade1d7ed785f0?sg_tenant=Private';
+      'https://kibana.example.com:5601/goto/c80be719ea4c4c5bdc3ade1d7ed785f0?sp_tenant=Private';
 
     expect(getURLWithTenant({ url: origURL, tenant: '__user__' })).toBe(newURL);
 
     newURL =
-      'https://kibana.example.com:5601/goto/c80be719ea4c4c5bdc3ade1d7ed785f0?sg_tenant=someone';
+      'https://kibana.example.com:5601/goto/c80be719ea4c4c5bdc3ade1d7ed785f0?sp_tenant=someone';
 
     expect(getURLWithTenant({ url: origURL, tenant: 'someone' })).toBe(newURL);
   });
@@ -40,7 +40,7 @@ describe('addTenantToShareURL', () => {
     const tenantName = 'someone';
     const origURL =
       '<iframe src="https://kibana.example.com:5601/goto/49961fa054b77c8ab69f65772bc82b2a" height="600" width="800"></iframe>';
-    const newURL = `<iframe src="https://kibana.example.com:5601/goto/49961fa054b77c8ab69f65772bc82b2a?sg_tenant=${tenantName}" height="600" width="800"></iframe>`;
+    const newURL = `<iframe src="https://kibana.example.com:5601/goto/49961fa054b77c8ab69f65772bc82b2a?sp_tenant=${tenantName}" height="600" width="800"></iframe>`;
 
     expect(getURLWithTenantEmbeded({ url: origURL, tenant: tenantName })).toBe(newURL);
   });

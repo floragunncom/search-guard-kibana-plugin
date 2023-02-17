@@ -6,7 +6,7 @@ fe_anon_user:
     TEST: "kibana_anonymous_user"
     TEST_ENVIRONMENT: "kibana_anonymous_user"
     TEST_COMPOSEFILE: "docker-compose-kibana-anonymous_user.yml"
-    TEST_KI_CONFIG: "anonymous_user"
+    TEST_OSD_CONFIG: "anonymous_user"
 
 fe_basicauth:
   extends:
@@ -14,7 +14,7 @@ fe_basicauth:
   variables:
     TEST: "kibana_basicauth"
     TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "basicauth"
+    TEST_OSD_CONFIG: "basicauth"
 
 fe_basicauth_basepath:
   extends:
@@ -22,7 +22,7 @@ fe_basicauth_basepath:
   variables:
     TEST: "kibana_basicauth_basepath"
     TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "basicauth_basepath"
+    TEST_OSD_CONFIG: "basicauth_basepath"
 
 fe_basicauth_no_mt:
   extends:
@@ -30,7 +30,7 @@ fe_basicauth_no_mt:
   variables:
     TEST: "kibana_basicauth_multitenancy_disabled"
     TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "basicauth_multitenancy_disabled"
+    TEST_OSD_CONFIG: "basicauth_multitenancy_disabled"
 
 fe_clientcert_basepath:
   extends:
@@ -38,7 +38,7 @@ fe_clientcert_basepath:
   variables:
     TEST: "kibana_clientcert_basepath"
     TEST_ENVIRONMENT: "kibana_xpack_clientcert"
-    TEST_KI_CONFIG: "clientcert"
+    TEST_OSD_CONFIG: "clientcert"
 
 fe_multitenancy:
   extends:
@@ -46,7 +46,7 @@ fe_multitenancy:
   variables:
     TEST: "kibana_basicauth_multitenancy"
     TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "basicauth"
+    TEST_OSD_CONFIG: "basicauth"
 
 fe_openid_keycloak:
   extends:
@@ -54,15 +54,7 @@ fe_openid_keycloak:
   variables:
     TEST: "kibana_openid_keycloak"
     TEST_ENVIRONMENT: "kibana_noxpack_openid"
-    TEST_KI_CONFIG: "openid_keycloak"
-
-fe_openid_auth0:
-  extends:
-    - .fe_integration_test
-  variables:
-    TEST: "kibana_openid_auth0"
-    TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "openid_auth0"
+    TEST_OSD_CONFIG: "openid_keycloak"
 
 fe_openid_keycloak_non_default:
   extends:
@@ -70,7 +62,7 @@ fe_openid_keycloak_non_default:
   variables:
     TEST: "kibana_openid_keycloak_non_default"
     TEST_ENVIRONMENT: "kibana_noxpack_openid"
-    TEST_KI_CONFIG: "openid_keycloak_non_default"
+    TEST_OSD_CONFIG: "openid_keycloak_non_default"
 
 fe_saml_keycloak:
   extends:
@@ -78,23 +70,7 @@ fe_saml_keycloak:
   variables:
     TEST: "kibana_saml_keycloak"
     TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "saml"
-
-fe_saml_auth0:
-  extends:
-  - .fe_integration_test
-  variables:
-    TEST: "kibana_saml_auth0"
-    TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "saml"
-
-fe_session_auth:
-  extends:
-    - .fe_integration_test
-  variables:
-    TEST: "kibana_session_auth"
-    TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "session_auth"
+    TEST_OSD_CONFIG: "saml"
 
 fe_sso_proxy:
   extends:
@@ -102,7 +78,7 @@ fe_sso_proxy:
   variables:
     TEST: "kibana_sso_proxy"
     TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "sso_proxy"
+    TEST_OSD_CONFIG: "sso_proxy"
 
 fe_sso_jwt_header:
   extends:
@@ -110,7 +86,7 @@ fe_sso_jwt_header:
   variables:
     TEST: "kibana_sso_jwt_header"
     TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "sso_jwt"
+    TEST_OSD_CONFIG: "sso_jwt"
 
 fe_sso_jwt_param:
   extends:
@@ -118,7 +94,7 @@ fe_sso_jwt_param:
   variables:
     TEST: "kibana_sso_jwt_param"
     TEST_ENVIRONMENT: "kibana_noxpack"
-    TEST_KI_CONFIG: "sso_jwt"
+    TEST_OSD_CONFIG: "sso_jwt"
 
 fe_kerberos:
   extends:
@@ -126,7 +102,7 @@ fe_kerberos:
   variables:
     TEST: "kibana_kerberos"
     TEST_ENVIRONMENT: "kibana_xpack"
-    TEST_KI_CONFIG: "kerberos"
+    TEST_OSD_CONFIG: "kerberos"
 
 # -------------------------------------------------------------------------
 
@@ -135,20 +111,19 @@ fe_kerberos:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: on_success
-    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
-      when: on_success      
+    - if: '$CI_COMMIT_TAG =~ /^sp-.*/'
+      when: on_success
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
   variables:
     TEST: "«TBD»"
     TEST_ENVIRONMENT: "default"
     TEST_COMPOSEFILE: "docker-compose-kibana.yml"
-    TEST_KI_CONFIG: "default"
-    TEST_SG_ES_PLUGIN: "$SG_ES_PLUGIN"
-    TEST_SG_ADMIN: "$SG_ADMIN"
-    TEST_ES_VERSION: "$ES_VERSION"
-    TEST_SG_KI_PLUGIN: "$SG_KI_PLUGIN"
-    TEST_KI_VERSION: "$KI_VERSION"
+    TEST_OSD_CONFIG: "default"
+    TEST_OS_PLUGIN: "$OS_PLUGIN"
+    TEST_OS_VERSION: "$OS_VERSION"
+    TEST_OSD_PLUGIN: "$OSD_PLUGIN"
+    TEST_OSD_VERSION: "$KI_VERSION"
     TEST_IT_BRANCH: "$IT_BRANCH"
   image: floragunncom/ci-docker-compose-openjdk11:19.03.1
   before_script:
@@ -158,61 +133,63 @@ fe_kerberos:
     - apk add jq curl zip  openssh-client
     - apk add python python-dev python py3-setuptools py-pip git
     - pip install awscli --upgrade || true
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan git.floragunn.com >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
   services:
     - docker:19.03-dind
   tags:
-    - aws-runner
+    - test-large
   script:
     - |
        echo "============================================="
        echo "TEST_IT_BRANCH: $TEST_IT_BRANCH"
-       echo "TEST_SG_ES_PLUGIN: $TEST_SG_ES_PLUGIN"
-       echo "TEST_ES_VERSION: $TEST_ES_VERSION"
-       echo "TEST_SG_KI_PLUGIN: $TEST_SG_KI_PLUGIN"
-       echo "TEST_KI_VERSION: $TEST_KI_VERSION"
+       echo "TEST_OS_PLUGIN: $TEST_OS_PLUGIN"
+       echo "TEST_OS_VERSION: $TEST_OS_VERSION"
+       echo "TEST_OSD_PLUGIN: $TEST_OSD_PLUGIN"
+       echo "TEST_OSD_VERSION: $TEST_OSD_VERSION"
        echo "============================================="
-       if [[ "$TEST_SG_KI_PLUGIN" =~ .*staging.* ]]; then
+       if [[ "$TEST_OSD_PLUGIN" =~ .*staging.* ]]; then
          echo "export KI_SOURCE=staging" >> $CI_PROJECT_DIR/environment.env
        else
          echo "export KI_SOURCE=snapshot" >> $CI_PROJECT_DIR/environment.env
-       fi	
-       if [[ ! "$TEST_SG_KI_PLUGIN" =~ ^https?:.*$ ]]; then
-         if [[ "$TEST_SG_KI_PLUGIN" =~ .*SNAPSHOT.* ]]; then
-          SG_KI_PLUGIN_FILE=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-kibana-plugin&v=$TEST_SG_KI_PLUGIN&repos=search-guard-kibana-plugin-snapshot"| grep zip|sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1) 
-          TEST_SG_KI_PLUGIN=https://maven.search-guard.com/artifactory/search-guard-kibana-plugin-snapshot/com/floragunn/search-guard-kibana-plugin/$TEST_SG_KI_PLUGIN/$SG_KI_PLUGIN_FILE.zip
-          echo "Found: $TEST_SG_KI_PLUGIN"
+       fi
+       if [[ ! "$TEST_OSD_PLUGIN" =~ ^https?:.*$ ]]; then
+         if [[ "$TEST_OSD_PLUGIN" =~ .*SNAPSHOT.* ]]; then
+          OSD_PLUGIN_FILE=$(curl -Ss --fail "https://maven.eliatra.com/artifactory/api/search/gavc?g=com.eliatra.suite&a=eliatra-suite-opensearch-dashboards-plugin&v=$TEST_OSD_PLUGIN&repos=eliatra-suite-snapshot"| grep zip|sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1)
+          TEST_OSD_PLUGIN=https://maven.eliatra.com/artifactory/eliatra-suite-snapshot/com/eliatra/suite/eliatra-suite-opensearch-dashboards-plugin/$TEST_OSD_PLUGIN/$OSD_PLUGIN_FILE.zip
+          echo "Found: $TEST_OSD_PLUGIN"
          else
-          SG_KI_PLUGIN_FILE=$(curl -Ss --fail "https://maven.search-guard.com/api/search/gavc?g=com.floragunn&a=search-guard-kibana-plugin&v=$TEST_SG_KI_PLUGIN&repos=search-guard-kibana-plugin-release"| grep zip|sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1) 
-          TEST_SG_KI_PLUGIN=https://maven.search-guard.com/artifactory/search-guard-kibana-plugin-release/com/floragunn/search-guard-kibana-plugin/$TEST_SG_KI_PLUGIN/$SG_KI_PLUGIN_FILE.zip
-          echo "Found: $TEST_SG_KI_PLUGIN"
+          OSD_PLUGIN_FILE=$(curl -Ss --fail "https://maven.search-guard.com/artifactory/api/search/gavc?g=com.eliatra.suite&a=eliatra-suite-opensearch-dashboards-pluginn&v=$TEST_OSD_PLUGIN&repos=eliatra-suite"| grep zip|sed -E "s/(.*)\/(.*).zip(.*)/\2/"|sort|uniq|tail -n 1)
+          TEST_OSD_PLUGIN=https://maven.eliatra.com/artifactory/eliatra-suite/com/eliatra/suite/eliatra-suite-opensearch-dashboards-plugin/$TEST_OSD_PLUGIN/$OSD_PLUGIN_FILE.zip
+          echo "Found: $TEST_OSD_PLUGIN"
          fi
        fi
-       echo "export SG_SOURCE=snapshot" >> environment.env
-       echo "export SG_SNAPSHOT=${TEST_SG_ES_PLUGIN}" >> $CI_PROJECT_DIR/environment.env
-       echo "export SGADMIN_SNAPSHOT=${TEST_SG_ADMIN}" >> $CI_PROJECT_DIR/environment.env
-       echo "export SG_VERSION=whatever" >> environment.env
+       echo "export SP_SNAPSHOT=${TEST_OS_PLUGIN}" >> environment.env
+       echo "export SP_VERSION=whatever" >> environment.env
+       echo "export BASEIMAGE=0.9.3-open-jdk-11" >> environment.env
+       echo "export OS_VERSION=$TEST_OS_VERSION" >> environment.env
+       echo "export KI_SOURCE=none" >> environment.env
+       echo "export SP_SOURCE=artifact" >> $CI_PROJECT_DIR/environment.env
+       echo "export SP_ARTIFACT_PATH=$TEST_OS_PLUGIN" >> $CI_PROJECT_DIR/environment.env
+
+       echo "export SP_SOURCE=snapshot" >> environment.env
+       echo "export SP_SNAPSHOT=${TEST_OS_PLUGIN}" >> $CI_PROJECT_DIR/environment.env
+       echo "export SP_VERSION=whatever" >> environment.env
        echo "export BASEIMAGE=0.9.3-open-jdk-11" >> $CI_PROJECT_DIR/environment.env
-       echo "export ES_VERSION=$TEST_ES_VERSION" >> $CI_PROJECT_DIR/environment.env
-       echo "export KIBANA_VERSION=${TEST_KI_VERSION}"  >> $CI_PROJECT_DIR/environment.env
-       echo "export KI_URL=https://artifacts.elastic.co/downloads/kibana/kibana-$TEST_KI_VERSION-linux-x86_64.tar.gz"
-       echo "export KI_SNAPSHOT=${TEST_SG_KI_PLUGIN}"  >> $CI_PROJECT_DIR/environment.env
+       echo "export OS_VERSION=$TEST_OS_VERSION" >> $CI_PROJECT_DIR/environment.env
+       echo "export KIBANA_VERSION=${TEST_OSD_VERSION}"  >> $CI_PROJECT_DIR/environment.env
+       echo "export OSD_VERSION=${TEST_OSD_VERSION}"  >> $CI_PROJECT_DIR/environment.env
+       echo "export KI_URL=https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/$TEST_OSD_VERSION/opensearch-dashboards-$TEST_OSD_VERSION-linux-x64.tar.gz"
+       echo "export KI_SNAPSHOT=${TEST_OSD_PLUGIN}"  >> $CI_PROJECT_DIR/environment.env
        echo "export KI_PLUGIN_VERSION=whatever" >> environment.env
-       if [[ "$TEST_SG_KI_PLUGIN" =~ .*staging.* ]]; then
+       if [[ "$TEST_OSD_PLUGIN" =~ .*staging.* ]]; then
          echo "export KI_SOURCE=staging" >> $CI_PROJECT_DIR/environment.env
        else
          echo "export KI_SOURCE=snapshot" >> $CI_PROJECT_DIR/environment.env
-       fi          
+       fi
        cat environment.env
        echo "============================================="
        . ./environment.env
-       git clone --depth 1 --branch $TEST_IT_BRANCH git@git.floragunn.com:private/search-guard-integration-tests.git > /dev/null
-       cd search-guard-integration-tests
+       git clone --depth 1 --branch $TEST_IT_BRANCH  https://gitlab-ci-token:${CI_JOB_TOKEN}@git.eliatra.com/eliatra-suite/eliatra-opensearch-integration-tests.git > /dev/null
+       cd eliatra-opensearch-integration-tests
        echo "Copying variables file"
        cp ../environment.env ./
        echo "Copying scripts for CI test execution"
@@ -229,11 +206,11 @@ fe_kerberos:
   artifacts:
     when: always
     paths:
-      - search-guard-integration-tests/test/logs/
-      - search-guard-integration-tests/test/testresults/
-      - search-guard-integration-tests/environment.env
+      - eliatra-opensearch-integration-tests/test/logs/
+      - eliatra-opensearch-integration-tests/test/testresults/
+      - eliatra-opensearch-integration-tests/environment.env
     reports:
       junit:
-        - "search-guard-integration-tests/test/testresults/Test*.xml"
-        - "search-guard-integration-tests/test/testresults/TEST*.xml"
+        - "eliatra-opensearch-integration-tests/test/testresults/Test*.xml"
+        - "eliatra-opensearch-integration-tests/test/testresults/TEST*.xml"
     expire_in: 30 days

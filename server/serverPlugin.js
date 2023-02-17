@@ -15,14 +15,14 @@
  */
 
 import { first } from 'rxjs/operators';
-import { Signals, Multitenancy, SearchGuard, AuthTokens } from './applications';
+import { Alerting, Multitenancy, Security, AuthTokens } from './applications';
 import { ConfigService } from '../common/config_service';
-import SearchGuardBackend from './applications/searchguard/backend/searchguard';
-import SearchGuardConfigurationBackend from './applications/searchguard/configuration/backend/searchguard_configuration_backend';
+import EliatraSuiteBackend from './applications/security/backend/security';
+import EliatraSuiteConfigurationBackend from './applications/security/configuration/backend/eliatrasuite_configuration_backend';
 
 async function getConfigService({ logger, initContext, clusterClient }) {
   try {
-    const [kibanaConfig, sgConfig] = await Promise.all([
+    const [kibanaConfig, spConfig] = await Promise.all([
       initContext.config.legacy.globalConfig$.pipe(first()).toPromise(),
       initContext.config.create().pipe(first()).toPromise(),
     ]);
@@ -30,7 +30,7 @@ async function getConfigService({ logger, initContext, clusterClient }) {
     return new ConfigService({
       ...kibanaConfig,
       opensearch: clusterClient.config,
-      searchguard: sgConfig,
+      eliatra: spConfig,
     });
   } catch (error) {
     logger.error(`Failed to fetch the Kibana config, ${error}`);
@@ -42,8 +42,8 @@ export class ServerPlugin {
   constructor(initializerContext) {
     this.logger = initializerContext.logger.get();
     this.initContext = initializerContext;
-    this.signalsApp = new Signals(this.initContext);
-    this.searchGuardApp = new SearchGuard(this.initContext);
+    this.alertingApp = new Alerting(this.initContext);
+    this.securityApp = new Security(this.initContext);
     this.multiTenancyApp = new Multitenancy(this.initContext);
     this.authTokensApp = new AuthTokens(this.initContext);
   }
@@ -69,30 +69,32 @@ export class ServerPlugin {
         clusterClient: opensearch.client,
       });
 
-      const searchGuardBackend = new SearchGuardBackend({ opensearch, configService, core });
+      const eliatraSuiteBackend = new EliatraSuiteBackend({ opensearch, configService, core });
 
-      const searchGuardConfigurationBackend = new SearchGuardConfigurationBackend({
+      const eliatraSuiteConfigurationBackend = new EliatraSuiteConfigurationBackend({
         opensearch,
       });
 
-      const { authManager, sessionStorageFactory, kerberos } = await this.searchGuardApp.setup({
+      const { authManager, sessionStorageFactory, kerberos } = await this.securityApp.setup({
         core,
         pluginDependencies,
         configService,
         kibanaRouter: this.kibanaRouter,
-        searchGuardBackend,
-        searchGuardConfigurationBackend,
+        eliatraSuiteBackend,
+        eliatraSuiteConfigurationBackend,
       });
 
       // Helper for the routes
-      core.http.registerRouteHandlerContext('searchGuard', () => {
+      core.http.registerRouteHandlerContext('eliatra', () => {
         return {
-          sessionStorageFactory,
-          authManager,
+          security: {
+            sessionStorageFactory,
+            authManager,
+          }
         };
       });
 
-      const isMtEnabled = configService.get('searchguard.multitenancy.enabled');
+      const isMtEnabled = configService.get('eliatra.security.multitenancy.enabled');
       if (isMtEnabled) {
         this.multiTenancyApp.setup({
           authManager,
@@ -100,7 +102,7 @@ export class ServerPlugin {
           kibanaCore: core,
           sessionStorageFactory,
           pluginDependencies,
-          searchGuardBackend,
+          eliatraSuiteBackend,
           configService,
         });
       }
@@ -115,24 +117,24 @@ export class ServerPlugin {
         clusterClient: core.opensearch.client,
       });
 
-      const searchGuardBackend = new SearchGuardBackend({ opensearch: core.opensearch, configService, core });
+      const eliatraSuiteBackend = new EliatraSuiteBackend({ opensearch: core.opensearch, configService, core });
 
-      this.signalsApp.start({
+      this.alertingApp.start({
         core,
         kibanaRouter: this.kibanaRouter,
-        searchguardBackendService: searchGuardBackend,
+        eliatraSuiteBackendService: eliatraSuiteBackend,
       });
 
       this.authTokensApp.start({ core, kibanaRouter: this.kibanaRouter });
 
-      const isMtEnabled = configService.get('searchguard.multitenancy.enabled');
+      const isMtEnabled = configService.get('eliatra.security.multitenancy.enabled');
       if (isMtEnabled) {
         // ATTENTION! We want to make sure the multitenancy app migrates saved objects
         // in the tenants indices before doing any operation on indices
         this.multiTenancyApp.start({
           core,
           kibanaRouter: this.kibanaRouter,
-          searchGuardBackend,
+          eliatraSuiteBackend,
           configService,
         });
       }

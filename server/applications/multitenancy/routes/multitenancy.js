@@ -20,12 +20,12 @@ import { schema } from '@osd/config-schema';
 
 export function multitenancyRoutes({
   router,
-  searchGuardBackend,
+  eliatraSuiteBackend,
   config,
   sessionStorageFactory,
   logger,
 }) {
-  const debugEnabled = config.get('searchguard.multitenancy.debug');
+  const debugEnabled = config.get('eliatra.security.multitenancy.debug');
 
   router.post(
     {
@@ -78,7 +78,7 @@ export function multitenancyRoutes({
       validate: false,
     },
     async (context, request, response) => {
-      const mtinfo = await searchGuardBackend.multitenancyinfo(request.headers);
+      const mtinfo = await eliatraSuiteBackend.multitenancyinfo(request.headers);
       return response.ok({ body: mtinfo });
     }
   );

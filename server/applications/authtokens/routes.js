@@ -16,6 +16,7 @@
 import { schema } from '@osd/config-schema';
 import { fetchAllFromScroll, wrapForCustomError } from '../../utils';
 import { API_ROOT } from '../../utils/constants';
+import { BACKEND_AUTHTOKENS_BASEURL } from '../../utils/constants';
 
 export function getAuthTokens({ clusterClient, fetchAllFromScroll, logger }) {
   return async function (context, request, response) {
@@ -30,7 +31,7 @@ export function getAuthTokens({ clusterClient, fetchAllFromScroll, logger }) {
           .asScoped(request)
           .asCurrentUser.transport.request({
             method: 'post',
-            path: `/_searchguard/authtoken/_search?scroll=${scroll}`,
+            path: `${BACKEND_AUTHTOKENS_BASEURL}/_search?scroll=${scroll}`,
             body: bodyProps,
           });
 
@@ -43,7 +44,7 @@ export function getAuthTokens({ clusterClient, fetchAllFromScroll, logger }) {
       } else {
         const { body } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
           method: 'post',
-          path: '/_searchguard/authtoken/_search',
+          path: `${BACKEND_AUTHTOKENS_BASEURL}/_search`,
           body: bodyProps,
         });
         allHits = body.hits.hits;
@@ -68,7 +69,7 @@ export function deleteAuthToken({ clusterClient, logger }) {
 
       const { body } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
         method: 'delete',
-        path: `/_searchguard/authtoken/${id}`,
+        path: `${BACKEND_AUTHTOKENS_BASEURL}/${id}`,
       });
 
       return response.ok({ body });
@@ -88,7 +89,7 @@ export function getAuthToken({ clusterClient, logger }) {
 
       const { body } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
         method: 'get',
-        path: `/_searchguard/authtoken/${id}`,
+        path: `${BACKEND_AUTHTOKENS_BASEURL}/${id}`,
       });
 
       return response.ok({ body });
@@ -106,7 +107,7 @@ export function saveAuthToken({ clusterClient, logger }) {
 
       const { body } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
         method: 'post',
-        path: '/_searchguard/authtoken',
+        path: BACKEND_AUTHTOKENS_BASEURL,
         body: authToken,
       });
 
@@ -123,7 +124,7 @@ export function getAuthTokenServiceInfo({ clusterClient, logger }) {
     try {
       const { body } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
         method: 'get',
-        path: `/_searchguard/authtoken/_info`,
+        path: `${BACKEND_AUTHTOKENS_BASEURL}/_info`,
       });
 
       return response.ok({ body });
@@ -137,7 +138,7 @@ export function getAuthTokenServiceInfo({ clusterClient, logger }) {
 export function registerRoutes({ router, clusterClient, logger }) {
   router.post(
     {
-      path: `${API_ROOT}/searchguard_authtokens/authtoken/_search`,
+      path: `${API_ROOT}/security_authtokens/authtoken/_search`,
       validate: {
         body: schema.object(
           {
@@ -156,7 +157,7 @@ export function registerRoutes({ router, clusterClient, logger }) {
 
   router.delete(
     {
-      path: `${API_ROOT}/searchguard_authtokens/authtoken/{id}`,
+      path: `${API_ROOT}/security_authtokens/authtoken/{id}`,
       validate: {
         params: schema.object({
           id: schema.string(),
@@ -171,7 +172,7 @@ export function registerRoutes({ router, clusterClient, logger }) {
 
   router.get(
     {
-      path: `${API_ROOT}/searchguard_authtokens/authtoken/{id}`,
+      path: `${API_ROOT}/security_authtokens/authtoken/{id}`,
       validate: {
         params: schema.object({
           id: schema.string(),
@@ -186,7 +187,7 @@ export function registerRoutes({ router, clusterClient, logger }) {
 
   router.post(
     {
-      path: `${API_ROOT}/searchguard_authtokens/authtoken`,
+      path: `${API_ROOT}/security_authtokens/authtoken`,
       validate: {
         body: schema.object({}, { unknowns: 'allow' }),
       },
@@ -199,7 +200,7 @@ export function registerRoutes({ router, clusterClient, logger }) {
 
   router.get(
     {
-      path: `${API_ROOT}/searchguard_authtokens/authtoken/_info`,
+      path: `${API_ROOT}/security_authtokens/authtoken/_info`,
       validate: false,
       options: {
         authRequired: true,

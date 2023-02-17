@@ -67,9 +67,9 @@ export class AccountInfoPage extends Component {
 
     return (
       <EuiPage id={APP_NAME}>
-        <EuiPageBody className="sg-container">
+        <EuiPageBody className="sp-container">
           <EuiPageContent>
-            <EuiPageContentBody className="sg-page-content-body">
+            <EuiPageContentBody className="sp-page-content-body">
               <LicenseWarningCallout configService={this.context.configService} />
 
               {sgUser && (
@@ -79,9 +79,9 @@ export class AccountInfoPage extends Component {
 
                   <h2>{sgRolesHeader}</h2>
                   <p>
-                    {sgUser.sg_roles.length === 0
+                    {sgUser.effective_roles.length === 0
                       ? sgRolesEmpty
-                      : sgUser.sg_roles.map((role) => (
+                      : sgUser.effective_roles.map((role) => (
                           <Fragment key={role}>
                             {role}
                             <br />
@@ -102,7 +102,7 @@ export class AccountInfoPage extends Component {
                   </p>
 
                   <EuiText size="xs" style={{ fontStyle: 'italic' }}>
-                    {accountPluginVersion(this.context.configService.get('searchguard.sgVersion'))}
+                    {accountPluginVersion(this.context.configService.get('eliatrasuite.spVersion'))}
                   </EuiText>
                 </EuiText>
               )}

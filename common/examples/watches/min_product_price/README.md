@@ -6,13 +6,13 @@ The watch searches across the last X days (default 1) and returns the minimum pr
 
 # Requirements
 
-It is assumed you loaded [Kibana Sample eCommerce orders](https://www.elastic.co/guide/en/kibana/current/add-sample-data.html) index.
+It is assumed you loaded [OpenSearch Dashboards Sample eCommerce orders](https://github.com/opensearch-project/OpenSearch-Dashboards/tree/main/src/plugins/home/server/services/sample_data/data_sets/ecommerce) index.
 
 Make sure you have correct Slack webhook URL in the action's `url`.
 
 # References
 
-* [Signals Alerting](https://docs.search-guard.com/latest/elasticsearch-alerting-getting-started)
-* [Min Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-min-aggregation.html)
-* [Bool Query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html)
-* [Range Query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html)
+* [Eliatra Suite Alerting Plus](https://docs.search-guard.com/latest/elasticsearch-alerting-getting-started)
+* [Min Aggregation](https://opensearch.org/docs/latest/opensearch/aggregations/)
+* [Bool Query](https://opensearch.org/docs/latest/opensearch/query-dsl/bool/)
+* [Range Query](https://opensearch.org/docs/latest/opensearch/query-dsl/term/)

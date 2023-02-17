@@ -17,7 +17,7 @@ import { migrateTenants } from './migrate';
 import {
   setupLoggerMock,
   setupHttpResponseMock,
-  setupSearchGuardBackendMock,
+  setupeliatraSuiteBackendMock,
 } from '../../../utils/mocks';
 
 function setupMigrationEsClientMock() {
@@ -116,14 +116,14 @@ const migratorDeps = {
 describe('multitenancy/routes/migrate', () => {
   describe('errors', () => {
     test('throw error if no tenant', async () => {
-      const searchGuardBackend = setupSearchGuardBackendMock();
+      const eliatraSuiteBackend = setupeliatraSuiteBackendMock();
       const KibanaMigrator = setupKibanaMigratorMock();
       const response = setupHttpResponseMock();
 
       const request = { params: {} };
 
       await migrateTenants({
-        searchGuardBackend,
+        eliatraSuiteBackend,
         KibanaMigrator,
         migratorDeps,
       })(null, request, response);
@@ -137,14 +137,14 @@ describe('multitenancy/routes/migrate', () => {
       const KibanaMigrator = setupKibanaMigratorMock();
       const response = setupHttpResponseMock();
 
-      const searchGuardBackend = setupSearchGuardBackendMock({
+      const eliatraSuiteBackend = setupeliatraSuiteBackendMock({
         getTenantInfoWithInternalUser: jest.fn().mockResolvedValue({}),
       });
 
       const request = { params: { tenantIndex: 'kibana_3568561_trex' } };
 
       await migrateTenants({
-        searchGuardBackend,
+        eliatraSuiteBackend,
         KibanaMigrator,
         migratorDeps,
       })(null, request, response);
@@ -159,7 +159,7 @@ describe('multitenancy/routes/migrate', () => {
       const KibanaMigrator = setupKibanaMigratorMock();
       const response = setupHttpResponseMock();
 
-      const searchGuardBackend = setupSearchGuardBackendMock({
+      const eliatraSuiteBackend = setupeliatraSuiteBackendMock({
         getTenantInfoWithInternalUser: jest.fn().mockResolvedValue({
           '.kibana_-152937574_admintenant': 'admin_tenant',
         }),
@@ -169,7 +169,7 @@ describe('multitenancy/routes/migrate', () => {
       const request = { params: { tenantIndex } };
 
       await migrateTenants({
-        searchGuardBackend,
+        eliatraSuiteBackend,
         KibanaMigrator,
         migratorDeps,
       })(null, request, response);
@@ -187,7 +187,7 @@ describe('multitenancy/routes/migrate', () => {
       const response = setupHttpResponseMock();
 
       const error = new Error('nasty!');
-      const searchGuardBackend = setupSearchGuardBackendMock({
+      const eliatraSuiteBackend = setupeliatraSuiteBackendMock({
         getTenantInfoWithInternalUser: jest.fn().mockRejectedValue(error),
       });
 
@@ -195,7 +195,7 @@ describe('multitenancy/routes/migrate', () => {
       const request = { params: { tenantIndex } };
 
       await migrateTenants({
-        searchGuardBackend,
+        eliatraSuiteBackend,
         KibanaMigrator,
         migratorDeps,
       })(null, request, response);
@@ -261,14 +261,14 @@ describe('multitenancy/routes/migrate', () => {
         runMigrations: jest.fn().mockResolvedValue(runMigrationsResponse),
       });
 
-      const searchGuardBackend = setupSearchGuardBackendMock({
+      const eliatraSuiteBackend = setupeliatraSuiteBackendMock({
         getTenantInfoWithInternalUser: jest
           .fn()
           .mockResolvedValue(getTenantInfoWithInternalUserResponse),
       });
 
       await migrateTenants({
-        searchGuardBackend,
+        eliatraSuiteBackend,
         KibanaMigrator,
         migratorDeps,
       })(null, request, response);

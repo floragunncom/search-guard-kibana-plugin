@@ -19,6 +19,6 @@ export class ApiService {
   };
 
   loadKibanaConfig = () => {
-    return this.httpClient.get(`${API_ROOT}/searchguard/kibana_config`).then(({ data }) => data);
+    return this.httpClient.get(`${API_ROOT}/eliatrasuite/kibana_config`).then(({ data }) => data);
   };
 }

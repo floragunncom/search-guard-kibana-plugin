@@ -1,5 +1,4 @@
 variables:
-  IT_BRANCH: "main-os"
-  ES_VERSION: "2.0.0"
-  SG_ES_PLUGIN: "b-main-os-SNAPSHOT"
-  SG_ADMIN: "b-main-os-SNAPSHOT"
+  IT_BRANCH: "rename-basics"
+  OS_VERSION: "2.4.1"
+  OS_PLUGIN: "b-main-compat-edition-SNAPSHOT"

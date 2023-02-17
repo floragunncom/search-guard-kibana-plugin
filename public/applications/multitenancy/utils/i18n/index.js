@@ -18,14 +18,14 @@ import React from 'react';
 import { EuiI18n } from '@elastic/eui';
 
 export const yourTenantsText = (
-  <EuiI18n token="sg.tenantsMenu.yourTenants" default="Your tenants" />
+  <EuiI18n token="sp.tenantsMenu.yourTenants" default="Your tenants" />
 );
 export const addMoreTenantsText = (
-  <EuiI18n token="sg.tenantsMenu.addMoreTenants" default="Add more tenants" />
+  <EuiI18n token="sp.tenantsMenu.addMoreTenants" default="Add more tenants" />
 );
 export const noTenantOrIndexText = (
-  <EuiI18n token="sg.tenantsMenu.noTenantOrIndex" default="No tenant or index" />
+  <EuiI18n token="sp.tenantsMenu.noTenantOrIndex" default="No tenant or index" />
 );
-export const readWriteText = <EuiI18n token="sg.tenantsMenu.readWrite" default="read/write" />;
-export const readText = <EuiI18n token="sg.tenantsMenu.read" default="read" />;
-export const selectedText = <EuiI18n token="sg.tenantsMenu.selected" default="Selected" />;
+export const readWriteText = <EuiI18n token="sp.tenantsMenu.readWrite" default="read/write" />;
+export const readText = <EuiI18n token="sp.tenantsMenu.read" default="read" />;
+export const selectedText = <EuiI18n token="sp.tenantsMenu.selected" default="Selected" />;

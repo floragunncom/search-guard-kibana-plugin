@@ -20,7 +20,7 @@
       "target": "avg_ticket_price",
       "request": {
         "indices": [
-          "kibana_sample_data_flights"
+          "opensearch_dashboards_sample_data_flights"
         ],
         "body": {
           "size": 0,

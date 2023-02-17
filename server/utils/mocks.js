@@ -33,7 +33,7 @@ export function setupHttpRouterMock({ ensureRawRequest = () => jest.fn() } = {})
   };
 }
 
-export function setupSearchGuardBackendMock({
+export function setupeliatraSuiteBackendMock({
   authinfo = jest.fn(),
   validateTenant = jest.fn(),
   hasPermissions = jest.fn(),

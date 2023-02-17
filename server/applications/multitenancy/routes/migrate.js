@@ -3,7 +3,7 @@ import { schema } from '@osd/config-schema';
 import { API_ROOT } from '../../../utils/constants';
 
 export function migrateTenants({
-  searchGuardBackend,
+  eliatraSuiteBackend,
   KibanaMigrator,
   migratorDeps: {
     client,
@@ -26,7 +26,7 @@ export function migrateTenants({
         });
       }
 
-      let tenantIndices = await searchGuardBackend.getTenantInfoWithInternalUser();
+      let tenantIndices = await eliatraSuiteBackend.getTenantInfoWithInternalUser();
       tenantIndices =
         !tenantIndices || typeof tenantIndices !== 'object' ? [] : Object.keys(tenantIndices);
 
@@ -90,7 +90,7 @@ export function migrateTenants({
 
 export function migrateTenantsRoute({
   kibanaRouter,
-  searchGuardBackend,
+  eliatraSuiteBackend,
   migratorDeps,
   KibanaMigrator,
 }) {
@@ -103,6 +103,6 @@ export function migrateTenantsRoute({
     },
   };
 
-  kibanaRouter.post(options, migrateTenants({ searchGuardBackend, migratorDeps, KibanaMigrator }));
-  kibanaRouter.get(options, migrateTenants({ searchGuardBackend, migratorDeps, KibanaMigrator }));
+  kibanaRouter.post(options, migrateTenants({ eliatraSuiteBackend, migratorDeps, KibanaMigrator }));
+  kibanaRouter.get(options, migrateTenants({ eliatraSuiteBackend, migratorDeps, KibanaMigrator }));
 }

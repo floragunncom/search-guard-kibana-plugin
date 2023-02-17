@@ -95,7 +95,7 @@ describe('CreateAuthToken/utils', () => {
           index_permissions: [
             {
               index_patterns: ['anIndex'],
-              allowed_actions: ['SGS_READ_ALL'],
+              allowed_actions: ['READ_ALL'],
             },
           ],
         },
@@ -103,14 +103,14 @@ describe('CreateAuthToken/utils', () => {
         2
       ),
       requested: {
-        cluster_permissions: ['SGS_CLUSTER_COMPOSITE_OPS_RO', 'SGS_CLUSTER_COMPOSITE_OPS'],
+        cluster_permissions: ['CLUSTER_COMPOSITE_OPS_RO', 'CLUSTER_COMPOSITE_OPS'],
         index_permissions: [
           {
             index_patterns: ['*'],
-            allowed_actions: ['SGS_ACCESS_ALL'],
+            allowed_actions: ['ACCESS_ALL'],
           },
         ],
-        exclude_cluster_permissions: ['cluster:admin:searchguard:authtoken/_own/create'],
+        exclude_cluster_permissions: ['cluster:admin:security:authtoken/_own/create'],
       },
       created_at: 1611242380000,
       expires_at: 1611328780000,
@@ -124,7 +124,7 @@ describe('CreateAuthToken/utils', () => {
         index_permissions: [
           {
             index_patterns: ['anIndex'],
-            allowed_actions: ['SGS_READ_ALL'],
+            allowed_actions: ['READ_ALL'],
           },
         ],
       },
@@ -170,14 +170,14 @@ describe('CreateAuthToken/utils', () => {
         user_name: 'admin',
         token_name: 'aToken',
         requested: {
-          cluster_permissions: ['SGS_CLUSTER_COMPOSITE_OPS_RO', 'SGS_CLUSTER_COMPOSITE_OPS'],
+          cluster_permissions: ['CLUSTER_COMPOSITE_OPS_RO', 'CLUSTER_COMPOSITE_OPS'],
           index_permissions: [
             {
               index_patterns: ['*'],
-              allowed_actions: ['SGS_ACCESS_ALL'],
+              allowed_actions: ['ACCESS_ALL'],
             },
           ],
-          exclude_cluster_permissions: ['cluster:admin:searchguard:authtoken/_own/create'],
+          exclude_cluster_permissions: ['cluster:admin:security:authtoken/_own/create'],
         },
         base: {
           roles_be: ['admin'],

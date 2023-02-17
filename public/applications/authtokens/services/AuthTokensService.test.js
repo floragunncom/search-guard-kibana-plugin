@@ -36,7 +36,7 @@ describe('AuthTokensService', () => {
 
     expect(await service.list()).toEqual([{ a: 1 }]);
     expect(mockHttpClientPost).toHaveBeenLastCalledWith(
-      '../api/v1/searchguard_authtokens/authtoken/_search',
+      '../api/v1/security_authtokens/authtoken/_search',
       {
         scroll: '30s',
         sort: [{ created_at: { order: 'desc' } }],
@@ -51,7 +51,7 @@ describe('AuthTokensService', () => {
 
     expect(await service.delete('a token')).toEqual({ statusCode: 200 });
     expect(mockHttpClientDelete).toHaveBeenLastCalledWith(
-      '../api/v1/searchguard_authtokens/authtoken/a%20token'
+      '../api/v1/security_authtokens/authtoken/a%20token'
     );
   });
 
@@ -63,7 +63,7 @@ describe('AuthTokensService', () => {
     expect(await service.save({ a: 1 })).toEqual({ statusCode: 200 });
     expect(
       mockHttpClientPost
-    ).toHaveBeenLastCalledWith('../api/v1/searchguard_authtokens/authtoken', { a: 1 });
+    ).toHaveBeenLastCalledWith('../api/v1/security_authtokens/authtoken', { a: 1 });
   });
 
   test('get', async () => {
@@ -73,7 +73,7 @@ describe('AuthTokensService', () => {
 
     expect(await service.get('a token')).toEqual({ a: 1 });
     expect(mockHttpClientGet).toHaveBeenLastCalledWith(
-      '../api/v1/searchguard_authtokens/authtoken/a%20token'
+      '../api/v1/security_authtokens/authtoken/a%20token'
     );
   });
 
@@ -84,7 +84,7 @@ describe('AuthTokensService', () => {
 
     expect(await service.isServiceEnabled()).toBe(true);
     expect(mockHttpClientGet).toHaveBeenLastCalledWith(
-      '../api/v1/searchguard_authtokens/authtoken/_info'
+      '../api/v1/security_authtokens/authtoken/_info'
     );
 
     mockHttpClientGet = jest.fn().mockResolvedValueOnce({ data: { enabled: false } });
@@ -93,7 +93,7 @@ describe('AuthTokensService', () => {
 
     expect(await service.isServiceEnabled()).toBe(false);
     expect(mockHttpClientGet).toHaveBeenLastCalledWith(
-      '../api/v1/searchguard_authtokens/authtoken/_info'
+      '../api/v1/security_authtokens/authtoken/_info'
     );
 
     mockHttpClientGet = jest.fn().mockResolvedValueOnce({});
@@ -102,7 +102,7 @@ describe('AuthTokensService', () => {
 
     expect(await service.isServiceEnabled()).toBe(false);
     expect(mockHttpClientGet).toHaveBeenLastCalledWith(
-      '../api/v1/searchguard_authtokens/authtoken/_info'
+      '../api/v1/security_authtokens/authtoken/_info'
     );
   });
 
@@ -114,7 +114,7 @@ describe('AuthTokensService', () => {
 
       expect(await service.hasUserPermissionsToAccessTheApp()).toBe(true);
       expect(mockHttpClientPost).toHaveBeenCalledWith(
-        '../api/v1/searchguard_authtokens/authtoken/_search',
+        '../api/v1/security_authtokens/authtoken/_search',
         {
           query: { match_all: {} },
           size: 0,
@@ -132,7 +132,7 @@ describe('AuthTokensService', () => {
 
       expect(await service.hasUserPermissionsToAccessTheApp()).toBe(true);
       expect(mockHttpClientPost).toHaveBeenCalledWith(
-        '../api/v1/searchguard_authtokens/authtoken/_search',
+        '../api/v1/security_authtokens/authtoken/_search',
         {
           query: { match_all: {} },
           size: 0,
@@ -150,7 +150,7 @@ describe('AuthTokensService', () => {
 
       expect(await service.hasUserPermissionsToAccessTheApp()).toBe(false);
       expect(mockHttpClientPost).toHaveBeenCalledWith(
-        '../api/v1/searchguard_authtokens/authtoken/_search',
+        '../api/v1/security_authtokens/authtoken/_search',
         {
           query: { match_all: {} },
           size: 0,

@@ -21,7 +21,7 @@ export { migrateTenantsRoute as defineMigrateRoutes } from './migrate';
 
 export function defineMultitenancyRoutes({
   router,
-  searchGuardBackend,
+  eliatraSuiteBackend,
   config,
   sessionStorageFactory,
   logger,
@@ -29,12 +29,12 @@ export function defineMultitenancyRoutes({
 }) {
   multitenancyRoutes({
     router,
-    searchGuardBackend,
+    eliatraSuiteBackend,
     config,
     sessionStorageFactory,
     logger,
     clusterClient,
   });
 
-  getTenantInfoRoute({ searchGuardBackend, logger, router });
+  getTenantInfoRoute({ eliatraSuiteBackend, logger, router });
 }

@@ -15,7 +15,7 @@
  */
 
 import { get } from 'lodash';
-export const API_ROOT = '../api/v1/searchguard_authtokens';
+export const API_ROOT = '../api/v1/security_authtokens';
 
 export class AuthTokensService {
   constructor(httpClient) {

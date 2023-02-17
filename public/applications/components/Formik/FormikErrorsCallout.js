@@ -46,7 +46,7 @@ export function FormikErrorsCallOut({ errors = {}, maxDepthToSearch, maxMessages
 
   return (
     <EuiErrorBoundary>
-      <EuiFlexGroup direction="column" gutterSize="xs" data-test-subj="sg.formikErrorsCallOut">
+      <EuiFlexGroup direction="column" gutterSize="xs" data-test-subj="sp.formikErrorsCallOut">
         {_errors.map((msg, idx) => {
           return (
             <EuiFlexItem key={idx}>
