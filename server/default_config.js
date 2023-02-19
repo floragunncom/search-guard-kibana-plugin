@@ -35,7 +35,7 @@ export const DEFAULT_CONFIG = {
       // @todo This is still being used in the FE, does it really work?
       type: 'default',
       anonymous_auth_enabled: false,
-      unauthenticated_routes: ['/api/status'],
+      unauthenticated_routes: ['/api/status', '/internal/security/me'],
       debug: false,
       jwt_param: {
         enabled: false,

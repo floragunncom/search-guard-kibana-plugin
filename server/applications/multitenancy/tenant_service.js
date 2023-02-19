@@ -142,9 +142,19 @@ export class TenantService {
     try {
       await this.clusterClient.asScoped(request).asCurrentUser.indices.create({
         index: versionIndexName,
-        body: {"mappings": this.activeMappings }
+        body: {
+          "mappings": this.activeMappings,
+          "settings": {
+            "index": {
+              "mapping": {
+                "total_fields": {
+                  "limit": 1500
+                }
+              }
+            }
+          }
+        }
       });
-
       // We must create an alias and a version alias. The migration algorithm requires the alias.
       // And the Kibana page is broken after a tenant is selected if there is no version alias because apps query the version alias directly.
       const aliasesToCreate = [aliasName, versionAliasName];
