@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { AppNavLinkStatus } from '../../../../../src/core/public';
 import { SecurityService } from './services';
 import { ELIATRASUITE_APP_CATEGORY } from '../../utils/constants';
+import { appNaviFix } from '../../utils/appNaviFix';
 
 export class Alerting {
   constructor() {
@@ -14,8 +15,19 @@ export class Alerting {
     return async (params) => {
       if (!this.hasPermissions) return;
 
+      // If the navigation came from "outside", e.g. from the
+      // side nav, we need to tell our router to render the
+      // corresponding page.
+      // If not, the URL will change, but the page content will not.
+      const removeExternalHistoryListener = appNaviFix(params.history);
+
       const { renderApp } = await import('./npstart');
-      return renderApp({ element: params.element, core, httpClient });
+      return renderApp({
+        element: params.element,
+        core,
+        httpClient,
+        removeExternalHistoryListener,
+      });
     };
   }
 

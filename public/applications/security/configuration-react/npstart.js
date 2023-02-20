@@ -10,7 +10,13 @@ import { ContextProvider } from './Context';
 
 import './style.scss';
 
-export const renderApp = ({ httpClient, element, core, configService }) => {
+export const renderApp = ({
+ httpClient,
+ element,
+ core,
+ configService,
+ removeExternalHistoryListener,
+}) => {
   ReactDOM.render(
     <I18nProvider>
       <Router>
@@ -27,5 +33,8 @@ export const renderApp = ({ httpClient, element, core, configService }) => {
     element
   );
 
-  return () => ReactDOM.unmountComponentAtNode(element);
+  return () => {
+    removeExternalHistoryListener();
+    ReactDOM.unmountComponentAtNode(element);
+  };
 };

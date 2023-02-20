@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { AppNavLinkStatus } from '../../../../../../src/core/public';
 import { ELIATRASUITE_APP_CATEGORY } from '../../../utils/constants';
 import { buildEliatraSecurityConfiguration } from './utils/helpers';
+import { appNaviFix } from '../../../utils/appNaviFix';
 
 export class ConfigApp {
   constructor(coreContext) {
@@ -12,6 +13,13 @@ export class ConfigApp {
 
   mount({ core, configService, httpClient }) {
     return async (params) => {
+
+      // If the navigation came from "outside", e.g. from the
+      // tenants menu or the side nav, we need to tell our
+      // router to render the corresponding page.
+      // If not, the URL will change, but the page content will not.
+      const removeExternalHistoryListener = appNaviFix(params.history);
+
       const [{ renderApp }] = await Promise.all([import('./npstart'), configService.fetchConfig()]);
 
       configService.set(
@@ -31,6 +39,7 @@ export class ConfigApp {
           core,
           httpClient,
           configService,
+          removeExternalHistoryListener,
         });
       }
     };
