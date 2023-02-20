@@ -72,18 +72,36 @@ import { Context } from '../../Context';
 
 const initialQuery = EuiSearchBar.Query.MATCH_ALL;
 
+// The table sorting properties are based on the underlying table data.
+// We use this to map those values to a more user friendly value
+const sortFieldToUIMapping = {
+  '_ui.state.last_status.code': 'status',
+  _id: 'id',
+  '_ui.state.last_execution.severity': 'severity',
+};
+
+const sortFieldFromUIMapping = {};
+Object.keys(sortFieldToUIMapping).forEach((field) => {
+  sortFieldFromUIMapping[sortFieldToUIMapping[field]] = field;
+});
+
 class Watches extends Component {
   static contextType = Context;
 
   constructor(props, context) {
     super(props, context);
 
+    const tableState = this.getTableFilters();
+    this.syncFiltersWithURL(tableState);
+
     this.state = {
       error: null,
       isLoading: true,
       watches: [],
       tableSelection: [],
-      query: initialQuery,
+      query: tableState.query,
+      pagination: tableState.page,
+      sorting: tableState.sort,
       isNewWatchMenuOpen: false,
     };
 
@@ -210,7 +228,7 @@ class Watches extends Component {
     const promises = [];
 
     this.setState({ isLoading: true, error: null });
-    watchIds.forEach(id => {
+    watchIds.forEach((id) => {
       const promise = this.watchService
         .delete(id)
         .then(() => {
@@ -220,7 +238,7 @@ class Watches extends Component {
             </p>
           );
         })
-        .catch(error => {
+        .catch((error) => {
           console.error('Watches -- deleteWatches', error);
           this.context.addErrorToast(error);
           this.setState({ error });
@@ -257,13 +275,13 @@ class Watches extends Component {
 
       try {
         const promises = [];
-        watchIds.forEach(id => {
+        watchIds.forEach((id) => {
           promises.push(this.watchService.ack(id, actionId));
         });
 
         await Promise.all(promises);
 
-        watchIds.forEach(id => {
+        watchIds.forEach((id) => {
           const successMsg = !actionId ? (
             <EuiText>
               {acknowledgeText} watch {id}
@@ -308,12 +326,12 @@ class Watches extends Component {
     if (tableSelection.length === 0) return null;
 
     const handleMultiDelete = () => {
-      this.handleDeleteWatches(tableSelection.map(item => item._id));
+      this.handleDeleteWatches(tableSelection.map((item) => item._id));
       this.setState({ tableSelection: [] });
     };
 
     const handleMultiAcknowledge = () => {
-      this.handleAck(tableSelection.map(item => item._id));
+      this.handleAck(tableSelection.map((item) => item._id));
       this.setState({ tableSelection: [] });
     };
 
@@ -345,9 +363,9 @@ class Watches extends Component {
       const { nodeText, ...iconProps } = actionAndWatchStatusToIconProps(WATCH_STATUS.NO_ACTION);
 
       return (
-        <div>
+        <div style={{ overflow: 'hidden' }}>
           <EuiFlexGroup>
-            <EuiFlexItem grow={false}>
+            <EuiFlexItem grow={false} style={{ overflow: 'hidden' }}>
               <EuiToolTip content={nodeText}>
                 <EuiIcon data-test-subj={`sgTable-Actions-${watch._id}-NoAction`} {...iconProps} />
               </EuiToolTip>
@@ -359,57 +377,105 @@ class Watches extends Component {
     }
 
     return (
-      <div>
+      <div style={{ overflow: 'hidden', width: '100%' }}>
         {actions.map((action, key) => {
           const wasAcked = get(watch, `_ui.state.actions[${action.name}].acked`, false);
           const ackedBy = get(watch, `_ui.state.actions[${action.name}].acked.by`, 'admin');
           const ackedOn = get(watch, `_ui.state.actions[${action.name}].acked.on`);
 
-          const ackLinkContent = wasAcked ? (
-            <EuiText size="s">
-              {acknowledgedText} {byText} {ackedBy} {onText} {dateFormat(ackedOn)}
-            </EuiText>
-          ) : (
-            acknowledgeText
-          );
 
-          const ackLink = (
-            <EuiFlexGroup key={key}>
-              <EuiFlexItem grow={false}>
-                <EuiToolTip content={wasAcked ? acknowledgedText : acknowledgeText}>
-                  <EuiLink
-                    color={wasAcked ? 'subdued' : 'primary'}
-                    disabled={wasAcked}
-                    onClick={() => this.handleAck([watch._id], action.name)}
-                    data-test-subj={`sgTableCol-Actions-ackbtn-${watch._id}-${action.name}`}
-                  >
-                    {ackLinkContent}
-                  </EuiLink>
-                </EuiToolTip>
-              </EuiFlexItem>
-            </EuiFlexGroup>
-          );
+          // The action here is from the watch endpoint, not from state
+          const ackEnabled = action.ack_enabled !== false;
+          const actionCanBeAcked = ackEnabled && !wasAcked;
 
           const statusCode = get(watch, `_ui.state.actions[${action.name}].last_status.code`);
-          const { nodeText, ...iconProps } = actionAndWatchStatusToIconProps(statusCode);
+          const { nodeText, ...statusIconProps } = actionAndWatchStatusToIconProps(statusCode);
+
+          let iconProps = statusIconProps;
+
+          // If the action hasn't been executed yet, we'd get an exclamation mark.
+          // But since we know that the action can't be acked we can use the
+          // right action already.
+          if (!ackEnabled) {
+            iconProps = {
+              type: 'faceHappy',
+              color: '#007515',
+              'aria-label': 'Not acknowledgable',
+            };
+          }
+
+          // The action icon tooltip
+          let actionIconTooltip = nodeText;
+          if (!ackEnabled) {
+            actionIconTooltip = 'Not acknowledgeable';
+          }
+
+          // The tooltip for the action name
+          let ackLinkTooltip = wasAcked ? (
+              <EuiText size="s">
+                {acknowledgedText} {byText} {ackedBy} {onText} {dateFormat(ackedOn)}
+              </EuiText>
+          ) : (
+              acknowledgeText
+          );
+
+          // Change the default link tooltip for ack_enabled: false
+          if (!ackEnabled) {
+            ackLinkTooltip = 'Action not acknowledgeable';
+          }
+
+          // Lifting up the link content. There was an issue with
+          // the tooltip sticking around after acking an action
+          // As a fix we removed the tooltip for actions that
+          // can still be acknowledged, it only showed
+          // "Acknowledge" anyway
+          const ackLink = (
+              <EuiLink
+                  color={'primary'}
+                  style={{
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                    textOverflow: 'ellipsis',
+                    width: '100%',
+                  }}
+                  onClick={() => this.handleAck([watch._id], action.name)}
+                  data-test-subj={`sgTableCol-Actions-ackbtn-${watch._id}-${action.name}`}
+              >
+                Ack {action.name}
+              </EuiLink>
+          );
 
           return (
-            <div key={key}>
-              <EuiFlexGroup>
-                <EuiFlexItem grow={false}>
-                  <EuiToolTip content={nodeText}>
-                    <EuiIcon
-                      data-test-subj={`sgTableCol-Actions-icon-${watch._id}-${action.name}`}
-                      {...iconProps}
-                    />
-                  </EuiToolTip>
-                </EuiFlexItem>
-                <EuiFlexItem>{action.name}</EuiFlexItem>
-              </EuiFlexGroup>
-              <EuiFlexGroup>
-                <EuiFlexItem>{ackLink}</EuiFlexItem>
-              </EuiFlexGroup>
-            </div>
+              <div key={key}>
+                <EuiFlexGroup style={{ flexWrap: 'nowrap' }}>
+                  <EuiFlexItem grow={false} style={{ maxWidth: '35px' }}>
+                    <EuiToolTip content={actionIconTooltip}>
+                      <EuiIcon
+                          data-test-subj={`sgTableCol-Actions-icon-${watch._id}-${action.name}`}
+                          {...iconProps}
+                      />
+                    </EuiToolTip>
+                  </EuiFlexItem>
+                  <EuiFlexItem style={{ overflow: 'hidden' }}>
+                    {actionCanBeAcked ? (
+                        <div>{ackLink}</div>
+                    ) : (
+                        <EuiToolTip content={ackLinkTooltip}>
+                          <div
+                              style={{
+                                overflow: 'hidden',
+                                whiteSpace: 'nowrap',
+                                textOverflow: 'ellipsis',
+                                width: '100%',
+                              }}
+                          >
+                            {action.name}
+                          </div>
+                        </EuiToolTip>
+                    )}
+                  </EuiFlexItem>
+                </EuiFlexGroup>
+              </div>
           );
         })}
       </div>
@@ -509,13 +575,139 @@ class Watches extends Component {
     );
   };
 
+  /**
+   * Get table filters
+   * Default values < Context values < Query Param values
+   * @returns {{query: (Query|*), sort: {field: *, direction: *}, page: {size: (number|*), index: (number|*)}}}
+   */
+  getTableFilters() {
+    const { history } = this.props;
+    const urlParamsData = {};
+    const urlParams = new URLSearchParams(history.location.search);
+
+    const validParams = ['query', 'sortField', 'sortDirection', 'pageIndex', 'pageSize'];
+    for (const [key, value] of urlParams.entries()) {
+      if (validParams.indexOf(key) > -1) {
+        urlParamsData[key] = decodeURIComponent(value);
+      }
+    }
+
+    const defaultFilters = {
+      query: initialQuery,
+      sort: {
+        field: 'id',
+        direction: TABLE_SORT_DIRECTION,
+      },
+      page: {
+        index: 0,
+        size: 10,
+      },
+    };
+
+    // Merge with whatever is stored in the context
+    const contextFilters = this.context.watchesFilters;
+    const withContextFilters = {
+      ...defaultFilters,
+      ...contextFilters,
+      sort: {
+        ...defaultFilters.sort,
+        ...contextFilters.sort,
+      },
+      page: {
+        ...defaultFilters.page,
+        ...contextFilters.page,
+      },
+    };
+
+    // ...and finally, merge with the query parameter filters
+    const filters = {
+      query:
+          urlParamsData.query !== undefined
+              ? EuiSearchBar.Query.parse(urlParamsData.query)
+              : withContextFilters.query,
+      sort: {
+        field:
+            urlParamsData.sortField !== undefined
+                ? urlParamsData.sortField
+                : withContextFilters.sort.field,
+        direction: urlParamsData.sortDirection || withContextFilters.sort.direction,
+      },
+      page: {
+        // pageIndex 0 would be falsey, but that's ok as long as the default is 0
+        index: urlParamsData.pageIndex
+            ? parseInt(urlParamsData.pageIndex, 10)
+            : withContextFilters.page.index,
+        size: urlParamsData.pageSize
+            ? parseInt(urlParamsData.pageSize, 10)
+            : withContextFilters.page.size,
+      },
+    };
+
+    // If the index isn't a number, weird things happen with the table
+    if (isNaN(filters.page.index)) {
+      filters.page.index = 0;
+    }
+
+    return filters;
+  }
+
+  /**
+   * Get the filters in a format that can be used
+   * to update the url's query parameters
+   * @param watchesFilters
+   */
+  syncFiltersWithURL(watchesFilters = null) {
+    const filters = watchesFilters || this.getTableFilters();
+
+    const params = {
+      query: filters.query.text || '',
+      pageIndex: filters.page.index,
+      pageSize: filters.page.size,
+      sortField: filters.sort.field,
+      sortDirection: filters.sort.direction,
+    };
+
+    this.updateTableFilters(params);
+  }
+
+  /**
+   * Stores the table filters as query parameters and in the context
+   * @param params
+   */
+  updateTableFilters(params) {
+    if (Object.keys(params).length === 0) {
+      return;
+    }
+    const { history } = this.props;
+    const urlParams = new URLSearchParams(history.location.search);
+
+    Object.keys(params).forEach((paramKey) => {
+      urlParams.set(paramKey, encodeURIComponent(params[paramKey]));
+    });
+
+    history.replace({
+      search: urlParams.toString(),
+    });
+
+    // Now update the context
+    const newContextFilters = this.getTableFilters();
+    this.context.setWatchesFilters(newContextFilters);
+  }
+
+
   handleSearchChange = ({ query, error }) => {
     if (error) {
       this.setState({ error });
     } else {
+      const newQuery = query.text ? query : initialQuery;
+
+      this.updateTableFilters({
+        query: newQuery.text,
+      });
+
       this.setState({
         error: null,
-        query: query.text ? query : initialQuery,
+        query: newQuery,
       });
     }
   };
@@ -530,7 +722,7 @@ class Watches extends Component {
           <EuiFlexItem grow={false}>{this.renderSearchBarToolsLeft()}</EuiFlexItem>
         )}
         <EuiFlexItem>
-          <EuiSearchBar onChange={this.handleSearchChange} />
+          <EuiSearchBar defaultQuery={this.state.query} onChange={this.handleSearchChange} />
         </EuiFlexItem>
       </EuiFlexGroup>
     );
@@ -573,7 +765,7 @@ class Watches extends Component {
         icon: 'check',
         type: 'icon',
         color: 'success',
-        onClick: watch => this.handleAck([watch._id]),
+        onClick: (watch) => this.handleAck([watch._id]),
       },
       {
         'data-test-subj': 'sgTableCol-ActionClone',
@@ -590,7 +782,7 @@ class Watches extends Component {
         icon: 'trash',
         type: 'icon',
         color: 'danger',
-        onClick: watch => this.handleDeleteWatches([watch._id]),
+        onClick: (watch) => this.handleDeleteWatches([watch._id]),
       },
     ];
 
@@ -619,7 +811,7 @@ class Watches extends Component {
       },
       {
         field: '_id',
-        width: '20%',
+        width: '18%',
         name: 'Id',
         footer: 'Id',
         alignment: LEFT_ALIGNMENT,
@@ -652,7 +844,7 @@ class Watches extends Component {
         ),
       },
       {
-        width: '20%',
+        width: '18%',
         field: 'actions',
         name: actionsText,
         footer: actionsText,
@@ -669,16 +861,18 @@ class Watches extends Component {
     ];
 
     const selection = {
-      selectable: doc => doc._id,
-      onSelectionChange: tableSelection => {
+      selectable: (doc) => doc._id,
+      onSelectionChange: (tableSelection) => {
         this.setState({ tableSelection });
       },
     };
 
     const sorting = {
       sort: {
-        field: TABLE_SORT_FIELD,
-        direction: TABLE_SORT_DIRECTION,
+        field:
+            sortFieldFromUIMapping[this.state.sorting.field.toLowerCase()] ||
+            this.state.sorting.field,
+        direction: this.state.sorting.direction,
       },
     };
 
@@ -707,6 +901,16 @@ class Watches extends Component {
       <ContentPanel
         title="Watches"
         actions={[
+          <EuiButton
+              iconType="refresh"
+              onClick={() => {
+                this.getWatches();
+              }}
+              isDisabled={isLoading}
+              isLoading={isLoading}
+          >
+            Refresh
+          </EuiButton>,
           <AddButton value={addExampleText} onClick={this.addWatchExample} />,
           <PopoverButton
             name="newWatch"
@@ -730,8 +934,40 @@ class Watches extends Component {
               selection={selection}
               sorting={sorting}
               loading={isLoading}
+              onTableChange={(criteria) => {
+                // We only update params that have changed. A bit too
+                // much perhaps, but that keeps the URL clean(er).
+                const newParams = {};
+                if (criteria.page.index !== this.state.pagination.index) {
+                  newParams.pageIndex = criteria.page.index;
+                }
+                if (criteria.page.size !== this.state.pagination.size) {
+                  newParams.pageSize = criteria.page.size;
+                }
+
+                if (criteria.sort.field !== this.state.sorting.field) {
+                  // We may need to map the reported field name to a more user friendly value
+                  criteria.sort.field =
+                      sortFieldToUIMapping[criteria.sort.field] || criteria.sort.field;
+                  newParams.sortField = criteria.sort.field;
+                }
+
+                if (criteria.sort.direction !== this.state.sorting.direction) {
+                  newParams.sortDirection = criteria.sort.direction;
+                }
+
+                this.setState({
+                  pagination: criteria.page,
+                  sorting: criteria.sort,
+                });
+
+                this.updateTableFilters(newParams);
+              }}
               isSelectable
-              pagination
+              pagination={{
+                pageIndex: this.state.pagination.index,
+                pageSize: this.state.pagination.size,
+              }}
             />
           </EuiFlexItem>
         </EuiFlexGroup>
