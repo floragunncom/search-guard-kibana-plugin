@@ -22,11 +22,12 @@ import DefineAccount from '../DefineAccount';
 import { DefineJsonAccount } from '../DefineJsonAccount';
 import { Breadcrumbs } from '../../components';
 import getBreadcrumb from './utils/getBreadcrumb';
+import WatchAck from '../WatchAck';
 import { APP_PATH, APP_NAME } from '../../utils/constants';
 
 import { Context } from '../../Context';
 
-const getSelectedTabId = pathname => {
+const getSelectedTabId = (pathname) => {
   if (pathname.includes(APP_PATH.WATCHES)) return APP_PATH.WATCHES;
   if (pathname.includes(APP_PATH.ACCOUNTS)) return APP_PATH.ACCOUNTS;
   return APP_PATH.WATCHES;
@@ -74,7 +75,7 @@ class Main extends Component {
     }
   }
 
-  onSelectedTabChanged = route => {
+  onSelectedTabChanged = (route) => {
     const {
       location: { pathname: currPathname },
     } = this.props;
@@ -83,7 +84,7 @@ class Main extends Component {
     }
   };
 
-  renderTab = tab => (
+  renderTab = (tab) => (
     <EuiTab
       data-test-subj={`sgTab-${tab.id}`}
       onClick={() => this.onSelectedTabChanged(tab.route)}
@@ -113,6 +114,13 @@ class Main extends Component {
           <EuiPageContent>
             <EuiPageContentBody className="sp-page-content-body">
               <Switch>
+                <Route
+                    path={'/watch/:watchId/ack/:actionId?'}
+                    exact
+                    render={(props) => {
+                      return <WatchAck {...props} />;
+                    }}
+                />
                 <Route
                   exact
                   path={APP_PATH.WATCHES}

@@ -46,6 +46,12 @@ const Context = React.createContext();
 
 const { darkTheme, theme: lightTheme, ...editorOptionsDefaults } = CODE_EDITOR;
 
+/**
+ * Global filter state for the watches page
+ * @type {{}}
+ */
+let watchesFilters = {};
+
 const ContextProvider = ({ children, httpClient, core, configService }) => {
   const IS_DARK_THEME = core.uiSettings.get('theme:darkMode');
 
@@ -55,6 +61,14 @@ const ContextProvider = ({ children, httpClient, core, configService }) => {
   const [modal, setModal] = useState(null);
   const [toasts, setToasts] = useState([]);
   const [callout, setCallout] = useState(null);
+
+  /**
+   * Set the watches filters
+   * @param filters
+   */
+  function setWatchesFilters(filters) {
+      watchesFilters = filters;
+  }
 
   function closeFlyout() {
     closeFlyoutProvider({ setFlyout });
@@ -165,6 +179,8 @@ const ContextProvider = ({ children, httpClient, core, configService }) => {
           setCallout,
           triggerErrorCallout,
           triggerSuccessCallout,
+          watchesFilters,
+          setWatchesFilters,
         }}
       >
         {children}
