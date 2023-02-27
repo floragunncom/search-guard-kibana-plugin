@@ -1,4 +1,4 @@
 variables:
-  IT_BRANCH: "rename-basics"
-  OS_VERSION: "2.4.1"
-  OS_PLUGIN: "b-main-compat-edition-SNAPSHOT"
+  IT_BRANCH: "main"
+  OS_VERSION: "2.5.0"
+  OS_PLUGIN: "b-main-SNAPSHOT"
