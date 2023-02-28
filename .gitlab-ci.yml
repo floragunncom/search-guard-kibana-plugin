@@ -20,7 +20,7 @@ before_script:
   - |
     source ci/utils.sh
     if [ -d $SF_REPO_DIR ]; then du --summarize -h $SF_REPO_DIR; fi
-    if [[ $CI_COMMIT_TAG =~ ^sg-flx-([a-z0-9\.\-]+)-([oe]s)-([0-9\.]+)$ ]]; then
+    if [[ $CI_COMMIT_TAG =~ ^v([a-z0-9\.\-]+)-([oe]s)-([0-9\.]+)$ ]]; then
       export SG_SF_PLUGIN_VERSION=${BASH_REMATCH[1]}
       export BUILD_VERSION="${BASH_REMATCH[1]}-${BASH_REMATCH[2]}-${BASH_REMATCH[3]}"
       export SF_VERSION=${BASH_REMATCH[3]}
@@ -49,7 +49,7 @@ build:
   tags:
     - build
   rules:
-    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
+    - if: '$CI_COMMIT_TAG =~ /^v.*/'
       when: never
     - when: always
   script:
@@ -96,7 +96,7 @@ build:
 build_release:
   stage: build
   rules:
-    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
+    - if: '$CI_COMMIT_TAG =~ /^v.*/'
   tags:
     - build
   script:
@@ -139,7 +139,7 @@ deploy_snapshot:
   tags:
     - build
   rules:
-    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
+    - if: '$CI_COMMIT_TAG =~ /^v.*/'
       when: never
     - when: always
   script:
@@ -160,7 +160,7 @@ deploy_staging:
     - job: build_release
       artifacts: true
   rules:
-    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
+    - if: '$CI_COMMIT_TAG =~ /^v.*/'
   artifacts:
     when: always
     expire_in: 7 days
@@ -172,7 +172,7 @@ deploy_release:
   stage: release
   interruptible: true
   rules:
-    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
+    - if: '$CI_COMMIT_TAG =~ /^v.*/'
   tags:
     - build
   script:

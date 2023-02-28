@@ -111,7 +111,7 @@ fe_kerberos:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: on_success
-    - if: '$CI_COMMIT_TAG =~ /^sp-.*/'
+    - if: '$CI_COMMIT_TAG =~ /^v.*/'
       when: on_success
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
@@ -123,7 +123,7 @@ fe_kerberos:
     TEST_OS_PLUGIN: "$OS_PLUGIN"
     TEST_OS_VERSION: "$OS_VERSION"
     TEST_OSD_PLUGIN: "$OSD_PLUGIN"
-    TEST_OSD_VERSION: "$KI_VERSION"
+    TEST_OSD_VERSION: "$OSD_VERSION"
     TEST_IT_BRANCH: "$IT_BRANCH"
   image: floragunncom/ci-docker-compose-openjdk11:19.03.1
   before_script:
