@@ -1,3 +1,5 @@
+/** @jest-environment jsdom */
+
 import buildFormikSchedule from './buildFormikSchedule';
 import { SCHEDULE_DEFAULTS } from './constants';
 

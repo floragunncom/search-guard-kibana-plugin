@@ -1,3 +1,5 @@
+/** @jest-environment jsdom */
+
 /*
  *    Copyright 2021 floragunn GmbH
  *

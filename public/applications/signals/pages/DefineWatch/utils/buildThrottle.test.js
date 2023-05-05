@@ -1,3 +1,5 @@
+/** @jest-environment jsdom */
+
 import { buildThrottle } from './buildThrottle';
 import { ADVANCED_TIME_PERIOD_UNIT } from './constants';
 

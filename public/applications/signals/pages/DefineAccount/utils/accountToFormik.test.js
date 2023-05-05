@@ -1,3 +1,4 @@
+/** @jest-environment jsdom */
 import {
   buildFormikEmailAccount,
   accountToFormik

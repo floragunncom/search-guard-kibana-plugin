@@ -1,3 +1,5 @@
+/** @jest-environment jsdom */
+
 import { validateJsonString } from './validateJsonString';
 import { requiredText, invalidJsonText } from '../i18n/common';
 

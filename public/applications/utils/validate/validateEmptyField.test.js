@@ -1,3 +1,5 @@
+/** @jest-environment jsdom */
+
 import { validateEmptyField } from './validateEmptyField';
 import { requiredText } from '../i18n/common';
 
