@@ -1,3 +1,5 @@
+/** @jest-environment jsdom */
+
 import { validateThrottleAdvancedInterval } from './validateThrottleAdvancedInterval';
 import { requiredText } from '../../../../utils/i18n/common';
 import { invalidThrottleTimeIntervalText } from '../../../../utils/i18n/watch';

@@ -1,4 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
+/** @jest-environment jsdom */
 /* eslint-disable max-len */
 import {
   watchToFormik,
