@@ -1,3 +1,4 @@
+/** @jest-environment jsdom */
 /* eslint-disable @kbn/eslint/require-license-header */
 import { isEmpty } from 'lodash';
 import { requiredText } from '../i18n/common';

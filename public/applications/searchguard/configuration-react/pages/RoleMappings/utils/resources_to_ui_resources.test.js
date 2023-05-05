@@ -1,3 +1,5 @@
+/** @jest-environment jsdom */
+
 import resourcesToUiResources from './resources_to_ui_resources';
 
 describe('role mappings to UI table role mappings', () => {

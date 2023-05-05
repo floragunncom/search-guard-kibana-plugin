@@ -1,3 +1,4 @@
+/** @jest-environment jsdom */
 import { getDataFromResponse } from './helpers';
 
 describe('getDataFromResponse', () => {
