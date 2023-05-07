@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import React from 'react';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import { differenceBy, get } from 'lodash';
 import { ErrorToast } from '../../components';
 import { comboBoxOptionsToArray } from '../helpers';

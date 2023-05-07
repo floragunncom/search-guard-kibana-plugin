@@ -1,6 +1,6 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { cloneDeep, defaultsDeep, pickBy, identity, omit } from 'lodash';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import {
   stringifyPretty,
   arrayToComboBoxOptions,
