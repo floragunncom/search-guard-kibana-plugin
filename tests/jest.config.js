@@ -14,6 +14,7 @@ module.exports = {
     '!!raw-loader!./worker.js': '<rootDir>/__mocks__/raw_loader.js',
     'ui/chrome': '<rootDir>/__mocks__/chrome.js',
     '\\.svg': '<rootDir>/__mocks__/svg_mock.js',
+    'uuid': require.resolve('uuid'), // see: https://stackoverflow.com/questions/73203367/jest-syntaxerror-unexpected-token-export-with-uuid-library
   },
   testMatch: ['**/*.test.js', '**/*.test.ts'],
   modulePaths: ['node_modules', '../../node_modules'],
