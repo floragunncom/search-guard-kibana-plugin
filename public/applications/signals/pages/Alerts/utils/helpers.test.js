@@ -1,3 +1,5 @@
+/** @jest-environment jsdom */
+
 import { buildESQuery, SIMPLE_QUERY_FIELDS } from './helpers';
 
 describe('buildESQuery', () => {

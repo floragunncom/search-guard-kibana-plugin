@@ -1,3 +1,4 @@
+/** @jest-environment jsdom */
 import buildWatchExamples from './buildWatchExamples';
 import { WATCH_EXAMPLES } from '../../../../../utils/constants';
 
