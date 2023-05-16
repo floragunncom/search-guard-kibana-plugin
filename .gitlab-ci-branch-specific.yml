@@ -1,4 +1,4 @@
 variables:
   IT_BRANCH: "main"
-  OS_VERSION: "2.6.0"
+  OS_VERSION: "2.7.0"
   OS_PLUGIN: "b-main-SNAPSHOT"
