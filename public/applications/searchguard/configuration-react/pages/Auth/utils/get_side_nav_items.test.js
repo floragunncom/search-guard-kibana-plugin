@@ -1,3 +1,5 @@
+/** @jest-environment jsdom */
+
 /* eslint-disable @kbn/eslint/require-license-header */
 import { getSideNavItems } from './get_side_nav_items';
 
