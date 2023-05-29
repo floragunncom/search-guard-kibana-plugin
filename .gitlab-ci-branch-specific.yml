@@ -1,3 +1,3 @@
 variables:
-  IT_BRANCH: "8.7.x"
-  SG_ES_PLUGIN: "sg-flx-1.1.1-es-8.7.1-SNAPSHOT"
+  IT_BRANCH: "8.8.x"
+  SG_ES_PLUGIN: "b-main-es8-SNAPSHOT"
