@@ -120,12 +120,12 @@ fi
 
 echo -e "\e[0Ksection_start:`date +%s`:kibana_clone\r\e[0KCloning https://github.com/elastic/kibana.git $KIBANA_BRANCH_NAME"
 
-#git clone --depth 1 --branch $KIBANA_BRANCH_NAME https://github.com/elastic/kibana.git >>"$WORK_DIR/build.log" &> $output
-#if [ $? != 0 ]; then
-#    echo "Failed to clone Kibana"
-#    cat $output
-#    exit 1
-#fi
+git clone --depth 1 --branch $KIBANA_BRANCH_NAME https://github.com/elastic/kibana.git >>"$WORK_DIR/build.log" &> $output
+if [ $? != 0 ]; then
+    echo "Failed to clone Kibana"
+    cat $output
+    exit 1
+fi
 
 echo -e "\e[0Ksection_end:`date +%s`:kibana_clone\r\e[0K"
 
@@ -178,7 +178,7 @@ if [ "$COMMAND" == "build-kibana" ] ; then
 fi
 
 echo "+++ Copy plugin contents to build stage +++"
-BUILD_STAGE_PLUGIN_DIR="$BUILD_STAGE_DIR/kibana/plugins/search-guard-kibana-plugin"
+BUILD_STAGE_PLUGIN_DIR="$BUILD_STAGE_DIR/kibana/plugins/search-guard"
 mkdir -p $BUILD_STAGE_PLUGIN_DIR
 cp -a "$WORK_DIR/babel.config.js" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/package.json" "$BUILD_STAGE_PLUGIN_DIR"
@@ -255,9 +255,6 @@ yarn build -v $KIBANA_VERSION --skip-archive
 mv node_modules build/kibana/searchguard
 cp -a "$WORK_DIR/public" build/kibana/searchguard
 cp -a "$WORK_DIR/package.json" build/kibana/searchguard
-cp -a "$WORK_DIR/install_demo_configuration.ps1" build/kibana/searchguard
-cp -a "$WORK_DIR/install_demo_configuration.sh" build/kibana/searchguard
-cp -a "$WORK_DIR/install_demo_configuration.js" build/kibana/searchguard
 
 echo "+++ Copy plugin contents to finalize build +++"
 cd "$WORK_DIR"
