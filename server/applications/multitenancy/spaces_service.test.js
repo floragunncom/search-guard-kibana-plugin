@@ -28,11 +28,11 @@ describe('SpacesService', () => {
       },
       type: 'space',
       references: [],
-      migrationVersion: {
-        space: '6.6.0',
-      },
-      coreMigrationVersion: '7.12.0',
+      managed: false,
+      typeMigrationVersion: '6.6.0',
+      coreMigrationVersion: "7.12.0",
       updated_at: expect.any(String),
+      created_at: expect.any(String),
     });
   });
 });
