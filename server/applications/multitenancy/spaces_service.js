@@ -29,11 +29,11 @@ export function getDefaultSpaceDoc(kibanaVersion) {
     },
     type: 'space',
     references: [],
-    migrationVersion: {
-      space: '6.6.0',
-    },
+    managed: false,
+    typeMigrationVersion: '6.6.0',
     coreMigrationVersion: kibanaVersion,
     updated_at: new Date().toISOString(),
+    created_at: new Date().toISOString(),
   };
 }
 
