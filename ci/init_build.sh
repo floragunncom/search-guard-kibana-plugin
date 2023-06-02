@@ -42,7 +42,6 @@ yarn kbn bootstrap --allow-root
 echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
 
 mkdir -p plugins/search-guard
-cp -a "../babel.config.js" plugins/search-guard
 cp -a "../package.json" plugins/search-guard
 cp -a "../$SF_JSON" plugins/search-guard
 cp -a "../tsconfig.json" plugins/search-guard
