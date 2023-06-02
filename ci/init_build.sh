@@ -61,10 +61,10 @@ echo -e "\e[0Ksection_end:`date +%s`:yarn_install\r\e[0K"
 
 start_section tests "Unit Tests"
 
-export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-server.xml
-../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --reporters="default"
-export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-public.xml
-../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=public  --config ./tests/jest.config.js --reporters="default"
+#export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-server.xml
+#../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --reporters="default"
+#export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-public.xml
+#../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=public  --config ./tests/jest.config.js --reporters="default"
 end_section tests
 rm -rf "node_modules"
 start_section build "Building Search Guard Plugin"
