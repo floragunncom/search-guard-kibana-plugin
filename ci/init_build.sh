@@ -4,17 +4,17 @@ set -e
 
 SF_BRANCH_NAME="v8.6.2"
   
-#if [[ -f $SF_REPO_DIR/.cached_version ]]; then
-#   CACHED_VERSION=`cat $SF_REPO_DIR/.cached_version`
-#
-#   if [ "$CACHED_VERSION" != "$SF_VERSION" ]; then 
-#      echo "Cached version $CACHED_VERSION does not match requested version $SF_VERSION. Deleting cache."
-#      rm -rf $SF_REPO_DIR
-#   fi
-#elif [[ -d $SF_REPO_DIR ]]; then
+if [[ -f $SF_REPO_DIR/.cached_version ]]; then
+   CACHED_VERSION=`cat $SF_REPO_DIR/.cached_version`
+
+   if [ "$CACHED_VERSION" != "$SF_VERSION" ]; then 
+      echo "Cached version $CACHED_VERSION does not match requested version $SF_VERSION. Deleting cache."
+      rm -rf $SF_REPO_DIR
+   fi
+elif [[ -d $SF_REPO_DIR ]]; then
    echo "No cached_version file. Deleting cache."
    rm -rf $SF_REPO_DIR
-#fi
+fi
 
 if [[ ! -d $SF_REPO_DIR ]]; then
       echo -e "\e[0Ksection_start:`date +%s`:sf_clone\r\e[0KCloning $SF_REPO_URL $SF_BRANCH_NAME"
