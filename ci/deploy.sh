@@ -8,9 +8,9 @@ set -e
  
 MVN_DEPLOY_OPTS=""
 
-#echo -e "\e[0Ksection_start:`date +%s`:deploy\r\e[0KDeploying build"
-mvn --batch-mode -s settings.xml -Drevision="$BUILD_VERSION" $MVN_DEPLOY_OPTS clean install | tee install.out
-#echo -e "\e[0Ksection_end:`date +%s`:deploy\r\e[0K"
+echo -e "\e[0Ksection_start:`date +%s`:deploy\r\e[0KDeploying build"
+mvn --batch-mode -s settings.xml -Drevision="$BUILD_VERSION" $MVN_DEPLOY_OPTS clean deploy | tee install.out
+echo -e "\e[0Ksection_end:`date +%s`:deploy\r\e[0K"
 
 if [ -z "$IT_BRANCH" ]; then
   if [ "$CI_COMMIT_REF_NAME" != "master" ] && [ -n $(git ls-remote --heads https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git $CI_COMMIT_REF_NAME) ]; then
