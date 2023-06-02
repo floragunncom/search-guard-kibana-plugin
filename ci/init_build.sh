@@ -71,6 +71,10 @@ start_section build "Building Search Guard Plugin"
 start_section yarn_install "Doing yarn install --production"
 yarn install --production
 end_section yarn_install
+
+# delete babel runtime
+sed -i "42,48d" ../../packages/kbn-babel-preset/common_preset.js
+
 start_section yarn_build "Doing yarn build -v $SF_VERSION --skip-archive"
 yarn build -v $SF_VERSION --skip-archive
 end_section yarn_build
