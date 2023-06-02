@@ -6,19 +6,19 @@ export class ApiService {
     this.httpClient = httpClient;
   }
 
-  loadRestInfo = () => {
+  loadRestInfo() {
     return this.httpClient.get(`${API_ROOT}/restapiinfo`).then(({ data }) => data);
-  };
+  }
 
-  loadSystemInfo = () => {
+  loadSystemInfo() {
     return this.httpClient.get(`${API_ROOT}/systeminfo`).then(({ data }) => data);
-  };
+  }
 
-  loadAuthInfo = () => {
+  loadAuthInfo() {
     return this.httpClient.get(`${API_ROOT}/auth/authinfo`).then(({ data }) => data);
-  };
+  }
 
-  loadKibanaConfig = () => {
+  loadKibanaConfig() {
     return this.httpClient.get(`${API_ROOT}/searchguard/kibana_config`).then(({ data }) => data);
-  };
+  }
 }
