@@ -2,7 +2,7 @@
 
 set -e 
 
-SF_BRANCH_NAME="v8.6.2"
+SF_BRANCH_NAME="v$SF_VERSION"
   
 if [[ -f $SF_REPO_DIR/.cached_version ]]; then
    CACHED_VERSION=`cat $SF_REPO_DIR/.cached_version`
