@@ -112,10 +112,7 @@ build:
       - "build/*"
       - junit*.xml
     expire_in: 24h
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    paths:
-      - ./${SF_REPO_DIR}
+
 
 # This case is for release tag commit to the branch, doing only unit testing and local build
 # no cache
