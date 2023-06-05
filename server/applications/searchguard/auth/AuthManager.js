@@ -202,8 +202,17 @@ export class AuthManager {
     try {
       const authConfig = await this.searchGuardBackend.getAuthConfig(nextUrl);
 
+      let config;
+
       if (authConfig && authConfig.auth_methods && authConfig.auth_methods.length == 1 && authConfig.auth_methods[0].sso_location) {
-        const config = authConfig.auth_methods[0];
+        // If there is only one auth_method with sso_location
+        config = authConfig.auth_methods[0];
+      } else {
+        // If one of the methods has auto_select property enabled
+        config = authConfig && authConfig.auth_methods && authConfig.auth_methods.find(({ auto_select }) => auto_select);
+      }
+
+      if (config && config.sso_location) {
         loginPageURL = config.sso_location;
 
         const authInstance = this.authInstances[config.method == "oidc" ? "openid": config.method];
