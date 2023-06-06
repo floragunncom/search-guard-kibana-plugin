@@ -3,6 +3,7 @@
 set -e 
 
 SF_BRANCH_NAME="v$SF_VERSION"
+SF_RELEASE_PACKAGE_URL="https://artifacts.elastic.co/downloads/kibana/kibana-$SF_VERSION-linux-x86_64.tar.gz"
   
 if [[ -f $SF_REPO_DIR/.cached_version ]]; then
    CACHED_VERSION=`cat $SF_REPO_DIR/.cached_version`
@@ -40,6 +41,21 @@ echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoin
 yarn kbn bootstrap --allow-root
 
 echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
+
+
+start_section replace_kbn_ui_shared_deps_npm_manifest_json "Replace bazel-bin/../kbn-ui-shared-deps-npm-manifest.json with file from kibana release"
+
+curl --fail $SF_RELEASE_PACKAGE_URL -o kibana-$SF_VERSION.tar.gz
+tar -xf kibana-$SF_VERSION.tar.gz --transform 's/.*\///g' --wildcards --no-anchored 'kbn-ui-shared-deps-npm-manifest.json'
+
+if [ ! -f bazel-bin/packages/kbn-ui-shared-deps-npm/shared_built_assets/kbn-ui-shared-deps-npm-manifest.json ]; then
+  echo "File bazel-bin/packages/kbn-ui-shared-deps-npm/shared_built_assets/kbn-ui-shared-deps-npm-manifest.json not found"
+  exit 1
+fi
+mv kbn-ui-shared-deps-npm-manifest.json bazel-bin/packages/kbn-ui-shared-deps-npm/shared_built_assets/kbn-ui-shared-deps-npm-manifest.json
+rm -rf kibana-$SF_VERSION.tar.gz
+
+end_section replace_kbn_ui_shared_deps_npm_manifest_json
 
 mkdir -p plugins/search-guard
 cp -a "../babel.config.js" plugins/search-guard
