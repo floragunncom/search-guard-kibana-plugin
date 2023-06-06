@@ -155,9 +155,9 @@ class DefineWatch extends Component {
           validateOnChange={false}
           enableReinitialize
         >
-          {({ handleSubmit, isSubmitting, values, errors }) => {
+          {({ handleSubmit, isSubmitting, values, errors, submitCount }) => {
             const isResolveActions = get(values, '_ui.isResolveActions', false);
-
+            const showValidationCallout = submitCount > 0;
             return (
               <>
                 <EuiTitle size="l">
@@ -176,8 +176,8 @@ class DefineWatch extends Component {
                   </EuiFlexItem>
                 </EuiFlexGroup>
                 <EuiSpacer />
+                {showValidationCallout && <FormikErrorsCallOut errors={errors} />}
 
-                <FormikErrorsCallOut errors={errors} />
                 {!!Object.keys(errors) && <EuiSpacer />}
 
                 <GeneralPanel location={location} />
@@ -219,6 +219,12 @@ class DefineWatch extends Component {
                     />
                   </EuiFlexItem>
                 </EuiFlexGroup>
+                {showValidationCallout && (
+                  <>
+                    <EuiSpacer />
+                    <FormikErrorsCallOut errors={errors} />
+                  </>
+                )}
               </>
             );
           }}
