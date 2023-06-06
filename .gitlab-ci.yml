@@ -32,7 +32,7 @@ before_script:
       export SG_SF_PLUGIN_VERSION=${BASH_REMATCH[1]}
       export BUILD_VERSION="${BASH_REMATCH[1]}-${BASH_REMATCH[2]}-${BASH_REMATCH[3]}"
       export SF_VERSION=${BASH_REMATCH[3]}
-    else    
+    else
       export SG_SF_PLUGIN_VERSION="b-$CI_COMMIT_REF_NAME-SNAPSHOT"
       export BUILD_VERSION="b-$CI_COMMIT_REF_NAME-SNAPSHOT"
       export SF_VERSION=$(grep -e '\bversion\b' $SF_JSON | tr -d "[:blank:]" | sed -E 's/"version":"(.*)"(.*)/\1/')
@@ -74,14 +74,15 @@ build:
       end_section tests
       rm -rf "node_modules"
       start_section build "Building Search Guard Plugin"
-      start_section yarn_install "Doing yarn install --production"
-      yarn install --production 
+      cp -a -f  ../../../yarn.lock  .
+      start_section yarn_install "Doing yarn install --production --frozen-lockfile"
+      yarn install --production --frozen-lockfile
       end_section yarn_install
       start_section yarn_build "Doing yarn build -v $SF_VERSION --skip-archive"
       yarn build -v $SF_VERSION --skip-archive
       end_section yarn_build
       end_section build
-      # Move build result from repo dir to the build folder in the CI root dir. 
+      # Move build result from repo dir to the build folder in the CI root dir.
       cd $CI_PROJECT_DIR
       rm -rf build
       mv $SF_REPO_DIR/plugins/search-guard/build build
@@ -122,9 +123,10 @@ build_release:
       end_section tests
       rm -rf "node_modules"
       start_section build "Building Search Guard Plugin"
-      start_section yarn_install "Doing yarn install --production"
-      yarn install --production
-      end_section yarn_install       
+      cp -a -f  ../../../yarn.lock  .
+      start_section yarn_install "Doing yarn install --production --frozen-lockfile"
+      yarn install --production --frozen-lockfile
+      end_section yarn_install
       start_section yarn_build "Doing yarn build -v $SF_VERSION --skip-archive"
       yarn build -v $SF_VERSION --skip-archive
       end_section yarn_build
