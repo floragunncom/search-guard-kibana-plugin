@@ -44,16 +44,19 @@ export function FormikErrorsCallOut({ errors = {}, maxDepthToSearch, maxMessages
   const _errors = formikErrorsToErrors({ errors, maxDepthToSearch, maxMessages });
   if (!_errors.length) _errors.push('Form error');
 
+  const calloutTitle =
+    _errors.length === 1
+      ? 'The form contains an error'
+      : `The form contains ${_errors.length} errors`;
+
   return (
     <EuiErrorBoundary>
       <EuiFlexGroup direction="column" gutterSize="xs" data-test-subj="sg.formikErrorsCallOut">
-        {_errors.map((msg, idx) => {
-          return (
-            <EuiFlexItem key={idx}>
-              <EuiCallOut key={idx} size="s" iconType="alert" color="danger" title={msg} />
-            </EuiFlexItem>
-          );
-        })}
+        <EuiFlexItem>
+          <EuiCallOut size="s" iconType="alert" color="danger" title={calloutTitle}>
+            Please check the form for more details
+          </EuiCallOut>
+        </EuiFlexItem>
       </EuiFlexGroup>
     </EuiErrorBoundary>
   );
