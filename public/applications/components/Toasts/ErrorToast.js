@@ -30,14 +30,69 @@ export function ErrorToast({ error, errorMessage, errorDetails, onDetailsClick }
     errorDetails = null;
   }
 
+  // This is mostly (only?) for Signals
+  const errorItems = [];
+  const detailedErrorMessage = get(error || {}, 'body.attributes.body.detail', null);
+
+  if (detailedErrorMessage) {
+    /*
+    // Example of an error message's body:
+    {
+      "statusCode": 400,
+      "error": "Bad Request",
+      "message": "{\"status\":400,\"error\":\"Watch is invalid: 'severity.mapping': The ordering of the thresholds is not consistent to the ordering of the levels: 400 > 500 but critical > info\",\"detail\":{\"severity.mapping\":[{\"error\":\"The ordering of the thresholds is not consistent to the ordering of the levels: 400 > 500 but critical > info\"}]}}",
+      "attributes": {
+        "body": {
+          "status": 400,
+          "error": "Watch is invalid: 'severity.mapping': The ordering of the thresholds is not consistent to the ordering of the levels: 400 > 500 but critical > info",
+          "detail": {
+            "severity.mapping": [
+              {
+                "error": "The ordering of the thresholds is not consistent to the ordering of the levels: 400 > 500 but critical > info"
+              }
+            ]
+          }
+        }
+      }
+    */
+    try {
+      // Build a list with the individual error messages
+      Object.values(detailedErrorMessage).forEach((field) => {
+        field
+          .filter((field) => {
+            // Just in case the error property is missing
+            return field.error;
+          })
+          .map((field) => {
+            errorItems.push(field.error);
+          });
+      });
+    } catch (error) {
+      console.warn('Could not collect error messages', error);
+    }
+  }
+
   if (errorDetails) {
     return (
       <div id="sgErrorToast">
-        <EuiText size="s">
-          <p>{errorMessage}</p>
-        </EuiText>
+        {/* Remove "Bad Request" etc if we have detailed error items */}
+        {errorItems.length === 0 && (
+          <EuiText size="s">
+            <p>{errorMessage}</p>
+          </EuiText>
+        )}
         <EuiSpacer />
-
+        {errorItems.length > 0 && (
+          <ul>
+            {errorItems.map((errorItem) => {
+              return (
+                <li>
+                  {errorItem}
+                </li>
+              )
+            })}
+          </ul>
+        )}
         <EuiFlexGroup justifyContent="flexEnd">
           <EuiFlexItem grow={false}>
             <EuiButton
