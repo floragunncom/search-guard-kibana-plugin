@@ -34,7 +34,9 @@ describe('AuthManager', () => {
             asScoped: () => sessionMock
         },
         pluginDependencies: {},
-        logger: {},
+        logger: {
+            info: jest.fn()
+        },
         searchGuardBackend: {
             getAuthConfig: jest.fn()
         },
@@ -58,43 +60,14 @@ describe('AuthManager', () => {
                 },
             };
 
-            const response = {};
-
             const toolkit = {
-                authenticated: jest.fn(),
-                notHandled: jest.fn()
+                next: jest.fn(),
             }
 
 
-            await authManager.checkAuth(request, response, toolkit);
+            await authManager.checkAuth(request, {}, toolkit);
 
-            expect(toolkit.authenticated).toBeCalledWith({
-                requestHeaders: {
-                    authorization: request.headers.authorization
-                }
-            })
-        });
-
-        it("should detect unhandled route", async () => {
-            const request = {
-                headers: {},
-                url: {
-                    pathname: "/customerror" // An example route from this.routesToIgnore
-                }
-            };
-
-            const response = {
-                redirected: jest.fn()
-            };
-
-            const toolkit = {
-                authenticated: jest.fn(),
-                notHandled: jest.fn()
-            }
-
-            await authManager.checkAuth(request, response, toolkit);
-
-            expect(toolkit.notHandled).toBeCalled()
+            expect(toolkit.next).toBeCalled();
         });
 
         it('should pass request as authenticated if the route does not require authentication', async () => {
@@ -105,16 +78,13 @@ describe('AuthManager', () => {
                 }
             };
 
-            const response = {};
-
             const toolkit = {
-                authenticated: jest.fn(),
-                notHandled: jest.fn()
+                next: jest.fn(),
             }
 
-            await authManager.checkAuth(request, response, toolkit);
+            await authManager.checkAuth(request, {}, toolkit);
 
-            expect(toolkit.authenticated).toBeCalled()
+            expect(toolkit.next).toBeCalled()
         });
 
         it('should process request with a checkAuth dedicated for AuthInstance if detected by a request', async () => {
@@ -135,13 +105,7 @@ describe('AuthManager', () => {
                 }
             };
 
-            const response = {};
-
-            const toolkit = {
-                authenticated: jest.fn(),
-                notHandled: jest.fn()
-            }
-            await authManager.checkAuth(request, response, toolkit);
+            await authManager.checkAuth(request, {}, {});
 
             expect(mockAuthTypeDetectedByRequest.checkAuth).toBeCalled()
         });
@@ -162,16 +126,9 @@ describe('AuthManager', () => {
                 }
             };
 
-            const response = {};
-
-            const toolkit = {
-                authenticated: jest.fn(),
-                notHandled: jest.fn()
-            }
-
             sessionMock.get.mockImplementation(() => ({ authType: 'mockCookie' }));
 
-            await authManager.checkAuth(request, response, toolkit);
+            await authManager.checkAuth(request, {}, {});
 
             expect(mockAuthTypeDetectedByCookie.checkAuth).toBeCalled();
 
@@ -192,16 +149,13 @@ describe('AuthManager', () => {
                 }
             };
 
-            const response = {};
-
             const toolkit = {
-                authenticated: jest.fn(),
-                notHandled: jest.fn()
+                next: jest.fn()
             };
 
-            await authManager.checkAuth(request, response, toolkit);
+            await authManager.checkAuth(request, {}, toolkit);
 
-            expect(toolkit.authenticated).toBeCalled();
+            expect(toolkit.next).toBeCalled();
         });
 
         it('should redirect request to loginURL if there is only one available method', async () => {
@@ -238,12 +192,7 @@ describe('AuthManager', () => {
                 redirected: jest.fn()
             };
 
-            const toolkit = {
-                authenticated: jest.fn(),
-                notHandled: jest.fn()
-            };
-
-            await authManager.checkAuth(request, response, toolkit);
+            await authManager.checkAuth(request, response, {});
 
             expect(response.redirected).toBeCalledWith({
                 headers: {
@@ -295,12 +244,7 @@ describe('AuthManager', () => {
                 redirected: jest.fn()
             };
 
-            const toolkit = {
-                authenticated: jest.fn(),
-                notHandled: jest.fn()
-            };
-
-            await authManager.checkAuth(request, response, toolkit);
+            await authManager.checkAuth(request, response, {});
 
             expect(response.redirected).toBeCalledWith({
                 headers: {
