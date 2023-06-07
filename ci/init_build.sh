@@ -51,6 +51,7 @@ cp -a "../server" plugins/search-guard
 cp -a "../common" plugins/search-guard
 cp -a "../tests"  plugins/search-guard
 cp -a "../__mocks__" plugins/search-guard
+cp -a "../yarn.lock" plugins/search-guard
 cd plugins/search-guard
 
 echo -e "\e[0Ksection_start:`date +%s`:yarn_install[collapsed=true]\r\e[0KDoing yarn install"
@@ -69,7 +70,7 @@ end_section tests
 rm -rf "node_modules"
 start_section build "Building Search Guard Plugin"
 start_section yarn_install "Doing yarn install --production"
-yarn install --production
+yarn install --production --frozen-lockfile
 end_section yarn_install
 start_section yarn_build "Doing yarn build -v $SF_VERSION --skip-archive"
 yarn build -v $SF_VERSION --skip-archive
