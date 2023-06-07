@@ -22,8 +22,7 @@ import {
   EuiPage,
   EuiPageBody,
   EuiPageHeader,
-  EuiPageContent_Deprecated,
-  EuiPageContentBody_Deprecated,
+  EuiPageSection,
   EuiText,
   EuiListGroup,
   EuiListGroupItem,
@@ -144,86 +143,84 @@ class Main extends Component {
             <Breadcrumbs history={history} onGetBreadcrumb={getBreadcrumb} {...rest} />
           </EuiPageHeader>
 
-          <EuiPageContent_Deprecated>
-            <EuiPageContentBody_Deprecated>
-              <Callout callout={callout} onClose={() => setCallout(null)} />
-              {isAPIAccessPending && LoadingPage}
-              {isAPIAccessOk && (
-                <Switch>
-                  {this.configuration.create_internal_users_page.enabled && (
-                    <Route
-                      path={APP_PATH.CREATE_INTERNAL_USER}
-                      render={(props) => <CreateInternalUser {...props} />}
-                    />
-                  )}
-                  {this.configuration.internal_users_page.enabled && (
-                    <Route
-                      path={APP_PATH.INTERNAL_USERS}
-                      render={(props) => <InternalUsers {...props} />}
-                    />
-                  )}
-
-                  {this.configuration.system_status_page.enabled && (
-                    <Route
-                      path={APP_PATH.SYSTEM_STATUS}
-                      render={(props) => <SystemStatus {...props} />}
-                    />
-                  )}
-                  {this.configuration.tenants_page.enabled && (
-                    <Route path={APP_PATH.TENANTS} render={(props) => <Tenants {...props} />} />
-                  )}
-                  {this.configuration.create_tenants_page.enabled && (
-                    <Route
-                      path={APP_PATH.CREATE_TENANT}
-                      render={(props) => <CreateTenant {...props} />}
-                    />
-                  )}
-                  {this.configuration.action_groups_page.enabled && (
-                    <Route
-                      path={APP_PATH.ACTION_GROUPS}
-                      render={(props) => <ActionGroups {...props} />}
-                    />
-                  )}
-                  {this.configuration.create_action_groups_page.enabled && (
-                    <Route
-                      path={APP_PATH.CREATE_ACTION_GROUP}
-                      render={(props) => <CreateActionGroup {...props} />}
-                    />
-                  )}
-                  {this.configuration.roles_page.enabled && (
-                    <Route path={APP_PATH.ROLES} render={(props) => <Roles {...props} />} />
-                  )}
-                  {this.configuration.create_roles_page.enabled && (
-                    <Route
-                      path={APP_PATH.CREATE_ROLE}
-                      render={(props) => <CreateRole {...props} />}
-                    />
-                  )}
-                  {this.configuration.role_mappings_page.enabled && (
-                    <Route
-                      path={APP_PATH.ROLE_MAPPINGS}
-                      render={(props) => <RoleMappings {...props} />}
-                    />
-                  )}
-                  {this.configuration.create_role_mappings_page.enabled && (
-                    <Route
-                      path={APP_PATH.CREATE_ROLE_MAPPING}
-                      render={(props) => <CreateRoleMapping {...props} />}
-                    />
-                  )}
+          <EuiPageSection color="plain">
+            <Callout callout={callout} onClose={() => setCallout(null)} />
+            {isAPIAccessPending && LoadingPage}
+            {isAPIAccessOk && (
+              <Switch>
+                {this.configuration.create_internal_users_page.enabled && (
                   <Route
-                    render={(props) => (
-                      <Home
-                        purgingCache={purgingCache}
-                        onPurgeCache={this.handlePurgeCache}
-                        {...props}
-                      />
-                    )}
+                    path={APP_PATH.CREATE_INTERNAL_USER}
+                    render={(props) => <CreateInternalUser {...props} />}
                   />
-                </Switch>
-              )}
-            </EuiPageContentBody_Deprecated>
-          </EuiPageContent_Deprecated>
+                )}
+                {this.configuration.internal_users_page.enabled && (
+                  <Route
+                    path={APP_PATH.INTERNAL_USERS}
+                    render={(props) => <InternalUsers {...props} />}
+                  />
+                )}
+
+                {this.configuration.system_status_page.enabled && (
+                  <Route
+                    path={APP_PATH.SYSTEM_STATUS}
+                    render={(props) => <SystemStatus {...props} />}
+                  />
+                )}
+                {this.configuration.tenants_page.enabled && (
+                  <Route path={APP_PATH.TENANTS} render={(props) => <Tenants {...props} />} />
+                )}
+                {this.configuration.create_tenants_page.enabled && (
+                  <Route
+                    path={APP_PATH.CREATE_TENANT}
+                    render={(props) => <CreateTenant {...props} />}
+                  />
+                )}
+                {this.configuration.action_groups_page.enabled && (
+                  <Route
+                    path={APP_PATH.ACTION_GROUPS}
+                    render={(props) => <ActionGroups {...props} />}
+                  />
+                )}
+                {this.configuration.create_action_groups_page.enabled && (
+                  <Route
+                    path={APP_PATH.CREATE_ACTION_GROUP}
+                    render={(props) => <CreateActionGroup {...props} />}
+                  />
+                )}
+                {this.configuration.roles_page.enabled && (
+                  <Route path={APP_PATH.ROLES} render={(props) => <Roles {...props} />} />
+                )}
+                {this.configuration.create_roles_page.enabled && (
+                  <Route
+                    path={APP_PATH.CREATE_ROLE}
+                    render={(props) => <CreateRole {...props} />}
+                  />
+                )}
+                {this.configuration.role_mappings_page.enabled && (
+                  <Route
+                    path={APP_PATH.ROLE_MAPPINGS}
+                    render={(props) => <RoleMappings {...props} />}
+                  />
+                )}
+                {this.configuration.create_role_mappings_page.enabled && (
+                  <Route
+                    path={APP_PATH.CREATE_ROLE_MAPPING}
+                    render={(props) => <CreateRoleMapping {...props} />}
+                  />
+                )}
+                <Route
+                  render={(props) => (
+                    <Home
+                      purgingCache={purgingCache}
+                      onPurgeCache={this.handlePurgeCache}
+                      {...props}
+                    />
+                  )}
+                />
+              </Switch>
+            )}
+          </EuiPageSection>
         </EuiPageBody>
       </EuiPage>
     );

@@ -17,7 +17,7 @@
 import React, { Component, Fragment } from 'react';
 import { API_ROOT } from '../../utils/constants';
 
-import { EuiPage, EuiPageBody, EuiPageContent_Deprecated, EuiPageContentBody_Deprecated, EuiText } from '@elastic/eui';
+import { EuiPage, EuiPageBody, EuiPageSection, EuiText } from '@elastic/eui';
 import { LicenseWarningCallout } from '../components';
 
 import { MainContext } from './contexts/MainContextProvider';
@@ -66,48 +66,44 @@ export class AccountInfoPage extends Component {
     const { sgUser } = this.state;
 
     return (
-      <EuiPage id={APP_NAME}>
-        <EuiPageBody className="sg-container">
-          <EuiPageContent_Deprecated>
-            <EuiPageContentBody_Deprecated className="sg-page-content-body">
-              <LicenseWarningCallout configService={this.context.configService} />
+      <EuiPage id={APP_NAME} style={{ backgroundColor: 'transparent' }}>
+        <EuiPageBody>
+          <LicenseWarningCallout configService={this.context.configService} />
 
-              {sgUser && (
-                <EuiText>
-                  <h2>{userNameHeader}</h2>
-                  <p>{sgUser.user_name}</p>
+          {sgUser && (
+            <EuiText>
+              <h3>{userNameHeader}</h3>
+              <p>{sgUser.user_name}</p>
 
-                  <h2>{sgRolesHeader}</h2>
-                  <p>
-                    {sgUser.sg_roles.length === 0
-                      ? sgRolesEmpty
-                      : sgUser.sg_roles.map((role) => (
-                          <Fragment key={role}>
-                            {role}
-                            <br />
-                          </Fragment>
-                        ))}
-                  </p>
+              <h3>{sgRolesHeader}</h3>
+              <p>
+                {sgUser.sg_roles.length === 0
+                  ? sgRolesEmpty
+                  : sgUser.sg_roles.map((role) => (
+                    <Fragment key={role}>
+                      {role}
+                      <br />
+                    </Fragment>
+                  ))}
+              </p>
 
-                  <h2>{backendRolesHeader}</h2>
-                  <p>
-                    {sgUser.backend_roles.length === 0
-                      ? backendRolesEmpty
-                      : sgUser.backend_roles.map((role) => (
-                          <Fragment key={role}>
-                            {role}
-                            <br />
-                          </Fragment>
-                        ))}
-                  </p>
+              <h3>{backendRolesHeader}</h3>
+              <p>
+                {sgUser.backend_roles.length === 0
+                  ? backendRolesEmpty
+                  : sgUser.backend_roles.map((role) => (
+                    <Fragment key={role}>
+                      {role}
+                      <br />
+                    </Fragment>
+                  ))}
+              </p>
 
-                  <EuiText size="xs" style={{ fontStyle: 'italic' }}>
-                    {accountPluginVersion(this.context.configService.get('searchguard.sgVersion'))}
-                  </EuiText>
-                </EuiText>
-              )}
-            </EuiPageContentBody_Deprecated>
-          </EuiPageContent_Deprecated>
+              <EuiText size="xs" style={{ fontStyle: 'italic' }}>
+                {accountPluginVersion(this.context.configService.get('searchguard.sgVersion'))}
+              </EuiText>
+            </EuiText>
+          )}
         </EuiPageBody>
       </EuiPage>
     );

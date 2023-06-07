@@ -21,8 +21,7 @@ import {
   EuiPage,
   EuiPageBody,
   EuiPageHeader,
-  EuiPageContent_Deprecated,
-  EuiPageContentBody_Deprecated,
+  EuiPageSection,
 } from '@elastic/eui';
 import { Breadcrumbs, Callout } from '../../../components';
 import { AuthTokens } from '../AuthTokens';
@@ -41,19 +40,17 @@ export function Main({ history, ...rest }) {
           <Breadcrumbs history={history} onGetBreadcrumb={getBreadcrumb} {...rest} />
         </EuiPageHeader>
 
-        <EuiPageContent_Deprecated>
-          <EuiPageContentBody_Deprecated>
-            <Callout callout={callout} onClose={() => setCallout(null)} />
-            <Switch>
-              <Route
-                path={APP_PATH.CREATE_AUTH_TOKEN}
-                render={(props) => <CreateAuthToken {...props} />}
-              />
-              <Route path={APP_PATH.AUTH_TOKENS} render={(props) => <AuthTokens {...props} />} />
-              <Redirect to={APP_PATH.AUTH_TOKENS} />
-            </Switch>
-          </EuiPageContentBody_Deprecated>
-        </EuiPageContent_Deprecated>
+        <EuiPageSection color="plain">
+          <Callout callout={callout} onClose={() => setCallout(null)} />
+          <Switch>
+            <Route
+              path={APP_PATH.CREATE_AUTH_TOKEN}
+              render={(props) => <CreateAuthToken {...props} />}
+            />
+            <Route path={APP_PATH.AUTH_TOKENS} render={(props) => <AuthTokens {...props} />} />
+            <Redirect to={APP_PATH.AUTH_TOKENS} />
+          </Switch>
+        </EuiPageSection>
       </EuiPageBody>
     </EuiPage>
   );

@@ -6,8 +6,7 @@ import {
   EuiPage,
   EuiPageBody,
   EuiPageHeader,
-  EuiPageContent_Deprecated,
-  EuiPageContentBody_Deprecated,
+  EuiPageSection,
   EuiTab,
   EuiTabs,
   EuiSpacer,
@@ -112,69 +111,67 @@ class Main extends Component {
             <Breadcrumbs history={history} onGetBreadcrumb={getBreadcrumb} {...props} />
           </EuiPageHeader>
 
-          <EuiPageContent_Deprecated>
-            <EuiPageContentBody_Deprecated className="sg-page-content-body">
-              <Switch>
-                <Route
-                  path={'/watch/:watchId/ack/:actionId?'}
-                  exact
-                  render={(props) => {
-                    return <WatchAck {...props} />;
-                  }}
-                />
-                <Route
-                  exact
-                  path={APP_PATH.WATCHES}
-                  render={(props) => (
-                    <EuiErrorBoundary>
-                      <EuiTabs>{this.tabs.map(this.renderTab)}</EuiTabs>
-                      <EuiSpacer />
-                      <Watches {...props} />
-                    </EuiErrorBoundary>
-                  )}
-                />
-                <Route
-                  path={APP_PATH.DEFINE_WATCH}
-                  render={(props) => <DefineWatch {...props} />}
-                />
-                <Route
-                  path={APP_PATH.DEFINE_JSON_WATCH}
-                  render={(props) => <DefineJsonWatch {...props} />}
-                />
-                <Route path={APP_PATH.ALERTS} render={(props) => <Alerts {...props} />} />
-                <Route
-                  exact
-                  path={APP_PATH.DASHBOARD}
-                  render={(props) => (
-                    <EuiErrorBoundary>
-                      <EuiTabs>{this.tabs.map(this.renderTab)}</EuiTabs>
-                      <EuiSpacer />
-                      <Alerts {...props} />
-                    </EuiErrorBoundary>
-                  )}
-                />
-                <Route
-                  path={APP_PATH.ACCOUNTS}
-                  render={(props) => (
-                    <EuiErrorBoundary>
-                      <EuiTabs>{this.tabs.map(this.renderTab)}</EuiTabs>
-                      <EuiSpacer />
-                      <Accounts {...props} />
-                    </EuiErrorBoundary>
-                  )}
-                />
-                <Route
-                  path={APP_PATH.DEFINE_ACCOUNT}
-                  render={(props) => <DefineAccount {...props} />}
-                />
-                <Route
-                  path={APP_PATH.DEFINE_JSON_ACCOUNT}
-                  render={(props) => <DefineJsonAccount {...props} />}
-                />
-                <Redirect to={APP_PATH.WATCHES} />
-              </Switch>
-            </EuiPageContentBody_Deprecated>
-          </EuiPageContent_Deprecated>
+          <EuiPageSection color="plain">
+            <Switch>
+              <Route
+                path={'/watch/:watchId/ack/:actionId?'}
+                exact
+                render={(props) => {
+                  return <WatchAck {...props} />;
+                }}
+              />
+              <Route
+                exact
+                path={APP_PATH.WATCHES}
+                render={(props) => (
+                  <EuiErrorBoundary>
+                    <EuiTabs>{this.tabs.map(this.renderTab)}</EuiTabs>
+                    <EuiSpacer />
+                    <Watches {...props} />
+                  </EuiErrorBoundary>
+                )}
+              />
+              <Route
+                path={APP_PATH.DEFINE_WATCH}
+                render={(props) => <DefineWatch {...props} />}
+              />
+              <Route
+                path={APP_PATH.DEFINE_JSON_WATCH}
+                render={(props) => <DefineJsonWatch {...props} />}
+              />
+              <Route path={APP_PATH.ALERTS} render={(props) => <Alerts {...props} />} />
+              <Route
+                exact
+                path={APP_PATH.DASHBOARD}
+                render={(props) => (
+                  <EuiErrorBoundary>
+                    <EuiTabs>{this.tabs.map(this.renderTab)}</EuiTabs>
+                    <EuiSpacer />
+                    <Alerts {...props} />
+                  </EuiErrorBoundary>
+                )}
+              />
+              <Route
+                path={APP_PATH.ACCOUNTS}
+                render={(props) => (
+                  <EuiErrorBoundary>
+                    <EuiTabs>{this.tabs.map(this.renderTab)}</EuiTabs>
+                    <EuiSpacer />
+                    <Accounts {...props} />
+                  </EuiErrorBoundary>
+                )}
+              />
+              <Route
+                path={APP_PATH.DEFINE_ACCOUNT}
+                render={(props) => <DefineAccount {...props} />}
+              />
+              <Route
+                path={APP_PATH.DEFINE_JSON_ACCOUNT}
+                render={(props) => <DefineJsonAccount {...props} />}
+              />
+              <Redirect to={APP_PATH.WATCHES} />
+            </Switch>
+          </EuiPageSection>
         </EuiPageBody>
       </EuiPage>
     );
