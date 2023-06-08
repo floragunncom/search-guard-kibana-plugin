@@ -177,15 +177,30 @@ export class TenantService {
     }
   };
 
-  createIndexForTenant = async ({ request, selectedTenant = '' } = {}) => {
-    const indexExists = await this.indexExists({ request, indexName: this.aliasName });
+ createIndexForTenant = async ({ request, selectedTenant = '' } = {}) => {
+
+   // await this._createIndexForTenant(request, selectedTenant, ".kibana_analytics_8.8.0_001", ".kibana_analytics_8.8.0", ".kibana_analytics");
+   // await this._createIndexForTenant(request, selectedTenant, ".kibana_8.8.0_001", ".kibana_8.8.0", ".kibana");
+ }
+
+  _createIndexForTenant = async (request, selectedTenant, versionIndexName, versionAliasName, aliasName  = {}) => {
+
+  // createIndexForTenant = async ({ request, selectedTenant = '' } = {}) => {
+    console.log(versionIndexName + " - "+ versionAliasName + " - " + aliasName);
+    // .kibana_8.8.0_001 - .kibana_8.8.0 -.kibana
+    // .kibana_analytics_8.8.0_001 - .kibana_analytics_8.8.0 - .kibana_analytics
+
+    const indexExists = await this.indexExists({ request, indexName: aliasName });
+    console.log("Does index exit for aliasname " + aliasName+"? " + indexExists);
 
     if (!indexExists) {
+      console.log("Will create:");
+      console.log(versionIndexName + " - "+ versionAliasName + " - " + aliasName);
       return this.createIndexAndAliases({
         request,
-        aliasName: this.aliasName,
-        versionAliasName: this.versionAliasName,
-        versionIndexName: this.versionIndexName,
+        aliasName: aliasName,
+        versionAliasName: versionAliasName,
+        versionIndexName: versionIndexName,
         tenantName: selectedTenant,
       });
     }
