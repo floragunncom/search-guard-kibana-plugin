@@ -90,6 +90,16 @@ yarn install --production --frozen-lockfile
 end_section yarn_install
 start_section yarn_build "Doing yarn build -v $SF_VERSION --skip-archive"
 yarn build -v $SF_VERSION --skip-archive
+
+# Fix only for Kibana 8.7.x
+cd build
+find ./ -type f -exec sed -i -e 's#".*core-doc-links-server-internal"#"@kbn/core-doc-links-server-internal"#g' {} \;
+find ./ -type f -exec sed -i -e 's#".*packages/kbn-config-schema"#"@kbn/config-schema"#g' {} \;
+find ./ -type f -exec sed -i -e 's#".*core-saved-objects-migration-server-internal"#"@kbn/core-saved-objects-migration-server-internal"#g' {} \;
+find ./ -type f -exec sed -i -e 's#".*core-http-router-server-internal"#"@kbn/core-http-router-server-internal"#g' {} \;
+find ./ -type f -exec sed -i -e 's#".*core-http-server"#"@kbn/core-http-server"#g' {} \;
+cd ..
+
 end_section yarn_build
 end_section build
 # Move build result from repo dir to the build folder in the CI root dir. 
