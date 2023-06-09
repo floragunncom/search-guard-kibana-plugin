@@ -1,5 +1,3 @@
-/** @jest-environment jsdom */
-
 import { validateWatchString } from './validateWatchString';
 import { requiredText, invalidJsonText } from '../../../../utils/i18n/common';
 

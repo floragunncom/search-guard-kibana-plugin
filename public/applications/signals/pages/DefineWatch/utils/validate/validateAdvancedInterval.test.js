@@ -1,5 +1,3 @@
-/** @jest-environment jsdom */
-
 import { validateAdvancedInterval } from './validateAdvancedInterval';
 import { requiredText } from '../../../../utils/i18n/common';
 import { invalidTimeIntervalText } from '../../../../utils/i18n/watch';

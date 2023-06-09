@@ -1,5 +1,3 @@
-/** @jest-environment jsdom */
-
 import { validateInterval } from './validateInterval';
 import { mustBePositiveIntegerText } from '../../../../utils/i18n/common';
 

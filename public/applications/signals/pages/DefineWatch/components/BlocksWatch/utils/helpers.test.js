@@ -1,6 +1,4 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-/** @jest-environment jsdom */
-
 import { reorderBlocks, deleteBlock, shorterCheckName } from './helpers';
 
 describe('BlocksWatch helpers', () => {

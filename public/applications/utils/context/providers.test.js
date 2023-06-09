@@ -1,4 +1,3 @@
-/** @jest-environment jsdom */
 /*
  *    Copyright 2020 floragunn GmbH
  *
@@ -158,6 +157,17 @@ describe('context/providers', () => {
       const form = { setFieldValue: jest.fn() };
 
       onComboBoxChangeProvider()(options, field, form);
+      expect(form.setFieldValue).toHaveBeenCalledWith(field.name, options);
+    });
+
+    test('changes correctly and sets error (resolve)', async () => {
+      const options = [{ label: 'a' }, { label: 'b' }];
+      const field = { name: 'field', value: [{ label: 'a' }] };
+      const form = { setFieldError: jest.fn(), setFieldValue: jest.fn() };
+      const validationFn = jest.fn(() => Promise.resolve(null));
+
+      await onComboBoxChangeProvider({ validationFn })(options, field, form);
+      expect(form.setFieldError).toHaveBeenCalledWith(field.name, null);
       expect(form.setFieldValue).toHaveBeenCalledWith(field.name, options);
     });
 

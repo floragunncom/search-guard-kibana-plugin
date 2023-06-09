@@ -1,6 +1,4 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-/** @jest-environment jsdom */
-
 import { getChecksExecutionResponse } from './helpers';
 import { stringifyPretty } from '../../../../utils/helpers';
 

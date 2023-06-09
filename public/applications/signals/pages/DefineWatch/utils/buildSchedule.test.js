@@ -1,5 +1,3 @@
-/** @jest-environment jsdom */
-
 import buildSchedule from './buildSchedule';
 import { SCHEDULE_DEFAULTS, ADVANCED_TIME_PERIOD_UNIT } from './constants';
 

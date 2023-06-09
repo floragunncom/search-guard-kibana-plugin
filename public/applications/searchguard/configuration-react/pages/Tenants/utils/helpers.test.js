@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- /** @jest-environment jsdom */
-
 import { getResourceEditUri } from './helpers';
 
 describe('Tenants/helpers', () => {

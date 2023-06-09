@@ -1,5 +1,3 @@
-/** @jest-environment jsdom */
-
 import { validateMonthDay } from './validateMonthDay';
 import { mustBeNumberBetween1And31Text } from '../../../../utils/i18n/common';
 

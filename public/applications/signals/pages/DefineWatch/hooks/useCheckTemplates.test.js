@@ -1,4 +1,3 @@
-/** @jest-environment jsdom */
 /* eslint-disable @kbn/eslint/require-license-header */
 import { getFormikChecksPlusTemplate } from './useCheckTemplates';
 import { stringifyPretty } from '../../../utils/helpers';

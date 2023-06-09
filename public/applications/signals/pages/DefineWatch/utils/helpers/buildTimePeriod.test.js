@@ -1,4 +1,3 @@
-/** @jest-environment jsdom */
 import { buildTimePeriod } from './buildTimePeriod';
 import {
   SCHEDULE_DEFAULTS,

@@ -1,5 +1,3 @@
-/** @jest-environment jsdom */
-
 import formikToRoleMapping from './formik_to_role_mapping';
 
 describe('UI role mapping to role mapping', () => {

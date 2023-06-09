@@ -1,5 +1,3 @@
-/** @jest-environment jsdom */
-
 import { getFieldsFromPayload } from './helpers';
 
 describe('getFieldsFromPayload', () => {

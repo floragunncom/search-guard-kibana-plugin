@@ -1,4 +1,3 @@
-/** @jest-environment jsdom */
 import { watchToFormik } from './watchToFormik';
 
 describe('watchToFormik', () => {

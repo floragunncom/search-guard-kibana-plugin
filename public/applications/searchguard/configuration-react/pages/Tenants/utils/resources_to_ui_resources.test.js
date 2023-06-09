@@ -1,5 +1,3 @@
-/** @jest-environment jsdom */
-
 import resourcesToUiResources from './resources_to_ui_resources';
 
 describe('tenants to UI table tenants', () => {

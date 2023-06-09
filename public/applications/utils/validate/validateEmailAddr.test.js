@@ -1,5 +1,3 @@
-/** @jest-environment jsdom */
-
 import { validateEmailAddr } from './validateEmailAddr';
 import { invalidEmailAddressText, requiredText } from '../i18n/common';
 

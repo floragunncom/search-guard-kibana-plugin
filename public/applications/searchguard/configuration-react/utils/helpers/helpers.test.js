@@ -1,5 +1,3 @@
-/** @jest-environment jsdom */
-
 import {
   internalUsersToUiBackendRoles,
   isSinglePermission,

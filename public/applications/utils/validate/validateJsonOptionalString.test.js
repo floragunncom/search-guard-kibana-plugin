@@ -1,4 +1,3 @@
-/** @jest-environment jsdom */
 /* eslint-disable @kbn/eslint/require-license-header */
 import { validateJsonOptionalString } from './validateJsonOptionalString';
 import { invalidJsonText } from '../i18n/common';

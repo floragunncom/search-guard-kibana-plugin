@@ -1,6 +1,4 @@
-/** @jest-environment jsdom */
 /* eslint-disable @kbn/eslint/require-license-header */
-
 import { validateEmptyComboBox } from './validateEmptyComboBox';
 import { requiredText } from '../i18n/common';
 
