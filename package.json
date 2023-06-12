@@ -27,7 +27,7 @@
     "wreck": "14.x.x"
   },
   "devDependencies": {
-    "core-js": "^3.6.5",
+    "core-js": "^3.31.0",
     "jest-junit": "^12.2.0",
     "ts-jest": "^27.1.5"
   },
