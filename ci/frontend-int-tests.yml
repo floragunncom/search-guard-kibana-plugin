@@ -166,7 +166,7 @@ fe_kerberos:
   services:
     - docker:19.03-dind
   tags:
-    - aws-runner
+    - runner-1-fail
   script:
     - |
        echo "============================================="
