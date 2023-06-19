@@ -164,7 +164,7 @@ fe_kerberos:
     - ssh-keyscan git.floragunn.com >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
   services:
-    - docker:19.03-dind
+    - docker:20.10.17-dind
   tags:
     - aws-runner
   script:
