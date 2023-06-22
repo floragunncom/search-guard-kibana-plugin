@@ -82,20 +82,29 @@ export class MultitenancyLifecycle {
   };
 
   isRelevantPath = (request) => {
-    // MT is only relevant for these paths
     const path = request.url.pathname;
-    if (
-      !path.startsWith('/internal') &&
-      !path.startsWith('/goto') &&
-      !path.startsWith('/elasticsearch') &&
-      !path.startsWith('/api') &&
-      !path.startsWith('/app') &&
-      path !== '/'
-    ) {
-      return false;
-    }
 
-    return true;
+    // MT is only relevant for these paths
+    const relevantPaths = [
+      '/internal',
+      '/goto',
+      '/opensearch',
+      '/app',
+      '/api'
+    ];
+
+    // MT is not relevant in these patterns
+    const ignorePatterns = [
+      '/api/status',
+      '/api/v1/auth/config',
+      '/api/v1/auth/login',
+      '/api/v1/systeminfo',
+    ]
+
+    return path === '/' || (
+      relevantPaths.some(root => path.startsWith(root)) &&
+      !ignorePatterns.some(root => path.startsWith(root))
+    );
   };
 
   /**
@@ -146,7 +155,7 @@ export class MultitenancyLifecycle {
       // We need the user's data from the backend to validate the selected tenant
       authInfoResponse = await backend.authinfo(authHeaders);
     } catch (error) {
-      this.logger.info(`Multitenancy: Could not get authinfo ${error}`);
+      this.logger.error(`Multitenancy: Could not get authinfo from ${request.url.pathname}. ${error}`);
       return null;
     }
 
