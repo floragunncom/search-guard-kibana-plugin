@@ -93,11 +93,6 @@ boom@7.x.x:
   dependencies:
     hoek "6.x.x"
 
-bourne@1.x.x:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/bourne/-/bourne-1.1.2.tgz#e290b5bd7166635632eaf8ef12b006b2d4a75b83"
-  integrity sha512-b2dgVkTZhkQirNMohgC00rWfpVqEi9y5tKM1k3JvoNx05ODtfQoPPd4js9CYFQoY0IM8LAmnJulEuWv74zjUOg==
-
 brace@0.11.1:
   version "0.11.1"
   resolved "https://registry.yarnpkg.com/brace/-/brace-0.11.1.tgz#4896fcc9d544eef45f4bb7660db320d3b379fe58"
@@ -759,15 +754,6 @@ uuid@^8.3.2:
   version "8.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
-
-wreck@14.x.x:
-  version "14.2.0"
-  resolved "https://registry.yarnpkg.com/wreck/-/wreck-14.2.0.tgz#0064a5b930fc675f57830c1fd28342da1a70b0fc"
-  integrity sha512-NFFft3SMgqrJbXEVfYifh+QDWFxni+98/I7ut7rLbz3F0XOypluHsdo3mdEYssGSirMobM3fGlqhyikbWKDn2Q==
-  dependencies:
-    boom "7.x.x"
-    bourne "1.x.x"
-    hoek "6.x.x"
 
 xml@^1.0.1:
   version "1.0.1"
