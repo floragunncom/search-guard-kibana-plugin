@@ -20,7 +20,7 @@ import path from 'path';
 
 export const AUTH_TYPE_NAMES = {
   BASIC: 'basicauth',
-  OIDC: 'openid',
+  OIDC: 'oidc',
   JWT: 'jwt',
   SAML: 'saml',
 };
@@ -218,7 +218,7 @@ export class AuthManager {
       if (config && config.sso_location) {
         loginPageURL = config.sso_location;
 
-        const authInstance = this.authInstances[config.method == "oidc" ? "openid": config.method];
+        const authInstance = this.authInstances[config.method];
         if (authInstance && authInstance.loginURL) {
           loginPageURL = new URL(this.basePath + authInstance.loginURL, 'http://abc');
 
