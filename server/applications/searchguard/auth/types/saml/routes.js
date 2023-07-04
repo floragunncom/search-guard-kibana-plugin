@@ -61,7 +61,7 @@ export function defineRoutes({
       // Add the nextUrl to the redirect_uri as a parameter. The IDP uses the redirect_uri to redirect the user after successful authentication.
       // For example, it is used to redirect user to the correct dashboard if the user put shared URL in the browser address input before authentication.
       // To make this work, append the wildcard (*) to the valid redirect URI in the IDP configuration, for example
-      // https://kibana.example.com:5601/auth/openid/login*
+      // https://kibana.example.com:5601/auth/oidc/login*
       let nextUrl = null;
 
       try {

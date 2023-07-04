@@ -130,7 +130,7 @@ export function defineRoutes({
     },
     loginHandler()
   );
-
+  
   router.post(
     {
       path: `${API_ROOT}/auth/login`,

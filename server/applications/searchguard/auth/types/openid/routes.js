@@ -19,7 +19,7 @@ import { sanitizeNextUrl } from '../../sanitize_next_url';
 import { APP_ROOT } from '../../../../../utils/constants';
 
 export const OIDC_ROUTES = {
-  LOGIN: `${APP_ROOT}/auth/openid/login`,
+  LOGIN: `${APP_ROOT}/auth/oidc/login`,
 };
 
 export function defineRoutes({
@@ -33,7 +33,7 @@ export function defineRoutes({
   const config = kibanaConfig;
   const basePath = kibanaCore.http.basePath.serverBasePath;
   const router = kibanaCore.http.createRouter();
-  const routesPath = '/auth/openid/';
+  const routesPath = '/auth/oidc/';
 
   const loginSettings = {
     path: `${APP_ROOT}${routesPath}login`,
@@ -51,34 +51,46 @@ export function defineRoutes({
     },
   };
 
+  const loginHandlerOptions = {
+    basePath,
+    kibanaCore,
+    config,
+    debugLog,
+    authInstance,
+    logger,
+    searchGuardBackend,
+  }
+
   router.get(
     loginSettings,
-    loginHandler({
-      basePath,
-      kibanaCore,
-      config,
-      routesPath,
-      debugLog,
-      authInstance,
-      logger,
-      searchGuardBackend,
-    })
+    loginHandler(loginHandlerOptions)
   );
 
   // Keep a POST route in case the IdP uses POSTs
   router.post(
     loginSettings,
-    loginHandler({
-      basePath,
-      kibanaCore,
-      config,
-      routesPath,
-      debugLog,
-      authInstance,
-      logger,
-      searchGuardBackend,
-    })
+    loginHandler(loginHandlerOptions)
   );
+
+
+  // We want to keep backwards compatibility with /auth/openid requests
+  const legacyRoutesPath = '/auth/openid/';
+  
+  router.get(
+    {
+      ...loginSettings,
+      path: `${APP_ROOT}${legacyRoutesPath}login`
+    },
+    loginHandler(loginHandlerOptions)
+  )
+
+  router.post(
+    {
+      ...loginSettings,
+      path: `${APP_ROOT}${legacyRoutesPath}login`
+    },
+    loginHandler(loginHandlerOptions)
+  )
 } //end module
 
 export function loginHandler({ basePath, config, authInstance, logger, searchGuardBackend, kibanaCore }) {
@@ -104,27 +116,27 @@ export function loginHandler({ basePath, config, authInstance, logger, searchGua
       const sessionCookie =
         (await authInstance.sessionStorageFactory.asScoped(request).get()) || {};
 
-      const cookieOpenId = sessionCookie.openId;
+      const cookieOidc = sessionCookie.oidc;
 
-      if (!cookieOpenId) {
+      if (!cookieOidc) {
         // This seems to happen when we have
         // a) No more session on the IdP
         // and b) We delete our cookie completely.
         // @todo Can we somehow restart the process here?
         throw new Error(
-          'OpenId request contained code, but we have no cookie content to compare with'
+          'OIDC request contained code, but we have no cookie content to compare with'
         );
       }
 
       // Make sure to clear out what was used for this login request.
-      delete sessionCookie.openId;
+      delete sessionCookie.oidc;
       await authInstance.sessionStorageFactory.asScoped(request).set(sessionCookie);
 
       const credentials = {
         mode: 'oidc',
         sso_result: request.url.href,
-        sso_context: cookieOpenId.ssoContext,
-        id: cookieOpenId.authTypeId,
+        sso_context: cookieOidc.ssoContext,
+        id: cookieOidc.authTypeId,
       };
 
       // Authenticate with the token given to us by the IdP
@@ -194,7 +206,7 @@ async function handleAuthRequest({
   // Add the nextUrl to the redirect_uri as a parameter. The IDP uses the redirect_uri to redirect the user after successful authentication.
   // For example, it is used to redirect user to the correct dashboard if the user put shared URL in the browser address input before authentication.
   // To make this work, append the wildcard (*) to the valid redirect URI in the IDP configuration, for example
-  // https://kibana.example.com:5601/auth/openid/login*
+  // https://kibana.example.com:5601/auth/oidc/login*
   let nextUrl = null;
   try {
     if (request.url.searchParams.get('nextUrl') && decodeURIComponent(request.url.searchParams.get('nextUrl')) !== '/') {
@@ -265,7 +277,7 @@ async function handleAuthRequest({
     });
   }
 
-  sessionCookie.openId = { ssoContext: authConfig.sso_context, authTypeId: authConfig.id || null, query: {} };
+  sessionCookie.oidc = { ssoContext: authConfig.sso_context, authTypeId: authConfig.id || null, query: {} };
   await sessionStorageFactory.asScoped(request).set(sessionCookie);
 
   return response.redirected({
