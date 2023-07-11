@@ -159,6 +159,13 @@ export class MultitenancyLifecycle {
       return null;
     }
 
+    console.log("Checking selectedTenant: " + selectedTenant)
+    // TODO: Hack - new impl requires global tenant to be set explicitely
+    if (typeof selectedTenant === 'undefined' || selectedTenant === null || selectedTenant === "") {
+      selectedTenant = "SGS_GLOBAL_TENANT";
+
+    }
+
     // if we have a tenant, check validity and set it
     if (typeof selectedTenant !== 'undefined' && selectedTenant !== null) {
       selectedTenant = backend.validateTenant(
