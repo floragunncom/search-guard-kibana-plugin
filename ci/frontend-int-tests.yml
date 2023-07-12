@@ -100,6 +100,8 @@ kibana_authtokens:
   tags:
     - test-large
   rules:
+    - if: '$DOCKER_ONLY'
+      when: never
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: always
     - if: $CI_PIPELINE_SOURCE == "schedule"
