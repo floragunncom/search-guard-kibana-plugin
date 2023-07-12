@@ -27,16 +27,30 @@ workflow:
 before_script:
   - |
     source ci/utils.sh
-    if [ -d $SF_REPO_DIR ]; then du --summarize -h $SF_REPO_DIR; fi
-    if [[ $CI_COMMIT_TAG =~ ^sg-7\.([a-z0-9\.]+)-([oe]s)-([0-9\.]+)$ ]]; then
-      export SG_SF_PLUGIN_VERSION=${BASH_REMATCH[1]}
-      export BUILD_VERSION="${BASH_REMATCH[3]}-${BASH_REMATCH[1]}.0"
-      export SF_VERSION=${BASH_REMATCH[3]}
-    else    
+    if [ -d $SF_REPO_DIR ]; then du --summarize -h $SF_REPO_DIR; fi    
+    REGEX_VERSION="^sg-(flx-)?([a-z0-9\.\-]+)-([oe]s)-([0-9\.]+)$"
+    REGEX_VERSION_7="^(sg-)(7\.)([a-z0-9\.\-]+)-([oe]s)-([0-9\.]+)$"
+  
+    if echo "$CI_COMMIT_TAG" | grep -qE "$REGEX_VERSION_7"; then
+
+      RESULT=$(echo "$CI_COMMIT_TAG" | sed -n -E "s/$REGEX_VERSION_7/\1 \2 \3 \4 \5  /p")
+      export SG_SF_PLUGIN_VERSION=$(echo $RESULT | awk '{print $3".0"}')
+      export BUILD_VERSION=$(echo $RESULT | awk '{print $5"-"$3".0"}')
+      export SF_VERSION=$(echo $RESULT | awk '{print $5}')
+      
+    elif echo "$CI_COMMIT_TAG" | grep -qE "$REGEX_VERSION"; then
+    
+      RESULT=$(echo "$CI_COMMIT_TAG" | sed -n -E "s/$REGEX_VERSION/\2 \3 \4/p")
+      export SG_SF_PLUGIN_VERSION=$(echo $RESULT | awk '{print $1}')
+      export BUILD_VERSION=$(echo $RESULT | awk '{print $1"-"$2"-"$3}')
+      export SF_VERSION=$(echo $RESULT | awk '{print $3}')
+    else
+    
       export SG_SF_PLUGIN_VERSION="b-$CI_COMMIT_REF_NAME-SNAPSHOT"
       export BUILD_VERSION="b-$CI_COMMIT_REF_NAME-SNAPSHOT"
       export SF_VERSION=$(grep -e '\bversion\b' $SF_JSON | tr -d "[:blank:]" | sed -E 's/"version":"(.*)"(.*)/\1/')
     fi
+    
     echo "================================="
     echo "SG_SF_PLUGIN_VERSION: $SG_SF_PLUGIN_VERSION"
     echo "BUILD_VERSION: $BUILD_VERSION"
@@ -51,6 +65,7 @@ stages:
   - "Frontend Int Tests Features"
   - "Frontend Int Tests External Features"
   - release
+  - "Deploy Docker Image"
 
 #This case is for usual commit to the branch, doing only unit testing and local build
 build:
@@ -59,7 +74,9 @@ build:
   tags:
     - openstack-runner
   rules:
-    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
+    - if: '$DOCKER_ONLY'
+      when: never
+    - if: '$CI_COMMIT_TAG =~ /^sg-(flx-)?.*/'
       when: never
     - when: always
   script:
@@ -100,7 +117,9 @@ build_release:
   image: node:current
   stage: build
   rules:
-    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
+    - if: '$DOCKER_ONLY'
+      when: never
+    - if: '$CI_COMMIT_TAG =~ /^sg-(flx-)?.*/'
   tags:
     - openstack-runner
   script:
@@ -174,9 +193,11 @@ deploy_snapshot:
     - job: build
       artifacts: true
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule"'
-    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
+    - if: '$DOCKER_ONLY'
       when: never
+    - if: '$CI_COMMIT_TAG =~ /^sg-(flx-)?.*/'
+      when: never
+    - when: always
   script:
     - ci/deploy.sh
   artifacts:
@@ -195,7 +216,9 @@ deploy_staging:
     - job: build_release
       artifacts: true
   rules:
-    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
+    - if: '$DOCKER_ONLY'
+      when: never
+    - if: '$CI_COMMIT_TAG =~ /^sg-(flx-)?.*/'
   artifacts:
     when: always
     expire_in: 7 days
@@ -207,7 +230,9 @@ deploy_release:
   stage: release
   interruptible: true
   rules:
-    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
+    - if: '$DOCKER_ONLY'
+      when: never
+    - if: '$CI_COMMIT_TAG =~ /^sg-(flx-)?.*/'
   tags:
     - openstack-runner
   script:
@@ -218,6 +243,61 @@ deploy_release:
       start_section deploy "Deploying to release repository"
       mvn -B -s settings.xml -Drevision="$BUILD_VERSION" deploy
       end_section deploy
+
+deploy_docker_image:
+  stage: "Deploy Docker Image"
+  image: docker:20.10.17
+  services:
+    - docker:20.10.17-dind
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^sg-(flx-)?.*/'
+      when: always
+    - if: '$DOCKER_ONLY'
+      when: on_success
+  tags:
+    - build
+  timeout: 1h
+  script:
+    - |
+      cd docker
+      apk update && apk add bash curl jq
+
+      if [[ -z "$SF_VERSION" || -z "$SG_SF_PLUGIN_VERSION" ]]; then
+        echo "SF_VERSION is empty or SG_SF_PLUGIN_VERSION is empty"
+        exit 1
+      fi
+      
+      echo "SF_VERSION=$SF_VERSION"
+      echo "SG_SF_PLUGIN_VERSION=$SG_SF_PLUGIN_VERSION"
+      
+      if [ $(echo "$CI_COMMIT_TAG" | sed -nE '/^(sg-flx)/p') ]; then
+          SG_FLAVOUR="flx"
+          SG_VERSION_SUFFIX="-flx"
+      else
+          SG_FLAVOUR="non-flx"    
+          SG_VERSION_SUFFIX=""
+      fi
+      
+      if [[ -z "$SG_FLAVOUR" || -z "$SG_FLAVOUR" ]]; then
+        echo "SG_FLAVOUR is empty"
+        exit 1
+      fi
+            
+      echo "Docker logout"
+      docker logout 
+      
+      echo "Login in into Docker Hub"      
+      echo "$DOCKER_PASSWORD" | docker login --username floragunncom --password-stdin docker.io > /dev/null
+
+      echo ""
+      echo "Enable qemu-user-static to support docker multiarch builds with buildx"
+      docker run --rm --privileged multiarch/qemu-user-static --reset -p yes > /dev/null
+    
+      
+      ./build_and_push.sh "floragunncom" "docker.io" "sg-kibana" "$SF_VERSION-$SG_SF_PLUGIN_VERSION$SG_VERSION_SUFFIX" "--build-arg ELK_VERSION="$SF_VERSION" --build-arg ELK_FLAVOUR="" --build-arg SG_KIBANA_VERSION="$SG_SF_PLUGIN_VERSION"" "" "" "linux/arm64,linux/amd64" "true" $SG_FLAVOUR
+  allow_failure: false
+
+
 
 include:
   - local: '.gitlab-ci-branch-specific.yml'
