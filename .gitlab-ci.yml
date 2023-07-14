@@ -222,7 +222,7 @@ deploy_docker_image:
         exit 1
       fi
       
-      if [ $(echo "$CI_COMMIT_TAG" | sed -nE '/^(sg-|sg-flx)/p') ]; then
+      if [ $(echo "$CI_COMMIT_TAG" | sed -nE '/^(sg-flx)/p') ]; then
           SG_FLAVOUR="flx"
           SG_VERSION_SUFFIX="-flx"
       else
