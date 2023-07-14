@@ -282,7 +282,12 @@ deploy_docker_image:
         echo "SG_FLAVOUR is empty"
         exit 1
       fi
-            
+      
+      echo "SF_VERSION=$SF_VERSION"
+      echo "SG_SF_PLUGIN_VERSION=$SG_SF_PLUGIN_VERSION"
+      echo "SG_FLAVOUR=$SG_FLAVOUR"    
+      echo "SG_VERSION_SUFFIX=$SG_VERSION_SUFFIX"  
+                
       echo "Docker logout"
       docker logout 
       
