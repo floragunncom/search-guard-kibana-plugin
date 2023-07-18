@@ -76,7 +76,7 @@ build:
   rules:
     - if: '$DOCKER_ONLY'
       when: never
-    - if: '$CI_COMMIT_TAG =~ /^sg-(flx-)?.*/'
+    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
       when: never
     - when: always
   script:
@@ -119,7 +119,7 @@ build_release:
   rules:
     - if: '$DOCKER_ONLY'
       when: never
-    - if: '$CI_COMMIT_TAG =~ /^sg-(flx-)?.*/'
+    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
   tags:
     - openstack-runner
   script:
@@ -195,7 +195,7 @@ deploy_snapshot:
   rules:
     - if: '$DOCKER_ONLY'
       when: never
-    - if: '$CI_COMMIT_TAG =~ /^sg-(flx-)?.*/'
+    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
       when: never
     - when: always
   script:
@@ -218,7 +218,7 @@ deploy_staging:
   rules:
     - if: '$DOCKER_ONLY'
       when: never
-    - if: '$CI_COMMIT_TAG =~ /^sg-(flx-)?.*/'
+    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
   artifacts:
     when: always
     expire_in: 7 days
@@ -232,7 +232,7 @@ deploy_release:
   rules:
     - if: '$DOCKER_ONLY'
       when: never
-    - if: '$CI_COMMIT_TAG =~ /^sg-(flx-)?.*/'
+    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
   tags:
     - openstack-runner
   script:
@@ -250,7 +250,7 @@ deploy_docker_image:
   services:
     - docker:20.10.17-dind
   rules:
-    - if: '$CI_COMMIT_TAG =~ /^sg-(flx-)?.*/'
+    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
       when: always
     - if: '$DOCKER_ONLY'
       when: on_success

@@ -113,7 +113,7 @@ fe_kerberos:
       when: on_success
     - if: '$DOCKER_ONLY'
       when: never          
-    - if: '$CI_COMMIT_TAG =~ /^sg-(flx-)?.*/'
+    - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
       when: on_success
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: on_success
