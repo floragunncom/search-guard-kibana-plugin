@@ -55,7 +55,20 @@ async function createTmpSavedObjectsIndex() {
     return;
   }
 
-  const sourceMapping = mappingResponse[keys[0]].mappings;
+  let sourceMapping = mappingResponse[keys[0]].mappings;
+
+  // add a new mapping for our "sg_tenant" field to all objects
+  let allObjectKeys = Object.keys(sourceMapping.properties);
+
+  for (key of allObjectKeys) {
+//    console.log(allObjectKeys);
+    console.log(key);
+    if (sourceMapping.properties[key].hasOwnProperty("properties")) {
+      sourceMapping.properties[key].properties["sg_tenant"] = { type: 'keyword' };
+    }
+    console.log(sourceMapping.properties[key].properties);
+  }
+
   console.log("Creating index " + TARGET_INDEX);
 
   // Create the target index with the mapping from the source index
@@ -63,8 +76,42 @@ async function createTmpSavedObjectsIndex() {
     index: TARGET_INDEX,
     body: {
       mappings: sourceMapping,
+      "settings": {
+        "index": {
+          "mapping": {
+            "total_fields": {
+              "limit": 1500
+            }
+          }
+        }
+      }
     },
   });
+
+  // new field for target index
+  await client.indices.putMapping({
+    index: TARGET_INDEX,
+    body: {
+      "properties": {
+        "sg_tenant": {
+          "type": "keyword"
+        }
+      }
+    }
+  });
+
+  // we also need the new field on the source index because we reindex to it
+  await client.indices.putMapping({
+    index: KIBANA_INDEX_NAME,
+    body: {
+      "properties": {
+        "sg_tenant": {
+          "type": "keyword"
+        }
+      }
+    }
+  });
+
 }
 
 async function setupTmpMigrationIndex() {
@@ -120,16 +167,22 @@ async function fetchModifyAndIndexSavedObjects(sourceIndex, tenantName) {
       const {_id, _source} = hit;
 
       // Check if the document has the 'namespaces' field of type Array
-      if (Array.isArray(_source.namespaces) && tenantName !== undefined) {
-        // Add the tenant name to the 'namespaces' field.
-        console.debug("Adding " + tenantName + " to saved object with id " + _id);
-        _source.namespaces.push(tenantName);
-      }
+      // if (Array.isArray(_source.namespaces) && tenantName !== undefined) {
+      //   // Add the tenant name to the 'namespaces' field.
+      //   console.debug("Adding " + tenantName + " to saved object with id " + _id);
+      //   _source.namespaces.push(tenantName);
+      // }
+
+      // Always add our own sg_tenant field
+      _source["sg_tenant"] = "__sg_ten__"+tenantName;
+
+      // rewrite the id
+      _augmentedid = _id + "__sg_ten__" + tenantName;
 
       // Add the modified document to the target index
       indexResponse = await client.index({
         index: TARGET_INDEX,
-        id: _id,
+        id: _augmentedid,
         body: _source,
         refresh: true, // TODO: Is this needed?
       });
@@ -194,9 +247,9 @@ async function fetchAndModifyDocuments(source_index, deleteTargetIndex) {
     await setupTmpMigrationIndex();
 
     // here we need to loop over all tenant indices
-    await fetchModifyAndIndexSavedObjects(".kibana", "global");
+    await fetchModifyAndIndexSavedObjects(".kibana", "SGS_GLOBAL_TENANT");
     await fetchModifyAndIndexSavedObjects(".kibana_-152937574_admintenant", "admintenant");
-    await fetchModifyAndIndexSavedObjects(".kibana_92668751_admin", "admin");
+    // await fetchModifyAndIndexSavedObjects(".kibana_92668751_admin", "admin");
 
     await recreateSavedObjectsIndex();
 
