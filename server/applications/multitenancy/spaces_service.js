@@ -44,20 +44,20 @@ export class SpacesService {
   }
 
   createDefaultSpace = async ({ request, selectedTenant = '' } = {}) => {
-//   const spaceExists = await this.tenantService.docExists({
-//     request,
-//     indexName: this.tenantService.aliasName,
-//     docId: DEFAULT_SPACE_ID,
-//   });
+    const spaceExists = await this.tenantService.docExists({
+      request,
+      indexName: this.tenantService.aliasName,
+      docId: DEFAULT_SPACE_ID,
+    });
 
-//   if (!spaceExists) {
-//     return this.tenantService.createDoc({
-//       request,
-//       tenantName: selectedTenant,
-//       versionIndexName: this.tenantService.versionIndexName,
-//       docId: DEFAULT_SPACE_ID,
-//       docBody: getDefaultSpaceDoc(this.kibanaVersion),
-//     });
-//   }
+   if (!spaceExists) {
+     return this.tenantService.createDoc({
+       request,
+       tenantName: selectedTenant,
+       versionIndexName: this.tenantService.versionIndexName,
+       docId: DEFAULT_SPACE_ID,
+       docBody: getDefaultSpaceDoc(this.kibanaVersion),
+     });
+   }
   };
 }
