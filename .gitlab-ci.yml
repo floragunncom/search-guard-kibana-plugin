@@ -3,7 +3,6 @@ variables:
   # Mnemonic: SF: Search Frontend; SB: Search Backend
   SF_REPO_URL: "https://github.com/elastic/kibana.git"
   SF_REPO_DIR: kibana
-  SB_PRODUCT: elasticsearch
   SG_SB_PLUGIN_SNAPSHOT_REPO: search-guard-flx-snapshot
   SG_SB_PLUGIN_STAGING_REPO: search-guard-flx-staging
   SG_SB_PLUGIN_RELEASE_REPO: search-guard-flx-release
