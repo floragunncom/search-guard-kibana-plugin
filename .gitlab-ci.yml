@@ -1,7 +1,6 @@
 variables:
   SG_JAVA_BUILD_VERSION: "8"
   # Mnemonic: SF: Search Frontend; SB: Search Backend
-  SF_REPO_URL: "https://github.com/elastic/kibana.git"
   SG_SB_PLUGIN_SNAPSHOT_REPO: search-guard-flx-snapshot
   SG_SB_PLUGIN_STAGING_REPO: search-guard-flx-staging
   SG_SB_PLUGIN_RELEASE_REPO: search-guard-flx-release

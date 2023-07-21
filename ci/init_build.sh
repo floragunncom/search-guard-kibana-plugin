@@ -17,8 +17,8 @@ elif [[ -d kibana ]]; then
 fi
 
 if [[ ! -d kibana ]]; then
-      echo -e "\e[0Ksection_start:`date +%s`:sf_clone\r\e[0KCloning $SF_REPO_URL $SF_BRANCH_NAME"
-      git clone --depth 1 --branch $SF_BRANCH_NAME --quiet --config advice.detachedHead=false $SF_REPO_URL
+      echo -e "\e[0Ksection_start:`date +%s`:sf_clone\r\e[0KCloning https://github.com/elastic/kibana.git $SF_BRANCH_NAME"
+      git clone --depth 1 --branch $SF_BRANCH_NAME --quiet --config advice.detachedHead=false https://github.com/elastic/kibana.git
       echo >kibana/.cached_version $SF_VERSION
       echo -e "\e[0Ksection_end:`date +%s`:sf_clone\r\e[0K"
 fi
