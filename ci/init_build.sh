@@ -4,26 +4,26 @@ set -e
 
 SF_BRANCH_NAME="v$SF_VERSION"
 
-if [[ -f $SF_REPO_DIR/.cached_version ]]; then
-   CACHED_VERSION=`cat $SF_REPO_DIR/.cached_version`
+if [[ -f kibana/.cached_version ]]; then
+   CACHED_VERSION=`cat kibana/.cached_version`
 
    if [ "$CACHED_VERSION" != "$SF_VERSION" ]; then 
       echo "Cached version $CACHED_VERSION does not match requested version $SF_VERSION. Deleting cache."
-      rm -rf $SF_REPO_DIR
+      rm -rf kibana
    fi
-elif [[ -d $SF_REPO_DIR ]]; then
+elif [[ -d kibana ]]; then
    echo "No cached_version file. Deleting cache."
-   rm -rf $SF_REPO_DIR
+   rm -rf kibana
 fi
 
-if [[ ! -d $SF_REPO_DIR ]]; then
+if [[ ! -d kibana ]]; then
       echo -e "\e[0Ksection_start:`date +%s`:sf_clone\r\e[0KCloning $SF_REPO_URL $SF_BRANCH_NAME"
       git clone --depth 1 --branch $SF_BRANCH_NAME --quiet --config advice.detachedHead=false $SF_REPO_URL
-      echo >$SF_REPO_DIR/.cached_version $SF_VERSION
+      echo >kibana/.cached_version $SF_VERSION
       echo -e "\e[0Ksection_end:`date +%s`:sf_clone\r\e[0K"
 fi
 
-cd $SF_REPO_DIR
+cd kibana
 
 echo -e "\e[0Ksection_start:`date +%s`:nvm_install[collapsed=true]\r\e[0KDoing nvm install"
 
