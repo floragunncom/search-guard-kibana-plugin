@@ -1,10 +1,9 @@
 variables:
   SG_JAVA_BUILD_VERSION: "8"
   # Mnemonic: SF: Search Frontend; SB: Search Backend
-  SF_PRODUCT: kibana
   SF_JSON: kibana.json
   SF_REPO_URL: "https://github.com/elastic/kibana.git"
-  SF_REPO_DIR: $SF_PRODUCT
+  SF_REPO_DIR: kibana
   SB_PRODUCT: elasticsearch
   SG_SB_PLUGIN_SNAPSHOT_REPO: search-guard-flx-snapshot
   SG_SB_PLUGIN_STAGING_REPO: search-guard-flx-staging

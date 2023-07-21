@@ -2,12 +2,8 @@
 
 set -e 
 
-if [ $SF_PRODUCT = "kibana" ]; then
-  SF_BRANCH_NAME="v$SF_VERSION"
-else
-  SF_BRANCH_NAME="$SF_VERSION"
-fi
-  
+SF_BRANCH_NAME="v$SF_VERSION"
+
 if [[ -f $SF_REPO_DIR/.cached_version ]]; then
    CACHED_VERSION=`cat $SF_REPO_DIR/.cached_version`
 
@@ -52,12 +48,8 @@ cp -a "../__mocks__" plugins/search-guard
 
 echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
 
-if [ $SF_PRODUCT = "kibana" ]; then
-  yarn kbn bootstrap --oss
-elif [ $SF_PRODUCT = "opensearch-dashboards" ]; then
-  yarn osd bootstrap
-fi
-    
+yarn kbn bootstrap --oss
+
 echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
 
 cd ..
