@@ -1,7 +1,6 @@
 variables:
   SG_JAVA_BUILD_VERSION: "8"
   # Mnemonic: SF: Search Frontend; SB: Search Backend
-  SF_JSON: kibana.json
   SF_REPO_URL: "https://github.com/elastic/kibana.git"
   SF_REPO_DIR: kibana
   SB_PRODUCT: elasticsearch
@@ -34,7 +33,7 @@ before_script:
     else
       export SG_SF_PLUGIN_VERSION="b-$CI_COMMIT_REF_NAME-SNAPSHOT"
       export BUILD_VERSION="b-$CI_COMMIT_REF_NAME-SNAPSHOT"
-      export SF_VERSION=$(grep -e '\bversion\b' $SF_JSON | tr -d "[:blank:]" | sed -E 's/"version":"(.*)"(.*)/\1/')
+      export SF_VERSION=$(grep -e '\bversion\b' kibana.json | tr -d "[:blank:]" | sed -E 's/"version":"(.*)"(.*)/\1/')
     fi
     echo "================================="
     echo "SG_SF_PLUGIN_VERSION: $SG_SF_PLUGIN_VERSION"
@@ -113,7 +112,7 @@ build_release:
   script:
     - |
       set -e
-      sed -i -e "s#\"version\":.*\"#\"version\": \"$SF_VERSION\"#" $SF_JSON
+      sed -i -e "s#\"version\":.*\"#\"version\": \"$SF_VERSION\"#" kibana.json
       sed -i -e "s#\"version\":.*\"#\"version\": \"$BUILD_VERSION\"#" package.json
       source ci/install_dependencies.sh
       source ci/init_build.sh

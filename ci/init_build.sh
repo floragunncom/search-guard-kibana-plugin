@@ -38,7 +38,7 @@ fi
 mkdir -p plugins/search-guard
 cp -a "../babel.config.js" plugins/search-guard
 cp -a "../package.json" plugins/search-guard
-cp -a "../$SF_JSON" plugins/search-guard
+cp -a "../kibana.json" plugins/search-guard
 cp -a "../tsconfig.json" plugins/search-guard
 cp -a "../public" plugins/search-guard
 cp -a "../server" plugins/search-guard
