@@ -8,7 +8,6 @@ PREFIX=$6
 POSTFIX=$7
 PLATFORMS=${8:-linux/arm64,linux/amd64}
 CHECK_TAG=${9:-true}
-DOCKER_TARGET=${10:-}
 
 retVal=0
 
@@ -67,7 +66,7 @@ build() {
     local component="$1"
     local tag="$DOCKER_REPO/$DOCKER_USER/$PREFIX$COMPONENT$POSTFIX:$2"
     echo "Build and push image $tag for $PLATFORMS"
-    docker buildx build --push --target=$DOCKER_TARGET --platform "$PLATFORMS" -t "$tag" "${@:3}" .      
+    docker buildx build --push  --platform "$PLATFORMS" -t "$tag" "${@:3}" .      
     check "Buildx $tag"
 }
 

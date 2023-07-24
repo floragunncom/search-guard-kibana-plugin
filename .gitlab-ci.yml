@@ -50,19 +50,11 @@ prepare_env:
       source ci/utils.sh
 
       if [ -d $SF_REPO_DIR ]; then du --summarize -h $SF_REPO_DIR; fi    
-      REGEX_VERSION="^sg-(flx-)?([a-z0-9\.\-]+)-([oe]s)-([0-9\.]+)$"
-      REGEX_VERSION_7="^(sg-)(7\.)([a-z0-9\.\-]+)-([oe]s)-([0-9\.]+)$"
+      REGEX_VERSION="^sg-flx-([a-z0-9\.\-]+)-([oe]s)-([0-9\.]+)$"
 
-      if echo "$CI_COMMIT_TAG" | grep -qE "$REGEX_VERSION_7"; then
+      if echo "$CI_COMMIT_TAG" | grep -qE "$REGEX_VERSION"; then
 
-        RESULT=$(echo "$CI_COMMIT_TAG" | sed -n -E "s/$REGEX_VERSION_7/\1 \2 \3 \4 \5  /p")
-        export SG_SF_PLUGIN_VERSION=$(echo $RESULT | awk '{print $3".0"}')
-        export BUILD_VERSION=$(echo $RESULT | awk '{print $5"-"$3".0"}')
-        export SF_VERSION=$(echo $RESULT | awk '{print $5}')
-        
-      elif echo "$CI_COMMIT_TAG" | grep -qE "$REGEX_VERSION"; then
-
-        RESULT=$(echo "$CI_COMMIT_TAG" | sed -n -E "s/$REGEX_VERSION/\2 \3 \4/p")
+        RESULT=$(echo "$CI_COMMIT_TAG" | sed -n -E "s/$REGEX_VERSION/\1 \2 \3/p")
         export SG_SF_PLUGIN_VERSION=$(echo $RESULT | awk '{print $1}')
         export BUILD_VERSION=$(echo $RESULT | awk '{print $1"-"$2"-"$3}')
         export SF_VERSION=$(echo $RESULT | awk '{print $3}')
@@ -96,7 +88,7 @@ build:
   rules:
     - if: '$DOCKER_ONLY'
       when: never
-    - if: '$CI_COMMIT_TAG =~ /^sg-(flx-)?.*/'
+    - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
       when: never
     - when: always
   script:
@@ -130,7 +122,7 @@ build_release:
   rules:
     - if: '$DOCKER_ONLY'
       when: never
-    - if: '$CI_COMMIT_TAG =~ /^sg-(flx-)?.*/'
+    - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
   script:
     - |
       set -e
@@ -190,7 +182,7 @@ deploy_release:
   rules:
     - if: '$DOCKER_ONLY'
       when: never
-    - if: '$CI_COMMIT_TAG =~ /^sg-(flx-)?.*/'
+    - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
   tags:
     - openstack-runner
   script:
@@ -205,7 +197,7 @@ deploy_docker_image:
   services:
     - docker:20.10.17-dind
   rules:
-    - if: '$CI_COMMIT_TAG =~ /^sg-(flx-)?.*/'
+    - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
       when: always
     - if: '$DOCKER_ONLY'
       when: on_success
@@ -221,24 +213,9 @@ deploy_docker_image:
         echo "SF_VERSION is empty or SG_SF_PLUGIN_VERSION is empty"
         exit 1
       fi
-      
-      if [ $(echo "$CI_COMMIT_TAG" | sed -nE '/^(sg-flx)/p') ]; then
-          SG_FLAVOUR="flx"
-          SG_VERSION_SUFFIX="-flx"
-      else
-          SG_FLAVOUR="non-flx"    
-          SG_VERSION_SUFFIX=""
-      fi
-      
-      if [[ -z "$SG_FLAVOUR" || -z "$SG_FLAVOUR" ]]; then
-        echo "SG_FLAVOUR is empty"
-        exit 1
-      fi
-      
+    
       echo "SF_VERSION=$SF_VERSION"
       echo "SG_SF_PLUGIN_VERSION=$SG_SF_PLUGIN_VERSION"
-      echo "SG_FLAVOUR=$SG_FLAVOUR"    
-      echo "SG_VERSION_SUFFIX=$SG_VERSION_SUFFIX"
       
             
       echo "Docker logout"
@@ -252,7 +229,7 @@ deploy_docker_image:
       docker run --rm --privileged multiarch/qemu-user-static --reset -p yes > /dev/null
     
       
-      ./build_and_push.sh "floragunncom" "docker.io" "sg-kibana" "$SF_VERSION-$SG_SF_PLUGIN_VERSION$SG_VERSION_SUFFIX" "--build-arg ELK_VERSION="$SF_VERSION" --build-arg ELK_FLAVOUR="" --build-arg SG_KIBANA_VERSION="$SG_SF_PLUGIN_VERSION"" "" "" "linux/arm64,linux/amd64" "true" $SG_FLAVOUR
+      ./build_and_push.sh "floragunncom" "docker.io" "search-guard-flx-kibana" "$SF_VERSION-$SG_SF_PLUGIN_VERSION-flx" "--build-arg ELK_VERSION="$SF_VERSION" --build-arg ELK_FLAVOUR="" --build-arg SG_KIBANA_VERSION="$SG_SF_PLUGIN_VERSION"" 
   allow_failure: false
 
 
