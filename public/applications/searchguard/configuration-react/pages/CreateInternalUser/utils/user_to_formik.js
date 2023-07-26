@@ -29,7 +29,7 @@ const userToFormik = (user, { id = '' } = {}) => {
     _attributes: [],
     _attributesString: JSON.stringify(user.attributes, null, 2),
     _isComplexUserAttributes: false,
-    _isAdvanced: user.backend_roles.length ? true : false,
+    _isAdvanced: user.backend_roles?.length ? true : false,
   };
 
   if (isComplexAttributes(user.attributes)) {
