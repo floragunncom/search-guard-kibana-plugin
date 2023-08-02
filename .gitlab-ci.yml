@@ -54,7 +54,8 @@ prepare_env:
 
       if echo "$CI_COMMIT_TAG" | grep -qE "$REGEX_VERSION"; then
         
-        #
+        # sg-flx-0.0.1-es-8.7.1
+        
         RESULT=$(echo "$CI_COMMIT_TAG" | sed -n -E "s/$REGEX_VERSION/\1 \2 \3/p")
         export SG_SF_PLUGIN_VERSION=$(echo $RESULT | awk '{print $1}')
         export BUILD_VERSION=$(echo $RESULT | awk '{print $1"-"$2"-"$3}')
