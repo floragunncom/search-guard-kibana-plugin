@@ -25,7 +25,7 @@ for param in "${!params[@]}"; do
     fi
 done
 
-dependencies=("jq" "docker" "curl")
+dependencies=("docker" "curl")
 
 for cmd in "${dependencies[@]}"; do
     if ! command -v "$cmd" &> /dev/null; then

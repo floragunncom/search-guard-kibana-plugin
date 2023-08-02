@@ -53,7 +53,8 @@ prepare_env:
       REGEX_VERSION="^sg-flx-([a-z0-9\.\-]+)-([oe]s)-([0-9\.]+)$"
 
       if echo "$CI_COMMIT_TAG" | grep -qE "$REGEX_VERSION"; then
-
+        
+        #
         RESULT=$(echo "$CI_COMMIT_TAG" | sed -n -E "s/$REGEX_VERSION/\1 \2 \3/p")
         export SG_SF_PLUGIN_VERSION=$(echo $RESULT | awk '{print $1}')
         export BUILD_VERSION=$(echo $RESULT | awk '{print $1"-"$2"-"$3}')
@@ -207,7 +208,7 @@ deploy_docker_image:
   script:
     - |
       cd docker
-      apk update && apk add bash curl jq
+      apk update && apk add bash curl 
 
       if [[ -z "$SF_VERSION" || -z "$SG_SF_PLUGIN_VERSION" ]]; then
         echo "SF_VERSION is empty or SG_SF_PLUGIN_VERSION is empty"
