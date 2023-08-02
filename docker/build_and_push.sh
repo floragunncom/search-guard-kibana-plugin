@@ -4,10 +4,8 @@ DOCKER_REPO=${2:-docker.io}
 COMPONENT=$3
 COMPONENT_VERSION=$4
 BUILD_ARGS=$5
-PREFIX=$6
-POSTFIX=$7
-PLATFORMS=${8:-linux/arm64,linux/amd64}
-CHECK_TAG=${9:-true}
+PLATFORMS=${6:-linux/arm64,linux/amd64}
+CHECK_TAG=${7:-true}
 
 retVal=0
 
@@ -64,7 +62,7 @@ check_tag() {
 
 build() {
     local component="$1"
-    local tag="$DOCKER_REPO/$DOCKER_USER/$PREFIX$COMPONENT$POSTFIX:$2"
+    local tag="$DOCKER_REPO/$DOCKER_USER/$COMPONENT:$2"
     echo "Build and push image $tag for $PLATFORMS"
     docker buildx build --push  --platform "$PLATFORMS" -t "$tag" "${@:3}" .      
     check "Buildx $tag"
@@ -79,7 +77,7 @@ docker buildx use esxbuilder
 docker buildx inspect --bootstrap
 
 if [ "$CHECK_TAG" == "true" ]; then
-  check_tag $DOCKER_USER/$PREFIX$COMPONENT$POSTFIX $COMPONENT_VERSION
+  check_tag $DOCKER_USER/$COMPONENT $COMPONENT_VERSION
 fi 
 
 build $COMPONENT "$COMPONENT_VERSION" $BUILD_ARGS
