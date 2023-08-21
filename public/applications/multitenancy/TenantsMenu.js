@@ -35,7 +35,8 @@ import {
   UI_PRIVATE_TENANT_NAME,
   tenantNameToUiTenantName,
   uiTenantNameToTenantName,
-} from '../../../common/multitenancy';
+  GLOBAL_TENANT_NAME
+} from "../../../common/multitenancy";
 import {
   yourTenantsText,
   addMoreTenantsText,
@@ -117,11 +118,11 @@ export function tenantsToUiTenants({
 
   // delete the SGS_GLOBAL_TENANT for the moment. We fall back the GLOBAL until
   // RBAC is rolled out completely.
-  if (tenants.hasOwnProperty('SGS_GLOBAL_TENANT') && globalTenantEnabled) {
-    globalUserWriteable = tenants.SGS_GLOBAL_TENANT && !isDashboardOnlyRole;
+  if (tenants.hasOwnProperty(GLOBAL_TENANT_NAME) && globalTenantEnabled) {
+    globalUserWriteable = tenants[GLOBAL_TENANT_NAME] && !isDashboardOnlyRole;
     globalUserVisible = true;
   }
-  delete tenants.SGS_GLOBAL_TENANT;
+  delete tenants[GLOBAL_TENANT_NAME];
 
   function creteDataTestSubj(tenantName) {
     return 'sg.tenantsMenu.tenant.' + tenantName.toLowerCase();

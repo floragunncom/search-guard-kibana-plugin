@@ -16,6 +16,7 @@
 
 import { assign } from 'lodash';
 import { ensureRawRequest } from '@kbn/core-http-router-server-internal';
+import { GLOBAL_TENANT_NAME } from "../../../common/multitenancy";
 
 export class MultitenancyLifecycle {
   constructor({
@@ -68,7 +69,7 @@ export class MultitenancyLifecycle {
 
     if (selectedTenant !== null) {
       const rawRequest = ensureRawRequest(request);
-      assign(rawRequest.headers, authHeaders, { sgtenant: selectedTenant || '' });
+      assign(rawRequest.headers, authHeaders, { sgtenant: selectedTenant || GLOBAL_TENANT_NAME });
 
       await this.tenantService.createIndexForTenant({ request, selectedTenant });
 
@@ -152,8 +153,10 @@ export class MultitenancyLifecycle {
 
     console.log("Checking selectedTenant: " + selectedTenant)
     // TODO: Hack - new impl requires global tenant to be set explicitely
-    if (typeof selectedTenant === 'undefined' || selectedTenant === null || selectedTenant === "") {
-      selectedTenant = "SGS_GLOBAL_TENANT";
+    // TODO: Maybe translate the tenant "global" when grabbing the tenant from the query parameter?
+    // TODO: I don't think we can work with null here. If global is disabled, validate Tenant may return null
+    if (typeof selectedTenant === 'undefined' || selectedTenant === null || selectedTenant === "" || selectedTenant.toLowerCase() === "global") {
+      //selectedTenant = GLOBAL_TENANT_NAME;
 
     }
 

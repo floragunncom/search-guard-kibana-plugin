@@ -43,7 +43,7 @@ export class SpacesService {
     this.tenantService = tenantService;
   }
 
-  createDefaultSpace = async ({ request, selectedTenant = '' } = {}) => {
+  createDefaultSpace = async ({ request, selectedTenant = GLOBAL_TENANT_NAME } = {}) => {
     const spaceExists = await this.tenantService.docExists({
       request,
       indexName: this.tenantService.aliasName,
