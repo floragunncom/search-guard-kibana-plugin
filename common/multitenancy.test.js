@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import { tenantNameToUiTenantName, uiTenantNameToTenantName } from './multitenancy';
+import { GLOBAL_TENANT_NAME, tenantNameToUiTenantName, uiTenantNameToTenantName } from "./multitenancy";
 
 test('tenantNameToUiTenantName', () => {
   expect(tenantNameToUiTenantName('qwerty')).toBe('qwerty');
   expect(tenantNameToUiTenantName('')).toBe('Global');
+  expect(tenantNameToUiTenantName(GLOBAL_TENANT_NAME)).toBe('Global');
   expect(tenantNameToUiTenantName()).toBe('Global');
   expect(tenantNameToUiTenantName(null)).toBe('Global');
   expect(tenantNameToUiTenantName('__user__')).toBe('Private');
@@ -27,5 +28,5 @@ test('tenantNameToUiTenantName', () => {
 test('uiTenantNameToTenantName', () => {
   expect(uiTenantNameToTenantName('qwerty')).toBe('qwerty');
   expect(uiTenantNameToTenantName('Private')).toBe('__user__');
-  expect(uiTenantNameToTenantName('Global')).toBe('');
+  expect(uiTenantNameToTenantName('Global')).toBe(GLOBAL_TENANT_NAME);
 });

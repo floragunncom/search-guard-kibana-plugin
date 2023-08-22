@@ -23,12 +23,14 @@ import {
   hasUserDashboardOnlyRole,
 } from './TenantsMenu';
 import { readText, readWriteText, noTenantOrIndexText } from './utils/i18n';
+import { GLOBAL_TENANT_NAME } from "../../../common/multitenancy";
 
 test('getPersistentColorFromText', () => {
   expect(getPersistentColorFromText('qwerty')).toBe('#17A2F5');
   expect(getPersistentColorFromText('qwert y')).toBe('#17A2FD');
   expect(getPersistentColorFromText('qwe')).toBe('#17A000');
   expect(getPersistentColorFromText('')).toBe('#000000');
+  expect(getPersistentColorFromText(GLOBAL_TENANT_NAME)).toBe('#000000');
   expect(getPersistentColorFromText()).toBe('#000000');
 });
 
