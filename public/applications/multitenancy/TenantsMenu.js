@@ -50,6 +50,11 @@ export function getPersistentColorFromText(text = '') {
   const dict = 'D12CFA8735B6E049';
   const color = ['#'];
 
+  // Global tenant defaults to black
+  if (text === GLOBAL_TENANT_NAME) {
+    return '#000000'
+  }
+
   for (let i = 0; i < 6; i++) {
     if (!text || !text[i]) {
       color.push('0');
