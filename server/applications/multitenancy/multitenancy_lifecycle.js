@@ -169,7 +169,10 @@ export class MultitenancyLifecycle {
         globalEnabled,
         privateEnabled
       );
-    } else {
+    }
+
+    // If we have no selected tenant, or if the selected tenant was not valid in validateTenant
+    if (!selectedTenant) {
       // no tenant, choose configured, preferred tenant
       try {
         selectedTenant = backend.getTenantByPreference(
@@ -182,6 +185,9 @@ export class MultitenancyLifecycle {
         );
       } catch (error) {
         // nothing
+        if (debugEnabled) {
+          this.logger.info(`Multitenancy: Getting a tenant by preference failed: ${error}`);
+        }
       }
     }
 
