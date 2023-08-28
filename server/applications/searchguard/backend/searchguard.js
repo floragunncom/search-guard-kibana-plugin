@@ -438,7 +438,7 @@ export default class SearchGuardBackend {
 
     // We have two paths for deciding if the global tenant is available:
     // searchguard.multitenancy.global.enabled and authinfo.sg_tenants
-    if (tenantsCopy.hasOwnProperty(GLOBAL_TENANT_NAME)) {
+    if (!tenantsCopy.hasOwnProperty(GLOBAL_TENANT_NAME)) {
       globalEnabled = false;
     }
 
@@ -519,7 +519,7 @@ export default class SearchGuardBackend {
 
     // We have two paths for deciding if the global tenant is available:
     // searchguard.multitenancy.global.enabled and authinfo.sg_tenants
-    if (tenantsCopy.hasOwnProperty(GLOBAL_TENANT_NAME)) {
+    if (!tenantsCopy.hasOwnProperty(GLOBAL_TENANT_NAME)) {
       globalEnabled = false;
     }
 
