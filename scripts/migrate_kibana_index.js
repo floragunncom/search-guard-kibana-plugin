@@ -88,30 +88,6 @@ async function createTmpSavedObjectsIndex() {
     },
   });
 
-  // new field for target index
-  await client.indices.putMapping({
-    index: TARGET_INDEX,
-    body: {
-      "properties": {
-        "sg_tenant": {
-          "type": "keyword"
-        }
-      }
-    }
-  });
-
-  // we also need the new field on the source index because we reindex to it
-  await client.indices.putMapping({
-    index: KIBANA_INDEX_NAME,
-    body: {
-      "properties": {
-        "sg_tenant": {
-          "type": "keyword"
-        }
-      }
-    }
-  });
-
 }
 
 async function setupTmpMigrationIndex() {
@@ -172,9 +148,6 @@ async function fetchModifyAndIndexSavedObjects(sourceIndex, tenantName) {
       //   console.debug("Adding " + tenantName + " to saved object with id " + _id);
       //   _source.namespaces.push(tenantName);
       // }
-
-      // Always add our own sg_tenant field
-      _source["sg_tenant"] = "__sg_ten__"+tenantName;
 
       // rewrite the id
       _augmentedid = _id + "__sg_ten__" + tenantName;
@@ -248,7 +221,13 @@ async function fetchAndModifyDocuments(source_index, deleteTargetIndex) {
 
     // here we need to loop over all tenant indices
     await fetchModifyAndIndexSavedObjects(".kibana", "SGS_GLOBAL_TENANT");
-    await fetchModifyAndIndexSavedObjects(".kibana_-152937574_admintenant", "admintenant");
+    await fetchModifyAndIndexSavedObjects(".kibana_-152937574_admintenant_8.7.0_001", "admintenant");
+    await fetchModifyAndIndexSavedObjects(".kibana_100890948_james_8.7.0_001", "james");
+    await fetchModifyAndIndexSavedObjects(".kibana_3292183_kirk_8.7.0_001", "kirk");
+    await fetchModifyAndIndexSavedObjects(".kibana_1268143932_accountingdepartment_8.7.0_001", "accounting_department");
+    await fetchModifyAndIndexSavedObjects(".kibana_-49039642_itdepartment_8.7.0_001", "IT_department");
+    await fetchModifyAndIndexSavedObjects(".kibana_-1091682490_lukasz_8.7.0_001", "lukasz");
+    await fetchModifyAndIndexSavedObjects(".kibana_3537145_spok_8.7.0_001", "spok");
     // await fetchModifyAndIndexSavedObjects(".kibana_92668751_admin", "admin");
 
     await recreateSavedObjectsIndex();
