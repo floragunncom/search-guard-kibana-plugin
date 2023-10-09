@@ -15,7 +15,6 @@
  */
 
 import { KibanaMigrator } from '@kbn/core-saved-objects-migration-server-internal';
-import { defineMigrateRoutes } from './routes';
 import {ByteSizeValue, schema} from '@kbn/config-schema';
 import { DEFAULT_CONFIG } from '../../default_config';
 
@@ -75,14 +74,6 @@ export class TenantsMigrationService {
       savedObjects,
       kibanaVersion: this.kibanaVersion,
       logger: this.logger,
-    });
-
-    defineMigrateRoutes({
-      KibanaMigrator,
-      migratorDeps,
-      kibanaRouter,
-      searchGuardBackend,
-      docLinksService
     });
   }
 
