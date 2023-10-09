@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { GLOBAL_TENANT_NAME } from "../../../common/multitenancy";
+
 export const DEFAULT_SPACE_ID = 'space:default';
 
 // ATTENTION! If either Saved Objects migration or integration with spaces doesn't work,
