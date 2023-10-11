@@ -13,6 +13,7 @@ import {
   EuiBadge,
   EuiSearchBar,
   EuiSpacer,
+  EuiI18n,
 } from '@elastic/eui';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
@@ -65,7 +66,7 @@ import {
 } from '../../utils/i18n/watch';
 import { buildESQuery } from './utils/helpers';
 import { APP_PATH, FLYOUTS, WATCH_STATUS } from '../../utils/constants';
-import { TABLE_SORT_FIELD, TABLE_SORT_DIRECTION } from './utils/constants';
+import { TABLE_SORT_DIRECTION } from './utils/constants';
 import { SEVERITY_COLORS } from '../DefineWatch/utils/constants';
 
 import { Context } from '../../Context';
@@ -78,6 +79,13 @@ const sortFieldToUIMapping = {
   '_ui.state.last_status.code': 'status',
   _id: 'id',
   '_ui.state.last_execution.severity': 'severity',
+};
+
+// EuiMemoryTable relies on referential equality of a column's name.
+// On paginate it passes Eui18N instance.
+const sortFieldFromEuiI18nMapping = {
+  'sg.watch.lastStatus.text': 'status',
+  'sg.watch.severity.text': 'severity',
 };
 
 const sortFieldFromUIMapping = {};
@@ -945,6 +953,10 @@ class Watches extends Component {
                 }
 
                 if (criteria.sort.field !== this.state.sorting.field) {
+                  if (criteria.sort.field?.type === EuiI18n) {
+                    criteria.sort.field = sortFieldFromEuiI18nMapping[criteria.sort.field.props.token]
+                  }
+
                   // We may need to map the reported field name to a more user friendly value
                   criteria.sort.field =
                     sortFieldToUIMapping[criteria.sort.field] || criteria.sort.field;
