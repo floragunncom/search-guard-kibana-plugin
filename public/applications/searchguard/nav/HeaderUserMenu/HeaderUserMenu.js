@@ -88,11 +88,6 @@ const APP_ACCOUNT_DEFAULTS = {
 
 export function HeaderUserMenu({ httpClient, configService }) {
   const userName = configService.get('authinfo.user_name', 'User');
-  const userNameTooltipText = (
-    <>
-      {logoutText} {userName}
-    </>
-  );
   const authType = configService.get('searchguard.auth.type');
   const isAccountInfoEnabled = configService.get('searchguard.accountinfo.enabled');
   const uiHelpers = configService.get('uiHelpers');
@@ -150,7 +145,7 @@ export function HeaderUserMenu({ httpClient, configService }) {
 
   function renderUserName() {
     return (
-      <EuiToolTip position="bottom" content={userNameTooltipText}>
+      <EuiToolTip position="bottom" content={accountInformationText}>
         <EuiText>
           {isAccountInfoEnabled ? (
             <EuiButtonEmpty
