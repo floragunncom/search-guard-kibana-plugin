@@ -21,6 +21,7 @@ import {
 } from '../../../../../utils/i18n/watch';
 import {
   validateEmailAddr,
+  validateEmailAddrWithName,
   validateEmptyField,
   isInvalid,
   hasError,
@@ -132,7 +133,7 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
           },
         }}
         formikFieldProps={{
-          validate: !isDefaultFrom ? validateEmailAddr() : null,
+          validate: !isDefaultFrom ? validateEmailAddrWithName() : null,
         }}
       />
       <FormikComboBox

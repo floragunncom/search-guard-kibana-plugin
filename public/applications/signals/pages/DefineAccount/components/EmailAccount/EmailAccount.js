@@ -20,6 +20,7 @@ import {
   validateName,
   validateEmptyField,
   validateEmailAddr,
+  validateEmailAddrWithName,
 } from '../../../../utils/validate';
 import {
   accountText,
@@ -204,7 +205,7 @@ const Defaults = ({ onComboBoxChange, onComboBoxOnBlur, onComboBoxCreateOption }
           onCreateOption: onComboBoxCreateOption(),
         }}
         formikFieldProps={{
-          validate: validateEmailAddr(false),
+          validate: validateEmailAddrWithName(false),
         }}
       />
       <FormikComboBox
