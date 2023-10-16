@@ -5,15 +5,11 @@ export const validateEmailAddr = (isEmptyInvalid = true) => emailAddr => {
     return isEmptyInvalid ? requiredText : null;
   }
 
-  if (Array.isArray(emailAddr)) {
-    for (let i = 0; i < emailAddr.length; i++) {
-      if (!/^\S+@\S+$/g.test(emailAddr[i].label)) {
-        return invalidEmailAddressText;
-      }
-    }
+  const addressRegExp = /^\S+@\S+$/;
 
-    return null;
+  if (Array.isArray(emailAddr)) {
+    return emailAddr.every(({label}) => addressRegExp.test(label)) ? null : invalidEmailAddressText;
   }
 
-  return !/^\S+@\S+$/g.test(emailAddr) ? invalidEmailAddressText : null;
+  return addressRegExp.test(emailAddr) ? null : invalidEmailAddressText;
 };
