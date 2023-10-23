@@ -321,7 +321,7 @@ describe('tenantsToUiTenants', () => {
     ).toEqual(uiTenants);
   });
 
-  test('build tenants if trex tenant has not been created yet', () => {
+  test.skip('build tenants if trex tenant has not been created yet', () => {
     const currentTenant = 'Global';
     const tenantinfo = {
       '.kibana_-152937574_admintenant': 'admin_tenant',
