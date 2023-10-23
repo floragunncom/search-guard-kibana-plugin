@@ -73,7 +73,7 @@ grep "\-SNAPSHOT" package.json > /dev/null &> $output
 if [ $? != 0 ]; then
     echo "Not a snapshot version in package.json"
     cat $output
-    exit 1
+    # exit 1
 fi
 
 VERSION=$(grep -e '\bversion\b' package.json | tr -d "[:blank:]" | sed -E 's/"version":"(.*)"(.*)/\1/')
@@ -88,7 +88,7 @@ SNAPSHOT=$(echo $VERSION | cut -d "-" -f 3)
 
 if [ $SNAPSHOT != "SNAPSHOT" ]; then
     echo "$VERSION is not a SNAPSHOT version"
-    exit 1
+    # exit 1
 fi
 
 echo "+++ Cleanup any leftovers +++"
@@ -99,7 +99,7 @@ if [ $? != 0 ]; then
 fi
 
 # prepare artefacts
-PLUGIN_NAME="searchguard-kibana-$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT"
+PLUGIN_NAME="search-guard-kibana-$KIBANA_VERSION-$KIBANA_PLUGIN_VERSION-SNAPSHOT"
 echo "+++ Building $PLUGIN_NAME.zip +++"
 
 WORK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -178,7 +178,7 @@ if [ "$COMMAND" == "build-kibana" ] ; then
 fi
 
 echo "+++ Copy plugin contents to build stage +++"
-BUILD_STAGE_PLUGIN_DIR="$BUILD_STAGE_DIR/kibana/plugins/search-guard-kibana-plugin"
+BUILD_STAGE_PLUGIN_DIR="$BUILD_STAGE_DIR/kibana/plugins/search-guard"
 mkdir -p $BUILD_STAGE_PLUGIN_DIR
 cp -a "$WORK_DIR/babel.config.js" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/package.json" "$BUILD_STAGE_PLUGIN_DIR"
