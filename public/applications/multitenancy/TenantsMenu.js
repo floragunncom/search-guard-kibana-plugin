@@ -42,6 +42,7 @@ import {
   addMoreTenantsText,
   readText,
   readWriteText,
+  noTenantOrIndexText,
   selectedText,
 } from './utils/i18n';
 
@@ -100,6 +101,7 @@ export function TenantAvatar({ name, style = {} } = {}) {
 
 export function tenantsToUiTenants({
   currentTenant,
+  tenantinfo = {},
   authinfo = {},
   globalTenantEnabled,
   privateTenantEnabled,
@@ -107,6 +109,11 @@ export function tenantsToUiTenants({
 } = {}) {
   const userName = authinfo.user_name;
   const tenants = { ...authinfo.sg_tenants };
+
+  const tenantToIndexMap = new Map();
+  for (const [tenantIndex, tenantName] of Object.entries(tenantinfo)) {
+    tenantToIndexMap.set(tenantName, tenantIndex);
+  }
 
   // If SGS_GLOBAL_TENANT is not available in tenant list, it needs to be
   // removed from UI display as well
@@ -129,15 +136,22 @@ export function tenantsToUiTenants({
   const uiTenants = Object.entries(tenants)
     .reduce((acc, [tenantName]) => {
       const canWrite = !isDashboardOnlyRole && tenants[tenantName];
+      //const disabled = !tenantToIndexMap.has(tenantName) && !canWrite;
+      // TODO Safeguard
+      const disabled = !canWrite && tenantinfo.data.tenants[tenantName].exist === false;
       const checked = tenantName === currentTenant ? 'on' : undefined;
+
       let append = canWrite ? readWriteText : readText;
+      if (disabled) {
+        append = noTenantOrIndexText;
+      }
 
       acc.push({
         'aria-label': tenantName,
         searchableLabel: tenantName,
         label: tenantName,
         checked,
-        disabled: false,
+        disabled,
         prepend: <TenantAvatar name={tenantName} />,
         append,
         'data-test-subj': creteDataTestSubj(tenantName),
@@ -210,14 +224,14 @@ function ConfigurationCheckCallOut() {
 
   async function fetchData() {
     try {
-      const { data: mtInfo } = await httpClient.get(`${API_ROOT}/multitenancy/info`);
+      const { data: mtInfo } = await httpClient.get(`${API_ROOT}/multitenancy/tenantinfo`);
       let errorMessage = null;
 
-      if (!mtInfo.kibana_mt_enabled) {
+      if (!mtInfo.data.multi_tenancy_enabled) {
         errorMessage =
           'Either the Multitenancy module is not present on Elasticsearch Search Guard, or it is disabled.';
       }
-
+/*
       if (mtInfo.kibana_server_user !== kibanaServerUser) {
         errorMessage =
           'Mismatch between the configured Kibana server usernames on Elasticsearch and Kibana, multitenancy will not work! ' +
@@ -237,6 +251,8 @@ function ConfigurationCheckCallOut() {
           mtInfo.kibana_index +
           '"';
       }
+
+ */
 
       if (errorMessage) setError(errorMessage);
     } catch (error) {
@@ -305,14 +321,17 @@ export function TenantsMenu() {
 
     try {
       const [
+        { data: tenantinfo },
         { data: currentTenant },
         { data: authinfo },
       ] = await Promise.all([
+        httpClient.get(`${API_ROOT}/multitenancy/tenantinfo`),
         httpClient.get(`${API_ROOT}/multitenancy/tenant`),
         httpClient.get(`${API_ROOT}/auth/authinfo`),
       ]);
 
       const uiTenants = tenantsToUiTenants({
+        tenantinfo,
         globalTenantEnabled,
         privateTenantEnabled,
         authinfo,

@@ -358,6 +358,21 @@ export default class SearchGuardBackend {
     }
   }
 
+  getUserTenantInfo = async (headers) => {
+    try {
+      return await this._client({
+        path: '/_searchguard/current_user/tenants',
+        method: 'get',
+        headers,
+      });
+    } catch (error) {
+      if (error.statusCode === 401) {
+        throw new AuthenticationError(error.message, error);
+      }
+      throw error;
+    }
+  }
+
   uploadLicense = async (headers, body) => {
     try {
       return await this._client({

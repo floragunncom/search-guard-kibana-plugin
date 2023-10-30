@@ -23,7 +23,9 @@ export const yourTenantsText = (
 export const addMoreTenantsText = (
   <EuiI18n token="sg.tenantsMenu.addMoreTenants" default="Add more tenants" />
 );
-
+export const noTenantOrIndexText = (
+  <EuiI18n token="sg.tenantsMenu.noTenantOrIndex" default="No tenant or index" />
+);
 export const readWriteText = <EuiI18n token="sg.tenantsMenu.readWrite" default="read/write" />;
 export const readText = <EuiI18n token="sg.tenantsMenu.read" default="read" />;
 export const selectedText = <EuiI18n token="sg.tenantsMenu.selected" default="Selected" />;
