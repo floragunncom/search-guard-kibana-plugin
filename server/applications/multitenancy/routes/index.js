@@ -15,6 +15,7 @@
  */
 
 import { multitenancyRoutes } from './multitenancy';
+import { getTenantInfoRoute } from './get_tenant_info';
 
 export function defineMultitenancyRoutes({
   router,
@@ -34,4 +35,6 @@ export function defineMultitenancyRoutes({
     clusterClient,
     tenantService,
   });
+
+  getTenantInfoRoute({ searchGuardBackend, logger, router });
 }
