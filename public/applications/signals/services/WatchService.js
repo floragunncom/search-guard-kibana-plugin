@@ -44,4 +44,8 @@ export default class WatchService extends SignalsService {
   state(id) {
     return super.get(`..${ROUTE_PATH.WATCH}/${encodeURIComponent(id)}/_state`);
   }
+
+  summary(tenantId) {
+    return super.get(`..${ROUTE_PATH.WATCH}/${encodeURIComponent(tenantId)}/summary`);
+  }
 }
