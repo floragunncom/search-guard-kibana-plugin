@@ -25,11 +25,13 @@ import getBreadcrumb from './utils/getBreadcrumb';
 import { APP_PATH, APP_NAME } from '../../utils/constants';
 
 import { Context } from '../../Context';
+import SignalsOperatorView from '../SignalsOperatorView';
 
 
 const getSelectedTabId = (pathname) => {
   if (pathname.includes(APP_PATH.WATCHES)) return APP_PATH.WATCHES;
   if (pathname.includes(APP_PATH.ACCOUNTS)) return APP_PATH.ACCOUNTS;
+  if (pathname.includes(APP_PATH.SIGNALS_OPERATOR_VIEW)) return APP_PATH.SIGNALS_OPERATOR_VIEW;
   return APP_PATH.WATCHES;
 };
 
@@ -58,6 +60,11 @@ class Main extends Component {
         name: 'Accounts',
         route: APP_PATH.ACCOUNTS,
       },
+      {
+        id: APP_PATH.SIGNALS_OPERATOR_VIEW,
+        name: 'Operator View',
+        route: APP_PATH.SIGNALS_OPERATOR_VIEW
+      }
     ];
   }
 
@@ -168,6 +175,17 @@ class Main extends Component {
               <Route
                 path={APP_PATH.DEFINE_JSON_ACCOUNT}
                 render={(props) => <DefineJsonAccount {...props} />}
+              />
+              <Route
+                exact
+                path={APP_PATH.SIGNALS_OPERATOR_VIEW}
+                render={(props) => (
+                  <EuiErrorBoundary>
+                    <EuiTabs>{this.tabs.map(this.renderTab)}</EuiTabs>
+                    <EuiSpacer />
+                    <SignalsOperatorView {...props} />
+                  </EuiErrorBoundary>
+                )}
               />
               <Redirect to={APP_PATH.WATCHES} />
             </Switch>
