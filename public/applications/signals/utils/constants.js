@@ -20,6 +20,7 @@ export const APP_PATH = {
   DASHBOARD: '/dashboard',
   WATCHES: '/watches',
   WATCH: '/watch',
+  SIGNALS_OPERATOR_VIEW: '/operator-view',
   DEFINE_WATCH: '/define-watch',
   DEFINE_JSON_WATCH: '/define-json-watch',
   ALERTS: '/alerts',

@@ -201,7 +201,7 @@ class Watches extends Component {
 
       const { resp: watches } = await this.watchService.search(esQuery);
       this.setState({ watches, error: null });
-      this.fetchWatchesState();
+      await this.fetchWatchesState();
       console.debug('Watches -- getWatches', watches);
     } catch (error) {
       console.error('Watches -- getWatches', error);
