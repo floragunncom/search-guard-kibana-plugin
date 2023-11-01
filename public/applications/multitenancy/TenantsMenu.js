@@ -42,7 +42,7 @@ import {
   addMoreTenantsText,
   readText,
   readWriteText,
-  noTenantOrIndexText,
+  emptyReadonlyTenantText,
   selectedText,
 } from './utils/i18n';
 
@@ -108,21 +108,15 @@ export function tenantsToUiTenants({
   isDashboardOnlyRole,
 } = {}) {
   const userName = authinfo.user_name;
-  const tenants = { ...authinfo.sg_tenants };
+  const tenants = { ...tenantinfo.tenants };
+  console.log('What are my tenants?', tenants)
 
-  const tenantToIndexMap = new Map();
-  for (const [tenantIndex, tenantName] of Object.entries(tenantinfo)) {
-    tenantToIndexMap.set(tenantName, tenantIndex);
-  }
-
-  // If SGS_GLOBAL_TENANT is not available in tenant list, it needs to be
+    // If SGS_GLOBAL_TENANT is not available in tenant list, it needs to be
   // removed from UI display as well
   let globalUserWriteable = false;
   let globalUserVisible = false;
   delete tenants[userName];
 
-  // delete the SGS_GLOBAL_TENANT for the moment. We fall back the GLOBAL until
-  // RBAC is rolled out completely.
   if (tenants.hasOwnProperty(GLOBAL_TENANT_NAME) && globalTenantEnabled) {
     globalUserWriteable = tenants[GLOBAL_TENANT_NAME] && !isDashboardOnlyRole;
     globalUserVisible = true;
@@ -135,15 +129,16 @@ export function tenantsToUiTenants({
 
   const uiTenants = Object.entries(tenants)
     .reduce((acc, [tenantName]) => {
-      const canWrite = !isDashboardOnlyRole && tenants[tenantName];
+      const tenant = tenants[tenantName] || {};
+      const canWrite = !isDashboardOnlyRole && tenant.write_access === true ;
       //const disabled = !tenantToIndexMap.has(tenantName) && !canWrite;
-      // TODO Safeguard
-      const disabled = !canWrite && tenantinfo.data.tenants[tenantName].exist === false;
+
+      const disabled = !canWrite && tenant.exists === false;
       const checked = tenantName === currentTenant ? 'on' : undefined;
 
       let append = canWrite ? readWriteText : readText;
       if (disabled) {
-        append = noTenantOrIndexText;
+        append = emptyReadonlyTenantText;
       }
 
       acc.push({
@@ -210,12 +205,9 @@ export function hasUserDashboardOnlyRole({ readOnlyConfig = {}, authinfo = {} } 
   return false;
 }
 
-function ConfigurationCheckCallOut() {
-  const { httpClient, configService, addErrorToast } = useContext(MainContext);
+function ConfigurationCheckCallOut({ isBackendMTEnabled  }) {
+  const { addErrorToast } = useContext(MainContext);
   const [error, setError] = useState(null);
-
-  const kibanaServerUser = configService.get('elasticsearch.username');
-  const kibanaIndex = configService.get('kibana.index');
 
   useEffect(() => {
     fetchData();
@@ -224,35 +216,13 @@ function ConfigurationCheckCallOut() {
 
   async function fetchData() {
     try {
-      const { data: mtInfo } = await httpClient.get(`${API_ROOT}/multitenancy/tenantinfo`);
+      //const { data: mtInfo } = await httpClient.get(`${API_ROOT}/multitenancy/tenantinfo`);
       let errorMessage = null;
 
-      if (!mtInfo.data.multi_tenancy_enabled) {
+      if (isBackendMTEnabled === false) {
         errorMessage =
           'Either the Multitenancy module is not present on Elasticsearch Search Guard, or it is disabled.';
       }
-/*
-      if (mtInfo.kibana_server_user !== kibanaServerUser) {
-        errorMessage =
-          'Mismatch between the configured Kibana server usernames on Elasticsearch and Kibana, multitenancy will not work! ' +
-          'Configured username on Kibana: "' +
-          kibanaServerUser +
-          '", configured username on Elasticsearch: "' +
-          mtInfo.kibana_server_user +
-          '"';
-      }
-
-      if (mtInfo.kibana_index !== kibanaIndex) {
-        errorMessage =
-          'Mismatch between the configured Kibana index names on Elasticsearch and Kibana, multitenancy will not work! ' +
-          'Configured index name on Kibana: "' +
-          kibanaIndex +
-          '", configured index name on Elasticsearch: "' +
-          mtInfo.kibana_index +
-          '"';
-      }
-
- */
 
       if (errorMessage) setError(errorMessage);
     } catch (error) {
@@ -310,6 +280,7 @@ export function TenantsMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [tenants, setTenants] = useState([]);
   const [selectedTenant, setSelectedTenant] = useState(findSelectedTenant(tenants));
+  const [tenantInfo, setTenantInfo] = useState({});
 
   useEffect(() => {
     fetchData();
@@ -321,7 +292,7 @@ export function TenantsMenu() {
 
     try {
       const [
-        { data: tenantinfo },
+        { data: tenantinfoResponse },
         { data: currentTenant },
         { data: authinfo },
       ] = await Promise.all([
@@ -329,6 +300,9 @@ export function TenantsMenu() {
         httpClient.get(`${API_ROOT}/multitenancy/tenant`),
         httpClient.get(`${API_ROOT}/auth/authinfo`),
       ]);
+
+      const tenantinfo = tenantinfoResponse.data;
+      setTenantInfo(tenantinfo);
 
       const uiTenants = tenantsToUiTenants({
         tenantinfo,
@@ -465,7 +439,7 @@ export function TenantsMenu() {
         {(list, search) => {
           return (
             <EuiErrorBoundary>
-              <ConfigurationCheckCallOut />
+              <ConfigurationCheckCallOut isBackendMTEnabled={tenantInfo.multi_tenancy_enabled} />
               <SelectedTenant selectedTenant={selectedTenant} />
               <EuiPopoverTitle paddingSize="s">{search || yourTenantsText}</EuiPopoverTitle>
               {list}
