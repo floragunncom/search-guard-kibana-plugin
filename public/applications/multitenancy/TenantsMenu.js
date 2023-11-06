@@ -109,9 +109,8 @@ export function tenantsToUiTenants({
 } = {}) {
   const userName = authinfo.user_name;
   const tenants = { ...tenantinfo.tenants };
-  console.log('What are my tenants?', tenants)
 
-    // If SGS_GLOBAL_TENANT is not available in tenant list, it needs to be
+  // If SGS_GLOBAL_TENANT is not available in tenant list, it needs to be
   // removed from UI display as well
   let globalUserWriteable = false;
   let globalUserVisible = false;
@@ -216,7 +215,6 @@ function ConfigurationCheckCallOut({ isBackendMTEnabled  }) {
 
   async function fetchData() {
     try {
-      //const { data: mtInfo } = await httpClient.get(`${API_ROOT}/multitenancy/tenantinfo`);
       let errorMessage = null;
 
       if (isBackendMTEnabled === false) {
