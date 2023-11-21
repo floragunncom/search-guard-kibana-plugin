@@ -28,7 +28,6 @@ export class MultitenancyLifecycle {
     logger,
     pluginDependencies,
     spacesService,
-    tenantService,
   }) {
     this.authManager = authManager;
     this.searchGuardBackend = searchGuardBackend;
@@ -37,7 +36,6 @@ export class MultitenancyLifecycle {
     this.logger = logger;
     this.pluginDependencies = pluginDependencies;
     this.spacesService = spacesService;
-    this.tenantService = tenantService;
     this.kerberos = kerberos;
   }
 
@@ -70,8 +68,6 @@ export class MultitenancyLifecycle {
     if (selectedTenant !== null) {
       const rawRequest = ensureRawRequest(request);
       assign(rawRequest.headers, authHeaders, { sgtenant: selectedTenant || GLOBAL_TENANT_NAME });
-
-      await this.tenantService.createIndexForTenant({ request, selectedTenant });
 
       if (this.pluginDependencies.spaces) {
         // If we have a new tenant with no default space, we need to create it.
