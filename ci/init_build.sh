@@ -44,6 +44,8 @@ echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
 
 start_section replace_kbn_ui_shared_deps_npm_manifest_json "Replace bazel-bin/../kbn-ui-shared-deps-npm-manifest.json with file from kibana release"
 
+echo "Will download $SF_RELEASE_PACKAGE_URL"
+
 curl --fail $SF_RELEASE_PACKAGE_URL -o kibana-$SF_VERSION.tar.gz
 tar -xf kibana-$SF_VERSION.tar.gz --transform 's/.*\///g' --wildcards --no-anchored 'kbn-ui-shared-deps-npm-manifest.json'
 
