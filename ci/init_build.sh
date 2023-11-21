@@ -1,14 +1,14 @@
 #!/bin/bash
 
-set -e 
+set -e
 
 SF_BRANCH_NAME="v$SF_VERSION"
 SF_RELEASE_PACKAGE_URL="https://artifacts.elastic.co/downloads/kibana/kibana-$SF_VERSION-linux-x86_64.tar.gz"
-  
+
 if [[ -f $SF_REPO_DIR/.cached_version ]]; then
    CACHED_VERSION=`cat $SF_REPO_DIR/.cached_version`
 
-   if [ "$CACHED_VERSION" != "$SF_VERSION" ]; then 
+   if [ "$CACHED_VERSION" != "$SF_VERSION" ]; then
       echo "Cached version $CACHED_VERSION does not match requested version $SF_VERSION. Deleting cache."
       rm -rf $SF_REPO_DIR
    fi
@@ -33,11 +33,11 @@ nvm install
 echo -e "\e[0Ksection_end:`date +%s`:nvm_install\r\e[0K"
 
 if [[ -d plugins/search-guard ]]; then
-  rm -rf plugins/search-guard 
+  rm -rf plugins/search-guard
 fi
 
 echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
-
+npx update-browserslist-db@latest --yes
 yarn kbn bootstrap --allow-root
 
 echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
@@ -102,7 +102,7 @@ cd ..
 
 end_section yarn_build
 end_section build
-# Move build result from repo dir to the build folder in the CI root dir. 
+# Move build result from repo dir to the build folder in the CI root dir.
 cd $CI_PROJECT_DIR
 rm -rf build
 mv $SF_REPO_DIR/plugins/search-guard/build build
