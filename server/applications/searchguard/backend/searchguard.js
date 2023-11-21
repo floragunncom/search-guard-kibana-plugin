@@ -484,12 +484,10 @@ export default class SearchGuardBackend {
           return check;
         }
 
-        // TODO: This is just to keep BC, should we?
         if (tenants[check.toLowerCase()] !== undefined) {
-          return check;
+          return check.toLowerCase();
         }
 
-        // TODO: This is already covered, no?
         if (check.toLowerCase() === 'private' && privateEnabled) {
           return '__user__';
         }
