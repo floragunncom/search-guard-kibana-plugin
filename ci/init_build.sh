@@ -37,6 +37,9 @@ if [[ -d plugins/search-guard ]]; then
 fi
 
 echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
+# Debugging
+rm yarn.lock
+
 yarn kbn bootstrap --allow-root
 
 echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
@@ -58,8 +61,7 @@ echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
 
 #end_section replace_kbn_ui_shared_deps_npm_manifest_json
 
-# Debugging
-rm yarn.lock
+
 
 mkdir -p plugins/search-guard
 cp -a "../babel.config.js" plugins/search-guard
