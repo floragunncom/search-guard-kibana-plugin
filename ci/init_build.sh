@@ -39,9 +39,6 @@ fi
 echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
 yarn kbn bootstrap --allow-root
 
-# Prevent warning about outdated caniuse-lite, which seems to block the build
-npx --yes browserslist@latest --update-db
-
 echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
 
 
@@ -72,6 +69,10 @@ cp -a "../common" plugins/search-guard
 cp -a "../tests"  plugins/search-guard
 cp -a "../__mocks__" plugins/search-guard
 #cp -a "../yarn.lock" plugins/search-guard
+
+# Prevent warning about outdated caniuse-lite, which seems to block the build
+npx --yes update-browserslist-db@latest
+
 cd plugins/search-guard
 
 echo -e "\e[0Ksection_start:`date +%s`:yarn_install[collapsed=true]\r\e[0KDoing yarn install"
