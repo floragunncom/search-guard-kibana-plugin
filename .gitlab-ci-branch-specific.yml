@@ -1,3 +1,4 @@
 variables:
   IT_BRANCH: "8.8.x"
-  SG_ES_PLUGIN: "support-kibana-8.8.0-SNAPSHOT"
+  SG_ES_PLUGIN: "new-femt3-SNAPSHOT"
+
