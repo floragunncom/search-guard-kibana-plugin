@@ -38,11 +38,8 @@ fi
 
 echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
 
-# Debugging
-if [[ -f yarn.lock ]]; then
-  rm yarn.lock
-fi
-
+# Prevent warning about outdated caniuse-lite, which seems to block the build
+npx --yes update-browserslist-db@latest
 
 yarn kbn bootstrap --allow-root
 
@@ -65,8 +62,6 @@ echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
 
 #end_section replace_kbn_ui_shared_deps_npm_manifest_json
 
-
-
 mkdir -p plugins/search-guard
 cp -a "../babel.config.js" plugins/search-guard
 cp -a "../package.json" plugins/search-guard
@@ -77,7 +72,10 @@ cp -a "../server" plugins/search-guard
 cp -a "../common" plugins/search-guard
 cp -a "../tests"  plugins/search-guard
 cp -a "../__mocks__" plugins/search-guard
-cp -a "../yarn.lock" plugins/search-guard
+#cp -a "../yarn.lock" plugins/search-guard
+
+# Prevent warning about outdated caniuse-lite, which seems to block the build
+npx --yes update-browserslist-db@latest
 
 cd plugins/search-guard
 
