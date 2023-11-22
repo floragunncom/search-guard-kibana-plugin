@@ -37,8 +37,12 @@ if [[ -d plugins/search-guard ]]; then
 fi
 
 echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
+
 # Debugging
-rm yarn.lock
+if [[ -f yarn.lock ]]; then
+  rm yarn.lock
+fi
+
 
 yarn kbn bootstrap --allow-root
 
