@@ -156,15 +156,6 @@ export class MultitenancyLifecycle {
       return null;
     }
 
-    console.log("Checking selectedTenant: " + selectedTenant)
-    // TODO: Hack - new impl requires global tenant to be set explicitely
-    // TODO: Maybe translate the tenant "global" when grabbing the tenant from the query parameter?
-    // TODO: I don't think we can work with null here. If global is disabled, validate Tenant may return null
-    if (typeof selectedTenant === 'undefined' || selectedTenant === null || selectedTenant === "" || selectedTenant.toLowerCase() === "global") {
-      //selectedTenant = GLOBAL_TENANT_NAME;
-
-    }
-
     // if we have a tenant, check validity and set it
     if (typeof selectedTenant !== 'undefined' && selectedTenant !== null) {
       selectedTenant = backend.validateTenant(
