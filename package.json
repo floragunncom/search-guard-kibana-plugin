@@ -1,6 +1,6 @@
 {
   "name": "searchguard",
-  "version": "8.7.0-master-SNAPSHOT",
+  "version": "8.8.0-master-SNAPSHOT",
   "description": "Search Guard features for Kibana",
   "homepage": "https://search-guard.com",
   "license": "Apache-2.0",
@@ -17,7 +17,9 @@
     "test:browser": "../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --silent",
     "test:server": "../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=public --config ./tests/jest.config.js --silent",
     "patch:kibana:es_compatibility": "./common/patches/patch_kibana_es_version_compatibility.sh",
-    "patch:kibana:dev:es_compatibility": "./common/patches/patch_kibana_es_version_compatibility.sh dev"
+    "patch:kibana:dev:es_compatibility": "./common/patches/patch_kibana_es_version_compatibility.sh dev",
+    "dev": "yarn plugin-helpers dev",
+    "migrate": "node ./scripts/migrate_kibana_index.js"
   },
   "dependencies": {
     "brace": "0.11.1",

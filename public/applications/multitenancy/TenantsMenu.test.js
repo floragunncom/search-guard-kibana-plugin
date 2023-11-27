@@ -22,13 +22,15 @@ import {
   TenantAvatar,
   hasUserDashboardOnlyRole,
 } from './TenantsMenu';
-import { readText, readWriteText, noTenantOrIndexText } from './utils/i18n';
+import { readText, readWriteText, emptyReadonlyTenantText } from './utils/i18n';
+import { GLOBAL_TENANT_NAME } from "../../../common/multitenancy";
 
 test('getPersistentColorFromText', () => {
   expect(getPersistentColorFromText('qwerty')).toBe('#17A2F5');
   expect(getPersistentColorFromText('qwert y')).toBe('#17A2FD');
   expect(getPersistentColorFromText('qwe')).toBe('#17A000');
   expect(getPersistentColorFromText('')).toBe('#000000');
+  expect(getPersistentColorFromText(GLOBAL_TENANT_NAME)).toBe('#000000');
   expect(getPersistentColorFromText()).toBe('#000000');
 });
 
@@ -36,18 +38,23 @@ describe('tenantsToUiTenants', () => {
   test('build tenants for admin', () => {
     const currentTenant = 'Global';
     const tenantinfo = {
-      '.kibana_-152937574_admintenant': 'admin_tenant',
-      '.kibana_3568561_trex': 'trex',
-      '.kibana_92668751_admin': '__private__',
+      tenants: {
+        [GLOBAL_TENANT_NAME]: {
+          write_access: true,
+        },
+        admin_tenant: {
+          write_access: true,
+        },
+        trex: {
+          write_access: true,
+        },
+        admin: {
+          write_access: true,
+        }
+      }
     };
     const authinfo = {
       user_name: 'admin',
-      sg_tenants: {
-        SGS_GLOBAL_TENANT: true,
-        admin: true,
-        admin_tenant: true,
-        trex: true,
-      },
     };
     const globalTenantEnabled = true;
     const privateTenantEnabled = true;
@@ -114,19 +121,25 @@ describe('tenantsToUiTenants', () => {
 
   test('build tenants if global tenant disabled', () => {
     const currentTenant = 'Global';
+
     const tenantinfo = {
-      '.kibana_-152937574_admintenant': 'admin_tenant',
-      '.kibana_3568561_trex': 'trex',
-      '.kibana_92668751_admin': '__private__',
+      tenants: {
+        [GLOBAL_TENANT_NAME]: {
+          write_access: true,
+        },
+        admin_tenant: {
+          write_access: true,
+        },
+        trex: {
+          write_access: true,
+        },
+        admin: {
+          write_access: true,
+        }
+      }
     };
     const authinfo = {
       user_name: 'admin',
-      sg_tenants: {
-        SGS_GLOBAL_TENANT: true,
-        admin: true,
-        admin_tenant: true,
-        trex: true,
-      },
     };
     const globalTenantEnabled = false;
     const privateTenantEnabled = true;
@@ -183,19 +196,26 @@ describe('tenantsToUiTenants', () => {
 
   test('build tenants if private tenant disabled', () => {
     const currentTenant = 'Global';
+
     const tenantinfo = {
-      '.kibana_-152937574_admintenant': 'admin_tenant',
-      '.kibana_3568561_trex': 'trex',
-      '.kibana_92668751_admin': '__private__',
+      tenants: {
+        [GLOBAL_TENANT_NAME]: {
+          write_access: true,
+        },
+        admin_tenant: {
+          write_access: true,
+        },
+        trex: {
+          write_access: true,
+        },
+        admin: {
+          write_access: true,
+        }
+      }
     };
+
     const authinfo = {
       user_name: 'admin',
-      sg_tenants: {
-        SGS_GLOBAL_TENANT: true,
-        admin: true,
-        admin_tenant: true,
-        trex: true,
-      },
     };
     const globalTenantEnabled = true;
     const privateTenantEnabled = false;
@@ -253,19 +273,25 @@ describe('tenantsToUiTenants', () => {
   test('build tenants if dashboard-only role', () => {
     const currentTenant = 'Global';
     const tenantinfo = {
-      '.kibana_-152937574_admintenant': 'admin_tenant',
-      '.kibana_3568561_trex': 'trex',
-      '.kibana_92668751_admin': '__private__',
+      tenants: {
+        [GLOBAL_TENANT_NAME]: {
+          write_access: true,
+        },
+        admin_tenant: {
+          write_access: true,
+        },
+        trex: {
+          write_access: true,
+        },
+        admin: {
+          write_access: true,
+        }
+      }
     };
     const authinfo = {
       user_name: 'admin',
-      sg_tenants: {
-        SGS_GLOBAL_TENANT: true,
-        admin: true,
-        admin_tenant: true,
-        trex: true,
-      },
     };
+
     const globalTenantEnabled = true;
     const privateTenantEnabled = true;
     const isDashboardOnlyRole = true;
@@ -319,20 +345,29 @@ describe('tenantsToUiTenants', () => {
     ).toEqual(uiTenants);
   });
 
-  test('build tenants if trex tenant has not been created yet', () => {
+  test('build tenants if trex tenant has not been created yet and is readonly', () => {
     const currentTenant = 'Global';
+
     const tenantinfo = {
-      '.kibana_-152937574_admintenant': 'admin_tenant',
-      '.kibana_92668751_admin': '__private__',
+      tenants: {
+        [GLOBAL_TENANT_NAME]: {
+          write_access: true,
+        },
+        admin_tenant: {
+          write_access: true,
+        },
+        trex: {
+          write_access: false,
+          exists: false
+        },
+        admin: {
+          write_access: true,
+        }
+      }
     };
+
     const authinfo = {
       user_name: 'admin',
-      sg_tenants: {
-        SGS_GLOBAL_TENANT: true,
-        admin: true,
-        admin_tenant: true,
-        trex: false,
-      },
     };
     const globalTenantEnabled = true;
     const privateTenantEnabled = true;
@@ -380,7 +415,7 @@ describe('tenantsToUiTenants', () => {
         checked: undefined,
         disabled: true,
         prepend: <TenantAvatar name="trex" />,
-        append: noTenantOrIndexText,
+        append: emptyReadonlyTenantText,
         'data-test-subj': 'sg.tenantsMenu.tenant.trex',
       },
     ];

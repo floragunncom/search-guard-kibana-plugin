@@ -93,7 +93,8 @@ export class ServerPlugin {
 
       // The core.savedObjects interface in setup() is different from in start()
       // so we need to pass an instance variable to the config service
-      this.kibanaIndex = core.savedObjects.getKibanaIndex()
+
+      this.kibanaIndex = core.savedObjects.getDefaultIndex();
 
       const configService = await getConfigService({
         kibanaIndex: this.kibanaIndex,

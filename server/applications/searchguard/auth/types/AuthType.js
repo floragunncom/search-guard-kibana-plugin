@@ -25,6 +25,7 @@ import SessionExpiredError from '../errors/session_expired_error';
 import filterAuthHeaders from '../filter_auth_headers';
 import MissingTenantError from '../errors/missing_tenant_error';
 import path from 'path';
+import {GLOBAL_TENANT_NAME} from "../../../../../common/multitenancy";
 
 export default class AuthType {
   constructor({
@@ -511,10 +512,15 @@ export default class AuthType {
    */
   async _handleAuthResponse(request, credentials, authResponse, additionalAuthHeaders = {}) {
     // Make sure the user has a tenant that they can use
+    const isGlobalTenantEnabled = (
+      this.config.get('searchguard.multitenancy.tenants.enable_global')
+      && authResponse.user.tenants[GLOBAL_TENANT_NAME] !== undefined
+    )
+
     if (
       this.validateAvailableTenants &&
       this.config.get('searchguard.multitenancy.enabled') &&
-      !this.config.get('searchguard.multitenancy.tenants.enable_global')
+      !isGlobalTenantEnabled
     ) {
       const privateTenantEnabled = this.config.get(
         'searchguard.multitenancy.tenants.enable_private'
