@@ -16,6 +16,7 @@
 
 import { assign } from 'lodash';
 import { ensureRawRequest } from '@kbn/core-http-router-server-internal';
+import { GLOBAL_TENANT_NAME } from "../../../common/multitenancy";
 
 export class MultitenancyLifecycle {
   constructor({
@@ -27,7 +28,6 @@ export class MultitenancyLifecycle {
     logger,
     pluginDependencies,
     spacesService,
-    tenantService,
   }) {
     this.authManager = authManager;
     this.searchGuardBackend = searchGuardBackend;
@@ -36,7 +36,6 @@ export class MultitenancyLifecycle {
     this.logger = logger;
     this.pluginDependencies = pluginDependencies;
     this.spacesService = spacesService;
-    this.tenantService = tenantService;
     this.kerberos = kerberos;
   }
 
@@ -68,9 +67,7 @@ export class MultitenancyLifecycle {
 
     if (selectedTenant !== null) {
       const rawRequest = ensureRawRequest(request);
-      assign(rawRequest.headers, authHeaders, { sgtenant: selectedTenant || '' });
-
-      await this.tenantService.createIndexForTenant({ request, selectedTenant });
+      assign(rawRequest.headers, authHeaders, { sgtenant: selectedTenant || GLOBAL_TENANT_NAME });
 
       if (this.pluginDependencies.spaces) {
         // If we have a new tenant with no default space, we need to create it.
@@ -168,7 +165,10 @@ export class MultitenancyLifecycle {
         globalEnabled,
         privateEnabled
       );
-    } else {
+    }
+
+    // If we have no selected tenant, or if the selected tenant was not valid in validateTenant
+    if (!selectedTenant) {
       // no tenant, choose configured, preferred tenant
       try {
         selectedTenant = backend.getTenantByPreference(
@@ -181,6 +181,9 @@ export class MultitenancyLifecycle {
         );
       } catch (error) {
         // nothing
+        if (debugEnabled) {
+          this.logger.info(`Multitenancy: Getting a tenant by preference failed: ${error}`);
+        }
       }
     }
 

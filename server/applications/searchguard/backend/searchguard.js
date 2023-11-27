@@ -17,6 +17,7 @@
 import _ from 'lodash';
 import AuthenticationError from '../auth/errors/authentication_error';
 import User from '../auth/user';
+import { GLOBAL_TENANT_NAME, PRIVATE_TENANT_NAME } from "../../../../common/multitenancy";
 
 /**
  * The SearchGuard  backend.
@@ -37,14 +38,14 @@ export default class SearchGuardBackend {
 
   getAuthConfig = async (nextUrl = null) => {
     try {
-      const sgFrontendConfigId = this.configService.get('searchguard.sg_frontend_config_id') || 'default'; 
+      const sgFrontendConfigId = this.configService.get('searchguard.sg_frontend_config_id') || 'default';
 	  let frontendBaseUrl = this.configService.get('searchguard.frontend_base_url') || this.core.http.basePath.publicBaseUrl;
-	
+
 	  if (!frontendBaseUrl) {
 		let serverInfo = this.core.http.getServerInfo();
 		frontendBaseUrl = serverInfo.protocol + "://" + serverInfo.hostname + ":" + serverInfo.port + "/" + this.core.http.basePath.serverBasePath;
-	  }	
-	
+	  }
+
       const response = await this._client({
         path: '/_searchguard/auth/config',
         method: 'POST',
@@ -357,6 +358,21 @@ export default class SearchGuardBackend {
     }
   }
 
+  getUserTenantInfo = async (headers) => {
+    try {
+      return await this._client({
+        path: '/_searchguard/current_user/tenants',
+        method: 'get',
+        headers,
+      });
+    } catch (error) {
+      if (error.statusCode === 401) {
+        throw new AuthenticationError(error.message, error);
+      }
+      throw error;
+    }
+  }
+
   uploadLicense = async (headers, body) => {
     try {
       return await this._client({
@@ -435,6 +451,12 @@ export default class SearchGuardBackend {
     const tenantsCopy = JSON.parse(JSON.stringify(tenants));
     delete tenantsCopy[username];
 
+    // We have two paths for deciding if the global tenant is available:
+    // searchguard.multitenancy.global.enabled and authinfo.sg_tenants
+    if (!tenantsCopy.hasOwnProperty(GLOBAL_TENANT_NAME)) {
+      globalEnabled = false;
+    }
+
     // sanity check
     if (!globalEnabled && !privateEnabled && _.isEmpty(tenantsCopy)) {
       return null;
@@ -443,15 +465,16 @@ export default class SearchGuardBackend {
     // Evaluate preferredTenants from kibana config
     if (preferredTenants && !_.isEmpty(preferredTenants)) {
       for (let i = 0; i < preferredTenants.length; i++) {
-        const check = preferredTenants[i].toLowerCase();
+        //const check = preferredTenants[i].toLowerCase();
+        const check = preferredTenants[i];
 
-        if (globalEnabled && (check === 'global' || check === '__global__')) {
-          return '';
+        if (globalEnabled && (check.toLowerCase() === 'global' || check.toLowerCase() === '__global__')) {
+          return GLOBAL_TENANT_NAME;
         }
 
         if (
           privateEnabled &&
-          (check === 'private' || check === '__user__') &&
+          (check.toLowerCase() === 'private' || check.toLowerCase() === '__user__') &&
           tenants[username] !== undefined
         ) {
           return '__user__';
@@ -460,6 +483,11 @@ export default class SearchGuardBackend {
         if (tenants[check] !== undefined) {
           return check;
         }
+
+        if (tenants[check.toLowerCase()] !== undefined) {
+          return check.toLowerCase();
+        }
+
         if (check.toLowerCase() === 'private' && privateEnabled) {
           return '__user__';
         }
@@ -468,7 +496,7 @@ export default class SearchGuardBackend {
 
     // no pref in cookie, no preferred tenant in kibana, use GLOBAL, Private or the first tenant in the list
     if (globalEnabled) {
-      return '';
+      return GLOBAL_TENANT_NAME;
     }
 
     if (privateEnabled) {
@@ -489,7 +517,7 @@ export default class SearchGuardBackend {
     tenantkeys.sort();
 
     if (!globalEnabled) {
-      tenantkeys = tenantkeys.filter((tenantKey) => tenantKey !== 'SGS_GLOBAL_TENANT');
+      tenantkeys = tenantkeys.filter((tenantKey) => tenantKey !== GLOBAL_TENANT_NAME);
     }
 
     return tenantkeys[0];
@@ -502,8 +530,14 @@ export default class SearchGuardBackend {
     const tenantsCopy = JSON.parse(JSON.stringify(tenants));
     delete tenantsCopy[username];
 
+    // We have two paths for deciding if the global tenant is available:
+    // searchguard.multitenancy.global.enabled and authinfo.sg_tenants
+    if (!tenantsCopy.hasOwnProperty(GLOBAL_TENANT_NAME)) {
+      globalEnabled = false;
+    }
+
     if (!globalEnabled) {
-      delete tenantsCopy.SGS_GLOBAL_TENANT;
+      delete tenantsCopy[GLOBAL_TENANT_NAME];
     }
 
     // sanity check: no global, no private, no other tenants -> no tenant available
@@ -512,20 +546,22 @@ export default class SearchGuardBackend {
     }
 
     // requested tenant accessible for user
+    // TODO do we need to check lowercase here...? Not really, tenants are case sensitive
     if (tenants[requestedTenant] !== undefined) {
       return requestedTenant;
     }
 
     if (
-      (requestedTenant === '__user__' || requestedTenant === 'private') &&
+      (requestedTenant === PRIVATE_TENANT_NAME || requestedTenant === 'private') &&
       tenants[username] &&
       privateEnabled
     ) {
-      return '__user__';
+      return PRIVATE_TENANT_NAME;
     }
 
+    // This is the path when we have a tenant named global in the query parameter
     if ((requestedTenant === 'global' || requestedTenant === '') && globalEnabled) {
-      return '';
+      return GLOBAL_TENANT_NAME;
     }
 
     return null;

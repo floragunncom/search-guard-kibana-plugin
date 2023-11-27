@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { GLOBAL_TENANT_NAME } from "../../../common/multitenancy";
+
 export const DEFAULT_SPACE_ID = 'space:default';
 
 // ATTENTION! If either Saved Objects migration or integration with spaces doesn't work,
@@ -29,11 +31,11 @@ export function getDefaultSpaceDoc(kibanaVersion) {
     },
     type: 'space',
     references: [],
-    migrationVersion: {
-      space: '6.6.0',
-    },
+    managed: false,
+    typeMigrationVersion: '6.6.0',
     coreMigrationVersion: kibanaVersion,
     updated_at: new Date().toISOString(),
+    created_at: new Date().toISOString(),
   };
 }
 
@@ -43,21 +45,21 @@ export class SpacesService {
     this.tenantService = tenantService;
   }
 
-  createDefaultSpace = async ({ request, selectedTenant = '' } = {}) => {
+  createDefaultSpace = async ({ request, selectedTenant = GLOBAL_TENANT_NAME } = {}) => {
     const spaceExists = await this.tenantService.docExists({
       request,
       indexName: this.tenantService.aliasName,
       docId: DEFAULT_SPACE_ID,
     });
 
-    if (!spaceExists) {
-      return this.tenantService.createDoc({
-        request,
-        tenantName: selectedTenant,
-        versionIndexName: this.tenantService.versionIndexName,
-        docId: DEFAULT_SPACE_ID,
-        docBody: getDefaultSpaceDoc(this.kibanaVersion),
-      });
-    }
+   if (!spaceExists) {
+     return this.tenantService.createDoc({
+       request,
+       tenantName: selectedTenant,
+       versionIndexName: this.tenantService.versionIndexName,
+       docId: DEFAULT_SPACE_ID,
+       docBody: getDefaultSpaceDoc(this.kibanaVersion),
+     });
+   }
   };
 }

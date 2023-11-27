@@ -17,8 +17,6 @@
 import { multitenancyRoutes } from './multitenancy';
 import { getTenantInfoRoute } from './get_tenant_info';
 
-export { migrateTenantsRoute as defineMigrateRoutes } from './migrate';
-
 export function defineMultitenancyRoutes({
   router,
   searchGuardBackend,
