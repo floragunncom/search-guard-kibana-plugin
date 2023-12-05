@@ -114,11 +114,13 @@ export function tenantsToUiTenants({
   // removed from UI display as well
   let globalUserWriteable = false;
   let globalUserVisible = false;
+  let globalTenantEmpty = false;
   delete tenants[userName];
 
   if (tenants.hasOwnProperty(GLOBAL_TENANT_NAME) && globalTenantEnabled) {
-    globalUserWriteable = tenants[GLOBAL_TENANT_NAME] && !isDashboardOnlyRole;
+    globalUserWriteable = tenants[GLOBAL_TENANT_NAME].write_access === true && !isDashboardOnlyRole;
     globalUserVisible = true;
+    globalTenantEmpty = tenants[GLOBAL_TENANT_NAME].exists === false;
   }
   delete tenants[GLOBAL_TENANT_NAME];
 
@@ -129,7 +131,7 @@ export function tenantsToUiTenants({
   const uiTenants = Object.entries(tenants)
     .reduce((acc, [tenantName]) => {
       const tenant = tenants[tenantName] || {};
-      const canWrite = !isDashboardOnlyRole && tenant.write_access === true ;
+      const canWrite = !isDashboardOnlyRole && tenant.write_access === true;
       //const disabled = !tenantToIndexMap.has(tenantName) && !canWrite;
 
       const disabled = !canWrite && tenant.exists === false;
@@ -167,16 +169,19 @@ export function tenantsToUiTenants({
     });
   }
 
-  // @todo Why is this called globalUserVisible and not globalTenantVisible?
   if (globalUserVisible) {
+    let append = globalUserWriteable ? readWriteText : readText;
+    if (!globalUserWriteable && globalTenantEmpty) {
+      append = emptyReadonlyTenantText;
+    }
     uiTenants.unshift({
       'aria-label': UI_GLOBAL_TENANT_NAME,
       searchableLabel: UI_GLOBAL_TENANT_NAME,
       label: UI_GLOBAL_TENANT_NAME,
       checked: currentTenant === UI_GLOBAL_TENANT_NAME ? 'on' : undefined,
-      disabled: false,
+      disabled: globalTenantEmpty,
       prepend: <TenantAvatar name={UI_GLOBAL_TENANT_NAME} />,
-      append: globalUserWriteable ? readWriteText : readText,
+      append: append,
       'data-test-subj': creteDataTestSubj(UI_GLOBAL_TENANT_NAME),
     });
   }
