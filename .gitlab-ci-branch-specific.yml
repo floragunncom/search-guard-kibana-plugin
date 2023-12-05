@@ -1,4 +1,4 @@
 variables:
   IT_BRANCH: "8.8.x"
-  SG_ES_PLUGIN: "main-es8-SNAPSHOT"
+  SG_ES_PLUGIN: "disable-mt-by-default-and-adjust-roles-SNAPSHOT"
 
