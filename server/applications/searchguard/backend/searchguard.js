@@ -520,7 +520,11 @@ export default class SearchGuardBackend {
       tenantkeys = tenantkeys.filter((tenantKey) => tenantKey !== GLOBAL_TENANT_NAME);
     }
 
-    return tenantkeys[0];
+    if (tenantkeys.length) {
+      return tenantkeys[0];
+    }
+
+    return null;
   }
 
   validateTenant(username, requestedTenant, tenants, globalEnabled, privateEnabled) {
