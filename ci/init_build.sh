@@ -100,6 +100,9 @@ end_section yarn_install
 start_section yarn_build "Doing yarn build -v $SF_VERSION --skip-archive"
 yarn build -v $SF_VERSION --skip-archive
 
+# Temp(?) fix for 8.10.4
+export NODE_OPTIONS=--openssl-legacy-provider
+
 # Fix only for Kibana 8.7.x
 cd build
 find ./ -type f -exec sed -i -e 's#".*core-doc-links-server-internal"#"@kbn/core-doc-links-server-internal"#g' {} \;
