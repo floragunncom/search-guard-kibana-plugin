@@ -122,6 +122,8 @@ start_section yarn_install "Doing yarn install --production"
 yarn install --production #--frozen-lockfile
 end_section yarn_install
 start_section yarn_build "Doing yarn build -v $SF_VERSION --skip-archive"
+# Fix for 8.10.4
+export NODE_OPTIONS=--openssl-legacy-provider
 yarn build -v $SF_VERSION --skip-archive
 
 # Fix only for Kibana 8.7.x
