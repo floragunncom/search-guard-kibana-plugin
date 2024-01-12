@@ -1,4 +1,4 @@
 variables:
-  IT_BRANCH: "8.8.x"
-  SG_ES_PLUGIN: "prepare-es-8.8.2-SNAPSHOT"
+  IT_BRANCH: "8.9.x"
+  SG_ES_PLUGIN: "es-update-to-8.9.2-SNAPSHOT"
 
