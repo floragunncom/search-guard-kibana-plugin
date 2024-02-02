@@ -16,13 +16,7 @@
 
 export const UI_GLOBAL_TENANT_NAME = 'Global';
 export const UI_PRIVATE_TENANT_NAME = 'Private';
-/**
- * The internal name for the global tenant, as used in the sgtenant header
- * @type {string}
- */
-export const GLOBAL_TENANT_NAME = 'SGS_GLOBAL_TENANT';
-// @todo Maybe I can remove this again?
-//export const GLOBAL_TENANT_NAME_WITH_LABEL = 'SGS_GLOBAL_TENANT';
+export const GLOBAL_TENANT_NAME = '';
 export const PRIVATE_TENANT_NAME = '__user__';
 
 export function tenantNameToUiTenantName(name) {

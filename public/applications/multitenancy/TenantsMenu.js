@@ -35,25 +35,19 @@ import {
   UI_PRIVATE_TENANT_NAME,
   tenantNameToUiTenantName,
   uiTenantNameToTenantName,
-  GLOBAL_TENANT_NAME
-} from "../../../common/multitenancy";
+} from '../../../common/multitenancy';
 import {
   yourTenantsText,
   addMoreTenantsText,
   readText,
   readWriteText,
-  emptyReadonlyTenantText,
+  noTenantOrIndexText,
   selectedText,
 } from './utils/i18n';
 
 export function getPersistentColorFromText(text = '') {
   const dict = 'D12CFA8735B6E049';
   const color = ['#'];
-
-  // Global tenant defaults to black
-  if (text === GLOBAL_TENANT_NAME) {
-    return '#000000'
-  }
 
   for (let i = 0; i < 6; i++) {
     if (!text || !text[i]) {
@@ -108,21 +102,26 @@ export function tenantsToUiTenants({
   isDashboardOnlyRole,
 } = {}) {
   const userName = authinfo.user_name;
-  const tenants = { ...tenantinfo.tenants };
+  const tenants = { ...authinfo.sg_tenants };
+
+  const tenantToIndexMap = new Map();
+  for (const [tenantIndex, tenantName] of Object.entries(tenantinfo)) {
+    tenantToIndexMap.set(tenantName, tenantIndex);
+  }
 
   // If SGS_GLOBAL_TENANT is not available in tenant list, it needs to be
   // removed from UI display as well
   let globalUserWriteable = false;
   let globalUserVisible = false;
-  let globalTenantEmpty = false;
   delete tenants[userName];
 
-  if (tenants.hasOwnProperty(GLOBAL_TENANT_NAME) && globalTenantEnabled) {
-    globalUserWriteable = tenants[GLOBAL_TENANT_NAME].write_access === true && !isDashboardOnlyRole;
+  // delete the SGS_GLOBAL_TENANT for the moment. We fall back the GLOBAL until
+  // RBAC is rolled out completely.
+  if (tenants.hasOwnProperty('SGS_GLOBAL_TENANT') && globalTenantEnabled) {
+    globalUserWriteable = tenants.SGS_GLOBAL_TENANT && !isDashboardOnlyRole;
     globalUserVisible = true;
-    globalTenantEmpty = tenants[GLOBAL_TENANT_NAME].exists === false;
   }
-  delete tenants[GLOBAL_TENANT_NAME];
+  delete tenants.SGS_GLOBAL_TENANT;
 
   function creteDataTestSubj(tenantName) {
     return 'sg.tenantsMenu.tenant.' + tenantName.toLowerCase();
@@ -130,16 +129,13 @@ export function tenantsToUiTenants({
 
   const uiTenants = Object.entries(tenants)
     .reduce((acc, [tenantName]) => {
-      const tenant = tenants[tenantName] || {};
-      const canWrite = !isDashboardOnlyRole && tenant.write_access === true;
-      //const disabled = !tenantToIndexMap.has(tenantName) && !canWrite;
-
-      const disabled = !canWrite && tenant.exists === false;
+      const canWrite = !isDashboardOnlyRole && tenants[tenantName];
+      const disabled = !tenantToIndexMap.has(tenantName) && !canWrite;
       const checked = tenantName === currentTenant ? 'on' : undefined;
 
       let append = canWrite ? readWriteText : readText;
       if (disabled) {
-        append = emptyReadonlyTenantText;
+        append = noTenantOrIndexText;
       }
 
       acc.push({
@@ -169,19 +165,16 @@ export function tenantsToUiTenants({
     });
   }
 
+  // @todo Why is this called globalUserVisible and not globalTenantVisible?
   if (globalUserVisible) {
-    let append = globalUserWriteable ? readWriteText : readText;
-    if (!globalUserWriteable && globalTenantEmpty) {
-      append = emptyReadonlyTenantText;
-    }
     uiTenants.unshift({
       'aria-label': UI_GLOBAL_TENANT_NAME,
       searchableLabel: UI_GLOBAL_TENANT_NAME,
       label: UI_GLOBAL_TENANT_NAME,
       checked: currentTenant === UI_GLOBAL_TENANT_NAME ? 'on' : undefined,
-      disabled: globalTenantEmpty,
+      disabled: false,
       prepend: <TenantAvatar name={UI_GLOBAL_TENANT_NAME} />,
-      append: append,
+      append: globalUserWriteable ? readWriteText : readText,
       'data-test-subj': creteDataTestSubj(UI_GLOBAL_TENANT_NAME),
     });
   }
@@ -209,9 +202,12 @@ export function hasUserDashboardOnlyRole({ readOnlyConfig = {}, authinfo = {} } 
   return false;
 }
 
-function ConfigurationCheckCallOut({ isBackendMTEnabled  }) {
-  const { addErrorToast } = useContext(MainContext);
+function ConfigurationCheckCallOut() {
+  const { httpClient, configService, addErrorToast } = useContext(MainContext);
   const [error, setError] = useState(null);
+
+  const kibanaServerUser = configService.get('elasticsearch.username');
+  const kibanaIndex = configService.get('kibana.index');
 
   useEffect(() => {
     fetchData();
@@ -220,11 +216,32 @@ function ConfigurationCheckCallOut({ isBackendMTEnabled  }) {
 
   async function fetchData() {
     try {
+      const { data: mtInfo } = await httpClient.get(`${API_ROOT}/multitenancy/info`);
       let errorMessage = null;
 
-      if (isBackendMTEnabled === false) {
+      if (!mtInfo.kibana_mt_enabled) {
         errorMessage =
           'Either the Multitenancy module is not present on Elasticsearch Search Guard, or it is disabled.';
+      }
+
+      if (mtInfo.kibana_server_user !== kibanaServerUser) {
+        errorMessage =
+          'Mismatch between the configured Kibana server usernames on Elasticsearch and Kibana, multitenancy will not work! ' +
+          'Configured username on Kibana: "' +
+          kibanaServerUser +
+          '", configured username on Elasticsearch: "' +
+          mtInfo.kibana_server_user +
+          '"';
+      }
+
+      if (mtInfo.kibana_index !== kibanaIndex) {
+        errorMessage =
+          'Mismatch between the configured Kibana index names on Elasticsearch and Kibana, multitenancy will not work! ' +
+          'Configured index name on Kibana: "' +
+          kibanaIndex +
+          '", configured index name on Elasticsearch: "' +
+          mtInfo.kibana_index +
+          '"';
       }
 
       if (errorMessage) setError(errorMessage);
@@ -283,7 +300,6 @@ export function TenantsMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [tenants, setTenants] = useState([]);
   const [selectedTenant, setSelectedTenant] = useState(findSelectedTenant(tenants));
-  const [tenantInfo, setTenantInfo] = useState({});
 
   useEffect(() => {
     fetchData();
@@ -295,7 +311,7 @@ export function TenantsMenu() {
 
     try {
       const [
-        { data: tenantinfoResponse },
+        { data: tenantinfo },
         { data: currentTenant },
         { data: authinfo },
       ] = await Promise.all([
@@ -303,9 +319,6 @@ export function TenantsMenu() {
         httpClient.get(`${API_ROOT}/multitenancy/tenant`),
         httpClient.get(`${API_ROOT}/auth/authinfo`),
       ]);
-
-      const tenantinfo = tenantinfoResponse.data;
-      setTenantInfo(tenantinfo);
 
       const uiTenants = tenantsToUiTenants({
         tenantinfo,
@@ -442,7 +455,7 @@ export function TenantsMenu() {
         {(list, search) => {
           return (
             <EuiErrorBoundary>
-              <ConfigurationCheckCallOut isBackendMTEnabled={tenantInfo.multi_tenancy_enabled} />
+              <ConfigurationCheckCallOut />
               <SelectedTenant selectedTenant={selectedTenant} />
               <EuiPopoverTitle paddingSize="s">{search || yourTenantsText}</EuiPopoverTitle>
               {list}

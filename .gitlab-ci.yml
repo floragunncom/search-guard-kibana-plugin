@@ -32,19 +32,8 @@ workflow:
       when: never
     - when: always
 
-
 before_script:
-  - |
-    if [ -x "$(command -v apk)" ]; then
-      apk add --no-cache gomplate jq curl zip xmlstarlet git wget bash sudo 
-    elif [ -x "$(command -v apt)" ]; then
-      apt update
-      apt install -y jq curl zip xmlstarlet git wget bash build-essential
-    else
-      echo "Unsupported package manager"
-      exit 1
-    fi
-
+  - apk add --no-cache gomplate jq curl zip xmlstarlet git wget bash sudo || true
 
 stages:
   - prepare
@@ -139,6 +128,7 @@ build_release:
   script:
     - |
       set -e
+      
       #In kibana.json
       # "version": "7.17.6"
 

@@ -54,6 +54,7 @@ export function multitenancyRoutes({
 
         const rawRequest = ensureRawRequest(request);
         assign(rawRequest.headers, { sgtenant: selectedTenant || '' });
+        await tenantService.createIndexForTenant({ request, selectedTenant });
 
         return response.ok({ body: selectedTenant });
       } catch (error) {

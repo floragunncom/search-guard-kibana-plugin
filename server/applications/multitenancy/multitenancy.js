@@ -15,6 +15,7 @@
  limitations under the License.
  */
 import { DocLinksService} from '@kbn/core-doc-links-server-internal';
+import { TenantsMigrationService } from './tenants_migration_service';
 import { defineMultitenancyRoutes } from './routes';
 import { MultitenancyLifecycle } from './multitenancy_lifecycle';
 
@@ -22,6 +23,7 @@ export class Multitenancy {
   constructor(coreContext) {
     this.coreContext = coreContext;
     this.logger = coreContext.logger.get('searchguard-multitenancy');
+    this.tenantsMigration = new TenantsMigrationService(coreContext);
     this.docLinksService = new DocLinksService(coreContext);
     this.docLinksService.setup();
   }
@@ -50,6 +52,15 @@ export class Multitenancy {
     }
 
     try {
+      this.tenantsMigration.setup({
+        configService,
+        savedObjects,
+        esClient: elasticsearch.client,
+        kibanaRouter,
+        searchGuardBackend,
+        docLinksService: this.docLinksService
+      });
+
       const multitenancyLifecycle = new MultitenancyLifecycle({
         authManager,
         kerberos,
@@ -60,6 +71,7 @@ export class Multitenancy {
         clusterClient: elasticsearch.client,
         pluginDependencies,
         spacesService,
+        tenantService,
       });
       kibanaCore.http.registerOnPreAuth(multitenancyLifecycle.onPreAuth);
 
@@ -79,5 +91,20 @@ export class Multitenancy {
 
   async start({ core, searchGuardBackend, configService }) {
     this.logger.debug('Start app');
+    const esClient = core.elasticsearch.client;
+    const savedObjects = core.savedObjects;
+    const docLinksStarted = this.docLinksService.start();
+
+    try {
+      await this.tenantsMigration.start({
+        esClient,
+        searchGuardBackend,
+        configService,
+        savedObjects,
+        docLinksStarted
+      });
+    } catch (error) {
+      this.logger.error(`start: ${error.toString()} ${error.stack}`);
+    }
   }
 }

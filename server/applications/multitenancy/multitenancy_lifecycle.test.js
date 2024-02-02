@@ -134,7 +134,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       savedObjects,
       coreContext
     });
-
+    tenantService.createIndexForTenant = jest.fn();
     tenantService.createDoc = jest.fn();
     tenantService.docExists = jest.fn().mockResolvedValue(false);
 
@@ -180,6 +180,20 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
 
     // If we have a selected tenant, the sgtenant header should be added to the request
     expect(request.headers.sgtenant).toEqual(sgtenant);
+
+    // Create tenant index and aliases
+    expect(tenantService.createIndexForTenant).toHaveBeenCalledWith({
+      request: {
+        headers: {
+          sgtenant: 'admin_tenant',
+        },
+        url: {
+          pathname: '/app',
+          searchParams: new URLSearchParams(),
+        },
+      },
+      selectedTenant: 'admin_tenant',
+    });
 
     // Create the default space
     expect(tenantService.docExists).toHaveBeenCalledWith({
@@ -238,7 +252,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       savedObjects,
       coreContext,
     });
-
+    tenantService.createIndexForTenant = jest.fn();
 
     const spacesService = new SpacesService({ kibanaVersion, tenantService });
     spacesService.createDefaultSpace = jest.fn();
@@ -256,6 +270,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
     });
     await mtLifecycle.onPreAuth(request, response, toolkit);
 
+    expect(tenantService.createIndexForTenant).toHaveBeenCalledTimes(1);
     expect(spacesService.createDefaultSpace).toHaveBeenCalledTimes(0);
   });
 
@@ -305,6 +320,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       savedObjects,
       coreContext,
     });
+    tenantService.createIndexForTenant = jest.fn();
 
     const spacesService = new SpacesService({ kibanaVersion, tenantService });
     spacesService.createDefaultSpace = jest.fn();
@@ -381,6 +397,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       savedObjects,
       coreContext,
     });
+    tenantService.createIndexForTenant = jest.fn();
 
     const spacesService = new SpacesService({ kibanaVersion, tenantService });
     spacesService.createDefaultSpace = jest.fn();

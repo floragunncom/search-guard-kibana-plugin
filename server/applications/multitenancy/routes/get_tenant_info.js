@@ -22,7 +22,7 @@ export const getTenantInfo = ({ searchGuardBackend, logger }) => async (
   response
 ) => {
   try {
-    return response.ok({ body: await searchGuardBackend.getUserTenantInfo(request.headers) });
+    return response.ok({ body: await searchGuardBackend.getTenantInfoWithInternalUser() });
   } catch (error) {
     logger.error(`getTenantInfo: ${error.stack}`);
     return response.internalError({ body: error });

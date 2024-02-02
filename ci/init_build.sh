@@ -1,14 +1,14 @@
 #!/bin/bash
 
-set -e
+set -e 
 
 SF_BRANCH_NAME="v$SF_VERSION"
 SF_RELEASE_PACKAGE_URL="https://artifacts.elastic.co/downloads/kibana/kibana-$SF_VERSION-linux-x86_64.tar.gz"
-
+  
 if [[ -f $SF_REPO_DIR/.cached_version ]]; then
    CACHED_VERSION=`cat $SF_REPO_DIR/.cached_version`
 
-   if [ "$CACHED_VERSION" != "$SF_VERSION" ]; then
+   if [ "$CACHED_VERSION" != "$SF_VERSION" ]; then 
       echo "Cached version $CACHED_VERSION does not match requested version $SF_VERSION. Deleting cache."
       rm -rf $SF_REPO_DIR
    fi
@@ -33,38 +33,10 @@ nvm install
 echo -e "\e[0Ksection_end:`date +%s`:nvm_install\r\e[0K"
 
 if [[ -d plugins/search-guard ]]; then
-  rm -rf plugins/search-guard
+  rm -rf plugins/search-guard 
 fi
 
-# This should not be needed for >= 8.11.4
-#if grep -q "$packages.atlassian.com/api/npm/npm-remote/react-remove-scroll/-/react-remove-scroll-2.5.6.tgz" "yarn.lock"; then
-#    echo -e "\e[0Ksection_start:`date +%s`:patch_yarn_lock[collapsed=true]\r\e[0KPatching yarn.lock file"
-#    echo "Patching react-remove-scroll-2.5.6 in yarn.lock file"
-#
-#    patch yarn.lock << 'EOF'
-#--- yarn.lock
-#+++ yarn.lock
-#@@ -25275,9 +25275,9 @@
-#     react-style-singleton "^2.2.1"
-#     tslib "^2.0.0"
-#
-#-react-remove-scroll@^2.5.6:
-#+react-remove-scroll@2.5.6:
-#   version "2.5.6"
-#-  resolved "https://packages.atlassian.com/api/npm/npm-remote/react-remove-scroll/-/react-remove-scroll-2.5.6.tgz#7510b8079e9c7eebe00e65a33daaa3aa29a10336"
-#+  resolved "https://registry.yarnpkg.com/react-remove-scroll/-/react-remove-scroll-2.5.6.tgz#7510b8079e9c7eebe00e65a33daaa3aa29a10336"
-#   integrity sha512-bO856ad1uDYLefgArk559IzUNeQ6SWH4QnrevIUjH+GczV56giDfl3h0Idptf2oIKxQmd1p9BN25jleKodTALg==
-#   dependencies:
-#     react-remove-scroll-bar "^2.3.4"
-#EOF
-#  echo -e "\e[0Ksection_end:`date +%s`:patch_yarn_lock\r\e[0K"
-#fi
-
-
 echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
-
-# Prevent warning about outdated caniuse-lite, which seems to block the build
-npx --yes update-browserslist-db@latest
 
 yarn kbn bootstrap --allow-root
 
@@ -72,8 +44,6 @@ echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
 
 
 start_section replace_kbn_ui_shared_deps_npm_manifest_json "Replace bazel-bin/../kbn-ui-shared-deps-npm-manifest.json with file from kibana release"
-
-echo "Will download $SF_RELEASE_PACKAGE_URL"
 
 curl --fail $SF_RELEASE_PACKAGE_URL -o kibana-$SF_VERSION.tar.gz
 tar -xf kibana-$SF_VERSION.tar.gz --transform 's/.*\///g' --wildcards --no-anchored 'kbn-ui-shared-deps-npm-manifest.json'
@@ -98,10 +68,6 @@ cp -a "../common" plugins/search-guard
 cp -a "../tests"  plugins/search-guard
 cp -a "../__mocks__" plugins/search-guard
 cp -a "../yarn.lock" plugins/search-guard
-
-# Prevent warning about outdated caniuse-lite, which seems to block the build
-npx --yes update-browserslist-db@latest
-
 cd plugins/search-guard
 
 echo -e "\e[0Ksection_start:`date +%s`:yarn_install[collapsed=true]\r\e[0KDoing yarn install"
@@ -120,13 +86,9 @@ end_section tests
 rm -rf "node_modules"
 start_section build "Building Search Guard Plugin"
 start_section yarn_install "Doing yarn install --production"
-yarn install --production #--frozen-lockfile
+yarn install --production --frozen-lockfile
 end_section yarn_install
 start_section yarn_build "Doing yarn build -v $SF_VERSION --skip-archive"
-
-# This was a fix for 8.10.4 but it should not be neccessary for >= 8.11.4
-#export NODE_OPTIONS=--openssl-legacy-provider
-
 yarn build -v $SF_VERSION --skip-archive
 
 # Fix only for Kibana 8.7.x
@@ -140,7 +102,7 @@ cd ..
 
 end_section yarn_build
 end_section build
-# Move build result from repo dir to the build folder in the CI root dir.
+# Move build result from repo dir to the build folder in the CI root dir. 
 cd $CI_PROJECT_DIR
 rm -rf build
 mv $SF_REPO_DIR/plugins/search-guard/build build
