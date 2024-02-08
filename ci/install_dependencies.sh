@@ -10,21 +10,18 @@ export NVM_DIR="$HOME/.nvm"
 
 [ -s "$NVM_DIR/nvm.sh" ]; \. "$NVM_DIR/nvm.sh"
 
-nvm install $NODE_VERSION
+nvm install $KIBANA_BUILD_NODE_VERSION
 
 end_section nvm
 
 
+start_collapsed_section corepack "Installing corepack"
 
-start_collapsed_section yarn_install "Installing Yarn"
 
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+echo "Removing installed yarn $YARN_VERSION"
+npm uninstall -g yarn pnpm
+rm -r /opt/yarn-v$YARN_VERSION
+echo "Install corepack"
+npm install -g corepack
 
-if ! [ -x "$(command -v yarn)" ]; then
-  echo "+++ Installing Yarn +++"
-  curl -Ss -o- -L https://yarnpkg.com/install.sh | bash 
-else
-  echo "    -> $(yarn -v)"
-fi
-
-end_section "yarn_install"
+end_section "corepack"
