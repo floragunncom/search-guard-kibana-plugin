@@ -6,7 +6,7 @@ variables:
   SG_SB_PLUGIN_RELEASE_REPO: search-guard-flx-release
   SG_SB_PLUGIN_SNAPSHOT_REPO: search-guard-flx-snapshot
   SG_SB_PLUGIN_NAME: search-guard-flx-elasticsearch-plugin
-  NODE_VERSION: 16.13.0
+  NODE_DOCKER: node:21.6.1
 
   #####
   SG_BUILD_IMAGE: "floragunncom/ci-pipeline-focal-mvn38-java17:0.1.0"
@@ -95,9 +95,30 @@ prepare_env:
     reports:
       dotenv: benv.env
 
+prepare_versions:
+  stage: prepare
+  script:
+     - |
+       set -e
+       URL="https://raw.githubusercontent.com/$SB_PRODUCT/$SF_PRODUCT/v$SF_VERSION/package.json"
+       curl -s $URL -o .build_versions
+       if [ ! -f package.json ]; then
+          echo "Failed to download package.json from $URL"
+          exit 1
+       fi  
+       echo "KIBANA_BUILD_NODE_VERSION=$(jq -r '.engines.node | gsub("^\\^"; "")' .build_versions)" > versions.env
+       echo "KIBANA_BUILD_YARN_VERSION=$(jq -r '.engines.yarn | gsub("^\\^"; "")' .build_versions)" >> versions.env
+       cat versions.env
+  artifacts:
+    paths:
+      - versions.env
+      -
 # This case is for usual commit to the branch, doing only unit testing and local build
 build:
+  image: $NODE_DOCKER
   stage: build
+  tags:
+    - build
   rules:
     - if: '$DOCKER_ONLY'
       when: never
@@ -107,6 +128,7 @@ build:
   script:
     - |
       set -e
+      source versions.env
       source ci/install_dependencies.sh
       source ci/init_build.sh
       echo "SG_SF_PLUGIN_VERSION=$SG_SF_PLUGIN_VERSION" >> benv.env
@@ -149,6 +171,7 @@ build_release:
       sed -i -e "s#\"version\":.*\"#\"version\": \"$SF_VERSION\"#" $SF_JSON
       sed -i -e "s#\"version\":.*\"#\"version\": \"$BUILD_VERSION\"#" package.json
       
+      source versions.env
       source ci/install_dependencies.sh
       source ci/init_build.sh
       echo "SG_SF_PLUGIN_VERSION=$SG_SF_PLUGIN_VERSION" >> benv.env
@@ -167,7 +190,7 @@ build_release:
 deploy_snapshot:
   stage: package
   tags:
-    - openstack-runner
+    - build
   #needs:
   #  - job: build
   #    artifacts: true
@@ -196,7 +219,7 @@ deploy_release:
       when: never
     - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
   tags:
-    - openstack-runner
+    - build
   script:
     - |
       ci/setup_gpg.sh
