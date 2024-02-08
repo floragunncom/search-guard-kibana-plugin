@@ -14,7 +14,7 @@ variables:
   SG_SF_PLUGIN_RELEASE_REPO: search-guard-flx-release
   SG_SF_PLUGIN_NAME: search-guard-flx-kibana-plugin
   SG_SB_PLUGIN_NAME: search-guard-flx-elasticsearch-plugin
-  NODE_VERSION: 16.13.0
+  NODE_DOCKER: node:21.6.1
 
 image: circleci/openjdk:${SG_JAVA_BUILD_VERSION}-jdk-browsers
 
@@ -44,6 +44,7 @@ before_script:
     echo "================================="
 
 stages:
+  - prepare
   - build
   - package
   - "Frontend Int Tests Core"
@@ -51,11 +52,32 @@ stages:
   - "Frontend Int Tests External Features"
   - release
 
+prepare_versions:
+  stage: prepare
+  script:
+     - |
+       set -e
+       URL="https://raw.githubusercontent.com/$SB_PRODUCT/$SF_PRODUCT/v$SF_VERSION/package.json"
+       curl -s $URL -o .build_versions
+       if [ ! -f package.json ]; then
+          echo "Failed to download package.json from $URL"
+          exit 1
+       fi  
+       echo "KIBANA_BUILD_NODE_VERSION=$(jq -r '.engines.node | gsub("^\\^"; "")' .build_versions)" > versions.env
+       echo "KIBANA_BUILD_YARN_VERSION=$(jq -r '.engines.yarn | gsub("^\\^"; "")' .build_versions)" >> versions.env
+       cat versions.env
+  artifacts:
+    paths:
+      - versions.env
+
+
+
 #This case is for usual commit to the branch, doing only unit testing and local build
 build:
+  image: $NODE_DOCKER
   stage: build
   tags:
-    - openstack-runner
+    - build
   rules:
     - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
       when: never
@@ -63,6 +85,7 @@ build:
   script:
     - |
       set -e
+      source versions.env
       source ci/install_dependencies.sh
       source ci/init_build.sh
       cd $SF_REPO_DIR/plugins/search-guard
@@ -106,16 +129,18 @@ build:
 
 #This case is for release tag commit to the branch, doing only unit testing and local build
 build_release:
+  image: $NODE_DOCKER
   stage: build
   rules:
     - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
   tags:
-    - openstack-runner
+    - build
   script:
     - |
       set -e
       sed -i -e "s#\"version\":.*\"#\"version\": \"$SF_VERSION\"#" $SF_JSON
       sed -i -e "s#\"version\":.*\"#\"version\": \"$BUILD_VERSION\"#" package.json
+      source versions.env
       source ci/install_dependencies.sh
       source ci/init_build.sh
       start_section tests "Unit Tests"
@@ -151,7 +176,7 @@ deploy_snapshot:
   stage: package
   interruptible: true
   tags:
-    - openstack-runner
+    - build
   needs:
     - job: build
       artifacts: true
@@ -170,7 +195,7 @@ deploy_snapshot:
 deploy_staging:
   stage: package
   tags:
-    - openstack-runner
+    - build
   script:
     - ci/deploy.sh staging
   needs:
@@ -191,7 +216,7 @@ deploy_release:
   rules:
     - if: '$CI_COMMIT_TAG =~ /^sg-.*/'
   tags:
-    - openstack-runner
+    - build
   script:
     - |
       ci/setup_gpg.sh
