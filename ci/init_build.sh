@@ -53,6 +53,8 @@ cp -a "../__mocks__" plugins/search-guard
 echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
 echo "pc debug"
 pwd
+env
+echo "sleeping 3600"
 sleep 3600
 if [ $SF_PRODUCT = "kibana" ]; then
   yarn kbn bootstrap --oss

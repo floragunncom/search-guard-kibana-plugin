@@ -22,7 +22,7 @@ export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 
 if ! [ -x "$(command -v yarn)" ]; then
   echo "+++ Installing Yarn +++"
-  curl -Ss -o- -L https://yarnpkg.com/install.sh | bash  -x
+  curl -Ss -o- -L https://yarnpkg.com/install.sh | bash 
 else
   echo "    -> $(yarn -v)"
 fi
