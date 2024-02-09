@@ -89,6 +89,15 @@ prepare_env:
       echo "BUILD_VERSION: $BUILD_VERSION"
       echo "SF_VERSION: $SF_VERSION"
       echo "================================="
+      URL="https://raw.githubusercontent.com/elastic/$SF_REPO_DIR/v$SF_VERSION/package.json"
+      curl -s $URL -o .build_versions
+      if [ ! -f package.json ]; then
+          echo "Failed to download package.json from $URL"
+          exit 1
+      fi  
+      echo "KIBANA_BUILD_NODE_VERSION=$(jq -r '.engines.node | gsub("^\\^"; "")' .build_versions)" > versions.env
+      echo "KIBANA_BUILD_YARN_VERSION=$(jq -r '.engines.yarn | gsub("^\\^"; "")' .build_versions)" >> versions.env
+      cat versions.env      
 
 
   artifacts:
@@ -96,26 +105,9 @@ prepare_env:
     expire_in: 2 days
     reports:
       dotenv: benv.env
-
-prepare_versions:
-  stage: prepare
-  tags:
-    - build
-  script:
-     - |
-       set -e
-       URL="https://raw.githubusercontent.com/elastic/$SF_REPO_DIR/v$SF_VERSION/package.json"
-       curl -s $URL -o .build_versions
-       if [ ! -f package.json ]; then
-          echo "Failed to download package.json from $URL"
-          exit 1
-       fi  
-       echo "KIBANA_BUILD_NODE_VERSION=$(jq -r '.engines.node | gsub("^\\^"; "")' .build_versions)" > versions.env
-       echo "KIBANA_BUILD_YARN_VERSION=$(jq -r '.engines.yarn | gsub("^\\^"; "")' .build_versions)" >> versions.env
-       cat versions.env
-  artifacts:
     paths:
-      - versions.env
+      - versions.env      
+
 # This case is for usual commit to the branch, doing only unit testing and local build
 build:
   image: $NODE_DOCKER
