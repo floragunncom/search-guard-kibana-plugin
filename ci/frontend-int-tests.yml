@@ -166,7 +166,7 @@ fe_kerberos:
   services:
     - docker:20.10.17-dind
   tags:
-    - aws-runner
+    - test-large
   script:
     - |
        echo "============================================="
