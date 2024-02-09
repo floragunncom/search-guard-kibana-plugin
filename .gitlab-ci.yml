@@ -55,6 +55,8 @@ stages:
   - "Deploy Docker Image"
 prepare_env:
   stage: prepare
+  tags:
+    - build  
   script:
     - |
 
