@@ -10,7 +10,7 @@ variables:
 
   #####
   SG_BUILD_IMAGE: "floragunncom/ci-pipeline-focal-mvn38-java17:0.1.0"
-  DOCKER_VERSION: "20.10.17"
+  DOCKER_VERSION: "25.0.3"
 
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   MAVEN_CLI_OPTS: "--batch-mode -s settings.xml -q -U"
@@ -225,7 +225,7 @@ deploy_docker_image:
   stage: "Deploy Docker Image"
   image: docker:20.10.17
   services:
-    - docker:20.10.17-dind
+    - docker:25.0.3-dind
   rules:
     - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
       when: always
