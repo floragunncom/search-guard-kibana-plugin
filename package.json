@@ -1,6 +1,6 @@
 {
   "name": "searchguard",
-  "version": "7.17.17",
+  "version": "7.17.18",
   "description": "Search Guard features for Kibana",
   "homepage": "https://search-guard.com",
   "license": "Apache-2.0",
