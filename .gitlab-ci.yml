@@ -55,6 +55,8 @@ stages:
 
 prepare_versions:
   stage: prepare
+  tags:
+    - build  
   script:
      - |
        set -e
