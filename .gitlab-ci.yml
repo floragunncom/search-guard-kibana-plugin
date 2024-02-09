@@ -104,7 +104,7 @@ prepare_versions:
   script:
      - |
        set -e
-       URL="https://raw.githubusercontent.com/$SB_PRODUCT/$SF_PRODUCT/v$SF_VERSION/package.json"
+       URL="https://raw.githubusercontent.com/elastic/$SF_REPO_DIR/v$SF_VERSION/package.json"
        curl -s $URL -o .build_versions
        if [ ! -f package.json ]; then
           echo "Failed to download package.json from $URL"
