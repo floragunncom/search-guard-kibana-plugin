@@ -179,7 +179,7 @@ export function tenantsToUiTenants({
       searchableLabel: UI_GLOBAL_TENANT_NAME,
       label: UI_GLOBAL_TENANT_NAME,
       checked: currentTenant === UI_GLOBAL_TENANT_NAME ? 'on' : undefined,
-      disabled: globalTenantEmpty,
+      disabled: !globalUserWriteable && globalTenantEmpty,
       prepend: <TenantAvatar name={UI_GLOBAL_TENANT_NAME} />,
       append: append,
       'data-test-subj': creteDataTestSubj(UI_GLOBAL_TENANT_NAME),
