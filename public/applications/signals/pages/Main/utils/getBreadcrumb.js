@@ -4,6 +4,7 @@ import {
   updateWatchText,
   readWatchText,
   watchesText,
+  signalsOperatorText,
   executionHistoryText
 } from '../../../utils/i18n/watch';
 import {
@@ -50,6 +51,10 @@ export default function getBreadcrumb(route) {
     [removePrefixSlash(APP_PATH.WATCHES)]: {
       text: watchesText,
       href: APP_PATH.WATCHES
+    },
+    [removePrefixSlash(APP_PATH.SIGNALS_OPERATOR_VIEW)]: {
+      text: signalsOperatorText,
+      href: APP_PATH.SIGNALS_OPERATOR_VIEW
     },
     [removePrefixSlash(APP_PATH.DEFINE_WATCH)]: [
       {

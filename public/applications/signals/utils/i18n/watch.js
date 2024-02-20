@@ -47,6 +47,7 @@ export const severityText = (<EuiI18n token="sg.watch.severity.text" default="Se
 export const severityThresholdsInvalidAscendingText = (<EuiI18n token="sg.watch.severityThresholdsInvalidAscending.text" default="Thresholds must be in ascending order and may not contain any duplicate values" />);
 export const severityThresholdsInvalidDescendingText = (<EuiI18n token="sg.watch.severityThresholdsInvalidDescending.text" default="Thresholds must be in descending order and may not contain any duplicate values" />);
 export const lastStatusText = (<EuiI18n token="sg.watch.lastStatus.text" default="Last Status" />);
+export const pausedText = (<EuiI18n token="sg.watch.paused.text" default="Paused" />);
 export const failedText = (<EuiI18n token="sg.watch.failed.text" default="Failed" />);
 export const triggeredText = (<EuiI18n token="sg.watch.triggered.text" default="Triggered" />);
 export const throttledText = (<EuiI18n token="sg.watch.throttled.text" default="Throttled" />);
@@ -59,6 +60,7 @@ export const noActionsText = (<EuiI18n token="sg.watch.noActions.text" default="
 export const checkExamplesText = (<EuiI18n token="sg.watch.checkExamples.text" default="Check Examples" />);
 export const watchesText = (<EuiI18n token="sg.watch.watches.text" default="Watches" />);
 export const watchText = (<EuiI18n token="sg.watch.watch.text" default="Watch" />);
+export const signalsOperatorText = (<EuiI18n token="sg.watch.watches.text" default="Operator View" />);
 export const watchJsonText = (<EuiI18n token="sg.watch.watchJson.text" default="Watch JSON" />);
 export const createWatchText = (<EuiI18n token="sg.watch.createWatch.text" default="Create Watch" />);
 export const updateWatchText = (<EuiI18n token="sg.watch.updateWatch.text" default="Update Watch" />);
