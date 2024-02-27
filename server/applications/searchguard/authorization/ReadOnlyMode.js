@@ -7,15 +7,17 @@ export class ReadOnlyMode {
     this.logger = logger;
     this.readOnlyModeRoles = null;
     this.multiTenancyEnabled = false;
+    this.searchGuardBackend = null;
+    this.configService = null;
+
   }
 
-  setupSync({ kibanaCoreSetup, searchGuardBackend, configService }) {
+  async setupSync({ kibanaCoreSetup, searchGuardBackend, configService }) {
     this.readOnlyModeRoles = configService.get('searchguard.readonly_mode.roles');
     this.multiTenancyEnabled = configService.get('searchguard.multitenancy.enabled');
-
-    if (this.readOnlyModeRoles.length || this.multiTenancyEnabled) {
-      this.registerSwitcher({ kibanaCoreSetup, searchGuardBackend, configService});
-    }
+    this.searchGuardBackend = searchGuardBackend;
+    this.configService = configService;
+    this.kibanaCoreSetup = kibanaCoreSetup;
   }
 
   hasMultipleTenants(tenantsObject, globalTenantEnabled, privateTenantEnabled, userName) {
@@ -50,33 +52,31 @@ export class ReadOnlyMode {
     return false;
   }
 
-  switcherHandler({ searchGuardBackend, configService }) {
-    return async (request, uiCapabilities) => {
+  async switcherHandler(request, uiCapabilities) {
+      // Only change capabilities if relevant
+      if (this.readOnlyModeRoles.length === 0 && !this.multiTenancyEnabled) {
+        return uiCapabilities;
+      }
+
       // Ignore for non authenticated paths
       if (this.isAnonymousPage(request)) {
         return uiCapabilities;
       }
 
       try {
-        const authInfo = await searchGuardBackend.authinfo(request.headers);
+        const authInfo = await this.searchGuardBackend.authinfo(request.headers);
         if (this.hasReadOnlyRole(authInfo, this.readOnlyModeRoles)) {
           // A read only role trumps the tenant access rights
-          return this.toggleForReadOnlyRole(uiCapabilities, configService, authInfo);
+          return this.toggleForReadOnlyRole(uiCapabilities, this.configService, authInfo);
         } else if (this.isReadOnlyTenant(authInfo)) {
-          return this.toggleForReadOnlyTenant(uiCapabilities, configService);
+          return this.toggleForReadOnlyTenant(uiCapabilities, this.configService);
         }
       } catch (error) {
         this.logger.error(`Could not check auth info: ${error.stack}`);
       }
 
       return uiCapabilities;
-    };
-  }
 
-  registerSwitcher({ kibanaCoreSetup, searchGuardBackend, configService }) {
-    kibanaCoreSetup.capabilities.registerSwitcher(
-      this.switcherHandler({ searchGuardBackend, configService })
-    );
   }
 
   hasReadOnlyRole(authInfo, readOnlyModeRoles) {
