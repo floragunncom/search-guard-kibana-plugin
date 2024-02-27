@@ -358,6 +358,28 @@ export default class SearchGuardBackend {
     }
   }
 
+  /**
+   * @typedef UserTenant
+   * @prop {boolean} read_access
+   * @prop {boolean} write_access
+   * @prop {boolean} exists
+   */
+
+  /**
+   * @typedef UserTenantInfo
+   * @prop {number} status
+   * @prop {object} data
+   * @prop {boolean} data.multi_tenancy_enabled
+   * @prop {string} data.username
+   * @prop {Record<string, UserTenant>} data.tenants
+   */
+
+
+  /**
+   *
+   * @param headers
+   * @returns {Promise<UserTenantInfo>}
+   */
   getUserTenantInfo = async (headers) => {
     try {
       return await this._client({
@@ -371,6 +393,50 @@ export default class SearchGuardBackend {
       }
       throw error;
     }
+  }
+
+  /**
+   * The user tenant info endpoint contains information about
+   * read/write access, as well as an exists flag which
+   * is false if the tenant is empty.
+   *
+   * This function filters out tenants that
+   * are read only and does not exist.
+   *
+   * This is to prevent that a user ends up in
+   * an empty tenant with only read access
+   *
+   * @param {UserTenantInfo} userTenantInfo
+   * @returns {UserTenantInfo}
+   */
+  removeNonExistingReadOnlyTenants = (userTenantInfo) => {
+    if (userTenantInfo.data && userTenantInfo.data.tenants) {
+      Object.keys(userTenantInfo.data.tenants).forEach((key) => {
+        if (userTenantInfo.data.tenants[key].write_access !== true && userTenantInfo.data.tenants[key].exists !== true) {
+          delete userTenantInfo.data.tenants[key];
+        }
+      })
+    }
+
+    return userTenantInfo;
+  }
+
+  /**
+   * Converts the UserTenantInfo tenants to the tenantName = write_access format
+   * to stay compatible with existing code
+   * @param {Record<string, UserTenant>} userTenants
+   * @return {Record<string, boolean>}
+   */
+  convertUserTenantsToRecord = (userTenants) => {
+    /**
+     * @type {Record<string, boolean>}
+     */
+    const tenantsRecord = {};
+    Object.keys(userTenants).forEach((tenant) => {
+      tenantsRecord[tenant] = userTenants[tenant].write_access;
+    });
+
+    return tenantsRecord;
   }
 
   uploadLicense = async (headers, body) => {
@@ -457,6 +523,11 @@ export default class SearchGuardBackend {
       globalEnabled = false;
     }
 
+    // Make sure we sync with the backend
+    if (!globalEnabled) {
+      delete tenantsCopy[GLOBAL_TENANT_NAME];
+    }
+
     // sanity check
     if (!globalEnabled && !privateEnabled && _.isEmpty(tenantsCopy)) {
       return null;
@@ -480,11 +551,12 @@ export default class SearchGuardBackend {
           return '__user__';
         }
 
-        if (tenants[check] !== undefined) {
+        // TODO Test if SGS_GLOBAL_TENANT is handled correctly
+        if (tenantsCopy[check] !== undefined) {
           return check;
         }
 
-        if (tenants[check.toLowerCase()] !== undefined) {
+        if (tenantsCopy[check.toLowerCase()] !== undefined) {
           return check.toLowerCase();
         }
 
@@ -527,6 +599,15 @@ export default class SearchGuardBackend {
     return null;
   }
 
+  /**
+   *
+   * @param username
+   * @param requestedTenant
+   * @param {Record<string, boolean>} tenants
+   * @param globalEnabled
+   * @param privateEnabled
+   * @returns {*|string|null}
+   */
   validateTenant(username, requestedTenant, tenants, globalEnabled, privateEnabled) {
     // delete user from tenants first to check if we have a tenant to choose from at all
     // keep original preferences untouched, we need the original values again
@@ -551,10 +632,12 @@ export default class SearchGuardBackend {
 
     // requested tenant accessible for user
     // TODO do we need to check lowercase here...? Not really, tenants are case sensitive
-    if (tenants[requestedTenant] !== undefined) {
+    if (tenantsCopy[requestedTenant] !== undefined) {
       return requestedTenant;
     }
 
+    // Using tenants instead of tenantsCopy here is intentional
+    // because the private tenant is always deleted from the tenantsCopy
     if (
       (requestedTenant === PRIVATE_TENANT_NAME || requestedTenant === 'private') &&
       tenants[username] &&

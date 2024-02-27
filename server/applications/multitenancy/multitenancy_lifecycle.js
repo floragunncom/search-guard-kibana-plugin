@@ -148,10 +148,17 @@ export class MultitenancyLifecycle {
       selectedTenant = externalTenant;
     }
 
-    let authInfoResponse;
+    let userTenantInfo;
+    let userTenants = {};
     try {
       // We need the user's data from the backend to validate the selected tenant
-      authInfoResponse = await backend.authinfo(authHeaders);
+      userTenantInfo = await backend.getUserTenantInfo(authHeaders);
+      userTenantInfo = backend.removeNonExistingReadOnlyTenants(userTenantInfo);
+      /**
+       * @type {Record<string, boolean>}
+       */
+      userTenants = backend.convertUserTenantsToRecord(userTenantInfo.data.tenants);
+
     } catch (error) {
       this.logger.error(`Multitenancy: Could not get authinfo from ${request.url.pathname}. ${error}`);
       return null;
@@ -160,9 +167,9 @@ export class MultitenancyLifecycle {
     // if we have a tenant, check validity and set it
     if (typeof selectedTenant !== 'undefined' && selectedTenant !== null) {
       selectedTenant = backend.validateTenant(
-        authInfoResponse.user_name,
+        userTenantInfo.data.username,
         selectedTenant,
-        authInfoResponse.sg_tenants,
+        userTenants,
         globalEnabled,
         privateEnabled
       );
@@ -174,8 +181,8 @@ export class MultitenancyLifecycle {
       try {
         selectedTenant = backend.getTenantByPreference(
           request,
-          authInfoResponse.user_name,
-          authInfoResponse.sg_tenants,
+          userTenantInfo.data.username,
+          userTenants,
           preferredTenants,
           globalEnabled,
           privateEnabled

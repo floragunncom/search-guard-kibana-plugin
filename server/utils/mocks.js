@@ -43,6 +43,9 @@ export function setupSearchGuardBackendMock({
   getTenantInfoWithInternalUser = jest.fn(),
   getOIDCWellKnown = jest.fn(),
   getOIDCToken = jest.fn(),
+  getUserTenantInfo = jest.fn(),
+  convertUserTenantsToRecord = jest.fn(),
+  removeNonExistingReadOnlyTenants = jest.fn(),
 } = {}) {
   return {
     authinfo,
@@ -54,6 +57,9 @@ export function setupSearchGuardBackendMock({
     getTenantInfoWithInternalUser,
     getOIDCWellKnown,
     getOIDCToken,
+    getUserTenantInfo,
+    convertUserTenantsToRecord,
+    removeNonExistingReadOnlyTenants,
   };
 }
 

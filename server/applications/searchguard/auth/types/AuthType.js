@@ -514,31 +514,40 @@ export default class AuthType {
     // Make sure the user has a tenant that they can use
     const isGlobalTenantEnabled = (
       this.config.get('searchguard.multitenancy.tenants.enable_global')
-      && authResponse.user.tenants[GLOBAL_TENANT_NAME] !== undefined
     )
 
     if (
       this.validateAvailableTenants &&
-      this.config.get('searchguard.multitenancy.enabled') &&
-      !isGlobalTenantEnabled
+      this.config.get('searchguard.multitenancy.enabled')
     ) {
       const privateTenantEnabled = this.config.get(
         'searchguard.multitenancy.tenants.enable_private'
       );
 
-      const allTenants = authResponse.user.tenants;
+      let allTenants;
 
-      if (allTenants != null) {
-        // We're only here if the global tenant is not enabled,
-        // so we need to filter out the SGS_GLOBAL_TENANT too
+      try {
+        let userTenantInfo = await this.searchGuardBackend.getUserTenantInfo({authorization: authResponse.session.credentials.authHeaderValue});
+        userTenantInfo = this.searchGuardBackend.removeNonExistingReadOnlyTenants(userTenantInfo);
+        allTenants = this.searchGuardBackend.convertUserTenantsToRecord(userTenantInfo.data.tenants);
+      } catch (error) {
+        this.logger.info(`Could not retrieve the user tenants`);
+        // Fall back to the authResponse tenants
+        allTenants = authResponse.user.tenants;
+      }
+
+      if (!isGlobalTenantEnabled) {
+        // We have two settings for the global tenant,
+        // one in the frontend and one in the backend.
+        // This is in case they are not in sync
         delete allTenants.SGS_GLOBAL_TENANT;
       }
 
-      if (allTenants != null && !privateTenantEnabled) {
+      if (!privateTenantEnabled) {
         delete allTenants[authResponse.user.username];
       }
 
-      if (allTenants == null || Object.keys(allTenants).length === 0) {
+      if (Object.keys(allTenants).length === 0) {
         throw new MissingTenantError(
           'No tenant available for this user, please contact your system administrator.'
         );
