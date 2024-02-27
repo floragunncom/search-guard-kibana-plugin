@@ -87,7 +87,8 @@ export class MultitenancyLifecycle {
       '/goto',
       '/opensearch',
       '/app',
-      '/api'
+      '/api',
+      '/bootstrap.js'
     ];
 
     // MT is not relevant in these patterns
