@@ -371,17 +371,15 @@ describe('ReadOnlyMode', () => {
       };
 
       const authinfo = jest.fn().mockResolvedValue(authinfoResponse);
-      const searchGuardBackend = setupSearchGuardBackendMock({ authinfo });
 
       const readOnly = new ReadOnlyMode(logger);
+      readOnly.searchGuardBackend = setupSearchGuardBackendMock({ authinfo });
       readOnly.readOnlyModeRoles = ['readonly_role'];
       readOnly.multiTenancyEnabled = true;
+      readOnly.configService = configService;
 
       // Internals of switcherHandler
-      const toggledUiCapabilities = await readOnly.switcherHandler({
-        searchGuardBackend,
-        configService,
-      })(cloneDeep(request), uiCapabilities);
+      const toggledUiCapabilities = await readOnly.switcherHandler(cloneDeep(request), uiCapabilities);
 
       // switcherHandler
       expect(authinfo).toHaveBeenCalledWith(request.headers);
@@ -485,17 +483,15 @@ describe('ReadOnlyMode', () => {
       };
 
       const authinfo = jest.fn().mockResolvedValue(authinfoResponse);
-      const searchGuardBackend = setupSearchGuardBackendMock({ authinfo });
 
       const readOnly = new ReadOnlyMode(logger);
       readOnly.readOnlyModeRoles = ['readonly_role'];
       readOnly.multiTenancyEnabled = true;
+      readOnly.searchGuardBackend = setupSearchGuardBackendMock({ authinfo });
+      readOnly.configService = configService;
 
       // Internals of switcherHandler
-      const toggledUiCapabilities = await readOnly.switcherHandler({
-        searchGuardBackend,
-        configService,
-      })(cloneDeep(request), uiCapabilities);
+      const toggledUiCapabilities = await readOnly.switcherHandler(cloneDeep(request), uiCapabilities);
 
       // switcherHandler
       expect(authinfo).toHaveBeenCalledWith(request.headers);

@@ -175,15 +175,6 @@ export class SearchGuard {
 
       this.logger.info('Search Guard system routes registered.');
 
-      if (configService.get('searchguard.readonly_mode.enabled')) {
-        const readOnlyMode = new ReadOnlyMode(this.coreContext.logger.get('searchguard-readonly'));
-        readOnlyMode.setupSync({
-          kibanaCoreSetup: core,
-          searchGuardBackend,
-          configService,
-        });
-      }
-
       return { authManager, sessionStorageFactory, kerberos };
     } catch (error) {
       this.logger.error(error);
