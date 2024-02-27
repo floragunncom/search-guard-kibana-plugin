@@ -35,7 +35,7 @@ import {
   UI_PRIVATE_TENANT_NAME,
   tenantNameToUiTenantName,
   uiTenantNameToTenantName,
-  GLOBAL_TENANT_NAME
+  GLOBAL_TENANT_NAME, MISSING_TENANT_PARAMETER_VALUE
 } from "../../../common/multitenancy";
 import {
   yourTenantsText,
@@ -103,8 +103,6 @@ export function tenantsToUiTenants({
   currentTenant,
   tenantinfo = {},
   authinfo = {},
-  globalTenantEnabled,
-  privateTenantEnabled,
   isDashboardOnlyRole,
 } = {}) {
   const userName = authinfo.user_name;
@@ -112,12 +110,19 @@ export function tenantsToUiTenants({
 
   // If SGS_GLOBAL_TENANT is not available in tenant list, it needs to be
   // removed from UI display as well
+  let isPrivateTenantEnabled = false;
   let globalUserWriteable = false;
   let globalUserVisible = false;
   let globalTenantEmpty = false;
-  delete tenants[userName];
 
-  if (tenants.hasOwnProperty(GLOBAL_TENANT_NAME) && globalTenantEnabled) {
+  // Replaces the old flag for private enabled
+  if (typeof tenants[userName] !== 'undefined') {
+    isPrivateTenantEnabled = true;
+    delete tenants[userName];
+  }
+
+
+  if (tenants.hasOwnProperty(GLOBAL_TENANT_NAME)) {
     globalUserWriteable = tenants[GLOBAL_TENANT_NAME].write_access === true && !isDashboardOnlyRole;
     globalUserVisible = true;
     globalTenantEmpty = tenants[GLOBAL_TENANT_NAME].exists === false;
@@ -156,7 +161,7 @@ export function tenantsToUiTenants({
     }, [])
     .sort((a, b) => a.label[0] - b.label[0]);
 
-  if (privateTenantEnabled && !isDashboardOnlyRole) {
+  if (isPrivateTenantEnabled && !isDashboardOnlyRole) {
     uiTenants.unshift({
       'aria-label': UI_PRIVATE_TENANT_NAME,
       searchableLabel: UI_PRIVATE_TENANT_NAME,
@@ -215,8 +220,18 @@ function ConfigurationCheckCallOut({ isBackendMTEnabled  }) {
 
   useEffect(() => {
     fetchData();
+    // This is where we open the tenants menu
+    // with an error message if an authenticated
+    // user has requested the wrong tenant
+    let url = new URL(window.location)
+    if (url.searchParams.get('sgtenantsmenu') === MISSING_TENANT_PARAMETER_VALUE) {
+      setError('The requested tenant is not available')
+    }
+    url.searchParams.set('sgtenantsmenu', 'handled');
+    window.history.pushState(null, '', url.toString());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
 
   async function fetchData() {
     try {
@@ -270,17 +285,19 @@ export function TenantsMenu() {
     MainContext
   );
 
-  const {
-    enable_global: globalTenantEnabled,
-    enable_private: privateTenantEnabled,
-  } = configService.get('searchguard.multitenancy.tenants');
   const readOnlyConfig = configService.get('searchguard.readonly_mode');
   const isSGConfigEnabled =
     configService.get('searchguard.configuration.enabled') && configService.hasApiAccess();
   const id = htmlIdGenerator()();
 
+  let urlSearch = new URLSearchParams(window.location.search)
+  let shouldBeOpen = false;
+  if (urlSearch.get('sgtenantsmenu') === MISSING_TENANT_PARAMETER_VALUE) {
+    shouldBeOpen = true;
+  }
+
   const [isLoading, setIsLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(shouldBeOpen);
   const [tenants, setTenants] = useState([]);
   const [selectedTenant, setSelectedTenant] = useState(findSelectedTenant(tenants));
   const [tenantInfo, setTenantInfo] = useState({});
@@ -309,8 +326,6 @@ export function TenantsMenu() {
 
       const uiTenants = tenantsToUiTenants({
         tenantinfo,
-        globalTenantEnabled,
-        privateTenantEnabled,
         authinfo,
         currentTenant: tenantNameToUiTenantName(currentTenant),
         isDashboardOnlyRole: hasUserDashboardOnlyRole({ authinfo, readOnlyConfig }),

@@ -89,7 +89,7 @@ export class TenantService {
       await this.clusterClient.asScoped(request).asCurrentUser.create({
         id: docId,
         body: docBody,
-        index: versionIndexName,
+        index: this.aliasName,
         refresh,
       });
     } catch (error) {

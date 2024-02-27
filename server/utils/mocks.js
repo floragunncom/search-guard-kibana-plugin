@@ -36,6 +36,7 @@ export function setupHttpRouterMock({ ensureRawRequest = () => jest.fn() } = {})
 export function setupSearchGuardBackendMock({
   authinfo = jest.fn(),
   validateTenant = jest.fn(),
+  validateRequestedTenant = jest.fn(),
   hasPermissions = jest.fn(),
   getTenantByPreference = jest.fn(),
   authenticateWithHeader = jest.fn(),
@@ -43,10 +44,14 @@ export function setupSearchGuardBackendMock({
   getTenantInfoWithInternalUser = jest.fn(),
   getOIDCWellKnown = jest.fn(),
   getOIDCToken = jest.fn(),
+  getUserTenantInfo = jest.fn(),
+  convertUserTenantsToRecord = jest.fn(),
+  removeNonExistingReadOnlyTenants = jest.fn(),
 } = {}) {
   return {
     authinfo,
     validateTenant,
+    validateRequestedTenant,
     hasPermissions,
     getTenantByPreference,
     authenticateWithHeader,
@@ -54,6 +59,9 @@ export function setupSearchGuardBackendMock({
     getTenantInfoWithInternalUser,
     getOIDCWellKnown,
     getOIDCToken,
+    getUserTenantInfo,
+    convertUserTenantsToRecord,
+    removeNonExistingReadOnlyTenants,
   };
 }
 

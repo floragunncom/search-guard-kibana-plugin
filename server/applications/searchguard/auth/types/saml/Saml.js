@@ -60,7 +60,7 @@ export default class Saml extends AuthType {
 
   async getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false) {
     const url = new URL(request.url.href);
-    url.pathname = path.posix.join(this.basePath, '/customerror');
+    url.pathname = path.posix.join(this.basePath, '/searchguard/login');
 
     if (error instanceof MissingTenantError) {
       url.searchParams.set('type', 'missingTenant');

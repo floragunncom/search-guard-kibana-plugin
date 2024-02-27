@@ -55,6 +55,13 @@ async function getConfigService({ kibanaIndex, logger, initContext, clusterClien
       }
     }
 
+    // This will be updated in the setup and start methods.
+    // Unfortunately, calling the required endpoint and
+    // awaiting the response seems to lead to some
+    // kind of race condition. As a result, some
+    // of the routes are never enabled.
+    sgConfig.multitenancy.enabled = true;
+
     return new ConfigService({
       ...extendedKibanaConfig,
       elasticsearch: clusterClient.config,
@@ -160,6 +167,7 @@ export class ServerPlugin {
         return {
           sessionStorageFactory,
           authManager,
+          configService,
         };
       });
 
@@ -180,6 +188,11 @@ export class ServerPlugin {
           elasticsearch,
         });
       }
+
+      searchGuardBackend.getKibanaInfoWithInternalUser()
+        .then((kibanaInfo) => {
+          configService.config.searchguard.multitenancy.enabled = kibanaInfo.kibana_mt_enabled;
+        });
     })();
   }
 
@@ -210,8 +223,16 @@ export class ServerPlugin {
           core,
           searchGuardBackend,
           configService,
+          kibanaRouter: this.kibanaRouter,
+          elasticsearch: core.elasticsearch,
         });
       }
+
+      searchGuardBackend.getKibanaInfoWithInternalUser()
+        .then((kibanaInfo) => {
+          configService.config.searchguard.multitenancy.enabled = kibanaInfo.kibana_mt_enabled;
+        });
+
     })();
   }
 }

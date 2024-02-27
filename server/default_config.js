@@ -47,23 +47,7 @@ export const DEFAULT_CONFIG = {
       allowed_usernames: null,
     },
     multitenancy: {
-      enabled: false,
-      show_roles: false,
-      enable_filter: false,
       debug: false,
-      tenants: {
-        enable_private: true,
-        enable_global: true,
-        preferred: undefined,
-      },
-      saved_objects_migration: {
-        batch_size: 100,
-        max_batch_size: "100mb",
-        scroll_duration: '15m',
-        poll_interval: 1500,
-        skip: false,
-        enableV2: true,
-      },
     },
     configuration: {
       enabled: true,
