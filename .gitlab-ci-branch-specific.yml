@@ -1,4 +1,4 @@
 variables:
-  IT_BRANCH: "8.12.x"
-  SG_ES_PLUGIN: "femt-pre-release-8.12.x-SNAPSHOT"
+  IT_BRANCH: "8.12.mt-index-pattern-test-debug"
+  SG_ES_PLUGIN: "main-es8-SNAPSHOT"
 
