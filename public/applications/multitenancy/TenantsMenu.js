@@ -220,15 +220,15 @@ function ConfigurationCheckCallOut({ isBackendMTEnabled  }) {
 
   useEffect(() => {
     fetchData();
+    // TODO clean this up
+    let u = new URLSearchParams(window.location.search)
+    let shouldBeOpen = false;
+    if (u.get('sgtenantsmenu') === 'abc') {
+      setError('The requested tenant is not available')
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // TODO clean this up
-  let u = new URLSearchParams(window.location.search)
-  let shouldBeOpen = false;
-  if (u.get('sgtenantsmenu') === 'abc') {
-    setError('The requested tenant is not available')
-  }
 
   async function fetchData() {
     try {

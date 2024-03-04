@@ -55,7 +55,7 @@ export class MultitenancyLifecycle {
       if (externalTenant !== null && authHeaders && authHeaders.authorization) {
 
         let userTenantInfo = await this.searchGuardBackend.getUserTenantInfo(authHeaders);
-        if (!userTenantInfo.multi_tenancy_enabled) {
+        if (!userTenantInfo.data.multi_tenancy_enabled) {
           // Ignore
           return toolkit.next();
         }
@@ -219,7 +219,7 @@ export class MultitenancyLifecycle {
       sessionCookie && typeof sessionCookie.tenant !== 'undefined' ? sessionCookie.tenant : null;
 
     if (debugEnabled) {
-      this.logger.info(`Multitenancy: tenant_storagecookie ${selectedTenant}`);
+      //this.logger.info(`Multitenancy: tenant_storagecookie ${selectedTenant}`);
     }
 
     const externalTenant = this.getExternalTenant(request, debugEnabled);
@@ -235,11 +235,6 @@ export class MultitenancyLifecycle {
 
     if (externalTenant) {
       selectedTenant = externalTenant;
-      if (externalTenant === 'testfail') {
-        sessionCookie.tenant = externalTenant;
-        await this.sessionStorageFactory.asScoped(request).set(sessionCookie);
-        return externalTenant;
-      }
     }
 
     let userTenantInfo;
