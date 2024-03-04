@@ -421,7 +421,9 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
     const searchGuardBackend = setupSearchGuardBackendMock({
       authinfo: jest.fn().mockResolvedValue(authinfoResponse),
       getTenantByPreference: jest.fn().mockReturnValue('admin_tenant'),
-     c
+      getUserTenantInfo: jest.fn().mockResolvedValue(userTenantInfoResponse),
+      removeNonExistingReadOnlyTenants: jest.fn().mockReturnValue(userTenantInfoResponse),
+      convertUserTenantsToRecord: jest.fn().mockReturnValue(mockedTenantsRecord)
     });
 
     const sessionStorageFactorySet = jest.fn();
