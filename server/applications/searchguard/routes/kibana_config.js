@@ -32,15 +32,12 @@ export function handleKibanaConfig({ config, logger }) {
             (await resolvedContext.searchGuard.authManager.getAuthHeader(request)) === false ? false : true;
         }
 
+        const configService = await resolvedContext.searchGuard.configService;
 
         config.searchguard.multitenancy = config.searchguard.multitenancy || {};
         kibanaConfig.searchguard.multitenancy = {
-          ...pick(config.searchguard.multitenancy, ['enable_filter', 'show_roles']),
-          tenants: pick(config.searchguard.multitenancy.tenants, [
-            'enable_private',
-            'enable_global',
-            'preferred',
-          ]),
+          enabled: configService.get('searchguard.multitenancy.enabled'),
+          ...pick(config.searchguard.multitenancy, ['debug']),
         };
 
         config.searchguard.accountinfo = config.searchguard.accountinfo || {};

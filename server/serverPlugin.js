@@ -163,6 +163,7 @@ export class ServerPlugin {
         return {
           sessionStorageFactory,
           authManager,
+          configService,
         };
       });
 
@@ -220,7 +221,6 @@ export class ServerPlugin {
           configService,
           kibanaRouter: this.kibanaRouter,
           elasticsearch: core.elasticsearch,
-          tenantsService: this.tenantsServiceService,
         });
       }
 

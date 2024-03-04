@@ -61,6 +61,7 @@ export class Multitenancy {
         clusterClient: elasticsearch.client,
         pluginDependencies,
         spacesService,
+        kibanaCore,
       });
       kibanaCore.http.registerOnPreAuth(multitenancyLifecycle.onPreRouting);
       kibanaCore.http.registerOnPreAuth(multitenancyLifecycle.onPreAuth);
@@ -76,7 +77,7 @@ export class Multitenancy {
 
   }
 
-  async start({ core, searchGuardBackend, configService, kibanaRouter, elasticsearch, tenantService, sessionStorageFactory }) {
+  async start({ core, searchGuardBackend, configService, kibanaRouter, elasticsearch, sessionStorageFactory }) {
     this.logger.debug('Start app');
     /* TODO Dynamic
     const requestHeadersWhitelist = configService.get('elasticsearch.requestHeadersWhitelist');
@@ -95,7 +96,6 @@ export class Multitenancy {
       sessionStorageFactory, // TODO or take this from the route context?
       logger: this.logger,
       clusterClient: elasticsearch.client,
-      tenantService,
     });
   }
 }

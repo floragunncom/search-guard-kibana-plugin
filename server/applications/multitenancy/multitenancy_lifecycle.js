@@ -28,6 +28,7 @@ export class MultitenancyLifecycle {
     logger,
     pluginDependencies,
     spacesService,
+    kibanaCore
   }) {
     this.authManager = authManager;
     this.searchGuardBackend = searchGuardBackend;
@@ -37,6 +38,9 @@ export class MultitenancyLifecycle {
     this.pluginDependencies = pluginDependencies;
     this.spacesService = spacesService;
     this.kerberos = kerberos;
+    this.kibanaCore = kibanaCore;
+
+    this.basePath = kibanaCore.http.basePath.get();
   }
 
   // TODO Consolidate both preroutings
@@ -67,8 +71,7 @@ export class MultitenancyLifecycle {
             body: 'Wrong tenant',
             statusCode: 401,
             headers: {
-              // TODO BASEPATH
-              'location': `/searchguard/login?gottenanterror=true&sgtenantsmenu=abc`,
+              'location': this.basePath + `/app/home?sgtenantsmenu=abc`,
             },
           });
         } else {

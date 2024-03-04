@@ -26,7 +26,6 @@ export function multitenancyRoutes({
   config,
   sessionStorageFactory,
   logger,
-  tenantService,
 }) {
   const debugEnabled = config.get('searchguard.multitenancy.debug');
 
