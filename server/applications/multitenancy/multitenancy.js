@@ -22,8 +22,7 @@ export class Multitenancy {
   constructor(coreContext) {
     this.coreContext = coreContext;
     this.logger = coreContext.logger.get('searchguard-multitenancy');
-    this.docLinksService = new DocLinksService(coreContext);
-    this.docLinksService.setup();
+    this.enabled = true;
   }
 
   async setup({
@@ -49,6 +48,8 @@ export class Multitenancy {
       );
     }
 
+
+
     try {
       const multitenancyLifecycle = new MultitenancyLifecycle({
         authManager,
@@ -61,23 +62,40 @@ export class Multitenancy {
         pluginDependencies,
         spacesService,
       });
+      kibanaCore.http.registerOnPreAuth(multitenancyLifecycle.onPreRouting);
       kibanaCore.http.registerOnPreAuth(multitenancyLifecycle.onPreAuth);
 
-      defineMultitenancyRoutes({
-        router: kibanaRouter,
-        searchGuardBackend,
-        config: configService,
-        sessionStorageFactory,
-        logger: this.logger,
-        clusterClient: elasticsearch.client,
-        tenantService,
-      });
+
+
     } catch (error) {
       this.logger.error(`setup: ${error.toString()} ${error.stack}`);
     }
   }
 
-  async start({ core, searchGuardBackend, configService }) {
+  async disableMT(){
+
+  }
+
+  async start({ core, searchGuardBackend, configService, kibanaRouter, elasticsearch, tenantService, sessionStorageFactory }) {
     this.logger.debug('Start app');
+    /* TODO Dynamic
+    const requestHeadersWhitelist = configService.get('elasticsearch.requestHeadersWhitelist');
+    if (!requestHeadersWhitelist.includes('sgtenant')) {
+      throw new Error(
+        'No tenant header found in whitelist. Please add sgtenant to elasticsearch.requestHeadersWhitelist in kibana.yml'
+      );
+    }
+
+     */
+
+    defineMultitenancyRoutes({
+      router: kibanaRouter,
+      searchGuardBackend,
+      config: configService,
+      sessionStorageFactory, // TODO or take this from the route context?
+      logger: this.logger,
+      clusterClient: elasticsearch.client,
+      tenantService,
+    });
   }
 }

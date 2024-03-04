@@ -122,6 +122,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
     searchGuardBackend = setupSearchGuardBackendMock({
       authinfo: jest.fn().mockResolvedValue(authinfoResponse),
       validateTenant: jest.fn().mockReturnValue(sgtenant),
+      validateRequestedTenant: jest.fn().mockReturnValue(sgtenant),
     });
     clusterClient = setupClusterClientMock();
   });
@@ -315,6 +316,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       authinfo: jest.fn().mockResolvedValue(authinfoResponse),
       getAllAuthHeaders: jest.fn().mockReturnValue(allAuthHeaders),
       validateTenant: jest.fn().mockReturnValue('__user__'),
+      validateRequestedTenant: jest.fn().mockReturnValue('__user__'),
       getUserTenantInfo: jest.fn().mockResolvedValue(userTenantInfoResponse),
       removeNonExistingReadOnlyTenants: jest.fn().mockReturnValue(userTenantInfoResponse),
       convertUserTenantsToRecord: jest.fn().mockReturnValue(mockedTenantsRecord)
@@ -358,12 +360,10 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
     //expect(searchGuardBackend.authinfo).toHaveBeenCalledWith(authHeaders);
     expect(searchGuardBackend.getUserTenantInfo).toHaveBeenCalledWith(authHeaders);
     expect(searchGuardBackend.convertUserTenantsToRecord).toHaveBeenCalledWith(userTenantInfoResponse.data.tenants);
-    expect(searchGuardBackend.validateTenant).toHaveBeenCalledWith(
+    expect(searchGuardBackend.validateRequestedTenant).toHaveBeenCalledWith(
       userTenantInfoResponse.data.username,
       sgtenant,
       mockedTenantsRecord,
-      false,
-      true
     );
     expect(selectedTenant).toEqual(sgtenant);
   });
@@ -395,6 +395,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
       data: {
         multi_tenancy_enabled: true,
         username: 'admin',
+        default_tenant: 'admin_tenant',
         tenants: {
           admin_tenant: {
             exists: true,
@@ -420,9 +421,7 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
     const searchGuardBackend = setupSearchGuardBackendMock({
       authinfo: jest.fn().mockResolvedValue(authinfoResponse),
       getTenantByPreference: jest.fn().mockReturnValue('admin_tenant'),
-      getUserTenantInfo: jest.fn().mockResolvedValue(userTenantInfoResponse),
-      removeNonExistingReadOnlyTenants: jest.fn().mockReturnValue(userTenantInfoResponse),
-      convertUserTenantsToRecord: jest.fn().mockReturnValue(mockedTenantsRecord)
+     c
     });
 
     const sessionStorageFactorySet = jest.fn();
@@ -467,14 +466,6 @@ describe('MultitenancyLifecycle.onPreAuth', () => {
     expect(sessionStorageFactory.asScoped).toHaveBeenCalledWith(request);
     expect(sessionStorageFactorySet).toHaveBeenCalledWith({ tenant: sgtenant });
     expect(searchGuardBackend.validateTenant).toHaveBeenCalledTimes(0);
-    expect(searchGuardBackend.getTenantByPreference).toHaveBeenCalledWith(
-      request,
-      userTenantInfoResponse.data.username,
-      mockedTenantsRecord,
-      configService.get('searchguard.multitenancy.tenants.preferred'),
-      false,
-      true
-    );
     expect(selectedTenant).toEqual(sgtenant);
   });
 });

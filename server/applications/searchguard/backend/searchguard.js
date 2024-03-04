@@ -261,6 +261,18 @@ export default class SearchGuardBackend {
     }
   }
 
+  /**
+   * NB: type not complete
+   * @typedef KibanaInfo
+   * @prop {string} user_name
+   * @prop {boolean} not_fail_on_forbidden_enabled
+   * @prop {boolean} kibana_mt_enabled
+   */
+
+  /**
+   *
+   * @returns {Promise<KibanaInfo>}
+   */
   getKibanaInfoWithInternalUser = async () => {
     try {
       return await this._client({
@@ -371,6 +383,7 @@ export default class SearchGuardBackend {
    * @prop {object} data
    * @prop {boolean} data.multi_tenancy_enabled
    * @prop {string} data.username
+   * @prop {string?} data.default_tenant
    * @prop {Record<string, UserTenant>} data.tenants
    */
 
@@ -604,6 +617,22 @@ export default class SearchGuardBackend {
    * @param username
    * @param requestedTenant
    * @param {Record<string, boolean>} tenants
+   * @returns {string|null}
+   */
+  validateRequestedTenant(username, requestedTenant, tenants) {
+    // TODO Do we need to translate the query parameter? global, private etc?
+    if (tenants && typeof tenants[requestedTenant] !== 'undefined') {
+      return requestedTenant;
+    }
+
+    return null;
+  }
+
+  /**
+   *
+   * @param username
+   * @param requestedTenant
+   * @param {Record<string, boolean>} tenants
    * @param globalEnabled
    * @param privateEnabled
    * @returns {*|string|null}
@@ -614,6 +643,8 @@ export default class SearchGuardBackend {
     // http://stackoverflow.com/questions/728360/how-do-i-correctly-clone-a-javascript-object
     const tenantsCopy = JSON.parse(JSON.stringify(tenants));
     delete tenantsCopy[username];
+
+    console.log('>>>>> Validating tenants', requestedTenant, tenants)
 
     // We have two paths for deciding if the global tenant is available:
     // searchguard.multitenancy.global.enabled and authinfo.sg_tenants

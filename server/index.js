@@ -114,7 +114,7 @@ export const ConfigSchema = schema.object({
    * Multitenancy
    */
   multitenancy: schema.object({
-    enabled: schema.boolean({ defaultValue: multitenancyDefaults.enabled }),
+    //enabled: schema.boolean({ defaultValue: multitenancyDefaults.enabled }),
     show_roles: schema.boolean({ defaultValue: multitenancyDefaults.show_roles }),
     enable_filter: schema.boolean({ defaultValue: multitenancyDefaults.enable_filter }),
     debug: schema.boolean({ defaultValue: multitenancyDefaults.debug }),

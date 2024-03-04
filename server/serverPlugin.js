@@ -55,6 +55,9 @@ async function getConfigService({ kibanaIndex, logger, initContext, clusterClien
       }
     }
 
+    // TODO Workaround enough?
+    sgConfig.multitenancy.enabled = true;
+
     return new ConfigService({
       ...extendedKibanaConfig,
       elasticsearch: clusterClient.config,
@@ -180,6 +183,11 @@ export class ServerPlugin {
           elasticsearch,
         });
       }
+
+      searchGuardBackend.getKibanaInfoWithInternalUser()
+        .then((kibanaInfo) => {
+          configService.config.searchguard.multitenancy.enabled = kibanaInfo.kibana_mt_enabled;
+        });
     })();
   }
 
@@ -210,8 +218,17 @@ export class ServerPlugin {
           core,
           searchGuardBackend,
           configService,
+          kibanaRouter: this.kibanaRouter,
+          elasticsearch: core.elasticsearch,
+          tenantsService: this.tenantsServiceService,
         });
       }
+
+      searchGuardBackend.getKibanaInfoWithInternalUser()
+        .then((kibanaInfo) => {
+          configService.config.searchguard.multitenancy.enabled = kibanaInfo.kibana_mt_enabled;
+        });
+
     })();
   }
 }

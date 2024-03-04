@@ -36,6 +36,7 @@ export function setupHttpRouterMock({ ensureRawRequest = () => jest.fn() } = {})
 export function setupSearchGuardBackendMock({
   authinfo = jest.fn(),
   validateTenant = jest.fn(),
+  validateRequestedTenant = jest.fn(),
   hasPermissions = jest.fn(),
   getTenantByPreference = jest.fn(),
   authenticateWithHeader = jest.fn(),
@@ -50,6 +51,7 @@ export function setupSearchGuardBackendMock({
   return {
     authinfo,
     validateTenant,
+    validateRequestedTenant,
     hasPermissions,
     getTenantByPreference,
     authenticateWithHeader,

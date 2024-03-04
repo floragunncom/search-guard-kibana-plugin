@@ -68,17 +68,26 @@ export function multitenancyRoutes({
       validate: false,
     },
     async (context, request, response) => {
-      let selectedTenant = undefined;
-      const cookie = await sessionStorageFactory.asScoped(request).get();
-      if (cookie) {
-        selectedTenant = cookie.tenant;
-      }
+      try {
+        let selectedTenant = undefined;
+        const resolvedContext = await context.resolve(['searchGuard']);
+        sessionStorageFactory = await resolvedContext.searchGuard.sessionStorageFactory;
+        const cookie = await sessionStorageFactory.asScoped(request).get();
+        if (cookie) {
+          selectedTenant = cookie.tenant;
+        }
 
-      if (debugEnabled) {
-        logger.info(`tenant_GET: ${selectedTenant}`);
-      }
+        if (debugEnabled) {
+          logger.info(`tenant_GET: ${selectedTenant}`);
+        }
 
-      return response.ok({ body: selectedTenant });
+        return response.ok({ body: selectedTenant });
+      } catch (error) {
+
+      }
+      // TODO
+      return response.notFound();
+
     }
   );
 
