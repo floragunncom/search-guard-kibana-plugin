@@ -1,4 +1,4 @@
 variables:
-  IT_BRANCH: "8.12.x"
-  SG_ES_PLUGIN: "femt-pre-release-8.12.x-SNAPSHOT"
+  IT_BRANCH: "8.12.x-mt-config-in-backend"
+  SG_ES_PLUGIN: "move-mt-config-to-be-disabled-mt-SNAPSHOT"
 
