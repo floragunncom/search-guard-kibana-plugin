@@ -55,7 +55,11 @@ async function getConfigService({ kibanaIndex, logger, initContext, clusterClien
       }
     }
 
-    // TODO Workaround enough?
+    // This will be updated in the setup and start methods.
+    // Unfortunately, calling the required endpoint and
+    // awaiting the response seems to lead to some
+    // kind of race condition. As a result, some
+    // of the routes are never enabled.
     sgConfig.multitenancy.enabled = true;
 
     return new ConfigService({

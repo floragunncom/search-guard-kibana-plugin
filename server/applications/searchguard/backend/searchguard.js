@@ -620,7 +620,16 @@ export default class SearchGuardBackend {
    * @returns {string|null}
    */
   validateRequestedTenant(username, requestedTenant, tenants) {
-    // TODO Do we need to translate the query parameter? global, private etc?
+    // TODO Translate global?
+
+    // Translate the private tenant
+    if (
+        (requestedTenant === PRIVATE_TENANT_NAME || requestedTenant === 'private')
+        && typeof tenants[username] !== 'undefined'
+    ) {
+      return requestedTenant;
+    }
+
     if (tenants && typeof tenants[requestedTenant] !== 'undefined') {
       return requestedTenant;
     }

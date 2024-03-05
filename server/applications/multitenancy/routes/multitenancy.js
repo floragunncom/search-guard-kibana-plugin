@@ -52,7 +52,7 @@ export function multitenancyRoutes({
         }
 
         const rawRequest = ensureRawRequest(request);
-        assign(rawRequest.headers, { sgtenant: selectedTenant || '' });
+        assign(rawRequest.headers, { sgtenant: selectedTenant });
 
         return response.ok({ body: selectedTenant });
       } catch (error) {

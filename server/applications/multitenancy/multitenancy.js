@@ -63,7 +63,7 @@ export class Multitenancy {
         spacesService,
         kibanaCore,
       });
-      kibanaCore.http.registerOnPreAuth(multitenancyLifecycle.onPreRouting);
+
       kibanaCore.http.registerOnPreAuth(multitenancyLifecycle.onPreAuth);
 
 
