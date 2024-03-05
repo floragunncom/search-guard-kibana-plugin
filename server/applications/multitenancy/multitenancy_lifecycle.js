@@ -83,6 +83,13 @@ export class MultitenancyLifecycle {
         externalTenant,
         userTenantInfo,
       });
+      console.log('>>>>> Got selected tenant', {
+        selectedTenant,
+        cookieTenant: sessionCookie.tenant,
+        externalTenant,
+        userTenantInfo,
+        requestHeaders: request.headers
+      });
     } catch (error) {
       this.logger.error(`Multitenancy: Could not get tenant info from ${request.url.pathname}. ${error}`);
     }
@@ -90,14 +97,27 @@ export class MultitenancyLifecycle {
     // If we have an external tenant, but the selectedTenant is null
     // after validation, that means that the user does not have
     // access to the requested tenant, or it does not exist
-    if (externalTenant && selectedTenant == null) {
-      return response.redirected({
-        body: 'Wrong tenant',
-        statusCode: 401,
-        headers: {
-          'location': this.basePath + `/app/home?sgtenantsmenu=abc`,
-        },
-      });
+    if (selectedTenant === null && (externalTenant || sessionCookie.tenant)) {
+      console.log('>>>>> About to stop the user because of wrong tenant:', request.headers, externalTenant, sessionCookie.tenant)
+      if (request.url.pathname.startsWith('/app') || request.url.pathname === '/') {
+        // TODO REALLY REVIEW THIS
+        if (!externalTenant && sessionCookie.tenant && userTenantInfo.data.default_tenant) {
+          console.log('>>>>> Trying to reset the cookie', sessionCookie, userTenantInfo)
+          sessionCookie.tenant = userTenantInfo.data.default_tenant;
+          await this.sessionStorageFactory.asScoped(request).set(sessionCookie);
+        }
+
+        return response.redirected({
+          body: 'Wrong tenant',
+          statusCode: 401,
+          headers: {
+            'location': this.basePath + `/app/home?sgtenantsmenu=abc`,
+          },
+        });
+      } else {
+        // TODO maybe just pass through?
+        return response.unauthorized();
+      }
     }
 
     if (selectedTenant !== null) {
@@ -120,8 +140,7 @@ export class MultitenancyLifecycle {
       // TODO Remove this again? Or talk to Lukasz?
       if (sessionCookie.tenant) {
         const rawRequest = ensureRawRequest(request);
-        //assign(rawRequest.headers, authHeaders, { sgtenant: sessionCookie.tenant });
-        assign(rawRequest.headers, authHeaders, { sgtenant: "fail" });
+        assign(rawRequest.headers, authHeaders, { sgtenant: sessionCookie.tenant });
       }
 
       this.logger.info(`Multitenancy: No tenant assigned for path:` + request.url.pathname);
@@ -173,7 +192,10 @@ export class MultitenancyLifecycle {
         userTenants,
       );
     } else if (userTenantInfo.data.default_tenant) {
-      selectedTenant = userTenantInfo.data.default_tenant;
+      const defaultTenant = (userTenantInfo.data.default_tenant === username)
+        ? '__user__'
+        : userTenantInfo.data.default_tenant
+      selectedTenant = defaultTenant;
     }
 
     if (debugEnabled) {
