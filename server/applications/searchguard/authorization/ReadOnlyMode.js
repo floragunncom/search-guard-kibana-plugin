@@ -6,7 +6,6 @@ export class ReadOnlyMode {
   constructor(logger) {
     this.logger = logger;
     this.readOnlyModeRoles = null;
-    this.multiTenancyEnabled = false;
     this.searchGuardBackend = null;
     this.configService = null;
 
@@ -14,7 +13,6 @@ export class ReadOnlyMode {
 
   async setupSync({ kibanaCoreSetup, searchGuardBackend, configService }) {
     this.readOnlyModeRoles = configService.get('searchguard.readonly_mode.roles');
-    this.multiTenancyEnabled = configService.get('searchguard.multitenancy.enabled');
     this.searchGuardBackend = searchGuardBackend;
     this.configService = configService;
     this.kibanaCoreSetup = kibanaCoreSetup;
@@ -46,7 +44,7 @@ export class ReadOnlyMode {
 
   async switcherHandler(request, uiCapabilities) {
       // Only change capabilities if relevant
-      if (this.readOnlyModeRoles.length === 0 && !configService.get('searchguard.multitenancy.enabled')) {
+      if (this.readOnlyModeRoles.length === 0 && !this.configService.get('searchguard.multitenancy.enabled')) {
         return uiCapabilities;
       }
 
