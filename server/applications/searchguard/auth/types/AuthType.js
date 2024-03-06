@@ -512,17 +512,13 @@ export default class AuthType {
    */
   async _handleAuthResponse(request, credentials, authResponse, additionalAuthHeaders = {}) {
     // Make sure the user has a tenant that they can use
-    const isGlobalTenantEnabled = (
-      this.config.get('searchguard.multitenancy.tenants.enable_global')
-    )
+
 
     if (
       this.validateAvailableTenants &&
       this.config.get('searchguard.multitenancy.enabled')
     ) {
-      const privateTenantEnabled = this.config.get(
-        'searchguard.multitenancy.tenants.enable_private'
-      );
+
 
       let allTenants;
 
@@ -534,17 +530,6 @@ export default class AuthType {
         this.logger.info(`Could not retrieve the user tenants`);
         // Fall back to the authResponse tenants
         allTenants = authResponse.user.tenants;
-      }
-
-      if (!isGlobalTenantEnabled) {
-        // We have two settings for the global tenant,
-        // one in the frontend and one in the backend.
-        // This is in case they are not in sync
-        delete allTenants.SGS_GLOBAL_TENANT;
-      }
-
-      if (!privateTenantEnabled) {
-        delete allTenants[authResponse.user.username];
       }
 
       if (Object.keys(allTenants).length === 0) {

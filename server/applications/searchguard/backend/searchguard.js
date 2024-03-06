@@ -384,6 +384,7 @@ export default class SearchGuardBackend {
    * @prop {boolean} data.multi_tenancy_enabled
    * @prop {string} data.username
    * @prop {string?} data.default_tenant
+   * @prop {string|null} data.user_requested_tenant
    * @prop {Record<string, UserTenant>} data.tenants
    */
 
@@ -627,7 +628,13 @@ export default class SearchGuardBackend {
         (requestedTenant === PRIVATE_TENANT_NAME || requestedTenant === 'private')
         && typeof tenants[username] !== 'undefined'
     ) {
-      return requestedTenant;
+      return PRIVATE_TENANT_NAME;
+    }
+
+    // This should not really happen, but if for some reason
+    // the username ends up in the cookie, we translate
+    if (requestedTenant === username) {
+      return PRIVATE_TENANT_NAME;
     }
 
     if (tenants && typeof tenants[requestedTenant] !== 'undefined') {
