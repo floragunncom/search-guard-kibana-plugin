@@ -134,7 +134,7 @@ kibana_authtokens:
        # We need a kibana plugin zip in/as docker/kibana/kibana-plugin.zip
        # We also need a search guard zip in/as docker/elasticsearch/search-guard.zip
        
-       wget -O docker/elasticsearch/search-guard.zip "$SG_ES_PLUGIN"
+       wget -O docker/elasticsearch/search-guard.zip "https://maven.search-guard.com//search-guard-flx-snapshot/com/floragunn/search-guard-flx-elasticsearch-plugin/move-mt-config-to-be-disabled-mt-SNAPSHOT/search-guard-flx-elasticsearch-plugin-move-mt-config-to-be-disabled-mt-20240305.132224-9.zip"
        #wget -O docker/elasticsearch/search-guard.zip https://maven.search-guard.com//search-guard-flx-release/com/floragunn/search-guard-flx-elasticsearch-plugin/1.0.0-beta-4-es-8.2.3/search-guard-flx-elasticsearch-plugin-1.0.0-beta-4-es-8.2.3.zip
        
        cp ../../target/releases/search-guard-flx-kibana-plugin-${BUILD_VERSION}.zip docker/kibana/kibana-plugin.zip       
