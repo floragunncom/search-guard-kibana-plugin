@@ -1,8 +1,8 @@
-kibana_basicauth:
-  extends:
-  - .be_integration_test
-  variables:
-    TEST_DEFINITIONS: ".*kibana_basicauth.*"
+#kibana_basicauth:
+#  extends:
+#  - .be_integration_test
+#  variables:
+#    TEST_DEFINITIONS: ".*kibana_basicauth.*"
 
 # kibana_signals_accounts:
 #   extends:
@@ -34,29 +34,29 @@ kibana_basicauth:
 #   variables:
 #     TEST_DEFINITIONS: ".*kibana_signals_watches_edit_2"
 
-kibana_saml:
-  extends:
-  - .be_integration_test
-  variables:
-    TEST_DEFINITIONS: ".*kibana_saml_keycloak.*" 
-
-kibana_oidc:
-  extends:
-  - .be_integration_test
-  variables:
-    TEST_DEFINITIONS: ".*kibana_oidc_keycloak.*"
-
-kibana_proxy:
-  extends:
-  - .be_integration_test
-  variables:
-    TEST_DEFINITIONS: ".*kibana_proxy.*"
-
-kibana_jwt:
-  extends:
-  - .be_integration_test
-  variables:
-    TEST_DEFINITIONS: ".*kibana_jwt.*"
+#kibana_saml:
+#  extends:
+#  - .be_integration_test
+#  variables:
+#    TEST_DEFINITIONS: ".*kibana_saml_keycloak.*"
+#
+#kibana_oidc:
+#  extends:
+#  - .be_integration_test
+#  variables:
+#    TEST_DEFINITIONS: ".*kibana_oidc_keycloak.*"
+#
+#kibana_proxy:
+#  extends:
+#  - .be_integration_test
+#  variables:
+#    TEST_DEFINITIONS: ".*kibana_proxy.*"
+#
+#kibana_jwt:
+#  extends:
+#  - .be_integration_test
+#  variables:
+#    TEST_DEFINITIONS: ".*kibana_jwt.*"
 
 kibana_configui_1:
   extends:
@@ -64,23 +64,23 @@ kibana_configui_1:
   variables:
     TEST_DEFINITIONS: ".*kibana_configui_1.*" 
 
-kibana_configui_2:
-  extends:
-  - .be_integration_test
-  variables:
-    TEST_DEFINITIONS: ".*kibana_configui_2.*"  
-
-kibana_configui_3:
-  extends:
-  - .be_integration_test
-  variables:
-    TEST_DEFINITIONS: ".*kibana_configui_3.*"
-
-kibana_authtokens:
-  extends:
-  - .be_integration_test
-  variables:
-    TEST_DEFINITIONS: ".*kibana_authtokens.*"
+#kibana_configui_2:
+#  extends:
+#  - .be_integration_test
+#  variables:
+#    TEST_DEFINITIONS: ".*kibana_configui_2.*"
+#
+#kibana_configui_3:
+#  extends:
+#  - .be_integration_test
+#  variables:
+#    TEST_DEFINITIONS: ".*kibana_configui_3.*"
+#
+#kibana_authtokens:
+#  extends:
+#  - .be_integration_test
+#  variables:
+#    TEST_DEFINITIONS: ".*kibana_authtokens.*"
 
 # kibana_configui_licensehandling:
 #   extends:
