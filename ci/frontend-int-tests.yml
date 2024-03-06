@@ -126,7 +126,7 @@ kibana_authtokens:
        echo "SNAPSHOT_REVISION=$SNAPSHOT_REVISION"
        echo "TEST_DEFINITIONS $TEST_DEFINITIONS"
        
-       git clone --depth 1 --branch $IT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git > /dev/null
+       git clone --depth 1 --branch 8.12.x-test https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git > /dev/null
        cd sgi8/server
        rm -f docker/elasticsearch/search-guard.zip
        rm -f docker/kibana/kibana-plugin.zip
