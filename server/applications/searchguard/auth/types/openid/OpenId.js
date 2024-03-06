@@ -58,8 +58,7 @@ export default class OpenId extends AuthType {
 
   async getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false, sessionCookie = {}) {
     const url = new URL(request.url.href);
-    url.pathname = path.posix.join(this.basePath, '/customerror');
-
+    url.pathname = path.posix.join(this.basePath, '/searchguard/login');
     // If we don't have any tenant we need to show the custom error page
     if (error instanceof MissingTenantError) {
       url.searchParams.set('type', 'missingTenant');
