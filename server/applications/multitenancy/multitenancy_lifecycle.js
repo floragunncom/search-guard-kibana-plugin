@@ -60,7 +60,7 @@ export class MultitenancyLifecycle {
 
     const {authHeaders, sessionCookie} = await this.getSession(request);
     //if (!authHeaders || !authHeaders.authorization) {
-    if (authHeaders !== false) {
+    if (authHeaders === false) {
       if (debugEnabled) {
         //this.logger.info(`Multitenancy: No auth headers, not adding a tenant header`);
       }
