@@ -16,7 +16,7 @@
 
 import { assign } from 'lodash';
 import { ensureRawRequest } from '@kbn/core-http-router-server-internal';
-import { GLOBAL_TENANT_NAME, PRIVATE_TENANT_NAME } from "../../../common/multitenancy";
+import { GLOBAL_TENANT_NAME, MISSING_TENANT_PARAMETER_VALUE, PRIVATE_TENANT_NAME } from "../../../common/multitenancy";
 
 export class MultitenancyLifecycle {
   constructor({
@@ -49,6 +49,8 @@ export class MultitenancyLifecycle {
       return toolkit.next();
     }
 
+    const authType = this.configService.get('searchguard.auth.type');
+
     const debugEnabled = this.configService.get('searchguard.multitenancy.debug');
 
     const externalTenant = this.getExternalTenant(request, debugEnabled);
@@ -59,8 +61,11 @@ export class MultitenancyLifecycle {
     let selectedTenant = null;
 
     const {authHeaders, sessionCookie} = await this.getSession(request);
-    //if (!authHeaders || !authHeaders.authorization) {
-    if (authHeaders === false) {
+    // We may run into ugly issues with the capabilities endpoint here if
+    // we let through an unauthenticated request, despite try/catch
+    // Hence, only call the tenant endpoint if we are using proxy
+    // or have an authorization header.
+    if (authType !== 'proxy' && (!authHeaders || !authHeaders.authorization)) {
       if (debugEnabled) {
         //this.logger.info(`Multitenancy: No auth headers, not adding a tenant header`);
       }
@@ -70,6 +75,7 @@ export class MultitenancyLifecycle {
     let userTenantInfo;
     try {
       // We need the user's data from the backend to validate the selected tenant
+      console.log('!!!!! Will call the tenant info with headers:', authHeaders)
       userTenantInfo = await this.searchGuardBackend.getUserTenantInfo(authHeaders);
       if (!userTenantInfo.data.multi_tenancy_enabled) {
         // MT is disabled, we don't need to do anything
@@ -112,7 +118,7 @@ export class MultitenancyLifecycle {
           body: 'Wrong tenant',
           statusCode: 401,
           headers: {
-            'location': this.basePath + `/app/home?sgtenantsmenu=abc`,
+            'location': this.basePath + `/app/home?sgtenantsmenu=` + MISSING_TENANT_PARAMETER_VALUE,
           },
         });
       } else {
@@ -216,7 +222,6 @@ export class MultitenancyLifecycle {
     let authHeaders = request.headers;
     if (this.authManager) {
         const authInstance = await this.authManager.getAuthInstanceByRequest({ request });
-
         if (authInstance) {
             sessionCookie = await authInstance.getCookieWithCredentials(request);
             authHeaders = authInstance.getAuthHeader(sessionCookie);
