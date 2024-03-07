@@ -59,7 +59,8 @@ export class MultitenancyLifecycle {
     let selectedTenant = null;
 
     const {authHeaders, sessionCookie} = await this.getSession(request);
-    if (!authHeaders || !authHeaders.authorization) {
+    //if (!authHeaders || !authHeaders.authorization) {
+    if (authHeaders !== false) {
       if (debugEnabled) {
         //this.logger.info(`Multitenancy: No auth headers, not adding a tenant header`);
       }
@@ -69,7 +70,7 @@ export class MultitenancyLifecycle {
     let userTenantInfo;
     try {
       // We need the user's data from the backend to validate the selected tenant
-      userTenantInfo = await this.searchGuardBackend.getUserTenantInfo({ authorization: authHeaders.authorization });
+      userTenantInfo = await this.searchGuardBackend.getUserTenantInfo(authHeaders);
       if (!userTenantInfo.data.multi_tenancy_enabled) {
         // MT is disabled, we don't need to do anything
         return toolkit.next();
