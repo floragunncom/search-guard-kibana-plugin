@@ -35,7 +35,7 @@ import {
   UI_PRIVATE_TENANT_NAME,
   tenantNameToUiTenantName,
   uiTenantNameToTenantName,
-  GLOBAL_TENANT_NAME
+  GLOBAL_TENANT_NAME, MISSING_TENANT_PARAMETER_VALUE
 } from "../../../common/multitenancy";
 import {
   yourTenantsText,
@@ -220,12 +220,15 @@ function ConfigurationCheckCallOut({ isBackendMTEnabled  }) {
 
   useEffect(() => {
     fetchData();
-    // TODO clean this up
-    let u = new URLSearchParams(window.location.search)
-    let shouldBeOpen = false;
-    if (u.get('sgtenantsmenu') === 'abc') {
+    // This is where we open the tenants menu
+    // with an error message if an authenticated
+    // user has requested the wrong tenant
+    let url = new URL(window.location)
+    if (url.searchParams.get('sgtenantsmenu') === MISSING_TENANT_PARAMETER_VALUE) {
       setError('The requested tenant is not available')
     }
+    url.searchParams.set('sgtenantsmenu', 'handled');
+    window.history.pushState(null, '', url.toString());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -291,9 +294,9 @@ export function TenantsMenu() {
     configService.get('searchguard.configuration.enabled') && configService.hasApiAccess();
   const id = htmlIdGenerator()();
 
-  let u = new URLSearchParams(window.location.search)
+  let urlSearch = new URLSearchParams(window.location.search)
   let shouldBeOpen = false;
-  if (u.get('sgtenantsmenu') === 'abc') {
+  if (urlSearch.get('sgtenantsmenu') === MISSING_TENANT_PARAMETER_VALUE) {
     shouldBeOpen = true;
   }
 
