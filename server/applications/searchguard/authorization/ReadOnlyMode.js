@@ -57,7 +57,7 @@ export class ReadOnlyMode {
         if (this.hasReadOnlyRole(authInfo, this.readOnlyModeRoles)) {
           // A read only role trumps the tenant access rights
           return this.toggleForReadOnlyRole(uiCapabilities);
-        } else if (this.isReadOnlyTenant(authInfo, userTenants)) {
+        } else if (isMTEnabled && this.isReadOnlyTenant(authInfo, userTenants)) {
           return this.toggleForReadOnlyTenant(uiCapabilities, this.configService);
         }
       } catch (error) {
