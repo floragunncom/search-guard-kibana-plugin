@@ -285,10 +285,6 @@ export function TenantsMenu() {
     MainContext
   );
 
-  const {
-    enable_global: globalTenantEnabled,
-    enable_private: privateTenantEnabled,
-  } = configService.get('searchguard.multitenancy.tenants');
   const readOnlyConfig = configService.get('searchguard.readonly_mode');
   const isSGConfigEnabled =
     configService.get('searchguard.configuration.enabled') && configService.hasApiAccess();

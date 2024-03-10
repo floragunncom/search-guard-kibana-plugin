@@ -114,33 +114,7 @@ export const ConfigSchema = schema.object({
    * Multitenancy
    */
   multitenancy: schema.object({
-    //enabled: schema.boolean({ defaultValue: multitenancyDefaults.enabled }),
-    show_roles: schema.boolean({ defaultValue: multitenancyDefaults.show_roles }),
-    enable_filter: schema.boolean({ defaultValue: multitenancyDefaults.enable_filter }),
     debug: schema.boolean({ defaultValue: multitenancyDefaults.debug }),
-    tenants: schema.object({
-      enable_private: schema.boolean({ defaultValue: multitenancyDefaults.tenants.enable_private }),
-      enable_global: schema.boolean({ defaultValue: multitenancyDefaults.tenants.enable_global }),
-      preferred: schema.maybe(schema.arrayOf(schema.string())),
-    }),
-    saved_objects_migration: schema.object({
-      batch_size: schema.number({
-        defaultValue: multitenancyDefaults.saved_objects_migration.batch_size,
-      }),
-      scroll_duration: schema.string({
-        defaultValue: multitenancyDefaults.saved_objects_migration.scroll_duration,
-      }),
-      poll_interval: schema.number({
-        defaultValue: multitenancyDefaults.saved_objects_migration.poll_interval,
-      }),
-      skip: schema.boolean({ defaultValue: multitenancyDefaults.saved_objects_migration.skip }),
-      enableV2: schema.boolean({
-        defaultValue: multitenancyDefaults.saved_objects_migration.enableV2,
-      }),
-      max_batch_size: schema.string({
-        defaultValue: multitenancyDefaults.saved_objects_migration.max_batch_size
-      }),
-    }),
   }),
   configuration: schema.object({
     enabled: schema.boolean({ defaultValue: searchguardDefaults.configuration.enabled }),
