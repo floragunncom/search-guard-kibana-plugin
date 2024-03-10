@@ -18,14 +18,6 @@ export class ReadOnlyMode {
     this.kibanaCoreSetup = kibanaCoreSetup;
   }
 
-  hasMultipleTenants(tenantsObject) {
-    const tenantsCopy = {
-      ...tenantsObject,
-    };
-
-    return Object.keys(tenantsCopy).length > 1 ? true : false;
-  }
-
   isAnonymousPage(request) {
     if (request.headers && request.headers.referer) {
       try {
@@ -44,7 +36,8 @@ export class ReadOnlyMode {
 
   async switcherHandler(request, uiCapabilities) {
       // Only change capabilities if relevant
-      if (this.readOnlyModeRoles.length === 0 && !this.configService.get('searchguard.multitenancy.enabled')) {
+      const isMTEnabled = this.configService.get('searchguard.multitenancy.enabled');
+      if (this.readOnlyModeRoles.length === 0 && !isMTEnabled) {
         return uiCapabilities;
       }
 
@@ -56,23 +49,18 @@ export class ReadOnlyMode {
       try {
         // TODO concurrent calls
         const authInfo = await this.searchGuardBackend.authinfo(request.headers);
-        let userTenants = {};
-        let userTenantInfo = await this.searchGuardBackend.getUserTenantInfo(request.headers);
-        userTenantInfo = this.searchGuardBackend.removeNonExistingReadOnlyTenants(userTenantInfo);
         /**
          * @type {Record<string, boolean>}
          */
-        userTenants = this.searchGuardBackend.convertUserTenantsToRecord(userTenantInfo.data.tenants);
-        console.log('What are userTenants', userTenants, userTenantInfo)
+        let userTenants = authInfo.sg_tenants;
+
         if (this.hasReadOnlyRole(authInfo, this.readOnlyModeRoles)) {
           // A read only role trumps the tenant access rights
-          return this.toggleForReadOnlyRole(uiCapabilities, this.configService, userTenants);
+          return this.toggleForReadOnlyRole(uiCapabilities);
         } else if (this.isReadOnlyTenant(authInfo, userTenants)) {
           return this.toggleForReadOnlyTenant(uiCapabilities, this.configService);
         }
       } catch (error) {
-        // TODO Remove
-        console.error('Did we get an error?', error)
         this.logger.error(`Could not check auth info: ${error.stack}`);
       }
 
@@ -102,17 +90,8 @@ export class ReadOnlyMode {
     return isReadOnlyTenant;
   }
 
-  toggleForReadOnlyRole(uiCapabilities, config, userTenants) {
+  toggleForReadOnlyRole(uiCapabilities) {
     const whitelist = ['home', 'dashboard', 'dashboards'];
-
-    // Show the MT app if user has more than one tenant
-    if (
-      this.hasMultipleTenants(
-        userTenants,
-      )
-    ) {
-      whitelist.push('searchguard-multitenancy');
-    }
 
     Object.keys(uiCapabilities).forEach((capability) => {
       if (capability === 'navLinks') {
