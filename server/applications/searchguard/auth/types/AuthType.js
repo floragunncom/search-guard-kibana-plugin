@@ -512,33 +512,25 @@ export default class AuthType {
    */
   async _handleAuthResponse(request, credentials, authResponse, additionalAuthHeaders = {}) {
     // Make sure the user has a tenant that they can use
-    const isGlobalTenantEnabled = (
-      this.config.get('searchguard.multitenancy.tenants.enable_global')
-      && authResponse.user.tenants[GLOBAL_TENANT_NAME] !== undefined
-    )
+
 
     if (
       this.validateAvailableTenants &&
-      this.config.get('searchguard.multitenancy.enabled') &&
-      !isGlobalTenantEnabled
+      this.config.get('searchguard.multitenancy.enabled')
     ) {
-      const privateTenantEnabled = this.config.get(
-        'searchguard.multitenancy.tenants.enable_private'
-      );
 
-      const allTenants = authResponse.user.tenants;
+      let userTenantInfo;
+      let allTenants = {};
 
-      if (allTenants != null) {
-        // We're only here if the global tenant is not enabled,
-        // so we need to filter out the SGS_GLOBAL_TENANT too
-        delete allTenants.SGS_GLOBAL_TENANT;
+      try {
+        userTenantInfo = await this.searchGuardBackend.getUserTenantInfo({authorization: authResponse.session.credentials.authHeaderValue});
+        userTenantInfo = this.searchGuardBackend.removeNonExistingReadOnlyTenants(userTenantInfo);
+        allTenants = this.searchGuardBackend.convertUserTenantsToRecord(userTenantInfo.data.tenants);
+      } catch (error) {
+        this.logger.info(`Could not retrieve the user tenants`);
       }
 
-      if (allTenants != null && !privateTenantEnabled) {
-        delete allTenants[authResponse.user.username];
-      }
-
-      if (allTenants == null || Object.keys(allTenants).length === 0) {
+      if (!userTenantInfo || Object.keys(allTenants).length === 0) {
         throw new MissingTenantError(
           'No tenant available for this user, please contact your system administrator.'
         );

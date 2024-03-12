@@ -25,6 +25,8 @@ export const GLOBAL_TENANT_NAME = 'SGS_GLOBAL_TENANT';
 //export const GLOBAL_TENANT_NAME_WITH_LABEL = 'SGS_GLOBAL_TENANT';
 export const PRIVATE_TENANT_NAME = '__user__';
 
+export const MISSING_TENANT_PARAMETER_VALUE = 'missingTenant';
+
 export function tenantNameToUiTenantName(name) {
   if (!name) return UI_GLOBAL_TENANT_NAME;
 

@@ -36,6 +36,7 @@ import { ConfigService } from '../common/config_service';
 import SearchGuardBackend from './applications/searchguard/backend/searchguard';
 import SearchGuardConfigurationBackend from './applications/searchguard/configuration/backend/searchguard_configuration_backend';
 import { SpacesService, TenantService } from './applications/multitenancy';
+import { ReadOnlyMode } from "./applications/searchguard/authorization/ReadOnlyMode";
 
 async function getConfigService({ kibanaIndex, logger, initContext, clusterClient }) {
   try {
@@ -53,6 +54,13 @@ async function getConfigService({ kibanaIndex, logger, initContext, clusterClien
         index: kibanaIndex,
       }
     }
+
+    // This will be updated in the setup and start methods.
+    // Unfortunately, calling the required endpoint and
+    // awaiting the response seems to lead to some
+    // kind of race condition. As a result, some
+    // of the routes are never enabled.
+    sgConfig.multitenancy.enabled = true;
 
     return new ConfigService({
       ...extendedKibanaConfig,
@@ -74,6 +82,8 @@ export class ServerPlugin {
     this.multiTenancyApp = new Multitenancy(this.initContext);
     this.authTokensApp = new AuthTokens(this.initContext);
     this.kibanaIndex = '.kibana';
+
+    this.readOnlyMode = null;
   }
 
   /*
@@ -88,9 +98,18 @@ export class ServerPlugin {
 
     this.kibanaRouter = core.http.createRouter();
 
+    // Register a switcher for the read only mode
+    core.capabilities.registerSwitcher(async (request, uiCapabilities) => {
+      if (this.readOnlyMode) {
+        return this.readOnlyMode.switcherHandler(request, uiCapabilities);
+      }
+
+
+      return uiCapabilities;
+    }, { capabilityPath: '*'});
+
     (async () => {
       const [{ elasticsearch, savedObjects }] = await core.getStartServices();
-
       // The core.savedObjects interface in setup() is different from in start()
       // so we need to pass an instance variable to the config service
 
@@ -107,6 +126,17 @@ export class ServerPlugin {
       const searchGuardConfigurationBackend = new SearchGuardConfigurationBackend({
         elasticsearch,
       });
+
+
+      if (configService.get('searchguard.readonly_mode.enabled')) {
+        this.readOnlyMode = new ReadOnlyMode(this.initContext.logger.get('searchguard-readonly'));
+        this.readOnlyMode.setupSync({
+          kibanaCoreSetup: core,
+          searchGuardBackend,
+          configService,
+        });
+      }
+
 
       const tenantService = new TenantService({
         clusterClient: elasticsearch.client,
@@ -137,6 +167,7 @@ export class ServerPlugin {
         return {
           sessionStorageFactory,
           authManager,
+          configService,
         };
       });
 
@@ -157,6 +188,11 @@ export class ServerPlugin {
           elasticsearch,
         });
       }
+
+      searchGuardBackend.getKibanaInfoWithInternalUser()
+        .then((kibanaInfo) => {
+          configService.config.searchguard.multitenancy.enabled = kibanaInfo.kibana_mt_enabled;
+        });
     })();
   }
 
@@ -187,8 +223,16 @@ export class ServerPlugin {
           core,
           searchGuardBackend,
           configService,
+          kibanaRouter: this.kibanaRouter,
+          elasticsearch: core.elasticsearch,
         });
       }
+
+      searchGuardBackend.getKibanaInfoWithInternalUser()
+        .then((kibanaInfo) => {
+          configService.config.searchguard.multitenancy.enabled = kibanaInfo.kibana_mt_enabled;
+        });
+
     })();
   }
 }

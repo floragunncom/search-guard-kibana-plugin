@@ -26,9 +26,10 @@ export function multitenancyRoutes({
   config,
   sessionStorageFactory,
   logger,
-  tenantService,
 }) {
+
   const debugEnabled = config.get('searchguard.multitenancy.debug');
+
 
   router.post(
     {
@@ -42,6 +43,10 @@ export function multitenancyRoutes({
     },
     async (context, request, response) => {
       try {
+        const isMTEnabled = config.get('searchguard.multitenancy.enabled');
+        if (!isMTEnabled) {
+          return response.notFound();
+        }
         const selectedTenant = request.body.tenant;
 
         const cookie = (await sessionStorageFactory.asScoped(request).get()) || {};
@@ -53,7 +58,7 @@ export function multitenancyRoutes({
         }
 
         const rawRequest = ensureRawRequest(request);
-        assign(rawRequest.headers, { sgtenant: selectedTenant || '' });
+        assign(rawRequest.headers, { sgtenant: selectedTenant });
 
         return response.ok({ body: selectedTenant });
       } catch (error) {
@@ -68,17 +73,31 @@ export function multitenancyRoutes({
       validate: false,
     },
     async (context, request, response) => {
-      let selectedTenant = undefined;
-      const cookie = await sessionStorageFactory.asScoped(request).get();
-      if (cookie) {
-        selectedTenant = cookie.tenant;
+      try {
+        const isMTEnabled = config.get('searchguard.multitenancy.enabled');
+        if (!isMTEnabled) {
+          return response.notFound();
+        }
+
+        let selectedTenant = undefined;
+        const resolvedContext = await context.resolve(['searchGuard']);
+        sessionStorageFactory = await resolvedContext.searchGuard.sessionStorageFactory;
+        const cookie = await sessionStorageFactory.asScoped(request).get();
+        if (cookie) {
+          selectedTenant = cookie.tenant;
+        }
+
+        if (debugEnabled) {
+          logger.info(`tenant_GET: ${selectedTenant}`);
+        }
+
+        return response.ok({ body: selectedTenant });
+      } catch (error) {
+
       }
 
-      if (debugEnabled) {
-        logger.info(`tenant_GET: ${selectedTenant}`);
-      }
+      return response.notFound();
 
-      return response.ok({ body: selectedTenant });
     }
   );
 
@@ -88,6 +107,10 @@ export function multitenancyRoutes({
       validate: false,
     },
     async (context, request, response) => {
+      const isMTEnabled = config.get('searchguard.multitenancy.enabled');
+      if (!isMTEnabled) {
+        return response.notFound();
+      }
       const mtinfo = await searchGuardBackend.multitenancyinfo(request.headers);
       return response.ok({ body: mtinfo });
     }

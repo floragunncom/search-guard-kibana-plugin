@@ -6,32 +6,16 @@ export class ReadOnlyMode {
   constructor(logger) {
     this.logger = logger;
     this.readOnlyModeRoles = null;
-    this.multiTenancyEnabled = false;
+    this.searchGuardBackend = null;
+    this.configService = null;
+
   }
 
-  setupSync({ kibanaCoreSetup, searchGuardBackend, configService }) {
+  async setupSync({ kibanaCoreSetup, searchGuardBackend, configService }) {
     this.readOnlyModeRoles = configService.get('searchguard.readonly_mode.roles');
-    this.multiTenancyEnabled = configService.get('searchguard.multitenancy.enabled');
-
-    if (this.readOnlyModeRoles.length || this.multiTenancyEnabled) {
-      this.registerSwitcher({ kibanaCoreSetup, searchGuardBackend, configService});
-    }
-  }
-
-  hasMultipleTenants(tenantsObject, globalTenantEnabled, privateTenantEnabled, userName) {
-    const tenantsCopy = {
-      ...tenantsObject,
-    };
-
-    if (!globalTenantEnabled) {
-      delete tenantsCopy.SGS_GLOBAL_TENANT;
-    }
-
-    if (!privateTenantEnabled) {
-      delete tenantsCopy[userName];
-    }
-
-    return Object.keys(tenantsCopy).length > 1 ? true : false;
+    this.searchGuardBackend = searchGuardBackend;
+    this.configService = configService;
+    this.kibanaCoreSetup = kibanaCoreSetup;
   }
 
   isAnonymousPage(request) {
@@ -50,33 +34,38 @@ export class ReadOnlyMode {
     return false;
   }
 
-  switcherHandler({ searchGuardBackend, configService }) {
-    return async (request, uiCapabilities) => {
+  async switcherHandler(request, uiCapabilities) {
+      // Only change capabilities if relevant
+      const isMTEnabled = this.configService.get('searchguard.multitenancy.enabled');
+      if (this.readOnlyModeRoles.length === 0 && !isMTEnabled) {
+        return uiCapabilities;
+      }
+
       // Ignore for non authenticated paths
       if (this.isAnonymousPage(request)) {
         return uiCapabilities;
       }
 
       try {
-        const authInfo = await searchGuardBackend.authinfo(request.headers);
+        // TODO concurrent calls
+        const authInfo = await this.searchGuardBackend.authinfo(request.headers);
+        /**
+         * @type {Record<string, boolean>}
+         */
+        let userTenants = authInfo.sg_tenants;
+
         if (this.hasReadOnlyRole(authInfo, this.readOnlyModeRoles)) {
           // A read only role trumps the tenant access rights
-          return this.toggleForReadOnlyRole(uiCapabilities, configService, authInfo);
-        } else if (this.isReadOnlyTenant(authInfo)) {
-          return this.toggleForReadOnlyTenant(uiCapabilities, configService);
+          return this.toggleForReadOnlyRole(uiCapabilities);
+        } else if (isMTEnabled && this.isReadOnlyTenant(authInfo, userTenants)) {
+          return this.toggleForReadOnlyTenant(uiCapabilities, this.configService);
         }
       } catch (error) {
         this.logger.error(`Could not check auth info: ${error.stack}`);
       }
 
       return uiCapabilities;
-    };
-  }
 
-  registerSwitcher({ kibanaCoreSetup, searchGuardBackend, configService }) {
-    kibanaCoreSetup.capabilities.registerSwitcher(
-      this.switcherHandler({ searchGuardBackend, configService })
-    );
   }
 
   hasReadOnlyRole(authInfo, readOnlyModeRoles) {
@@ -88,36 +77,21 @@ export class ReadOnlyMode {
    * @param authInfo
    * @returns {boolean}
    */
-  isReadOnlyTenant(authInfo) {
+  isReadOnlyTenant(authInfo, userTenants) {
     // The global tenant would be '' == falsey
-    const currentTenant = authInfo.user_requested_tenant || 'SGS_GLOBAL_TENANT';
+    const currentTenant = authInfo.user_requested_tenant;
     if (currentTenant === '__user__') {
       // We don't limit the private tenant
       return false;
     }
 
-    const isReadOnlyTenant = authInfo.sg_tenants[currentTenant] !== true ? true : false;
 
+    const isReadOnlyTenant = userTenants[currentTenant] !== true ? true : false;
     return isReadOnlyTenant;
   }
 
-  toggleForReadOnlyRole(uiCapabilities, config, authInfo) {
-    const globalTenantEnabled = config.get('searchguard.multitenancy.tenants.enable_global');
-    const privateTenantEnabled = config.get('searchguard.multitenancy.tenants.enable_private');
-
+  toggleForReadOnlyRole(uiCapabilities) {
     const whitelist = ['home', 'dashboard', 'dashboards'];
-
-    // Show the MT app if user has more than one tenant
-    if (
-      this.hasMultipleTenants(
-        authInfo.sg_tenants,
-        globalTenantEnabled,
-        privateTenantEnabled,
-        authInfo.user_name
-      )
-    ) {
-      whitelist.push('searchguard-multitenancy');
-    }
 
     Object.keys(uiCapabilities).forEach((capability) => {
       if (capability === 'navLinks') {
