@@ -50,10 +50,12 @@ export class MultitenancyLifecycle {
     }
 
     const authType = this.configService.get('searchguard.auth.type');
-
     const debugEnabled = this.configService.get('searchguard.multitenancy.debug');
 
     const externalTenant = this.getExternalTenant(request, debugEnabled);
+
+    // If we have an externalTenant, we will continue so that we can
+    // update the cookie's tenant value
     if (!this.isRelevantPath(request) && !externalTenant) {
       return toolkit.next();
     }
@@ -61,27 +63,27 @@ export class MultitenancyLifecycle {
     let selectedTenant = null;
 
     const {authHeaders, sessionCookie} = await this.getSession(request);
+    const isAuthenticatedRequest = (authType === 'proxy' || (authHeaders && authHeaders.authorization));
+
     // We may run into ugly issues with the capabilities endpoint here if
     // we let through an unauthenticated request, despite try/catch
     // Hence, only call the tenant endpoint if we are using proxy
     // or have an authorization header.
-    if (authType !== 'proxy' && (!authHeaders || !authHeaders.authorization)) {
-      if (debugEnabled) {
-        //this.logger.info(`Multitenancy: No auth headers, not adding a tenant header`);
-      }
+    // TODO By checking for an anonymous page, isAuthenticatedRequest
+    // is most likely not needed anymore
+    if (!isAuthenticatedRequest || this.isAnonymousPage(request)) {
       return toolkit.next();
     }
 
     let userTenantInfo;
     try {
       // We need the user's data from the backend to validate the selected tenant
-      console.log('!!!!! Will call the tenant info with headers:', authHeaders)
       userTenantInfo = await this.searchGuardBackend.getUserTenantInfo(authHeaders);
       if (!userTenantInfo.data.multi_tenancy_enabled) {
-        // MT is disabled, we don't need to do anything
+        // MT is disabled, we don't need to do anything.
+        // This should have been checked earlier though, so this is just a fail safe.
         return toolkit.next();
       }
-      userTenantInfo = this.searchGuardBackend.removeNonExistingReadOnlyTenants(userTenantInfo);
 
       selectedTenant = await this.getSelectedTenant({
         request,
@@ -90,47 +92,44 @@ export class MultitenancyLifecycle {
         externalTenant,
         userTenantInfo,
       });
-      console.log('>>>>> Got selected tenant', {
-        selectedTenant,
-        cookieTenant: sessionCookie.tenant,
-        externalTenant,
-        userTenantInfo,
-        requestHeaders: request.headers
-      });
     } catch (error) {
       this.logger.error(`Multitenancy: Could not get tenant info from ${request.url.pathname}. ${error}`);
     }
 
+    const requestHasRequestedTenant = (externalTenant || sessionCookie.tenant);
+
     // If we have an external tenant, but the selectedTenant is null
     // after validation, that means that the user does not have
     // access to the requested tenant, or it does not exist
-    if (selectedTenant === null && (externalTenant || sessionCookie.tenant)) {
-      console.log('>>>>> About to stop the user because of wrong tenant:', request.headers, externalTenant, sessionCookie.tenant)
+    if (selectedTenant === null && requestHasRequestedTenant) {
       if (request.url.pathname.startsWith('/app') || request.url.pathname === '/') {
-        // TODO REALLY REVIEW THIS
-        if (!externalTenant && sessionCookie.tenant && userTenantInfo.data.default_tenant) {
-          console.log('>>>>> Trying to reset the cookie', sessionCookie, userTenantInfo)
-          sessionCookie.tenant = userTenantInfo.data.default_tenant;
+
+        // If we have the wrong tenant in the cookie, we need to reset the cookie tenant value
+        const shouldResetCookieTenant = (!externalTenant && sessionCookie.tenant);
+        if (shouldResetCookieTenant) {
+          delete sessionCookie.tenant;
           await this.sessionStorageFactory.asScoped(request).set(sessionCookie);
         }
 
-        return response.redirected({
-          body: 'Wrong tenant',
-          statusCode: 401,
-          headers: {
-            'location': this.basePath + `/app/home?sgtenantsmenu=` + MISSING_TENANT_PARAMETER_VALUE,
-          },
-        });
+        if (request.url.searchParams.get('sgtenantsmenu') !== MISSING_TENANT_PARAMETER_VALUE) {
+          return response.redirected({
+            body: 'Wrong tenant',
+            //statusCode: 401,
+            headers: {
+              'location': this.basePath + `/app/home?sgtenantsmenu=` + MISSING_TENANT_PARAMETER_VALUE,
+            },
+          });
+        }
+
       } else {
-        // TODO maybe just pass through?
+        // TODO maybe just pass through and let the backend return an error?
         return response.unauthorized();
       }
     }
 
+    // We have a tenant to use
     if (selectedTenant !== null) {
       const rawRequest = ensureRawRequest(request);
-
-      //assign(rawRequest.headers, authHeaders, { sgtenant: selectedTenant || GLOBAL_TENANT_NAME });
       assign(rawRequest.headers, authHeaders, { sgtenant: selectedTenant });
 
       if (this.pluginDependencies.spaces) {
@@ -143,20 +142,47 @@ export class MultitenancyLifecycle {
         sessionCookie.tenant = selectedTenant;
         await this.sessionStorageFactory.asScoped(request).set(sessionCookie);
       }
-    } else if (this.isRelevantPath(request)) {
-      // TODO Remove this again? Or talk to Lukasz?
-      if (sessionCookie.tenant) {
-        const rawRequest = ensureRawRequest(request);
-        assign(rawRequest.headers, authHeaders, { sgtenant: sessionCookie.tenant });
+    } else {
+      let authRequiredForRoute = false;
+      try {
+        authRequiredForRoute = request.route.options.authRequired;
+      } catch (error) {
+        // Ignore
       }
 
-      this.logger.info(`Multitenancy: No tenant assigned for path:` + request.url.pathname);
+      // Could also be "optional" or false
+      if (authRequiredForRoute === true) {
+        return response.redirected({
+          body: 'Missing Tenant',
+          //statusCode: 401,
+          headers: {
+            'location': this.basePath + `/searchguard/login?err=` + MISSING_TENANT_PARAMETER_VALUE,
+          },
+        });
+      }
     }
 
     return toolkit.next();
   };
 
+  isAnonymousPage(request) {
+    // We have to check the referer instead of the request.url.pathname here
+    // because of the ajax requests sent on e.g. the login page
+    // Mainly because of the capabilities route...
+    if (request.headers && request.headers.referer) {
+      try {
+        const { pathname } = parse(request.headers.referer);
+        const pathsToIgnore = ['login', 'logout', 'customerror'];
+        if (pathsToIgnore.indexOf(pathname.split('/').pop()) > -1) {
+          return true;
+        }
+      } catch (error) {
+        this.logger.error(`Could not parse the referer for the capabilites: ${error.stack}`);
+      }
+    }
 
+    return false;
+  }
 
   /**
    * Get and validate the selected tenant.
@@ -176,7 +202,7 @@ export class MultitenancyLifecycle {
       sessionCookie && typeof sessionCookie.tenant !== 'undefined' ? sessionCookie.tenant : null;
 
     if (debugEnabled) {
-      //this.logger.info(`Multitenancy: tenant_storagecookie ${selectedTenant}`);
+      this.logger.info(`Multitenancy: tenant_storagecookie ${selectedTenant}`);
     }
 
     if (externalTenant) {
@@ -190,19 +216,13 @@ export class MultitenancyLifecycle {
 
     // if we have a tenant, check validity and set it
     if (typeof selectedTenant !== 'undefined' && selectedTenant !== null) {
-
-      // TODO Handle global private alias
-
       selectedTenant = backend.validateRequestedTenant(
         username,
         selectedTenant,
         userTenants,
       );
-    } else if (userTenantInfo.data.default_tenant) {
-      const defaultTenant = (userTenantInfo.data.default_tenant === username)
-        ? '__user__'
-        : userTenantInfo.data.default_tenant
-      selectedTenant = defaultTenant;
+    } else if (userTenantInfo && userTenantInfo.data.default_tenant) {
+      selectedTenant = userTenantInfo.data.default_tenant;
     }
 
     if (debugEnabled) {

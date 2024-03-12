@@ -27,7 +27,9 @@ export function multitenancyRoutes({
   sessionStorageFactory,
   logger,
 }) {
+
   const debugEnabled = config.get('searchguard.multitenancy.debug');
+
 
   router.post(
     {
@@ -41,6 +43,10 @@ export function multitenancyRoutes({
     },
     async (context, request, response) => {
       try {
+        const isMTEnabled = config.get('searchguard.multitenancy.enabled');
+        if (!isMTEnabled) {
+          return response.notFound();
+        }
         const selectedTenant = request.body.tenant;
 
         const cookie = (await sessionStorageFactory.asScoped(request).get()) || {};
@@ -68,6 +74,11 @@ export function multitenancyRoutes({
     },
     async (context, request, response) => {
       try {
+        const isMTEnabled = config.get('searchguard.multitenancy.enabled');
+        if (!isMTEnabled) {
+          return response.notFound();
+        }
+
         let selectedTenant = undefined;
         const resolvedContext = await context.resolve(['searchGuard']);
         sessionStorageFactory = await resolvedContext.searchGuard.sessionStorageFactory;
@@ -84,7 +95,7 @@ export function multitenancyRoutes({
       } catch (error) {
 
       }
-      // TODO
+
       return response.notFound();
 
     }
@@ -96,6 +107,10 @@ export function multitenancyRoutes({
       validate: false,
     },
     async (context, request, response) => {
+      const isMTEnabled = config.get('searchguard.multitenancy.enabled');
+      if (!isMTEnabled) {
+        return response.notFound();
+      }
       const mtinfo = await searchGuardBackend.multitenancyinfo(request.headers);
       return response.ok({ body: mtinfo });
     }

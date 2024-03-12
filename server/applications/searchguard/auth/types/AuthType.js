@@ -519,20 +519,18 @@ export default class AuthType {
       this.config.get('searchguard.multitenancy.enabled')
     ) {
 
-
-      let allTenants;
+      let userTenantInfo;
+      let allTenants = {};
 
       try {
-        let userTenantInfo = await this.searchGuardBackend.getUserTenantInfo({authorization: authResponse.session.credentials.authHeaderValue});
+        userTenantInfo = await this.searchGuardBackend.getUserTenantInfo({authorization: authResponse.session.credentials.authHeaderValue});
         userTenantInfo = this.searchGuardBackend.removeNonExistingReadOnlyTenants(userTenantInfo);
         allTenants = this.searchGuardBackend.convertUserTenantsToRecord(userTenantInfo.data.tenants);
       } catch (error) {
         this.logger.info(`Could not retrieve the user tenants`);
-        // Fall back to the authResponse tenants
-        allTenants = authResponse.user.tenants;
       }
 
-      if (Object.keys(allTenants).length === 0) {
+      if (!userTenantInfo || Object.keys(allTenants).length === 0) {
         throw new MissingTenantError(
           'No tenant available for this user, please contact your system administrator.'
         );

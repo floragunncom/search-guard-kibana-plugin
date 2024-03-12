@@ -621,8 +621,6 @@ export default class SearchGuardBackend {
    * @returns {string|null}
    */
   validateRequestedTenant(username, requestedTenant, tenants) {
-    // TODO Translate global?
-
     // Translate the private tenant
     if (
         (requestedTenant === PRIVATE_TENANT_NAME || requestedTenant === 'private')
