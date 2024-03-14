@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { parse } from 'url';
 import { assign } from 'lodash';
 import { ensureRawRequest } from '@kbn/core-http-router-server-internal';
 import { GLOBAL_TENANT_NAME, MISSING_TENANT_PARAMETER_VALUE, PRIVATE_TENANT_NAME } from "../../../common/multitenancy";
@@ -63,7 +64,7 @@ export class MultitenancyLifecycle {
     let selectedTenant = null;
 
     const {authHeaders, sessionCookie} = await this.getSession(request);
-    const isAuthenticatedRequest = (authType === 'proxy' || (authHeaders && authHeaders.authorization));
+    const isAuthenticatedRequest = (authType === 'proxy' || (authHeaders && authHeaders.authorization)) ? true : false;
 
     // We may run into ugly issues with the capabilities endpoint here if
     // we let through an unauthenticated request, despite try/catch
@@ -170,6 +171,7 @@ export class MultitenancyLifecycle {
     // because of the ajax requests sent on e.g. the login page
     // Mainly because of the capabilities route...
     if (request.headers && request.headers.referer) {
+      const debug = this.configService.get('searchguard.multitenancy.debug');
       try {
         const { pathname } = parse(request.headers.referer);
         const pathsToIgnore = ['login', 'logout', 'customerror'];
@@ -177,7 +179,9 @@ export class MultitenancyLifecycle {
           return true;
         }
       } catch (error) {
-        this.logger.error(`Could not parse the referer for the capabilites: ${error.stack}`);
+        if (debug) {
+          this.logger.info(`Could not parse the referer: ${error.stack}`);
+        }
       }
     }
 
