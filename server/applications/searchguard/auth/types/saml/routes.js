@@ -196,7 +196,7 @@ export function defineRoutes({
 
         if (nextUrl) {
           return response.redirected({
-            headers: { location: sanitizeNextUrl(nextUrl, basePath) },
+            headers: { location: encodeURI(sanitizeNextUrl(nextUrl, basePath)) },
           });
         }
 
@@ -207,7 +207,7 @@ export function defineRoutes({
         logger.error(`SAML auth, failed to authorize: ${error.stack}`);
 
         var headers = {
-		  location: basePath + '/login?err=saml',
+		  location: basePath + '/searchguard/login?err=saml',
 	    };
 
         var cookies = [];
@@ -270,7 +270,7 @@ export function defineRoutes({
         logger.error(`SAML IDP initiated authorization failed: ${error.stack}`);
 
         var headers = {
-		  location: basePath + '/login?err=saml_idpinitiated',
+		  location: basePath + '/searchguard/login?err=saml_idpinitiated',
 	    };
 
         var cookies = [];
