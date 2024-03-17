@@ -70,9 +70,7 @@ export class MultitenancyLifecycle {
     // we let through an unauthenticated request, despite try/catch
     // Hence, only call the tenant endpoint if we are using proxy
     // or have an authorization header.
-    // TODO By checking for an anonymous page, isAuthenticatedRequest
-    // is most likely not needed anymore
-    if (!isAuthenticatedRequest || this.isAnonymousPage(request)) {
+    if (!isAuthenticatedRequest) {
       return toolkit.next();
     }
 
@@ -165,28 +163,6 @@ export class MultitenancyLifecycle {
 
     return toolkit.next();
   };
-
-  isAnonymousPage(request) {
-    // We have to check the referer instead of the request.url.pathname here
-    // because of the ajax requests sent on e.g. the login page
-    // Mainly because of the capabilities route...
-    if (request.headers && request.headers.referer) {
-      const debug = this.configService.get('searchguard.multitenancy.debug');
-      try {
-        const { pathname } = parse(request.headers.referer);
-        const pathsToIgnore = ['login', 'logout', 'customerror'];
-        if (pathsToIgnore.indexOf(pathname.split('/').pop()) > -1) {
-          return true;
-        }
-      } catch (error) {
-        if (debug) {
-          this.logger.info(`Could not parse the referer: ${error.stack}`);
-        }
-      }
-    }
-
-    return false;
-  }
 
   /**
    * Get and validate the selected tenant.
