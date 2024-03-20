@@ -179,6 +179,7 @@ deploy_snapshot:
   script:
     - ci/deploy.sh
     - |
+      echo "109.173.196.13 maven.search-guard.com" >> /etc/hosts
       echo "SG_SF_PLUGIN_VERSION=$SG_SF_PLUGIN_VERSION" >> build.env
       echo "BUILD_VERSION=$BUILD_VERSION" >> build.env
       echo "SF_VERSION=$SF_VERSION" >> build.env
