@@ -107,6 +107,7 @@ build:
   script:
     - |
       set -e
+      echo "109.173.196.13 maven.search-guard.com" >> /etc/hosts
       source ci/install_dependencies.sh
       source ci/init_build.sh
       echo "SG_SF_PLUGIN_VERSION=$SG_SF_PLUGIN_VERSION" >> benv.env
