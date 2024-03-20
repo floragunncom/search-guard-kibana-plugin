@@ -107,7 +107,6 @@ build:
   script:
     - |
       set -e
-      echo "109.173.196.13 maven.search-guard.com" >> /etc/hosts
       source ci/install_dependencies.sh
       source ci/init_build.sh
       echo "SG_SF_PLUGIN_VERSION=$SG_SF_PLUGIN_VERSION" >> benv.env
@@ -177,7 +176,7 @@ deploy_snapshot:
   #   when: never
   #  - when: always
   script:
-    - echo "109.173.196.13 maven.search-guard.com" >> /etc/hosts
+    - echo "185.11.255.132 maven.search-guard.com" >> /etc/hosts
     - ci/deploy.sh
     - |
       echo "SG_SF_PLUGIN_VERSION=$SG_SF_PLUGIN_VERSION" >> build.env
