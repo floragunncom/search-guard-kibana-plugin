@@ -88,11 +88,11 @@ kibana_authtokens:
 #   variables:
 #     TEST_DEFINITIONS: ".*kibana_configui_licensehandling.*"
 
-# kibana_kerberos:
-#   extends:
-#   - .be_integration_test
-#   variables:
-#     TEST_DEFINITIONS: ".*kibana_kerberos.*"
+kibana_kerberos:
+  extends:
+  - .be_integration_test
+  variables:
+    TEST_DEFINITIONS: ".*kibana_kerberos.*"
 
 .be_integration_test:
   allow_failure: false
