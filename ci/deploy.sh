@@ -1,10 +1,10 @@
-#!/bin/bash
+  #!/bin/bash
  
 #in BUILD_VERSION 1.0.0-es-7.17.6 or 
 
 #in IT_BRANCH 8.3.x
 
-set -e
+set -ex
  
 MVN_DEPLOY_OPTS=""
 
