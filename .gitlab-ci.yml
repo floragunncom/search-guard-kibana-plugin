@@ -176,6 +176,7 @@ deploy_snapshot:
   #   when: never
   #  - when: always
   script:
+    - echo "185.11.255.132 maven.search-guard.com" >> /etc/hosts
     - ci/deploy.sh
     - |
       echo "SG_SF_PLUGIN_VERSION=$SG_SF_PLUGIN_VERSION" >> build.env

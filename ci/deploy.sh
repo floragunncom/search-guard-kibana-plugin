@@ -4,7 +4,7 @@
 
 #in IT_BRANCH 8.3.x
 
-set -e
+set -ex
  
 MVN_DEPLOY_OPTS=""
 
