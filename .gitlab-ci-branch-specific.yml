@@ -1,4 +1,4 @@
 variables:
-  IT_BRANCH: "8.12.x"
+  IT_BRANCH: "8.12.x-remove-private-tenant"
   SG_ES_PLUGIN: "turning-on-mt-SNAPSHOT"
 
