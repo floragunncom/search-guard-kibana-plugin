@@ -46,9 +46,6 @@ export class MultitenancyLifecycle {
 
 
   onPreAuth = async (request, response, toolkit) => {
-    if (!this.configService.get('searchguard.multitenancy.enabled')) {
-      return toolkit.next();
-    }
 
     const authType = this.configService.get('searchguard.auth.type');
     const debugEnabled = this.configService.get('searchguard.multitenancy.debug');
@@ -74,6 +71,14 @@ export class MultitenancyLifecycle {
       return toolkit.next();
     }
 
+    // Check if MT is enabled in the backend
+    const { kibana_mt_enabled } = await this.searchGuardBackend.getKibanaInfoWithInternalUser();
+    this.configService.set('searchguard.multitenancy.enabled', kibana_mt_enabled || false);
+
+    // Skip early if MT is not enabled
+    if (!kibana_mt_enabled) {
+      return toolkit.next();
+    }
     let userTenantInfo;
     try {
       // We need the user's data from the backend to validate the selected tenant

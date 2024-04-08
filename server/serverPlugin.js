@@ -188,11 +188,6 @@ export class ServerPlugin {
           elasticsearch,
         });
       }
-
-      searchGuardBackend.getKibanaInfoWithInternalUser()
-        .then((kibanaInfo) => {
-          configService.config.searchguard.multitenancy.enabled = kibanaInfo.kibana_mt_enabled;
-        });
     })();
   }
 
@@ -227,12 +222,6 @@ export class ServerPlugin {
           elasticsearch: core.elasticsearch,
         });
       }
-
-      searchGuardBackend.getKibanaInfoWithInternalUser()
-        .then((kibanaInfo) => {
-          configService.config.searchguard.multitenancy.enabled = kibanaInfo.kibana_mt_enabled;
-        });
-
     })();
   }
 }
