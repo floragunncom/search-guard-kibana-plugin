@@ -79,6 +79,14 @@ export class MultitenancyLifecycle {
     if (!kibana_mt_enabled) {
       return toolkit.next();
     }
+
+    // The capabilities route may break the entire screen if
+    // we get a 401 when retrieving the tenants. So for the
+    // default capabilities, we can just skip MT here.
+    if (request.url.pathname.indexOf('capabilities') > -1 && request.url.searchParams.get('useDefaultCapabilities') === "true") {
+      return toolkit.next();
+    }
+
     let userTenantInfo;
     try {
       // We need the user's data from the backend to validate the selected tenant
