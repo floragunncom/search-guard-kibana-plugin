@@ -71,23 +71,28 @@ export class Multitenancy {
     } catch (error) {
       this.logger.error(`setup: ${error.toString()} ${error.stack}`);
     }
+
+    this.syncMultiTenancyEnabled(searchGuardBackend, configService);
   }
 
-  async disableMT(){
-
+  syncMultiTenancyEnabled(searchGuardBackend, configService){
+    // Now when the routes have been defined, we check that MT is really enabled in the BE
+    searchGuardBackend.getKibanaInfoWithInternalUser()
+      .then((kibanaInfo) => {
+        configService.set('searchguard.multitenancy.enabled', kibanaInfo.kibana_mt_enabled)
+        if (kibanaInfo.kibana_mt_enabled) {
+          const requestHeadersWhitelist = configService.get('elasticsearch.requestHeadersWhitelist');
+          if (!requestHeadersWhitelist.includes('sgtenant')) {
+            throw new Error(
+              'No tenant header found in whitelist. Please add sgtenant to elasticsearch.requestHeadersWhitelist in kibana.yml'
+            );
+          }
+        }
+      });
   }
 
   async start({ core, searchGuardBackend, configService, kibanaRouter, elasticsearch, sessionStorageFactory }) {
     this.logger.debug('Start app');
-    /* TODO Dynamic
-    const requestHeadersWhitelist = configService.get('elasticsearch.requestHeadersWhitelist');
-    if (!requestHeadersWhitelist.includes('sgtenant')) {
-      throw new Error(
-        'No tenant header found in whitelist. Please add sgtenant to elasticsearch.requestHeadersWhitelist in kibana.yml'
-      );
-    }
-
-     */
 
     defineMultitenancyRoutes({
       router: kibanaRouter,
@@ -97,5 +102,8 @@ export class Multitenancy {
       logger: this.logger,
       clusterClient: elasticsearch.client,
     });
+
+    this.syncMultiTenancyEnabled(searchGuardBackend, configService);
+
   }
 }
