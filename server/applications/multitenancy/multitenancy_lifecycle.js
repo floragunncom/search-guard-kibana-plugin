@@ -108,8 +108,7 @@ export class MultitenancyLifecycle {
       this.logger.error(`Multitenancy: Could not get tenant info from ${request.url.pathname}. ${error}`);
     }
 
-    const requestHasRequestedTenant = (externalTenant || sessionCookie.tenant);
-
+    const requestHasRequestedTenant = (externalTenant || typeof sessionCookie.tenant !== 'undefined');
     // If we have an external tenant, but the selectedTenant is null
     // after validation, that means that the user does not have
     // access to the requested tenant, or it does not exist
@@ -117,7 +116,7 @@ export class MultitenancyLifecycle {
       if (request.url.pathname.startsWith('/app') || request.url.pathname === '/') {
 
         // If we have the wrong tenant in the cookie, we need to reset the cookie tenant value
-        const shouldResetCookieTenant = (!externalTenant && sessionCookie.tenant);
+        const shouldResetCookieTenant = (!externalTenant && typeof sessionCookie.tenant !== 'undefined');
         if (shouldResetCookieTenant) {
           delete sessionCookie.tenant;
           await this.sessionStorageFactory.asScoped(request).set(sessionCookie);
@@ -208,7 +207,7 @@ export class MultitenancyLifecycle {
     const userTenants = this.searchGuardBackend.convertUserTenantsToRecord(userTenantInfo.data.tenants);
 
     // if we have a tenant, check validity and set it
-    if (typeof selectedTenant !== 'undefined' && selectedTenant !== null) {
+    if (typeof selectedTenant !== 'undefined' && selectedTenant !== null && selectedTenant !== "") {
       selectedTenant = backend.validateRequestedTenant(
         username,
         selectedTenant,
