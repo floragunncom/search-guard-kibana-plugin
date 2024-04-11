@@ -30,6 +30,11 @@ export function multitenancyRoutes({
 
   const debugEnabled = config.get('searchguard.multitenancy.debug');
 
+  const isMtEnabledInBE = async() => {
+    const { kibana_mt_enabled } = await searchGuardBackend.getKibanaInfoWithInternalUser();
+    config.set('searchguard.multitenancy.enabled', kibana_mt_enabled)
+    return kibana_mt_enabled;
+  }
 
   router.post(
     {
@@ -43,7 +48,7 @@ export function multitenancyRoutes({
     },
     async (context, request, response) => {
       try {
-        const isMTEnabled = config.get('searchguard.multitenancy.enabled');
+        const isMTEnabled = await isMtEnabledInBE();
         if (!isMTEnabled) {
           return response.notFound();
         }
@@ -74,7 +79,7 @@ export function multitenancyRoutes({
     },
     async (context, request, response) => {
       try {
-        const isMTEnabled = config.get('searchguard.multitenancy.enabled');
+        const isMTEnabled = await isMtEnabledInBE();
         if (!isMTEnabled) {
           return response.notFound();
         }
@@ -107,7 +112,7 @@ export function multitenancyRoutes({
       validate: false,
     },
     async (context, request, response) => {
-      const isMTEnabled = config.get('searchguard.multitenancy.enabled');
+      const isMTEnabled = await isMtEnabledInBE();
       if (!isMTEnabled) {
         return response.notFound();
       }

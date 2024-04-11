@@ -23,6 +23,7 @@ import {
   ES_SCROLL_SETTINGS,
   NO_MULTITENANCY_TENANT,
 } from '../../../../../common/signals/constants';
+import { GLOBAL_TENANT_NAME } from "../../../../../common/multitenancy";
 
 export const getAlerts = ({ clusterClient, fetchAllFromScroll, logger }) => async (
   context,
@@ -38,15 +39,18 @@ export const getAlerts = ({ clusterClient, fetchAllFromScroll, logger }) => asyn
     const options = { index, scroll };
 
     if (query && !!Object.keys(query).length) {
-      // We don't filter alerts by tenant if it is Global tenant (value is '')
       if (sgtenant) {
         if (!query.bool.must) {
           query.bool.must = [];
         }
 
+        // With the new MT implementation we need to be more explicit with the
+        // tenant name. Hence, the global tenant is now always SGS_GLOBAL_TENANT.
+        // However, for legacy reasons "_main" needs to be used in place of
+        // SGS_GLOBAL_TENANT when querying ES directly, such as in this case.
         query.bool.must.push({
           term: {
-            'tenant.keyword': { value: sgtenant },
+            'tenant.keyword': { value: (sgtenant === GLOBAL_TENANT_NAME) ? '_main' : sgtenant },
           },
         });
       }

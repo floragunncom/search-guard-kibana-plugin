@@ -46,9 +46,6 @@ export class MultitenancyLifecycle {
 
 
   onPreAuth = async (request, response, toolkit) => {
-    if (!this.configService.get('searchguard.multitenancy.enabled')) {
-      return toolkit.next();
-    }
 
     const authType = this.configService.get('searchguard.auth.type');
     const debugEnabled = this.configService.get('searchguard.multitenancy.debug');
@@ -74,6 +71,22 @@ export class MultitenancyLifecycle {
       return toolkit.next();
     }
 
+    // Check if MT is enabled in the backend
+    const { kibana_mt_enabled } = await this.searchGuardBackend.getKibanaInfoWithInternalUser();
+    this.configService.set('searchguard.multitenancy.enabled', kibana_mt_enabled || false);
+
+    // Skip early if MT is not enabled
+    if (!kibana_mt_enabled) {
+      return toolkit.next();
+    }
+
+    // The capabilities route may break the entire screen if
+    // we get a 401 when retrieving the tenants. So for the
+    // default capabilities, we can just skip MT here.
+    if (request.url.pathname.indexOf('capabilities') > -1 && request.url.searchParams.get('useDefaultCapabilities') === "true") {
+      return toolkit.next();
+    }
+
     let userTenantInfo;
     try {
       // We need the user's data from the backend to validate the selected tenant
@@ -95,8 +108,7 @@ export class MultitenancyLifecycle {
       this.logger.error(`Multitenancy: Could not get tenant info from ${request.url.pathname}. ${error}`);
     }
 
-    const requestHasRequestedTenant = (externalTenant || sessionCookie.tenant);
-
+    const requestHasRequestedTenant = (externalTenant || typeof sessionCookie.tenant !== 'undefined');
     // If we have an external tenant, but the selectedTenant is null
     // after validation, that means that the user does not have
     // access to the requested tenant, or it does not exist
@@ -104,7 +116,7 @@ export class MultitenancyLifecycle {
       if (request.url.pathname.startsWith('/app') || request.url.pathname === '/') {
 
         // If we have the wrong tenant in the cookie, we need to reset the cookie tenant value
-        const shouldResetCookieTenant = (!externalTenant && sessionCookie.tenant);
+        const shouldResetCookieTenant = (!externalTenant && typeof sessionCookie.tenant !== 'undefined');
         if (shouldResetCookieTenant) {
           delete sessionCookie.tenant;
           await this.sessionStorageFactory.asScoped(request).set(sessionCookie);
@@ -195,7 +207,7 @@ export class MultitenancyLifecycle {
     const userTenants = this.searchGuardBackend.convertUserTenantsToRecord(userTenantInfo.data.tenants);
 
     // if we have a tenant, check validity and set it
-    if (typeof selectedTenant !== 'undefined' && selectedTenant !== null) {
+    if (typeof selectedTenant !== 'undefined' && selectedTenant !== null && selectedTenant !== "") {
       selectedTenant = backend.validateRequestedTenant(
         username,
         selectedTenant,

@@ -171,28 +171,21 @@ export class ServerPlugin {
         };
       });
 
-      const isMtEnabled = configService.get('searchguard.multitenancy.enabled');
-      if (isMtEnabled) {
-        this.multiTenancyApp.setup({
-          kibanaRouter: this.kibanaRouter,
-          authManager,
-          kerberos,
-          kibanaCore: core,
-          sessionStorageFactory,
-          pluginDependencies,
-          searchGuardBackend,
-          configService,
-          spacesService,
-          tenantService,
-          savedObjects,
-          elasticsearch,
-        });
-      }
+      this.multiTenancyApp.setup({
+        kibanaRouter: this.kibanaRouter,
+        authManager,
+        kerberos,
+        kibanaCore: core,
+        sessionStorageFactory,
+        pluginDependencies,
+        searchGuardBackend,
+        configService,
+        spacesService,
+        tenantService,
+        savedObjects,
+        elasticsearch,
+      });
 
-      searchGuardBackend.getKibanaInfoWithInternalUser()
-        .then((kibanaInfo) => {
-          configService.config.searchguard.multitenancy.enabled = kibanaInfo.kibana_mt_enabled;
-        });
     })();
   }
 
@@ -214,24 +207,13 @@ export class ServerPlugin {
       });
 
       this.authTokensApp.start({ core, kibanaRouter: this.kibanaRouter });
-
-      const isMtEnabled = configService.get('searchguard.multitenancy.enabled');
-      if (isMtEnabled) {
-        // ATTENTION! We want to make sure the multitenancy app migrates saved objects
-        // in the tenants indices before doing any operation on indices
-        this.multiTenancyApp.start({
-          core,
-          searchGuardBackend,
-          configService,
-          kibanaRouter: this.kibanaRouter,
-          elasticsearch: core.elasticsearch,
-        });
-      }
-
-      searchGuardBackend.getKibanaInfoWithInternalUser()
-        .then((kibanaInfo) => {
-          configService.config.searchguard.multitenancy.enabled = kibanaInfo.kibana_mt_enabled;
-        });
+      this.multiTenancyApp.start({
+        core,
+        searchGuardBackend,
+        configService,
+        kibanaRouter: this.kibanaRouter,
+        elasticsearch: core.elasticsearch,
+      });
 
     })();
   }

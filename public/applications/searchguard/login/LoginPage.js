@@ -411,14 +411,18 @@ export function LoginPage({ httpClient, configService }) {
 	if (!errorParam) {
 		return undefined;
 	}
-	
+
 	const errorCookie = document.cookie.split(/\s*;\s*/).find(row => row.startsWith(cookieName + '='));
-	
+
 	if (errorCookie && errorCookie.length > 7) {
 		document.cookie = cookieName + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
 		return decodeURIComponent(errorCookie.substring(cookieName.length + 1));
 	} else {
-		return "The login failed. Please try again later or contact your system adminstrator if the problem persists.";
+      if (errorParam === 'missingTenant') {
+        return "No tenant available for this user, please contact your system administrator."
+      }
+
+      return "The login failed. Please try again later or contact your system adminstrator if the problem persists.";
 	}
   }
 
