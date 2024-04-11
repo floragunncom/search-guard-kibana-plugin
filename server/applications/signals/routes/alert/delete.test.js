@@ -43,7 +43,6 @@ describe('routes/alert/delete', () => {
     };
     const expectedClusterCallOptions = {
       refresh: true,
-      type: INDEX.ALERT_DOC_TYPE,
       index: 'alerts',
       id: '123',
     };
