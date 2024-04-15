@@ -1,4 +1,3 @@
 variables:
-  IT_BRANCH: "8.12.x"
+  IT_BRANCH: "8.13.x"
   SG_ES_PLUGIN: "main-es8-SNAPSHOT"
-
