@@ -1,3 +1,3 @@
 variables:
   IT_BRANCH: "8.10.x"
-  SG_ES_PLUGIN: "es-update-to-8.10.4-SNAPSHOT"
+  SG_ES_PLUGIN: "2.0.0-rc"
