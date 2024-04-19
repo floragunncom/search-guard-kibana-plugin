@@ -36,28 +36,28 @@ if [[ -d plugins/search-guard ]]; then
   rm -rf plugins/search-guard
 fi
 
-if grep -q "$packages.atlassian.com/api/npm/npm-remote/react-remove-scroll/-/react-remove-scroll-2.5.6.tgz" "yarn.lock"; then
-    echo -e "\e[0Ksection_start:`date +%s`:patch_yarn_lock[collapsed=true]\r\e[0KPatching yarn.lock file"
-    echo "Patching react-remove-scroll-2.5.6 in yarn.lock file"
-
-    patch yarn.lock << 'EOF'
---- yarn.lock 
-+++ yarn.lock
-@@ -25275,9 +25275,9 @@
-     react-style-singleton "^2.2.1"
-     tslib "^2.0.0"
- 
--react-remove-scroll@^2.5.6:
-+react-remove-scroll@2.5.6:
-   version "2.5.6"
--  resolved "https://packages.atlassian.com/api/npm/npm-remote/react-remove-scroll/-/react-remove-scroll-2.5.6.tgz#7510b8079e9c7eebe00e65a33daaa3aa29a10336"
-+  resolved "https://registry.yarnpkg.com/react-remove-scroll/-/react-remove-scroll-2.5.6.tgz#7510b8079e9c7eebe00e65a33daaa3aa29a10336"
-   integrity sha512-bO856ad1uDYLefgArk559IzUNeQ6SWH4QnrevIUjH+GczV56giDfl3h0Idptf2oIKxQmd1p9BN25jleKodTALg==
-   dependencies:
-     react-remove-scroll-bar "^2.3.4"
-EOF
-  echo -e "\e[0Ksection_end:`date +%s`:patch_yarn_lock\r\e[0K"
-fi
+#if grep -q "$packages.atlassian.com/api/npm/npm-remote/react-remove-scroll/-/react-remove-scroll-2.5.6.tgz" "yarn.lock"; then
+#    echo -e "\e[0Ksection_start:`date +%s`:patch_yarn_lock[collapsed=true]\r\e[0KPatching yarn.lock file"
+#    echo "Patching react-remove-scroll-2.5.6 in yarn.lock file"
+#
+#    patch yarn.lock << 'EOF'
+#--- yarn.lock
+#+++ yarn.lock
+#@@ -25275,9 +25275,9 @@
+#     react-style-singleton "^2.2.1"
+#     tslib "^2.0.0"
+#
+#-react-remove-scroll@^2.5.6:
+#+react-remove-scroll@2.5.6:
+#   version "2.5.6"
+#-  resolved "https://packages.atlassian.com/api/npm/npm-remote/react-remove-scroll/-/react-remove-scroll-2.5.6.tgz#7510b8079e9c7eebe00e65a33daaa3aa29a10336"
+#+  resolved "https://registry.yarnpkg.com/react-remove-scroll/-/react-remove-scroll-2.5.6.tgz#7510b8079e9c7eebe00e65a33daaa3aa29a10336"
+#   integrity sha512-bO856ad1uDYLefgArk559IzUNeQ6SWH4QnrevIUjH+GczV56giDfl3h0Idptf2oIKxQmd1p9BN25jleKodTALg==
+#   dependencies:
+#     react-remove-scroll-bar "^2.3.4"
+#EOF
+#  echo -e "\e[0Ksection_end:`date +%s`:patch_yarn_lock\r\e[0K"
+#fi
 
 
 echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
