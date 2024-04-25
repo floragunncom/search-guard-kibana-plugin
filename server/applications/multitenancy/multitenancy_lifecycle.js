@@ -29,7 +29,8 @@ export class MultitenancyLifecycle {
     logger,
     pluginDependencies,
     spacesService,
-    kibanaCore
+    kibanaCore,
+    clusterClient,
   }) {
     this.authManager = authManager;
     this.searchGuardBackend = searchGuardBackend;
@@ -40,7 +41,7 @@ export class MultitenancyLifecycle {
     this.spacesService = spacesService;
     this.kerberos = kerberos;
     this.kibanaCore = kibanaCore;
-
+    this.clusterClient = clusterClient;
     this.basePath = kibanaCore.http.basePath.get();
   }
 
@@ -79,6 +80,15 @@ export class MultitenancyLifecycle {
     if (!kibana_mt_enabled) {
       return toolkit.next();
     }
+
+    try {
+      if (this.clusterClient.config.requestHeadersWhitelist.indexOf('sgtenant') === -1) {
+        this.clusterClient.config.requestHeadersWhitelist.push('sgtenant');
+      }
+    } catch (error) {
+      this.logger.error(`Multitenancy: Could not check headers whitelist ${request.url.pathname}. ${error}`);
+    }
+
 
     // The capabilities route may break the entire screen if
     // we get a 401 when retrieving the tenants. So for the
