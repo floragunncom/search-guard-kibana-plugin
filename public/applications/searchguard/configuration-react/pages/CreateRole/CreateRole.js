@@ -24,6 +24,7 @@ import {
   createRoleText,
   clusterPermissionsText,
   indexPermissionsText,
+  aliasPermissionsText,
   tenantPermissionsText,
   updateRoleText,
   overviewText,
@@ -35,6 +36,7 @@ import {
   Overview,
   ClusterPermissions,
   IndexPermissions,
+  AliasPermissions,
   TenantPermissions,
   IndexExclusions,
   ClusterExclusions,
@@ -107,6 +109,10 @@ class CreateRole extends Component {
       {
         id: TABS.INDEX_EXCLUSIONS,
         name: indexExclusionsText,
+      },
+      {
+        id: TABS.ALIAS_PERMISSIONS,
+        name: aliasPermissionsText,
       },
       {
         id: TABS.TENANT_PERMISSIONS,
@@ -213,6 +219,7 @@ class CreateRole extends Component {
     const isClusterPermissionsTab = selectedTabId === TABS.CLUSTER_PERMISSIONS;
     const isClusterExclusionsTab = selectedTabId === TABS.CLUSTER_EXCLUSIONS;
     const isIndexPermissionsTab = selectedTabId === TABS.INDEX_PERMISSIONS;
+    const isAliasPermissionsTab = selectedTabId === TABS.ALIAS_PERMISSIONS;
     const isIndexExclusionsTab = selectedTabId === TABS.INDEX_EXCLUSIONS;
     const isTenantPermissionsTab = selectedTabId === TABS.TENANT_PERMISSIONS;
 
@@ -273,6 +280,14 @@ class CreateRole extends Component {
               )}
               {isIndexExclusionsTab && (
                 <IndexExclusions
+                  values={values}
+                  allActionGroups={allIndexActionGroups}
+                  allSinglePermissions={allIndexPermissions}
+                  {...this.props}
+                />
+              )}
+              {isAliasPermissionsTab && (
+                <AliasPermissions
                   values={values}
                   allActionGroups={allIndexActionGroups}
                   allSinglePermissions={allIndexPermissions}
