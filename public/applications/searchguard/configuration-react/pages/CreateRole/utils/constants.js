@@ -59,6 +59,7 @@ export const TABS = {
   CLUSTER_EXCLUSIONS: 'clusterExclusions',
   INDEX_PERMISSIONS: 'indexPermissions',
   INDEX_EXCLUSIONS: 'indexExclusions',
+  ALIAS_PERMISSIONS: 'aliasPermissions',
   TENANT_PERMISSIONS: 'tenantPermissions',
 };
 
