@@ -18,15 +18,14 @@ import React, { Fragment, useContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { FieldArray } from 'formik';
 import { isEmpty, isEqual } from 'lodash';
-import { INDEX_PERMISSION } from '../../utils/constants';
+import { ALIAS_PERMISSION, INDEX_PERMISSION } from "../../utils/constants";
 import { EuiAccordion, EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
 import { advancedText, addText } from '../../../../utils/i18n/common';
 import {
   emptyAliasPermissionsText,
-  indexPermissionsText,
   aliasPermissionsText,
-  indexPatternsText,
-} from '../../../../utils/i18n/roles';
+  indexPatternsText, aliasPatternsText
+} from "../../../../utils/i18n/roles";
 import { actionGroupsText, singlePermissionsText } from '../../../../utils/i18n/action_groups';
 import {
   EmptyPrompt,
@@ -45,7 +44,7 @@ import {
 import FieldLevelSecurity from './FieldLevelSecurity';
 import DocumentLevelSecurity from './DocumentLevelSecurity';
 import {
-  indexPermissionToUiIndexPermission,
+  aliasPermissionToUiAliasPermission,
   useIndexPatterns,
   indexPatternNames,
   renderIndexOption,
@@ -92,24 +91,25 @@ function Permission({ index, values, allActionGroups, allSinglePermissions }) {
   }
 
   useEffect(() => {
-    fetchIndexPatternsFields({ indexPatterns: values._indexPermissions[index].index_patterns });
+    console.log('What are the aliasPermissions?', values._aliasPermissions)
+    fetchIndexPatternsFields({ indexPatterns: values._aliasPermissions[index].alias_patterns });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <>
       <FormikComboBox
-        name={`_indexPermissions[${index}].index_patterns`}
+        name={`_aliasPermissions[${index}].index_patterns`}
         formRow
         rowProps={{
-          label: indexPatternsText,
+          label: aliasPatternsText,
         }}
         elementProps={{
           isLoading,
           onSearchChange,
           async: true,
           isClearable: true,
-          placeholder: 'Select indices',
+          placeholder: 'Select aliases',
           options: indexOptions,
           renderOption: renderIndexOption,
           onBlur: onComboBoxOnBlur,
@@ -121,7 +121,7 @@ function Permission({ index, values, allActionGroups, allSinglePermissions }) {
         }}
       />
       <FormikComboBox
-        name={`_indexPermissions[${index}].allowed_actions.actiongroups`}
+        name={`_aliasPermissions[${index}].allowed_actions.actiongroups`}
         formRow
         rowProps={{
           label: actionGroupsText,
@@ -139,11 +139,11 @@ function Permission({ index, values, allActionGroups, allSinglePermissions }) {
           label: advancedText,
           onChange: onSwitchChange,
         }}
-        name={`_indexPermissions[${index}]._isAdvanced`}
+        name={`_aliasPermissions[${index}]._isAdvanced`}
       />
-      {values._indexPermissions[index]._isAdvanced && (
+      {values._aliasPermissions[index]._isAdvanced && (
         <FormikComboBox
-          name={`_indexPermissions[${index}].allowed_actions.permissions`}
+          name={`_aliasPermissions[${index}].allowed_actions.permissions`}
           formRow
           rowProps={{
             label: singlePermissionsText,
@@ -176,11 +176,11 @@ function Permission({ index, values, allActionGroups, allSinglePermissions }) {
 function Permissions({ values, arrayHelpers, allActionGroups, allSinglePermissions }) {
   const { triggerConfirmDeletionModal } = useContext(Context);
 
-  return values._indexPermissions.map((indexPermission, index) => (
+  return values._aliasPermissions.map((aliasPermission, index) => (
     <EuiFlexGroup key={index}>
       <EuiFlexItem>
         <EuiAccordion
-          data-test-subj={`sgRoleIndexPatternsAccordion-${index}`}
+          data-test-subj={`sgRoleAliasPatternsAccordion-${index}`}
           id={index.toString(2)}
           className="euiAccordionForm"
           buttonClassName="euiAccordionForm__button"
@@ -188,7 +188,7 @@ function Permissions({ values, arrayHelpers, allActionGroups, allSinglePermissio
             <AccordionDeleteButton
               onClick={() => {
                 triggerConfirmDeletionModal({
-                  body: indexPatternNames(indexPermission.index_patterns),
+                  body: indexPatternNames(aliasPermission.alias_patterns),
                   onConfirm: () => {
                     arrayHelpers.remove(index);
                     triggerConfirmDeletionModal(null);
@@ -201,7 +201,7 @@ function Permissions({ values, arrayHelpers, allActionGroups, allSinglePermissio
             <AccordionButtonContent
               iconType={<Icon size="xl" type="indexPattern" />}
               titleText={indexPatternsText}
-              subduedText={indexPatternNames(indexPermission.index_patterns)}
+              subduedText={indexPatternNames(aliasPermission.alias_patterns)}
             />
           }
         >
@@ -221,24 +221,24 @@ function Permissions({ values, arrayHelpers, allActionGroups, allSinglePermissio
 }
 
 const AliasPermissions = ({ values, allActionGroups, allSinglePermissions }) => {
-  const addIndexPermission = (arrayHelpers) => {
-    arrayHelpers.push(indexPermissionToUiIndexPermission(INDEX_PERMISSION));
+  const addAliasPermission = (arrayHelpers) => {
+    arrayHelpers.push(aliasPermissionToUiAliasPermission(ALIAS_PERMISSION));
   };
 
   return (
-    <FieldArray name="_indexPermissions">
+    <FieldArray name="_aliasPermissions">
       {(arrayHelpers) => (
         <Fragment>
-          <AddButton onClick={() => addIndexPermission(arrayHelpers)} />
+          <AddButton onClick={() => addAliasPermission(arrayHelpers)} />
           <EuiSpacer />
 
-          {isEmpty(values._indexPermissions) ? (
+          {isEmpty(values._aliasPermissions) ? (
             <EmptyPrompt
               titleText={aliasPermissionsText}
               bodyText={emptyAliasPermissionsText}
               createButtonText={addText}
               onCreate={() => {
-                addIndexPermission(arrayHelpers);
+                addAliasPermission(arrayHelpers);
               }}
             />
           ) : (
@@ -257,6 +257,7 @@ const AliasPermissions = ({ values, allActionGroups, allSinglePermissions }) => 
 
 AliasPermissions.propTypes = {
   values: PropTypes.shape({
+    /*
     _excludeIndexPermissions: PropTypes.arrayOf(
       PropTypes.shape({
         index_patterns: PropTypes.array.isRequired,
@@ -266,9 +267,11 @@ AliasPermissions.propTypes = {
         }),
       })
     ).isRequired,
-    _indexPermissions: PropTypes.arrayOf(
+
+     */
+    _aliasPermissions: PropTypes.arrayOf(
       PropTypes.shape({
-        index_patterns: PropTypes.array.isRequired,
+        alias_patterns: PropTypes.array.isRequired,
         fls: PropTypes.array.isRequired,
         masked_fields: PropTypes.array.isRequired,
         allowed_actions: PropTypes.shape({

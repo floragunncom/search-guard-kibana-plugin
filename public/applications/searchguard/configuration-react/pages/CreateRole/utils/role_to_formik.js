@@ -202,6 +202,29 @@ export const indexPermissionToUiIndexPermission = (indexPermission) => {
   };
 };
 
+export const aliasPermissionToUiAliasPermission = (aliasPermission) => {
+  const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(
+    aliasPermission.allowed_actions
+  );
+  const allowedActions = {
+    actiongroups: arrayToComboBoxOptions(actiongroups),
+    permissions: arrayToComboBoxOptions(permissions),
+  };
+  const aliasPatterns = arrayToComboBoxOptions(aliasPermission.alias_patterns);
+
+  return {
+    ...aliasPermission,
+    ...flsmodeAndFlsToUiFlsmoddeAndFls(aliasPermission.fls),
+    _dls: aliasPermission.dls,
+    allowed_actions: allowedActions,
+    alias_patterns: aliasPatterns,
+    masked_fields: maskedFieldsToUiMaskedFields(aliasPermission.masked_fields || []),
+    masked_fields_advanced: arrayToComboBoxOptions(aliasPermission.masked_fields || []),
+    _isAdvanced: !isEmpty(allowedActions.permissions),
+    _isAdvancedFLSMaskedFields: false,
+  };
+};
+
 export const clusterPermissionsToUiClusterPermissions = (clusterPermissions) => {
   const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(
     clusterPermissions
@@ -220,6 +243,7 @@ export const roleToFormik = ({ resource, roleMapping = {}, id = '' }) => {
     formik.exclude_cluster_permissions
   );
   const _indexPermissions = map(formik.index_permissions, indexPermissionToUiIndexPermission);
+  const _aliasPermissions = map(formik.alias_permissions, aliasPermissionToUiAliasPermission);
   const _excludeIndexPermissions = map(
     formik.exclude_index_permissions,
     excludeIndexPermissionToUiExcludeIndexPermission
@@ -233,6 +257,7 @@ export const roleToFormik = ({ resource, roleMapping = {}, id = '' }) => {
     _clusterPermissions,
     _excludeClusterPermissions,
     _indexPermissions,
+    _aliasPermissions,
     _excludeIndexPermissions,
     _tenantPermissions,
     _isClusterPermissionsAdvanced: !isEmpty(_clusterPermissions.permissions),

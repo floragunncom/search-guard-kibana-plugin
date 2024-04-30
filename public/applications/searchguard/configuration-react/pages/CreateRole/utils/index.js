@@ -17,6 +17,7 @@
 export {
   roleToFormik,
   indexPermissionToUiIndexPermission,
+  aliasPermissionToUiAliasPermission,
   tenantPermissionToUiTenantPermission,
   indicesToUiIndices,
   actionGroupsToUiClusterIndexTenantActionGroups,
