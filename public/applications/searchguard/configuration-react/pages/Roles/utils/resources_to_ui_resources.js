@@ -62,6 +62,18 @@ const resourcesToUiResources = (resources) =>
               []
             )
           ),
+          _aliasPatterns: sortBy(
+            reduce(
+              values.alias_permissions,
+              (result, values) => {
+                forEach(values.alias_patterns, (pattern) => {
+                  result.push(pattern);
+                });
+                return result;
+              },
+              []
+            )
+          ),
         });
         return result;
       },
