@@ -31,7 +31,7 @@ import { Context } from '../../../../Context';
 const DocumentLevelSecurity = ({ index }) => {
   const { editorTheme, editorOptions, configService } = useContext(Context);
   const isDlsEnabled = configService.dlsFlsEnabled();
-  const fieldPath = `_indexPermissions[${index}]._dls`;
+  const fieldPath = `_aliasPermissions[${index}]._dls`;
 
   function renderFeatureDisabledCallout() {
     return (

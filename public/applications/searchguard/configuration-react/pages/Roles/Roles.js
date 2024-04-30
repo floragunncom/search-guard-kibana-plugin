@@ -40,8 +40,8 @@ import {
   clusterExclusionsText,
   indexPatternsText,
   indexExclusionsText,
-  tenantPatternsText,
-} from '../../utils/i18n/roles';
+  tenantPatternsText, aliasPatternsText
+} from "../../utils/i18n/roles";
 import { filterReservedStaticTableResources } from '../../utils/helpers';
 import { LocalStorageService, RolesService } from '../../services';
 import { Context } from '../../Context';
@@ -243,6 +243,18 @@ class Roles extends Component {
         },
         render: (items, { _id }) => (
           <TableItemsListCell name={`IndexPatterns-${_id}`} items={items} />
+        ),
+      },
+      {
+        field: '_aliasPatterns',
+        name: aliasPatternsText,
+        footer: aliasPatternsText,
+        align: 'left',
+        mobileOptions: {
+          header: false,
+        },
+        render: (items, { _id }) => (
+          <TableItemsListCell name={`AliasPatterns-${_id}`} items={items} />
         ),
       },
       {
