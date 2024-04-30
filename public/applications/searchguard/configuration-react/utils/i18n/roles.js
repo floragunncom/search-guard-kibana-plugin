@@ -25,6 +25,9 @@ export const clusterExclusionsText = (
 export const indexPatternsText = (
   <EuiI18n token="sg.roles.indexPatterns.text" default="Index Patterns" />
 );
+export const aliasPatternsText = (
+  <EuiI18n token="sg.roles.aliasPatterns.text" default="Alias Patterns" />
+);
 export const tenantPatternsText = (<EuiI18n token="sg.roles.tenantPatterns.text" default="Tenant Patterns" />);
 export const noMappedUsersFoundText = (<EuiI18n token="sg.roles.noMappedUsersFound.text" default="No mapped users found" />);
 export const noMappedBackendRolesFoundText = (
