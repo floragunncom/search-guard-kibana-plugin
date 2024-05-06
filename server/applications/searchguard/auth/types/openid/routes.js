@@ -157,7 +157,7 @@ export function loginHandler({ basePath, config, authInstance, logger, searchGua
       logger.error('Error while trying to authenticate', error.meta ? JSON.stringify(error.meta) : error);
 
 	  var headers = {
-		location: basePath + '/login?err=oidc',
+		location: basePath + '/searchguard/login?err=oidc',
 	  };
 
       var cookies = [];
