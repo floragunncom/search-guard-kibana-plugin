@@ -8,6 +8,7 @@ variables:
   SG_SB_PLUGIN_NAME: search-guard-flx-elasticsearch-plugin
   NODE_VERSION: 16.13.0
 
+
   #####
   SG_BUILD_IMAGE: "floragunncom/ci-pipeline-focal-mvn38-java17:0.1.0"
   DOCKER_VERSION: "20.10.17"
