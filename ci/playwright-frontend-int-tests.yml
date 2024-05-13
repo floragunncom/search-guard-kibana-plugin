@@ -1,0 +1,123 @@
+kibana_basicauth:
+  extends:
+  - .be_integration_test
+  variables:
+    TEST_DEFINITIONS: ".*kibana_basicauth.*"
+
+
+
+# kibana_saml:
+#   extends:
+#   - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_saml_keycloak.*" 
+# 
+# kibana_oidc:
+#   extends:
+#   - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_oidc_keycloak.*"
+# 
+# kibana_proxy:
+#   extends:
+#   - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_proxy.*"
+# 
+# kibana_jwt:
+#   extends:
+#   - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_jwt.*"
+# 
+# kibana_configui_1:
+#   extends:
+#   - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_configui_1.*" 
+# 
+# kibana_configui_2:
+#   extends:
+#   - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_configui_2.*"  
+# 
+# kibana_configui_3:
+#   extends:
+#   - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_configui_3.*"
+# 
+# kibana_authtokens:
+#   extends:
+#   - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_authtokens.*"
+
+# kibana_configui_licensehandling:
+#   extends:
+#   - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_configui_licensehandling.*"
+
+# kibana_kerberos:
+#   extends:
+#   - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_kerberos.*"
+
+.be_integration_test:
+  allow_failure: false
+  stage: "Frontend Int Tests"
+  tags:
+    - test-large
+  rules:
+    - when: always    
+    # - if: '$DOCKER_ONLY'
+    #   when: never
+    # - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    #   when: always
+    # - if: $CI_PIPELINE_SOURCE == "schedule"
+    #   when: always
+    # - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
+    #   when: always
+    # - if: $FORCE_SGI
+    #   when: always
+    # - if: '$CI_COMMIT_MESSAGE =~ /.*SKIP-SGI.*/'
+    #   when: never
+    # - if: '$CI_COMMIT_MESSAGE =~ /.*SKIP-TESTS.*/'
+    #   when: never
+    # - if: '$CI_COMMIT_MESSAGE =~ /.*FORCE_SGI.*/'
+    #   when: always
+  image: docker:${DOCKER_VERSION}
+  services:
+    - docker:${DOCKER_VERSION}-dind
+  script:
+    - |
+       
+       sudo sysctl -w vm.max_map_count=262144
+       echo "SNAPSHOT_REVISION=$SNAPSHOT_REVISION"
+       echo "TEST_DEFINITIONS $TEST_DEFINITIONS"
+       git clone --depth 1 --branch ci https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/pw-integration-tests.git > /dev/null
+       git clone --depth 1 --branch 8.12.x-playwright https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git > /dev/null
+       cd sgi8/server
+       rm -f docker/elasticsearch/search-guard.zip
+       rm -f docker/kibana/kibana-plugin.zip
+       
+       # We need a kibana plugin zip in/as docker/kibana/kibana-plugin.zip
+       # We also need a search guard zip in/as docker/elasticsearch/search-guard.zip
+       
+       wget -O docker/elasticsearch/search-guard.zip "$SG_ES_PLUGIN"
+       
+       cp ../../target/releases/search-guard-flx-kibana-plugin-${BUILD_VERSION}.zip docker/kibana/kibana-plugin.zip       
+       # ./run_test_definition.sh "$TEST_DEFINITIONS"
+       echo "sleep"
+       sleep 3600
+  artifacts:
+    when: always
+    paths:
+      - sgi8/client/test/testresults**/**/*
+    reports:
+      junit:
+        - "sgi8/client/test/testresults**/junit/Test*.xml"
+    expire_in: 30 days
