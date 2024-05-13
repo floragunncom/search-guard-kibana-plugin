@@ -111,13 +111,11 @@ kibana_basicauth:
        
        cp ../../target/releases/search-guard-flx-kibana-plugin-${BUILD_VERSION}.zip docker/kibana/kibana-plugin.zip       
        ./run_test_definition.sh "$TEST_DEFINITIONS"
-       # echo "sleep"
-       # sleep 3600
   artifacts:
     when: always
     paths:
       - sgi8/client/test/testresults**/**/*
     reports:
       junit:
-        - "sgi8/client/test/testresults**/junit/Test*.xml"
+        - "sgi8/client/test/testresults**/pw/junit/Test*.xml"
     expire_in: 30 days
