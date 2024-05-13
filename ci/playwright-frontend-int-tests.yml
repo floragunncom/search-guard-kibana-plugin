@@ -110,9 +110,9 @@ kibana_basicauth:
        wget -O docker/elasticsearch/search-guard.zip "$SG_ES_PLUGIN"
        
        cp ../../target/releases/search-guard-flx-kibana-plugin-${BUILD_VERSION}.zip docker/kibana/kibana-plugin.zip       
-       # ./run_test_definition.sh "$TEST_DEFINITIONS"
-       echo "sleep"
-       sleep 3600
+       ./run_test_definition.sh "$TEST_DEFINITIONS"
+       # echo "sleep"
+       # sleep 3600
   artifacts:
     when: always
     paths:
