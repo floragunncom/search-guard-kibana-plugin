@@ -97,9 +97,9 @@ kibana_basicauth:
        
        sudo sysctl -w vm.max_map_count=262144
        echo "SNAPSHOT_REVISION=$SNAPSHOT_REVISION"
-       echo "TEST_DEFINITIONS $TEST_DEFINITIONS"
-       git clone --depth 1 --branch ci https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/pw-integration-tests.git > /dev/null
-       git clone --depth 1 --branch 8.12.x-playwright https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git > /dev/null
+       echo "TEST_DEFINITIONS $TEST_DEFINITIONS" 
+       git clone --depth 1 --branch ci https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com:search-guard/pw-integration-tests.git > /dev/null
+       git clone --depth 1 --branch 8.12.x-playwright-poc https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git > /dev/null
        cd sgi8/server
        rm -f docker/elasticsearch/search-guard.zip
        rm -f docker/kibana/kibana-plugin.zip
