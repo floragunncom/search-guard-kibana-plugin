@@ -117,5 +117,5 @@ kibana_basicauth:
       - sgi8/client/test/testresults/**
     reports:
       junit:
-        - "sgi8/client/test/testresults**/pw/junit/Test*.xml"
+        - "sgi8/client/test/testresults/pw/JunitTestresults.xml"
     expire_in: 30 days
