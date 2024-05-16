@@ -114,7 +114,7 @@ kibana_basicauth:
   artifacts:
     when: always
     paths:
-      - sgi8/client/test/testresults**/**/*
+      - sgi8/client/test/testresults/**
     reports:
       junit:
         - "sgi8/client/test/testresults**/pw/junit/Test*.xml"
