@@ -25,6 +25,7 @@ import {
   clusterPermissionsText,
   indexPermissionsText,
   aliasPermissionsText,
+  dataStreamPermissionsText,
   tenantPermissionsText,
   updateRoleText,
   overviewText,
@@ -37,6 +38,7 @@ import {
   ClusterPermissions,
   IndexPermissions,
   AliasPermissions,
+  DataStreamPermissions,
   TenantPermissions,
   IndexExclusions,
   ClusterExclusions,
@@ -113,6 +115,10 @@ class CreateRole extends Component {
       {
         id: TABS.ALIAS_PERMISSIONS,
         name: aliasPermissionsText,
+      },
+      {
+        id: TABS.DATA_STREAM_PERMISSION,
+        name: dataStreamPermissionsText,
       },
       {
         id: TABS.TENANT_PERMISSIONS,
@@ -220,6 +226,7 @@ class CreateRole extends Component {
     const isClusterExclusionsTab = selectedTabId === TABS.CLUSTER_EXCLUSIONS;
     const isIndexPermissionsTab = selectedTabId === TABS.INDEX_PERMISSIONS;
     const isAliasPermissionsTab = selectedTabId === TABS.ALIAS_PERMISSIONS;
+    const isDataStreamPermissionsTab = selectedTabId === TABS.DATA_STREAM_PERMISSION;
     const isIndexExclusionsTab = selectedTabId === TABS.INDEX_EXCLUSIONS;
     const isTenantPermissionsTab = selectedTabId === TABS.TENANT_PERMISSIONS;
 

@@ -28,6 +28,9 @@ export const indexPatternsText = (
 export const aliasPatternsText = (
   <EuiI18n token="sg.roles.aliasPatterns.text" default="Alias Patterns" />
 );
+export const dataStreamPatternsText = (
+  <EuiI18n token="sg.roles.dataStreamPatterns.text" default="Data Stream Patterns" />
+);
 export const tenantPatternsText = (<EuiI18n token="sg.roles.tenantPatterns.text" default="Tenant Patterns" />);
 export const noMappedUsersFoundText = (<EuiI18n token="sg.roles.noMappedUsersFound.text" default="No mapped users found" />);
 export const noMappedBackendRolesFoundText = (
@@ -37,6 +40,7 @@ export const noMappedHostsFoundText = (<EuiI18n token="sg.roles.noMappedHostsFou
 export const tenantPermissionsText = (<EuiI18n token="sg.roles.tenantPermissions.text" default="Tenant Permissions" />);
 export const indexPermissionsText = (<EuiI18n token="sg.roles.indexPermissions.text" default="Index Permissions" />);
 export const aliasPermissionsText = (<EuiI18n token="sg.roles.aliasPermissions.text" default="Alias Permissions" />);
+export const dataStreamPermissionsText = (<EuiI18n token="sg.roles.dataStreamPermissions.text" default="Data Stream Permissions" />);
 export const indexExclusionsText = (<EuiI18n token="sg.roles.indexExclusions.text" default="Index Exclusions" />);
 export const overviewText = (<EuiI18n token="sg.roles.overview.text" default="Overview" />);
 export const membersText = (<EuiI18n token="sg.roles.members.text" default="Members" />);
@@ -69,6 +73,12 @@ export const emptyAliasPermissionsText = (
   <EuiI18n
     token="sg.roles.emptyAliasPermissions.text"
     default="Looks like you don&rsquo;t have any alias permissions. Let&rsquo;s create some!"
+  />
+);
+export const emptyDataStreamPermissionsText = (
+  <EuiI18n
+    token="sg.roles.emptyDataStreamPermissions.text"
+    default="Looks like you don&rsquo;t have any data stream permissions. Let&rsquo;s create some!"
   />
 );
 export const emptyIndexExclusionsText = (

@@ -14,6 +14,10 @@ class ElasticsearchService {
     return this.httpClient.post(API.ALIASES, { alias });
   }
 
+  getDataStreams(dataStream = []) {
+    return this.httpClient.post(API.DATA_STREAMS, { dataStream });
+  }
+
   getIndexMappings = (index = []) => {
     return this.httpClient.post(API.INDEX_MAPPINGS, { index });
   }

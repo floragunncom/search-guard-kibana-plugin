@@ -85,6 +85,29 @@ export default class SearchGuardConfigurationBackend {
     }
   };
 
+  dataStreams = async ({ headers, index = [] } = {}) => {
+    try {
+      const { body: response } = await this.elasticsearch.client
+        .asScoped({ headers })
+        .asCurrentUser.indices.getDataStream({
+          //index,
+          //index: '*, -.*',
+          name: '*',
+          format: 'json',
+          //h: 'index,health',
+        });
+
+      console.log('>>> What is the response?', response)
+
+      return response;
+    } catch (error) {
+      if (error.statusCode === 401) {
+        throw new AuthenticationError(error.message, error);
+      }
+      throw error;
+    }
+  };
+
   list = async (headers, resourceName) => {
     try {
       return await this._client({

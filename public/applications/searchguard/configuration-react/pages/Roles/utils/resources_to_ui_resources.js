@@ -74,6 +74,18 @@ const resourcesToUiResources = (resources) =>
               []
             )
           ),
+          _dataStreamPatterns: sortBy(
+            reduce(
+              values.data_stream_permissions,
+              (result, values) => {
+                forEach(values.data_stream_patterns, (pattern) => {
+                  result.push(pattern);
+                });
+                return result;
+              },
+              []
+            )
+          ),
         });
         return result;
       },
