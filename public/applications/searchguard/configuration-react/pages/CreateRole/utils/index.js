@@ -19,6 +19,7 @@ export {
   indexPermissionToUiIndexPermission,
   aliasPermissionToUiAliasPermission,
   dataStreamPermissionToUiDataStreamPermission,
+  commonPermissionToUiCommonPermission,
   tenantPermissionToUiTenantPermission,
   indicesToUiIndices,
   actionGroupsToUiClusterIndexTenantActionGroups,

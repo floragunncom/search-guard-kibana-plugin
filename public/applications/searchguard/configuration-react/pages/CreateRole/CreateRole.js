@@ -37,7 +37,7 @@ import {
   Overview,
   ClusterPermissions,
   IndexPermissions,
-  AliasPermissions,
+  CommonPermissions,
   DataStreamPermissions,
   TenantPermissions,
   IndexExclusions,
@@ -49,7 +49,7 @@ import {
   actionGroupsToUiClusterIndexTenantActionGroups,
   tenantsToUiTenants,
 } from './utils';
-import { TABS, ROLE, ROLE_MAPPING } from './utils/constants';
+import { TABS, ROLE, ROLE_MAPPING, COMMON_PERMISSION_TYPES } from "./utils/constants";
 import { getAllUiIndexPermissions, getAllUiClusterPermissions } from '../../utils/helpers';
 import {
   ElasticsearchService,
@@ -294,7 +294,17 @@ class CreateRole extends Component {
                 />
               )}
               {isAliasPermissionsTab && (
-                <AliasPermissions
+                <CommonPermissions
+                  type={COMMON_PERMISSION_TYPES.ALIAS_PERMISSION}
+                  values={values}
+                  allActionGroups={allIndexActionGroups}
+                  allSinglePermissions={allIndexPermissions}
+                  {...this.props}
+                />
+              )}
+              {isDataStreamPermissionsTab && (
+                <CommonPermissions
+                  type={COMMON_PERMISSION_TYPES.DATA_STREAM_PERMISSION}
                   values={values}
                   allActionGroups={allIndexActionGroups}
                   allSinglePermissions={allIndexPermissions}

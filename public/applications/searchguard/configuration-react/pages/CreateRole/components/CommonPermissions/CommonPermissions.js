@@ -15,17 +15,16 @@
  */
 
 import React, { Fragment, useContext, useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { FieldArray } from 'formik';
 import { isEmpty, isEqual } from 'lodash';
-import { ALIAS_PERMISSION, INDEX_PERMISSION } from "../../utils/constants";
+import {
+  ALIAS_PERMISSION,
+  COMMON_PERMISSION_TYPES,
+  GET_COMMON_PERMISSION,
+  INDEX_PERMISSION
+} from "../../utils/constants";
 import { EuiAccordion, EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
 import { advancedText, addText } from '../../../../utils/i18n/common';
-import {
-  emptyAliasPermissionsText,
-  aliasPermissionsText,
-  indexPatternsText, aliasPatternsText
-} from "../../../../utils/i18n/roles";
 import { actionGroupsText, singlePermissionsText } from '../../../../utils/i18n/action_groups';
 import {
   EmptyPrompt,
@@ -44,7 +43,7 @@ import {
 import FieldLevelSecurity from './FieldLevelSecurity';
 import DocumentLevelSecurity from './DocumentLevelSecurity';
 import {
-  aliasPermissionToUiAliasPermission,
+  commonPermissionToUiCommonPermission,
   useIndexPatterns,
   indexPatternNames,
   renderIndexOption,
@@ -56,7 +55,7 @@ import { ElasticsearchService } from '../../../../services';
 
 import { Context } from '../../../../Context';
 
-function Permission({ index, values, allActionGroups, allSinglePermissions }) {
+function Permission({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, index, values, allActionGroups, allSinglePermissions }) {
   const {
     httpClient,
     addErrorToast,
@@ -70,6 +69,7 @@ function Permission({ index, values, allActionGroups, allSinglePermissions }) {
   const [allIndexPatternsFields, setAllIndexPatternsFields] = useState([]);
   const esService = new ElasticsearchService(httpClient);
 
+  // @todo Rename
   async function fetchIndexPatternsFields({ indexPatterns = [] } = {}) {
     if (!indexPatterns.length) return;
     if (isEqual(indexPatterns, prevIndexPatterns)) return;
@@ -91,26 +91,26 @@ function Permission({ index, values, allActionGroups, allSinglePermissions }) {
   }
 
   useEffect(() => {
-    console.log('What are the aliasPermissions?', values._aliasPermissions)
-    fetchIndexPatternsFields({ indexPatterns: values._aliasPermissions[index].alias_patterns });
+    console.log('What are the aliasPermissions?', values[type.permissionsProperty])
+    fetchIndexPatternsFields({ indexPatterns: values[type.permissionsProperty][index][type.patternsProperty] });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <>
       <FormikComboBox
-        name={`_aliasPermissions[${index}].alias_patterns`}
+        name={`${type.permissionsProperty}[${index}].${type.patternsProperty}`}
         formRow
         rowProps={{
-          label: aliasPatternsText,
+          label: type.textPatterns,
         }}
         elementProps={{
           isLoading,
           onSearchChange,
           async: true,
           isClearable: true,
-          placeholder: 'Select aliases',
-          options: indexOptions,
+          placeholder: type.selectPatternPlaceholder,
+          options: indexOptions, // @todo Rename
           renderOption: renderIndexOption,
           onBlur: onComboBoxOnBlur,
           onChange: (options, field, form) => {
@@ -120,8 +120,11 @@ function Permission({ index, values, allActionGroups, allSinglePermissions }) {
           onCreateOption: onComboBoxCreateOption(),
         }}
       />
+      {console.log('WHAT IS THIS', type,
+        `${type.permissionsProperty}[${index}].allowed_actions.actiongroups`
+        )}
       <FormikComboBox
-        name={`_aliasPermissions[${index}].allowed_actions.actiongroups`}
+        name={`${type.permissionsProperty}[${index}].allowed_actions.actiongroups`}
         formRow
         rowProps={{
           label: actionGroupsText,
@@ -139,11 +142,11 @@ function Permission({ index, values, allActionGroups, allSinglePermissions }) {
           label: advancedText,
           onChange: onSwitchChange,
         }}
-        name={`_aliasPermissions[${index}]._isAdvanced`}
+        name={`${type.permissionsProperty}[${index}]._isAdvanced`}
       />
-      {values._aliasPermissions[index]._isAdvanced && (
+      {values[type.permissionsProperty][index]._isAdvanced && (
         <FormikComboBox
-          name={`_aliasPermissions[${index}].allowed_actions.permissions`}
+          name={`${type.permissionsProperty}[${index}].allowed_actions.permissions`}
           formRow
           rowProps={{
             label: singlePermissionsText,
@@ -164,23 +167,24 @@ function Permission({ index, values, allActionGroups, allSinglePermissions }) {
         />
       )}
       <FieldLevelSecurity
+        type={type}
         index={index}
         isLoading={isLoading}
         allIndexPatternsFields={allIndexPatternsFields}
       />
-      <DocumentLevelSecurity index={index} />
+      <DocumentLevelSecurity type={type} index={index} />
     </>
   );
 }
 
-function Permissions({ values, arrayHelpers, allActionGroups, allSinglePermissions }) {
+function Permissions({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, values, arrayHelpers, allActionGroups, allSinglePermissions }) {
   const { triggerConfirmDeletionModal } = useContext(Context);
 
-  return values._aliasPermissions.map((aliasPermission, index) => (
+  return values[type.permissionsProperty].map((permission, index) => (
     <EuiFlexGroup key={index}>
       <EuiFlexItem>
         <EuiAccordion
-          data-test-subj={`sgRoleAliasPatternsAccordion-${index}`}
+          data-test-subj={`${type.testSubjPrefix}PatternsAccordion-${index}`}
           id={index.toString(2)}
           className="euiAccordionForm"
           buttonClassName="euiAccordionForm__button"
@@ -188,7 +192,7 @@ function Permissions({ values, arrayHelpers, allActionGroups, allSinglePermissio
             <AccordionDeleteButton
               onClick={() => {
                 triggerConfirmDeletionModal({
-                  body: indexPatternNames(aliasPermission.alias_patterns),
+                  body: indexPatternNames(permission[type.patternsProperty]),
                   onConfirm: () => {
                     arrayHelpers.remove(index);
                     triggerConfirmDeletionModal(null);
@@ -200,13 +204,14 @@ function Permissions({ values, arrayHelpers, allActionGroups, allSinglePermissio
           buttonContent={
             <AccordionButtonContent
               iconType={<Icon size="xl" type="indexPattern" />}
-              titleText={indexPatternsText}
-              subduedText={indexPatternNames(aliasPermission.alias_patterns)}
+              titleText={type.textPatterns}
+              subduedText={indexPatternNames(permission[type.patternsProperty])}
             />
           }
         >
           <EuiSpacer />
           <Permission
+            type={type}
             index={index}
             values={values}
             allActionGroups={allActionGroups}
@@ -220,29 +225,40 @@ function Permissions({ values, arrayHelpers, allActionGroups, allSinglePermissio
   ));
 }
 
-const AliasPermissions = ({ values, allActionGroups, allSinglePermissions }) => {
-  const addAliasPermission = (arrayHelpers) => {
-    arrayHelpers.push(aliasPermissionToUiAliasPermission(ALIAS_PERMISSION));
+/**
+ * This is a component that can be used for
+ * Index Permissions, Alias Permissions, and Data Stream Permissions
+ *
+ * @param values
+ * @param allActionGroups
+ * @param allSinglePermissions
+ * @returns {Element}
+ * @constructor
+ */
+const CommonPermissions = ({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, values, allActionGroups, allSinglePermissions }) => {
+  const addPermission = (arrayHelpers) => {
+    arrayHelpers.push(commonPermissionToUiCommonPermission(GET_COMMON_PERMISSION(type.patternsProperty), type.patternsProperty));
   };
 
   return (
-    <FieldArray name="_aliasPermissions">
+    <FieldArray name={`${type.permissionsProperty}`}>
       {(arrayHelpers) => (
         <Fragment>
-          <AddButton onClick={() => addAliasPermission(arrayHelpers)} />
+          <AddButton onClick={() => addPermission(arrayHelpers)} />
           <EuiSpacer />
-
-          {isEmpty(values._aliasPermissions) ? (
+          THIS IS THE COMMON
+          {isEmpty(values[type.permissionsProperty]) ? (
             <EmptyPrompt
-              titleText={aliasPermissionsText}
-              bodyText={emptyAliasPermissionsText}
+              titleText={type.textPermissions}
+              bodyText={type.textEmptyPermissions}
               createButtonText={addText}
               onCreate={() => {
-                addAliasPermission(arrayHelpers);
+                addPermission(arrayHelpers);
               }}
             />
           ) : (
             <Permissions
+              type={type}
               values={values}
               allActionGroups={allActionGroups}
               allSinglePermissions={allSinglePermissions}
@@ -255,34 +271,6 @@ const AliasPermissions = ({ values, allActionGroups, allSinglePermissions }) => 
   );
 };
 
-AliasPermissions.propTypes = {
-  values: PropTypes.shape({
-    /*
-    _excludeIndexPermissions: PropTypes.arrayOf(
-      PropTypes.shape({
-        index_patterns: PropTypes.array.isRequired,
-        actions: PropTypes.shape({
-          actiongroups: PropTypes.array.isRequired,
-          permissions: PropTypes.array.isRequired,
-        }),
-      })
-    ).isRequired,
 
-     */
-    _aliasPermissions: PropTypes.arrayOf(
-      PropTypes.shape({
-        alias_patterns: PropTypes.array.isRequired,
-        fls: PropTypes.array.isRequired,
-        masked_fields: PropTypes.array.isRequired,
-        allowed_actions: PropTypes.shape({
-          actiongroups: PropTypes.array.isRequired,
-          permissions: PropTypes.array.isRequired,
-        }),
-      })
-    ).isRequired,
-  }).isRequired,
-  allActionGroups: PropTypes.array.isRequired,
-  allSinglePermissions: PropTypes.array.isRequired,
-};
 
-export default AliasPermissions;
+export default CommonPermissions;
