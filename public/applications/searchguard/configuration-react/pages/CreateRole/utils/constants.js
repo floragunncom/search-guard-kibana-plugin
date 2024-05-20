@@ -56,6 +56,16 @@ export const ALIAS_PERMISSION = {
   masked_fields: [],
 };
 
+export const DATA_STREAM_PERMISSION = {
+  allowed_actions: [],
+  fls: [],
+  flsmode: FLS_MODES.WHITELIST,
+  data_stream_patterns: [],
+  masked_fields: [],
+};
+
+
+
 export const TENANT_PERMISSION = {
   tenant_patterns: [],
   allowed_actions: [],
@@ -68,6 +78,7 @@ export const TABS = {
   INDEX_PERMISSIONS: 'indexPermissions',
   INDEX_EXCLUSIONS: 'indexExclusions',
   ALIAS_PERMISSIONS: 'aliasPermissions',
+  DATA_STREAM_PERMISSION: 'dataStreamPermissions',
   TENANT_PERMISSIONS: 'tenantPermissions',
 };
 

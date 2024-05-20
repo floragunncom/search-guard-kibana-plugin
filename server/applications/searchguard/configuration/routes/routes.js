@@ -169,6 +169,22 @@ export function getConfigIndexMappings({ searchGuardConfigurationBackend, logger
   };
 }
 
+export function getConfigDataStreams({ searchGuardConfigurationBackend, logger }) {
+  return async function (context, request, response) {
+    try {
+      const body = await searchGuardConfigurationBackend.dataStreams({
+        headers: request.headers,
+        body: request.body,
+      });
+
+      return response.ok({ body });
+    } catch (error) {
+      logger.error(`getConfigDataStreams: ${error.stack}`);
+      return response.customError(wrapForCustomError(error));
+    }
+  };
+}
+
 /**
  * The backend API allows to manage the backend configuration.
  */
@@ -335,5 +351,20 @@ export function defineConfigurationRoutes({ searchGuardConfigurationBackend, kib
       },
     },
     getConfigIndexMappings({ searchGuardConfigurationBackend, logger })
+  );
+
+  router.post(
+    {
+      path: `${API_ROOT}/configuration/data_streams`,
+      validate: {
+        body: schema.object({
+          dataStream: schema.oneOf([schema.string(), schema.arrayOf(schema.string())]),
+        }),
+      },
+      options: {
+        authRequired: true,
+      },
+    },
+    getConfigDataStreams({ searchGuardConfigurationBackend, logger })
   );
 }

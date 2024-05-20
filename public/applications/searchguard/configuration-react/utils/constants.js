@@ -23,6 +23,7 @@ export const API = {
   LICENSE: `${API_BASE}/license`,
   INDICES: `${API_BASE}/configuration/indices`,
   ALIASES: `${API_BASE}/configuration/aliases`,
+  DATA_STREAMS: `${API_BASE}/configuration/data_streams`,
   INDEX_MAPPINGS: `${API_BASE}/configuration/index_mappings`,
   TEMPLATES_AUDITLOG: `${API_BASE}/templates/auditlog`,
 };

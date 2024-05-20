@@ -18,13 +18,14 @@ import React, { Fragment, useContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { FieldArray } from 'formik';
 import { isEmpty, isEqual } from 'lodash';
-import { ALIAS_PERMISSION, INDEX_PERMISSION } from "../../utils/constants";
+import { DATA_STREAM_PERMISSION } from "../../utils/constants";
 import { EuiAccordion, EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
 import { advancedText, addText } from '../../../../utils/i18n/common';
 import {
-  emptyAliasPermissionsText,
-  aliasPermissionsText,
-  indexPatternsText, aliasPatternsText
+  emptyDataStreamPermissionsText,
+  dataStreamPermissionsText,
+  indexPatternsText,
+  dataStreamPatternsText
 } from "../../../../utils/i18n/roles";
 import { actionGroupsText, singlePermissionsText } from '../../../../utils/i18n/action_groups';
 import {
@@ -44,7 +45,7 @@ import {
 import FieldLevelSecurity from './FieldLevelSecurity';
 import DocumentLevelSecurity from './DocumentLevelSecurity';
 import {
-  aliasPermissionToUiAliasPermission,
+  dataStreamPermissionToUiDataStreamPermission,
   useIndexPatterns,
   indexPatternNames,
   renderIndexOption,
@@ -65,9 +66,11 @@ function Permission({ index, values, allActionGroups, allSinglePermissions }) {
     onComboBoxOnBlur,
     onComboBoxCreateOption,
   } = useContext(Context);
-  const { isLoading, setIsLoading, indexOptions, onSearchChange } = useIndexPatterns(values);
+  const { isLoading, setIsLoading, indexOptions, onSearchChange, dataStreamOptions } = useIndexPatterns(values);
+  console.log('>>>>> What are indexOptions?', indexOptions)
   const [prevIndexPatterns, setPrevIndexPatterns] = useState([]);
   const [allIndexPatternsFields, setAllIndexPatternsFields] = useState([]);
+  const [allDataStreamPattersnFields, setAllDataStreamPatternsFields] = useState([]);
   const esService = new ElasticsearchService(httpClient);
 
   async function fetchIndexPatternsFields({ indexPatterns = [] } = {}) {
@@ -91,26 +94,25 @@ function Permission({ index, values, allActionGroups, allSinglePermissions }) {
   }
 
   useEffect(() => {
-    console.log('What are the aliasPermissions?', values._aliasPermissions)
-    fetchIndexPatternsFields({ indexPatterns: values._aliasPermissions[index].alias_patterns });
+    fetchIndexPatternsFields({ indexPatterns: values._dataStreamPermissions[index].data_stream_patterns });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <>
       <FormikComboBox
-        name={`_aliasPermissions[${index}].alias_patterns`}
+        name={`_dataStreamPermissions[${index}].data_stream_patterns`}
         formRow
         rowProps={{
-          label: aliasPatternsText,
+          label: dataStreamPatternsText,
         }}
         elementProps={{
           isLoading,
           onSearchChange,
           async: true,
           isClearable: true,
-          placeholder: 'Select aliases',
-          options: indexOptions,
+          placeholder: 'Select data streams',
+          options: dataStreamOptions,
           renderOption: renderIndexOption,
           onBlur: onComboBoxOnBlur,
           onChange: (options, field, form) => {
@@ -121,7 +123,7 @@ function Permission({ index, values, allActionGroups, allSinglePermissions }) {
         }}
       />
       <FormikComboBox
-        name={`_aliasPermissions[${index}].allowed_actions.actiongroups`}
+        name={`_dataStreamPermissions[${index}].allowed_actions.actiongroups`}
         formRow
         rowProps={{
           label: actionGroupsText,
@@ -139,11 +141,11 @@ function Permission({ index, values, allActionGroups, allSinglePermissions }) {
           label: advancedText,
           onChange: onSwitchChange,
         }}
-        name={`_aliasPermissions[${index}]._isAdvanced`}
+        name={`_dataStreamPermissions[${index}]._isAdvanced`}
       />
       {values._aliasPermissions[index]._isAdvanced && (
         <FormikComboBox
-          name={`_aliasPermissions[${index}].allowed_actions.permissions`}
+          name={`_dataStreamPermissions[${index}].allowed_actions.permissions`}
           formRow
           rowProps={{
             label: singlePermissionsText,
@@ -176,11 +178,11 @@ function Permission({ index, values, allActionGroups, allSinglePermissions }) {
 function Permissions({ values, arrayHelpers, allActionGroups, allSinglePermissions }) {
   const { triggerConfirmDeletionModal } = useContext(Context);
 
-  return values._aliasPermissions.map((aliasPermission, index) => (
+  return values._dataStreamPermissions.map((dataStreamPermission, index) => (
     <EuiFlexGroup key={index}>
       <EuiFlexItem>
         <EuiAccordion
-          data-test-subj={`sgRoleAliasPatternsAccordion-${index}`}
+          data-test-subj={`sgRoleDataStreamPatternsAccordion-${index}`}
           id={index.toString(2)}
           className="euiAccordionForm"
           buttonClassName="euiAccordionForm__button"
@@ -188,7 +190,7 @@ function Permissions({ values, arrayHelpers, allActionGroups, allSinglePermissio
             <AccordionDeleteButton
               onClick={() => {
                 triggerConfirmDeletionModal({
-                  body: indexPatternNames(aliasPermission.alias_patterns),
+                  body: indexPatternNames(dataStreamPermission.data_stream_patterns),
                   onConfirm: () => {
                     arrayHelpers.remove(index);
                     triggerConfirmDeletionModal(null);
@@ -201,7 +203,7 @@ function Permissions({ values, arrayHelpers, allActionGroups, allSinglePermissio
             <AccordionButtonContent
               iconType={<Icon size="xl" type="indexPattern" />}
               titleText={indexPatternsText}
-              subduedText={indexPatternNames(aliasPermission.alias_patterns)}
+              subduedText={indexPatternNames(dataStreamPermission.data_stream_patterns)}
             />
           }
         >
@@ -220,25 +222,25 @@ function Permissions({ values, arrayHelpers, allActionGroups, allSinglePermissio
   ));
 }
 
-const AliasPermissions = ({ values, allActionGroups, allSinglePermissions }) => {
-  const addAliasPermission = (arrayHelpers) => {
-    arrayHelpers.push(aliasPermissionToUiAliasPermission(ALIAS_PERMISSION));
+const DataStreamPermissions = ({ values, allActionGroups, allSinglePermissions }) => {
+  const addDataStreamPermission = (arrayHelpers) => {
+    arrayHelpers.push(dataStreamPermissionToUiDataStreamPermission(DATA_STREAM_PERMISSION));
   };
 
   return (
-    <FieldArray name="_aliasPermissions">
+    <FieldArray name="_dataStreamPermissions">
       {(arrayHelpers) => (
         <Fragment>
-          <AddButton onClick={() => addAliasPermission(arrayHelpers)} />
+          <AddButton onClick={() => addDataStreamPermission(arrayHelpers)} />
           <EuiSpacer />
 
-          {isEmpty(values._aliasPermissions) ? (
+          {isEmpty(values._dataStreamPermissions) ? (
             <EmptyPrompt
-              titleText={aliasPermissionsText}
-              bodyText={emptyAliasPermissionsText}
+              titleText={dataStreamPermissionsText}
+              bodyText={emptyDataStreamPermissionsText}
               createButtonText={addText}
               onCreate={() => {
-                addAliasPermission(arrayHelpers);
+                addDataStreamPermission(arrayHelpers);
               }}
             />
           ) : (
@@ -255,7 +257,7 @@ const AliasPermissions = ({ values, allActionGroups, allSinglePermissions }) => 
   );
 };
 
-AliasPermissions.propTypes = {
+DataStreamPermissions.propTypes = {
   values: PropTypes.shape({
     /*
     _excludeIndexPermissions: PropTypes.arrayOf(
@@ -269,9 +271,9 @@ AliasPermissions.propTypes = {
     ).isRequired,
 
      */
-    _aliasPermissions: PropTypes.arrayOf(
+    _dataStreamPermissions: PropTypes.arrayOf(
       PropTypes.shape({
-        alias_patterns: PropTypes.array.isRequired,
+        data_stream_patterns: PropTypes.array.isRequired,
         fls: PropTypes.array.isRequired,
         masked_fields: PropTypes.array.isRequired,
         allowed_actions: PropTypes.shape({
@@ -285,4 +287,4 @@ AliasPermissions.propTypes = {
   allSinglePermissions: PropTypes.array.isRequired,
 };
 
-export default AliasPermissions;
+export default DataStreamPermissions;

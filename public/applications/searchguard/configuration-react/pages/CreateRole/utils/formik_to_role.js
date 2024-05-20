@@ -110,6 +110,35 @@ export const uiAliasPermissionsToAliasPermissions = (aliasPermissions) => {
   });
 };
 
+export const uiDataStreamPermissionsToDataStreamPermissions = (aliasPermissions) => {
+  return map(aliasPermissions, (values) => {
+    const { actiongroups, permissions } = values.allowed_actions;
+    const allowedActions = [
+      ...comboBoxOptionsToArray(actiongroups),
+      ...comboBoxOptionsToArray(permissions),
+    ];
+    const dataStreamPatterns = comboBoxOptionsToArray(values.data_stream_patterns);
+
+    const result = {
+      allowed_actions: allowedActions,
+      data_stream_patterns: dataStreamPatterns,
+      fls: uiFlsToFls(values.fls, values.flsmode),
+    };
+
+    if (values._dls) {
+      result.dls = values._dls;
+    }
+
+    if (values._isAdvancedFLSMaskedFields) {
+      result.masked_fields = comboBoxOptionsToArray(values.masked_fields_advanced);
+    } else {
+      result.masked_fields = uiMaskedFieldsToMaskedFields(values.masked_fields);
+    }
+
+    return result;
+  });
+};
+
 export const uiTenantPermissionsToTenantPermissions = (tenantPermissions) => {
   return map(tenantPermissions, (values) => {
     const { tenant_patterns: tenantPatterns, allowed_actions: allowedActions } = values;
@@ -134,6 +163,7 @@ export const formikToRole = (_formik) => {
   );
   const indexPermissions = uiIndexPermissionsToIndexPermissions(formik._indexPermissions);
   const aliasPermissions = uiAliasPermissionsToAliasPermissions(formik._aliasPermissions);
+  const dataStreamPermissions = uiDataStreamPermissionsToDataStreamPermissions(formik._dataStreamPermissions);
   const excludeIndexPermissions = uiExcludeIndexPermissionsToExcludeIndexPermissions(
     formik._excludeIndexPermissions
   );
@@ -149,6 +179,7 @@ export const formikToRole = (_formik) => {
       '_excludeClusterPermissions',
       '_indexPermissions',
       '_aliasPermissions',
+      '_dataStreamPermissions',
       '_excludeIndexPermissions',
       '_tenantPermissions',
       ...FIELDS_TO_OMIT_BEFORE_SAVE,
@@ -156,6 +187,7 @@ export const formikToRole = (_formik) => {
     cluster_permissions: clusterPermissions,
     index_permissions: indexPermissions,
     alias_permissions: aliasPermissions,
+    data_stream_permissions: dataStreamPermissions,
     tenant_permissions: tenantPermissions,
     exclude_cluster_permissions: excludeClusterPermissions,
     exclude_index_permissions: excludeIndexPermissions,
