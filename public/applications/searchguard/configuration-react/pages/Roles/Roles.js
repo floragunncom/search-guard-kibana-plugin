@@ -40,7 +40,7 @@ import {
   clusterExclusionsText,
   indexPatternsText,
   indexExclusionsText,
-  tenantPatternsText, aliasPatternsText
+  tenantPatternsText, aliasPatternsText, dataStreamPatternsText
 } from "../../utils/i18n/roles";
 import { filterReservedStaticTableResources } from '../../utils/helpers';
 import { LocalStorageService, RolesService } from '../../services';
@@ -255,6 +255,18 @@ class Roles extends Component {
         },
         render: (items, { _id }) => (
           <TableItemsListCell name={`AliasPatterns-${_id}`} items={items} />
+        ),
+      },
+      {
+        field: '_dataStreamPatterns',
+        name: dataStreamPatternsText,
+        footer: dataStreamPatternsText,
+        align: 'left',
+        mobileOptions: {
+          header: false,
+        },
+        render: (items, { _id }) => (
+          <TableItemsListCell name={`DataStreamPatterns-${_id}`} items={items} />
         ),
       },
       {

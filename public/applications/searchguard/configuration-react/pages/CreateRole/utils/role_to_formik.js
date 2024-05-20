@@ -225,6 +225,29 @@ export const aliasPermissionToUiAliasPermission = (aliasPermission) => {
   };
 };
 
+export const dataStreamPermissionToUiDataStreamPermission = (dataStreamPermission) => {
+  const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(
+    dataStreamPermission.allowed_actions
+  );
+  const allowedActions = {
+    actiongroups: arrayToComboBoxOptions(actiongroups),
+    permissions: arrayToComboBoxOptions(permissions),
+  };
+  const dataStreamPatterns = arrayToComboBoxOptions(dataStreamPermission.data_stream_patterns);
+
+  return {
+    ...dataStreamPermission,
+    ...flsmodeAndFlsToUiFlsmoddeAndFls(dataStreamPermission.fls),
+    _dls: dataStreamPermission.dls,
+    allowed_actions: allowedActions,
+    data_stream_patterns: dataStreamPatterns,
+    masked_fields: maskedFieldsToUiMaskedFields(dataStreamPermission.masked_fields || []),
+    masked_fields_advanced: arrayToComboBoxOptions(dataStreamPermission.masked_fields || []),
+    _isAdvanced: !isEmpty(allowedActions.permissions),
+    _isAdvancedFLSMaskedFields: false,
+  };
+};
+
 export const clusterPermissionsToUiClusterPermissions = (clusterPermissions) => {
   const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(
     clusterPermissions
@@ -244,6 +267,7 @@ export const roleToFormik = ({ resource, roleMapping = {}, id = '' }) => {
   );
   const _indexPermissions = map(formik.index_permissions, indexPermissionToUiIndexPermission);
   const _aliasPermissions = map(formik.alias_permissions, aliasPermissionToUiAliasPermission);
+  const _dataStreamPermissions = map(formik.data_stream_permissions, dataStreamPermissionToUiDataStreamPermission);
   const _excludeIndexPermissions = map(
     formik.exclude_index_permissions,
     excludeIndexPermissionToUiExcludeIndexPermission
@@ -258,6 +282,7 @@ export const roleToFormik = ({ resource, roleMapping = {}, id = '' }) => {
     _excludeClusterPermissions,
     _indexPermissions,
     _aliasPermissions,
+    _dataStreamPermissions,
     _excludeIndexPermissions,
     _tenantPermissions,
     _isClusterPermissionsAdvanced: !isEmpty(_clusterPermissions.permissions),

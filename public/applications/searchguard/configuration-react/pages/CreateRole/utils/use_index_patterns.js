@@ -26,6 +26,7 @@ export function useIndexPatterns() {
   const { httpClient, addErrorToast } = useContext(Context);
   const [isLoading, setIsLoading] = useState(false);
   const [indexOptions, setIndexOptions] = useState([]);
+  const [dataStreamOptions, setDataStreamOptions] = useState([]);
 
   const esService = new ElasticsearchService(httpClient);
 
@@ -38,12 +39,14 @@ export function useIndexPatterns() {
       query = query.trim();
       if (query === '*:' || query === '') return [];
 
-      const [{ data: indices = [] }, { data: aliases = [] }] = await Promise.all([
+      const [{ data: indices = [] }, { data: aliases = [] }, { data: dataStreams = [] }] = await Promise.all([
         esService.getIndices(query),
         esService.getAliases(query),
+        esService.getDataStreams(query),
       ]);
 
       setIndexOptions(indicesToUiIndices([...indices, ...aliases]));
+      setDataStreamOptions(indicesToUiIndices([...dataStreams.data_streams]));
     } catch (error) {
       console.error('IndexPatterns - onSearchChange', error);
       addErrorToast(error);
@@ -61,6 +64,7 @@ export function useIndexPatterns() {
     isLoading,
     setIsLoading,
     indexOptions,
+    dataStreamOptions,
     onSearchChange,
   };
 }
