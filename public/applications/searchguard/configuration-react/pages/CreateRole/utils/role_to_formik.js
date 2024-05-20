@@ -202,6 +202,29 @@ export const indexPermissionToUiIndexPermission = (indexPermission) => {
   };
 };
 
+export const commonPermissionToUiCommonPermission = (permission, patternsProperty = 'index_patterns') => {
+  const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(
+    permission.allowed_actions
+  );
+  const allowedActions = {
+    actiongroups: arrayToComboBoxOptions(actiongroups),
+    permissions: arrayToComboBoxOptions(permissions),
+  };
+  const patterns = arrayToComboBoxOptions(permission[patternsProperty]);
+
+  return {
+    ...permission,
+    ...flsmodeAndFlsToUiFlsmoddeAndFls(permission.fls),
+    _dls: permission.dls,
+    allowed_actions: allowedActions,
+    [patternsProperty]: patterns,
+    masked_fields: maskedFieldsToUiMaskedFields(permission.masked_fields || []),
+    masked_fields_advanced: arrayToComboBoxOptions(permission.masked_fields || []),
+    _isAdvanced: !isEmpty(allowedActions.permissions),
+    _isAdvancedFLSMaskedFields: false,
+  };
+};
+
 export const aliasPermissionToUiAliasPermission = (aliasPermission) => {
   const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(
     aliasPermission.allowed_actions

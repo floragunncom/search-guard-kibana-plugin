@@ -27,11 +27,12 @@ import {
 import { isInvalid, hasError } from '../../../../utils/validation';
 
 import { Context } from '../../../../Context';
+import { COMMON_PERMISSION_TYPES } from "../../utils/constants";
 
-const DocumentLevelSecurity = ({ index }) => {
+const DocumentLevelSecurity = ({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, index }) => {
   const { editorTheme, editorOptions, configService } = useContext(Context);
   const isDlsEnabled = configService.dlsFlsEnabled();
-  const fieldPath = `_dataStreamPermissions[${index}]._dls`;
+  const fieldPath = `${type.permissionsProperty}[${index}]._dls`;
 
   function renderFeatureDisabledCallout() {
     return (
