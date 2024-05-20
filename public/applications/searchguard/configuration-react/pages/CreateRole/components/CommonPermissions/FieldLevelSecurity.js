@@ -59,13 +59,13 @@ import {
   MASKED_FIELD_TYPE_OPTIONS,
   MASKED_FIELD_TYPE,
   FLS_MODES,
-  MASKED_FIELDS_DEFAULTS,
-} from '../../utils/constants';
+  MASKED_FIELDS_DEFAULTS, COMMON_PERMISSION_TYPES
+} from "../../utils/constants";
 import { hasError, isInvalid } from '../../../../utils/validation';
 
 import { Context } from '../../../../Context';
 
-function AnonymizedFieldsAdvanced({ index, isLoading, allIndexPatternsFields }) {
+function AnonymizedFieldsAdvanced({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, index, isLoading, allIndexPatternsFields }) {
   const { onComboBoxChange, onComboBoxOnBlur, onComboBoxCreateOption } = useContext(Context);
 
   function helpText() {
@@ -84,14 +84,14 @@ function AnonymizedFieldsAdvanced({ index, isLoading, allIndexPatternsFields }) 
 
   return (
     <FormikComboBox
-      name={`_dataStreamPermissions[${index}].masked_fields_advanced`}
+      name={`${type.permissionsProperty}[${index}].masked_fields_advanced`}
       formRow
       rowProps={{
         helpText: helpText(),
         label: anonymizeText,
       }}
       elementProps={{
-        placeholder: 'Add data stream pattern(s) to fetch the field names here',
+        placeholder: type.flsPatternPlaceholder,
         isLoading,
         options: allIndexPatternsFields,
         isClearable: true,
@@ -103,7 +103,7 @@ function AnonymizedFieldsAdvanced({ index, isLoading, allIndexPatternsFields }) 
   );
 }
 
-function AnonymizedFields({ values, index, isLoading, allIndexPatternsFields }) {
+function AnonymizedFields({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, values, index, isLoading, allIndexPatternsFields }) {
   const {
     configService,
     onSwitchChange,
@@ -114,8 +114,8 @@ function AnonymizedFields({ values, index, isLoading, allIndexPatternsFields }) 
     onSelectChange,
   } = useContext(Context);
   const isAnonymizedFieldsEnabled = configService.complianceFeaturesEnabled();
-  const dataStreamPermission = values._dataStreamPermissions[index];
-  const dataStreamPermissionPath = `_dataStreamPermissions[${index}]`;
+  const currentPermission = values[type.permissionsProperty][index];
+  const currentPermissionPath = `${type.permissionsProperty}[${index}]`;
 
   function renderFeatureDisabledCallout() {
     return (
@@ -142,7 +142,7 @@ function AnonymizedFields({ values, index, isLoading, allIndexPatternsFields }) 
   function renderMaskFields({ index, isLoading }) {
     return (
       <FormikComboBox
-        name={`${dataStreamPermissionPath}.masked_fields[${index}].fields`}
+        name={`${currentPermissionPath}.masked_fields[${index}].fields`}
         formRow
         rowProps={{
           helpText: helpText(),
@@ -170,7 +170,7 @@ function AnonymizedFields({ values, index, isLoading, allIndexPatternsFields }) 
   function renderMaskType({ index, isLoading }) {
     return (
       <FormikSelect
-        name={`${dataStreamPermissionPath}.masked_fields[${index}].mask_type`}
+        name={`${currentPermissionPath}.masked_fields[${index}].mask_type`}
         formRow
         rowProps={{
           label: maskTypeText,
@@ -187,7 +187,7 @@ function AnonymizedFields({ values, index, isLoading, allIndexPatternsFields }) 
   function renderMaskRegexValue({ index }) {
     return (
       <FormikFieldText
-        name={`${dataStreamPermissionPath}.masked_fields[${index}].value`}
+        name={`${currentPermissionPath}.masked_fields[${index}].value`}
         formRow
         rowProps={{
           label: regularExpressionText,
@@ -208,7 +208,7 @@ function AnonymizedFields({ values, index, isLoading, allIndexPatternsFields }) 
   function renderMaskHashValue({ index }) {
     return (
       <FormikFieldText
-        name={`${dataStreamPermissionPath}.masked_fields[${index}].value`}
+        name={`${currentPermissionPath}.masked_fields[${index}].value`}
         formRow
         rowProps={{
           label: hashText,
@@ -224,7 +224,7 @@ function AnonymizedFields({ values, index, isLoading, allIndexPatternsFields }) 
   function renderMaskValue({ item, index }) {
     let Value = null;
 
-    const isRegexMask = dataStreamPermission.masked_fields[index].mask_type === MASKED_FIELD_TYPE.REGEX;
+    const isRegexMask = currentPermission.masked_fields[index].mask_type === MASKED_FIELD_TYPE.REGEX;
     if (isRegexMask) {
       Value = renderMaskRegexValue({ index });
     } else if (item.value) {
@@ -249,11 +249,11 @@ function AnonymizedFields({ values, index, isLoading, allIndexPatternsFields }) 
     return (
       <div id={`sgMaskedFields-${index}`}>
         <EuiSpacer size="m" />
-        <FieldArray name={`${dataStreamPermissionPath}.masked_fields`} validateOnChange={false}>
+        <FieldArray name={`${currentPermissionPath}.masked_fields`} validateOnChange={false}>
           {(arrayHelpers) => {
             return (
               <EuiFlexGroup direction="column" alignItems="flexStart">
-                {dataStreamPermission.masked_fields.map((item, index) => {
+                {currentPermission.masked_fields.map((item, index) => {
                   return (
                     <EuiFlexItem key={`masked_fields.${index}`}>
                       <EuiFlexGroup alignItems="flexStart">
@@ -307,7 +307,7 @@ function AnonymizedFields({ values, index, isLoading, allIndexPatternsFields }) 
     renderFeatureDisabledCallout()
   ) : (
     <>
-      {dataStreamPermission._isAdvancedFLSMaskedFields ? (
+      {currentPermission._isAdvancedFLSMaskedFields ? (
         <AnonymizedFieldsAdvanced
           index={index}
           isLoading={isLoading}
@@ -322,17 +322,17 @@ function AnonymizedFields({ values, index, isLoading, allIndexPatternsFields }) 
           label: advancedText,
           onChange: onSwitchChange,
         }}
-        name={`_dataStreamPermissions[${index}]._isAdvancedFLSMaskedFields`}
+        name={`${currentPermissionPath}._isAdvancedFLSMaskedFields`}
       />
     </>
   );
 }
 
-function FieldLevelSecurity({ formik: { values }, index, allIndexPatternsFields, isLoading }) {
+function FieldLevelSecurity({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, formik: { values }, index, allIndexPatternsFields, isLoading }) {
   const { configService, onComboBoxChange, onComboBoxOnBlur, onComboBoxCreateOption } = useContext(
     Context
   );
-  const { _dataStreamPermissions } = values;
+  const allPermissions = values[type.permissionsProperty];
   const isFlsEnabled = configService.dlsFlsEnabled();
 
   function renderFeatureDisabledCallout() {
@@ -358,13 +358,13 @@ function FieldLevelSecurity({ formik: { values }, index, allIndexPatternsFields,
       <EuiFlexGroup>
         <EuiFlexItem grow={false}>
           <FormikRadio
-            name={`_dataStreamPermissions[${index}].flsmode`}
+            name={`${type.permissionsProperty}[${index}].flsmode`}
             formRow
             elementProps={{
               // Radio id must be unique through all accordion items!
               id: `${FLS_MODES.WHITELIST}_${index}`,
               label: includeText,
-              checked: _dataStreamPermissions[index].flsmode === FLS_MODES.WHITELIST,
+              checked: allPermissions[index].flsmode === FLS_MODES.WHITELIST,
               onChange: ({ target: { id } }, field, form) => {
                 const flsmode = id.split('_')[0];
                 form.setFieldValue(field.name, flsmode);
@@ -374,13 +374,13 @@ function FieldLevelSecurity({ formik: { values }, index, allIndexPatternsFields,
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <FormikRadio
-            name={`_dataStreamPermissions[${index}].flsmode`}
+            name={`${type.permissionsProperty}[${index}].flsmode`}
             formRow
             elementProps={{
               // Radio id must be unique through all accordion items!
               id: `${FLS_MODES.BLACKLIST}_${index}`,
               label: excludeText,
-              checked: _dataStreamPermissions[index].flsmode === FLS_MODES.BLACKLIST,
+              checked: allPermissions[index].flsmode === FLS_MODES.BLACKLIST,
               onChange: ({ target: { id } }, field, form) => {
                 const flsmode = id.split('_')[0];
                 form.setFieldValue(field.name, flsmode);
@@ -392,13 +392,13 @@ function FieldLevelSecurity({ formik: { values }, index, allIndexPatternsFields,
       <EuiSpacer size="s" />
 
       <FormikComboBox
-        name={`_dataStreamPermissions[${index}].fls`}
+        name={`${type.permissionsProperty}[${index}].fls`}
         formRow
         rowProps={{
           helpText: includeOrExcludeFieldsText,
         }}
         elementProps={{
-          placeholder: 'Add data stream pattern(s) to fetch the field names here',
+          placeholder: type.flsPatternPlaceholder,
           isLoading,
           options: allIndexPatternsFields,
           isClearable: true,
