@@ -60,11 +60,6 @@ class Main extends Component {
         name: 'Accounts',
         route: APP_PATH.ACCOUNTS,
       },
-      {
-        id: APP_PATH.SIGNALS_OPERATOR_VIEW,
-        name: 'Operator View',
-        route: APP_PATH.SIGNALS_OPERATOR_VIEW
-      }
     ];
   }
 
