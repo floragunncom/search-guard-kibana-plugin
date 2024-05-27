@@ -15,7 +15,7 @@
  */
 
 import { stringify } from 'querystring';
-import { randomString } from 'cryptiles';
+import { randomString } from '@hapi/cryptiles';
 import { sanitizeNextUrl } from '../../sanitize_next_url';
 import MissingTenantError from '../../errors/missing_tenant_error';
 import MissingRoleError from '../../errors/missing_role_error';
