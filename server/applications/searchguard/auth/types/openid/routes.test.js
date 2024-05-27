@@ -34,7 +34,7 @@ import { MissingTenantError, MissingRoleError } from '../../errors';
 
 jest.mock('../../../../../../../../src/core/server/http/router', () => jest.fn());
 
-jest.mock('cryptiles', () => ({
+jest.mock('@hapi/cryptiles', () => ({
   randomString: jest.fn(() => 'ecF1onUEGkfbzBldXS6Unh'),
 }));
 
