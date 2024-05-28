@@ -94,7 +94,11 @@ export const indicesToUiIndices = (indices) => {
   };
 
   return sortBy(
-    indices.map(({ index, alias, health = 'default' }) => {
+    indices.map(({ index, alias, name, health = 'default' }) => {
+      // TODO This is too fragile, better to pass a parameter
+      if (name) {
+        return { label: name, color: colors[health] };
+      }
       return { label: alias ? alias : index, color: colors[health] };
     }),
     'label'
