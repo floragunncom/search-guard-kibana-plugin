@@ -64,7 +64,7 @@ function Permission({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, index, va
     onComboBoxOnBlur,
     onComboBoxCreateOption,
   } = useContext(Context);
-  const { isLoading, setIsLoading, indexOptions, onSearchChange } = useIndexPatterns(values);
+  const { isLoading, setIsLoading, indexOptions, aliasOptions, dataStreamOptions, onSearchChange } = useIndexPatterns(values);
   const [prevIndexPatterns, setPrevIndexPatterns] = useState([]);
   const [allIndexPatternsFields, setAllIndexPatternsFields] = useState([]);
   const esService = new ElasticsearchService(httpClient);
@@ -82,6 +82,7 @@ function Permission({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, index, va
         comboBoxOptionsToArray(indexPatterns)
       );
 
+      // TODO
       setAllIndexPatternsFields(fieldNamesToUiFieldNames(mappingsToFieldNames(mappings)));
     } catch (error) {
       addErrorToast(error);
@@ -91,10 +92,16 @@ function Permission({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, index, va
   }
 
   useEffect(() => {
-    console.log('What are the aliasPermissions?', values[type.permissionsProperty])
     fetchIndexPatternsFields({ indexPatterns: values[type.permissionsProperty][index][type.patternsProperty] });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  let patternOptions = indexOptions;
+  if (type === COMMON_PERMISSION_TYPES.ALIAS_PERMISSION) {
+    patternOptions = aliasOptions;
+  } else if (type === COMMON_PERMISSION_TYPES.DATA_STREAM_PERMISSION) {
+    patternOptions = dataStreamOptions
+  }
 
   return (
     <>
@@ -110,8 +117,8 @@ function Permission({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, index, va
           async: true,
           isClearable: true,
           placeholder: type.selectPatternPlaceholder,
-          options: indexOptions, // @todo Rename
-          renderOption: renderIndexOption,
+          options: patternOptions,
+          renderOption: renderIndexOption, // TODO Rename
           onBlur: onComboBoxOnBlur,
           onChange: (options, field, form) => {
             fetchIndexPatternsFields({ indexPatterns: options });
@@ -120,9 +127,7 @@ function Permission({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, index, va
           onCreateOption: onComboBoxCreateOption(),
         }}
       />
-      {console.log('WHAT IS THIS', type,
-        `${type.permissionsProperty}[${index}].allowed_actions.actiongroups`
-        )}
+
       <FormikComboBox
         name={`${type.permissionsProperty}[${index}].allowed_actions.actiongroups`}
         formRow
@@ -246,7 +251,6 @@ const CommonPermissions = ({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, va
         <Fragment>
           <AddButton onClick={() => addPermission(arrayHelpers)} />
           <EuiSpacer />
-          THIS IS THE COMMON
           {isEmpty(values[type.permissionsProperty]) ? (
             <EmptyPrompt
               titleText={type.textPermissions}
