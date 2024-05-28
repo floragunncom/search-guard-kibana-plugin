@@ -26,6 +26,7 @@ export function useIndexPatterns() {
   const { httpClient, addErrorToast } = useContext(Context);
   const [isLoading, setIsLoading] = useState(false);
   const [indexOptions, setIndexOptions] = useState([]);
+  const [aliasOptions, setAliasOptions] = useState([]);
   const [dataStreamOptions, setDataStreamOptions] = useState([]);
 
   const esService = new ElasticsearchService(httpClient);
@@ -45,7 +46,9 @@ export function useIndexPatterns() {
         esService.getDataStreams(query),
       ]);
 
+      // TODO Maybe remove aliases from here. BC?
       setIndexOptions(indicesToUiIndices([...indices, ...aliases]));
+      setAliasOptions(indicesToUiIndices([...aliases]));
       setDataStreamOptions(indicesToUiIndices([...dataStreams.data_streams]));
     } catch (error) {
       console.error('IndexPatterns - onSearchChange', error);
@@ -64,6 +67,7 @@ export function useIndexPatterns() {
     isLoading,
     setIsLoading,
     indexOptions,
+    aliasOptions,
     dataStreamOptions,
     onSearchChange,
   };
