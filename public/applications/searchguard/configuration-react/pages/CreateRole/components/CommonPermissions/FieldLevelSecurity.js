@@ -309,6 +309,7 @@ function AnonymizedFields({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, val
     <>
       {currentPermission._isAdvancedFLSMaskedFields ? (
         <AnonymizedFieldsAdvanced
+          type={type}
           index={index}
           isLoading={isLoading}
           allIndexPatternsFields={allIndexPatternsFields}
@@ -408,6 +409,7 @@ function FieldLevelSecurity({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, f
         }}
       />
       <AnonymizedFields
+        type={type}
         values={values}
         index={index}
         isLoading={isLoading}
