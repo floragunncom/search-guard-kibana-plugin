@@ -18,10 +18,8 @@ import React, { Fragment, useContext, useState, useEffect } from 'react';
 import { FieldArray } from 'formik';
 import { isEmpty, isEqual } from 'lodash';
 import {
-  ALIAS_PERMISSION,
   COMMON_PERMISSION_TYPES,
   GET_COMMON_PERMISSION,
-  INDEX_PERMISSION
 } from "../../utils/constants";
 import { EuiAccordion, EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
 import { advancedText, addText } from '../../../../utils/i18n/common';
@@ -56,11 +54,29 @@ import { ElasticsearchService } from '../../../../services';
 import { Context } from '../../../../Context';
 
 /**
+ * These components are shared between alias
+ * permissions and data stream permissions.
+ *
+ * In order to reduce the scope of the first part of the support
+ * for the new permission types, I left index permissions as
+ * unchanged as possible for now.
+ *
+ * We should be able to also use these components for the index permissions,
+ * and that change has been prepared in the COMMON_PERMISSION_TYPES.
+ *
+ * These components also use some of the utilities and helper functions
+ * used by the index permissions, so some of the naming may be a bit
+ * confusing.
+ *
+ */
+
+/**
  * TODO Remove this and its references when support for FLS for
  * alias and data stream permissions has been added
  * @type {boolean}
  */
 const temporaryDisableFLS = true;
+
 
 function Permission({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, index, values, allActionGroups, allSinglePermissions }) {
   const {
@@ -72,16 +88,16 @@ function Permission({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, index, va
     onComboBoxCreateOption,
   } = useContext(Context);
   const { isLoading, setIsLoading, indexOptions, aliasOptions, dataStreamOptions, onSearchChange } = useIndexPatterns(values);
-  const [prevIndexPatterns, setPrevIndexPatterns] = useState([]);
-  const [allIndexPatternsFields, setAllIndexPatternsFields] = useState([]);
+  const [prevPatterns, setPrevPatterns] = useState([]);
+  const [allPatternsFields, setAllPatternsFields] = useState([]);
   const esService = new ElasticsearchService(httpClient);
 
-  // @todo Rename
-  async function fetchIndexPatternsFields({ indexPatterns = [] } = {}) {
-    if (!indexPatterns.length) return;
-    if (isEqual(indexPatterns, prevIndexPatterns)) return;
 
-    setPrevIndexPatterns(indexPatterns);
+  async function fetchPatternsFields({ indexPatterns = [] } = {}) {
+    if (!indexPatterns.length) return;
+    if (isEqual(indexPatterns, prevPatterns)) return;
+
+    setPrevPatterns(indexPatterns);
     setIsLoading(true);
 
     try {
@@ -89,8 +105,7 @@ function Permission({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, index, va
         comboBoxOptionsToArray(indexPatterns)
       );
 
-      // TODO
-      setAllIndexPatternsFields(fieldNamesToUiFieldNames(mappingsToFieldNames(mappings)));
+      setAllPatternsFields(fieldNamesToUiFieldNames(mappingsToFieldNames(mappings)));
     } catch (error) {
       addErrorToast(error);
     }
@@ -99,7 +114,7 @@ function Permission({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, index, va
   }
 
   useEffect(() => {
-    fetchIndexPatternsFields({ indexPatterns: values[type.permissionsProperty][index][type.patternsProperty] });
+    fetchPatternsFields({ indexPatterns: values[type.permissionsProperty][index][type.patternsProperty] });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -128,7 +143,7 @@ function Permission({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, index, va
           renderOption: renderIndexOption, // TODO Rename
           onBlur: onComboBoxOnBlur,
           onChange: (options, field, form) => {
-            fetchIndexPatternsFields({ indexPatterns: options });
+            fetchPatternsFields({ indexPatterns: options });
             onComboBoxChange()(options, field, form);
           },
           onCreateOption: onComboBoxCreateOption(),
@@ -183,7 +198,7 @@ function Permission({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, index, va
           type={type}
           index={index}
           isLoading={isLoading}
-          allIndexPatternsFields={allIndexPatternsFields}
+          allIndexPatternsFields={allPatternsFields}
         />
       }
       <DocumentLevelSecurity type={type} index={index} />

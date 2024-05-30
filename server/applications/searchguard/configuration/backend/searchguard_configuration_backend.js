@@ -90,14 +90,9 @@ export default class SearchGuardConfigurationBackend {
       const { body: response } = await this.elasticsearch.client
         .asScoped({ headers })
         .asCurrentUser.indices.getDataStream({
-          //index,
-          //index: '*, -.*',
           name: '*',
-          format: 'json',
-          //h: 'index,health',
+          format: 'json'
         });
-
-      console.log('>>> What is the response?', response)
 
       return response;
     } catch (error) {

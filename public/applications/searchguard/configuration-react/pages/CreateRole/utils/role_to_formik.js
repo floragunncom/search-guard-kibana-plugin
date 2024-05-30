@@ -20,8 +20,8 @@ import {
   ROLE,
   ROLE_MAPPING,
   MASKED_FIELD_TYPE,
-  MASKED_FIELDS_DEFAULTS,
-} from './constants';
+  MASKED_FIELDS_DEFAULTS, COMMON_PERMISSION_TYPES
+} from "./constants";
 import {
   allowedActionsToPermissionsAndActiongroups,
   arrayToComboBoxOptions,
@@ -85,7 +85,7 @@ export function actionGroupsToUiClusterIndexTenantActionGroups(actionGroups = {}
   };
 }
 
-export const indicesToUiIndices = (indices) => {
+export const indicesToUiIndices = (indices, type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION) => {
   const colors = {
     red: 'danger',
     green: 'primary',
@@ -95,8 +95,8 @@ export const indicesToUiIndices = (indices) => {
 
   return sortBy(
     indices.map(({ index, alias, name, health = 'default' }) => {
-      // TODO This is too fragile, better to pass a parameter
-      if (name) {
+
+      if (type === COMMON_PERMISSION_TYPES.DATA_STREAM_PERMISSION ) {
         return { label: name, color: colors[health] };
       }
       return { label: alias ? alias : index, color: colors[health] };
