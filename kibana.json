@@ -1,12 +1,12 @@
 {
     "id": "searchguard",
-    "version": "7.17.18",
+    "version": "7.17.21",
     "server": true,
     "ui": true,
     "optionalPlugins": [
       "spaces",
       "security",
-      "home"      
+      "home"
     ],
     "requiredPlugins": [
     ],
