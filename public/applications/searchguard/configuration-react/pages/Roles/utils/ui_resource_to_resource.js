@@ -23,6 +23,8 @@ const uiResourceToResource = (resource) => {
       '_id',
       '_tenantPatterns',
       '_indexPatterns',
+      '_aliasPatterns',
+      '_dataStreamPatterns',
       '_excludeIndexPatterns',
       ...FIELDS_TO_OMIT_BEFORE_SAVE,
     ]),
