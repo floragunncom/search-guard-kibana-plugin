@@ -1,4 +1,4 @@
 variables:
   IT_BRANCH: "7.17.x-test-debug"
   ES_VERSION: "7.17.21"
-  SG_ES_PLUGIN: "b-system-index-handling-SNAPSHOT"
+  SG_ES_PLUGIN: "b-auth-tokens-aliases-data-streams-privs-SNAPSHOT"
