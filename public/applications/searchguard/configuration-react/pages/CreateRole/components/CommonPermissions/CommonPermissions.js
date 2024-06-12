@@ -70,14 +70,6 @@ import { Context } from '../../../../Context';
  *
  */
 
-/**
- * TODO Remove this and its references when support for FLS for
- * alias and data stream permissions has been added
- * @type {boolean}
- */
-const temporaryDisableFLS = true;
-
-
 function Permission({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, index, values, allActionGroups, allSinglePermissions }) {
   const {
     httpClient,
@@ -193,14 +185,12 @@ function Permission({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, index, va
           }}
         />
       )}
-      {(!temporaryDisableFLS) &&
-        <FieldLevelSecurity
-          type={type}
-          index={index}
-          isLoading={isLoading}
-          allIndexPatternsFields={allPatternsFields}
-        />
-      }
+      <FieldLevelSecurity
+        type={type}
+        index={index}
+        isLoading={isLoading}
+        allIndexPatternsFields={allPatternsFields}
+      />
       <DocumentLevelSecurity type={type} index={index} />
     </>
   );
