@@ -48,8 +48,8 @@ stages:
   - build
   - package
   - "Frontend Int Tests Core"
-  # - "Frontend Int Tests Features"
-  # - "Frontend Int Tests External Features"
+  - "Frontend Int Tests Features"
+  - "Frontend Int Tests External Features"
   - release
 
 prepare_versions:
