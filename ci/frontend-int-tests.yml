@@ -196,7 +196,7 @@ fe_kerberos:
        echo "export SG_SNAPSHOT=${TEST_SG_ES_PLUGIN}" >> $CI_PROJECT_DIR/environment.env
        echo "export SGADMIN_SNAPSHOT=https://maven.search-guard.com//search-guard-flx-release/com/floragunn/search-guard-flx-elasticsearch-plugin/1.0.0-beta-2-es-7.17.3/search-guard-flx-elasticsearch-plugin-1.0.0-beta-2-es-7.17.3-sgadmin-standalone.zip" >> $CI_PROJECT_DIR/environment.env
        echo "export SG_VERSION=whatever" >> environment.env
-       echo "export BASEIMAGE=0.9.7-open-jdk-11" >> $CI_PROJECT_DIR/environment.env
+       echo "export BASEIMAGE=0.9.8-amazoncorretto-11" >> $CI_PROJECT_DIR/environment.env
        echo "export ES_VERSION=$TEST_ES_VERSION" >> $CI_PROJECT_DIR/environment.env
        echo "export KIBANA_VERSION=${TEST_KI_VERSION}"  >> $CI_PROJECT_DIR/environment.env
        echo "export KI_URL=https://artifacts.elastic.co/downloads/kibana/kibana-$TEST_KI_VERSION-linux-x86_64.tar.gz"
