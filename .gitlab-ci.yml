@@ -48,8 +48,8 @@ stages:
   - build
   - package
   - "Frontend Int Tests Core"
-  # - "Frontend Int Tests Features"
-  # - "Frontend Int Tests External Features"
+  - "Frontend Int Tests Features"
+  - "Frontend Int Tests External Features"
   - release
 
 prepare_versions:
@@ -231,5 +231,5 @@ deploy_release:
 include:
   - local: '.gitlab-ci-branch-specific.yml'
   - local: 'ci/frontend-int-tests.yml'
-  # - local: 'ci/frontend-int-tests-features.yml'
-  # - local: 'ci/frontend-int-tests-external-features.yml'
+  - local: 'ci/frontend-int-tests-features.yml'
+  - local: 'ci/frontend-int-tests-external-features.yml'
