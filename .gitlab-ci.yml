@@ -231,5 +231,5 @@ deploy_release:
 include:
   - local: '.gitlab-ci-branch-specific.yml'
   - local: 'ci/frontend-int-tests.yml'
-  # - local: 'ci/frontend-int-tests-features.yml'
-  # - local: 'ci/frontend-int-tests-external-features.yml'
+  - local: 'ci/frontend-int-tests-features.yml'
+  - local: 'ci/frontend-int-tests-external-features.yml'
