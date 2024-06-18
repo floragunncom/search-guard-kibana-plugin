@@ -1,4 +1,4 @@
 variables:
-  IT_BRANCH: "7.17.x-test-debug-p"
+  IT_BRANCH: "7.17.x-test-debug-pc"
   ES_VERSION: "7.17.18"
   SG_ES_PLUGIN: "b-master-SNAPSHOT"
