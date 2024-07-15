@@ -28,6 +28,8 @@ import { isInvalid, hasError } from '../../../../utils/validation';
 
 import { Context } from '../../../../Context';
 import { COMMON_PERMISSION_TYPES } from "../../utils/constants";
+import {FormikCodeEditorSG} from "../../../../../../components";
+
 
 const DocumentLevelSecurity = ({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION, index }) => {
   const { editorTheme, editorOptions, configService } = useContext(Context);
@@ -76,7 +78,7 @@ const DocumentLevelSecurity = ({ type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION
       </EuiButton>
       */}
       <EuiSpacer />
-      <FormikCodeEditor
+      <FormikCodeEditorSG
         name={fieldPath}
         formRow
         rowProps={{
