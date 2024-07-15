@@ -87,7 +87,7 @@ export default class SearchGuardConfigurationBackend {
 
   dataStreams = async ({ headers, index = [] } = {}) => {
     try {
-      const { body: response } = await this.elasticsearch.client
+      const response = await this.elasticsearch.client
         .asScoped({ headers })
         .asCurrentUser.indices.getDataStream({
           name: '*',

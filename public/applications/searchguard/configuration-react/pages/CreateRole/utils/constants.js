@@ -29,6 +29,8 @@ export const ROLE = {
   _name: '',
   description: '',
   index_permissions: [],
+  alias_permissions: [],
+  data_stream_permissions: [],
   tenant_permissions: [],
   cluster_permissions: [],
   exclude_cluster_permissions: [],
