@@ -25,7 +25,7 @@
     "react-vis": "^1.12.1"
   },
   "devDependencies": {
-    "core-js": "^3.37.1",
+    "core-js": "^3.38.0",
     "jest-junit": "^12.2.0"
   }
 }
