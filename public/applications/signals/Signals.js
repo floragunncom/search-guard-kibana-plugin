@@ -1,6 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { BehaviorSubject } from 'rxjs';
-import { AppNavLinkStatus } from '../../../../../src/core/public';
 import { SearchGuardService } from './services';
 import { SEARCHGUARD_APP_CATEGORY } from '../../utils/constants';
 import { appNaviFix } from '../../utils/appNaviFix';
@@ -64,7 +63,7 @@ export class Signals {
 
       if (!this.hasPermissions) {
         this.appUpdater.next(() => ({
-          navLinkStatus: AppNavLinkStatus.hidden,
+          visibleIn: [],
           tooltip: 'Signals disabled',
         }));
       }
