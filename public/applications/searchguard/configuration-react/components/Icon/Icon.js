@@ -16,7 +16,9 @@ const Icon = ({ type, size = 'xl' }) => {
   const { configService } = useContext(Context);
 
   const _size = isObject(size) ? size : sizes[size];
-  const _type = configService.get('is_dark_mode') ? type + '_dark' : type;
+  // TODO Check UIConfigService.js for a comment related to this.
+  // At the moment, dark mode isn't really implemented.
+  const _type = configService.get('is_dark_mode') === true ? type + '_dark' : type;
   const Svg = icons[_type] || icons.empty;
   return <Svg {..._size} />;
 };
