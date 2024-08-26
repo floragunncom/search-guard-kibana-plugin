@@ -26,6 +26,15 @@ fi
 
 cd $SF_REPO_DIR
 
+
+
+echo -e "\e[0Ksection_start:`date +%s`:patch_kbn_optimizer[collapsed=true]\r\e[0KPatch kbn optimizer"
+
+sed -i "/observeLines(proc.stderr\!).pipe(Rx.map((line) => ({ type: 'stderr', data: line }))),/s/^/\/\//" packages/kbn-plugin-helpers/src/tasks/optimize.ts
+
+echo -e "\e[0Ksection_end:`date +%s`:patch_kbn_optimizer\r\e[0K"
+
+
 echo -e "\e[0Ksection_start:`date +%s`:nvm_install[collapsed=true]\r\e[0KDoing nvm install"
 
 nvm install
@@ -121,9 +130,7 @@ rm -rf "node_modules"
 start_section build "Building Search Guard Plugin"
 start_section yarn_install "Doing yarn install --production"
 yarn install --production #--frozen-lockfile
-end_section yarn_install
-echo "pcdebug"
-sleep 3600
+end_section yarn_install  x§
 
 start_section yarn_build "Doing yarn build -v $SF_VERSION --skip-archive"
 
