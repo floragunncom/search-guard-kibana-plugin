@@ -122,6 +122,9 @@ start_section build "Building Search Guard Plugin"
 start_section yarn_install "Doing yarn install --production"
 yarn install --production #--frozen-lockfile
 end_section yarn_install
+echo "pcdebug"
+sleep 3600
+
 start_section yarn_build "Doing yarn build -v $SF_VERSION --skip-archive"
 
 # This was a fix for 8.10.4 but it should not be neccessary for >= 8.11.4
