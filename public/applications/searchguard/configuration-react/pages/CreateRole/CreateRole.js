@@ -108,10 +108,13 @@ class CreateRole extends Component {
         id: TABS.INDEX_PERMISSIONS,
         name: indexPermissionsText,
       },
+      /*
       {
         id: TABS.INDEX_EXCLUSIONS,
         name: indexExclusionsText,
       },
+
+       */
       {
         id: TABS.ALIAS_PERMISSIONS,
         name: aliasPermissionsText,
