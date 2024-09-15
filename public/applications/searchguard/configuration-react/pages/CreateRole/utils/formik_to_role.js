@@ -180,7 +180,7 @@ export const formikToRole = (_formik) => {
       '_indexPermissions',
       '_aliasPermissions',
       '_dataStreamPermissions',
-      '_excludeIndexPermissions',
+      //'_excludeIndexPermissions',
       '_tenantPermissions',
       ...FIELDS_TO_OMIT_BEFORE_SAVE,
     ]),
@@ -190,6 +190,6 @@ export const formikToRole = (_formik) => {
     data_stream_permissions: dataStreamPermissions,
     tenant_permissions: tenantPermissions,
     exclude_cluster_permissions: excludeClusterPermissions,
-    exclude_index_permissions: excludeIndexPermissions,
+    //exclude_index_permissions: excludeIndexPermissions,
   };
 };

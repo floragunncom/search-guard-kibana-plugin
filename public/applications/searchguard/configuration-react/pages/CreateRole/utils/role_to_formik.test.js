@@ -250,6 +250,7 @@ describe('role to UI role ', () => {
       description: 'Migrated from v6 (all types mapped)',
       exclude_cluster_permissions: ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'],
       cluster_permissions: ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'],
+      /*
       exclude_index_permissions: [
         {
           index_patterns: ['b', 'a'],
@@ -260,6 +261,8 @@ describe('role to UI role ', () => {
           actions: ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'],
         },
       ],
+
+       */
       index_permissions: [
         {
           index_patterns: ['b', 'a'],
@@ -344,6 +347,7 @@ describe('role to UI role ', () => {
         actiongroups: [{ label: 'A' }, { label: 'B' }],
         permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
       },
+      /*
       _excludeIndexPermissions: [
         {
           index_patterns: [{ label: 'a' }, { label: 'b' }],
@@ -362,6 +366,7 @@ describe('role to UI role ', () => {
           _isAdvanced: true,
         },
       ],
+       */
       _indexPermissions: [
         {
           index_patterns: [{ label: 'a' }, { label: 'b' }],

@@ -50,6 +50,7 @@ const resourcesToUiResources = (resources) =>
               []
             )
           ),
+          /*
           _excludeIndexPatterns: sortBy(
             reduce(
               values.exclude_index_permissions,
@@ -62,6 +63,8 @@ const resourcesToUiResources = (resources) =>
               []
             )
           ),
+
+           */
           _aliasPatterns: sortBy(
             reduce(
               values.alias_permissions,
