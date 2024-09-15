@@ -244,9 +244,9 @@ describe('UI role to role ', () => {
   test('can build role', () => {
     const resource = {
       description: 'Migrated from v6 (all types mapped)',
-      exclude_index_permissions: [],
       cluster_permissions: ['A', 'B', 'cluster:a', 'indices:a', 'kibana:a'],
       exclude_cluster_permissions: ['A', 'B', 'cluster:a', 'indices:a', 'kibana:a'],
+      /*
       exclude_index_permissions: [
         {
           index_patterns: ['a', 'b'],
@@ -257,6 +257,7 @@ describe('UI role to role ', () => {
           actions: ['A', 'B', 'cluster:a', 'indices:a', 'kibana:a'],
         },
       ],
+       */
       index_permissions: [
         {
           index_patterns: ['a', 'b'],
@@ -319,7 +320,7 @@ describe('UI role to role ', () => {
       hidden: false,
       description: 'Migrated from v6 (all types mapped)',
       cluster_permissions: ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'],
-      exclude_index_permissions: [],
+      //exclude_index_permissions: [],
       index_permissions: [
         {
           index_patterns: ['b', 'a'],
@@ -392,6 +393,7 @@ describe('UI role to role ', () => {
         actiongroups: [{ label: 'A' }, { label: 'B' }],
         permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
       },
+      /*
       _excludeIndexPermissions: [
         {
           index_patterns: [{ label: 'a' }, { label: 'b' }],
@@ -410,6 +412,8 @@ describe('UI role to role ', () => {
           _isAdvanced: false,
         },
       ],
+
+       */
       _indexPermissions: [
         {
           index_patterns: [{ label: 'a' }, { label: 'b' }],

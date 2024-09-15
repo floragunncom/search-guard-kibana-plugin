@@ -295,10 +295,13 @@ export const roleToFormik = ({ resource, roleMapping = {}, id = '' }) => {
   const _indexPermissions = map(formik.index_permissions, indexPermissionToUiIndexPermission);
   const _aliasPermissions = map(formik.alias_permissions, aliasPermissionToUiAliasPermission);
   const _dataStreamPermissions = map(formik.data_stream_permissions, dataStreamPermissionToUiDataStreamPermission);
+  /*
   const _excludeIndexPermissions = map(
     formik.exclude_index_permissions,
     excludeIndexPermissionToUiExcludeIndexPermission
   );
+
+   */
   const _tenantPermissions = map(formik.tenant_permissions, tenantPermissionToUiTenantPermission);
 
   return {
@@ -310,7 +313,7 @@ export const roleToFormik = ({ resource, roleMapping = {}, id = '' }) => {
     _indexPermissions,
     _aliasPermissions,
     _dataStreamPermissions,
-    _excludeIndexPermissions,
+    //_excludeIndexPermissions,
     _tenantPermissions,
     _isClusterPermissionsAdvanced: !isEmpty(_clusterPermissions.permissions),
     _isClusterExclusionsAdvanced: !isEmpty(_excludeClusterPermissions.permissions),

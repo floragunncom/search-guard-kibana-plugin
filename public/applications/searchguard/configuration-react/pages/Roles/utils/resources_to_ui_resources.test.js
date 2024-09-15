@@ -39,6 +39,7 @@ describe('roles to UI table roles', () => {
             allowed_actions: [],
           },
         ],
+        /*
         exclude_index_permissions: [
           {
             index_patterns: ['b', 'a'],
@@ -49,6 +50,7 @@ describe('roles to UI table roles', () => {
             actions: [],
           },
         ],
+         */
         alias_permissions: [
           {
             alias_patterns: ['b', 'a'],
@@ -93,12 +95,15 @@ describe('roles to UI table roles', () => {
             allowed_actions: [],
           },
         ],
+        /*
         exclude_index_permissions: [
           {
             index_patterns: ['a'],
             actions: [],
           },
         ],
+
+         */
         alias_permissions: [
           {
             alias_patterns: ['a'],
@@ -115,7 +120,7 @@ describe('roles to UI table roles', () => {
       {
         _id: 'A_ROLE',
         _indexPatterns: ['a'],
-        _excludeIndexPatterns: ['a'],
+        //_excludeIndexPatterns: ['a'],
         _aliasPatterns: ['a'],
         _dataStreamPatterns: [],
         _tenantPatterns: [],
@@ -132,12 +137,14 @@ describe('roles to UI table roles', () => {
             allowed_actions: [],
           },
         ],
+        /*
         exclude_index_permissions: [
           {
             index_patterns: ['a'],
             actions: [],
           },
         ],
+         */
         alias_permissions: [
           {
             alias_patterns: ['a'],
@@ -151,7 +158,7 @@ describe('roles to UI table roles', () => {
       {
         _id: 'B_ROLE',
         _indexPatterns: ['a', 'b', 'c', 'd'],
-        _excludeIndexPatterns: ['a', 'b', 'c', 'd'],
+        //_excludeIndexPatterns: ['a', 'b', 'c', 'd'],
         _aliasPatterns: ['a', 'b', 'c', 'd'],
         _dataStreamPatterns: ['a', 'b'],
         _tenantPatterns: ['e', 'f', 'g'],
@@ -174,6 +181,7 @@ describe('roles to UI table roles', () => {
             allowed_actions: [],
           },
         ],
+        /*
         exclude_index_permissions: [
           {
             index_patterns: ['b', 'a'],
@@ -184,6 +192,8 @@ describe('roles to UI table roles', () => {
             actions: [],
           },
         ],
+
+         */
         alias_permissions: [
           {
             alias_patterns: ['b', 'a'],
