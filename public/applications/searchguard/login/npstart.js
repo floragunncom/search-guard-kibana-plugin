@@ -20,13 +20,16 @@ import { LoginPage } from './LoginPage';
 
 import { HashRouter as Router, Route } from 'react-router-dom';
 import { I18nProvider } from '@kbn/i18n-react';
+import { KibanaThemeProvider } from '@kbn/react-kibana-context-theme';
 
-export const renderApp = ({ element, config, httpClient }) => {
+export const renderApp = ({ element, config, httpClient, theme$ }) => {
   ReactDOM.render(
     <I18nProvider>
-      <Router>
-        <Route render={() => <LoginPage httpClient={httpClient} configService={config} />} />
-      </Router>
+      <KibanaThemeProvider theme={{theme$}}>
+        <Router>
+          <Route render={() => <LoginPage httpClient={httpClient} configService={config} />} />
+        </Router>
+      </KibanaThemeProvider>
     </I18nProvider>,
     element
   );

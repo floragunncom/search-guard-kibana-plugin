@@ -16,6 +16,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { KibanaThemeProvider } from '@kbn/react-kibana-context-theme';
 import { shareButtonEventListener } from './addTenantToShareURL';
 import { ChromeHelper } from '../../services';
 import { MainContextProvider } from './contexts/MainContextProvider';
@@ -34,15 +35,18 @@ export class MultiTenancy {
     core.chrome.navControls.registerLeft({
       order: 5000,
       mount: (element) => {
+        const theme$ = core.theme.theme$;
         ReactDOM.render(
-          <MainContextProvider
-            httpClient={httpClient}
-            configService={configService}
-            chromeHelper={chromeHelper}
-            kibanaApplication={core.application}
-          >
-            <TenantsMenu />
-          </MainContextProvider>,
+          <KibanaThemeProvider theme={{theme$}}>
+            <MainContextProvider
+              httpClient={httpClient}
+              configService={configService}
+              chromeHelper={chromeHelper}
+              kibanaApplication={core.application}
+            >
+              <TenantsMenu />
+            </MainContextProvider>
+          </KibanaThemeProvider>,
           element
         );
         return () => ReactDOM.unmountComponentAtNode(element);

@@ -16,15 +16,18 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { KibanaThemeProvider } from '@kbn/react-kibana-context-theme';
 import { HeaderUserMenu } from './HeaderUserMenu';
 
 export class HeaderUserMenuApp {
-  start({ core, httpClient, configService } = {}) {
+  start({ core, httpClient, configService, theme$ } = {}) {
     core.chrome.navControls.registerRight({
       order: 5000,
       mount: (element) => {
         ReactDOM.render(
-          <HeaderUserMenu httpClient={httpClient} configService={configService} />,
+          <KibanaThemeProvider theme={{theme$}}>
+            <HeaderUserMenu httpClient={httpClient} configService={configService} />
+          </KibanaThemeProvider>,
           element
         );
         return () => ReactDOM.unmountComponentAtNode(element);

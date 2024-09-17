@@ -18,6 +18,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { HashRouter as Router, Route } from 'react-router-dom';
 import { I18nProvider } from '@kbn/i18n-react';
+import { KibanaThemeProvider } from '@kbn/react-kibana-context-theme';
 import { ContextProvider } from './Context';
 import { Main } from './pages';
 
@@ -27,18 +28,21 @@ export const renderApp = ({
   core,
   configService,
   removeExternalHistoryListener,
+  theme$
 }) => {
   ReactDOM.render(
     <I18nProvider>
+      <KibanaThemeProvider theme={{theme$}}>
       <Router>
-        <Route
-          render={(props) => (
-            <ContextProvider httpClient={httpClient} core={core} configService={configService}>
-              <Main title={'Auth Tokens'} httpClient={httpClient} {...props} />
-            </ContextProvider>
-          )}
-        />
-      </Router>
+          <Route
+            render={(props) => (
+              <ContextProvider httpClient={httpClient} core={core} configService={configService}>
+                  <Main title={'Auth Tokens'} httpClient={httpClient} {...props} />
+              </ContextProvider>
+            )}
+          />
+        </Router>
+      </KibanaThemeProvider>
     </I18nProvider>,
     element
   );
