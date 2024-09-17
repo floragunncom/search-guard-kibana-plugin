@@ -18,6 +18,7 @@ export class LoginApp {
           element: params.element,
           config: configService,
           httpClient,
+          theme$: params.theme$
         });
       }
     };

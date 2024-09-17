@@ -26,6 +26,7 @@ export class Signals {
         core,
         httpClient,
         removeExternalHistoryListener,
+        theme$: params.theme$
       });
     };
   }
