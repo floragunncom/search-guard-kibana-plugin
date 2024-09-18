@@ -20,10 +20,11 @@ import { KibanaThemeProvider } from '@kbn/react-kibana-context-theme';
 import { HeaderUserMenu } from './HeaderUserMenu';
 
 export class HeaderUserMenuApp {
-  start({ core, httpClient, configService, theme$ } = {}) {
+  start({ core, httpClient, configService } = {}) {
     core.chrome.navControls.registerRight({
       order: 5000,
       mount: (element) => {
+        const theme$ = core.theme.theme$;
         ReactDOM.render(
           <KibanaThemeProvider theme={{theme$}}>
             <HeaderUserMenu httpClient={httpClient} configService={configService} />
