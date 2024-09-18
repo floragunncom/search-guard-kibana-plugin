@@ -29,7 +29,6 @@ import {
   tenantPermissionsText,
   updateRoleText,
   overviewText,
-  indexExclusionsText,
   clusterExclusionsText,
 } from '../../utils/i18n/roles';
 import { ROLES_ACTIONS } from '../../utils/constants';
@@ -38,9 +37,7 @@ import {
   ClusterPermissions,
   IndexPermissions,
   CommonPermissions,
-  DataStreamPermissions,
   TenantPermissions,
-  IndexExclusions,
   ClusterExclusions,
 } from './components';
 import {
@@ -108,13 +105,6 @@ class CreateRole extends Component {
         id: TABS.INDEX_PERMISSIONS,
         name: indexPermissionsText,
       },
-      /*
-      {
-        id: TABS.INDEX_EXCLUSIONS,
-        name: indexExclusionsText,
-      },
-
-       */
       {
         id: TABS.ALIAS_PERMISSIONS,
         name: aliasPermissionsText,
@@ -230,7 +220,6 @@ class CreateRole extends Component {
     const isIndexPermissionsTab = selectedTabId === TABS.INDEX_PERMISSIONS;
     const isAliasPermissionsTab = selectedTabId === TABS.ALIAS_PERMISSIONS;
     const isDataStreamPermissionsTab = selectedTabId === TABS.DATA_STREAM_PERMISSION;
-    const isIndexExclusionsTab = selectedTabId === TABS.INDEX_EXCLUSIONS;
     const isTenantPermissionsTab = selectedTabId === TABS.TENANT_PERMISSIONS;
 
     return (
@@ -282,14 +271,6 @@ class CreateRole extends Component {
               )}
               {isIndexPermissionsTab && (
                 <IndexPermissions
-                  values={values}
-                  allActionGroups={allIndexActionGroups}
-                  allSinglePermissions={allIndexPermissions}
-                  {...this.props}
-                />
-              )}
-              {isIndexExclusionsTab && (
-                <IndexExclusions
                   values={values}
                   allActionGroups={allIndexActionGroups}
                   allSinglePermissions={allIndexPermissions}

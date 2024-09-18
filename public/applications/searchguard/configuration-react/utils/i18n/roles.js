@@ -41,7 +41,6 @@ export const tenantPermissionsText = (<EuiI18n token="sg.roles.tenantPermissions
 export const indexPermissionsText = (<EuiI18n token="sg.roles.indexPermissions.text" default="Index Permissions" />);
 export const aliasPermissionsText = (<EuiI18n token="sg.roles.aliasPermissions.text" default="Alias Permissions" />);
 export const dataStreamPermissionsText = (<EuiI18n token="sg.roles.dataStreamPermissions.text" default="Data Stream Permissions" />);
-export const indexExclusionsText = (<EuiI18n token="sg.roles.indexExclusions.text" default="Index Exclusions" />);
 export const overviewText = (<EuiI18n token="sg.roles.overview.text" default="Overview" />);
 export const membersText = (<EuiI18n token="sg.roles.members.text" default="Members" />);
 export const usersText = (<EuiI18n token="sg.roles.users.text" default="Users" />);
@@ -79,12 +78,6 @@ export const emptyDataStreamPermissionsText = (
   <EuiI18n
     token="sg.roles.emptyDataStreamPermissions.text"
     default="Looks like you don&rsquo;t have any data stream permissions. Let&rsquo;s create some!"
-  />
-);
-export const emptyIndexExclusionsText = (
-  <EuiI18n
-    token="sg.roles.emptyIndexExclusions.text"
-    default="Looks like you don&rsquo;t have any index exclusions. Let&rsquo;s create some!"
   />
 );
 export const emptyTenantPermissionsText = (
