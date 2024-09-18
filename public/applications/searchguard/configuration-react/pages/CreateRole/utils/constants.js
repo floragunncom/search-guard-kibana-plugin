@@ -99,29 +99,6 @@ export const INDEX_PERMISSION = {
   masked_fields: [],
 };
 
-export const INDEX_EXCLUSIONS = {
-  actions: [],
-  index_patterns: [],
-};
-
-export const ALIAS_PERMISSION = {
-  allowed_actions: [],
-  fls: [],
-  flsmode: FLS_MODES.WHITELIST,
-  alias_patterns: [],
-  masked_fields: [],
-};
-
-export const DATA_STREAM_PERMISSION = {
-  allowed_actions: [],
-  fls: [],
-  flsmode: FLS_MODES.WHITELIST,
-  data_stream_patterns: [],
-  masked_fields: [],
-};
-
-
-
 export const TENANT_PERMISSION = {
   tenant_patterns: [],
   allowed_actions: [],

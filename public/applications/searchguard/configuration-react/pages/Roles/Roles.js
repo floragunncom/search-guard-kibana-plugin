@@ -39,7 +39,6 @@ import {
   clusterPermissionsText,
   clusterExclusionsText,
   indexPatternsText,
-  indexExclusionsText,
   tenantPatternsText, aliasPatternsText, dataStreamPatternsText
 } from "../../utils/i18n/roles";
 import { filterReservedStaticTableResources } from '../../utils/helpers';
@@ -267,18 +266,6 @@ class Roles extends Component {
         },
         render: (items, { _id }) => (
           <TableItemsListCell name={`DataStreamPatterns-${_id}`} items={items} />
-        ),
-      },
-      {
-        field: '_excludeIndexPatterns',
-        name: indexExclusionsText,
-        footer: indexExclusionsText,
-        align: 'left',
-        mobileOptions: {
-          header: false,
-        },
-        render: (items, { _id }) => (
-          <TableItemsListCell name={`ExcludeIndexPatterns-${_id}`} items={items} />
         ),
       },
       {
