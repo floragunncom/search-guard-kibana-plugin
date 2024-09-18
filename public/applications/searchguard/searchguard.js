@@ -35,7 +35,6 @@ export class SearchGuard {
         core,
         httpClient,
         configService,
-        theme$: core.theme.theme$
       });
     } catch (error) {
       console.error(error);
