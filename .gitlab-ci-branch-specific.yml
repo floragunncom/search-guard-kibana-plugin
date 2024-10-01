@@ -2,3 +2,4 @@ variables:
   IT_BRANCH: "8.12.x-remove-index-exclusions"
   SG_ES_PLUGIN: "alias-privileges-es8-SNAPSHOT"
 
+
