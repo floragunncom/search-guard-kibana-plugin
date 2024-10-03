@@ -1,6 +1,6 @@
 variables:
   IT_BRANCH: "main-sg-classic"
   ES_VERSION: "7.17.24"
-  SG_ES_PLUGIN: "7.17.23-53.10.0"
-  SG_ADMIN: "7.17.23-53.10.0"
+  SG_ES_PLUGIN: "7.17.24-53.10.0"
+  SG_ADMIN: "7.17.24-53.10.0"
 
