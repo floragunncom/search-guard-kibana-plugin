@@ -302,16 +302,13 @@ export default class AuthType {
       try {
         return await this.validateSessionCookie(request, sessionCookie);
       } catch (error) {
-        // We can return early here. Even if we have valid request headers,
-        // the cookie would have been updated in the validator.
         // Logging this as info since it isn't really an error, but just a part of the flow.
         this.logger.info(`Got credentials, but the validation failed: ${error.stack}`);
-        // Fall through
+        throw error;
       }
-    } 
+    }
 
     // No (valid) cookie, we need to check for headers
-
     return sessionCookie;
   }
 
