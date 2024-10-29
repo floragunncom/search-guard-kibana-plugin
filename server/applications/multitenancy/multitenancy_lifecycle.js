@@ -116,6 +116,11 @@ export class MultitenancyLifecycle {
       });
     } catch (error) {
       this.logger.error(`Multitenancy: Could not get tenant info from ${request.url.pathname}. ${error}`);
+
+      if (error.statusCode === 401) {
+        return toolkit.next();
+      }
+
     }
 
     const requestHasRequestedTenant = (externalTenant || typeof sessionCookie.tenant !== 'undefined');
