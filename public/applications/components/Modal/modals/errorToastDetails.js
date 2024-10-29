@@ -32,7 +32,7 @@ import { cancelText } from '../../../utils/i18n/common';
 
 export function errorToastDetails({ title, errorMessage, errorDetails, onCancel }) {
   return (
-    <EuiOverlayMask onClick={onCancel}>
+    <EuiOverlayMask>
       <EuiModal onClose={onCancel}>
         <EuiModalHeader>
           <EuiModalHeaderTitle>{title}</EuiModalHeaderTitle>
