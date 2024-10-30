@@ -40,7 +40,7 @@ const SystemStatusContent = ({ resource, sideNavItemName }) => {
 };
 
 SystemStatusContent.propTypes = {
-  selectSideNavItem: PropTypes.oneOf([SIDE_NAV.CLUSTER, SIDE_NAV.LICENSE]),
+  selectSideNavItem: PropTypes.oneOf([SIDE_NAV.CLUSTER, SIDE_NAV.LICENSE, SIDE_NAV.LICENSE]),
   resource: PropTypes.shape({
     clusterName: PropTypes.string,
     nodes: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),

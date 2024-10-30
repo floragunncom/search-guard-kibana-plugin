@@ -24,6 +24,7 @@ export const API = {
   INDICES: `${API_BASE}/configuration/indices`,
   ALIASES: `${API_BASE}/configuration/aliases`,
   INDEX_MAPPINGS: `${API_BASE}/configuration/index_mappings`,
+  TEMPLATES_AUDITLOG: `${API_BASE}/templates/auditlog`,
 };
 
 export const APP_PATH = {
@@ -44,6 +45,7 @@ export const APP_PATH = {
 
 export const SYSTEM_STATUS_ACTIONS = {
   UPLOAD_LICENSE: 'upload-license',
+  SHOW_TEMPLATES: 'show-templates'
 };
 
 export const INTERNAL_USERS_ACTIONS = {

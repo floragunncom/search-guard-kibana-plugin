@@ -10,6 +10,8 @@ const getResource = (selectSideNavItem, resources) => {
         clusterName: resources.cluster_name,
         nodes: resources._nodes.total,
       };
+    case 'templates':
+      return {};
     case 'license':
       return {
         type: resources.sg_license.type,

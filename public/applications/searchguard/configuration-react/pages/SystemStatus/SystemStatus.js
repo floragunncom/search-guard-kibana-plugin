@@ -7,10 +7,11 @@ import queryString from 'query-string';
 import { EuiFlexItem, EuiFlexGroup, EuiSideNav, EuiButton } from '@elastic/eui';
 import { ContentPanel, CancelButton } from '../../components';
 import { UploadLicense, SystemStatusContent } from './components';
+import { Templates } from './components/Templates/Templates';
 import { SELECTED_SIDE_NAV_ITEM_NAME, SIDE_NAV } from './utils/constants';
 import { navigateText } from '../../utils/i18n/common';
 import * as systemStatusI18nLabels from '../../utils/i18n/system_status';
-import { APP_PATH, SYSTEM_STATUS_ACTIONS } from '../../utils/constants';
+import { APP_PATH, SYSTEM_STATUS_ACTIONS } from "../../utils/constants";
 import { getResource } from './utils';
 import { sideNavItem } from '../../utils/helpers';
 import { Context } from '../../Context';
@@ -24,7 +25,7 @@ class SystemStatus extends Component {
     this.state = {
       resources: {},
       isLoading: true,
-      selectedSideNavItemName: SELECTED_SIDE_NAV_ITEM_NAME,
+      selectedSideNavItemName: this.getSelectedSideNavItemName(this.props.location),
       isSideNavOpenOnMobile: false,
     };
 
@@ -37,6 +38,7 @@ class SystemStatus extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     // Select side nav item
+    // todo This doesn't seem like it is in use anymore. Or where/when does location.state get populated?
     const { selectedSideNavItemName } = get(this.props, 'location.state', {});
     const { selectedSideNavItemName: prevSelectedSideNavItemName } = prevState;
     if (
@@ -73,6 +75,29 @@ class SystemStatus extends Component {
       isSideNavOpenOnMobile: !this.state.isSideNavOpenOnMobile,
     });
   };
+
+  /**
+   * This is kind of a workaround to at least add a direct link to
+   * any given side nav item. Just adding another path in to the
+   * pathname would break the current logic for navigating
+   * to the upload license page. Hence, I opted for just
+   * keeping that pattern for now.
+   * A proper navigation would of course be better.
+   * @param location
+   * @returns {*|string}
+   */
+  getSelectedSideNavItemName(location) {
+    const { action } = queryString.parse(location.search);
+
+    if (action) {
+      const lowercaseAction = action.toLowerCase();
+      if(['cluster', 'license', 'templates'].indexOf(lowercaseAction) > -1) {
+        return lowercaseAction;
+      }
+    }
+
+    return SELECTED_SIDE_NAV_ITEM_NAME;
+  }
 
   selectSideNavItem = selectedSideNavItemName => {
     this.setState({ selectedSideNavItemName });
@@ -118,6 +143,9 @@ class SystemStatus extends Component {
     const { history, location } = this.props;
     const { selectedSideNavItemName, isSideNavOpenOnMobile, resources } = this.state;
 
+    // Currently, we don't want to show the upload licence button on the template page
+    const showUploadButton = selectedSideNavItemName !== SIDE_NAV.TEMPLATES;
+
     const { action } = queryString.parse(location.search);
     const uploadLicense = action === SYSTEM_STATUS_ACTIONS.UPLOAD_LICENSE;
     if (uploadLicense) {
@@ -126,6 +154,14 @@ class SystemStatus extends Component {
 
     const sideNavItems = this.getSideNavItems();
     const resource = getResource(selectedSideNavItemName, resources);
+
+    const actions = [
+      <CancelButton onClick={() => history.push(APP_PATH.HOME)} />
+    ];
+
+    if (showUploadButton) {
+      actions.push(this.renderUploadLicenseButton(history, location));
+    }
 
     return (
       <EuiFlexGroup>
@@ -142,12 +178,14 @@ class SystemStatus extends Component {
         <EuiFlexItem>
           <ContentPanel
             title={systemStatusI18nLabels[selectedSideNavItemName]}
-            actions={[
-              <CancelButton onClick={() => history.push(APP_PATH.HOME)} />,
-              this.renderUploadLicenseButton(history, location),
-            ]}
+            actions={actions}
           >
-            <SystemStatusContent resource={resource} sideNavItemName={selectedSideNavItemName} />
+            {selectedSideNavItemName === SIDE_NAV.TEMPLATES && (
+              <Templates></Templates>
+            )}
+            {selectedSideNavItemName !== SIDE_NAV.TEMPLATES && (
+              <SystemStatusContent resource={resource} sideNavItemName={selectedSideNavItemName} />
+            )}
           </ContentPanel>
         </EuiFlexItem>
       </EuiFlexGroup>

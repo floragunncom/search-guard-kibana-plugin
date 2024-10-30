@@ -30,6 +30,7 @@ export const isEnterprise = (<EuiI18n token="sg.system_status.isEnterprise.text"
 export const systemStatus = (<EuiI18n token="sg.system_status.systemStatus.text" default="System Status" />);
 export const cluster = (<EuiI18n token="sg.system_status.cluster.text" default="Cluster" />);
 export const license = (<EuiI18n token="sg.system_status.license.text" default="License" />);
+export const templates = (<EuiI18n token="sg.system_status.license.text" default="Templates" />);
 export const activeModules = (<EuiI18n token="sg.system_status.activeModules.text" default="Active Modules" />);
 export const clusterName = (<EuiI18n token="sg.system_status.clusterName.text" default="Cluster Name" />);
 export const nodes = (<EuiI18n token="sg.system_status.nodes.text" default="Nodes" />);
