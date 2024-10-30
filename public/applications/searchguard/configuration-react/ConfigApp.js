@@ -39,6 +39,7 @@ export class ConfigApp {
           httpClient,
           configService,
           removeExternalHistoryListener,
+          theme$: params.theme$,
         });
       }
     };

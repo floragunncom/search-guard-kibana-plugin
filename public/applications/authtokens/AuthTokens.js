@@ -40,6 +40,7 @@ export class AuthTokens {
         httpClient,
         configService,
         removeExternalHistoryListener,
+        theme$: params.theme$
       });
     };
   }
