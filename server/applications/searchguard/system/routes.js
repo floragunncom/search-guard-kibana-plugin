@@ -44,6 +44,30 @@ export function licenseHandler({ searchGuardBackend, logger }) {
       return response.ok({ body });
     } catch (error) {
       logger.error(`licenseHandler: ${error.stack}`);
+      // TODO: We need to consolidate the error response formats
+      if (error && error.statusCode && error.statusCode === 400) {
+        let message = "License invalid";
+        if (error.message) {
+          try {
+            const parsedMessage = JSON.parse(error.message);
+            if (parsedMessage && parsedMessage.message) {
+              message = parsedMessage.message;
+            }
+          } catch(error) {
+            // Ignore, probably unknown response format
+          }
+        }
+
+        return response.customError({
+          body: {
+            attributes: {
+              body: message
+            },
+          },
+          statusCode: 400
+        });
+      }
+
       return response.internalError({ body: error });
     }
   };
