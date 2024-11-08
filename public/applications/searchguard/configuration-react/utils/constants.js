@@ -73,9 +73,6 @@ export const FLYOUTS = {
   INSPECT_JSON: 'inspectJson',
 };
 
-export { default as INDEX_PERMISSIONS } from './permissions/indexpermissions';
-export { default as CLUSTER_PERMISSIONS } from './permissions/clusterpermissions';
-
 export const FIELDS_TO_OMIT_BEFORE_SAVE = ['reserved', 'static', 'hidden'];
 
 export const LOCAL_STORAGE_NAME = 'app_cache';
