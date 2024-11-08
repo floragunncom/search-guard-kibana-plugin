@@ -60,6 +60,7 @@ export function licenseHandler({ searchGuardBackend, logger }) {
 
         return response.customError({
           body: {
+            message: 'License invalid',
             attributes: {
               body: message
             },
