@@ -168,6 +168,9 @@ export class ServerPlugin {
           sessionStorageFactory,
           authManager,
           configService,
+          startContext: {
+            savedObjects
+          }
         };
       });
 

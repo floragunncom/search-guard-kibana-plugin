@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { Readable } from 'stream';
 import { API_ROOT } from '../../../utils/constants';
 import { schema } from '@kbn/config-schema';
 
@@ -76,4 +77,48 @@ export function defineSystemRoutes({ searchGuardBackend, logger, kibanaCore }) {
     },
     licenseHandler({ searchGuardBackend, logger })
   );
+
+  router.post(
+    {
+      path: `${API_ROOT}/templates/auditlog`,
+      validate: {
+        body: schema.object({
+          overwrite: schema.boolean(),
+        }),
+      },
+      options: {
+        authRequired: true,
+      },
+    },
+    importTemplateHandler({ searchGuardBackend, logger })
+  );
+}
+
+
+
+export function importTemplateHandler({ searchGuardBackend, logger }) {
+  return async function (context, request, response) {
+    try {
+      const overwrite = (request.body.overwrite === true) ? true : false;
+      const sgContext = await context.searchGuard;
+
+      const savedObjectsClient = await sgContext.startContext.savedObjects.getScopedClient(request);
+      const savedObjectsImporter = await sgContext.startContext.savedObjects.createImporter(savedObjectsClient);
+      // Require the actual objects
+      const data = require('./templates/template_auditlog.js');
+      let JSONReadStream = Readable.from(data.template_auditlog);
+      const importResponse = await savedObjectsImporter.import({
+        readStream: JSONReadStream,
+        overwrite: overwrite,
+        compatibilityMode: true
+      });
+
+      return response.ok({
+        body: importResponse
+      });
+    } catch (error) {
+      logger.error(`importTemplateHandler: ${error.stack}`);
+      return response.internalError({ body: error });
+    }
+  };
 }
