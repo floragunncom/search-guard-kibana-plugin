@@ -155,8 +155,8 @@ export function Permissions({ values, isReadOnly }) {
             isInvalid,
             setOptions: {
               ...editorOptions,
-              maxLines: 40,
-              minLines: 40,
+              maxLines: 50,
+              minLines: 50,
             },
             mode: 'json',
             theme: editorTheme,

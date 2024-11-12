@@ -23,6 +23,7 @@ export const API = {
   LICENSE: `${API_BASE}/license`,
   INDICES: `${API_BASE}/configuration/indices`,
   ALIASES: `${API_BASE}/configuration/aliases`,
+  DATA_STREAMS: `${API_BASE}/configuration/data_streams`,
   INDEX_MAPPINGS: `${API_BASE}/configuration/index_mappings`,
   TEMPLATES_AUDITLOG: `${API_BASE}/templates/auditlog`,
 };
@@ -71,9 +72,6 @@ export const ROLE_MAPPINGS_ACTIONS = {
 export const FLYOUTS = {
   INSPECT_JSON: 'inspectJson',
 };
-
-export { default as INDEX_PERMISSIONS } from './permissions/indexpermissions';
-export { default as CLUSTER_PERMISSIONS } from './permissions/clusterpermissions';
 
 export const FIELDS_TO_OMIT_BEFORE_SAVE = ['reserved', 'static', 'hidden'];
 

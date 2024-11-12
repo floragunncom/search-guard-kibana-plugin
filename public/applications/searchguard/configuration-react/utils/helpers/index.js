@@ -1,5 +1,6 @@
 import { assign, cloneDeep, reduce, sortBy, uniqBy, map, filter } from 'lodash';
-import { INDEX_PERMISSIONS, CLUSTER_PERMISSIONS, PAGE_NAMES, PAGE_CONFIGS } from '../constants';
+import { PAGE_NAMES, PAGE_CONFIGS } from '../constants';
+import { CLUSTER_PERMISSIONS, INDEX_PERMISSIONS } from "../permissions/singlepermissions";
 
 export { default as sideNavItem } from './sideNavItem';
 

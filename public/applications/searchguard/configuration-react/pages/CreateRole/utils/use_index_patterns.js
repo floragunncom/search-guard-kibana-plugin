@@ -21,11 +21,18 @@ import { indicesToUiIndices } from './role_to_formik';
 import { comboBoxOptionsToArray } from '../../../utils/helpers';
 
 import { Context } from '../../../Context';
+import { COMMON_PERMISSION_TYPES } from "./constants";
 
+/**
+ * This function also loads alias and data stream patterns
+ * @returns {{isLoading: boolean, aliasOptions: *[], indexOptions: *[], setIsLoading: (value: (((prevState: boolean) => boolean) | boolean)) => void, onSearchChange: ((function(string=): Promise<[]|undefined>)|*), dataStreamOptions: *[]}}
+ */
 export function useIndexPatterns() {
   const { httpClient, addErrorToast } = useContext(Context);
   const [isLoading, setIsLoading] = useState(false);
   const [indexOptions, setIndexOptions] = useState([]);
+  const [aliasOptions, setAliasOptions] = useState([]);
+  const [dataStreamOptions, setDataStreamOptions] = useState([]);
 
   const esService = new ElasticsearchService(httpClient);
 
@@ -38,12 +45,15 @@ export function useIndexPatterns() {
       query = query.trim();
       if (query === '*:' || query === '') return [];
 
-      const [{ data: indices = [] }, { data: aliases = [] }] = await Promise.all([
+      const [{ data: indices = [] }, { data: aliases = [] }, { data: dataStreams = [] }] = await Promise.all([
         esService.getIndices(query),
         esService.getAliases(query),
+        esService.getDataStreams(query),
       ]);
 
-      setIndexOptions(indicesToUiIndices([...indices, ...aliases]));
+      setIndexOptions(indicesToUiIndices([...indices]));
+      setAliasOptions(indicesToUiIndices([...aliases]));
+      setDataStreamOptions(indicesToUiIndices([...dataStreams.data_streams], COMMON_PERMISSION_TYPES.DATA_STREAM_PERMISSION));
     } catch (error) {
       console.error('IndexPatterns - onSearchChange', error);
       addErrorToast(error);
@@ -61,6 +71,8 @@ export function useIndexPatterns() {
     isLoading,
     setIsLoading,
     indexOptions,
+    aliasOptions,
+    dataStreamOptions,
     onSearchChange,
   };
 }

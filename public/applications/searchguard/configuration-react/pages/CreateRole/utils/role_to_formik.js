@@ -20,8 +20,8 @@ import {
   ROLE,
   ROLE_MAPPING,
   MASKED_FIELD_TYPE,
-  MASKED_FIELDS_DEFAULTS,
-} from './constants';
+  MASKED_FIELDS_DEFAULTS, COMMON_PERMISSION_TYPES
+} from "./constants";
 import {
   allowedActionsToPermissionsAndActiongroups,
   arrayToComboBoxOptions,
@@ -85,7 +85,7 @@ export function actionGroupsToUiClusterIndexTenantActionGroups(actionGroups = {}
   };
 }
 
-export const indicesToUiIndices = (indices) => {
+export const indicesToUiIndices = (indices, type = COMMON_PERMISSION_TYPES.INDEX_PERMISSION) => {
   const colors = {
     red: 'danger',
     green: 'primary',
@@ -94,7 +94,11 @@ export const indicesToUiIndices = (indices) => {
   };
 
   return sortBy(
-    indices.map(({ index, alias, health = 'default' }) => {
+    indices.map(({ index, alias, name, health = 'default' }) => {
+
+      if (type === COMMON_PERMISSION_TYPES.DATA_STREAM_PERMISSION ) {
+        return { label: name, color: colors[health] };
+      }
       return { label: alias ? alias : index, color: colors[health] };
     }),
     'label'
@@ -202,6 +206,75 @@ export const indexPermissionToUiIndexPermission = (indexPermission) => {
   };
 };
 
+export const commonPermissionToUiCommonPermission = (permission, patternsProperty = 'index_patterns') => {
+  const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(
+    permission.allowed_actions
+  );
+  const allowedActions = {
+    actiongroups: arrayToComboBoxOptions(actiongroups),
+    permissions: arrayToComboBoxOptions(permissions),
+  };
+  const patterns = arrayToComboBoxOptions(permission[patternsProperty]);
+
+  return {
+    ...permission,
+    ...flsmodeAndFlsToUiFlsmoddeAndFls(permission.fls),
+    _dls: permission.dls,
+    allowed_actions: allowedActions,
+    [patternsProperty]: patterns,
+    masked_fields: maskedFieldsToUiMaskedFields(permission.masked_fields || []),
+    masked_fields_advanced: arrayToComboBoxOptions(permission.masked_fields || []),
+    _isAdvanced: !isEmpty(allowedActions.permissions),
+    _isAdvancedFLSMaskedFields: false,
+  };
+};
+
+export const aliasPermissionToUiAliasPermission = (aliasPermission) => {
+  const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(
+    aliasPermission.allowed_actions
+  );
+  const allowedActions = {
+    actiongroups: arrayToComboBoxOptions(actiongroups),
+    permissions: arrayToComboBoxOptions(permissions),
+  };
+  const aliasPatterns = arrayToComboBoxOptions(aliasPermission.alias_patterns);
+
+  return {
+    ...aliasPermission,
+    ...flsmodeAndFlsToUiFlsmoddeAndFls(aliasPermission.fls),
+    _dls: aliasPermission.dls,
+    allowed_actions: allowedActions,
+    alias_patterns: aliasPatterns,
+    masked_fields: maskedFieldsToUiMaskedFields(aliasPermission.masked_fields || []),
+    masked_fields_advanced: arrayToComboBoxOptions(aliasPermission.masked_fields || []),
+    _isAdvanced: !isEmpty(allowedActions.permissions),
+    _isAdvancedFLSMaskedFields: false,
+  };
+};
+
+export const dataStreamPermissionToUiDataStreamPermission = (dataStreamPermission) => {
+  const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(
+    dataStreamPermission.allowed_actions
+  );
+  const allowedActions = {
+    actiongroups: arrayToComboBoxOptions(actiongroups),
+    permissions: arrayToComboBoxOptions(permissions),
+  };
+  const dataStreamPatterns = arrayToComboBoxOptions(dataStreamPermission.data_stream_patterns);
+
+  return {
+    ...dataStreamPermission,
+    ...flsmodeAndFlsToUiFlsmoddeAndFls(dataStreamPermission.fls),
+    _dls: dataStreamPermission.dls,
+    allowed_actions: allowedActions,
+    data_stream_patterns: dataStreamPatterns,
+    masked_fields: maskedFieldsToUiMaskedFields(dataStreamPermission.masked_fields || []),
+    masked_fields_advanced: arrayToComboBoxOptions(dataStreamPermission.masked_fields || []),
+    _isAdvanced: !isEmpty(allowedActions.permissions),
+    _isAdvancedFLSMaskedFields: false,
+  };
+};
+
 export const clusterPermissionsToUiClusterPermissions = (clusterPermissions) => {
   const { actiongroups, permissions } = allowedActionsToPermissionsAndActiongroups(
     clusterPermissions
@@ -220,10 +293,15 @@ export const roleToFormik = ({ resource, roleMapping = {}, id = '' }) => {
     formik.exclude_cluster_permissions
   );
   const _indexPermissions = map(formik.index_permissions, indexPermissionToUiIndexPermission);
+  const _aliasPermissions = map(formik.alias_permissions, aliasPermissionToUiAliasPermission);
+  const _dataStreamPermissions = map(formik.data_stream_permissions, dataStreamPermissionToUiDataStreamPermission);
+  /*
   const _excludeIndexPermissions = map(
     formik.exclude_index_permissions,
     excludeIndexPermissionToUiExcludeIndexPermission
   );
+
+   */
   const _tenantPermissions = map(formik.tenant_permissions, tenantPermissionToUiTenantPermission);
 
   return {
@@ -233,7 +311,9 @@ export const roleToFormik = ({ resource, roleMapping = {}, id = '' }) => {
     _clusterPermissions,
     _excludeClusterPermissions,
     _indexPermissions,
-    _excludeIndexPermissions,
+    _aliasPermissions,
+    _dataStreamPermissions,
+    //_excludeIndexPermissions,
     _tenantPermissions,
     _isClusterPermissionsAdvanced: !isEmpty(_clusterPermissions.permissions),
     _isClusterExclusionsAdvanced: !isEmpty(_excludeClusterPermissions.permissions),

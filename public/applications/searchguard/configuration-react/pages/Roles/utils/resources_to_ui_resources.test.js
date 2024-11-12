@@ -39,6 +39,7 @@ describe('roles to UI table roles', () => {
             allowed_actions: [],
           },
         ],
+        /*
         exclude_index_permissions: [
           {
             index_patterns: ['b', 'a'],
@@ -48,6 +49,25 @@ describe('roles to UI table roles', () => {
             index_patterns: ['d', 'c'],
             actions: [],
           },
+        ],
+         */
+        alias_permissions: [
+          {
+            alias_patterns: ['b', 'a'],
+            allowed_actions: ['EXAMPLE_ACTION_GROUP']
+          },
+          {
+            alias_patterns: ['d', 'c'],
+            allowed_actions: []
+          }
+        ],
+        data_stream_permissions: [
+          {
+            data_stream_patterns: ['b', 'a'],
+            allowed_actions: [
+              "indices:admin/data_stream/create"
+            ]
+          }
         ],
         tenant_permissions: [
           {
@@ -75,12 +95,22 @@ describe('roles to UI table roles', () => {
             allowed_actions: [],
           },
         ],
+        /*
         exclude_index_permissions: [
           {
             index_patterns: ['a'],
             actions: [],
           },
         ],
+
+         */
+        alias_permissions: [
+          {
+            alias_patterns: ['a'],
+            allowed_actions: ['EXAMPLE_ACTION_GROUP']
+          }
+        ],
+        data_stream_permissions: [],
         tenant_permissions: [],
         static: true,
       },
@@ -90,7 +120,9 @@ describe('roles to UI table roles', () => {
       {
         _id: 'A_ROLE',
         _indexPatterns: ['a'],
-        _excludeIndexPatterns: ['a'],
+        //_excludeIndexPatterns: ['a'],
+        _aliasPatterns: ['a'],
+        _dataStreamPatterns: [],
         _tenantPatterns: [],
         cluster_permissions: ['A', 'B', 'cluster:a/b/c', 'indices:a/b/c', 'kibana:a/b/c'],
         exclude_cluster_permissions: ['A', 'B', 'cluster:a/b/c', 'indices:a/b/c', 'kibana:a/b/c'],
@@ -105,19 +137,30 @@ describe('roles to UI table roles', () => {
             allowed_actions: [],
           },
         ],
+        /*
         exclude_index_permissions: [
           {
             index_patterns: ['a'],
             actions: [],
           },
         ],
+         */
+        alias_permissions: [
+          {
+            alias_patterns: ['a'],
+            allowed_actions: ['EXAMPLE_ACTION_GROUP']
+          },
+        ],
+        data_stream_permissions: [],
         tenant_permissions: [],
         static: true,
       },
       {
         _id: 'B_ROLE',
         _indexPatterns: ['a', 'b', 'c', 'd'],
-        _excludeIndexPatterns: ['a', 'b', 'c', 'd'],
+        //_excludeIndexPatterns: ['a', 'b', 'c', 'd'],
+        _aliasPatterns: ['a', 'b', 'c', 'd'],
+        _dataStreamPatterns: ['a', 'b'],
         _tenantPatterns: ['e', 'f', 'g'],
         cluster_permissions: ['A', 'B', 'cluster:a/b/c', 'indices:a/b/c', 'kibana:a/b/c'],
         exclude_cluster_permissions: ['A', 'B', 'cluster:a/b/c', 'indices:a/b/c', 'kibana:a/b/c'],
@@ -138,6 +181,7 @@ describe('roles to UI table roles', () => {
             allowed_actions: [],
           },
         ],
+        /*
         exclude_index_permissions: [
           {
             index_patterns: ['b', 'a'],
@@ -147,6 +191,26 @@ describe('roles to UI table roles', () => {
             index_patterns: ['d', 'c'],
             actions: [],
           },
+        ],
+
+         */
+        alias_permissions: [
+          {
+            alias_patterns: ['b', 'a'],
+            allowed_actions: ['EXAMPLE_ACTION_GROUP']
+          },
+          {
+            alias_patterns: ['d', 'c'],
+            allowed_actions: []
+          }
+        ],
+        data_stream_permissions: [
+          {
+            data_stream_patterns: ['b', 'a'],
+            allowed_actions: [
+              "indices:admin/data_stream/create"
+            ]
+          }
         ],
         tenant_permissions: [
           {

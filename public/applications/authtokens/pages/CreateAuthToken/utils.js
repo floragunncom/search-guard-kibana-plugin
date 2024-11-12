@@ -47,6 +47,18 @@ const DEFAULT_RESOURCE = {
           allowed_actions: ['*'],
         },
       ],
+      alias_permissions: [
+        {
+          alias_patterns: ['*'],
+          allowed_actions: ['*'],
+        },
+      ],
+      data_stream_permissions: [
+        {
+          data_stream_patterns: ['*'],
+          allowed_actions: ['*'],
+        },
+      ],
       tenant_permissions: [
         {
           tenant_patterns: ['*'],

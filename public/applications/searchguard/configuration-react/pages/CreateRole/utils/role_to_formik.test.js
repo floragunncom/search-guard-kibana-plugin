@@ -250,6 +250,7 @@ describe('role to UI role ', () => {
       description: 'Migrated from v6 (all types mapped)',
       exclude_cluster_permissions: ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'],
       cluster_permissions: ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'],
+      /*
       exclude_index_permissions: [
         {
           index_patterns: ['b', 'a'],
@@ -260,6 +261,8 @@ describe('role to UI role ', () => {
           actions: ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'],
         },
       ],
+
+       */
       index_permissions: [
         {
           index_patterns: ['b', 'a'],
@@ -286,6 +289,33 @@ describe('role to UI role ', () => {
           allowed_actions: ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'],
         },
       ],
+      alias_permissions: [
+        {
+          alias_patterns: ['b', 'a'],
+          fls: ['d', 'c'],
+          masked_fields: [
+            'ip_source::/[0-9]{1,3}$/::XXX::/^[0-9]{1,3}/::***',
+            'ip_dst::/[0-9]{1,3}$/::XXX::/^[0-9]{1,3}/::***',
+            'aname::SHA-512',
+            'bname',
+            'cname',
+          ],
+          allowed_actions: ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'],
+        },
+        {
+          alias_patterns: ['g', 'h'],
+          fls: ['~i', '~j'],
+          masked_fields: [
+            'ip_source::/[0-9]{1,3}$/::XXX::/^[0-9]{1,3}/::***',
+            'ip_dst::/[0-9]{1,3}$/::XXX::/^[0-9]{1,3}/::***',
+            'aname::SHA-512',
+            'bnamealias',
+            'cnamealias',
+          ],
+          allowed_actions: ['indices:a', 'cluster:a', 'kibana:a', 'B', 'A'],
+        },
+      ],
+      data_stream_permissions: [],
       tenant_permissions: [
         {
           tenant_patterns: ['b', 'a'],
@@ -317,6 +347,7 @@ describe('role to UI role ', () => {
         actiongroups: [{ label: 'A' }, { label: 'B' }],
         permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
       },
+      /*
       _excludeIndexPermissions: [
         {
           index_patterns: [{ label: 'a' }, { label: 'b' }],
@@ -335,6 +366,7 @@ describe('role to UI role ', () => {
           _isAdvanced: true,
         },
       ],
+       */
       _indexPermissions: [
         {
           index_patterns: [{ label: 'a' }, { label: 'b' }],
@@ -443,6 +475,115 @@ describe('role to UI role ', () => {
           _isAdvancedFLSMaskedFields: false,
         },
       ],
+      _aliasPermissions: [
+        {
+          alias_patterns: [{ label: 'a' }, { label: 'b' }],
+          fls: [{ label: 'c' }, { label: 'd' }],
+          masked_fields: [
+            {
+              value: '',
+              fields: [
+                {
+                  label: 'bname',
+                },
+                {
+                  label: 'cname',
+                },
+              ],
+              mask_type: 'hash',
+            },
+            {
+              value: '/[0-9]{1,3}$/::XXX::/^[0-9]{1,3}/::***',
+              fields: [
+                {
+                  label: 'ip_source',
+                },
+                {
+                  label: 'ip_dst',
+                },
+              ],
+              mask_type: 'regex',
+            },
+            {
+              value: 'SHA-512',
+              fields: [
+                {
+                  label: 'aname',
+                },
+              ],
+              mask_type: 'hash',
+            },
+          ],
+          masked_fields_advanced: [
+            { label: 'aname::SHA-512' },
+            { label: 'bname' },
+            { label: 'cname' },
+            { label: 'ip_dst::/[0-9]{1,3}$/::XXX::/^[0-9]{1,3}/::***' },
+            { label: 'ip_source::/[0-9]{1,3}$/::XXX::/^[0-9]{1,3}/::***' },
+          ],
+          allowed_actions: {
+            actiongroups: [{ label: 'A' }, { label: 'B' }],
+            permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
+          },
+          flsmode: FLS_MODES.WHITELIST,
+          _isAdvanced: true,
+          _isAdvancedFLSMaskedFields: false,
+        },
+        {
+          alias_patterns: [{ label: 'g' }, { label: 'h' }],
+          fls: [{ label: 'i' }, { label: 'j' }],
+          masked_fields: [
+            {
+              value: '',
+              fields: [
+                {
+                  label: 'bnamealias',
+                },
+                {
+                  label: 'cnamealias',
+                },
+              ],
+              mask_type: 'hash',
+            },
+            {
+              value: '/[0-9]{1,3}$/::XXX::/^[0-9]{1,3}/::***',
+              fields: [
+                {
+                  label: 'ip_source',
+                },
+                {
+                  label: 'ip_dst',
+                },
+              ],
+              mask_type: 'regex',
+            },
+            {
+              value: 'SHA-512',
+              fields: [
+                {
+                  label: 'aname',
+                },
+              ],
+              mask_type: 'hash',
+            },
+          ],
+          masked_fields_advanced: [
+            { label: 'aname::SHA-512' },
+            { label: 'bnamealias' },
+            { label: 'cnamealias' },
+            { label: 'ip_dst::/[0-9]{1,3}$/::XXX::/^[0-9]{1,3}/::***' },
+            { label: 'ip_source::/[0-9]{1,3}$/::XXX::/^[0-9]{1,3}/::***' },
+          ],
+          allowed_actions: {
+            actiongroups: [{ label: 'A' }, { label: 'B' }],
+            permissions: [{ label: 'cluster:a' }, { label: 'indices:a' }, { label: 'kibana:a' }],
+          },
+          flsmode: FLS_MODES.BLACKLIST,
+          _isAdvanced: true,
+          _isAdvancedFLSMaskedFields: false,
+        },
+      ],
+      _dataStreamPermissions: [],
       _tenantPermissions: [
         {
           tenant_patterns: [{ label: 'a' }, { label: 'b' }],

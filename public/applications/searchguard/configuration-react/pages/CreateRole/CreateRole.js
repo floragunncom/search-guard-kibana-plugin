@@ -24,10 +24,11 @@ import {
   createRoleText,
   clusterPermissionsText,
   indexPermissionsText,
+  aliasPermissionsText,
+  dataStreamPermissionsText,
   tenantPermissionsText,
   updateRoleText,
   overviewText,
-  indexExclusionsText,
   clusterExclusionsText,
 } from '../../utils/i18n/roles';
 import { ROLES_ACTIONS } from '../../utils/constants';
@@ -35,8 +36,8 @@ import {
   Overview,
   ClusterPermissions,
   IndexPermissions,
+  CommonPermissions,
   TenantPermissions,
-  IndexExclusions,
   ClusterExclusions,
 } from './components';
 import {
@@ -45,7 +46,7 @@ import {
   actionGroupsToUiClusterIndexTenantActionGroups,
   tenantsToUiTenants,
 } from './utils';
-import { TABS, ROLE, ROLE_MAPPING } from './utils/constants';
+import { TABS, ROLE, ROLE_MAPPING, COMMON_PERMISSION_TYPES } from "./utils/constants";
 import { getAllUiIndexPermissions, getAllUiClusterPermissions } from '../../utils/helpers';
 import {
   ElasticsearchService,
@@ -105,8 +106,12 @@ class CreateRole extends Component {
         name: indexPermissionsText,
       },
       {
-        id: TABS.INDEX_EXCLUSIONS,
-        name: indexExclusionsText,
+        id: TABS.ALIAS_PERMISSIONS,
+        name: aliasPermissionsText,
+      },
+      {
+        id: TABS.DATA_STREAM_PERMISSION,
+        name: dataStreamPermissionsText,
       },
       {
         id: TABS.TENANT_PERMISSIONS,
@@ -213,7 +218,8 @@ class CreateRole extends Component {
     const isClusterPermissionsTab = selectedTabId === TABS.CLUSTER_PERMISSIONS;
     const isClusterExclusionsTab = selectedTabId === TABS.CLUSTER_EXCLUSIONS;
     const isIndexPermissionsTab = selectedTabId === TABS.INDEX_PERMISSIONS;
-    const isIndexExclusionsTab = selectedTabId === TABS.INDEX_EXCLUSIONS;
+    const isAliasPermissionsTab = selectedTabId === TABS.ALIAS_PERMISSIONS;
+    const isDataStreamPermissionsTab = selectedTabId === TABS.DATA_STREAM_PERMISSION;
     const isTenantPermissionsTab = selectedTabId === TABS.TENANT_PERMISSIONS;
 
     return (
@@ -271,8 +277,18 @@ class CreateRole extends Component {
                   {...this.props}
                 />
               )}
-              {isIndexExclusionsTab && (
-                <IndexExclusions
+              {isAliasPermissionsTab && (
+                <CommonPermissions
+                  type={COMMON_PERMISSION_TYPES.ALIAS_PERMISSION}
+                  values={values}
+                  allActionGroups={allIndexActionGroups}
+                  allSinglePermissions={allIndexPermissions}
+                  {...this.props}
+                />
+              )}
+              {isDataStreamPermissionsTab && (
+                <CommonPermissions
+                  type={COMMON_PERMISSION_TYPES.DATA_STREAM_PERMISSION}
                   values={values}
                   allActionGroups={allIndexActionGroups}
                   allSinglePermissions={allIndexPermissions}

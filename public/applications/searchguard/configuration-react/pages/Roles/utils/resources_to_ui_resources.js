@@ -50,11 +50,38 @@ const resourcesToUiResources = (resources) =>
               []
             )
           ),
+          /*
           _excludeIndexPatterns: sortBy(
             reduce(
               values.exclude_index_permissions,
               (result, values) => {
                 forEach(values.index_patterns, (pattern) => {
+                  result.push(pattern);
+                });
+                return result;
+              },
+              []
+            )
+          ),
+
+           */
+          _aliasPatterns: sortBy(
+            reduce(
+              values.alias_permissions,
+              (result, values) => {
+                forEach(values.alias_patterns, (pattern) => {
+                  result.push(pattern);
+                });
+                return result;
+              },
+              []
+            )
+          ),
+          _dataStreamPatterns: sortBy(
+            reduce(
+              values.data_stream_permissions,
+              (result, values) => {
+                forEach(values.data_stream_patterns, (pattern) => {
                   result.push(pattern);
                 });
                 return result;
