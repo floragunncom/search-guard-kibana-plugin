@@ -107,7 +107,7 @@ class Main extends Component {
             <EuiText>
               <h3>{sgLicenseNotValidText}</h3>
             </EuiText>
-            <EuiListGroup>
+            <EuiListGroup maxWidth={false}>
               {map(messages, (message, i) => (
                 <EuiListGroupItem key={i} label={message} />
               ))}
