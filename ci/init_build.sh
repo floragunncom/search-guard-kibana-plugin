@@ -26,15 +26,6 @@ fi
 
 cd $SF_REPO_DIR
 
-
-
-echo -e "\e[0Ksection_start:`date +%s`:patch_kbn_optimizer[collapsed=true]\r\e[0KPatch kbn optimizer"
-
-sed -i "/observeLines(proc.stderr\!).pipe(Rx.map((line) => ({ type: 'stderr', data: line }))),/s/^/\/\//" packages/kbn-plugin-helpers/src/tasks/optimize.ts
-
-echo -e "\e[0Ksection_end:`date +%s`:patch_kbn_optimizer\r\e[0K"
-
-
 echo -e "\e[0Ksection_start:`date +%s`:nvm_install[collapsed=true]\r\e[0KDoing nvm install"
 
 nvm install
