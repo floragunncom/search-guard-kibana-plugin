@@ -67,8 +67,9 @@ export class PublicPlugin {
       await this.configService.fetchConfig();
 
       // Check dark mode again. This helps if system mode is used
-      const isDarkMode = core.theme.getTheme().darkMode;
-      this.configService.set('is_dark_mode', isDarkMode);
+      // THIS is not needed/supported prior to 8.13.
+      //const isDarkMode = core.theme.getTheme().darkMode;
+      //this.configService.set('is_dark_mode', isDarkMode);
       this.searchGuardApp.start({
         core,
         httpClient: this.httpClient,
