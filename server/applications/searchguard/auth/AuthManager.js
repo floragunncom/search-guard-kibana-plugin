@@ -53,9 +53,7 @@ export class AuthManager {
      *
      * Keeping this in case there are exceptions to this rule.
      */
-    this.routesToIgnore = [
-      '/internal/security/user_profile'
-    ];
+    this.routesToIgnore = [];
 
     this.basePath = kibanaCore.http.basePath.get();
   }

@@ -36,11 +36,7 @@ export class UiConfigService extends ConfigService {
 
     defaultsDeep(this.config, CONFIG_DEFAULTS, {
       searchguard: cloneDeep(this.coreContext.config.get()),
-      // Dark mode - the possible settings here are "enabled", "disabled" or "system".
-      // At the moment, we default to light mode even if system is used.
-      // In our public plugin's start method, we then correct this once
-      // the conversion from system to light or dark mode is available.
-      is_dark_mode: this.uiSettings.get('theme:darkMode') === 'enabled' ? true : false,
+      is_dark_mode: this.uiSettings.get('theme:darkMode'),
     });
   }
 

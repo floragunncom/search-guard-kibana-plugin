@@ -1,5 +1,6 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { BehaviorSubject } from 'rxjs';
+import { AppNavLinkStatus } from '../../../../../../src/core/public';
 import { SEARCHGUARD_APP_CATEGORY } from '../../../utils/constants';
 import { buildSeardGuardConfiguration } from './utils/helpers';
 import { appNaviFix } from '../../../utils/appNaviFix';
@@ -75,7 +76,7 @@ export class ConfigApp {
 
     if (!isConfigEnabled) {
       this.appUpdater.next(() => ({
-        visibleIn: [],
+        navLinkStatus: AppNavLinkStatus.hidden,
         tooltip: 'Configuration disabled',
       }));
     }

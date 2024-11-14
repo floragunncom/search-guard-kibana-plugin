@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import { BehaviorSubject } from 'rxjs';
+import { AppNavLinkStatus } from '../../../../../src/core/public';
 import { AuthTokensService } from './services';
 import { SEARCHGUARD_APP_CATEGORY } from '../../utils/constants';
 import { appNaviFix } from '../../utils/appNaviFix';
@@ -70,7 +71,7 @@ export class AuthTokens {
 
         if (!isEnabled) {
           this.appUpdater.next(() => ({
-            visibleIn: [],
+            navLinkStatus: AppNavLinkStatus.hidden,
             tooltip: 'Auth Tokens disabled',
           }));
         }
