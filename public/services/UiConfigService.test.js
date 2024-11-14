@@ -9,9 +9,7 @@ describe('UiConfigService', () => {
   });
 
   test('can construct the default config', () => {
-    // Seems a bit weird that all uiSettingsGetMocks return "enabled" or "disabled"
-    // Extend if they are used for something else than dark mode.
-    const uiSettingsGet = jest.fn(() => 'disabled');
+    const uiSettingsGet = jest.fn(() => false);
     const uiSettings = setupCoreMock({ uiSettingsGet }).uiSettings;
 
     const configGet = jest.fn(() => ({
@@ -52,7 +50,7 @@ describe('UiConfigService', () => {
     let coreContext;
 
     beforeEach(() => {
-      uiSettingsGet = jest.fn(() => 'enabled');
+      uiSettingsGet = jest.fn(() => true);
       uiSettings = setupCoreMock({ uiSettingsGet }).uiSettings;
 
       configGet = jest.fn(() => ({
@@ -204,7 +202,7 @@ describe('UiConfigService', () => {
     let coreContext;
 
     beforeEach(() => {
-      uiSettingsGet = jest.fn(() => 'enabled');
+      uiSettingsGet = jest.fn(() => true);
       uiSettings = setupCoreMock({ uiSettingsGet }).uiSettings;
 
       configGet = jest.fn(() => ({
