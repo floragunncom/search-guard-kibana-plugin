@@ -1,4 +1,4 @@
 variables:
   IT_BRANCH: "8.13.x"
-  SG_ES_PLUGIN: "3.0.0"
+  SG_ES_PLUGIN: "3.0.1"
 
