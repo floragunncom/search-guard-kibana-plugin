@@ -256,15 +256,6 @@ const IndexPermissions = ({ values, allActionGroups, allSinglePermissions }) => 
 
 IndexPermissions.propTypes = {
   values: PropTypes.shape({
-    _excludeIndexPermissions: PropTypes.arrayOf(
-      PropTypes.shape({
-        index_patterns: PropTypes.array.isRequired,
-        actions: PropTypes.shape({
-          actiongroups: PropTypes.array.isRequired,
-          permissions: PropTypes.array.isRequired,
-        }),
-      })
-    ).isRequired,
     _indexPermissions: PropTypes.arrayOf(
       PropTypes.shape({
         index_patterns: PropTypes.array.isRequired,

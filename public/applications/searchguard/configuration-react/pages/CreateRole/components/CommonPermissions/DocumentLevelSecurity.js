@@ -17,7 +17,7 @@
 import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'formik';
-import { SubHeader, FormikCodeEditor } from '../../../../components';
+import { SubHeader } from '../../../../components';
 import { EuiSpacer, EuiCallOut } from '@elastic/eui';
 import {
   elasticsearhQueryDLSText,
