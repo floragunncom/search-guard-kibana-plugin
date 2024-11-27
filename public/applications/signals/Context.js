@@ -53,7 +53,12 @@ const { darkTheme, theme: lightTheme, ...editorOptionsDefaults } = CODE_EDITOR;
 let watchesFilters = {};
 
 const ContextProvider = ({ children, httpClient, core, configService }) => {
-  const IS_DARK_THEME = core.uiSettings.get('theme:darkMode');
+  let IS_DARK_THEME = true;
+  try {
+    IS_DARK_THEME = configService.get('is_dark_mode') ? true : false;
+  } catch (error) {
+    // Ignore
+  }
 
   const [editorTheme] = useState(IS_DARK_THEME ? darkTheme : lightTheme);
   const [editorOptions] = useState(editorOptionsDefaults);
