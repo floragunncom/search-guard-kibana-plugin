@@ -52,7 +52,7 @@ stages:
   - package
   - "Frontend Int Tests"
   - release
-  - "Deploy Docker Image"
+  - "Deploy Docker Images"  
 prepare_env:
   stage: prepare
   script:
@@ -203,8 +203,8 @@ deploy_release:
       ci/deploy.sh
       mvn -B -s settings.xml -Drevision="$BUILD_VERSION" deploy
 
-deploy_docker_image:
-  stage: "Deploy Docker Image"
+deploy_docker_release_image:
+  stage: "Deploy Docker Images"
   image: docker:20.10.17
   services:
     - docker:20.10.17-dind
@@ -244,7 +244,46 @@ deploy_docker_image:
       ./build_and_push.sh "floragunncom" "docker.io" "search-guard-flx-kibana" "$SG_SF_PLUGIN_VERSION-es-$SF_VERSION" "--build-arg ELK_VERSION="$SF_VERSION"  --build-arg SG_KIBANA_VERSION="$SG_SF_PLUGIN_VERSION"" 
   allow_failure: false
 
+deploy_docker_demo_image:
+  stage: "Deploy Docker Images"
+  image: docker:20.10.17
+  services:
+    - docker:20.10.17-dind
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
+      when: always
+    - if: '$DOCKER_ONLY'
+      when: on_success
+  tags:
+    - build
+  timeout: 1h
+  script:
+    - |
+      cd docker
 
+      apk update && apk add bash curl 
+
+      if [[ -z "$SF_VERSION" || -z "$SG_SF_PLUGIN_VERSION" ]]; then
+        echo "SF_VERSION is empty or SG_SF_PLUGIN_VERSION is empty"
+        exit 1
+      fi
+    
+      echo "SF_VERSION=$SF_VERSION"
+      echo "SG_SF_PLUGIN_VERSION=$SG_SF_PLUGIN_VERSION"
+      
+            
+      echo "Docker logout"
+      docker logout 
+      
+      echo "Login in into Docker Hub"      
+      echo "$DOCKER_PASSWORD" | docker login --username floragunncom --password-stdin docker.io > /dev/null
+
+      echo ""
+      echo "Enable qemu-user-static to support docker multiarch builds with buildx"
+      docker run --rm --privileged multiarch/qemu-user-static --reset -p yes > /dev/null
+    
+      ./build_and_push_demo.sh $SF_VERSION $SG_SF_PLUGIN_VERSION
+  allow_failure: false
 
 include:
   - local: '.gitlab-ci-branch-specific.yml'
