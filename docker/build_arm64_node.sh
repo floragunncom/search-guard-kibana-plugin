@@ -1,7 +1,11 @@
 #!/bin/bash
 echo $1
 echo "[INFO] Using alternative installation with official node binary"
-NODE_VERSION=$(grep -oP '"node":\s*"\K[^"]+' /usr/share/kibana/package.json)
+if [[ -n "$2" ]]; then
+    NODE_VERSION=$(grep -oP '"node":\s*"\K[^"]+' /usr/share/kibana/package.json)
+else
+    NODE_VERSION=$(curl -s https://raw.githubusercontent.com/elastic/kibana/refs/tags/v$2/package.json | grep -oP '"node":\s*"\K[^"]+')
+fi
 NODE_FILE="node-v${NODE_VERSION}-linux-arm64"
 echo "Download node version ${NODE_VERSION}"
 cd /tmp
