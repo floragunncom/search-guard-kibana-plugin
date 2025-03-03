@@ -2,7 +2,7 @@
 
 set -e
 
-SF_BRANCH_NAME="v$SF_VERSION"
+SF_BRANCH_NAME="v$SF_VERSION-beta1"
 SF_RELEASE_PACKAGE_URL="https://artifacts.elastic.co/downloads/kibana/kibana-$SF_VERSION-linux-x86_64.tar.gz"
 
 if [[ -f $SF_REPO_DIR/.cached_version ]]; then
