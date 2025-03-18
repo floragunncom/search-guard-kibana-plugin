@@ -122,6 +122,10 @@ kibana_authtokens:
   script:
     - |
        
+ 
+       echo "Login in into Docker Hub"      
+       echo "$DOCKER_PASSWORD" | docker login --username floragunncom --password-stdin docker.io > /dev/null
+       
        sudo sysctl -w vm.max_map_count=262144
        echo "SNAPSHOT_REVISION=$SNAPSHOT_REVISION"
        echo "TEST_DEFINITIONS $TEST_DEFINITIONS"
