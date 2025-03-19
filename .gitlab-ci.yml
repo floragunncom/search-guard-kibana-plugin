@@ -51,6 +51,7 @@ stages:
   - build
   - package
   - "Frontend Int Tests"
+  - "Aikido Scan"
   - release
   - "Deploy Docker Images"  
 prepare_env:
@@ -288,3 +289,4 @@ deploy_docker_demo_image:
 include:
   - local: '.gitlab-ci-branch-specific.yml'
   - local: 'ci/frontend-int-tests.yml'
+  - local: 'ci/aikido.yml'  
