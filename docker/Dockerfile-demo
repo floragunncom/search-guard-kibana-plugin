@@ -1,0 +1,80 @@
+# syntax=docker/dockerfile:1
+
+# Use a lightweight base image with multiarch support
+FROM ubuntu:22.04
+
+# Install required dependencies
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y wget curl && \
+    rm -rf /var/lib/apt/lists/*
+
+ARG ELASTIC_VERSION
+
+# Set environment variables for Elasticsearch and Kibana
+ENV ES_JAVA_OPTS="-Xms512m -Xmx512m" \
+    discovery.type=single-node \
+    PATH="/usr/share/elasticsearch/bin:/usr/share/kibana/bin:$PATH"
+
+# Download and cache Elasticsearch
+ARG TARGETARCH
+RUN ARCH_SUFFIX="" && \
+    case "$TARGETARCH" in \
+        amd64) ARCH_SUFFIX="x86_64" ;; \
+        arm64) ARCH_SUFFIX="aarch64" ;; \
+        *) echo "Unsupported architecture: $TARGETARCH"; exit 1 ;; \
+    esac && \
+    echo "Architecture suffix is $ARCH_SUFFIX" && \
+    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ELASTIC_VERSION}-linux-${ARCH_SUFFIX}.tar.gz -O /tmp/elasticsearch.tar.gz
+
+# Download and cache Kibana
+ARG TARGETARCH
+RUN ARCH_SUFFIX="" && \
+    case "$TARGETARCH" in \
+        amd64) ARCH_SUFFIX="x86_64" ;; \
+        arm64) ARCH_SUFFIX="aarch64" ;; \
+        *) echo "Unsupported architecture: $TARGETARCH"; exit 1 ;; \
+    esac && \
+    echo "Architecture suffix is $ARCH_SUFFIX" && \
+    wget https://artifacts.elastic.co/downloads/kibana/kibana-${ELASTIC_VERSION}-linux-${ARCH_SUFFIX}.tar.gz -O /tmp/kibana.tar.gz 
+    
+RUN mkdir -p /usr/share/elasticsearch && rm -rf /usr/share/elasticsearch/* && \
+    tar -xzf /tmp/elasticsearch.tar.gz --strip-components=1 -C /usr/share/elasticsearch && \
+    rm -f /tmp/elasticsearch.tar.gz
+
+RUN mkdir -p /usr/share/kibana && rm -rf /usr/share/kibana/* && \
+    tar -xzf /tmp/kibana.tar.gz --strip-components=1 -C /usr/share/kibana && \
+    rm -f /tmp/kibana.tar.gz
+
+RUN useradd -ms /bin/bash esrunner
+
+# Search Guard plugin
+ARG SG_VERSION
+ENV SG_FULLVERSION=${SG_VERSION}-es-${ELASTIC_VERSION}
+COPY ../build_arm64_node.sh /tmp/
+ARG SG_URL=https://maven.search-guard.com/search-guard-flx-release/com/floragunn/search-guard-flx-kibana-plugin/${SG_FULLVERSION}/search-guard-flx-kibana-plugin-${SG_FULLVERSION}.zip
+RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install --batch https://maven.search-guard.com/search-guard-flx-release/com/floragunn/search-guard-flx-elasticsearch-plugin/${SG_FULLVERSION}/search-guard-flx-elasticsearch-plugin-${SG_FULLVERSION}.zip
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+      kibana-plugin install $SG_URL || { exit_code=$?; [ $exit_code -eq 255 ] && /tmp/build_arm64_node.sh $SG_URL $ELASTIC_VERSION || exit $exit_code; } ;\
+      else \
+      kibana-plugin install $SG_URL; \
+    fi
+
+RUN chmod +x /usr/share/elasticsearch/plugins/search-guard-flx/tools/install_demo_configuration.sh
+RUN /usr/share/elasticsearch/plugins/search-guard-flx/tools/install_demo_configuration.sh -y -c -i
+
+COPY kibana.yml /usr/share/kibana/config/kibana.yml
+
+RUN chown -R esrunner /usr/share/kibana
+RUN chown -R esrunner /usr/share/elasticsearch
+
+# Expose necessary ports
+EXPOSE 9200 5601
+
+# Copy startup script
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+USER esrunner
+
+# Set entrypoint
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
