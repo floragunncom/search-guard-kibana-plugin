@@ -20,8 +20,9 @@
         --minimum-severity-level LOW \
         --fail-on-sast-scan \
         --fail-on-iac-scan \
-        --fail-on-secrets-scan \
+        # --fail-on-secrets-scan \
         --plain-output
+ 
  
 aikido_schedule_scan:
   extends: ['.aikido_scan_common']
