@@ -27,5 +27,8 @@
   "devDependencies": {
     "core-js": "^3.39.0",
     "jest-junit": "^12.2.0"
+  },
+  "resolutions": {
+    "dompurify": "3.2.4"
   }
 }
