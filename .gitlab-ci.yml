@@ -73,8 +73,8 @@ prepare_env:
         export SF_VERSION=$(echo $RESULT | awk '{print $3}')
       else
 
-        export SG_SF_PLUGIN_VERSION="b-$CI_COMMIT_REF_NAME-SNAPSHOT"
-        export BUILD_VERSION="b-$CI_COMMIT_REF_NAME-SNAPSHOT"
+        export SG_SF_PLUGIN_VERSION="b-$CI_COMMIT_REF_SLUG-SNAPSHOT"
+        export BUILD_VERSION="b-$CI_COMMIT_REF_SLUG-SNAPSHOT"
         export SF_VERSION=$(grep -e '\bversion\b' $SF_JSON | tr -d "[:blank:]" | sed -E 's/"version":"(.*)"(.*)/\1/')
       fi
 

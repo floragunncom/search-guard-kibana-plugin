@@ -13,8 +13,8 @@ mvn --batch-mode -s settings.xml -Drevision="$BUILD_VERSION" $MVN_DEPLOY_OPTS cl
 #echo -e "\e[0Ksection_end:`date +%s`:deploy\r\e[0K"
 
 if [ -z "$IT_BRANCH" ]; then
-  if [ "$CI_COMMIT_REF_NAME" != "master" ] && [ -n $(git ls-remote --heads https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git $CI_COMMIT_REF_NAME) ]; then
-    IT_BRANCH="$CI_COMMIT_REF_NAME"
+  if [ "$CI_COMMIT_REF_SLUG" != "master" ] && [ -n $(git ls-remote --heads https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git $CI_COMMIT_REF_SLUG) ]; then
+    IT_BRANCH="$CI_COMMIT_REF_SLUG"
   else
     MAJOR=$(echo $SF_VERSION | cut -d. -f1-2)
     IT_BRANCH="$MAJOR.x"
