@@ -50,3 +50,7 @@ jspm_packages
 /pom.xml
 /.project
 *.iml
+
+
+#gitlab-ci-local
+.gitlab-ci-local/
