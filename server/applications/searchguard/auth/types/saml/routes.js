@@ -307,6 +307,7 @@ export function defineRoutes({
    */
   const logoutPath = `${APP_ROOT}/searchguard/saml/logout`;
   const logoutOptions = {
+    access: 'public',
     authRequired: false,
     xsrfRequired: false,
   };
