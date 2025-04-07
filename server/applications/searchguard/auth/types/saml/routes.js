@@ -46,6 +46,7 @@ export function defineRoutes({
       path: `${APP_ROOT}${routesPath}login`,
       validate: false,
       options: {
+        access: 'public',
         authRequired: false,
       },
     },
