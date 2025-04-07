@@ -149,6 +149,7 @@ export function defineRoutes({
     {
       path: `${APP_ROOT}/searchguard/saml/acs`,
       options: {
+        access: 'public',
         authRequired: false,
         xsrfRequired: false,
       },
@@ -241,6 +242,7 @@ export function defineRoutes({
     {
       path: `${APP_ROOT}/searchguard/saml/acs/idpinitiated`,
       options: {
+        access: 'public',
         authRequired: false,
         xsrfRequired: false,
       },
