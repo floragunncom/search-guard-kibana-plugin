@@ -1,4 +1,4 @@
 variables:
   IT_BRANCH: "remove-legacy"
-  SG_ES_PLUGIN: "remove-legacy2-SNAPSHOT"
+  SG_ES_PLUGIN: "signals-nimbus-jwt-SNAPSHOT"
  
