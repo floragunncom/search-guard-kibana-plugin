@@ -16,7 +16,7 @@
 
 import React, { useState } from 'react';
 import { EuiGlobalToastList } from '@elastic/eui';
-import { Modal } from '../../components';
+import { Modal } from '../../components/Modal/Modal';
 import {
   closeModalProvider,
   removeToastProvider,

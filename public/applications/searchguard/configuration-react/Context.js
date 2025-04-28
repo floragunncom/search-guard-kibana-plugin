@@ -16,7 +16,8 @@
 
 import React, { useState } from 'react';
 import { EuiGlobalToastList } from '@elastic/eui';
-import { Flyout, Modal } from './components';
+import { Flyout } from './components';
+import { Modal } from '../../components/Modal/Modal';
 import {
   closeFlyoutProvider,
   triggerFlyoutProvider,
