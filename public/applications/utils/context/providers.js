@@ -16,7 +16,7 @@
 import React from 'react';
 import { v4 as uuid } from 'uuid';
 import { differenceBy, get } from 'lodash';
-import { ErrorToast } from '../../components';
+import { ErrorToast } from '../../components/Toasts/ErrorToast';
 import { comboBoxOptionsToArray } from '../helpers';
 import { MODALS, CALLOUTS } from '../constants';
 

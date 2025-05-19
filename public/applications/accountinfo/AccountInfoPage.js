@@ -18,7 +18,7 @@ import React, { Component, Fragment } from 'react';
 import { API_ROOT } from '../../utils/constants';
 
 import { EuiPage, EuiPageBody, EuiPageSection, EuiText } from '@elastic/eui';
-import { LicenseWarningCallout } from '../components';
+import { LicenseWarningCallout } from '../components/LicenseWarningCallout/LicenseWarningCallout';
 
 import { MainContext } from './contexts/MainContextProvider';
 import {

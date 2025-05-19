@@ -24,7 +24,7 @@ const getModal = ({ type, payload }) => {
   return modal(payload);
 };
 
-const Modal = ({ modal, onClose } = {}) => {
+export const Modal = ({ modal, onClose } = {}) => {
   if (!modal) return null;
 
   if (modal.payload) {
