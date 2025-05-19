@@ -14,8 +14,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, {useState, useEffect} from 'react';
 import {
   EuiPanel,
   EuiText,
@@ -27,14 +26,38 @@ import {
   EuiErrorBoundary,
 } from '@elastic/eui';
 import { messageTypes } from './errorMessageTypes';
+import {API_ROOT} from "../../../utils/constants";
+import {stringCSSToReactStyle} from "../../../utils/cssHelper";
 
 export function CustomErrorPage({
   basePath = '',
-  brandImagePath = '',
-  showBrandImage = false,
-  backButtonStyle = {},
+  httpClient
 }) {
   const buttonHref = basePath + '/app/kibana';
+  const [pageConfig, setPageConfig] = useState({
+    brandImagePath: '',
+    showBrandImage: false,
+    backButtonStyle: {}
+  });
+
+  useEffect(() => {
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function fetchData() {
+    try {
+      const {data} = await httpClient.get(`${API_ROOT}/auth/config`);
+      const config = data.loginPage;
+      setPageConfig({
+        showBrandImage: config.show_brand_image || false,
+        brandImagePath: config.brand_image || "",
+        backButtonStyle: config.button_style ? stringCSSToReactStyle(config.button_style) : stringCSSToReactStyle("")
+      });
+    } catch (error) {
+      console.error('CustomErrorPage, fetchData', error);
+    }
+  }
 
   // If session was not terminated by logout, clear any remaining
   // stored paths etc. from previous users, to avoid issues
@@ -65,19 +88,19 @@ export function CustomErrorPage({
   return (
     <EuiErrorBoundary>
       <EuiSpacer size="xxl" />
-      <EuiFlexGroup justifyContent="spaceAround">
+      <EuiFlexGroup justifyContent="spaceAround" alignItems={"center"}>
         <EuiFlexItem grow={false}>
           <EuiPanel>
             <div style={{ margin: 'auto', maxWidth: '300px' }}>
-              {showBrandImage && (
+              {pageConfig.showBrandImage && pageConfig.brandImagePath && (
                 <EuiImage
                   data-test-subj="sg.customError.brandImage"
                   alt="Brand image"
                   size="l"
                   url={
-                    brandImagePath.startsWith('/plugins')
-                      ? basePath + brandImagePath
-                      : brandImagePath
+                    pageConfig.brandImagePath.startsWith('/plugins')
+                      ? basePath + pageConfig.brandImagePath
+                      : pageConfig.brandImagePath
                   }
                 />
               )}
@@ -85,9 +108,11 @@ export function CustomErrorPage({
             <EuiText textAlign="center" data-test-subj="sg.customError.title">
               <h2>{title}</h2>
             </EuiText>
+            <EuiSpacer size="xxl" />
             <EuiText textAlign="center" data-test-subj="sg.customError.subTitle">
               <p>{subTitle}</p>
             </EuiText>
+            <EuiSpacer size="xxl" />
             <EuiFlexGroup justifyContent="spaceAround">
               <EuiFlexItem>
                 <EuiButton
@@ -95,7 +120,7 @@ export function CustomErrorPage({
                   href={buttonHref}
                   data-test-subj="sg.customError.btn"
                   id="sg.custom.home"
-                  style={backButtonStyle}
+                  style={pageConfig.backButtonStyle}
                 >
                   Back to Kibana Home
                 </EuiButton>
@@ -108,8 +133,3 @@ export function CustomErrorPage({
   );
 }
 
-CustomErrorPage.propTypes = {
-  brandImagePath: PropTypes.string.isRequired,
-  showBrandImage: PropTypes.bool.isRequired,
-  backButtonStyle: PropTypes.object.isRequired,
-};

@@ -5,7 +5,7 @@ export class CustomErrorApp {
     this.coreContext = coreContext;
   }
 
-  mount({ core, configService }) {
+  mount({ core, configService, httpClient }) {
     return async (params) => {
       const [{ renderApp }] = await Promise.all([import('./npstart'), configService.fetchConfig()]);
 
@@ -13,11 +13,13 @@ export class CustomErrorApp {
         element: params.element,
         basePath: core.http.basePath.get(),
         config: configService.getConfig(),
+        httpClient,
+        theme$: params.theme$
       });
     };
   }
 
-  setupSync({ core, configService }) {
+  setupSync({ core, configService, httpClient }) {
     core.http.anonymousPaths.register('/customerror');
 
     core.application.register({
@@ -25,7 +27,7 @@ export class CustomErrorApp {
       title: 'SearchGuard Custom Error',
       chromeless: true,
       appRoute: '/customerror',
-      mount: this.mount({ core, configService }),
+      mount: this.mount({ core, configService, httpClient}),
     });
   }
 }

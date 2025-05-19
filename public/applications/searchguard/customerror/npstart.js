@@ -1,19 +1,19 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import React from 'react';
 import ReactDOM from 'react-dom';
-
+import { KibanaThemeProvider } from '@kbn/react-kibana-context-theme';
 import { CustomErrorPage } from './CustomErrorPage';
 
 import { stringCSSToReactStyle } from '../../../utils/cssHelper';
 
-export function renderApp({ element, basePath, config }) {
+export function renderApp({ element, basePath, config, httpClient, theme$ }) {
   ReactDOM.render(
-    <CustomErrorPage
-      basePath={basePath}
-      brandImagePath={config.searchguard.login.brandimage}
-      showBrandImage={config.searchguard.login.showbrandimage}
-      backButtonStyle={stringCSSToReactStyle(config.searchguard.login.buttonstyle)}
-    />,
+    <KibanaThemeProvider theme={{theme$}}>
+      <CustomErrorPage
+        basePath={basePath}
+        httpClient={httpClient}
+      />
+    </KibanaThemeProvider>,
     element
   );
 
