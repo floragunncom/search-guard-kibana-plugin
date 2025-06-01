@@ -388,14 +388,18 @@ class Watches extends Component {
     return (
       <div style={{ overflow: 'hidden', width: '100%' }}>
         {actions.map((action, key) => {
+          
+          const actionFromState = get(watch, `_ui.state.actions[${action.name}]`, false);
+          // TODO Maybe update these to use the local actionFromState variable
           const wasAcked = get(watch, `_ui.state.actions[${action.name}].acked`, false);
           const ackedBy = get(watch, `_ui.state.actions[${action.name}].acked.by`, 'admin');
           const ackedOn = get(watch, `_ui.state.actions[${action.name}].acked.on`);
+          // We may not have a state if the watch was just created
+          const lastCheckResult = (actionFromState) ? actionFromState.last_check_result : false;
 
           // The action here is from the watch endpoint, not from state
           const ackEnabled = action.ack_enabled !== false;
-          const actionCanBeAcked = ackEnabled && !wasAcked;
-
+          const actionCanBeAcked = ackEnabled && !wasAcked && lastCheckResult !== false;
           const statusCode = get(watch, `_ui.state.actions[${action.name}].last_status.code`);
           const { nodeText, ...statusIconProps } = actionAndWatchStatusToIconProps(statusCode);
 
@@ -427,7 +431,7 @@ class Watches extends Component {
             acknowledgeText
           );
           // Change the default link tooltip for ack_enabled: false
-          if (!ackEnabled) {
+          if (!ackEnabled || lastCheckResult === false) {
             ackLinkTooltip = 'Action not acknowledgeable';
           }
 
