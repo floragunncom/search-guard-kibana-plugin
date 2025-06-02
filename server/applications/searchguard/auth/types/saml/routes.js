@@ -46,6 +46,7 @@ export function defineRoutes({
       path: `${APP_ROOT}${routesPath}login`,
       validate: false,
       options: {
+        access: 'public',
         authRequired: false,
       },
     },
@@ -148,6 +149,7 @@ export function defineRoutes({
     {
       path: `${APP_ROOT}/searchguard/saml/acs`,
       options: {
+        access: 'public',
         authRequired: false,
         xsrfRequired: false,
       },
@@ -240,6 +242,7 @@ export function defineRoutes({
     {
       path: `${APP_ROOT}/searchguard/saml/acs/idpinitiated`,
       options: {
+        access: 'public',
         authRequired: false,
         xsrfRequired: false,
       },
@@ -304,6 +307,7 @@ export function defineRoutes({
    */
   const logoutPath = `${APP_ROOT}/searchguard/saml/logout`;
   const logoutOptions = {
+    access: 'public',
     authRequired: false,
     xsrfRequired: false,
   };
