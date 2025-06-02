@@ -47,6 +47,7 @@ export function defineRoutes({
       ),
     },
     options: {
+      access: 'public',
       authRequired: false,
     },
   };
