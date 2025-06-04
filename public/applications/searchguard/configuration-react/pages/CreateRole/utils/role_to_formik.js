@@ -39,6 +39,11 @@ export function actionGroupsToUiClusterIndexTenantActionGroups(actionGroups = {}
     switch (actionGroupName) {
       case 'SGS_SIGNALS_ACCOUNT_READ':
       case 'SGS_SIGNALS_ACCOUNT_MANAGE':
+      case 'SGS_SIGNALS_SIGNALS_ALL':
+      case 'SGS_SIGNALS_PROXY_CONFIG_READ':
+      case 'SGS_SIGNALS_PROXY_CONFIG_WRITE':
+      case 'SGS_SIGNALS_TRUSTSTORE_CONFIG_READ':
+      case 'SGS_SIGNALS_TRUSTSTORE_CONFIG_WRITE':
         allClusterActionGroups.push({ label: actionGroupName });
         break;
       case 'SGS_SIGNALS_WATCH_READ':
