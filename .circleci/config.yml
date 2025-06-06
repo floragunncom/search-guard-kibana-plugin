@@ -7,7 +7,7 @@ jobs:
   build:
     working_directory: ~/search-guard-kibana-plugin
     docker:
-      - image: circleci/openjdk:8-jdk-browsers
+      - image: floragunncom/ci-build-noble-mvn38-java21:0.1.0
     steps:
       - checkout
       - run:
