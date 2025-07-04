@@ -55,6 +55,8 @@ export const lastExecutionText = (<EuiI18n token="sg.watch.lastExecution.text" d
 export const executedText = (<EuiI18n token="sg.watch.executed.text" default="Executed" />);
 export const acknowledgeText = (<EuiI18n token="sg.watch.acknowledge.text" default="Acknowledge" />);
 export const acknowledgeActionText = (<EuiI18n token="sg.watch.acknowledgeAction.text" default="Acknowledge action" />);
+export const acknowledgedActionText = (<EuiI18n token="sg.watch.acknowledgeAction.text" default="Acknowledged action" />);
+export const unAcknowledgedActionText = (<EuiI18n token="sg.watch.acknowledgeAction.text" default="Un-acknowledged action" />);
 export const acknowledgedText = (<EuiI18n token="sg.watch.acknowledged.text" default="Acknowledged" />);
 export const noActionsText = (<EuiI18n token="sg.watch.noActions.text" default="No actions" />);
 export const checkExamplesText = (<EuiI18n token="sg.watch.checkExamples.text" default="Check Examples" />);

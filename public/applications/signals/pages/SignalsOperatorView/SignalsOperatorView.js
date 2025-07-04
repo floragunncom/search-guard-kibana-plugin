@@ -1,5 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import {
   EuiBadge,
   EuiButton,
@@ -10,10 +10,16 @@ import {
   EuiText,
   EuiTitle,
   EuiIcon,
+  EuiToken,
   EuiLink,
   EuiToolTip,
   EuiInMemoryTable,
   EuiI18n,
+  EuiAutoRefresh,
+  EuiInputPopover,
+  EuiSuperSelect,
+  EuiSelectable,
+  EuiSwitch,
 } from '@elastic/eui';
 
 import {
@@ -21,16 +27,11 @@ import {
   acknowledgeText,
   acknowledgedText,
   acknowledgeActionText,
-  lastStatusText,
+  lastStatusText, acknowledgedActionText, unAcknowledgedActionText,
 } from '../../utils/i18n/watch';
 
-import {
-  confirmText,
-  onText,
-  byText,
-} from '../../utils/i18n/common';
 
-import { APP_PATH, FLYOUTS, WATCH_ACTION_STATUS, WATCH_STATUS } from '../../utils/constants';
+import { WATCH_ACTION_STATUS, WATCH_STATUS } from '../../utils/constants';
 import { get } from 'lodash';
 
 import { LEFT_ALIGNMENT } from '@elastic/eui/lib/services';
@@ -41,13 +42,6 @@ import {
 } from '../../components';
 
 
-import { buildESQuery } from '../Watches/utils/helpers';
-import {
-  watchToFormik,
-  dateFormat,
-  actionAndWatchStatusToIconProps,
-} from '../Watches/utils';
-
 import { TABLE_SORT_DIRECTION } from '../Watches/utils/constants';
 
 import { WatchService } from '../../services';
@@ -55,23 +49,73 @@ import { WatchService } from '../../services';
 import { Context } from '../../Context';
 import { actionStatusToIconProps, getSeverity, watchStatusToIconProps } from './utils/helpers';
 
-const initialQuery = EuiSearchBar.Query.MATCH_ALL;
+/**
+ * @typedef {Object} WatchAction
+ * @property {string|null} triggered - Timestamp when the action was triggered
+ * @property {string|null} checked - Timestamp when the action was checked
+ * @property {boolean} check_result - Result of the action check
+ * @property {string|null} execution - Execution details
+ * @property {string|null} error - Timestamp of error occurrence
+ * @property {string|null} status_code - Status code of the action
+ * @property {string|null} status_details - Details of the action status
+ */
 
+/**
+ * @typedef {Object} Watch - TODO This is the watch from the summary response
+ * @property {string} watch_id - Unique identifier for the watch
+ * @property {string|null} status_code - Status code of the watch
+ * @property {string|null} severity - Severity level of the watch
+ * @property {string|null} description - Description of the watch or its error
+ * @property {string|null} severity_details - Additional details about the severity
+ * @property {Object.<string, WatchAction>} actions - Map of action names to their statuses
+ * @property {string} tenant - Tenant identifier
+ */
+
+/**
+ * @typedef {Object} WatchesResponse
+ * @property {boolean} ok - Indicates if the request was successful
+ * @property {Object} resp - Response body
+ * @property {number} resp.status - HTTP status code
+ * @property {Object} resp.data - Response data
+ * @property {Array<Watch>} resp.data.watches - List of watches
+ */
+
+/**
+ * @typedef {Object} SignalsOperatorViewState
+ * @property {Array<Watch>} watches - List of watches from the API
+ * @property {boolean} isLoading - Indicates if data is being loaded
+ * @property {Error|null} error - Error object if request failed
+ * @property {Array<Watch>} tableSelection - Currently selected watches in the table
+ * @property {Object} query - Current search query
+ * @property {Object} pagination - Pagination state
+ * @property {Object} sorting - Sorting state
+ */
+
+
+const initialQuery = '';
+
+/**
+ This simplifies the name for the query parameters a bit, matching shorter values to the actual field name.
+ * @type {{status_code: string, watch_id: string}}
+ */
 const sortFieldToUIMapping = {
-  '_ui.state.last_status.code': 'status',
-  _id: 'id',
+  'watch_id': 'id'
 };
 
 // EuiMemoryTable relies on referential equality of a column's name.
 // On paginate it passes Eui18N instance.
+/*
 const sortFieldFromEuiI18nMapping = {
   'sg.watch.lastStatus.text': 'status',
 };
+
+ */
 
 const sortFieldFromUIMapping = Object.keys(sortFieldToUIMapping).reduce((acc, field) => {
   acc[sortFieldToUIMapping[field]] = field;
   return acc;
 }, {});
+
 
 class SignalsOperatorView extends Component {
   static contextType = Context;
@@ -79,27 +123,45 @@ class SignalsOperatorView extends Component {
     super(props, context);
 
     const tableState = this.getTableFilters();
+    this.syncFiltersWithURL(tableState);
 
+    /**
+     * @type {SignalsOperatorViewState}
+     */
     this.state = {
       error: null,
       isLoading: true,
       watches: [],
       tableSelection: [],
-
+      autoRefresh: {
+        isPaused: false,
+        refreshInterval: 10000,
+        intervalUnit: 's',
+      },
       query: tableState.query,
       pagination: tableState.page,
       sorting: tableState.sort,
     };
 
+
     this.watchService = new WatchService(context.httpClient);
+
+    this.pageSizeOptions = [10, 20, 50, 100];
+
+    this.autoRefreshInterval = null;
   }
 
   componentDidMount() {
     this.getWatches();
+    this.setupAutoRefresh();
+
   }
 
   componentWillUnmount() {
     this.context.closeFlyout();
+    // Clear the auto-refresh interval
+    this.clearAutoRefreshInterval();
+
   }
 
   componentDidUpdate(_, prevState) {
@@ -116,12 +178,27 @@ class SignalsOperatorView extends Component {
     this.setState({ isLoading: true, error: null });
 
     try {
-      const esQuery = buildESQuery(EuiSearchBar.Query.toESQuery(query));
-      console.debug('Watches -- getWatches -- esQuery', esQuery);
+      console.debug('Watches -- getWatches -- query', query);
 
-      const { resp: watches } = await this.watchService.search(esQuery);
+      const filterQuery = {
+        sorting: 'severity_details.level_numeric',
+      };
+
+      if (query) {
+        filterQuery.watch_id = query;
+      }
+
+      /*
+      if (this.state.onlyWithSeverity) {
+        filterQuery.severities = ["critical", "error", "warning", "info"];
+      }
+      */
+
+      const { resp } = await this.watchService.summary(filterQuery);
+      const watches = resp.data.watches;
+      console.debug('Watches -- getWatches', watches);
       this.setState({ watches, error: null });
-      await this.fetchWatchesState();
+      //await this.fetchWatchesState();
       console.debug('Watches -- getWatches', watches);
     } catch (error) {
       console.error('Watches -- getWatches', error);
@@ -134,35 +211,7 @@ class SignalsOperatorView extends Component {
   };
 
 
-  fetchWatchesState = async () => {
-    const { watches } = this.state;
-    const promises = [];
 
-    try {
-      watches.forEach((watch, i) => {
-        const promise = this.watchService
-          .summary(watch._tenant)
-          .then(({ resp: state = {} } = {}) => {
-            watches[i] = watchToFormik(watch, state.data);
-          })
-          .catch((error) => {
-            console.error('Watches -- fetchWatchesState', watch._id, error);
-            // Default to empty state
-            watches[i] = watchToFormik(watch);
-          });
-
-        promises.push(promise);
-      });
-
-      await Promise.all(promises);
-      this.setState({ watches, error: null });
-      console.debug('Watches -- fetchWatchesState', watches);
-    } catch (error) {
-      console.error('Watches -- fetchWatchesState', error);
-      this.setState({ error });
-      this.context.addErrorToast(error);
-    }
-  };
 
   /**
    * Get table filters
@@ -180,7 +229,7 @@ class SignalsOperatorView extends Component {
         urlParamsData[key] = decodeURIComponent(value);
       }
     }
-
+console.log('Initial query', initialQuery);
     const defaultFilters = {
       query: initialQuery,
       sort: {
@@ -189,12 +238,12 @@ class SignalsOperatorView extends Component {
       },
       page: {
         index: 0,
-        size: 10,
+        size: 100,
       },
     };
 
     // Merge with whatever is stored in the context
-    const contextFilters = this.context.watchesFilters;
+    const contextFilters = this.context.operatorViewWatchesFilters;
     const withContextFilters = {
       ...defaultFilters,
       ...contextFilters,
@@ -212,7 +261,7 @@ class SignalsOperatorView extends Component {
     const filters = {
       query:
         urlParamsData.query !== undefined
-          ? EuiSearchBar.Query.parse(urlParamsData.query)
+          ? urlParamsData.query
           : withContextFilters.query,
       sort: {
         field:
@@ -240,19 +289,50 @@ class SignalsOperatorView extends Component {
     return filters;
   }
 
+  setupAutoRefresh = () => {
+    // Clear any existing interval first
+    this.clearAutoRefreshInterval();
+
+    const { autoRefresh } = this.state;
+
+    // Don't set up interval if auto-refresh is paused
+    if (autoRefresh.isPaused) {
+      return;
+    }
+
+console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshInterval));
+    // Set up new interval with the converted time
+    // Let's keep the interval at least 5 seconds
+    this.autoRefreshInterval = setInterval(() => {
+      this.getWatches();
+    }, Math.max(5000, autoRefresh.refreshInterval));
+  }
+
+  clearAutoRefreshInterval = () => {
+    if (this.autoRefreshInterval) {
+      clearInterval(this.autoRefreshInterval);
+      this.autoRefreshInterval = null;
+    }
+  }
+
+
+
   renderLastStatusWithSeverityColumn = (field, watch) => {
-    const lastWatchStatus = get(watch, '_ui.state.last_status.code');
+    //const lastWatchStatus = get(watch, '_ui.state.last_status.code');
+    const lastWatchStatus = get(watch, 'status_code');
     const severityLevel = getSeverity(watch);
-    
-    let actionsToAcknowledge = watch.actions.filter((action) => {
-      const wasAcked = get(watch, `_ui.state.actions[${action.name}].acked`, false);
+
+    let actionsToAcknowledge = Object.keys(watch.actions).filter((actionName) => {
+      const action = watch.actions[actionName];
+      const wasAcked = action.status_code === 'ACKED';
       const ackEnabled = !action.ack_enabled;
-      const actionCanBeAcked = ackEnabled && !wasAcked;
+      const actionCanBeAcked = ackEnabled && !wasAcked && action.check_result !== false;
 
       return actionCanBeAcked;
     });
 
-    const { type: iconType, nodeText, ...badgeProps } = watchStatusToIconProps(lastWatchStatus, watch.active, severityLevel, this.handleAck.bind(this, [watch._id], actionsToAcknowledge[0]?.name));
+    const { type: iconType, nodeText, ...badgeProps }
+      = watchStatusToIconProps(lastWatchStatus, watch.active, severityLevel, this.handleAck.bind(this, [watch.watch_id], actionsToAcknowledge[0]?.name));
 
     return (
       <EuiToolTip content={nodeText}>
@@ -264,14 +344,16 @@ class SignalsOperatorView extends Component {
   }
 
   renderActionsColumn = (actions = [], watch) => {
-    const lastWatchStatus = get(watch, '_ui.state.last_status.code');
+    //const lastWatchStatus = get(watch, '_ui.state.last_status.code');
+    const lastWatchStatus = watch.status_code;
     const severityLevel = getSeverity(watch);
+    const actionsLength = Object.values(watch.actions).length;
     if (
-      !actions.length || 
-      !watch.active ||
+      !actionsLength ||
+      //!watch.active ||
       lastWatchStatus == WATCH_STATUS.EXECUTION_FAILED
       ) {
-      //Failed and disabled watches do not have their actions displayed. 
+      //Failed and disabled watches do not have their actions displayed.
       return (
         <div style={{ overflow: 'hidden' }}>
           <EuiFlexGroup>
@@ -282,16 +364,15 @@ class SignalsOperatorView extends Component {
 
     return (
       <div style={{ overflow: 'hidden', width: '100%' }}>
-        {actions.map((action, key) => {
-          const wasAcked = get(watch, `_ui.state.actions[${action.name}].acked`, false);
 
-          const ackedBy = get(watch, `_ui.state.actions[${action.name}].acked.by`, 'admin');
-          const ackedOn = get(watch, `_ui.state.actions[${action.name}].acked.on`);
+        {Object.keys(actions).map((actionName, key) => {
+          const action = actions[actionName];
+          const wasAcked = action.status_code === 'ACKED';
 
           const ackEnabled = action.ack_enabled !== false;
-          const actionCanBeAcked = ackEnabled && !wasAcked;
+          const actionCanBeAcked = ackEnabled && !wasAcked && action.check_result !== false;
 
-          const actionStatus = get(watch, `_ui.state.actions[${action.name}].last_status.code`);
+          const actionStatus = action.status_code;
           const { nodeText, ...statusIconProps } = actionStatusToIconProps(actionStatus, lastWatchStatus, severityLevel);
 
           let iconProps = statusIconProps;
@@ -316,7 +397,7 @@ class SignalsOperatorView extends Component {
           // The tooltip for the action name
           let ackLinkTooltip = wasAcked ? (
             <EuiText size="s">
-              {acknowledgedText} {byText} {ackedBy} {onText} {dateFormat(ackedOn)}
+              ""
             </EuiText>
           ) : (
             acknowledgeText
@@ -340,41 +421,53 @@ class SignalsOperatorView extends Component {
                 textOverflow: 'ellipsis',
                 width: '100%',
               }}
-              onClick={() => this.handleAck([watch._id], action.name)}
-              data-test-subj={`sgTableCol-Actions-ackbtn-${watch._id}-${action.name}`}
+              onClick={() => this.handleAck([watch.watch_id], actionName)}
+              data-test-subj={`sgTableCol-Actions-ackbtn-${watch.watch_id}-${actionName}`}
             >
-              Ack {action.name}
+              {actionName}
             </EuiLink>
           );
 
           return (
             <div key={key}>
-              <EuiFlexGroup style={{ flexWrap: 'nowrap' }}>
+              <EuiFlexGroup alignItems={"center"} style={{ flexWrap: 'nowrap', paddingTop: actionsLength > 1 ? '2px' : 'inherit', paddingBottom: actionsLength > 1 ? '2px' : 'inherit' }}>
                 <EuiFlexItem grow={false} style={{ maxWidth: '35px' }}>
-                <EuiToolTip content={actionIconTooltip}>
-                    <EuiIcon
-                      data-test-subj={`sgTableCol-Actions-icon-${watch._id}-${action.name}`}
-                      {...iconProps}
-                    />
+                  <EuiToolTip content={actionIconTooltip}>
+                    <EuiToken
+                      className="eui-alignMiddle"
+                      iconType={iconProps.type}
+                      fill={"dark"}
+                      size={"m"}
+                      shape={"square"}
+                      style={{
+                        color: iconProps.color,
+                        backgroundColor: iconProps.backgroundColor,
+                        cursor: actionCanBeAcked || wasAcked ? 'pointer' : 'default',
+                      }}
+                      onClick={() => {
+                        if (wasAcked) {
+                          this.handleUnAck([watch.watch_id], actionName);
+                        } else if (actionCanBeAcked) {
+                          this.handleAck([watch.watch_id], actionName);
+                        }
+                      }}
+                      data-test-subj={`sgTableCol-Actions-ackbtn-${watch.watch_id}-${actionName}`}
+                    ></EuiToken>
                   </EuiToolTip>
                 </EuiFlexItem>
                 <EuiFlexItem style={{ overflow: 'hidden' }}>
-                  {actionCanBeAcked ? (
-                    <div>{ackLink}</div>
-                  ) : (
-                    <EuiToolTip content={ackLinkTooltip}>
-                      <div
-                        style={{
-                          overflow: 'hidden',
-                          whiteSpace: 'nowrap',
-                          textOverflow: 'ellipsis',
-                          width: '100%',
-                        }}
-                      >
-                        {action.name}
-                      </div>
-                    </EuiToolTip>
-                  )}
+                  <EuiToolTip content={ackLinkTooltip}>
+                    <div
+                      style={{
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                        textOverflow: 'ellipsis',
+                        width: '100%',
+                      }}
+                    >
+                      {actionName}
+                    </div>
+                  </EuiToolTip>
                 </EuiFlexItem>
               </EuiFlexGroup>
             </div>
@@ -406,7 +499,7 @@ class SignalsOperatorView extends Component {
             </EuiText>
           ) : (
             <EuiText>
-              {acknowledgeActionText} {actionId}
+              {acknowledgedActionText} {actionId}
             </EuiText>
           );
           this.context.addSuccessToast(successMsg);
@@ -420,23 +513,41 @@ class SignalsOperatorView extends Component {
       this.getWatches();
     };
 
-    triggerConfirmModal({
-      title: (
-        <EuiTitle>
-          <h2>
-            {confirmText} {acknowledgeText}
-          </h2>
-        </EuiTitle>
-      ),
-      body: watchIds.join(', '),
-      onConfirm: () => {
-        triggerConfirmModal(null);
-        doAck();
-      },
-      onCancel: () => {
-        triggerConfirmModal(null);
-      },
-    });
+    doAck();
+  };
+
+  handleUnAck = async(watchIds = [], actionId) => {
+    this.setState({ isLoading: true });
+
+    try {
+      const promises = [];
+      watchIds.forEach((id) => {
+        promises.push(this.watchService.unAck(id, actionId));
+      });
+
+      await Promise.all(promises);
+
+      // TODO/Maybe Unacking a watch is not really implemented
+      watchIds.forEach((id) => {
+        const successMsg = !actionId ? (
+          <EuiText>
+            {acknowledgedText} watch {id}
+          </EuiText>
+        ) : (
+          <EuiText>
+            {unAcknowledgedActionText} {actionId}
+          </EuiText>
+        );
+        this.context.addSuccessToast(successMsg);
+      });
+    } catch (error) {
+      console.error('Watches -- unacknowledge action', error);
+      this.context.addErrorToast(error);
+    }
+
+    this.setState({ isLoading: false });
+    this.getWatches();
+
   };
 
   renderSearchBarToolsLeft = () => {
@@ -489,7 +600,7 @@ class SignalsOperatorView extends Component {
     const filters = watchesFilters || this.getTableFilters();
 
     const params = {
-      query: filters.query.text || '',
+      query: filters.query || '',
       pageIndex: filters.page.index,
       pageSize: filters.page.size,
       sortField: filters.sort.field,
@@ -520,17 +631,17 @@ class SignalsOperatorView extends Component {
 
     // Now update the context
     const newContextFilters = this.getTableFilters();
-    this.context.setWatchesFilters(newContextFilters);
+    this.context.setOperatorViewWatchesFilters(newContextFilters);
   }
 
   handleSearchChange = ({ query, error }) => {
     if (error) {
       this.setState({ error });
     } else {
-      const newQuery = query.text ? query : initialQuery;
+      const newQuery = query.text ? query.text : initialQuery;
 
       this.updateTableFilters({
-        query: newQuery.text,
+        query: newQuery,
       });
 
       this.setState({
@@ -546,14 +657,21 @@ class SignalsOperatorView extends Component {
 
     const columns = [
       {
-        field: '_ui.state.last_status.code',
-        name: lastStatusText,
-        footer: lastStatusText,
-        sortable: true,
+        field: 'status_code',
+        name: 'Status',
+        footer: 'Status',
+        /*
+        sortable: (watch) => {
+          const watchProps = watchStatusToIconProps(watch.status_code, watch.active, getSeverity(watch), () => {});
+          const comparatorString = typeof watchProps.nodeText === 'string' ? watchProps.nodeText : watchProps.nodeText.props.default;
+          console.log('comparatorString', comparatorString.toLowerCase());
+          return comparatorString.toLowerCase();
+        },
+         */
         render: this.renderLastStatusWithSeverityColumn,
       },
       {
-        field: '_id',
+        field: 'watch_id',
         name: 'Name',
         footer: 'Name',
         alignment: LEFT_ALIGNMENT,
@@ -577,7 +695,7 @@ class SignalsOperatorView extends Component {
 
 
     const selection = {
-      selectable: (doc) => doc._id,
+      selectable: (doc) => doc.watch_id,
       onSelectionChange: (tableSelection) => {
         this.setState({ tableSelection });
       },
@@ -592,9 +710,25 @@ class SignalsOperatorView extends Component {
       },
     };
 
+
+
     return (<ContentPanel
-      title="Signals Operator View"
       actions={[
+        <EuiAutoRefresh
+         isPaused={this.state.autoRefresh.isPaused}
+         minInterval={5000}
+          refreshInterval={this.state.autoRefresh.refreshInterval}
+          onRefreshChange={(refreshSettings) => {
+            this.setState({
+              autoRefresh: refreshSettings
+            }, () => {
+              // When settings change, reconfigure the auto-refresh interval
+              this.setupAutoRefresh();
+            });
+
+          }}
+          data-test-subj="refreshButton"
+        ></EuiAutoRefresh>,
         <EuiButton
           iconType="refresh"
           onClick={() => {
@@ -615,7 +749,7 @@ class SignalsOperatorView extends Component {
             hasActions
             error={get(error, 'message')}
             items={watches}
-            itemId="_id"
+            itemId="watch_id"
             columns={columns}
             selection={selection}
             sorting={sorting}
@@ -632,10 +766,12 @@ class SignalsOperatorView extends Component {
               }
 
               if (criteria.sort.field !== this.state.sorting.field) {
+                /*
                 if (criteria.sort.field?.type === EuiI18n) {
                   criteria.sort.field = sortFieldFromEuiI18nMapping[criteria.sort.field.props.token]
                 }
-                
+                 */
+
                 // We may need to map the reported field name to a more user friendly value
                 criteria.sort.field =
                   sortFieldToUIMapping[criteria.sort.field] || criteria.sort.field;
@@ -656,7 +792,8 @@ class SignalsOperatorView extends Component {
             isSelectable
             pagination={{
               pageIndex: this.state.pagination.index,
-              pageSize: this.state.pagination.size,
+              pageSize: this.pageSizeOptions.indexOf(this.state.pagination.size) > -1 ? this.state.pagination.size : this.pageSizeOptions[0],
+              pageSizeOptions: this.pageSizeOptions,
             }}
           />
         </EuiFlexItem>
