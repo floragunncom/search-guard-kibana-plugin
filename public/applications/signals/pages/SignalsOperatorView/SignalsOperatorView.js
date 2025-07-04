@@ -173,6 +173,15 @@ class SignalsOperatorView extends Component {
     }
   }
 
+  getPageSize = (defaultPageSize = 100) => {
+    const { pagination } = this.state;
+    if (this.pageSizeOptions.includes(pagination.size)) {
+      return pagination.size;
+    } else {
+      return defaultPageSize;
+    }
+  }
+
   getWatches = async () => {
     const { query } = this.state;
     this.setState({ isLoading: true, error: null });
@@ -182,6 +191,7 @@ class SignalsOperatorView extends Component {
 
       const filterQuery = {
         sorting: 'severity_details.level_numeric',
+        size: this.getPageSize(100),
       };
 
       if (query) {
