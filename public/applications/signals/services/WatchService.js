@@ -41,11 +41,20 @@ export default class WatchService extends SignalsService {
     return super.put(url);
   }
 
+  unAck(watchId, actionId) {
+    let url = `..${ROUTE_PATH.WATCH}/${encodeURIComponent(watchId)}/_ack`;
+    if (actionId) {
+      url += `/${actionId}`;
+    }
+
+    return super.delete(url);
+  }
+
   state(id) {
     return super.get(`..${ROUTE_PATH.WATCH}/${encodeURIComponent(id)}/_state`);
   }
 
-  summary(tenantId) {
-    return super.get(`..${ROUTE_PATH.WATCH}/${encodeURIComponent(tenantId)}/summary`);
+  summary(query = {}) {
+    return super.post(`..${ROUTE_PATH.WATCH}/summary`, { query });
   }
 }
