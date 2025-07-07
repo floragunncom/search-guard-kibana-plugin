@@ -63,10 +63,23 @@ export function summary({ clusterClient, logger }) {
         headers: { sgtenant = NO_MULTITENANCY_TENANT },
       } = request;
 
-      const path = `/_signals/watch/${encodeURIComponent(sgtenant)}/summary`;
-      console.log('So what path am I calling?', path)
-
+      /**
+       * Filters passed as part of the request body
+       *
+       * @type {Object}
+       */
       let body = {};
+
+      /**
+       * Filters passed as url search params
+       * Not using URLSearchParams because its toString method encodes + to %2B.
+       *
+       * @type {Object}
+       */
+      let searchParams = {
+        //sorting: "-severity_details.level_numeric"
+      };
+
       /*
         body: {
           sorting: "-severity_details.level_numeric"
@@ -76,9 +89,32 @@ export function summary({ clusterClient, logger }) {
         },
          */
       if (query && typeof query === 'object' && !!Object.keys(query).length) {
-        body = query;
+        const allowedBodyParams = ['watch_id', 'size']; // 'severities'
+        const allowedSearchParams = ['sorting'];
+        Object.keys(query).forEach(key => {
+          const property = key.toLowerCase();
+          if (allowedBodyParams.includes(property)) {
+            body[property] = query[property];
+          } else if (allowedSearchParams.includes(property)) {
+            searchParams[property] = query[property];
+          }
+        })
       }
-console.log('So what body am I calling?', body)
+
+      let searchParamsString = '';
+      if (Object.keys(searchParams).length > 0) {
+        searchParamsString = `?`;
+        Object.keys(searchParams).forEach(key => {
+          searchParamsString += `${key}=${searchParams[key]}&`;
+        });
+        searchParamsString = searchParamsString.slice(0, -1);
+      }
+
+      const path = `/_signals/watch/${encodeURIComponent(sgtenant)}/summary${searchParamsString}`;
+      console.log('So what path am I calling now then?', path, searchParamsString, searchParams, 'size', searchParams.size)
+
+
+      console.log('So what body am I calling?', body, searchParamsString)
       const callRequest = {
         method: 'post',
         path,
