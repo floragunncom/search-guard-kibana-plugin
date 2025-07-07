@@ -190,8 +190,8 @@ class SignalsOperatorView extends Component {
       console.debug('Watches -- getWatches -- query', query);
 
       const filterQuery = {
-        sorting: 'severity_details.level_numeric',
         size: this.getPageSize(100),
+        //sorting: '-severity_details.level_numeric',
       };
 
       if (query) {
@@ -243,8 +243,8 @@ console.log('Initial query', initialQuery);
     const defaultFilters = {
       query: initialQuery,
       sort: {
-        field: 'id',
-        direction: TABLE_SORT_DIRECTION,
+        //field: 'name',
+        //direction: TABLE_SORT_DIRECTION,
       },
       page: {
         index: 0,
@@ -631,8 +631,13 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
     const { history } = this.props;
     const urlParams = new URLSearchParams(history.location.search);
 
+    // Remove undefined values from params
     Object.keys(params).forEach((paramKey) => {
-      urlParams.set(paramKey, encodeURIComponent(params[paramKey]));
+      if (params[paramKey] === undefined) {
+        urlParams.delete(paramKey);
+      } else {
+        urlParams.set(paramKey, encodeURIComponent(params[paramKey]));
+      }
     });
 
     history.replace({
