@@ -11,6 +11,48 @@ import {
   activeText,
 } from '../../../utils/i18n/watch';
 
+const STATUS_COLORS = {
+  ACTION_FAILED: ['#000', '#fff'],
+  EXECUTION_FAILED: ['#000', '#fff'],
+  NO_ACTION: ['#007515', '#fff'],
+  // TODO THROTTLED
+  // TODO PAUSED
+  // SEVERITY COLORS
+  info: ['#ccd5e2', '#000'],
+  warning: ['#d7a64e', '#000'],
+  error: ['#cf5e59', '#fff'],
+  critical: ['#7F00FF', '#fff'],
+  none: ['#007515', '#fff'],
+};
+
+const getColorsByArray = (colors) => {
+  if (!colors) {
+    return {
+      backgroundColor: '#FEC514',
+      color: '#000000',
+    }
+  }
+  return {
+    backgroundColor: colors[0],
+    color: colors[1],
+  }
+}
+
+const getColorsByWatch = (watch) => {
+  const colorProperty = watch.severity ?? watch.status_code;
+  let colors = STATUS_COLORS[colorProperty];
+  if (!colors) {
+    return {
+      backgroundColor: '#FEC514',
+      color: '#000000',
+    }
+  }
+  return {
+    backgroundColor: colors[0],
+    color: colors[1],
+  }
+}
+
 /**
  * Array with background color and text color for each severity
  * A bit different than the color codes in DefineWatch
@@ -19,9 +61,11 @@ const SEVERITY_COLORS = {
   info: ['#ccd5e2', '#000'],
   warning: ['#d7a64e', '#000'],
   error: ['#cf5e59', '#fff'],
-  critical: ['#000000', '#fff'],
+  critical: ['#7F00FF', '#fff'],
   none: ['#ffffff', '#000'],
 };
+
+
 
 const getSeverityColors = (severity) => {
   let severityColors = SEVERITY_COLORS[severity];
@@ -53,20 +97,21 @@ export const getSeverity = (watch) => {
   return severityMappingLevel || severityLevel;
 }
 
-export const watchStatusToIconProps = (watchStatus, active, severityLevel, handleAck) => {
-
+export const watchStatusToIconProps = (watch, active, severityLevel, handleAck) => {
+  const watchStatus = watch.status_code;
   const defaultIconProps = {
-    color: 'warning',
     type: 'alert',
     'aria-label': 'Unknown Status',
     nodeText: unknownStatusText,
+    ...getColorsByArray(null),
   };
 
-  if (active === false) {
+  if (watch.active === false) {
     // In case the watch is disabled, an "eye" icon with a strikethrough will be displayed with the text "Paused".
     return {
       type: 'eyeClosed',
-      color: 'default',
+      backgroundColor: '#E3E8F2',
+      color: '#07101F',
       'aria-label': 'Paused',
       nodeText: pausedText
     };
@@ -76,52 +121,62 @@ export const watchStatusToIconProps = (watchStatus, active, severityLevel, handl
     // In case the watch failed (i.e. aborted unexpectedly due to an error) during the last execution, a "bug" icon will be displayed with the text "Failed". The color code is white text on black background.
     [WATCH_STATUS.EXECUTION_FAILED]: {
       type: 'bug',
-      color: 'default',
       'aria-label': 'Failed',
       nodeText: failedText,
+      ...getColorsByArray(STATUS_COLORS.EXECUTION_FAILED)
     },
     [WATCH_STATUS.ACTION_FAILED]: {
       type: 'bug',
-      color: 'default',
       'aria-label': 'Failed',
       nodeText: failedText,
+      ...getColorsByArray(STATUS_COLORS.ACTION_FAILED)
+    },
+    [WATCH_STATUS.ACTION_THROTTLED]: {
+      type: 'bell',
+      'aria-label': 'Throttled',
+      nodeText: severityLevel ? severityLevel : 'Throttled',
+      ...getColorsByWatch(watch),
+      onClick: handleAck,
     },
     // In case the watch has triggered notifications during its last execution, a bell icon will be displayed. Clicking on a bell will acknowledge the alert.
     // If the watch has severity levels configured, the name of the severity level will be displayed to the right of the bell icon. Additionally, the severity level is color coded.
     [WATCH_STATUS.ACTION_EXECUTED]: {
       type: 'bell',
-      color: severityLevel ? getSeverityColors(severityLevel).backgroundColor : 'warning',
       'aria-label': severityLevel ? severityLevel : 'Action',
       nodeText: severityLevel ? severityLevel : actionText,
       onClick: handleAck,
-      onClickAriaLabel: "Acknowledge action"
+      onClickAriaLabel: "Acknowledge action",
+      ...getColorsByWatch(watch)
 
     },
     // In case the watch has been successfully executed but did not trigger an action, an "eye" icon will be displayed with the text "Active". The color code is green.
     [WATCH_STATUS.NO_ACTION]: {
       type: 'eye',
-      color: '#007515',
       'aria-label': 'Active',
       nodeText: activeText,
+      ...getColorsByWatch(watch)
     },
-    // TODO If severity, use it
     [WATCH_STATUS.ACKED]: {
       type: 'eye',
-      color: severityLevel ? getSeverityColors(severityLevel).backgroundColor : '#007515',
       'aria-label': 'Acknowledged',
       nodeText: severityLevel ? severityLevel : activeText,
+      ...getColorsByWatch(watch)
     },
   };
 
-  const badgeAndIconProps = iconProps[watchStatus] || defaultIconProps;
-  return badgeAndIconProps;
+  const statusProps = iconProps[watchStatus];
+  if (statusProps) {
+    return statusProps;
+  }
+
+  return defaultIconProps;
 
 };
 
 export const actionStatusToIconProps = (actionStatus, watchStatus, severityLevel) => {
   const defaultIconProps = {
-    backgroundColor: 'warning',
-    color: 'warning',
+    backgroundColor: '#FEC514',
+    color: '#000',
     type: 'alert',
     'aria-label': 'Unknown Status',
     nodeText: unknownStatusText,
@@ -142,8 +197,8 @@ export const actionStatusToIconProps = (actionStatus, watchStatus, severityLevel
     // If the checks of a watch were successful, but an individual action failed, it is displayed with a "bug" icon.
     [WATCH_ACTION_STATUS.ACTION_FAILED]: {
       type: 'bug',
-      backgroundColor: 'default',
-      color: 'default',
+      backgroundColor: '#000',
+      color: '#fff',
       'aria-label': 'Failed',
       nodeText: failedText,
     },
@@ -157,10 +212,17 @@ export const actionStatusToIconProps = (actionStatus, watchStatus, severityLevel
       'aria-label': severityLevel ? severityLevel : 'Action',
       nodeText: executedText,
     },
+    [WATCH_ACTION_STATUS.ACTION_THROTTLED]: {
+      type: 'bell',
+      backgroundColor: severityLevel ? getSeverityColors(severityLevel).backgroundColor : '#FEC514',
+      color: severityLevel ? getSeverityColors(severityLevel).color : '#000',
+      'aria-label': severityLevel ? severityLevel : 'Action',
+      nodeText: executedText,
+    },
     [WATCH_ACTION_STATUS.ACKED]: {
       type: 'bellSlash',
-      backgroundColor: '#FEC514',
-      color: '#000',
+      backgroundColor: severityLevel ? getSeverityColors(severityLevel).backgroundColor : '#FEC514',
+      color: severityLevel ? getSeverityColors(severityLevel).color : '#000',
       'aria-label': 'Acknowledged',
       nodeText: acknowledgedText,
     },

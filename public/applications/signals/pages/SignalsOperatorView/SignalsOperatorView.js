@@ -1,5 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import React, { Component, useState } from 'react';
+import React, {Component, Fragment, useState} from 'react';
 import {
   EuiBadge,
   EuiButton,
@@ -191,7 +191,7 @@ class SignalsOperatorView extends Component {
 
       const filterQuery = {
         size: this.getPageSize(100),
-        //sorting: '-severity_details.level_numeric',
+        sorting: '-severity_details.level_numeric',
       };
 
       if (query) {
@@ -342,14 +342,33 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
     });
 
     const { type: iconType, nodeText, ...badgeProps }
-      = watchStatusToIconProps(lastWatchStatus, watch.active, severityLevel, this.handleAck.bind(this, [watch.watch_id], actionsToAcknowledge[0]?.name));
+      = watchStatusToIconProps(watch, watch.active, severityLevel, this.handleAck.bind(this, [watch.watch_id], actionsToAcknowledge[0]?.name));
 
     return (
-      <EuiToolTip content={nodeText}>
-        <EuiBadge iconType={iconType} {...badgeProps}>
-          {nodeText}
-        </EuiBadge>
-      </EuiToolTip>
+      <Fragment>
+        <EuiToolTip content={nodeText}>
+        <EuiFlexGroup alignItems={"center"} gutterSize={"s"} justifyContent={"flexStart"}
+          style={{
+            padding: '0px 8px',
+            backgroundColor: badgeProps.backgroundColor,
+            color: badgeProps.color || '#fff',
+            fill: badgeProps.color || '#fff',
+            borderRadius: '4px',
+            maxWidth: '150px',
+            minWidth: '120px',
+            cursor: badgeProps.onClick ? 'pointer' : 'default',
+          }}
+        {...(badgeProps.onClick ? { onClick: badgeProps.onClick } : {})}
+        >
+          <EuiFlexItem grow={false}>
+            <EuiIcon type={iconType} size="m" />
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            {nodeText}
+          </EuiFlexItem>
+        </EuiFlexGroup>
+        </EuiToolTip>
+      </Fragment>
     );
   }
 
@@ -360,7 +379,7 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
     const actionsLength = Object.values(watch.actions).length;
     if (
       !actionsLength ||
-      //!watch.active ||
+      watch.active === false ||
       lastWatchStatus == WATCH_STATUS.EXECUTION_FAILED
       ) {
       //Failed and disabled watches do not have their actions displayed.
@@ -585,7 +604,6 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
     );
   };
 
-  // TODO: have search in URL params too
   renderSearchBar = () => {
     const areRowsSelected = !!this.state.tableSelection.length;
 
