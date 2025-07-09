@@ -5,7 +5,8 @@ import { deleteWatchRoute } from './delete';
 import { executeGraphWatchRoute } from './execute_graph';
 import { executeWatchRoute } from './execute';
 import { getWatchRoute } from './get';
-import { stateOfWatchRoute, summaryRoute } from './state';
+import { stateOfWatchRoute } from './state';
+import { summaryRoute } from "./summary";
 
 export function registerWatchRoutes({ router, clusterClient, logger }) {
   ackWatchRoute({ router, clusterClient, logger });
