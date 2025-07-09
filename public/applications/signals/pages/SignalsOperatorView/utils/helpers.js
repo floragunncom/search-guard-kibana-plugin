@@ -211,6 +211,7 @@ export const actionStatusToIconProps = (actionStatus, watchStatus, severityLevel
       color: severityLevel ? getSeverityColors(severityLevel).color : '#000',
       'aria-label': severityLevel ? severityLevel : 'Action',
       nodeText: executedText,
+      tooltip: 'Click to acknowledge action',
     },
     [WATCH_ACTION_STATUS.ACTION_THROTTLED]: {
       type: 'bell',
@@ -218,6 +219,7 @@ export const actionStatusToIconProps = (actionStatus, watchStatus, severityLevel
       color: severityLevel ? getSeverityColors(severityLevel).color : '#000',
       'aria-label': severityLevel ? severityLevel : 'Action',
       nodeText: executedText,
+      tooltip: 'Click to acknowledge action',
     },
     [WATCH_ACTION_STATUS.ACKED]: {
       type: 'bellSlash',
@@ -225,6 +227,7 @@ export const actionStatusToIconProps = (actionStatus, watchStatus, severityLevel
       color: severityLevel ? getSeverityColors(severityLevel).color : '#000',
       'aria-label': 'Acknowledged',
       nodeText: acknowledgedText,
+      tooltip: 'Acknowledged, click to un-acknowledge',
     },
   }
 

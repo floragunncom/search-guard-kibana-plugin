@@ -328,7 +328,7 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
 
 
   renderLastStatusWithSeverityColumn = (field, watch) => {
-    //const lastWatchStatus = get(watch, '_ui.state.last_status.code');
+
     const lastWatchStatus = get(watch, 'status_code');
     const severityLevel = getSeverity(watch);
 
@@ -344,9 +344,14 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
     const { type: iconType, nodeText, ...badgeProps }
       = watchStatusToIconProps(watch, watch.active, severityLevel, this.handleAck.bind(this, [watch.watch_id], actionsToAcknowledge[0]?.name));
 
+    let tooltip = nodeText;
+    if (actionsToAcknowledge.length > 0) {
+      tooltip = `Click to acknowledge all actions`;
+    }
+
     return (
       <Fragment>
-        <EuiToolTip content={nodeText}>
+        <EuiToolTip content={tooltip}>
         <EuiFlexGroup alignItems={"center"} gutterSize={"s"} justifyContent={"flexStart"}
           style={{
             padding: '0px 8px',
@@ -402,7 +407,7 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
           const actionCanBeAcked = ackEnabled && !wasAcked && action.check_result !== false;
 
           const actionStatus = action.status_code;
-          const { nodeText, ...statusIconProps } = actionStatusToIconProps(actionStatus, lastWatchStatus, severityLevel);
+          const { nodeText, tooltip, ...statusIconProps } = actionStatusToIconProps(actionStatus, lastWatchStatus, severityLevel);
 
           let iconProps = statusIconProps;
 
@@ -418,22 +423,14 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
           }
 
           // The action icon tooltip
-          let actionIconTooltip = nodeText;
+          let actionIconTooltip = tooltip || nodeText;
           if (!ackEnabled) {
             actionIconTooltip = 'Not acknowledgeable';
           }
 
-          // The tooltip for the action name
-          let ackLinkTooltip = wasAcked ? (
-            <EuiText size="s">
-              ""
-            </EuiText>
-          ) : (
-            acknowledgeText
-          );
           // Change the default link tooltip for ack_enabled: false
           if (!ackEnabled) {
-            ackLinkTooltip = 'Action not acknowledgeable';
+            actionIconTooltip = 'Action not acknowledgeable';
           }
 
           // Lifting up the link content. There was an issue with
@@ -485,18 +482,16 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
                   </EuiToolTip>
                 </EuiFlexItem>
                 <EuiFlexItem style={{ overflow: 'hidden' }}>
-                  <EuiToolTip content={ackLinkTooltip}>
-                    <div
-                      style={{
-                        overflow: 'hidden',
-                        whiteSpace: 'nowrap',
-                        textOverflow: 'ellipsis',
-                        width: '100%',
-                      }}
-                    >
-                      {actionName}
-                    </div>
-                  </EuiToolTip>
+                  <div
+                    style={{
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap',
+                      textOverflow: 'ellipsis',
+                      width: '100%',
+                    }}
+                  >
+                    {actionName}
+                  </div>
                 </EuiFlexItem>
               </EuiFlexGroup>
             </div>
