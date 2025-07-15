@@ -29,8 +29,8 @@ export function summary({clusterClient, logger}) {
 
       // Validate and split up filtering/sorting parameters
       if (query && typeof query === 'object' && !!Object.keys(query).length) {
-        const allowedBodyParams = ['watch_id', 'size']; // 'severities'
-        const allowedSearchParams = ['sorting'];
+        const allowedBodyParams = ['watch_id']; // 'severities'
+        const allowedSearchParams = ['sorting', 'size'];
         Object.keys(query).forEach(key => {
           const property = key.toLowerCase();
           if (allowedBodyParams.includes(property)) {

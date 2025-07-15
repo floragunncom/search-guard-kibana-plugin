@@ -14,6 +14,7 @@ import {
   EuiSearchBar,
   EuiSpacer,
   EuiI18n,
+  EuiEmptyPrompt,
 } from '@elastic/eui';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
@@ -983,6 +984,22 @@ class Watches extends Component {
                 pageIndex: this.state.pagination.index,
                 pageSize: this.state.pagination.size,
               }}
+              noItemsMessage={(
+                <EuiEmptyPrompt
+                  title={<h2>No watches found</h2>}
+                  body={<p>Create a new watch by using the "Add" button above.</p>}
+                  footer={
+                    <>
+                      <EuiTitle size="xxs">
+                        <h3>Want to learn more?</h3>
+                      </EuiTitle>
+                      <EuiLink href="https://docs.search-guard.com/latest/elasticsearch-alerting" target="_blank">
+                        Search Guard Signals Alerting documentation
+                      </EuiLink>
+                    </>
+                  }
+                />
+              )}
             />
           </EuiFlexItem>
         </EuiFlexGroup>

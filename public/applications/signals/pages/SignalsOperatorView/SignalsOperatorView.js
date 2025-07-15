@@ -1,96 +1,43 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import React, {Component, Fragment, useState} from 'react';
 import {
-  EuiBadge,
   EuiButton,
   EuiFlexGroup,
   EuiFlexItem,
   EuiSpacer,
   EuiSearchBar,
   EuiText,
-  EuiTitle,
   EuiIcon,
   EuiToken,
   EuiLink,
   EuiToolTip,
   EuiInMemoryTable,
-  EuiI18n,
   EuiAutoRefresh,
-  EuiInputPopover,
-  EuiSuperSelect,
-  EuiSelectable,
-  EuiSwitch,
+  EuiEmptyPrompt,
+  EuiTitle,
 } from '@elastic/eui';
 
 import {
   actionsText,
   acknowledgeText,
   acknowledgedText,
-  acknowledgeActionText,
-  lastStatusText, acknowledgedActionText, unAcknowledgedActionText,
+  acknowledgedActionText, unAcknowledgedActionText, unAcknowledgedText,
 } from '../../utils/i18n/watch';
 
 
-import { WATCH_ACTION_STATUS, WATCH_STATUS } from '../../utils/constants';
+import { WATCH_STATUS, APP_PATH } from '../../utils/constants';
 import { get } from 'lodash';
 
 import { LEFT_ALIGNMENT } from '@elastic/eui/lib/services';
 import {
   ContentPanel,
-  TableIdCell,
   TableTextCell,
 } from '../../components';
-
-
-import { TABLE_SORT_DIRECTION } from '../Watches/utils/constants';
 
 import { WatchService } from '../../services';
 
 import { Context } from '../../Context';
 import { actionStatusToIconProps, getSeverity, watchStatusToIconProps } from './utils/helpers';
-
-/**
- * @typedef {Object} WatchAction
- * @property {string|null} triggered - Timestamp when the action was triggered
- * @property {string|null} checked - Timestamp when the action was checked
- * @property {boolean} check_result - Result of the action check
- * @property {string|null} execution - Execution details
- * @property {string|null} error - Timestamp of error occurrence
- * @property {string|null} status_code - Status code of the action
- * @property {string|null} status_details - Details of the action status
- */
-
-/**
- * @typedef {Object} Watch - TODO This is the watch from the summary response
- * @property {string} watch_id - Unique identifier for the watch
- * @property {string|null} status_code - Status code of the watch
- * @property {string|null} severity - Severity level of the watch
- * @property {string|null} description - Description of the watch or its error
- * @property {string|null} severity_details - Additional details about the severity
- * @property {Object.<string, WatchAction>} actions - Map of action names to their statuses
- * @property {string} tenant - Tenant identifier
- */
-
-/**
- * @typedef {Object} WatchesResponse
- * @property {boolean} ok - Indicates if the request was successful
- * @property {Object} resp - Response body
- * @property {number} resp.status - HTTP status code
- * @property {Object} resp.data - Response data
- * @property {Array<Watch>} resp.data.watches - List of watches
- */
-
-/**
- * @typedef {Object} SignalsOperatorViewState
- * @property {Array<Watch>} watches - List of watches from the API
- * @property {boolean} isLoading - Indicates if data is being loaded
- * @property {Error|null} error - Error object if request failed
- * @property {Array<Watch>} tableSelection - Currently selected watches in the table
- * @property {Object} query - Current search query
- * @property {Object} pagination - Pagination state
- * @property {Object} sorting - Sorting state
- */
-
 
 const initialQuery = '';
 
@@ -101,15 +48,6 @@ const initialQuery = '';
 const sortFieldToUIMapping = {
   'watch_id': 'id'
 };
-
-// EuiMemoryTable relies on referential equality of a column's name.
-// On paginate it passes Eui18N instance.
-/*
-const sortFieldFromEuiI18nMapping = {
-  'sg.watch.lastStatus.text': 'status',
-};
-
- */
 
 const sortFieldFromUIMapping = Object.keys(sortFieldToUIMapping).reduce((acc, field) => {
   acc[sortFieldToUIMapping[field]] = field;
@@ -145,9 +83,7 @@ class SignalsOperatorView extends Component {
 
 
     this.watchService = new WatchService(context.httpClient);
-
     this.pageSizeOptions = [10, 20, 50, 100];
-
     this.autoRefreshInterval = null;
   }
 
@@ -173,15 +109,6 @@ class SignalsOperatorView extends Component {
     }
   }
 
-  getPageSize = (defaultPageSize = 100) => {
-    const { pagination } = this.state;
-    if (this.pageSizeOptions.includes(pagination.size)) {
-      return pagination.size;
-    } else {
-      return defaultPageSize;
-    }
-  }
-
   getWatches = async () => {
     const { query } = this.state;
     this.setState({ isLoading: true, error: null });
@@ -190,25 +117,18 @@ class SignalsOperatorView extends Component {
       console.debug('Watches -- getWatches -- query', query);
 
       const filterQuery = {
-        size: this.getPageSize(100),
-        sorting: '-severity_details.level_numeric',
+        size: 500,
       };
 
       if (query) {
         filterQuery.watch_id = query;
       }
 
-      /*
-      if (this.state.onlyWithSeverity) {
-        filterQuery.severities = ["critical", "error", "warning", "info"];
-      }
-      */
 
       const { resp } = await this.watchService.summary(filterQuery);
       const watches = resp.data.watches;
       console.debug('Watches -- getWatches', watches);
       this.setState({ watches, error: null });
-      //await this.fetchWatchesState();
       console.debug('Watches -- getWatches', watches);
     } catch (error) {
       console.error('Watches -- getWatches', error);
@@ -239,7 +159,6 @@ class SignalsOperatorView extends Component {
         urlParamsData[key] = decodeURIComponent(value);
       }
     }
-console.log('Initial query', initialQuery);
     const defaultFilters = {
       query: initialQuery,
       sort: {
@@ -310,7 +229,6 @@ console.log('Initial query', initialQuery);
       return;
     }
 
-console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshInterval));
     // Set up new interval with the converted time
     // Let's keep the interval at least 5 seconds
     this.autoRefreshInterval = setInterval(() => {
@@ -326,15 +244,15 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
   }
 
 
-
   renderLastStatusWithSeverityColumn = (field, watch) => {
 
-    const lastWatchStatus = get(watch, 'status_code');
     const severityLevel = getSeverity(watch);
 
     let actionsToAcknowledge = Object.keys(watch.actions).filter((actionName) => {
       const action = watch.actions[actionName];
-      const wasAcked = action.status_code === 'ACKED';
+      // See explanation for not using the status codee in actionStatusToIconProps
+      //const wasAcked = (action.status_code === 'ACKED' && action.ack_by) ? true : false;
+      const wasAcked = (action.ack_by) ? true : false;
       const ackEnabled = !action.ack_enabled;
       const actionCanBeAcked = ackEnabled && !wasAcked && action.check_result !== false;
 
@@ -342,7 +260,13 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
     });
 
     const { type: iconType, nodeText, ...badgeProps }
-      = watchStatusToIconProps(watch, watch.active, severityLevel, this.handleAck.bind(this, [watch.watch_id], actionsToAcknowledge[0]?.name));
+      = watchStatusToIconProps(watch, (actionsToAcknowledge.length) ? true : false, severityLevel, () => {
+        if (actionsToAcknowledge.length > 0) {
+          this.handleAck([watch.watch_id]);
+        } else {
+          this.handleUnAck([watch.watch_id]);
+        }
+    });
 
     let tooltip = nodeText;
     if (actionsToAcknowledge.length > 0) {
@@ -378,7 +302,6 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
   }
 
   renderActionsColumn = (actions = [], watch) => {
-    //const lastWatchStatus = get(watch, '_ui.state.last_status.code');
     const lastWatchStatus = watch.status_code;
     const severityLevel = getSeverity(watch);
     const actionsLength = Object.values(watch.actions).length;
@@ -401,13 +324,14 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
 
         {Object.keys(actions).map((actionName, key) => {
           const action = actions[actionName];
-          const wasAcked = action.status_code === 'ACKED';
+          // See explanation for not using the status codee in actionStatusToIconProps
+          //const wasAcked = action.status_code === 'ACKED' || action.ack_by;
+          const wasAcked = action.ack_by;
 
           const ackEnabled = action.ack_enabled !== false;
           const actionCanBeAcked = ackEnabled && !wasAcked && action.check_result !== false;
 
-          const actionStatus = action.status_code;
-          const { nodeText, tooltip, ...statusIconProps } = actionStatusToIconProps(actionStatus, lastWatchStatus, severityLevel);
+          const { nodeText, tooltip, ...statusIconProps } = actionStatusToIconProps(watch, action, severityLevel);
 
           let iconProps = statusIconProps;
 
@@ -432,27 +356,6 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
           if (!ackEnabled) {
             actionIconTooltip = 'Action not acknowledgeable';
           }
-
-          // Lifting up the link content. There was an issue with
-          // the tooltip sticking around after acking an action
-          // As a fix we removed the tooltip for actions that
-          // can still be acknowledged, it only showed
-          // "Acknowledge" anyway
-          const ackLink = (
-            <EuiLink
-              color={'primary'}
-              style={{
-                overflow: 'hidden',
-                whiteSpace: 'nowrap',
-                textOverflow: 'ellipsis',
-                width: '100%',
-              }}
-              onClick={() => this.handleAck([watch.watch_id], actionName)}
-              data-test-subj={`sgTableCol-Actions-ackbtn-${watch.watch_id}-${actionName}`}
-            >
-              {actionName}
-            </EuiLink>
-          );
 
           return (
             <div key={key}>
@@ -503,8 +406,6 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
 
 
   handleAck = (watchIds = [], actionId) => {
-    const { triggerConfirmModal } = this.context;
-
     const doAck = async () => {
       this.setState({ isLoading: true });
 
@@ -519,7 +420,7 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
         watchIds.forEach((id) => {
           const successMsg = !actionId ? (
             <EuiText>
-              {acknowledgeText} watch {id}
+              {acknowledgedText} watch {id}
             </EuiText>
           ) : (
             <EuiText>
@@ -555,7 +456,7 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
       watchIds.forEach((id) => {
         const successMsg = !actionId ? (
           <EuiText>
-            {acknowledgedText} watch {id}
+            {unAcknowledgedText} watch {id}
           </EuiText>
         ) : (
           <EuiText>
@@ -688,14 +589,6 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
         field: 'status_code',
         name: 'Status',
         footer: 'Status',
-        /*
-        sortable: (watch) => {
-          const watchProps = watchStatusToIconProps(watch.status_code, watch.active, getSeverity(watch), () => {});
-          const comparatorString = typeof watchProps.nodeText === 'string' ? watchProps.nodeText : watchProps.nodeText.props.default;
-          console.log('comparatorString', comparatorString.toLowerCase());
-          return comparatorString.toLowerCase();
-        },
-         */
         render: this.renderLastStatusWithSeverityColumn,
       },
       {
@@ -721,7 +614,7 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
       }
     ];
 
-
+    // Not used right now, but maybe in the future
     const selection = {
       selectable: (doc) => doc.watch_id,
       onSelectionChange: (tableSelection) => {
@@ -738,7 +631,13 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
       },
     };
 
+    const pagination = {
+      pageIndex: this.state.pagination.index,
+      pageSize: this.pageSizeOptions.indexOf(this.state.pagination.size) > -1 ? this.state.pagination.size : this.pageSizeOptions[0],
+      pageSizeOptions: this.pageSizeOptions,
+    }
 
+    console.warn('Pagination', pagination);
 
     return (<ContentPanel
       actions={[
@@ -779,9 +678,32 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
             items={watches}
             itemId="watch_id"
             columns={columns}
-            selection={selection}
             sorting={sorting}
             loading={isLoading}
+            noItemsMessage={(
+              <EuiEmptyPrompt
+                title={<h2>No watches found</h2>}
+                body={<p>The Operator View shows all watches with severity levels defined. Navigate to the Watches tab to see all watches or to create or edit a watch</p>}
+                actions={
+                  <EuiButton
+                    fill
+                    onClick={() => this.props.history.push(APP_PATH.WATCHES)}
+                  >
+                    Go to the Watches tab
+                  </EuiButton>
+                }
+                footer={
+                  <>
+                    <EuiTitle size="xxs">
+                      <h3>Want to learn more?</h3>
+                    </EuiTitle>
+                    <EuiLink href="https://docs.search-guard.com/latest/elasticsearch-alerting" target="_blank">
+                      Search Guard Signals Alerting documentation
+                    </EuiLink>
+                  </>
+                }
+              />
+            )}
             onTableChange={(criteria) => {
               // We only update params that have changed. A bit too
               // much perhaps, but that keeps the URL clean(er).
@@ -818,11 +740,7 @@ console.warn('Watches -- setupAutoRefresh', Math.max(5000, autoRefresh.refreshIn
               this.updateTableFilters(newParams);
             }}
             isSelectable
-            pagination={{
-              pageIndex: this.state.pagination.index,
-              pageSize: this.pageSizeOptions.indexOf(this.state.pagination.size) > -1 ? this.state.pagination.size : this.pageSizeOptions[0],
-              pageSizeOptions: this.pageSizeOptions,
-            }}
+            pagination={pagination}
           />
         </EuiFlexItem>
       </EuiFlexGroup>
