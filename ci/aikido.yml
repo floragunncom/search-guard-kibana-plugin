@@ -38,6 +38,7 @@ aikido_schedule_scan:
   rules:
     - if:  '$CI_PIPELINE_SOURCE == "schedule"'
       when: always
+      
    
 aikido_release_scan:
   extends: ['.aikido_scan_common']
