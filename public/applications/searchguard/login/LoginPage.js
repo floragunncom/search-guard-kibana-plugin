@@ -300,7 +300,7 @@ export function BrandImage({ loginPageConfig, httpClient }) {
   if (!showBrandImage || !brandImage) return null;
   return (
     <EuiErrorBoundary>
-      <div style={{ maxWidth: 350 }}>
+      <div style={{ maxWidth: 450 }}>
         <EuiImage
           data-test-subj="sg.login.brandImage"
           alt="Brand image"

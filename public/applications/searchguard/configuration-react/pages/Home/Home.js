@@ -142,7 +142,9 @@ const Home = ({ history, onPurgeCache, purgingCache }) => {
     <Fragment>
       <EuiFlexGroup justifyContent="spaceAround">
         <EuiFlexItem grow={false}>
-          <Icon type="logo" size={{ width: '150px', height: '150px' }} />
+          <EuiSpacer size="m" />
+          <Icon type="logo" style={{ width: '150px', height: '150px' }} />
+          <EuiSpacer size="m" />
         </EuiFlexItem>
       </EuiFlexGroup>
 

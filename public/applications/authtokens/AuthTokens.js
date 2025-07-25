@@ -15,7 +15,7 @@
  */
 import { BehaviorSubject } from 'rxjs';
 import { AuthTokensService } from './services';
-import { SEARCHGUARD_APP_CATEGORY } from '../../utils/constants';
+import { getSearchGuardAppCategory } from '../../utils/constants';
 import { appNaviFix } from '../../utils/appNaviFix';
 
 export class AuthTokens {
@@ -52,7 +52,7 @@ export class AuthTokens {
       core.application.register({
         id: 'searchguard-authtokens',
         title: 'Auth Tokens',
-        category: SEARCHGUARD_APP_CATEGORY,
+        category: getSearchGuardAppCategory(configService),
         updater$: this.appUpdater,
         mount: this.mount({ core, httpClient, configService }),
       });
