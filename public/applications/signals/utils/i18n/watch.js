@@ -187,3 +187,4 @@ export const leaveInputEmptyToOmitThresholdLevelText = (
 );
 export const textBodyText = <EuiI18n token="sg.watch.textBody.text" default="Text Body" />;
 export const htmlBodyText = <EuiI18n token="sg.watch.htmlBody.text" default="HTML Body" />;
+export const useHtmlBodyText = <EuiI18n token="sg.watch.htmlBody.text" default="Include HTML Body" />;
