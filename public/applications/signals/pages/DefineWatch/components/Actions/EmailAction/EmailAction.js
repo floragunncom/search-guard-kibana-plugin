@@ -1,10 +1,10 @@
 /* eslint-disable @kbn/eslint/require-license-header */
-import React, { Fragment, useContext } from 'react';
+import React, { Fragment, useContext, useEffect, useState } from 'react';
 import { connect as connectFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { isEmpty, get } from 'lodash';
 import { EuiSpacer } from '@elastic/eui';
-import {FormikCodeEditor, FormikFieldText, FormikComboBox, FormikCodeEditorSG} from '../../../../../components';
+import { FormikSwitch, FormikFieldText, FormikComboBox, FormikCodeEditorSG } from '../../../../../components';
 import { getCurrentAccount } from '../utils';
 import { nameText } from '../../../../../utils/i18n/common';
 import ActionChecks from '../ActionChecks';
@@ -17,7 +17,7 @@ import {
   severityText,
   resolvesSeverityText,
   textBodyText,
-  htmlBodyText,
+  htmlBodyText, useHtmlBodyText,
 } from '../../../../../utils/i18n/watch';
 import {
   validateEmailAddr,
@@ -71,6 +71,16 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
   const textBodyPreviewTemplate = get(values, `${actionsRootPath}[${index}].text_body`, '');
   const htmlBodyPath = `${actionsRootPath}[${index}].html_body`;
   const htmlBodyPreviewTemplate = get(values, `${actionsRootPath}[${index}].html_body`, '');
+
+  let htmlBodyValue = get(values, `${actionsRootPath}[${index}].html_body`, '');
+  const [useHtmlBody, setUseHtmlBody] = useState(get(values, `${actionsRootPath}[${index}].html_body`, false) ? true : false);
+  // This is just a nice to have for those cases where someone toggles the html body off,
+  // and then toggles it back on: the last html body will then still be visible.
+  const [previousHtmlBody, setPreviousHtmlBody] = useState(null);
+  // Needs to be wrapped in useEffect, otherwise we would update with 'null' as well
+  useEffect(() => {
+    setPreviousHtmlBody(htmlBodyValue);
+  }, []);
 
   return (
     <Fragment>
@@ -244,35 +254,59 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
       />
       <ActionBodyPreview template={textBodyPreviewTemplate} />
 
-      <FormikCodeEditorSG
-        name={htmlBodyPath}
+      <FormikSwitch
         formRow
-        rowProps={{
-          label: htmlBodyText,
-          fullWidth: true,
-          isInvalid,
-          error: hasError,
-          helpText: <RowHelpTextMustacheRuntimeDataField isHTML={true} />,
-        }}
         elementProps={{
-          isInvalid,
-          setOptions: {
-            ...editorOptions,
-            maxLines: 10,
-            minLines: 10,
+          label: useHtmlBodyText,
+          onChange: (event, field, form) => {
+            setUseHtmlBody(event.target.checked);
+            if (event.target.checked) {
+              form.setFieldValue(`${actionsRootPath}[${index}].html_body`, previousHtmlBody);
+            } else {
+              form.setFieldValue(`${actionsRootPath}[${index}].html_body`, null );
+            }
           },
-          mode: 'text',
-          width: '100%',
-          theme: editorTheme,
-          onChange: (e, text, field, form) => {
-            form.setFieldValue(field.name, text);
-          },
-          onBlur: (e, field, form) => {
-            form.setFieldTouched(field.name, true);
-          },
+          checked: useHtmlBody,
         }}
       />
-      <ActionBodyPreview template={htmlBodyPreviewTemplate} isHTML={true} />
+      
+      {useHtmlBody !== false &&
+        (
+          <Fragment>
+            <FormikCodeEditorSG
+              name={htmlBodyPath}
+              formRow
+              rowProps={{
+                label: htmlBodyText,
+                fullWidth: true,
+                isInvalid,
+                error: hasError,
+                helpText: <RowHelpTextMustacheRuntimeDataField isHTML={true} />,
+              }}
+              elementProps={{
+                isInvalid,
+                setOptions: {
+                  ...editorOptions,
+                  maxLines: 10,
+                  minLines: 10,
+                },
+                mode: 'text',
+                width: '100%',
+                theme: editorTheme,
+                onChange: (e, text, field, form) => {
+                  form.setFieldValue(field.name, text);
+                  setPreviousHtmlBody(text);
+                },
+                onBlur: (e, field, form) => {
+                  form.setFieldTouched(field.name, true);
+                },
+              }}
+            />
+            <ActionBodyPreview template={htmlBodyPreviewTemplate ?? ''} isHTML={true} />
+          </Fragment>
+        )
+      }
+
 
       <EuiSpacer />
       {!isGraphWatch && <ActionChecks actionIndex={index} isResolveActions={isResolveActions} />}
