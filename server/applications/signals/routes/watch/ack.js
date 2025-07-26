@@ -49,6 +49,37 @@ export function ackWatch({ clusterClient, logger }) {
   };
 }
 
+export function unAckWatch({ clusterClient, logger }) {
+  return async function (context, request, response) {
+    try {
+      const {
+        params: { watchId, actionId },
+        headers: { sgtenant = NO_MULTITENANCY_TENANT },
+      } = request;
+
+      let path = `/_signals/watch/${encodeURIComponent(sgtenant)}/${encodeURIComponent(watchId)}/_ack`;
+      if (actionId) {
+        path = `/_signals/watch/${encodeURIComponent(sgtenant)}/${encodeURIComponent(watchId)}/_ack/${actionId}`;
+      }
+
+      const resp = await clusterClient.asScoped(request).asCurrentUser.transport.request({
+        method: 'delete',
+        path,
+      });
+
+      return response.ok({
+        body: {
+          ok: true,
+          resp,
+        },
+      });
+    } catch (err) {
+      logger.error(`ackWatch: ${err.stack}`);
+      return response.customError(serverError(err));
+    }
+  };
+}
+
 export function ackWatchRoute({ router, clusterClient, logger }) {
   router.put(
     {
@@ -61,5 +92,20 @@ export function ackWatchRoute({ router, clusterClient, logger }) {
       },
     },
     ackWatch({ clusterClient, logger })
+  );
+}
+
+export function unAckWatchRoute({ router, clusterClient, logger }) {
+  router.delete(
+    {
+      path: `${ROUTE_PATH.WATCH}/{watchId}/_ack/{actionId?}`,
+      validate: {
+        params: schema.object({
+          watchId: schema.string(),
+          actionId: schema.maybe(schema.string()),
+        }),
+      },
+    },
+    unAckWatch({ clusterClient, logger })
   );
 }

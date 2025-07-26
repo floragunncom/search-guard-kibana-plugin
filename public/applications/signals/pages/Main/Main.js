@@ -51,6 +51,11 @@ class Main extends Component {
 
     this.tabs = [
       {
+        id: APP_PATH.SIGNALS_OPERATOR_VIEW,
+        name: 'Operator View',
+        route: APP_PATH.SIGNALS_OPERATOR_VIEW
+      },
+      {
         id: APP_PATH.WATCHES,
         name: 'Watches',
         route: APP_PATH.WATCHES,
@@ -59,7 +64,7 @@ class Main extends Component {
         id: APP_PATH.ACCOUNTS,
         name: 'Accounts',
         route: APP_PATH.ACCOUNTS,
-      },
+      }
     ];
   }
 
@@ -182,7 +187,7 @@ class Main extends Component {
                   </EuiErrorBoundary>
                 )}
               />
-              <Redirect to={APP_PATH.WATCHES} />
+              <Redirect to={APP_PATH.SIGNALS_OPERATOR_VIEW} />
             </Switch>
           </EuiPageSection>
         </EuiPageBody>
