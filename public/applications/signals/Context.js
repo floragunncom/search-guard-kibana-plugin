@@ -51,6 +51,7 @@ const { darkTheme, theme: lightTheme, ...editorOptionsDefaults } = CODE_EDITOR;
  * @type {{}}
  */
 let watchesFilters = {};
+let operatorViewWatchesFilters = {};
 
 const ContextProvider = ({ children, httpClient, core, configService }) => {
   let IS_DARK_THEME = true;
@@ -73,6 +74,13 @@ const ContextProvider = ({ children, httpClient, core, configService }) => {
    */
   function setWatchesFilters(filters) {
     watchesFilters = filters;
+  }
+  /**
+   * Set the operator view watches filters
+   * @param filters
+   */
+  function setOperatorViewWatchesFilters(filters) {
+    operatorViewWatchesFilters = filters;
   }
 
   function closeFlyout() {
@@ -186,6 +194,8 @@ const ContextProvider = ({ children, httpClient, core, configService }) => {
           triggerSuccessCallout,
           watchesFilters,
           setWatchesFilters,
+          operatorViewWatchesFilters,
+          setOperatorViewWatchesFilters,
         }}
       >
         {children}

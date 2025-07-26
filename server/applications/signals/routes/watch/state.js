@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { schema } from '@kbn/config-schema';
-import { serverError } from '../../lib/errors';
-import { ROUTE_PATH, NO_MULTITENANCY_TENANT } from '../../../../../common/signals/constants';
+import {schema} from '@kbn/config-schema';
+import {serverError} from '../../lib/errors';
+import {NO_MULTITENANCY_TENANT, ROUTE_PATH} from '../../../../../common/signals/constants';
 
 export function stateOfWatch({ clusterClient, logger }) {
   return async function (context, request, response) {
@@ -53,3 +53,4 @@ export function stateOfWatchRoute({ router, clusterClient, logger }) {
     stateOfWatch({ clusterClient, logger })
   );
 }
+
