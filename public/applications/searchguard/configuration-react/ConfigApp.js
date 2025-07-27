@@ -1,6 +1,6 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { BehaviorSubject } from 'rxjs';
-import { SEARCHGUARD_APP_CATEGORY } from '../../../utils/constants';
+import {getSearchGuardAppCategory} from '../../../utils/constants';
 import { buildSeardGuardConfiguration } from './utils/helpers';
 import { appNaviFix } from '../../../utils/appNaviFix';
 
@@ -49,7 +49,7 @@ export class ConfigApp {
     core.application.register({
       id: 'searchguard-configuration',
       title: 'Configuration',
-      category: SEARCHGUARD_APP_CATEGORY,
+      category: getSearchGuardAppCategory(configService),
       updater$: this.appUpdater,
       mount: this.mount({ core, configService, httpClient }),
     });

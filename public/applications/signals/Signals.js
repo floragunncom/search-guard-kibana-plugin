@@ -1,7 +1,7 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { BehaviorSubject } from 'rxjs';
 import { SearchGuardService } from './services';
-import { SEARCHGUARD_APP_CATEGORY } from '../../utils/constants';
+import { getSearchGuardAppCategory } from '../../utils/constants';
 import { appNaviFix } from '../../utils/appNaviFix';
 
 export class Signals {
@@ -31,12 +31,12 @@ export class Signals {
     };
   }
 
-  setupSync({ core, httpClient }) {
+  setupSync({ core, httpClient, configService }) {
     try {
       core.application.register({
         id: 'searchguard-signals',
         title: 'Signals',
-        category: SEARCHGUARD_APP_CATEGORY,
+        category: getSearchGuardAppCategory(configService),
         updater$: this.appUpdater,
         mount: this.mount({ core, httpClient }),
       });
