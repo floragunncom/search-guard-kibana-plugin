@@ -58,7 +58,7 @@ export class PublicPlugin {
       configService: this.configService,
     });
 
-    this.signalsApp.setupSync({ core, httpClient: this.httpClient });
+    this.signalsApp.setupSync({ core, httpClient: this.httpClient, configService: this.configService });
     this.signalsApp.setup({ httpClient: this.httpClient, configService: this.configService });
   }
 
