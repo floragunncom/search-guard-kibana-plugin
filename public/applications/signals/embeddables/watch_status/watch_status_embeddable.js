@@ -1,25 +1,37 @@
-import React, {useEffect} from "react";
-import { BehaviorSubject} from 'rxjs';
+/*
+ *    Copyright 2025 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import React, { useEffect } from 'react';
+import { BehaviorSubject } from 'rxjs';
 import {
   initializeTitleManager,
   useStateFromPublishingSubject,
   apiHasParentApi,
-  apiPublishesReload
+  apiPublishesReload,
 } from '@kbn/presentation-publishing';
-import {WatchService} from "../../services";
-import { WatchBatchManager } from "../../services/WatchBatchManager";
-import {
-  getSeverity,
-  watchStatusToIconProps
-} from "../../pages/SignalsOperatorView/utils/helpers";
+import { WatchService } from '../../services';
+import { WatchBatchManager } from '../../services/WatchBatchManager';
+import { getSeverity, watchStatusToIconProps } from '../../pages/SignalsOperatorView/utils/helpers';
 
 import { EuiFlexGroup, EuiFlexItem, EuiIcon, EuiText } from '@elastic/eui';
-import {WATCH_STATUS_EMBEDDABLE_ID} from "./watch_status_utils";
+import { WATCH_STATUS_EMBEDDABLE_ID } from './watch_status_utils';
 
 // Shared batch manager instance for all embeddables
 let sharedWatchBatchManager = null;
 
-export const getWatchStatusEmbeddableFactory = ({httpClient}) => {
+export const getWatchStatusEmbeddableFactory = ({ httpClient }) => {
   const watchService = new WatchService(httpClient);
 
   // Create shared batch manager only once
@@ -59,7 +71,7 @@ export const getWatchStatusEmbeddableFactory = ({httpClient}) => {
           const loadedWatches = response.resp.data.watches || [];
 
           // Find the watch with the same id
-          const loadedWatch = loadedWatches.find(watch => watch.watch_id === watchId) || null;
+          const loadedWatch = loadedWatches.find((watch) => watch.watch_id === watchId) || null;
           watch$.next(loadedWatch);
         } catch (error) {
           if (abortSignal?.aborted) {
@@ -108,7 +120,6 @@ export const getWatchStatusEmbeddableFactory = ({httpClient}) => {
       if (apiHasParentApi(api) && apiPublishesReload(api.parentApi)) {
         // Subscribe directly to the reload observable instead of fetch$
         reloadSubscription = api.parentApi.reload$.subscribe(() => {
-
           // Cancel any previous request to prevent race conditions
           if (prevRequestAbortController) {
             prevRequestAbortController.abort();
@@ -167,11 +178,14 @@ export const getWatchStatusEmbeddableFactory = ({httpClient}) => {
           // Show error state if there's a blocking error
           if (error) {
             return (
-              <EuiFlexGroup direction="column" gutterSize="m" justifyContent={"center"} alignItems={"center"}>
+              <EuiFlexGroup
+                direction="column"
+                gutterSize="m"
+                justifyContent={'center'}
+                alignItems={'center'}
+              >
                 <EuiFlexItem grow={false}>
-                  <EuiText color="danger">
-                    Error loading watch: {error.message}
-                  </EuiText>
+                  <EuiText color="danger">Error loading watch: {error.message}</EuiText>
                 </EuiFlexItem>
               </EuiFlexGroup>
             );
@@ -183,14 +197,17 @@ export const getWatchStatusEmbeddableFactory = ({httpClient}) => {
             }
             const severityLevel = getSeverity(watch);
 
-            const { type: iconType, nodeText, ...badgeProps }
-              = watchStatusToIconProps(watch, watch.active, severityLevel, () => {});
+            const {
+              type: iconType,
+              nodeText,
+              ...badgeProps
+            } = watchStatusToIconProps(watch, watch.active, severityLevel, () => {});
 
             return (
               <EuiFlexGroup
-                alignItems={"center"}
-                gutterSize={"s"}
-                justifyContent={"flexStart"}
+                alignItems={'center'}
+                gutterSize={'s'}
+                justifyContent={'flexStart'}
                 style={{
                   padding: '10px 18px',
                   backgroundColor: badgeProps.backgroundColor,
@@ -206,20 +223,22 @@ export const getWatchStatusEmbeddableFactory = ({httpClient}) => {
                 <EuiFlexItem grow={false}>
                   <EuiIcon type={iconType} size="xl" />
                 </EuiFlexItem>
-                <EuiFlexItem grow={false}>
-                  {nodeText}
-                </EuiFlexItem>
+                <EuiFlexItem grow={false}>{nodeText}</EuiFlexItem>
               </EuiFlexGroup>
             );
-          }
+          };
 
           return (
-            <EuiFlexGroup direction="column" gutterSize="m" justifyContent={"center"} alignItems={"center"} style={{paddingLeft: 5, paddingRight: 5}}>
+            <EuiFlexGroup
+              direction="column"
+              gutterSize="m"
+              justifyContent={'center'}
+              alignItems={'center'}
+              style={{ paddingLeft: 5, paddingRight: 5 }}
+            >
               <EuiFlexItem grow={false}>
                 <EuiText size="s">
-                  <h3>
-                    {watchId}
-                  </h3>
+                  <h3>{watchId}</h3>
                 </EuiText>
               </EuiFlexItem>
               <EuiFlexItem
@@ -231,11 +250,11 @@ export const getWatchStatusEmbeddableFactory = ({httpClient}) => {
                 {renderLastStatusWithSeverityColumn(watch)}
               </EuiFlexItem>
             </EuiFlexGroup>
-          )
-        }
-      }
-    }
-  }
+          );
+        },
+      };
+    },
+  };
 
   return embeddableFactory;
-}
+};

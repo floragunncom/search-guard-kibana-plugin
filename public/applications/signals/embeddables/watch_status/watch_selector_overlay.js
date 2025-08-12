@@ -1,10 +1,17 @@
 /*
- * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the "Elastic License
- * 2.0", the "GNU Affero General Public License v3.0 only", and the "Server Side
- * Public License v 1"; you may not use this file except in compliance with, at
- * your election, the "Elastic License 2.0", the "GNU Affero General Public
- * License v3.0 only", or the "Server Side Public License, v 1".
+ *    Copyright 2025 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import {
@@ -25,41 +32,29 @@ import {
 } from '@elastic/eui';
 
 import { tracksOverlays } from '@kbn/presentation-containers';
-import {
-  apiHasParentApi,
-  useStateFromPublishingSubject,
-} from '@kbn/presentation-publishing';
+import { apiHasParentApi, useStateFromPublishingSubject } from '@kbn/presentation-publishing';
 import { toMountPoint } from '@kbn/react-kibana-mount';
-import React, {Fragment, useState} from 'react';
+import React, { Fragment } from 'react';
 import { BehaviorSubject } from 'rxjs';
-import {WatchService} from "../../services";
-import {TableTextCell} from "../../../components";
-import {getSeverity, watchStatusToIconProps} from "../../pages/SignalsOperatorView/utils/helpers";
-import {serializeAttributes} from "./watch_status_utils";
+import { WatchService } from '../../services';
+import TableTextCell from '../../../components/Table/TableTextCell/TableTextCell';
+import { getSeverity, watchStatusToIconProps } from '../../pages/SignalsOperatorView/utils/helpers';
+import { serializeAttributes } from './watch_status_utils';
 
-export const watchSelectorOverlay = (
-  {
-    addPanel,
-    httpClient,
-    stateObservables,
-    core,
-    api,
-  }
-) => {
+export const watchSelectorOverlay = ({ addPanel, httpClient, stateObservables, core, api }) => {
   return new Promise((resolve) => {
     const watchService = new WatchService(httpClient);
     const selectableWatches$ = new BehaviorSubject([]);
 
     const loadWatches = (watchId = null) => {
-      const query = {size: 500};
+      const query = { size: 500 };
       if (watchId) {
         query.watch_id = watchId;
       }
-      watchService.summary(query)
-        .then(response => {
-          selectableWatches$.next(response.resp.data.watches);
-        });
-    }
+      watchService.summary(query).then((response) => {
+        selectableWatches$.next(response.resp.data.watches);
+      });
+    };
 
     loadWatches();
 
@@ -69,7 +64,6 @@ export const watchSelectorOverlay = (
       }
       overlayRef.close();
     };
-
 
     const flyoutRef = core.overlays.openFlyout(
       toMountPoint(
@@ -102,8 +96,6 @@ export const watchSelectorOverlay = (
         onClose: () => closeFlyout(flyoutRef),
       }
     );
-
-
   });
 };
 
@@ -117,13 +109,7 @@ export const watchSelectorOverlay = (
  * @returns {Element}
  * @constructor
  */
-export const WatchSelector = ({
-  selectableWatches,
-  onSearch,
-  onSetWatch,
-  onSubmit,
-  onCancel,
-  }) => {
+export const WatchSelector = ({ selectableWatches, onSearch, onSetWatch, onSubmit, onCancel }) => {
   const watches = useStateFromPublishingSubject(selectableWatches);
 
   // Makes the table rows clickable
@@ -137,15 +123,18 @@ export const WatchSelector = ({
 
   const renderLastStatusWithSeverityColumn = (field, watch) => {
     const severityLevel = getSeverity(watch);
-    const { type: iconType, nodeText, ...badgeProps }
-      = watchStatusToIconProps(watch, watch.active, severityLevel, () => {});
+    const {
+      type: iconType,
+      nodeText,
+      ...badgeProps
+    } = watchStatusToIconProps(watch, watch.active, severityLevel, () => {});
 
     return (
       <Fragment>
         <EuiFlexGroup
-          alignItems={"center"}
-          gutterSize={"s"}
-          justifyContent={"flexStart"}
+          alignItems={'center'}
+          gutterSize={'s'}
+          justifyContent={'flexStart'}
           style={{
             padding: '0px 8px',
             backgroundColor: badgeProps.backgroundColor,
@@ -159,13 +148,11 @@ export const WatchSelector = ({
           <EuiFlexItem grow={false}>
             <EuiIcon type={iconType} size="m" />
           </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            {nodeText}
-          </EuiFlexItem>
+          <EuiFlexItem grow={false}>{nodeText}</EuiFlexItem>
         </EuiFlexGroup>
       </Fragment>
     );
-  }
+  };
 
   const columns = [
     {
@@ -179,32 +166,20 @@ export const WatchSelector = ({
       name: 'Name',
       footer: 'Name',
       truncateText: true,
-      render: (id, watch) => (
-        <TableTextCell
-          name={id}
-          value={id}
-        />
-      ),
+      render: (id, watch) => <TableTextCell name={id} value={id} />,
     },
-  ]
+  ];
 
   return (
     <>
       <EuiFlyoutHeader hasBorder>
         <EuiTitle size="m">
-          <h2>
-            Select a watch
-          </h2>
+          <h2>Select a watch</h2>
         </EuiTitle>
       </EuiFlyoutHeader>
       <EuiFlyoutBody>
-        <EuiCallOut
-          title="Watch selection"
-          iconType="bell"
-        >
-          <p>
-            The watches available here are watches with severity levels defined.
-          </p>
+        <EuiCallOut title="Watch selection" iconType="bell">
+          <p>The watches available here are watches with severity levels defined.</p>
         </EuiCallOut>
 
         <EuiSpacer size="m" />
@@ -229,18 +204,17 @@ export const WatchSelector = ({
             initialPageSize: 100,
             pageSizeOptions: [10, 20, 50, 100],
           }}
-          >
-        </EuiInMemoryTable>
+        ></EuiInMemoryTable>
       </EuiFlyoutBody>
       <EuiFlyoutFooter>
         <EuiFlexGroup justifyContent="spaceBetween">
           <EuiFlexItem grow={false}>
-            <EuiButtonEmpty iconType="cross" onClick={onCancel} flush="left">
+            <EuiButtonEmpty iconType="cross" onClick={onCancel}>
               Cancel
             </EuiButtonEmpty>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiFlexGroup gutterSize="m" alignItems="center" responsive={false}>
+            <EuiFlexGroup gutterSize="m" alignItems="center">
               <EuiFlexItem grow={false}>
                 <EuiButton onClick={() => onSubmit()} fill>
                   Done
