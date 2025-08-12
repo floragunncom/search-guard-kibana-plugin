@@ -16,7 +16,6 @@
 
 import {
   EuiButton,
-  EuiButtonEmpty,
   EuiFlexGroup,
   EuiFlexItem,
   EuiFlyoutBody,
@@ -78,10 +77,7 @@ export const watchSelectorOverlay = ({ addPanel, httpClient, stateObservables, c
             stateObservables.watchId.next(watchId);
             addPanel(serializeAttributes(stateObservables));
           }}
-          onCancel={() => {
-            closeFlyout(flyoutRef);
-          }}
-          onSubmit={() => {
+          onClose={() => {
             closeFlyout(flyoutRef);
           }}
         />,
@@ -104,12 +100,11 @@ export const watchSelectorOverlay = ({ addPanel, httpClient, stateObservables, c
  * @param selectableWatches
  * @param onSearch
  * @param onSetWatch
- * @param onSubmit
- * @param onCancel
+ * @param onClose
  * @returns {Element}
  * @constructor
  */
-export const WatchSelector = ({ selectableWatches, onSearch, onSetWatch, onSubmit, onCancel }) => {
+export const WatchSelector = ({ selectableWatches, onSearch, onSetWatch, onClose }) => {
   const watches = useStateFromPublishingSubject(selectableWatches);
 
   // Makes the table rows clickable
@@ -207,20 +202,11 @@ export const WatchSelector = ({ selectableWatches, onSearch, onSetWatch, onSubmi
         ></EuiInMemoryTable>
       </EuiFlyoutBody>
       <EuiFlyoutFooter>
-        <EuiFlexGroup justifyContent="spaceBetween">
+        <EuiFlexGroup justifyContent="flexEnd">
           <EuiFlexItem grow={false}>
-            <EuiButtonEmpty iconType="cross" onClick={onCancel}>
-              Cancel
-            </EuiButtonEmpty>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiFlexGroup gutterSize="m" alignItems="center">
-              <EuiFlexItem grow={false}>
-                <EuiButton onClick={() => onSubmit()} fill>
-                  Done
-                </EuiButton>
-              </EuiFlexItem>
-            </EuiFlexGroup>
+            <EuiButton onClick={() => onClose()} >
+              Done
+            </EuiButton>
           </EuiFlexItem>
         </EuiFlexGroup>
       </EuiFlyoutFooter>
