@@ -90,7 +90,7 @@ if [ ! -f bazel-bin/src/platform/packages/private/kbn-ui-shared-deps-npm/shared_
   echo "File bazel-bin/src/platform/packages/kbn-ui-shared-deps-npm/shared_built_assets/kbn-ui-shared-deps-npm-manifest.json not found"
   #exit 1
 fi
-mv kbn-ui-shared-deps-npm-manifest.json bazel-bin/src/platform/packages/private/kbn-ui-shared-deps-npm/shared_built_assets/kbn-ui-shared-deps-npm-manifest.json
+#mv kbn-ui-shared-deps-npm-manifest.json bazel-bin/src/platform/packages/private/kbn-ui-shared-deps-npm/shared_built_assets/kbn-ui-shared-deps-npm-manifest.json
 rm -rf kibana-$SF_VERSION.tar.gz
 
 end_section replace_kbn_ui_shared_deps_npm_manifest_json
