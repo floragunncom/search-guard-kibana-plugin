@@ -45,6 +45,10 @@ before_script:
       echo "Unsupported package manager"
       exit 1
     fi
+    groupadd --gid 1000 kibana && \
+      useradd --uid 1000 --gid 1000 -G 0 \
+        --home-dir "$CI_PROJECT_DIR" --no-create-home \
+        kibana
 
 
 stages:
@@ -106,11 +110,15 @@ build:
     - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
       when: never
     - when: always
+  tags:
+    - build
   script:
     - |
       set -e
-      source ci/install_dependencies.sh
-      source ci/init_build.sh
+      su -s /bin/bash kibana -c "
+        source ci/install_dependencies.sh && \
+        source ci/init_build.sh
+      "
       echo "SG_SF_PLUGIN_VERSION=$SG_SF_PLUGIN_VERSION" >> benv.env
       echo "BUILD_VERSION=$BUILD_VERSION" >> benv.env
       echo "SF_VERSION=$SF_VERSION" >> benv.env
@@ -147,12 +155,13 @@ build_release:
       #In package.json
       # "version": "1.0.0-es-7.17.6"
       
-      # Prepare package.json and kibana.json for release
-      sed -i -e "s#\"version\":.*\"#\"version\": \"$SF_VERSION\"#" $SF_JSON
-      sed -i -e "s#\"version\":.*\"#\"version\": \"$BUILD_VERSION\"#" package.json
-      
-      source ci/install_dependencies.sh
-      source ci/init_build.sh
+      su -s /bin/bash kibana -c "
+        # Prepare package.json and kibana.json for release
+        sed -i -e "s#\"version\":.*\"#\"version\": \"$SF_VERSION\"#" $SF_JSON
+        sed -i -e "s#\"version\":.*\"#\"version\": \"$BUILD_VERSION\"#" package.json
+        source ci/install_dependencies.sh && \
+        source ci/init_build.sh
+      "
       echo "SG_SF_PLUGIN_VERSION=$SG_SF_PLUGIN_VERSION" >> benv.env
       echo "BUILD_VERSION=$BUILD_VERSION" >> benv.env
       echo "SF_VERSION=$SF_VERSION" >> benv.env
@@ -169,14 +178,7 @@ build_release:
 deploy_snapshot:
   stage: package
   tags:
-    - openstack-runner
-  #needs:
-  #  - job: build
-  #    artifacts: true
-  #rules:
-  #  - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
-  #   when: never
-  #  - when: always
+    - build
   script:
     - ci/deploy.sh
     - |
@@ -198,7 +200,7 @@ deploy_release:
       when: never
     - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
   tags:
-    - openstack-runner
+    - build
   script:
     - |
       ci/setup_gpg.sh
