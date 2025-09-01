@@ -110,6 +110,8 @@ build:
     - |
       set -e
       source ci/install_dependencies.sh
+      echo "sleep debug"
+      sleep 3600
       source ci/init_build.sh
       echo "SG_SF_PLUGIN_VERSION=$SG_SF_PLUGIN_VERSION" >> benv.env
       echo "BUILD_VERSION=$BUILD_VERSION" >> benv.env
