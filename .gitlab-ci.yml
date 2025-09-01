@@ -100,6 +100,8 @@ prepare_env:
 # This case is for usual commit to the branch, doing only unit testing and local build
 build:
   stage: build
+  tags:
+    - hetzner-gitlab-runner-2  
   rules:
     - if: '$DOCKER_ONLY'
       when: never
@@ -110,8 +112,8 @@ build:
     - |
       set -e
       source ci/install_dependencies.sh
-      echo "sleep debug"
-      sleep 3600
+      # echo "sleep debug "
+      # sleep 3600
       source ci/init_build.sh
       echo "SG_SF_PLUGIN_VERSION=$SG_SF_PLUGIN_VERSION" >> benv.env
       echo "BUILD_VERSION=$BUILD_VERSION" >> benv.env
