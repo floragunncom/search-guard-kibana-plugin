@@ -97,6 +97,7 @@ prepare_env:
     reports:
       dotenv: benv.env
 
+
 # This case is for usual commit to the branch, doing only unit testing and local build
 build:
   stage: build
@@ -109,6 +110,9 @@ build:
   script:
     - |
       set -e
+
+      # echo "debug"
+      # sleep 14400
       source ci/install_dependencies.sh
       source ci/init_build.sh
       echo "SG_SF_PLUGIN_VERSION=$SG_SF_PLUGIN_VERSION" >> benv.env

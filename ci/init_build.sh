@@ -11,6 +11,8 @@ if [[ -f $SF_REPO_DIR/.cached_version ]]; then
    if [ "$CACHED_VERSION" != "$SF_VERSION" ]; then
       echo "Cached version $CACHED_VERSION does not match requested version $SF_VERSION. Deleting cache."
       rm -rf $SF_REPO_DIR
+   else 
+      "Using cached version $(cat $CACHED_VERSION)"
    fi
 elif [[ -d $SF_REPO_DIR ]]; then
    echo "No cached_version file. Deleting cache."
@@ -73,7 +75,11 @@ fi
 echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
 
 # Prevent warning about outdated caniuse-lite, which seems to block the build
-npx --yes update-browserslist-db@latest
+if grep -q '"@elastic/eui@104.0.0-amsterdam.0"' yarn.lock; then
+   yarn install --update-checksums 
+fi
+npx update-browserslist-db@latest 
+
 
 yarn kbn bootstrap --allow-root
 
@@ -108,8 +114,7 @@ cp -a "../tests"  plugins/search-guard
 cp -a "../__mocks__" plugins/search-guard
 cp -a "../yarn.lock" plugins/search-guard
 
-# Prevent warning about outdated caniuse-lite, which seems to block the build
-npx --yes update-browserslist-db@latest
+
 
 cd plugins/search-guard
 
