@@ -11,7 +11,7 @@ if [[ -f $SF_REPO_DIR/.cached_version ]]; then
    if [ "$CACHED_VERSION" != "$SF_VERSION" ]; then
       echo "Cached version $CACHED_VERSION does not match requested version $SF_VERSION. Deleting cache."
       rm -rf $SF_REPO_DIR
-   else 
+   else
      echo  "Using cached version $(cat $SF_REPO_DIR/.cached_version)"
    fi
 elif [[ -d $SF_REPO_DIR ]]; then
@@ -27,7 +27,6 @@ if [[ ! -d $SF_REPO_DIR ]]; then
 fi
 
 cd $SF_REPO_DIR
-
 
 
 
@@ -78,15 +77,31 @@ echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoin
 # Prevent warning about outdated caniuse-lite, which seems to block the build
 if grep -q '"@elastic/eui@104.0.0-amsterdam.0"' yarn.lock; then
    echo "Update checksums"
-   yarn install --update-checksums 
+   yarn install --update-checksums
 fi
-npx update-browserslist-db@latest 
+npx update-browserslist-db@latest
 
 
-yarn kbn bootstrap
+yarn kbn bootstrap --allow-root
 
 echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
 
+
+start_section replace_kbn_ui_shared_deps_npm_manifest_json "Replace bazel-bin/../kbn-ui-shared-deps-npm-manifest.json with file from kibana release"
+
+echo "Will download $SF_RELEASE_PACKAGE_URL"
+
+curl --fail $SF_RELEASE_PACKAGE_URL -o kibana-$SF_VERSION.tar.gz
+tar -xf kibana-$SF_VERSION.tar.gz --transform 's/.*\///g' --wildcards --no-anchored 'kbn-ui-shared-deps-npm-manifest.json'
+
+if [ ! -f bazel-bin/src/platform/packages/private/kbn-ui-shared-deps-npm/shared_built_assets/kbn-ui-shared-deps-npm-manifest.json ]; then
+  echo "File bazel-bin/src/platform/packages/kbn-ui-shared-deps-npm/shared_built_assets/kbn-ui-shared-deps-npm-manifest.json not found"
+  exit 1
+fi
+mv kbn-ui-shared-deps-npm-manifest.json bazel-bin/src/platform/packages/private/kbn-ui-shared-deps-npm/shared_built_assets/kbn-ui-shared-deps-npm-manifest.json
+rm -rf kibana-$SF_VERSION.tar.gz
+
+end_section replace_kbn_ui_shared_deps_npm_manifest_json
 
 mkdir -p plugins/search-guard
 cp -a "../babel.config.js" plugins/search-guard
@@ -100,7 +115,8 @@ cp -a "../tests"  plugins/search-guard
 cp -a "../__mocks__" plugins/search-guard
 cp -a "../yarn.lock" plugins/search-guard
 
-
+# Prevent warning about outdated caniuse-lite, which seems to block the build
+npx --yes update-browserslist-db@latest
 
 cd plugins/search-guard
 
@@ -120,7 +136,7 @@ end_section tests
 rm -rf "node_modules"
 start_section build "Building Search Guard Plugin"
 start_section yarn_install "Doing yarn install --production"
-yarn install --production --frozen-lockfile
+yarn install --production #--frozen-lockfile
 end_section yarn_install
 start_section yarn_build "Doing yarn build -v $SF_VERSION --skip-archive"
 
