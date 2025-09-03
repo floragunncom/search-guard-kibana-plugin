@@ -49,6 +49,9 @@ before_script:
       useradd --uid 1000 --gid 1000 -G 0 \
         --home-dir "$CI_PROJECT_DIR" --no-create-home \
         kibana
+        
+    echo "Login in into Docker Hub"      
+    echo "$DOCKER_PASSWORD" | docker login --username floragunncom --password-stdin docker.io > /dev/null        
 
 
 stages:
