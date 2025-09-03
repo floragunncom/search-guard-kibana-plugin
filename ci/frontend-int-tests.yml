@@ -123,9 +123,12 @@ kibana_authtokens:
     - |
        
        sudo sysctl -w vm.max_map_count=262144
+       echo "Login in into Docker Hub"      
+       echo "$DOCKER_PASSWORD" | docker login --username floragunncom --password-stdin docker.io > /dev/null        
+
        echo "SNAPSHOT_REVISION=$SNAPSHOT_REVISION"
-       echo "TEST_DEFINITIONS $TEST_DEFINITIONS"
-       
+       echo "TEST_DEFINITIONS $TEST_DEFINITIONS"       
+
        git clone --depth 1 --branch $IT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git > /dev/null
        cd sgi8/server
        rm -f docker/elasticsearch/search-guard.zip
