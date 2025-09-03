@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 source ci/utils.sh
 
 start_collapsed_section nvm "Installing NVM and Node"
