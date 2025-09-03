@@ -30,6 +30,7 @@ cd $SF_REPO_DIR
 
 
 
+
 echo -e "\e[0Ksection_start:`date +%s`:patch_kbn_optimizer[collapsed=true]\r\e[0KPatch kbn optimizer"
 
 sed -i "/observeLines(proc.stderr\!).pipe(Rx.map((line) => ({ type: 'stderr', data: line }))),/s/^/\/\//" packages/kbn-plugin-helpers/src/tasks/optimize.ts
@@ -82,26 +83,10 @@ fi
 npx update-browserslist-db@latest
 
 
-yarn kbn bootstrap --allow-root
+yarn kbn bootstrap
 
 echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
 
-
-start_section replace_kbn_ui_shared_deps_npm_manifest_json "Replace bazel-bin/../kbn-ui-shared-deps-npm-manifest.json with file from kibana release"
-
-echo "Will download $SF_RELEASE_PACKAGE_URL"
-
-curl --fail $SF_RELEASE_PACKAGE_URL -o kibana-$SF_VERSION.tar.gz
-tar -xf kibana-$SF_VERSION.tar.gz --transform 's/.*\///g' --wildcards --no-anchored 'kbn-ui-shared-deps-npm-manifest.json'
-
-if [ ! -f bazel-bin/src/platform/packages/private/kbn-ui-shared-deps-npm/shared_built_assets/kbn-ui-shared-deps-npm-manifest.json ]; then
-  echo "File bazel-bin/src/platform/packages/kbn-ui-shared-deps-npm/shared_built_assets/kbn-ui-shared-deps-npm-manifest.json not found"
-  exit 1
-fi
-mv kbn-ui-shared-deps-npm-manifest.json bazel-bin/src/platform/packages/private/kbn-ui-shared-deps-npm/shared_built_assets/kbn-ui-shared-deps-npm-manifest.json
-rm -rf kibana-$SF_VERSION.tar.gz
-
-end_section replace_kbn_ui_shared_deps_npm_manifest_json
 
 mkdir -p plugins/search-guard
 cp -a "../babel.config.js" plugins/search-guard
