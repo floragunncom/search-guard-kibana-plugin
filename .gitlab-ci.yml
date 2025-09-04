@@ -157,8 +157,8 @@ build_release:
       
       su -s /bin/bash kibana -c "
         # Prepare package.json and kibana.json for release
-        sed -i -e "s#\"version\":.*\"#\"version\": \"$SF_VERSION\"#" $SF_JSON
-        sed -i -e "s#\"version\":.*\"#\"version\": \"$BUILD_VERSION\"#" package.json
+        sed -i -e 's#\"version\":.*\"#\"version\": \"$SF_VERSION\"#' $SF_JSON
+        sed -i -e 's#\"version\":.*\"#\"version\": \"$BUILD_VERSION\"#' package.json
         source ci/install_dependencies.sh && \
         source ci/init_build.sh
       "
