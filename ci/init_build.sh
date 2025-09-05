@@ -12,7 +12,7 @@ if [[ -f $SF_REPO_DIR/.cached_version ]]; then
       echo "Cached version $CACHED_VERSION does not match requested version $SF_VERSION. Deleting cache."
       rm -rf $SF_REPO_DIR
    else 
-      "Using cached version $(cat $SF_REPO_DIR/.cached_version)"
+     echo  "Using cached version $(cat $SF_REPO_DIR/.cached_version)"
    fi
 elif [[ -d $SF_REPO_DIR ]]; then
    echo "No cached_version file. Deleting cache."
