@@ -79,6 +79,7 @@ if grep -q '"@elastic/eui@104.0.0-amsterdam.0"' yarn.lock; then
    echo "Update checksums"
    yarn install --update-checksums 
 fi
+
 npx update-browserslist-db@latest 
 
 
