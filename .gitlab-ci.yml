@@ -100,7 +100,9 @@ prepare_env:
 
 # This case is for usual commit to the branch, doing only unit testing and local build
 build:
-  stage: hetzner-gitlab-runner-3
+  stage: build
+  tags:
+    - hetzner-gitlab-runner-3
   rules:
     - if: '$DOCKER_ONLY'
       when: never
