@@ -102,7 +102,7 @@ prepare_env:
 build:
   stage: build
   tags:
-    - hetzner-gitlab-runner-1
+    - hetzner-gitlab-runner-2
   rules:
     - if: '$DOCKER_ONLY'
       when: never
