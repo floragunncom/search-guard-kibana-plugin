@@ -97,6 +97,7 @@ prepare_env:
     reports:
       dotenv: benv.env
 
+
 # This case is for usual commit to the branch, doing only unit testing and local build
 build:
   stage: build
