@@ -291,6 +291,5 @@ deploy_docker_demo_image:
 
 include:
   - local: '.gitlab-ci-branch-specific.yml'
-  - local: 'ci/frontend-int-tests.yml'
   - local: 'ci/aikido.yml'
   - local: 'ci/playwright-frontend-int-tests.yml'
