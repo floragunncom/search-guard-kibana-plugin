@@ -1,6 +1,6 @@
 {
     "id": "searchguard",
-    "version": "9.0.1",
+    "version": "9.0.8",
     "server": true,
     "ui": true,
     "optionalPlugins": [
