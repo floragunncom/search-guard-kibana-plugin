@@ -11,7 +11,7 @@ if [[ -f $SF_REPO_DIR/.cached_version ]]; then
    if [ "$CACHED_VERSION" != "$SF_VERSION" ]; then
       echo "Cached version $CACHED_VERSION does not match requested version $SF_VERSION. Deleting cache."
       rm -rf $SF_REPO_DIR
-   else 
+   else
      echo  "Using cached version $(cat $SF_REPO_DIR/.cached_version)"
    fi
 elif [[ -d $SF_REPO_DIR ]]; then
@@ -78,9 +78,9 @@ echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoin
 # Prevent warning about outdated caniuse-lite, which seems to block the build
 if grep -q '"@elastic/eui@104.0.0-amsterdam.0"' yarn.lock; then
    echo "Update checksums"
-   yarn install --update-checksums 
+   yarn install --update-checksums
 fi
-npx update-browserslist-db@latest 
+npx update-browserslist-db@latest
 
 
 yarn kbn bootstrap
@@ -100,7 +100,8 @@ cp -a "../tests"  plugins/search-guard
 cp -a "../__mocks__" plugins/search-guard
 cp -a "../yarn.lock" plugins/search-guard
 
-
+# Prevent warning about outdated caniuse-lite, which seems to block the build
+npx --yes update-browserslist-db@latest
 
 cd plugins/search-guard
 
@@ -120,7 +121,7 @@ end_section tests
 rm -rf "node_modules"
 start_section build "Building Search Guard Plugin"
 start_section yarn_install "Doing yarn install --production"
-yarn install --production --frozen-lockfile
+yarn install --production #--frozen-lockfile
 end_section yarn_install
 start_section yarn_build "Doing yarn build -v $SF_VERSION --skip-archive"
 
