@@ -1,100 +1,100 @@
 kibana_basicauth:
   extends:
-  - .be_integration_test
+  - .playwright_test
   variables:
     TEST_DEFINITIONS: ".*kibana_basicauth.*"
 
 # kibana_signals_accounts:
 #   extends:
-#   - .be_integration_test
+#   - .playwright_test
 #   variables:
 #     TEST_DEFINITIONS: ".*kibana_signals_accounts"
 
 # kibana_signals_accounts_edit:
 #   extends:
-#     - .be_integration_test
+#     - .playwright_test
 #   variables:
 #     TEST_DEFINITIONS: ".*kibana_signals_accounts_edit"
 
 # kibana_signals_watches:
 #   extends:
-#   - .be_integration_test
+#   - .playwright_test
 #   variables:
 #     TEST_DEFINITIONS: ".*kibana_signals_watches"
 
 # kibana_signals_watches_edit_1:
 #   extends:
-#     - .be_integration_test
+#     - .playwright_test
 #   variables:
 #     TEST_DEFINITIONS: ".*kibana_signals_watches_edit_1"
 
 # kibana_signals_watches_edit_2:
 #   extends:
-#     - .be_integration_test
+#     - .playwright_test
 #   variables:
 #     TEST_DEFINITIONS: ".*kibana_signals_watches_edit_2"
 
 # kibana_saml:
 #   extends:
-#   - .be_integration_test
+#   - .playwright_test
 #   variables:
 #     TEST_DEFINITIONS: ".*kibana_saml_keycloak.*" 
 
 # kibana_oidc:
 #   extends:
-#   - .be_integration_test
+#   - .playwright_test
 #   variables:
 #     TEST_DEFINITIONS: ".*kibana_oidc_keycloak.*"
 
 # kibana_proxy:
 #   extends:
-#   - .be_integration_test
+#   - .playwright_test
 #   variables:
 #     TEST_DEFINITIONS: ".*kibana_proxy.*"
 
 # kibana_jwt:
 #   extends:
-#   - .be_integration_test
+#   - .playwright_test
 #   variables:
 #     TEST_DEFINITIONS: ".*kibana_jwt.*"
 
-# kibana_configui_1:
-#   extends:
-#   - .be_integration_test
-#   variables:
-#     TEST_DEFINITIONS: ".*kibana_configui_1.*" 
+kibana_configui_1:
+  extends:
+  - .playwright_test
+  variables:
+    TEST_DEFINITIONS: ".*kibana_configui_1.*" 
 
 # kibana_configui_2:
 #   extends:
-#   - .be_integration_test
+#   - .playwright_test
 #   variables:
 #     TEST_DEFINITIONS: ".*kibana_configui_2.*"  
 
 # kibana_configui_3:
 #   extends:
-#   - .be_integration_test
+#   - .playwright_test
 #   variables:
 #     TEST_DEFINITIONS: ".*kibana_configui_3.*"
 
 # kibana_authtokens:
 #   extends:
-#   - .be_integration_test
+#   - .playwright_test
 #   variables:
 #     TEST_DEFINITIONS: ".*kibana_authtokens.*"
 
 # kibana_configui_licensehandling:
 #   extends:
-#   - .be_integration_test
+#   - .playwright_test
 #   variables:
 #     TEST_DEFINITIONS: ".*kibana_configui_licensehandling.*"
 
 # kibana_kerberos:
 #   extends:
-#   - .be_integration_test
+#   - .playwright_test
 #   variables:
 #     TEST_DEFINITIONS: ".*kibana_kerberos.*"
 
-.be_integration_test:
+.playwright_test:
   allow_failure: false
   stage: "Frontend Int Tests"
   tags:
