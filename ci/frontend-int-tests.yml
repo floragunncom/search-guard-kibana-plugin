@@ -1,62 +1,14 @@
+# kibana_authtokens:
+#   extends:
+#   - .playwright_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_authtokens.*"
+
 kibana_basicauth:
   extends:
   - .playwright_test
   variables:
     TEST_DEFINITIONS: ".*kibana_basicauth.*"
-
-# kibana_signals_accounts:
-#   extends:
-#   - .playwright_test
-#   variables:
-#     TEST_DEFINITIONS: ".*kibana_signals_accounts"
-
-# kibana_signals_accounts_edit:
-#   extends:
-#     - .playwright_test
-#   variables:
-#     TEST_DEFINITIONS: ".*kibana_signals_accounts_edit"
-
-# kibana_signals_watches:
-#   extends:
-#   - .playwright_test
-#   variables:
-#     TEST_DEFINITIONS: ".*kibana_signals_watches"
-
-# kibana_signals_watches_edit_1:
-#   extends:
-#     - .playwright_test
-#   variables:
-#     TEST_DEFINITIONS: ".*kibana_signals_watches_edit_1"
-
-# kibana_signals_watches_edit_2:
-#   extends:
-#     - .playwright_test
-#   variables:
-#     TEST_DEFINITIONS: ".*kibana_signals_watches_edit_2"
-
-# kibana_saml:
-#   extends:
-#   - .playwright_test
-#   variables:
-#     TEST_DEFINITIONS: ".*kibana_saml_keycloak.*" 
-
-# kibana_oidc:
-#   extends:
-#   - .playwright_test
-#   variables:
-#     TEST_DEFINITIONS: ".*kibana_oidc_keycloak.*"
-
-# kibana_proxy:
-#   extends:
-#   - .playwright_test
-#   variables:
-#     TEST_DEFINITIONS: ".*kibana_proxy.*"
-
-# kibana_jwt:
-#   extends:
-#   - .playwright_test
-#   variables:
-#     TEST_DEFINITIONS: ".*kibana_jwt.*"
 
 kibana_configui_1:
   extends:
@@ -70,29 +22,41 @@ kibana_configui_2:
   variables:
     TEST_DEFINITIONS: ".*kibana_configui_2.*"  
 
-kibana_configui_3:
-  extends:
-  - .playwright_test
-  variables:
-    TEST_DEFINITIONS: ".*kibana_configui_3.*"
-
-# kibana_authtokens:
+# kibana_configui_3:
 #   extends:
 #   - .playwright_test
 #   variables:
-#     TEST_DEFINITIONS: ".*kibana_authtokens.*"
+#     TEST_DEFINITIONS: ".*kibana_configui_3.*"
 
-# kibana_configui_licensehandling:
+
+# kibana_jwt:
 #   extends:
 #   - .playwright_test
 #   variables:
-#     TEST_DEFINITIONS: ".*kibana_configui_licensehandling.*"
+#     TEST_DEFINITIONS: ".*kibana_jwt.*"
 
-# kibana_kerberos:
+# kibana_oidc:
+#   extends:
+#   - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_oidc_keycloak.*"
+
+
+
+# kibana_proxy:
 #   extends:
 #   - .playwright_test
 #   variables:
-#     TEST_DEFINITIONS: ".*kibana_kerberos.*"
+#     TEST_DEFINITIONS: ".*kibana_proxy.*"
+
+
+# kibana_saml:
+#   extends:
+#   - .playwright_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_saml_keycloak.*" 
+
+
 
 .playwright_test:
   allow_failure: false
