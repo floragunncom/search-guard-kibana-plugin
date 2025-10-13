@@ -64,17 +64,17 @@ kibana_configui_1:
   variables:
     TEST_DEFINITIONS: ".*kibana_configui_1.*" 
 
-# kibana_configui_2:
-#   extends:
-#   - .playwright_test
-#   variables:
-#     TEST_DEFINITIONS: ".*kibana_configui_2.*"  
+kibana_configui_2:
+  extends:
+  - .playwright_test
+  variables:
+    TEST_DEFINITIONS: ".*kibana_configui_2.*"  
 
-# kibana_configui_3:
-#   extends:
-#   - .playwright_test
-#   variables:
-#     TEST_DEFINITIONS: ".*kibana_configui_3.*"
+kibana_configui_3:
+  extends:
+  - .playwright_test
+  variables:
+    TEST_DEFINITIONS: ".*kibana_configui_3.*"
 
 # kibana_authtokens:
 #   extends:
