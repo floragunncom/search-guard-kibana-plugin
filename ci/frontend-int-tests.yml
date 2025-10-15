@@ -36,18 +36,15 @@ kibana_jwt:
 
 kibana_oidc:
   extends:
-  - .be_integration_test
+  - .playwright_test
   variables:
     TEST_DEFINITIONS: ".*kibana_oidc_keycloak.*"
-
-
 
 kibana_proxy:
   extends:
   - .playwright_test
   variables:
     TEST_DEFINITIONS: ".*kibana_proxy.*"
-
 
 kibana_saml:
   extends:
