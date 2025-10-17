@@ -6,9 +6,13 @@
     "optionalPlugins": [
       "spaces",
       "security",
-      "home"
+      "home",
+      "embeddable",
+      "dashboard"
     ],
     "requiredPlugins": [
+      "uiActions",
+      "presentationUtil"
     ],
     "configPath": ["searchguard"],
     "owner": {
