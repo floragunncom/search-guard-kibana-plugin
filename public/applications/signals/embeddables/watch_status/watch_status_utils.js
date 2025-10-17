@@ -36,18 +36,25 @@ export const WATCH_STATUS_ACTION_GROUP = [
   },
 ];
 
+/**
+ * Creates observable state for the watch selector overlay
+ */
 export const getStateObservables = (attributes) => {
-  const watchId = new BehaviorSubject(attributes.watchId);
-
   return {
-    watchId,
-    comparators: {
-      watchId: [watchId, (val) => watchId.next(val)],
-    },
+    watchId: new BehaviorSubject(attributes.watchId),
   };
 };
+
+/**
+ * Serializes the watch selector state for passing to addNewPanel
+ * 
+ * Important: Must return { rawState: {...} } structure for 9.1.x
+ * This is passed to the embeddable's buildEmbeddable as initialState.rawState
+ */
 export const serializeAttributes = (state) => {
   return {
-    watchId: state.watchId.getValue(),
+    rawState: {
+      watchId: state.watchId.getValue(),
+    },
   };
 };

@@ -46,11 +46,16 @@ export const registerAddWatchStatusAction = ({ uiActions, dashboard, httpClient,
         watchId: null,
       });
 
-      // We can add multiple panels from the overlay
+      /**
+       * Add panel helper function
+       *
+       * Use 'serializedState' (not 'initialState') in 9.1.x
+       *
+       */
       const addPanel = (serializedState) => {
         embeddable.addNewPanel({
           panelType: WATCH_STATUS_EMBEDDABLE_ID,
-          initialState: serializedState,
+          serializedState: serializedState,
         });
       };
 
@@ -75,8 +80,8 @@ export const registerAddWatchStatusAction = ({ uiActions, dashboard, httpClient,
   if (dashboard) {
     dashboard.registerDashboardPanelPlacementSetting(WATCH_STATUS_EMBEDDABLE_ID, () => {
       return {
-        width: 6,
-        height: 6,
+        width: 8,
+        height: 8,
         //strategy: "placeAtTop",
       };
     });
