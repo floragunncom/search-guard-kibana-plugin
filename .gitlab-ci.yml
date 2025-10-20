@@ -135,7 +135,7 @@ build:
       - junit*.xml
     expire_in: 24h
   cache:
-    key: "main-es8-23-protected"
+    key: "main-es8"
     paths:
       - ./${SF_REPO_DIR}
 
