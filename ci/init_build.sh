@@ -79,8 +79,8 @@ if grep -q '"@elastic/eui@104.0.0-amsterdam.0"' yarn.lock; then
    #  echo "Install eui@104.0.0-amsterdam.0 manually"
     echo "Remove eui@104.0.0-amsterdam.0"
     yarn remove @elastic/eui
-   #  curl -L --fail "https://registry.yarnpkg.com/@elastic/eui/-/eui-104.0.0-amsterdam.0.tgz" -o "/tmp/eui-104.0.0-amsterdam.0.tgz"
-   #  yarn add "file:/tmp/eui-104.0.0-amsterdam.0.tgz" --force
+    curl -L --fail "https://registry.yarnpkg.com/@elastic/eui/-/eui-104.0.0-amsterdam.0.tgz" -o "/tmp/eui-104.0.0-amsterdam.0.tgz"
+    yarn add "file:/tmp/eui-104.0.0-amsterdam.0.tgz" --force
 fi
 
 echo "DEBUG yarn.lock"
