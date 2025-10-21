@@ -89,8 +89,8 @@ fi
 # ls -lan
 npx update-browserslist-db@latest
 
-# echo "debug!!!!"
-# exit 0
+echo "debug!!!!"
+exit 1
 
 
 yarn kbn bootstrap
