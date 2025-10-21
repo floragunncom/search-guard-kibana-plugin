@@ -35,10 +35,27 @@ export const validateTextField = (value) => {
   if (!value) return requiredText;
 };
 
-export const validateName = (Service, isUpdatingName = false) => async (name) => {
+/**
+ * Creates a generic name validation function for different resources.
+ *
+ * @param {Object} Service - The http service for the given resource
+ * @param {boolean} [isUpdatingName=false]
+ * @param {Object} [options={}] - Validation options
+ * @param {boolean} [options.skipForbiddenChars=false] - If true, skips forbidden characters validation
+ * @param {RegExp} [options.forbiddenCharsPattern=/[\.*]/gm] - Custom regex pattern for forbidden characters
+ * @returns {Function} An async validation function that takes a name string and returns null if valid, or an error message string if invalid
+ *
+ */
+export const validateName = (Service, isUpdatingName = false, options = {}) => async (name) => {
   if (!name) return requiredText;
-  const hasForbiddenChars = /[\.*]/gm.test(name);
-  if (hasForbiddenChars) return forbiddenCharsText;
+
+  // Check forbidden chars unless explicitly disabled
+  if (options.skipForbiddenChars !== true) {
+    const forbiddenCharsPattern = options.forbiddenCharsPattern || /[\.*]/gm;
+    const hasForbiddenChars = forbiddenCharsPattern.test(name);
+    if (hasForbiddenChars) return forbiddenCharsText;
+  }
+
   try {
     const { data } = await Service.list();
     const newNameAlreadyExists = isUpdatingName && Object.keys(data).includes(name);
