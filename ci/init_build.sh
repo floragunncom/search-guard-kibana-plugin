@@ -80,9 +80,12 @@ echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoin
 #    echo "Update checksums"
 #    yarn install --update-checksums
 # fi
-yarn cache clean
-rm -rf ./node_modules/
+# yarn cache clean
+# rm -rf ./node_modules/
+echo "debug list !!"
+ls -lan
 npx update-browserslist-db@latest
+
 echo "debug!!!!"
 exit 0
 
