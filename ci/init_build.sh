@@ -86,7 +86,8 @@ echo "DEBUG  end yarn.lock"
 # fi
 # echo "pwd"
 # pwd
-yarn exec npx --yes update-browserslist-db@latest
+yarn upgrade caniuse-lite@latest
+
 
 
 yarn kbn bootstrap
@@ -107,7 +108,8 @@ cp -a "../__mocks__" plugins/search-guard
 cp -a "../yarn.lock" plugins/search-guard
 
 # Prevent warning about outdated caniuse-lite, which seems to block the build
-yarn exec npx --yes update-browserslist-db@latest
+yarn upgrade caniuse-lite@latest
+
 
 cd plugins/search-guard
 
