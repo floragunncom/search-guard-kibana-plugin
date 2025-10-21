@@ -81,12 +81,6 @@ if grep -q '"@elastic/eui@104.0.0-amsterdam.0"' yarn.lock; then
    echo "Update checksums"
    yarn install --update-checksums
 fi
-# yarn cache clean
-# rm -rf ../.npm
-# echo "pwd"
-# pwd
-# echo "debug list !!"
-# ls -lan
 npx update-browserslist-db@latest
 
 echo "debug!!!!"

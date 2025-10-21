@@ -135,7 +135,7 @@ build:
       - junit*.xml
     expire_in: 24h
   cache:
-    key: "${CI_COMMIT_REF_SLUG}"
+    key: "main-es8"
     paths:
       - ./${SF_REPO_DIR}
 
