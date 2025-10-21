@@ -81,15 +81,15 @@ echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoin
 #    yarn install --update-checksums
 # fi
 # yarn cache clean
-rm -rf ../.npm
-echo "pwd"
-pwd
-echo "debug list !!"
-ls -lan
-npx update-browserslist-db@latest
+# rm -rf ../.npm
+# echo "pwd"
+# pwd
+# echo "debug list !!"
+# ls -lan
+# npx update-browserslist-db@latest
 
-echo "debug!!!!"
-exit 0
+# echo "debug!!!!"
+# exit 0
 
 
 yarn kbn bootstrap
