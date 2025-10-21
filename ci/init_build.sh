@@ -76,7 +76,7 @@ fi
 echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
 
 if grep -q '"@elastic/eui@104.0.0-amsterdam.0"' yarn.lock; then
-    echo "Install eui@104.0.0-amsterdam.0" manually"
+    echo "Install eui@104.0.0-amsterdam.0 manually"
     curl -L --fail "https://registry.yarnpkg.com/@elastic/eui/-/eui-104.0.0-amsterdam.0.tgz" -o "/tmp/eui-104.0.0-amsterdam.0.tgz"
     yarn add "file:/tmp/eui-104.0.0-amsterdam.0.tgz" --force
 fi
