@@ -84,6 +84,10 @@ echo "DEBUG  end yarn.lock"
 #    echo "Update checksums"
 #    yarn install --update-checksums
 # fi
+echo "pwd"
+pwd
+echo "sleep"
+sleep 3600
 npx update-browserslist-db@latest
 
 
