@@ -77,17 +77,17 @@ echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoin
 
 # Prevent warning about outdated caniuse-lite, which seems to block the build
 
-echo "DEBUG yarn.lock"
-cat yarn.lock
-echo "DEBUG  end yarn.lock"
-# if grep -q '"@elastic/eui@104.0.0-amsterdam.0"' yarn.lock; then
-#    echo "Update checksums"
-#    yarn install --update-checksums
-# fi
-echo "pwd"
-pwd
-echo "sleep"
-sleep 3600
+# echo "DEBUG yarn.lock"
+# cat yarn.lock
+# echo "DEBUG  end yarn.lock"
+# # if grep -q '"@elastic/eui@104.0.0-amsterdam.0"' yarn.lock; then
+# #    echo "Update checksums"
+# #    yarn install --update-checksums
+# # fi
+# echo "pwd"
+# pwd
+# echo "sleep"
+# sleep
 npx update-browserslist-db@latest
 
 

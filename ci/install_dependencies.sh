@@ -6,7 +6,7 @@ source ci/utils.sh
 
 start_collapsed_section nvm "Installing NVM and Node"
 
-curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh| bash
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.40.3/install.sh| bash
 export NVM_HOME=~/.nvm
 export NVM_DIR="$HOME/.nvm"
 
