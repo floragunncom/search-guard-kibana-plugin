@@ -236,5 +236,52 @@ describe('validation', () => {
         expect(await validateName(Service)(input)).toBe(expected);
       }
     });
+
+    test('skip forbidden chars validation', async () => {
+      const Service = { list: jest.fn().mockResolvedValue({ data: {} }) };
+      const inputs = [
+        {
+          input: 'abc.',
+          expected: null,
+        },
+        {
+          input: 'abc*',
+          expected: null,
+        },
+      ];
+
+      for (let i = 0; i < inputs.length; i++) {
+        const { input, expected } = inputs[i];
+        expect(await validateName(Service, false, { skipForbiddenChars: true })(input)).toBe(
+          expected
+        );
+      }
+    });
+
+    test('custom forbidden chars pattern', async () => {
+      const Service = { list: jest.fn().mockResolvedValue({ data: {} }) };
+      const customPattern = /\s/g;
+      const inputs = [
+        {
+          input: 'abc def',
+          expected: forbiddenCharsText,
+        },
+        {
+          input: 'abc.',
+          expected: null,
+        },
+        {
+          input: 'abc*',
+          expected: null,
+        },
+      ];
+
+      for (let i = 0; i < inputs.length; i++) {
+        const { input, expected } = inputs[i];
+        expect(
+          await validateName(Service, false, { forbiddenCharsPattern: customPattern })(input)
+        ).toBe(expected);
+      }
+    });
   });
 });

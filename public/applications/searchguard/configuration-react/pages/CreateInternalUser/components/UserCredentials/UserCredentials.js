@@ -56,7 +56,7 @@ const UserCredentials = ({ isEdit = false, isUpdatingName, values }) => {
       <FormikFieldText
         formRow
         formikFieldProps={{
-          validate: validateName(new InternalUsersService(httpClient), isUpdatingName),
+          validate: validateName(new InternalUsersService(httpClient), isUpdatingName, {skipForbiddenChars: true}),
         }}
         rowProps={{
           label: usernameText,
