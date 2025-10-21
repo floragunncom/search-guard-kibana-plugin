@@ -83,9 +83,6 @@ if grep -q '"@elastic/eui@104.0.0-amsterdam.0"' yarn.lock; then
 fi
 npx update-browserslist-db@latest
 
-echo "debug!!!!"
-exit 1
-
 
 yarn kbn bootstrap
 
