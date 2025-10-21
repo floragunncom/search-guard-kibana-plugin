@@ -109,7 +109,7 @@ cp -a "../__mocks__" plugins/search-guard
 cp -a "../yarn.lock" plugins/search-guard
 
 # Prevent warning about outdated caniuse-lite, which seems to block the build
-npx --yes update-browserslist-db@latest
+yarn run browserslist --update-db
 
 cd plugins/search-guard
 
