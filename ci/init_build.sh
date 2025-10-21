@@ -86,7 +86,7 @@ echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoin
 # pwd
 # echo "debug list !!"
 # ls -lan
-# npx update-browserslist-db@latest
+npx update-browserslist-db@latest
 
 # echo "debug!!!!"
 # exit 0
