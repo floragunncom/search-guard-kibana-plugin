@@ -87,8 +87,8 @@ echo "DEBUG yarn.lock"
 cat yarn.lock
 echo "DEBUG  end yarn.lock"
 
-# Prevent warning about outdated caniuse-lite, which seems to block the build
-npx --yes update-browserslist-db@latest
+# # Prevent warning about outdated caniuse-lite, which seems to block the build
+# npx --yes update-browserslist-db@latest
 
 
 yarn kbn bootstrap
