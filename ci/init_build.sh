@@ -77,16 +77,9 @@ echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoin
 
 # Prevent warning about outdated caniuse-lite, which seems to block the build
 
-echo "DEBUG yarn.lock"
-cat yarn.lock
-echo "DEBUG  end yarn.lock"
-# if grep -q '"@elastic/eui@104.0.0-amsterdam.0"' yarn.lock; then
-#    echo "Update checksums"
-#    yarn install --update-checksums
-# fi
-# echo "pwd"
-# pwd
-yarn upgrade caniuse-lite@latest
+if ! grep -q '"@elastic/eui@104.0.0-amsterdam.0"' yarn.lock; then
+   yarn exec npx --yes update-browserslist-db@latest
+fi
 
 
 
@@ -106,9 +99,6 @@ cp -a "../common" plugins/search-guard
 cp -a "../tests"  plugins/search-guard
 cp -a "../__mocks__" plugins/search-guard
 cp -a "../yarn.lock" plugins/search-guard
-
-# Prevent warning about outdated caniuse-lite, which seems to block the build
-yarn upgrade caniuse-lite@latest
 
 
 cd plugins/search-guard
