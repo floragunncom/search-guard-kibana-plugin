@@ -76,10 +76,10 @@ fi
 echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
 
 # Prevent warning about outdated caniuse-lite, which seems to block the build
-# if grep -q '"@elastic/eui@104.0.0-amsterdam.0"' yarn.lock; then
-#    echo "Update checksums"
-#    yarn install --update-checksums
-# fi
+if grep -q '"@elastic/eui@104.0.0-amsterdam.0"' yarn.lock; then
+   echo "Update checksums"
+   yarn install --update-checksums
+fi
 # yarn cache clean
 # rm -rf ../.npm
 # echo "pwd"
