@@ -49,8 +49,6 @@ if [[ -d plugins/search-guard ]]; then
 fi
 
 echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
-    echo "debug Print yarn.lock"
-    cat yarn.lock
 if grep -q '"@elastic/eui-amsterdam@npm:@elastic/eui@104.0.0-amsterdam.0", "@elastic/eui@104.0.0-amsterdam.0":' yarn.lock; then
     echo "[Fix eui@104.0.0-amsterdam.0] Clean Yarn Cache"
     yarn cache clean
@@ -130,3 +128,4 @@ rm -rf build
 mv $SF_REPO_DIR/plugins/search-guard/build build
 # Remove search-guard dir from repo to have a clean repo for the Gitlab CI cache
 rm -rf $SF_REPO_DIR/plugins/search-guard
+rm -rf $SF_REPO_DIR/package.json $SF_REPO_DIR/yarn.lock
