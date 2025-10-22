@@ -76,8 +76,11 @@ fi
 echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
 
 if grep -q '"@elastic/eui-amsterdam@npm:@elastic/eui@104.0.0-amsterdam.0", "@elastic/eui@104.0.0-amsterdam.0":' yarn.lock; then
-    echo "Patching yarn.lock to fix Integrity check failed for @elastic/eui"
-     npx yarn-deduplicate yarn.lock
+    yarn cache clean
+    yarn remove @elastic/eui @elastic/eui-amsterdam
+    yarn add @elastic/eui-amsterdam@npm:@elastic/eui@104.0.0-amsterdam.0
+    yarn add @elastic/eui@104.0.0-amsterdam.0
+    yarn add "@elastic/eui-amsterdam@npm:@elastic/eui@104.0.0-amsterdam.0"
     echo "Print yarn.lock"
     cat yarn.lock
 fi
