@@ -81,8 +81,7 @@ prepare_env:
 
         export SG_SF_PLUGIN_VERSION="b-$CI_COMMIT_REF_SLUG-SNAPSHOT"
         export BUILD_VERSION="b-$CI_COMMIT_REF_SLUG-SNAPSHOT"
-        # export SF_VERSION=$(grep -e '\bversion\b' $SF_JSON | tr -d "[:blank:]" | sed -E 's/"version":"(.*)"(.*)/\1/')
-        export SF_VERSION=8.19.0
+        export SF_VERSION=$(grep -e '\bversion\b' $SF_JSON | tr -d "[:blank:]" | sed -E 's/"version":"(.*)"(.*)/\1/')
       fi
 
       echo "SG_SF_PLUGIN_VERSION=$SG_SF_PLUGIN_VERSION" >> benv.env
@@ -135,11 +134,11 @@ build:
       - "build/*"
       - junit*.xml
     expire_in: 24h
-  # cache:
-  #   # key: "main-es8"
-  #   key: "${CI_COMMIT_REF_SLUG}"
-  #   paths:
-  #     - ./${SF_REPO_DIR}
+  cache:
+    key: "main-es8"
+    # key: "${CI_COMMIT_REF_SLUG}"
+    paths:
+      - ./${SF_REPO_DIR}
 
 # This case is for release tag commit to the branch, doing only unit testing and local build
 # no cache
