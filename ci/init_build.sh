@@ -77,7 +77,7 @@ echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoin
 
 if grep -q '"@elastic/eui-amsterdam@npm:@elastic/eui@104.0.0-amsterdam.0", "@elastic/eui@104.0.0-amsterdam.0":' yarn.lock; then
     echo "Patching yarn.lock to fix Integrity check failed for @elastic/eui"
-    sed -i'' -e 's/"@elastic\/eui-amsterdam@npm:@elastic\/eui@104\.0\.0-amsterdam\.0", "@elastic\/eui@104\.0\.0-amsterdam\.0":/"@elastic\/eui-amsterdam@npm:@elastic\/eui@104\.0\.0-amsterdam\.0":/' yarn.lock
+     npx yarn-deduplicate yarn.lock
     echo "Print yarn.lock"
     cat yarn.lock
 fi
@@ -104,8 +104,6 @@ cp -a "../tests"  plugins/search-guard
 cp -a "../__mocks__" plugins/search-guard
 cp -a "../yarn.lock" plugins/search-guard
 
-# Prevent warning about outdated caniuse-lite, which seems to block the build
-npx --yes update-browserslist-db@latest
 
 cd plugins/search-guard
 
