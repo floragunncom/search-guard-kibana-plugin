@@ -11,7 +11,7 @@ if [[ -f $SF_REPO_DIR/.cached_version ]]; then
    if [ "$CACHED_VERSION" != "$SF_VERSION" ]; then
       echo "Cached version $CACHED_VERSION does not match requested version $SF_VERSION. Deleting cache."
       rm -rf $SF_REPO_DIR
-   else 
+   else
      echo  "Using cached version $(cat $SF_REPO_DIR/.cached_version)"
    fi
 elif [[ -d $SF_REPO_DIR ]]; then
@@ -48,39 +48,22 @@ if [[ -d plugins/search-guard ]]; then
   rm -rf plugins/search-guard
 fi
 
-# This should not be needed for >= 8.11.4
-#if grep -q "$packages.atlassian.com/api/npm/npm-remote/react-remove-scroll/-/react-remove-scroll-2.5.6.tgz" "yarn.lock"; then
-#    echo -e "\e[0Ksection_start:`date +%s`:patch_yarn_lock[collapsed=true]\r\e[0KPatching yarn.lock file"
-#    echo "Patching react-remove-scroll-2.5.6 in yarn.lock file"
-#
-#    patch yarn.lock << 'EOF'
-#--- yarn.lock
-#+++ yarn.lock
-#@@ -25275,9 +25275,9 @@
-#     react-style-singleton "^2.2.1"
-#     tslib "^2.0.0"
-#
-#-react-remove-scroll@^2.5.6:
-#+react-remove-scroll@2.5.6:
-#   version "2.5.6"
-#-  resolved "https://packages.atlassian.com/api/npm/npm-remote/react-remove-scroll/-/react-remove-scroll-2.5.6.tgz#7510b8079e9c7eebe00e65a33daaa3aa29a10336"
-#+  resolved "https://registry.yarnpkg.com/react-remove-scroll/-/react-remove-scroll-2.5.6.tgz#7510b8079e9c7eebe00e65a33daaa3aa29a10336"
-#   integrity sha512-bO856ad1uDYLefgArk559IzUNeQ6SWH4QnrevIUjH+GczV56giDfl3h0Idptf2oIKxQmd1p9BN25jleKodTALg==
-#   dependencies:
-#     react-remove-scroll-bar "^2.3.4"
-#EOF
-#  echo -e "\e[0Ksection_end:`date +%s`:patch_yarn_lock\r\e[0K"
-#fi
-
-
 echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
-
-# Prevent warning about outdated caniuse-lite, which seems to block the build
-if grep -q '"@elastic/eui@104.0.0-amsterdam.0"' yarn.lock; then
-   echo "Update checksums"
-   yarn install --update-checksums 
+if grep -q '"@elastic/eui-amsterdam@npm:@elastic/eui@104.0.0-amsterdam.0", "@elastic/eui@104.0.0-amsterdam.0":' yarn.lock; then
+    echo "[Fix eui@104.0.0-amsterdam.0] Clean Yarn Cache"
+    yarn cache clean
+    echo "[Fix eui@104.0.0-amsterdam.0] Remove eui"
+    yarn remove @elastic/eui @elastic/eui-amsterdam
+    echo "[Fix eui@104.0.0-amsterdam.0] Reinstall eui"
+    yarn add @elastic/eui@104.0.0-amsterdam.0
+    yarn add "@elastic/eui-amsterdam@npm:@elastic/eui@104.0.0-amsterdam.0"
+   #  echo "[Fix eui@104.0.0-amsterdam.0] Print yarn.lock"
+   #  cat yarn.lock
 fi
-npx update-browserslist-db@latest 
+
+
+# # Prevent warning about outdated caniuse-lite, which seems to block the build
+npx --yes update-browserslist-db@latest
 
 
 yarn kbn bootstrap
@@ -99,7 +82,6 @@ cp -a "../common" plugins/search-guard
 cp -a "../tests"  plugins/search-guard
 cp -a "../__mocks__" plugins/search-guard
 cp -a "../yarn.lock" plugins/search-guard
-
 
 
 cd plugins/search-guard
@@ -146,3 +128,4 @@ rm -rf build
 mv $SF_REPO_DIR/plugins/search-guard/build build
 # Remove search-guard dir from repo to have a clean repo for the Gitlab CI cache
 rm -rf $SF_REPO_DIR/plugins/search-guard
+rm -rf $SF_REPO_DIR/package.json $SF_REPO_DIR/yarn.lock
