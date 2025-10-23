@@ -128,4 +128,3 @@ rm -rf build
 mv $SF_REPO_DIR/plugins/search-guard/build build
 # Remove search-guard dir from repo to have a clean repo for the Gitlab CI cache
 rm -rf $SF_REPO_DIR/plugins/search-guard
-rm -rf $SF_REPO_DIR/package.json $SF_REPO_DIR/yarn.lock
