@@ -11,7 +11,6 @@ import { APP_NAME } from './utils/constants';
 
 import { ContextProvider } from './Context';
 
-import 'react-vis/dist/style.css';
 import './style.scss';
 
 export const renderApp = ({ core, httpClient, element, removeExternalHistoryListener, theme$ }) => {
