@@ -33,8 +33,6 @@ import { useElasticChartsTheme } from '@kbn/charts-theme';
 
 import {
   getYTitle,
-  getXDomain,
-  getYDomain,
   formatYAxisTick,
   getDataFromResponse,
   getAggregationTitle,
@@ -92,29 +90,9 @@ class VisualGraphV2WithThemeInjected extends Component {
       return vizColors[index % vizColors.length];
     };
 
-    // Calculate X and Y domains from data
-    const getXYDomains = (data) => {
-      let xDomain = [];
-      let yDomain = [];
+    // Check if there's any data to display (used for conditional annotation rendering)
+    const hasData = Object.values(data).some(series => series && series.length > 0);
 
-      Object.keys(data).forEach((bucketsName) => {
-        const seriesData = data[bucketsName];
-        if (seriesData && seriesData.length > 0) {
-          xDomain = xDomain.concat(getXDomain(seriesData));
-          yDomain = yDomain.concat(getYDomain(seriesData));
-        }
-      });
-
-      xDomain = xDomain.sort((x, y) => x - y);
-      yDomain = yDomain.sort((x, y) => x - y);
-
-      return {
-        xDomain: xDomain.length > 0 ? [xDomain[0], xDomain[xDomain.length - 1]] : undefined,
-        yDomain: yDomain.length > 0 ? [yDomain[0], yDomain[yDomain.length - 1]] : undefined,
-      };
-    };
-
-    const { xDomain, yDomain } = getXYDomains(data);
     const xTitle = values._ui.timeField;
     const yTitle = getYTitle(values);
     const aggregationTitle = getAggregationTitle(values);
@@ -122,7 +100,7 @@ class VisualGraphV2WithThemeInjected extends Component {
     // Build threshold annotations array
     let annotations = [];
 
-    if (annotation && xDomain && yDomain) {
+    if (annotation && hasData) {
       if (isSeverity && severityThresholds) {
         Object.keys(severityThresholds).forEach((name) => {
           if (severityThresholds[name]) {
