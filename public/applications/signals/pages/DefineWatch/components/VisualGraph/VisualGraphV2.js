@@ -42,13 +42,33 @@ import {
 } from './utils/helpers';
 import { SEVERITY_COLORS } from '../../utils/constants';
 
-// Modified component that receives theme as prop
+/**
+ * VisualGraphV2 - Time-series chart component for Signals Watch alerting
+ *
+ * Features:
+ * - Multiple time-series visualization with automatic color assignment from theme
+ * - Threshold annotations (single or multi-level severity)
+ * - Custom dual-legend layout (horizontal for series, vertical for thresholds)
+ * - Interactive hover highlighting between chart and legends
+ *
+ * Note: Uses custom HTML legends instead of built-in Elastic Charts legend
+ * to support side-by-side horizontal and vertical legend layouts.
+ *
+ * @param {Object} response - Raw response data from backend containing time-series data
+ * @param {boolean} annotation - Whether to display threshold annotation lines
+ * @param {Object} values - Watch configuration containing:
+ *   - _ui.isSeverity: Boolean flag for multi-level severity thresholds
+ *   - _ui.thresholdValue: Single threshold value (if not using severity)
+ *   - _ui.severity.thresholds: Object with severity levels (e.g., {warning: 10, error: 50})
+ *   - _ui.timeField: Field name for X-axis time data
+ * @param {Object} baseTheme - Elastic Charts theme injected by useElasticChartsTheme hook
+ */
 class VisualGraphV2WithThemeInjected extends Component {
   static defaultProps = { annotation: false };
 
   state = {
-    hoveredSeries: null,
-    hoveredThreshold: null,
+    hoveredSeries: null,    // Track which data series is currently hovered (for highlight effect)
+    hoveredThreshold: null, // Track which threshold is currently hovered (for highlight effect)
   };
 
   renderXYPlot = (data) => {
@@ -58,13 +78,18 @@ class VisualGraphV2WithThemeInjected extends Component {
     const severityThresholds = get(values, '_ui.severity.thresholds');
     const { hoveredSeries, hoveredThreshold } = this.state;
 
-    // Get series colors from Elastic Charts theme
+    /**
+     * Get series colors from Elastic Charts theme
+     * Note: Explicit colors are set on LineSeries components to ensure they match the custom legend colors.
+     * This function is used by both the chart series and the legend to maintain consistency.
+     */
     const getSeriesColor = (index) => {
-      const defaultColors = baseTheme?.colors?.vizColors || [
-        '#006BB4', '#017D73', '#F04E98', '#6092C0', '#D36086',
-        '#9170B8', '#CA8EAE', '#D6BF57', '#B9A888', '#DA8B45',
-      ];
-      return defaultColors[index % defaultColors.length];
+      const vizColors = baseTheme?.colors?.vizColors;
+      if (!vizColors || vizColors.length === 0) {
+        console.warn('Elastic Charts theme colors not available, using fallback');
+        return '#000000';
+      }
+      return vizColors[index % vizColors.length];
     };
 
     // Calculate X and Y domains from data
@@ -154,7 +179,7 @@ class VisualGraphV2WithThemeInjected extends Component {
               <Settings
                 baseTheme={baseTheme}
                 locale={i18n.getLocale()}
-                showLegend={false}
+                showLegend={false} // Custom legends below provide dual-layout (horizontal + vertical)
                 theme={{
                   lineSeriesStyle: {
                     point: {
@@ -178,8 +203,9 @@ class VisualGraphV2WithThemeInjected extends Component {
               <Tooltip type="vertical" headerFormatter={() => ''} />
 
               {/* Line series for each data bucket */}
-              {Object.keys(data).map((name) => {
+              {Object.keys(data).map((name, index) => {
                 const seriesData = data[name] || [];
+                const seriesColor = getSeriesColor(index);
                 // Convert Date objects to timestamps (milliseconds) for Elastic Charts
                 const formattedData = seriesData.map(point => ({
                   x: point.x instanceof Date ? point.x.getTime() : point.x,
@@ -190,6 +216,7 @@ class VisualGraphV2WithThemeInjected extends Component {
                     key={name}
                     id={name}
                     name={name}
+                    color={seriesColor}
                     xScaleType={ScaleType.Time}
                     yScaleType={ScaleType.Linear}
                     xAccessor="x"
@@ -237,7 +264,12 @@ class VisualGraphV2WithThemeInjected extends Component {
           </div>
         </EuiFlexItem>
 
-        {/* Custom legends section */}
+        {/* Custom legends section
+            Using custom HTML legends instead of built-in Elastic Charts legend to support:
+            - Horizontal legend (left) for data series with wrapping
+            - Vertical legend (right) for thresholds
+            - Interactive hover synchronization with chart elements
+        */}
         <EuiFlexItem>
           <EuiFlexGroup gutterSize="m" responsive={false}>
             <EuiFlexItem grow={true}>

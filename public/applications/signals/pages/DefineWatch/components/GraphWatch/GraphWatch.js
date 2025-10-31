@@ -36,7 +36,7 @@ import { get, pick, isEqual, cloneDeep } from 'lodash';
 import { SubHeader } from '../../../../components';
 import WatchIndex from '../WatchIndex';
 import WatchTimeField from '../WatchTimeField';
-import VisualGraph from '../VisualGraph';
+//import VisualGraph from '../VisualGraph';
 import { VisualGraphV2WithTheme } from '../VisualGraph/VisualGraphV2';
 import WatchExpressions from '../WatchExpressions';
 import { ElasticsearchService, WatchService } from '../../../../services';
@@ -287,31 +287,14 @@ export class GraphWatch extends Component {
             <EuiLoadingChart size="xl" />
           </div>
         ) : (
-          <>
-            {/* Original react-vis chart */}
-            <EuiErrorBoundary>
-              <VisualGraph annotation values={values} fieldName={fieldName} response={response} />
-            </EuiErrorBoundary>
-
-            <EuiSpacer size="l" />
-
-            {/* New Elastic Charts version - for comparison */}
-            <div style={{ marginTop: '20px' }}>
-              <EuiTitle size="xs">
-                <h5 style={{ color: '#006BB4', marginBottom: '10px' }}>
-                  NEW: Elastic Charts Version (for comparison)
-                </h5>
-              </EuiTitle>
-              <EuiErrorBoundary>
-                <VisualGraphV2WithTheme
-                  annotation
-                  values={values}
-                  fieldName={fieldName}
-                  response={response}
-                />
-              </EuiErrorBoundary>
-            </div>
-          </>
+          <EuiErrorBoundary>
+            <VisualGraphV2WithTheme
+              annotation
+              values={values}
+              fieldName={fieldName}
+              response={response}
+            />
+          </EuiErrorBoundary>
         )}
       </EuiErrorBoundary>
     );
