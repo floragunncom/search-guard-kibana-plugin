@@ -31,12 +31,13 @@
 
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { EuiSpacer, EuiLoadingChart, EuiErrorBoundary } from '@elastic/eui';
+import { EuiSpacer, EuiLoadingChart, EuiErrorBoundary, EuiTitle } from '@elastic/eui';
 import { get, pick, isEqual, cloneDeep } from 'lodash';
 import { SubHeader } from '../../../../components';
 import WatchIndex from '../WatchIndex';
 import WatchTimeField from '../WatchTimeField';
-import VisualGraph from '../VisualGraph';
+//import VisualGraph from '../VisualGraph';
+import { VisualGraphV2WithTheme } from '../VisualGraph/VisualGraphV2';
 import WatchExpressions from '../WatchExpressions';
 import { ElasticsearchService, WatchService } from '../../../../services';
 import { WATCH_TYPES, CHECK_MYSEARCH } from '../../utils/constants';
@@ -286,7 +287,14 @@ export class GraphWatch extends Component {
             <EuiLoadingChart size="xl" />
           </div>
         ) : (
-          <VisualGraph annotation values={values} fieldName={fieldName} response={response} />
+          <EuiErrorBoundary>
+            <VisualGraphV2WithTheme
+              annotation
+              values={values}
+              fieldName={fieldName}
+              response={response}
+            />
+          </EuiErrorBoundary>
         )}
       </EuiErrorBoundary>
     );
