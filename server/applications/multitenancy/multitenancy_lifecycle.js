@@ -81,6 +81,14 @@ export class MultitenancyLifecycle {
       return toolkit.next();
     }
 
+    // As of 9.2 we can't access the clusterClient's config anymore.
+    // Check the comment in serverPlugin.js for how to retrieve the
+    // config right now. However, in multitenancy.js we throw an
+    // error if sgtenant is not included in the list, so this
+    // most likely did not have any real effect.
+    // This may be subject to change:
+    // https://github.com/elastic/kibana/issues/119862
+    /*
     try {
       if (this.clusterClient.config.requestHeadersWhitelist.indexOf('sgtenant') === -1) {
         this.clusterClient.config.requestHeadersWhitelist.push('sgtenant');
@@ -88,6 +96,7 @@ export class MultitenancyLifecycle {
     } catch (error) {
       this.logger.error(`Multitenancy: Could not check headers whitelist ${request.url.pathname}. ${error}`);
     }
+     */
 
 
     // The capabilities route may break the entire screen if
