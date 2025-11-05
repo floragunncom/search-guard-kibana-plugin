@@ -42,7 +42,7 @@ export class Multitenancy {
     this.logger.debug('Setup app');
 
     const requestHeadersWhitelist = configService.get('elasticsearch.requestHeadersWhitelist');
-    if (!requestHeadersWhitelist.includes('sgtenant')) {
+    if (0 && !requestHeadersWhitelist.includes('sgtenant')) {
       throw new Error(
         'No tenant header found in whitelist. Please add sgtenant to elasticsearch.requestHeadersWhitelist in kibana.yml'
       );

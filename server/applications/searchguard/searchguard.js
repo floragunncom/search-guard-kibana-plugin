@@ -38,10 +38,13 @@ export class SearchGuard {
       configService.get('kibana.index') + '_' + this.coreContext.env.packageInfo.version;
 
     //https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/changelog-client.html#_move_from_emitter_like_interface_to_a_diagnostic_method
+    /*
     elasticsearch.client.rootScopedClient.diagnostic.on(
       'request',
       rootScopedClientRequestWrapper({ configService, kibanaVersionIndex })
     );
+
+     */
 
 
     try {
