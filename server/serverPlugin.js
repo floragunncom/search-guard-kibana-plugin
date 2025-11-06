@@ -38,7 +38,7 @@ import SearchGuardConfigurationBackend from './applications/searchguard/configur
 import { SpacesService, TenantService } from './applications/multitenancy';
 import { ReadOnlyMode } from "./applications/searchguard/authorization/ReadOnlyMode";
 
-async function getConfigService({ kibanaIndex, logger, initContext, clusterClient }) {
+async function getConfigService({ kibanaIndex, logger, initContext, clusterClientConfig }) {
   try {
     const [kibanaConfig, sgConfig] = await Promise.all([
       initContext.config.legacy.globalConfig$.pipe(first()).toPromise(),
@@ -64,7 +64,7 @@ async function getConfigService({ kibanaIndex, logger, initContext, clusterClien
 
     return new ConfigService({
       ...extendedKibanaConfig,
-      elasticsearch: clusterClient.config,
+      elasticsearch: clusterClientConfig,
       searchguard: sgConfig,
     });
   } catch (error) {
@@ -84,6 +84,8 @@ export class ServerPlugin {
     this.kibanaIndex = '.kibana';
 
     this.readOnlyMode = null;
+
+    this.clusterConfig = null;
   }
 
   /*
@@ -109,6 +111,15 @@ export class ServerPlugin {
     }, { capabilityPath: '*'});
 
     (async () => {
+
+      // With 9.2.x we lost the ability to get the config from the elasticsearch.client.
+      // Instead, we fall back to this method, which is deprecated, but seems safe for now.
+      // It looks like there is another more stable way in the works:
+      // See: https://github.com/elastic/kibana/issues/119862
+      this.clusterConfig = await core.elasticsearch.legacy.config$
+        .pipe(first())
+        .toPromise();
+
       const [{ elasticsearch, savedObjects }] = await core.getStartServices();
       // The core.savedObjects interface in setup() is different from in start()
       // so we need to pass an instance variable to the config service
@@ -119,7 +130,7 @@ export class ServerPlugin {
         kibanaIndex: this.kibanaIndex,
         logger: this.logger,
         initContext: this.initContext,
-        clusterClient: elasticsearch.client,
+        clusterClient: this.clusterConfig,
       });
 
       const searchGuardBackend = new SearchGuardBackend({ elasticsearch, configService, core });
@@ -198,7 +209,7 @@ export class ServerPlugin {
         kibanaIndex: this.kibanaIndex,
         logger: this.logger,
         initContext: this.initContext,
-        clusterClient: core.elasticsearch.client,
+        clusterClient: this.clusterConfig,
       });
 
       const searchGuardBackend = new SearchGuardBackend({ elasticsearch: core.elasticsearch, configService, core });
