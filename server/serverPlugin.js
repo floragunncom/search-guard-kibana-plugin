@@ -85,7 +85,7 @@ export class ServerPlugin {
 
     this.readOnlyMode = null;
 
-    this.clusterConfig = null;
+    this.clusterClientConfig = null;
   }
 
   /*
@@ -116,7 +116,7 @@ export class ServerPlugin {
       // Instead, we fall back to this method, which is deprecated, but seems safe for now.
       // It looks like there is another more stable way in the works:
       // See: https://github.com/elastic/kibana/issues/119862
-      this.clusterConfig = await core.elasticsearch.legacy.config$
+      this.clusterClientConfig = await core.elasticsearch.legacy.config$
         .pipe(first())
         .toPromise();
 
@@ -130,7 +130,7 @@ export class ServerPlugin {
         kibanaIndex: this.kibanaIndex,
         logger: this.logger,
         initContext: this.initContext,
-        clusterClient: this.clusterConfig,
+        clusterClientConfig: this.clusterClientConfig,
       });
 
       const searchGuardBackend = new SearchGuardBackend({ elasticsearch, configService, core });
@@ -209,7 +209,7 @@ export class ServerPlugin {
         kibanaIndex: this.kibanaIndex,
         logger: this.logger,
         initContext: this.initContext,
-        clusterClient: this.clusterConfig,
+        clusterClientConfig: this.clusterClientConfig,
       });
 
       const searchGuardBackend = new SearchGuardBackend({ elasticsearch: core.elasticsearch, configService, core });
