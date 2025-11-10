@@ -49,7 +49,7 @@ if [[ -d plugins/search-guard ]]; then
 fi
 
 echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
-if grep -q '"@elastic/eui-amsterdam@npm:@elastic/eui@104.0.0-amsterdam.0", "@elastic/eui@104.0.0-amsterdam.0":' yarn.lock; then
+if grep -q '"@elastic/eui-amsterdam@npm:@elastic/eui@104.0.0-amsterdam.0"' yarn.lock; then
     echo "[Fix eui@104.0.0-amsterdam.0] Clean Yarn Cache"
     yarn cache clean
     echo "[Fix eui@104.0.0-amsterdam.0] Remove eui"
