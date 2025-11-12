@@ -67,7 +67,7 @@ fi
 
 
 # # Prevent warning about outdated caniuse-lite, which seems to block the build
-#npx --yes update-browserslist-db@latest --update-db
+YARN_CHECKSUM_BEHAVIOR=update npx --yes update-browserslist-db@latest --update-db
 
 yarn kbn bootstrap
 
