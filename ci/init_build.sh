@@ -62,9 +62,6 @@ if grep -q '"@elastic/eui-amsterdam@npm:@elastic/eui@104.0.0-amsterdam.0"' yarn.
 fi
 
 
-# # Prevent warning about outdated caniuse-lite, which seems to block the build
-npx --yes update-browserslist-db@latest
-
 
 yarn kbn bootstrap
 
