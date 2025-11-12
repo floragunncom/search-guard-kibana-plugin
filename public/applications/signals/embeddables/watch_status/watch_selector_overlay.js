@@ -30,9 +30,8 @@ import {
   EuiSpacer,
 } from '@elastic/eui';
 
-import { tracksOverlays } from '@kbn/presentation-containers';
+import { openLazyFlyout } from '@kbn/presentation-util';
 import { apiHasParentApi, useStateFromPublishingSubject } from '@kbn/presentation-publishing';
-import { toMountPoint } from '@kbn/react-kibana-mount';
 import React, { Fragment } from 'react';
 import { BehaviorSubject } from 'rxjs';
 import { WatchService } from '../../services';
@@ -41,31 +40,33 @@ import { getSeverity, watchStatusToIconProps } from '../../pages/SignalsOperator
 import { serializeAttributes } from './watch_status_utils';
 
 export const watchSelectorOverlay = ({ addPanel, httpClient, stateObservables, core, api }) => {
-  return new Promise((resolve) => {
-    const watchService = new WatchService(httpClient);
-    const selectableWatches$ = new BehaviorSubject([]);
+  const watchService = new WatchService(httpClient);
+  const selectableWatches$ = new BehaviorSubject([]);
 
-    const loadWatches = (watchId = null) => {
-      const query = { size: 500 };
-      if (watchId) {
-        query.watch_id = watchId;
-      }
-      watchService.summary(query).then((response) => {
-        selectableWatches$.next(response.resp.data.watches);
-      });
-    };
+  const loadWatches = (watchId = null) => {
+    const query = { size: 500 };
+    if (watchId) {
+      query.watch_id = watchId;
+    }
+    watchService.summary(query).then((response) => {
+      selectableWatches$.next(response.resp.data.watches);
+    });
+  };
 
-    loadWatches();
+  // Use openLazyFlyout helper - opens flyout immediately with loading state
+  openLazyFlyout({
+    core,
+    parentApi: apiHasParentApi(api) ? api.parentApi : undefined,
+    flyoutProps: {
+      type: 'overlay',
+      size: 'm',
+    },
+    loadContent: async ({ closeFlyout }) => {
+      // Load data inside the flyout for better perceived performance
+      loadWatches();
 
-    const closeFlyout = (overlayRef) => {
-      if (apiHasParentApi(api) && tracksOverlays(api.parentApi)) {
-        api.parentApi.clearOverlays();
-      }
-      overlayRef.close();
-    };
-
-    const flyoutRef = core.overlays.openFlyout(
-      toMountPoint(
+      // Return the React component
+      return (
         <WatchSelector
           watchService={watchService}
           selectableWatches={selectableWatches$}
@@ -77,21 +78,10 @@ export const watchSelectorOverlay = ({ addPanel, httpClient, stateObservables, c
             stateObservables.watchId.next(watchId);
             addPanel(serializeAttributes(stateObservables));
           }}
-          onClose={() => {
-            closeFlyout(flyoutRef);
-          }}
-        />,
-        {
-          theme: core.theme,
-          i18n: core.i18n,
-        }
-      ),
-      {
-        type: 'overlay',
-        size: 'm',
-        onClose: () => closeFlyout(flyoutRef),
-      }
-    );
+          onClose={closeFlyout}
+        />
+      );
+    },
   });
 };
 
