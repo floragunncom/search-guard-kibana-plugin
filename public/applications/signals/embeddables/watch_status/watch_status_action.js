@@ -59,8 +59,8 @@ export const registerAddWatchStatusAction = ({ uiActions, dashboard, httpClient,
         });
       };
 
-      // TODO THIS is weird. If the user cancels, we don't get a response.
-      await watchSelectorOverlay({
+      // Open flyout to select watch (non-blocking, user can add multiple panels)
+      watchSelectorOverlay({
         addPanel,
         httpClient,
         stateObservables,
@@ -76,13 +76,15 @@ export const registerAddWatchStatusAction = ({ uiActions, dashboard, httpClient,
   });
   uiActions.attachAction(ADD_PANEL_TRIGGER, WATCH_STATUS_ACTION_ID);
 
-  // Set a sensible default size for the panel
+  // Set a sensible default size for the panel (9.2.x API)
   if (dashboard) {
-    dashboard.registerDashboardPanelPlacementSetting(WATCH_STATUS_EMBEDDABLE_ID, () => {
+    dashboard.registerDashboardPanelSettings(WATCH_STATUS_EMBEDDABLE_ID, () => {
       return {
-        width: 8,
-        height: 8,
-        //strategy: "placeAtTop",
+        placementSettings: {
+          width: 8,
+          height: 8,
+          // strategy: PanelPlacementStrategy.findTopLeftMostOpenSpace, // default
+        },
       };
     });
   }
