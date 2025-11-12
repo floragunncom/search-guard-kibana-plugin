@@ -63,9 +63,7 @@ fi
 
 
 # # Prevent warning about outdated caniuse-lite, which seems to block the build
-yarn remove caniuse-lite
-npx --yes update-browserslist-db@latest
-
+npx --yes update-browserslist-db@latest --update-db
 
 yarn kbn bootstrap
 
