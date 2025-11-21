@@ -199,7 +199,15 @@ deploy_remote_snapshot:
     - build
   when: manual
   script:
-    - echo "Remote snapshot deployment in version $BUILD_VERSION"
+    - |
+      if [[ "$BUILD_VERSION" == *SNAPSHOT ]]; then
+        echo "Remote snapshot deployment in version $BUILD_VERSION"
+        MVN_DEPLOY_OPTS=""
+        mvn --batch-mode -s settings.xml -Drevision="$BUILD_VERSION" $MVN_DEPLOY_OPTS clean deploy
+      else
+        echo "Skipping: BUILD_VERSION ($BUILD_VERSION) does not end with SNAPSHOT"
+        exit 0
+      fi
   artifacts:
     when: always
     expire_in: 2 days
