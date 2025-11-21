@@ -209,7 +209,7 @@ deploy_release:
 
 deploy_docker_release_image:
   stage: "Deploy Docker Images"
-  image: docker:20.10.17
+  image: floragunncom/alpine-dind:20251120
   services:
     - docker:20.10.17-dind
   rules:
@@ -223,7 +223,7 @@ deploy_docker_release_image:
   script:
     - |
       cd docker
-      apk update && apk add bash curl 
+      # apk update && apk add bash curl 
 
       if [[ -z "$SF_VERSION" || -z "$SG_SF_PLUGIN_VERSION" ]]; then
         echo "SF_VERSION is empty or SG_SF_PLUGIN_VERSION is empty"
@@ -250,7 +250,7 @@ deploy_docker_release_image:
 
 deploy_docker_demo_image:
   stage: "Deploy Docker Images"
-  image: docker:20.10.17
+  image: floragunncom/alpine-dind:20251120
   services:
     - docker:20.10.17-dind
   rules:
@@ -265,7 +265,7 @@ deploy_docker_demo_image:
     - |
       cd docker
 
-      apk update && apk add bash curl 
+      # apk update && apk add bash curl 
 
       if [[ -z "$SF_VERSION" || -z "$SG_SF_PLUGIN_VERSION" ]]; then
         echo "SF_VERSION is empty or SG_SF_PLUGIN_VERSION is empty"
