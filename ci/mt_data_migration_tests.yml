@@ -1,0 +1,26 @@
+mt_data_migration_tests:
+  stage: test
+  image: "maven:3.9.9-amazoncorretto-21-debian"
+  when: manual
+  allow_failure: false
+  tags:
+    - test-large
+  variables:
+    BACKEND_PLUGIN_DOWNLOAD_URL: ""
+    FRONTEND_PLUGIN_DOWNLOAD_URL: ""
+    TEST_DATA_DOWNLOAD_URL: ""
+  script:
+    - apt-get update
+    - apt-get install -y curl jq
+    - git clone --depth 1 --branch $IT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git > /dev/null
+    - cd sgi8/mt_data_migration_test
+    - ./00_install_es_and_kibana.sh
+    - ./01_restore_es_data_dir.sh
+    - ./02_start_es.sh
+    - ./03_start_kibana.sh
+    - ./20_space_test.sh
+    - ./21_data_views.sh
+    - ./22_data_view_queries.sh
+    - ./23_dashboards.sh
+    - ./97_stop_kibana.sh
+    - ./98_stop_es.sh
