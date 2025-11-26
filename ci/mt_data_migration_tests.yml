@@ -10,6 +10,7 @@ mt_data_migration_tests:
     FRONTEND_PLUGIN_DOWNLOAD_URL: ""
     TEST_DATA_DOWNLOAD_URL: ""
   script:
+    - sudo sysctl -w vm.max_map_count=262144
     - apt-get update
     - apt-get install -y curl jq
     - git clone --depth 1 --branch $IT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git > /dev/null
