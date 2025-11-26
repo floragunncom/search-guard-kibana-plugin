@@ -1,5 +1,5 @@
 mt_data_migration_tests:
-  stage: test
+  stage: "Frontend Int Tests"
   image: "maven:3.9.9-amazoncorretto-21-debian"
   when: manual
   allow_failure: false
