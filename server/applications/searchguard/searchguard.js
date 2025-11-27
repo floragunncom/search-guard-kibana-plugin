@@ -1,6 +1,7 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { registerRoutes } from './routes';
 import { Kerberos, defineAuthInfoRoutes } from './auth';
+import { Proxy } from './auth/types/proxy/Proxy'
 import { defineSystemRoutes } from './system/routes';
 import { defineConfigurationRoutes } from './configuration/routes/routes';
 import {
@@ -77,8 +78,9 @@ export class SearchGuard {
 
       let authManager = null;
       let kerberos = null;
+      let proxy = null;
 
-      // Handle Kerberos separately because we don't want to bring up entire jungle from AuthType here.
+      // Handle Kerberos and Proxy separately, because they can't be combined with the other auth types.
       if (authType === 'kerberos') {
         kerberos = new Kerberos({
             pluginDependencies,
@@ -91,7 +93,20 @@ export class SearchGuard {
         core.http.registerOnPreAuth(
           kerberos.checkAuth
         );
-      } else if (authType !== 'proxy') {
+      } else if (authType === 'proxy') {
+        proxy = new Proxy({
+          pluginDependencies,
+          config: configService,
+          searchGuardBackend,
+          logger: this.coreContext.logger.get('searchguard-proxy-auth'),
+          basePath: core.http.basePath.get(),
+          sessionStorageFactory: sessionStorageFactory,
+        });
+        core.http.registerOnPreAuth(
+          proxy.checkAuth
+        );
+      } else {
+        // All other auth types (SAML, OIDC, JWT, BasicAuth) use AuthManager
         authManager = new AuthManager({
           kibanaCore: core,
           sessionStorageFactory,
@@ -114,7 +129,7 @@ export class SearchGuard {
         }
       }
 
-      if (authType && ['proxy', 'kerberos'].indexOf(authType) === -1) {
+      if (authType && ['kerberos'].indexOf(authType) === -1) {
         try {
           this.logger.info('Initialising Search Guard authentication plugin.');
 
@@ -165,7 +180,7 @@ export class SearchGuard {
 
       this.logger.info('Search Guard system routes registered.');
 
-      return { authManager, sessionStorageFactory, kerberos };
+      return { authManager, sessionStorageFactory, kerberos, proxy };
     } catch (error) {
       this.logger.error(error);
       throw error;

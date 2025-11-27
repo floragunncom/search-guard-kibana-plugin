@@ -23,6 +23,7 @@ export class MultitenancyLifecycle {
   constructor({
     authManager,
     kerberos,
+    proxy,
     searchGuardBackend,
     configService,
     sessionStorageFactory,
@@ -39,7 +40,9 @@ export class MultitenancyLifecycle {
     this.logger = logger;
     this.pluginDependencies = pluginDependencies;
     this.spacesService = spacesService;
+    // TODO Group kerberos and proxy?
     this.kerberos = kerberos;
+    this.proxy = proxy;
     this.kibanaCore = kibanaCore;
     this.clusterClient = clusterClient;
     this.basePath = kibanaCore.http.basePath.get();
@@ -267,6 +270,9 @@ export class MultitenancyLifecycle {
     } else if (this.kerberos) {
         sessionCookie = await this.kerberos.getCookieWithCredentials(request);
         authHeaders = this.kerberos.getAuthHeader(sessionCookie);
+    } else if (this.proxy) {
+      sessionCookie = await this.proxy.getCookieWithCredentials(request);
+      authHeaders = this.proxy.getAuthHeader(sessionCookie);
     } else {
         sessionCookie = await this.sessionStorageFactory.asScoped(request).get();
     }
