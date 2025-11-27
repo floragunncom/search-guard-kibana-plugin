@@ -17,8 +17,9 @@ mt_data_migration_tests:
     - cd sgi8/mt_data_migration_test
     - ./00_install_es_and_kibana.sh
     - ./01_restore_es_data_dir.sh
-    - ./02_start_es.sh
-    - ./03_start_kibana.sh
+    - ./02_setup_user.sh
+    - su - elasticsearch -c "./03_start_es.sh"
+    - ./04_start_kibana.sh
     - ./20_space_test.sh
     - ./21_data_views.sh
     - ./22_data_view_queries.sh
