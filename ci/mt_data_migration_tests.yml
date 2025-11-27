@@ -11,8 +11,8 @@ mt_data_migration_tests:
     TEST_DATA_DOWNLOAD_URL: ""
   script:
     - apt-get update
-    - apt-get install -y curl jq sudo procps
-    - sudo sysctl -w vm.max_map_count=262144
+    - apt-get install -y curl jq procps
+    - sysctl -w vm.max_map_count=262144
     - git clone --depth 1 --branch $IT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git > /dev/null
     - cd sgi8/mt_data_migration_test
     - ./00_install_es_and_kibana.sh
