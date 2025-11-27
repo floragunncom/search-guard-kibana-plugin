@@ -1,6 +1,6 @@
 mt_data_migration_tests:
   stage: "Frontend Int Tests"
-  image: "maven:3.9.9-amazoncorretto-21-debian"
+  image: $SG_BUILD_IMAGE
   when: manual
   allow_failure: false
   tags:
