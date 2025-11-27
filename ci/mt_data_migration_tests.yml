@@ -19,7 +19,7 @@ mt_data_migration_tests:
     - ./01_restore_es_data_dir.sh
     - ./02_setup_user.sh
     - SCRIPT_DIR=$(pwd) && su - elasticsearch -c "cd $SCRIPT_DIR && ./03_start_es.sh"
-    - ./04_start_kibana.sh
+    - su - elasticsearch -c "cd $SCRIPT_DIR && ./04_start_kibana.sh"
     - ./20_space_test.sh
     - ./21_data_views.sh
     - ./22_data_view_queries.sh
