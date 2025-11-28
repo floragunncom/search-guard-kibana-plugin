@@ -5,10 +5,6 @@ mt_data_migration_tests:
   allow_failure: false
   tags:
     - test-large
-  variables:
-    BACKEND_PLUGIN_DOWNLOAD_URL: ""
-    FRONTEND_PLUGIN_DOWNLOAD_URL: ""
-    TEST_DATA_DOWNLOAD_URL: ""
   script:
     - apt-get update
     - apt-get install -y curl jq procps
