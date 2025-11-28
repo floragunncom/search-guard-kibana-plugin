@@ -85,7 +85,7 @@ export class Proxy {
       try {
         const authInfoResponse = await this.searchGuardBackend.authinfo(headers);
         return sessionCookie;
-      } catch (e) {
+      } catch (error) {
         // We will try to get the cookie
         this.debugLog('Proxy auth session expired, re-authenticating')
       }

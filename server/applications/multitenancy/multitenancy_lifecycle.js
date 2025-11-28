@@ -65,7 +65,7 @@ export class MultitenancyLifecycle {
     let selectedTenant = null;
 
     const {authHeaders, sessionCookie} = await this.getSession(request);
-    const isAuthenticatedRequest = (authType === 'proxy' || (authHeaders && authHeaders.authorization)) ? true : false;
+    const isAuthenticatedRequest = (authHeaders && authHeaders.authorization) ? true : false;
 
     // We may run into ugly issues with the capabilities endpoint here if
     // we let through an unauthenticated request, despite try/catch

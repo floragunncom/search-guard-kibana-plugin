@@ -29,6 +29,7 @@ export class Multitenancy {
     kibanaRouter,
     authManager,
     kerberos,
+    proxy,
     kibanaCore,
     sessionStorageFactory,
     pluginDependencies,
@@ -54,6 +55,7 @@ export class Multitenancy {
       const multitenancyLifecycle = new MultitenancyLifecycle({
         authManager,
         kerberos,
+        proxy,
         searchGuardBackend,
         configService,
         sessionStorageFactory,
