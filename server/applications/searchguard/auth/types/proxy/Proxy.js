@@ -58,9 +58,7 @@ export class Proxy {
     }
 
     try {
-      const sessionCookie = await this.getCookieWithCredentials(request);
-      // Save the session cookie
-      await this.sessionStorageFactory.asScoped(request).set(sessionCookie);
+      const sessionCookie = await this.getCookieWithCredentials(request, 'checkAuth');
 
       // Add auth headers to the request for downstream handlers
       const rawRequest = ensureRawRequest(request);
@@ -68,7 +66,6 @@ export class Proxy {
 
       return toolkit.next();
     } catch (error) {
-      console.log('What is my error?', error)
       // For proxy auth, if authentication fails, return 401
       // TODO REDIRECT TO LOGIN PAGE OR ERROR PAGE WITH ERROR MESSAGE? This will just lead to a redirect loop.
       return response.unauthorized({
@@ -137,6 +134,8 @@ export class Proxy {
         authHeaderValue: authHeaders.authorization,
       };
 
+      // Save the session cookie
+      await this.sessionStorageFactory.asScoped(request).set(sessionCookie);
       this.debugLog(`Proxy auth successful for user: ${user.username}`);
 
       return sessionCookie;
