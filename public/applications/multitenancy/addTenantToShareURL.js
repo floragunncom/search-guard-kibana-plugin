@@ -36,12 +36,23 @@ export function getURLWithTenantEmbeded({ tenant, url }) {
 }
 
 export function shareButtonEventListener() {
-  document.addEventListener('copy', () => {
-    const shareButton = document.querySelector('[data-share-url]'); // Any share button
-    const target = document.querySelector('body > span'); // The copy button source
+  document.addEventListener('copy', (event) => {
+    const shareModal = document.querySelector('[data-test-subj="shareContextModal"]');
+    if (!shareModal) {
+      return;
+    }
+    const embedButton = shareModal.querySelector('[data-test-subj="copyEmbedUrlButton"]');
+    const copyButton = shareModal.querySelector('[data-test-subj="copyShareUrlButton"]');
 
-    // The copy event listens to Cmd + C too, so we need to make sure
-    if (target && shareButton) {
+    // The copy button appends a span to the body element, and that span contains the url
+    // before it is copied. That url will then be added to a data-share-url button
+    // to the same dom node as the "shareButton" above.
+    const target = document.querySelector('body > span');
+
+    // The copy event listens to Cmd + C too, so we need to make sure we only do
+    // something if the share modal is open. Checking event.target may
+    // be a bit too defensive, remove if it causes problems.
+    if ((embedButton || copyButton) && event.target?.nodeName === 'SPAN' && target) {
       const config = JSON.parse(sessionStorage.getItem('searchguard') || '{}');
       const currentTenant = get(config, 'authinfo.user_requested_tenant');
 
@@ -51,15 +62,15 @@ export function shareButtonEventListener() {
       // For the iFrame urls we need to parse out the src
       if (origURL.toLowerCase().indexOf('<iframe') === 0) {
         newURL = getURLWithTenantEmbeded({ tenant: currentTenant, url: origURL });
-      } else {
+      } else if (origURL && origURL.startsWith('http')) {
         newURL = getURLWithTenant({ tenant: currentTenant, url: origURL });
       }
 
       console.debug('multitenancy, copy share URL, origURL, newURL', origURL, newURL);
-
       if (newURL) {
+        // Update the span element with the URL that will be copied
         target.textContent = newURL;
-        shareButton.setAttribute('data-share-url', newURL); // It is only for integration tests
+        shareModal.setAttribute('data-share-url', newURL); // It is only for integration tests
       }
     }
   });
