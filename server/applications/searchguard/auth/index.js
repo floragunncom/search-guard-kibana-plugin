@@ -14,6 +14,5 @@
  * limitations under the License.
  */
 
-export { rootScopedClientRequestWrapper } from './root_scoped_client_request_wrapper';
 export { Kerberos } from './types';
 export { defineAuthInfoRoutes } from './routes_authinfo';

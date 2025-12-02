@@ -1,6 +1,6 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { registerRoutes } from './routes';
-import { Kerberos, defineAuthInfoRoutes, rootScopedClientRequestWrapper } from './auth';
+import { Kerberos, defineAuthInfoRoutes } from './auth';
 import { defineSystemRoutes } from './system/routes';
 import { defineConfigurationRoutes } from './configuration/routes/routes';
 import {
@@ -33,16 +33,6 @@ export class SearchGuard {
     elasticsearch,
   }) {
     this.logger.debug('Setup app');
-
-    const kibanaVersionIndex =
-      configService.get('kibana.index') + '_' + this.coreContext.env.packageInfo.version;
-
-    //https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/changelog-client.html#_move_from_emitter_like_interface_to_a_diagnostic_method
-    elasticsearch.client.rootScopedClient.diagnostic.on(
-      'request',
-      rootScopedClientRequestWrapper({ configService, kibanaVersionIndex })
-    );
-
 
     try {
       // Sanity checks
