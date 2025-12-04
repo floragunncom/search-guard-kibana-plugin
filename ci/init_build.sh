@@ -48,8 +48,16 @@ if [[ -d plugins/search-guard ]]; then
   rm -rf plugins/search-guard
 fi
 
+
+
+
 echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
-if grep -q '"@elastic/eui-amsterdam@npm:@elastic/eui@104.0.0-amsterdam.0", "@elastic/eui@104.0.0-amsterdam.0":' yarn.lock; then
+echo "[react-focus-on]] Update version in package.json "
+jq '.resolutions["react-focus-on"] = "3.10.0"' package.json > package.json.tmp
+mv package.json.tmp package.json
+
+
+if grep -q '"@elastic/eui-amsterdam@npm:@elastic/eui@104.0.0-amsterdam.0"' yarn.lock; then
     echo "[Fix eui@104.0.0-amsterdam.0] Clean Yarn Cache"
     yarn cache clean
     echo "[Fix eui@104.0.0-amsterdam.0] Remove eui"
@@ -62,8 +70,7 @@ if grep -q '"@elastic/eui-amsterdam@npm:@elastic/eui@104.0.0-amsterdam.0", "@ela
 fi
 
 
-# # Prevent warning about outdated caniuse-lite, which seems to block the build
-npx --yes update-browserslist-db@latest
+
 
 
 yarn kbn bootstrap
@@ -102,7 +109,7 @@ end_section tests
 rm -rf "node_modules"
 start_section build "Building Search Guard Plugin"
 start_section yarn_install "Doing yarn install --production"
-yarn install --production #--frozen-lockfile
+yarn install --production --frozen-lockfile
 end_section yarn_install
 start_section yarn_build "Doing yarn build -v $SF_VERSION --skip-archive"
 
