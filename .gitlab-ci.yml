@@ -290,4 +290,4 @@ deploy_docker_release_image:
 include:
   - local: '.gitlab-ci-branch-specific.yml'
   - local: 'ci/frontend-int-tests.yml'
-
+  - local: 'ci/mt_data_migration_tests.yml'
