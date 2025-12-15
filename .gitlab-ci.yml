@@ -197,7 +197,7 @@ deploy_remote_snapshot:
   stage: package
   tags:
     - build
-  when: manual
+  when: on_success
   script:
     - |
       if [[ "$BUILD_VERSION" == *SNAPSHOT ]]; then
