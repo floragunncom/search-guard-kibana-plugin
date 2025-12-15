@@ -185,6 +185,27 @@ deploy_snapshot:
     paths:
       - "target/*"
 
+deploy_remote_snapshot:
+  stage: package
+  tags:
+    - build
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /.*-es-.*/'
+      when: never
+    - when: on_success
+  script:
+    - |
+       echo "Remote snapshot deployment in version $BUILD_VERSION"
+       MVN_DEPLOY_OPTS=""
+       mvn --batch-mode -s settings.xml -Drevision="$BUILD_VERSION" $MVN_DEPLOY_OPTS clean deploy
+  artifacts:
+    when: always
+    expire_in: 2 days
+    reports:
+      dotenv: build.env
+    paths:
+      - "target/*"
+
 deploy_release:
   stage: release
   rules:
