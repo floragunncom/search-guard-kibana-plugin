@@ -103,17 +103,17 @@ kibana_authtokens:
   stage: "Frontend Int Tests"
   tags:
     - test-large
-  rules:
-    - if: '$DOCKER_ONLY || $CI_COMMIT_MESSAGE =~ /SKIP-SGI|SKIP-TESTS/'
-      when: never
+  # rules:
+  #   - if: '$DOCKER_ONLY || $CI_COMMIT_MESSAGE =~ /SKIP-SGI|SKIP-TESTS/'
+  #     when: never
 
-    - if: '$FORCE_SGI || $CI_COMMIT_MESSAGE =~ /FORCE_SGI/ || $CI_PIPELINE_SOURCE == "pipeline"'
-      when: always
+  #   - if: '$FORCE_SGI || $CI_COMMIT_MESSAGE =~ /FORCE_SGI/ || $CI_PIPELINE_SOURCE == "pipeline"'
+  #     when: always
 
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"
-          || $CI_PIPELINE_SOURCE == "schedule"
-          || $CI_COMMIT_TAG =~ /^sg-flx-.*/'
-      when: on_success
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"
+  #         || $CI_PIPELINE_SOURCE == "schedule"
+  #         || $CI_COMMIT_TAG =~ /^sg-flx-.*/'
+  #     when: on_success
 
   image: docker:${DOCKER_VERSION}
   services:
