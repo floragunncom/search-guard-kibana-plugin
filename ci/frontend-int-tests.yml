@@ -1,7 +1,7 @@
 stages:
   - Frontend Int Tests
 
-  
+
 kibana_basicauth:
   extends:
   - .be_integration_test
@@ -107,12 +107,11 @@ kibana_authtokens:
     - if: '$DOCKER_ONLY || $CI_COMMIT_MESSAGE =~ /SKIP-SGI|SKIP-TESTS/'
       when: never
 
-    - if: '$FORCE_SGI || $CI_COMMIT_MESSAGE =~ /FORCE_SGI/'
+    - if: '$FORCE_SGI || $CI_COMMIT_MESSAGE =~ /FORCE_SGI/ || $CI_PIPELINE_SOURCE == "pipeline"'
       when: always
 
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"
           || $CI_PIPELINE_SOURCE == "schedule"
-          || $CI_PIPELINE_SOURCE == "pipeline"
           || $CI_COMMIT_TAG =~ /^sg-flx-.*/'
       when: on_success
 
