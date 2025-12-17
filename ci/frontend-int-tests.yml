@@ -122,6 +122,7 @@ kibana_authtokens:
     - |
        set -e
        set -x
+       apk add --no-cache sudo 
        sudo sysctl -w vm.max_map_count=262144
        
        echo "Login in into Docker Hub"      
