@@ -1,3 +1,7 @@
+stages:
+  - Frontend Int Tests
+
+  
 kibana_basicauth:
   extends:
   - .be_integration_test
