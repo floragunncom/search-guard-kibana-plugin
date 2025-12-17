@@ -100,22 +100,18 @@ kibana_authtokens:
   tags:
     - test-large
   rules:
-    - if: '$DOCKER_ONLY'
+    - if: '$DOCKER_ONLY || $CI_COMMIT_MESSAGE =~ /SKIP-SGI|SKIP-TESTS/'
       when: never
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+    - if: '$FORCE_SGI || $CI_COMMIT_MESSAGE =~ /FORCE_SGI/'
       when: always
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: always
-    - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
-      when: always
-    - if: $FORCE_SGI
-      when: always
-    - if: '$CI_COMMIT_MESSAGE =~ /.*SKIP-SGI.*/'
-      when: never
-    - if: '$CI_COMMIT_MESSAGE =~ /.*SKIP-TESTS.*/'
-      when: never
-    - if: '$CI_COMMIT_MESSAGE =~ /.*FORCE_SGI.*/'
-      when: always
+
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"
+          || $CI_PIPELINE_SOURCE == "schedule"
+          || $CI_PIPELINE_SOURCE == "pipeline"
+          || $CI_COMMIT_TAG =~ /^sg-flx-.*/'
+      when: on_success
+
   image: docker:${DOCKER_VERSION}
   services:
     - docker:${DOCKER_VERSION}-dind
