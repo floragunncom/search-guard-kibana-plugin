@@ -137,10 +137,9 @@ kibana_authtokens:
        rm -f  docker/kibana/kibana-plugin.zip docker/elasticsearch/search-guard.zip
        
 
-
        wget -O docker/elasticsearch/search-guard.zip "$SG_ES_PLUGIN"
        if [[ "${CI_PIPELINE_SOURCE:-}" == "parent_pipeline" ]]; then
-          echo "Using SG_KI_PLUGIN from URL: $SG_KI_PLUGIN"
+          echo "Test was triggered from the parent pipeline,downloading SG_KI_PLUGIN from URL: $SG_KI_PLUGIN"
           wget -O docker/kibana/kibana-plugin.zip "$SG_KI_PLUGIN"
         else
           echo "Using local kibana plugin from target/releases"
