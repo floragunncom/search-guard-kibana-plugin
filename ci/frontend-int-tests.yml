@@ -147,6 +147,7 @@ kibana_authtokens:
             docker/kibana/kibana-plugin.zip
        fi  
        ls -lan  
+       echo "cat !!!"
        cat ./run_test_definition.sh
        ./run_test_definition.sh "$TEST_DEFINITIONS"
   artifacts:
