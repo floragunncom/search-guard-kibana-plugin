@@ -146,9 +146,6 @@ kibana_authtokens:
           cp "../../target/releases/search-guard-flx-kibana-plugin-${BUILD_VERSION}.zip" \
             docker/kibana/kibana-plugin.zip
        fi  
-       ls -lan  
-       echo "cat !!!"
-       cat ./run_test_definition.sh
        ./run_test_definition.sh "$TEST_DEFINITIONS"
   artifacts:
     when: always
