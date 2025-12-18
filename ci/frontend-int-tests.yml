@@ -135,7 +135,7 @@ kibana_authtokens:
        git clone --depth 1 --branch $IT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git > /dev/null
        cd sgi8/server
        rm -f  docker/kibana/kibana-plugin.zip docker/elasticsearch/search-guard.zip
-       
+
 
        wget -O docker/elasticsearch/search-guard.zip "$SG_ES_PLUGIN"
        if [[ "${CI_PIPELINE_SOURCE:-}" == "parent_pipeline" ]]; then
@@ -147,6 +147,7 @@ kibana_authtokens:
             docker/kibana/kibana-plugin.zip
        fi  
        ls -lan  
+       cat ./run_test_definition.sh
        ./run_test_definition.sh "$TEST_DEFINITIONS"
   artifacts:
     when: always
