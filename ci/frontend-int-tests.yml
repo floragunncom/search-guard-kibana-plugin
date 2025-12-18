@@ -122,6 +122,7 @@ kibana_authtokens:
     - |
        set -e
        set -x
+       
        apk add --no-cache sudo git
        sudo sysctl -w vm.max_map_count=262144
        
@@ -133,16 +134,19 @@ kibana_authtokens:
        
        git clone --depth 1 --branch $IT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git > /dev/null
        cd sgi8/server
-       rm -f docker/elasticsearch/search-guard.zip
-       rm -f docker/kibana/kibana-plugin.zip
+       rm -f  docker/kibana/kibana-plugin.zip docker/elasticsearch/search-guard.zip
        
-       # We need a kibana plugin zip in/as docker/kibana/kibana-plugin.zip
-       # We also need a search guard zip in/as docker/elasticsearch/search-guard.zip
-       
+
+
        wget -O docker/elasticsearch/search-guard.zip "$SG_ES_PLUGIN"
-       #wget -O docker/elasticsearch/search-guard.zip https://maven.search-guard.com//search-guard-flx-release/com/floragunn/search-guard-flx-elasticsearch-plugin/1.0.0-beta-4-es-8.2.3/search-guard-flx-elasticsearch-plugin-1.0.0-beta-4-es-8.2.3.zip
-       wget -O docker/kibana/kibana-plugin.zip "$SG_KI_PLUGIN"
-       #  cp ../../target/releases/search-guard-flx-kibana-plugin-${BUILD_VERSION}.zip docker/kibana/kibana-plugin.zip     
+       if [[ "${CI_PIPELINE_SOURCE:-}" == "parent_pipeline" ]]; then
+          echo "Using SG_KI_PLUGIN from URL: $SG_KI_PLUGIN"
+          wget -O docker/kibana/kibana-plugin.zip "$SG_KI_PLUGIN"
+        else
+          echo "Using local kibana plugin from target/releases"
+          cp "../../target/releases/search-guard-flx-kibana-plugin-${BUILD_VERSION}.zip" \
+            docker/kibana/kibana-plugin.zip
+       fi  
        ls -lan  
        ./run_test_definition.sh "$TEST_DEFINITIONS"
   artifacts:
