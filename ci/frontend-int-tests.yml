@@ -121,8 +121,18 @@ kibana_authtokens:
   script:
     - |
        set -e
-       set -x
-       
+    
+       CHECK_JOB_NAME="${CHECK_JOB_NAME:-}"
+       if [[ "${CI_PIPELINE_SOURCE:-}" == "parent_pipeline" && "${PARENT_PIPELINE_PREREQUISITES:-}" != "1" ]]; then
+         if [[ -z "${CHECK_JOB_NAME}" ]]; then
+           echo "ERROR: finished with errors, check job undefined"
+         else
+           echo "ERROR: finished with errors, check job \"${CHECK_JOB_NAME}\" log for more details"
+         fi
+         exit 1
+       fi
+
+
        apk add --no-cache gomplate jq curl zip xmlstarlet git wget bash sudo 
        sudo sysctl -w vm.max_map_count=262144
        
