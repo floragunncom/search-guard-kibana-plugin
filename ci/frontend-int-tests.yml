@@ -121,17 +121,17 @@ kibana_authtokens:
   script:
     - |
        set -e
-    
+       
+       # Used when tests are triggered from another repository, e.g. search-guard-suite-enterprise.
        CHECK_JOB_NAME="${CHECK_JOB_NAME:-}"
        if [[ "${CI_PIPELINE_SOURCE:-}" == "parent_pipeline" && "${PARENT_PIPELINE_PREREQUISITES:-}" != "1" ]]; then
          if [[ -z "${CHECK_JOB_NAME}" ]]; then
-           echo "ERROR: finished with errors, check job undefined"
+           echo "ERROR: Prerequisites check finished with errors, check job undefined"
          else
-           echo "ERROR: finished with errors, check job \"${CHECK_JOB_NAME}\" log for more details"
+           echo "ERROR: Prerequisites check finished with errors, check job \"${CHECK_JOB_NAME}\" log for more details"
          fi
          exit 1
        fi
-
 
        apk add --no-cache gomplate jq curl zip xmlstarlet git wget bash sudo 
        sudo sysctl -w vm.max_map_count=262144
@@ -146,8 +146,9 @@ kibana_authtokens:
        cd sgi8/server
        rm -f  docker/kibana/kibana-plugin.zip docker/elasticsearch/search-guard.zip
 
-
        wget -O docker/elasticsearch/search-guard.zip "$SG_ES_PLUGIN"
+
+       # Used when tests are triggered from another repository, e.g. search-guard-suite-enterprise.
        if [[ "${CI_PIPELINE_SOURCE:-}" == "parent_pipeline" ]]; then
           echo "Test was triggered from the parent pipeline,downloading SG_KI_PLUGIN from URL: $SG_KI_PLUGIN"
           wget -O docker/kibana/kibana-plugin.zip "$SG_KI_PLUGIN"
@@ -156,6 +157,7 @@ kibana_authtokens:
           cp "../../target/releases/search-guard-flx-kibana-plugin-${BUILD_VERSION}.zip" \
             docker/kibana/kibana-plugin.zip
        fi  
+
        ./run_test_definition.sh "$TEST_DEFINITIONS"
   artifacts:
     when: always
