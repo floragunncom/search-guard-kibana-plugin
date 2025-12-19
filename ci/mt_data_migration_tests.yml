@@ -1,13 +1,8 @@
 mt_data_migration_tests:
   stage: "Frontend Int Tests"
   image: $SG_BUILD_IMAGE
-
-  rules:
-    - if: '$DOCKER_ONLY || $CI_COMMIT_MESSAGE =~ /SKIP-SGI|SKIP-TESTS/ || $CI_COMMIT_TAG =~ /^sg-flx-.*/'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $FORCE_SGI || $CI_COMMIT_MESSAGE =~ /FORCE_SGI/'
-      when: manual
-  allow_failure: true #Prevents the pipeline from ending in a "Blocked" status.
+  when: manual
+  allow_failure: false
   tags:
     - test-large
   script:
