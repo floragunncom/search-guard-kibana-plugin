@@ -1,7 +1,10 @@
 mt_data_migration_tests:
   stage: "Frontend Int Tests"
   image: $SG_BUILD_IMAGE
-  when: manual
+  rules:
+    - if: '$SG_LINK && $SGSF_LINK && $DATA_DIR_ARCHIVE_NAME && $ES_VERSION'
+      when: on_success
+    - when: never
   allow_failure: false
   tags:
     - test-large
