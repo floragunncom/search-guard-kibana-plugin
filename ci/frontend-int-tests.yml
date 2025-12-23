@@ -1,5 +1,6 @@
-include:
-  - local: 'ci/dind-mirror.yml'
+stages:
+  - Frontend Int Tests
+
 
 kibana_basicauth:
   extends:
@@ -98,36 +99,25 @@ kibana_authtokens:
 #     TEST_DEFINITIONS: ".*kibana_kerberos.*"
 
 .be_integration_test:
-  extends: .dind_mirror
   allow_failure: false
   stage: "Frontend Int Tests"
   tags:
     - test-large
   rules:
-    - if: '$DOCKER_ONLY'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: always
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: always
-    - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
-      when: always
-    - if: $FORCE_SGI
-      when: always
-    - if: '$CI_COMMIT_MESSAGE =~ /.*SKIP-SGI.*/'
+    - if: '$DOCKER_ONLY || $CI_COMMIT_MESSAGE =~ /SKIP-SGI|SKIP-TESTS/'
       when: never
 
     - if: '$FORCE_SGI || $CI_COMMIT_MESSAGE =~ /FORCE_SGI/ || $CI_PIPELINE_SOURCE == "parent_pipeline"'
       when: always
 
-    - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
-      when: on_success
-
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"
-          || $CI_PIPELINE_SOURCE == "schedule"'
+          || $CI_PIPELINE_SOURCE == "schedule"
+          || $CI_COMMIT_TAG =~ /^sg-flx-.*/'
       when: on_success
 
-  image: "$SG_DIND_IMAGE"
+  image: docker:${DOCKER_VERSION}
+  services:
+    - docker:${DOCKER_VERSION}-dind
   script:
     - |
        set -e
@@ -143,6 +133,7 @@ kibana_authtokens:
          exit 1
        fi
 
+       apk add --no-cache gomplate jq curl zip xmlstarlet git wget bash sudo 
        sudo sysctl -w vm.max_map_count=262144
        
        echo "Login in into Docker Hub"      
@@ -168,17 +159,6 @@ kibana_authtokens:
        fi  
 
        ./run_test_definition.sh "$TEST_DEFINITIONS"
-  after_script:
-    - |
-      if [ -n "$KEEP_TEST_ARTIFACTS" ]; then
-        echo "KEEP_TEST_ARTIFACTS is set - skipping artifact cleanup"
-      elif [ "$CI_JOB_STATUS" == "success" ]; then
-        echo "Job succeeded - removing heavy artifacts, keeping JUnit XML only"
-        find sgi8/client/test/testresults* -type f ! -path "*/junit/*.xml" -delete 2>/dev/null || true
-        find sgi8/client/test/testresults* -type d -empty -delete 2>/dev/null || true
-      else
-        echo "Job failed - keeping all artifacts for debugging"
-      fi
   artifacts:
     when: always
     paths:
@@ -186,4 +166,4 @@ kibana_authtokens:
     reports:
       junit:
         - "sgi8/client/test/testresults**/junit/Test*.xml"
-    expire_in: 7 days
+    expire_in: 30 days
