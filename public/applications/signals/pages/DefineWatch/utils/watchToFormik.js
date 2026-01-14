@@ -98,8 +98,19 @@ function buildFormikResolveAction(action) {
 export function buildFormikWebhookAction(action = {}) {
   const newAction = defaultsDeep(action, WEBHOOK_DEFAULTS);
 
+  // Extract API key from headers if it exists
+  let _account = '';
+  try {
+    const headers = action.request.headers || {};
+    _account = headers['X-S4-Api-Key'] || '';
+    debugger;
+  } catch (error) {
+    // Ignore if headers can't be parsed
+  }
+
   return buildFormikResolveAction({
     ...newAction,
+    _account,
     request: {
       ...newAction.request,
       headers: stringifyPretty(action.request.headers),
