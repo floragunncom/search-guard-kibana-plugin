@@ -5,4 +5,5 @@ export const ACTION_TYPE = {
   EMAIL: 'email',
   JIRA: 'jira',
   PAGERDUTY: 'pagerduty',
+  SIGNL4: 'signl4',
 };

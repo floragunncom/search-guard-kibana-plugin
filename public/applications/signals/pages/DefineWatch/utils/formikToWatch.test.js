@@ -562,6 +562,53 @@ describe('buildActions', () => {
     expect(buildActions(formik)).toEqual({ actions });
   });
 
+  test('can build webhook action from signl4 type', () => {
+    const actions = [
+      {
+        checks: [],
+        throttle_period: '1s',
+        type: 'webhook', // Signl4 converts to webhook for backend
+        name: 'mysignl4',
+        request: {
+          method: 'POST',
+          url: 'https://connect.signl4.com/webhook/xxx',
+          body: 'Total: {{data.mysearch.hits.total.value}}',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-S4-Api-Key': 'secret',
+          },
+        },
+      },
+    ];
+
+    const formik = {
+      _ui: {},
+      actions: [
+        {
+          checks: [],
+          throttle_period: {
+            interval: 1,
+            unit: 's',
+          },
+          type: ACTION_TYPE.SIGNL4, // UI type is signl4
+          name: 'mysignl4',
+          _account: 'secret',
+          request: {
+            method: 'POST',
+            url: 'https://connect.signl4.com/webhook/xxx',
+            body: 'Total: {{data.mysearch.hits.total.value}}',
+            headers: stringifyPretty({
+              'Content-Type': 'application/json',
+              'X-S4-Api-Key': 'secret',
+            }),
+          },
+        },
+      ],
+    };
+
+    expect(buildActions(formik)).toEqual({ actions });
+  });
+
   test('can build index action', () => {
     const actions = [
       {

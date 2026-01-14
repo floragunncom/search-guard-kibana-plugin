@@ -94,3 +94,19 @@ export const pagerduty = {
   },
   ...cloneDeep(COMMON),
 };
+
+export const signl4 = {
+  type: ACTION_TYPE.SIGNL4,
+  name: 'mysignl4',
+  request: {
+    method: 'POST',
+    url: 'https://connect.signl4.com/webhook/',
+    body: 'Total: {{data.mysearch.hits.total.value}}',
+    headers: stringifyPretty({
+      'Content-Type': 'application/json',
+      'X-S4-Api-Key': '',
+    }),
+  },
+  _account: '',
+  ...cloneDeep(COMMON),
+};

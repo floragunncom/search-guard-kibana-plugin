@@ -33,7 +33,7 @@ import { SEVERITY_OPTIONS, WATCH_TYPES } from '../../../utils/constants';
 import { Context } from '../../../../../Context';
 
 const API_KEY_HEADER_NAME = 'X-S4-Api-Key';
-const CUSTOM_FIELD_URL_PATTERNS = ['mgstarter.test', 'connect.signl4.com'];
+const CUSTOM_FIELD_URL_PATTERNS = ['connect.signl4.com'];
 
 /**
  * Check if the URL matches any of the configured patterns
@@ -163,7 +163,7 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
               }}
               elementProps={{
                 isInvalid,
-                placeholder: 'Enter account name',
+                placeholder: 'Enter API key',
                 onFocus: (e, field, form) => {
                   form.setFieldError(field.name, undefined);
                 },
@@ -180,11 +180,12 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
                     headersObj[API_KEY_HEADER_NAME] = accountValue;
                     form.setFieldValue(requestHeadersPath, JSON.stringify(headersObj, null, 2));
                   } catch (error) {
-                    // If headers is not valid JSON, create new object
-                    const newHeaders = { [API_KEY_HEADER_NAME]: accountValue };
-                    form.setFieldValue(requestHeadersPath, JSON.stringify(newHeaders, null, 2));
+                    // Headers JSON is invalid - skip sync, validation will show error
                   }
                 },
+              }}
+              formikFieldProps={{
+                validate: validateEmptyField,
               }}
             />
           )}
