@@ -74,9 +74,11 @@ export function buildWebhookAction(action = {}) {
     // do nothing
   }
 
+  const { _account, ...cleanAction } = action;
+
   return {
-    ...action,
-    request: { ...action.request, headers },
+    ...cleanAction,
+    request: { ...cleanAction.request, headers },
   };
 }
 

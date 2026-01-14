@@ -1,4 +1,4 @@
-import React, { Fragment, useContext } from 'react';
+import React, { Fragment, useContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect as connectFormik } from 'formik';
 import { get } from 'lodash';
@@ -32,6 +32,16 @@ import { SEVERITY_OPTIONS, WATCH_TYPES } from '../../../utils/constants';
 
 import { Context } from '../../../../../Context';
 
+const API_KEY_HEADER_NAME = 'X-S4-Api-Key';
+const CUSTOM_FIELD_URL_PATTERNS = ['mgstarter.test', 'connect.signl4.com'];
+
+/**
+ * Check if the URL matches any of the configured patterns
+ */
+const shouldShowCustomField = (url) => {
+  return CUSTOM_FIELD_URL_PATTERNS.some(pattern => url.includes(pattern));
+};
+
 const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
   const {
     editorTheme,
@@ -40,6 +50,8 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
     onComboBoxCreateOption,
     onComboBoxOnBlur,
   } = useContext(Context);
+
+  const [showCustomField, setShowCustomField] = useState(false);
 
   const watchType = get(values, '_ui.watchType');
   const isGraphWatch = watchType === WATCH_TYPES.GRAPH;
@@ -58,6 +70,12 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
   const requestHeadersPath = `${actionsRootPath}[${index}].request.headers`;
   const requestBodyPath = `${actionsRootPath}[${index}].request.body`;
   const requestBodyPreviewTemplate = get(values, `${actionsRootPath}[${index}].request.body`, '');
+
+  // Initialize showCustomField based on URL when component mounts or URL changes
+  useEffect(() => {
+    const currentUrl = get(values, requestUrlPath, '');
+    setShowCustomField(shouldShowCustomField(currentUrl));
+  }, [get(values, requestUrlPath)]);
 
   return (
     <Fragment>
@@ -119,16 +137,57 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
               isInvalid,
               error: hasError,
             }}
-            elementProps={{
-              isInvalid,
-              onFocus: (e, field, form) => {
-                form.setFieldError(field.name, undefined);
-              },
-            }}
+              elementProps={{
+                isInvalid,
+                onFocus: (e, field, form) => {
+                  form.setFieldError(field.name, undefined);
+                },
+                onBlur: (e, field, form) => {
+                  // Check the URL and show/hide the custom field when user leaves the field
+                  const url = field.value || '';
+                  setShowCustomField(shouldShowCustomField(url));
+                }
+              }}
             formikFieldProps={{
               validate: validateEmptyField,
             }}
           />
+          {showCustomField && (
+            <FormikFieldText
+              name={`${actionsRootPath}[${index}]._account`}
+              formRow
+              rowProps={{
+                label: 'API Key',
+                isInvalid,
+                error: hasError,
+              }}
+              elementProps={{
+                isInvalid,
+                placeholder: 'Enter account name',
+                onFocus: (e, field, form) => {
+                  form.setFieldError(field.name, undefined);
+                },
+                onChange: (e, field, form) => {
+                  // Update the account field value
+                  field.onChange(e);
+
+                  // Update the headers with API key
+                  const accountValue = e.target.value || '';
+                  const currentHeaders = get(values, requestHeadersPath, '{}');
+
+                  try {
+                    const headersObj = JSON.parse(currentHeaders);
+                    headersObj[API_KEY_HEADER_NAME] = accountValue;
+                    form.setFieldValue(requestHeadersPath, JSON.stringify(headersObj, null, 2));
+                  } catch (error) {
+                    // If headers is not valid JSON, create new object
+                    const newHeaders = { [API_KEY_HEADER_NAME]: accountValue };
+                    form.setFieldValue(requestHeadersPath, JSON.stringify(newHeaders, null, 2));
+                  }
+                },
+              }}
+            />
+          )}
         </EuiFlexItem>
         <EuiFlexItem>
           <FormikCodeEditorSG
@@ -150,6 +209,17 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
               theme: editorTheme,
               onChange: (e, text, field, form) => {
                 form.setFieldValue(field.name, text);
+
+                // Sync API key from headers to account field
+                if (showCustomField) {
+                  try {
+                    const headersObj = JSON.parse(text);
+                    const apiKey = headersObj[API_KEY_HEADER_NAME] || '';
+                    form.setFieldValue(`${actionsRootPath}[${index}]._account`, apiKey);
+                  } catch (error) {
+                    // Invalid JSON, ignore
+                  }
+                }
               },
               onBlur: (e, field, form) => {
                 form.setFieldTouched(field.name, true);
