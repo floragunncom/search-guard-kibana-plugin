@@ -206,6 +206,11 @@ export const buildActions = ({ actions = [], resolve_actions: resolveActions, _u
         return buildPagerdutyAction(watchAction);
       }
 
+      if (action.type === ACTION_TYPE.SIGNL4) {
+        // Signl4 is a UI-only type alias for webhook - convert back to webhook for backend
+        return { ...buildWebhookAction(watchAction), type: 'webhook' };
+      }
+
       // if ACTION_TYPE.WEBHOOK
       return buildWebhookAction(watchAction);
     });
