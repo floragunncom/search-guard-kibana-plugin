@@ -101,9 +101,12 @@ export const signl4 = {
   request: {
     method: 'POST',
     url: 'https://connect.signl4.com/webhook/',
-    body: 'Total: {{data.mysearch.hits.total.value}}',
+    body: `Title: Signals Alert
+Message: Watch "{{watch.id}}" was triggered at {{trigger.triggered_time}}
+X-S4-ExternalID: {{watch.id}}
+X-S4-Service: Security`,
     headers: stringifyPretty({
-      'Content-Type': 'application/json',
+      'Content-Type': 'text/plain',
       'X-S4-Api-Key': '',
     }),
   },

@@ -69,7 +69,7 @@ const Interval = ({ propsInterval, propsAdvInterval, propsUnit, formik: { values
             />
           )}
         </EuiFlexItem>
-        <EuiFlexItem style={{ marginTop: '8px' }}>
+        <EuiFlexItem>
           <FormikSelect
             formRow
             rowProps={{ hasEmptyLabelSpace: true }}
