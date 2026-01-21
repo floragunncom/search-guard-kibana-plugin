@@ -74,11 +74,12 @@ export function buildWebhookAction(action = {}) {
     // do nothing
   }
 
-  const { _account, ...cleanAction } = action;
+  // Disabled: Strip _account if API Key feature in WebhookAction is re-enabled.
+  // const { _account, ...cleanAction } = action;
 
   return {
-    ...cleanAction,
-    request: { ...cleanAction.request, headers },
+    ...action,
+    request: { ...action.request, headers },
   };
 }
 
