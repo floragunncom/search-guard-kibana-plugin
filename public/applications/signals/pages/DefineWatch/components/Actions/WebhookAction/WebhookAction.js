@@ -33,11 +33,9 @@ import { SEVERITY_OPTIONS, WATCH_TYPES } from '../../../utils/constants';
 import { Context } from '../../../../../Context';
 
 const API_KEY_HEADER_NAME = 'X-S4-Api-Key';
-// Disabled: Using Signl4 webhook with team secret in URL instead of API key header.
-// To re-enable API Key field for Signl4, uncomment the pattern below.
-const CUSTOM_FIELD_URL_PATTERNS = [
-  // 'connect.signl4.com',
-];
+// URL patterns that show the API Key field. Currently empty (feature disabled).
+// See _MYWORK/_guides/webhook-api-key-flow.md for re-enablement instructions.
+const CUSTOM_FIELD_URL_PATTERNS = [];
 
 /**
  * Check if the URL matches any of the configured patterns
