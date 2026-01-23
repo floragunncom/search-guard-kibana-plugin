@@ -100,7 +100,7 @@ export const signl4 = {
   name: 'mysignl4',
   request: {
     method: 'POST',
-    url: 'https://connect.signl4.com/webhook/WEBHOOK_ID-OR_TEAM_ID',
+    url: 'https://connect.signl4.com/webhook/{webhookIdOrTeamId}',
     body: `Title: Signals Alert
 Message: Watch "{{watch.id}}" was triggered at {{trigger.triggered_time}}
 X-S4-ExternalID: {{watch.id}}
