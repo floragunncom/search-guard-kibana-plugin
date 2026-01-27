@@ -1,28 +1,74 @@
+stages:
+  - Frontend MT Data Migration Tests
+
 mt_data_migration_tests:
-  stage: "Frontend Int Tests"
+  stage: "Frontend MT Data Migration Tests"
   image: $SG_BUILD_IMAGE
+  allow_failure: false 
   rules:
-    - if: '$SG_LINK && $SGSF_LINK && $DATA_DIR_ARCHIVE_NAME && $ES_VERSION'
-      when: on_success
-    - when: never
-  allow_failure: false
+    - if: '$DOCKER_ONLY || $CI_COMMIT_MESSAGE =~ /.*SKIP-UT.*/ || $CI_COMMIT_MESSAGE =~ /.*SKIP-TESTS.*/ || $CI_COMMIT_TAG =~ /^sg-flx-.*/'
+      when: never    
+    - when: on_success  
+  needs:
+    - job: Please set DATA_DIR_ARCHIVE_NAME
+      optional: true
+    - job: build
+      optional: true
+    - job: deploy_snapshot  
+      optional: true  
+  variables:
+    CHECK_JOB_NAME: "Please set DATA_DIR_ARCHIVE_NAME"
+    PARENT_PIPELINE_PREREQUISITES: ${CHECK_FRONTEND_PREREQUISITES}      
   tags:
     - test-large
   script:
-    - apt-get update
-    - apt-get install -y curl jq procps
-    - sysctl -w vm.max_map_count=262144
-    - git clone --depth 1 --branch $IT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git > /dev/null
-    - cd sgi8/mt_data_migration_test
-    - ./00_preconditions_check.sh
-    - ./01_install_es_and_kibana.sh
-    - ./02_restore_es_data_dir.sh
-    - ./03_setup_user.sh
-    - SCRIPT_DIR=$(pwd) && su - elasticsearch -c "cd $SCRIPT_DIR && ./04_start_es.sh"
-    - su - elasticsearch -c "cd $SCRIPT_DIR && ./05_start_kibana.sh"
-    - ./20_space_test.sh
-    - ./21_data_views.sh
-    - ./22_data_view_queries.sh
-    - ./23_dashboards.sh
-    - ./97_stop_kibana.sh
-    - ./98_stop_es.sh
+    - |
+
+       CHECK_JOB_NAME="${CHECK_JOB_NAME:-}"
+
+       if [[  "${PARENT_PIPELINE_PREREQUISITES:-}" != "1" ]]; then
+         if [[ -z "${CHECK_JOB_NAME}" ]]; then
+           echo "ERROR: Prerequisites check finished with errors, check job undefined"
+         else
+           echo "ERROR: Prerequisites check finished with errors, check job \"${CHECK_JOB_NAME}\" log for more details"
+         fi
+         exit 1
+       fi
+
+       apt-get update && apt-get install -y curl jq procps
+       sysctl -w vm.max_map_count=262144
+       git clone --depth 1 --branch $IT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git > /dev/null
+
+      
+       export ES_VERSION=$SF_VERSION
+       export DATA_DIR_ARCHIVE_NAME=${KIBANA_DATA_DIR_ARCHIVE_NAME}
+       export SG_LINK=$SG_ES_PLUGIN
+       echo "[INFO] ES_VERSION=${ES_VERSION}"
+       echo "[INFO] DATA_DIR_ARCHIVE_NAME=${KIBANA_DATA_DIR_ARCHIVE_NAME}"      
+       echo "[INFO] SG_LINK=${SG_LINK}"
+
+
+       cd sgi8/mt_data_migration_test
+
+       # Used when tests are triggered from another repository, e.g. search-guard-suite-enterprise.     
+       if [[ "${CI_PIPELINE_SOURCE:-}" == "parent_pipeline" ]]; then
+         echo "Test was triggered from the parent pipeline, using URL: $SG_KI_PLUGIN"
+         export SGSF_LINK=$SG_KI_PLUGIN
+       else
+         echo "Using local kibana plugin from target/releases"
+         export SGSF_LINK="../../target/releases/search-guard-flx-kibana-plugin-${BUILD_VERSION}.zip"
+       fi
+
+
+       ./00_preconditions_check.sh
+       ./01_install_es_and_kibana.sh
+       ./02_restore_es_data_dir.sh
+       ./03_setup_user.sh
+       SCRIPT_DIR=$(pwd) && su - elasticsearch -c "cd $SCRIPT_DIR && ./04_start_es.sh"
+       su - elasticsearch -c "cd $SCRIPT_DIR && ./05_start_kibana.sh"
+       ./20_space_test.sh
+       ./21_data_views.sh
+       ./22_data_view_queries.sh
+       ./23_dashboards.sh
+       ./97_stop_kibana.sh
+       ./98_stop_es.sh
