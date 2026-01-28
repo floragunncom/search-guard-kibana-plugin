@@ -1,8 +1,17 @@
-import React, { Fragment, useContext } from 'react';
+import React, { Fragment, useContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect as connectFormik } from 'formik';
 import { get } from 'lodash';
 import { EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
+
+// Signl4-specific: Header name for API key authentication
+const API_KEY_HEADER_NAME = 'X-S4-Api-Key';
+// URL patterns that trigger the API Key field display (currently only Signl4)
+const CUSTOM_FIELD_URL_PATTERNS = ['signl4.com'];
+
+const shouldShowCustomField = (url) => {
+  return CUSTOM_FIELD_URL_PATTERNS.some((pattern) => url.includes(pattern));
+};
 import {
   FormikCodeEditor,
   FormikFieldText,
@@ -58,6 +67,17 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
   const requestHeadersPath = `${actionsRootPath}[${index}].request.headers`;
   const requestBodyPath = `${actionsRootPath}[${index}].request.body`;
   const requestBodyPreviewTemplate = get(values, `${actionsRootPath}[${index}].request.body`, '');
+
+  // State for showing API Key field when URL matches Signl4 patterns
+  const [showCustomField, setShowCustomField] = useState(() =>
+    shouldShowCustomField(get(values, requestUrlPath, ''))
+  );
+
+  // Update showCustomField when URL changes
+  useEffect(() => {
+    const currentUrl = get(values, requestUrlPath, '');
+    setShowCustomField(shouldShowCustomField(currentUrl));
+  }, [get(values, requestUrlPath)]);
 
   return (
     <Fragment>
@@ -124,11 +144,42 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
               onFocus: (e, field, form) => {
                 form.setFieldError(field.name, undefined);
               },
+              onBlur: (e, field) => {
+                setShowCustomField(shouldShowCustomField(field.value || ''));
+              },
             }}
             formikFieldProps={{
               validate: validateEmptyField,
             }}
           />
+          {showCustomField && (
+            <FormikFieldText
+              name={`${actionsRootPath}[${index}]._account`}
+              formRow
+              rowProps={{
+                label: 'API Key',
+                isInvalid,
+                error: hasError,
+              }}
+              elementProps={{
+                isInvalid,
+                placeholder: 'Enter API key',
+                onChange: (e, field, form) => {
+                  field.onChange(e);
+                  // Sync API key to headers
+                  const accountValue = e.target.value || '';
+                  const currentHeaders = get(values, requestHeadersPath, '{}');
+                  try {
+                    const headersObj = JSON.parse(currentHeaders);
+                    headersObj[API_KEY_HEADER_NAME] = accountValue;
+                    form.setFieldValue(requestHeadersPath, JSON.stringify(headersObj, null, 2));
+                  } catch (error) {
+                    // Headers JSON invalid - skip sync
+                  }
+                },
+              }}
+            />
+          )}
         </EuiFlexItem>
         <EuiFlexItem>
           <FormikCodeEditorSG
@@ -150,6 +201,16 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
               theme: editorTheme,
               onChange: (e, text, field, form) => {
                 form.setFieldValue(field.name, text);
+                // Sync API key from headers to _account field
+                if (showCustomField) {
+                  try {
+                    const headersObj = JSON.parse(text);
+                    const apiKey = headersObj[API_KEY_HEADER_NAME] || '';
+                    form.setFieldValue(`${actionsRootPath}[${index}]._account`, apiKey);
+                  } catch (error) {
+                    // Invalid JSON, ignore sync
+                  }
+                }
               },
               onBlur: (e, field, form) => {
                 form.setFieldTouched(field.name, true);

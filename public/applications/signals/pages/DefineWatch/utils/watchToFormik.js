@@ -27,7 +27,7 @@ import {
 } from '../../DefineWatch/components/ActionPanel/utils/action_defaults';
 
 // URL patterns for detecting webhooks that need custom field handling (e.g., API key field)
-const CUSTOM_FIELD_URL_PATTERNS = ['connect.signl4.com'];
+const CUSTOM_FIELD_URL_PATTERNS = ['signl4.com'];
 
 const isSignl4Webhook = (action) => {
   if (action.type !== 'webhook') return false;
@@ -107,8 +107,19 @@ function buildFormikResolveAction(action) {
 export function buildFormikWebhookAction(action = {}) {
   const newAction = defaultsDeep(action, WEBHOOK_DEFAULTS);
 
+  // Extract API key from headers into _account field for UI display.
+  // Currently only used for Signl4 (X-S4-Api-Key header).
+  let _account = '';
+  try {
+    const headers = action.request?.headers || {};
+    _account = headers['X-S4-Api-Key'] || '';
+  } catch (error) {
+    // Ignore if headers can't be parsed
+  }
+
   return buildFormikResolveAction({
     ...newAction,
+    _account,
     request: {
       ...newAction.request,
       headers: stringifyPretty(action.request.headers),
