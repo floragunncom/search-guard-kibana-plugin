@@ -592,6 +592,7 @@ describe('buildActions', () => {
           },
           type: ACTION_TYPE.SIGNL4, // UI type is signl4
           name: 'mysignl4',
+          _account: 'secret', // API key synced from UI field - will be stripped
           request: {
             method: 'POST',
             url: 'https://connect.signl4.com/webhook/xxx',
