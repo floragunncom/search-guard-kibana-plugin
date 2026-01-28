@@ -107,19 +107,8 @@ function buildFormikResolveAction(action) {
 export function buildFormikWebhookAction(action = {}) {
   const newAction = defaultsDeep(action, WEBHOOK_DEFAULTS);
 
-  // Extract API key from headers into _account field for UI display.
-  // Currently only used for Signl4 (X-S4-Api-Key header).
-  let _account = '';
-  try {
-    const headers = action.request?.headers || {};
-    _account = headers['X-S4-Api-Key'] || '';
-  } catch (error) {
-    // Ignore if headers can't be parsed
-  }
-
   return buildFormikResolveAction({
     ...newAction,
-    _account,
     request: {
       ...newAction.request,
       headers: stringifyPretty(action.request.headers),
@@ -211,7 +200,15 @@ export const buildFormikActions = ({ actions = [], resolve_actions: resolveActio
       if (action.type === ACTION_TYPE.WEBHOOK) {
         // Check if it's a Signl4 webhook by URL pattern - set type to signl4 for UI display
         if (isSignl4Webhook(action)) {
-          return { ...buildFormikWebhookAction(action), type: ACTION_TYPE.SIGNL4 };
+          // Extract API key from headers into _account field for Signl4 UI
+          let _account = '';
+          try {
+            const headers = action.request?.headers || {};
+            _account = headers['X-S4-Api-Key'] || '';
+          } catch (error) {
+            // Ignore if headers can't be parsed
+          }
+          return { ...buildFormikWebhookAction(action), _account, type: ACTION_TYPE.SIGNL4 };
         }
         return buildFormikWebhookAction(action);
       }
