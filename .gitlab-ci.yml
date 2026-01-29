@@ -23,7 +23,7 @@ variables:
 default:
   image: $SG_BUILD_IMAGE
   tags:
-    - build
+    - sysbox
   interruptible: true
   timeout: 90m
 
@@ -112,7 +112,7 @@ build:
       when: never
     - when: always
   tags:
-    - build
+    - sysbox
   script:
     - |
       set -e
@@ -179,7 +179,7 @@ build_release:
 deploy_snapshot:
   stage: package
   tags:
-    - build
+    - sysbox
   script:
     - ci/deploy.sh
     - |
@@ -197,7 +197,7 @@ deploy_snapshot:
 deploy_remote_snapshot:
   stage: package
   tags:
-    - build
+    - sysbox
   rules:
     - if: '$CI_COMMIT_TAG =~ /.*-es-.*/'
       when: never
@@ -222,7 +222,7 @@ deploy_release:
       when: never
     - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
   tags:
-    - build
+    - sysbox
   script:
     - |
       ci/setup_gpg.sh
@@ -240,7 +240,7 @@ deploy_docker_release_image:
     - if: '$DOCKER_ONLY'
       when: on_success
   tags:
-    - build
+    - sysbox
   timeout: 1h
   script:
     - |
@@ -281,7 +281,7 @@ deploy_docker_demo_image:
     - if: '$DOCKER_ONLY'
       when: on_success
   tags:
-    - build
+    - sysbox
   timeout: 1h
   script:
     - |
