@@ -58,17 +58,5 @@ mt_data_migration_tests:
          echo "Using local kibana plugin from target/releases"
          export SGSF_LINK="../../target/releases/search-guard-flx-kibana-plugin-${BUILD_VERSION}.zip"
        fi
-
-
-       ./00_preconditions_check.sh
-       ./01_install_es_and_kibana.sh
-       ./02_restore_es_data_dir.sh
-       ./03_setup_user.sh
-       SCRIPT_DIR=$(pwd) && su - elasticsearch -c "cd $SCRIPT_DIR && ./04_start_es.sh"
-       su - elasticsearch -c "cd $SCRIPT_DIR && ./05_start_kibana.sh"
-       ./20_space_test.sh
-       ./21_data_views.sh
-       ./22_data_view_queries.sh
-       ./23_dashboards.sh
-       ./97_stop_kibana.sh
-       ./98_stop_es.sh
+       
+       ./run_ci_tests.sh
