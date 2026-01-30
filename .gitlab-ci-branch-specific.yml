@@ -1,3 +1,3 @@
 variables:
-  IT_BRANCH: "9.2.x"
+  IT_BRANCH: "689-mt-data-migration"
   SG_ES_PLUGIN: "main-SNAPSHOT"
