@@ -20,7 +20,7 @@ mt_data_migration_tests:
     CHECK_JOB_NAME: "Please set DATA_DIR_ARCHIVE_NAME"
     PARENT_PIPELINE_PREREQUISITES: ${CHECK_FRONTEND_PREREQUISITES}      
   tags:
-    - test-large
+    - hetzner-gitlab-runner-3
   script:
     - |
 
