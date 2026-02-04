@@ -133,7 +133,6 @@ kibana_authtokens:
          exit 1
        fi
 
-       apk add --no-cache gomplate jq curl zip xmlstarlet git wget bash sudo 
        sudo sysctl -w vm.max_map_count=262144
        
        echo "Login in into Docker Hub"      
