@@ -117,7 +117,11 @@ kibana_authtokens:
 
   image: docker:${DOCKER_VERSION}
   services:
-    - docker:${DOCKER_VERSION}-dind
+    - name: docker:${DOCKER_VERSION}-dind
+      command:
+      - "--registry-mirror=http://host.docker.internal:5000"
+      - "--insecure-registry=host.docker.internal:5000"
+      
   script:
     - |
        set -e
