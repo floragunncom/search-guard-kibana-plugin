@@ -126,6 +126,29 @@ kibana_authtokens:
     - |
        set -e
        
+
+       echo "=== ENV ==="
+       env | sort | grep -E 'DOCKER|CI|USE_|REGISTRY' || true
+
+       echo "=== DOCKER INFO ==="
+       docker info
+
+       echo "=== REGISTRY MIRROR CHECK ==="
+       docker info | grep -i mirror || (echo "❌ NO REGISTRY MIRROR" && exit 1)
+
+       echo "=== NETWORK CHECK (proxy reachable?) ==="
+       apk add --no-cache curl
+       curl -v http://172.17.0.1:5000/v2/ || (echo "❌ REGISTRY UNREACHABLE" && exit 1)
+
+       echo "=== FORCE PULL THROUGH PROXY ==="
+       docker pull 172.17.0.1:5000/library/alpine:3.20
+
+       echo "=== NORMAL PULL (should be cached) ==="
+       time docker pull alpine:3.20
+       time docker pull alpine:3.20
+
+       echo "=== DONE ==="
+
        # Used when tests are triggered from another repository, e.g. search-guard-suite-enterprise.
        CHECK_JOB_NAME="${CHECK_JOB_NAME:-}"
        if [[ "${CI_PIPELINE_SOURCE:-}" == "parent_pipeline" && "${PARENT_PIPELINE_PREREQUISITES:-}" != "1" ]]; then
