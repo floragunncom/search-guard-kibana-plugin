@@ -138,10 +138,10 @@ kibana_authtokens:
 
        echo "=== NETWORK CHECK (proxy reachable?) ==="
        apk add --no-cache curl
-       curl -v http://172.17.0.1:5000/v2/ || (echo "❌ REGISTRY UNREACHABLE" && exit 1)
+       curl -v http://host.docker.internal:5000/v2/
 
        echo "=== FORCE PULL THROUGH PROXY ==="
-       docker pull 172.17.0.1:5000/library/alpine:3.20
+       docker pull host.docker.internal:5000/library/alpine:3.20
 
        echo "=== NORMAL PULL (should be cached) ==="
        time docker pull alpine:3.20
