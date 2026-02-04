@@ -102,7 +102,7 @@ kibana_authtokens:
   allow_failure: false
   stage: "Frontend Int Tests"
   tags:
-    - test-large
+    - hetzner-gitlab-runner-3
   rules:
     - if: '$DOCKER_ONLY || $CI_COMMIT_MESSAGE =~ /SKIP-SGI|SKIP-TESTS/'
       when: never
@@ -121,7 +121,7 @@ kibana_authtokens:
       command:
       - "--registry-mirror=http://host.docker.internal:5000"
       - "--insecure-registry=host.docker.internal:5000"
-      
+
   script:
     - |
        set -e
