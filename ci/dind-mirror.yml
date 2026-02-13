@@ -4,7 +4,7 @@ variables:
 
 .dind_mirror:
   services:
-    - name: floragunncom/alpine-dind:260213
+    - name: floragunncom/alpine-docker:260213
       alias: docker
       command:
         - "--registry-mirror=http://host.docker.internal:5000"
@@ -12,21 +12,21 @@ variables:
   before_script:
     - |
       docker info 2>&1 | grep -A2 "Registry Mirrors" || echo "No registry mirror configured"
+      getent hosts host.docker.internal || echo "host.docker.internal: not resolvable"
+      curl -sf --max-time 3 ${REGISTRY_MIRROR}/v2/_catalog 2>/dev/null && echo "" || echo "[ ERROR ] !!!!!! Registry not reachable at ${REGISTRY_MIRROR:-<not set>}"
       if [ "${REGISTRY_MIRROR_DEBUG:-false}" = "true" ]; then
         echo "--- REGISTRY_MIRROR=$REGISTRY_MIRROR DOCKER_HOST=${DOCKER_HOST:-local socket}"
-        getent hosts host.docker.internal || echo "host.docker.internal: not resolvable"
-        command -v curl > /dev/null 2>&1 || apk add --no-cache curl > /dev/null 2>&1 || apt-get update -qq && apt-get install -yqq curl > /dev/null 2>&1 || true
-        curl -sf --max-time 3 ${REGISTRY_MIRROR}/v2/_catalog 2>/dev/null && echo "" || echo "registry not reachable at ${REGISTRY_MIRROR:-<not set>}"
+
 
         echo "=== PULL TEST (1st) ==="
-        docker rmi alpine:latest 2>/dev/null || true
-        time docker pull alpine:latest
+        docker rmi golang:1.23 2>/dev/null || true
+        time docker pull golang:1.23
 
         echo "=== PULL TEST (2nd - cache hit) ==="
-        docker rmi alpine:latest
-        time docker pull alpine:latest
+        docker rmi golang:1.23
+        time docker pull golang:1.23
 
         echo "=== DEBUG: REGISTRY CATALOG (after pull) ==="
-        curl -sf --max-time 3 ${REGISTRY_MIRROR}/v2/_catalog 2>/dev/null && echo "" || echo "catalog not reachable"
+        curl -sf --max-time 3 ${REGISTRY_MIRROR}/v2/_catalog 2>/dev/null && echo "" || echo "[ ERROR ] !!!!! catalog not reachable"
         echo "=== DONE ==="
       fi

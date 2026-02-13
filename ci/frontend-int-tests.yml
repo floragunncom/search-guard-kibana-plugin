@@ -120,8 +120,6 @@ kibana_authtokens:
       when: on_success
 
   image: alpine-docker:260213
-  services:
-    - docker:${DOCKER_VERSION}-dind
   script:
     - |
        set -e
