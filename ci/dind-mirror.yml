@@ -1,5 +1,7 @@
 variables:
   REGISTRY_MIRROR: "http://host.docker.internal:5000"
+  REGISTRY_MIRROR_HOST: "host.docker.internal:5000"
+  REGISTRY_MIRROR_REGISTRIES: "docker.io docker.elastic.co mcr.microsoft.com"
   DOCKER_TLS_CERTDIR: ""
 
 .dind_mirror:
@@ -16,7 +18,10 @@ variables:
       curl -sf --max-time 3 ${REGISTRY_MIRROR}/v2/_catalog 2>/dev/null && echo "" || { echo "[ ERROR ] !!!!!! Registry not reachable at ${REGISTRY_MIRROR:-<not set>}"; exit 1; }
 
       # Configure BuildKit to use registry mirror (for docker compose build / docker build)
-      printf '[registry."docker.io"]\n  mirrors = ["host.docker.internal:5000"]\n[registry."host.docker.internal:5000"]\n  http = true\n' > /tmp/buildkitd.toml
+      printf '[registry."%s"]\n  http = true\n' "${REGISTRY_MIRROR_HOST}" > /tmp/buildkitd.toml
+      for reg in ${REGISTRY_MIRROR_REGISTRIES}; do
+        printf '[registry."%s"]\n  mirrors = ["%s"]\n' "$reg" "${REGISTRY_MIRROR_HOST}" >> /tmp/buildkitd.toml
+      done
       docker buildx create --name mirror-builder --driver docker-container --driver-opt network=host --config /tmp/buildkitd.toml --use || echo "WARN: could not create buildx mirror-builder"
       if [ "${REGISTRY_MIRROR_DEBUG:-false}" = "true" ]; then
         echo "--- REGISTRY_MIRROR=$REGISTRY_MIRROR DOCKER_HOST=${DOCKER_HOST:-local socket}"
