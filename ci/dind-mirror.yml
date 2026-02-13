@@ -4,7 +4,7 @@ variables:
 
 .dind_mirror:
   services:
-    - name: floragunncom/alpine-docker:260213
+    - name: docker:${DOCKER_VERSION}-dind
       alias: docker
       command:
         - "--registry-mirror=http://host.docker.internal:5000"
