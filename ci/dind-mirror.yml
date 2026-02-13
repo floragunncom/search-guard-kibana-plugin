@@ -24,24 +24,24 @@ variables:
         echo "=== docker compose version ==="
         docker compose version
 
-        echo "=== PULL TEST (docker pull, 1st) ==="
-        docker rmi alpine:3.20 2>/dev/null || true
-        time docker pull alpine:3.20
+        echo "=== PULL TEST (docker pull golang, 1st) ==="
+        docker rmi golang:1.23 2>/dev/null || true
+        time docker pull golang:1.23
 
-        echo "=== PULL TEST (docker pull, 2nd - cache hit) ==="
-        docker rmi alpine:3.20
-        time docker pull alpine:3.20
+        echo "=== PULL TEST (docker pull golang, 2nd - cache hit) ==="
+        docker rmi golang:1.23
+        time docker pull golang:1.23
 
-        echo "=== PULL TEST (docker compose, 1st) ==="
-        docker rmi nginx:1.27-alpine 2>/dev/null || true
-        printf 'services:\n  test:\n    image: nginx:1.27-alpine\n    command: ["echo", "mirror test ok"]\n' > /tmp/docker-compose-test.yml
-        time docker compose -f /tmp/docker-compose-test.yml pull
-        docker compose -f /tmp/docker-compose-test.yml run --rm test
+        echo "=== BUILD TEST (docker compose build, 1st) ==="
+        printf 'services:\n  buildtest:\n    build:\n      context: /tmp/buildtest\n    command: ["echo", "build mirror test ok"]\n' > /tmp/docker-compose-build-test.yml
+        mkdir -p /tmp/buildtest
+        printf 'FROM alpine:3.20\nRUN echo "built ok"\n' > /tmp/buildtest/Dockerfile
+        time docker compose -f /tmp/docker-compose-build-test.yml build
 
-        echo "=== PULL TEST (docker compose, 2nd - cache hit) ==="
-        docker rmi nginx:1.27-alpine
-        time docker compose -f /tmp/docker-compose-test.yml pull
-        rm -f /tmp/docker-compose-test.yml
+        echo "=== BUILD TEST (docker compose build, 2nd - cache hit) ==="
+        docker builder prune -af 2>/dev/null || true
+        time docker compose -f /tmp/docker-compose-build-test.yml build
+        rm -rf /tmp/buildtest /tmp/docker-compose-build-test.yml
 
         echo "=== DEBUG: REGISTRY CATALOG (after pull) ==="
         curl -sf --max-time 3 ${REGISTRY_MIRROR}/v2/_catalog 2>/dev/null && echo "" || echo "[ ERROR ] !!!!! catalog not reachable"
