@@ -106,7 +106,7 @@ kibana_authtokens:
   allow_failure: false
   stage: "Frontend Int Tests"
   tags:
-    - test-large
+    - hetzner-gitlab-runner-1
   rules:
     - if: '$DOCKER_ONLY || $CI_COMMIT_MESSAGE =~ /SKIP-SGI|SKIP-TESTS/'
       when: never
