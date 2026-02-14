@@ -43,8 +43,12 @@ variables:
         printf '[registry."%s"]\n  http = true\n\n' "$mirror_host" >> /tmp/buildkitd.toml
         printf '[registry."%s"]\n  mirrors = ["%s"]\n\n' "$reg" "$mirror_host" >> /tmp/buildkitd.toml
       done
-      docker context create mirror-ctx --docker "host=${DOCKER_HOST},ca=${DOCKER_CERT_PATH}/ca.pem,cert=${DOCKER_CERT_PATH}/cert.pem,key=${DOCKER_CERT_PATH}/key.pem" 2>/dev/null || true
-      docker buildx create --name mirror-builder --driver docker-container --driver-opt network=host --config /tmp/buildkitd.toml --use mirror-ctx || echo "WARN: could not create buildx mirror-builder"
+      if [ -n "${DOCKER_CERT_PATH:-}" ] && [ -f "${DOCKER_CERT_PATH}/ca.pem" ]; then
+        docker context create mirror-ctx --docker "host=${DOCKER_HOST},ca=${DOCKER_CERT_PATH}/ca.pem,cert=${DOCKER_CERT_PATH}/cert.pem,key=${DOCKER_CERT_PATH}/key.pem" 2>/dev/null || true
+        docker buildx create --name mirror-builder --driver docker-container --driver-opt network=host --config /tmp/buildkitd.toml --use mirror-ctx || echo "WARN: could not create buildx mirror-builder"
+      else
+        docker buildx create --name mirror-builder --driver docker-container --driver-opt network=host --config /tmp/buildkitd.toml --use || echo "WARN: could not create buildx mirror-builder"
+      fi
       if [ "${REGISTRY_MIRROR_DEBUG:-false}" = "true" ]; then
         echo "--- REGISTRY_MIRROR_MAP=$REGISTRY_MIRROR_MAP DOCKER_HOST=${DOCKER_HOST:-local socket}"
 
