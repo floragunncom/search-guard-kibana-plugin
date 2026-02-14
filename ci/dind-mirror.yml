@@ -22,15 +22,16 @@ variables:
       docker info 2>&1 | grep -A2 "Registry Mirrors" || echo "No registry mirror configured"
       getent hosts host.docker.internal || echo "host.docker.internal: not resolvable"
 
-      # Verify registry mirrors are reachable
+      # Verify registry mirrors are reachable and show cached images
       for entry in ${REGISTRY_MIRROR_MAP}; do
         reg="${entry%%:*}"
         port="${entry##*:}"
         mirror_url="http://${REGISTRY_MIRROR_BASE}:${port}"
-        if curl -sf --max-time 3 "${mirror_url}/v2/_catalog" >/dev/null 2>&1; then
-          echo "Mirror for ${reg} reachable at ${mirror_url}"
+        catalog=$(curl -sf --max-time 3 "${mirror_url}/v2/_catalog" 2>/dev/null)
+        if [ -n "$catalog" ]; then
+          echo "[OK] ${reg} (port ${port}): ${catalog}"
         else
-          echo "[ WARN ] Mirror for ${reg} not reachable at ${mirror_url} (pulls will go direct)"
+          echo "[WARN] ${reg} (port ${port}): not reachable at ${mirror_url} (pulls will go direct)"
         fi
       done
 
