@@ -1,7 +1,11 @@
 variables:
-  REGISTRY_MIRROR: "http://host.docker.internal:5000"
-  REGISTRY_MIRROR_HOST: "host.docker.internal:5000"
-  REGISTRY_MIRROR_REGISTRIES: "docker.io docker.elastic.co mcr.microsoft.com"
+  # Registry mirror map: "registry:port" pairs (host.docker.internal is the base host)
+  # Each port runs a separate pull-through cache for its upstream registry:
+  #   5000 -> registry-1.docker.io
+  #   5001 -> docker.elastic.co
+  #   5002 -> mcr.microsoft.com
+  REGISTRY_MIRROR_BASE: "host.docker.internal"
+  REGISTRY_MIRROR_MAP: "docker.io:5000 docker.elastic.co:5001 mcr.microsoft.com:5002"
   DOCKER_TLS_CERTDIR: ""
 
 .dind_mirror:
@@ -11,21 +15,41 @@ variables:
       command:
         - "--registry-mirror=http://host.docker.internal:5000"
         - "--insecure-registry=host.docker.internal:5000"
+        - "--insecure-registry=host.docker.internal:5001"
+        - "--insecure-registry=host.docker.internal:5002"
   before_script:
     - |
       docker info 2>&1 | grep -A2 "Registry Mirrors" || echo "No registry mirror configured"
       getent hosts host.docker.internal || echo "host.docker.internal: not resolvable"
-      curl -sf --max-time 3 ${REGISTRY_MIRROR}/v2/_catalog 2>/dev/null && echo "" || { echo "[ ERROR ] !!!!!! Registry not reachable at ${REGISTRY_MIRROR:-<not set>}"; exit 1; }
 
-      # Configure BuildKit to use registry mirror (for docker compose build / docker build)
-      printf '[registry."%s"]\n  http = true\n' "${REGISTRY_MIRROR_HOST}" > /tmp/buildkitd.toml
-      for reg in ${REGISTRY_MIRROR_REGISTRIES}; do
-        printf '[registry."%s"]\n  mirrors = ["%s"]\n' "$reg" "${REGISTRY_MIRROR_HOST}" >> /tmp/buildkitd.toml
+      # Verify registry mirrors are reachable
+      for entry in ${REGISTRY_MIRROR_MAP}; do
+        reg="${entry%%:*}"
+        port="${entry##*:}"
+        mirror_url="http://${REGISTRY_MIRROR_BASE}:${port}"
+        if curl -sf --max-time 3 "${mirror_url}/v2/_catalog" >/dev/null 2>&1; then
+          echo "Mirror for ${reg} reachable at ${mirror_url}"
+        else
+          echo "[ WARN ] Mirror for ${reg} not reachable at ${mirror_url} (pulls will go direct)"
+        fi
+      done
+
+      # Configure BuildKit to use registry mirrors (for docker compose build / docker build)
+      > /tmp/buildkitd.toml
+      for entry in ${REGISTRY_MIRROR_MAP}; do
+        reg="${entry%%:*}"
+        port="${entry##*:}"
+        mirror_host="${REGISTRY_MIRROR_BASE}:${port}"
+        printf '[registry."%s"]\n  http = true\n\n' "$mirror_host" >> /tmp/buildkitd.toml
+        printf '[registry."%s"]\n  mirrors = ["%s"]\n\n' "$reg" "$mirror_host" >> /tmp/buildkitd.toml
       done
       docker context create mirror-ctx --docker "host=${DOCKER_HOST},ca=${DOCKER_CERT_PATH}/ca.pem,cert=${DOCKER_CERT_PATH}/cert.pem,key=${DOCKER_CERT_PATH}/key.pem" 2>/dev/null || true
       docker buildx create --name mirror-builder --driver docker-container --driver-opt network=host --config /tmp/buildkitd.toml --use mirror-ctx || echo "WARN: could not create buildx mirror-builder"
       if [ "${REGISTRY_MIRROR_DEBUG:-false}" = "true" ]; then
-        echo "--- REGISTRY_MIRROR=$REGISTRY_MIRROR DOCKER_HOST=${DOCKER_HOST:-local socket}"
+        echo "--- REGISTRY_MIRROR_MAP=$REGISTRY_MIRROR_MAP DOCKER_HOST=${DOCKER_HOST:-local socket}"
+
+        echo "=== buildkitd.toml ==="
+        cat /tmp/buildkitd.toml
 
         echo "=== docker compose version ==="
         docker compose version
@@ -49,7 +73,12 @@ variables:
         time docker compose -f /tmp/docker-compose-build-test.yml build
         rm -rf /tmp/buildtest /tmp/docker-compose-build-test.yml
 
-        echo "=== DEBUG: REGISTRY CATALOG (after pull) ==="
-        curl -sf --max-time 3 ${REGISTRY_MIRROR}/v2/_catalog 2>/dev/null && echo "" || echo "[ ERROR ] !!!!! catalog not reachable"
+        echo "=== DEBUG: REGISTRY CATALOGS ==="
+        for entry in ${REGISTRY_MIRROR_MAP}; do
+          reg="${entry%%:*}"
+          port="${entry##*:}"
+          echo "  ${reg} (port ${port}):"
+          curl -sf --max-time 3 "http://${REGISTRY_MIRROR_BASE}:${port}/v2/_catalog" 2>/dev/null && echo "" || echo "    not reachable"
+        done
         echo "=== DONE ==="
       fi
