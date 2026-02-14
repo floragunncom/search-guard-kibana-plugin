@@ -23,7 +23,7 @@ variables:
 default:
   image: $SG_BUILD_IMAGE
   tags:
-    - build
+    - hetzner-gitlab-runner-4
   interruptible: true
   timeout: 90m
 
@@ -103,7 +103,7 @@ build:
       when: never
     - when: always
   tags:
-    - build
+    - hetzner-gitlab-runner-4
   script:
     - |
       set -e
@@ -170,7 +170,7 @@ build_release:
 deploy_snapshot:
   stage: package
   tags:
-    - build
+    - hetzner-gitlab-runner-4
   script:
     - ci/deploy.sh
     - |
@@ -188,7 +188,7 @@ deploy_snapshot:
 deploy_remote_snapshot:
   stage: package
   tags:
-    - build
+    - hetzner-gitlab-runner-4
   rules:
     - if: '$CI_COMMIT_TAG =~ /.*-es-.*/'
       when: never
@@ -213,7 +213,7 @@ deploy_release:
       when: never
     - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
   tags:
-    - build
+    - hetzner-gitlab-runner-4
   script:
     - |
       ci/setup_gpg.sh
@@ -231,7 +231,7 @@ deploy_docker_release_image:
     - if: '$DOCKER_ONLY'
       when: on_success
   tags:
-    - build
+    - hetzner-gitlab-runner-4
   timeout: 1h
   script:
     - |
@@ -271,7 +271,7 @@ deploy_docker_demo_image:
     - if: '$DOCKER_ONLY'
       when: on_success
   tags:
-    - build
+    - hetzner-gitlab-runner-4
   timeout: 1h
   script:
     - |

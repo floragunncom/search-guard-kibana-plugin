@@ -1,7 +1,7 @@
 .aikido_scan_common:
   stage: Aikido Scan
   tags:
-    - security-scan
+    - hetzner-gitlab-runner-4
   needs: []  
   image: 
     name: node:23.10.0-slim
