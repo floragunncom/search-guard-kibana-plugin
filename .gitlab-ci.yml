@@ -10,7 +10,7 @@ variables:
   AIKIDO_BASE_BRANCH: main
 
   #####
-  SG_BUILD_IMAGE: "floragunncom/ci-pipeline-jammy-mvn38-java23:0.1.0"
+  SG_BUILD_IMAGE: "floragunncom/ubuntu-openjdk25:260215"
   DOCKER_VERSION: "20.10.17"
 
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
