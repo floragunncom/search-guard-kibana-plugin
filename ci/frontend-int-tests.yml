@@ -116,7 +116,7 @@ kibana_authtokens:
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /.*FORCE_SGI.*/'
       when: always
-  image: docker:${DOCKER_VERSION}
+  image: floragunncom/alpine-docker:260213
   services:
     - docker:${DOCKER_VERSION}-dind
   script:
