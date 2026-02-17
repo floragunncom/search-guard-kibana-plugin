@@ -1,3 +1,6 @@
+include:
+  - local: 'ci/dind-mirror.yml'
+  
 kibana_basicauth:
   extends:
   - .be_integration_test
@@ -95,6 +98,7 @@ kibana_authtokens:
 #     TEST_DEFINITIONS: ".*kibana_kerberos.*"
 
 .be_integration_test:
+  extends: .dind_mirror
   allow_failure: false
   stage: "Frontend Int Tests"
   tags:
