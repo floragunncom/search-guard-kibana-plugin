@@ -1,3 +1,6 @@
+include:
+  - local: 'ci/dind-mirror.yml'
+
 stages:
   - Frontend Int Tests
 
@@ -99,6 +102,7 @@ kibana_authtokens:
 #     TEST_DEFINITIONS: ".*kibana_kerberos.*"
 
 .be_integration_test:
+  extends: .dind_mirror
   allow_failure: false
   stage: "Frontend Int Tests"
   tags:
@@ -115,10 +119,7 @@ kibana_authtokens:
           || $CI_COMMIT_TAG =~ /^sg-flx-.*/'
       when: on_success
 
-  image: floragunncom/ubuntu-dind:260206
-
-  services:
-    - docker:${DOCKER_VERSION}-dind
+  image: floragunncom/alpine-docker:260213
   script:
     - |
        set -e
