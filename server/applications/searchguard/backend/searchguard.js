@@ -36,7 +36,7 @@ export default class SearchGuardBackend {
     return result;
   }
 
-  getAuthConfig = async (nextUrl = null) => {
+  getAuthConfig = async (nextUrl = null, options = {}) => {
     try {
       const sgFrontendConfigId = this.configService.get('searchguard.sg_frontend_config_id') || 'default';
 	  let frontendBaseUrl = this.configService.get('searchguard.frontend_base_url') || this.core.http.basePath.publicBaseUrl;
@@ -46,15 +46,21 @@ export default class SearchGuardBackend {
 		frontendBaseUrl = serverInfo.protocol + "://" + serverInfo.hostname + ":" + serverInfo.port + "/" + this.core.http.basePath.serverBasePath;
 	  }
 
+    const body = {
+      config_id: sgFrontendConfigId,
+      frontend_base_url: frontendBaseUrl,
+      next_url: nextUrl,
+    }
+
+    if (options && options.dynamic_frontend_base_url) {
+      body.dynamic_frontend_base_url = options.dynamic_frontend_base_url;
+    }
+
       const response = await this._client({
         path: '/_searchguard/auth/config',
         method: 'POST',
         asWho: 'asInternalUser',
-        body: {
-		  config_id: sgFrontendConfigId,
-          frontend_base_url: frontendBaseUrl,
-          next_url: nextUrl,
-		}
+        body
       });
 
       return response;
