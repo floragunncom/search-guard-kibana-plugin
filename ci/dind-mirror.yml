@@ -10,7 +10,7 @@ variables:
 
 .dind_mirror:
   services:
-    - name: docker:${DOCKER_VERSION}-dind
+    - name: "$SG_DIND_IMAGE"
       alias: docker
       command:
         - "--registry-mirror=http://host.docker.internal:5000"
