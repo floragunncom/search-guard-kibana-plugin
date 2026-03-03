@@ -119,7 +119,7 @@ kibana_authtokens:
           || $CI_COMMIT_TAG =~ /^sg-flx-.*/'
       when: on_success
 
-  image: floragunncom/alpine-docker:260213
+  image: "$SG_DIND_IMAGE"
   script:
     - |
        set -e
