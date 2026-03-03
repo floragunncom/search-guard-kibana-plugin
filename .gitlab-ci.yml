@@ -10,7 +10,8 @@ variables:
   AIKIDO_BASE_BRANCH: main
 
   #####
-  SG_BUILD_IMAGE: "floragunncom/ci-pipeline-jammy-mvn38-java23:0.1.0"
+  SG_BUILD_IMAGE: "floragunncom/ubuntu-openjdk25:251126"
+  SG_DIND_IMAGE: "floragunncom/ubuntu-dind:260209"
   DOCKER_VERSION: "28.5.2"
 
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
@@ -222,9 +223,9 @@ deploy_release:
 
 deploy_docker_release_image:
   stage: "Deploy Docker Images"
-  image: floragunncom/alpine-dind:20251120
+  image: "$SG_DIND_IMAGE"
   services:
-    - docker:20.10.17-dind
+    - "$SG_DIND_IMAGE"
   rules:
     - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
       when: always
@@ -262,9 +263,9 @@ deploy_docker_release_image:
 
 deploy_docker_demo_image:
   stage: "Deploy Docker Images"
-  image: floragunncom/alpine-dind:20251120
+  image: "$SG_DIND_IMAGE"
   services:
-    - docker:20.10.17-dind
+    - "$SG_DIND_IMAGE"
   rules:
     - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
       when: always
