@@ -22,17 +22,55 @@ function whitelistMap(kibanaVersionIndex) {
   };
 }
 
-function shouldBeAuthorized(result, kibanaVersionIndex) {
+function matchesStandardWhitelist(result, kibanaVersionIndex) {
   const { method, path, body } = get(result, 'meta.request.params', {});
   let rule = method + path;
   if (body) rule += body;
-
   return whitelistMap(kibanaVersionIndex)[rule] || false;
 }
 
+
+function proxyWhitelistMap(kibanaVersionIndex) {
+  return {
+    // Only applies when searchguard.auth.type === 'proxy'.
+    // @see https://git.floragunn.com/search-guard/search-guard-kibana-plugin/-/issues/552
+    [`GET/${kibanaVersionIndex}/_doc/space%3Adefault`]: true,
+  };
+}
+
+function matchesProxyWhitelist(result, kibanaVersionIndex) {
+  const { method, path, body, headers = {} } = get(result, 'meta.request.params', {});
+  
+  // Internal requests explicitly set authorization: ''
+  // If we don't limit to this, we would also inject auth for real proxy-auth requests
+  if (headers.authorization !== '') {
+    return false;
+  }
+  
+  let rule = method + path;
+  if (body) rule += body;
+  return proxyWhitelistMap(kibanaVersionIndex)[rule] || false;
+}
+
+
+function shouldBeAuthorized({ result, kibanaVersionIndex, authType }) {
+  if (!isAuthorized(result) && matchesStandardWhitelist(result, kibanaVersionIndex)) {
+    return true;
+  }
+  
+  if (authType === 'proxy' && matchesProxyWhitelist(result, kibanaVersionIndex)) {
+    return true;
+  }
+  
+  return false;
+}
+
 export function rootScopedClientRequestWrapper({ configService, kibanaVersionIndex }) {
+  // Read auth type once at setup time, not on every request
+  const authType = configService.get('searchguard.auth.type', null);
+  
   return (error, result) => {
-    if (!isAuthorized(result) && shouldBeAuthorized(result, kibanaVersionIndex)) {
+    if (!isAuthorized(result) && shouldBeAuthorized({ result, kibanaVersionIndex, authType })) {
       // Authorize as Kibana system user
       const { username, password } = configService.get('elasticsearch', {});
 
