@@ -28,7 +28,7 @@
     "raw-loader": "^4.0.2"
   },
   "devDependencies": {
-    "core-js": "^3.48.0",
+    "core-js": "^3.49.0",
     "jest-junit": "^12.2.0"
   }
 }
