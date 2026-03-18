@@ -40,6 +40,15 @@ import { API_ROOT } from '../../../utils/constants';
 // @todo Move this to the new app
 import { sanitizeNextUrlFromFullUrl } from './sanitize_next_url';
 
+/**
+ * @typedef {Object} LoginPageConfig
+ * @property {string} [brand_image] - URL to the brand image
+ * @property {boolean} [show_brand_image] - Whether to display the brand image
+ * @property {string} [title] - Custom title for the login page
+ * @property {string} [button_style] - CSS style string for the login button
+ * @property {string} [buttonstyle] - Legacy alias for button_style
+ */
+
 export function isInvalid(error) {
   return error !== null;
 }
@@ -189,8 +198,10 @@ export function BasicLogin({ httpClient, basicLoginConfig, loginPageConfig, setD
   const [isLoading, setIsLoading] = useState(false);
 
   if (!basicLoginConfig) return null;
-
-  const loginButtonStyles = stringCSSToReactStyle(loginPageConfig.buttonstyle);
+  // There was a mismatch here: docs and backend-config use button_style, but the code was looking for "buttonstyle"
+  // Only button_style is available in the backend, but I'll leave both just in case...
+  const configButtonStyle = loginPageConfig.buttonstyle || loginPageConfig.button_style;
+  const loginButtonStyles = stringCSSToReactStyle(configButtonStyle);
 
   function redirectToKibana() {
     const nextUrl = sanitizeNextUrlFromFullUrl(
@@ -348,7 +359,7 @@ export function authTypesToUiAuthTypes(authTypes, { basePath = '' } = {}) {
 }
 
 export function LoginPage({ httpClient, configService }) {
-  const [loginPageConfig, setLoginPageConfig] = useState({});
+  const [loginPageConfig, setLoginPageConfig] = useState(/** @type {LoginPageConfig} */ ({}));
   const [authTypes, setAuthTypes] = useState([]);
   const [basicLoginConfig, setBasicLoginConfig] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
