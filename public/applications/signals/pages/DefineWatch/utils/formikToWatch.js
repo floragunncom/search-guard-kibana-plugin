@@ -74,9 +74,13 @@ export function buildWebhookAction(action = {}) {
     // do nothing
   }
 
+  // Strip _account - it's a UI-only field, actual value lives in headers.
+  // Currently only used for Signl4 (synced with X-S4-Api-Key header in WebhookAction.js).
+  const { _account, ...cleanAction } = action;
+
   return {
-    ...action,
-    request: { ...action.request, headers },
+    ...cleanAction,
+    request: { ...cleanAction.request, headers },
   };
 }
 
@@ -202,6 +206,11 @@ export const buildActions = ({ actions = [], resolve_actions: resolveActions, _u
 
       if (action.type === ACTION_TYPE.PAGERDUTY) {
         return buildPagerdutyAction(watchAction);
+      }
+
+      if (action.type === ACTION_TYPE.SIGNL4) {
+        // Signl4 is a UI-only type alias for webhook - convert back to webhook for backend
+        return { ...buildWebhookAction(watchAction), type: 'webhook' };
       }
 
       // if ACTION_TYPE.WEBHOOK

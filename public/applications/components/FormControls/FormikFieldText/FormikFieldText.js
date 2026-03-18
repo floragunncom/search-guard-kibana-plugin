@@ -38,7 +38,7 @@ const FieldText = ({
   name,
   form,
   field,
-  elementProps: { onChange, isInvalid, onFocus, ...props },
+  elementProps: { onChange, isInvalid, onFocus, onBlur, ...props },
 }) => (
   <EuiFieldText
     name={name}
@@ -48,6 +48,7 @@ const FieldText = ({
     isInvalid={isInvalid instanceof Function ? isInvalid(name, form) : isInvalid}
     onFocus={onFocus instanceof Function ? e => onFocus(e, field, form) : onFocus}
     onChange={e => (onChange instanceof Function ? onChange(e, field, form) : field.onChange(e))}
+    onBlur={e => (onBlur instanceof Function ? onBlur(e, field, form) : field.onBlur(e))}
   />
 );
 

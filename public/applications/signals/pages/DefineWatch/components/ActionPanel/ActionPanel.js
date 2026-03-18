@@ -62,6 +62,12 @@ const newActions = {
       description: 'Creates PagerDuty event',
     },
   },
+  [ACTION_TYPE.SIGNL4]: {
+    Body: WebhookAction,
+    headerProps: {
+      description: 'Sends alert to Signl4',
+    },
+  },
 };
 
 function actionToResolveAction(action) {
@@ -169,6 +175,11 @@ class ActionPanel extends Component {
             name: 'PagerDuty',
             icon: <EuiIcon type="empty" size="m" />,
             onClick: () => this.addAction(ACTION_TYPE.PAGERDUTY),
+          },
+          {
+            name: 'Signl4',
+            icon: <EuiIcon type="bell" size="m" />,
+            onClick: () => this.addAction(ACTION_TYPE.SIGNL4),
           },
           {
             name: 'Elasticsearch',
