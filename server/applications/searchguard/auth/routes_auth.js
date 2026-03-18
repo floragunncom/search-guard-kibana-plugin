@@ -61,8 +61,6 @@ export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, 
       }
 
       const authTypeId = request.url.searchParams.get('authTypeId');
-
-      // Not exploitable (encodeURIComponent in client JS), but anchored for defense-in-depth
       if (authTypeId && !authTypeId.match(/^[a-zA-Z0-9]+$/)) {
         return response.renderHtml({ body: 'Bad Request' });
       }
@@ -81,7 +79,7 @@ export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, 
     },
     (context, request, response) => {
       // Normally this path does not forward query params. If loginHandler is present, someone is
-      // accessing this route directly we can skip.
+      // accessing this route directly and we can skip.
       if (request.url.searchParams.get('loginHandler')) {
         return response.renderJs({ body: '/* Bad Request */' });
       }
