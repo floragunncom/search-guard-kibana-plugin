@@ -26,6 +26,15 @@ import {
   webhook as WEBHOOK_DEFAULTS,
 } from '../../DefineWatch/components/ActionPanel/utils/action_defaults';
 
+// URL patterns for detecting webhooks that need custom field handling (e.g., API key field)
+const CUSTOM_FIELD_URL_PATTERNS = ['signl4.com'];
+
+const isSignl4Webhook = (action) => {
+  if (action.type !== 'webhook') return false;
+  const url = action.request?.url || '';
+  return CUSTOM_FIELD_URL_PATTERNS.some((pattern) => url.includes(pattern));
+};
+
 export function buildFormikSeverity(watch = {}) {
   const newWatch = cloneDeep(watch);
 
@@ -189,6 +198,18 @@ export const buildFormikActions = ({ actions = [], resolve_actions: resolveActio
       }
 
       if (action.type === ACTION_TYPE.WEBHOOK) {
+        // Check if it's a Signl4 webhook by URL pattern - set type to signl4 for UI display
+        if (isSignl4Webhook(action)) {
+          // Extract API key from headers into _account field for Signl4 UI
+          let _account = '';
+          try {
+            const headers = action.request?.headers || {};
+            _account = headers['X-S4-Api-Key'] || '';
+          } catch (error) {
+            // Ignore if headers can't be parsed
+          }
+          return { ...buildFormikWebhookAction(action), _account, type: ACTION_TYPE.SIGNL4 };
+        }
         return buildFormikWebhookAction(action);
       }
 
