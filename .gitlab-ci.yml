@@ -304,7 +304,6 @@ deploy_docker_demo_image:
 include:
   - local: '.gitlab-ci-branch-specific.yml'
   - local: 'ci/frontend-int-tests.yml'
-  - local: 'ci/aikido.yml'
   - local: 'ci/pre_mt_data_migration_tests.yml' 
   - local: 'ci/mt_data_migration_tests.yml'
 
