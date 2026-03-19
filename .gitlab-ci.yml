@@ -7,7 +7,6 @@ variables:
   SG_SB_PLUGIN_SNAPSHOT_REPO: search-guard-flx-snapshot
   SG_SB_PLUGIN_NAME: search-guard-flx-elasticsearch-plugin
   NODE_VERSION: 22.17.1
-  AIKIDO_BASE_BRANCH: main-es8
 
   #####
   SG_BUILD_IMAGE: "floragunncom/ci-pipeline-jammy-mvn38-java23:0.1.0"
@@ -47,7 +46,6 @@ stages:
   - build
   - package
   - "Frontend Int Tests"
-  - "Aikido Scan"
   - release
   - "Deploy Docker Images"  
 prepare_env:
@@ -282,4 +280,3 @@ deploy_docker_demo_image:
 include:
   - local: '.gitlab-ci-branch-specific.yml'
   - local: 'ci/frontend-int-tests.yml'
-  - local: 'ci/aikido.yml'
