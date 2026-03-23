@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 floragunn GmbH
+ *    Copyright 2026 floragunn GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,20 +19,7 @@ import { isAuthorized } from '../../../utils';
 const wrappedClusterClients = new WeakSet();
 const wrappedScopedClients = new WeakSet();
 
-function whitelistMap(kibanaVersionIndex) {
-  return {
-    [`POST/${kibanaVersionIndex}/_search{"size":100,"seq_no_primary_term":true,"from":0,"query":{"bool":{"filter":[{"bool":{"should":[{"match":{"ingest-package-policies.package.name":"endpoint"}}],"minimum_should_match":1}},{"bool":{"should":[{"bool":{"must":[{"term":{"type":"ingest-package-policies"}}],"must_not":[{"exists":{"field":"namespace"}},{"exists":{"field":"namespaces"}}]}}],"minimum_should_match":1}}]}},"sort":[{"ingest-package-policies.updated_at":{"order":"desc","unmapped_type":"date"}}]}`]:
-      true,
-  };
-}
 
-function proxyWhitelistMap(kibanaVersionIndex) {
-  return {
-    // Only applies when searchguard.auth.type === 'proxy'.
-    // @see https://git.floragunn.com/search-guard/search-guard-kibana-plugin/-/issues/552
-    [`GET/${kibanaVersionIndex}/_doc/space%3Adefault`]: true,
-  };
-}
 
 function buildPath(params = {}) {
   const path = params.path || '';
@@ -86,6 +73,21 @@ function shouldBeAuthorized({ result, kibanaVersionIndex, authType }) {
   }
 
   return false;
+}
+
+function whitelistMap(kibanaVersionIndex) {
+  return {
+    [`POST/${kibanaVersionIndex}/_search{"size":100,"seq_no_primary_term":true,"from":0,"query":{"bool":{"filter":[{"bool":{"should":[{"match":{"ingest-package-policies.package.name":"endpoint"}}],"minimum_should_match":1}},{"bool":{"should":[{"bool":{"must":[{"term":{"type":"ingest-package-policies"}}],"must_not":[{"exists":{"field":"namespace"}},{"exists":{"field":"namespaces"}}]}}],"minimum_should_match":1}}]}},"sort":[{"ingest-package-policies.updated_at":{"order":"desc","unmapped_type":"date"}}]}`]:
+      true,
+  };
+}
+
+function proxyWhitelistMap(kibanaVersionIndex) {
+  return {
+    // Only applies when searchguard.auth.type === 'proxy'.
+    // @see https://git.floragunn.com/search-guard/search-guard-kibana-plugin/-/issues/552
+    [`GET/${kibanaVersionIndex}/_doc/space%3Adefault`]: true,
+  };
 }
 
 export function rootScopedClientRequestWrapper({ configService, kibanaVersionIndex }) {
