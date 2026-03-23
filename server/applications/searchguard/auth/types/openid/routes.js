@@ -75,7 +75,7 @@ export function defineRoutes({
 
   // We want to keep backwards compatibility with /auth/openid requests
   const legacyRoutesPath = '/auth/openid/';
-  
+
   router.get(
     {
       ...loginSettings,
@@ -93,6 +93,22 @@ export function defineRoutes({
   )
 } //end module
 
+function getBrowserOrigin(request, kibanaCore) {
+  let url = null;
+  try {
+    const serverInfo = kibanaCore.http.getServerInfo();
+    const protocol = serverInfo.protocol;
+    const host = request.headers[':authority'] ?? request.headers['host'] ?? null;
+
+    if (host !== null) {
+      url = `${protocol}://${host}`;
+    }
+  } catch (error) {
+    // Ignore, we will fall back to the publicBaseUrl
+  }
+  return url;
+}
+
 export function loginHandler({ basePath, config, authInstance, logger, searchGuardBackend, kibanaCore }) {
   return async function (context, request, response) {
     const authCode = request.url.searchParams.get('code');
@@ -106,6 +122,7 @@ export function loginHandler({ basePath, config, authInstance, logger, searchGua
         searchGuardBackend,
         sessionStorageFactory: authInstance.sessionStorageFactory,
         logger,
+        kibanaCore
       });
     }
 
@@ -138,6 +155,13 @@ export function loginHandler({ basePath, config, authInstance, logger, searchGua
         sso_context: cookieOidc.ssoContext,
         id: cookieOidc.authTypeId,
       };
+
+      try {
+        credentials.dynamic_frontend_base_url = getBrowserOrigin(request, kibanaCore);
+      } catch (error) {
+        // Fallback to frontend base url
+        logger.warn('Error getting browser origin for auth', error);
+      }
 
       // Authenticate with the token given to us by the IdP
       const authResponse = await authInstance.handleAuthenticate(request, credentials);
@@ -173,7 +197,7 @@ export function loginHandler({ basePath, config, authInstance, logger, searchGua
 	  }
 
 	  if (cookies.length > 0) {
-        headers['set-cookie'] = cookies;		
+        headers['set-cookie'] = cookies;
       }
 
       return response.redirected({
@@ -202,6 +226,7 @@ async function handleAuthRequest({
   searchGuardBackend,
   sessionStorageFactory,
   logger,
+  kibanaCore
 }) {
   // Add the nextUrl to the redirect_uri as a parameter. The IDP uses the redirect_uri to redirect the user after successful authentication.
   // For example, it is used to redirect user to the correct dashboard if the user put shared URL in the browser address input before authentication.
@@ -241,9 +266,19 @@ async function handleAuthRequest({
         return config.method === 'oidc';
       };
 
+  let dynamicFrontendBaseUrl = null;
+  try {
+    dynamicFrontendBaseUrl = getBrowserOrigin(request, kibanaCore)
+  } catch (error) {
+    // Fallback to frontend base url
+    logger.warn('Error getting browser origin', error);
+  }
+
   try {
     authConfig = (
-      await searchGuardBackend.getAuthConfig(nextUrl)
+      await searchGuardBackend.getAuthConfig(nextUrl, {
+        dynamic_frontend_base_url: dynamicFrontendBaseUrl
+      })
     ).auth_methods.find(authConfigFinder);
 
     if (!authConfig) {
@@ -269,7 +304,7 @@ async function handleAuthRequest({
 	}
 
 	if (cookies.length > 0) {
-      headers['set-cookie'] = cookies;		
+      headers['set-cookie'] = cookies;
     }
 
     return response.redirected({
