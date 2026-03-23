@@ -1,6 +1,11 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { registerRoutes } from './routes';
-import { Kerberos, defineAuthInfoRoutes } from './auth';
+import {
+  Kerberos,
+  defineAuthInfoRoutes,
+  rootScopedClientRequestWrapper,
+  registerRootScopedClientRequestWrapper,
+} from './auth';
 import { defineSystemRoutes } from './system/routes';
 import { defineConfigurationRoutes } from './configuration/routes/routes';
 import {
@@ -33,6 +38,14 @@ export class SearchGuard {
     elasticsearch,
   }) {
     this.logger.debug('Setup app');
+
+    const kibanaVersionIndex =
+      configService.get('kibana.index') + '_' + this.coreContext.env.packageInfo.version;
+
+    registerRootScopedClientRequestWrapper({
+      elasticsearch,
+      requestWrapper: rootScopedClientRequestWrapper({ configService, kibanaVersionIndex }),
+    });
 
     try {
       // Sanity checks
