@@ -57,12 +57,12 @@ export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, 
       const loginHandler = request.url.searchParams.get('loginHandler');
 
       if (!allowedLoginHandlers.includes(loginHandler)) {
-        return response.renderHtml({ body: 'Bad Request' });
+        return response.renderHtml({ body: 'Invalid loginHandler' });
       }
 
       const authTypeId = request.url.searchParams.get('authTypeId');
       if (authTypeId && !authTypeId.match(/^[a-zA-Z0-9]+$/)) {
-        return response.renderHtml({ body: 'Bad Request' });
+        return response.renderHtml({ body: 'Invalid authTypeId' });
       }
 	
       return response.renderHtml({
@@ -81,7 +81,7 @@ export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, 
       // Normally this path does not forward query params. If loginHandler is present, someone is
       // accessing this route directly and we can skip.
       if (request.url.searchParams.get('loginHandler')) {
-        return response.renderJs({ body: '/* Bad Request */' });
+        return response.badRequest({ body: 'Invalid loginHandler' });
       }
 
       const allowedHandlersJson = JSON.stringify(allowedLoginHandlers);
