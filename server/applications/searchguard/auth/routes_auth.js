@@ -84,16 +84,10 @@ export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, 
         return response.badRequest({ body: 'Invalid loginHandler' });
       }
 
-      const allowedHandlersJson = JSON.stringify(allowedLoginHandlers);
-
       return response.renderJs({
         body: `
-          var allowedHandlers = ${allowedHandlersJson};
           var searchParams = new URLSearchParams(window.location.search);
           var loginHandler = searchParams.get('loginHandler');
-          if (allowedHandlers.indexOf(loginHandler) === -1) {
-            throw new Error('Invalid loginHandler');
-          }
           var authTypeId = searchParams.get('authTypeId');
           var nextUrl = searchParams.get('nextUrl');
           if (!nextUrl) nextUrl = "/";
