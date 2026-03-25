@@ -23,6 +23,11 @@ export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, 
   const httpResources = kibanaCore.http.resources;
   customErrorRoute({ httpResources });
 
+  const basePath = kibanaCore.http.basePath.get() || '';
+  const allowedLoginHandlers = Object.values(authManager.authInstances)
+    .filter(instance => instance.loginURL)
+    .map(instance => basePath + instance.loginURL);
+
   router.post(
     {
       path: `${API_ROOT}/auth/logout`,
@@ -49,16 +54,15 @@ export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, 
       validate: false,
     },
     (context, request, response) => {
-	  const loginHandler = request.url.searchParams.get('loginHandler');
+      const loginHandler = request.url.searchParams.get('loginHandler');
 
-      if (!loginHandler.match(/\/[a-zA-Z0-9\/]+/)) {
-         return response.renderHtml({body: 'Bad Request'});
+      if (!allowedLoginHandlers.includes(loginHandler)) {
+        return response.renderHtml({ body: 'Invalid loginHandler' });
       }
 
       const authTypeId = request.url.searchParams.get('authTypeId');
-
-      if (authTypeId && !authTypeId.match(/[a-zA-Z0-9]+/)) {
-         return response.renderHtml({body: 'Bad Request'});
+      if (authTypeId && !authTypeId.match(/^[a-zA-Z0-9]+$/)) {
+        return response.renderHtml({ body: 'Invalid authTypeId' });
       }
 	
       return response.renderHtml({
@@ -73,13 +77,19 @@ export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, 
       options: { authRequired: false },
       validate: false,
     },
-    (context, request, response) => {	
+    (context, request, response) => {
+      // Normally this path does not forward query params. If loginHandler is present, someone is
+      // accessing this route directly and we can skip.
+      if (request.url.searchParams.get('loginHandler')) {
+        return response.badRequest({ body: 'Invalid loginHandler' });
+      }
+
       return response.renderJs({
         body: `
-          let searchParams = new URLSearchParams(window.location.search);
-          let loginHandler = searchParams.get('loginHandler');
-          let authTypeId = searchParams.get('authTypeId');
-          let nextUrl = searchParams.get('nextUrl');
+          var searchParams = new URLSearchParams(window.location.search);
+          var loginHandler = searchParams.get('loginHandler');
+          var authTypeId = searchParams.get('authTypeId');
+          var nextUrl = searchParams.get('nextUrl');
           if (!nextUrl) nextUrl = "/";
           if (window.location.hash) nextUrl += window.location.hash;
           window.location = loginHandler + "?authTypeId=" + encodeURIComponent(authTypeId) + "&nextUrl=" + encodeURIComponent(nextUrl);
