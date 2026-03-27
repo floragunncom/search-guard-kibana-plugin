@@ -6,8 +6,8 @@ variables:
   SG_SB_PLUGIN_RELEASE_REPO: search-guard-flx-release
   SG_SB_PLUGIN_SNAPSHOT_REPO: search-guard-flx-snapshot
   SG_SB_PLUGIN_NAME: search-guard-flx-elasticsearch-plugin
-  NODE_VERSION: 16.13.0
-  AIKIDO_BASE_BRANCH: main
+  NODE_VERSION: 22.17.1
+  AIKIDO_BASE_BRANCH: main-es8
 
   #####
   SG_BUILD_IMAGE: "floragunncom/ubuntu-openjdk25:251126"
@@ -305,6 +305,4 @@ include:
   - local: '.gitlab-ci-branch-specific.yml'
   - local: 'ci/frontend-int-tests.yml'
   - local: 'ci/aikido.yml'
-  - local: 'ci/pre_mt_data_migration_tests.yml' 
-  - local: 'ci/mt_data_migration_tests.yml'
 
