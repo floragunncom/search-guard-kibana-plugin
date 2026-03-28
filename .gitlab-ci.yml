@@ -10,7 +10,8 @@ variables:
   AIKIDO_BASE_BRANCH: main-es8
 
   #####
-  SG_BUILD_IMAGE: "floragunncom/ci-pipeline-jammy-mvn38-java23:0.1.0"
+  SG_BUILD_IMAGE: "floragunncom/ubuntu-openjdk25:251126"
+  SG_DIND_IMAGE: "floragunncom/ubuntu-dind:260209"
   DOCKER_VERSION: "28.5.2"
 
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
@@ -47,6 +48,7 @@ stages:
   - build
   - package
   - "Frontend Int Tests"
+  - "Frontend MT Data Migration Tests"  
   - "Aikido Scan"
   - release
   - "Deploy Docker Images"  
@@ -92,7 +94,6 @@ prepare_env:
     reports:
       dotenv: benv.env
 
-
 # This case is for usual commit to the branch, doing only unit testing and local build
 build:
   stage: build
@@ -126,7 +127,7 @@ build:
       - junit*.xml
     expire_in: 24h
   cache:
-    key: "${CI_COMMIT_REF_SLUG}"
+    key: ${CI_COMMIT_REF_SLUG}
     paths:
       - ./${SF_REPO_DIR}
 
@@ -185,6 +186,27 @@ deploy_snapshot:
     paths:
       - "target/*"
 
+deploy_remote_snapshot:
+  stage: package
+  tags:
+    - build
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /.*-es-.*/'
+      when: never
+    - when: on_success
+  script:
+    - |
+       echo "Remote snapshot deployment in version $BUILD_VERSION"
+       MVN_DEPLOY_OPTS=""
+       mvn --batch-mode -s settings.xml -Drevision="$BUILD_VERSION" $MVN_DEPLOY_OPTS clean deploy
+  artifacts:
+    when: always
+    expire_in: 2 days
+    reports:
+      dotenv: build.env
+    paths:
+      - "target/*"
+
 deploy_release:
   stage: release
   rules:
@@ -201,9 +223,9 @@ deploy_release:
 
 deploy_docker_release_image:
   stage: "Deploy Docker Images"
-  image: docker:20.10.17
+  image: "$SG_DIND_IMAGE"
   services:
-    - docker:20.10.17-dind
+    - "$SG_DIND_IMAGE"
   rules:
     - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
       when: always
@@ -241,9 +263,9 @@ deploy_docker_release_image:
 
 deploy_docker_demo_image:
   stage: "Deploy Docker Images"
-  image: docker:20.10.17
+  image: "$SG_DIND_IMAGE"
   services:
-    - docker:20.10.17-dind
+    - "$SG_DIND_IMAGE"
   rules:
     - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
       when: always
@@ -283,3 +305,4 @@ include:
   - local: '.gitlab-ci-branch-specific.yml'
   - local: 'ci/frontend-int-tests.yml'
   - local: 'ci/aikido.yml'
+
