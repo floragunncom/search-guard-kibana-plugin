@@ -50,6 +50,7 @@ stages:
   - "Frontend MT Data Migration Tests"
   - release
   - "Deploy Docker Images"  
+  - post_merge
 prepare_env:
   stage: prepare
   script:
@@ -292,4 +293,5 @@ include:
   - local: 'ci/frontend-int-tests.yml'
   - local: 'ci/pre_mt_data_migration_tests.yml'
   - local: 'ci/mt_data_migration_tests.yml'
+  - local: 'ci/backport.yml'
 
