@@ -52,6 +52,7 @@ stages:
   - "Aikido Scan"
   - release
   - "Deploy Docker Images"  
+  - post_merge
 prepare_env:
   stage: prepare
   script:
@@ -307,4 +308,5 @@ include:
   - local: 'ci/aikido.yml'
   - local: 'ci/pre_mt_data_migration_tests.yml' 
   - local: 'ci/mt_data_migration_tests.yml'
+  - local: 'ci/backport.yml'
 
