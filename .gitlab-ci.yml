@@ -172,6 +172,10 @@ deploy_snapshot:
   stage: package
   tags:
     - build
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
+      when: never
+    - when: on_success
   script:
     - ci/deploy.sh
     - |
@@ -181,6 +185,29 @@ deploy_snapshot:
   artifacts:
     when: always
     expire_in: 1 day
+    reports:
+      dotenv: build.env
+    paths:
+      - "target/*"
+
+deploy_snapshot_release:
+  stage: package
+  tags:
+    - build
+  rules:
+    - if: '$DOCKER_ONLY'
+      when: never
+    - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
+      when: on_success
+  script:
+    - ci/deploy.sh
+    - |
+      echo "SG_SF_PLUGIN_VERSION=$SG_SF_PLUGIN_VERSION" >> build.env
+      echo "BUILD_VERSION=$BUILD_VERSION" >> build.env
+      echo "SF_VERSION=$SF_VERSION" >> build.env
+  artifacts:
+    when: always
+    expire_in: 7 days
     reports:
       dotenv: build.env
     paths:
