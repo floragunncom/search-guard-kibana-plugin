@@ -1,6 +1,6 @@
 include:
   - local: 'ci/dind-mirror.yml'
-  
+
 kibana_basicauth:
   extends:
   - .be_integration_test
@@ -116,16 +116,33 @@ kibana_authtokens:
       when: always
     - if: '$CI_COMMIT_MESSAGE =~ /.*SKIP-SGI.*/'
       when: never
-    - if: '$CI_COMMIT_MESSAGE =~ /.*SKIP-TESTS.*/'
-      when: never
-    - if: '$CI_COMMIT_MESSAGE =~ /.*FORCE_SGI.*/'
+
+    - if: '$FORCE_SGI || $CI_COMMIT_MESSAGE =~ /FORCE_SGI/ || $CI_PIPELINE_SOURCE == "parent_pipeline"'
       when: always
-  image: floragunncom/alpine-docker:260213
-  services:
-    - docker:${DOCKER_VERSION}-dind
+
+    - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
+      when: on_success
+
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"
+          || $CI_PIPELINE_SOURCE == "schedule"'
+      when: on_success
+
+  image: "$SG_DIND_IMAGE"
   script:
     - |
+       set -e
        
+       # Used when tests are triggered from another repository, e.g. search-guard-suite-enterprise.
+       CHECK_JOB_NAME="${CHECK_JOB_NAME:-}"
+       if [[ "${CI_PIPELINE_SOURCE:-}" == "parent_pipeline" && "${PARENT_PIPELINE_PREREQUISITES:-}" != "1" ]]; then
+         if [[ -z "${CHECK_JOB_NAME}" ]]; then
+           echo "ERROR: Prerequisites check finished with errors, check job undefined"
+         else
+           echo "ERROR: Prerequisites check finished with errors, check job \"${CHECK_JOB_NAME}\" log for more details"
+         fi
+         exit 1
+       fi
+
        sudo sysctl -w vm.max_map_count=262144
        
        echo "Login in into Docker Hub"      
@@ -136,17 +153,32 @@ kibana_authtokens:
        
        git clone --depth 1 --branch $IT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git > /dev/null
        cd sgi8/server
-       rm -f docker/elasticsearch/search-guard.zip
-       rm -f docker/kibana/kibana-plugin.zip
-       
-       # We need a kibana plugin zip in/as docker/kibana/kibana-plugin.zip
-       # We also need a search guard zip in/as docker/elasticsearch/search-guard.zip
-       
+       rm -f  docker/kibana/kibana-plugin.zip docker/elasticsearch/search-guard.zip
+
        wget -O docker/elasticsearch/search-guard.zip "$SG_ES_PLUGIN"
-       #wget -O docker/elasticsearch/search-guard.zip https://maven.search-guard.com//search-guard-flx-release/com/floragunn/search-guard-flx-elasticsearch-plugin/1.0.0-beta-4-es-8.2.3/search-guard-flx-elasticsearch-plugin-1.0.0-beta-4-es-8.2.3.zip
-       
-       cp ../../target/releases/search-guard-flx-kibana-plugin-${BUILD_VERSION}.zip docker/kibana/kibana-plugin.zip       
+
+       # Used when tests are triggered from another repository, e.g. search-guard-suite-enterprise.
+       if [[ "${CI_PIPELINE_SOURCE:-}" == "parent_pipeline" ]]; then
+          echo "Test was triggered from the parent pipeline,downloading SG_KI_PLUGIN from URL: $SG_KI_PLUGIN"
+          wget -O docker/kibana/kibana-plugin.zip "$SG_KI_PLUGIN"
+        else
+          echo "Using local kibana plugin from target/releases"
+          cp "../../target/releases/search-guard-flx-kibana-plugin-${BUILD_VERSION}.zip" \
+            docker/kibana/kibana-plugin.zip
+       fi  
+
        ./run_test_definition.sh "$TEST_DEFINITIONS"
+  after_script:
+    - |
+      if [ -n "$KEEP_TEST_ARTIFACTS" ]; then
+        echo "KEEP_TEST_ARTIFACTS is set - skipping artifact cleanup"
+      elif [ "$CI_JOB_STATUS" == "success" ]; then
+        echo "Job succeeded - removing heavy artifacts, keeping JUnit XML only"
+        find sgi8/client/test/testresults* -type f ! -path "*/junit/*.xml" -delete 2>/dev/null || true
+        find sgi8/client/test/testresults* -type d -empty -delete 2>/dev/null || true
+      else
+        echo "Job failed - keeping all artifacts for debugging"
+      fi
   artifacts:
     when: always
     paths:
@@ -154,4 +186,4 @@ kibana_authtokens:
     reports:
       junit:
         - "sgi8/client/test/testresults**/junit/Test*.xml"
-    expire_in: 30 days
+    expire_in: 7 days
