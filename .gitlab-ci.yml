@@ -256,8 +256,6 @@ deploy_docker_release_image:
     - "$SG_DIND_IMAGE"
   rules:
     - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
-      when: always
-    - if: '$DOCKER_ONLY'
       when: on_success
   tags:
     - build
@@ -296,8 +294,6 @@ deploy_docker_demo_image:
     - "$SG_DIND_IMAGE"
   rules:
     - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
-      when: always
-    - if: '$DOCKER_ONLY'
       when: on_success
   tags:
     - build
