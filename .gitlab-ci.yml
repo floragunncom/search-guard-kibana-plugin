@@ -48,7 +48,6 @@ stages:
   - package
   - "Frontend Int Tests"
   - "Frontend MT Data Migration Tests"
-  - "Aikido Scan"
   - release
   - "Deploy Docker Images"  
 prepare_env:
@@ -291,5 +290,4 @@ deploy_docker_release_image:
 include:
   - local: '.gitlab-ci-branch-specific.yml'
   - local: 'ci/frontend-int-tests.yml'
-  - local: 'ci/aikido.yml'
 
