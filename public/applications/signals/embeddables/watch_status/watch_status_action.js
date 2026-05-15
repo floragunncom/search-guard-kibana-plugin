@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { apiCanAddNewPanel } from '@kbn/presentation-containers';
+import { apiCanAddNewPanel } from '@kbn/presentation-publishing';
 import { ADD_PANEL_TRIGGER, IncompatibleActionError } from '@kbn/ui-actions-plugin/public';
 import { watchSelectorOverlay } from './watch_selector_overlay';
 import {
