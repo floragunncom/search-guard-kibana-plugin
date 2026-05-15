@@ -5,8 +5,11 @@ export function customError({ httpResources }) {
   httpResources.register(
     {
       path: `${APP_ROOT}/customerror`,
-      options: { authRequired: false },
       validate: false,
+      security: {
+        authc: { enabled: false, reason: 'Route renders auth errors for unauthenticated users.' },
+        authz: { enabled: false, reason: 'Route is part of the login flow.' },
+      },
     },
     async (context, request, response) => {
       return response.renderAnonymousCoreApp();

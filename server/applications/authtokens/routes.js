@@ -147,9 +147,6 @@ export function registerRoutes({ router, clusterClient, logger }) {
           { unknowns: 'allow' }
         ),
       },
-      options: {
-        authRequired: true,
-      },
     },
     getAuthTokens({ clusterClient, fetchAllFromScroll, logger })
   );
@@ -161,9 +158,6 @@ export function registerRoutes({ router, clusterClient, logger }) {
         params: schema.object({
           id: schema.string(),
         }),
-      },
-      options: {
-        authRequired: true,
       },
     },
     deleteAuthToken({ clusterClient, logger })
@@ -177,9 +171,6 @@ export function registerRoutes({ router, clusterClient, logger }) {
           id: schema.string(),
         }),
       },
-      options: {
-        authRequired: true,
-      },
     },
     getAuthToken({ clusterClient, logger })
   );
@@ -190,9 +181,6 @@ export function registerRoutes({ router, clusterClient, logger }) {
       validate: {
         body: schema.object({}, { unknowns: 'allow' }),
       },
-      options: {
-        authRequired: true,
-      },
     },
     saveAuthToken({ clusterClient, logger })
   );
@@ -201,9 +189,6 @@ export function registerRoutes({ router, clusterClient, logger }) {
     {
       path: `${API_ROOT}/searchguard_authtokens/authtoken/_info`,
       validate: false,
-      options: {
-        authRequired: true,
-      },
     },
     getAuthTokenServiceInfo({ clusterClient, logger })
   );

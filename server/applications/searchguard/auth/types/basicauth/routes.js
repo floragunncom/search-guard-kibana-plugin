@@ -124,8 +124,9 @@ export function defineRoutes({
     {
       path: `${APP_ROOT}/searchguard/login`,
       validate: false,
-      options: {
-        authRequired: false,
+      security: {
+        authc: { enabled: false, reason: 'Route serves the SearchGuard login page.' },
+        authz: { enabled: false, reason: 'Route is part of the login flow.' },
       },
     },
     loginHandler()
@@ -140,8 +141,9 @@ export function defineRoutes({
           username: schema.string(),
         }),
       },
-      options: {
-        authRequired: false,
+      security: {
+        authc: { enabled: false, reason: 'Route serves the SearchGuard login page.' },
+        authz: { enabled: false, reason: 'Route is part of the login flow.' },
       },
     },
     loginAuthHandler({ config, authInstance, logger, searchGuardBackend })

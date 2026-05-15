@@ -48,7 +48,10 @@ export function defineRoutes({
     },
     options: {
       access: 'public',
-      authRequired: false,
+    },
+    security: {
+      authc: { enabled: false, reason: 'Route handles unauthenticated OIDC login redirects.' },
+      authz: { enabled: false, reason: 'Route is part of the login flow.' },
     },
   };
 

@@ -34,9 +34,6 @@ export function getTenantInfoRoute({ router, searchGuardBackend, logger }) {
     {
       path: `${API_ROOT}/multitenancy/tenantinfo`,
       validate: false,
-      options: {
-        authRequired: true,
-      },
     },
     getTenantInfo({ searchGuardBackend, logger })
   );
