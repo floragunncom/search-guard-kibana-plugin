@@ -81,8 +81,9 @@ export function defineSystemRoutes({ searchGuardBackend, logger, kibanaCore }) {
     {
       path: `${API_ROOT}/systeminfo`,
       validate: false,
-      options: {
-        authRequired: false,
+      security: {
+        authc: { enabled: false, reason: 'System info is accessible before authentication.' },
+        authz: { enabled: false, reason: 'Route is opted out from authorization.' },
       },
     },
     systemInfoHandler({ searchGuardBackend, logger })
@@ -96,9 +97,6 @@ export function defineSystemRoutes({ searchGuardBackend, logger, kibanaCore }) {
           sg_license: schema.string(),
         }),
       },
-      options: {
-        authRequired: true,
-      },
     },
     licenseHandler({ searchGuardBackend, logger })
   );
@@ -110,9 +108,6 @@ export function defineSystemRoutes({ searchGuardBackend, logger, kibanaCore }) {
         body: schema.object({
           overwrite: schema.boolean(),
         }),
-      },
-      options: {
-        authRequired: true,
       },
     },
     importTemplateHandler({ searchGuardBackend, logger })

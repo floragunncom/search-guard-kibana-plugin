@@ -203,9 +203,6 @@ export function defineConfigurationRoutes({ searchGuardConfigurationBackend, kib
           resourceName: schema.string(),
         }),
       },
-      options: {
-        authRequired: true,
-      },
     },
     getConfigResourcesByType({ searchGuardConfigurationBackend, logger })
   );
@@ -228,9 +225,6 @@ export function defineConfigurationRoutes({ searchGuardConfigurationBackend, kib
           id: schema.string(),
         }),
       },
-      options: {
-        authRequired: true,
-      },
     },
     getConfigResourceById({ searchGuardConfigurationBackend, logger })
   );
@@ -252,9 +246,6 @@ export function defineConfigurationRoutes({ searchGuardConfigurationBackend, kib
           resourceName: schema.string(),
           id: schema.string(),
         }),
-      },
-      options: {
-        authRequired: true,
       },
     },
     deleteConfigResource({ searchGuardConfigurationBackend, logger })
@@ -279,9 +270,6 @@ export function defineConfigurationRoutes({ searchGuardConfigurationBackend, kib
         }),
         body: schema.object({}, { unknowns: 'allow' }),
       },
-      options: {
-        authRequired: true,
-      },
     },
     updateConfigResource({ searchGuardConfigurationBackend, logger })
   );
@@ -290,9 +278,6 @@ export function defineConfigurationRoutes({ searchGuardConfigurationBackend, kib
     {
       path: `${API_ROOT}/configuration/cache`,
       validate: false,
-      options: {
-        authRequired: true,
-      },
     },
     deleteConfigCache({ searchGuardConfigurationBackend, logger })
   );
@@ -301,9 +286,6 @@ export function defineConfigurationRoutes({ searchGuardConfigurationBackend, kib
     {
       path: `${API_ROOT}/restapiinfo`,
       validate: false,
-      options: {
-        authRequired: true,
-      },
     },
     getRestApiInfo({ searchGuardConfigurationBackend, logger })
   );
@@ -315,9 +297,6 @@ export function defineConfigurationRoutes({ searchGuardConfigurationBackend, kib
         body: schema.object({
           index: schema.oneOf([schema.string(), schema.arrayOf(schema.string())]),
         }),
-      },
-      options: {
-        authRequired: true,
       },
     },
     getConfigIndices({ searchGuardConfigurationBackend, logger })
@@ -331,9 +310,6 @@ export function defineConfigurationRoutes({ searchGuardConfigurationBackend, kib
           alias: schema.oneOf([schema.string(), schema.arrayOf(schema.string())]),
         }),
       },
-      options: {
-        authRequired: true,
-      },
     },
     getConfigAliases({ searchGuardConfigurationBackend, logger })
   );
@@ -346,9 +322,6 @@ export function defineConfigurationRoutes({ searchGuardConfigurationBackend, kib
           index: schema.arrayOf(schema.string()),
         }),
       },
-      options: {
-        authRequired: true,
-      },
     },
     getConfigIndexMappings({ searchGuardConfigurationBackend, logger })
   );
@@ -360,9 +333,6 @@ export function defineConfigurationRoutes({ searchGuardConfigurationBackend, kib
         body: schema.object({
           dataStream: schema.oneOf([schema.string(), schema.arrayOf(schema.string())]),
         }),
-      },
-      options: {
-        authRequired: true,
       },
     },
     getConfigDataStreams({ searchGuardConfigurationBackend, logger })

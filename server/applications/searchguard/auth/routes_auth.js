@@ -40,8 +40,9 @@ export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, 
     {
       path: `${API_ROOT}/auth/config`,
       validate: false,
-      options: {
-        authRequired: false,
+      security: {
+        authc: { enabled: false, reason: 'Route provides login config to unauthenticated users.' },
+        authz: { enabled: false, reason: 'Route is part of the login flow.' },
       },
     },
     authConfigHandler({ authManager, searchGuardBackend, configService, kibanaCore })
@@ -50,8 +51,11 @@ export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, 
   httpResources.register(
     {
       path: `/auth/captureurlfragment`,
-      options: { authRequired: false },
       validate: false,
+      security: {
+        authc: { enabled: false, reason: 'Route captures URL fragments before login redirect.' },
+        authz: { enabled: false, reason: 'Route is part of the login flow.' },
+      },
     },
     (context, request, response) => {
       const loginHandler = request.url.searchParams.get('loginHandler');
@@ -74,8 +78,11 @@ export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, 
   httpResources.register(
     {
       path: `/auth/captureurlfragment.js`,
-      options: { authRequired: false },
       validate: false,
+      security: {
+        authc: { enabled: false, reason: 'Route captures URL fragments before login redirect.' },
+        authz: { enabled: false, reason: 'Route is part of the login flow.' },
+      },
     },
     (context, request, response) => {
       // Normally this path does not forward query params. If loginHandler is present, someone is

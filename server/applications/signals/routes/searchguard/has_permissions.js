@@ -42,8 +42,17 @@ export function hasPermissionsRoute({ router, logger, searchguardBackendService 
   router.post(
     {
       path: ROUTE_PATH.SEARCHGUARD.SIGNALS_HAS_PERMISSIONS,
-      options: { authRequired: 'optional' },
       validate: false,
+      security: {
+        authc: {
+          enabled: 'optional',
+          reason: 'Route checks Search Guard Signals permissions before and after authentication.',
+        },
+        authz: {
+          enabled: false,
+          reason: 'Route delegates authorization to Search Guard permission checks.',
+        },
+      },
     },
     hasPermissions({ logger, searchguardBackendService })
   );

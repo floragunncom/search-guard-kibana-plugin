@@ -38,9 +38,6 @@ export function defineAuthInfoRoutes({ searchGuardBackend, kibanaCore, logger })
     {
       path: `${API_ROOT}/auth/authinfo`,
       validate: false,
-      options: {
-        authRequired: true,
-      },
     },
     authInfoHandler({ searchGuardBackend, logger })
   );

@@ -47,7 +47,10 @@ export function defineRoutes({
       validate: false,
       options: {
         access: 'public',
-        authRequired: false,
+      },
+      security: {
+        authc: { enabled: false, reason: 'Route handles unauthenticated SAML login redirects.' },
+        authz: { enabled: false, reason: 'Route is part of the login flow.' },
       },
     },
     async function (context, request, response) {
@@ -150,8 +153,11 @@ export function defineRoutes({
       path: `${APP_ROOT}/searchguard/saml/acs`,
       options: {
         access: 'public',
-        authRequired: false,
         xsrfRequired: false,
+      },
+      security: {
+        authc: { enabled: false, reason: 'Route handles unauthenticated SAML login redirects.' },
+        authz: { enabled: false, reason: 'Route is part of the login flow.' },
       },
       validate: {
         body: schema.object(
@@ -243,8 +249,11 @@ export function defineRoutes({
       path: `${APP_ROOT}/searchguard/saml/acs/idpinitiated`,
       options: {
         access: 'public',
-        authRequired: false,
         xsrfRequired: false,
+      },
+      security: {
+        authc: { enabled: false, reason: 'Route handles unauthenticated SAML login redirects.' },
+        authz: { enabled: false, reason: 'Route is part of the login flow.' },
       },
       validate: {
         body: schema.object(
@@ -308,7 +317,6 @@ export function defineRoutes({
   const logoutPath = `${APP_ROOT}/searchguard/saml/logout`;
   const logoutOptions = {
     access: 'public',
-    authRequired: false,
     xsrfRequired: false,
   };
   const logoutHandler = async (context, request, response) => {
@@ -318,6 +326,28 @@ export function defineRoutes({
     });
   };
   // Logout route accepts both GET and POST
-  router.get({ path: logoutPath, options: logoutOptions, validate: false }, logoutHandler);
-  router.post({ path: logoutPath, options: logoutOptions, validate: false }, logoutHandler);
+  router.get(
+    {
+      path: logoutPath,
+      options: logoutOptions,
+      validate: false,
+      security: {
+        authc: { enabled: false, reason: 'Route handles unauthenticated SAML login redirects.' },
+        authz: { enabled: false, reason: 'Route is part of the login flow.' },
+      },
+    },
+    logoutHandler
+  );
+  router.post(
+    {
+      path: logoutPath,
+      options: logoutOptions,
+      validate: false,
+      security: {
+        authc: { enabled: false, reason: 'Route handles unauthenticated SAML login redirects.' },
+        authz: { enabled: false, reason: 'Route is part of the login flow.' },
+      },
+    },
+    logoutHandler
+  );
 } //end module

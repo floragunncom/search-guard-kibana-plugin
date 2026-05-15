@@ -37,7 +37,10 @@ export function handleKibanaCapabilities() {
 export function kibanaCapabilitiesRoute({ router }) {
   const options = {
     path: '/api/v1/searchguard/kibana_capabilities',
-    options: { authRequired: false },
+    security: {
+      authc: { enabled: false, reason: 'Kibana capabilities are accessible before authentication.' },
+      authz: { enabled: false, reason: 'Route is opted out from authorization.' },
+    },
     validate: {
       body: schema.object({
         applications: schema.arrayOf(schema.string()),
