@@ -26,8 +26,15 @@ fi
 
 cd $SF_REPO_DIR
 
-
-
+# Kibana >= 9.3 bootstraps via moon, and moon's workspace.yml has
+# `vcs.defaultBranch: main`. Since the CI clones a single release branch
+# with `--depth 1 --branch v$SF_VERSION`, the local repo has no `main` ref,
+# and moon fails with: "fatal: ambiguous argument 'main': unknown revision".
+# Create a local `main` ref pointing at HEAD so moon can resolve it.
+# We are only interested in our plugin build, so this should not affect us.
+if ! git show-ref --verify --quiet refs/heads/main; then
+   git update-ref refs/heads/main HEAD
+fi
 
 echo -e "\e[0Ksection_start:`date +%s`:patch_kbn_optimizer[collapsed=true]\r\e[0KPatch kbn optimizer"
 
