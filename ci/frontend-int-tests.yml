@@ -5,11 +5,12 @@ stages:
   - Frontend Int Tests
 
 
-kibana_basicauth:
-  extends:
-  - .be_integration_test
-  variables:
-    TEST_DEFINITIONS: ".*kibana_basicauth.*"
+# kibana_basicauth: disabled until kibana releases https://github.com/elastic/kibana/pull/271314
+# kibana_basicauth:
+#   extends:
+#   - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_basicauth.*"
 
 # kibana_signals_accounts:
 #   extends:
@@ -45,7 +46,7 @@ kibana_saml:
   extends:
   - .be_integration_test
   variables:
-    TEST_DEFINITIONS: ".*kibana_saml_keycloak.*" 
+    TEST_DEFINITIONS: ".*kibana_saml_keycloak.*"
 
 kibana_oidc:
   extends:
@@ -65,29 +66,33 @@ kibana_jwt:
   variables:
     TEST_DEFINITIONS: ".*kibana_jwt.*"
 
-kibana_configui_1:
-  extends:
-  - .be_integration_test
-  variables:
-    TEST_DEFINITIONS: ".*kibana_configui_1.*" 
+# kibana_configui_1: disabled until kibana releases https://github.com/elastic/kibana/pull/271314
+# kibana_configui_1:
+#   extends:
+#   - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_configui_1.*"
 
-kibana_configui_2:
-  extends:
-  - .be_integration_test
-  variables:
-    TEST_DEFINITIONS: ".*kibana_configui_2.*"  
+# kibana_configui_2: disabled until kibana releases https://github.com/elastic/kibana/pull/271314
+# kibana_configui_2:
+#   extends:
+#   - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_configui_2.*"
 
-kibana_configui_3:
-  extends:
-  - .be_integration_test
-  variables:
-    TEST_DEFINITIONS: ".*kibana_configui_3.*"
+# kibana_configui_3: disabled until kibana releases https://github.com/elastic/kibana/pull/271314
+# kibana_configui_3:
+#   extends:
+#   - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_configui_3.*"
 
-kibana_authtokens:
-  extends:
-  - .be_integration_test
-  variables:
-    TEST_DEFINITIONS: ".*kibana_authtokens.*"
+# kibana_authtokens: disabled until kibana releases https://github.com/elastic/kibana/pull/271314
+# kibana_authtokens:
+#   extends:
+#   - .be_integration_test
+#   variables:
+#     TEST_DEFINITIONS: ".*kibana_authtokens.*"
 
 # kibana_configui_licensehandling:
 #   extends:
@@ -125,7 +130,7 @@ kibana_authtokens:
   script:
     - |
        set -e
-       
+
        # Used when tests are triggered from another repository, e.g. search-guard-suite-enterprise.
        CHECK_JOB_NAME="${CHECK_JOB_NAME:-}"
        if [[ "${CI_PIPELINE_SOURCE:-}" == "parent_pipeline" && "${PARENT_PIPELINE_PREREQUISITES:-}" != "1" ]]; then
@@ -138,13 +143,13 @@ kibana_authtokens:
        fi
 
        sudo sysctl -w vm.max_map_count=262144
-       
-       echo "Login in into Docker Hub"      
-       echo "$DOCKER_PASSWORD" | docker login --username floragunncom --password-stdin docker.io > /dev/null        
+
+       echo "Login in into Docker Hub"
+       echo "$DOCKER_PASSWORD" | docker login --username floragunncom --password-stdin docker.io > /dev/null
 
        echo "SNAPSHOT_REVISION=$SNAPSHOT_REVISION"
        echo "TEST_DEFINITIONS $TEST_DEFINITIONS"
-       
+
        git clone --depth 1 --branch $IT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git > /dev/null
        cd sgi8/server
        rm -f  docker/kibana/kibana-plugin.zip docker/elasticsearch/search-guard.zip
@@ -159,7 +164,7 @@ kibana_authtokens:
           echo "Using local kibana plugin from target/releases"
           cp "../../target/releases/search-guard-flx-kibana-plugin-${BUILD_VERSION}.zip" \
             docker/kibana/kibana-plugin.zip
-       fi  
+       fi
 
        ./run_test_definition.sh "$TEST_DEFINITIONS"
   after_script:
