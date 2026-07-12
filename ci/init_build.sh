@@ -64,8 +64,17 @@ echo -e "\e[0Ksection_end:`date +%s`:patch_kbn_optimizer\r\e[0K"
 
 echo -e "\e[0Ksection_start:`date +%s`:nvm_install[collapsed=true]\r\e[0KDoing nvm install"
 
-# Ensure nvm is loaded (it may not be when this script is run standalone).
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+# Ensure nvm is loaded, but only if it isn't already (e.g. when this script is
+# run standalone locally). In CI nvm is sourced by install_dependencies.sh, and
+# re-sourcing nvm.sh there breaks the subsequent `nvm install`.
+if ! command -v nvm >/dev/null 2>&1; then
+   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+   echo "nvm loaded"
+else
+   echo "nvm already loaded"
+fi
+
+echo "nvm version $(nvm --version)"
 
 nvm install
 
