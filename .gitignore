@@ -54,3 +54,6 @@ jspm_packages
 
 #gitlab-ci-local
 .gitlab-ci-local/
+
+kibana/
+

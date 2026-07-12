@@ -6,7 +6,6 @@ variables:
   SG_SB_PLUGIN_RELEASE_REPO: search-guard-flx-release
   SG_SB_PLUGIN_SNAPSHOT_REPO: search-guard-flx-snapshot
   SG_SB_PLUGIN_NAME: search-guard-flx-elasticsearch-plugin
-  NODE_VERSION: 16.13.0
 
   ALLOW_TRIVY_FAILURE: "true"
   # Single source of truth for Trivy (scan image tag + curl-installed binary in the image-scan job)
@@ -16,11 +15,9 @@ variables:
   #####
   SG_BUILD_IMAGE: "floragunncom/ubuntu-openjdk25:251126"
   SG_DIND_IMAGE: "floragunncom/ubuntu-dind:260209"
-  DOCKER_VERSION: "28.5.2"
 
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   MAVEN_CLI_OPTS: "--batch-mode -s settings.xml -q -U"
-  DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: "/certs"
   GIT_DEPTH: 10
 
