@@ -1,23 +1,29 @@
 # =============================================================================
-# GitLab CI/CD (include template) — Java (Maven) build + Trivy security scanning
+# GitLab CI/CD (include template) — Kibana (yarn) build + Trivy security scanning
 #
 # Flow (all in "Security Scan Phase 1" unless noted):
-#   scan:build           -> mvn package + CycloneDX SBOM
-#   scan:vuln            -> deps vuln  -> JSON + reports; captures gate exit code
+#   scan:build           -> package the already-built plugin (build/*) into a zip
+#   scan:vuln            -> deps vuln (yarn.lock) -> JSON + reports; captures gate exit code
 #   scan:code            -> secret/misconfig -> JSON + reports; captures exit code
 #   build-and-scan:image -> build image + scan -> JSON + reports; captures exit code
 #   report:html          -> scan2html HTML from deps + code + IMAGE JSON
-#   publish:cloudflare   -> deploy HTML to Cloudflare Pages (default branch)
+#   publish:sftp         -> deploy HTML report via SFTP
 #   verify:security      -> Phase 2 GATE: fails if any captured exit code != 0
 #
 # Enforcement is "delayed": scan jobs never fail on findings (they record the
 # gate result to exit_code_*.txt). The report/publish therefore always run, and
 # verify:security is the single place that turns the pipeline red.
 #
-# Expected from the including project: TRIVY_VERSION, SCAN2HTML_VERSION,
-# SG_BUILD_IMAGE, ES_VERSION, and the two stage names.
+# Expected from the including project: SG_BUILD_IMAGE, SG_DIND_IMAGE, SF_VERSION
+# (the Kibana version), and the two stage names. TRIVY_VERSION / SCAN2HTML_VERSION
+# default below but can be overridden.
 # Optional: ALLOW_TRIVY_FAILURE=true to make the gate non-blocking.
 # =============================================================================
+
+variables:
+  # Pin scanner versions. Avoid the known-compromised Trivy 0.69.4/0.69.5/0.69.6.
+  TRIVY_VERSION: "0.72.0"
+  SCAN2HTML_VERSION: "0.3.26"
 
 # -----------------------------------------------------------------------------
 # Hidden base job for all Trivy scans
@@ -30,7 +36,6 @@
     TRIVY_NO_PROGRESS: "true"
     TRIVY_CACHE_DIR: "$CI_PROJECT_DIR/.trivycache"
     # Severities that BLOCK the pipeline:
-    # Severities that BLOCK the pipeline:
     TRIVY_SEVERITY: "HIGH,CRITICAL"
     TRIVY_QUIET: "true"
   cache:
@@ -39,31 +44,29 @@
       - .trivycache
     policy: pull
 
+# -----------------------------------------------------------------------------
+# 1) Package the plugin. The `build` job already produced the unpacked plugin
+#    under build/ (yarn build). Here we only run the maven-assembly-plugin
+#    (pom packaging=pom) to zip build/kibana/** into the distributable zip that
+#    the image scan installs. No compilation happens.
+# -----------------------------------------------------------------------------
 scan:build:
   stage: "Security Scan Phase 1"
   image: "$SG_BUILD_IMAGE"
+  needs: ["build"]          # pulls the build/* artifact (the unpacked plugin)
   script:
-    - mvn -Drevision=trivy -Delasticsearch.version=$ES_VERSION $MAVEN_CLI_OPTS package
-    # Generate a CycloneDX SBOM with FULLY RESOLVED versions straight from the
-    # build's local .m2 cache. Trivy scans this offline -> no remote Maven
-    # lookups, so no more 429 rate-limit / IP blocks.
-    - mvn -Drevision=trivy -Delasticsearch.version=$ES_VERSION $MAVEN_CLI_OPTS org.cyclonedx:cyclonedx-maven-plugin:${CYCLONEDX_VERSION}:makeAggregateBom -DoutputFormat=json -DoutputName=bom
-    # Locate the aggregate SBOM (path varies on multi-module layouts) and copy
-    # it to a fixed root path so the scan jobs always find it. Fails loudly if
-    # no SBOM was produced.
-    - 'if [ -f target/bom.json ]; then BOM=target/bom.json; else BOM=$(find . -name bom.json | head -n1); fi; echo "Using SBOM $BOM"; test -n "$BOM"; cp "$BOM" bom.json'
-    - ls -la bom.json
+    - 'test -d build/kibana || { echo "ERROR: build/kibana is missing - check the build job"; exit 1; }'
+    # revision=trivy -> target/releases/search-guard-flx-kibana-plugin-trivy.zip
+    - mvn -Drevision=trivy -s settings.xml $MAVEN_CLI_OPTS package
+    - ls -la target/releases/
   artifacts:
     paths:
-      # One aggregate SBOM covering every module; a few hundred KB.
-      - bom.json
-      - plugin/target/releases/search-guard-flx-elasticsearch-plugin-trivy.zip
+      - target/releases/search-guard-flx-kibana-plugin-trivy.zip
     expire_in: 1 hour
   variables:
     # --- Maven ---
     MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
     MAVEN_CLI_OPTS: "--batch-mode --errors --show-version -DskipTests"
-    CYCLONEDX_VERSION: "2.9.2"   # bump as needed
   cache:
     key: "mavenrepo-$CI_COMMIT_REF_SLUG"
     paths:
@@ -72,18 +75,19 @@ scan:build:
 
 # -----------------------------------------------------------------------------
 # 2a) Dependency vulnerabilities (BLOCKING via verify:security gate)
+#     The plugin ships the production Node deps resolved from yarn.lock, so we
+#     scan the filesystem (Trivy detects yarn.lock natively). No Maven/SBOM.
 # -----------------------------------------------------------------------------
 scan:vuln:
   extends: .trivy
   stage: "Security Scan Phase 1"
-  needs: ["scan:build"]
+  needs: []          # runs immediately; only needs the repo (yarn.lock)
   script:
-    - 'test -s bom.json || { echo "ERROR: bom.json is missing/empty - check the build job"; exit 1; }'
     # Scan ONCE (this is the only step that needs the DB); all reports are derived
     # from this JSON via `trivy convert` (no re-scan, no DB access).
     # NOTE: --ignore-unfixed must be applied HERE at scan time -- `trivy convert`
     # does not support that flag (it only supports --severity / --exit-code).
-    - trivy sbom bom.json --ignore-unfixed --format json --output trivy-vuln.json
+    - trivy fs --scanners vuln --ignore-unfixed --format json --output trivy-vuln.json .
     # GitLab-native dependency-scanning report (MR Security widget; Ultimate only).
     - trivy convert --format template --template "@/contrib/gitlab.tpl" --output gl-dependency-scanning-report.json trivy-vuln.json
     # JUnit report so each finding shows in the pipeline "Tests" tab (all tiers, incl. CE). Non-failing.
@@ -113,10 +117,8 @@ scan:code:
   stage: "Security Scan Phase 1"
   needs: []          # runs immediately, in parallel with build
   script:
-    # --offline-scan stops the Java analyzer from resolving versions against
-    # Maven Central (that remote lookup is what triggers the 429 here).
     # Scan ONCE to JSON, then derive reports via `trivy convert` (no re-scan).
-    - trivy fs --scanners secret,misconfig --skip-files security/tools/install_demo_configuration.sh --skip-files ci/Dockerfile.trivy --skip-files docker/Dockerfile --offline-scan --format json --output trivy-code.json .
+    - trivy fs --scanners secret,misconfig --skip-files ci/Dockerfile.trivy --skip-files docker/Dockerfile --skip-files docker/Dockerfile-demo --offline-scan --format json --output trivy-code.json .
     # JUnit report so each finding shows in the pipeline "Tests" tab. Non-failing.
     # (--ignore-unfixed omitted: not meaningful for secret/misconfig, and unsupported by `trivy convert`.)
     - trivy convert --severity $TRIVY_SEVERITY --format template --template "@/contrib/junit.tpl" --output junit-trivy-code.xml trivy-code.json
@@ -138,7 +140,7 @@ scan:code:
 #scan:licenses:
 #  extends: .trivy
 #  stage: scan
-#  needs: ["build"]
+#  needs: ["scan:build"]
 #  allow_failure: true
 #  script:
 #    - trivy fs
@@ -149,8 +151,9 @@ scan:code:
 #        .
 
 # -----------------------------------------------------------------------------
-# 3) Build the image AND scan it. trivy-image.json is artifacted so the HTML
-#    report can include image findings; enforcement is recorded, not failed.
+# 3) Build a Kibana image with the plugin installed AND scan it. trivy-image.json
+#    is artifacted so the HTML report can include image findings; enforcement is
+#    recorded, not failed.
 # -----------------------------------------------------------------------------
 build-and-scan:image:
   extends: .trivy
@@ -158,23 +161,23 @@ build-and-scan:image:
   image: "$SG_DIND_IMAGE"
   services:
     - "$SG_DIND_IMAGE"
-  needs: ["scan:build"]
+  needs: ["scan:build", "prepare_env"]   # zip from scan:build, SF_VERSION from prepare_env
   variables:
     IMAGE_TAG: "$CI_COMMIT_SHORT_SHA"
     #DOCKER_BUILDKIT: "0"
   script:
-    - echo "script start, ES_VERSION=$ES_VERSION"
+    - echo "script start, SF_VERSION=$SF_VERSION"
     - apk add --no-cache curl
     - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/v${TRIVY_VERSION}/contrib/install.sh | sh -s -- -b /usr/local/bin "v${TRIVY_VERSION}"
     # The binary install does not bundle the contrib templates, fetch junit.tpl (version-pinned)
     - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/v${TRIVY_VERSION}/contrib/junit.tpl -o /tmp/junit.tpl
-    - ls -la plugin/target/releases/
-    - cp plugin/target/releases/search-guard-flx-elasticsearch-plugin-trivy.zip ci/search-guard-flx-elasticsearch-plugin-trivy.zip
+    - ls -la target/releases/
+    - cp target/releases/search-guard-flx-kibana-plugin-trivy.zip ci/search-guard-flx-kibana-plugin-trivy.zip
     - cd ci
-    - docker build -f Dockerfile.trivy -t "$IMAGE_TAG" --build-arg ES_VERSION="$ES_VERSION" .
+    - docker build -f Dockerfile.trivy -t "$IMAGE_TAG" --build-arg SF_VERSION="$SF_VERSION" .
     # Scan the image ONCE to JSON (absolute paths since we cd'd into ci/), then derive reports via `trivy convert`.
     # --ignore-unfixed applied here at scan time (`trivy convert` does not support it).
-    - trivy image --skip-files "/usr/share/elasticsearch/**/*" --scanners vuln,secret,misconfig --offline-scan --ignore-unfixed --format json --output "$CI_PROJECT_DIR/trivy-image.json" "$IMAGE_TAG"
+    - trivy image --scanners vuln,secret,misconfig --offline-scan --ignore-unfixed --format json --output "$CI_PROJECT_DIR/trivy-image.json" "$IMAGE_TAG"
     # JUnit report so each finding shows in the pipeline "Tests" tab. Non-failing.
     - trivy convert --severity $TRIVY_SEVERITY --format template --template "@/tmp/junit.tpl" --output "$CI_PROJECT_DIR/junit-trivy-image.xml" "$CI_PROJECT_DIR/trivy-image.json"
     # Enforcement pass: record gate exit code without failing the job (see scan:vuln).
@@ -197,7 +200,7 @@ report:html:
     name: "aquasec/trivy:${TRIVY_VERSION}"
     entrypoint: [""]
   stage: "Security Scan Phase 1"
-  needs: ["scan:vuln", "scan:code", "build-and-scan:image"]
+  needs: ["scan:vuln", "scan:code", "build-and-scan:image", "prepare_env"]
   script:
     - 'ls trivy-vuln.json trivy-code.json >/dev/null 2>&1 || { echo "No scan JSON found; skipping report."; exit 0; }'
     # If pinning fails on your Trivy version, use: trivy plugin install scan2html
@@ -205,7 +208,7 @@ report:html:
     - mkdir -p public
     # Include the image results only if the image job produced them.
     - 'FROM="trivy-vuln.json,trivy-code.json"; if [ -s trivy-image.json ]; then FROM="$FROM,trivy-image.json"; fi; echo "Report sources -> $FROM"'
-    - trivy scan2html generate --scan2html-flags --report-title "Trivy Security Report (ES ${ES_VERSION}) - ${CI_PROJECT_NAME}" --output "public/${CI_PROJECT_NAME}.html" --from "$FROM"
+    - trivy scan2html generate --scan2html-flags --report-title "Trivy Security Report (Kibana ${SF_VERSION}) - ${CI_PROJECT_NAME}" --output "public/${CI_PROJECT_NAME}.html" --from "$FROM"
     - cp "public/${CI_PROJECT_NAME}.html" public/index.html
   artifacts:
     when: always
