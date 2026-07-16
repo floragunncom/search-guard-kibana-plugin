@@ -30,6 +30,8 @@ if [[ -f $SF_REPO_DIR/.cached_version ]]; then
    if [ "$CACHED_VERSION" != "$SF_VERSION" ]; then
       echo "Cached version $CACHED_VERSION does not match requested version $SF_VERSION. Deleting cache."
       rm -rf $SF_REPO_DIR
+   else
+     echo "Cached version $CACHED_VERSION does match requested version $SF_VERSION. Use cache."
    fi
 elif [[ -d $SF_REPO_DIR ]]; then
    echo "No cached_version file. Deleting cache."
@@ -41,6 +43,8 @@ if [[ ! -d $SF_REPO_DIR ]]; then
       git clone --depth 1 --branch $SF_BRANCH_NAME --quiet --config advice.detachedHead=false $SF_REPO_URL
       echo >$SF_REPO_DIR/.cached_version $SF_VERSION
       echo -e "\e[0Ksection_end:`date +%s`:sf_clone\r\e[0K"
+else
+      echo "No git clone necessary. Wille use cache."
 fi
 
 cd $SF_REPO_DIR
