@@ -45,6 +45,8 @@ before_script:
 stages:
   - prepare
   - build
+  - "Security Scan Phase 1"
+  - "Security Scan Phase 2"
   - package
   - "Frontend Int Tests"
   - "Frontend MT Data Migration Tests"  
@@ -329,4 +331,5 @@ include:
   - local: 'ci/pre_mt_data_migration_tests.yml' 
   - local: 'ci/mt_data_migration_tests.yml'
   - local: 'ci/backport.yml'
+  - local: 'ci/trivy.yml'
 
