@@ -3,7 +3,7 @@ ARG ELK_VERSION
 
 
 # https://github.com/elastic/kibana-docker
-FROM docker.elastic.co/kibana/kibana:${ELK_VERSION} as base
+FROM floragunncom/kb-mirror:${ELK_VERSION} as base
 
 USER root
 RUN if ! command -v pgrep >/dev/null 2>&1; then \
