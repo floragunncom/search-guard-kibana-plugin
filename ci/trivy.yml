@@ -297,7 +297,34 @@ verify:security:
   needs: ["scan:vuln", "scan:code", "build-and-scan:image"]
   before_script: []          # skip project groupadd/useradd (not present on busybox)
   script:
-    - 'RC=0; for f in exit_code_vuln.txt exit_code_code.txt exit_code_image.txt; do code=$(cat "$f" 2>/dev/null || echo MISSING); echo "$f -> $code"; [ "$code" = "0" ] || RC=1; done; if [ "$RC" -ne 0 ]; then echo "Security gate FAILED (HIGH/CRITICAL findings present)"; else echo "Security gate passed"; fi; exit $RC'
+    - |
+      # BLOCKING checks: dependency + code scans gate the pipeline.
+      RC=0
+      for f in exit_code_vuln.txt exit_code_code.txt; do
+        code=$(cat "$f" 2>/dev/null || echo MISSING)
+        echo "$f -> $code"
+        [ "$code" = "0" ] || RC=1
+      done
+
+      # NON-BLOCKING check: image scan is report-only. A non-zero result is
+      # surfaced prominently but never fails the job (base-image CVEs are often
+      # outside this repo's control).
+      image_code=$(cat exit_code_image.txt 2>/dev/null || echo MISSING)
+      echo "exit_code_image.txt -> $image_code"
+      if [ "$image_code" != "0" ]; then
+        echo "############################################################"
+        echo "## WARNING: image scan reported HIGH/CRITICAL findings     ##"
+        echo "## (exit_code_image.txt=$image_code) - NOT failing the job ##"
+        echo "## Review the Trivy image report / Tests tab.              ##"
+        echo "############################################################"
+      fi
+
+      if [ "$RC" -ne 0 ]; then
+        echo "Security gate FAILED (HIGH/CRITICAL findings present in deps/code)"
+      else
+        echo "Security gate passed"
+      fi
+      exit $RC
   # NOTE: allow_failure does NOT support variable expansion at job level.
   # rules:allow_failure is the supported way to make it toggleable via $ALLOW_TRIVY_FAILURE.
   rules:
