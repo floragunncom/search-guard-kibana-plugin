@@ -32,6 +32,10 @@ variables:
   image:
     name: "aquasec/trivy:${TRIVY_VERSION}"
     entrypoint: [""]
+  # The project-level before_script runs groupadd/useradd, which only exist on
+  # the Ubuntu build image. These scan jobs run on Alpine/BusyBox/trivy images
+  # (no shadow utils) and don't need the kibana user, so skip it.
+  before_script: []
   variables:
     TRIVY_NO_PROGRESS: "true"
     TRIVY_CACHE_DIR: "$CI_PROJECT_DIR/.trivycache"
@@ -167,7 +171,6 @@ build-and-scan:image:
     #DOCKER_BUILDKIT: "0"
   script:
     - echo "script start, SF_VERSION=$SF_VERSION"
-    - apk add --no-cache curl
     - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/v${TRIVY_VERSION}/contrib/install.sh | sh -s -- -b /usr/local/bin "v${TRIVY_VERSION}"
     # The binary install does not bundle the contrib templates, fetch junit.tpl (version-pinned)
     - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/v${TRIVY_VERSION}/contrib/junit.tpl -o /tmp/junit.tpl
@@ -201,6 +204,7 @@ report:html:
     entrypoint: [""]
   stage: "Security Scan Phase 1"
   needs: ["scan:vuln", "scan:code", "build-and-scan:image", "prepare_env"]
+  before_script: []          # skip project groupadd/useradd (not present on trivy image)
   script:
     - 'ls trivy-vuln.json trivy-code.json >/dev/null 2>&1 || { echo "No scan JSON found; skipping report."; exit 0; }'
     # If pinning fails on your Trivy version, use: trivy plugin install scan2html
@@ -263,6 +267,7 @@ publish:sftp:
   variables:
     TRIVY_WEB_SFTP_PORT: "22"
     TRIVY_WEB_SFTP_REMOTE_DIR: "/data/upload"
+  before_script: []          # skip project groupadd/useradd (not present on alpine)
   rules:
     - if: '$TRIVY_WEB_SFTP_HOST && $TRIVY_WEB_SFTP_SSH_PRIVATE_KEY'
     #- if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $TRIVY_WEB_SFTP_HOST && $TRIVY_WEB_SFTP_SSH_PRIVATE_KEY'
@@ -291,6 +296,7 @@ verify:security:
   stage: "Security Scan Phase 2"
   image: busybox
   needs: ["scan:vuln", "scan:code", "build-and-scan:image"]
+  before_script: []          # skip project groupadd/useradd (not present on busybox)
   script:
     - 'RC=0; for f in exit_code_vuln.txt exit_code_code.txt exit_code_image.txt; do code=$(cat "$f" 2>/dev/null || echo MISSING); echo "$f -> $code"; [ "$code" = "0" ] || RC=1; done; if [ "$RC" -ne 0 ]; then echo "Security gate FAILED (HIGH/CRITICAL findings present)"; else echo "Security gate passed"; fi; exit $RC'
   # NOTE: allow_failure does NOT support variable expansion at job level.
