@@ -1,0 +1,9 @@
+# Kibana image with the freshly built Search Guard Kibana plugin installed,
+# used only as a Trivy scan target (see build-and-scan:image in ci/trivy.yml).
+# SF_VERSION is the Kibana version (matches the plugin's target Kibana release).
+ARG SF_VERSION
+
+FROM floragunncom/kb-mirror:${SF_VERSION}
+
+COPY search-guard-flx-kibana-plugin-trivy.zip /plugin.zip
+RUN kibana-plugin install file:///plugin.zip
