@@ -20,11 +20,6 @@
 # Optional: ALLOW_TRIVY_FAILURE=true to make the gate non-blocking.
 # =============================================================================
 
-variables:
-  # Pin scanner versions. Avoid the known-compromised Trivy 0.69.4/0.69.5/0.69.6.
-  TRIVY_VERSION: "0.72.0"
-  SCAN2HTML_VERSION: "0.3.26"
-
 # -----------------------------------------------------------------------------
 # Hidden base job for all Trivy scans
 # -----------------------------------------------------------------------------
