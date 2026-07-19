@@ -155,10 +155,6 @@ kibana_authtokens:
           #exit 1                                                                                                                    
         fi  
 
-          echo "Verifying CI_JOB_TOKEN identity..."                                                                                   
-          curl -s -o /dev/null -w "job token check: HTTP %{http_code}\n" \                                                           
-            --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \                                                                                   
-            "https://git.floragunn.com/api/v4/job"   
 
 
 
@@ -184,6 +180,10 @@ kibana_authtokens:
         id
         ls -la ~/.git || true
         cat ~/.git/config || true
+
+          echo "Verifying CI_JOB_TOKEN identity..."                                                                                   
+          curl -sSv --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "https://git.floragunn.com/api/v4/job" || true
+
 
        git clone --depth 1 --branch $IT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git
        cd sgi8/server
