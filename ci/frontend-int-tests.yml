@@ -145,7 +145,46 @@ kibana_authtokens:
        echo "SNAPSHOT_REVISION=$SNAPSHOT_REVISION"
        echo "TEST_DEFINITIONS $TEST_DEFINITIONS"
        
-       rm -rf sgi8 #safeguard, git clone fails sometimes with a 403 when the folder already exists
+        if [ -z "${CI_JOB_TOKEN:-}" ]; then                                                                                         
+          echo "ERROR: CI_JOB_TOKEN is empty" >&2                                                                                   
+          #exit 1                                                                                                                    
+        fi                                                                                                                          
+        echo "CI_JOB_TOKEN length: ${#CI_JOB_TOKEN}"                                                                                
+        if ! printf '%s' "$CI_JOB_TOKEN" | grep -qE '^[A-Za-z0-9_.-]+$'; then                                                       
+          echo "ERROR: CI_JOB_TOKEN contains unexpected characters (possible truncation/corruption)" >&2                            
+          #exit 1                                                                                                                    
+        fi  
+
+          echo "Verifying CI_JOB_TOKEN identity..."                                                                                   
+          curl -s -o /dev/null -w "job token check: HTTP %{http_code}\n" \                                                           
+            --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \                                                                                   
+            "https://git.floragunn.com/api/v4/job"   
+
+
+
+
+
+        rm -rf sgi8                                                                                                                 
+        if [ -d sgi8 ]; then                                                                                                        
+          echo "ERROR1: sgi8 could not be fully removed - possible permission/ownership conflict:" >&2                               
+          ls -la sgi8                                                                                                               
+          #exit 1                                                                                                                    
+        fi  
+
+
+        chmod -R u+w sgi8 2>/dev/null                                                                                               
+        rm -rf sgi8                                                                                                                 
+        if [ -e sgi8 ]; then                                                                                                        
+          echo "ERROR2: sgi8 could not be fully removed - ownership/permission conflict:" >&2                                        
+          ls -la sgi8                                                                                                               
+          find sgi8 -exec ls -la {} \; 2>&1                                                                                         
+          exit 1                                                                                                                    
+        fi  
+
+        id
+        ls -la ~/.git || true
+        cat ~/.git/config || true
+
        git clone --depth 1 --branch $IT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git
        cd sgi8/server
        rm -f  docker/kibana/kibana-plugin.zip docker/elasticsearch/search-guard.zip
