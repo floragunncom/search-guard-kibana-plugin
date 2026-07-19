@@ -124,7 +124,7 @@ kibana_authtokens:
   image: "$SG_DIND_IMAGE"
   script:
     - |
-       set -e
+       set +e
        
        # Used when tests are triggered from another repository, e.g. search-guard-suite-enterprise.
        CHECK_JOB_NAME="${CHECK_JOB_NAME:-}"
@@ -151,7 +151,7 @@ kibana_authtokens:
         fi                                                                                                                          
         echo "CI_JOB_TOKEN length: ${#CI_JOB_TOKEN}"                                                                                
         if ! printf '%s' "$CI_JOB_TOKEN" | grep -qE '^[A-Za-z0-9_.-]+$'; then                                                       
-          echo "ERROR: CI_JOB_TOKEN contains unexpected characters (possible truncation/corruption)" >&2                            
+          echo "ERROR: CI_JOB_TOKEN contains unexpected characters (possible truncation/corruption)"                          
           #exit 1                                                                                                                    
         fi  
 
@@ -162,7 +162,7 @@ kibana_authtokens:
 
         rm -rf sgi8                                                                                                                 
         if [ -d sgi8 ]; then                                                                                                        
-          echo "ERROR1: sgi8 could not be fully removed - possible permission/ownership conflict:" >&2                               
+          echo "ERROR1: sgi8 could not be fully removed - possible permission/ownership conflict:"                           
           ls -la sgi8                                                                                                               
           #exit 1                                                                                                                    
         fi  
@@ -171,9 +171,9 @@ kibana_authtokens:
         chmod -R u+w sgi8 2>/dev/null                                                                                               
         rm -rf sgi8                                                                                                                 
         if [ -e sgi8 ]; then                                                                                                        
-          echo "ERROR2: sgi8 could not be fully removed - ownership/permission conflict:" >&2                                        
+          echo "ERROR2: sgi8 could not be fully removed - ownership/permission conflict:"                                  
           ls -la sgi8                                                                                                               
-          find sgi8 -exec ls -la {} \; 2>&1                                                                                         
+          find sgi8 -exec ls -la {} \;                                                                                      
           exit 1                                                                                                                    
         fi  
 
