@@ -145,6 +145,7 @@ kibana_authtokens:
        echo "SNAPSHOT_REVISION=$SNAPSHOT_REVISION"
        echo "TEST_DEFINITIONS $TEST_DEFINITIONS"
        
+       rm -rf sgi8 #safeguard, git clone fails sometimes with a 403 when the folder already exists
        git clone --depth 1 --branch $IT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git > /dev/null
        cd sgi8/server
        rm -f  docker/kibana/kibana-plugin.zip docker/elasticsearch/search-guard.zip
