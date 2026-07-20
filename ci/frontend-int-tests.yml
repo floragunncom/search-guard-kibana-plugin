@@ -175,7 +175,23 @@ kibana_authtokens:
       curl -sSv --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "https://git.floragunn.com/api/v4/job"
       echo -e "\e[0Ksection_end:$(date +%s):verify_token\r\e[0K"
 
-      git clone --depth 1 --branch $IT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git
+      # The CI_JOB_TOKEN's cross-project pull permission for sgi8 (#215) is not
+      # always active in the first seconds of a job, so an immediate clone can
+      # get a transient 403. Retry with a short backoff, cleaning up any partial
+      # checkout between attempts.
+      CLONE_URL="https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git"
+      attempt=1
+      MAX_ATTEMPTS=5
+      until git clone --depth 1 --branch "$IT_BRANCH" "$CLONE_URL"; do
+        if [ "$attempt" -ge "$MAX_ATTEMPTS" ]; then
+          echo "ERROR: git clone of sgi8 failed after ${MAX_ATTEMPTS} attempts" >&2
+          exit 1
+        fi
+        echo "WARN: clone attempt ${attempt} failed (token permissions may not have propagated yet), retrying in $((attempt * 5))s..." >&2
+        rm -rf sgi8
+        sleep $((attempt * 5))
+        attempt=$((attempt + 1))
+      done
 
       set -e
 
