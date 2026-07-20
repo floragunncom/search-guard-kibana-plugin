@@ -171,6 +171,21 @@ kibana_authtokens:
         fi
       fi
 
+      # CI context that determines the job token's cross-project scope. If a merge
+      # request comes from a fork, CI_MERGE_REQUEST_SOURCE_PROJECT_ID differs from
+      # CI_MERGE_REQUEST_PROJECT_ID and the job token gets a reduced scope, which
+      # would explain an intermittent 403 when pulling sgi8 (#215).
+      echo -e "\e[0Ksection_start:$(date +%s):ci_context[collapsed=true]\r\e[0KCI context (job token scope)"
+      echo "CI_PIPELINE_SOURCE=${CI_PIPELINE_SOURCE:-}"
+      echo "CI_PROJECT_ID=${CI_PROJECT_ID:-} (search-guard-kibana-plugin)"
+      echo "CI_JOB_ID=${CI_JOB_ID:-}  CI_JOB_STARTED_AT=${CI_JOB_STARTED_AT:-}"
+      echo "CI_MERGE_REQUEST_PROJECT_ID=${CI_MERGE_REQUEST_PROJECT_ID:-}  CI_MERGE_REQUEST_SOURCE_PROJECT_ID=${CI_MERGE_REQUEST_SOURCE_PROJECT_ID:-}"
+      if [ -n "${CI_MERGE_REQUEST_SOURCE_PROJECT_ID:-}" ] && \
+         [ "${CI_MERGE_REQUEST_SOURCE_PROJECT_ID:-}" != "${CI_MERGE_REQUEST_PROJECT_ID:-}" ]; then
+        echo "WARN: merge request originates from a FORK - job token scope is reduced, cross-project pull of sgi8 may be denied"
+      fi
+      echo -e "\e[0Ksection_end:$(date +%s):ci_context\r\e[0K"
+
       echo -e "\e[0Ksection_start:$(date +%s):verify_token[collapsed=true]\r\e[0KVerifying CI_JOB_TOKEN identity..."
       curl -sSv --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "https://git.floragunn.com/api/v4/job"
       echo -e "\e[0Ksection_end:$(date +%s):verify_token\r\e[0K"
@@ -180,18 +195,25 @@ kibana_authtokens:
       # get a transient 403. Retry with a short backoff, cleaning up any partial
       # checkout between attempts.
       CLONE_URL="https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git"
+      PROJECT_API="https://git.floragunn.com/api/v4/projects/215"
       attempt=1
       MAX_ATTEMPTS=5
+      CLONE_PHASE_START=$(date +%s)
       until git clone --depth 1 --branch "$IT_BRANCH" "$CLONE_URL"; do
+        elapsed=$(( $(date +%s) - CLONE_PHASE_START ))
+        # Probe whether the job token can see sgi8 (#215) yet - correlates
+        # permission propagation with clone success/failure over time.
+        probe=$(curl -s -o /dev/null -w '%{http_code}' --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "$PROJECT_API" || echo "000")
+        echo "WARN: clone attempt ${attempt} failed after ${elapsed}s; /projects/215 -> HTTP ${probe} (token permissions may not have propagated yet)" >&2
         if [ "$attempt" -ge "$MAX_ATTEMPTS" ]; then
-          echo "ERROR: git clone of sgi8 failed after ${MAX_ATTEMPTS} attempts" >&2
+          echo "ERROR: git clone of sgi8 failed after ${MAX_ATTEMPTS} attempts (${elapsed}s total)" >&2
           exit 1
         fi
-        echo "WARN: clone attempt ${attempt} failed (token permissions may not have propagated yet), retrying in $((attempt * 5))s..." >&2
         rm -rf sgi8
         sleep $((attempt * 5))
         attempt=$((attempt + 1))
       done
+      echo "sgi8 cloned successfully on attempt ${attempt} after $(( $(date +%s) - CLONE_PHASE_START ))s"
 
       set -e
 
