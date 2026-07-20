@@ -124,7 +124,7 @@ kibana_authtokens:
   image: "$SG_DIND_IMAGE"
   script:
     - |
-       set +e
+       set -e
        
        # Used when tests are triggered from another repository, e.g. search-guard-suite-enterprise.
        CHECK_JOB_NAME="${CHECK_JOB_NAME:-}"
@@ -158,7 +158,7 @@ kibana_authtokens:
 
 
 
-
+        set +e
 
         rm -rf sgi8                                                                                                                 
         if [ -d sgi8 ]; then                                                                                                        
@@ -168,7 +168,7 @@ kibana_authtokens:
         fi  
 
 
-        chmod -R u+w sgi8 2>/dev/null                                                                                               
+        chmod -R u+w sgi8                                                                                           
         rm -rf sgi8                                                                                                                 
         if [ -e sgi8 ]; then                                                                                                        
           echo "ERROR2: sgi8 could not be fully removed - ownership/permission conflict:"                                  
@@ -178,14 +178,16 @@ kibana_authtokens:
         fi  
 
         id
-        ls -la ~/.git || true
-        cat ~/.git/config || true
+
 
           echo "Verifying CI_JOB_TOKEN identity..."                                                                                   
           curl -sSv --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "https://git.floragunn.com/api/v4/job" || true
 
 
        git clone --depth 1 --branch $IT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git
+       
+       set -e
+       
        cd sgi8/server
        rm -f  docker/kibana/kibana-plugin.zip docker/elasticsearch/search-guard.zip
 
