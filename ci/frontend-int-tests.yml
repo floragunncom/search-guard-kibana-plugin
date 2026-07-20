@@ -1,16 +1,18 @@
+include:
+  - local: 'ci/dind-mirror.yml'
+
 stages:
   - Frontend Int Tests
 
-
 kibana_basicauth:
   extends:
-  - .be_integration_test
+    - .be_integration_test
   variables:
     TEST_DEFINITIONS: ".*kibana_basicauth.*"
 
 # kibana_signals_accounts:
 #   extends:
-#   - .be_integration_test
+#     - .be_integration_test
 #   variables:
 #     TEST_DEFINITIONS: ".*kibana_signals_accounts"
 
@@ -22,7 +24,7 @@ kibana_basicauth:
 
 # kibana_signals_watches:
 #   extends:
-#   - .be_integration_test
+#     - .be_integration_test
 #   variables:
 #     TEST_DEFINITIONS: ".*kibana_signals_watches"
 
@@ -40,65 +42,66 @@ kibana_basicauth:
 
 kibana_saml:
   extends:
-  - .be_integration_test
+    - .be_integration_test
   variables:
-    TEST_DEFINITIONS: ".*kibana_saml_keycloak.*" 
+    TEST_DEFINITIONS: ".*kibana_saml_keycloak.*"
 
 kibana_oidc:
   extends:
-  - .be_integration_test
+    - .be_integration_test
   variables:
     TEST_DEFINITIONS: ".*kibana_oidc_keycloak.*"
 
 kibana_proxy:
   extends:
-  - .be_integration_test
+    - .be_integration_test
   variables:
     TEST_DEFINITIONS: ".*kibana_proxy.*"
 
 kibana_jwt:
   extends:
-  - .be_integration_test
+    - .be_integration_test
   variables:
     TEST_DEFINITIONS: ".*kibana_jwt.*"
 
 kibana_configui_1:
   extends:
-  - .be_integration_test
+    - .be_integration_test
   variables:
-    TEST_DEFINITIONS: ".*kibana_configui_1.*" 
+    TEST_DEFINITIONS: ".*kibana_configui_1.*"
 
 kibana_configui_2:
   extends:
-  - .be_integration_test
+    - .be_integration_test
   variables:
-    TEST_DEFINITIONS: ".*kibana_configui_2.*"  
+    TEST_DEFINITIONS: ".*kibana_configui_2.*"
 
 kibana_configui_3:
   extends:
-  - .be_integration_test
+    - .be_integration_test
   variables:
     TEST_DEFINITIONS: ".*kibana_configui_3.*"
 
 kibana_authtokens:
   extends:
-  - .be_integration_test
+    - .be_integration_test
   variables:
     TEST_DEFINITIONS: ".*kibana_authtokens.*"
 
 # kibana_configui_licensehandling:
 #   extends:
-#   - .be_integration_test
+#     - .be_integration_test
 #   variables:
 #     TEST_DEFINITIONS: ".*kibana_configui_licensehandling.*"
 
 # kibana_kerberos:
 #   extends:
-#   - .be_integration_test
+#     - .be_integration_test
 #   variables:
 #     TEST_DEFINITIONS: ".*kibana_kerberos.*"
 
 .be_integration_test:
+  extends: .dind_mirror
   allow_failure: false
   stage: "Frontend Int Tests"
   tags:
@@ -110,56 +113,105 @@ kibana_authtokens:
     - if: '$FORCE_SGI || $CI_COMMIT_MESSAGE =~ /FORCE_SGI/ || $CI_PIPELINE_SOURCE == "parent_pipeline"'
       when: always
 
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"
-          || $CI_PIPELINE_SOURCE == "schedule"
-          || $CI_COMMIT_TAG =~ /^sg-flx-.*/'
+    - if: '$CI_COMMIT_TAG =~ /^sg-flx-.*/'
       when: on_success
 
-  image: docker:${DOCKER_VERSION}
-  services:
-    - docker:${DOCKER_VERSION}-dind
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"
+          || $CI_PIPELINE_SOURCE == "schedule"'
+      when: on_success
+
+  image: "$SG_DIND_IMAGE"
   script:
     - |
-       set -e
-       
-       # Used when tests are triggered from another repository, e.g. search-guard-suite-enterprise.
-       CHECK_JOB_NAME="${CHECK_JOB_NAME:-}"
-       if [[ "${CI_PIPELINE_SOURCE:-}" == "parent_pipeline" && "${PARENT_PIPELINE_PREREQUISITES:-}" != "1" ]]; then
-         if [[ -z "${CHECK_JOB_NAME}" ]]; then
-           echo "ERROR: Prerequisites check finished with errors, check job undefined"
-         else
-           echo "ERROR: Prerequisites check finished with errors, check job \"${CHECK_JOB_NAME}\" log for more details"
-         fi
-         exit 1
-       fi
+      set -e
 
-       apk add --no-cache gomplate jq curl zip xmlstarlet git wget bash sudo 
-       sudo sysctl -w vm.max_map_count=262144
-       
-       echo "Login in into Docker Hub"      
-       echo "$DOCKER_PASSWORD" | docker login --username floragunncom --password-stdin docker.io > /dev/null        
-
-       echo "SNAPSHOT_REVISION=$SNAPSHOT_REVISION"
-       echo "TEST_DEFINITIONS $TEST_DEFINITIONS"
-       
-       rm -rf sgi8 #safeguard, git clone fails sometimes with a 403 when the folder already exists
-       git clone --depth 1 --branch $IT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git
-       cd sgi8/server
-       rm -f  docker/kibana/kibana-plugin.zip docker/elasticsearch/search-guard.zip
-
-       wget -O docker/elasticsearch/search-guard.zip "$SG_ES_PLUGIN"
-
-       # Used when tests are triggered from another repository, e.g. search-guard-suite-enterprise.
-       if [[ "${CI_PIPELINE_SOURCE:-}" == "parent_pipeline" ]]; then
-          echo "Test was triggered from the parent pipeline,downloading SG_KI_PLUGIN from URL: $SG_KI_PLUGIN"
-          wget -O docker/kibana/kibana-plugin.zip "$SG_KI_PLUGIN"
+      # Used when tests are triggered from another repository, e.g. search-guard-suite-enterprise.
+      CHECK_JOB_NAME="${CHECK_JOB_NAME:-}"
+      if [[ "${CI_PIPELINE_SOURCE:-}" == "parent_pipeline" && "${PARENT_PIPELINE_PREREQUISITES:-}" != "1" ]]; then
+        if [[ -z "${CHECK_JOB_NAME}" ]]; then
+          echo "ERROR: Prerequisites check finished with errors, check job undefined"
         else
-          echo "Using local kibana plugin from target/releases"
-          cp "../../target/releases/search-guard-flx-kibana-plugin-${BUILD_VERSION}.zip" \
-            docker/kibana/kibana-plugin.zip
-       fi  
+          echo "ERROR: Prerequisites check finished with errors, check job \"${CHECK_JOB_NAME}\" log for more details"
+        fi
+        exit 1
+      fi
 
-       ./run_test_definition.sh "$TEST_DEFINITIONS"
+      sudo sysctl -w vm.max_map_count=262144
+
+      echo "Login in into Docker Hub"
+      echo "$DOCKER_PASSWORD" | docker login --username floragunncom --password-stdin docker.io > /dev/null
+
+      echo "SNAPSHOT_REVISION=$SNAPSHOT_REVISION"
+      echo "TEST_DEFINITIONS $TEST_DEFINITIONS"
+
+      echo "Running as $(id)"
+
+      set +e
+
+      if [ -z "${CI_JOB_TOKEN:-}" ]; then
+        echo "ERROR: CI_JOB_TOKEN is empty" >&2
+      fi
+
+      echo "CI_JOB_TOKEN length: ${#CI_JOB_TOKEN}"
+      if ! printf '%s' "$CI_JOB_TOKEN" | grep -qE '^[A-Za-z0-9_.-]+$'; then
+        echo "ERROR: CI_JOB_TOKEN contains unexpected characters (possible truncation/corruption)"
+      fi
+
+      rm -rf sgi8
+      if [ -d sgi8 ]; then
+        echo "ERROR 1: sgi8 could not be fully removed - possible permission/ownership conflict:"
+        ls -la sgi8
+
+        chmod -R u+w sgi8
+        rm -rf sgi8
+        if [ -e sgi8 ]; then
+          echo "ERROR 2: sgi8 could not be fully removed - ownership/permission conflict:"
+          ls -la sgi8
+          find sgi8 -exec ls -la {} \;
+        fi
+      fi
+
+      echo -e "\e[0Ksection_start:$(date +%s):verify_token[collapsed=true]\r\e[0KVerifying CI_JOB_TOKEN identity..."
+      curl -sSv --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "https://git.floragunn.com/api/v4/job"
+      echo -e "\e[0Ksection_end:$(date +%s):verify_token\r\e[0K"
+
+      git clone --depth 1 --branch $IT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@git.floragunn.com/private/sgi8.git
+
+      set -e
+
+      # fail if sgi8/server does not exist
+      if [ ! -d sgi8/server ]; then
+        echo "ERROR: sgi8/server does not exist after clone"
+        exit 1
+      fi
+
+      cd sgi8/server
+      rm -f docker/kibana/kibana-plugin.zip docker/elasticsearch/search-guard.zip
+
+      wget -O docker/elasticsearch/search-guard.zip "$SG_ES_PLUGIN"
+
+      # Used when tests are triggered from another repository, e.g. search-guard-suite-enterprise.
+      if [[ "${CI_PIPELINE_SOURCE:-}" == "parent_pipeline" ]]; then
+        echo "Test was triggered from the parent pipeline, downloading SG_KI_PLUGIN from URL: $SG_KI_PLUGIN"
+        wget -O docker/kibana/kibana-plugin.zip "$SG_KI_PLUGIN"
+      else
+        echo "Using local kibana plugin from target/releases"
+        cp "../../target/releases/search-guard-flx-kibana-plugin-${BUILD_VERSION}.zip" \
+          docker/kibana/kibana-plugin.zip
+      fi
+
+      ./run_test_definition.sh "$TEST_DEFINITIONS"
+  after_script:
+    - |
+      if [ -n "$KEEP_TEST_ARTIFACTS" ]; then
+        echo "KEEP_TEST_ARTIFACTS is set - skipping artifact cleanup"
+      elif [ "$CI_JOB_STATUS" == "success" ]; then
+        echo "Job succeeded - removing heavy artifacts, keeping JUnit XML only"
+        find sgi8/client/test/testresults* -type f ! -path "*/junit/*.xml" -delete 2>/dev/null || true
+        find sgi8/client/test/testresults* -type d -empty -delete 2>/dev/null || true
+      else
+        echo "Job failed - keeping all artifacts for debugging"
+      fi
   artifacts:
     when: always
     paths:
@@ -167,4 +219,4 @@ kibana_authtokens:
     reports:
       junit:
         - "sgi8/client/test/testresults**/junit/Test*.xml"
-    expire_in: 30 days
+    expire_in: 7 days
