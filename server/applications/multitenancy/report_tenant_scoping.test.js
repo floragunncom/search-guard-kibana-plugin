@@ -16,6 +16,8 @@
 
 import { cryptoFactory } from '@kbn/reporting-server';
 import {
+  SCOPED_JOBS_COUNT_ROUTE,
+  SCOPED_JOBS_LIST_ROUTE,
   installReportTenantScoping,
   matchReportingReadRoute,
   parseListQuery,
@@ -64,6 +66,7 @@ const asBatch = (hits) => ({ hits: { hits } });
 
 const NEXT = Symbol('next');
 const NOT_FOUND = Symbol('notFound');
+const ROUTE_NOT_FOUND = Symbol('routeNotFound');
 
 function createRequest({ method = 'get', path, query = '', headers = {} } = {}) {
   return {
@@ -95,26 +98,59 @@ function setup({
     }),
   };
 
-  const kibanaCore = { http: { registerOnPostAuth: jest.fn() } };
+  const kibanaCore = {
+    http: {
+      registerOnPostAuth: jest.fn(),
+      basePath: { get: jest.fn(() => '/base') },
+    },
+  };
+  const kibanaRouter = { get: jest.fn() };
   const logger = setupLoggerMock();
 
   const handler = installReportTenantScoping({
     kibanaCore,
+    kibanaRouter,
     elasticsearch: { client: { asInternalUser: client } },
     configService,
     logger,
     spacesService,
   });
 
+  // lifecycle hook plumbing
   const response = {
     notFound: jest.fn(() => NOT_FOUND),
     customError: jest.fn((options) => ({ isCustomError: true, ...options })),
+    redirected: jest.fn((options) => ({ isRedirect: true, ...options })),
   };
   const toolkit = { next: jest.fn(() => NEXT) };
-
   const call = (request) => handler(request, response, toolkit);
 
-  return { handler, call, kibanaCore, configService, logger, client, response, toolkit };
+  // serving-route plumbing
+  const routeHandlerFor = (path) => {
+    const registration = kibanaRouter.get.mock.calls.find(([config]) => config.path === path);
+    return registration ? registration[1] : null;
+  };
+  const routeResponse = {
+    ok: jest.fn((options) => ({ status: 200, ...options })),
+    notFound: jest.fn(() => ROUTE_NOT_FOUND),
+    customError: jest.fn((options) => ({ isCustomError: true, ...options })),
+  };
+  const callRoute = (path, request) => routeHandlerFor(path)(null, request, routeResponse);
+
+  return {
+    handler,
+    call,
+    callRoute,
+    routeHandlerFor,
+    routeResponse,
+    kibanaCore,
+    kibanaRouter,
+    configService,
+    logger,
+    client,
+    response,
+    toolkit,
+  };
 }
 
 beforeEach(() => {
@@ -141,6 +177,9 @@ describe('matchReportingReadRoute', () => {
     ['post', '/internal/reporting/schedule/csv_searchsource'],
     ['get', '/internal/reporting/scheduled/list'],
     ['post', '/internal/reporting/scheduled/bulk_delete'],
+    // the SG serving routes themselves (no redirect loops)
+    ['get', SCOPED_JOBS_LIST_ROUTE],
+    ['get', SCOPED_JOBS_COUNT_ROUTE],
     // wrong method
     ['get', '/api/reporting/jobs/delete/abc123'],
     ['delete', '/internal/reporting/jobs/download/abc123'],
@@ -182,14 +221,17 @@ describe('parseListQuery', () => {
 
 describe('installReportTenantScoping', () => {
   it('does not register anything when disabled', () => {
-    const { handler, kibanaCore } = setup({ scoping: { enabled: false } });
+    const { handler, kibanaCore, kibanaRouter } = setup({ scoping: { enabled: false } });
     expect(handler).toBeNull();
     expect(kibanaCore.http.registerOnPostAuth).not.toHaveBeenCalled();
+    expect(kibanaRouter.get).not.toHaveBeenCalled();
   });
 
-  it('registers the onPostAuth hook when enabled', () => {
-    const { handler, kibanaCore } = setup();
+  it('registers the onPostAuth hook and both serving routes when enabled', () => {
+    const { handler, kibanaCore, routeHandlerFor } = setup();
     expect(kibanaCore.http.registerOnPostAuth).toHaveBeenCalledWith(handler);
+    expect(routeHandlerFor(SCOPED_JOBS_LIST_ROUTE)).toBeInstanceOf(Function);
+    expect(routeHandlerFor(SCOPED_JOBS_COUNT_ROUTE)).toBeInstanceOf(Function);
   });
 
   describe('pass-through', () => {
@@ -242,7 +284,48 @@ describe('installReportTenantScoping', () => {
     });
   });
 
-  describe('list (block + serve)', () => {
+  describe('list/count block (redirect to the scoped routes)', () => {
+    it('redirects list to the scoped list route, forwarding base path and query', async () => {
+      const { call, response, toolkit } = setup();
+
+      const result = await call(
+        createRequest({
+          path: '/internal/reporting/jobs/list',
+          query: '?page=1&size=50&ids=a,b',
+          headers: { sgtenant: 'A' },
+        })
+      );
+
+      expect(result.isRedirect).toBe(true);
+      expect(response.redirected).toHaveBeenCalledWith({
+        headers: { location: `/base${SCOPED_JOBS_LIST_ROUTE}?page=1&size=50&ids=a,b` },
+      });
+      // reporting's own handler must never run
+      expect(toolkit.next).not.toHaveBeenCalled();
+    });
+
+    it('redirects count to the scoped count route', async () => {
+      const { call, response } = setup();
+
+      const result = await call(
+        createRequest({ path: '/internal/reporting/jobs/count', headers: { sgtenant: 'A' } })
+      );
+
+      expect(result.isRedirect).toBe(true);
+      expect(response.redirected).toHaveBeenCalledWith({
+        headers: { location: `/base${SCOPED_JOBS_COUNT_ROUTE}` },
+      });
+    });
+
+    it('redirects even without a tenant header — the scoped route fails closed', async () => {
+      const { call, client } = setup();
+      const result = await call(createRequest({ path: '/internal/reporting/jobs/list' }));
+      expect(result.isRedirect).toBe(true);
+      expect(client.search).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('scoped list route', () => {
     it('serves only the current tenant reports with payload.headers stripped', async () => {
       const client = createClientMock({
         searchResponses: [
@@ -253,30 +336,30 @@ describe('installReportTenantScoping', () => {
           ]),
         ],
       });
-      const { call, toolkit } = setup({ client });
+      const { callRoute } = setup({ client });
 
-      const result = await call(
-        createRequest({ path: '/internal/reporting/jobs/list', headers: { sgtenant: 'A' } })
+      const result = await callRoute(
+        SCOPED_JOBS_LIST_ROUTE,
+        createRequest({ path: SCOPED_JOBS_LIST_ROUTE, headers: { sgtenant: 'A' } })
       );
 
       expect(result.status).toBe(200);
-      expect(result.options.headers).toEqual({ 'content-type': 'application/json' });
-      expect(result.payload.map((job) => job.id)).toEqual(['mine-1', 'mine-2']);
-      for (const job of result.payload) {
+      expect(result.headers).toEqual({ 'content-type': 'application/json' });
+      expect(result.body.map((job) => job.id)).toEqual(['mine-1', 'mine-2']);
+      for (const job of result.body) {
         expect(job.payload.headers).toBeUndefined();
         expect(job.output.content).toBeUndefined();
       }
-      // reporting's own handler must never run
-      expect(toolkit.next).not.toHaveBeenCalled();
     });
 
     it('passes the parsed paging and ids query through to the filter', async () => {
       const client = createClientMock({ searchResponses: [asBatch([])] });
-      const { call } = setup({ client });
+      const { callRoute } = setup({ client });
 
-      await call(
+      await callRoute(
+        SCOPED_JOBS_LIST_ROUTE,
         createRequest({
-          path: '/internal/reporting/jobs/list',
+          path: SCOPED_JOBS_LIST_ROUTE,
           query: '?page=0&ids=id-1,id-2',
           headers: { sgtenant: 'A' },
         })
@@ -287,21 +370,25 @@ describe('installReportTenantScoping', () => {
       expect(client.openPointInTime).not.toHaveBeenCalled();
     });
 
-    it('serves an empty list when MT is enabled but no tenant is on the request (fail closed)', async () => {
-      const { call, client } = setup();
-      const result = await call(createRequest({ path: '/internal/reporting/jobs/list' }));
+    it('serves an empty list when no tenant is on the request (fail closed)', async () => {
+      const { callRoute, client } = setup();
+      const result = await callRoute(
+        SCOPED_JOBS_LIST_ROUTE,
+        createRequest({ path: SCOPED_JOBS_LIST_ROUTE })
+      );
       expect(result.status).toBe(200);
-      expect(result.payload).toEqual([]);
+      expect(result.body).toEqual([]);
       expect(client.search).not.toHaveBeenCalled();
     });
 
     it('fails closed on a repeated sgtenant header', async () => {
-      const { call, client } = setup();
-      const result = await call(
-        createRequest({ path: '/internal/reporting/jobs/list', headers: { sgtenant: ['A', 'B'] } })
+      const { callRoute, client } = setup();
+      const result = await callRoute(
+        SCOPED_JOBS_LIST_ROUTE,
+        createRequest({ path: SCOPED_JOBS_LIST_ROUTE, headers: { sgtenant: ['A', 'B'] } })
       );
       expect(result.status).toBe(200);
-      expect(result.payload).toEqual([]);
+      expect(result.body).toEqual([]);
       expect(client.search).not.toHaveBeenCalled();
     });
 
@@ -314,39 +401,72 @@ describe('installReportTenantScoping', () => {
           ]),
         ],
       });
-      const { call } = setup({ client });
+      const { callRoute } = setup({ client });
 
-      const result = await call(
-        createRequest({ path: '/internal/reporting/jobs/list', headers: { sgtenant: '' } })
+      const result = await callRoute(
+        SCOPED_JOBS_LIST_ROUTE,
+        createRequest({ path: SCOPED_JOBS_LIST_ROUTE, headers: { sgtenant: '' } })
       );
-      expect(result.payload.map((job) => job.id)).toEqual(['global-1']);
+      expect(result.body.map((job) => job.id)).toEqual(['global-1']);
+    });
+
+    it('404s when called directly while MT is disabled', async () => {
+      const { callRoute } = setup({ mtEnabled: false });
+      await expect(
+        callRoute(SCOPED_JOBS_LIST_ROUTE, createRequest({ path: SCOPED_JOBS_LIST_ROUTE }))
+      ).resolves.toBe(ROUTE_NOT_FOUND);
+    });
+
+    it('fails closed with a 500 on unexpected errors', async () => {
+      const client = createClientMock();
+      client.openPointInTime.mockRejectedValue(new Error('boom'));
+      const { callRoute, logger } = setup({ client });
+
+      const result = await callRoute(
+        SCOPED_JOBS_LIST_ROUTE,
+        createRequest({ path: SCOPED_JOBS_LIST_ROUTE, headers: { sgtenant: 'A' } })
+      );
+
+      expect(result.isCustomError).toBe(true);
+      expect(result.statusCode).toBe(500);
+      expect(logger.error).toHaveBeenCalledWith(expect.stringContaining('boom'));
     });
   });
 
-  describe('count (block + serve)', () => {
+  describe('scoped count route', () => {
     it('serves the scan-and-count total as text/plain', async () => {
       const client = createClientMock({
         searchResponses: [
           asBatch([makeHit({ tenant: 'A' }), makeHit({ tenant: 'B' }), makeHit({ tenant: 'A' })]),
         ],
       });
-      const { call, toolkit } = setup({ client });
+      const { callRoute } = setup({ client });
 
-      const result = await call(
-        createRequest({ path: '/internal/reporting/jobs/count', headers: { sgtenant: 'A' } })
+      const result = await callRoute(
+        SCOPED_JOBS_COUNT_ROUTE,
+        createRequest({ path: SCOPED_JOBS_COUNT_ROUTE, headers: { sgtenant: 'A' } })
       );
 
       expect(result.status).toBe(200);
-      expect(result.payload).toBe('2');
-      expect(result.options.headers).toEqual({ 'content-type': 'text/plain' });
-      expect(toolkit.next).not.toHaveBeenCalled();
+      expect(result.body).toBe('2');
+      expect(result.headers).toEqual({ 'content-type': 'text/plain' });
     });
 
     it('serves 0 when no tenant is on the request (fail closed)', async () => {
-      const { call, client } = setup();
-      const result = await call(createRequest({ path: '/internal/reporting/jobs/count' }));
-      expect(result.payload).toBe('0');
+      const { callRoute, client } = setup();
+      const result = await callRoute(
+        SCOPED_JOBS_COUNT_ROUTE,
+        createRequest({ path: SCOPED_JOBS_COUNT_ROUTE })
+      );
+      expect(result.body).toBe('0');
       expect(client.search).not.toHaveBeenCalled();
+    });
+
+    it('404s when called directly while MT is disabled', async () => {
+      const { callRoute } = setup({ mtEnabled: false });
+      await expect(
+        callRoute(SCOPED_JOBS_COUNT_ROUTE, createRequest({ path: SCOPED_JOBS_COUNT_ROUTE }))
+      ).resolves.toBe(ROUTE_NOT_FOUND);
     });
   });
 
@@ -411,35 +531,14 @@ describe('installReportTenantScoping', () => {
       ).resolves.toBe(NOT_FOUND);
       expect(client.search).not.toHaveBeenCalled();
     });
-  });
-
-  describe('failure handling', () => {
-    it('answers 503 on all guarded routes when the startup self-test failed', async () => {
-      const { call, logger, response, toolkit } = setup({
-        scoping: { enabled: true, filter: 'node_decrypt', reporting_encryption_key: null },
-      });
-
-      expect(logger.error).toHaveBeenCalledWith(expect.stringContaining('FATAL'));
-
-      const result = await call(
-        createRequest({ path: '/internal/reporting/jobs/list', headers: { sgtenant: 'A' } })
-      );
-      expect(result.isCustomError).toBe(true);
-      expect(result.statusCode).toBe(503);
-      expect(response.customError).toHaveBeenCalled();
-      expect(toolkit.next).not.toHaveBeenCalled();
-
-      // non-reporting traffic is unaffected
-      await expect(call(createRequest({ path: '/api/status' }))).resolves.toBe(NEXT);
-    });
 
     it('fails closed with a 500 on unexpected errors — never continues to reporting', async () => {
       const client = createClientMock();
-      client.openPointInTime.mockRejectedValue(new Error('boom'));
+      client.search.mockRejectedValue(new Error('boom'));
       const { call, logger, toolkit } = setup({ client });
 
       const result = await call(
-        createRequest({ path: '/internal/reporting/jobs/list', headers: { sgtenant: 'A' } })
+        createRequest({ path: '/internal/reporting/jobs/info/doc', headers: { sgtenant: 'A' } })
       );
 
       expect(result.isCustomError).toBe(true);
@@ -449,13 +548,43 @@ describe('installReportTenantScoping', () => {
     });
   });
 
+  describe('failure handling (self-test)', () => {
+    it('answers 503 on hook and routes when the startup self-test failed', async () => {
+      const { call, callRoute, logger, toolkit } = setup({
+        scoping: { enabled: true, filter: 'node_decrypt', reporting_encryption_key: null },
+      });
+
+      expect(logger.error).toHaveBeenCalledWith(expect.stringContaining('FATAL'));
+
+      const hookResult = await call(
+        createRequest({ path: '/internal/reporting/jobs/list', headers: { sgtenant: 'A' } })
+      );
+      expect(hookResult.isCustomError).toBe(true);
+      expect(hookResult.statusCode).toBe(503);
+      expect(toolkit.next).not.toHaveBeenCalled();
+
+      const routeResult = await callRoute(
+        SCOPED_JOBS_LIST_ROUTE,
+        createRequest({ path: SCOPED_JOBS_LIST_ROUTE, headers: { sgtenant: 'A' } })
+      );
+      expect(routeResult.isCustomError).toBe(true);
+      expect(routeResult.statusCode).toBe(503);
+
+      // non-reporting traffic is unaffected
+      await expect(call(createRequest({ path: '/api/status' }))).resolves.toBe(NEXT);
+    });
+  });
+
   describe('space scoping', () => {
-    it('uses the spaces service space id in the list query', async () => {
+    it('uses the spaces service space id in the scoped list query', async () => {
       const client = createClientMock({ searchResponses: [asBatch([])] });
       const spacesService = { getSpaceId: jest.fn(() => 'marketing') };
-      const { call } = setup({ client, spacesService });
+      const { callRoute } = setup({ client, spacesService });
 
-      await call(createRequest({ path: '/internal/reporting/jobs/list', headers: { sgtenant: 'A' } }));
+      await callRoute(
+        SCOPED_JOBS_LIST_ROUTE,
+        createRequest({ path: SCOPED_JOBS_LIST_ROUTE, headers: { sgtenant: 'A' } })
+      );
 
       expect(spacesService.getSpaceId).toHaveBeenCalled();
       expect(JSON.stringify(client.search.mock.calls[0][0].query)).toContain('marketing');
@@ -463,9 +592,12 @@ describe('installReportTenantScoping', () => {
 
     it('falls back to the default space without a spaces service', async () => {
       const client = createClientMock({ searchResponses: [asBatch([])] });
-      const { call } = setup({ client });
+      const { callRoute } = setup({ client });
 
-      await call(createRequest({ path: '/internal/reporting/jobs/list', headers: { sgtenant: 'A' } }));
+      await callRoute(
+        SCOPED_JOBS_LIST_ROUTE,
+        createRequest({ path: SCOPED_JOBS_LIST_ROUTE, headers: { sgtenant: 'A' } })
+      );
       expect(JSON.stringify(client.search.mock.calls[0][0].query)).toContain('"space_id":"default"');
     });
   });

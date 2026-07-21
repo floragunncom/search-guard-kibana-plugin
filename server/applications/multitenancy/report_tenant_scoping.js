@@ -26,17 +26,31 @@
  * onPreAuth after validating it against the backend. So this module registers
  * an onPostAuth hook that intercepts the reporting read routes:
  *
- * - GET /internal/reporting/jobs/list   → BLOCK + SERVE a tenant-scoped list;
- *   reporting's unscoped search never runs.
- * - GET /internal/reporting/jobs/count  → BLOCK + SERVE the scoped count.
+ * - GET /internal/reporting/jobs/list and GET /internal/reporting/jobs/count
+ *   → BLOCK + SERVE: redirect (302) to the Search Guard-owned scoped routes
+ *   below, which serve the tenant-scoped response; reporting's unscoped
+ *   search never runs.
  * - GET .../jobs/info/{docId}, GET .../jobs/download/{docId} (both prefixes),
  *   DELETE .../jobs/delete/{docId} (both prefixes) → GUARD + CONTINUE:
  *   scoped by-id lookup; miss → 404; hit → reporting's own handler serves
  *   (content streaming and delete cleanup are NOT reimplemented here).
  *
+ * Why the redirect (learned at runtime, corrects the original design): hapi
+ * only accepts an error, a takeover response, or a continue signal from
+ * lifecycle extensions that run before the route handler, and core's
+ * HapiResponseAdapter applies .takeover() ONLY to redirects (toRedirect) —
+ * a 2xx KibanaResponse returned from onPostAuth is rejected by hapi with
+ * "Lifecycle methods called before the handler can only return an error, a
+ * takeover response, or a continue signal". So the 200s cannot be served
+ * from the hook at all; they are served by real routes (registered on the
+ * Search Guard router) that the hook redirects to. Redirect-from-lifecycle
+ * is the same supported mechanism the MT lifecycle itself uses. The guard
+ * responses (404) and the 5xx failure responses are hapi "errors" and remain
+ * legal returns from the hook.
+ *
  * Guard semantics: "not in your tenant" is indistinguishable from "does not
  * exist" — always 404, never 403. Fail closed everywhere: no tenant on the
- * request (with MT enabled), undecryptable/unstamped docs, or internal errors
+ * request (with MT enabled), unstamped/undecryptable docs, or internal errors
  * never fall through to reporting's unscoped handlers.
  *
  * MT disabled (the lifecycle re-checks the backend per request and maintains
@@ -47,19 +61,11 @@
  * The generate and schedule/scheduled routes are deliberately untouched (the
  * tenant is baked encrypted into the report doc at create; scheduled reporting
  * 403s under Search Guard before anything persists).
- *
- * Implementation notes:
- * - A lifecycle hook returning a KibanaResponse short-circuits the route
- *   handler (core's adoptToHapiOnPostAuthFormat), and hooks are awaited, so ES
- *   round-trips inside the hook are legal.
- * - The lifecycle response factory only builds redirects and errors, so the
- *   two 200-serving endpoints construct their responses with
- *   kibanaResponseFactory from @kbn/core-http-router-server-internal (a
- *   private core package this plugin already depends on for ensureRawRequest).
  */
 
-import { kibanaResponseFactory } from '@kbn/core-http-router-server-internal';
+import { schema } from '@kbn/config-schema';
 import { INTERNAL_ROUTES, PUBLIC_ROUTES } from '@kbn/reporting-common';
+import { API_ROOT } from '../../utils/constants';
 import {
   FILTER_MODES,
   canonicalizeTenantName,
@@ -70,6 +76,13 @@ import {
 const { JOBS } = INTERNAL_ROUTES;
 
 const DEFAULT_SPACE_ID = 'default';
+
+// Search Guard-owned routes that serve the tenant-scoped list/count 200s the
+// onPostAuth hook cannot (see the module comment). The redirected request
+// passes through the full lifecycle again, so the MT lifecycle stamps its
+// sgtenant header exactly like any other /api request.
+export const SCOPED_JOBS_LIST_ROUTE = `${API_ROOT}/multitenancy/reporting/jobs/list`;
+export const SCOPED_JOBS_COUNT_ROUTE = `${API_ROOT}/multitenancy/reporting/jobs/count`;
 
 function docIdFromPath(path, prefix) {
   if (!path.startsWith(`${prefix}/`)) {
@@ -143,23 +156,38 @@ export function parseListQuery(searchParams) {
   return { page, size, jobIds };
 }
 
-const okJson = (body) =>
-  kibanaResponseFactory.ok({ body, headers: { 'content-type': 'application/json' } });
+const JSON_HEADERS = { 'content-type': 'application/json' };
+const TEXT_HEADERS = { 'content-type': 'text/plain' };
 
-const okText = (body) =>
-  kibanaResponseFactory.ok({ body, headers: { 'content-type': 'text/plain' } });
+const misconfiguredError = (responseFactory) =>
+  responseFactory.customError({
+    statusCode: 503,
+    body: {
+      message:
+        'Search Guard: report tenant scoping is misconfigured (encryption key self-test ' +
+        'failed at startup); refusing to serve reporting data. Check the Kibana log.',
+    },
+  });
+
+const internalError = (responseFactory) =>
+  responseFactory.customError({
+    statusCode: 500,
+    body: { message: 'Search Guard: report tenant scoping failed' },
+  });
 
 /**
- * Register the onPostAuth block/guard hook. Must be installed so that it runs
- * for requests the MT lifecycle's onPreAuth has already processed (onPostAuth
- * always runs after onPreAuth), with the same configService instance the
- * lifecycle maintains searchguard.multitenancy.enabled on.
+ * Register the scoped serving routes and the onPostAuth block/guard hook.
+ * Must be installed so that the hook runs for requests the MT lifecycle's
+ * onPreAuth has already processed (onPostAuth always runs after onPreAuth),
+ * with the same configService instance the lifecycle maintains
+ * searchguard.multitenancy.enabled on.
  *
- * @returns the registered handler (for tests), or null when the feature is
- * disabled.
+ * @returns the registered hook handler (for tests), or null when the feature
+ * is disabled.
  */
 export function installReportTenantScoping({
   kibanaCore,
+  kibanaRouter,
   elasticsearch,
   configService,
   logger,
@@ -195,6 +223,8 @@ export function installReportTenantScoping({
     );
   }
 
+  const getClient = () => elasticsearch.client.asInternalUser;
+
   const getSpaceId = (request) => {
     // Parity with reporting: reportingCore.getSpaceId(request) || default.
     const spaceId =
@@ -203,6 +233,82 @@ export function installReportTenantScoping({
         : undefined;
     return spaceId || DEFAULT_SPACE_ID;
   };
+
+  // The current tenant for a serving route. null means fail closed. These
+  // routes are only meaningful under MT; called directly with MT disabled
+  // they 404 (the hook never redirects to them in that state).
+  const resolveTenant = (request) => canonicalizeTenantName(request.headers.sgtenant);
+
+  kibanaRouter.get(
+    {
+      path: SCOPED_JOBS_LIST_ROUTE,
+      // Parity with reporting's internal jobs/list route validation.
+      validate: {
+        query: schema.object({
+          page: schema.string({ defaultValue: '0' }),
+          size: schema.string({ defaultValue: '10' }),
+          ids: schema.maybe(schema.string()),
+        }),
+      },
+    },
+    async (context, request, response) => {
+      try {
+        if (!filterHealthy) {
+          return misconfiguredError(response);
+        }
+        if (!configService.get('searchguard.multitenancy.enabled')) {
+          return response.notFound();
+        }
+        const tenant = resolveTenant(request);
+        if (tenant === null) {
+          return response.ok({ body: [], headers: JSON_HEADERS });
+        }
+        const { page, size, jobIds } = parseListQuery(request.url.searchParams);
+        const hits = await filter.list({
+          client: getClient(),
+          tenant,
+          page,
+          size,
+          jobIds,
+          spaceId: getSpaceId(request),
+        });
+        return response.ok({ body: hits.map((hit) => hitToApiJSON(hit)), headers: JSON_HEADERS });
+      } catch (error) {
+        logger.error(`Report tenant scoping (list route) failed: ${error.stack || error}`);
+        return internalError(response);
+      }
+    }
+  );
+
+  kibanaRouter.get(
+    {
+      path: SCOPED_JOBS_COUNT_ROUTE,
+      validate: false,
+    },
+    async (context, request, response) => {
+      try {
+        if (!filterHealthy) {
+          return misconfiguredError(response);
+        }
+        if (!configService.get('searchguard.multitenancy.enabled')) {
+          return response.notFound();
+        }
+        const tenant = resolveTenant(request);
+        if (tenant === null) {
+          return response.ok({ body: '0', headers: TEXT_HEADERS });
+        }
+        const total = await filter.count({
+          client: getClient(),
+          tenant,
+          spaceId: getSpaceId(request),
+        });
+        return response.ok({ body: String(total), headers: TEXT_HEADERS });
+      } catch (error) {
+        logger.error(`Report tenant scoping (count route) failed: ${error.stack || error}`);
+        return internalError(response);
+      }
+    }
+  );
 
   const handler = async (request, response, toolkit) => {
     const method = (request.route && request.route.method) || '';
@@ -220,51 +326,30 @@ export function installReportTenantScoping({
 
     try {
       if (!filterHealthy) {
-        return response.customError({
-          statusCode: 503,
-          body: {
-            message:
-              'Search Guard: report tenant scoping is misconfigured (encryption key self-test ' +
-              'failed at startup); refusing to serve reporting data. Check the Kibana log.',
-          },
-        });
+        return misconfiguredError(response);
       }
 
-      // MT enabled: the tenant MUST come from the lifecycle-stamped header.
-      // Absent/unusable → fail closed (empty list, zero count, 404) — never
-      // fall through to reporting's unscoped query.
+      if (route.action === 'list' || route.action === 'count') {
+        // BLOCK + SERVE via redirect — the scoped route answers with the 200
+        // this hook is not allowed to produce (see module comment). Query
+        // string is forwarded as-is; the tenant travels via the lifecycle
+        // stamping on the redirected request, not via the URL.
+        const target =
+          route.action === 'list' ? SCOPED_JOBS_LIST_ROUTE : SCOPED_JOBS_COUNT_ROUTE;
+        const location = `${kibanaCore.http.basePath.get(request)}${target}${
+          request.url.search || ''
+        }`;
+        return response.redirected({ headers: { location } });
+      }
+
+      // guard: info / download / delete. The tenant MUST come from the
+      // lifecycle-stamped header; absent/unusable → fail closed with 404 —
+      // never fall through to reporting's unscoped query.
       const tenant = canonicalizeTenantName(request.headers.sgtenant);
-      const client = elasticsearch.client.asInternalUser;
-
-      if (route.action === 'list') {
-        if (tenant === null) {
-          return okJson([]);
-        }
-        const { page, size, jobIds } = parseListQuery(request.url.searchParams);
-        const hits = await filter.list({
-          client,
-          tenant,
-          page,
-          size,
-          jobIds,
-          spaceId: getSpaceId(request),
-        });
-        return okJson(hits.map((hit) => hitToApiJSON(hit)));
-      }
-
-      if (route.action === 'count') {
-        if (tenant === null) {
-          return okText('0');
-        }
-        const total = await filter.count({ client, tenant, spaceId: getSpaceId(request) });
-        return okText(String(total));
-      }
-
-      // guard: info / download / delete
       if (tenant === null) {
         return response.notFound();
       }
-      const hit = await filter.getById({ client, tenant, docId: route.docId });
+      const hit = await filter.getById({ client: getClient(), tenant, docId: route.docId });
       if (!hit) {
         return response.notFound();
       }
@@ -276,10 +361,7 @@ export function installReportTenantScoping({
         }`
       );
       // Fail closed: never let reporting's unscoped handler run on an error.
-      return response.customError({
-        statusCode: 500,
-        body: { message: 'Search Guard: report tenant scoping failed' },
-      });
+      return internalError(response);
     }
   };
 

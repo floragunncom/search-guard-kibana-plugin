@@ -72,6 +72,7 @@ export class Multitenancy {
       // searchguard.multitenancy.enabled state it maintains per request.
       installReportTenantScoping({
         kibanaCore,
+        kibanaRouter,
         elasticsearch,
         configService,
         logger: this.logger,

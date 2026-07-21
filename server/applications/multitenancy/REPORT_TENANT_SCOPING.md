@@ -20,11 +20,27 @@ the reporting read routes at `onPostAuth` (`report_tenant_scoping.js`):
 
 | endpoint | action |
 |---|---|
-| `GET /internal/reporting/jobs/list` | **block + serve** a tenant-scoped `ReportApiJSON[]` |
-| `GET /internal/reporting/jobs/count` | **block + serve** the scoped count (text/plain) |
+| `GET /internal/reporting/jobs/list` | **block + serve**: 302 to `/api/v1/multitenancy/reporting/jobs/list`, which serves the tenant-scoped `ReportApiJSON[]` |
+| `GET /internal/reporting/jobs/count` | **block + serve**: 302 to `/api/v1/multitenancy/reporting/jobs/count`, which serves the scoped count (text/plain) |
 | `GET /internal/reporting/jobs/info/{docId}` | **guard**: scoped by-id lookup; miss → 404; hit → continue |
 | `GET /{api,internal}/reporting/jobs/download/{docId}` | **guard**, then reporting streams the content itself |
 | `DELETE /{api,internal}/reporting/jobs/delete/{docId}` | **guard**, then reporting runs its own delete/cleanup |
+
+Why the redirect: hapi only accepts an **error**, a **takeover response**, or
+a **continue signal** from lifecycle extensions that run before the route
+handler, and core's `HapiResponseAdapter` applies `.takeover()` only to
+redirects — a 2xx `KibanaResponse` returned from `onPostAuth` is rejected at
+runtime with "Lifecycle methods called before the handler can only return an
+error, a takeover response, or a continue signal". So the two 200-serving
+endpoints redirect (the same supported mechanism the MT lifecycle uses for
+its own redirects) to Search Guard-owned routes that serve the scoped
+response as normal route handlers. The redirected request passes through the
+full lifecycle again, so the MT lifecycle stamps `sgtenant` on it like on any
+other `/api` request; the query string is forwarded as-is, and the browser /
+`fetch` follows the 302 transparently. The guard 404s and the 5xx failure
+responses are hapi errors and remain legal returns from the hook itself. The
+scoped routes answer 404 if called directly while MT is disabled, and fail
+closed (empty list / count 0) without a usable tenant header.
 
 Guard semantics: "not in your tenant" is indistinguishable from "does not
 exist" — always **404, never 403**. All failure paths fail **closed** (no
@@ -98,13 +114,50 @@ round-trip. If it fails (missing/unusable key), a FATAL error is logged and
 decrypt failure would be a silent isolation loss, and serving empty lists
 would look like data loss instead of a config error.
 
-## Known limitations / deliberate deviations
+## Key rotation
 
-- **Key rotation is silent data invisibility.** The self-test catches a
-  missing/broken key, not a mirrored key that differs from the one older
-  reports were encrypted with. Undecryptable docs are dropped (fail closed)
-  with a warn-level per-query count in the log — after a rotation, reports
-  created under the old key are permanently invisible in the UI.
+Context — how stock Kibana handles `xpack.reporting.encryptionKey` rotation:
+it doesn't. Reporting has no rotation machinery (unlike Encrypted Saved
+Objects, which supports `xpack.encryptedSavedObjects.keyRotation.decryptionOnlyKeys`
+plus a `_rotate_key` API). But stock reporting also barely needs one: it
+decrypts `payload.headers` in exactly one place — at job **execution** time
+(`run_report.ts`, via `decryptJobHeaders`). A key change therefore only
+breaks **pending/unexecuted** jobs (error: "Failed to decrypt report job
+data … re-generate this report"); completed reports remain listable and
+downloadable forever, because their encrypted headers are never read again.
+
+The `node_decrypt` filter changes that calculus: it decrypts on **every
+read**, so after a rotation ALL pre-rotation reports become permanently
+invisible (fail closed) — indistinguishable from deletion in the UI. The
+startup self-test cannot catch this (it only proves the configured key is
+usable, not that it matches what older docs were encrypted with); the only
+signal is the warn-level per-query undecryptable count in the Kibana log.
+
+Operator options after a rotation:
+
+1. **Accept invisibility and re-generate** the reports that matter (matches
+   stock Kibana's guidance for pending jobs). Current behavior.
+2. *(Not implemented — candidate enhancement)* ESO-style
+   `decryption_only_keys`: a config list of previous keys the filter tries
+   in order after the primary. This would make rotation a non-event for
+   reads and is the clean fix if rotations are expected.
+3. *(Not implemented — explicitly NOT recommended as a default)* Treat
+   undecryptable/unstamped ("older") reports as belonging to the **global
+   tenant** so they remain reachable somewhere. ⚠️ This is a deliberate
+   fail-OPEN policy: an undecryptable doc's tenant is *unknown*, not
+   "global" — any tenant's reports (title, search params in `payload`, and
+   downloadable content) would become visible to everyone with global-tenant
+   access. If this is ever wanted, it must be a separate opt-in flag, off by
+   default, and the decision recorded with the customer/operator. Note it
+   also covers two distinct classes: undecryptable (rotation artifacts) and
+   unstamped (no `payload.headers` at all — legacy docs, scheduled-report
+   instances); a flag could reasonably treat them differently.
+
+Whenever `xpack.reporting.encryptionKey` is rotated, rotate
+`reporting_encryption_key` in the same change — a mismatch between the two
+makes even *new* reports invisible.
+
+## Known limitations / deliberate deviations
 - **Count includes the space filter** (reporting's own `count` has no
   `space_id` clause while its `list` does). Deviation so the table count
   agrees with what the list can show. Applied in all filter modes.
