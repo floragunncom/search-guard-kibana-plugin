@@ -17,6 +17,7 @@
 import { DocLinksService} from '@kbn/core-doc-links-server-internal';
 import { defineMultitenancyRoutes } from './routes';
 import { MultitenancyLifecycle } from './multitenancy_lifecycle';
+import { installReportTenantInjection } from './report_tenant_injection';
 
 export class Multitenancy {
   constructor(coreContext) {
@@ -66,7 +67,14 @@ export class Multitenancy {
 
       kibanaCore.http.registerOnPreAuth(multitenancyLifecycle.onPreAuth);
 
-
+      // Must stay AFTER registerOnPreAuth(multitenancyLifecycle.onPreAuth):
+      // its capture hook reads the sgtenant header the lifecycle stamps.
+      installReportTenantInjection({
+        kibanaCore,
+        elasticsearch,
+        configService,
+        logger: this.logger,
+      });
 
     } catch (error) {
       this.logger.error(`setup: ${error.toString()} ${error.stack}`);

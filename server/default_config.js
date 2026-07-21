@@ -48,6 +48,9 @@ export const DEFAULT_CONFIG = {
     },
     multitenancy: {
       debug: false,
+      report_tenant_injection: {
+        enabled: false,
+      },
     },
     configuration: {
       enabled: true,

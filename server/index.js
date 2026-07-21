@@ -115,6 +115,18 @@ export const ConfigSchema = schema.object({
    */
   multitenancy: schema.object({
     debug: schema.boolean({ defaultValue: multitenancyDefaults.debug }),
+    /*
+      Experimental: inject the current tenant as an sgtenant header on
+      Kibana Reporting's internal-user Elasticsearch calls, so the
+      Search Guard ES backend can scope reports per tenant. Inert unless
+      the backend supports tenant handling for the reporting indices.
+      See server/applications/multitenancy/REPORT_TENANT_INJECTION.md
+    */
+    report_tenant_injection: schema.object({
+      enabled: schema.boolean({
+        defaultValue: multitenancyDefaults.report_tenant_injection.enabled,
+      }),
+    }),
   }),
   configuration: schema.object({
     enabled: schema.boolean({ defaultValue: searchguardDefaults.configuration.enabled }),
