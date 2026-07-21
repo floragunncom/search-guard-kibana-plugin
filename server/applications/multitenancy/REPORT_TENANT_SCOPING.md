@@ -94,6 +94,70 @@ private-tenant feature no longer exists — no per-user discrimination is
 built, by decision); anything non-string (absent, repeated header) → `null`
 = never matches.
 
+## How the tenant gets into a report doc (nothing is added at write time)
+
+No Search Guard code runs on the write path. When a report is generated,
+**reporting's own** `encryptHeaders()` encrypts ALL headers of the creating
+request — including the `sgtenant` header the MT lifecycle set on that
+request — and indexes the blob as `payload.headers`. The tenant is therefore
+present (encrypted, alongside the user's `authorization` header) in every
+on-demand report doc as a side effect of stock reporting behavior. The
+`node_decrypt` filter only reads it back out; it never writes or modifies
+report docs. A plaintext, queryable tenant field on the doc (`sg_tenant`)
+would be added by the Search Guard **ES backend** at index time — that is
+the Tier B / `term` contract and does not exist today.
+
+## Count: what it is for and how it works
+
+The management UI needs two numbers to render the table: the current page's
+rows (`jobs/list`) and the **total** for the pagination controls — the table
+calls `apiClient.total()` (→ `GET jobs/count`) right after `list()`
+(`report_exports_table.tsx`). Without a scoped count, the table would show
+other tenants' report counts and page controls for rows that can never be
+displayed. So count is a real, user-visible dependency — not vestigial.
+
+Per filter mode:
+
+- `header_passthrough` / `term`: a real `_count` request (with the sgtenant
+  header / the `sg_tenant` term clause) — exact and cheap.
+- `node_decrypt`: a `_count` is impossible to tenant-scope (there are no
+  documents to decrypt in a count response), so count is a
+  **scan-and-count**: the same PIT scan the list uses, run to exhaustion —
+  every report doc in the current space is fetched batch-wise and decrypted,
+  and tenant matches are counted. Cost is O(total reports) decrypts per
+  count call (fine at realistic report volumes), bounded by `max_scan_docs`.
+  Because it reuses the list's scoping (including the space clause), the
+  total always agrees with what the list can actually show.
+
+## Pagination: status and correctness expectations
+
+Reporting's own `from = size * page` offset cannot be reused in
+`node_decrypt` mode: the offset must apply to the *filtered* (current-tenant)
+result set, while `from` would apply to the raw, mixed-tenant hits and skip
+the wrong documents. Instead, page P of size S is served by scanning raw
+hits from the top in reporting's list order, skipping the first `P*S`
+*matches*, then collecting the next `S` *matches*.
+
+**Expect pagination to be correct**, with these properties:
+
+- **Within one request**: the scan runs against a point-in-time with a
+  `_shard_doc` sort tiebreaker (reporting sorts on `created_at` only, which
+  is not a total order), so a single page is consistent — no skipped or
+  duplicated docs from batch iteration. Covered by unit tests.
+- **Across requests** (e.g. clicking to page 2): each request opens a fresh
+  PIT, so reports created or deleted in between shift page boundaries. This
+  is identical to stock reporting's from/size behavior — not a regression.
+- **Bound**: pages (and counts) are only correct while the scan stays within
+  `max_scan_docs` raw docs (default 10000) per request. Beyond that the scan
+  stops, results may be incomplete, and a warn is logged. Raise the setting
+  or clean up old reports if that warning appears.
+- **Cost**: each page request re-scans from the top (`P*S` matches skipped),
+  so deep pages cost proportionally more decrypts. The UI's frequent path —
+  the job-status poller with `ids` — never runs the scan loop at all.
+- `header_passthrough` / `term` modes use reporting's exact from/size
+  pagination (the backend has already filtered), so they are exact by
+  construction.
+
 ## Configuration
 
 ```yaml
