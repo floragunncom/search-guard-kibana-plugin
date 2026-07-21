@@ -115,6 +115,37 @@ export const ConfigSchema = schema.object({
    */
   multitenancy: schema.object({
     debug: schema.boolean({ defaultValue: multitenancyDefaults.debug }),
+    /*
+      Tenant-scope the Kibana Reporting management read endpoints (list,
+      count, info, download, delete) so each tenant only ever sees its own
+      reports. The filter mode decides how a report's tenant is determined:
+      - 'node_decrypt' (default): no ES backend support needed. Decrypts each
+        report's stored request headers with reporting_encryption_key, which
+        MUST mirror xpack.reporting.encryptionKey exactly (and that key must
+        be explicitly set in kibana.yml).
+      - 'header_passthrough': the Search Guard ES backend filters the
+        reporting indices by the sgtenant header. Backend support required.
+      - 'term': the Search Guard ES backend stamps a queryable sg_tenant
+        field on report docs. Backend support required.
+      See server/applications/multitenancy/REPORT_TENANT_SCOPING.md
+    */
+    report_tenant_scoping: schema.object({
+      enabled: schema.boolean({
+        defaultValue: multitenancyDefaults.report_tenant_scoping.enabled,
+      }),
+      filter: schema.oneOf(
+        [
+          schema.literal('node_decrypt'),
+          schema.literal('header_passthrough'),
+          schema.literal('term'),
+        ],
+        { defaultValue: multitenancyDefaults.report_tenant_scoping.filter }
+      ),
+      reporting_encryption_key: schema.nullable(schema.string()),
+      max_scan_docs: schema.number({
+        defaultValue: multitenancyDefaults.report_tenant_scoping.max_scan_docs,
+      }),
+    }),
   }),
   configuration: schema.object({
     enabled: schema.boolean({ defaultValue: searchguardDefaults.configuration.enabled }),

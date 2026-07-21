@@ -17,6 +17,7 @@
 import { DocLinksService} from '@kbn/core-doc-links-server-internal';
 import { defineMultitenancyRoutes } from './routes';
 import { MultitenancyLifecycle } from './multitenancy_lifecycle';
+import { installReportTenantScoping } from './report_tenant_scoping';
 
 export class Multitenancy {
   constructor(coreContext) {
@@ -66,7 +67,16 @@ export class Multitenancy {
 
       kibanaCore.http.registerOnPreAuth(multitenancyLifecycle.onPreAuth);
 
-
+      // Tenant-scopes the Reporting read endpoints at onPostAuth, reading the
+      // sgtenant header the lifecycle's onPreAuth stamps and the
+      // searchguard.multitenancy.enabled state it maintains per request.
+      installReportTenantScoping({
+        kibanaCore,
+        elasticsearch,
+        configService,
+        logger: this.logger,
+        spacesService: pluginDependencies.spaces ? pluginDependencies.spaces.spacesService : null,
+      });
 
     } catch (error) {
       this.logger.error(`setup: ${error.toString()} ${error.stack}`);

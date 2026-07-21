@@ -48,6 +48,11 @@ export const DEFAULT_CONFIG = {
     },
     multitenancy: {
       debug: false,
+      report_tenant_scoping: {
+        enabled: false,
+        filter: 'node_decrypt',
+        max_scan_docs: 10000,
+      },
     },
     configuration: {
       enabled: true,
