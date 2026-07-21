@@ -101,6 +101,17 @@ by `request.id` instead.
   is enabled (or trusted proxies forward `x-opaque-id`), clients can choose their own
   `request.id`; a deliberate collision with a concurrent request's id could mis-attribute a
   tenant. Do not enable those options on installations using this feature.
+- **Collisions are detected and fail closed.** If a capture finds a live entry for the same
+  request id with a *different* tenant — impossible with server-generated ids, so a symptom of
+  the misconfiguration above or a proxy reusing `x-opaque-id` — both entries are dropped (the
+  affected requests' reporting ES calls carry no tenant → backend returns nothing) and a
+  warning naming the probable cause is logged.
+- **Why the map is not additionally keyed by user:** a lookup key only helps if the *reading*
+  side can supply it independently, and the ES-call side of the correlation carries nothing
+  request-derived except `x-opaque-id` — there is no user identity on an internal-user call to
+  verify against (that absence is the root problem this module works around). The tenant value
+  itself is already user-validated at capture time (it is read after the multitenancy
+  lifecycle's `validateRequestedTenant` for that session).
 
 ## Memory safety
 
@@ -171,10 +182,39 @@ open the Reporting management UI in a tenant, and confirm the jobs `_search` car
 The mechanism is not reporting-specific. Any Kibana feature that performs internal-user ES
 calls on behalf of an HTTP request can be covered the same way: capture per-request context at
 a lifecycle hook keyed by `request.id`, correlate via `x-opaque-id` in the client diagnostic,
-act on the outgoing call. To extend, generalize the two matchers
-(`isReportingHttpPath`/`isReportingEsPath`) — the registry and hook wiring stay as they are.
-The constraint to respect: only *convey* request context; enforcement belongs in the backend,
-so that correlation loss fails closed.
+act on the outgoing call.
+
+`RequestTenantRegistry` already knows nothing about reporting; only the two matchers and the
+injection action are reporting-specific. When a **second consumer** shows up, extract the
+registry + hook wiring into a shared module with a consumer API instead of copying the file:
+
+```js
+// e.g. server/utils/request_context_registry.js (future)
+const registry = installRequestContextRegistry({ kibanaCore, elasticsearch, logger });
+
+registry.registerConsumer({
+  id: 'reporting-tenant',
+  // which HTTP requests to capture, and what to remember about them
+  matchHttpRequest: (request) => isReportingHttpPath(request.url.pathname),
+  captureContext: (request) => ({ tenant: request.headers.sgtenant }),
+  // which outgoing ES calls to act on, and what to do with the context
+  matchEsRequest: (params) => isReportingEsPath(params.path),
+  onEsRequest: (params, context) => { /* inject */ },
+});
+```
+
+Design rules for the shared version:
+
+- **Capture iff at least one consumer's HTTP predicate matches** — the map's scope is the
+  union of consumer scopes, never "every request". (The per-request predicate *check* is
+  unavoidable — lifecycle hooks are global — but it's a few string prefix comparisons.)
+- Even a very broad consumer is bounded by **concurrency, not traffic**: onPreResponse deletes
+  entries deterministically, so the map only ever holds in-flight matching requests; TTL and
+  the FIFO cap remain as backstops.
+- Store only small, non-secret context (tenant, maybe a username) — never headers wholesale,
+  never `authorization`.
+- Keep hooks/diagnostic registered exactly once; consumers are dispatch entries.
+- Per consumer, keep the "convey, don't enforce" rule so correlation loss fails closed.
 
 ## History / design references
 

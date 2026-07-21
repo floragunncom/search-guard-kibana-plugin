@@ -122,9 +122,22 @@ export class RequestTenantRegistry {
    * @param {string} requestId
    * @param {string} tenant
    * @param {number} [now]
+   * @returns {'stored'|'collision'|'ignored'}
+   *   'collision' means a live entry for the same id held a DIFFERENT
+   *   tenant. Request ids are server-generated UUIDs by default, so this
+   *   cannot happen unless ids are client-influenced
+   *   (server.requestId.allowFromAnyIp / trusted proxies) or a proxy reuses
+   *   x-opaque-id values. Both entries are dropped (fail closed for both
+   *   requests); the caller should log loudly.
    */
   set(requestId, tenant, now = Date.now()) {
-    if (!requestId || !tenant) return;
+    if (!requestId || !tenant) return 'ignored';
+
+    const existing = this.entries.get(requestId);
+    if (existing && now - existing.ts <= this.ttlMs && existing.tenant !== tenant) {
+      this.entries.delete(requestId);
+      return 'collision';
+    }
 
     // Re-inserting must refresh the FIFO position, otherwise a long-lived
     // id could be evicted while its request is still in flight.
@@ -136,6 +149,7 @@ export class RequestTenantRegistry {
     }
 
     this.entries.set(requestId, { tenant, ts: now });
+    return 'stored';
   }
 
   /**
@@ -233,7 +247,15 @@ export function installReportTenantInjection({
       if (isReportingHttpPath(request.url.pathname)) {
         const tenant = request.headers.sgtenant;
         if (typeof tenant === 'string' && tenant !== '') {
-          registry.set(request.id, tenant);
+          const result = registry.set(request.id, tenant);
+          if (result === 'collision') {
+            logger.warn(
+              `Report tenant injection: request id collision with differing tenants for id "${request.id}" — ` +
+                'dropped both entries (their reporting ES calls will carry no tenant). This cannot happen ' +
+                'with server-generated request ids; check server.requestId.allowFromAnyIp / trusted proxies ' +
+                'and any proxy that forwards or reuses x-opaque-id.'
+            );
+          }
         }
       }
     } catch (error) {

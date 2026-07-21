@@ -149,6 +149,28 @@ describe('RequestTenantRegistry', () => {
     registry.delete('req-1');
     expect(registry.getByOpaqueId('req-1')).toBeNull();
   });
+
+  it('same-id same-tenant re-insert is a normal refresh', () => {
+    const registry = new RequestTenantRegistry();
+    expect(registry.set('req-1', 'tenantA')).toBe('stored');
+    expect(registry.set('req-1', 'tenantA')).toBe('stored');
+    expect(registry.getByOpaqueId('req-1')).toBe('tenantA');
+  });
+
+  it('same-id DIFFERENT-tenant collision drops both entries (fail closed)', () => {
+    const registry = new RequestTenantRegistry();
+    expect(registry.set('req-1', 'tenantA')).toBe('stored');
+    expect(registry.set('req-1', 'tenantB')).toBe('collision');
+    expect(registry.getByOpaqueId('req-1')).toBeNull();
+    expect(registry.size).toBe(0);
+  });
+
+  it('an expired entry does not count as a collision', () => {
+    const registry = new RequestTenantRegistry({ ttlMs: 1000 });
+    registry.set('req-1', 'tenantA', 0);
+    expect(registry.set('req-1', 'tenantB', 2000)).toBe('stored');
+    expect(registry.getByOpaqueId('req-1', 2000)).toBe('tenantB');
+  });
 });
 
 describe('installReportTenantInjection', () => {
@@ -314,6 +336,20 @@ describe('installReportTenantInjection', () => {
     const call = esCall({ opaqueId: 'req-1' });
     hooks.diagnostic(null, call);
 
+    expect(call.meta.request.params.headers.sgtenant).toBeUndefined();
+  });
+
+  it('warns and stops injecting on a request id collision with differing tenants', () => {
+    const { hooks, logger } = setup();
+
+    hooks.onPreAuth(httpRequest({ id: 'req-1', sgtenant: 'tenantA' }), {}, toolkit);
+    hooks.onPreAuth(httpRequest({ id: 'req-1', sgtenant: 'tenantB' }), {}, toolkit);
+
+    expect(logger.warn).toHaveBeenCalledTimes(1);
+    expect(logger.warn.mock.calls[0][0]).toContain('collision');
+
+    const call = esCall({ opaqueId: 'req-1' });
+    hooks.diagnostic(null, call);
     expect(call.meta.request.params.headers.sgtenant).toBeUndefined();
   });
 
