@@ -96,16 +96,42 @@ by `request.id` instead.
   invisible*, never to *reports visible across tenants*.
 - **No credential exposure.** The module logs tenant names and ES paths at debug level only.
   It never reads or logs `authorization` headers or the encrypted `payload.headers`.
-- **`server.requestId` must stay at its default.** By default `request.id` is a
-  server-generated UUID and cannot be chosen by clients. If `server.requestId.allowFromAnyIp`
-  is enabled (or trusted proxies forward `x-opaque-id`), clients can choose their own
-  `request.id`; a deliberate collision with a concurrent request's id could mis-attribute a
-  tenant. Do not enable those options on installations using this feature.
+- **`server.requestId` must stay at its defaults** (`allowFromAnyIp: false`,
+  `ipAllowlist: []`). This is the one Kibana setting that affects the trust model of the
+  correlation key. How `request.id` is derived
+  (`src/platform/packages/shared/kbn-server-http-tools/src/get_request_id.ts`):
+
+  ```
+  request.id = client's x-opaque-id header   IF  server.requestId.allowFromAnyIp: true
+                                             OR  the connecting socket's remote address is in
+                                                 server.requestId.ipAllowlist
+               server-generated UUIDv4       otherwise (DEFAULT)
+  ```
+
+  **The danger when non-default:** clients choose their own `request.id`. An attacker who can
+  observe or guess a victim's in-flight id can send their own reporting request with the same
+  `x-opaque-id`; the two requests then race for one registry entry, and either party's
+  reporting ES calls could be attributed to the other's tenant — including the write path (a
+  victim's report stamped into the attacker's tenant becomes readable there). Note that
+  `ipAllowlist` checks the **socket** address: allow-listing a reverse proxy means *every
+  client behind that proxy* controls `x-opaque-id`, unless the proxy strips or overwrites the
+  header itself.
+
+  **Mitigations, in order of preference:**
+  1. Keep both settings at their defaults — then ids are server-generated UUIDs, collisions
+     are cryptographically implausible, and the whole class of attack is off the table.
+  2. If your deployment needs client-provided ids for tracing, make the proxy **set**
+     `x-opaque-id` to a value the proxy generates per request (never pass the client's value
+     through), so ids stay unforgeable from the browser's perspective.
+  3. Defense in depth regardless of config: the collision guard below.
 - **Collisions are detected and fail closed.** If a capture finds a live entry for the same
   request id with a *different* tenant — impossible with server-generated ids, so a symptom of
   the misconfiguration above or a proxy reusing `x-opaque-id` — both entries are dropped (the
   affected requests' reporting ES calls carry no tenant → backend returns nothing) and a
-  warning naming the probable cause is logged.
+  warning naming the probable cause is logged. Same id + same tenant is a harmless refresh.
+  Residual risk to be aware of: the guard detects *simultaneous differing-tenant* use of one
+  id; it cannot detect an attacker who reuses an id *after* the victim's entry was cleaned up,
+  which is why mitigation 1/2 (unforgeable ids), not the guard, is the primary control.
 - **Why the map is not additionally keyed by user:** a lookup key only helps if the *reading*
   side can supply it independently, and the ES-call side of the correlation carries nothing
   request-derived except `x-opaque-id` — there is no user identity on an internal-user call to
@@ -158,6 +184,15 @@ The Kibana side is one half. The Search Guard ES backend must:
 
 ## Operations
 
+Before enabling, verify in `kibana.yml` that the request-id settings are absent or at their
+defaults (see Security properties for why):
+
+```yaml
+# must NOT be set to true / non-empty on installations using this feature
+# server.requestId.allowFromAnyIp: false
+# server.requestId.ipAllowlist: []
+```
+
 Enable in `kibana.yml`:
 
 ```yaml
@@ -171,6 +206,7 @@ Log lines to know (logger: `searchguard-multitenancy`):
 | info | `Report tenant injection installed ...` | Feature active |
 | debug | `injected tenant "<t>" on <method> <path>` | Working as intended |
 | warn | `N reporting ES call(s) without tenant correlation ...` | Expected for background/task-manager calls. If the management UI shows no reports while MT is on, this is the first place to look: check that `x-opaque-id` stamping is intact and the registry isn't evicting under load. Throttled to one line per 30 s. |
+| warn | `request id collision with differing tenants ...` | Should never appear. Means request ids are client-influenced — audit `server.requestId.allowFromAnyIp` / `server.requestId.ipAllowlist` and any proxy forwarding `x-opaque-id`. The affected requests failed closed. |
 | error | `asInternalUser.diagnostic unavailable ...` | Injection not installed — ES client API changed |
 
 Wire verification (recommended after every Kibana upgrade): put an HTTP proxy in front of ES,
