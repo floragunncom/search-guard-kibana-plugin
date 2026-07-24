@@ -2,6 +2,12 @@
 version: 2
 updates:
   - package-ecosystem: npm
+    target-branch: main
+    directory: /
+    schedule:
+      interval: daily
+  - package-ecosystem: npm
+    target-branch: main-es8
     directory: /
     schedule:
       interval: daily
