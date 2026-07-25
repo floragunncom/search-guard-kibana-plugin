@@ -50,17 +50,37 @@ function matchesStandardWhitelist(result, kibanaVersionIndex) {
   return whitelistMap(kibanaVersionIndex)[buildRule(params)] || false;
 }
 
-function matchesProxyWhitelist(result, kibanaVersionIndex) {
+// Matches the internal request that Kibana's spaces plugin issues to read the
+// default space saved object (`space:default`) during the auth handshake.
+// @see https://git.floragunn.com/search-guard/search-guard-kibana-plugin/-/issues/552
+//
+// We match on HTTP method + document id only, tolerant of the index name, the
+// querystring and ':' vs '%3A' encoding. Those vary between Kibana releases
+// (e.g. 9.4.2 -> 9.4.3), so an exact `method + path + body` string match keyed
+// by the version-suffixed index silently stops matching on upgrade. When it
+// stops matching we no longer inject the kibanaserver credentials, the internal
+// request reaches ES with no proxy headers, Search Guard answers with an
+// authentication_exception, and the spaces plugin ends up in a 401 re-auth loop.
+const SPACE_DEFAULT_DOC = /\/_doc\/space(?:%3A|:)default(?:\?|$)/;
+
+function isInternalRequest(headers) {
+  // Kibana strips the end-user credentials from internal/system requests. Depending
+  // on the Kibana version the authorization header is either an empty string or absent.
+  // If we don't limit to internal requests, we would also inject auth for real
+  // proxy-auth requests.
+  return headers.authorization === '' || headers.authorization == null;
+}
+
+function matchesProxyWhitelist(result) {
   const params = get(result, 'meta.request.params', {});
   const headers = params.headers || {};
 
-  // Internal requests explicitly set authorization: ''
-  // If we don't limit to this, we would also inject auth for real proxy-auth requests
-  if (headers.authorization !== '') {
+  if (!isInternalRequest(headers)) {
     return false;
   }
 
-  return proxyWhitelistMap(kibanaVersionIndex)[buildRule(params)] || false;
+  const method = (params.method || 'GET').toUpperCase();
+  return method === 'GET' && SPACE_DEFAULT_DOC.test(buildPath(params));
 }
 
 function shouldBeAuthorized({ result, kibanaVersionIndex, authType }) {
@@ -68,7 +88,7 @@ function shouldBeAuthorized({ result, kibanaVersionIndex, authType }) {
     return true;
   }
 
-  if (authType === 'proxy' && matchesProxyWhitelist(result, kibanaVersionIndex)) {
+  if (authType === 'proxy' && matchesProxyWhitelist(result)) {
     return true;
   }
 
@@ -82,15 +102,7 @@ function whitelistMap(kibanaVersionIndex) {
   };
 }
 
-function proxyWhitelistMap(kibanaVersionIndex) {
-  return {
-    // Only applies when searchguard.auth.type === 'proxy'.
-    // @see https://git.floragunn.com/search-guard/search-guard-kibana-plugin/-/issues/552
-    [`GET/${kibanaVersionIndex}/_doc/space%3Adefault`]: true,
-  };
-}
-
-export function rootScopedClientRequestWrapper({ configService, kibanaVersionIndex }) {
+export function rootScopedClientRequestWrapper({ configService, kibanaVersionIndex, logger }) {
   const authType = configService.get('searchguard.auth.type', null);
 
   return (error, result) => {
@@ -99,7 +111,28 @@ export function rootScopedClientRequestWrapper({ configService, kibanaVersionInd
     }
 
     const hasAuth = isAuthorized(result) || isAuthorized(result, 'Authorization');
-    if (hasAuth || !shouldBeAuthorized({ result, kibanaVersionIndex, authType })) {
+    if (hasAuth) {
+      return;
+    }
+
+    const authorize = shouldBeAuthorized({ result, kibanaVersionIndex, authType });
+
+    // Diagnostic aid. Under proxy auth, Kibana's internal/system requests reach
+    // Elasticsearch without proxy headers, so Search Guard rejects them unless we
+    // inject the kibanaserver credentials below. Which requests these are changes
+    // between Kibana releases (e.g. PR #271314 reworked reverse-proxy run_as user
+    // profile retrieval in 9.4.3), and an unrecognized one silently turns into a
+    // 401 re-auth loop. Log every credential-less request we did NOT handle so the
+    // next regression is diagnosable at debug level. Only method + path are logged
+    // (no headers/credentials); enable with logging.loggers for `plugins.searchguard`.
+    if (logger && authType === 'proxy' && isInternalRequest(get(result, 'meta.request.params.headers', {})) && !authorize) {
+      const params = get(result, 'meta.request.params', {});
+      logger.debug(
+        `Unhandled credential-less ES request under proxy auth: ${params.method || 'GET'} ${buildPath(params)}`
+      );
+    }
+
+    if (!authorize) {
       return;
     }
 

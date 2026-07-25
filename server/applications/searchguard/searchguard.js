@@ -44,7 +44,11 @@ export class SearchGuard {
 
     registerRootScopedClientRequestWrapper({
       elasticsearch,
-      requestWrapper: rootScopedClientRequestWrapper({ configService, kibanaVersionIndex }),
+        requestWrapper: rootScopedClientRequestWrapper({
+        configService,
+        kibanaVersionIndex,
+        logger: this.logger,
+      }),
     });
 
     try {
