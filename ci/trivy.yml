@@ -61,7 +61,7 @@ scan:build:
   artifacts:
     paths:
       - target/releases/search-guard-flx-kibana-plugin-trivy.zip
-    expire_in: 1 hour
+    expire_in: 72 hour
   variables:
     # --- Maven ---
     MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
