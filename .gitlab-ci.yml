@@ -11,6 +11,7 @@ variables:
   # Single source of truth for Trivy (scan image tag + curl-installed binary in the image-scan job)
   TRIVY_VERSION: "0.72.0"
   SCAN2HTML_VERSION: "v0.3.27" # pin the plugin for reproducibility
+  OWASP_DC_VERSION: "12.2.2"
 
   #####
   SG_BUILD_IMAGE: "floragunncom/ubuntu-openjdk25:251126"
@@ -334,5 +335,5 @@ include:
   - local: 'ci/pre_mt_data_migration_tests.yml' 
   - local: 'ci/mt_data_migration_tests.yml'
   - local: 'ci/backport.yml'
-  - local: 'ci/trivy.yml'
+  - local: 'ci/security-scan.yml'
 
