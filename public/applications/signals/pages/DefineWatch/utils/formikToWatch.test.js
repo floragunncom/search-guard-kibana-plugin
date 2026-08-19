@@ -444,6 +444,49 @@ describe('buildActions', () => {
     expect(buildActions(formik)).toEqual({ actions });
   });
 
+  test('can build email action omitting empty from so the account default_from applies', () => {
+    const actions = [
+      {
+        checks: [],
+        throttle_period: '1s',
+        type: ACTION_TYPE.EMAIL,
+        name: 'myemail',
+        to: ['a', 'b'],
+        cc: ['a', 'b'],
+        bcc: ['a', 'b'],
+        subject: 'a',
+        text_body: 'Total: {{data.mysearch.hits.total.value}}',
+        account: 'a',
+      },
+    ];
+
+    const formik = {
+      _ui: {},
+      actions: [
+        {
+          checks: [],
+          throttle_period: {
+            interval: 1,
+            unit: 's',
+          },
+          type: ACTION_TYPE.EMAIL,
+          name: 'myemail',
+          from: '',
+          to: [{ label: 'a' }, { label: 'b' }],
+          cc: [{ label: 'a' }, { label: 'b' }],
+          bcc: [{ label: 'a' }, { label: 'b' }],
+          subject: 'a',
+          text_body: 'Total: {{data.mysearch.hits.total.value}}',
+          account: [{ label: 'a' }],
+        },
+      ],
+    };
+
+    const result = buildActions(formik);
+    expect(result).toEqual({ actions });
+    expect(result.actions[0]).not.toHaveProperty('from');
+  });
+
   test('can build slack action', () => {
     const actions = [
       {

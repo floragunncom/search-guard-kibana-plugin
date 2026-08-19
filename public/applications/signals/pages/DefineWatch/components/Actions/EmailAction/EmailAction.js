@@ -52,7 +52,7 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
     accounts,
     get(values, `${actionsRootPath}[${index}].account`)
   );
-  const isDefaultFrom = !!currAccount && !isEmpty(currAccount.default_from);
+  const accountDefaultFrom = get(currAccount, 'default_from', '');
   const isDefaultTo = !!currAccount && !isEmpty(currAccount.default_to);
   const isSeverity = get(values, '_ui.isSeverity', false);
 
@@ -138,12 +138,14 @@ const EmailAction = ({ isResolveActions, index, accounts, formik: { values } }) 
         }}
         elementProps={{
           isInvalid,
+          placeholder: accountDefaultFrom || 'Type email address',
           onFocus: (e, field, form) => {
             form.setFieldError(field.name, undefined);
           },
         }}
         formikFieldProps={{
-          validate: !isDefaultFrom ? validateEmailAddrWithName() : null,
+          // Empty is allowed only if the account provides a default_from fallback
+          validate: validateEmailAddrWithName(!accountDefaultFrom),
         }}
       />
       <FormikComboBox
