@@ -104,6 +104,7 @@ kibana_authtokens:
   extends: .dind_mirror
   allow_failure: false
   stage: "Frontend Int Tests"
+  timeout: 30m
   tags:
     - test-large
   rules:
