@@ -62,7 +62,6 @@ Shared/cross-cutting pieces:
 - Test files are colocated as `*.test.js` next to the code they test.
 - `tests/jest.config.js` maps a few imports to stubs in `__mocks__/`: `!!raw-loader!./worker.js`, `ui/chrome`, and any `.svg` import. Add new shims there rather than mocking per test.
 - UI uses Elastic EUI + React; forms use Formik.
-- Known stale: `package.json`'s `migrate` script points at `./scripts/migrate_kibana_index.js`, which does not exist in this repo.
 
 ## Related directories
 
