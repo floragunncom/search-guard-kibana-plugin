@@ -722,6 +722,31 @@ describe('buildChecks', () => {
 
     expect(buildChecks(formik)).toEqual(checks);
   });
+
+  test('graph watch with severity has no threshold condition check', () => {
+    const formik = {
+      _ui: {
+        watchType: WATCH_TYPES.GRAPH,
+        isSeverity: true,
+        index: [{ label: 'sg7*' }],
+        timeField: '@timestamp',
+        aggregationType: 'count',
+        fieldName: [],
+        overDocuments: 'all documents',
+        bucketValue: 1,
+        bucketUnitOfTime: 'h',
+        // Not editable in the form while severity is on, so it keeps the graph default
+        thresholdValue: 1000,
+        thresholdEnum: 'ABOVE',
+        topHitsAgg: { field: [], size: 3, order: 'asc' },
+      },
+    };
+
+    const checks = buildChecks(formik);
+
+    expect(checks).toHaveLength(1);
+    expect(checks[0]).toMatchObject({ type: 'search', name: 'mysearch' });
+  });
 });
 
 describe('formikToWatch', () => {

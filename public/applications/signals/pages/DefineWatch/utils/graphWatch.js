@@ -431,6 +431,7 @@ export const buildGraphWatchChecks = ({
   thresholdEnum,
   overDocuments,
   topHitsAgg,
+  isSeverity,
 }) => {
   const query = {
     type: CHECK_TYPES.SEARCH,
@@ -449,6 +450,13 @@ export const buildGraphWatchChecks = ({
       }),
     },
   };
+
+  // In severity mode the severity mapping defines the thresholds. A threshold condition
+  // would run before the severity evaluation and abort the watch, so no action is ever
+  // executed. The threshold is also not editable in the form while severity is enabled.
+  if (isSeverity) {
+    return [ query ];
+  }
 
   const condition = buildCondition({
     thresholdValue,
