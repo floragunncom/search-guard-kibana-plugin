@@ -42,7 +42,7 @@ export class MultitenancyLifecycle {
     this.kerberos = kerberos;
     this.kibanaCore = kibanaCore;
     this.clusterClient = clusterClient;
-    this.basePath = kibanaCore.http.basePath.get();
+    this.basePath = kibanaCore.http.basePath.serverBasePath;
   }
 
 
