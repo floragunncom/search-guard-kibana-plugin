@@ -70,7 +70,10 @@ export class SearchGuard {
       });
 
       // Set up our own instance of Statehood
-      const cookieOptions = getSessionCookieOptions(configService, core.http.basePath.get());
+      const cookieOptions = getSessionCookieOptions(
+        configService,
+        core.http.basePath.serverBasePath
+      );
       const statehoodDefinitions = new Statehood.Definitions(cookieOptions);
       const sessionCookieName = configService.get('searchguard.cookie.name')
       statehoodDefinitions.add(sessionCookieName, cookieOptions);
@@ -98,7 +101,7 @@ export class SearchGuard {
             config: configService,
             searchGuardBackend,
             logger: this.coreContext.logger.get('searchguard-kerberos-auth'),
-            basePath: core.http.basePath.get(),
+            basePath: core.http.basePath.serverBasePath,
             sessionStorageFactory: sessionStorageFactory,
           });
         core.http.registerOnPreAuth(

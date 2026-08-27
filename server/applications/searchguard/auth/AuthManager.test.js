@@ -26,7 +26,7 @@ describe('AuthManager', () => {
         kibanaCore: {
             http: {
                 basePath: {
-                    get: () => 'http://mockbasepath'
+                    serverBasePath: '/mockbasepath'
                 }
             }
         },
@@ -50,6 +50,10 @@ describe('AuthManager', () => {
 
     it('should be defined', () => {
         expect(authManager).toBeDefined();
+    });
+
+    it('should use the server base path during initialization', () => {
+        expect(authManager.basePath).toBe('/mockbasepath');
     });
 
     describe("checkAuth()", () => {
