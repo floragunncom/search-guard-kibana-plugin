@@ -454,6 +454,7 @@ export const buildGraphWatchChecks = ({
   // In severity mode the severity mapping defines the thresholds. A threshold condition
   // would run before the severity evaluation and abort the watch, so no action is ever
   // executed. The threshold is also not editable in the form while severity is enabled.
+  // Having both a condition and severity levels is not to be recommended.
   if (isSeverity) {
     return [ query ];
   }
