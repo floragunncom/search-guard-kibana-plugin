@@ -48,7 +48,8 @@ export const index = {
 export const email = {
   type: ACTION_TYPE.EMAIL,
   name: 'myemail',
-  from: 'signals@localhost',
+  // Empty by default so the backend can fall back to the account's default_from
+  from: '',
   to: [],
   cc: [],
   bcc: [],

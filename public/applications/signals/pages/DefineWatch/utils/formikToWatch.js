@@ -128,13 +128,20 @@ export function buildPagerdutyAction(action = {}) {
 }
 
 export function buildEmailAction(action = {}) {
-  return {
+  const newAction = {
     ...action,
     to: comboBoxOptionsToArray(action.to),
     cc: comboBoxOptionsToArray(action.cc),
     bcc: comboBoxOptionsToArray(action.bcc),
     account: comboBoxOptionsToArray(action.account)[0],
   };
+
+  // Omit an empty "from" so the backend falls back to the account's default_from
+  if (!newAction.from) {
+    delete newAction.from;
+  }
+
+  return newAction;
 }
 
 export const buildIndexAction = (action = {}) => {

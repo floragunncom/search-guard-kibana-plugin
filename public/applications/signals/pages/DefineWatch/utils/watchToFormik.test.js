@@ -399,6 +399,54 @@ describe('buildFormikActions', () => {
     expect(buildFormikActions({ actions })).toEqual(formik);
   });
 
+  test('can build email formik action with empty from if the watch action has no from', () => {
+    const actions = [
+      {
+        throttle_period: '1s',
+        type: ACTION_TYPE.EMAIL,
+        name: 'myemail',
+        to: ['a', 'b'],
+        cc: ['a', 'b'],
+        bcc: ['a', 'b'],
+        subject: 'a',
+        text_body: 'Total: {{data.mysearch.hits.total.value}}',
+        account: 'a',
+      },
+    ];
+
+    const formik = {
+      actions: [
+        {
+          checks: '[]',
+          checksBlocks: [],
+          severity: [],
+          throttle_period: {
+            advInterval: SCHEDULE_DEFAULTS.period.advInterval,
+            interval: 1,
+            unit: 's',
+          },
+          type: ACTION_TYPE.EMAIL,
+          name: 'myemail',
+          from: '',
+          to: [{ label: 'a' }, { label: 'b' }],
+          cc: [{ label: 'a' }, { label: 'b' }],
+          bcc: [{ label: 'a' }, { label: 'b' }],
+          subject: 'a',
+          text_body: 'Total: {{data.mysearch.hits.total.value}}',
+          html_body: `<p>
+  <span style="color:blue;">Total:</span>
+  <span style="color:red;">{{data.avg_ticket_price.aggregations.metricAgg.value}}</span>
+</p>
+`,
+          account: [{ label: 'a' }],
+        },
+      ],
+      resolve_actions: [],
+    };
+
+    expect(buildFormikActions({ actions })).toEqual(formik);
+  });
+
   test('can build slack formik action', () => {
     const actions = [
       {
