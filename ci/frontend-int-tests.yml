@@ -105,6 +105,7 @@ kibana_authtokens:
   allow_failure: false
   stage: "Frontend Int Tests"
   timeout: 30m
+  retry: 2
   tags:
     - test-large
   rules:
@@ -238,20 +239,22 @@ kibana_authtokens:
         cp "../../target/releases/search-guard-flx-kibana-plugin-${BUILD_VERSION}.zip" \
           docker/kibana/kibana-plugin.zip
       fi
+      
+      ./run_test_definition.sh "$TEST_DEFINITIONS"
 
       # The test definitions can be flaky (e.g. OIDC/SAML session-refresh timing).
       # Retry the whole run up to 5 times before failing the job for good.
-      test_attempt=1
-      max_test_attempts=5
-      until ./run_test_definition.sh "$TEST_DEFINITIONS"; do
-        if [ "$test_attempt" -ge "$max_test_attempts" ]; then
-          echo "ERROR: run_test_definition.sh failed after ${max_test_attempts} attempts - failing the job"
-          exit 1
-        fi
-        echo "run_test_definition.sh failed on attempt ${test_attempt}/${max_test_attempts}, retrying..."
-        test_attempt=$((test_attempt + 1))
-      done
-      echo "run_test_definition.sh succeeded on attempt ${test_attempt}/${max_test_attempts}"
+#      test_attempt=1
+#      max_test_attempts=5
+#      until ./run_test_definition.sh "$TEST_DEFINITIONS"; do
+#        if [ "$test_attempt" -ge "$max_test_attempts" ]; then
+#          echo "ERROR: run_test_definition.sh failed after ${max_test_attempts} attempts - failing the job"
+#          exit 1
+#        fi
+#        echo "run_test_definition.sh failed on attempt ${test_attempt}/${max_test_attempts}, retrying..."
+#        test_attempt=$((test_attempt + 1))
+#      done
+#      echo "run_test_definition.sh succeeded on attempt ${test_attempt}/${max_test_attempts}"
   after_script:
     - |
       if [ -n "$KEEP_TEST_ARTIFACTS" ]; then
