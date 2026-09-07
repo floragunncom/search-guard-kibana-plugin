@@ -12,7 +12,7 @@ import { ACCOUNT_TYPE } from '../../../Accounts/utils/constants';
 
 import { Context } from '../../../../Context';
 
-const SlackAccount = ({ id, formik: { values, errors } }) => {
+const SlackAccount = ({ id, tenantScoped, formik: { values, errors } }) => {
   const { httpClient } = useContext(Context);
   const isUpdatingName = id !== values._id;
 
@@ -41,7 +41,7 @@ const SlackAccount = ({ id, formik: { values, errors } }) => {
         }}
         formikFieldProps={{
           validate: validateName(
-            new AccountsService(httpClient, ACCOUNT_TYPE.SLACK),
+            new AccountsService(httpClient, ACCOUNT_TYPE.SLACK, tenantScoped),
             isUpdatingName
           ),
         }}
@@ -68,6 +68,7 @@ const SlackAccount = ({ id, formik: { values, errors } }) => {
 SlackAccount.propTypes = {
   formik: PropTypes.object.isRequired,
   id: PropTypes.string,
+  tenantScoped: PropTypes.bool,
 };
 
 export default connectFormik(SlackAccount);

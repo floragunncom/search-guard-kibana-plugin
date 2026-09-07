@@ -291,14 +291,9 @@ const Proxy = () => (
   </Fragment>
 );
 
-const EmailAccount = ({ id, formik: { values, errors } }) => {
-  const {
-    httpClient,
-    onSwitchChange,
-    onComboBoxChange,
-    onComboBoxOnBlur,
-    onComboBoxCreateOption,
-  } = useContext(Context);
+const EmailAccount = ({ id, tenantScoped, formik: { values, errors } }) => {
+  const { httpClient, onSwitchChange, onComboBoxChange, onComboBoxOnBlur, onComboBoxCreateOption } =
+    useContext(Context);
   const isUpdatingName = id !== values._id;
 
   return (
@@ -326,7 +321,7 @@ const EmailAccount = ({ id, formik: { values, errors } }) => {
         }}
         formikFieldProps={{
           validate: validateName(
-            new AccountsService(httpClient, ACCOUNT_TYPE.EMAIL),
+            new AccountsService(httpClient, ACCOUNT_TYPE.EMAIL, tenantScoped),
             isUpdatingName
           ),
         }}
@@ -403,6 +398,7 @@ const EmailAccount = ({ id, formik: { values, errors } }) => {
 EmailAccount.propTypes = {
   formik: PropTypes.object.isRequired,
   id: PropTypes.string,
+  tenantScoped: PropTypes.bool,
 };
 
 export default connectFormik(EmailAccount);

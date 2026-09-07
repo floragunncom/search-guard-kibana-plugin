@@ -22,18 +22,12 @@ import { DefineJsonAccount } from '../DefineJsonAccount';
 import { Breadcrumbs } from '../../components';
 import WatchAck from '../WatchAck';
 import getBreadcrumb from './utils/getBreadcrumb';
+import { getSelectedTabId } from './utils/get_selected_tab_id';
 import { APP_PATH, APP_NAME } from '../../utils/constants';
+import { tenantAccountsText } from '../../utils/i18n/account';
 
 import { Context } from '../../Context';
 import SignalsOperatorView from '../SignalsOperatorView';
-
-
-const getSelectedTabId = (pathname) => {
-  if (pathname.includes(APP_PATH.WATCHES)) return APP_PATH.WATCHES;
-  if (pathname.includes(APP_PATH.ACCOUNTS)) return APP_PATH.ACCOUNTS;
-  if (pathname.includes(APP_PATH.SIGNALS_OPERATOR_VIEW)) return APP_PATH.SIGNALS_OPERATOR_VIEW;
-  return APP_PATH.WATCHES;
-};
 
 class Main extends Component {
   static contextType = Context;
@@ -48,12 +42,15 @@ class Main extends Component {
     this.state = {
       selectedTabId,
     };
+  }
 
-    this.tabs = [
+  getTabs = () => {
+    const { isMultitenancyEnabled, tenantAccountPermissions } = this.context;
+    const tabs = [
       {
         id: APP_PATH.SIGNALS_OPERATOR_VIEW,
         name: 'Operator View',
-        route: APP_PATH.SIGNALS_OPERATOR_VIEW
+        route: APP_PATH.SIGNALS_OPERATOR_VIEW,
       },
       {
         id: APP_PATH.WATCHES,
@@ -64,9 +61,19 @@ class Main extends Component {
         id: APP_PATH.ACCOUNTS,
         name: 'Accounts',
         route: APP_PATH.ACCOUNTS,
-      }
+      },
     ];
-  }
+
+    if (isMultitenancyEnabled && tenantAccountPermissions.read) {
+      tabs.push({
+        id: APP_PATH.TENANT_ACCOUNTS,
+        name: tenantAccountsText,
+        route: APP_PATH.TENANT_ACCOUNTS,
+      });
+    }
+
+    return tabs;
+  };
 
   componentDidUpdate(prevProps) {
     const {
@@ -104,6 +111,8 @@ class Main extends Component {
 
   render() {
     const { history, ...props } = this.props;
+    const tabs = this.getTabs();
+    const canReadTenantAccounts = tabs.some(({ id }) => id === APP_PATH.TENANT_ACCOUNTS);
 
     /*
       Drag And Drop (DND) functionality relies on <div id="searchguardDragAndDropPortalAnchor" />
@@ -132,16 +141,13 @@ class Main extends Component {
                 path={APP_PATH.WATCHES}
                 render={(props) => (
                   <EuiErrorBoundary>
-                    <EuiTabs>{this.tabs.map(this.renderTab)}</EuiTabs>
+                    <EuiTabs>{tabs.map(this.renderTab)}</EuiTabs>
                     <EuiSpacer />
                     <Watches {...props} />
                   </EuiErrorBoundary>
                 )}
               />
-              <Route
-                path={APP_PATH.DEFINE_WATCH}
-                render={(props) => <DefineWatch {...props} />}
-              />
+              <Route path={APP_PATH.DEFINE_WATCH} render={(props) => <DefineWatch {...props} />} />
               <Route
                 path={APP_PATH.DEFINE_JSON_WATCH}
                 render={(props) => <DefineJsonWatch {...props} />}
@@ -152,17 +158,33 @@ class Main extends Component {
                 path={APP_PATH.DASHBOARD}
                 render={(props) => (
                   <EuiErrorBoundary>
-                    <EuiTabs>{this.tabs.map(this.renderTab)}</EuiTabs>
+                    <EuiTabs>{tabs.map(this.renderTab)}</EuiTabs>
                     <EuiSpacer />
                     <Alerts {...props} />
                   </EuiErrorBoundary>
                 )}
               />
               <Route
+                exact
+                path={APP_PATH.TENANT_ACCOUNTS}
+                render={(props) =>
+                  canReadTenantAccounts ? (
+                    <EuiErrorBoundary>
+                      <EuiTabs>{tabs.map(this.renderTab)}</EuiTabs>
+                      <EuiSpacer />
+                      <Accounts scope="tenant" {...props} />
+                    </EuiErrorBoundary>
+                  ) : (
+                    <Redirect to={APP_PATH.ACCOUNTS} />
+                  )
+                }
+              />
+              <Route
+                exact
                 path={APP_PATH.ACCOUNTS}
                 render={(props) => (
                   <EuiErrorBoundary>
-                    <EuiTabs>{this.tabs.map(this.renderTab)}</EuiTabs>
+                    <EuiTabs>{tabs.map(this.renderTab)}</EuiTabs>
                     <EuiSpacer />
                     <Accounts {...props} />
                   </EuiErrorBoundary>
@@ -181,7 +203,7 @@ class Main extends Component {
                 path={APP_PATH.SIGNALS_OPERATOR_VIEW}
                 render={(props) => (
                   <EuiErrorBoundary>
-                    <EuiTabs>{this.tabs.map(this.renderTab)}</EuiTabs>
+                    <EuiTabs>{tabs.map(this.renderTab)}</EuiTabs>
                     <EuiSpacer />
                     <SignalsOperatorView {...props} />
                   </EuiErrorBoundary>

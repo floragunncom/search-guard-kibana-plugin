@@ -12,6 +12,7 @@ import {
   updateAccountText,
   accountsText,
   readAccountText,
+  tenantAccountsText,
 } from '../../../utils/i18n/account';
 import { homeText } from '../../../utils/i18n/common';
 import { APP_PATH, WATCH_ACTIONS } from '../../../utils/constants';
@@ -23,13 +24,17 @@ export default function getBreadcrumb(route) {
   const [ base, queryParams ] = route.split('?');
   if (!base) return null;
 
-  const { id, watchId, accountType, action } = queryString.parse(queryParams);
+  const { id, watchId, accountType, action, scope } = queryString.parse(queryParams);
   const readWatch = action === WATCH_ACTIONS.READ_WATCH;
   const readAccount = true;
+  const accountsPath = scope === 'tenant' ? APP_PATH.TENANT_ACCOUNTS : APP_PATH.ACCOUNTS;
+  const accountsLabel = scope === 'tenant' ? tenantAccountsText : accountsText;
 
   let urlParams = '';
   if (id && accountType) {
-    urlParams = `?${queryString.stringify({ id, accountType })}`;
+    urlParams = `?${queryString.stringify({ id, accountType, scope })}`;
+  } else if (accountType) {
+    urlParams = `?${queryString.stringify({ accountType, scope })}`;
   } else if (id) {
     urlParams = `?${queryString.stringify({ id })}`;
   } else if (watchId) { // Alerts (execution history) by watch id
@@ -80,10 +85,14 @@ export default function getBreadcrumb(route) {
       text: accountsText,
       href: APP_PATH.ACCOUNTS
     },
+    [removePrefixSlash(APP_PATH.TENANT_ACCOUNTS)]: {
+      text: tenantAccountsText,
+      href: APP_PATH.TENANT_ACCOUNTS,
+    },
     [removePrefixSlash(APP_PATH.DEFINE_ACCOUNT)]: [
       {
-        text: accountsText,
-        href: APP_PATH.ACCOUNTS
+        text: accountsLabel,
+        href: accountsPath,
       },
       {
         text: id ? updateAccountText : createAccountText,
@@ -92,8 +101,8 @@ export default function getBreadcrumb(route) {
     ],
     [removePrefixSlash(APP_PATH.DEFINE_JSON_ACCOUNT)]: [
       {
-        text: accountsText,
-        href: APP_PATH.ACCOUNTS,
+        text: accountsLabel,
+        href: accountsPath,
       },
       {
         text: readAccount ? readAccountText : (id ? updateAccountText : createAccountText),

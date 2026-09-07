@@ -13,16 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getResourceEditUri, getResourceReadUri } from './helpers';
+import { buildTenantAccounts, getResourceEditUri, getResourceReadUri } from './helpers';
 
 describe('Accounts/helpers', () => {
+  test('buildTenantAccounts marks accounts that shadow a global account', () => {
+    expect(
+      buildTenantAccounts([
+        { _id: 'shared', type: 'email' },
+        { _id: 'shared', type: 'email', _tenant: 'tenant1' },
+        { _id: 'tenant-only', type: 'email', _tenant: 'tenant1' },
+      ])
+    ).toEqual([
+      { _id: 'shared', type: 'email', _tenant: 'tenant1', _shadowsGlobal: true },
+      { _id: 'tenant-only', type: 'email', _tenant: 'tenant1', _shadowsGlobal: false },
+    ]);
+  });
+
   test('getResourceEditUri', () => {
     expect(getResourceEditUri('a b', 'email')).toBe('/define-account?id=a%20b&accountType=email');
+    expect(getResourceEditUri('a b', 'email', true)).toBe(
+      '/define-account?id=a%20b&accountType=email&scope=tenant'
+    );
   });
 
   test('getResourceReadUri', () => {
     expect(getResourceReadUri('a b', 'email')).toBe(
       '/define-json-account?id=a%20b&accountType=email&action=read-account'
+    );
+    expect(getResourceReadUri('a b', 'email', true)).toBe(
+      '/define-json-account?id=a%20b&accountType=email&action=read-account&scope=tenant'
     );
   });
 });
