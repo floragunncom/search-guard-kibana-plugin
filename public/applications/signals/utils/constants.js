@@ -14,6 +14,7 @@ export {
 export const APP_PATH = {
   HOME: '/',
   ACCOUNTS: '/accounts',
+  TENANT_ACCOUNTS: '/tenant-accounts',
   ACCOUNT: '/account',
   DEFINE_ACCOUNT: '/define-account',
   DEFINE_JSON_ACCOUNT: '/define-json-account',

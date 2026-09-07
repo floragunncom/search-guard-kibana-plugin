@@ -20,9 +20,11 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiInMemoryTable,
+  EuiBadge,
   EuiIcon,
   EuiSearchBar,
   EuiSpacer,
+  EuiText,
 } from '@elastic/eui';
 import { LEFT_ALIGNMENT } from '@elastic/eui/lib/services';
 import { cloneDeep, get } from 'lodash';
@@ -34,15 +36,30 @@ import {
   TableTextCell,
   PopoverButton,
 } from '../../components';
-import { buildESQuery, getResourceEditUri, getResourceReadUri } from './utils/helpers';
+import {
+  buildESQuery,
+  buildTenantAccounts,
+  getResourceEditUri,
+  getResourceReadUri,
+} from './utils/helpers';
 import { deleteText, cloneText, saveText, typeText, jsonText } from '../../utils/i18n/common';
-import { accountsText } from '../../utils/i18n/account';
+import {
+  accountBehaviorText,
+  accountsText,
+  cloneTenantAccountTitleText,
+  globalAccountsDescriptionText,
+  shadowsGlobalAccountText,
+  tenantAccountShadowWarningText,
+  tenantAccountsDescriptionText,
+  tenantAccountsText,
+} from '../../utils/i18n/account';
 import { TABLE_SORT_FIELD, TABLE_SORT_DIRECTION, ACCOUNT_TYPE } from './utils/constants';
 import { APP_PATH } from '../../utils/constants';
 
 import { Context } from '../../Context';
 
 const initialQuery = EuiSearchBar.Query.MATCH_ALL;
+
 class Accounts extends Component {
   static contextType = Context;
 
@@ -59,6 +76,9 @@ class Accounts extends Component {
     };
 
     this.destService = new AccountsService(context.httpClient);
+    this.tenantDestService = new AccountsService(context.httpClient, undefined, true);
+    this.canManageTenantAccounts =
+      context.isMultitenancyEnabled && context.tenantAccountPermissions.manage;
   }
 
   componentDidMount() {
@@ -68,7 +88,10 @@ class Accounts extends Component {
   componentDidUpdate(prevProps, prevState) {
     const { query: prevQuery } = prevState;
     const { query } = this.state;
-    if (JSON.stringify(prevQuery) !== JSON.stringify(query)) {
+    if (
+      JSON.stringify(prevQuery) !== JSON.stringify(query) ||
+      prevProps.scope !== this.props.scope
+    ) {
       this.getAccounts();
     }
   }
@@ -76,7 +99,8 @@ class Accounts extends Component {
   putAccount = async ({ _id, ...account }) => {
     this.setState({ isLoading: true, error: null });
     try {
-      await this.destService.put(account, _id, account.type);
+      const service = account._tenant ? this.tenantDestService : this.destService;
+      await service.put(account, _id, account.type);
       this.context.addSuccessToast(
         <p>
           {saveText} {_id}
@@ -100,7 +124,10 @@ class Accounts extends Component {
       const esQuery = buildESQuery(EuiSearchBar.Query.toESQuery(query));
       console.debug('Accounts -- getAccounts -- esQuery', esQuery);
 
-      const { resp: accounts } = await this.destService.search(esQuery);
+      const tenantScoped = this.props.scope === 'tenant';
+      const service = tenantScoped ? this.tenantDestService : this.destService;
+      const { resp } = await service.search(esQuery);
+      const accounts = tenantScoped ? buildTenantAccounts(resp) : resp;
       this.setState({ accounts, error: null });
     } catch (error) {
       console.error('Accounts -- getAccounts', error);
@@ -111,11 +138,11 @@ class Accounts extends Component {
     this.setState({ isLoading: false });
   };
 
-  handleCloneAccount = async (account) => {
-    this.setState({ isLoading: true, error: null });
+  cloneAccount = async (account, id) => {
     try {
-      const { _id: id, ...rest } = account;
-      await this.destService.put(cloneDeep({ ...rest }), `${id}_copy`, account.type);
+      const { _id, ...rest } = account;
+      const service = account._tenant ? this.tenantDestService : this.destService;
+      await service.put(cloneDeep({ ...rest }), id, account.type);
       this.context.addSuccessToast(
         <p>
           {cloneText} {id}
@@ -131,12 +158,45 @@ class Accounts extends Component {
     this.setState({ isLoading: false });
   };
 
+  handleCloneAccount = async (account) => {
+    this.setState({ isLoading: true, error: null });
+    const id = `${account._id}_copy`;
+
+    if (account._tenant) {
+      try {
+        await this.destService.get(id, account.type);
+        this.context.triggerConfirmModal({
+          title: cloneTenantAccountTitleText,
+          body: <p>{tenantAccountShadowWarningText(id)}</p>,
+          onConfirm: () => {
+            this.context.triggerConfirmModal(null);
+            this.cloneAccount(account, id);
+          },
+          onCancel: () => {
+            this.setState({ isLoading: false });
+            this.context.triggerConfirmModal(null);
+          },
+        });
+        return;
+      } catch (error) {
+        if (!error.body || error.body.statusCode !== 404) {
+          this.context.addErrorToast(error);
+          this.setState({ isLoading: false, error });
+          return;
+        }
+      }
+    }
+
+    await this.cloneAccount(account, id);
+  };
+
   deleteAccounts = async (accounts = []) => {
     const promises = [];
 
     this.setState({ isLoading: true, error: null });
-    accounts.forEach(({ _id: id, type }) => {
-      const promise = this.destService
+    accounts.forEach(({ _id: id, type, _tenant: tenant }) => {
+      const service = tenant ? this.tenantDestService : this.destService;
+      const promise = service
         .delete(id, type)
         .then(() => {
           this.context.addSuccessToast(
@@ -185,7 +245,8 @@ class Accounts extends Component {
 
   addAccount = (accountType) => {
     this.triggerAddAccountPopover();
-    this.props.history.push(`${APP_PATH.DEFINE_ACCOUNT}?accountType=${accountType}`);
+    const scope = this.props.scope === 'tenant' ? '&scope=tenant' : '';
+    this.props.history.push(`${APP_PATH.DEFINE_ACCOUNT}?accountType=${accountType}${scope}`);
   };
 
   renderToolsLeft = () => {
@@ -233,6 +294,7 @@ class Accounts extends Component {
 
   render() {
     const { history } = this.props;
+    const tenantScoped = this.props.scope === 'tenant';
     const { accounts, isLoading, error, isAddAccountPopoverOpen } = this.state;
 
     const actions = [
@@ -242,25 +304,30 @@ class Accounts extends Component {
         description: 'Account JSON',
         icon: 'document',
         type: 'icon',
-        onClick: ({ _id, type }) => history.push(getResourceReadUri(_id, type)),
+        onClick: ({ _id, type, _tenant: tenant }) =>
+          history.push(getResourceReadUri(_id, type, !!tenant)),
       },
-      {
-        'data-test-subj': 'sgTableCol-ActionClone',
-        name: cloneText,
-        description: 'Clone the watch',
-        icon: 'copy',
-        type: 'icon',
-        onClick: this.handleCloneAccount,
-      },
-      {
-        'data-test-subj': 'sgTableCol-ActionDelete',
-        name: deleteText,
-        description: 'Delete the watch',
-        icon: 'trash',
-        type: 'icon',
-        color: 'danger',
-        onClick: (account) => this.handleDeleteAccounts([account]),
-      },
+      ...(!tenantScoped || this.canManageTenantAccounts
+        ? [
+            {
+              'data-test-subj': 'sgTableCol-ActionClone',
+              name: cloneText,
+              description: 'Clone the watch',
+              icon: 'copy',
+              type: 'icon',
+              onClick: this.handleCloneAccount,
+            },
+            {
+              'data-test-subj': 'sgTableCol-ActionDelete',
+              name: deleteText,
+              description: 'Delete the watch',
+              icon: 'trash',
+              type: 'icon',
+              color: 'danger',
+              onClick: (account) => this.handleDeleteAccounts([account]),
+            },
+          ]
+        : []),
     ];
 
     const columns = [
@@ -271,15 +338,18 @@ class Accounts extends Component {
         alignment: LEFT_ALIGNMENT,
         truncateText: true,
         sortable: true,
-        render: (id, { type }) => (
-          <TableIdCell
-            name={id}
-            value={id}
-            onClick={() => {
-              history.push(getResourceEditUri(id, type));
-            }}
-          />
-        ),
+        render: (id, { type, _tenant: tenant }) =>
+          tenantScoped && !this.canManageTenantAccounts ? (
+            <TableTextCell value={id} name={id} />
+          ) : (
+            <TableIdCell
+              name={id}
+              value={id}
+              onClick={() => {
+                history.push(getResourceEditUri(id, type, !!tenant));
+              }}
+            />
+          ),
       },
       {
         field: 'type',
@@ -287,15 +357,29 @@ class Accounts extends Component {
         footer: typeText,
         render: (type, { _id }) => <TableTextCell value={type} name={`Type-${_id}`} />,
       },
+      ...(tenantScoped
+        ? [
+            {
+              field: '_shadowsGlobal',
+              name: accountBehaviorText,
+              render: (shadowsGlobal) =>
+                shadowsGlobal ? (
+                  <EuiBadge color="warning">{shadowsGlobalAccountText}</EuiBadge>
+                ) : null,
+            },
+          ]
+        : []),
       {
         actions,
       },
     ];
 
-    const selection = {
-      selectable: (doc) => doc._id,
-      onSelectionChange: (tableSelection) => this.setState({ tableSelection }),
-    };
+    const selection =
+      tenantScoped && !this.canManageTenantAccounts
+        ? undefined
+        : {
+            onSelectionChange: (tableSelection) => this.setState({ tableSelection }),
+          };
 
     const sorting = {
       sort: {
@@ -307,7 +391,7 @@ class Accounts extends Component {
     const addAccountContextMenuPanels = [
       {
         id: 0,
-        title: 'Accounts',
+        title: tenantScoped ? tenantAccountsText : accountsText,
         items: [
           {
             name: 'Email',
@@ -335,16 +419,24 @@ class Accounts extends Component {
 
     return (
       <ContentPanel
-        title={accountsText}
-        actions={[
-          <PopoverButton
-            isPopoverOpen={isAddAccountPopoverOpen}
-            contextMenuPanels={addAccountContextMenuPanels}
-            onClick={this.triggerAddAccountPopover}
-            name="AddAccount"
-          />,
-        ]}
+        title={tenantScoped ? tenantAccountsText : accountsText}
+        actions={
+          tenantScoped && !this.canManageTenantAccounts
+            ? []
+            : [
+                <PopoverButton
+                  isPopoverOpen={isAddAccountPopoverOpen}
+                  contextMenuPanels={addAccountContextMenuPanels}
+                  onClick={this.triggerAddAccountPopover}
+                  name="AddAccount"
+                />,
+              ]
+        }
       >
+        <EuiText size="s">
+          <p>{tenantScoped ? tenantAccountsDescriptionText : globalAccountsDescriptionText}</p>
+        </EuiText>
+        <EuiSpacer />
         {this.renderSearchBar()}
         <EuiSpacer />
         <EuiFlexGroup>
@@ -352,12 +444,14 @@ class Accounts extends Component {
             <EuiInMemoryTable
               error={get(error, 'message')}
               items={accounts}
-              itemId="_id"
+              itemId={(account) =>
+                `${account._tenant ? 'tenant' : 'global'}/${account.type}/${account._id}`
+              }
               columns={columns}
               selection={selection}
               sorting={sorting}
               loading={isLoading}
-              isSelectable
+              isSelectable={!!selection}
               pagination
             />
           </EuiFlexItem>
@@ -369,6 +463,11 @@ class Accounts extends Component {
 
 Accounts.propTypes = {
   history: PropTypes.object.isRequired,
+  scope: PropTypes.oneOf(['global', 'tenant']),
+};
+
+Accounts.defaultProps = {
+  scope: 'global',
 };
 
 export default Accounts;

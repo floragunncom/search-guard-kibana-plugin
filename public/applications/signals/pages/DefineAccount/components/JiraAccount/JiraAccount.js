@@ -43,7 +43,7 @@ const renderTextField = (path, label, validate) => {
   );
 };
 
-const JiraAccount = ({ formik: { values, errors }, id }) => {
+const JiraAccount = ({ formik: { values, errors }, id, tenantScoped }) => {
   const { httpClient } = useContext(Context);
   const isUpdatingName = id !== values._id;
 
@@ -62,7 +62,10 @@ const JiraAccount = ({ formik: { values, errors }, id }) => {
       {renderTextField(
         '_id',
         nameText,
-        validateName(new AccountsService(httpClient, ACCOUNT_TYPE.JIRA), isUpdatingName)
+        validateName(
+          new AccountsService(httpClient, ACCOUNT_TYPE.JIRA, tenantScoped),
+          isUpdatingName
+        )
       )}
       {renderTextField('url', urlText, validateEmptyField)}
       {renderTextField('user_name', usernameText, validateEmptyField)}
@@ -83,9 +86,10 @@ const JiraAccount = ({ formik: { values, errors }, id }) => {
   );
 };
 
-JiraAccount.protoTypes = {
+JiraAccount.propTypes = {
   formik: PropTypes.object.isRequired,
   id: PropTypes.string,
+  tenantScoped: PropTypes.bool,
 };
 
 export default connectFormik(JiraAccount);

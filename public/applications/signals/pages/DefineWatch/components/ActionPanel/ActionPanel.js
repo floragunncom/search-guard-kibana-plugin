@@ -90,7 +90,8 @@ class ActionPanel extends Component {
       accounts: [],
     };
 
-    this.destService = new AccountsService(context.httpClient);
+    const tenantScoped = context.isMultitenancyEnabled && context.tenantAccountPermissions.read;
+    this.destService = new AccountsService(context.httpClient, undefined, tenantScoped);
   }
 
   componentDidMount() {

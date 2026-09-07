@@ -14,4 +14,17 @@ describe('getCurrentAccount', () => {
 
     expect(getCurrentAccount(allAccounts, account)).toEqual(undefined);
   });
+
+  test('returns the tenant account when it shadows a global account', () => {
+    const globalAccount = { _id: 'shared', default_from: 'global@example.com' };
+    const tenantAccount = {
+      _id: 'shared',
+      _tenant: '_main',
+      default_from: 'tenant@example.com',
+    };
+
+    expect(getCurrentAccount([tenantAccount, globalAccount], [{ label: 'shared' }])).toEqual(
+      tenantAccount
+    );
+  });
 });

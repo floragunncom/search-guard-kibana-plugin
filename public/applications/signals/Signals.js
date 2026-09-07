@@ -4,15 +4,23 @@ import { SearchGuardService } from './services';
 import { getSearchGuardAppCategory } from '../../utils/constants';
 import { appNaviFix } from '../../utils/appNaviFix';
 
+const defaultPermissions = {
+  signals: false,
+  tenantAccounts: {
+    read: false,
+    manage: false,
+  },
+};
+
 export class Signals {
   constructor() {
     this.appUpdater = new BehaviorSubject(() => ({}));
-    this.hasPermissions = false;
+    this.permissions = defaultPermissions;
   }
 
-  mount({ core, httpClient }) {
+  mount({ core, httpClient, configService }) {
     return async (params) => {
-      if (!this.hasPermissions) return;
+      if (!this.permissions.signals) return;
 
       // If the navigation came from "outside", e.g. from the
       // side nav, we need to tell our router to render the
@@ -25,8 +33,10 @@ export class Signals {
         element: params.element,
         core,
         httpClient,
+        configService,
+        permissions: this.permissions,
         removeExternalHistoryListener,
-        theme$: params.theme$
+        theme$: params.theme$,
       });
     };
   }
@@ -38,7 +48,7 @@ export class Signals {
         title: 'Signals',
         category: getSearchGuardAppCategory(configService),
         updater$: this.appUpdater,
-        mount: this.mount({ core, httpClient }),
+        mount: this.mount({ core, httpClient, configService }),
       });
     } catch (error) {
       console.error(`Signals: ${error.toString()} ${error.stack} `);
@@ -49,7 +59,7 @@ export class Signals {
     try {
       if (configService.isLoginPage()) return;
       const sgService = new SearchGuardService(httpClient);
-      this.hasPermissions = await sgService.hasPermissions();
+      this.permissions = await sgService.hasPermissions();
     } catch (error) {
       console.error(`Signals setup: ${error.toString()} ${error.stack} `);
     }
@@ -60,9 +70,9 @@ export class Signals {
       if (configService.isLoginPage()) return;
 
       const sgService = new SearchGuardService(httpClient);
-      this.hasPermissions = await sgService.hasPermissions();
+      this.permissions = await sgService.hasPermissions();
 
-      if (!this.hasPermissions) {
+      if (!this.permissions.signals) {
         this.appUpdater.next(() => ({
           visibleIn: [],
           tooltip: 'Signals disabled',
