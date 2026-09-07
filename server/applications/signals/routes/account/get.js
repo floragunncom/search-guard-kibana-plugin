@@ -17,47 +17,64 @@
 import { schema } from '@kbn/config-schema';
 import { serverError } from '../../lib/errors';
 import { getId } from '../../lib/helpers';
-import { ROUTE_PATH } from '../../../../../common/signals/constants';
+import { NO_MULTITENANCY_TENANT, ROUTE_PATH } from '../../../../../common/signals/constants';
 
-export const getAccount = ({ clusterClient, logger }) => async (context, request, response) => {
-  try {
-    const { id, type } = request.params;
+export const getAccount =
+  ({ clusterClient, logger, configService, tenantScoped = false }) =>
+  async (context, request, response) => {
+    try {
+      if (tenantScoped && configService.get('searchguard.multitenancy.enabled') !== true) {
+        return response.notFound();
+      }
 
-    const path = `/_signals/account/${type}/${encodeURIComponent(id)}`;
+      const { id, type } = request.params;
+      const { sgtenant = NO_MULTITENANCY_TENANT } = request.headers || {};
 
-    const { _source, _id } = await clusterClient.asScoped(request).asCurrentUser.transport.request({
-      method: 'get',
-      path,
-    });
+      const accountPath = `${encodeURIComponent(type)}/${encodeURIComponent(id)}`;
+      const path = tenantScoped
+        ? `/_signals/account/${encodeURIComponent(sgtenant)}/${accountPath}`
+        : `/_signals/account/${accountPath}`;
 
-    return response.ok({
-      body: {
-        ok: true,
-        resp: { ..._source, _id: getId(_id) },
-      },
-    });
-  } catch (err) {
-    if (err.statusCode !== 404) {
-      logger.error(`getAccount: ${err.stack}`);
+      const { _source, _id } = await clusterClient
+        .asScoped(request)
+        .asCurrentUser.transport.request({
+          method: 'get',
+          path,
+        });
+
+      return response.ok({
+        body: {
+          ok: true,
+          resp: { ..._source, _id: getId(_id) },
+        },
+      });
+    } catch (err) {
+      if (err.statusCode !== 404) {
+        logger.error(`getAccount: ${err.stack}`);
+      }
+      return response.customError(serverError(err));
     }
-    return response.customError(serverError(err));
-  }
-};
+  };
 
-export function getAccountRoute({ router, clusterClient, logger }) {
-  router.get(
-    {
-      path: `${ROUTE_PATH.ACCOUNT}/{type}/{id}`,
-      validate: {
-        params: schema.object(
-          {
-            id: schema.string(),
-            type: schema.string(),
-          },
-          { unknowns: 'allow' }
-        ),
+export function getAccountRoute({ router, clusterClient, logger, configService }) {
+  const registerRoute = (path, tenantScoped) => {
+    router.get(
+      {
+        path,
+        validate: {
+          params: schema.object(
+            {
+              id: schema.string(),
+              type: schema.string(),
+            },
+            { unknowns: 'allow' }
+          ),
+        },
       },
-    },
-    getAccount({ clusterClient, logger })
-  );
+      getAccount({ clusterClient, logger, configService, tenantScoped })
+    );
+  };
+
+  registerRoute(`${ROUTE_PATH.ACCOUNT}/{type}/{id}`, false);
+  registerRoute(`${ROUTE_PATH.TENANT_ACCOUNT}/{type}/{id}`, true);
 }

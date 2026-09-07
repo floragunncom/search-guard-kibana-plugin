@@ -16,50 +16,66 @@
 
 import { schema } from '@kbn/config-schema';
 import { serverError } from '../../lib/errors';
-import { ROUTE_PATH } from '../../../../../common/signals/constants';
+import { NO_MULTITENANCY_TENANT, ROUTE_PATH } from '../../../../../common/signals/constants';
 
-export const createAccount = ({ clusterClient, logger }) => async (context, request, response) => {
-  try {
-    const {
-      body = {},
-      params: { id, type },
-    } = request;
+export const createAccount =
+  ({ clusterClient, logger, configService, tenantScoped = false }) =>
+  async (context, request, response) => {
+    try {
+      if (tenantScoped && configService.get('searchguard.multitenancy.enabled') !== true) {
+        return response.notFound();
+      }
 
-    const path = `/_signals/account/${encodeURIComponent(type)}/${encodeURIComponent(id)}`;
+      const {
+        body = {},
+        params: { id, type },
+        headers = {},
+      } = request;
+      const { sgtenant = NO_MULTITENANCY_TENANT } = headers;
 
-    const resp = await clusterClient.asScoped(request).asCurrentUser.transport.request({
-      method: 'put',
-      path,
-      body,
-    });
+      const accountPath = `${encodeURIComponent(type)}/${encodeURIComponent(id)}`;
+      const path = tenantScoped
+        ? `/_signals/account/${encodeURIComponent(sgtenant)}/${accountPath}`
+        : `/_signals/account/${accountPath}`;
 
-    return response.ok({ body: { ok: true, resp } });
-  } catch (err) {
-    logger.error(`createAccount: ${err.stack}`);
-    return response.customError(serverError(err));
-  }
-};
+      const resp = await clusterClient.asScoped(request).asCurrentUser.transport.request({
+        method: 'put',
+        path,
+        body,
+      });
 
-export function createAccountRoute({ router, clusterClient, logger }) {
-  router.put(
-    {
-      path: `${ROUTE_PATH.ACCOUNT}/{type}/{id}`,
-      validate: {
-        params: schema.object(
-          {
-            id: schema.string(),
-            type: schema.string(),
-          },
-          { unknowns: 'allow' }
-        ),
-        body: schema.object(
-          {
-            type: schema.string(),
-          },
-          { unknowns: 'allow' }
-        ),
+      return response.ok({ body: { ok: true, resp } });
+    } catch (err) {
+      logger.error(`createAccount: ${err.stack}`);
+      return response.customError(serverError(err));
+    }
+  };
+
+export function createAccountRoute({ router, clusterClient, logger, configService }) {
+  const registerRoute = (path, tenantScoped) => {
+    router.put(
+      {
+        path,
+        validate: {
+          params: schema.object(
+            {
+              id: schema.string(),
+              type: schema.string(),
+            },
+            { unknowns: 'allow' }
+          ),
+          body: schema.object(
+            {
+              type: schema.string(),
+            },
+            { unknowns: 'allow' }
+          ),
+        },
       },
-    },
-    createAccount({ clusterClient, logger })
-  );
+      createAccount({ clusterClient, logger, configService, tenantScoped })
+    );
+  };
+
+  registerRoute(`${ROUTE_PATH.ACCOUNT}/{type}/{id}`, false);
+  registerRoute(`${ROUTE_PATH.TENANT_ACCOUNT}/{type}/{id}`, true);
 }

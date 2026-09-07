@@ -22,7 +22,10 @@ import {
   setupContextMock,
   setupSearchGuardBackendMock,
 } from '../../../../utils/mocks';
-import { PERMISSIONS_FOR_ACCESS } from '../../../../../common/signals/constants';
+import {
+  PERMISSIONS_FOR_ACCESS,
+  TENANT_ACCOUNT_PERMISSIONS,
+} from '../../../../../common/signals/constants';
 
 describe('routes/searchguard/has_permissions', () => {
   test('check Signals UI app permissions to render', async () => {
@@ -36,20 +39,41 @@ describe('routes/searchguard/has_permissions', () => {
         mockResponse: {
           permissions: {
             'cluster:admin:searchguard:tenant:signals:watch/get': false,
-            other_permission: false,
           },
         },
-        expectedResponse: false,
+        expectedResponse: {
+          signals: false,
+          tenantAccounts: { read: false, manage: false },
+        },
       },
       {
-        name: 'there is a permission to render',
+        name: 'there is permission to render and read tenant accounts',
         mockResponse: {
           permissions: {
             'cluster:admin:searchguard:tenant:signals:watch/get': true,
-            other_permission: false,
+            [TENANT_ACCOUNT_PERMISSIONS.GET]: true,
+            [TENANT_ACCOUNT_PERMISSIONS.SEARCH]: true,
           },
         },
-        expectedResponse: true,
+        expectedResponse: {
+          signals: true,
+          tenantAccounts: { read: true, manage: false },
+        },
+      },
+      {
+        name: 'there is permission to manage tenant accounts',
+        mockResponse: {
+          permissions: {
+            'cluster:admin:searchguard:tenant:signals:watch/get': true,
+            ...Object.fromEntries(
+              Object.values(TENANT_ACCOUNT_PERMISSIONS).map((permission) => [permission, true])
+            ),
+          },
+        },
+        expectedResponse: {
+          signals: true,
+          tenantAccounts: { read: true, manage: true },
+        },
       },
     ];
 
@@ -64,10 +88,10 @@ describe('routes/searchguard/has_permissions', () => {
 
       await hasPermissions({ searchguardBackendService, logger })(context, request, response);
 
-      expect(searchguardBackendService.hasPermissions).toHaveBeenCalledWith(
-        request.headers,
-        PERMISSIONS_FOR_ACCESS
-      );
+      expect(searchguardBackendService.hasPermissions).toHaveBeenCalledWith(request.headers, [
+        ...PERMISSIONS_FOR_ACCESS,
+        ...Object.values(TENANT_ACCOUNT_PERMISSIONS),
+      ]);
       expect(response.ok).toHaveBeenCalledWith({
         body: { ok: true, resp: expectedResponse },
       });

@@ -52,7 +52,9 @@ describe('routes/account/get', () => {
       params: { id: 'mymailserver 2', type: 'email' },
     };
 
-    const expectedPath = `/_signals/account/${request.params.type}/${encodeURIComponent(request.params.id)}`;
+    const expectedPath = `/_signals/account/${request.params.type}/${encodeURIComponent(
+      request.params.id
+    )}`;
     const expectedResponse = { ...mockResponse._source, _id: 'mymailserver' };
 
     await getAccount({ clusterClient, logger })(context, request, response);
@@ -68,6 +70,60 @@ describe('routes/account/get', () => {
         resp: expectedResponse,
       },
     });
+  });
+
+  test('get tenant account from the current tenant', async () => {
+    const logger = setupLoggerMock();
+    const response = setupHttpResponseMock();
+    const context = setupContextMock();
+    const mockResponse = {
+      _id: 'tenant 1/email/mymailserver',
+      _source: {
+        _tenant: 'tenant 1',
+        type: 'EMAIL',
+      },
+    };
+    const asCurrentUserTransportRequest = jest.fn().mockResolvedValue(mockResponse);
+    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
+    const configService = { get: jest.fn().mockReturnValue(true) };
+    const request = {
+      headers: { sgtenant: 'tenant 1' },
+      params: { id: 'mymailserver', type: 'email' },
+    };
+
+    await getAccount({ clusterClient, logger, configService, tenantScoped: true })(
+      context,
+      request,
+      response
+    );
+
+    expect(asCurrentUserTransportRequest).toHaveBeenCalledWith({
+      method: 'get',
+      path: '/_signals/account/tenant%201/email/mymailserver',
+    });
+    expect(response.ok).toHaveBeenCalledWith({
+      body: {
+        ok: true,
+        resp: { ...mockResponse._source, _id: 'mymailserver' },
+      },
+    });
+  });
+
+  test('returns not found for a tenant account when multitenancy is disabled', async () => {
+    const logger = setupLoggerMock();
+    const response = setupHttpResponseMock();
+    const context = setupContextMock();
+    const clusterClient = setupClusterClientMock();
+    const configService = { get: jest.fn().mockReturnValue(false) };
+
+    await getAccount({ clusterClient, logger, configService, tenantScoped: true })(
+      context,
+      {},
+      response
+    );
+
+    expect(response.notFound).toHaveBeenCalled();
+    expect(clusterClient.asScoped).not.toHaveBeenCalled();
   });
 
   test('there is an error', async () => {
