@@ -15,20 +15,39 @@
  */
 
 import { serverError } from '../../lib';
-import { ROUTE_PATH, PERMISSIONS_FOR_ACCESS } from '../../../../../common/signals/constants';
+import {
+  ROUTE_PATH,
+  PERMISSIONS_FOR_ACCESS,
+  TENANT_ACCOUNT_PERMISSIONS,
+} from '../../../../../common/signals/constants';
+
+const permissionsToCheck = [
+  ...PERMISSIONS_FOR_ACCESS,
+  ...Object.values(TENANT_ACCOUNT_PERMISSIONS),
+];
 
 export function hasPermissions({ logger, searchguardBackendService }) {
   return async function (context, request, response) {
     try {
       const { permissions = {} } = await searchguardBackendService.hasPermissions(
         request.headers,
-        PERMISSIONS_FOR_ACCESS
+        permissionsToCheck
       );
 
       return response.ok({
         body: {
           ok: true,
-          resp: Object.values(permissions).includes(true),
+          resp: {
+            signals: PERMISSIONS_FOR_ACCESS.some((permission) => permissions[permission] === true),
+            tenantAccounts: {
+              read: [TENANT_ACCOUNT_PERMISSIONS.GET, TENANT_ACCOUNT_PERMISSIONS.SEARCH].every(
+                (permission) => permissions[permission] === true
+              ),
+              manage: Object.values(TENANT_ACCOUNT_PERMISSIONS).every(
+                (permission) => permissions[permission] === true
+              ),
+            },
+          },
         },
       });
     } catch (err) {
