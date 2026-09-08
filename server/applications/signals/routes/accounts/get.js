@@ -67,7 +67,7 @@ export const getAccounts =
         },
       });
     } catch (err) {
-      logger.error(`getAccounts: ${err.stack}`);
+      logger.error(`getAccounts [${tenantScoped ? 'tenant' : 'global'}]: ${err.stack}`);
       return response.customError(serverError(err));
     }
   };
@@ -79,7 +79,9 @@ export function getAccountsRoute({
   logger,
   configService,
 }) {
-  const registerRoute = (path, tenantScoped) => {
+  const registerRoute = (tenantScoped) => {
+    const path = tenantScoped ? ROUTE_PATH.TENANT_ACCOUNTS : ROUTE_PATH.ACCOUNTS;
+
     router.post(
       {
         path,
@@ -97,6 +99,6 @@ export function getAccountsRoute({
     );
   };
 
-  registerRoute(ROUTE_PATH.ACCOUNTS, false);
-  registerRoute(ROUTE_PATH.TENANT_ACCOUNTS, true);
+  registerRoute(false);
+  registerRoute(true);
 }

@@ -162,7 +162,10 @@ describe('routes/accounts/get', () => {
     expect(clusterClient.asScoped).not.toHaveBeenCalled();
   });
 
-  test('there is an error', async () => {
+  test.each([
+    ['global', false],
+    ['tenant', true],
+  ])('logs the %s scope when there is an error', async (scope, tenantScoped) => {
     const logger = setupLoggerMock();
     const response = setupHttpResponseMock();
     const context = setupContextMock();
@@ -172,15 +175,22 @@ describe('routes/accounts/get', () => {
     const asCurrentUserTransportRequest = jest.fn().mockRejectedValue(error);
     const fetchAllFromScroll = jest.fn();
     const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
+    const configService = { get: jest.fn().mockReturnValue(true) };
 
     const request = {
       headers: {},
       body: {},
     };
 
-    await getAccounts({ clusterClient, fetchAllFromScroll, logger })(context, request, response);
+    await getAccounts({
+      clusterClient,
+      fetchAllFromScroll,
+      logger,
+      configService,
+      tenantScoped,
+    })(context, request, response);
 
-    expect(logger.error).toHaveBeenCalledWith(`getAccounts: ${error.stack}`);
+    expect(logger.error).toHaveBeenCalledWith(`getAccounts [${scope}]: ${error.stack}`);
     expect(response.customError).toHaveBeenCalledWith(serverError(error));
   });
 });

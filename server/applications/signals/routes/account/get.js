@@ -50,14 +50,18 @@ export const getAccount =
       });
     } catch (err) {
       if (err.statusCode !== 404) {
-        logger.error(`getAccount: ${err.stack}`);
+        logger.error(`getAccount [${tenantScoped ? 'tenant' : 'global'}]: ${err.stack}`);
       }
       return response.customError(serverError(err));
     }
   };
 
 export function getAccountRoute({ router, clusterClient, logger, configService }) {
-  const registerRoute = (path, tenantScoped) => {
+  const registerRoute = (tenantScoped) => {
+    const path = tenantScoped
+      ? `${ROUTE_PATH.TENANT_ACCOUNT}/{type}/{id}`
+      : `${ROUTE_PATH.ACCOUNT}/{type}/{id}`;
+
     router.get(
       {
         path,
@@ -75,6 +79,6 @@ export function getAccountRoute({ router, clusterClient, logger, configService }
     );
   };
 
-  registerRoute(`${ROUTE_PATH.ACCOUNT}/{type}/{id}`, false);
-  registerRoute(`${ROUTE_PATH.TENANT_ACCOUNT}/{type}/{id}`, true);
+  registerRoute(false);
+  registerRoute(true);
 }

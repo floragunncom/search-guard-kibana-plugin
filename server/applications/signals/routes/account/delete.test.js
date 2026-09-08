@@ -105,7 +105,10 @@ describe('routes/account/delete', () => {
     expect(clusterClient.asScoped).not.toHaveBeenCalled();
   });
 
-  test('there is an error', async () => {
+  test.each([
+    ['global', false],
+    ['tenant', true],
+  ])('logs the %s scope when there is an error', async (scope, tenantScoped) => {
     const logger = setupLoggerMock();
     const response = setupHttpResponseMock();
     const context = setupContextMock();
@@ -114,15 +117,20 @@ describe('routes/account/delete', () => {
 
     const asCurrentUserTransportRequest = jest.fn().mockRejectedValue(error);
     const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
+    const configService = { get: jest.fn().mockReturnValue(true) };
 
     const request = {
       headers: {},
       params: {},
     };
 
-    await deleteAccount({ clusterClient, logger })(context, request, response);
+    await deleteAccount({ clusterClient, logger, configService, tenantScoped })(
+      context,
+      request,
+      response
+    );
 
-    expect(logger.error).toHaveBeenCalledWith(`deleteAccount: ${error.stack}`);
+    expect(logger.error).toHaveBeenCalledWith(`deleteAccount [${scope}]: ${error.stack}`);
     expect(response.customError).toHaveBeenCalledWith(serverError(error));
   });
 });

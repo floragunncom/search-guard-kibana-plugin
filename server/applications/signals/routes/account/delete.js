@@ -41,13 +41,17 @@ export const deleteAccount =
 
       return response.ok({ body: { ok: true, resp } });
     } catch (err) {
-      logger.error(`deleteAccount: ${err.stack}`);
+      logger.error(`deleteAccount [${tenantScoped ? 'tenant' : 'global'}]: ${err.stack}`);
       return response.customError(serverError(err));
     }
   };
 
 export function deleteAccountRoute({ router, clusterClient, logger, configService }) {
-  const registerRoute = (path, tenantScoped) => {
+  const registerRoute = (tenantScoped) => {
+    const path = tenantScoped
+      ? `${ROUTE_PATH.TENANT_ACCOUNT}/{type}/{id}`
+      : `${ROUTE_PATH.ACCOUNT}/{type}/{id}`;
+
     router.delete(
       {
         path,
@@ -65,6 +69,6 @@ export function deleteAccountRoute({ router, clusterClient, logger, configServic
     );
   };
 
-  registerRoute(`${ROUTE_PATH.ACCOUNT}/{type}/{id}`, false);
-  registerRoute(`${ROUTE_PATH.TENANT_ACCOUNT}/{type}/{id}`, true);
+  registerRoute(false);
+  registerRoute(true);
 }
