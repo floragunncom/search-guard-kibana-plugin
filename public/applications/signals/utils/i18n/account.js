@@ -30,9 +30,15 @@ export const shadowsGlobalAccountText = (
     default="Shadows a global account of the same name"
   />
 );
-export const currentTenantText = (
-  <EuiI18n token="sg.account.currentTenant.text" default="Current tenant" />
-);
+export function currentTenantText(tenantName) {
+  return (
+    <EuiI18n
+      token="sg.account.currentTenant.text"
+      default="Tenant: {tenantName}"
+      values={{ tenantName }}
+    />
+  );
+}
 export const createTenantAccountTitleText = (
   <EuiI18n token="sg.account.createTenantAccountTitle.text" default="Create tenant account?" />
 );
