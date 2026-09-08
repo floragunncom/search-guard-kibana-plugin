@@ -14,7 +14,7 @@ variables:
   OWASP_DC_VERSION: "12.2.2"
 
   #####
-  SG_BUILD_IMAGE: "floragunncom/ubuntu-openjdk25:251126"
+  SG_BUILD_IMAGE: "floragunncom/ubuntu-openjdk25:260908-041343"
   SG_DIND_IMAGE: "floragunncom/ubuntu-dind:260209"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   MAVEN_CLI_OPTS: "--batch-mode -s settings.xml -q -U"
