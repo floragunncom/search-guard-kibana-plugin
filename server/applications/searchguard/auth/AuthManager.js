@@ -18,6 +18,7 @@ import { KibanaResponse } from '@kbn/core-http-server';
 import { assign } from 'lodash';
 import path from 'path';
 import { ensureRawRequest } from '@kbn/core-http-router-server-internal';
+import { getBrowserHost } from './browser_origin';
 
 export const AUTH_TYPE_NAMES = {
   BASIC: 'basicauth',
@@ -234,7 +235,10 @@ export class AuthManager {
     let loginPageURL = this.basePath + '/searchguard/login' + `?nextUrl=${nextUrl}`;
 
     try {
-      const authConfig = await this.searchGuardBackend.getAuthConfig(nextUrl);
+      const authConfig = await this.searchGuardBackend.getAuthConfig({
+        next_url: nextUrl,
+        dynamic_host: getBrowserHost(request),
+      });
 
       let config;
 
