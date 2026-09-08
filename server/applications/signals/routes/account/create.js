@@ -46,13 +46,17 @@ export const createAccount =
 
       return response.ok({ body: { ok: true, resp } });
     } catch (err) {
-      logger.error(`createAccount: ${err.stack}`);
+      logger.error(`createAccount [${tenantScoped ? 'tenant' : 'global'}]: ${err.stack}`);
       return response.customError(serverError(err));
     }
   };
 
 export function createAccountRoute({ router, clusterClient, logger, configService }) {
-  const registerRoute = (path, tenantScoped) => {
+  const registerRoute = (tenantScoped) => {
+    const path = tenantScoped
+      ? `${ROUTE_PATH.TENANT_ACCOUNT}/{type}/{id}`
+      : `${ROUTE_PATH.ACCOUNT}/{type}/{id}`;
+
     router.put(
       {
         path,
@@ -76,6 +80,6 @@ export function createAccountRoute({ router, clusterClient, logger, configServic
     );
   };
 
-  registerRoute(`${ROUTE_PATH.ACCOUNT}/{type}/{id}`, false);
-  registerRoute(`${ROUTE_PATH.TENANT_ACCOUNT}/{type}/{id}`, true);
+  registerRoute(false);
+  registerRoute(true);
 }
