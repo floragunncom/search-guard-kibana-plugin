@@ -19,6 +19,7 @@ import { accountToFormik, formikToAccount } from './utils';
 import { APP_PATH } from '../../utils/constants';
 import { ACCOUNT_TYPE } from '../Accounts/utils/constants';
 import * as DEFAULTS from './utils/defaults';
+import { tenantNameToUiTenantName } from '../../../../../common/multitenancy';
 
 import { Context } from '../../Context';
 
@@ -133,6 +134,9 @@ class DefineAccount extends Component {
     const { initialValues } = this.state;
     const { id, accountType } = queryString.parse(location.search);
     const isEdit = !!id;
+    const currentTenant = this.tenantScoped
+      ? tenantNameToUiTenantName(this.context.configService.get('authinfo.user_requested_tenant'))
+      : null;
 
     let account = <EmailAccount id={id} tenantScoped={this.tenantScoped} />;
 
@@ -164,7 +168,7 @@ class DefineAccount extends Component {
               {this.tenantScoped && (
                 <>
                   <EuiSpacer size="s" />
-                  <EuiBadge color="primary">{currentTenantText}</EuiBadge>
+                  <EuiBadge color="primary">{currentTenantText(currentTenant)}</EuiBadge>
                 </>
               )}
               <EuiSpacer />
