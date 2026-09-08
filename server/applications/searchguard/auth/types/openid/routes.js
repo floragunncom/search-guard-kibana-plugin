@@ -17,6 +17,7 @@
 import { schema } from '@kbn/config-schema';
 import { sanitizeNextUrl } from '../../sanitize_next_url';
 import { APP_ROOT } from '../../../../../utils/constants';
+import { getBrowserHost, getBrowserOrigin } from '../../browser_origin';
 
 export const OIDC_ROUTES = {
   LOGIN: `${APP_ROOT}/auth/oidc/login`,
@@ -96,22 +97,6 @@ export function defineRoutes({
     loginHandler(loginHandlerOptions)
   )
 } //end module
-
-function getBrowserOrigin(request, kibanaCore) {
-  let url = null;
-  try {
-    const serverInfo = kibanaCore.http.getServerInfo();
-    const protocol = serverInfo.protocol;
-    const host = request.headers[':authority'] ?? request.headers['host'] ?? null;
-
-    if (host !== null) {
-      url = `${protocol}://${host}`;
-    }
-  } catch (error) {
-    // Ignore, we will fall back to the publicBaseUrl
-  }
-  return url;
-}
 
 export function loginHandler({ basePath, config, authInstance, logger, searchGuardBackend, kibanaCore }) {
   return async function (context, request, response) {
@@ -280,8 +265,10 @@ async function handleAuthRequest({
 
   try {
     authConfig = (
-      await searchGuardBackend.getAuthConfig(nextUrl, {
-        dynamic_frontend_base_url: dynamicFrontendBaseUrl
+      await searchGuardBackend.getAuthConfig({
+        next_url: nextUrl,
+        dynamic_frontend_base_url: dynamicFrontendBaseUrl,
+        dynamic_host: getBrowserHost(request),
       })
     ).auth_methods.find(authConfigFinder);
 

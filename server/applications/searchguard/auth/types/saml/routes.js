@@ -18,6 +18,7 @@
 import { sanitizeNextUrl } from '../../sanitize_next_url';
 import { schema } from '@kbn/config-schema';
 import { APP_ROOT } from '../../../../../utils/constants';
+import { getBrowserHost } from '../../browser_origin';
 
 export const SAML_ROUTES = {
   LOGIN: `${APP_ROOT}/auth/saml/login`,
@@ -99,7 +100,10 @@ export function defineRoutes({
             };
 
         const authConfig = (
-          await searchGuardBackend.getAuthConfig(nextUrl)
+          await searchGuardBackend.getAuthConfig({
+            next_url: nextUrl,
+            dynamic_host: getBrowserHost(request),
+          })
         ).auth_methods.find(authConfigFinder);
 
         if (!authConfig) {

@@ -17,6 +17,7 @@
 import { API_ROOT } from '../../../utils/constants';
 import { AUTH_TYPE_NAMES } from './AuthManager';
 import { customError as customErrorRoute } from './types/common/routes';
+import { getBrowserHost } from './browser_origin';
 
 export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, configService }) {
   const router = kibanaCore.http.createRouter();
@@ -115,7 +116,7 @@ export function logoutHandler({ authManager }) {
 
 export function authConfigHandler({ authManager, searchGuardBackend, configService, kibanaCore }) {
   return async function (context, request, response) {
-    const authConfig = await searchGuardBackend.getAuthConfig();
+    const authConfig = await searchGuardBackend.getAuthConfig({ dynamic_host: getBrowserHost(request) });
 
     const backendMethodToFrontendMethod = {
       basic: AUTH_TYPE_NAMES.BASIC,
