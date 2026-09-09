@@ -47,6 +47,14 @@ export const WATCH_EXAMPLES = {
 
 export const NO_MULTITENANCY_TENANT = '_main';
 
+/**
+ * Type id of the watch status dashboard panel (embeddable). Registered on the public side
+ * (UI) and the server side (schema for the dashboards REST API).
+ * This should not be changed after users may have added panels, since those would then not render anymore.
+ * @type {string}
+ */
+export const WATCH_STATUS_EMBEDDABLE_ID = 'watch_status_embeddable';
+
 export const WATCH_STATUS = {
   EXECUTION_FAILED: 'EXECUTION_FAILED',
   ACTION_FAILED: 'ACTION_FAILED',
