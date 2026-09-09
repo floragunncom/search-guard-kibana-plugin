@@ -15,7 +15,9 @@
  */
 
 import { apiCanAddNewPanel } from '@kbn/presentation-publishing';
-import { ADD_PANEL_TRIGGER, IncompatibleActionError } from '@kbn/ui-actions-plugin/public';
+import { IncompatibleActionError } from '@kbn/ui-actions-plugin/public';
+// Kibana 9.4+: trigger ids are no longer re-exported from '@kbn/ui-actions-plugin/public'
+import { ADD_PANEL_TRIGGER } from '@kbn/ui-actions-plugin/common/trigger_ids';
 import { watchSelectorOverlay } from './watch_selector_overlay';
 import {
   getStateObservables,
@@ -26,13 +28,16 @@ import {
 
 /**
  * Registers the add watch status action to the dashboards add panel button
+ *
+ * Kibana 9.5 removed uiActions.registerAction; actions are registered lazily with
+ * addTriggerActionAsync(triggerId, actionId, getDefinition), which also attaches them.
+ *
  * @param uiActions - uiActions plugin per plugin dependencies
- * @param dashboard - dashboard plugin per plugin dependencies
  * @param httpClient
  * @param core - core start
  */
-export const registerAddWatchStatusAction = ({ uiActions, dashboard, httpClient, core }) => {
-  uiActions.registerAction({
+export const registerAddWatchStatusAction = ({ uiActions, httpClient, core }) => {
+  uiActions.addTriggerActionAsync(ADD_PANEL_TRIGGER, WATCH_STATUS_ACTION_ID, async () => ({
     id: WATCH_STATUS_ACTION_ID,
     grouping: WATCH_STATUS_ACTION_GROUP,
     getIconType: () => 'indexOpen',
@@ -49,8 +54,8 @@ export const registerAddWatchStatusAction = ({ uiActions, dashboard, httpClient,
       /**
        * Add panel helper function
        *
-       * Use 'serializedState' (not 'initialState') in 9.1.x
-       *
+       * 'serializedState' is the plain state object (Kibana 9.4+ dropped the { rawState } wrapper).
+       * Panel size/placement is provided by the embeddable definition's getPlacementHints().
        */
       const addPanel = (serializedState) => {
         embeddable.addNewPanel({
@@ -73,19 +78,5 @@ export const registerAddWatchStatusAction = ({ uiActions, dashboard, httpClient,
     getDisplayName: () => {
       return 'Add Signals watch';
     },
-  });
-  uiActions.attachAction(ADD_PANEL_TRIGGER, WATCH_STATUS_ACTION_ID);
-
-  // Set a sensible default size for the panel (9.2.x API)
-  if (dashboard) {
-    dashboard.registerDashboardPanelSettings(WATCH_STATUS_EMBEDDABLE_ID, () => {
-      return {
-        placementSettings: {
-          width: 8,
-          height: 8,
-          // strategy: PanelPlacementStrategy.findTopLeftMostOpenSpace, // default
-        },
-      };
-    });
-  }
+  }));
 };

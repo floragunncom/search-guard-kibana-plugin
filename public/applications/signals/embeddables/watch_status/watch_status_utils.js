@@ -47,14 +47,12 @@ export const getStateObservables = (attributes) => {
 
 /**
  * Serializes the watch selector state for passing to addNewPanel
- * 
- * Important: Must return { rawState: {...} } structure for 9.1.x
- * This is passed to the embeddable's buildEmbeddable as initialState.rawState
+ *
+ * Since Kibana 9.4 the serialized state is the plain state object (no { rawState } wrapper).
+ * It is passed to the embeddable's buildEmbeddable as initialState.
  */
 export const serializeAttributes = (state) => {
   return {
-    rawState: {
-      watchId: state.watchId.getValue(),
-    },
+    watchId: state.watchId.getValue(),
   };
 };
