@@ -20,10 +20,13 @@ export class Signals {
   constructor() {
     this.appUpdater = new BehaviorSubject(() => ({}));
     this.permissions = defaultPermissions;
+    this.permissionsReady = Promise.resolve();
   }
 
   mount({ core, httpClient, configService }) {
     return async (params) => {
+      await Promise.all([configService.fetchConfig(), this.permissionsReady]);
+
       if (!this.permissions.signals) return;
 
       // If the navigation came from "outside", e.g. from the
@@ -59,14 +62,18 @@ export class Signals {
     }
   }
 
-  async setup({ httpClient, configService }) {
-    try {
-      if (configService.isLoginPage()) return;
-      const sgService = new SearchGuardService(httpClient);
-      this.permissions = await sgService.hasPermissions();
-    } catch (error) {
-      console.error(`Signals setup: ${error.toString()} ${error.stack} `);
-    }
+  setup({ httpClient, configService }) {
+    this.permissionsReady = (async () => {
+      try {
+        if (configService.isLoginPage()) return;
+        const sgService = new SearchGuardService(httpClient);
+        this.permissions = await sgService.hasPermissions();
+      } catch (error) {
+        console.error(`Signals setup: ${error.toString()} ${error.stack} `);
+      }
+    })();
+
+    return this.permissionsReady;
   }
 
   async start({ httpClient, configService }) {
