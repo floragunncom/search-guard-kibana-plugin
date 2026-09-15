@@ -28,7 +28,7 @@ import {
   EuiText,
 } from '@elastic/eui';
 import { LEFT_ALIGNMENT } from '@elastic/eui/lib/services';
-import { cloneDeep, get } from 'lodash';
+import { get } from 'lodash';
 import { AccountsService } from '../../services';
 import {
   ContentPanel,
@@ -40,8 +40,10 @@ import {
 import {
   buildESQuery,
   buildTenantAccounts,
+  getAccountClonePayload,
   getResourceEditUri,
   getResourceReadUri,
+  hasGlobalAccount,
 } from './utils/helpers';
 import { deleteText, cloneText, saveText, typeText, jsonText } from '../../utils/i18n/common';
 import {
@@ -91,10 +93,16 @@ class Accounts extends Component {
   componentDidUpdate(prevProps, prevState) {
     const { query: prevQuery } = prevState;
     const { query } = this.state;
-    if (
-      JSON.stringify(prevQuery) !== JSON.stringify(query) ||
-      prevProps.scope !== this.props.scope
-    ) {
+
+    if (prevProps.scope !== this.props.scope) {
+      this.setState(
+        { accounts: [], tableSelection: [], error: null, isLoading: true },
+        this.getAccounts
+      );
+      return;
+    }
+
+    if (JSON.stringify(prevQuery) !== JSON.stringify(query)) {
       this.getAccounts();
     }
   }
@@ -120,7 +128,8 @@ class Accounts extends Component {
   };
 
   getAccounts = async () => {
-    const tenantScoped = this.props.scope === 'tenant';
+    const requestedScope = this.props.scope;
+    const tenantScoped = requestedScope === 'tenant';
     const canReadAccounts = tenantScoped
       ? this.context.isMultitenancyEnabled && this.context.tenantAccountPermissions.read
       : this.context.globalAccountPermissions.read;
@@ -139,22 +148,27 @@ class Accounts extends Component {
 
       const service = tenantScoped ? this.tenantDestService : this.destService;
       const { resp } = await service.search(esQuery);
+      if (requestedScope !== this.props.scope) return;
+
       const accounts = tenantScoped ? buildTenantAccounts(resp) : resp;
       this.setState({ accounts, error: null });
     } catch (error) {
+      if (requestedScope !== this.props.scope) return;
+
       console.error('Accounts -- getAccounts', error);
       this.context.addErrorToast(error);
       this.setState({ error });
     }
 
-    this.setState({ isLoading: false });
+    if (requestedScope === this.props.scope) {
+      this.setState({ isLoading: false });
+    }
   };
 
   cloneAccount = async (account, id) => {
     try {
-      const { _id, ...rest } = account;
       const service = account._tenant ? this.tenantDestService : this.destService;
-      await service.put(cloneDeep({ ...rest }), id, account.type);
+      await service.put(getAccountClonePayload(account), id, account.type);
       this.context.addSuccessToast(
         <p>
           {cloneText} {id}
@@ -176,26 +190,24 @@ class Accounts extends Component {
 
     if (account._tenant) {
       try {
-        await this.destService.get(id, account.type);
-        this.context.triggerConfirmModal({
-          title: cloneTenantAccountTitleText,
-          body: <p>{tenantAccountShadowWarningText(id)}</p>,
-          onConfirm: () => {
-            this.context.triggerConfirmModal(null);
-            this.cloneAccount(account, id);
-          },
-          onCancel: () => {
-            this.setState({ isLoading: false });
-            this.context.triggerConfirmModal(null);
-          },
-        });
-        return;
-      } catch (error) {
-        if (!error.body || error.body.statusCode !== 404) {
-          this.context.addErrorToast(error);
-          this.setState({ isLoading: false, error });
+        const { resp } = await this.tenantDestService.search();
+        if (hasGlobalAccount(resp, id, account.type)) {
+          this.context.triggerConfirmModal({
+            title: cloneTenantAccountTitleText,
+            body: <p>{tenantAccountShadowWarningText(id)}</p>,
+            onConfirm: () => {
+              this.context.triggerConfirmModal(null);
+              this.cloneAccount(account, id);
+            },
+            onCancel: () => {
+              this.setState({ isLoading: false });
+              this.context.triggerConfirmModal(null);
+            },
+          });
           return;
         }
+      } catch (error) {
+        console.warn('Accounts -- could not check global account before cloning', error);
       }
     }
 

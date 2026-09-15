@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { get } from 'lodash';
+import { get, omit } from 'lodash';
 import { APP_PATH, ACCOUNT_ACTIONS } from '../../../utils/constants';
 
 export const buildESQuery = (query) => {
@@ -49,6 +49,15 @@ export const buildTenantAccounts = (accounts = []) => {
       _shadowsGlobal: globalAccountKeys.has(`${account.type.toLowerCase()}/${account._id}`),
     }));
 };
+
+export const hasGlobalAccount = (accounts = [], id, type) =>
+  accounts.some(
+    ({ _id, _tenant: tenant, type: accountType }) =>
+      !tenant && _id === id && accountType.toLowerCase() === type.toLowerCase()
+  );
+
+export const getAccountClonePayload = (account) =>
+  omit(account, ['_id', '_tenant', '_shadowsGlobal']);
 
 export const getResourceEditUri = (id, type, tenantScoped = false) =>
   `${APP_PATH.DEFINE_ACCOUNT}?id=${encodeURIComponent(id)}&accountType=${type}${

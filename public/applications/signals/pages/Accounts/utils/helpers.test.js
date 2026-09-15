@@ -13,7 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { buildTenantAccounts, getResourceEditUri, getResourceReadUri } from './helpers';
+import {
+  buildTenantAccounts,
+  getAccountClonePayload,
+  getResourceEditUri,
+  getResourceReadUri,
+  hasGlobalAccount,
+} from './helpers';
 
 describe('Accounts/helpers', () => {
   test('buildTenantAccounts marks accounts that shadow a global account', () => {
@@ -27,6 +33,33 @@ describe('Accounts/helpers', () => {
       { _id: 'shared', type: 'email', _tenant: 'tenant1', _shadowsGlobal: true },
       { _id: 'tenant-only', type: 'email', _tenant: 'tenant1', _shadowsGlobal: false },
     ]);
+  });
+
+  test('hasGlobalAccount matches type and ID only for global rows', () => {
+    const accounts = [
+      { _id: 'shared', type: 'EMAIL' },
+      { _id: 'tenant-only', type: 'email', _tenant: 'tenant1' },
+    ];
+
+    expect(hasGlobalAccount(accounts, 'shared', 'email')).toBe(true);
+    expect(hasGlobalAccount(accounts, 'shared', 'slack')).toBe(false);
+    expect(hasGlobalAccount(accounts, 'tenant-only', 'email')).toBe(false);
+  });
+
+  test('getAccountClonePayload removes account and UI metadata', () => {
+    const account = {
+      _id: 'shared',
+      _tenant: 'tenant1',
+      _shadowsGlobal: true,
+      type: 'email',
+      host: 'localhost',
+    };
+
+    expect(getAccountClonePayload(account)).toEqual({
+      type: 'email',
+      host: 'localhost',
+    });
+    expect(account).toHaveProperty('_shadowsGlobal', true);
   });
 
   test('getResourceEditUri', () => {

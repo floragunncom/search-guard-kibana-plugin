@@ -18,6 +18,7 @@ import {
 import { accountToFormik, formikToAccount } from './utils';
 import { APP_PATH } from '../../utils/constants';
 import { ACCOUNT_TYPE } from '../Accounts/utils/constants';
+import { hasGlobalAccount } from '../Accounts/utils/helpers';
 import * as DEFAULTS from './utils/defaults';
 import { tenantNameToUiTenantName } from '../../../../../common/multitenancy';
 
@@ -35,7 +36,6 @@ class DefineAccount extends Component {
 
     this.tenantScoped = scope === 'tenant';
     this.destService = new AccountsService(httpClient, accountType, this.tenantScoped);
-    this.globalDestService = new AccountsService(httpClient, accountType);
     const initialValues = accountType ? DEFAULTS[accountType] : DEFAULTS[ACCOUNT_TYPE.EMAIL];
 
     this.state = {
@@ -103,26 +103,24 @@ class DefineAccount extends Component {
 
     if (this.tenantScoped && !existingId) {
       try {
-        await this.globalDestService.get(id);
-        this.context.triggerConfirmModal({
-          title: createTenantAccountTitleText,
-          body: <p>{tenantAccountShadowWarningText(id)}</p>,
-          onConfirm: () => {
-            this.context.triggerConfirmModal(null);
-            this.saveAccount({ account, id, setSubmitting });
-          },
-          onCancel: () => {
-            setSubmitting(false);
-            this.context.triggerConfirmModal(null);
-          },
-        });
-        return;
-      } catch (error) {
-        if (!error.body || error.body.statusCode !== 404) {
-          setSubmitting(false);
-          this.context.addErrorToast(error);
+        const { resp } = await this.destService.search();
+        if (hasGlobalAccount(resp, id, account.type)) {
+          this.context.triggerConfirmModal({
+            title: createTenantAccountTitleText,
+            body: <p>{tenantAccountShadowWarningText(id)}</p>,
+            onConfirm: () => {
+              this.context.triggerConfirmModal(null);
+              this.saveAccount({ account, id, setSubmitting });
+            },
+            onCancel: () => {
+              setSubmitting(false);
+              this.context.triggerConfirmModal(null);
+            },
+          });
           return;
         }
+      } catch (error) {
+        console.warn('DefineAccount -- could not check global account before saving', error);
       }
     }
 

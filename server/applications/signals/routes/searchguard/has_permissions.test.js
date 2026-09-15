@@ -49,12 +49,42 @@ describe('routes/searchguard/has_permissions', () => {
         },
       },
       {
+        name: 'global account GET without search does not grant read access',
+        mockResponse: {
+          permissions: {
+            'cluster:admin:searchguard:tenant:signals:watch/get': true,
+            [GLOBAL_ACCOUNT_PERMISSIONS.GET]: true,
+          },
+        },
+        expectedResponse: {
+          signals: true,
+          globalAccounts: { read: false, manage: false },
+          tenantAccounts: { read: false, manage: false },
+        },
+      },
+      {
         name: 'there is permission to read global accounts',
         mockResponse: {
           permissions: {
             'cluster:admin:searchguard:tenant:signals:watch/get': true,
             [GLOBAL_ACCOUNT_PERMISSIONS.GET]: true,
             [GLOBAL_ACCOUNT_PERMISSIONS.SEARCH]: true,
+          },
+        },
+        expectedResponse: {
+          signals: true,
+          globalAccounts: { read: true, manage: false },
+          tenantAccounts: { read: false, manage: false },
+        },
+      },
+      {
+        name: 'global account read and put without delete does not grant manage access',
+        mockResponse: {
+          permissions: {
+            'cluster:admin:searchguard:tenant:signals:watch/get': true,
+            [GLOBAL_ACCOUNT_PERMISSIONS.GET]: true,
+            [GLOBAL_ACCOUNT_PERMISSIONS.SEARCH]: true,
+            [GLOBAL_ACCOUNT_PERMISSIONS.PUT]: true,
           },
         },
         expectedResponse: {
