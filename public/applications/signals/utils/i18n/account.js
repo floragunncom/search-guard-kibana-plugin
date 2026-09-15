@@ -42,7 +42,7 @@ export const tenantAccountsReadPermissionRequiredText = (
 export const tenantAccountsDescriptionText = (
   <EuiI18n
     token="sg.account.tenantAccountsDescription.text"
-    default="Tenant accounts are available only to watches in the current tenant and override global accounts with the same type and ID."
+    default="Tenant accounts are available only to watches in the current tenant and override global accounts with the same type and name."
   />
 );
 export const accountBehaviorText = (
@@ -51,7 +51,7 @@ export const accountBehaviorText = (
 export const shadowsGlobalAccountText = (
   <EuiI18n
     token="sg.account.shadowsGlobalAccount.text"
-    default="Shadows a global account with the same type and ID"
+    default="Shadows a global account with the same type and name"
   />
 );
 export function currentTenantText(tenantName) {
@@ -73,7 +73,7 @@ export function tenantAccountShadowWarningText(accountId) {
   return (
     <EuiI18n
       token="sg.account.tenantAccountShadowWarning.text"
-      default="A global account of the same type with ID {accountId} already exists. This tenant account will take precedence for watches in the current tenant."
+      default="A global account of the same type named {accountId} already exists. This tenant account will take precedence for watches in the current tenant."
       values={{ accountId }}
     />
   );
