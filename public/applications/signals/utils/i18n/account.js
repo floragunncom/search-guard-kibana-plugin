@@ -15,6 +15,30 @@ export const globalAccountsDescriptionText = (
     default="Global accounts are available to watches in every tenant. Editing one can affect watches across tenants."
   />
 );
+export const globalAccountsUnavailableTitleText = (
+  <EuiI18n
+    token="sg.account.globalAccountsUnavailableTitle.text"
+    default="Global accounts unavailable"
+  />
+);
+export const globalAccountsReadPermissionRequiredText = (
+  <EuiI18n
+    token="sg.account.globalAccountsReadPermissionRequired.text"
+    default="You do not have permission to view global accounts. Contact your administrator if you need access."
+  />
+);
+export const tenantAccountsUnavailableTitleText = (
+  <EuiI18n
+    token="sg.account.tenantAccountsUnavailableTitle.text"
+    default="Tenant accounts unavailable"
+  />
+);
+export const tenantAccountsReadPermissionRequiredText = (
+  <EuiI18n
+    token="sg.account.tenantAccountsReadPermissionRequired.text"
+    default="You do not have permission to view accounts for this tenant. Contact your administrator if you need access."
+  />
+);
 export const tenantAccountsDescriptionText = (
   <EuiI18n
     token="sg.account.tenantAccountsDescription.text"

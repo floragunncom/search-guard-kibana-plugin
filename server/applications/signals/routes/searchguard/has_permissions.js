@@ -16,6 +16,7 @@
 
 import { serverError } from '../../lib';
 import {
+  GLOBAL_ACCOUNT_PERMISSIONS,
   ROUTE_PATH,
   PERMISSIONS_FOR_ACCESS,
   TENANT_ACCOUNT_PERMISSIONS,
@@ -23,6 +24,7 @@ import {
 
 const permissionsToCheck = [
   ...PERMISSIONS_FOR_ACCESS,
+  ...Object.values(GLOBAL_ACCOUNT_PERMISSIONS),
   ...Object.values(TENANT_ACCOUNT_PERMISSIONS),
 ];
 
@@ -39,6 +41,14 @@ export function hasPermissions({ logger, searchguardBackendService }) {
           ok: true,
           resp: {
             signals: PERMISSIONS_FOR_ACCESS.some((permission) => permissions[permission] === true),
+            globalAccounts: {
+              read: [GLOBAL_ACCOUNT_PERMISSIONS.GET, GLOBAL_ACCOUNT_PERMISSIONS.SEARCH].every(
+                (permission) => permissions[permission] === true
+              ),
+              manage: Object.values(GLOBAL_ACCOUNT_PERMISSIONS).every(
+                (permission) => permissions[permission] === true
+              ),
+            },
             tenantAccounts: {
               read: [TENANT_ACCOUNT_PERMISSIONS.GET, TENANT_ACCOUNT_PERMISSIONS.SEARCH].every(
                 (permission) => permissions[permission] === true

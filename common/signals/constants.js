@@ -75,6 +75,13 @@ export const WATCH_ACTION_STATUS = {
 
 export const PERMISSIONS_FOR_ACCESS = ['cluster:admin:searchguard:tenant:signals:watch/get'];
 
+export const GLOBAL_ACCOUNT_PERMISSIONS = {
+  GET: 'cluster:admin:searchguard:signals:account/get',
+  SEARCH: 'cluster:admin:searchguard:signals:account/search',
+  PUT: 'cluster:admin:searchguard:signals:account/put',
+  DELETE: 'cluster:admin:searchguard:signals:account/delete',
+};
+
 export const TENANT_ACCOUNT_PERMISSIONS = {
   GET: 'cluster:admin:searchguard:tenant:signals:account/get',
   SEARCH: 'cluster:admin:searchguard:tenant:signals:account/search',

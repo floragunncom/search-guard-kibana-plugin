@@ -23,6 +23,7 @@ import {
   setupSearchGuardBackendMock,
 } from '../../../../utils/mocks';
 import {
+  GLOBAL_ACCOUNT_PERMISSIONS,
   PERMISSIONS_FOR_ACCESS,
   TENANT_ACCOUNT_PERMISSIONS,
 } from '../../../../../common/signals/constants';
@@ -43,6 +44,38 @@ describe('routes/searchguard/has_permissions', () => {
         },
         expectedResponse: {
           signals: false,
+          globalAccounts: { read: false, manage: false },
+          tenantAccounts: { read: false, manage: false },
+        },
+      },
+      {
+        name: 'there is permission to read global accounts',
+        mockResponse: {
+          permissions: {
+            'cluster:admin:searchguard:tenant:signals:watch/get': true,
+            [GLOBAL_ACCOUNT_PERMISSIONS.GET]: true,
+            [GLOBAL_ACCOUNT_PERMISSIONS.SEARCH]: true,
+          },
+        },
+        expectedResponse: {
+          signals: true,
+          globalAccounts: { read: true, manage: false },
+          tenantAccounts: { read: false, manage: false },
+        },
+      },
+      {
+        name: 'there is permission to manage global accounts',
+        mockResponse: {
+          permissions: {
+            'cluster:admin:searchguard:tenant:signals:watch/get': true,
+            ...Object.fromEntries(
+              Object.values(GLOBAL_ACCOUNT_PERMISSIONS).map((permission) => [permission, true])
+            ),
+          },
+        },
+        expectedResponse: {
+          signals: true,
+          globalAccounts: { read: true, manage: true },
           tenantAccounts: { read: false, manage: false },
         },
       },
@@ -57,6 +90,7 @@ describe('routes/searchguard/has_permissions', () => {
         },
         expectedResponse: {
           signals: true,
+          globalAccounts: { read: false, manage: false },
           tenantAccounts: { read: true, manage: false },
         },
       },
@@ -72,6 +106,7 @@ describe('routes/searchguard/has_permissions', () => {
         },
         expectedResponse: {
           signals: true,
+          globalAccounts: { read: false, manage: false },
           tenantAccounts: { read: true, manage: true },
         },
       },
@@ -90,6 +125,7 @@ describe('routes/searchguard/has_permissions', () => {
 
       expect(searchguardBackendService.hasPermissions).toHaveBeenCalledWith(request.headers, [
         ...PERMISSIONS_FOR_ACCESS,
+        ...Object.values(GLOBAL_ACCOUNT_PERMISSIONS),
         ...Object.values(TENANT_ACCOUNT_PERMISSIONS),
       ]);
       expect(response.ok).toHaveBeenCalledWith({

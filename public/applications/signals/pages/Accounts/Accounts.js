@@ -17,6 +17,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
+  EuiCallOut,
   EuiFlexGroup,
   EuiFlexItem,
   EuiInMemoryTable,
@@ -48,10 +49,14 @@ import {
   accountsText,
   cloneTenantAccountTitleText,
   globalAccountsDescriptionText,
+  globalAccountsReadPermissionRequiredText,
+  globalAccountsUnavailableTitleText,
   shadowsGlobalAccountText,
   tenantAccountShadowWarningText,
   tenantAccountsDescriptionText,
+  tenantAccountsReadPermissionRequiredText,
   tenantAccountsText,
+  tenantAccountsUnavailableTitleText,
 } from '../../utils/i18n/account';
 import { TABLE_SORT_FIELD, TABLE_SORT_DIRECTION, ACCOUNT_TYPE } from './utils/constants';
 import { APP_PATH } from '../../utils/constants';
@@ -77,8 +82,6 @@ class Accounts extends Component {
 
     this.destService = new AccountsService(context.httpClient);
     this.tenantDestService = new AccountsService(context.httpClient, undefined, true);
-    this.canManageTenantAccounts =
-      context.isMultitenancyEnabled && context.tenantAccountPermissions.manage;
   }
 
   componentDidMount() {
@@ -117,6 +120,16 @@ class Accounts extends Component {
   };
 
   getAccounts = async () => {
+    const tenantScoped = this.props.scope === 'tenant';
+    const canReadAccounts = tenantScoped
+      ? this.context.isMultitenancyEnabled && this.context.tenantAccountPermissions.read
+      : this.context.globalAccountPermissions.read;
+
+    if (!canReadAccounts) {
+      this.setState({ accounts: [], error: null, isLoading: false });
+      return;
+    }
+
     const { query } = this.state;
     this.setState({ isLoading: true });
 
@@ -124,7 +137,6 @@ class Accounts extends Component {
       const esQuery = buildESQuery(EuiSearchBar.Query.toESQuery(query));
       console.debug('Accounts -- getAccounts -- esQuery', esQuery);
 
-      const tenantScoped = this.props.scope === 'tenant';
       const service = tenantScoped ? this.tenantDestService : this.destService;
       const { resp } = await service.search(esQuery);
       const accounts = tenantScoped ? buildTenantAccounts(resp) : resp;
@@ -296,6 +308,36 @@ class Accounts extends Component {
     const { history } = this.props;
     const tenantScoped = this.props.scope === 'tenant';
     const { accounts, isLoading, error, isAddAccountPopoverOpen } = this.state;
+    const canReadAccounts = tenantScoped
+      ? this.context.isMultitenancyEnabled && this.context.tenantAccountPermissions.read
+      : this.context.globalAccountPermissions.read;
+    const canManageAccounts = tenantScoped
+      ? this.context.isMultitenancyEnabled && this.context.tenantAccountPermissions.manage
+      : this.context.globalAccountPermissions.manage;
+
+    if (!canReadAccounts) {
+      return (
+        <ContentPanel title={tenantScoped ? tenantAccountsText : accountsText}>
+          <EuiText size="s">
+            <p>{tenantScoped ? tenantAccountsDescriptionText : globalAccountsDescriptionText}</p>
+          </EuiText>
+          <EuiSpacer />
+          <EuiCallOut
+            title={
+              tenantScoped ? tenantAccountsUnavailableTitleText : globalAccountsUnavailableTitleText
+            }
+            color="warning"
+            iconType="warning"
+          >
+            <p>
+              {tenantScoped
+                ? tenantAccountsReadPermissionRequiredText
+                : globalAccountsReadPermissionRequiredText}
+            </p>
+          </EuiCallOut>
+        </ContentPanel>
+      );
+    }
 
     const actions = [
       {
@@ -307,7 +349,7 @@ class Accounts extends Component {
         onClick: ({ _id, type, _tenant: tenant }) =>
           history.push(getResourceReadUri(_id, type, !!tenant)),
       },
-      ...(!tenantScoped || this.canManageTenantAccounts
+      ...(canManageAccounts
         ? [
             {
               'data-test-subj': 'sgTableCol-ActionClone',
@@ -339,7 +381,7 @@ class Accounts extends Component {
         truncateText: true,
         sortable: true,
         render: (id, { type, _tenant: tenant }) =>
-          tenantScoped && !this.canManageTenantAccounts ? (
+          !canManageAccounts ? (
             <TableTextCell value={id} name={id} />
           ) : (
             <TableIdCell
@@ -374,12 +416,11 @@ class Accounts extends Component {
       },
     ];
 
-    const selection =
-      tenantScoped && !this.canManageTenantAccounts
-        ? undefined
-        : {
-            onSelectionChange: (tableSelection) => this.setState({ tableSelection }),
-          };
+    const selection = canManageAccounts
+      ? {
+          onSelectionChange: (tableSelection) => this.setState({ tableSelection }),
+        }
+      : undefined;
 
     const sorting = {
       sort: {
@@ -421,7 +462,7 @@ class Accounts extends Component {
       <ContentPanel
         title={tenantScoped ? tenantAccountsText : accountsText}
         actions={
-          tenantScoped && !this.canManageTenantAccounts
+          !canManageAccounts
             ? []
             : [
                 <PopoverButton

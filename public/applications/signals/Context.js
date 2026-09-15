@@ -62,6 +62,7 @@ const ContextProvider = ({ children, httpClient, core, configService, permission
   } catch (error) {
     // Ignore
   }
+  const globalAccountPermissions = permissions?.globalAccounts || { read: false, manage: false };
   const tenantAccountPermissions = permissions?.tenantAccounts || { read: false, manage: false };
 
   const [editorTheme] = useState(IS_DARK_THEME ? darkTheme : lightTheme);
@@ -178,6 +179,7 @@ const ContextProvider = ({ children, httpClient, core, configService, permission
           httpClient,
           configService,
           isMultitenancyEnabled,
+          globalAccountPermissions,
           tenantAccountPermissions,
           onSelectChange,
           onSwitchChange,

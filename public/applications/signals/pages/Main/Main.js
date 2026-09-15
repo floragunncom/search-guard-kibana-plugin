@@ -45,7 +45,7 @@ class Main extends Component {
   }
 
   getTabs = () => {
-    const { isMultitenancyEnabled, tenantAccountPermissions } = this.context;
+    const { isMultitenancyEnabled } = this.context;
     const tabs = [
       {
         id: APP_PATH.SIGNALS_OPERATOR_VIEW,
@@ -64,7 +64,7 @@ class Main extends Component {
       },
     ];
 
-    if (isMultitenancyEnabled && tenantAccountPermissions.read) {
+    if (isMultitenancyEnabled) {
       tabs.push({
         id: APP_PATH.TENANT_ACCOUNTS,
         name: tenantAccountsText,
@@ -112,7 +112,7 @@ class Main extends Component {
   render() {
     const { history, ...props } = this.props;
     const tabs = this.getTabs();
-    const canReadTenantAccounts = tabs.some(({ id }) => id === APP_PATH.TENANT_ACCOUNTS);
+    const { isMultitenancyEnabled } = this.context;
 
     /*
       Drag And Drop (DND) functionality relies on <div id="searchguardDragAndDropPortalAnchor" />
@@ -168,7 +168,7 @@ class Main extends Component {
                 exact
                 path={APP_PATH.TENANT_ACCOUNTS}
                 render={(props) =>
-                  canReadTenantAccounts ? (
+                  isMultitenancyEnabled ? (
                     <EuiErrorBoundary>
                       <EuiTabs>{tabs.map(this.renderTab)}</EuiTabs>
                       <EuiSpacer />
