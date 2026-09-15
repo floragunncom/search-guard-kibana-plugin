@@ -20,6 +20,7 @@ describe('SearchGuardService', () => {
   test('returns the Signals permission response', async () => {
     const permissions = {
       signals: true,
+      globalAccounts: { read: true, manage: true },
       tenantAccounts: { read: true, manage: false },
     };
     const httpClient = {
