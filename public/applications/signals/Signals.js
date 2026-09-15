@@ -24,6 +24,8 @@ export class Signals {
 
   mount({ core, httpClient, configService }) {
     return async (params) => {
+      if (!this.permissions.signals) return;
+
       // If the navigation came from "outside", e.g. from the
       // side nav, we need to tell our router to render the
       // corresponding page.
@@ -73,6 +75,13 @@ export class Signals {
 
       const sgService = new SearchGuardService(httpClient);
       this.permissions = await sgService.hasPermissions();
+
+      if (!this.permissions.signals) {
+        this.appUpdater.next(() => ({
+          visibleIn: [],
+          tooltip: 'Signals disabled',
+        }));
+      }
     } catch (error) {
       console.error(`Signals start: ${error.toString()} ${error.stack} `);
     }

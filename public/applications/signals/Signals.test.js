@@ -28,10 +28,10 @@ jest.mock('../../utils/appNaviFix', () => ({
 }));
 
 describe('Signals', () => {
-  test('keeps the app visible when watch access is missing', async () => {
+  test('hides the app when watch access is missing', async () => {
     const permissions = {
       signals: false,
-      globalAccounts: { read: true, manage: true },
+      globalAccounts: { read: false, manage: false },
       tenantAccounts: { read: false, manage: false },
     };
     SearchGuardService.mockImplementation(() => ({
@@ -47,6 +47,11 @@ describe('Signals', () => {
     });
 
     expect(signals.permissions).toEqual(permissions);
-    expect(updateApp).not.toHaveBeenCalled();
+    expect(updateApp).toHaveBeenCalledTimes(1);
+    expect(updateApp.mock.calls[0][0]()).toEqual({
+      visibleIn: [],
+      tooltip: 'Signals disabled',
+    });
+    await expect(signals.mount({})({})).resolves.toBeUndefined();
   });
 });
