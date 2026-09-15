@@ -12,7 +12,7 @@ export const tenantAccountsText = (
 export const globalAccountsDescriptionText = (
   <EuiI18n
     token="sg.account.globalAccountsDescription.text"
-    default="Global accounts are available to watches in every tenant. Editing one can affect watches across tenants."
+    default="Global accounts are available to watches in every tenant."
   />
 );
 export const globalAccountsUnavailableTitleText = (
