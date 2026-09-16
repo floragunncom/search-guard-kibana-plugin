@@ -48,9 +48,9 @@ import {
 import { deleteText, cloneText, saveText, typeText, jsonText } from '../../utils/i18n/common';
 import {
   accountBehaviorText,
-  accountsText,
   cloneTenantAccountTitleText,
   globalAccountsDescriptionText,
+  globalAccountsText,
   globalAccountsReadPermissionRequiredText,
   globalAccountsUnavailableTitleText,
   shadowsGlobalAccountText,
@@ -329,7 +329,7 @@ class Accounts extends Component {
 
     if (!canReadAccounts) {
       return (
-        <ContentPanel title={tenantScoped ? tenantAccountsText : accountsText}>
+        <ContentPanel title={tenantScoped ? tenantAccountsText : globalAccountsText}>
           <EuiText size="s">
             <p>{tenantScoped ? tenantAccountsDescriptionText : globalAccountsDescriptionText}</p>
           </EuiText>
@@ -444,7 +444,7 @@ class Accounts extends Component {
     const addAccountContextMenuPanels = [
       {
         id: 0,
-        title: tenantScoped ? tenantAccountsText : accountsText,
+        title: tenantScoped ? tenantAccountsText : globalAccountsText,
         items: [
           {
             name: 'Email',
@@ -472,7 +472,7 @@ class Accounts extends Component {
 
     return (
       <ContentPanel
-        title={tenantScoped ? tenantAccountsText : accountsText}
+        title={tenantScoped ? tenantAccountsText : globalAccountsText}
         actions={
           !canManageAccounts
             ? []

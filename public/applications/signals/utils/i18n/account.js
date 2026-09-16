@@ -5,9 +5,9 @@ export const createAccountText = (<EuiI18n token="sg.account.createAccount.text"
 export const updateAccountText = (<EuiI18n token="sg.account.updateAccount.text" default="Update Account" />);
 export const readAccountText = (<EuiI18n token="sg.account.readAccount.text" default="Read Account" />);
 export const accountText = (<EuiI18n token="sg.account.account.text" default="Account" />);
-export const accountsText = (<EuiI18n token="sg.account.accounts.text" default="Accounts" />);
+export const globalAccountsText = (<EuiI18n token="sg.account.globalAccounts.text" default="Global Accounts" />);
 export const tenantAccountsText = (
-  <EuiI18n token="sg.account.tenantAccounts.text" default="Tenant accounts" />
+  <EuiI18n token="sg.account.tenantAccounts.text" default="Tenant Accounts" />
 );
 export const globalAccountsDescriptionText = (
   <EuiI18n

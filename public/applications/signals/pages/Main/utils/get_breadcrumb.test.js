@@ -18,7 +18,7 @@ import { APP_PATH } from '../../../utils/constants';
 import getBreadcrumb from './getBreadcrumb';
 
 describe('getBreadcrumb', () => {
-  test('keeps tenant account navigation in the Tenant accounts tab', () => {
+  test('keeps tenant account navigation in the Tenant Accounts tab', () => {
     const breadcrumbs = getBreadcrumb('define-account?id=mail&accountType=email&scope=tenant');
 
     expect(breadcrumbs[0].href).toBe(APP_PATH.TENANT_ACCOUNTS);

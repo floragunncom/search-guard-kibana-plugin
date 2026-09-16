@@ -24,7 +24,7 @@ import WatchAck from '../WatchAck';
 import getBreadcrumb from './utils/getBreadcrumb';
 import { getSelectedTabId } from './utils/get_selected_tab_id';
 import { APP_PATH, APP_NAME } from '../../utils/constants';
-import { tenantAccountsText } from '../../utils/i18n/account';
+import { globalAccountsText, tenantAccountsText } from '../../utils/i18n/account';
 
 import { Context } from '../../Context';
 import SignalsOperatorView from '../SignalsOperatorView';
@@ -59,7 +59,7 @@ class Main extends Component {
       },
       {
         id: APP_PATH.ACCOUNTS,
-        name: 'Accounts',
+        name: globalAccountsText,
         route: APP_PATH.ACCOUNTS,
       },
     ];

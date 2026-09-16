@@ -10,7 +10,7 @@ import {
 import {
   createAccountText,
   updateAccountText,
-  accountsText,
+  globalAccountsText,
   readAccountText,
   tenantAccountsText,
 } from '../../../utils/i18n/account';
@@ -28,7 +28,7 @@ export default function getBreadcrumb(route) {
   const readWatch = action === WATCH_ACTIONS.READ_WATCH;
   const readAccount = true;
   const accountsPath = scope === 'tenant' ? APP_PATH.TENANT_ACCOUNTS : APP_PATH.ACCOUNTS;
-  const accountsLabel = scope === 'tenant' ? tenantAccountsText : accountsText;
+  const accountsLabel = scope === 'tenant' ? tenantAccountsText : globalAccountsText;
 
   let urlParams = '';
   if (id && accountType) {
@@ -82,7 +82,7 @@ export default function getBreadcrumb(route) {
       }
     ],
     [removePrefixSlash(APP_PATH.ACCOUNTS)]: {
-      text: accountsText,
+      text: globalAccountsText,
       href: APP_PATH.ACCOUNTS
     },
     [removePrefixSlash(APP_PATH.TENANT_ACCOUNTS)]: {
