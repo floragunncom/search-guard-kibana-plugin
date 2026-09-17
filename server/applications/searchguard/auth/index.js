@@ -16,7 +16,3 @@
 
 export { Kerberos } from './types';
 export { defineAuthInfoRoutes } from './routes_authinfo';
-export {
-  rootScopedClientRequestWrapper,
-  registerRootScopedClientRequestWrapper,
-} from './root_scoped_client_request_wrapper';

@@ -174,7 +174,6 @@ export class ServerPlugin {
         searchGuardBackend,
         searchGuardConfigurationBackend,
         spacesService,
-        elasticsearch,
       });
 
       // Helper for the routes
