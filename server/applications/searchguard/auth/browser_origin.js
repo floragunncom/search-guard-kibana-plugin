@@ -39,8 +39,8 @@ export function getBrowserOrigin(request, kibanaCore) {
 
 /**
  * Extracts the hostname from HTTP/2+ `:authority`, removing an optional port
- * and handling bracketed IPv6 addresses. HTTP/1.x requests use the `Host`
- * header directly.
+ * and handling bracketed IPv6 addresses. For HTTP/1.x requests, an optional
+ * port is stripped from the `Host` header as well.
  */
 export function getBrowserHost(request) {
   const authority = request.headers[':authority'];
@@ -49,5 +49,13 @@ export function getBrowserHost(request) {
     return new URL(`http://${authority}`).hostname;
   }
 
-  return request.headers['host'] ?? null;
+  const host = request.headers['host'] ?? null;
+  if (host === null) {
+    return null;
+  }
+
+  const colonIndex = host.lastIndexOf(':');
+  // A colon after a closing IPv6 bracket separates the port. Colons inside a
+  // bracketed IPv6 address are part of the host and must be preserved.
+  return colonIndex > host.lastIndexOf(']') ? host.substring(0, colonIndex) : host;
 }
