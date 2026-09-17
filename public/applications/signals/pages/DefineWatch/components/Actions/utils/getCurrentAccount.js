@@ -1,4 +1,5 @@
 export default function getCurrentAccount(allAccounts = [], account = []) {
   if (!account.length) return undefined;
-  return allAccounts.filter(a => a._id === account[0].label).pop();
+  const matchingAccounts = allAccounts.filter(({ _id }) => _id === account[0].label);
+  return matchingAccounts.find(({ _tenant: tenant }) => !!tenant) || matchingAccounts.pop();
 }

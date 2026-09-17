@@ -94,7 +94,78 @@ describe('routes/accounts/get', () => {
     });
   });
 
-  test('there is an error', async () => {
+  test('get the current tenant and global accounts', async () => {
+    const logger = setupLoggerMock();
+    const response = setupHttpResponseMock();
+    const context = setupContextMock();
+    const firstResponse = { hits: { hits: [] } };
+    const hits = [
+      {
+        _id: 'tenant 1/email/mymailserver',
+        _source: { _tenant: 'tenant 1', type: 'EMAIL' },
+      },
+      {
+        _id: 'email/globalserver',
+        _source: { type: 'EMAIL' },
+      },
+    ];
+    const asCurrentUserTransportRequest = jest.fn().mockResolvedValue(firstResponse);
+    const fetchAllFromScroll = jest.fn().mockResolvedValue(hits);
+    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
+    const configService = { get: jest.fn().mockReturnValue(true) };
+    const request = {
+      body: { query: {}, scroll: '30s' },
+      headers: { sgtenant: 'tenant 1' },
+    };
+
+    await getAccounts({
+      clusterClient,
+      fetchAllFromScroll,
+      logger,
+      configService,
+      tenantScoped: true,
+    })(context, request, response);
+
+    expect(asCurrentUserTransportRequest).toHaveBeenCalledWith({
+      method: 'post',
+      path: '/_signals/account/tenant%201/_search?scroll=30s',
+      body: {},
+    });
+    expect(response.ok).toHaveBeenCalledWith({
+      body: {
+        ok: true,
+        resp: [
+          { _id: 'mymailserver', _tenant: 'tenant 1', type: 'EMAIL' },
+          { _id: 'globalserver', type: 'EMAIL' },
+        ],
+      },
+    });
+  });
+
+  test('returns not found for tenant accounts when multitenancy is disabled', async () => {
+    const logger = setupLoggerMock();
+    const response = setupHttpResponseMock();
+    const context = setupContextMock();
+    const clusterClient = setupClusterClientMock();
+    const fetchAllFromScroll = jest.fn();
+    const configService = { get: jest.fn().mockReturnValue(false) };
+
+    await getAccounts({
+      clusterClient,
+      fetchAllFromScroll,
+      logger,
+      configService,
+      tenantScoped: true,
+    })(context, {}, response);
+
+    expect(response.notFound).toHaveBeenCalled();
+    expect(clusterClient.asScoped).not.toHaveBeenCalled();
+  });
+
+  test.each([
+    ['global', false],
+    ['tenant', true],
+  ])('logs the %s scope when there is an error', async (scope, tenantScoped) => {
     const logger = setupLoggerMock();
     const response = setupHttpResponseMock();
     const context = setupContextMock();
@@ -104,15 +175,22 @@ describe('routes/accounts/get', () => {
     const asCurrentUserTransportRequest = jest.fn().mockRejectedValue(error);
     const fetchAllFromScroll = jest.fn();
     const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
+    const configService = { get: jest.fn().mockReturnValue(true) };
 
     const request = {
       headers: {},
       body: {},
     };
 
-    await getAccounts({ clusterClient, fetchAllFromScroll, logger })(context, request, response);
+    await getAccounts({
+      clusterClient,
+      fetchAllFromScroll,
+      logger,
+      configService,
+      tenantScoped,
+    })(context, request, response);
 
-    expect(logger.error).toHaveBeenCalledWith(`getAccounts: ${error.stack}`);
+    expect(logger.error).toHaveBeenCalledWith(`getAccounts [${scope}]: ${error.stack}`);
     expect(response.customError).toHaveBeenCalledWith(serverError(error));
   });
 });

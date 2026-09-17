@@ -17,15 +17,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
+  EuiCallOut,
   EuiFlexGroup,
   EuiFlexItem,
   EuiInMemoryTable,
+  EuiBadge,
   EuiIcon,
   EuiSearchBar,
   EuiSpacer,
+  EuiText,
 } from '@elastic/eui';
 import { LEFT_ALIGNMENT } from '@elastic/eui/lib/services';
-import { cloneDeep, get } from 'lodash';
+import { get } from 'lodash';
 import { AccountsService } from '../../services';
 import {
   ContentPanel,
@@ -34,15 +37,36 @@ import {
   TableTextCell,
   PopoverButton,
 } from '../../components';
-import { buildESQuery, getResourceEditUri, getResourceReadUri } from './utils/helpers';
+import {
+  buildESQuery,
+  buildTenantAccounts,
+  getAccountClonePayload,
+  getResourceEditUri,
+  getResourceReadUri,
+  hasGlobalAccount,
+} from './utils/helpers';
 import { deleteText, cloneText, saveText, typeText, jsonText } from '../../utils/i18n/common';
-import { accountsText } from '../../utils/i18n/account';
+import {
+  accountBehaviorText,
+  cloneTenantAccountTitleText,
+  globalAccountsDescriptionText,
+  globalAccountsText,
+  globalAccountsReadPermissionRequiredText,
+  globalAccountsUnavailableTitleText,
+  shadowsGlobalAccountText,
+  tenantAccountShadowWarningText,
+  tenantAccountsDescriptionText,
+  tenantAccountsReadPermissionRequiredText,
+  tenantAccountsText,
+  tenantAccountsUnavailableTitleText,
+} from '../../utils/i18n/account';
 import { TABLE_SORT_FIELD, TABLE_SORT_DIRECTION, ACCOUNT_TYPE } from './utils/constants';
 import { APP_PATH } from '../../utils/constants';
 
 import { Context } from '../../Context';
 
 const initialQuery = EuiSearchBar.Query.MATCH_ALL;
+
 class Accounts extends Component {
   static contextType = Context;
 
@@ -59,6 +83,7 @@ class Accounts extends Component {
     };
 
     this.destService = new AccountsService(context.httpClient);
+    this.tenantDestService = new AccountsService(context.httpClient, undefined, true);
   }
 
   componentDidMount() {
@@ -68,6 +93,15 @@ class Accounts extends Component {
   componentDidUpdate(prevProps, prevState) {
     const { query: prevQuery } = prevState;
     const { query } = this.state;
+
+    if (prevProps.scope !== this.props.scope) {
+      this.setState(
+        { accounts: [], tableSelection: [], error: null, isLoading: true },
+        this.getAccounts
+      );
+      return;
+    }
+
     if (JSON.stringify(prevQuery) !== JSON.stringify(query)) {
       this.getAccounts();
     }
@@ -76,7 +110,8 @@ class Accounts extends Component {
   putAccount = async ({ _id, ...account }) => {
     this.setState({ isLoading: true, error: null });
     try {
-      await this.destService.put(account, _id, account.type);
+      const service = account._tenant ? this.tenantDestService : this.destService;
+      await service.put(account, _id, account.type);
       this.context.addSuccessToast(
         <p>
           {saveText} {_id}
@@ -93,6 +128,17 @@ class Accounts extends Component {
   };
 
   getAccounts = async () => {
+    const requestedScope = this.props.scope;
+    const tenantScoped = requestedScope === 'tenant';
+    const canReadAccounts = tenantScoped
+      ? this.context.isMultitenancyEnabled && this.context.tenantAccountPermissions.read
+      : this.context.globalAccountPermissions.read;
+
+    if (!canReadAccounts) {
+      this.setState({ accounts: [], error: null, isLoading: false });
+      return;
+    }
+
     const { query } = this.state;
     this.setState({ isLoading: true });
 
@@ -100,22 +146,29 @@ class Accounts extends Component {
       const esQuery = buildESQuery(EuiSearchBar.Query.toESQuery(query));
       console.debug('Accounts -- getAccounts -- esQuery', esQuery);
 
-      const { resp: accounts } = await this.destService.search(esQuery);
+      const service = tenantScoped ? this.tenantDestService : this.destService;
+      const { resp } = await service.search(esQuery);
+      if (requestedScope !== this.props.scope) return;
+
+      const accounts = tenantScoped ? buildTenantAccounts(resp) : resp;
       this.setState({ accounts, error: null });
     } catch (error) {
+      if (requestedScope !== this.props.scope) return;
+
       console.error('Accounts -- getAccounts', error);
       this.context.addErrorToast(error);
       this.setState({ error });
     }
 
-    this.setState({ isLoading: false });
+    if (requestedScope === this.props.scope) {
+      this.setState({ isLoading: false });
+    }
   };
 
-  handleCloneAccount = async (account) => {
-    this.setState({ isLoading: true, error: null });
+  cloneAccount = async (account, id) => {
     try {
-      const { _id: id, ...rest } = account;
-      await this.destService.put(cloneDeep({ ...rest }), `${id}_copy`, account.type);
+      const service = account._tenant ? this.tenantDestService : this.destService;
+      await service.put(getAccountClonePayload(account), id, account.type);
       this.context.addSuccessToast(
         <p>
           {cloneText} {id}
@@ -131,12 +184,43 @@ class Accounts extends Component {
     this.setState({ isLoading: false });
   };
 
+  handleCloneAccount = async (account) => {
+    this.setState({ isLoading: true, error: null });
+    const id = `${account._id}_copy`;
+
+    if (account._tenant) {
+      try {
+        const { resp } = await this.tenantDestService.search();
+        if (hasGlobalAccount(resp, id, account.type)) {
+          this.context.triggerConfirmModal({
+            title: cloneTenantAccountTitleText,
+            body: <p>{tenantAccountShadowWarningText(id)}</p>,
+            onConfirm: () => {
+              this.context.triggerConfirmModal(null);
+              this.cloneAccount(account, id);
+            },
+            onCancel: () => {
+              this.setState({ isLoading: false });
+              this.context.triggerConfirmModal(null);
+            },
+          });
+          return;
+        }
+      } catch (error) {
+        console.warn('Accounts -- could not check global account before cloning', error);
+      }
+    }
+
+    await this.cloneAccount(account, id);
+  };
+
   deleteAccounts = async (accounts = []) => {
     const promises = [];
 
     this.setState({ isLoading: true, error: null });
-    accounts.forEach(({ _id: id, type }) => {
-      const promise = this.destService
+    accounts.forEach(({ _id: id, type, _tenant: tenant }) => {
+      const service = tenant ? this.tenantDestService : this.destService;
+      const promise = service
         .delete(id, type)
         .then(() => {
           this.context.addSuccessToast(
@@ -185,7 +269,8 @@ class Accounts extends Component {
 
   addAccount = (accountType) => {
     this.triggerAddAccountPopover();
-    this.props.history.push(`${APP_PATH.DEFINE_ACCOUNT}?accountType=${accountType}`);
+    const scope = this.props.scope === 'tenant' ? '&scope=tenant' : '';
+    this.props.history.push(`${APP_PATH.DEFINE_ACCOUNT}?accountType=${accountType}${scope}`);
   };
 
   renderToolsLeft = () => {
@@ -233,7 +318,45 @@ class Accounts extends Component {
 
   render() {
     const { history } = this.props;
+    const tenantScoped = this.props.scope === 'tenant';
+    const showAccountsDescription = tenantScoped || this.context.isMultitenancyEnabled;
     const { accounts, isLoading, error, isAddAccountPopoverOpen } = this.state;
+    const canReadAccounts = tenantScoped
+      ? this.context.isMultitenancyEnabled && this.context.tenantAccountPermissions.read
+      : this.context.globalAccountPermissions.read;
+    const canManageAccounts = tenantScoped
+      ? this.context.isMultitenancyEnabled && this.context.tenantAccountPermissions.manage
+      : this.context.globalAccountPermissions.manage;
+
+    if (!canReadAccounts) {
+      return (
+        <ContentPanel title={tenantScoped ? tenantAccountsText : globalAccountsText}>
+          {showAccountsDescription && (
+            <>
+              <EuiText size="s">
+                <p>
+                  {tenantScoped ? tenantAccountsDescriptionText : globalAccountsDescriptionText}
+                </p>
+              </EuiText>
+              <EuiSpacer />
+            </>
+          )}
+          <EuiCallOut
+            title={
+              tenantScoped ? tenantAccountsUnavailableTitleText : globalAccountsUnavailableTitleText
+            }
+            color="warning"
+            iconType="warning"
+          >
+            <p>
+              {tenantScoped
+                ? tenantAccountsReadPermissionRequiredText
+                : globalAccountsReadPermissionRequiredText}
+            </p>
+          </EuiCallOut>
+        </ContentPanel>
+      );
+    }
 
     const actions = [
       {
@@ -242,25 +365,30 @@ class Accounts extends Component {
         description: 'Account JSON',
         icon: 'document',
         type: 'icon',
-        onClick: ({ _id, type }) => history.push(getResourceReadUri(_id, type)),
+        onClick: ({ _id, type, _tenant: tenant }) =>
+          history.push(getResourceReadUri(_id, type, !!tenant)),
       },
-      {
-        'data-test-subj': 'sgTableCol-ActionClone',
-        name: cloneText,
-        description: 'Clone the watch',
-        icon: 'copy',
-        type: 'icon',
-        onClick: this.handleCloneAccount,
-      },
-      {
-        'data-test-subj': 'sgTableCol-ActionDelete',
-        name: deleteText,
-        description: 'Delete the watch',
-        icon: 'trash',
-        type: 'icon',
-        color: 'danger',
-        onClick: (account) => this.handleDeleteAccounts([account]),
-      },
+      ...(canManageAccounts
+        ? [
+            {
+              'data-test-subj': 'sgTableCol-ActionClone',
+              name: cloneText,
+              description: 'Clone the watch',
+              icon: 'copy',
+              type: 'icon',
+              onClick: this.handleCloneAccount,
+            },
+            {
+              'data-test-subj': 'sgTableCol-ActionDelete',
+              name: deleteText,
+              description: 'Delete the watch',
+              icon: 'trash',
+              type: 'icon',
+              color: 'danger',
+              onClick: (account) => this.handleDeleteAccounts([account]),
+            },
+          ]
+        : []),
     ];
 
     const columns = [
@@ -271,15 +399,18 @@ class Accounts extends Component {
         alignment: LEFT_ALIGNMENT,
         truncateText: true,
         sortable: true,
-        render: (id, { type }) => (
-          <TableIdCell
-            name={id}
-            value={id}
-            onClick={() => {
-              history.push(getResourceEditUri(id, type));
-            }}
-          />
-        ),
+        render: (id, { type, _tenant: tenant }) =>
+          !canManageAccounts ? (
+            <TableTextCell value={id} name={id} />
+          ) : (
+            <TableIdCell
+              name={id}
+              value={id}
+              onClick={() => {
+                history.push(getResourceEditUri(id, type, !!tenant));
+              }}
+            />
+          ),
       },
       {
         field: 'type',
@@ -287,15 +418,28 @@ class Accounts extends Component {
         footer: typeText,
         render: (type, { _id }) => <TableTextCell value={type} name={`Type-${_id}`} />,
       },
+      ...(tenantScoped
+        ? [
+            {
+              field: '_shadowsGlobal',
+              name: accountBehaviorText,
+              render: (shadowsGlobal) =>
+                shadowsGlobal ? (
+                  <EuiBadge color="warning">{shadowsGlobalAccountText}</EuiBadge>
+                ) : null,
+            },
+          ]
+        : []),
       {
         actions,
       },
     ];
 
-    const selection = {
-      selectable: (doc) => doc._id,
-      onSelectionChange: (tableSelection) => this.setState({ tableSelection }),
-    };
+    const selection = canManageAccounts
+      ? {
+          onSelectionChange: (tableSelection) => this.setState({ tableSelection }),
+        }
+      : undefined;
 
     const sorting = {
       sort: {
@@ -307,7 +451,7 @@ class Accounts extends Component {
     const addAccountContextMenuPanels = [
       {
         id: 0,
-        title: 'Accounts',
+        title: tenantScoped ? tenantAccountsText : globalAccountsText,
         items: [
           {
             name: 'Email',
@@ -335,16 +479,28 @@ class Accounts extends Component {
 
     return (
       <ContentPanel
-        title={accountsText}
-        actions={[
-          <PopoverButton
-            isPopoverOpen={isAddAccountPopoverOpen}
-            contextMenuPanels={addAccountContextMenuPanels}
-            onClick={this.triggerAddAccountPopover}
-            name="AddAccount"
-          />,
-        ]}
+        title={tenantScoped ? tenantAccountsText : globalAccountsText}
+        actions={
+          !canManageAccounts
+            ? []
+            : [
+                <PopoverButton
+                  isPopoverOpen={isAddAccountPopoverOpen}
+                  contextMenuPanels={addAccountContextMenuPanels}
+                  onClick={this.triggerAddAccountPopover}
+                  name="AddAccount"
+                />,
+              ]
+        }
       >
+        {showAccountsDescription && (
+          <>
+            <EuiText size="s">
+              <p>{tenantScoped ? tenantAccountsDescriptionText : globalAccountsDescriptionText}</p>
+            </EuiText>
+            <EuiSpacer />
+          </>
+        )}
         {this.renderSearchBar()}
         <EuiSpacer />
         <EuiFlexGroup>
@@ -352,12 +508,14 @@ class Accounts extends Component {
             <EuiInMemoryTable
               error={get(error, 'message')}
               items={accounts}
-              itemId="_id"
+              itemId={(account) =>
+                `${account._tenant ? 'tenant' : 'global'}/${account.type}/${account._id}`
+              }
               columns={columns}
               selection={selection}
               sorting={sorting}
               loading={isLoading}
-              isSelectable
+              isSelectable={!!selection}
               pagination
             />
           </EuiFlexItem>
@@ -369,6 +527,11 @@ class Accounts extends Component {
 
 Accounts.propTypes = {
   history: PropTypes.object.isRequired,
+  scope: PropTypes.oneOf(['global', 'tenant']),
+};
+
+Accounts.defaultProps = {
+  scope: 'global',
 };
 
 export default Accounts;

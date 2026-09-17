@@ -13,6 +13,8 @@ export const ROUTE_PATH = {
   WATCHES: `${BASE_URI}/watches`,
   ACCOUNT: `${BASE_URI}/account`,
   ACCOUNTS: `${BASE_URI}/accounts`,
+  TENANT_ACCOUNT: `${BASE_URI}/tenant/account`,
+  TENANT_ACCOUNTS: `${BASE_URI}/tenant/accounts`,
   WATCH_EXECUTE: `${BASE_URI}/watch/_execute`,
   WATCH_EXECUTE_GRAPH: `${BASE_URI}/watch/_execute_graph`,
   ALERT: `${BASE_URI}/alert`,
@@ -72,3 +74,17 @@ export const WATCH_ACTION_STATUS = {
 };
 
 export const PERMISSIONS_FOR_ACCESS = ['cluster:admin:searchguard:tenant:signals:watch/get'];
+
+export const GLOBAL_ACCOUNT_PERMISSIONS = {
+  GET: 'cluster:admin:searchguard:signals:account/get',
+  SEARCH: 'cluster:admin:searchguard:signals:account/search',
+  PUT: 'cluster:admin:searchguard:signals:account/put',
+  DELETE: 'cluster:admin:searchguard:signals:account/delete',
+};
+
+export const TENANT_ACCOUNT_PERMISSIONS = {
+  GET: 'cluster:admin:searchguard:tenant:signals:account/get',
+  SEARCH: 'cluster:admin:searchguard:tenant:signals:account/search',
+  PUT: 'cluster:admin:searchguard:tenant:signals:account/put',
+  DELETE: 'cluster:admin:searchguard:tenant:signals:account/delete',
+};

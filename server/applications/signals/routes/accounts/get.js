@@ -17,64 +17,88 @@
 import { schema } from '@kbn/config-schema';
 import { serverError } from '../../lib';
 import { getId } from '../../lib/helpers';
-import { ROUTE_PATH, ES_SCROLL_SETTINGS } from '../../../../../common/signals/constants';
+import {
+  ROUTE_PATH,
+  ES_SCROLL_SETTINGS,
+  NO_MULTITENANCY_TENANT,
+} from '../../../../../common/signals/constants';
 
-export const getAccounts = ({ clusterClient, fetchAllFromScroll, logger }) => async (
-  context,
-  request,
-  response
-) => {
-  try {
-    const {
-      body: { query, scroll },
-    } = request;
+export const getAccounts =
+  ({ clusterClient, fetchAllFromScroll, logger, configService, tenantScoped = false }) =>
+  async (context, request, response) => {
+    try {
+      if (tenantScoped && configService.get('searchguard.multitenancy.enabled') !== true) {
+        return response.notFound();
+      }
 
-    const body = {};
-    if (query && !!Object.keys(query).length) {
-      body.query = query;
-    }
+      const {
+        body: { query, scroll },
+      } = request;
+      const { sgtenant = NO_MULTITENANCY_TENANT } = request.headers || {};
 
-    const firstScrollResponse = await clusterClient
-      .asScoped(request)
-      .asCurrentUser.transport.request({
-        method: 'post',
-        path: `/_signals/account/_search?scroll=${scroll}`,
-        body,
+      const body = {};
+      if (query && !!Object.keys(query).length) {
+        body.query = query;
+      }
+
+      const accountPath = tenantScoped
+        ? `/_signals/account/${encodeURIComponent(sgtenant)}`
+        : '/_signals/account';
+
+      const firstScrollResponse = await clusterClient
+        .asScoped(request)
+        .asCurrentUser.transport.request({
+          method: 'post',
+          path: `${accountPath}/_search?scroll=${scroll}`,
+          body,
+        });
+
+      const hits = await fetchAllFromScroll({
+        clusterClient,
+        scroll,
+        request,
+        response: firstScrollResponse,
       });
 
-    const hits = await fetchAllFromScroll({
-      clusterClient,
-      scroll,
-      request,
-      response: firstScrollResponse,
-    });
+      return response.ok({
+        body: {
+          ok: true,
+          resp: hits.map(({ _source, _id }) => ({ ..._source, _id: getId(_id) })),
+        },
+      });
+    } catch (err) {
+      logger.error(`getAccounts [${tenantScoped ? 'tenant' : 'global'}]: ${err.stack}`);
+      return response.customError(serverError(err));
+    }
+  };
 
-    return response.ok({
-      body: {
-        ok: true,
-        resp: hits.map(({ _source, _id }) => ({ ..._source, _id: getId(_id) })),
-      },
-    });
-  } catch (err) {
-    logger.error(`getAccounts: ${err.stack}`);
-    return response.customError(serverError(err));
-  }
-};
+export function getAccountsRoute({
+  router,
+  clusterClient,
+  fetchAllFromScroll,
+  logger,
+  configService,
+}) {
+  const registerRoute = (tenantScoped) => {
+    const path = tenantScoped ? ROUTE_PATH.TENANT_ACCOUNTS : ROUTE_PATH.ACCOUNTS;
 
-export function getAccountsRoute({ router, clusterClient, fetchAllFromScroll, logger }) {
-  router.post(
-    {
-      path: ROUTE_PATH.ACCOUNTS,
-      validate: {
-        body: schema.object(
-          {
-            scroll: schema.string({ defaultValue: ES_SCROLL_SETTINGS.KEEPALIVE }),
-            query: schema.object({}, { unknowns: 'allow' }),
-          },
-          { unknowns: 'allow' }
-        ),
+    router.post(
+      {
+        path,
+        validate: {
+          body: schema.object(
+            {
+              scroll: schema.string({ defaultValue: ES_SCROLL_SETTINGS.KEEPALIVE }),
+              query: schema.object({}, { unknowns: 'allow' }),
+            },
+            { unknowns: 'allow' }
+          ),
+        },
       },
-    },
-    getAccounts({ clusterClient, fetchAllFromScroll, logger })
-  );
+      getAccounts({ clusterClient, fetchAllFromScroll, logger, configService, tenantScoped })
+    );
+  };
+
+  registerRoute(false);
+  registerRoute(true);
 }

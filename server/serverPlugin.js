@@ -221,6 +221,7 @@ export class ServerPlugin {
         core,
         kibanaRouter: this.kibanaRouter,
         searchguardBackendService: searchGuardBackend,
+        configService,
       });
 
       this.authTokensApp.start({ core, kibanaRouter: this.kibanaRouter });

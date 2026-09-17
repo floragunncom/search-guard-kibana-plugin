@@ -5,7 +5,79 @@ export const createAccountText = (<EuiI18n token="sg.account.createAccount.text"
 export const updateAccountText = (<EuiI18n token="sg.account.updateAccount.text" default="Update Account" />);
 export const readAccountText = (<EuiI18n token="sg.account.readAccount.text" default="Read Account" />);
 export const accountText = (<EuiI18n token="sg.account.account.text" default="Account" />);
-export const accountsText = (<EuiI18n token="sg.account.accounts.text" default="Accounts" />);
+export const globalAccountsText = (<EuiI18n token="sg.account.globalAccounts.text" default="Global Accounts" />);
+export const tenantAccountsText = (
+  <EuiI18n token="sg.account.tenantAccounts.text" default="Tenant Accounts" />
+);
+export const globalAccountsDescriptionText = (
+  <EuiI18n
+    token="sg.account.globalAccountsDescription.text"
+    default="Global accounts are available to watches in every tenant."
+  />
+);
+export const globalAccountsUnavailableTitleText = (
+  <EuiI18n
+    token="sg.account.globalAccountsUnavailableTitle.text"
+    default="Global accounts unavailable"
+  />
+);
+export const globalAccountsReadPermissionRequiredText = (
+  <EuiI18n
+    token="sg.account.globalAccountsReadPermissionRequired.text"
+    default="You do not have permission to view global accounts. Contact your administrator if you need access."
+  />
+);
+export const tenantAccountsUnavailableTitleText = (
+  <EuiI18n
+    token="sg.account.tenantAccountsUnavailableTitle.text"
+    default="Tenant accounts unavailable"
+  />
+);
+export const tenantAccountsReadPermissionRequiredText = (
+  <EuiI18n
+    token="sg.account.tenantAccountsReadPermissionRequired.text"
+    default="You do not have permission to view accounts for this tenant. Contact your administrator if you need access."
+  />
+);
+export const tenantAccountsDescriptionText = (
+  <EuiI18n
+    token="sg.account.tenantAccountsDescription.text"
+    default="Tenant accounts are available only to watches in the current tenant and override global accounts with the same type and name."
+  />
+);
+export const accountBehaviorText = (
+  <EuiI18n token="sg.account.accountBehavior.text" default="Account behavior" />
+);
+export const shadowsGlobalAccountText = (
+  <EuiI18n
+    token="sg.account.shadowsGlobalAccount.text"
+    default="Shadows a global account with the same type and name"
+  />
+);
+export function currentTenantText(tenantName) {
+  return (
+    <EuiI18n
+      token="sg.account.currentTenant.text"
+      default="Tenant: {tenantName}"
+      values={{ tenantName }}
+    />
+  );
+}
+export const createTenantAccountTitleText = (
+  <EuiI18n token="sg.account.createTenantAccountTitle.text" default="Create tenant account?" />
+);
+export const cloneTenantAccountTitleText = (
+  <EuiI18n token="sg.account.cloneTenantAccountTitle.text" default="Clone tenant account?" />
+);
+export function tenantAccountShadowWarningText(accountId) {
+  return (
+    <EuiI18n
+      token="sg.account.tenantAccountShadowWarning.text"
+      default="A global account of the same type named {accountId} already exists. This tenant account will take precedence for watches in the current tenant."
+      values={{ accountId }}
+    />
+  );
+}
 export const hostText = (<EuiI18n token="sg.account.host.text" default="Host" />);
 export const portText = (<EuiI18n token="sg.account.port.text" default="Port" />);
 export const mimeLayoutText = (<EuiI18n token="sg.account.mimeLayout.text" default="Mime Layout" />);

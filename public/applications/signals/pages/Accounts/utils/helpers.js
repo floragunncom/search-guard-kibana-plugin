@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { get } from 'lodash';
+import { get, omit } from 'lodash';
 import { APP_PATH, ACCOUNT_ACTIONS } from '../../../utils/constants';
 
 export const buildESQuery = (query) => {
@@ -35,11 +35,37 @@ export const buildESQuery = (query) => {
   return query;
 };
 
-export const getResourceEditUri = (id, type) =>
-  `${APP_PATH.DEFINE_ACCOUNT}?id=${encodeURIComponent(id)}&accountType=${type}`;
+export const buildTenantAccounts = (accounts = []) => {
+  const globalAccountKeys = new Set(
+    accounts
+      .filter(({ _tenant: tenant }) => !tenant)
+      .map(({ _id, type }) => `${type.toLowerCase()}/${_id}`)
+  );
 
-export const getResourceReadUri = (id, type) => {
+  return accounts
+    .filter(({ _tenant: tenant }) => !!tenant)
+    .map((account) => ({
+      ...account,
+      _shadowsGlobal: globalAccountKeys.has(`${account.type.toLowerCase()}/${account._id}`),
+    }));
+};
+
+export const hasGlobalAccount = (accounts = [], id, type) =>
+  accounts.some(
+    ({ _id, _tenant: tenant, type: accountType }) =>
+      !tenant && _id === id && accountType.toLowerCase() === type.toLowerCase()
+  );
+
+export const getAccountClonePayload = (account) =>
+  omit(account, ['_id', '_tenant', '_shadowsGlobal']);
+
+export const getResourceEditUri = (id, type, tenantScoped = false) =>
+  `${APP_PATH.DEFINE_ACCOUNT}?id=${encodeURIComponent(id)}&accountType=${type}${
+    tenantScoped ? '&scope=tenant' : ''
+  }`;
+
+export const getResourceReadUri = (id, type, tenantScoped = false) => {
   return `${APP_PATH.DEFINE_JSON_ACCOUNT}?id=${encodeURIComponent(id)}&accountType=${type}&action=${
     ACCOUNT_ACTIONS.READ_ACCOUNT
-  }`;
+  }${tenantScoped ? '&scope=tenant' : ''}`;
 };

@@ -13,18 +13,31 @@ import { ContextProvider } from './Context';
 
 import './style.scss';
 
-export const renderApp = ({ core, httpClient, element, removeExternalHistoryListener, theme$ }) => {
+export const renderApp = ({
+  core,
+  httpClient,
+  configService,
+  permissions,
+  element,
+  removeExternalHistoryListener,
+  theme$,
+}) => {
   ReactDOM.render(
     <I18nProvider>
-      <KibanaThemeProvider theme={{theme$}}>
+      <KibanaThemeProvider theme={{ theme$ }}>
         <Router>
           <Route
-            render={props => (
-              <ContextProvider httpClient={httpClient} core={core}>
+            render={(props) => (
+              <ContextProvider
+                httpClient={httpClient}
+                core={core}
+                configService={configService}
+                permissions={permissions}
+              >
                 <Main title={camelCase(APP_NAME)} httpClient={httpClient} {...props} />
               </ContextProvider>
-          )}
-        />
+            )}
+          />
         </Router>
       </KibanaThemeProvider>
     </I18nProvider>,

@@ -47,7 +47,7 @@ export class Signals {
     }
   }
 
-  start({ core, kibanaRouter, searchguardBackendService }) {
+  start({ core, kibanaRouter, searchguardBackendService, configService }) {
     this.logger.debug('Start app');
 
     try {
@@ -56,6 +56,7 @@ export class Signals {
       registerRoutes({
         router: kibanaRouter,
         searchguardBackendService,
+        configService,
         clusterClient: this.clusterClient,
         logger: this.coreContext.logger,
       });
