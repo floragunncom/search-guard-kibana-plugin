@@ -100,6 +100,10 @@ export class ServerPlugin {
 
     this.kibanaRouter = core.http.createRouter();
 
+    // Registers the Signals dashboard panel type for the dashboards REST API.
+    // The embeddable setup contract is only available here (not in start).
+    this.signalsApp.setup({ embeddable: pluginDependencies.embeddable });
+
     // Register a switcher for the read only mode
     core.capabilities.registerSwitcher(async (request, uiCapabilities) => {
       if (this.readOnlyMode) {

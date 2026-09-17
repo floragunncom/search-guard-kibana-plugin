@@ -45,7 +45,7 @@ export default class AuthType {
     this.pluginDependencies = pluginDependencies;
     this.spacesService = spacesService;
 
-    this.basePath = kibanaCore.http.basePath.get();
+    this.basePath = kibanaCore.http.basePath.serverBasePath;
     this.frontendBaseUrl =
       this.config.get('searchguard.frontend_base_url') || kibanaCore.http.basePath.publicBaseUrl;
     this.sgFrontendConfigId = this.config.get('searchguard.sg_frontend_config_id') || 'default'; 

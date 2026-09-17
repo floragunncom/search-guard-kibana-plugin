@@ -57,7 +57,7 @@ export class AuthManager {
       '/internal/security/user_profile'
     ];
 
-    this.basePath = kibanaCore.http.basePath.get();
+    this.basePath = kibanaCore.http.basePath.serverBasePath;
   }
 
   registerAuthInstances() {

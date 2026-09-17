@@ -60,6 +60,7 @@ export const watchSelectorOverlay = ({ addPanel, httpClient, stateObservables, c
     flyoutProps: {
       type: 'overlay',
       size: 'm',
+      'data-test-subj': 'sgWatchStatusSelector',
     },
     loadContent: async ({ closeFlyout }) => {
       // Load data inside the flyout for better perceived performance
@@ -100,6 +101,7 @@ export const WatchSelector = ({ selectableWatches, onSearch, onSetWatch, onClose
   // Makes the table rows clickable
   const getRowProps = (watch) => {
     return {
+      'data-test-subj': `sgWatchStatusSelector-row-${watch.watch_id}`,
       onClick: () => {
         onSetWatch(watch.watch_id);
       },

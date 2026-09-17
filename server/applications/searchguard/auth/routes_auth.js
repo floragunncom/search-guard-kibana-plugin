@@ -23,7 +23,7 @@ export function defineAuthRoutes({ kibanaCore, authManager, searchGuardBackend, 
   const httpResources = kibanaCore.http.resources;
   customErrorRoute({ httpResources });
 
-  const basePath = kibanaCore.http.basePath.get() || '';
+  const basePath = kibanaCore.http.basePath.serverBasePath;
   const allowedLoginHandlers = Object.values(authManager.authInstances)
     .filter(instance => instance.loginURL)
     .map(instance => basePath + instance.loginURL);
@@ -135,7 +135,11 @@ export function authConfigHandler({ authManager, searchGuardBackend, configServi
           let loginURL = authInstance.loginURL;
           if (config.id) {
             // All loginURLs are relative
-            loginURL = kibanaCore.http.basePath.get() + authInstance.loginURL + "?authTypeId=" + encodeURIComponent(config.id);
+            loginURL =
+              kibanaCore.http.basePath.get(request) +
+              authInstance.loginURL +
+              '?authTypeId=' +
+              encodeURIComponent(config.id);
           }
 
           // For example, we don't have a loginURL flow for JWT. Instead,
