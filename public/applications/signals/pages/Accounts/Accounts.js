@@ -319,6 +319,7 @@ class Accounts extends Component {
   render() {
     const { history } = this.props;
     const tenantScoped = this.props.scope === 'tenant';
+    const showAccountsDescription = tenantScoped || this.context.isMultitenancyEnabled;
     const { accounts, isLoading, error, isAddAccountPopoverOpen } = this.state;
     const canReadAccounts = tenantScoped
       ? this.context.isMultitenancyEnabled && this.context.tenantAccountPermissions.read
@@ -330,10 +331,16 @@ class Accounts extends Component {
     if (!canReadAccounts) {
       return (
         <ContentPanel title={tenantScoped ? tenantAccountsText : globalAccountsText}>
-          <EuiText size="s">
-            <p>{tenantScoped ? tenantAccountsDescriptionText : globalAccountsDescriptionText}</p>
-          </EuiText>
-          <EuiSpacer />
+          {showAccountsDescription && (
+            <>
+              <EuiText size="s">
+                <p>
+                  {tenantScoped ? tenantAccountsDescriptionText : globalAccountsDescriptionText}
+                </p>
+              </EuiText>
+              <EuiSpacer />
+            </>
+          )}
           <EuiCallOut
             title={
               tenantScoped ? tenantAccountsUnavailableTitleText : globalAccountsUnavailableTitleText
@@ -486,10 +493,14 @@ class Accounts extends Component {
               ]
         }
       >
-        <EuiText size="s">
-          <p>{tenantScoped ? tenantAccountsDescriptionText : globalAccountsDescriptionText}</p>
-        </EuiText>
-        <EuiSpacer />
+        {showAccountsDescription && (
+          <>
+            <EuiText size="s">
+              <p>{tenantScoped ? tenantAccountsDescriptionText : globalAccountsDescriptionText}</p>
+            </EuiText>
+            <EuiSpacer />
+          </>
+        )}
         {this.renderSearchBar()}
         <EuiSpacer />
         <EuiFlexGroup>
