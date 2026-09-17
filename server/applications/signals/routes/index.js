@@ -25,7 +25,13 @@ import { registerAccountsRoutes } from './accounts';
 import { registerAccountRoutes } from './account';
 import { registerSearchguardRoutes } from './searchguard';
 
-export function registerRoutes({ router, clusterClient, logger, searchguardBackendService }) {
+export function registerRoutes({
+  router,
+  clusterClient,
+  logger,
+  searchguardBackendService,
+  configService,
+}) {
   registerWatchesRoutes({
     router,
     clusterClient,
@@ -49,10 +55,16 @@ export function registerRoutes({ router, clusterClient, logger, searchguardBacke
     router,
     clusterClient,
     fetchAllFromScroll,
+    configService,
     logger: logger.get('signals-accounts-routes'),
   });
 
-  registerAccountRoutes({ router, clusterClient, logger: logger.get('signals-account-routes') });
+  registerAccountRoutes({
+    router,
+    clusterClient,
+    configService,
+    logger: logger.get('signals-account-routes'),
+  });
 
   registerSearchguardRoutes({
     router,

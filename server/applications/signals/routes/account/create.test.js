@@ -41,7 +41,9 @@ describe('routes/account/create', () => {
     const request = {
       params: { id: 'mydest 2', type: 'email' },
     };
-    const expectedPath = `/_signals/account/${request.params.type}/${encodeURIComponent(request.params.id)}`;
+    const expectedPath = `/_signals/account/${request.params.type}/${encodeURIComponent(
+      request.params.id
+    )}`;
     const expectedBody = {};
 
     await createAccount({ clusterClient, logger })(context, request, response);
@@ -60,7 +62,57 @@ describe('routes/account/create', () => {
     });
   });
 
-  test('there is an error', async () => {
+  test('create tenant account in the current tenant', async () => {
+    const logger = setupLoggerMock();
+    const response = setupHttpResponseMock();
+    const context = setupContextMock();
+    const expectedResponse = { result: 'created' };
+    const asCurrentUserTransportRequest = jest.fn().mockResolvedValue(expectedResponse);
+    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
+    const configService = { get: jest.fn().mockReturnValue(true) };
+    const request = {
+      body: { type: 'EMAIL' },
+      headers: { sgtenant: 'tenant 1' },
+      params: { id: 'mydest', type: 'email' },
+    };
+
+    await createAccount({ clusterClient, logger, configService, tenantScoped: true })(
+      context,
+      request,
+      response
+    );
+
+    expect(asCurrentUserTransportRequest).toHaveBeenCalledWith({
+      method: 'put',
+      path: '/_signals/account/tenant%201/email/mydest',
+      body: request.body,
+    });
+    expect(response.ok).toHaveBeenCalledWith({
+      body: { ok: true, resp: expectedResponse },
+    });
+  });
+
+  test('returns not found for a tenant account when multitenancy is disabled', async () => {
+    const logger = setupLoggerMock();
+    const response = setupHttpResponseMock();
+    const context = setupContextMock();
+    const clusterClient = setupClusterClientMock();
+    const configService = { get: jest.fn().mockReturnValue(false) };
+
+    await createAccount({ clusterClient, logger, configService, tenantScoped: true })(
+      context,
+      {},
+      response
+    );
+
+    expect(response.notFound).toHaveBeenCalled();
+    expect(clusterClient.asScoped).not.toHaveBeenCalled();
+  });
+
+  test.each([
+    ['global', false],
+    ['tenant', true],
+  ])('logs the %s scope when there is an error', async (scope, tenantScoped) => {
     const logger = setupLoggerMock();
     const response = setupHttpResponseMock();
     const context = setupContextMock();
@@ -69,15 +121,20 @@ describe('routes/account/create', () => {
 
     const asCurrentUserTransportRequest = jest.fn().mockRejectedValue(error);
     const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
+    const configService = { get: jest.fn().mockReturnValue(true) };
 
     const request = {
       headers: {},
       params: {},
     };
 
-    await createAccount({ clusterClient, logger })(context, request, response);
+    await createAccount({ clusterClient, logger, configService, tenantScoped })(
+      context,
+      request,
+      response
+    );
 
-    expect(logger.error).toHaveBeenCalledWith(`createAccount: ${error.stack}`);
+    expect(logger.error).toHaveBeenCalledWith(`createAccount [${scope}]: ${error.stack}`);
     expect(response.customError).toHaveBeenCalledWith(serverError(error));
   });
 });

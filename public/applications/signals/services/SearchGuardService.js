@@ -3,7 +3,8 @@ import SignalsService from './SignalsService';
 import { ROUTE_PATH } from '../utils/constants';
 
 export class SearchGuardService extends SignalsService {
-  hasPermissions() {
-    return super.post(`..${ROUTE_PATH.SEARCHGUARD.SIGNALS_HAS_PERMISSIONS}`);
+  async hasPermissions() {
+    const { resp } = await super.post(`..${ROUTE_PATH.SEARCHGUARD.SIGNALS_HAS_PERMISSIONS}`);
+    return resp;
   }
 }

@@ -19,7 +19,13 @@ import queryString from 'query-string';
 import { Formik } from 'formik';
 import { EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
 import { AccountsService } from '../../services';
-import {ContentPanel, FormikCodeEditor, LabelAppendLink, CancelButton, FormikCodeEditorSG} from '../../components';
+import {
+  ContentPanel,
+  FormikCodeEditor,
+  LabelAppendLink,
+  CancelButton,
+  FormikCodeEditorSG,
+} from '../../components';
 import { jsonText } from '../../utils/i18n/common';
 import { readAccountText } from '../../utils/i18n/account';
 import { APP_PATH, DOC_LINKS } from '../../utils/constants';
@@ -42,8 +48,9 @@ export function DefineJsonAccount({ history, location }) {
   const { editorOptions, editorTheme, httpClient, addErrorToast } = useContext(Context);
 
   const isReadOnly = true;
-  const { id: accountId, accountType } = queryString.parse(location.search);
-  const accountService = new AccountsService(httpClient, accountType);
+  const { id: accountId, accountType, scope } = queryString.parse(location.search);
+  const tenantScoped = scope === 'tenant';
+  const accountService = new AccountsService(httpClient, accountType, tenantScoped);
 
   const [resource, setResource] = useState(accountToFormik());
   const [isLoading, setIsLoading] = useState(false);
@@ -68,7 +75,7 @@ export function DefineJsonAccount({ history, location }) {
   }
 
   function navigateToAccounts() {
-    history.push(APP_PATH.ACCOUNTS);
+    history.push(tenantScoped ? APP_PATH.TENANT_ACCOUNTS : APP_PATH.ACCOUNTS);
   }
 
   function renderEditor() {

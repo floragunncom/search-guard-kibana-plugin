@@ -53,13 +53,17 @@ const { darkTheme, theme: lightTheme, ...editorOptionsDefaults } = CODE_EDITOR;
 let watchesFilters = {};
 let operatorViewWatchesFilters = {};
 
-const ContextProvider = ({ children, httpClient, core, configService }) => {
+const ContextProvider = ({ children, httpClient, core, configService, permissions }) => {
   let IS_DARK_THEME = true;
+  let isMultitenancyEnabled = false;
   try {
     IS_DARK_THEME = configService.get('is_dark_mode') ? true : false;
+    isMultitenancyEnabled = configService.get('searchguard.multitenancy.enabled') === true;
   } catch (error) {
     // Ignore
   }
+  const globalAccountPermissions = permissions?.globalAccounts || { read: false, manage: false };
+  const tenantAccountPermissions = permissions?.tenantAccounts || { read: false, manage: false };
 
   const [editorTheme] = useState(IS_DARK_THEME ? darkTheme : lightTheme);
   const [editorOptions] = useState(editorOptionsDefaults);
@@ -174,6 +178,9 @@ const ContextProvider = ({ children, httpClient, core, configService }) => {
           editorOptions,
           httpClient,
           configService,
+          isMultitenancyEnabled,
+          globalAccountPermissions,
+          tenantAccountPermissions,
           onSelectChange,
           onSwitchChange,
           onComboBoxChange,

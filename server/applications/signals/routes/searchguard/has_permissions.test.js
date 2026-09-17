@@ -22,7 +22,11 @@ import {
   setupContextMock,
   setupSearchGuardBackendMock,
 } from '../../../../utils/mocks';
-import { PERMISSIONS_FOR_ACCESS } from '../../../../../common/signals/constants';
+import {
+  GLOBAL_ACCOUNT_PERMISSIONS,
+  PERMISSIONS_FOR_ACCESS,
+  TENANT_ACCOUNT_PERMISSIONS,
+} from '../../../../../common/signals/constants';
 
 describe('routes/searchguard/has_permissions', () => {
   test('check Signals UI app permissions to render', async () => {
@@ -36,20 +40,105 @@ describe('routes/searchguard/has_permissions', () => {
         mockResponse: {
           permissions: {
             'cluster:admin:searchguard:tenant:signals:watch/get': false,
-            other_permission: false,
           },
         },
-        expectedResponse: false,
+        expectedResponse: {
+          signals: false,
+          globalAccounts: { read: false, manage: false },
+          tenantAccounts: { read: false, manage: false },
+        },
       },
       {
-        name: 'there is a permission to render',
+        name: 'global account GET without search does not grant read access',
         mockResponse: {
           permissions: {
             'cluster:admin:searchguard:tenant:signals:watch/get': true,
-            other_permission: false,
+            [GLOBAL_ACCOUNT_PERMISSIONS.GET]: true,
           },
         },
-        expectedResponse: true,
+        expectedResponse: {
+          signals: true,
+          globalAccounts: { read: false, manage: false },
+          tenantAccounts: { read: false, manage: false },
+        },
+      },
+      {
+        name: 'there is permission to read global accounts',
+        mockResponse: {
+          permissions: {
+            'cluster:admin:searchguard:tenant:signals:watch/get': true,
+            [GLOBAL_ACCOUNT_PERMISSIONS.GET]: true,
+            [GLOBAL_ACCOUNT_PERMISSIONS.SEARCH]: true,
+          },
+        },
+        expectedResponse: {
+          signals: true,
+          globalAccounts: { read: true, manage: false },
+          tenantAccounts: { read: false, manage: false },
+        },
+      },
+      {
+        name: 'global account read and put without delete does not grant manage access',
+        mockResponse: {
+          permissions: {
+            'cluster:admin:searchguard:tenant:signals:watch/get': true,
+            [GLOBAL_ACCOUNT_PERMISSIONS.GET]: true,
+            [GLOBAL_ACCOUNT_PERMISSIONS.SEARCH]: true,
+            [GLOBAL_ACCOUNT_PERMISSIONS.PUT]: true,
+          },
+        },
+        expectedResponse: {
+          signals: true,
+          globalAccounts: { read: true, manage: false },
+          tenantAccounts: { read: false, manage: false },
+        },
+      },
+      {
+        name: 'there is permission to manage global accounts',
+        mockResponse: {
+          permissions: {
+            'cluster:admin:searchguard:tenant:signals:watch/get': true,
+            ...Object.fromEntries(
+              Object.values(GLOBAL_ACCOUNT_PERMISSIONS).map((permission) => [permission, true])
+            ),
+          },
+        },
+        expectedResponse: {
+          signals: true,
+          globalAccounts: { read: true, manage: true },
+          tenantAccounts: { read: false, manage: false },
+        },
+      },
+      {
+        name: 'there is permission to render and read tenant accounts',
+        mockResponse: {
+          permissions: {
+            'cluster:admin:searchguard:tenant:signals:watch/get': true,
+            [TENANT_ACCOUNT_PERMISSIONS.GET]: true,
+            [TENANT_ACCOUNT_PERMISSIONS.SEARCH]: true,
+          },
+        },
+        expectedResponse: {
+          signals: true,
+          globalAccounts: { read: false, manage: false },
+          tenantAccounts: { read: true, manage: false },
+        },
+      },
+      {
+        name: 'there is permission to manage tenant accounts',
+        mockResponse: {
+          permissions: {
+            'cluster:admin:searchguard:tenant:signals:watch/get': true,
+            ...Object.fromEntries(
+              Object.values(TENANT_ACCOUNT_PERMISSIONS).map((permission) => [permission, true])
+            ),
+          },
+        },
+        expectedResponse: {
+          signals: true,
+          globalAccounts: { read: false, manage: false },
+          tenantAccounts: { read: true, manage: true },
+        },
       },
     ];
 
@@ -64,10 +153,11 @@ describe('routes/searchguard/has_permissions', () => {
 
       await hasPermissions({ searchguardBackendService, logger })(context, request, response);
 
-      expect(searchguardBackendService.hasPermissions).toHaveBeenCalledWith(
-        request.headers,
-        PERMISSIONS_FOR_ACCESS
-      );
+      expect(searchguardBackendService.hasPermissions).toHaveBeenCalledWith(request.headers, [
+        ...PERMISSIONS_FOR_ACCESS,
+        ...Object.values(GLOBAL_ACCOUNT_PERMISSIONS),
+        ...Object.values(TENANT_ACCOUNT_PERMISSIONS),
+      ]);
       expect(response.ok).toHaveBeenCalledWith({
         body: { ok: true, resp: expectedResponse },
       });
