@@ -16,8 +16,6 @@
 
 import { apiCanAddNewPanel } from '@kbn/presentation-publishing';
 import { IncompatibleActionError } from '@kbn/ui-actions-plugin/public';
-// Kibana 9.4+: trigger ids are no longer re-exported from '@kbn/ui-actions-plugin/public'
-import { ADD_PANEL_TRIGGER } from '@kbn/ui-actions-plugin/common/trigger_ids';
 import { watchSelectorOverlay } from './watch_selector_overlay';
 import {
   getStateObservables,
@@ -25,6 +23,20 @@ import {
   WATCH_STATUS_ACTION_ID,
   WATCH_STATUS_EMBEDDABLE_ID,
 } from './watch_status_utils';
+
+/**
+ * Trigger id of the dashboard's "Add panel" flyout, see
+ * src/platform/plugins/shared/ui_actions/common/trigger_ids.ts in Kibana.
+ *
+ * Kibana 9.4+ no longer re-exports the trigger ids from '@kbn/ui-actions-plugin/public',
+ * and importing '@kbn/ui-actions-plugin/common/trigger_ids' breaks on Kibana 9.5.4+:
+ * the Rspack build registers extraPublicDirs in __kbnBundles__ only if they are
+ * directories with an index file, and common/trigger_ids is a single file. The
+ * import then throws "__kbnBundles__ does not have a module defined for
+ * plugin/uiActions/common/trigger_ids" while our bundle loads, taking the whole
+ * plugin (including the login page) down. The id is a stable string, so define it here.
+ */
+const ADD_PANEL_TRIGGER = 'ADD_PANEL_TRIGGER';
 
 /**
  * Registers the add watch status action to the dashboards add panel button
