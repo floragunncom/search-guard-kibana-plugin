@@ -59,6 +59,15 @@ if ! git show-ref --verify --quiet refs/heads/main; then
    git update-ref refs/heads/main HEAD
 fi
 
+# In GitLab merge-request pipelines moon additionally auto-detects base/head
+# revisions from CI_MERGE_REQUEST_DIFF_BASE_SHA / CI_MERGE_REQUEST_SOURCE_BRANCH_SHA
+# (via the ci_env crate). Those are commits of *this plugin repo* and do not
+# exist in the Kibana clone, so `git merge-base` fails with "fatal: bad object".
+# MOON_BASE / MOON_HEAD take precedence over CI detection, so pin both to HEAD.
+# Kibana's bootstrap does not use `--affected`, so an empty diff is harmless.
+export MOON_BASE=HEAD
+export MOON_HEAD=HEAD
+
 echo -e "\e[0Ksection_start:`date +%s`:patch_kbn_optimizer[collapsed=true]\r\e[0KPatch kbn optimizer"
 
 $SED -i "/observeLines(proc.stderr\!).pipe(Rx.map((line) => ({ type: 'stderr', data: line }))),/s/^/\/\//" packages/kbn-plugin-helpers/src/tasks/optimize.ts
