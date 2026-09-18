@@ -21,6 +21,7 @@ import SessionExpiredError from '../../errors/session_expired_error';
 import MissingRoleError from '../../errors/missing_role_error';
 import path from 'path';
 import { AUTH_TYPE_NAMES } from '../../AuthManager';
+import { getBrowserHost } from '../../browser_origin';
 
 export default class Jwt extends AuthType {
   constructor({
@@ -98,7 +99,7 @@ export default class Jwt extends AuthType {
       url.searchParams.set('type', 'missingRole');
     } else {
       const authConfig = (
-        await this.searchGuardBackend.getAuthConfig()
+        await this.searchGuardBackend.getAuthConfig({ dynamic_host: getBrowserHost(request) })
       ).auth_methods.find((config) => config.method === 'link');
 
       // The customer may use a login endpoint, to which we can redirect
