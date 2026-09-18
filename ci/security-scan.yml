@@ -53,7 +53,12 @@
 scan:build:
   stage: "Security Scan Phase 1"
   image: "$SG_BUILD_IMAGE"
-  needs: ["build"]          # pulls the build/* artifact (the unpacked plugin)
+  needs:
+    - job: build
+      optional: true
+    - job: build_release
+      optional: true
+  # pulls the build/* artifact (the unpacked plugin)
   script:
     - 'test -d build/kibana || { echo "ERROR: build/kibana is missing - check the build job"; exit 1; }'
     # revision=trivy -> target/releases/search-guard-flx-kibana-plugin-trivy.zip
