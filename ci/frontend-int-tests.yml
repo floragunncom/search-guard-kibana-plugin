@@ -10,35 +10,11 @@ kibana_basicauth:
   variables:
     TEST_DEFINITIONS: ".*kibana_basicauth.*"
 
-# kibana_signals_accounts:
-#   extends:
-#     - .be_integration_test
-#   variables:
-#     TEST_DEFINITIONS: ".*kibana_signals_accounts"
-
-# kibana_signals_accounts_edit:
-#   extends:
-#     - .be_integration_test
-#   variables:
-#     TEST_DEFINITIONS: ".*kibana_signals_accounts_edit"
-
-# kibana_signals_watches:
-#   extends:
-#     - .be_integration_test
-#   variables:
-#     TEST_DEFINITIONS: ".*kibana_signals_watches"
-
-# kibana_signals_watches_edit_1:
-#   extends:
-#     - .be_integration_test
-#   variables:
-#     TEST_DEFINITIONS: ".*kibana_signals_watches_edit_1"
-
-# kibana_signals_watches_edit_2:
-#   extends:
-#     - .be_integration_test
-#   variables:
-#     TEST_DEFINITIONS: ".*kibana_signals_watches_edit_2"
+kibana_signals_1:
+  extends:
+    - .be_integration_test
+  variables:
+    TEST_DEFINITIONS: ".*kibana_signals_1.*"
 
 kibana_saml:
   extends:
