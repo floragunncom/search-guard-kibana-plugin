@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A **Kibana platform plugin** (id `searchguard`) that adds authentication/session management, multi-tenancy, the Search Guard configuration GUI, alerting (Signals), and API auth tokens to a Search Guard–secured Elasticsearch cluster. It has both a **server** side (Node, Kibana HTTP routes) and a **public** side (browser, React/EUI).
 
-The plugin version tracks a specific Kibana version — always read `version` from `kibana.json` rather than assuming (currently `9.4.4`; `package.json` carries the same version plus a `-master-SNAPSHOT` suffix). The plugin only builds/tests against a matching Kibana source tree.
+The plugin version tracks a specific Kibana version — always read `version` from `kibana.json` rather than assuming (currently `8.19.19` on this branch; `package.json` carries the same version plus a `-master-SNAPSHOT` suffix). The plugin only builds/tests against a matching Kibana source tree.
 
 ## Critical: this plugin cannot build or test standalone
 
