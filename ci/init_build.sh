@@ -59,14 +59,25 @@ if ! git show-ref --verify --quiet refs/heads/main; then
    git update-ref refs/heads/main HEAD
 fi
 
-# In GitLab merge-request pipelines moon additionally auto-detects base/head
-# revisions from CI_MERGE_REQUEST_DIFF_BASE_SHA / CI_MERGE_REQUEST_SOURCE_BRANCH_SHA
-# (via the ci_env crate). Those are commits of *this plugin repo* and do not
-# exist in the Kibana clone, so `git merge-base` fails with "fatal: bad object".
-# MOON_BASE / MOON_HEAD take precedence over CI detection, so pin both to HEAD.
-# Kibana's bootstrap does not use `--affected`, so an empty diff is harmless.
-export MOON_BASE=HEAD
-export MOON_HEAD=HEAD
+# In GitLab merge-request pipelines moon additionally detects GitLab (via the
+# ci_env crate, keyed on GITLAB_CI) and takes its base revision from the MR
+# variables: CI_MERGE_REQUEST_TARGET_BRANCH_NAME (moon 2.1, Kibana 8.19/9.5.2:
+# "ambiguous argument 'main-es8'") or CI_MERGE_REQUEST_DIFF_BASE_SHA (moon 2.4,
+# Kibana >= 9.5.3: "fatal: bad object <sha>"). Those refer to *this plugin repo*
+# and do not exist in the Kibana clone. Commit pipelines have no MR variables,
+# moon then sees the shallow clone and skips affected checks, which is why they
+# pass.
+#
+# Do NOT work around this with MOON_BASE / MOON_HEAD: on moon 2.1 `--base` /
+# `--head` require `--affected`, and Kibana's bootstrap calls plain
+# `moon run :build-webpack`, failing with "the following required arguments
+# were not provided: <--affected>".
+#
+# Instead hide GitLab from moon for the bootstrap only: without GITLAB_CI the
+# provider detection returns Unknown and none of the CI_MERGE_REQUEST_* values
+# are read, so MR pipelines behave exactly like commit pipelines. Nothing in
+# Kibana's bootstrap reads GITLAB_CI.
+MOON_BOOTSTRAP_ENV=(env -u GITLAB_CI)
 
 echo -e "\e[0Ksection_start:`date +%s`:patch_kbn_optimizer[collapsed=true]\r\e[0KPatch kbn optimizer"
 
@@ -127,7 +138,7 @@ echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoin
 # Prevent warning about outdated caniuse-lite, which seems to block the build
 npx --yes update-browserslist-db@latest
 
-yarn kbn bootstrap
+"${MOON_BOOTSTRAP_ENV[@]}" yarn kbn bootstrap
 
 echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
 
