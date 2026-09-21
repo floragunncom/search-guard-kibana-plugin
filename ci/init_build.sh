@@ -79,6 +79,15 @@ fi
 # Kibana's bootstrap reads GITLAB_CI.
 MOON_BOOTSTRAP_ENV=(env -u GITLAB_CI)
 
+# moon 2.x loads its toolchains (javascript, node, yarn, typescript, system) as
+# WASM plugins that it downloads from github.com/moonrepo/plugins/releases on
+# first use and keeps in $MOON_HOME/plugins (default ~/.moon). In CI ~ is the
+# job dir and not cached, so every job re-downloads ~11 MB from GitHub and
+# fails if GitHub does not answer ("Failed to download plugin ... 504 Gateway
+# Timeout"). Keep the moon home inside the Kibana checkout, which the `build`
+# job already caches, so the plugins are downloaded once per Kibana version.
+export MOON_HOME="$(pwd)/.moon-home"
+
 echo -e "\e[0Ksection_start:`date +%s`:patch_kbn_optimizer[collapsed=true]\r\e[0KPatch kbn optimizer"
 
 $SED -i "/observeLines(proc.stderr\!).pipe(Rx.map((line) => ({ type: 'stderr', data: line }))),/s/^/\/\//" packages/kbn-plugin-helpers/src/tasks/optimize.ts
