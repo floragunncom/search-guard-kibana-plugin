@@ -250,7 +250,9 @@ export const getWatchStatusEmbeddableFactory = ({ httpClient }) => {
                 alignItems={'center'}
               >
                 <EuiFlexItem grow={false}>
-                  <EuiText color="danger">Error loading watch: {error.message}</EuiText>
+                  <EuiText color="danger" data-test-subj="sgWatchStatusPanel-error">
+                    Error loading watch: {error.message}
+                  </EuiText>
                 </EuiFlexItem>
               </EuiFlexGroup>
             );
@@ -284,6 +286,7 @@ export const getWatchStatusEmbeddableFactory = ({ httpClient }) => {
                   fontSize: '2rem',
                   opacity: isLoading ? 0.6 : 1,
                 }}
+                data-test-subj="sgWatchStatusPanel-status"
               >
                 <EuiFlexItem grow={false}>
                   <EuiIcon type={iconType} size="xl" />
@@ -300,10 +303,11 @@ export const getWatchStatusEmbeddableFactory = ({ httpClient }) => {
               justifyContent={'center'}
               alignItems={'center'}
               style={{ paddingLeft: 5, paddingRight: 5 }}
+              data-test-subj="sgWatchStatusPanel"
             >
               <EuiFlexItem grow={false}>
                 <EuiText size="s">
-                  <h3>{watchId}</h3>
+                  <h3 data-test-subj="sgWatchStatusPanel-watchId">{watchId}</h3>
                 </EuiText>
               </EuiFlexItem>
               <EuiFlexItem
