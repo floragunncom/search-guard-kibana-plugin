@@ -52,25 +52,42 @@ cd $SF_REPO_DIR
 
 
 
-# In GitLab merge-request pipelines moon additionally detects GitLab (via the
-# ci_env crate, keyed on GITLAB_CI) and takes its base revision from the MR
-# variables: CI_MERGE_REQUEST_TARGET_BRANCH_NAME (moon 2.1, Kibana 8.19/9.5.2:
+# Hide GitLab from moon (Kibana's build tool) for the rest of this script.
+#
+# Kibana 8.19.x (checked: 8.19.19, 8.19.21) ships @moonrepo/cli 2.1.0.
+# `moon run` always queries the changed files, even without `--affected`. In
+# CI it takes base/head from the
+# ci_env crate, which detects GitLab solely via GITLAB_CI and then uses the MR
+# variables CI_MERGE_REQUEST_TARGET_BRANCH_NAME (moon 2.1, Kibana 8.19/9.5.2:
 # "ambiguous argument 'main-es8'") or CI_MERGE_REQUEST_DIFF_BASE_SHA (moon 2.4,
-# Kibana >= 9.5.3: "fatal: bad object <sha>"). Those refer to *this plugin repo*
-# and do not exist in the Kibana clone. Commit pipelines have no MR variables,
-# moon then sees the shallow clone and skips affected checks, which is why they
-# pass.
+# Kibana >= 9.5.3: "fatal: bad object <sha>"). Those refer to *this plugin
+# repo* and do not exist in the shallow Kibana clone. Commit and tag pipelines
+# have no MR variables; moon then falls back to the default branch, sees the
+# shallow clone and returns an empty file list, which is why they pass.
 #
-# Do NOT work around this with MOON_BASE / MOON_HEAD: on moon 2.1 `--base` /
-# `--head` require `--affected`, and Kibana's bootstrap calls plain
+# moon is invoked from TWO places in this script, both must run without
+# GITLAB_CI (782faf1e only covered the first one, so `yarn build` still failed
+# in MR pipelines):
+#   - `yarn kbn bootstrap`            -> moon run :build-webpack
+#   - `yarn build` -> plugin-helpers build -> `yarn kbn build-shared`
+#                                     -> moon run :build-webpack
+# The eui fix block below also runs `yarn remove`/`yarn add` in the Kibana root,
+# which triggers Kibana's root lifecycle scripts, so keep this unset before the
+# first yarn/kbn command in the Kibana tree.
+#
+# Do NOT work around this with MOON_BASE / MOON_HEAD (see feff8bc6): on moon
+# 2.1 `--base` / `--head` require `--affected`, and Kibana calls plain
 # `moon run :build-webpack`, failing with "the following required arguments
-# were not provided: <--affected>".
+# were not provided: <--affected>". Re-check this when Kibana bumps moon.
 #
-# Instead hide GitLab from moon for the bootstrap only: without GITLAB_CI the
-# provider detection returns Unknown and none of the CI_MERGE_REQUEST_* values
-# are read, so MR pipelines behave exactly like commit pipelines. Nothing in
-# Kibana's bootstrap reads GITLAB_CI.
-MOON_BOOTSTRAP_ENV=(env -u GITLAB_CI)
+# Scope: without GITLAB_CI the provider detection returns Unknown and none of
+# the CI_MERGE_REQUEST_* values are read, so MR pipelines behave exactly like
+# commit pipelines. CI=true stays set, so moon's is_ci(), jest --ci and yarn's
+# CI mode are unchanged; CI_MERGE_REQUEST_* stay set for other consumers. This
+# script is sourced as the last command inside `su -s /bin/bash kibana -c ...`
+# in .gitlab-ci.yml, so the job's outer shell keeps GITLAB_CI. Locally
+# (./build.sh) GITLAB_CI is never set and `unset` is a no-op.
+unset GITLAB_CI
 
 echo -e "\e[0Ksection_start:`date +%s`:patch_kbn_optimizer[collapsed=true]\r\e[0KPatch kbn optimizer"
 
@@ -126,7 +143,7 @@ fi
 
 
 
-"${MOON_BOOTSTRAP_ENV[@]}" yarn kbn bootstrap
+yarn kbn bootstrap
 
 echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
 
