@@ -15,9 +15,9 @@ It must live inside a checked-out Kibana source tree at `plugins/search-guard`, 
 `ci/init_build.sh` (invoked by `./build.sh`) automates the full flow:
 1. Reads the target version from `kibana.json`.
 2. Clones the matching Kibana release branch (`v<version>`) into `./kibana/` (cached via `kibana/.cached_version`).
-3. `yarn kbn bootstrap` in the Kibana repo.
-4. Copies plugin sources (`public/`, `server/`, `common/`, `tests/`, `__mocks__/`, config files) into `kibana/plugins/search-guard`.
-5. Runs jest, then `yarn build`, and moves the result to `./build/` in the repo root.
+3. `nvm install` (Node from Kibana's `.nvmrc`), then, if Kibana's `package.json` has `engines.pnpm` (8.19.22+), provisions that pnpm via `corepack enable` / `corepack prepare`. Then `yarn kbn bootstrap` in the Kibana repo.
+4. Copies plugin sources (`public/`, `server/`, `common/`, `tests/`, `__mocks__/`, config files incl. `.kibana-plugin-helpers.json`) into `kibana/plugins/search-guard`.
+5. Runs jest, then `yarn build`, installs the plugin's production deps into `build/kibana/searchguard` from the plugin's own `yarn.lock` (plugin-helpers' own install is disabled via `skipInstallDependencies` because since 8.19.22 it would use pnpm and expect a `pnpm-lock.yaml`), and moves the result to `./build/` in the repo root.
 
 Note the folder name inside Kibana is `search-guard` even though the plugin id is `searchguard`.
 

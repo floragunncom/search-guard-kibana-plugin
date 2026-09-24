@@ -17,6 +17,7 @@ rm -rf ./kibana/build
 rm -rf ./kibana/.buildkite/node_modules/
 rm -rf ./kibana/.moon/cache/
 rm -rf ./kibana/.yarn-local-mirror/
+rm -rf ./kibana/.pnpm-store/
 rm -rf ./kibana/data/
 rm -rf ./kibana/packages/kbn-ts-projects/config-paths.json
 rm -rf ./kibana/src/platform/packages/private/kbn-repo-packages/package-map.json
