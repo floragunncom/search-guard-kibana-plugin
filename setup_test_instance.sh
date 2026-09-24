@@ -12,7 +12,7 @@ KI_VERSION=$(echo "$VERSION" | cut -d "-" -f 1)
 echo "KI version: $KI_VERSION"
 
 if ! ./build.sh install-local; then
-  echo "Building Search Guard Kibana Plugin failed"
+  echo "Building Search Guard Kibana Plugin failed!"
   exit 1
 fi
 
