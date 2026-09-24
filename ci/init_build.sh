@@ -49,10 +49,29 @@ fi
 
 cd $SF_REPO_DIR
 
-# Kibana >= 9.3 bootstraps via moon, and moon's workspace.yml has
-# `vcs.defaultBranch: main`. Since the CI clones a single release branch
-# with `--depth 1 --branch v$SF_VERSION`, the local repo has no `main` ref,
-# and moon fails with: "fatal: ambiguous argument 'main': unknown revision".
+# The Kibana clone is cached between runs (GitLab cache, local ./kibana) and
+# this script patches tracked files in it (optimize.ts below; older script
+# versions also edited package.json), and `kbn bootstrap` regenerates tracked
+# files. Reset all tracked files to a pristine state so leftovers from a previous
+# (possibly older) script version cannot leak into this run: e.g. a leftover
+# `resolutions` entry in package.json makes the pnpm-based bootstrap fail with
+# 'overrides[...] is both generated from resolutions and authored'.
+# Untracked files (node_modules, .pnpm-store, .cached_version) are kept.
+#
+# Kibana's moon tasks run `git rev-parse --show-toplevel` in the clone. Mark the
+# clone as a safe git directory so a cached clone that git considers to be of
+# "dubious ownership" (cache restored as another user, su, bind mounts) does not
+# fail the bootstrap with "fatal: detected dubious ownership in repository".
+if ! git config --global --get-all safe.directory 2>/dev/null | grep -qxF "$PWD"; then
+   git config --global --add safe.directory "$PWD"
+fi
+git checkout --quiet -- .
+
+# Kibana 8.19.22+ ships @moonrepo/cli 2.4.6 (same as Kibana >= 9.5.3), and
+# moon's workspace.yml has `vcs.defaultBranch: main`. Since the CI clones a
+# single release branch with `--depth 1 --branch v$SF_VERSION`, the local repo
+# has no `main` ref, and moon can fail with:
+# "fatal: ambiguous argument 'main': unknown revision".
 # Create a local `main` ref pointing at HEAD so moon can resolve it.
 # We are only interested in our plugin build, so this should not affect us.
 if ! git show-ref --verify --quiet refs/heads/main; then
@@ -61,7 +80,8 @@ fi
 
 # Hide GitLab from moon (Kibana's build tool) for the rest of this script.
 #
-# Kibana 8.19.x (checked: 8.19.19, 8.19.21) ships @moonrepo/cli 2.1.0.
+# Kibana 8.19.x up to 8.19.21 ships @moonrepo/cli 2.1.0; 8.19.22 (first
+# pnpm-based 8.19 release) ships 2.4.6.
 # `moon run` always queries the changed files, even without `--affected`. In
 # CI it takes base/head from the
 # ci_env crate, which detects GitLab solely via GITLAB_CI and then uses the MR
@@ -121,6 +141,23 @@ nvm install
 
 echo -e "\e[0Ksection_end:`date +%s`:nvm_install\r\e[0K"
 
+# Kibana >= 8.19.22 / >= 9.5.x (pnpm-based) needs pnpm on the PATH for
+# `kbn bootstrap` and for plugin-helpers (`pnpm kbn build-shared`). Kibana
+# provisions pnpm through corepack (bundled with Node.js), pinned to the version
+# in package.json "engines.pnpm". Older (yarn-based) Kibana trees have no
+# "engines.pnpm", so this block is skipped there.
+start_collapsed_section pnpm_setup "Setting up pnpm via corepack"
+PNPM_VERSION=$(jq -r '.engines.pnpm // empty' package.json | $SED -E 's/^[^0-9]*//')
+if [[ -n "$PNPM_VERSION" ]]; then
+   export COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+   corepack enable
+   corepack prepare "pnpm@${PNPM_VERSION}" --activate
+   echo "pnpm version $(pnpm --version) (engines.pnpm: $(jq -r '.engines.pnpm' package.json))"
+else
+   echo "No engines.pnpm in package.json, Kibana tree is yarn-based, skipping pnpm setup"
+fi
+end_section pnpm_setup
+
 if [[ -d plugins/search-guard ]]; then
   rm -rf plugins/search-guard
 fi
@@ -171,6 +208,7 @@ cp -a "../common" plugins/search-guard
 cp -a "../tests"  plugins/search-guard
 cp -a "../__mocks__" plugins/search-guard
 cp -a "../yarn.lock" plugins/search-guard
+cp -a "../.kibana-plugin-helpers.json" plugins/search-guard
 
 # Prevent warning about outdated caniuse-lite, which seems to block the build
 npx --yes update-browserslist-db@latest
@@ -201,6 +239,17 @@ start_section yarn_build "Doing yarn build -v $SF_VERSION --skip-archive"
 #export NODE_OPTIONS=--openssl-legacy-provider
 
 yarn build -v $SF_VERSION --skip-archive
+
+# Since Kibana 8.19.22 plugin-helpers install the plugin's production
+# dependencies with `pnpm install --prod` from a pnpm-lock.yaml. This plugin
+# keeps yarn.lock as its single lockfile, so .kibana-plugin-helpers.json sets
+# skipInstallDependencies=true and we do the install ourselves, exactly like
+# plugin-helpers <= 8.19.21 did (yarn install --production in the build dir).
+# plugin-helpers copy package.json but not yarn.lock into the build dir.
+start_section plugin_deps "Installing plugin production dependencies into build dir"
+cp -a yarn.lock build/kibana/searchguard/
+(cd build/kibana/searchguard && yarn install --production --frozen-lockfile)
+end_section plugin_deps
 
 # Fix only for Kibana 8.7.x
 cd build

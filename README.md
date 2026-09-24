@@ -83,6 +83,9 @@ See the [kibana contributing guide](https://github.com/elastic/kibana/blob/maste
 
     > ***IMPORTANT:*** Use this script instead of `yarn` to install dependencies when switching branches, and re-run it whenever your dependencies change.
 
+    > ***NOTE:*** Kibana 8.19.22 and later are pnpm-based and need pnpm on the `PATH`, provisioned via corepack (bundled with Node.js) and pinned to `engines.pnpm` of the Kibana `package.json`:
+    > `corepack enable && corepack prepare pnpm@<engines.pnpm> --activate`. `ci/init_build.sh` does this automatically.
+
   - `yarn start`
 
     Start kibana and have it include this plugin. You can pass any arguments that you would normally send to `bin/kibana`
