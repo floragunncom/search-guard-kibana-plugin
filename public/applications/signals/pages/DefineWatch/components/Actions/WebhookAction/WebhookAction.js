@@ -29,6 +29,7 @@ import { severityText, resolvesSeverityText } from '../../../../../utils/i18n/wa
 import { RowHelpTextMustacheRuntimeDataField } from '../../RowHelpText';
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
+import ActionProxy from '../ActionProxy';
 import {
   hasError,
   isInvalid,
@@ -41,7 +42,7 @@ import { SEVERITY_OPTIONS, WATCH_TYPES } from '../../../utils/constants';
 
 import { Context } from '../../../../../Context';
 
-const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
+const WebhookAction = ({ isResolveActions, formik: { values }, index, proxies }) => {
   const {
     editorTheme,
     editorOptions,
@@ -180,6 +181,7 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
               }}
             />
           )}
+          <ActionProxy isResolveActions={isResolveActions} index={index} proxies={proxies} />
         </EuiFlexItem>
         <EuiFlexItem>
           <FormikCodeEditorSG
@@ -265,6 +267,7 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
 WebhookAction.defaultProps = {
   isLoading: false,
   isResolveActions: false,
+  proxies: [],
 };
 
 WebhookAction.propTypes = {
@@ -272,6 +275,7 @@ WebhookAction.propTypes = {
   isResolveActions: PropTypes.bool,
   formik: PropTypes.object.isRequired,
   index: PropTypes.number.isRequired,
+  proxies: PropTypes.array,
 };
 
 export default connectFormik(WebhookAction);

@@ -605,6 +605,46 @@ describe('buildActions', () => {
     expect(buildActions(formik)).toEqual({ actions });
   });
 
+  describe('webhook action proxy', () => {
+    const buildFormik = (proxy) => ({
+      _ui: {},
+      actions: [
+        {
+          checks: [],
+          throttle_period: { interval: 1, unit: 's' },
+          type: ACTION_TYPE.WEBHOOK,
+          name: 'mywebhook',
+          proxy,
+          request: {
+            method: 'POST',
+            url: 'http://url.com',
+            body: 'Total',
+            headers: stringifyPretty({}),
+          },
+        },
+      ],
+    });
+
+    test.each([
+      ['stored proxy id', 'smops-proxy-connector', 'smops-proxy-connector'],
+      ['none keyword', 'none', 'none'],
+      ['inline URL is trimmed', '  http://proxy:3128 ', 'http://proxy:3128'],
+    ])('keeps %s', (_, proxy, expected) => {
+      const [action] = buildActions(buildFormik(proxy)).actions;
+      expect(action.proxy).toBe(expected);
+    });
+
+    test.each([
+      ['empty', ''],
+      ['undefined', undefined],
+      ['default keyword', 'default'],
+      ['default keyword in upper case', 'DEFAULT'],
+    ])('omits %s proxy', (_, proxy) => {
+      const [action] = buildActions(buildFormik(proxy)).actions;
+      expect(action).not.toHaveProperty('proxy');
+    });
+  });
+
   test('can build webhook action from signl4 type', () => {
     const actions = [
       {

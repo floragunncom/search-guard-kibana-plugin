@@ -15,6 +15,7 @@ export const ROUTE_PATH = {
   ACCOUNTS: `${BASE_URI}/accounts`,
   TENANT_ACCOUNT: `${BASE_URI}/tenant/account`,
   TENANT_ACCOUNTS: `${BASE_URI}/tenant/accounts`,
+  PROXIES: `${BASE_URI}/proxies`,
   WATCH_EXECUTE: `${BASE_URI}/watch/_execute`,
   WATCH_EXECUTE_GRAPH: `${BASE_URI}/watch/_execute_graph`,
   ALERT: `${BASE_URI}/alert`,
