@@ -1,0 +1,41 @@
+/*
+ *    Copyright 2026 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { PROXY_KEYWORD } from './constants';
+
+export const DEFAULT_PROXY_LABEL = 'Default (cluster proxy setting)';
+export const NO_PROXY_LABEL = 'None (direct connection)';
+
+const proxyLabel = ({ id, name }) => (name && name !== id ? `${name} (${id})` : id);
+
+// Builds the combo box options: the default/none keywords followed by the stored proxies.
+export const buildProxyOptions = (proxies = []) => [
+  { label: DEFAULT_PROXY_LABEL, value: PROXY_KEYWORD.DEFAULT },
+  { label: NO_PROXY_LABEL, value: PROXY_KEYWORD.NONE },
+  ...proxies.map((proxy) => ({ label: proxyLabel(proxy), value: proxy.id })),
+];
+
+// Maps the "proxy" string of an action to the selected combo box option.
+// Unknown values (inline URLs, ids of proxies the user cannot list) are shown as typed.
+export const findSelectedProxyOption = (value, options) => {
+  if (!value) return [];
+
+  const lowerCaseValue = value.toLowerCase();
+  const isKeyword = Object.values(PROXY_KEYWORD).includes(lowerCaseValue);
+  const option = options.find((o) => o.value === (isKeyword ? lowerCaseValue : value));
+
+  return [option || { label: value, value }];
+};
