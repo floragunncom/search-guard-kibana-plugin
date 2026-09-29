@@ -14,23 +14,6 @@
  * limitations under the License.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import { ProxyField } from '../../ProxyField';
-
-// Proxy field of the actions that support one: webhook (and Signl4), Jira and PagerDuty.
-const ActionProxy = ({ isResolveActions, index }) => {
-  const path = isResolveActions ? `resolve_actions[${index}].proxy` : `actions[${index}].proxy`;
-  return <ProxyField path={path} />;
-};
-
-ActionProxy.defaultProps = {
-  isResolveActions: false,
-};
-
-ActionProxy.propTypes = {
-  isResolveActions: PropTypes.bool,
-  index: PropTypes.number.isRequired,
-};
-
-export default ActionProxy;
+export { default as ProxyField } from './ProxyField';
+export { ProxiesProvider, ProxiesContext } from './ProxiesContext';
+export { toStoredProxy, withStoredProxy } from './utils/storedProxy';

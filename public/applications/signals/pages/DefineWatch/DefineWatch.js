@@ -9,6 +9,7 @@ import { WatchService } from '../../services';
 import { watchToFormik, formikToWatch } from './utils';
 import { DEFAULT_WATCH, WATCH_TYPES, AGGREGATIONS_TYPES } from './utils/constants';
 import { GeneralPanel, DefinitionPanel, ActionPanel } from './components';
+import { ProxiesProvider } from './components/ProxyField';
 import { CancelButton, SaveButton, FormikErrorsCallOut } from '../../components';
 import { getResourceEditUri, isJsonWatch } from '../Watches/utils/helpers';
 import { APP_PATH } from '../../utils/constants';
@@ -149,86 +150,88 @@ class DefineWatch extends Component {
 
     return (
       <EuiErrorBoundary>
-        <Formik
-          initialValues={initialValues}
-          onSubmit={this.onSubmit}
-          validateOnChange={false}
-          enableReinitialize
-        >
-          {({ handleSubmit, isSubmitting, values, errors, submitCount }) => {
-            const isResolveActions = get(values, '_ui.isResolveActions', false);
-            const showValidationCallout = submitCount > 0;
-            return (
-              <>
-                <EuiTitle size="l">
-                  <h1>{isEdit ? updateWatchText : createWatchText}</h1>
-                </EuiTitle>
-                <EuiFlexGroup alignItems="center" justifyContent="flexEnd">
-                  <EuiFlexItem grow={false}>
-                    <CancelButton onClick={this.onCancel} />
-                  </EuiFlexItem>
-                  <EuiFlexItem grow={false}>
-                    <SaveButton
-                      isLoading={isSubmitting}
-                      value={isEdit ? updateText : createText}
-                      onClick={handleSubmit}
-                    />
-                  </EuiFlexItem>
-                </EuiFlexGroup>
-                <EuiSpacer />
-                {showValidationCallout && <FormikErrorsCallOut errors={errors} />}
+        <ProxiesProvider httpClient={this.context.httpClient}>
+          <Formik
+            initialValues={initialValues}
+            onSubmit={this.onSubmit}
+            validateOnChange={false}
+            enableReinitialize
+          >
+            {({ handleSubmit, isSubmitting, values, errors, submitCount }) => {
+              const isResolveActions = get(values, '_ui.isResolveActions', false);
+              const showValidationCallout = submitCount > 0;
+              return (
+                <>
+                  <EuiTitle size="l">
+                    <h1>{isEdit ? updateWatchText : createWatchText}</h1>
+                  </EuiTitle>
+                  <EuiFlexGroup alignItems="center" justifyContent="flexEnd">
+                    <EuiFlexItem grow={false}>
+                      <CancelButton onClick={this.onCancel} />
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <SaveButton
+                        isLoading={isSubmitting}
+                        value={isEdit ? updateText : createText}
+                        onClick={handleSubmit}
+                      />
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                  <EuiSpacer />
+                  {showValidationCallout && <FormikErrorsCallOut errors={errors} />}
 
-                {!!Object.keys(errors) && <EuiSpacer />}
+                  {!!Object.keys(errors) && <EuiSpacer />}
 
-                <GeneralPanel location={location} />
-                <EuiSpacer />
+                  <GeneralPanel location={location} />
+                  <EuiSpacer />
 
-                <DefinitionPanel />
-                <EuiSpacer />
+                  <DefinitionPanel />
+                  <EuiSpacer />
 
-                <FieldArray name="actions">
-                  {(arrayHelpers) => (
-                    <ActionPanel isLoading={isLoading} arrayHelpers={arrayHelpers} />
+                  <FieldArray name="actions">
+                    {(arrayHelpers) => (
+                      <ActionPanel isLoading={isLoading} arrayHelpers={arrayHelpers} />
+                    )}
+                  </FieldArray>
+                  {isResolveActions && (
+                    <>
+                      <EuiSpacer />
+                      <FieldArray name="resolve_actions">
+                        {(arrayHelpers) => (
+                          <ActionPanel
+                            isLoading={isLoading}
+                            arrayHelpers={arrayHelpers}
+                            isResolveActions={true}
+                          />
+                        )}
+                      </FieldArray>
+                    </>
                   )}
-                </FieldArray>
-                {isResolveActions && (
-                  <>
-                    <EuiSpacer />
-                    <FieldArray name="resolve_actions">
-                      {(arrayHelpers) => (
-                        <ActionPanel
-                          isLoading={isLoading}
-                          arrayHelpers={arrayHelpers}
-                          isResolveActions={true}
-                        />
-                      )}
-                    </FieldArray>
-                  </>
-                )}
-                <EuiSpacer />
+                  <EuiSpacer />
 
-                <EuiFlexGroup alignItems="center" justifyContent="flexEnd">
-                  <EuiFlexItem grow={false}>
-                    <CancelButton onClick={this.onCancel} />
-                  </EuiFlexItem>
-                  <EuiFlexItem grow={false}>
-                    <SaveButton
-                      isLoading={isSubmitting}
-                      value={isEdit ? updateText : createText}
-                      onClick={handleSubmit}
-                    />
-                  </EuiFlexItem>
-                </EuiFlexGroup>
-                {showValidationCallout && (
-                  <>
-                    <EuiSpacer />
-                    <FormikErrorsCallOut errors={errors} />
-                  </>
-                )}
-              </>
-            );
-          }}
-        </Formik>
+                  <EuiFlexGroup alignItems="center" justifyContent="flexEnd">
+                    <EuiFlexItem grow={false}>
+                      <CancelButton onClick={this.onCancel} />
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <SaveButton
+                        isLoading={isSubmitting}
+                        value={isEdit ? updateText : createText}
+                        onClick={handleSubmit}
+                      />
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                  {showValidationCallout && (
+                    <>
+                      <EuiSpacer />
+                      <FormikErrorsCallOut errors={errors} />
+                    </>
+                  )}
+                </>
+              );
+            }}
+          </Formik>
+        </ProxiesProvider>
       </EuiErrorBoundary>
     );
   }

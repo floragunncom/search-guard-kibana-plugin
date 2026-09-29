@@ -7,7 +7,7 @@ import { buildCheckBlock } from '../components/BlocksWatch/utils/checkBlocks';
 import { comboBoxOptionsToArray, foldMultiLineString } from '../../../utils/helpers';
 import { WATCH_TYPES, META_FIELDS_TO_OMIT, SEVERITY } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
-import { PROXY_KEYWORD } from '../components/Actions/ActionProxy/utils/constants';
+import { withStoredProxy } from '../components/ProxyField/utils/storedProxy';
 
 export function buildSeverity(watch) {
   const newWatch = cloneDeep(watch);
@@ -77,19 +77,12 @@ export function buildWebhookAction(action = {}) {
 
   // Strip _account - it's a UI-only field, actual value lives in headers.
   // Currently only used for Signl4 (synced with X-S4-Api-Key header in WebhookAction.js).
-  const { _account, proxy, ...cleanAction } = action;
-  const webhookAction = {
+  const { _account, ...cleanAction } = action;
+
+  return withStoredProxy({
     ...cleanAction,
     request: { ...cleanAction.request, headers },
-  };
-
-  // An empty proxy means the cluster proxy setting ("default"), which the backend does not store either.
-  const trimmedProxy = typeof proxy === 'string' ? proxy.trim() : '';
-  if (trimmedProxy && trimmedProxy.toLowerCase() !== PROXY_KEYWORD.DEFAULT) {
-    webhookAction.proxy = trimmedProxy;
-  }
-
-  return webhookAction;
+  });
 }
 
 export function buildSlackAction(action = {}) {
@@ -100,10 +93,10 @@ export function buildSlackAction(action = {}) {
 }
 
 export function buildJiraAction(action = {}) {
-  const newAction = {
+  const newAction = withStoredProxy({
     ...action,
     account: comboBoxOptionsToArray(action.account)[0],
-  };
+  });
 
   Object.keys(newAction.issue).forEach((key) => {
     if (!newAction.issue[key]) {
@@ -115,10 +108,10 @@ export function buildJiraAction(action = {}) {
 }
 
 export function buildPagerdutyAction(action = {}) {
-  const newAction = {
+  const newAction = withStoredProxy({
     ...action,
     account: comboBoxOptionsToArray(action.account)[0],
-  };
+  });
 
   Object.keys(action.event).forEach((key) => {
     if (!action.event[key]) {

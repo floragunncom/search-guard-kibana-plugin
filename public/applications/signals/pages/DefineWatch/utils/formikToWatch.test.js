@@ -8,6 +8,7 @@ import {
   buildChecksFromChecksBlocks,
   buildSeverity,
 } from './formikToWatch';
+import { cloneDeep } from 'lodash';
 import { stringifyPretty } from '../../../utils/helpers';
 import { WATCH_TYPES, SEVERITY } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
@@ -521,6 +522,42 @@ describe('buildActions', () => {
     };
 
     expect(buildActions(formik)).toEqual({ actions });
+  });
+
+  describe('jira and pagerduty action proxy', () => {
+    const formikActions = {
+      [ACTION_TYPE.JIRA]: {
+        type: ACTION_TYPE.JIRA,
+        name: 'jira issue',
+        project: 'LRT',
+        issue: { type: 'Bug', summary: 'Test', description: 'Total' },
+        checks: [],
+        account: [{ label: 'fgunn jira' }],
+        throttle_period: { interval: 1, unit: 's' },
+      },
+      [ACTION_TYPE.PAGERDUTY]: {
+        type: ACTION_TYPE.PAGERDUTY,
+        name: 'PD issue',
+        checks: [],
+        account: [{ label: 'fgunn pd' }],
+        throttle_period: { interval: 1, unit: 's' },
+        event: { dedup_key: 'x', payload: { summary: 'My summary', source: 'My source' } },
+      },
+    };
+    const buildFormik = (type, proxy) => ({
+      _ui: { watchType: 'json' },
+      actions: [{ ...cloneDeep(formikActions[type]), proxy }],
+    });
+
+    test.each([ACTION_TYPE.JIRA, ACTION_TYPE.PAGERDUTY])('%s keeps a stored proxy id', (type) => {
+      const [action] = buildActions(buildFormik(type, ' smops-proxy-connector ')).actions;
+      expect(action.proxy).toBe('smops-proxy-connector');
+    });
+
+    test.each([ACTION_TYPE.JIRA, ACTION_TYPE.PAGERDUTY])('%s omits the default proxy', (type) => {
+      expect(buildActions(buildFormik(type, '')).actions[0]).not.toHaveProperty('proxy');
+      expect(buildActions(buildFormik(type, 'default')).actions[0]).not.toHaveProperty('proxy');
+    });
   });
 
   test('can build webhook action', () => {

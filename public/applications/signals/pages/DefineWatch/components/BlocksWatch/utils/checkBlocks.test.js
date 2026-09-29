@@ -326,6 +326,27 @@ describe('checkBlocks', () => {
     expect(formikHttpToHttp(formikCheck)).toEqual(check);
   });
 
+  test('formikHttpToHttp proxy', () => {
+    const buildFormikCheck = (proxy) => ({
+      type: 'http',
+      name: 'testhttp',
+      target: 'samplejson',
+      request: { url: 'https://example.com', method: [{ label: 'GET' }] },
+      isAuth: false,
+      isTLS: false,
+      proxy,
+      response: '',
+      id: '123',
+    });
+
+    expect(formikHttpToHttp(buildFormikCheck('smops-proxy-connector')).proxy).toBe(
+      'smops-proxy-connector'
+    );
+    expect(formikHttpToHttp(buildFormikCheck(' none ')).proxy).toBe('none');
+    expect(formikHttpToHttp(buildFormikCheck(''))).not.toHaveProperty('proxy');
+    expect(formikHttpToHttp(buildFormikCheck('default'))).not.toHaveProperty('proxy');
+  });
+
   test('formikHttpToHttp', () => {
     const formikCheck = {
       type: 'http',
