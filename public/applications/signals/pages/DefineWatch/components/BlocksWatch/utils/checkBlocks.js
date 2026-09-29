@@ -6,6 +6,7 @@ import {
   arrayToComboBoxOptions,
   comboBoxOptionsToArray,
 } from '../../../../../utils/helpers';
+import { withStoredProxy } from '../../ProxyField/utils/storedProxy';
 
 const COMMON_DEFAULTS = {
   name: '',
@@ -212,7 +213,7 @@ export function formikHttpToHttp({ request, ...rest }) {
   delete check.isAuth;
   delete check.isTLS;
 
-  return check;
+  return withStoredProxy(check);
 }
 
 export function transformToFormikTransform(check = {}) {

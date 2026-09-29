@@ -16,7 +16,7 @@ import {
   JiraAction,
   PagerdutyAction,
 } from '../Actions';
-import { AccountsService, ProxiesService } from '../../../../services';
+import { AccountsService } from '../../../../services';
 import { resolveActionText } from '../../../../utils/i18n/watch';
 import { actionText } from '../../../../utils/i18n/common';
 import { ACTION_TYPE } from './utils/constants';
@@ -88,17 +88,14 @@ class ActionPanel extends Component {
       isAddActionPopoverOpen: false,
       isLoading: true,
       accounts: [],
-      proxies: [],
     };
 
     const tenantScoped = context.isMultitenancyEnabled && context.tenantAccountPermissions.read;
     this.destService = new AccountsService(context.httpClient, undefined, tenantScoped);
-    this.proxiesService = new ProxiesService(context.httpClient);
   }
 
   componentDidMount() {
     this.getAccounts();
-    this.getProxies();
   }
 
   getAccounts = async () => {
@@ -111,16 +108,6 @@ class ActionPanel extends Component {
       this.context.addErrorToast(error);
     }
     this.setState({ isLoading: false });
-  };
-
-  // Optional: without the proxies/findall permission the proxy field still accepts typed values.
-  getProxies = async () => {
-    try {
-      const { resp: proxies } = await this.proxiesService.list();
-      this.setState({ proxies });
-    } catch (error) {
-      console.warn('ActionPanel -- getProxies', error);
-    }
   };
 
   triggerAddActionPopover = () => {
@@ -158,7 +145,7 @@ class ActionPanel extends Component {
     const actions = isResolveActions ? values.resolve_actions : values.actions;
     const titleText = isResolveActions ? resolveActionText : actionText;
     const hasActions = !isEmpty(actions);
-    const { isAddActionPopoverOpen, isLoading, accounts, proxies } = this.state;
+    const { isAddActionPopoverOpen, isLoading, accounts } = this.state;
 
     const addActionContextMenuPanels = [
       {
@@ -219,7 +206,6 @@ class ActionPanel extends Component {
                 isResolveActions={isResolveActions}
                 index={index}
                 accounts={accounts}
-                proxies={proxies}
                 arrayHelpers={arrayHelpers}
               />
             }

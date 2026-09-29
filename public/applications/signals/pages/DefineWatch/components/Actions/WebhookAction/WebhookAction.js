@@ -42,7 +42,7 @@ import { SEVERITY_OPTIONS, WATCH_TYPES } from '../../../utils/constants';
 
 import { Context } from '../../../../../Context';
 
-const WebhookAction = ({ isResolveActions, formik: { values }, index, proxies }) => {
+const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
   const {
     editorTheme,
     editorOptions,
@@ -181,7 +181,7 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index, proxies })
               }}
             />
           )}
-          <ActionProxy isResolveActions={isResolveActions} index={index} proxies={proxies} />
+          <ActionProxy isResolveActions={isResolveActions} index={index} />
         </EuiFlexItem>
         <EuiFlexItem>
           <FormikCodeEditorSG
@@ -267,7 +267,6 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index, proxies })
 WebhookAction.defaultProps = {
   isLoading: false,
   isResolveActions: false,
-  proxies: [],
 };
 
 WebhookAction.propTypes = {
@@ -275,7 +274,6 @@ WebhookAction.propTypes = {
   isResolveActions: PropTypes.bool,
   formik: PropTypes.object.isRequired,
   index: PropTypes.number.isRequired,
-  proxies: PropTypes.array,
 };
 
 export default connectFormik(WebhookAction);
