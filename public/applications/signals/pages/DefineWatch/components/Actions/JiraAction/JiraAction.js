@@ -15,7 +15,6 @@ import { RowHelpTextMustacheRuntimeDataField } from '../../RowHelpText';
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
 import ActionAccount from '../ActionAccount';
-import ActionProxy from '../ActionProxy';
 import { ACCOUNT_TYPE } from '../../../../Accounts/utils/constants';
 import { nameText } from '../../../../../utils/i18n/common';
 import {
@@ -120,7 +119,6 @@ const JiraAction = ({ isResolveActions, index, accounts, formik: { values } }) =
         accounts={accounts}
         accountType={ACCOUNT_TYPE.JIRA}
       />
-      <ActionProxy isResolveActions={isResolveActions} index={index} />
       {renderTextField(projectPath, projectText, validateEmptyField)}
 
       <EuiSpacer />

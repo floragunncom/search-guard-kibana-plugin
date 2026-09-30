@@ -18,7 +18,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { ProxyField } from '../../ProxyField';
 
-// Proxy field of the actions that support one: webhook (and Signl4), Jira and PagerDuty.
+// Proxy field of webhook actions. Jira, PagerDuty and Signl4 have none: their endpoint is a fixed service or comes
+// from the account, so a proxy would belong on the account (not supported by the backend yet).
 const ActionProxy = ({ isResolveActions, index }) => {
   const path = isResolveActions ? `resolve_actions[${index}].proxy` : `actions[${index}].proxy`;
   return <ProxyField path={path} />;
