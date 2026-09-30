@@ -93,10 +93,10 @@ export function buildSlackAction(action = {}) {
 }
 
 export function buildJiraAction(action = {}) {
-  const newAction = withStoredProxy({
+  const newAction = {
     ...action,
     account: comboBoxOptionsToArray(action.account)[0],
-  });
+  };
 
   Object.keys(newAction.issue).forEach((key) => {
     if (!newAction.issue[key]) {
@@ -108,10 +108,10 @@ export function buildJiraAction(action = {}) {
 }
 
 export function buildPagerdutyAction(action = {}) {
-  const newAction = withStoredProxy({
+  const newAction = {
     ...action,
     account: comboBoxOptionsToArray(action.account)[0],
-  });
+  };
 
   Object.keys(action.event).forEach((key) => {
     if (!action.event[key]) {
