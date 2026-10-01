@@ -28,6 +28,11 @@ export const buildProxyOptions = (proxies = []) => [
   ...proxies.map((proxy) => ({ label: proxyLabel(proxy), value: proxy.id })),
 ];
 
+// Maps the selected combo box option to the "proxy" value of the form. Default (and no selection) leaves the value
+// undefined, so nothing is stored in the watch, just like Signals doesn't store "default" either.
+export const toProxyValue = (option) =>
+  option && option.value !== PROXY_KEYWORD.DEFAULT ? option.value : undefined;
+
 // Maps the "proxy" string of an action to the selected combo box option.
 // Unknown values (inline URLs, ids of proxies the user cannot list) are shown as typed.
 export const findSelectedProxyOption = (value, options) => {

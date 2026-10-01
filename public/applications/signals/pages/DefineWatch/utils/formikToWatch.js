@@ -7,7 +7,6 @@ import { buildCheckBlock } from '../components/BlocksWatch/utils/checkBlocks';
 import { comboBoxOptionsToArray, foldMultiLineString } from '../../../utils/helpers';
 import { WATCH_TYPES, META_FIELDS_TO_OMIT, SEVERITY } from './constants';
 import { ACTION_TYPE } from '../components/ActionPanel/utils/constants';
-import { withStoredProxy } from '../components/ProxyField/utils/storedProxy';
 
 export function buildSeverity(watch) {
   const newWatch = cloneDeep(watch);
@@ -79,10 +78,10 @@ export function buildWebhookAction(action = {}) {
   // Currently only used for Signl4 (synced with X-S4-Api-Key header in WebhookAction.js).
   const { _account, ...cleanAction } = action;
 
-  return withStoredProxy({
+  return {
     ...cleanAction,
     request: { ...cleanAction.request, headers },
-  });
+  };
 }
 
 export function buildSlackAction(action = {}) {
