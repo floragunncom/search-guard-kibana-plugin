@@ -29,7 +29,7 @@ import { severityText, resolvesSeverityText } from '../../../../../utils/i18n/wa
 import { RowHelpTextMustacheRuntimeDataField } from '../../RowHelpText';
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
-import ActionProxy from '../ActionProxy';
+import ActionProxy from '../ActionProxy/ActionProxy';
 import {
   hasError,
   isInvalid,

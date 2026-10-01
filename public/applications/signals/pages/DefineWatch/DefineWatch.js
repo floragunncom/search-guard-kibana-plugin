@@ -9,7 +9,7 @@ import { WatchService } from '../../services';
 import { watchToFormik, formikToWatch } from './utils';
 import { DEFAULT_WATCH, WATCH_TYPES, AGGREGATIONS_TYPES } from './utils/constants';
 import { GeneralPanel, DefinitionPanel, ActionPanel } from './components';
-import { ProxiesProvider } from './components/ProxyField';
+import { ProxiesProvider } from './components/ProxyField/ProxiesContext';
 import { CancelButton, SaveButton, FormikErrorsCallOut } from '../../components';
 import { getResourceEditUri, isJsonWatch } from '../Watches/utils/helpers';
 import { APP_PATH } from '../../utils/constants';
