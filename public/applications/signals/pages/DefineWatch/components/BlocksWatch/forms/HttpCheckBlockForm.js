@@ -48,7 +48,7 @@ import {
 } from '../../../../../utils/i18n/watch';
 
 import { Context } from '../../../../../Context';
-import { ProxyField } from '../../ProxyField';
+import ProxyField from '../../ProxyField/ProxyField';
 
 export function ConnectionTimeout({ path }) {
   return (

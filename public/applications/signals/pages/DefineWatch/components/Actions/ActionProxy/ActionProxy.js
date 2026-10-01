@@ -16,7 +16,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ProxyField } from '../../ProxyField';
+import ProxyField from '../../ProxyField/ProxyField';
 
 // Proxy field of webhook actions. Jira, PagerDuty and Signl4 have none: their endpoint is a fixed service or comes
 // from the account, so a proxy would belong on the account (not supported by the backend yet).
