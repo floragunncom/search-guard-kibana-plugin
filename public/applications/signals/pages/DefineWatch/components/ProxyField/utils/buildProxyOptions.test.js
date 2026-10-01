@@ -17,6 +17,7 @@
 import {
   buildProxyOptions,
   findSelectedProxyOption,
+  toProxyValue,
   DEFAULT_PROXY_LABEL,
   NO_PROXY_LABEL,
 } from './buildProxyOptions';
@@ -41,6 +42,20 @@ describe('buildProxyOptions', () => {
       { label: 'SMOPS proxy (smops-proxy-connector)', value: 'smops-proxy-connector' },
       { label: 'plain', value: 'plain' },
     ]);
+  });
+});
+
+describe('toProxyValue', () => {
+  test('stores nothing for Default or no selection', () => {
+    expect(toProxyValue({ label: DEFAULT_PROXY_LABEL, value: 'default' })).toBeUndefined();
+    expect(toProxyValue(undefined)).toBeUndefined();
+  });
+
+  test('stores the value of any other option', () => {
+    expect(toProxyValue({ label: NO_PROXY_LABEL, value: 'none' })).toBe('none');
+    expect(toProxyValue({ label: 'SMOPS proxy (smops-proxy-connector)', value: 'smops-proxy-connector' })).toBe(
+      'smops-proxy-connector'
+    );
   });
 });
 

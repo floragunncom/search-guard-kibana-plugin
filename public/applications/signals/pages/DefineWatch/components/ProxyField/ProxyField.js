@@ -22,6 +22,7 @@ import { FormikComboBox } from '../../../../components';
 import {
   buildProxyOptions,
   findSelectedProxyOption,
+  toProxyValue,
   DEFAULT_PROXY_LABEL,
 } from './utils/buildProxyOptions';
 import { ProxiesContext } from './ProxiesContext';
@@ -53,10 +54,10 @@ const ProxyField = ({ path, formik: { values } }) => {
           form.setFieldTouched(field.name, true);
         },
         onChange: ([option] = [], field, form) => {
-          form.setFieldValue(field.name, option ? option.value : '');
+          form.setFieldValue(field.name, toProxyValue(option));
         },
         onCreateOption: (value, field, form) => {
-          form.setFieldValue(field.name, value.trim());
+          form.setFieldValue(field.name, value.trim() || undefined);
         },
         customOptionText: 'Use {searchValue} as proxy',
         'data-test-subj': 'sgProxyComboBox',
