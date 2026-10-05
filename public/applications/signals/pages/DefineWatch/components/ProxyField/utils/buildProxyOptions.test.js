@@ -18,6 +18,7 @@ import {
   buildProxyOptions,
   findSelectedProxyOption,
   toProxyValue,
+  toTypedProxyValue,
   DEFAULT_PROXY_LABEL,
   NO_PROXY_LABEL,
 } from './buildProxyOptions';
@@ -35,17 +36,17 @@ describe('buildProxyOptions', () => {
     ]);
   });
 
-  test('keywords followed by stored proxies', () => {
+  test('keywords followed by stored proxies, sorted by label', () => {
     expect(buildProxyOptions(proxies)).toEqual([
       { label: DEFAULT_PROXY_LABEL, value: 'default' },
       { label: NO_PROXY_LABEL, value: 'none' },
-      { label: 'SMOPS proxy (smops-proxy-connector)', value: 'smops-proxy-connector' },
       { label: 'plain', value: 'plain' },
+      { label: 'SMOPS proxy (smops-proxy-connector)', value: 'smops-proxy-connector' },
     ]);
   });
 
   test('stored proxies without a name are labelled with their id', () => {
-    const [, , withoutName, withEmptyName] = buildProxyOptions([
+    const [, , withEmptyName, withoutName] = buildProxyOptions([
       { id: 'no-name', name: null, uri: 'http://no-name:3128' },
       { id: 'empty-name', name: '', uri: 'http://empty-name:3128' },
     ]);
@@ -62,9 +63,22 @@ describe('toProxyValue', () => {
 
   test('stores the value of any other option', () => {
     expect(toProxyValue({ label: NO_PROXY_LABEL, value: 'none' })).toBe('none');
-    expect(toProxyValue({ label: 'SMOPS proxy (smops-proxy-connector)', value: 'smops-proxy-connector' })).toBe(
-      'smops-proxy-connector'
-    );
+    expect(
+      toProxyValue({ label: 'SMOPS proxy (smops-proxy-connector)', value: 'smops-proxy-connector' })
+    ).toBe('smops-proxy-connector');
+  });
+});
+
+describe('toTypedProxyValue', () => {
+  test('typed keywords are stored like the picked options', () => {
+    expect(toTypedProxyValue(' Default ')).toBeUndefined();
+    expect(toTypedProxyValue('NONE')).toBe('none');
+  });
+
+  test('other values are stored trimmed', () => {
+    expect(toTypedProxyValue(' http://proxy:3128 ')).toBe('http://proxy:3128');
+    expect(toTypedProxyValue('smops-proxy-connector')).toBe('smops-proxy-connector');
+    expect(toTypedProxyValue('  ')).toBeUndefined();
   });
 });
 

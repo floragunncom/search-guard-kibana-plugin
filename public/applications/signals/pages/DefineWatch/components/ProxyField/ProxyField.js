@@ -23,6 +23,7 @@ import {
   buildProxyOptions,
   findSelectedProxyOption,
   toProxyValue,
+  toTypedProxyValue,
   DEFAULT_PROXY_LABEL,
 } from './utils/buildProxyOptions';
 import { ProxiesContext } from './ProxiesContext';
@@ -60,7 +61,7 @@ const ProxyField = ({ path, formik: { values } }) => {
           form.setFieldValue(field.name, toProxyValue(option));
         },
         onCreateOption: (value, field, form) => {
-          form.setFieldValue(field.name, value.trim() || undefined);
+          form.setFieldValue(field.name, toTypedProxyValue(value));
         },
         customOptionText: 'Use {searchValue} as proxy',
         'data-test-subj': 'sgProxyComboBox',

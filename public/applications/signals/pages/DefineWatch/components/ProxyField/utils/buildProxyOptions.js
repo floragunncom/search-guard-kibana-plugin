@@ -21,11 +21,18 @@ export const NO_PROXY_LABEL = 'None';
 
 const proxyLabel = ({ id, name }) => (name && name !== id ? `${name} (${id})` : id);
 
-// Builds the combo box options: the default/none keywords followed by the stored proxies.
+const toKeyword = (value) => {
+  const lowerCaseValue = value.toLowerCase();
+  return Object.values(PROXY_KEYWORD).includes(lowerCaseValue) ? lowerCaseValue : undefined;
+};
+
+// Builds the combo box options: the default/none keywords followed by the stored proxies, sorted by label.
 export const buildProxyOptions = (proxies = []) => [
   { label: DEFAULT_PROXY_LABEL, value: PROXY_KEYWORD.DEFAULT },
   { label: NO_PROXY_LABEL, value: PROXY_KEYWORD.NONE },
-  ...proxies.map((proxy) => ({ label: proxyLabel(proxy), value: proxy.id })),
+  ...proxies
+    .map((proxy) => ({ label: proxyLabel(proxy), value: proxy.id }))
+    .sort((a, b) => a.label.localeCompare(b.label)),
 ];
 
 // Maps the selected combo box option to the "proxy" value of the form. Default (and no selection) leaves the value
@@ -33,14 +40,20 @@ export const buildProxyOptions = (proxies = []) => [
 export const toProxyValue = (option) =>
   option && option.value !== PROXY_KEYWORD.DEFAULT ? option.value : undefined;
 
+// Maps a typed value to the "proxy" value of the form. Typed keywords are stored like the picked options.
+export const toTypedProxyValue = (value) => {
+  const trimmedValue = value.trim();
+  const keyword = toKeyword(trimmedValue);
+  return keyword ? toProxyValue({ value: keyword }) : trimmedValue || undefined;
+};
+
 // Maps the "proxy" string of an action to the selected combo box option.
 // Unknown values (inline URLs, ids of proxies the user cannot list) are shown as typed.
 export const findSelectedProxyOption = (value, options) => {
   if (!value) return [];
 
-  const lowerCaseValue = value.toLowerCase();
-  const isKeyword = Object.values(PROXY_KEYWORD).includes(lowerCaseValue);
-  const option = options.find((o) => o.value === (isKeyword ? lowerCaseValue : value));
+  const keyword = toKeyword(value);
+  const option = options.find((o) => o.value === (keyword || value));
 
   return [option || { label: value, value }];
 };
