@@ -29,7 +29,7 @@ import { severityText, resolvesSeverityText } from '../../../../../utils/i18n/wa
 import { RowHelpTextMustacheRuntimeDataField } from '../../RowHelpText';
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
-import ActionProxy from '../ActionProxy/ActionProxy';
+import ProxyField from '../../ProxyField/ProxyField';
 import {
   hasError,
   isInvalid,
@@ -184,7 +184,7 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
               }}
             />
           )}
-          {isWebhookAction && <ActionProxy isResolveActions={isResolveActions} index={index} />}
+          {isWebhookAction && <ProxyField path={`${actionsRootPath}[${index}].proxy`} />}
         </EuiFlexItem>
         <EuiFlexItem>
           <FormikCodeEditorSG
