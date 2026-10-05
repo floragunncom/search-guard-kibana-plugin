@@ -17,7 +17,7 @@
 import { PROXY_KEYWORD } from './constants';
 
 export const DEFAULT_PROXY_LABEL = 'Default (cluster proxy setting)';
-export const NO_PROXY_LABEL = 'None (direct connection)';
+export const NO_PROXY_LABEL = 'None';
 
 const proxyLabel = ({ id, name }) => (name && name !== id ? `${name} (${id})` : id);
 
