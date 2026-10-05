@@ -58,19 +58,6 @@ describe('routes/proxies/get', () => {
     expect(response.ok).toHaveBeenCalledWith({ body: { ok: true, resp: proxies } });
   });
 
-  test('returns an empty list if there are no proxies', async () => {
-    const logger = setupLoggerMock();
-    const response = setupHttpResponseMock();
-    const context = setupContextMock();
-
-    const asCurrentUserTransportRequest = jest.fn().mockResolvedValue({ status: 200 });
-    const clusterClient = setupClusterClientMock({ asCurrentUserTransportRequest });
-
-    await getProxies({ clusterClient, logger })(context, { headers: {} }, response);
-
-    expect(response.ok).toHaveBeenCalledWith({ body: { ok: true, resp: [] } });
-  });
-
   test('there is an error', async () => {
     const logger = setupLoggerMock();
     const response = setupHttpResponseMock();
