@@ -194,6 +194,6 @@ export const useHtmlBodyText = <EuiI18n token="sg.watch.htmlBody.text" default="
 export const proxyHelpText = (
   <EuiI18n
     token="sg.watch.proxy.helpText"
-    default="Select a stored proxy, or type a proxy URL (http://host:port). Default uses the cluster proxy setting."
+    default="Select a stored proxy, or type a proxy URL (http://host:port). Default uses the cluster proxy setting, None connects directly even if a cluster proxy is set."
   />
 );
