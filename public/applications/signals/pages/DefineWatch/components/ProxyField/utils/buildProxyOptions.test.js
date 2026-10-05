@@ -43,6 +43,15 @@ describe('buildProxyOptions', () => {
       { label: 'plain', value: 'plain' },
     ]);
   });
+
+  test('stored proxies without a name are labelled with their id', () => {
+    const [, , withoutName, withEmptyName] = buildProxyOptions([
+      { id: 'no-name', name: null, uri: 'http://no-name:3128' },
+      { id: 'empty-name', name: '', uri: 'http://empty-name:3128' },
+    ]);
+    expect(withoutName).toEqual({ label: 'no-name', value: 'no-name' });
+    expect(withEmptyName).toEqual({ label: 'empty-name', value: 'empty-name' });
+  });
 });
 
 describe('toProxyValue', () => {
