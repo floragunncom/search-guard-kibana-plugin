@@ -20,9 +20,6 @@ import { ProxiesService } from '../../../../services';
 
 export const ProxiesContext = React.createContext({ proxies: [], isListForbidden: false });
 
-// Kibana's HttpFetchError carries the status of the failed request in body.statusCode.
-export const isForbiddenError = (error) => error?.body?.statusCode === 403;
-
 // Loads the stored Signals proxies once per watch page for all proxy fields (one per webhook action).
 // Listing them is optional: without the proxies/findall permission the fields only offer the keywords
 // and typed values, and say why. Any failure is only logged, never shown as an error.
@@ -38,7 +35,10 @@ export const ProxiesProvider = ({ httpClient, children }) => {
       })
       .catch((error) => {
         console.warn('ProxiesProvider -- list', error);
-        if (isMounted && isForbiddenError(error)) setValue({ proxies: [], isListForbidden: true });
+        // Kibana's HttpFetchError carries the status of the failed request in body.statusCode.
+        if (isMounted && error?.body?.statusCode === 403) {
+          setValue({ proxies: [], isListForbidden: true });
+        }
       });
     return () => {
       isMounted = false;
