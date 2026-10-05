@@ -18,7 +18,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { connect as connectFormik } from 'formik';
 import { get } from 'lodash';
-import { FormikComboBox } from '../../../../components';
+import { FormikComboBox, LabelAppendLink } from '../../../../components';
 import {
   buildProxyOptions,
   findSelectedProxyOption,
@@ -28,6 +28,7 @@ import {
 import { ProxiesContext } from './ProxiesContext';
 import { proxyText } from '../../../../utils/i18n/account';
 import { proxyHelpText } from '../../../../utils/i18n/watch';
+import { DOC_LINKS } from '../../../../utils/constants';
 
 // The Formik value is the plain "proxy" string of the action or check, so JSON watches round-trip unchanged.
 const ProxyField = ({ path, formik: { values } }) => {
@@ -41,6 +42,8 @@ const ProxyField = ({ path, formik: { values } }) => {
       formRow
       rowProps={{
         label: proxyText,
+        // The name makes the link id unique, there can be several proxy fields on the page
+        labelAppend: <LabelAppendLink href={DOC_LINKS.PROXIES} name={`ProxyDoc-${path}`} />,
         helpText: proxyHelpText,
         style: { paddingLeft: '0px' },
       }}
