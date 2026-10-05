@@ -27,12 +27,12 @@ import {
 } from './utils/buildProxyOptions';
 import { ProxiesContext } from './ProxiesContext';
 import { proxyText } from '../../../../utils/i18n/account';
-import { proxyHelpText } from '../../../../utils/i18n/watch';
+import { proxyHelpText, proxyListForbiddenText } from '../../../../utils/i18n/watch';
 import { DOC_LINKS } from '../../../../utils/constants';
 
 // The Formik value is the plain "proxy" string of the action or check, so JSON watches round-trip unchanged.
 const ProxyField = ({ path, formik: { values } }) => {
-  const proxies = useContext(ProxiesContext);
+  const { proxies, isListForbidden } = useContext(ProxiesContext);
   const options = buildProxyOptions(proxies);
   const selectedOptions = findSelectedProxyOption(get(values, path), options);
 
@@ -44,7 +44,7 @@ const ProxyField = ({ path, formik: { values } }) => {
         label: proxyText,
         // The name makes the link id unique, there can be several proxy fields on the page
         labelAppend: <LabelAppendLink href={DOC_LINKS.PROXIES} name={`ProxyDoc-${path}`} />,
-        helpText: proxyHelpText,
+        helpText: isListForbidden ? [proxyHelpText, proxyListForbiddenText] : proxyHelpText,
         style: { paddingLeft: '0px' },
       }}
       elementProps={{

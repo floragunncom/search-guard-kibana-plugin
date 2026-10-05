@@ -18,30 +18,34 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { ProxiesService } from '../../../../services';
 
-export const ProxiesContext = React.createContext([]);
+export const ProxiesContext = React.createContext({ proxies: [], isListForbidden: false });
+
+// Kibana's HttpFetchError carries the status of the failed request in body.statusCode.
+export const isForbiddenError = (error) => error?.body?.statusCode === 403;
 
 // Loads the stored Signals proxies once per watch page for all proxy fields (actions and checks).
 // Listing them is optional: without the proxies/findall permission the fields only offer the keywords
-// and typed values, so a failure is only logged.
+// and typed values, and say why. Any failure is only logged, never shown as an error.
 export const ProxiesProvider = ({ httpClient, children }) => {
-  const [proxies, setProxies] = useState([]);
+  const [value, setValue] = useState({ proxies: [], isListForbidden: false });
 
   useEffect(() => {
     let isMounted = true;
     new ProxiesService(httpClient)
       .list()
       .then(({ resp }) => {
-        if (isMounted) setProxies(resp);
+        if (isMounted) setValue({ proxies: resp, isListForbidden: false });
       })
       .catch((error) => {
         console.warn('ProxiesProvider -- list', error);
+        if (isMounted && isForbiddenError(error)) setValue({ proxies: [], isListForbidden: true });
       });
     return () => {
       isMounted = false;
     };
   }, [httpClient]);
 
-  return <ProxiesContext.Provider value={proxies}>{children}</ProxiesContext.Provider>;
+  return <ProxiesContext.Provider value={value}>{children}</ProxiesContext.Provider>;
 };
 
 ProxiesProvider.propTypes = {

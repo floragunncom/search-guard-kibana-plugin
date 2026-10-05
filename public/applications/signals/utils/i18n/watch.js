@@ -197,3 +197,9 @@ export const proxyHelpText = (
     default="Select a stored proxy, or type a proxy URL (http://host:port). Default uses the cluster proxy setting, None connects directly even if a cluster proxy is set."
   />
 );
+export const proxyListForbiddenText = (
+  <EuiI18n
+    token="sg.watch.proxy.listForbidden.text"
+    default="You don't have permission to list the stored proxies. To use one, type its ID."
+  />
+);
