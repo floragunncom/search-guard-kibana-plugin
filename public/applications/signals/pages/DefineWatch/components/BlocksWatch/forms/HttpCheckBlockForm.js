@@ -48,7 +48,6 @@ import {
 } from '../../../../../utils/i18n/watch';
 
 import { Context } from '../../../../../Context';
-import ProxyField from '../../ProxyField/ProxyField';
 
 export function ConnectionTimeout({ path }) {
   return (
@@ -464,7 +463,6 @@ export function HttpCheckBlockForm({ index, checkBlock, checksBlocksPath, onClos
   const isAuthPath = `${blockPath}.isAuth`;
   const connectionTimeoutPath = `${blockPath}.connection_timeout`;
   const readTimeoutPath = `${blockPath}.read_timeout`;
-  const proxyPath = `${blockPath}.proxy`;
 
   const requestPath = `${blockPath}.request`;
   const requestURLPath = `${requestPath}.url`;
@@ -569,7 +567,6 @@ export function HttpCheckBlockForm({ index, checkBlock, checksBlocksPath, onClos
         <EuiFlexItem>
           <ConnectionTimeout path={connectionTimeoutPath} />
           <ReadTimeout path={readTimeoutPath} />
-          <ProxyField path={proxyPath} />
 
           <EuiSpacer />
           <EuiFlexGroup>

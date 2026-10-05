@@ -30,7 +30,7 @@ import { proxyText } from '../../../../utils/i18n/account';
 import { proxyHelpText, proxyListForbiddenText } from '../../../../utils/i18n/watch';
 import { DOC_LINKS } from '../../../../utils/constants';
 
-// The Formik value is the plain "proxy" string of the action or check, so JSON watches round-trip unchanged.
+// The Formik value is the plain "proxy" string of the action, so JSON watches round-trip unchanged.
 const ProxyField = ({ path, formik: { values } }) => {
   const { proxies, isListForbidden } = useContext(ProxiesContext);
   const options = buildProxyOptions(proxies);
