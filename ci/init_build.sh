@@ -217,9 +217,6 @@ else
    KBN_PM=yarn
 fi
 echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing $KBN_PM kbn bootstrap"
-# Prevent warning about outdated caniuse-lite, which seems to block the build
-npx --yes update-browserslist-db@latest
-
 $KBN_PM kbn bootstrap
 
 echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
@@ -238,8 +235,6 @@ cp -a "../__mocks__" plugins/search-guard
 cp -a "../yarn.lock" plugins/search-guard
 cp -a "../.kibana-plugin-helpers.json" plugins/search-guard
 
-# Prevent warning about outdated caniuse-lite, which seems to block the build
-npx --yes update-browserslist-db@latest
 
 cd plugins/search-guard
 
