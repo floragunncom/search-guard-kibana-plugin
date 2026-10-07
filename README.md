@@ -8,7 +8,7 @@
 
 This plugin for Kibana adds session management and true multi-tenancy to a [Search Guard](https://search-guard.com) secured cluster.
 
-For Kibana 7.x and 6.x it also provides a configuration GUI for Search Guard.
+It also provides a configuration GUI for Search Guard.
 
 ## Commercial use
 
