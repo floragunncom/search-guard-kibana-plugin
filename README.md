@@ -8,7 +8,7 @@
 
 This plugin for Kibana adds session management and true multi-tenancy to a [Search Guard](https://search-guard.com) secured cluster.
 
-For Kibana 7.x and 6.x it also provides a configuration GUI for Search Guard.
+It also provides a configuration GUI for Search Guard.
 
 ## Commercial use
 
@@ -83,8 +83,10 @@ See the [kibana contributing guide](https://github.com/elastic/kibana/blob/maste
 
     > ***IMPORTANT:*** Use this script instead of `yarn` to install dependencies when switching branches, and re-run it whenever your dependencies change.
 
-    > ***NOTE:*** Kibana 8.19.22 and later are pnpm-based and need pnpm on the `PATH`, provisioned via corepack (bundled with Node.js) and pinned to `engines.pnpm` of the Kibana `package.json`:
-    > `corepack enable && corepack prepare pnpm@<engines.pnpm> --activate`. `ci/init_build.sh` does this automatically.
+    > ***NOTE:*** Kibana 8.19.22 and later are pnpm-based and need pnpm on the `PATH`, provisioned via corepack (bundled with Node.js) and pinned to `packageManager` (8.19.23+) or `engines.pnpm` (8.19.22) of the Kibana `package.json`:
+    > `corepack enable && corepack prepare pnpm@<version> --activate`, then bootstrap with `pnpm kbn bootstrap`. `ci/init_build.sh` does this automatically.
+    >
+    > Since Kibana 8.19.23 the `"packageManager": "pnpm@..."` field makes corepack's `yarn` shim refuse to run anywhere inside the Kibana tree, including this plugin's own `yarn` scripts in `plugins/search-guard` (`This project is configured to use pnpm because .../kibana/package.json has a "packageManager" field`). Export `COREPACK_ENABLE_STRICT=0` to let corepack fall back to yarn 1.22.x there; `ci/init_build.sh` sets it automatically.
 
   - `yarn start`
 
