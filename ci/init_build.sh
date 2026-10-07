@@ -95,7 +95,7 @@ fi
 # moon is invoked from TWO places in this script, both must run without
 # GITLAB_CI (782faf1e only covered the first one, so `yarn build` still failed
 # in MR pipelines):
-#   - `yarn kbn bootstrap`            -> moon run :build-webpack
+#   - `yarn|pnpm kbn bootstrap`       -> moon run :build-webpack
 #   - `yarn build` -> plugin-helpers build -> `yarn kbn build-shared`
 #                                     -> moon run :build-webpack
 # The eui fix block below also runs `yarn remove`/`yarn add` in the Kibana root,
@@ -144,17 +144,37 @@ echo -e "\e[0Ksection_end:`date +%s`:nvm_install\r\e[0K"
 # Kibana >= 8.19.22 / >= 9.5.x (pnpm-based) needs pnpm on the PATH for
 # `kbn bootstrap` and for plugin-helpers (`pnpm kbn build-shared`). Kibana
 # provisions pnpm through corepack (bundled with Node.js), pinned to the version
-# in package.json "engines.pnpm". Older (yarn-based) Kibana trees have no
-# "engines.pnpm", so this block is skipped there.
+# in package.json "packageManager" (8.19.23+, e.g. "pnpm@12.4.2") or, for
+# 8.19.22 which deliberately shipped without that field, "engines.pnpm"
+# (e.g. "~11.21.0"). corepack's pnpm shim always uses the "packageManager"
+# version when present, so prefer it over "engines.pnpm" to keep the activated
+# version in sync. Older (yarn-based) Kibana trees have neither, so this block
+# is skipped there.
 start_collapsed_section pnpm_setup "Setting up pnpm via corepack"
-PNPM_VERSION=$(jq -r '.engines.pnpm // empty' package.json | $SED -E 's/^[^0-9]*//')
+PNPM_VERSION=$(jq -r '.packageManager // empty' package.json | $SED -nE 's/^pnpm@([^+]+).*/\1/p')
+if [[ -z "$PNPM_VERSION" ]]; then
+   PNPM_VERSION=$(jq -r '.engines.pnpm // empty' package.json | $SED -E 's/^[^0-9]*//')
+fi
 if [[ -n "$PNPM_VERSION" ]]; then
    export COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+   # `corepack enable` also shims `yarn`. Since Kibana 8.19.23 package.json has
+   # "packageManager": "pnpm@...", and corepack's yarn shim then refuses to run
+   # ('This project is configured to use pnpm because .../kibana/package.json
+   # has a "packageManager" field'). corepack walks UP the directory tree to the
+   # first package.json with that field, so this hits every yarn call inside
+   # the Kibana tree: the plugin's `yarn install`/`yarn build` in
+   # plugins/search-guard and the production install in build/kibana/searchguard.
+   # The plugin keeps yarn.lock as its single lockfile, so yarn must keep working.
+   # With strict mode off corepack falls back to its default yarn 1.22.x instead
+   # of throwing, which is exactly what it did on 8.19.22 (no "packageManager"
+   # field). pnpm calls are unaffected. The variable is inherited by nested
+   # yarn calls (e.g. `yarn build` -> `yarn plugin-helpers build`).
+   export COREPACK_ENABLE_STRICT=0
    corepack enable
    corepack prepare "pnpm@${PNPM_VERSION}" --activate
-   echo "pnpm version $(pnpm --version) (engines.pnpm: $(jq -r '.engines.pnpm' package.json))"
+   echo "pnpm version $(pnpm --version) (packageManager: $(jq -r '.packageManager // "-"' package.json), engines.pnpm: $(jq -r '.engines.pnpm // "-"' package.json))"
 else
-   echo "No engines.pnpm in package.json, Kibana tree is yarn-based, skipping pnpm setup"
+   echo "No packageManager/engines.pnpm in package.json, Kibana tree is yarn-based, skipping pnpm setup"
 fi
 end_section pnpm_setup
 
@@ -187,12 +207,20 @@ fi
 #fi
 
 
-echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
-
+# Bootstrap with the package manager the Kibana tree expects: pnpm for
+# pnpm-based trees (8.19.22+, Kibana's documented entrypoint is `pnpm kbn`),
+# yarn for older trees. Running it via yarn would also work (it is only a
+# script runner here), but would rely on the COREPACK_ENABLE_STRICT=0 fallback.
+if [[ -n "$PNPM_VERSION" ]]; then
+   KBN_PM=pnpm
+else
+   KBN_PM=yarn
+fi
+echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing $KBN_PM kbn bootstrap"
 # Prevent warning about outdated caniuse-lite, which seems to block the build
 npx --yes update-browserslist-db@latest
 
-yarn kbn bootstrap
+$KBN_PM kbn bootstrap
 
 echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
 

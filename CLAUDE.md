@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A **Kibana platform plugin** (id `searchguard`) that adds authentication/session management, multi-tenancy, the Search Guard configuration GUI, alerting (Signals), and API auth tokens to a Search Guard–secured Elasticsearch cluster. It has both a **server** side (Node, Kibana HTTP routes) and a **public** side (browser, React/EUI).
 
-The plugin version tracks a specific Kibana version — always read `version` from `kibana.json` rather than assuming (currently `9.4.4`; `package.json` carries the same version plus a `-master-SNAPSHOT` suffix). The plugin only builds/tests against a matching Kibana source tree.
+The plugin version tracks a specific Kibana version — always read `version` from `kibana.json` rather than assuming (currently `9.5.5`; `package.json` carries the same version plus a `-master-SNAPSHOT` suffix). The plugin only builds/tests against a matching Kibana source tree.
 
 ## Critical: this plugin cannot build or test standalone
 
@@ -15,7 +15,7 @@ It must live inside a checked-out Kibana source tree at `plugins/search-guard`, 
 `ci/init_build.sh` (invoked by `./build.sh`) automates the full flow:
 1. Reads the target version from `kibana.json`.
 2. Clones the matching Kibana release branch (`v<version>`) into `./kibana/` (cached via `kibana/.cached_version`).
-3. `nvm install` (Node from Kibana's `.nvmrc`), then, if Kibana's `package.json` has `engines.pnpm` (8.19.22+), provisions that pnpm via `corepack enable` / `corepack prepare`. Then `yarn kbn bootstrap` in the Kibana repo.
+3. `nvm install` (Node from Kibana's `.nvmrc`), then, if Kibana's `package.json` pins pnpm (`packageManager` since 8.19.23, `engines.pnpm` in 8.19.22), provisions that pnpm via `corepack enable` / `corepack prepare` and exports `COREPACK_ENABLE_STRICT=0`, because since 8.19.23 the `packageManager: pnpm@…` field makes corepack's `yarn` shim refuse to run anywhere inside the Kibana tree (including the plugin's own yarn commands below). Then `pnpm kbn bootstrap` (yarn-based trees: `yarn kbn bootstrap`) in the Kibana repo.
 4. Copies plugin sources (`public/`, `server/`, `common/`, `tests/`, `__mocks__/`, config files incl. `.kibana-plugin-helpers.json`) into `kibana/plugins/search-guard`.
 5. Runs jest, then `yarn build`, installs the plugin's production deps into `build/kibana/searchguard` from the plugin's own `yarn.lock` (plugin-helpers' own install is disabled via `skipInstallDependencies` because since 8.19.22 it would use pnpm and expect a `pnpm-lock.yaml`), and moves the result to `./build/` in the repo root.
 
