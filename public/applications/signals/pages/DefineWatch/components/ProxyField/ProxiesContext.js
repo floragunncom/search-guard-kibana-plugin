@@ -20,7 +20,7 @@ import { ProxiesService } from '../../../../services';
 
 export const ProxiesContext = React.createContext({ proxies: [], isListForbidden: false });
 
-// Loads the stored Signals proxies once per watch page for all proxy fields (one per webhook action).
+// Loads the stored Signals proxies once per watch page for all proxy fields (actions and checks).
 // Listing them is optional: without the proxies/findall permission the fields only offer the keywords
 // and typed values, and say why. Any failure is only logged, never shown as an error.
 export const ProxiesProvider = ({ httpClient, children }) => {
