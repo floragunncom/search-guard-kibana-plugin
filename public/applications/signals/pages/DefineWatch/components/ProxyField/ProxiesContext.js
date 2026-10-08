@@ -16,7 +16,8 @@
 
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { ProxiesService } from '../../../../services';
+import { SignalsService } from '../../../../services';
+import { ROUTE_PATH } from '../../../../utils/constants';
 
 export const ProxiesContext = React.createContext({ proxies: [], isListForbidden: false });
 
@@ -28,8 +29,8 @@ export const ProxiesProvider = ({ httpClient, children }) => {
 
   useEffect(() => {
     let isMounted = true;
-    new ProxiesService(httpClient)
-      .list()
+    new SignalsService(httpClient)
+      .get(`..${ROUTE_PATH.PROXIES}`)
       .then(({ resp }) => {
         if (isMounted) setValue({ proxies: resp, isListForbidden: false });
       })

@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-import { PROXY_KEYWORD } from './constants';
+// Reserved values of the "proxy" attribute, see ProxyTypeProvider in the Signals backend.
+const PROXY_KEYWORD = {
+  DEFAULT: 'default',
+  NONE: 'none',
+};
 
 export const DEFAULT_PROXY_LABEL = 'Default (cluster proxy setting)';
 export const NO_PROXY_LABEL = 'None';

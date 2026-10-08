@@ -23,7 +23,7 @@ import { registerAlertsRoutes } from './alerts';
 import { registerAlertRoutes } from './alert';
 import { registerAccountsRoutes } from './accounts';
 import { registerAccountRoutes } from './account';
-import { registerProxiesRoutes } from './proxies';
+import { getProxiesRoute } from './proxies/get';
 import { registerSearchguardRoutes } from './searchguard';
 
 export function registerRoutes({
@@ -67,7 +67,7 @@ export function registerRoutes({
     logger: logger.get('signals-account-routes'),
   });
 
-  registerProxiesRoutes({ router, clusterClient, logger: logger.get('signals-proxies-routes') });
+  getProxiesRoute({ router, clusterClient, logger: logger.get('signals-proxies-routes') });
 
   registerSearchguardRoutes({
     router,
