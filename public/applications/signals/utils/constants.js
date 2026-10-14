@@ -55,6 +55,7 @@ export const DOC_LINKS = {
   CONDITIONS: 'https://docs.search-guard.com/latest/elasticsearch-alerting-conditions-script',
   TRANSFORMS: 'https://docs.search-guard.com/latest/elasticsearch-alerting-transformations',
   CALCS: 'https://docs.search-guard.com/latest/elasticsearch-alerting-calculations',
+  PROXIES: 'https://docs.search-guard.com/latest/elasticsearch-alerting-proxies',
   TRIGGERS: {
     SCHEDULE: 'https://docs.search-guard.com/latest/elasticsearch-alerting-triggers-schedule'
   }

@@ -29,6 +29,7 @@ import { severityText, resolvesSeverityText } from '../../../../../utils/i18n/wa
 import { RowHelpTextMustacheRuntimeDataField } from '../../RowHelpText';
 import ActionBodyPreview from '../ActionBodyPreview';
 import ActionThrottlePeriod from '../ActionThrottlePeriod';
+import ProxyField from '../../ProxyField/ProxyField';
 import {
   hasError,
   isInvalid,
@@ -37,6 +38,7 @@ import {
 } from '../../../../../utils/validate';
 import ActionChecks from '../ActionChecks';
 import { METHOD_SELECT } from './utils/constants';
+import { ACTION_TYPE } from '../../ActionPanel/utils/constants';
 import { SEVERITY_OPTIONS, WATCH_TYPES } from '../../../utils/constants';
 
 import { Context } from '../../../../../Context';
@@ -61,6 +63,8 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
     : `actions[${index}].severity`;
 
   const actionsRootPath = isResolveActions ? 'resolve_actions' : 'actions';
+  // This form is also used by Signl4 actions, which have no proxy field
+  const isWebhookAction = get(values, `${actionsRootPath}[${index}].type`) === ACTION_TYPE.WEBHOOK;
   const namePath = `${actionsRootPath}[${index}].name`;
   const requestMethodPath = `${actionsRootPath}[${index}].request.method`;
   const requestUrlPath = `${actionsRootPath}[${index}].request.url`;
@@ -180,6 +184,7 @@ const WebhookAction = ({ isResolveActions, formik: { values }, index }) => {
               }}
             />
           )}
+          {isWebhookAction && <ProxyField path={`${actionsRootPath}[${index}].proxy`} />}
         </EuiFlexItem>
         <EuiFlexItem>
           <FormikCodeEditorSG

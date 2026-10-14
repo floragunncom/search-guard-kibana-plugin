@@ -1,0 +1,110 @@
+/*
+ *    Copyright 2026 floragunn GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {
+  buildProxyOptions,
+  findSelectedProxyOption,
+  toProxyValue,
+  toTypedProxyValue,
+  DEFAULT_PROXY_LABEL,
+  NO_PROXY_LABEL,
+} from './buildProxyOptions';
+
+const proxies = [
+  { id: 'smops-proxy-connector', name: 'SMOPS proxy', uri: 'http://proxy.example.com:3128' },
+  { id: 'plain', name: 'plain', uri: 'http://plain:8080' },
+];
+
+describe('buildProxyOptions', () => {
+  test('keywords only if there are no stored proxies', () => {
+    expect(buildProxyOptions()).toEqual([
+      { label: DEFAULT_PROXY_LABEL, value: 'default' },
+      { label: NO_PROXY_LABEL, value: 'none' },
+    ]);
+  });
+
+  test('keywords followed by stored proxies, sorted by label', () => {
+    expect(buildProxyOptions(proxies)).toEqual([
+      { label: DEFAULT_PROXY_LABEL, value: 'default' },
+      { label: NO_PROXY_LABEL, value: 'none' },
+      { label: 'plain', value: 'plain' },
+      { label: 'SMOPS proxy (smops-proxy-connector)', value: 'smops-proxy-connector' },
+    ]);
+  });
+
+  test('stored proxies without a name are labelled with their id', () => {
+    const [, , withEmptyName, withoutName] = buildProxyOptions([
+      { id: 'no-name', name: null, uri: 'http://no-name:3128' },
+      { id: 'empty-name', name: '', uri: 'http://empty-name:3128' },
+    ]);
+    expect(withoutName).toEqual({ label: 'no-name', value: 'no-name' });
+    expect(withEmptyName).toEqual({ label: 'empty-name', value: 'empty-name' });
+  });
+});
+
+describe('toProxyValue', () => {
+  test('stores nothing for Default or no selection', () => {
+    expect(toProxyValue({ label: DEFAULT_PROXY_LABEL, value: 'default' })).toBeUndefined();
+    expect(toProxyValue(undefined)).toBeUndefined();
+  });
+
+  test('stores the value of any other option', () => {
+    expect(toProxyValue({ label: NO_PROXY_LABEL, value: 'none' })).toBe('none');
+    expect(
+      toProxyValue({ label: 'SMOPS proxy (smops-proxy-connector)', value: 'smops-proxy-connector' })
+    ).toBe('smops-proxy-connector');
+  });
+});
+
+describe('toTypedProxyValue', () => {
+  test('typed keywords are stored like the picked options', () => {
+    expect(toTypedProxyValue(' Default ')).toBeUndefined();
+    expect(toTypedProxyValue('NONE')).toBe('none');
+  });
+
+  test('other values are stored trimmed', () => {
+    expect(toTypedProxyValue(' http://proxy:3128 ')).toBe('http://proxy:3128');
+    expect(toTypedProxyValue('smops-proxy-connector')).toBe('smops-proxy-connector');
+    expect(toTypedProxyValue('  ')).toBeUndefined();
+  });
+});
+
+describe('findSelectedProxyOption', () => {
+  const options = buildProxyOptions(proxies);
+
+  test('nothing selected for an empty value', () => {
+    expect(findSelectedProxyOption('', options)).toEqual([]);
+    expect(findSelectedProxyOption(undefined, options)).toEqual([]);
+  });
+
+  test('stored proxy', () => {
+    expect(findSelectedProxyOption('smops-proxy-connector', options)).toEqual([
+      { label: 'SMOPS proxy (smops-proxy-connector)', value: 'smops-proxy-connector' },
+    ]);
+  });
+
+  test('keywords are case-insensitive', () => {
+    expect(findSelectedProxyOption('NONE', options)).toEqual([
+      { label: NO_PROXY_LABEL, value: 'none' },
+    ]);
+  });
+
+  test('inline URL or unknown id is shown as typed', () => {
+    expect(findSelectedProxyOption('http://other:3128', options)).toEqual([
+      { label: 'http://other:3128', value: 'http://other:3128' },
+    ]);
+  });
+});
