@@ -26,6 +26,21 @@ fi
 
 cd $SF_REPO_DIR
 
+# The Kibana clone is cached between runs (GitLab cache, local ./kibana) and
+# this script patches tracked files in it (optimize.ts below), and `kbn bootstrap`
+# regenerates tracked files. Reset all tracked files to a pristine state so
+# leftovers from a previous (possibly older) script version cannot leak into this
+# run. Untracked files (node_modules, .pnpm-store, .cached_version) are kept.
+#
+# Kibana's moon tasks run `git rev-parse --show-toplevel` in the clone. Mark the
+# clone as a safe git directory so a cached clone that git considers to be of
+# "dubious ownership" (cache restored as another user, su, bind mounts) does not
+# fail the bootstrap with "fatal: detected dubious ownership in repository".
+if ! git config --global --get-all safe.directory 2>/dev/null | grep -qxF "$PWD"; then
+   git config --global --add safe.directory "$PWD"
+fi
+git checkout --quiet -- .
+
 # Kibana >= 9.3 bootstraps via moon, and moon's workspace.yml has
 # `vcs.defaultBranch: main`. Since the CI clones a single release branch
 # with `--depth 1 --branch v$SF_VERSION`, the local repo has no `main` ref,
@@ -35,6 +50,35 @@ cd $SF_REPO_DIR
 if ! git show-ref --verify --quiet refs/heads/main; then
    git update-ref refs/heads/main HEAD
 fi
+
+# Hide GitLab from moon (Kibana's build tool) for the rest of this script.
+#
+# `moon run` always queries the changed files, even without `--affected`. In CI
+# it takes base/head from its ci_env crate, which detects GitLab solely via
+# GITLAB_CI and then reads GitLab's pipeline variables: CI_COMMIT_BEFORE_SHA /
+# CI_COMMIT_SHA on push pipelines, CI_MERGE_REQUEST_DIFF_BASE_SHA on MR
+# pipelines. Those SHAs refer to *this plugin repo* and do not exist in the
+# shallow Kibana clone, so with the moon 2.4.x shipped by Kibana >= 9.5.3 the
+# bootstrap fails with e.g.
+#   Unable to resolve a merge base between the base and head revisions ...
+#   fatal: bad object a7a8e3faabda7c3286ba6d376db06bb0b16d815a
+#
+# moon is invoked from TWO places in this script, both must run without GITLAB_CI:
+#   - `pnpm kbn bootstrap`                          -> moon run :build-webpack
+#   - plugin_helpers build -> `pnpm kbn build-shared` -> moon run :build-webpack
+#
+# Do NOT work around this with MOON_BASE / MOON_HEAD: `--base` / `--head` may
+# require `--affected`, and Kibana calls plain `moon run :build-webpack`.
+# Re-check this when Kibana bumps moon.
+#
+# Scope: without GITLAB_CI the provider detection returns Unknown and none of
+# the CI_MERGE_REQUEST_* values are read, so MR pipelines behave exactly like
+# commit pipelines. CI=true stays set, so moon's is_ci(), jest --ci and pnpm's
+# CI mode (frozen lockfile) are unchanged; CI_MERGE_REQUEST_* stay set for other
+# consumers. This script is sourced as the last command inside
+# `su -s /bin/bash kibana -c ...` in .gitlab-ci.yml, so the job's outer shell
+# keeps GITLAB_CI. Locally GITLAB_CI is never set and `unset` is a no-op.
+unset GITLAB_CI
 
 echo -e "\e[0Ksection_start:`date +%s`:patch_kbn_optimizer[collapsed=true]\r\e[0KPatch kbn optimizer"
 
