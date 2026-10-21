@@ -15,13 +15,11 @@
  */
 
 import { BehaviorSubject } from 'rxjs';
+import { WATCH_STATUS_EMBEDDABLE_ID } from '../../../../../common/signals/constants';
 
 export const WATCH_STATUS_ACTION_ID = 'create_watch_status_action';
-/**
- * This should not be changed after users may have added panels, since those would then not render anymore.
- * @type {string}
- */
-export const WATCH_STATUS_EMBEDDABLE_ID = 'watch_status_embeddable';
+// Shared with the server side embeddable definition (see server/serverPlugin.js)
+export { WATCH_STATUS_EMBEDDABLE_ID };
 
 /**
  * The grouping in the Add Panel flyout
@@ -46,15 +44,13 @@ export const getStateObservables = (attributes) => {
 };
 
 /**
- * Serializes the watch selector state for passing to addNewPanel
- * 
- * Important: Must return { rawState: {...} } structure for 9.1.x
- * This is passed to the embeddable's buildEmbeddable as initialState.rawState
+ * Serializes the watch selector state for passing to addNewPanel.
+ *
+ * Since Kibana 9.4 the serialized state is passed as-is (no rawState wrapper):
+ * this object arrives in the embeddable's buildEmbeddable as `initialState`.
  */
 export const serializeAttributes = (state) => {
   return {
-    rawState: {
-      watchId: state.watchId.getValue(),
-    },
+    watchId: state.watchId.getValue(),
   };
 };

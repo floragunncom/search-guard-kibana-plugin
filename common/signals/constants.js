@@ -8,6 +8,12 @@ export const INDEX = {
 };
 
 export const BASE_URI = `/api/${APP_NAME}`;
+/**
+ * Dashboard panel type of the "Watch status" embeddable.
+ * This should not be changed after users may have added panels, since those would then not render anymore.
+ * Must be lower case / snake case (Kibana embeddable registry requirement).
+ */
+export const WATCH_STATUS_EMBEDDABLE_ID = 'watch_status_embeddable';
 export const ROUTE_PATH = {
   WATCH: `${BASE_URI}/watch`,
   WATCHES: `${BASE_URI}/watches`,

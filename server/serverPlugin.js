@@ -37,6 +37,9 @@ import SearchGuardBackend from './applications/searchguard/backend/searchguard';
 import SearchGuardConfigurationBackend from './applications/searchguard/configuration/backend/searchguard_configuration_backend';
 import { SpacesService, TenantService } from './applications/multitenancy';
 import { ReadOnlyMode } from "./applications/searchguard/authorization/ReadOnlyMode";
+import { schema } from '@kbn/config-schema';
+import { serializedTitlesSchema } from '@kbn/presentation-publishing-schemas';
+import { WATCH_STATUS_EMBEDDABLE_ID } from '../common/signals/constants';
 
 async function getConfigService({ kibanaIndex, logger, initContext, clusterClientConfig }) {
   try {
@@ -99,6 +102,22 @@ export class ServerPlugin {
     });
 
     this.kibanaRouter = core.http.createRouter();
+
+    // Dashboard "Watch status" panel: the browser side definition is registered in
+    // public/publicPlugin.js. Since Kibana 9.5 the dashboards REST API (and its OpenAPI
+    // spec) only knows panel types that also have a server side definition with a schema.
+    if (pluginDependencies.embeddable) {
+      pluginDependencies.embeddable.registerEmbeddableServerDefinition(WATCH_STATUS_EMBEDDABLE_ID, {
+        title: 'Search Guard Signals watch status',
+        getSchema: () =>
+          serializedTitlesSchema.extends(
+            {
+              watchId: schema.maybe(schema.nullable(schema.string())),
+            },
+            { unknowns: 'allow' }
+          ),
+      });
+    }
 
     // Register a switcher for the read only mode
     core.capabilities.registerSwitcher(async (request, uiCapabilities) => {

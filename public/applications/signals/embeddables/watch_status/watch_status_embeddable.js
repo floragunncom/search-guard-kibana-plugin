@@ -15,7 +15,7 @@
  */
 
 /**
- * Watch Status Embeddable for Kibana 9.1.x
+ * Watch Status Embeddable (Kibana >= 9.5 "EmbeddablePublicDefinition" API)
  *
  * This embeddable displays the status of a Search Guard watch in a dashboard panel.
  *
@@ -26,12 +26,15 @@
  * - Supports title editing with unsaved changes tracking
  * - Uses batch loading via WatchBatchManager for efficiency
  *
- * Key 9.1.x Changes:
- * - buildEmbeddable receives single context object
- * - No deserializeState method (removed)
- * - Must import titleComparators from @kbn/presentation-publishing
- * - Unsaved changes use new object-based API
- * - parentApi accessed from context, not api.parentApi
+ * Kibana API notes:
+ * - Registered via embeddable.registerEmbeddablePublicDefinition (9.4+; the former
+ *   registerReactEmbeddableFactory no longer exists)
+ * - buildEmbeddable receives { initialState, finalizeApi, parentApi, uuid } where
+ *   initialState is the serialized state itself (no rawState wrapper anymore)
+ * - serializeState returns the serialized state itself (no rawState wrapper)
+ * - Unsaved changes tracking uses initializeStateApi (9.5+; initializeUnsavedChanges was removed)
+ * - Initial panel size is provided by getPlacementHints (dashboard.registerDashboardPanelSettings
+ *   no longer exists)
  */
 import React, { useEffect } from 'react';
 import { BehaviorSubject } from 'rxjs';
@@ -41,7 +44,7 @@ import {
   apiPublishesReload,
   titleComparators,
 } from '@kbn/presentation-publishing';
-import { initializeUnsavedChanges } from '@kbn/presentation-publishing';
+import { initializeStateApi } from '@kbn/presentation-publishing';
 import { WatchService } from '../../services';
 import { WatchBatchManager } from '../../services/WatchBatchManager';
 import { getSeverity, watchStatusToIconProps } from '../../pages/SignalsOperatorView/utils/helpers';
@@ -62,20 +65,21 @@ export const getWatchStatusEmbeddableFactory = ({ httpClient }) => {
 
   const embeddableFactory = {
     type: WATCH_STATUS_EMBEDDABLE_ID,
+
+    /**
+     * Initial size of the panel when it is added to a dashboard (in grid units)
+     */
+    getPlacementHints: () => ({
+      width: 8,
+      height: 8,
+    }),
+
     /**
      * buildEmbeddable: Creates and initializes the embeddable
-     *
-     * KIBANA 9.1.x CHANGES:
-     * - No more deserializeState method (removed)
-     * - Receives single 'context' object instead of separate parameters
-     * - Must use 'serializedState' (not 'initialState') when calling addNewPanel
      */
-    buildEmbeddable: async (context) => {
-      // Destructure the context object (new 9.1.x pattern)
-      const { initialState, finalizeApi, parentApi, uuid } = context;
-
-      // Extract our state from initialState.rawState
-      const state = initialState?.rawState || {};
+    buildEmbeddable: async ({ initialState, finalizeApi, parentApi, uuid }) => {
+      // initialState is our serialized state (title/description/hidePanelTitles + watchId)
+      const state = initialState || {};
 
       /**
        * State Management using simple BehaviorSubjects
@@ -129,45 +133,46 @@ export const getWatchStatusEmbeddableFactory = ({ httpClient }) => {
        * This is called when the dashboard is saved
        */
       const serializeState = () => ({
-        rawState: {
-          ...titleManager.getLatestState(),  // Include title/description
-          watchId: watchId$.getValue(),       // Include our custom state
-        },
+        ...titleManager.getLatestState(), // Include title/description
+        watchId: watchId$.getValue(), // Include our custom state
       });
 
       /**
-       * Unsaved Changes Tracking (new 9.1.x API):
+       * Unsaved Changes Tracking (initializeStateApi, Kibana >= 9.5):
        *
        * Why we need this:
        * - Users can edit the panel title/description
        * - Dashboard needs to show "unsaved changes" badge when a panel is added or title/description changes
        *
        * Key points:
-       * - watchId doesn't change after panel creation, so we only track title
+       * - watchId doesn't change after panel creation, so effectively only the title is tracked
        */
-      const unsavedChangesApi = initializeUnsavedChanges({
+      const stateApi = initializeStateApi({
         uuid,
         parentApi,
         serializeState,
-        anyStateChange$: titleManager.anyStateChange$,  // Only emit when title changes
-        getComparators: () => titleComparators,
-        onReset: (lastSaved) => {
-          titleManager.reinitializeState(lastSaved?.rawState);
+        anyStateChange$: titleManager.anyStateChange$, // Only emits when the title changes
+        getComparators: () => ({
+          ...titleComparators,
+          watchId: 'referenceEquality',
+        }),
+        applySerializedState: (lastSaved) => {
+          titleManager.reinitializeState(lastSaved || {});
+          watchId$.next(lastSaved?.watchId || null);
         },
       });
 
       /**
        * Build the embeddable API:
-       * - Spread unsavedChangesApi first (provides unsaved changes tracking)
-       * - Then spread titleManager.api (provides title/description observables)
+       * - Spread titleManager.api (provides title/description observables)
+       * - Spread stateApi (provides serializeState and unsaved changes tracking)
        * - Add our custom observables (dataLoading$, blockingError$)
        */
       const api = finalizeApi({
-        ...unsavedChangesApi,
         ...titleManager.api,
+        ...stateApi,
         dataLoading$,
         blockingError$,
-        serializeState,
       });
 
       /**

@@ -21,7 +21,6 @@ import { SearchGuard } from './applications/searchguard';
 import { AuthTokens } from './applications/authtokens';
 import { MultiTenancy } from './applications/multitenancy';
 
-import {getWatchStatusEmbeddableFactory} from "./applications/signals/embeddables/watch_status/watch_status_embeddable";
 import {registerAddWatchStatusAction} from "./applications/signals/embeddables/watch_status/watch_status_action";
 import {WATCH_STATUS_EMBEDDABLE_ID} from "./applications/signals/embeddables/watch_status/watch_status_utils";
 
@@ -65,15 +64,15 @@ export class PublicPlugin {
     this.signalsApp.setupSync({ core, httpClient: this.httpClient, configService: this.configService });
     this.signalsApp.setup({ httpClient: this.httpClient, configService: this.configService });
 
-    // Register the watch status widget
+    // Register the watch status widget (Kibana >= 9.4 API)
     if (plugins.embeddable) {
       try {
-        plugins.embeddable.registerReactEmbeddableFactory(WATCH_STATUS_EMBEDDABLE_ID, async () => {
+        plugins.embeddable.registerEmbeddablePublicDefinition(WATCH_STATUS_EMBEDDABLE_ID, async () => {
           const { getWatchStatusEmbeddableFactory } = await import('./applications/signals/embeddables/watch_status/watch_status_embeddable');
           return getWatchStatusEmbeddableFactory({httpClient: this.httpClient});
         })
       } catch (error) {
-        // We'll ignore this
+        console.error('Search Guard: could not register the watch status embeddable', error);
       }
     }
   }
@@ -85,12 +84,11 @@ export class PublicPlugin {
       try {
         registerAddWatchStatusAction({
           uiActions: plugins.uiActions,
-          dashboard: plugins.dashboard || null,
           httpClient: this.httpClient,
           core,
         });
       } catch (error) {
-        // We'll ignore this
+        console.error('Search Guard: could not register the "Add Signals watch" dashboard action', error);
       }
     }
 

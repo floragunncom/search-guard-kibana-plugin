@@ -15,7 +15,8 @@
  */
 
 import { apiCanAddNewPanel } from '@kbn/presentation-publishing';
-import { ADD_PANEL_TRIGGER, IncompatibleActionError } from '@kbn/ui-actions-plugin/public';
+import { IncompatibleActionError } from '@kbn/ui-actions-plugin/public';
+import { ADD_PANEL_TRIGGER } from '@kbn/ui-actions-plugin/common/trigger_ids';
 import { watchSelectorOverlay } from './watch_selector_overlay';
 import {
   getStateObservables,
@@ -25,14 +26,12 @@ import {
 } from './watch_status_utils';
 
 /**
- * Registers the add watch status action to the dashboards add panel button
- * @param uiActions - uiActions plugin per plugin dependencies
- * @param dashboard - dashboard plugin per plugin dependencies
+ * Builds the "Add Signals watch" action for the dashboard "Add panel" flyout
  * @param httpClient
  * @param core - core start
  */
-export const registerAddWatchStatusAction = ({ uiActions, dashboard, httpClient, core }) => {
-  uiActions.registerAction({
+export const getAddWatchStatusAction = ({ httpClient, core }) => {
+  return {
     id: WATCH_STATUS_ACTION_ID,
     grouping: WATCH_STATUS_ACTION_GROUP,
     getIconType: () => 'indexOpen',
@@ -47,10 +46,9 @@ export const registerAddWatchStatusAction = ({ uiActions, dashboard, httpClient,
       });
 
       /**
-       * Add panel helper function
-       *
-       * Use 'serializedState' (not 'initialState') in 9.1.x
-       *
+       * Add panel helper function. The serializedState is passed as-is to the
+       * embeddable's buildEmbeddable as initialState. The initial panel size comes
+       * from the embeddable definition's getPlacementHints.
        */
       const addPanel = (serializedState) => {
         embeddable.addNewPanel({
@@ -73,19 +71,19 @@ export const registerAddWatchStatusAction = ({ uiActions, dashboard, httpClient,
     getDisplayName: () => {
       return 'Add Signals watch';
     },
-  });
-  uiActions.attachAction(ADD_PANEL_TRIGGER, WATCH_STATUS_ACTION_ID);
+  };
+};
 
-  // Set a sensible default size for the panel (9.2.x API)
-  if (dashboard) {
-    dashboard.registerDashboardPanelSettings(WATCH_STATUS_EMBEDDABLE_ID, () => {
-      return {
-        placementSettings: {
-          width: 8,
-          height: 8,
-          // strategy: PanelPlacementStrategy.findTopLeftMostOpenSpace, // default
-        },
-      };
-    });
-  }
+/**
+ * Registers the add watch status action to the dashboards add panel button.
+ * Since Kibana 9.4 uiActions only offers async registration (registerActionAsync /
+ * addTriggerActionAsync); the former synchronous registerAction no longer exists.
+ * @param uiActions - uiActions plugin per plugin dependencies
+ * @param httpClient
+ * @param core - core start
+ */
+export const registerAddWatchStatusAction = ({ uiActions, httpClient, core }) => {
+  uiActions.addTriggerActionAsync(ADD_PANEL_TRIGGER, WATCH_STATUS_ACTION_ID, async () =>
+    getAddWatchStatusAction({ httpClient, core })
+  );
 };
