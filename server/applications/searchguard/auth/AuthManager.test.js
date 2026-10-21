@@ -87,6 +87,24 @@ describe('AuthManager', () => {
             expect(toolkit.next).toBeCalled()
         });
 
+        it('should let the Kibana feature flag counter pass without authentication (Kibana >= 9.5)', async () => {
+            const request = {
+                headers: {},
+                url: {
+                    pathname: '/internal/feature-flags/core.chrome.next/counter'
+                },
+                route: { options: { authRequired: true } },
+            };
+
+            const toolkit = {
+                next: jest.fn(),
+            }
+
+            await authManager.checkAuth(request, {}, toolkit);
+
+            expect(toolkit.next).toBeCalled()
+        });
+
         it('should process request with a checkAuth dedicated for AuthInstance if detected by a request', async () => {
             // Register an AuthType detected by Request
             let mockAuthTypeDetectedByRequest = {

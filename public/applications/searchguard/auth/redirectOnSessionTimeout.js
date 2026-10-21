@@ -39,9 +39,10 @@ export function redirectOnSessionTimeout(authType, coreHttp) {
     responseError: async (httpResponseError, controller) => {
       const path = coreHttp.basePath.remove(window.location.pathname);
 
-      // Don't run on login or logout. We shouldn't have any Ajax requests here,
-      // but if other plugins are active, we would get a redirect loop.
-      if (path === '/login' || path === '/logout' || path === '/customerror') {
+      // Don't run on login, logout or the error page (e.g. /searchguard/login). We shouldn't
+      // have any Ajax requests here, but Kibana core and other plugins do issue some
+      // (e.g. the feature flag counter since Kibana 9.5), and we would get a redirect loop.
+      if (/\/(login|logout|customerror)$/.test(path)) {
         return;
       }
 

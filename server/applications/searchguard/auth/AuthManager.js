@@ -57,6 +57,13 @@ export class AuthManager {
       '/internal/security/user_profile'
     ];
 
+    /**
+     * Since Kibana 9.5, the browser reports every feature flag evaluation to this internal
+     * counter endpoint - also from our anonymous login page. Answering with a 401 there makes
+     * the browser side interceptor redirect to the login page again, i.e. a redirect loop.
+     */
+    this.routePatternsToIgnore = [/^\/internal\/feature-flags\/[^/]+\/counter$/];
+
     this.basePath = kibanaCore.http.basePath.serverBasePath;
   }
 
@@ -177,7 +184,11 @@ export class AuthManager {
      * the route's auth options, but leaving it in case there
      * are any edge cases
      */
-    if (this.routesToIgnore.includes(request.url.pathname) || request.url.pathname.indexOf('/bundle') > -1) {
+    if (
+      this.routesToIgnore.includes(request.url.pathname) ||
+      this.routePatternsToIgnore.some((pattern) => pattern.test(request.url.pathname)) ||
+      request.url.pathname.indexOf('/bundle') > -1
+    ) {
       return toolkit.next();
     }
 
