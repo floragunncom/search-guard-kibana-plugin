@@ -18,15 +18,5 @@ end_section nvm
 
 
 
-start_collapsed_section yarn_install "Installing Yarn"
-
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-
-if ! [ -x "$(command -v yarn)" ]; then
-  echo "+++ Installing Yarn +++"
-  curl -Ss -o- -L https://yarnpkg.com/install.sh | bash 
-else
-  echo "    -> $(yarn -v)"
-fi
-
-end_section "yarn_install"
+# Kibana >= 9.5.5 uses pnpm instead of yarn. pnpm is provisioned through corepack in
+# ci/init_build.sh, after the Node.js version required by the Kibana checkout is installed.

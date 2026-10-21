@@ -150,29 +150,27 @@ fi
 
 echo -e "\e[0Ksection_end:`date +%s`:node_install\r\e[0K"
 
-echo -e "\e[0Ksection_start:`date +%s`:yarn_install\r\e[0KSourcing Yarn"
+echo -e "\e[0Ksection_start:`date +%s`:pnpm_install\r\e[0KEnabling corepack-managed pnpm"
 
-echo "+++ Sourcing Yarn +++"
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-
-if ! [ -x "$(command -v yarn)" ]; then
-    echo "+++ Installing Yarn +++"
-    curl -Ss -o- -L https://yarnpkg.com/install.sh | bash >>"$WORK_DIR/build.log" &> $output
-    if [ $? != 0 ]; then
-        echo "Installing Yarn failed"
-        cat $output
-        exit 1
-    fi
+# Kibana >= 9.5.5 is bootstrapped with pnpm instead of yarn. Like Kibana's own CI we provision
+# the exact version pinned in Kibana's package.json "engines.pnpm" through corepack (ships with Node.js).
+echo "+++ Enabling pnpm via corepack +++"
+PNPM_VERSION="$(node -p "require('./package.json').engines.pnpm.replace(/^[^\d]*/, '')")"
+corepack enable >>"$WORK_DIR/build.log" &> $output && corepack prepare "pnpm@${PNPM_VERSION}" --activate >>"$WORK_DIR/build.log" &> $output
+if [ $? != 0 ]; then
+    echo "Installing pnpm $PNPM_VERSION via corepack failed"
+    cat $output
+    exit 1
 else
-echo "    -> $(yarn -v)"
+    echo "    -> pnpm $(pnpm --version)"
 fi
 
-echo -e "\e[0Ksection_end:`date +%s`:yarn_install\r\e[0K"
+echo -e "\e[0Ksection_end:`date +%s`:pnpm_install\r\e[0K"
 
 
 if [ "$COMMAND" == "build-kibana" ] ; then
   echo "Building Kibana package from checkout Kibana branch (see above) "
-  yarn kbn bootstrap && yarn build --skip-os-packages --no-oss
+  pnpm kbn bootstrap && node scripts/build --skip-os-packages --no-oss
   mv "/builds/search-guard/search-guard-kibana-plugin/build_stage/kibana/target/kibana-$KIBANA_APP_VERSION-SNAPSHOT-linux-x86_64.tar.gz" /builds/search-guard/search-guard-kibana-plugin/build_stage/kibana/target/kibana-linux-x86_64.tar.gz ||true
   exit 0
 fi
@@ -189,13 +187,16 @@ cp -a "$WORK_DIR/server" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/common" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/tests" "$BUILD_STAGE_PLUGIN_DIR"
 cp -a "$WORK_DIR/__mocks__" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/pnpm-lock.yaml" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/pnpm-workspace.yaml" "$BUILD_STAGE_PLUGIN_DIR"
+cp -a "$WORK_DIR/.kibana-plugin-helpers.json" "$BUILD_STAGE_PLUGIN_DIR"
 cd $BUILD_STAGE_PLUGIN_DIR
 
-echo -e "\e[0Ksection_start:`date +%s`:yarn_audit\r\e[0KChecking yarn packages for vulnerabilities"
+echo -e "\e[0Ksection_start:`date +%s`:pnpm_audit\r\e[0KChecking pnpm packages for vulnerabilities"
 
-echo "+++ Checking yarn packages for vulnerabilities +++"
-auditResult=`yarn audit --groups dependencies --level 4 2>&1`
-isNoVulnerability="[^\d]0 vulnerabilities found.*$"
+echo "+++ Checking pnpm packages for vulnerabilities +++"
+auditResult=`pnpm audit --prod --audit-level critical 2>&1`
+isNoVulnerability="No known vulnerabilities found.*$"
 let limit=1*10**20 # Limit num of chars because the result can be huge
 if [[ ! $auditResult =~ $isNoVulnerability && $EXIT_IF_VULNERABILITY = true ]]; then
     echo ${auditResult::limit}
@@ -203,19 +204,19 @@ if [[ ! $auditResult =~ $isNoVulnerability && $EXIT_IF_VULNERABILITY = true ]]; 
 fi
 echo ${auditResult::limit} >>"$WORK_DIR/build.log" 2>&1
 
-echo -e "\e[0Ksection_end:`date +%s`:yarn_audit\r\e[0K"
+echo -e "\e[0Ksection_end:`date +%s`:pnpm_audit\r\e[0K"
 
-echo -e "\e[0Ksection_start:`date +%s`:yarn_kbn_bootstrap\r\e[0KInstalling plugin node modules"
+echo -e "\e[0Ksection_start:`date +%s`:pnpm_kbn_bootstrap\r\e[0KInstalling plugin node modules"
 
 echo "+++ Installing plugin node modules +++"
-yarn kbn bootstrap
+pnpm kbn bootstrap
 if [ $? != 0 ]; then
     echo "Installing node modules failed"
     cat $output
     exit 1
 fi
 
-echo -e "\e[0Ksection_end:`date +%s`:yarn_kbn_bootstrap\r\e[0K"
+echo -e "\e[0Ksection_end:`date +%s`:pnpm_kbn_bootstrap\r\e[0K"
 
 echo -e "\e[0Ksection_start:`date +%s`:tests\r\e[0KTests"
 
@@ -241,7 +242,7 @@ echo -e "\e[0Ksection_start:`date +%s`:package\r\e[0KPackaging"
 
 echo "+++ Installing plugin node modules for production +++"
 rm -rf "node_modules"
-yarn install --production >>"$WORK_DIR/build.log" &> $output
+pnpm install --prod --frozen-lockfile >>"$WORK_DIR/build.log" &> $output
 if [ $? != 0 ]; then
     echo "Installing node modules failed"
     cat $output
@@ -250,8 +251,10 @@ fi
 
 echo "+++ Building webpack bundles for the the browser code  +++"
 echo "+++ And transpiling the server code  +++"
-yarn build -v $KIBANA_VERSION --skip-archive
+node ../../scripts/plugin_helpers build -v $KIBANA_VERSION --skip-archive
 # The following files may be omitted by the Kibana build helpers but we must have them.
+# (plugin_helpers' own dependency install is disabled via .kibana-plugin-helpers.json,
+# so the production node_modules installed above is shipped instead.)
 mv node_modules build/kibana/searchguard
 cp -a "$WORK_DIR/public" build/kibana/searchguard
 cp -a "$WORK_DIR/package.json" build/kibana/searchguard

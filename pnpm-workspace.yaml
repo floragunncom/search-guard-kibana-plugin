@@ -1,0 +1,10 @@
+# pnpm settings for the Search Guard Kibana plugin (Kibana >= 9.5.5 uses pnpm).
+# pnpm only reads these settings from this file, not from .npmrc.
+#
+# nodeLinker hoisted  -> flat node_modules without symlinks, like yarn v1 produced
+# autoInstallPeers    -> never install peers (react, webpack, ...); the plugin must
+#                        resolve them from the surrounding Kibana installation
+nodeLinker: hoisted
+autoInstallPeers: false
+allowBuilds:
+  core-js: false # postinstall only prints a funding banner

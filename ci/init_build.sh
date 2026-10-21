@@ -49,43 +49,30 @@ nvm install
 
 echo -e "\e[0Ksection_end:`date +%s`:nvm_install\r\e[0K"
 
+start_collapsed_section pnpm_setup "Enabling corepack-managed pnpm"
+
+# Kibana >= 9.5.5 is bootstrapped with pnpm instead of yarn. Like Kibana's own CI
+# (.buildkite/scripts/common/setup_node.sh) we provision the exact version pinned in
+# Kibana's package.json "engines.pnpm" through corepack, which ships with Node.js.
+PNPM_VERSION="$(node -p "require('./package.json').engines.pnpm.replace(/^[^\d]*/, '')")"
+corepack enable
+corepack prepare "pnpm@${PNPM_VERSION}" --activate
+echo "    -> pnpm $(pnpm --version)"
+
+end_section pnpm_setup
+
 if [[ -d plugins/search-guard ]]; then
   rm -rf plugins/search-guard
 fi
 
-# This should not be needed for >= 8.11.4
-#if grep -q "$packages.atlassian.com/api/npm/npm-remote/react-remove-scroll/-/react-remove-scroll-2.5.6.tgz" "yarn.lock"; then
-#    echo -e "\e[0Ksection_start:`date +%s`:patch_yarn_lock[collapsed=true]\r\e[0KPatching yarn.lock file"
-#    echo "Patching react-remove-scroll-2.5.6 in yarn.lock file"
-#
-#    patch yarn.lock << 'EOF'
-#--- yarn.lock
-#+++ yarn.lock
-#@@ -25275,9 +25275,9 @@
-#     react-style-singleton "^2.2.1"
-#     tslib "^2.0.0"
-#
-#-react-remove-scroll@^2.5.6:
-#+react-remove-scroll@2.5.6:
-#   version "2.5.6"
-#-  resolved "https://packages.atlassian.com/api/npm/npm-remote/react-remove-scroll/-/react-remove-scroll-2.5.6.tgz#7510b8079e9c7eebe00e65a33daaa3aa29a10336"
-#+  resolved "https://registry.yarnpkg.com/react-remove-scroll/-/react-remove-scroll-2.5.6.tgz#7510b8079e9c7eebe00e65a33daaa3aa29a10336"
-#   integrity sha512-bO856ad1uDYLefgArk559IzUNeQ6SWH4QnrevIUjH+GczV56giDfl3h0Idptf2oIKxQmd1p9BN25jleKodTALg==
-#   dependencies:
-#     react-remove-scroll-bar "^2.3.4"
-#EOF
-#  echo -e "\e[0Ksection_end:`date +%s`:patch_yarn_lock\r\e[0K"
-#fi
+echo -e "\e[0Ksection_start:`date +%s`:pnpm_bootstrap[collapsed=true]\r\e[0KDoing pnpm kbn bootstrap"
 
+# Note: the former "npx update-browserslist-db@latest" workaround was dropped. With pnpm it
+# rewrites Kibana's pnpm-lock.yaml, and bootstrap runs "pnpm install --frozen-lockfile" in CI.
 
-echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing yarn bootstrap"
+pnpm kbn bootstrap
 
-# Prevent warning about outdated caniuse-lite, which seems to block the build
-npx --yes update-browserslist-db@latest
-
-yarn kbn bootstrap
-
-echo -e "\e[0Ksection_end:`date +%s`:yarn_bootstrap\r\e[0K"
+echo -e "\e[0Ksection_end:`date +%s`:pnpm_bootstrap\r\e[0K"
 
 
 mkdir -p plugins/search-guard
@@ -98,18 +85,19 @@ cp -a "../server" plugins/search-guard
 cp -a "../common" plugins/search-guard
 cp -a "../tests"  plugins/search-guard
 cp -a "../__mocks__" plugins/search-guard
-cp -a "../yarn.lock" plugins/search-guard
-
-# Prevent warning about outdated caniuse-lite, which seems to block the build
-npx --yes update-browserslist-db@latest
+cp -a "../pnpm-lock.yaml" plugins/search-guard
+cp -a "../pnpm-workspace.yaml" plugins/search-guard
+cp -a "../.kibana-plugin-helpers.json" plugins/search-guard
 
 cd plugins/search-guard
 
-echo -e "\e[0Ksection_start:`date +%s`:yarn_install[collapsed=true]\r\e[0KDoing yarn install"
+echo -e "\e[0Ksection_start:`date +%s`:pnpm_install[collapsed=true]\r\e[0KDoing pnpm install"
 
-yarn install
+# The plugin's own pnpm-workspace.yaml makes this a standalone pnpm workspace with a
+# flat (hoisted) node_modules and no auto-installed peers (react etc. must come from Kibana).
+pnpm install --frozen-lockfile
 
-echo -e "\e[0Ksection_end:`date +%s`:yarn_install\r\e[0K"
+echo -e "\e[0Ksection_end:`date +%s`:pnpm_install\r\e[0K"
 
 start_section tests "Unit Tests"
 
@@ -120,15 +108,20 @@ export JEST_JUNIT_OUTPUT_FILE=$CI_PROJECT_DIR/junit-public.xml
 end_section tests
 rm -rf "node_modules"
 start_section build "Building Search Guard Plugin"
-start_section yarn_install "Doing yarn install --production"
-yarn install --production --frozen-lockfile
-end_section yarn_install
-start_section yarn_build "Doing yarn build -v $SF_VERSION --skip-archive"
+start_section pnpm_install "Doing pnpm install --prod"
+pnpm install --prod --frozen-lockfile
+end_section pnpm_install
+start_section plugin_build "Doing plugin_helpers build -v $SF_VERSION --skip-archive"
 
 # This was a fix for 8.10.4 but it should not be neccessary for >= 8.11.4
 #export NODE_OPTIONS=--openssl-legacy-provider
 
-yarn build -v $SF_VERSION --skip-archive
+node ../../scripts/plugin_helpers build -v $SF_VERSION --skip-archive
+
+# plugin_helpers would run "pnpm install --prod --ignore-workspace" inside the build dir, which
+# ignores our pnpm-workspace.yaml settings. We disable that via .kibana-plugin-helpers.json
+# (skipInstallDependencies) and ship the production node_modules installed above instead.
+mv node_modules build/kibana/searchguard/node_modules
 
 # Fix only for Kibana 8.7.x
 cd build
@@ -139,7 +132,7 @@ find ./ -type f -exec sed -i -e 's#".*core-http-router-server-internal"#"@kbn/co
 find ./ -type f -exec sed -i -e 's#".*core-http-server"#"@kbn/core-http-server"#g' {} \;
 cd ..
 
-end_section yarn_build
+end_section plugin_build
 end_section build
 # Move build result from repo dir to the build folder in the CI root dir.
 cd $CI_PROJECT_DIR
