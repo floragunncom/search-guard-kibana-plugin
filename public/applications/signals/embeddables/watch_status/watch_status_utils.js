@@ -53,8 +53,6 @@ export const getStateObservables = (attributes) => {
  */
 export const serializeAttributes = (state) => {
   return {
-    rawState: {
-      watchId: state.watchId.getValue(),
-    },
+    watchId: state.watchId.getValue(),
   };
 };

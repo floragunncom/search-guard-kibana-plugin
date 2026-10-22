@@ -15,7 +15,9 @@
  */
 
 import { apiCanAddNewPanel } from '@kbn/presentation-publishing';
-import { ADD_PANEL_TRIGGER, IncompatibleActionError } from '@kbn/ui-actions-plugin/public';
+import { IncompatibleActionError } from '@kbn/ui-actions-plugin/public';
+// Kibana 9.5 no longer re-exports the trigger ids from the public entry point
+import { ADD_PANEL_TRIGGER } from '@kbn/ui-actions-plugin/common/trigger_ids';
 import { watchSelectorOverlay } from './watch_selector_overlay';
 import {
   getStateObservables,
@@ -25,67 +27,63 @@ import {
 } from './watch_status_utils';
 
 /**
- * Registers the add watch status action to the dashboards add panel button
- * @param uiActions - uiActions plugin per plugin dependencies
- * @param dashboard - dashboard plugin per plugin dependencies
+ * The "Add Signals watch" action shown in the dashboards "Add panel" flyout.
  * @param httpClient
  * @param core - core start
  */
-export const registerAddWatchStatusAction = ({ uiActions, dashboard, httpClient, core }) => {
-  uiActions.registerAction({
-    id: WATCH_STATUS_ACTION_ID,
-    grouping: WATCH_STATUS_ACTION_GROUP,
-    getIconType: () => 'indexOpen',
-    isCompatible: async ({ embeddable }) => {
-      return apiCanAddNewPanel(embeddable);
-    },
-    execute: async ({ embeddable }) => {
-      if (!apiCanAddNewPanel(embeddable)) throw new IncompatibleActionError();
+export const createAddWatchStatusAction = ({ httpClient, core }) => ({
+  id: WATCH_STATUS_ACTION_ID,
+  grouping: WATCH_STATUS_ACTION_GROUP,
+  getIconType: () => 'indexOpen',
+  getDisplayName: () => 'Add Signals watch',
+  isCompatible: async ({ embeddable }) => {
+    return apiCanAddNewPanel(embeddable);
+  },
+  execute: async ({ embeddable }) => {
+    if (!apiCanAddNewPanel(embeddable)) throw new IncompatibleActionError();
 
-      const stateObservables = getStateObservables({
-        watchId: null,
-      });
-
-      /**
-       * Add panel helper function
-       *
-       * Use 'serializedState' (not 'initialState') in 9.1.x
-       *
-       */
-      const addPanel = (serializedState) => {
-        embeddable.addNewPanel({
-          panelType: WATCH_STATUS_EMBEDDABLE_ID,
-          serializedState: serializedState,
-        });
-      };
-
-      // Open flyout to select watch (non-blocking, user can add multiple panels)
-      watchSelectorOverlay({
-        addPanel,
-        httpClient,
-        stateObservables,
-        core,
-        api: {
-          parentApi: embeddable,
-        },
-      });
-    },
-    getDisplayName: () => {
-      return 'Add Signals watch';
-    },
-  });
-  uiActions.attachAction(ADD_PANEL_TRIGGER, WATCH_STATUS_ACTION_ID);
-
-  // Set a sensible default size for the panel (9.2.x API)
-  if (dashboard) {
-    dashboard.registerDashboardPanelSettings(WATCH_STATUS_EMBEDDABLE_ID, () => {
-      return {
-        placementSettings: {
-          width: 8,
-          height: 8,
-          // strategy: PanelPlacementStrategy.findTopLeftMostOpenSpace, // default
-        },
-      };
+    const stateObservables = getStateObservables({
+      watchId: null,
     });
-  }
+
+    /**
+     * Add panel helper function
+     *
+     * Use 'serializedState' (not 'initialState') since 9.1.x
+     */
+    const addPanel = (serializedState) => {
+      embeddable.addNewPanel({
+        panelType: WATCH_STATUS_EMBEDDABLE_ID,
+        serializedState: serializedState,
+      });
+    };
+
+    // Open flyout to select watch (non-blocking, user can add multiple panels)
+    watchSelectorOverlay({
+      addPanel,
+      httpClient,
+      stateObservables,
+      core,
+      api: {
+        parentApi: embeddable,
+      },
+    });
+  },
+});
+
+/**
+ * Registers the add watch status action to the dashboards add panel button.
+ *
+ * Kibana 9.5 removed uiActions.registerAction and attachAction; actions are registered
+ * lazily with addTriggerActionAsync. The default panel size lives on the embeddable
+ * definition (getPlacementHints) now; the former panel placement registries are gone.
+ *
+ * @param uiActions - uiActions plugin per plugin dependencies (start contract)
+ * @param httpClient
+ * @param core - core start
+ */
+export const registerAddWatchStatusAction = ({ uiActions, httpClient, core }) => {
+  uiActions.addTriggerActionAsync(ADD_PANEL_TRIGGER, WATCH_STATUS_ACTION_ID, async () =>
+    createAddWatchStatusAction({ httpClient, core })
+  );
 };

@@ -68,7 +68,7 @@ export class PublicPlugin {
     // Register the watch status widget
     if (plugins.embeddable) {
       try {
-        plugins.embeddable.registerReactEmbeddableFactory(WATCH_STATUS_EMBEDDABLE_ID, async () => {
+        plugins.embeddable.registerEmbeddablePublicDefinition(WATCH_STATUS_EMBEDDABLE_ID, async () => {
           const { getWatchStatusEmbeddableFactory } = await import('./applications/signals/embeddables/watch_status/watch_status_embeddable');
           return getWatchStatusEmbeddableFactory({httpClient: this.httpClient});
         })
@@ -85,7 +85,6 @@ export class PublicPlugin {
       try {
         registerAddWatchStatusAction({
           uiActions: plugins.uiActions,
-          dashboard: plugins.dashboard || null,
           httpClient: this.httpClient,
           core,
         });

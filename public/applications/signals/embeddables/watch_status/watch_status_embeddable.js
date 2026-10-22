@@ -26,6 +26,11 @@
  * - Supports title editing with unsaved changes tracking
  * - Uses batch loading via WatchBatchManager for efficiency
  *
+ * Key 9.5.x Changes:
+ * - Registered through embeddable.registerEmbeddablePublicDefinition (was registerReactEmbeddableFactory)
+ * - initializeStateApi with applySerializedState replaces initializeUnsavedChanges/onReset
+ * - getPlacementHints on the definition replaces the panel placement registries
+ *
  * Key 9.1.x Changes:
  * - buildEmbeddable receives single context object
  * - No deserializeState method (removed)
@@ -41,7 +46,7 @@ import {
   apiPublishesReload,
   titleComparators,
 } from '@kbn/presentation-publishing';
-import { initializeUnsavedChanges } from '@kbn/presentation-publishing';
+import { initializeStateApi } from '@kbn/presentation-publishing';
 import { WatchService } from '../../services';
 import { WatchBatchManager } from '../../services/WatchBatchManager';
 import { getSeverity, watchStatusToIconProps } from '../../pages/SignalsOperatorView/utils/helpers';
@@ -51,6 +56,10 @@ import { WATCH_STATUS_EMBEDDABLE_ID } from './watch_status_utils';
 
 // Shared batch manager instance for all embeddables
 let sharedWatchBatchManager = null;
+
+// Panel state is stored flat ({ watchId, title, ... }); dashboards saved with the 9.4 plugin
+// carry it wrapped in { rawState: {...} }.
+const unwrapState = (state) => (state && state.rawState ? state.rawState : state) || {};
 
 export const getWatchStatusEmbeddableFactory = ({ httpClient }) => {
   const watchService = new WatchService(httpClient);
@@ -63,6 +72,11 @@ export const getWatchStatusEmbeddableFactory = ({ httpClient }) => {
   const embeddableFactory = {
     type: WATCH_STATUS_EMBEDDABLE_ID,
     /**
+     * Default size of a new panel (dashboard grid units). Kibana 9.5 reads this from the
+     * embeddable definition; the earlier presentationUtil/dashboard placement registries are gone.
+     */
+    getPlacementHints: () => ({ width: 8, height: 8 }),
+    /**
      * buildEmbeddable: Creates and initializes the embeddable
      *
      * KIBANA 9.1.x CHANGES:
@@ -74,8 +88,9 @@ export const getWatchStatusEmbeddableFactory = ({ httpClient }) => {
       // Destructure the context object (new 9.1.x pattern)
       const { initialState, finalizeApi, parentApi, uuid } = context;
 
-      // Extract our state from initialState.rawState
-      const state = initialState?.rawState || {};
+      // Kibana hands us the panel state exactly as serializeState() stored it (flat object).
+      // Panels created by the 9.4 plugin were stored wrapped in { rawState }, keep reading those.
+      const state = unwrapState(initialState);
 
       /**
        * State Management using simple BehaviorSubjects
@@ -129,14 +144,12 @@ export const getWatchStatusEmbeddableFactory = ({ httpClient }) => {
        * This is called when the dashboard is saved
        */
       const serializeState = () => ({
-        rawState: {
-          ...titleManager.getLatestState(),  // Include title/description
-          watchId: watchId$.getValue(),       // Include our custom state
-        },
+        ...titleManager.getLatestState(),  // Include title/description
+        watchId: watchId$.getValue(),       // Include our custom state
       });
 
       /**
-       * Unsaved Changes Tracking (new 9.1.x API):
+       * Unsaved Changes Tracking (initializeStateApi since Kibana 9.5, initializeUnsavedChanges before):
        *
        * Why we need this:
        * - Users can edit the panel title/description
@@ -145,25 +158,27 @@ export const getWatchStatusEmbeddableFactory = ({ httpClient }) => {
        * Key points:
        * - watchId doesn't change after panel creation, so we only track title
        */
-      const unsavedChangesApi = initializeUnsavedChanges({
+      const stateApi = initializeStateApi({
         uuid,
         parentApi,
         serializeState,
         anyStateChange$: titleManager.anyStateChange$,  // Only emit when title changes
         getComparators: () => titleComparators,
-        onReset: (lastSaved) => {
-          titleManager.reinitializeState(lastSaved?.rawState);
+        // Kibana 9.5: applySerializedState replaced onReset. The parent calls it with the
+        // state snapshot it owns (last saved state on reset), in our serialized format.
+        applySerializedState: (nextState) => {
+          titleManager.reinitializeState(unwrapState(nextState));
         },
       });
 
       /**
        * Build the embeddable API:
-       * - Spread unsavedChangesApi first (provides unsaved changes tracking)
+       * - Spread stateApi first (provides unsaved changes tracking and applySerializedState)
        * - Then spread titleManager.api (provides title/description observables)
        * - Add our custom observables (dataLoading$, blockingError$)
        */
       const api = finalizeApi({
-        ...unsavedChangesApi,
+        ...stateApi,
         ...titleManager.api,
         dataLoading$,
         blockingError$,
