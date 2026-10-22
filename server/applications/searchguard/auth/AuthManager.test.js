@@ -26,7 +26,7 @@ describe('AuthManager', () => {
         kibanaCore: {
             http: {
                 basePath: {
-                    get: () => 'http://mockbasepath'
+                    serverBasePath: 'http://mockbasepath'
                 }
             }
         },
