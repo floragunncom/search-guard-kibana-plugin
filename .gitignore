@@ -54,3 +54,5 @@ jspm_packages
 
 #gitlab-ci-local
 .gitlab-ci-local/
+# pnpm store created by the plugin install inside the Kibana checkout
+.pnpm-store/
