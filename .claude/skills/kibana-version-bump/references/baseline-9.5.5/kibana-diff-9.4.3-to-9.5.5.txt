@@ -1,0 +1,196 @@
+
+##### 1. Toolchain and build tooling #####
+v9.4.3: node=24.14.1  "yarn":"^1.22.19""@moonrepo/cli":"2.1.0","packageManager":"yarn@1.22.21"
+v9.5.5: node=24.21.0  "pnpm":"~12.4.2""@moonrepo/cli":"2.4.6","packageManager":"pnpm@12.4.2"
+  .node-version                    1 file, 1+, 1-
+  package.json                     1 file, 1618+, 1551-
+  pnpm-workspace.yaml              1 file, 1625+
+  .npmrc                           unchanged
+  .moon                            6 files, 39+, 16-
+  packages/kbn-plugin-helpers      12 files, 266+, 23-
+
+##### 2. Kibana plugins we depend on (kibana.json requiredPlugins + optionalPlugins) #####
+  dashboard          src/platform/plugins/shared/dashboard                   whole plugin: 197 files, 9084+, 3061-      contract files: 4 files, 26+, 12-
+      removed/changed lines in the setup/start contract (what we may have relied on):
+        - DashboardCreateRequestBody,
+        - DashboardUpdateRequestBody,
+        - RequestHandlerContext,
+        - setKibanaServices(plugins, this.logger);
+        - scanDashboards: (ctx: RequestHandlerContext, page: number, perPage: number) =>
+        - scanDashboards(ctx, page, perPage, getCachedDashboardStateSchema()),
+        - read: async (requestCtx: RequestHandlerContext, id: string) =>
+        - (await read(requestCtx, getCachedDashboardStateSchema(), id)).body,
+        - read(requestCtx: RequestHandlerContext, id: string): Promise<DashboardReadResponseBody>;
+        - ctx: RequestHandlerContext,
+  embeddable         src/platform/plugins/shared/embeddable                  whole plugin: 75 files, 5838+, 651-        contract files: 3 files, 59+, 14-
+      removed/changed lines in the setup/start contract (what we may have relied on):
+        - uiActions.addTriggerActionAsync(ON_OPEN_PANEL_MENU, OPEN_FLYOUT_ADD_DRILLDOWN, async () => {
+        - const { openCreateDrilldownFlyout } = await import('./async_module');
+        - return openCreateDrilldownFlyout;
+        - });
+        - uiActions.addTriggerActionAsync(ON_OPEN_PANEL_MENU, OPEN_FLYOUT_EDIT_DRILLDOWN, async () => {
+        - const { openManageDrilldownsFlyout } = await import('./async_module');
+        - return openManageDrilldownsFlyout;
+        - });
+  home               src/platform/plugins/shared/home                        whole plugin: 28 files, 926+, 44-          contract files: 1 file, 1+
+      removed/changed lines in the setup/start contract (what we may have relied on):
+  presentationUtil   src/platform/plugins/shared/presentation_util           whole plugin: 19 files, 120+, 212-         contract files: 3 files, 3+, 21-
+      removed/changed lines in the setup/start contract (what we may have relied on):
+        - export type { SaveModalDashboardProps } from './components/types';
+        - LazySavedObjectSaveModalDashboard,
+        - LazySavedObjectSaveModalDashboardWithSaveResult,
+        - export {
+        - PanelPlacementStrategy,
+        - type PanelSettings,
+        - type PanelResizeSettings,
+        - } from './registries/panel_placement';
+        - registerPanelPlacementSettings,
+        - getPanelPlacementSettings,
+        - } from './registries/panel_placement';
+        - registerPanelPlacementSettings,
+  uiActions          src/platform/plugins/shared/ui_actions                  whole plugin: 14 files, 131+, 121-         contract files: 1 file, 2-
+      removed/changed lines in the setup/start contract (what we may have relied on):
+        - | 'addTriggerAction'
+        - | 'registerAction'
+  security           x-pack/platform/plugins/shared/security                 whole plugin: 237 files, 18504+, 5293-     contract files: 3 files, 21+, 8-
+      removed/changed lines in the setup/start contract (what we may have relied on):
+        - private kibanaServerURL?: string;
+        - const { protocol, hostname, port } = core.http.getServerInfo();
+        - const serverBaseUrl = `${protocol}://${hostname}:${port}`;
+        - this.kibanaServerURL = core.http.basePath.publicBaseUrl ?? serverBaseUrl;
+        - kibanaServerURL: this.kibanaServerURL!,
+        - basePath: core.http.basePath,
+  spaces             x-pack/platform/plugins/shared/spaces                   whole plugin: 84 files, 1925+, 338-        contract files: 5 files, 61+, 39-
+      removed/changed lines in the setup/start contract (what we may have relied on):
+        - DEFAULT_SPACE_ID,
+        - export { addSpaceIdToPath, getSpaceIdFromPath } from '@kbn/spaces-utils';
+        - export class SpacesPlugin implements Plugin<SpacesPluginSetup, SpacesPluginStart> {
+        - public start(core: CoreStart) {
+        - export { addSpaceIdToPath } from '../common';
+        - export type { SpacesPluginSetup, SpacesPluginStart } from './plugin';
+        - export interface PluginsSetup {
+        - features: FeaturesPluginSetup;
+        - licensing: LicensingPluginSetup;
+        - usageCollection?: UsageCollectionSetup;
+        - home?: HomeServerPluginSetup;
+        - cloud?: CloudSetup;
+
+##### 3. @kbn packages we import (export presence in v9.4.3 vs v9.5.5; import_check.js is the authoritative runtime check) #####
+  @kbn/charts-theme                             src/platform/packages/shared/kbn-charts-theme                unchanged
+  @kbn/config-schema                            src/platform/packages/shared/kbn-config-schema               8 files, 323+, 2-
+  @kbn/core-doc-links-server-internal           src/core/packages/doc-links/server-internal                  unchanged
+  @kbn/core-http-router-server-internal         src/core/packages/http/router-server-internal                6 files, 164+, 7-
+  @kbn/core-http-server                         src/core/packages/http/server                                8 files, 73+, 13-
+      not found as a direct export in either tag: KibanaResponse  (re-export or type? import_check.js decides)
+  @kbn/i18n                                     src/platform/packages/shared/kbn-i18n                        7 files, 171+, 1-
+  @kbn/i18n-react                               src/platform/packages/shared/kbn-i18n-react                  unchanged
+  @kbn/presentation-publishing                  src/platform/packages/shared/presentation/presentation_publishing 26 files, 866+, 218-
+      REMOVED since v9.4.3: initializeUnsavedChanges
+  @kbn/presentation-util                        src/platform/packages/shared/presentation/presentation_util  6 files, 433+, 20-
+  @kbn/react-kibana-context-theme               src/platform/packages/shared/react/kibana_context/theme      unchanged
+  @kbn/ui-actions-plugin/public                 src/platform/plugins/shared/ui_actions                       14 files, 131+, 121-
+
+##### 4. Core services we call (core.<service>) -> src/core/packages/<service> #####
+  application      src/core/packages/application                 server: unchanged                  browser: 2 files, 2+, 2-
+  capabilities     src/core/packages/capabilities                server: unchanged                  browser: unchanged
+  chrome           src/core/packages/chrome                      server: unchanged                  browser: 27 files, 1270+, 130-
+  config           src/core/packages/config                      server: unchanged                  browser: unchanged
+  elasticsearch    src/core/packages/elasticsearch               server: 6 files, 55+, 58-          browser: unchanged
+  http             src/core/packages/http                        server: 27 files, 686+, 163-       browser: 6 files, 16+, 1-
+  savedObjects     src/core/packages/saved-objects               server: 37 files, 1099+, 206-      browser: unchanged
+  theme            src/core/packages/theme                       server: unchanged                  browser: 4 files, 120+, 8-
+  uiSettings       src/core/packages/ui-settings                 server: 21 files, 1288+, 174-      browser: unchanged
+
+##### 5. New core server routes since v9.4.3 (the anonymous login page may call them; AuthManager must let them through or they must tolerate a 401) #####
+  + path: '/api/saved_objects/{type}/{id?}',
+  + path: '/api/test',
+  + path: '/internal/feature-flags/{flagName}/counter',
+  + path: '/internal/user_storage/{key}',
+  (empty = none)
+
+##### 6. Known hotspots (/work/.claude/skills/kibana-version-bump/references/hotspots.tsv) #####
+  basePath.get implementation (needed a request since 9.5)
+      src/core/packages/http/server-internal/src/base_path_service.ts             1 file, 1+, 17-
+      pattern /public get = \(request/: 1 in v9.4.3, 1 in v9.5.5
+        src/core/packages/http/server-internal/src/base_path_service.ts:27:  public get = (request: KibanaRequest) => {
+  KibanaResponse class export (moved out of @kbn/core-http-server in 9.5)
+      src/core/packages/http/router-server-internal/index.ts                      unchanged
+      pattern /KibanaResponse/: 1 in v9.4.3, 1 in v9.5.5
+        src/core/packages/http/router-server-internal/index.ts:23:export { kibanaResponseFactory, lifecycleResponseFactory, KibanaResponse } from './s
+  Saved object index constants (multitenancy stores tenant docs there)
+      src/core/packages/saved-objects/server/src/saved_objects_index_pattern.ts   unchanged
+      pattern /^export const .*INDEX/: 8 in v9.4.3, 8 in v9.5.5
+        src/core/packages/saved-objects/server/src/saved_objects_index_pattern.ts:17:export const MAIN_SAVED_OBJECT_INDEX = '.kibana';
+        src/core/packages/saved-objects/server/src/saved_objects_index_pattern.ts:18:export const TASK_MANAGER_SAVED_OBJECT_INDEX = `${MAIN_SAVED_OBJE
+        src/core/packages/saved-objects/server/src/saved_objects_index_pattern.ts:19:export const INGEST_SAVED_OBJECT_INDEX = `${MAIN_SAVED_OBJECT_IND
+        src/core/packages/saved-objects/server/src/saved_objects_index_pattern.ts:20:export const ALERTING_CASES_SAVED_OBJECT_INDEX = `${MAIN_SAVED_OB
+        src/core/packages/saved-objects/server/src/saved_objects_index_pattern.ts:21:export const SECURITY_SOLUTION_SAVED_OBJECT_INDEX = `${MAIN_SAVED
+        src/core/packages/saved-objects/server/src/saved_objects_index_pattern.ts:22:export const ANALYTICS_SAVED_OBJECT_INDEX = `${MAIN_SAVED_OBJECT_
+  Saved objects migrator
+      src/core/packages/saved-objects/migration-server-internal/src               45 files, 977+, 5714-
+  Default space document (copied by hand in server/applications/multitenancy/spaces_service.js)
+      x-pack/platform/plugins/shared/spaces/server/default_space/create_default_space.ts 1 file, 1+, 2-
+      pattern /_reserved/: 1 in v9.4.3, 1 in v9.5.5
+        x-pack/platform/plugins/shared/spaces/server/default_space/create_default_space.ts:51:        _reserved: true,
+  Feature flag usage counter route (browser calls it before login, 9.5)
+      src/core/packages/feature-flags/server-internal/src                         4 files, 441+, 21-
+      pattern //internal/feature-flags/: 0 in v9.4.3, 2 in v9.5.5
+        src/core/packages/feature-flags/server-internal/src/feature_flags_service.test.ts:540:          path: '/internal/feature-flags/{flagName}/coun
+        src/core/packages/feature-flags/server-internal/src/feature_flags_service.ts:278:        path: '/internal/feature-flags/{flagName}/counter',
+  Embeddable reference implementation (Watch status widget follows it)
+      examples/embeddable_examples/public/react_embeddables/search                1 file, 13+, 16-
+  Plugin helpers build (installDependencies, serverSourcePatterns)
+      packages/kbn-plugin-helpers/src                                             8 files, 259+, 16-
+      pattern /skipInstallDependencies/: 8 in v9.4.3, 8 in v9.5.5
+        packages/kbn-plugin-helpers/src/config.ts:17:  skipInstallDependencies: boolean;
+        packages/kbn-plugin-helpers/src/config.ts:28:      skipInstallDependencies: boolean;
+        packages/kbn-plugin-helpers/src/config.ts:38:      skipInstallDependencies = false,
+        packages/kbn-plugin-helpers/src/config.ts:44:    if (typeof skipInstallDependencies !== 'boolean') {
+        packages/kbn-plugin-helpers/src/config.ts:45:      throw new TypeError(`expected [skipInstallDependencies] at [${path}] to be a boolean`);
+        packages/kbn-plugin-helpers/src/config.ts:64:      skipInstallDependencies,
+  Status route privilege check (9.5: X-Pack _has_privileges, redacted under Search Guard)
+      src/core/packages/status/server-internal/src/routes/status.ts               1 file, 82+, 9-
+      pattern /hasPrivileges/: 0 in v9.4.3, 1 in v9.5.5
+        src/core/packages/status/server-internal/src/routes/status.ts:92:      await coreContext.elasticsearch.client.asCurrentUser.security.hasPrivil
+
+##### 7. Release notes added between v9.4.3 and v9.5.5 (docs/release-notes in the Kibana repo; the newest minor may still be missing there, then read https://www.elastic.co/docs/release-notes/kibana/{breaking-changes,deprecations,index}) #####
+--- versions whose notes were added:
+  9.4.3   9.4.2   9.4.1   9.4.0   9.3.7   9.3.6   9.3.5   9.3.4 
+--- breaking changes:
+  == 9.4.0 [kibana-9.4.0-breaking-changes]
+  * The `_source` field mode is now saved to the template index settings
+      The index and component template forms in **Index Management** previously saved the `_source` field mode (`stored` and `synthetic`) in the `mappings._source.mode` setting. This path is deprecate
+  * {{esql}} tool parameter types simplified in Agent Builder API
+      The Agent Builder {{esql}} tool API now uses simplified parameter types aligned with {{esql}}'s actual capabilities instead of Elasticsearch field types. The supported `configuration.params[*].t
+--- deprecations:
+  == 9.4.0 [kibana-9.4.0-deprecations]
+  * Direct AI connector step types deprecated in favor of `ai.prompt`
+      All direct AI connector workflow step types (`inference.*`, `bedrock.*`, `gen-ai.*`, `gemini.*`) are now deprecated. These steps are hidden from autocomplete suggestions and the **Add Action** m
+  * Deprecated `state:storeInSessionStorage` advanced setting
+      The artificial URL length limit has been removed from Kibana, and the `state:storeInSessionStorage` advanced setting is now deprecated. This setting was originally provided as a workaround for U
+--- release-note lines touching our area (saved objects, security, session, spaces, basePath, dashboards, embeddable, kibana.yml):
+  * Fixes {{esql}} query escaping in the Dashboard skill's visualization config generation, ensuring patterns such as `GROK` retain the correct escape levels when queries are embedded as JSON [#272493
+  * Fixes dashboard filters not being applied after collapsing a section that was expanded on initial load [#272751]({{kib-pull}}272751).
+  * Fixes dashboards with panel or filter arrays that exceed schema size limits failing to load, by removing the array-size ceiling from internal read requests [#271326]({{kib-pull}}271326).
+  * Improves dashboard load resilience by validating each state key independently, dropping invalid panels, filters, or queries with warnings rather than failing the entire load [#270300]({{kib-pull}}
+  * Increases the maximum number of combined panels, sections, and controls on a dashboard from 100 to 1,000 [#272931]({{kib-pull}}272931).
+  * Disables the experimental **Defer loading panels below "the fold"** dashboard setting (`labs:dashboard:deferBelowFold`) because enabling it can cause some dashboards to fail to load. The option re
+  * Fixes security rule names not displaying in the integration **Assets** accordion [#272089]({{kib-pull}}272089).
+  * Fixes broken asset references in the integration **Assets** tab when an integration is reinstalled or upgraded from a different {{kib}} space [#271800]({{kib-pull}}271800).
+  * Fixes Discover session panels in dashboards failing to load after **Copy to Spaces** or import when the target space already contains remapped sessions [#272610]({{kib-pull}}272610).
+  * Fixes client-side navigation in the content connectors UI to honor `server.basePath` and space URL prefixes, preventing 404s on connector detail tabs and after creation [#269571]({{kib-pull}}26957
+  * Fixes a critical validation failure that occurred when dashboard controls had `null` titles. Control titles are now converted to `undefined` during transforms, allowing validation to pass [#268220
+  * Fixes a regression where the dashboard remained locked in an open-flyout state after closing the {{esql}} control edit flyout when editing an existing query-based control [#267605]({{kib-pull}}267
+  * Agent Builder's default agent is no longer read-only and can now be customized per Kibana space [#256333]({{kib-pull}}256333).
+  * A new Dashboard skill is now available in Agent Builder. This skill allows you to create and update dashboards through natural language [chat](docs-content://explore-analyze/ai-features/agent-buil
+  * New API endpoints are now available in technical preview to manage your dashboards and visualization library. The Dashboards API gives you full read and write access to dashboards, including their
+  * Adds the ability to show and export Dashboard API JSON in a flyout [#255382]({{kib-pull}}255382).
+  * Controls are now available as a panel type, allowing them to be freely placed anywhere in your dashboards [#245588]({{kib-pull}}245588).
+  * Enforces panel limits on dashboards: up to 100 top-level items (panels, unpinned controls, and sections combined), up to 100 panels per section, and up to 100 pinned controls [#256102]({{kib-pull}
+  * Refreshes the Dashboards app menu [#246153]({{kib-pull}}246153).
+  * Adds a **Discover session** panel option to dashboards [#256293]({{kib-pull}}256293).
+  * Editing an unlinked Discover session panel in a dashboard now saves changes back to that panel [#250438]({{kib-pull}}250438).
+  * Filtering a field value in a Discover {{esql}} session embedded in a dashboard now creates a DSL filter, consistent with how filtering works elsewhere [#249357]({{kib-pull}}249357).
+  * Adds a tab selector to Discover session panels in Dashboards, with improved warning messages when a tab or data view can't be retrieved [#252311]({{kib-pull}}252311).
+  * Enables dashboard and URL drilldown for {{esql}} charts [#253223]({{kib-pull}}253223).
+  * Adds a new list legend layout for horizontal legends (top and bottom), offering a more space-efficient alternative to the grid layout. This is now the default for XY charts [#257092]({{kib-pull}}2

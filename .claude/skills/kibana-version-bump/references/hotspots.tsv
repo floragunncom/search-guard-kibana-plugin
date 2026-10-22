@@ -1,0 +1,17 @@
+# Known hotspots for kibana_diff.sh: one per line, TAB separated: label<TAB>path in the Kibana repo<TAB>regex to count in both tags ("-" for none).
+# Add a line whenever a bump teaches us a new place to watch; the breakage history says why each one is here.
+basePath.get implementation (needed a request since 9.5)	src/core/packages/http/server-internal/src/base_path_service.ts	public get = \(request
+KibanaResponse class export (moved out of @kbn/core-http-server in 9.5)	src/core/packages/http/router-server-internal/index.ts	KibanaResponse
+Saved object index constants (multitenancy stores tenant docs there)	src/core/packages/saved-objects/server/src/saved_objects_index_pattern.ts	^export const .*INDEX
+Saved objects migrator	src/core/packages/saved-objects/migration-server-internal/src	-
+Default space document (copied by hand in server/applications/multitenancy/spaces_service.js)	x-pack/platform/plugins/shared/spaces/server/default_space/create_default_space.ts	_reserved
+Feature flag usage counter route (browser calls it before login, 9.5)	src/core/packages/feature-flags/server-internal/src	/internal/feature-flags
+Embeddable reference implementation (Watch status widget follows it)	examples/embeddable_examples/public/react_embeddables/search	-
+Plugin helpers build (installDependencies, serverSourcePatterns)	packages/kbn-plugin-helpers/src	skipInstallDependencies
+Status route privilege check (9.5: X-Pack _has_privileges, redacted under Search Guard)	src/core/packages/status/server-internal/src/routes/status.ts	hasPrivileges
+Embeddable public setup contract (registerReactEmbeddableFactory -> registerEmbeddablePublicDefinition in 9.5)	src/platform/plugins/shared/embeddable/public/plugin.tsx	register(ReactEmbeddableFactory|EmbeddablePublicDefinition)
+Presentation publishing state api (initializeUnsavedChanges -> initializeStateApi in 9.5)	src/platform/packages/shared/presentation/presentation_publishing/index.ts	initialize(UnsavedChanges|StateApi)
+uiActions public entry point (ADD_PANEL_TRIGGER / triggers stopped being re-exported in 9.5; import from common/trigger_ids)	src/platform/plugins/shared/ui_actions/public/index.ts	triggers|ADD_PANEL_TRIGGER
+uiActions service registration methods (registerAction/addTriggerAction removed in 9.5, only the *Async variants remain)	src/platform/plugins/shared/ui_actions/public/service/ui_actions_service.ts	public readonly (registerAction|addTriggerAction) =
+Dashboard "Add panel" flyout (groups the ADD_PANEL_TRIGGER actions; the Watch status action must appear here)	src/platform/plugins/shared/dashboard/public/dashboard_app/top_nav/add_panel_button	getTriggerCompatibleActions
+Login page 401 interceptor: core routes with authc enabled that the anonymous login page calls (feature flag counter in 9.5)	src/core/packages/feature-flags/server-internal/src/feature_flags_service.ts	authc: \{

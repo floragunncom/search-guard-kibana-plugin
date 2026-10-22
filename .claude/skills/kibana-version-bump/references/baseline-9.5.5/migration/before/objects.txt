@@ -1,0 +1,6 @@
+SGS_GLOBAL_TENANT dashboard mig-sgs-global-tenant-1
+SGS_GLOBAL_TENANT dashboard mig-sgs-global-tenant-2
+SGS_GLOBAL_TENANT visualization mig-vis-sgs-global-tenant
+sg_compat_tenant dashboard mig-sg-compat-tenant-1
+sg_compat_tenant dashboard mig-sg-compat-tenant-2
+sg_compat_tenant visualization mig-vis-sg-compat-tenant
