@@ -17,8 +17,7 @@
 
 import { assign } from 'lodash';
 
-import { KibanaResponse } from '@kbn/core-http-server';
-import { ensureRawRequest } from '@kbn/core-http-router-server-internal';
+import { ensureRawRequest, KibanaResponse } from '@kbn/core-http-router-server-internal';
 
 import InvalidSessionError from '../errors/invalid_session_error';
 import SessionExpiredError from '../errors/session_expired_error';

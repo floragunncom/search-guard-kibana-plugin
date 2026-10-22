@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import { KibanaResponse } from '@kbn/core-http-server';
 import { assign } from 'lodash';
 import path from 'path';
-import { ensureRawRequest } from '@kbn/core-http-router-server-internal';
+import { ensureRawRequest, KibanaResponse } from '@kbn/core-http-router-server-internal';
 
 export const AUTH_TYPE_NAMES = {
   BASIC: 'basicauth',
