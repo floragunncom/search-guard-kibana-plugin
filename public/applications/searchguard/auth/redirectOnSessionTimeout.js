@@ -41,7 +41,13 @@ export function redirectOnSessionTimeout(authType, coreHttp) {
 
       // Don't run on login or logout. We shouldn't have any Ajax requests here,
       // but if other plugins are active, we would get a redirect loop.
-      if (path === '/login' || path === '/logout' || path === '/customerror') {
+      // Kibana 9.5 core POSTs /internal/feature-flags/{flag}/counter from the login page too.
+      if (
+        path === '/login' ||
+        path === '/searchguard/login' ||
+        path === '/logout' ||
+        path === '/customerror'
+      ) {
         return;
       }
 
