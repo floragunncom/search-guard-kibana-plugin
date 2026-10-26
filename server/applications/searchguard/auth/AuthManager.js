@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { KibanaResponse } from '@kbn/core-http-server';
+import { KibanaResponse } from '@kbn/core-http-router-server-internal';
 import { assign } from 'lodash';
 import path from 'path';
 import { ensureRawRequest } from '@kbn/core-http-router-server-internal';
