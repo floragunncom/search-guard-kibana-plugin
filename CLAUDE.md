@@ -34,10 +34,11 @@ Run these from **inside the Kibana tree** (`kibana/plugins/search-guard`) after 
 - Bootstrap deps after branch switch: `yarn kbn bootstrap` (use this, not plain `yarn`)
 - Kibana ES version compatibility patch (dev): `yarn patch:kibana:dev:es_compatibility`
 
-Tests are Jest with the `@kbn/test/jest_node` preset. `test:browser` = everything except `server`; `test:server` = everything except `public`. Both clear the jest cache first. CI runs the same two invocations with `JEST_JUNIT_OUTPUT_FILE` set, producing `junit-public.xml` and `junit-server.xml` in the project root.
+Tests are Jest with the `@kbn/test/jest_node` preset. `test:browser` = everything except `server`; `test:server` = everything except `public`. Both clear the jest cache first. CI runs the same two invocations with `JEST_JUNIT_OUTPUT_FILE` set, producing `junit-public.xml` and `junit-server.xml` in the project root. `tests/jest.config.js` defines three projects: `node` (all regular tests), `node-setup` (`server/**/*.setup.test.js`) and `jsdom` (`public/**/*.setup.test.js`, Kibana's browser mocks need a DOM).
 
-**Kibana API breakage is caught by the type check, not by the regular unit tests** (those mock Kibana by hand, so they can only confirm the plugin calls what *we* think Kibana offers):
+**Kibana API breakage is caught by two measures, not by the regular unit tests** (those mock Kibana by hand, so they can only confirm the plugin calls what *we* think Kibana offers):
 - The type check: files that call Kibana APIs directly opt in with a leading `// @ts-check` comment (after the license header) and get a JSDoc annotation naming the Kibana type of the contract they receive, e.g. `/** @param {{ core: import('@kbn/core/server').CoreSetup } & Record<string, any>} deps */`. Everything not named stays `any`. A removed export, a changed arity or a removed method on a Kibana contract then fails `ci/typecheck.sh` (config: `tsconfig.typecheck.json`). Kibana's own sources produce diagnostics when compiled in one program with the plugin's settings; the script ignores those and fails only on plugin files. When you add a file that imports from `@kbn/*`, opt it in.
+- The setup tests (`server/serverPlugin.setup.test.js`, `public/publicPlugin.setup.test.js`) run the plugin's `setup()`/`start()` against the jest mocks Kibana ships for its real contracts (`@kbn/core/server/mocks`, `@kbn/core/public/mocks`, `@kbn/embeddable-plugin/*/mocks`, `@kbn/ui-actions-plugin/public/mocks`). A method Kibana removed is missing from the mock too. Only plugin-internal, backend-bound calls are stubbed there.
 
 ## Architecture
 
