@@ -17,7 +17,7 @@ It must live inside a checked-out Kibana source tree at `plugins/search-guard`, 
 2. Clones the matching Kibana release branch (`v<version>`) into `./kibana/` (cached via `kibana/.cached_version`).
 3. `nvm install` (Node from Kibana's `.nvmrc`), then, if Kibana's `package.json` pins pnpm (`packageManager` since 8.19.23, `engines.pnpm` in 8.19.22), provisions that pnpm via `corepack enable` / `corepack prepare` and exports `COREPACK_ENABLE_STRICT=0`, because since 8.19.23 the `packageManager: pnpm@…` field makes corepack's `yarn` shim refuse to run anywhere inside the Kibana tree (including the plugin's own yarn commands below). Then `pnpm kbn bootstrap` (yarn-based trees: `yarn kbn bootstrap`) in the Kibana repo.
 4. Copies plugin sources (`public/`, `server/`, `common/`, `tests/`, `__mocks__/`, config files incl. `.kibana-plugin-helpers.json`) into `kibana/plugins/search-guard`.
-5. Runs jest, then `yarn build`, installs the plugin's production deps into `build/kibana/searchguard` from the plugin's own `yarn.lock` (plugin-helpers' own install is disabled via `skipInstallDependencies` because since 8.19.22 it would use pnpm and expect a `pnpm-lock.yaml`), and moves the result to `./build/` in the repo root.
+5. Runs `ci/typecheck.sh` and jest, then `yarn build`, installs the plugin's production deps into `build/kibana/searchguard` from the plugin's own `yarn.lock` (plugin-helpers' own install is disabled via `skipInstallDependencies` because since 8.19.22 it would use pnpm and expect a `pnpm-lock.yaml`), and moves the result to `./build/` in the repo root.
 
 Note the folder name inside Kibana is `search-guard` even though the plugin id is `searchguard`.
 
@@ -28,12 +28,16 @@ Run these from **inside the Kibana tree** (`kibana/plugins/search-guard`) after 
 - Build a distributable: `./build.sh` — run from repo root; requires `NVM_DIR` set and `mvn` installed. It clones/bootstraps Kibana as described above and leaves the plugin in `./build/`. (`README.md` and `setup_test_instance.sh` still pass an `install-local` argument; the current `build.sh` ignores all arguments.)
 - Run browser (public) unit tests: `yarn test:browser`
 - Run server unit tests: `yarn test:server`
+- Type check the Kibana boundary files against the Kibana tree: `yarn typecheck` (runs `ci/typecheck.sh`, ~5 s). CI runs it before the unit tests and fails on any error in a plugin file.
 - Run a single test file: `../../node_modules/.bin/jest --config ./tests/jest.config.js <path/to/file.test.js>`
 - Dev server: `yarn start --elasticsearch.hosts http://localhost:9220` — this is Kibana's own script, so run it from the **Kibana root**, not from the plugin dir. The plugin's own `yarn dev` is `plugin-helpers dev`.
 - Bootstrap deps after branch switch: `yarn kbn bootstrap` (use this, not plain `yarn`)
 - Kibana ES version compatibility patch (dev): `yarn patch:kibana:dev:es_compatibility`
 
 Tests are Jest with the `@kbn/test/jest_node` preset. `test:browser` = everything except `server`; `test:server` = everything except `public`. Both clear the jest cache first. CI runs the same two invocations with `JEST_JUNIT_OUTPUT_FILE` set, producing `junit-public.xml` and `junit-server.xml` in the project root.
+
+**Kibana API breakage is caught by the type check, not by the regular unit tests** (those mock Kibana by hand, so they can only confirm the plugin calls what *we* think Kibana offers):
+- The type check: files that call Kibana APIs directly opt in with a leading `// @ts-check` comment (after the license header) and get a JSDoc annotation naming the Kibana type of the contract they receive, e.g. `/** @param {{ core: import('@kbn/core/server').CoreSetup } & Record<string, any>} deps */`. Everything not named stays `any`. A removed export, a changed arity or a removed method on a Kibana contract then fails `ci/typecheck.sh` (config: `tsconfig.typecheck.json`). Kibana's own sources produce diagnostics when compiled in one program with the plugin's settings; the script ignores those and fails only on plugin files. When you add a file that imports from `@kbn/*`, opt it in.
 
 ## Architecture
 

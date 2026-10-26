@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// @ts-check
 import { assign } from 'lodash';
 import { KibanaResponse } from '@kbn/core-http-router-server-internal';
 import {ensureRawRequest} from "@kbn/core-http-router-server-internal";

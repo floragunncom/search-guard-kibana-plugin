@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// @ts-check
 import { schema } from '@kbn/config-schema';
 import { wrapForCustomError } from '../../../utils/wrap_elasticsearch_error';
 

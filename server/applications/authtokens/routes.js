@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// @ts-check
 import { schema } from '@kbn/config-schema';
 import { fetchAllFromScroll, wrapForCustomError } from '../../utils';
 import { API_ROOT } from '../../utils/constants';

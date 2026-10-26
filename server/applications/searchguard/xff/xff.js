@@ -1,3 +1,4 @@
+// @ts-check
 /* eslint-disable @kbn/eslint/require-license-header */
 import { ensureRawRequest } from '@kbn/core-http-router-server-internal';
 
@@ -17,6 +18,7 @@ import { ensureRawRequest } from '@kbn/core-http-router-server-internal';
  limitations under the License.
  */
 
+/** @param {import('@kbn/core/server').CoreSetup} kibanaCore */
 export default function (kibanaCore) {
   kibanaCore.http.registerOnPreAuth(async function (kibanaRequest, response, toolkit) {
     const request = ensureRawRequest(kibanaRequest);

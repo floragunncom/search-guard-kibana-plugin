@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// @ts-check
 import { schema } from '@kbn/config-schema';
 import { serverError } from '../../lib/errors';
 import { BASE_URI, MAX_DOC_COUNT_SEARCH } from '../../../../../common/signals/constants';

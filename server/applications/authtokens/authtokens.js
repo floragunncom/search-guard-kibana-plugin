@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// @ts-check
 import { registerRoutes } from './routes';
 
 export class AuthTokens {
@@ -21,6 +22,7 @@ export class AuthTokens {
     this.logger = coreContext.logger.get('authTokens');
   }
 
+  /** @param {{ core: import('@kbn/core/server').CoreStart, kibanaRouter: import('@kbn/core/server').IRouter }} deps */
   start({ core, kibanaRouter }) {
     this.logger.debug('Start app');
 

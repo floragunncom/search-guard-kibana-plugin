@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// @ts-check
 import { parse } from 'url';
 import { assign } from 'lodash';
 import { ensureRawRequest } from '@kbn/core-http-router-server-internal';
@@ -202,11 +203,7 @@ export class MultitenancyLifecycle {
 
   /**
    * Get and validate the selected tenant.
-   * @param request
-   * @param sessionCookie
-   * @param {string} username
-   * @param {string|null} externalTenant
-   * @param userTenantInfo
+   * @param {{ request: any, sessionCookie: any, username: string, externalTenant: string|null, userTenantInfo: any }} params
    * @returns {Promise<string|null>}
    */
   getSelectedTenant = async ({ request, sessionCookie, username, externalTenant, userTenantInfo }) => {
@@ -251,9 +248,10 @@ export class MultitenancyLifecycle {
   /**
    * Get the auth information needed to make user scoped requests
    * @param request
-   * @returns {Promise<{sessionCookie: {}, authHeaders: *}>}
+   * @returns {Promise<{sessionCookie: any, authHeaders: any}>}
    */
   getSession = async(request) => {
+    /** @type {any} */
     let sessionCookie;
     let authHeaders = request.headers;
     if (this.authManager) {

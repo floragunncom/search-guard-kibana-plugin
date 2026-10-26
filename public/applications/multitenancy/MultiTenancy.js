@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// @ts-check
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { KibanaThemeProvider } from '@kbn/react-kibana-context-theme';
@@ -23,6 +24,7 @@ import { MainContextProvider } from './contexts/MainContextProvider';
 import { TenantsMenu } from './TenantsMenu';
 
 export class MultiTenancy {
+  /** @param {{ core: import('@kbn/core/public').CoreStart, httpClient: any, configService: any }} deps */
   start({ core, httpClient, configService }) {
     const isMTEnabled = configService.get('searchguard.multitenancy.enabled');
     if (!isMTEnabled) return;

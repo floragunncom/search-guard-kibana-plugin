@@ -1,3 +1,4 @@
+// @ts-check
 /* eslint-disable @kbn/eslint/require-license-header */
 import { BehaviorSubject } from 'rxjs';
 
@@ -23,6 +24,7 @@ export class LoginApp {
     };
   }
 
+  /** @param {{ core: import('@kbn/core/public').CoreSetup, httpClient: any, configService: any }} deps */
   setupSync({ core, httpClient, configService }) {
     core.http.anonymousPaths.register('/searchguard/login');
 

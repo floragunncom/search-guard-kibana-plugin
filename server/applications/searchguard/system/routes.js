@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// @ts-check
 import { Readable } from 'stream';
 import { API_ROOT } from '../../../utils/constants';
 import { schema } from '@kbn/config-schema';

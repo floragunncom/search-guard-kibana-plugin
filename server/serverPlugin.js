@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// @ts-check
 /*
  *    Copyright 2020 floragunn GmbH
  *
@@ -93,6 +94,10 @@ export class ServerPlugin {
   1. A method must not return promise.
   2. A method execution time limit is 10 seconds.
   */
+  /**
+   * @param {import('@kbn/core/server').CoreSetup} core
+   * @param {{ embeddable?: import('@kbn/embeddable-plugin/server').EmbeddableSetup } & Record<string, any>} pluginDependencies
+   */
   setup(core, pluginDependencies) {
     process.on('unhandledRejection', (error) => {
       console.error(error); // This prints error with stack included (as for normal errors)
@@ -177,7 +182,8 @@ export class ServerPlugin {
       });
 
       // Helper for the routes
-      core.http.registerRouteHandlerContext('searchGuard', () => {
+      // The context name is a type parameter in Kibana's signature, which JSDoc cannot pass.
+      core.http.registerRouteHandlerContext(/** @type {any} */ ('searchGuard'), () => {
         return {
           sessionStorageFactory,
           authManager,
@@ -206,6 +212,7 @@ export class ServerPlugin {
     })();
   }
 
+  /** @param {import('@kbn/core/server').CoreStart} core */
   start(core) {
     (async () => {
       const configService = await getConfigService({

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// @ts-check
 import { schema } from '@kbn/config-schema';
 import { ServerPlugin } from './serverPlugin';
 import { version as sgVersion } from '../package.json';
@@ -27,7 +28,7 @@ const {
     multitenancy: multitenancyDefaults,
     ...searchguardDefaults
   } = {},
-} = DEFAULT_CONFIG;
+} = /** @type {any} */ (DEFAULT_CONFIG);
 
 // @todo We need to go through all of these and double check the default values, nullable, allow empty string etc.
 export const ConfigSchema = schema.object({

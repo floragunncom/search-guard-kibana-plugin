@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// @ts-check
 import { schema } from '@kbn/config-schema';
 import { sanitizeNextUrl } from '../../sanitize_next_url';
 import { APP_ROOT } from '../../../../../utils/constants';

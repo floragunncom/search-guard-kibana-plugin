@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// @ts-check
 import { schema } from '@kbn/config-schema';
 import { serverError } from '../../lib';
 import {
@@ -113,9 +114,10 @@ export const getAlertsRoute = ({ router, clusterClient, fetchAllFromScroll, logg
               }
             ),
             {
-              defaultValue: {
+              // Not an array on purpose: the backend accepts a single sort object as well.
+              defaultValue: /** @type {any} */ ({
                 [DEFAULT_DATEFIELD]: 'desc',
-              },
+              }),
             }
           ),
         }),

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// @ts-check
 import {
   EuiButton,
   EuiFlexGroup,
@@ -86,13 +87,7 @@ export const watchSelectorOverlay = ({ addPanel, httpClient, stateObservables, c
 
 /**
  * The component that renders the flyout markup
- * @param selectableWatches
- * @param onSearch
- * @param onSetWatch
- * @param onClose
- * @returns {Element}
- * @constructor
- */
+ * @type {(props: { selectableWatches: import('rxjs').BehaviorSubject<any[]>, onSearch: (watchId?: string) => void, onSetWatch: (watchId: string) => void, onClose: () => void }) => React.JSX.Element} */
 export const WatchSelector = ({ selectableWatches, onSearch, onSetWatch, onClose }) => {
   const watches = useStateFromPublishingSubject(selectableWatches);
 

@@ -1,0 +1,34 @@
+{
+  // Type check of the plugin's JavaScript against the Kibana tree it is built in.
+  //
+  // Only files that opt in with a leading `// @ts-check` comment are checked
+  // (checkJs is off). Those are the files that call Kibana APIs directly, so a
+  // removed export, a changed signature or a removed method on a Kibana
+  // contract fails the build instead of surfacing at runtime. Everything the
+  // checked files import is still loaded to supply types, but not checked.
+  //
+  // Run via ci/typecheck.sh (or `yarn typecheck`) from kibana/plugins/search-guard.
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "skipLibCheck": true,
+    // Plain JavaScript: untyped parameters are `any` by design, and
+    // `let x = null` initialisers are everywhere, so strict null checks and
+    // implicit-any checks would only produce noise.
+    "strict": false,
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "outDir": "target/typecheck"
+  },
+  "include": ["server/**/*.js", "public/**/*.js", "common/**/*.js"],
+  "exclude": [
+    "**/*.test.js",
+    "**/__mocks__/**",
+    "node_modules",
+    "build",
+    "public/applications/components/CodeEditor/modes/watch_editor/worker/**"
+  ]
+}

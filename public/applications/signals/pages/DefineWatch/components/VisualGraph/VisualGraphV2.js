@@ -13,6 +13,7 @@
   * limitations under the License.
   */
 
+// @ts-check
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {

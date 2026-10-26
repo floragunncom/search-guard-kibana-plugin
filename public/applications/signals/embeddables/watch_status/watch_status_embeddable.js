@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// @ts-check
 /**
  * Watch Status Embeddable for Kibana 9.5.x
  *

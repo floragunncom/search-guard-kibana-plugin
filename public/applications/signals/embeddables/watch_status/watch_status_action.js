@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// @ts-check
 import { apiCanAddNewPanel } from '@kbn/presentation-publishing';
 import { IncompatibleActionError } from '@kbn/ui-actions-plugin/public';
 import { watchSelectorOverlay } from './watch_selector_overlay';
@@ -48,6 +49,7 @@ const ADD_PANEL_TRIGGER = 'ADD_PANEL_TRIGGER';
  * @param httpClient
  * @param core - core start
  */
+/** @type {(deps: { uiActions: import('@kbn/ui-actions-plugin/public').UiActionsStart, httpClient: any, core: import('@kbn/core/public').CoreStart }) => void} */
 export const registerAddWatchStatusAction = ({ uiActions, httpClient, core }) => {
   uiActions.addTriggerActionAsync(ADD_PANEL_TRIGGER, WATCH_STATUS_ACTION_ID, async () => ({
     id: WATCH_STATUS_ACTION_ID,

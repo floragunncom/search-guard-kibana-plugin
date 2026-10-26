@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// @ts-check
 import { HttpWrapper } from './utils/httpWrapper';
 import { ApiService, ConfigService } from './services';
 import { Signals } from './applications/signals/Signals';
@@ -38,6 +39,10 @@ export class PublicPlugin {
   1. A method must not return promise.
   2. A method execution time limit is 10 seconds.
   */
+  /**
+   * @param {import('@kbn/core/public').CoreSetup} core
+   * @param {{ embeddable?: import('@kbn/embeddable-plugin/public').EmbeddableSetup, uiActions: import('@kbn/ui-actions-plugin/public').UiActionsSetup } & Record<string, any>} plugins
+   */
   setup(core, plugins) {
     this.httpClient = new HttpWrapper(core.http);
     const apiService = new ApiService(this.httpClient);
@@ -78,6 +83,10 @@ export class PublicPlugin {
     }
   }
 
+  /**
+   * @param {import('@kbn/core/public').CoreStart} core
+   * @param {{ uiActions?: import('@kbn/ui-actions-plugin/public').UiActionsStart } & Record<string, any>} plugins
+   */
   start(core, plugins) {
 
     if (plugins.uiActions)  {

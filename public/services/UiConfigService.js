@@ -28,6 +28,7 @@ export const CONFIG_DEFAULTS = {
 };
 
 export class UiConfigService extends ConfigService {
+  /** @param {{ config?: object, uiSettings?: any, coreContext?: any, apiService?: any }} [options] */
   constructor({ config = {}, uiSettings, coreContext, apiService } = {}) {
     super(config);
     this.uiSettings = uiSettings;

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// @ts-check
 import { KibanaResponse } from '@kbn/core-http-router-server-internal';
 import { assign } from 'lodash';
 import path from 'path';
@@ -28,6 +29,7 @@ export const AUTH_TYPE_NAMES = {
 };
 
 export class AuthManager {
+  /** @param {{ kibanaCore: import('@kbn/core/server').CoreSetup } & Record<string, any>} deps */
   constructor({
     kibanaCore,
     sessionStorageFactory,
@@ -62,12 +64,17 @@ export class AuthManager {
   }
 
   registerAuthInstances() {
-    [
+    // Required lazily because the auth types import AUTH_TYPE_NAMES from this module.
+    // Kibana's babel preset (babel-plugin-add-module-exports) makes require() return the
+    // default export itself, which the type checker cannot know.
+    /** @type {any[]} */
+    const authClasses = [
       require('./types/openid/OpenId'),
       require('./types/basicauth/BasicAuth'),
       require('./types/jwt/Jwt'),
       require('./types/saml/Saml'),
-    ].forEach((AuthClass) => {
+    ];
+    authClasses.forEach((AuthClass) => {
       // @todo This needs to respect the order as given by the backend
       const authInstance = new AuthClass({
         kibanaCore: this.kibanaCore,

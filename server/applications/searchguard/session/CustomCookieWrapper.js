@@ -1,7 +1,7 @@
 export function getSessionCookieOptions(configService, basePath) {
   const ttlConfig = configService.get('searchguard.cookie.ttl');
   const ttl = (ttlConfig === 0) ? null : ttlConfig;
-  const options = {
+  const options = /** @type {import('@hapi/statehood').StateOptions<any>} */ ({
     ignoreErrors: true,
     password: configService.get('searchguard.cookie.password'),
     isSecure: configService.get('searchguard.cookie.secure'),
@@ -20,7 +20,7 @@ export function getSessionCookieOptions(configService, basePath) {
     path: basePath || '/',
     // @todo hapi-auth-cookie used to handle this for us
     //keepAlive: (ttl !== null && ttl >= 1) ? true : false,
-  }
+  });
 
   if (configService.get('searchguard.cookie.domain')) {
     options.domain = configService.get('searchguard.cookie.domain');

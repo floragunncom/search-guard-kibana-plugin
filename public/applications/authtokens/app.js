@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// @ts-check
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { HashRouter as Router, Route } from 'react-router-dom';

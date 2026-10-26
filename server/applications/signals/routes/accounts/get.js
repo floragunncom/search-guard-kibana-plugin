@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// @ts-check
 import { schema } from '@kbn/config-schema';
 import { serverError } from '../../lib';
 import { getId } from '../../lib/helpers';

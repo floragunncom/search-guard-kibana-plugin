@@ -16,6 +16,7 @@
     "lint_ts_projects": "node ../../scripts/lint_ts_projects",
     "test:browser": "../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --silent",
     "test:server": "../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=public --config ./tests/jest.config.js --silent",
+    "typecheck": "bash ./ci/typecheck.sh",
     "dev": "yarn plugin-helpers dev"
   },
   "dependencies": {

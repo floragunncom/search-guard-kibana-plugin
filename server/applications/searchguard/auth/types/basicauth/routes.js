@@ -1,3 +1,4 @@
+// @ts-check
 /* eslint-disable @kbn/eslint/require-license-header */
 /**
  *    Copyright 2018 floragunn GmbH

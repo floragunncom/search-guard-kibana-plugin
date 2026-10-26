@@ -1,3 +1,4 @@
+// @ts-check
 /* eslint-disable @kbn/eslint/require-license-header */
 /**
  *    Copyright 2020 floragunn GmbH
@@ -25,6 +26,7 @@ export class Multitenancy {
     this.enabled = true;
   }
 
+  /** @param {{ kibanaCore: import('@kbn/core/server').CoreSetup } & Record<string, any>} deps */
   async setup({
     kibanaRouter,
     authManager,
@@ -91,6 +93,7 @@ export class Multitenancy {
       });
   }
 
+  /** @param {{ core: import('@kbn/core/server').CoreStart } & Record<string, any>} deps */
   async start({ core, searchGuardBackend, configService, kibanaRouter, elasticsearch }) {
     this.logger.debug('Start app');
 

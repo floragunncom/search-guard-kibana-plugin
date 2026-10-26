@@ -28,6 +28,7 @@ export { WATCH_STATUS_EMBEDDABLE_ID };
  * The grouping in the Add Panel flyout
  * @type {[{id: string, getIconType: (function(): string), getDisplayName: (function(): string), order: number}]}
  */
+/** @type {import('@kbn/ui-actions-plugin/public').ActionDefinition['grouping']} */
 export const WATCH_STATUS_ACTION_GROUP = [
   {
     id: 'searchGuard',

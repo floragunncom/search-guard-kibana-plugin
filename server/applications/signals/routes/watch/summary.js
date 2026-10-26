@@ -1,3 +1,4 @@
+// @ts-check
 import {schema} from '@kbn/config-schema';
 import {NO_MULTITENANCY_TENANT, ROUTE_PATH} from "../../../../../common/signals/constants";
 import {serverError} from "../../lib";

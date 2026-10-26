@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
+// @ts-check
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { KibanaThemeProvider } from '@kbn/react-kibana-context-theme';
 import { HeaderUserMenu } from './HeaderUserMenu';
 
 export class HeaderUserMenuApp {
+  /** @param {{ core: import('@kbn/core/public').CoreStart, httpClient: any, configService: any }} deps */
   start({ core, httpClient, configService }) {
     core.chrome.navControls.registerRight({
       order: 5000,

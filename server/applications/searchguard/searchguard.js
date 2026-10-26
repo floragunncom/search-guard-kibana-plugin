@@ -1,3 +1,4 @@
+// @ts-check
 /* eslint-disable @kbn/eslint/require-license-header */
 import { registerRoutes } from './routes';
 import { Kerberos, defineAuthInfoRoutes } from './auth';
@@ -23,6 +24,7 @@ export class SearchGuard {
     this.logger = this.coreContext.logger.get('searchguard');
   }
 
+  /** @param {{ core: import('@kbn/core/server').CoreSetup } & Record<string, any>} deps */
   async setup({
     core,
     pluginDependencies,

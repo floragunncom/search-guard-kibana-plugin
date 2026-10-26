@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// @ts-check
 import {schema} from '@kbn/config-schema';
 import {serverError} from '../../lib/errors';
 import {NO_MULTITENANCY_TENANT, ROUTE_PATH} from '../../../../../common/signals/constants';

@@ -234,6 +234,9 @@ cp -a "../tests"  plugins/search-guard
 cp -a "../__mocks__" plugins/search-guard
 cp -a "../yarn.lock" plugins/search-guard
 cp -a "../.kibana-plugin-helpers.json" plugins/search-guard
+cp -a "../tsconfig.typecheck.json" plugins/search-guard
+mkdir -p plugins/search-guard/ci
+cp -a "../ci/typecheck.sh" plugins/search-guard/ci
 
 
 cd plugins/search-guard
@@ -243,6 +246,14 @@ echo -e "\e[0Ksection_start:`date +%s`:yarn_install[collapsed=true]\r\e[0KDoing 
 yarn install
 
 echo -e "\e[0Ksection_end:`date +%s`:yarn_install\r\e[0K"
+
+# Type check the files that call Kibana APIs directly (opted in with // @ts-check)
+# against this Kibana tree. A removed export, a changed signature or a removed
+# method on a Kibana contract fails here instead of at runtime; the unit tests
+# cannot catch that because they mock Kibana.
+start_section typecheck "Type check against Kibana"
+bash ./ci/typecheck.sh
+end_section typecheck
 
 start_section tests "Unit Tests"
 

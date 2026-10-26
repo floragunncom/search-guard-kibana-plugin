@@ -1,3 +1,4 @@
+// @ts-check
 /* eslint-disable @kbn/eslint/require-license-header */
 import React from 'react';
 import ReactDOM from 'react-dom';

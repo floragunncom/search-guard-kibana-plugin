@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// @ts-check
 import { registerRoutes } from './routes';
 import { getWatchStatusEmbeddableServerDefinition } from './embeddables/watch_status_embeddable_definition';
 import { WATCH_STATUS_EMBEDDABLE_ID } from '../../../common/signals/constants';
@@ -29,6 +30,7 @@ export class Signals {
    * dashboards REST API (/api/dashboards) rejects dashboards containing such panels.
    * The Dashboard UI itself does not need it. `embeddable` is an optional plugin dependency.
    */
+  /** @param {{ embeddable?: import('@kbn/embeddable-plugin/server').EmbeddableSetup }} deps */
   setup({ embeddable }) {
     if (!embeddable) {
       this.logger.warn(
@@ -47,6 +49,7 @@ export class Signals {
     }
   }
 
+  /** @param {{ core: import('@kbn/core/server').CoreStart } & Record<string, any>} deps */
   start({ core, kibanaRouter, searchguardBackendService, configService }) {
     this.logger.debug('Start app');
 

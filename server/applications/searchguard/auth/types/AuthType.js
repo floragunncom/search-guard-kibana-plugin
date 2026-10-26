@@ -1,3 +1,4 @@
+// @ts-check
 /* eslint-disable @kbn/eslint/require-license-header */
 /**
  *    Copyright 2018 floragunn GmbH
@@ -28,6 +29,7 @@ import path from 'path';
 import {GLOBAL_TENANT_NAME} from "../../../../../common/multitenancy";
 
 export default class AuthType {
+  /** @param {{ kibanaCore: import('@kbn/core/server').CoreSetup } & Record<string, any>} deps */
   constructor({
     searchGuardBackend,
     kibanaCore,
