@@ -161,7 +161,7 @@ class VisualGraphV2WithThemeInjected extends Component {
                 theme={{
                   lineSeriesStyle: {
                     point: {
-                      visible: true,
+                      visible: 'always',
                       radius: 3,
                     },
                   },

@@ -20,7 +20,7 @@ import { KibanaThemeProvider } from '@kbn/react-kibana-context-theme';
 import { HeaderUserMenu } from './HeaderUserMenu';
 
 export class HeaderUserMenuApp {
-  start({ core, httpClient, configService } = {}) {
+  start({ core, httpClient, configService }) {
     core.chrome.navControls.registerRight({
       order: 5000,
       mount: (element) => {

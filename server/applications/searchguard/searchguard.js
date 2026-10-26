@@ -15,6 +15,7 @@ import { ensureRawRequest } from '@kbn/core-http-router-server-internal';
 
 import Statehood from '@hapi/statehood';
 import {CustomCookieWrapper, getSessionCookieOptions} from "./session/CustomCookieWrapper";
+import enableXff from './xff/xff';
 
 export class SearchGuard {
   constructor(coreContext) {
@@ -142,7 +143,7 @@ export class SearchGuard {
 
       // @todo TEST
       if (configService.get('searchguard.xff.enabled')) {
-        require('./xff/xff')(core);
+        enableXff(core);
         this.logger.info('Search Guard XFF enabled.');
       }
 

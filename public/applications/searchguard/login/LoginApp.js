@@ -1,6 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { BehaviorSubject } from 'rxjs';
-import { AppNavLinkStatus } from '../../../../../../src/core/public';
 
 export class LoginApp {
   constructor(coreContext) {
@@ -34,7 +33,7 @@ export class LoginApp {
       appRoute: '/searchguard/login',
       euiIconType: 'user',
       updater$: this.appUpdater,
-      mount: this.mount({ core, configService, httpClient }),
+      mount: this.mount({ configService, httpClient }),
     });
   }
 

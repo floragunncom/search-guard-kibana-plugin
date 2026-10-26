@@ -30,7 +30,7 @@ export class PublicPlugin {
     this.signalsApp = new Signals();
     this.searchGuardApp = new SearchGuard(this.initializerContext);
     this.authTokensApp = new AuthTokens(this.initializerContext);
-    this.multiTenancyApp = new MultiTenancy(this.initializerContext);
+    this.multiTenancyApp = new MultiTenancy();
   }
 
   /*
@@ -106,7 +106,6 @@ export class PublicPlugin {
       });
 
       this.authTokensApp.start({
-        configService: this.configService,
         configService: this.configService,
       });
 

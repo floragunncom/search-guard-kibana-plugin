@@ -23,7 +23,7 @@ import { MainContextProvider } from './contexts/MainContextProvider';
 import { TenantsMenu } from './TenantsMenu';
 
 export class MultiTenancy {
-  start({ core, httpClient, configService } = {}) {
+  start({ core, httpClient, configService }) {
     const isMTEnabled = configService.get('searchguard.multitenancy.enabled');
     if (!isMTEnabled) return;
 

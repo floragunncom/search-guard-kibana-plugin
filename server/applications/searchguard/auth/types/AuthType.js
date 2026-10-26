@@ -161,7 +161,8 @@ export default class AuthType {
     return null;
   }
 
-  async getRedirectTargetForUnauthenticated() {
+  // eslint-disable-next-line no-unused-vars
+  async getRedirectTargetForUnauthenticated(request, error = null, isAJAX = false, sessionCookie = {}) {
     throw new Error(
       'The getRedirectTargetForUnauthenticated method must be implemented by the sub class'
     );
@@ -376,8 +377,9 @@ export default class AuthType {
   /**
    * If a session auth cookie exists, the sessionValidator is called to validate the content.
    * If the cookie isn't valid, an error will be thrown
-   * @param server
-   * @returns {validate}
+   * @param request
+   * @param sessionCookie
+   * @returns {Promise<*>}
    */
   async validateSessionCookie(request, sessionCookie) {
     if (sessionCookie.authType !== this.type) {
@@ -479,9 +481,9 @@ export default class AuthType {
   /**
    * Tries to authenticate a user. If multitenancy is enabled, we also try to validate that the
    * user has at least one valid tenant
-   * @param {object} request
-   * @param {object} headers
+   * @param {import('@kbn/core/server').KibanaRequest} request
    * @param {object} credentials
+   * @param {object} options
    * @returns {Promise<*>}
    */
   async handleAuthenticate(request, credentials, options = {}) {
@@ -504,7 +506,7 @@ export default class AuthType {
    * Normalized response after an authentication
    * @param credentials
    * @param authResponse
-   * @returns {*}
+   * @returns {Promise<*>}
    * @private
    */
   async _handleAuthResponse(request, credentials, authResponse, additionalAuthHeaders = {}) {

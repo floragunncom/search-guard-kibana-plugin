@@ -69,9 +69,7 @@ export const watchSelectorOverlay = ({ addPanel, httpClient, stateObservables, c
       // Return the React component
       return (
         <WatchSelector
-          watchService={watchService}
           selectableWatches={selectableWatches$}
-          stateObservables={stateObservables}
           onSearch={(watchId) => {
             loadWatches(watchId);
           }}

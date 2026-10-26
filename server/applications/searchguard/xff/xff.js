@@ -18,13 +18,13 @@ import { ensureRawRequest } from '@kbn/core-http-router-server-internal';
  */
 
 export default function (kibanaCore) {
-  kibanaCore.http.registerOnPreAuth(async function (request, response, toolkit) {
-    request = ensureRawRequest(request);
+  kibanaCore.http.registerOnPreAuth(async function (kibanaRequest, response, toolkit) {
+    const request = ensureRawRequest(kibanaRequest);
     request.headers['x-forwarded-for'] =
       (request.headers['x-forwarded-for'] ? request.headers['x-forwarded-for'] + ',' : '') +
       request.info.remoteAddress;
     request.headers['x-forwarded-port'] =
-      request.headers['x-forwarded-port'] || request.info.remotePort;
+      request.headers['x-forwarded-port'] || String(request.info.remotePort);
     request.headers['x-forwarded-proto'] =
       request.headers['x-forwarded-proto'] || request.server.info.protocol;
     request.headers['x-forwarded-host'] = request.headers['x-forwarded-host'] || request.info.host;
