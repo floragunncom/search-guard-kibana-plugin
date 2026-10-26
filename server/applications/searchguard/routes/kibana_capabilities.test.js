@@ -15,17 +15,13 @@
  */
 
 import { handleKibanaCapabilities } from './kibana_capabilities';
-import { setupHttpResponseMock } from '../../../utils/mocks';
+import { setupContextMock, setupHttpResponseMock, setupKibanaRequestMock } from '../../../utils/mocks';
 
 test('handleKibanaCapabilities', () => {
   const response = setupHttpResponseMock();
-  const request = {
-    body: {
-      applications: ['a', 'b', 'c'],
-    },
-  };
+  const request = setupKibanaRequestMock({ body: { applications: ['a', 'b', 'c'] } });
 
-  handleKibanaCapabilities()(null, request, response);
+  handleKibanaCapabilities()(setupContextMock(), request, response);
   expect(response.ok).toHaveBeenCalledWith({
     body: {
       a: {},

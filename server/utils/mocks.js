@@ -15,6 +15,20 @@
  */
 
 /* global jest */
+import {
+  coreMock,
+  elasticsearchServiceMock,
+  httpServerMock,
+  httpServiceMock,
+  loggingSystemMock,
+  savedObjectsServiceMock,
+} from '@kbn/core/server/mocks';
+
+// The Kibana facing helpers below wrap the jest mocks Kibana ships for its real
+// contracts (@kbn/core/server/mocks). A method Kibana removed is missing from
+// the mock too, so a test calling it fails here instead of at runtime. The
+// Search Guard facing helpers (backend, config, session storage, auth
+// instance) stay hand-written: they mock our own code.
 
 export function getCookieExpiryTimeMS(expireInDaysFromNow = 0) {
   const today = new Date();
@@ -25,12 +39,6 @@ export function getCookieExpiryTimeMS(expireInDaysFromNow = 0) {
 
 export function getCookieExpiryTimeS(...props) {
   return Math.floor(getCookieExpiryTimeMS(...props) / 1000);
-}
-
-export function setupHttpRouterMock({ ensureRawRequest = () => jest.fn() } = {}) {
-  return {
-    ensureRawRequest,
-  };
 }
 
 export function setupSearchGuardBackendMock({
@@ -65,20 +73,18 @@ export function setupSearchGuardBackendMock({
   };
 }
 
-export function setupKibanaCoreMock({
-  basePath = '/abc',
-  registerOnPreResponse = jest.fn(),
-  getServerInfo = jest.fn(),
-} = {}) {
-  return {
-    http: {
-      getServerInfo,
-      basePath: {
-        get: jest.fn(() => basePath),
-      },
-      registerOnPreResponse,
-    },
-  };
+/** Kibana's CoreSetup mock; pass overrides for the few things a test cares about. */
+export function setupKibanaCoreMock({ serverBasePath } = {}) {
+  const core = coreMock.createSetup();
+  if (serverBasePath !== undefined) {
+    core.http.basePath.serverBasePath = serverBasePath;
+  }
+  return core;
+}
+
+/** A KibanaRequest as Kibana's router builds it: `{ headers, path, params, query, body, routeAuthRequired }`. */
+export function setupKibanaRequestMock(options = {}) {
+  return httpServerMock.createKibanaRequest(options);
 }
 
 export function setupConfigMock({ get = jest.fn() } = {}) {
@@ -87,18 +93,8 @@ export function setupConfigMock({ get = jest.fn() } = {}) {
   };
 }
 
-export function setupLoggerMock({
-  info = jest.fn(),
-  error = jest.fn(),
-  warn = jest.fn(),
-  debug = jest.fn(),
-} = {}) {
-  return {
-    error,
-    info,
-    warn,
-    debug,
-  };
+export function setupLoggerMock(overrides = {}) {
+  return Object.assign(loggingSystemMock.createLogger(), overrides);
 }
 
 export function setupSessionStorageFactoryMock({ asScoped = jest.fn() } = {}) {
@@ -119,58 +115,21 @@ export function setupTypeRegistryMock({
   };
 }
 
-export function setupSavedObjectsMock({
-  getScopedClient = jest.fn(),
-  createInternalRepository = jest.fn(),
-  createScopedRepository= jest.fn(),
-  createSerializer = jest.fn(),
-  createExporter = jest.fn(),
-  createImporter= jest.fn(),
-  getTypeRegistry= setupTypeRegistryMock,
-} = {}) {
-  return {
-    getScopedClient,
-    createInternalRepository,
-    createScopedRepository,
-    createSerializer,
-    createExporter,
-    createImporter,
-    getTypeRegistry,
-  };
+export function setupSavedObjectsMock(overrides = {}) {
+  return Object.assign(savedObjectsServiceMock.createStartContract(), overrides);
 }
 
-export function setupHttpResponseMock({
-  ok = jest.fn(),
-  redirected = jest.fn(),
-  unauthorized = jest.fn(),
-  notFound = jest.fn(),
-  internalError = jest.fn(),
-  renderAnonymousCoreApp = jest.fn(),
-  customError = jest.fn(),
-  badRequest = jest.fn(),
-} = {}) {
-  return {
-    ok,
-    redirected,
-    unauthorized,
-    notFound,
-    internalError,
-    renderAnonymousCoreApp,
-    customError,
-    badRequest,
-  };
+/** Kibana's KibanaResponseFactory mock. Note: there is no `internalError`, use `customError`. */
+export function setupHttpResponseMock(overrides = {}) {
+  return Object.assign(httpServerMock.createResponseFactory(), overrides);
 }
 
-export function setupHttpToolkitMock({
-  next = jest.fn(),
-  notHandled = jest.fn(),
-  authenticated = jest.fn(),
-} = {}) {
-  return {
-    next,
-    notHandled,
-    authenticated,
-  };
+/** The toolkit of an onPreAuth / auth lifecycle handler. */
+export function setupHttpToolkitMock(overrides = {}) {
+  return Object.assign(
+    { ...httpServiceMock.createOnPreAuthToolkit(), ...httpServiceMock.createAuthToolkit() },
+    overrides
+  );
 }
 
 export function setupAuthInstanceMock({
@@ -187,14 +146,20 @@ export function setupAuthInstanceMock({
   };
 }
 
+/** The request handler context Kibana passes to route handlers. */
 export function setupContextMock() {
-  return jest.fn();
+  return coreMock.createCustomRequestHandlerContext({ core: coreMock.createRequestHandlerContext() });
 }
 
 export function setupDebugLogMock() {
   return jest.fn();
 }
 
+/**
+ * Kibana's IClusterClient mock. The functions a test passes in are installed as
+ * the implementation of the corresponding client method, so the test can keep
+ * asserting on its own jest.fn().
+ */
 export function setupClusterClientMock({
   asCurrentUserTransportRequest = jest.fn(),
   asCurrentUserScroll = jest.fn(),
@@ -204,25 +169,17 @@ export function setupClusterClientMock({
   asCurrentUserCatIndices = jest.fn(),
   asCurrentUserIndicesGetMapping = jest.fn(),
 } = {}) {
-  return {
-    asScoped: jest.fn(() => {
-      return {
-        asCurrentUser: {
-          transport: { request: asCurrentUserTransportRequest },
-          scroll: asCurrentUserScroll,
-          search: asCurrentUserSearch,
-          delete: asCurrentUserDelete,
-          cat: {
-            aliases: asCurrentUserCatAliases,
-            indices: asCurrentUserCatIndices,
-          },
-          indices: {
-            getMapping: asCurrentUserIndicesGetMapping,
-          },
-        },
-      };
-    }),
-  };
+  const clusterClient = elasticsearchServiceMock.createClusterClient();
+  const { asCurrentUser } = clusterClient.asScoped();
+  clusterClient.asScoped.mockClear();
+  asCurrentUser.transport.request.mockImplementation(asCurrentUserTransportRequest);
+  asCurrentUser.scroll.mockImplementation(asCurrentUserScroll);
+  asCurrentUser.search.mockImplementation(asCurrentUserSearch);
+  asCurrentUser.delete.mockImplementation(asCurrentUserDelete);
+  asCurrentUser.cat.aliases.mockImplementation(asCurrentUserCatAliases);
+  asCurrentUser.cat.indices.mockImplementation(asCurrentUserCatIndices);
+  asCurrentUser.indices.getMapping.mockImplementation(asCurrentUserIndicesGetMapping);
+  return clusterClient;
 }
 
 export function setupFetchAllFromScrollMock(mockFn = jest.fn()) {

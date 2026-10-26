@@ -1,4 +1,11 @@
 import { AuthManager } from "./AuthManager";
+import {
+    setupKibanaCoreMock,
+    setupKibanaRequestMock,
+    setupHttpResponseMock,
+    setupHttpToolkitMock,
+    setupLoggerMock,
+} from "../../../utils/mocks";
 
 describe('AuthManager', () => {
     let authManager;
@@ -23,20 +30,12 @@ describe('AuthManager', () => {
     };
 
     const mockConfig = {
-        kibanaCore: {
-            http: {
-                basePath: {
-                    serverBasePath: '/mockbasepath'
-                }
-            }
-        },
+        kibanaCore: setupKibanaCoreMock({ serverBasePath: '/mockbasepath' }),
         sessionStorageFactory: {
             asScoped: () => sessionMock
         },
         pluginDependencies: {},
-        logger: {
-            info: jest.fn()
-        },
+        logger: setupLoggerMock(),
         searchGuardBackend: {
             getAuthConfig: jest.fn()
         },
@@ -58,15 +57,9 @@ describe('AuthManager', () => {
 
     describe("checkAuth()", () => {
         it('should detect an authenticated user if Authorization header is present', async () => {
-            const request = {
-                headers: {
-                    authorization: "Bearer token"
-                },
-            };
+            const request = setupKibanaRequestMock({ headers: { authorization: "Bearer token" } });
 
-            const toolkit = {
-                next: jest.fn(),
-            }
+            const toolkit = setupHttpToolkitMock();
 
 
             await authManager.checkAuth(request, {}, toolkit);
@@ -75,16 +68,9 @@ describe('AuthManager', () => {
         });
 
         it('should pass request as authenticated if the route does not require authentication', async () => {
-            const request = {
-                headers: {},
-                url: {
-                    pathname: unauthenticatedRoutes[0]
-                }
-            };
+            const request = setupKibanaRequestMock({ path: unauthenticatedRoutes[0] });
 
-            const toolkit = {
-                next: jest.fn(),
-            }
+            const toolkit = setupHttpToolkitMock();
 
             await authManager.checkAuth(request, {}, toolkit);
 
@@ -102,14 +88,9 @@ describe('AuthManager', () => {
 
             authManager.registerAuthInstance('mock', mockAuthTypeDetectedByRequest);
 
-            const request = {
-                headers: {},
-                url: {
-                    pathname: ""
-                }
-            };
+            const request = setupKibanaRequestMock({ path: '/' });
 
-            await authManager.checkAuth(request, {}, {});
+            await authManager.checkAuth(request, setupHttpResponseMock(), setupHttpToolkitMock());
 
             expect(mockAuthTypeDetectedByRequest.checkAuth).toBeCalled()
         });
@@ -123,16 +104,11 @@ describe('AuthManager', () => {
 
             authManager.registerAuthInstance('mockCookie', mockAuthTypeDetectedByCookie);
 
-            const request = {
-                headers: {},
-                url: {
-                    pathname: ""
-                }
-            };
+            const request = setupKibanaRequestMock({ path: '/' });
 
             sessionMock.get.mockImplementation(() => ({ authType: 'mockCookie' }));
 
-            await authManager.checkAuth(request, {}, {});
+            await authManager.checkAuth(request, setupHttpResponseMock(), setupHttpToolkitMock());
 
             expect(mockAuthTypeDetectedByCookie.checkAuth).toBeCalled();
 
@@ -146,16 +122,9 @@ describe('AuthManager', () => {
                 }
             });
 
-            const request = {
-                headers: {},
-                url: {
-                    pathname: "",
-                }
-            };
+            const request = setupKibanaRequestMock({ path: '/' });
 
-            const toolkit = {
-                next: jest.fn()
-            };
+            const toolkit = setupHttpToolkitMock();
 
             await authManager.checkAuth(request, {}, toolkit);
 
@@ -184,19 +153,11 @@ describe('AuthManager', () => {
 
             mockConfig.searchGuardBackend.getAuthConfig.mockImplementationOnce(() => mockAuthConfig);
 
-            const request = {
-                headers: {},
-                url: {
-                    pathname: "",
-                    search: "nextUrl"
-                }
-            };
+            const request = setupKibanaRequestMock({ path: '/', query: { nextUrl: '/app/home' } });
 
-            const response = {
-                redirected: jest.fn()
-            };
+            const response = setupHttpResponseMock();
 
-            await authManager.checkAuth(request, response, {});
+            await authManager.checkAuth(request, response, setupHttpToolkitMock());
 
             expect(response.redirected).toBeCalledWith({
                 headers: {
@@ -236,19 +197,11 @@ describe('AuthManager', () => {
 
             mockConfig.searchGuardBackend.getAuthConfig.mockImplementationOnce(() => mockAuthConfig);
 
-            const request = {
-                headers: {},
-                url: {
-                    pathname: "",
-                    search: "nextUrl"
-                }
-            };
+            const request = setupKibanaRequestMock({ path: '/', query: { nextUrl: '/app/home' } });
 
-            const response = {
-                redirected: jest.fn()
-            };
+            const response = setupHttpResponseMock();
 
-            await authManager.checkAuth(request, response, {});
+            await authManager.checkAuth(request, response, setupHttpToolkitMock());
 
             expect(response.redirected).toBeCalledWith({
                 headers: {
