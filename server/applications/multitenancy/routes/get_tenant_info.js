@@ -25,7 +25,7 @@ export const getTenantInfo = ({ searchGuardBackend, logger }) => async (
     return response.ok({ body: await searchGuardBackend.getUserTenantInfo(request.headers) });
   } catch (error) {
     logger.error(`getTenantInfo: ${error.stack}`);
-    return response.internalError({ body: error });
+    return response.customError({ statusCode: 500, body: error });
   }
 };
 

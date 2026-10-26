@@ -49,7 +49,7 @@ export function handleKibanaConfig({ config, logger }) {
       return response.ok({ body: kibanaConfig });
     } catch (error) {
       logger.error(error);
-      return response.internalError({ body: error });
+      return response.customError({ statusCode: 500, body: error });
     }
   };
 }

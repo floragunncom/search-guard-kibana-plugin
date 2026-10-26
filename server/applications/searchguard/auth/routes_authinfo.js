@@ -26,7 +26,7 @@ export function authInfoHandler({ searchGuardBackend, logger }) {
       return response.ok({ body });
     } catch (error) {
       logger.error(`authInfoHandler: ${error.stack}`);
-      return response.internalError({ body: error });
+      return response.customError({ statusCode: 500, body: error });
     }
   };
 }

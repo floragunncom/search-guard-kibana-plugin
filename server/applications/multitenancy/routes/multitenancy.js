@@ -68,7 +68,7 @@ export function multitenancyRoutes({
 
         return response.ok({ body: selectedTenant });
       } catch (error) {
-        return response.internalError({ body: error });
+        return response.customError({ statusCode: 500, body: error });
       }
     }
   );
@@ -98,7 +98,7 @@ export function multitenancyRoutes({
 
         return response.ok({ body: selectedTenant });
       } catch (error) {
-        return response.internalError({ body: error });
+        return response.customError({ statusCode: 500, body: error });
       }
 
       return response.notFound();

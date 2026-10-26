@@ -32,7 +32,7 @@ export function systemInfoHandler({ searchGuardBackend, logger }) {
       });
     } catch (error) {
       logger.error(`systemInfoHandler: ${error.stack}`);
-      return response.internalError({ body: error });
+      return response.customError({ statusCode: 500, body: error });
     }
   };
 }
@@ -70,7 +70,7 @@ export function licenseHandler({ searchGuardBackend, logger }) {
         });
       }
 
-      return response.internalError({ body: error });
+      return response.customError({ statusCode: 500, body: error });
     }
   };
 }
@@ -139,7 +139,7 @@ export function importTemplateHandler({ searchGuardBackend, logger }) {
       });
     } catch (error) {
       logger.error(`importTemplateHandler: ${error.stack}`);
-      return response.internalError({ body: error });
+      return response.customError({ statusCode: 500, body: error });
     }
   };
 }
