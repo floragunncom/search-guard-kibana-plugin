@@ -21,19 +21,13 @@ export function defineMultitenancyRoutes({
   router,
   searchGuardBackend,
   config,
-  sessionStorageFactory,
   logger,
-  clusterClient,
-  tenantService,
 }) {
   multitenancyRoutes({
     router,
     searchGuardBackend,
     config,
-    sessionStorageFactory,
     logger,
-    clusterClient,
-    tenantService,
   });
 
   getTenantInfoRoute({ searchGuardBackend, logger, router });

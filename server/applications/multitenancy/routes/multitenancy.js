@@ -24,7 +24,6 @@ export function multitenancyRoutes({
   router,
   searchGuardBackend,
   config,
-  sessionStorageFactory,
   logger,
 }) {
 
@@ -54,6 +53,7 @@ export function multitenancyRoutes({
         }
         const selectedTenant = request.body.tenant;
 
+        const { sessionStorageFactory } = (await context.resolve(['searchGuard'])).searchGuard;
         const cookie = (await sessionStorageFactory.asScoped(request).get()) || {};
         cookie.tenant = selectedTenant;
         sessionStorageFactory.asScoped(request).set(cookie);
@@ -85,8 +85,7 @@ export function multitenancyRoutes({
         }
 
         let selectedTenant = undefined;
-        const resolvedContext = await context.resolve(['searchGuard']);
-        sessionStorageFactory = await resolvedContext.searchGuard.sessionStorageFactory;
+        const { sessionStorageFactory } = (await context.resolve(['searchGuard'])).searchGuard;
         const cookie = await sessionStorageFactory.asScoped(request).get();
         if (cookie) {
           selectedTenant = cookie.tenant;
@@ -98,7 +97,7 @@ export function multitenancyRoutes({
 
         return response.ok({ body: selectedTenant });
       } catch (error) {
-
+        return response.internalError({ body: error });
       }
 
       return response.notFound();

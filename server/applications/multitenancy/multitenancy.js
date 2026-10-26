@@ -91,16 +91,14 @@ export class Multitenancy {
       });
   }
 
-  async start({ core, searchGuardBackend, configService, kibanaRouter, elasticsearch, sessionStorageFactory }) {
+  async start({ core, searchGuardBackend, configService, kibanaRouter, elasticsearch }) {
     this.logger.debug('Start app');
 
     defineMultitenancyRoutes({
       router: kibanaRouter,
       searchGuardBackend,
       config: configService,
-      sessionStorageFactory, // TODO or take this from the route context?
       logger: this.logger,
-      clusterClient: elasticsearch.client,
     });
 
     this.syncMultiTenancyEnabled(searchGuardBackend, configService);
