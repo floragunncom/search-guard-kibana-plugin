@@ -17,7 +17,6 @@ import { get } from 'lodash';
 import { isAuthorized } from '../../../utils';
 
 const wrappedClusterClients = new WeakSet();
-const wrappedScopedClients = new WeakSet();
 
 
 
@@ -127,24 +126,16 @@ export function registerRootScopedClientRequestWrapper({
     return;
   }
 
-  const originalAsScoped = clusterClient.asScoped.bind(clusterClient);
+  // Every asCurrentUser client is a child of Kibana's single root-scoped client, and
+  // children share the parent's diagnostic emitter, so one listener on that emitter
+  // sees every scoped request. Register it once here, never per asScoped() call:
+  // each call would add another listener to the shared emitter, and all of them run
+  // on every scoped ES request.
+  const { diagnostic } = clusterClient.asScoped({ headers: {} }).asCurrentUser;
+  if (!diagnostic || typeof diagnostic.on !== 'function') {
+    return;
+  }
 
-  clusterClient.asScoped = function wrappedAsScoped(request) {
-    const scopedClusterClient = originalAsScoped(request);
-    const scopedEsClient = scopedClusterClient && scopedClusterClient.asCurrentUser;
-
-    if (
-      scopedEsClient &&
-      scopedEsClient.diagnostic &&
-      typeof scopedEsClient.diagnostic.on === 'function' &&
-      !wrappedScopedClients.has(scopedEsClient)
-    ) {
-      scopedEsClient.diagnostic.on('request', requestWrapper);
-      wrappedScopedClients.add(scopedEsClient);
-    }
-
-    return scopedClusterClient;
-  };
-
+  diagnostic.on('request', requestWrapper);
   wrappedClusterClients.add(clusterClient);
 }
