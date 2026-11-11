@@ -36,6 +36,14 @@ if ! git show-ref --verify --quiet refs/heads/main; then
    git update-ref refs/heads/main HEAD
 fi
 
+# Hide GitLab from moon for the rest of this script. In MR pipelines moon sees
+# GITLAB_CI and diffs against CI_MERGE_REQUEST_TARGET_BRANCH_NAME, a branch of
+# this plugin repo that does not exist in the shallow Kibana clone ("ambiguous
+# argument 'sg-flx-4.1.x-es-9.4.x'"). moon runs from both `yarn kbn bootstrap`
+# and `yarn build` (via `kbn build-shared`), so unset it before either. CI=true
+# stays set. Same fix as 6342a335 and 14ff75ca on sg-flx-4.2.x-es-9.5.x.
+unset GITLAB_CI
+
 echo -e "\e[0Ksection_start:`date +%s`:patch_kbn_optimizer[collapsed=true]\r\e[0KPatch kbn optimizer"
 
 sed -i "/observeLines(proc.stderr\!).pipe(Rx.map((line) => ({ type: 'stderr', data: line }))),/s/^/\/\//" packages/kbn-plugin-helpers/src/tasks/optimize.ts
