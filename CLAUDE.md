@@ -33,7 +33,7 @@ Run these from **inside the Kibana tree** (`kibana/plugins/search-guard`) after 
 - Bootstrap deps after branch switch: `yarn kbn bootstrap` (use this, not plain `yarn`)
 - Kibana ES version compatibility patch (dev): `yarn patch:kibana:dev:es_compatibility`
 
-Tests are Jest with the `@kbn/test/jest_node` preset. `test:browser` = everything except `server`; `test:server` = everything except `public`. Both clear the jest cache first. CI runs the same two invocations with `JEST_JUNIT_OUTPUT_FILE` set, producing `junit-public.xml` and `junit-server.xml` in the project root.
+Tests are Jest with the `@kbn/jest/jest_node` preset (`@kbn/test/jest_node` before Kibana 8.19.25). `test:browser` = everything except `server`; `test:server` = everything except `public`. Both clear the jest cache first. CI runs the same two invocations with `JEST_JUNIT_OUTPUT_FILE` set, producing `junit-public.xml` and `junit-server.xml` in the project root.
 
 ## Architecture
 

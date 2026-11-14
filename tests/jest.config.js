@@ -1,6 +1,6 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 module.exports = {
-  preset: '@kbn/test/jest_node',
+  preset: '@kbn/jest/jest_node',
   rootDir: '../../..',
   roots: ['<rootDir>/plugins/search-guard'],
   moduleNameMapper: {
