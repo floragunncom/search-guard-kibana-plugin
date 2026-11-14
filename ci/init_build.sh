@@ -263,6 +263,16 @@ start_section yarn_build "Doing yarn build -v $SF_VERSION --skip-archive"
 
 yarn build -v $SF_VERSION --skip-archive
 
+# plugin-helpers only log "Optimizer failure: ..." when webpack cannot compile the
+# browser bundle and still exit 0, leaving target/public empty. Such a plugin
+# installs fine but has no UI at all (seen with Kibana 9.5.6, which moved
+# src/core/public and broke a relative import of it). Fail the build instead of
+# publishing a plugin without its bundle.
+if [[ ! -s build/kibana/searchguard/target/public/searchguard.plugin.js ]]; then
+   echo "ERROR: build/kibana/searchguard/target/public/searchguard.plugin.js is missing: the optimizer failed, see 'Optimizer failure' above"
+   exit 1
+fi
+
 # Since Kibana 8.19.22 plugin-helpers install the plugin's production
 # dependencies with `pnpm install --prod` from a pnpm-lock.yaml. This plugin
 # keeps yarn.lock as its single lockfile, so .kibana-plugin-helpers.json sets
