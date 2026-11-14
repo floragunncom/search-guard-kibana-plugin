@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A **Kibana platform plugin** (id `searchguard`) that adds authentication/session management, multi-tenancy, the Search Guard configuration GUI, alerting (Signals), and API auth tokens to a Search Guard–secured Elasticsearch cluster. It has both a **server** side (Node, Kibana HTTP routes) and a **public** side (browser, React/EUI).
 
-The plugin version tracks a specific Kibana version — always read `version` from `kibana.json` rather than assuming (currently `8.19.24` on this branch; `package.json` carries the same version plus a `-master-SNAPSHOT` suffix). The plugin only builds/tests against a matching Kibana source tree.
+The plugin version tracks a specific Kibana version — always read `version` from `kibana.json` rather than assuming (currently `8.19.25` on this branch; `package.json` carries the same version plus a `-master-SNAPSHOT` suffix). The plugin only builds/tests against a matching Kibana source tree.
 
 ## Critical: this plugin cannot build or test standalone
 
@@ -33,7 +33,7 @@ Run these from **inside the Kibana tree** (`kibana/plugins/search-guard`) after 
 - Bootstrap deps after branch switch: `yarn kbn bootstrap` (use this, not plain `yarn`)
 - Kibana ES version compatibility patch (dev): `yarn patch:kibana:dev:es_compatibility`
 
-Tests are Jest with the `@kbn/test/jest_node` preset. `test:browser` = everything except `server`; `test:server` = everything except `public`. Both clear the jest cache first. CI runs the same two invocations with `JEST_JUNIT_OUTPUT_FILE` set, producing `junit-public.xml` and `junit-server.xml` in the project root.
+Tests are Jest with the `@kbn/jest/jest_node` preset (`@kbn/test/jest_node` before Kibana 8.19.25). `test:browser` = everything except `server`; `test:server` = everything except `public`. Both clear the jest cache first. CI runs the same two invocations with `JEST_JUNIT_OUTPUT_FILE` set, producing `junit-public.xml` and `junit-server.xml` in the project root.
 
 ## Architecture
 
