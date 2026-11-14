@@ -1,3 +1,4 @@
 variables:
-  IT_BRANCH: "9.5.x"
+  #IT_BRANCH: "9.5.x"
+  IT_BRANCH: "9.5.x-no-sig-teniso"
   SG_ES_PLUGIN: "4.2.0"
