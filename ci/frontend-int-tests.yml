@@ -11,6 +11,7 @@ kibana_basicauth:
     TEST_DEFINITIONS: ".*kibana_basicauth.*"
 
 kibana_signals_1:
+  timeout: 90m
   extends:
     - .be_integration_test
   variables:
