@@ -1,6 +1,5 @@
 /* eslint-disable @kbn/eslint/require-license-header */
 import { BehaviorSubject } from 'rxjs';
-import { AppNavLinkStatus } from '../../../../../../src/core/public';
 
 export class LoginApp {
   constructor(coreContext) {

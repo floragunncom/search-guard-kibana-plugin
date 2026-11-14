@@ -15,8 +15,7 @@
  */
 
 import { assign } from 'lodash';
-import { KibanaResponse } from '@kbn/core-http-server';
-import {ensureRawRequest} from "@kbn/core-http-router-server-internal";
+import { ensureRawRequest, KibanaResponse } from "@kbn/core-http-router-server-internal";
 
 export const WWW_AUTHENTICATE_HEADER_NAME = 'WWW-Authenticate';
 
