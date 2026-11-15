@@ -224,6 +224,36 @@ echo -e "\e[0Ksection_end:`date +%s`:yarn_install\r\e[0K"
 
 start_section tests "Unit Tests"
 
+# Fill the SWC plugin cache from ONE process before jest starts its parallel
+# workers. Without this the unit tests fail every now and then with
+# "A jest worker process (pid=...) was terminated by another process:
+# signal=SIGBUS".
+#
+# Since Kibana 9.5.6 and 8.19.24 the jest preset transforms every source file
+# with SWC and the @swc/plugin-emotion WASM plugin (it was Babel before). SWC
+# compiles that plugin once and caches the result in
+# <cwd>/.swc/plugins/<os>_<arch>_<version>/<hash>.wasmer-v7, i.e. in
+# plugins/search-guard/.swc, which does not exist yet at this point because the
+# plugin dir is recreated on every run. That cache is not safe for several
+# processes filling it at once: a worker memory-maps the file to load it, and a
+# worker that finished compiling a moment later rewrites the same file in place
+# (truncate + write). The truncation invalidates the mapping of the first worker
+# and it dies with SIGBUS on its next transform. jest's retryTimes does not
+# help, a killed worker is a failed suite and not a failed test.
+#
+# A single small test with --runInBand is transformed in the jest main process,
+# so exactly one process compiles and writes the cache. All workers started
+# afterwards find a complete file and only read it. The `jest --clearCache`
+# calls below clear jest's own cache only and leave .swc alone.
+# On a Kibana tree without the SWC transform this is just one extra test.
+start_collapsed_section swc_plugin_cache "Warming up the SWC plugin cache"
+../../node_modules/.bin/jest --clearCache
+# The test path goes first: --reporters takes a list and would swallow it.
+../../node_modules/.bin/jest "public/applications/searchguard/configuration-react/pages/CreateRole/utils/field_names_to_ui_field_names.test.js" \
+   --config ./tests/jest.config.js --runInBand --reporters="default"
+ls -l .swc/plugins/*/ 2>/dev/null || echo "No .swc plugin cache found (Kibana tree without the SWC jest transform?)"
+end_section swc_plugin_cache
+
 export JEST_JUNIT_OUTPUT_FILE=$PROJECT_DIR/junit-server.xml
 ../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --reporters="default"
 export JEST_JUNIT_OUTPUT_FILE=$PROJECT_DIR/junit-public.xml
