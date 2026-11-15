@@ -244,7 +244,7 @@ kibana_authtokens:
         echo "Job failed - keeping all artifacts for debugging"
       fi
   artifacts:
-    when: always
+    when: on_failure
     paths:
       - sgi8/client/test/testresults**/**/*
     reports:
