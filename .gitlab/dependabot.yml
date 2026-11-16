@@ -6,11 +6,18 @@ updates:
     directory: /
     schedule:
       interval: daily
+    # Only propose a version once it has been on the registry for this long.
+    # A compromised release is usually pulled within hours. Security updates
+    # are not delayed.
+    cooldown:
+      default-days: 3
   - package-ecosystem: npm
     target-branch: main-es8
     directory: /
     schedule:
       interval: daily
+    cooldown:
+      default-days: 3
     #pull-request-branch-name:
       #separator: 'default: "-"'
       #prefix: 'default: "dependabot"'
