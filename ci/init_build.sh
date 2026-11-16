@@ -234,13 +234,18 @@ cp -a "../tests"  plugins/search-guard
 cp -a "../__mocks__" plugins/search-guard
 cp -a "../yarn.lock" plugins/search-guard
 cp -a "../.kibana-plugin-helpers.json" plugins/search-guard
+# .yarnrc blocks dependency lifecycle scripts and enforces yarn.lock. yarn also
+# reads it from parent directories, so this copy covers the production install
+# in build/kibana/searchguard below as well. The flags on the yarn install
+# commands repeat both settings on purpose, in case the file is ever missing.
+cp -a "../.yarnrc" plugins/search-guard
 
 
 cd plugins/search-guard
 
 echo -e "\e[0Ksection_start:`date +%s`:yarn_install[collapsed=true]\r\e[0KDoing yarn install"
 
-yarn install
+yarn install --frozen-lockfile --ignore-scripts
 
 echo -e "\e[0Ksection_end:`date +%s`:yarn_install\r\e[0K"
 
@@ -284,7 +289,7 @@ end_section tests
 rm -rf "node_modules"
 start_section build "Building Search Guard Plugin"
 start_section yarn_install "Doing yarn install --production"
-yarn install --production --frozen-lockfile
+yarn install --production --frozen-lockfile --ignore-scripts
 end_section yarn_install
 start_section yarn_build "Doing yarn build -v $SF_VERSION --skip-archive"
 
@@ -311,7 +316,7 @@ fi
 # plugin-helpers copy package.json but not yarn.lock into the build dir.
 start_section plugin_deps "Installing plugin production dependencies into build dir"
 cp -a yarn.lock build/kibana/searchguard/
-(cd build/kibana/searchguard && yarn install --production --frozen-lockfile)
+(cd build/kibana/searchguard && yarn install --production --frozen-lockfile --ignore-scripts)
 end_section plugin_deps
 
 # Fix only for Kibana 8.7.x
