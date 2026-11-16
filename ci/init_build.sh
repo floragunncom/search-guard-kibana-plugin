@@ -13,6 +13,13 @@ echo "PROJECT_DIR: $PROJECT_DIR"
 # Load shared helpers (start_section/end_section/...).
 source "$SCRIPT_DIR/utils.sh"
 
+# Fail early, before the Kibana clone and bootstrap, if yarn.lock contains an
+# entry that does not come from the npm registry or has no integrity hash.
+# Exceptions: ci/yarn-lock-exceptions.txt.
+start_section lockfile_check "Checking yarn.lock"
+bash "$SCRIPT_DIR/check_lockfile.sh" "$PROJECT_DIR/yarn.lock"
+end_section lockfile_check
+
 # Use GNU sed. macOS ships BSD sed, which is incompatible with the in-place
 # edits below, so prefer gsed (brew install gnu-sed) when it is available.
 if command -v gsed >/dev/null 2>&1; then
