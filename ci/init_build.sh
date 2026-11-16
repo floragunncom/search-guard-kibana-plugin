@@ -223,6 +223,17 @@ if [[ -n "$PNPM_VERSION" ]]; then
 else
    KBN_PM=yarn
 fi
+
+# Kibana lets the install scripts of chromedriver and cypress download their
+# binaries during bootstrap. They are only needed for Elastic's own functional
+# tests, not for building or unit-testing this plugin, so skip the downloads:
+# fewer third-party binaries in the build and the CI cache, faster bootstrap.
+# (geckodriver 6 has no skip switch; puppeteer is already skipped by Kibana's
+# .npmrc; the Playwright browsers are fetched by an explicit `playwright
+# install` in Kibana's bootstrap, which has no switch either.)
+export CHROMEDRIVER_SKIP_DOWNLOAD=true
+export CYPRESS_INSTALL_BINARY=0
+
 echo -e "\e[0Ksection_start:`date +%s`:yarn_bootstrap[collapsed=true]\r\e[0KDoing $KBN_PM kbn bootstrap"
 $KBN_PM kbn bootstrap
 
