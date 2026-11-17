@@ -1,0 +1,29 @@
+# pnpm settings for the plugin's own dependencies.
+#
+# The plugin lives inside the Kibana source tree at plugins/search-guard. Kibana
+# has its own pnpm workspace at the repository root, and the plugin is not part
+# of it. This file makes the plugin folder its own workspace root, so pnpm
+# commands run here install the plugin's dependencies from the plugin's
+# pnpm-lock.yaml instead of acting on Kibana's workspace.
+
+# Same flat node_modules layout as Kibana uses (and as yarn 1 produced).
+nodeLinker: hoisted
+
+# Do not pull in peer dependencies. formik and raw-loader name react and
+# webpack as peers; both come from Kibana.
+autoInstallPeers: false
+strictPeerDependencies: false
+
+# Dependency install scripts are blocked unless listed here with `true`. Every
+# package that has one must be listed, so a new one cannot slip in unnoticed.
+strictDepBuilds: true
+allowBuilds:
+  'core-js': false # donation banner
+
+# Do not resolve versions younger than three days (value in minutes). A
+# compromised release is usually pulled within hours.
+minimumReleaseAge: 4320
+
+# Dependencies of dependencies must come from the registry, not from git
+# repositories or tarball URLs.
+blockExoticSubdeps: true

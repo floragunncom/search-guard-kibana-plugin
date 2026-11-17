@@ -15,18 +15,3 @@ export NVM_DIR="$HOME/.nvm"
 #nvm install $NODE_VERSION
 
 end_section nvm
-
-
-
-start_collapsed_section yarn_install "Installing Yarn"
-
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-
-if ! [ -x "$(command -v yarn)" ]; then
-  echo "+++ Installing Yarn +++"
-  curl -Ss -o- -L https://yarnpkg.com/install.sh | bash 
-else
-  echo "    -> $(yarn -v)"
-fi
-
-end_section "yarn_install"

@@ -13,11 +13,11 @@ echo "PROJECT_DIR: $PROJECT_DIR"
 # Load shared helpers (start_section/end_section/...).
 source "$SCRIPT_DIR/utils.sh"
 
-# Fail early, before the Kibana clone and bootstrap, if yarn.lock contains an
-# entry that does not come from the npm registry or has no integrity hash.
-# Exceptions: ci/yarn-lock-exceptions.txt.
-start_section lockfile_check "Checking yarn.lock"
-bash "$SCRIPT_DIR/check_lockfile.sh" "$PROJECT_DIR/yarn.lock"
+# Fail early, before the Kibana clone and bootstrap, if pnpm-lock.yaml contains
+# an entry that does not come from the npm registry or has no integrity hash.
+# Exceptions: ci/lockfile-exceptions.txt.
+start_section lockfile_check "Checking pnpm-lock.yaml"
+bash "$SCRIPT_DIR/check_lockfile.sh" "$PROJECT_DIR/pnpm-lock.yaml"
 end_section lockfile_check
 
 # Use GNU sed. macOS ships BSD sed, which is incompatible with the in-place
@@ -164,19 +164,6 @@ if [[ -z "$PNPM_VERSION" ]]; then
 fi
 if [[ -n "$PNPM_VERSION" ]]; then
    export COREPACK_ENABLE_DOWNLOAD_PROMPT=0
-   # `corepack enable` also shims `yarn`. Since Kibana 8.19.23 package.json has
-   # "packageManager": "pnpm@...", and corepack's yarn shim then refuses to run
-   # ('This project is configured to use pnpm because .../kibana/package.json
-   # has a "packageManager" field'). corepack walks UP the directory tree to the
-   # first package.json with that field, so this hits every yarn call inside
-   # the Kibana tree: the plugin's `yarn install`/`yarn build` in
-   # plugins/search-guard and the production install in build/kibana/searchguard.
-   # The plugin keeps yarn.lock as its single lockfile, so yarn must keep working.
-   # With strict mode off corepack falls back to its default yarn 1.22.x instead
-   # of throwing, which is exactly what it did on 8.19.22 (no "packageManager"
-   # field). pnpm calls are unaffected. The variable is inherited by nested
-   # yarn calls (e.g. `yarn build` -> `yarn plugin-helpers build`).
-   export COREPACK_ENABLE_STRICT=0
    corepack enable
    corepack prepare "pnpm@${PNPM_VERSION}" --activate
    echo "pnpm version $(pnpm --version) (packageManager: $(jq -r '.packageManager // "-"' package.json), engines.pnpm: $(jq -r '.engines.pnpm // "-"' package.json))"
@@ -250,22 +237,23 @@ cp -a "../server" plugins/search-guard
 cp -a "../common" plugins/search-guard
 cp -a "../tests"  plugins/search-guard
 cp -a "../__mocks__" plugins/search-guard
-cp -a "../yarn.lock" plugins/search-guard
+cp -a "../pnpm-lock.yaml" plugins/search-guard
 cp -a "../.kibana-plugin-helpers.json" plugins/search-guard
-# .yarnrc blocks dependency lifecycle scripts and enforces yarn.lock. yarn also
-# reads it from parent directories, so this copy covers the production install
-# in build/kibana/searchguard below as well. The flags on the yarn install
-# commands repeat both settings on purpose, in case the file is ever missing.
-cp -a "../.yarnrc" plugins/search-guard
+# pnpm-workspace.yaml makes plugins/search-guard its own pnpm workspace root, so
+# the pnpm commands below install the plugin's dependencies from the plugin's
+# lockfile instead of acting on Kibana's workspace. It also carries the
+# settings: no install scripts, no peer dependencies, a waiting period for new
+# versions, a flat node_modules.
+cp -a "../pnpm-workspace.yaml" plugins/search-guard
 
 
 cd plugins/search-guard
 
-echo -e "\e[0Ksection_start:`date +%s`:yarn_install[collapsed=true]\r\e[0KDoing yarn install"
+echo -e "\e[0Ksection_start:`date +%s`:plugin_install[collapsed=true]\r\e[0KDoing pnpm install"
 
-yarn install --frozen-lockfile --ignore-scripts
+pnpm install --frozen-lockfile
 
-echo -e "\e[0Ksection_end:`date +%s`:yarn_install\r\e[0K"
+echo -e "\e[0Ksection_end:`date +%s`:plugin_install\r\e[0K"
 
 start_section tests "Unit Tests"
 
@@ -306,15 +294,15 @@ export JEST_JUNIT_OUTPUT_FILE=$PROJECT_DIR/junit-public.xml
 end_section tests
 rm -rf "node_modules"
 start_section build "Building Search Guard Plugin"
-start_section yarn_install "Doing yarn install --production"
-yarn install --production --frozen-lockfile --ignore-scripts
-end_section yarn_install
-start_section yarn_build "Doing yarn build -v $SF_VERSION --skip-archive"
+start_section plugin_install_prod "Doing pnpm install --prod"
+pnpm install --prod --frozen-lockfile
+end_section plugin_install_prod
+start_section plugin_build "Doing pnpm run build -v $SF_VERSION --skip-archive"
 
 # This was a fix for 8.10.4 but it should not be neccessary for >= 8.11.4
 #export NODE_OPTIONS=--openssl-legacy-provider
 
-yarn build -v $SF_VERSION --skip-archive
+pnpm run build -v $SF_VERSION --skip-archive
 
 # plugin-helpers only log "Optimizer failure: ..." when webpack cannot compile the
 # browser bundle and still exit 0, leaving target/public empty. Such a plugin
@@ -326,15 +314,21 @@ if [[ ! -s build/kibana/searchguard/target/public/searchguard.plugin.js ]]; then
    exit 1
 fi
 
-# Since Kibana 8.19.22 plugin-helpers install the plugin's production
-# dependencies with `pnpm install --prod` from a pnpm-lock.yaml. This plugin
-# keeps yarn.lock as its single lockfile, so .kibana-plugin-helpers.json sets
-# skipInstallDependencies=true and we do the install ourselves, exactly like
-# plugin-helpers <= 8.19.21 did (yarn install --production in the build dir).
-# plugin-helpers copy package.json but not yarn.lock into the build dir.
+# plugin-helpers would install the plugin's production dependencies into the
+# build dir with `pnpm install --prod --ignore-workspace`. That ignores
+# pnpm-workspace.yaml and with it the settings the lockfile was made with, and
+# fails with ERR_PNPM_LOCKFILE_CONFIG_MISMATCH. So .kibana-plugin-helpers.json
+# keeps skipInstallDependencies=true and we do the install here, with the
+# workspace file next to it. plugin-helpers copy package.json and
+# pnpm-lock.yaml into the build dir.
 start_section plugin_deps "Installing plugin production dependencies into build dir"
-cp -a yarn.lock build/kibana/searchguard/
-(cd build/kibana/searchguard && yarn install --production --frozen-lockfile --ignore-scripts)
+cp -a pnpm-workspace.yaml build/kibana/searchguard/
+(cd build/kibana/searchguard && pnpm install --prod --frozen-lockfile)
+# pnpm's own bookkeeping does not belong in the release zip.
+rm -rf build/kibana/searchguard/pnpm-workspace.yaml \
+       build/kibana/searchguard/node_modules/.pnpm \
+       build/kibana/searchguard/node_modules/.modules.yaml \
+       build/kibana/searchguard/node_modules/.pnpm-workspace-state-v1.json
 end_section plugin_deps
 
 # Fix only for Kibana 8.7.x
@@ -346,7 +340,7 @@ find ./ -type f -exec $SED -i -e 's#".*core-http-router-server-internal"#"@kbn/c
 find ./ -type f -exec $SED -i -e 's#".*core-http-server"#"@kbn/core-http-server"#g' {} \;
 cd ..
 
-end_section yarn_build
+end_section plugin_build
 end_section build
 # Move build result from repo dir to the build folder in the project root dir.
 cd $PROJECT_DIR

@@ -9,14 +9,14 @@
     "url": "https://github.com/floragunncom/search-guard-kibana-plugin"
   },
   "scripts": {
-    "build": "yarn plugin-helpers build",
+    "build": "node ../../scripts/plugin_helpers build",
     "plugin-helpers": "node ../../scripts/plugin_helpers",
     "kbn": "node ../../scripts/kbn",
     "lint_packages": "node ../../scripts/lint_packages",
     "lint_ts_projects": "node ../../scripts/lint_ts_projects",
     "test:browser": "../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=server --config ./tests/jest.config.js --silent",
     "test:server": "../../node_modules/.bin/jest --clearCache && ../../node_modules/.bin/jest --testPathIgnorePatterns=public --config ./tests/jest.config.js --silent",
-    "dev": "yarn plugin-helpers dev"
+    "dev": "node ../../scripts/plugin_helpers dev"
   },
   "dependencies": {
     "brace": "0.11.1",
@@ -26,6 +26,5 @@
   },
   "devDependencies": {
     "core-js": "^3.50.0"
-  },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  }
 }

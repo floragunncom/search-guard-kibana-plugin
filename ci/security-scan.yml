@@ -1,9 +1,9 @@
 # =============================================================================
-# GitLab CI/CD (include template) — Kibana (yarn) build + Trivy security scanning
+# GitLab CI/CD (include template) — Kibana plugin build + Trivy security scanning
 #
 # Flow (all in "Security Scan Phase 1" unless noted):
 #   scan:build                    -> package the already-built plugin (build/*) into a zip
-#   scan:trivy:vuln               -> deps vuln (yarn.lock) -> JSON + reports; captures gate exit code
+#   scan:trivy:vuln               -> deps vuln (pnpm-lock.yaml) -> JSON + reports; captures gate exit code
 #   scan:trivy:secrets-misconfig  -> secret/misconfig -> JSON + reports; captures exit code
 #   scan:trivy:image              -> build image + scan -> JSON + reports; captures exit code
 #   scan:owasp:vuln               -> OWASP Dependency-Check on the plugin zip -> HTML/JSON/JUnit
@@ -83,13 +83,13 @@ scan:build:
 
 # -----------------------------------------------------------------------------
 # 2a) Dependency vulnerabilities (BLOCKING via verify:security gate)
-#     The plugin ships the production Node deps resolved from yarn.lock, so we
-#     scan the filesystem (Trivy detects yarn.lock natively). No Maven/SBOM.
+#     The plugin ships the production Node deps resolved from pnpm-lock.yaml, so we
+#     scan the filesystem (Trivy detects pnpm-lock.yaml natively). No Maven/SBOM.
 # -----------------------------------------------------------------------------
 scan:trivy:vuln:
   extends: .trivy
   stage: "Security Scan Phase 1"
-  needs: []          # runs immediately; only needs the repo (yarn.lock)
+  needs: []          # runs immediately; only needs the repo (pnpm-lock.yaml)
   script:
     - ls -la
     - ls -la build || true
