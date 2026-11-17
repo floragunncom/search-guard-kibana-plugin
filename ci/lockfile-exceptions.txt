@@ -1,13 +1,13 @@
 # Exceptions for ci/check_lockfile.sh.
 #
-# The check requires every yarn.lock entry to come from the npm registry and
-# to have an integrity hash. List the entries that legitimately do not here,
+# The check requires every pnpm-lock.yaml entry to come from the npm registry
+# and to have an integrity hash. List the entries that legitimately do not here,
 # one per line, with the reason after "#":
 #
 #   package <name>@<version>   # reason
 #
-# <name>@<version> is the package name and the exact version from the entry's
-# "version" line in yarn.lock. The exception skips both checks for exactly
+# <name>@<version> is the entry's key under "packages:" in pnpm-lock.yaml,
+# without quotes. The exception skips both checks for exactly
 # that version. A version bump needs a new line, on purpose: someone looks at
 # it again. An exception without a reason fails the check.
 #
