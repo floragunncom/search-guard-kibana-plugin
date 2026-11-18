@@ -14,6 +14,10 @@ nodeLinker: hoisted
 autoInstallPeers: false
 strictPeerDependencies: false
 
+# Run no install scripts at all, also not ones in the plugin's own
+# package.json (preinstall, postinstall, ...). `pnpm run <script>` still works.
+ignoreScripts: true
+
 # Dependency install scripts are blocked unless listed here with `true`. Every
 # package that has one must be listed, so a new one cannot slip in unnoticed.
 strictDepBuilds: true
