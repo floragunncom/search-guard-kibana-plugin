@@ -75,50 +75,55 @@ powershell -ExecutionPolicy Bypass -File install_demo_configuration.ps1
 
 ## Development
 
-See the [kibana contributing guide](https://github.com/elastic/kibana/blob/master/CONTRIBUTING.md) and the Search Guard documentation above for instructions setting up your development environment. Once you have completed that, use the following yarn scripts.
+See the [kibana contributing guide](https://github.com/elastic/kibana/blob/master/CONTRIBUTING.md) and the Search Guard documentation above for instructions setting up your development environment. The plugin has to be checked out inside the Kibana source tree, at `plugins/search-guard`.
 
-  - `yarn kbn bootstrap`
+Kibana and this plugin both use [pnpm](https://pnpm.io). pnpm comes with Node.js through corepack, in the version that the `packageManager` field of Kibana's `package.json` names. Enable it once with `corepack enable`; `ci/init_build.sh` does this automatically.
 
-    Install dependencies and crosslink Kibana and all projects/plugins.
+Run the following in the plugin folder, unless noted otherwise.
 
-    > ***IMPORTANT:*** Use this script instead of `yarn` to install dependencies when switching branches, and re-run it whenever your dependencies change.
+  - `pnpm kbn bootstrap`
 
-    > ***NOTE:*** Kibana 8.19.22 and later are pnpm-based and need pnpm on the `PATH`, provisioned via corepack (bundled with Node.js) and pinned to `packageManager` (8.19.23+) or `engines.pnpm` (8.19.22) of the Kibana `package.json`:
-    > `corepack enable && corepack prepare pnpm@<version> --activate`, then bootstrap with `pnpm kbn bootstrap`. `ci/init_build.sh` does this automatically.
-    >
-    > Since Kibana 8.19.23 the `"packageManager": "pnpm@..."` field makes corepack's `yarn` shim refuse to run anywhere inside the Kibana tree, including this plugin's own `yarn` scripts in `plugins/search-guard` (`This project is configured to use pnpm because .../kibana/package.json has a "packageManager" field`). Export `COREPACK_ENABLE_STRICT=0` to let corepack fall back to yarn 1.22.x there; `ci/init_build.sh` sets it automatically.
+    Install Kibana's dependencies and build its packages. Re-run it when you switch to another Kibana version.
 
-  - `yarn start`
+  - `pnpm install`
 
-    Start kibana and have it include this plugin. You can pass any arguments that you would normally send to `bin/kibana`
+    Install the plugin's own dependencies from `pnpm-lock.yaml`. The plugin is not part of Kibana's pnpm workspace, so `pnpm kbn bootstrap` does not install them. Re-run it whenever the plugin's dependencies change, for example after switching branches.
+
+    > ***NOTE:*** If the plugin folder still has a `node_modules` folder that yarn created, delete it before the first `pnpm install`. pnpm installs over it, but leaves in place what only yarn had put there.
+
+  - `pnpm start`
+
+    Run this one in the Kibana root folder. Start kibana and have it include this plugin. You can pass any arguments that you would normally send to `bin/kibana`
 
       ```
-      yarn start --elasticsearch.hosts http://localhost:9220
+      pnpm start --elasticsearch.hosts http://localhost:9220
       ```
+
+  - `pnpm dev --watch`
+
+    Build the plugin's browser bundle and rebuild it on every change.
 
   - `./build.sh <install-local|deploy-snapshot-maven>`
 
     Build locally a distributable archive of your plugin or deploy snapshot to maven repository.
 
-  - `yarn test:browser`
+  - `pnpm test:browser`
 
     Run UI unit tests.
 
-  - `yarn test:server`
+  - `pnpm test:server`
 
     Run server unit tests.
 
-  - `yarn test:prepare_integration_test`
-
-    Run script for integration tests when Elasticsearch and Kibana should have different version in the same cluster: eliminate Kibana version check error and install required packages.
-
-For more information about any of these commands run `yarn ${task} --help`. For a full list of tasks checkout the `package.json` file, or run `yarn run`.
+For more information about any of these commands run `pnpm ${task} --help`. For a full list of tasks checkout the `package.json` file, or run `pnpm run`.
 
 ### Development tips
 
   - Use [NVM](https://github.com/nvm-sh/nvm) to manage multiple versions of Node.js.
 
   - Comment `/plugins` in Kibana .eslintignore file to make the eslint working in your IDE.
+
+  - Delete the `build` folder in the plugin folder before you run the unit tests. `pnpm build` leaves it there, and jest then stops with `Duplicated files or mocks`.
 
 ### Integration tests
 #### Custom branch

@@ -10,30 +10,36 @@ The plugin version tracks a specific Kibana version — always read `version` fr
 
 ## Critical: this plugin cannot build or test standalone
 
-It must live inside a checked-out Kibana source tree at `plugins/search-guard`, because build tooling, jest, and module resolution all come from the host Kibana repo. `tests/jest.config.js` uses `rootDir: '../../..'` and `roots: ['<rootDir>/plugins/search-guard']`, and the `yarn` scripts in `package.json` shell out to `../../scripts/*` (Kibana's scripts). Running `yarn build`, `yarn test:*`, or `yarn kbn` directly from a bare checkout will not work.
+It must live inside a checked-out Kibana source tree at `plugins/search-guard`, because build tooling, jest, and module resolution all come from the host Kibana repo. `tests/jest.config.js` uses `rootDir: '../../..'` and `roots: ['<rootDir>/plugins/search-guard']`, and the scripts in `package.json` shell out to `../../scripts/*` (Kibana's scripts). Running `pnpm build`, `pnpm test:*`, or `pnpm kbn` directly from a bare checkout will not work.
 
 `ci/init_build.sh` (invoked by `./build.sh`) automates the full flow:
-1. Reads the target version from `kibana.json`.
-2. Clones the matching Kibana release branch (`v<version>`) into `./kibana/` (cached via `kibana/.cached_version`).
-3. `nvm install` (Node from Kibana's `.nvmrc`), then, if Kibana's `package.json` pins pnpm (`packageManager` since 8.19.23, `engines.pnpm` in 8.19.22), provisions that pnpm via `corepack enable` / `corepack prepare` and exports `COREPACK_ENABLE_STRICT=0`, because since 8.19.23 the `packageManager: pnpm@…` field makes corepack's `yarn` shim refuse to run anywhere inside the Kibana tree (including the plugin's own yarn commands below). Then `pnpm kbn bootstrap` (yarn-based trees: `yarn kbn bootstrap`) in the Kibana repo.
-4. Copies plugin sources (`public/`, `server/`, `common/`, `tests/`, `__mocks__/`, config files incl. `.kibana-plugin-helpers.json`) into `kibana/plugins/search-guard`.
-5. Runs jest, then `yarn build`, installs the plugin's production deps into `build/kibana/searchguard` from the plugin's own `yarn.lock` (plugin-helpers' own install is disabled via `skipInstallDependencies` because since 8.19.22 it would use pnpm and expect a `pnpm-lock.yaml`), and moves the result to `./build/` in the repo root.
+1. Checks `pnpm-lock.yaml` with `ci/check_lockfile.sh`: every entry must come from the npm registry and have an integrity hash (exceptions: `ci/lockfile-exceptions.txt`).
+2. Reads the target version from `kibana.json` and clones the matching Kibana release branch (`v<version>`) into `./kibana/` (cached via `kibana/.cached_version`).
+3. `nvm install` (Node from Kibana's `.nvmrc`), then provisions the pnpm version that Kibana's `package.json` pins (`packageManager`, or `engines.pnpm` in 8.19.22) via `corepack enable` / `corepack prepare`, then `pnpm kbn bootstrap` in the Kibana repo. (For older, yarn-based Kibana trees the script still falls back to `yarn kbn bootstrap`.)
+4. Copies plugin sources (`public/`, `server/`, `common/`, `tests/`, `__mocks__/`, config files incl. `.kibana-plugin-helpers.json`, `pnpm-lock.yaml` and `pnpm-workspace.yaml`) into `kibana/plugins/search-guard` and runs `pnpm install --frozen-lockfile` there.
+5. Runs jest, then `pnpm run build`, installs the plugin's production deps into `build/kibana/searchguard` with `pnpm install --prod --frozen-lockfile` (plugin-helpers' own install is disabled via `skipInstallDependencies`: it runs pnpm with `--ignore-workspace`, which drops the settings in `pnpm-workspace.yaml` and fails with `ERR_PNPM_LOCKFILE_CONFIG_MISMATCH`), and moves the result to `./build/` in the repo root.
 
 Note the folder name inside Kibana is `search-guard` even though the plugin id is `searchguard`.
+
+## Dependencies
+
+The plugin's own dependencies are managed with **pnpm** (`pnpm-lock.yaml`); there is no `yarn.lock` and no yarn anymore. The plugin is not part of Kibana's pnpm workspace: `pnpm-workspace.yaml` makes the plugin folder its own workspace root, so `pnpm install` in the plugin folder installs only the plugin's dependencies, and `pnpm kbn bootstrap` does not install them.
+
+`pnpm-workspace.yaml` also holds the supply chain settings: no install scripts run (`ignoreScripts`, `strictDepBuilds`, `allowBuilds`), versions younger than three days are not resolved (`minimumReleaseAge`), dependencies of dependencies must come from the registry (`blockExoticSubdeps`), and peer dependencies are not installed (react and webpack come from Kibana). If an install or `pnpm add` fails because of one of these, do not loosen the setting to get past it; ask first.
 
 ## Commands
 
 Run these from **inside the Kibana tree** (`kibana/plugins/search-guard`) after bootstrap, unless noted:
 
 - Build a distributable: `./build.sh` — run from repo root; requires `NVM_DIR` set and `mvn` installed. It clones/bootstraps Kibana as described above and leaves the plugin in `./build/`. (`README.md` and `setup_test_instance.sh` still pass an `install-local` argument; the current `build.sh` ignores all arguments.)
-- Run browser (public) unit tests: `yarn test:browser`
-- Run server unit tests: `yarn test:server`
+- Run browser (public) unit tests: `pnpm test:browser`
+- Run server unit tests: `pnpm test:server`
 - Run a single test file: `../../node_modules/.bin/jest --config ./tests/jest.config.js <path/to/file.test.js>`
-- Dev server: `yarn start --elasticsearch.hosts http://localhost:9220` — this is Kibana's own script, so run it from the **Kibana root**, not from the plugin dir. The plugin's own `yarn dev` is `plugin-helpers dev`.
-- Bootstrap deps after branch switch: `yarn kbn bootstrap` (use this, not plain `yarn`)
-- Kibana ES version compatibility patch (dev): `yarn patch:kibana:dev:es_compatibility`
+- Dev server: `pnpm start --elasticsearch.hosts http://localhost:9220` — this is Kibana's own script, so run it from the **Kibana root**, not from the plugin dir. The plugin's own `pnpm dev` is `plugin-helpers dev` (builds the browser bundle; `--watch` to rebuild on change).
+- Kibana's dependencies, after switching the Kibana version: `pnpm kbn bootstrap`
+- The plugin's own dependencies, after a branch switch that changes them: `pnpm install`
 
-Tests are Jest with the `@kbn/test/jest_node` preset. `test:browser` = everything except `server`; `test:server` = everything except `public`. Both clear the jest cache first. CI runs the same two invocations with `JEST_JUNIT_OUTPUT_FILE` set, producing `junit-public.xml` and `junit-server.xml` in the project root.
+Tests are Jest with the `@kbn/test/jest_node` preset. `test:browser` = everything except `server`; `test:server` = everything except `public`. Both clear the jest cache first. A `build/` folder inside the plugin folder (left by `pnpm build`) makes jest stop with `Duplicated files or mocks`; delete it before running tests. CI runs the same two invocations with `JEST_JUNIT_OUTPUT_FILE` set, producing `junit-public.xml` and `junit-server.xml` in the project root.
 
 ## Architecture
 
