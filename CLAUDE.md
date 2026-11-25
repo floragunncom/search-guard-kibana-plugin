@@ -25,7 +25,9 @@ Note the folder name inside Kibana is `search-guard` even though the plugin id i
 
 The plugin's own dependencies are managed with **pnpm** (`pnpm-lock.yaml`); there is no `yarn.lock` and no yarn anymore. The plugin is not part of Kibana's pnpm workspace: `pnpm-workspace.yaml` makes the plugin folder its own workspace root, so `pnpm install` in the plugin folder installs only the plugin's dependencies, and `pnpm kbn bootstrap` does not install them.
 
-`pnpm-workspace.yaml` also holds the supply chain settings: no install scripts run (`ignoreScripts`, `strictDepBuilds`, `allowBuilds`), versions younger than three days are not resolved (`minimumReleaseAge`), dependencies of dependencies must come from the registry (`blockExoticSubdeps`), and peer dependencies are not installed (react and webpack come from Kibana). If an install or `pnpm add` fails because of one of these, do not loosen the setting to get past it; ask first.
+`pnpm-workspace.yaml` also holds the supply chain settings: no install scripts run (`ignoreScripts`, `strictDepBuilds`, `allowBuilds`), versions younger than three days are not resolved (`minimumReleaseAge`), dependencies of dependencies must come from the registry (`blockExoticSubdeps`), and peer dependencies are not installed (react and webpack come from Kibana). If an install or `pnpm add` fails because of one of these, do not loosen the setting to get past it; ask first. The sanctioned exception for a version younger than three days is an entry for exactly that version under `minimumReleaseAgeExclude`; the comments in `pnpm-workspace.yaml` say how.
+
+The lockfile is enforced by `--frozen-lockfile` on every CI install, not by a setting: a plain `pnpm install` rewrites `pnpm-lock.yaml` silently when it does not match `package.json`. Use `pnpm install --frozen-lockfile` unless you mean to change dependencies, and do not add `frozenLockfile: true` to `pnpm-workspace.yaml`: it breaks Dependabot's updates (`pnpm install --lockfile-only` then fails).
 
 ## Commands
 

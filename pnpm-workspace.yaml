@@ -26,7 +26,35 @@ allowBuilds:
 
 # Do not resolve versions younger than three days (value in minutes). A
 # compromised release is usually pulled within hours.
+#
+# - `pnpm add <name>` and `pnpm update` pick the newest version that is old
+#   enough. Asking for a younger one by version fails with
+#   ERR_PNPM_NO_MATURE_MATCHING_VERSION.
+# - An install also checks the versions already in pnpm-lock.yaml. A younger
+#   one fails with ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION, also in CI, also in
+#   a merge request opened by Dependabot.
+#
+# If a younger version is needed, usually a security fix, list exactly that
+# version under minimumReleaseAgeExclude, in the same merge request as the
+# update, and say why. Look at what changed in the published package first.
+# Remove the entry once the version is older than three days. Example (not
+# active):
+#
+#   minimumReleaseAgeExclude:
+#     - dompurify@3.4.19   # fixes CVE-..., released yesterday
 minimumReleaseAge: 4320
+
+# The lockfile is enforced by a flag, not by a setting in this file: CI runs
+# every install with --frozen-lockfile, and on a developer machine
+# `pnpm install --frozen-lockfile` installs exactly what pnpm-lock.yaml pins.
+# A plain `pnpm install` does that too as long as package.json and the
+# lockfile agree. If they do not, it resolves again and rewrites the lockfile
+# without failing.
+#
+# Do not add `frozenLockfile: true` here to change that. It would also apply to
+# `pnpm install --lockfile-only`, which is what Dependabot runs after it has
+# changed a version in package.json, and Dependabot's updates would fail with
+# ERR_PNPM_OUTDATED_LOCKFILE.
 
 # Dependencies of dependencies must come from the registry, not from git
 # repositories or tarball URLs.

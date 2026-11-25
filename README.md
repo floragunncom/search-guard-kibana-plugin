@@ -89,6 +89,12 @@ Run the following in the plugin folder, unless noted otherwise.
 
     Install the plugin's own dependencies from `pnpm-lock.yaml`. The plugin is not part of Kibana's pnpm workspace, so `pnpm kbn bootstrap` does not install them. Re-run it whenever the plugin's dependencies change, for example after switching branches.
 
+    If `package.json` and `pnpm-lock.yaml` do not agree, a plain `pnpm install` resolves again and rewrites the lockfile without saying so. Use `pnpm install --frozen-lockfile` to install exactly what the lockfile pins and to fail otherwise; CI does. If `pnpm-lock.yaml` shows as changed after an install that was not meant to change dependencies, do not commit it.
+
+  - `pnpm add <name>`, `pnpm update <name>`
+
+    Add or update a dependency of the plugin. Both write `package.json` and `pnpm-lock.yaml`; commit the two together. A version published less than three days ago is refused. The rules and the way to make an exception for an urgent fix (`minimumReleaseAgeExclude`) are described in the comments of `pnpm-workspace.yaml`.
+
     > ***NOTE:*** If the plugin folder still has a `node_modules` folder that yarn created, delete it before the first `pnpm install`. pnpm installs over it, but leaves in place what only yarn had put there.
 
   - `pnpm start`
@@ -115,7 +121,7 @@ Run the following in the plugin folder, unless noted otherwise.
 
     Run server unit tests.
 
-For more information about any of these commands run `pnpm ${task} --help`. For a full list of tasks checkout the `package.json` file, or run `pnpm run`.
+For more information about one of the plugin's own tasks run `pnpm ${task} --help`, for example `pnpm dev --help`. This does not work for `pnpm start`: `pnpm start --help` prints pnpm's help, not Kibana's. For a full list of tasks checkout the `package.json` file, or run `pnpm run`.
 
 ### Development tips
 
